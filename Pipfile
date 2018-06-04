@@ -8,6 +8,7 @@ flask = "*"
 records = "*"
 flask-graphql = "*"
 graphene = "*"
+cerberus = "*"
 
 [dev-packages]
 
