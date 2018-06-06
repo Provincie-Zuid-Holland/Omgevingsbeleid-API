@@ -1,69 +1,82 @@
 import graphene
 from graphene import ObjectType, Schema
 import records
-from helpers import get_single_result
 from graphql import GraphQLError
+
+from validators import *
+from queries import *
+from helpers import single_object_by_id, objects_from_query, related_objects_from_query
 
 # Thema objects
 
-
-class Thema(ObjectType):
+class Thema(graphene.ObjectType):
     id = graphene.ID()
     naam = graphene.String(description="Naam van het thema")
     beschrijving = graphene.String(description="Beschrijving van het thema")
+    opgaven = graphene.List(
+        lambda: Opgave, description="Opgaven die bij dit thema horen")
 
+    resolve_opgaven = related_objects_from_query('Opgaven', alle_opgaven_bij_thema, {'id':'id'})
 
-class ThemaQueries(ObjectType):
+class ThemaQueries(graphene.ObjectType):
     themas = graphene.List(Thema)
-    thema = graphene.Field(Thema, id=graphene.Int(required=True))
+    thema = graphene.Field(lambda: Thema, id=graphene.Int(required=True))
 
-    def resolve_thema(root, info, **kwargs):
-        id = kwargs.get('id')
+    resolve_thema = single_object_by_id('Thema', thema_op_id)
+    resolve_themas = objects_from_query('Themas', alle_themas)
 
-        db = records.Database("sqlite:///mock.db")
-        results = db.query('select * from themas where id=:id',
-                           id=id)
-        return results.first(default=GraphQLError(f'Thema met id {id} is niet gevonden'))
 
-    def resolve_themas(root, info):
-        db = records.Database("sqlite:///mock.db")
-        results = db.query('select * from themas')
-        return results
+class ThemaInput(graphene.InputObjectType):
+    naam = graphene.String()
+    beschrijving = graphene.String()
+    opgaven = graphene.List(graphene.ID)
+
+
+class CreateThema(graphene.Mutation):
+    class Arguments():
+        thema_data = ThemaInput()
+
+    ok = graphene.Boolean()
+    thema = graphene.Field(lambda: Thema)
+
+    def mutate(self, info, thema_data=None):
+        if themaValidator.validate(thema_data):
+            db = records.Database("sqlite:///mock.db")
+            db.query(
+                '''INSERT INTO themas (naam, beschrijving) 
+                VALUES (:naam, :beschrijving)''',
+                naam=thema_data.naam, beschrijving=thema_data.beschrijving)
+            result = db.query('SELECT last_insert_rowid()')
+            print(list(result))
+            return CreateThema(ok=True, thema=None)
+        else:
+            raise GraphQLError(f"Validation error: {themaValidator.errors}")
+
 
 # Opgave objects
 
-
-class Opgave(ObjectType):
+class Opgave(graphene.ObjectType):
     id = graphene.ID()
     naam = graphene.String(description="Naam van de opgave")
     beschrijving = graphene.String(description="Beschrijving van de opgave")
-    thema = graphene.Field(
-        Thema, description="Thema's waar deze opgave bij hoort")
+    thema = graphene.List(
+        lambda: Thema, description="Thema's waar deze opgave bij hoort")
 
-    def resolve_thema(self, info, **kwargs):
-        db = records.Database("sqlite:///mock.db")
-        # print(self.thema)
-        results = db.query('select * from themas where id=:id',
-                           id=self.thema)
-        return results.first()
+    resolve_thema = related_objects_from_query('Thema', alle_themas_bij_opgave, {'id':'thema'})
 
 
-class OpgaveQueries(ObjectType):
+class OpgaveQueries(graphene.ObjectType):
     opgaven = graphene.List(Opgave)
     opgave = graphene.Field(Opgave, id=graphene.Int(required=True))
 
-    def resolve_opgave(root, info, **kwargs):
-        id = kwargs.get('id')
+    resolve_opgave = single_object_by_id('Opgave', opgave_op_id)
+    resolve_opgaven = objects_from_query('Opgaven', alle_opgaven)
 
-        db = records.Database("sqlite:///mock.db")
-        results = db.query('select * from opgaven where id=:id',
-                           id=id)
-        return results.first(default=GraphQLError(f'Opgave met id {id} is niet gevonden'))
+# Mutation queries
 
-    def resolve_opgaven(root, info):
-        db = records.Database("sqlite:///mock.db")
-        results = db.query('select * from opgaven')
-        return results
+
+class Mutations(graphene.ObjectType):
+    create_thema = CreateThema.Field()
 
 # Hoofdquery
 
@@ -73,4 +86,4 @@ class Query(ThemaQueries, OpgaveQueries):
         name = "Root query"
 
 
-Schema = Schema(query=Query)
+Schema = Schema(query=Query, mutation=Mutations)
