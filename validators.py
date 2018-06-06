@@ -9,5 +9,5 @@ themaValidator = Validator({
         {'type': 'string', 
         'required': False},
     'opgaven':
-        {'type': 'list', 'schema': {'type': 'integer'}},
+        {'type': 'list', 'schema': {'type': 'integer', 'coerce':int}},
 })
