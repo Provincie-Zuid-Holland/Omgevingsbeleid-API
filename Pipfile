@@ -9,6 +9,7 @@ records = "*"
 flask-graphql = "*"
 graphene = "*"
 cerberus = "*"
+pyodbc = "*"
 
 [dev-packages]
 
