@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "514fad552a2aad28f57541be1ac8a78a87774be6314b2eece4ee64a461bc9ef1"
+            "sha256": "cc67326ad00dae583ffed7302b65e66d3acdc58b1757ddbda62727b7c5c14e86"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,10 +18,10 @@
     "default": {
         "aniso8601": {
             "hashes": [
-                "sha256:7cf068e7aec00edeb21879c2bbda048656c34d281e133a77425be03b352122d8",
-                "sha256:f7052eb342bf2000c6264a253acedb362513bf9270800be2bc8e3e229fe08b5a"
+                "sha256:7849749cf00ae0680ad2bdfe4419c7a662bef19c03691a19e008c8b9a5267802",
+                "sha256:94f90871fcd314a458a3d4eca1c84448efbd200e86f55fe4c733c7a40149ef50"
             ],
-            "version": "==3.0.0"
+            "version": "==3.0.2"
         },
         "cerberus": {
             "hashes": [
@@ -66,11 +66,11 @@
         },
         "graphene": {
             "hashes": [
-                "sha256:66d4918763e6addc818161212e65f329bae9d67b59805e38ca890c28ef2cb887",
-                "sha256:76c670f6184eb311c9f4a23b770f114aa032e42eefe509a10a306e1745f70407"
+                "sha256:8fd8e6195c56c15b2936e7dee2e156692eba4752ee1978f65e10925eafe8d014",
+                "sha256:98e74c32d0415e5b5362738c1c1cb4b7a4e411b5d3d828abb29ccd3efb378c44"
             ],
             "index": "pypi",
-            "version": "==2.1.1"
+            "version": "==2.1.2"
         },
         "graphql-core": {
             "hashes": [
@@ -223,6 +223,13 @@
                 "sha256:d5da73735293558eb1651ee2fddc4d0dedcfa06538b8813a2e20011583c9e49b"
             ],
             "version": "==0.14.1"
+        },
+        "wfastcgi": {
+            "hashes": [
+                "sha256:cbce266e7da411d40f98f28a73cb9a55157b274398bd5a8d2b25cfa10a4dd493"
+            ],
+            "index": "pypi",
+            "version": "==3.0.0"
         },
         "xlrd": {
             "hashes": [

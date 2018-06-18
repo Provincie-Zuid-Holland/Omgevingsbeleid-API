@@ -10,6 +10,7 @@ flask-graphql = "*"
 graphene = "*"
 cerberus = "*"
 pyodbc = "*"
+wfastcgi = "*"
 
 [dev-packages]
 
