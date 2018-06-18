@@ -25,4 +25,7 @@ alle_opgaven = 'SELECT * FROM opgaven'
 alle_themas_bij_opgave = 'SELECT * FROM themas WHERE id=:id'
 
 # Alle ambities selecteren
-alle_ambities = 'SELECT * FROM ambities'
+alle_ambities = 'SELECT * FROM Ambities'
+
+# Een ambitie selecteren op `uuid`
+ambitie_op_uuid = 'SELECT * FROM Ambities WHERE UUID=:uuid' 
