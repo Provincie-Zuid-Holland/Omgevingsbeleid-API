@@ -10,14 +10,12 @@ def dictkeys_tolower(dictionary):
 
 def single_object_by_uuid(objectname, query):
     def resolve_single_object(root, info, **kwargs):
-        print("HAAALLLLOOOO")
         uuid = kwargs.get('uuid')
         db = records.Database(db_connection_string)
         results = db.query(query,
                            uuid=uuid)
-        print(list(results))
         return results.first(
-            default=GraphQLError(f'{objectname} met UUID {id} is niet gevonden'))
+            default=GraphQLError(f'{objectname} met UUID {uuid} is niet gevonden'))
     return resolve_single_object
 
 def objects_from_query(tablename, query):
