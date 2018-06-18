@@ -1,21 +1,31 @@
 import records
 from graphql import GraphQLError
+from globals import db_connection_string
 
-def single_object_by_id(objectname, query):
+def dictkeys_tolower(dictionary):
+    lower_dict = {}
+    for key in dictionary.keys():
+        lower_dict[key.lower()] = dictionary[key]
+    return lower_dict
+
+def single_object_by_uuid(objectname, query):
     def resolve_single_object(root, info, **kwargs):
-        id = kwargs.get('id')
-        db = records.Database("sqlite:///mock.db")
+        print("HAAALLLLOOOO")
+        uuid = kwargs.get('uuid')
+        db = records.Database(db_connection_string)
         results = db.query(query,
-                           id=id)
+                           uuid=uuid)
+        print(list(results))
         return results.first(
-            default=GraphQLError(f'{objectname} met id {id} is niet gevonden'))
+            default=GraphQLError(f'{objectname} met UUID {id} is niet gevonden'))
     return resolve_single_object
 
 def objects_from_query(tablename, query):
     def resolve_objects(root, info, **kwargs):
-        print(kwargs)
-        db = records.Database("sqlite:///mock.db")
+        db = records.Database(db_connection_string)
         results = db.query(query)
+        # results = list(map(dictkeys_tolower, list(results)))
+        # print(results)
         return results
     return resolve_objects
 

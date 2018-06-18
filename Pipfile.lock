@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "90f71067dcfec07018ba317aafaff782e2af82d2491c4ace8d540f4190696f63"
+            "sha256": "514fad552a2aad28f57541be1ac8a78a87774be6314b2eece4ee64a461bc9ef1"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -120,9 +120,9 @@
         },
         "openpyxl": {
             "hashes": [
-                "sha256:0046fca88d6731875a385bf7edd689d7c4133f829203ea615a81291de3fa48b6"
+                "sha256:9239b74faf175dc4276a5fc277655fc53c2f704ded39e680d35e6a39e1913f69"
             ],
-            "version": "==2.5.3"
+            "version": "==2.5.4"
         },
         "promise": {
             "hashes": [
@@ -130,6 +130,25 @@
                 "sha256:95506bac89df7a495e0b8c813fd782dd1ae590decb52f95248e316c6659ca49b"
             ],
             "version": "==2.1"
+        },
+        "pyodbc": {
+            "hashes": [
+                "sha256:0d16d2ab46092e59014d42293db9ff116a2929eed72cb847f6bd29040f1790ab",
+                "sha256:275c01335490712564235a94fdbafdba85721337f6a31f649f8cc0f559ac1144",
+                "sha256:28451afcee183337f7f07048bedf0d138e74727406e9bb97a27626c85591a8a5",
+                "sha256:4a71b7a65b02585864eee4b87a39a31700854cb55170db7f47ab49ce2ac5a9fe",
+                "sha256:5f37be47ebe9b8e3244268fdb3b9cfdd119f138be9b7b39814270ce0d7a3aaca",
+                "sha256:a8f4fb7adf854584ccb1da872f0625e6464d28c06641cf5ab419f02045e56d84",
+                "sha256:ad333ea7bafecd75357839d1d186f1c13e6f18c95a857eb1622f8aa480cfb40c",
+                "sha256:bb33d032c1f25781db64e2e4fecf77047fab2ddde42a6cd9496e3c66fb8e9f66",
+                "sha256:bbdedf6882864c2822fa9263d5dda8f3f87189f83158f02ebd77770a930a9ef6",
+                "sha256:bd74b09592c300af4926da05533eea00e375ab3c9900fd109516bf635a42e346",
+                "sha256:d65afdec794d62defafcf5b379805bcaf8d63735f72107cb3590af92ed61436f",
+                "sha256:e5ec8522d8fa39abedf2da4b9bf43b65b932c80ec452442df319075ab9fe7bd5",
+                "sha256:fc92776ddfb3411b816bc255726343fc4350be8d679efa420a6129ac02927ae7"
+            ],
+            "index": "pypi",
+            "version": "==4.0.23"
         },
         "pyyaml": {
             "hashes": [
