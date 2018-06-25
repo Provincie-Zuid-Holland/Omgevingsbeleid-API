@@ -1,5 +1,6 @@
 import records
 from globals import db_connection_string
+from uuid import UUID
 
 def dictkeys_tolower(dictionary):
     lower_dict = {}
@@ -12,7 +13,6 @@ def single_object_by_uuid(objectname, query, **kwargs):
     db = records.Database(db_connection_string)
     results = db.query(query,
                        uuid=uuid)
-    print(list(results))
     return results.first()
 
 
@@ -29,3 +29,10 @@ def related_objects_from_query(tablename, query, arguments):
         return results
 
     return resolve_related_objects
+
+def validate_UUID(uuid_str):
+    try:
+        val = UUID(uuid_str, version=4)
+        return val
+    except ValueError:
+        return False
