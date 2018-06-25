@@ -1,6 +1,7 @@
 from flask_restful import Resource, Api, fields, marshal, reqparse, inputs, abort
 import records
 import pyodbc
+from flask_restful_swagger import swagger
 
 from queries import *
 from helpers import single_object_by_uuid, objects_from_query, related_objects_from_query, validate_UUID
@@ -37,7 +38,34 @@ modify_argparser.add_argument('Eind_Geldigheid', type=inputs.datetime_from_iso86
 modify_argparser.add_argument('Modified_By', type=str, help="{error_msg}: De gebruiker die dit object heeft aangepast", required=True)
 modify_argparser.add_argument('Modified_Date', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop dit object is aangepast", required=True)
 
+
 class Ambitie(Resource):
+    """Deze resource vertegenwoordigd de Ambities van de provincie"""
+    @swagger.operation(
+        notes='',
+        responseClass='Ambitie',
+        nickname='ambities',
+        parameters=[
+            {
+              "name": "body",
+              "description": "blueprint object that needs to be added. YAML.",
+              "required": True,
+              "allowMultiple": False,
+              "dataType": 'Ambitie',
+              "paramType": "body"
+            }
+          ],
+        responseMessages=[
+            {
+              "code": 201,
+              "message": "Created. The URL of the created blueprint should be in the Location header"
+            },
+            {
+              "code": 405,
+              "message": "Invalid input"
+            }
+          ]
+    )
     def get(self, ambitie_uuid=None):
         if ambitie_uuid:
             val_ambitie_uuid = validate_UUID(ambitie_uuid)

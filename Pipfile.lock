@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "14b5884bfa63415b99f20618067b579c2f6862bfc75b8d4863cf6a21c280faca"
+            "sha256": "4c9a5e84fc0edd1f28bd0b8353e5a7c2cf68c2197421b34a3a0c5fc67aef5c65"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -71,6 +71,13 @@
             ],
             "index": "pypi",
             "version": "==0.3.6"
+        },
+        "flask-restful-swagger": {
+            "hashes": [
+                "sha256:78d39e6c03549c02d1cd1e1b1ead32124396e3bafd9af2adbdfefeb25072c6dc"
+            ],
+            "index": "pypi",
+            "version": "==0.20.1"
         },
         "graphene": {
             "hashes": [
