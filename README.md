@@ -5,15 +5,25 @@ Dit is een nieuwe versie van de service laag (API) voor het project 'omgevingsbe
 - Python
     + [Flask](http://flask.pocoo.org/)
     + [Records](https://github.com/kennethreitz/records)
-    + [Graphene](https://github.com/graphql-python/graphene)
-    + [Flask-graphql](https://github.com/graphql-python/flask-graphql)
+    + [Flask-restful](https://github.com/flask-restful/flask-restful)
+    + [PyODBC] (https://github.com/mkleehammer/pyodbc)
 - Bash
-- Sqlite (momenteel)
 
 ## Installeren
 Dit project maakt gebruik van [pipenv](https://github.com/pypa/pipenv). Installeer pipenv en voer de volgende commands uit:
 ```shell
 $ pipenv install --dev
+```
+
+## Settings.py
+Een settings.py file is nodig om de omgevings specifieke instellingen te verkrijgen.
+``` python
+DB_USER = 'Database gebruiker'
+DB_PASS = 'Wacthwoord van gebruiker'
+DB_HOST = 'Locatie van SQL-server'
+DB_PORT = 'Poort van SQL-server (1433 default)'
+DB_NAME = 'Naam van de database'
+DB_DRIVER = 'Driver naam'
 ```
 
 ## Lokale versie draaien

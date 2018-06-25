@@ -1,5 +1,4 @@
 import records
-from graphql import GraphQLError
 from globals import db_connection_string
 
 def dictkeys_tolower(dictionary):
@@ -8,24 +7,19 @@ def dictkeys_tolower(dictionary):
         lower_dict[key.lower()] = dictionary[key]
     return lower_dict
 
-def single_object_by_uuid(objectname, query):
-    def resolve_single_object(root, info, **kwargs):
-        uuid = kwargs.get('uuid')
-        db = records.Database(db_connection_string)
-        results = db.query(query,
-                           uuid=uuid)
-        return results.first(
-            default=GraphQLError(f'{objectname} met UUID {uuid} is niet gevonden'))
-    return resolve_single_object
+def single_object_by_uuid(objectname, query, **kwargs):
+    uuid = kwargs.get('uuid')
+    db = records.Database(db_connection_string)
+    results = db.query(query,
+                       uuid=uuid)
+    print(list(results))
+    return results.first()
+
 
 def objects_from_query(tablename, query):
-    def resolve_objects(root, info, **kwargs):
-        db = records.Database(db_connection_string)
-        results = db.query(query)
-        # results = list(map(dictkeys_tolower, list(results)))
-        # print(results)
-        return results
-    return resolve_objects
+    db = records.Database(db_connection_string)
+    results = db.query(query)
+    return results
 
 def related_objects_from_query(tablename, query, arguments):
     def resolve_related_objects(self, info, **kwargs):

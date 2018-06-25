@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "cc67326ad00dae583ffed7302b65e66d3acdc58b1757ddbda62727b7c5c14e86"
+            "sha256": "14b5884bfa63415b99f20618067b579c2f6862bfc75b8d4863cf6a21c280faca"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -63,6 +63,14 @@
             ],
             "index": "pypi",
             "version": "==1.4.1"
+        },
+        "flask-restful": {
+            "hashes": [
+                "sha256:5795519501347e108c436b693ff9a4d7b373a3ac9069627d64e4001c05dd3407",
+                "sha256:e2f1b8063de3944b94c7f8be5cee4d2161db0267c54c5b757d875295061776fa"
+            ],
+            "index": "pypi",
+            "version": "==0.3.6"
         },
         "graphene": {
             "hashes": [
@@ -149,6 +157,13 @@
             ],
             "index": "pypi",
             "version": "==4.0.23"
+        },
+        "pytz": {
+            "hashes": [
+                "sha256:65ae0c8101309c45772196b21b74c46b2e5d11b6275c45d251b150d5da334555",
+                "sha256:c06425302f2cf668f1bba7a0a03f3c1d34d4ebeef2c72003da308b3947c7f749"
+            ],
+            "version": "==2018.4"
         },
         "pyyaml": {
             "hashes": [

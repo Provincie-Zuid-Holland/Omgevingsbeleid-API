@@ -1,11 +1,11 @@
 from flask import Flask
-from flask_graphql import GraphQLView
-from schema import Schema
-
-view_func = GraphQLView.as_view('graphql', schema=Schema, graphiql=True)
+from flask_restful import Resource, Api
+from ambitie import Ambitie
 
 app = Flask(__name__)
-app.add_url_rule('/', view_func=view_func)
+api = Api(app, prefix='/v0')
+
+api.add_resource(Ambitie, '/ambities', '/ambities/<string:ambitie_uuid>')
 
 if __name__ == '__main__':
     app.run()

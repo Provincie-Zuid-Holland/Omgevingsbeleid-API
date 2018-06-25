@@ -11,6 +11,7 @@ graphene = "*"
 cerberus = "*"
 pyodbc = "*"
 wfastcgi = "*"
+flask-restful = "*"
 
 [dev-packages]
 
