@@ -12,6 +12,8 @@ cerberus = "*"
 pyodbc = "*"
 wfastcgi = "*"
 flask-restful = "*"
+flask-restful-swagger = "*"
+flasgger = "*"
 
 [dev-packages]
 

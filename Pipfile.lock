@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "14b5884bfa63415b99f20618067b579c2f6862bfc75b8d4863cf6a21c280faca"
+            "sha256": "304ac4a699d96205b14cf69640a3256d4ffbca374a041e54de27c128305216cc"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -49,6 +49,14 @@
             ],
             "version": "==1.0.1"
         },
+        "flasgger": {
+            "hashes": [
+                "sha256:1c9c03a4b55b60688f2bb2c2d8ff4534cb18eda70fd02973141be8c3bde586b3",
+                "sha256:efee892b0554c60f716b441ee78fddcaf7af20bc764696d9eecd6a389fb7f195"
+            ],
+            "index": "pypi",
+            "version": "==0.9.0"
+        },
         "flask": {
             "hashes": [
                 "sha256:2271c0070dbcb5275fad4a82e29f23ab92682dc45f9dfbc22c02ba9b9322ce48",
@@ -71,6 +79,13 @@
             ],
             "index": "pypi",
             "version": "==0.3.6"
+        },
+        "flask-restful-swagger": {
+            "hashes": [
+                "sha256:78d39e6c03549c02d1cd1e1b1ead32124396e3bafd9af2adbdfefeb25072c6dc"
+            ],
+            "index": "pypi",
+            "version": "==0.20.1"
         },
         "graphene": {
             "hashes": [
@@ -113,11 +128,25 @@
             ],
             "version": "==2.10"
         },
+        "jsonschema": {
+            "hashes": [
+                "sha256:000e68abd33c972a5248544925a0cae7d1125f9bf6c58280d37546b946769a08",
+                "sha256:6ff5f3180870836cae40f06fa10419f557208175f13ad7bc26caa77beb1f6e02"
+            ],
+            "version": "==2.6.0"
+        },
         "markupsafe": {
             "hashes": [
                 "sha256:a6be69091dac236ea9c6bc7d012beab42010fa914c459791d627dad4910eb665"
             ],
             "version": "==1.0"
+        },
+        "mistune": {
+            "hashes": [
+                "sha256:b4c512ce2fc99e5a62eb95a4aba4b73e5f90264115c40b70a21e1f7d4e0eac91",
+                "sha256:bc10c33bfdcaa4e749b779f62f60d6e12f8215c46a292d05e486b869ae306619"
+            ],
+            "version": "==0.8.3"
         },
         "odfpy": {
             "hashes": [
