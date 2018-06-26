@@ -39,35 +39,35 @@ modify_argparser.add_argument('Modified_By', type=str, help="{error_msg}: De geb
 modify_argparser.add_argument('Modified_Date', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop dit object is aangepast", required=True)
 
 
-class Ambitie(Resource):
-    """Deze resource vertegenwoordigd de Ambities van de provincie"""
-    @swag_from('ambitie.yml')
-    def get(self, ambitie_uuid=None):
-        if ambitie_uuid:
-            val_ambitie_uuid = validate_UUID(ambitie_uuid)
+class BeleidsRegel(Resource):
+    """Deze resource vertegenwoordigd de Beleidsregels van de provincie"""
+    @swag_from('beleidsregel.yml')
+    def get(self, beleidsregel_uuid=None):
+        if beleidsregel_uuid:
+            val_beleidsregel_uuid = validate_UUID(beleidsregel_uuid)
             
-            if not val_ambitie_uuid:
-                return {'message': f"Waarde {ambitie_uuid} is geen geldige UUID"}, 400
+            if not val_beleidsregel_uuid:
+                return {'message': f"Waarde {beleidsregel_uuid} is geen geldige UUID"}, 400
             
-            ambitie = single_object_by_uuid('Ambities', ambitie_op_uuid, uuid=ambitie_uuid)
+            beleidsregel = single_object_by_uuid('BeleidsRegel', beleidsregel_op_uuid, uuid=beleidsregel_uuid)
             
-            if not ambitie:
-                return {'message': f"Ambitie met UUID {ambitie_uuid} is niet gevonden"}, 400
+            if not beleidsregel:
+                return {'message': f"BeleidsRegel met UUID {beleidsregel_uuid} is niet gevonden"}, 400
             
-            return marshal(ambitie.as_dict(), resource_fields)
+            return marshal(beleidsregel.as_dict(), resource_fields)
         else:    
-            ambities = objects_from_query('Ambities', alle_ambities)
+            beleidsregels = objects_from_query('BeleidsRegel', alle_beleidsregels)
 
-            return marshal(list(map(lambda ambitie: ambitie.as_dict(), ambities)), resource_fields)
+            return marshal(list(map(lambda beleidsregel: beleidsregel.as_dict(), beleidsregels)), resource_fields)
 
-    def post(self, ambitie_uuid=None):
-        if ambitie_uuid:
+    def post(self, beleidsregel_uuid=None):
+        if beleidsregel_uuid:
             return {'message': "Methode POST niet geldig op een enkel object, verwijder identiteit uit URL"}, 400
 
         args = create_argparser.parse_args(strict=True)
         connection = pyodbc.connect(db_connection_settings)
         cursor = connection.cursor()
-        cursor.execute(ambitie_aanmaken,
+        cursor.execute(beleidsregel_aanmaken,
         args.Titel,
         args.Omschrijving,
         args.Weblink,
@@ -81,38 +81,39 @@ class Ambitie(Resource):
         connection.commit()
         return {"Resultaat_UUID": f"{new_uuid}"}
     
-    def patch(self, ambitie_uuid=None):
-        if not ambitie_uuid:
+    def patch(self, beleidsregel_uuid=None):
+        if not beleidsregel_uuid:
             return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan de URL"}, 400
         args = modify_argparser.parse_args(strict=True)
-        val_ambitie_uuid = validate_UUID(ambitie_uuid)
+        val_beleidsregel_uuid = validate_UUID(beleidsregel_uuid)
         
-        if not val_ambitie_uuid:
-            return {'message': f"Waarde {ambitie_uuid} is geen geldige UUID"}, 400
+        if not val_beleidsregel_uuid:
+            return {'message': f"Waarde {beleidsregel_uuid} is geen geldige UUID"}, 400
         
-        ambitie = single_object_by_uuid('Ambities', ambitie_op_uuid, uuid=ambitie_uuid)
+        beleidsregel = single_object_by_uuid('BeleidsRegel', beleidsregel_op_uuid, uuid=beleidsregel_uuid)
         
-        if not ambitie:
-            return {'message': f"Ambitie met UUID {ambitie_uuid} is niet gevonden"}, 400
+        if not beleidsregel:
+            return {'message': f"BeleidsRegel met UUID {beleidsregel_uuid} is niet gevonden"}, 400
             
-        new_ambitie = ambitie.as_dict()
-        for key in new_ambitie:
+        new_beleidsregel = beleidsregel.as_dict()
+        for key in new_beleidsregel:
             if key in args and args[key]:
-                new_ambitie[key] = args[key]
+                new_beleidsregel[key] = args[key]
         
         connection = pyodbc.connect(db_connection_settings)
         cursor = connection.cursor()
-        cursor.execute(ambitie_aanpassen,
-        new_ambitie['ID'],
-        new_ambitie['Titel'],
-        new_ambitie['Omschrijving'],
-        new_ambitie['Weblink'],
-        new_ambitie['Begin_Geldigheid'],
-        new_ambitie['Eind_Geldigheid'],
-        new_ambitie['Created_By'],
-        new_ambitie['Created_Date'],
-        new_ambitie['Modified_By'],
-        new_ambitie['Modified_Date'])
+        cursor.execute(
+        beleidsregel_aanpassen,
+        new_beleidsregel['ID'],
+        new_beleidsregel['Titel'],
+        new_beleidsregel['Omschrijving'],
+        new_beleidsregel['Weblink'],
+        new_beleidsregel['Begin_Geldigheid'],
+        new_beleidsregel['Eind_Geldigheid'],
+        new_beleidsregel['Created_By'],
+        new_beleidsregel['Created_Date'],
+        new_beleidsregel['Modified_By'],
+        new_beleidsregel['Modified_Date'])
         new_uuid = cursor.fetchone()[0]
         connection.commit()
         return {"Resultaat_UUID": f"{new_uuid}"}

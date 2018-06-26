@@ -12,7 +12,6 @@ resource_fields = {
     'UUID': fields.String,
     'Titel': fields.String,
     'Omschrijving':fields.String,
-    'Weblink': fields.String,
     'Begin_Geldigheid': fields.DateTime(dt_format='iso8601'),
     'Eind_Geldigheid': fields.DateTime(dt_format='iso8601'),
     'Created_By': fields.String,
@@ -23,7 +22,6 @@ resource_fields = {
 create_argparser= reqparse.RequestParser()
 create_argparser.add_argument('Titel', type=str, help="{error_msg}: De titel van dit object", required=True)
 create_argparser.add_argument('Omschrijving', type=str, help="{error_msg}: De omschrijving van dit object", required=True)
-create_argparser.add_argument('Weblink', type=str, help="{error_msg}: De weblink van dit object")
 create_argparser.add_argument('Begin_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object ingaat", required=True)
 create_argparser.add_argument('Eind_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object eindigt", required=True)
 create_argparser.add_argument('Created_By', type=str, help="{error_msg}: De gebruiker die dit object heeft aangemaakt", required=True)
@@ -32,45 +30,43 @@ create_argparser.add_argument('Created_Date', type=inputs.datetime_from_iso8601,
 modify_argparser = reqparse.RequestParser()
 modify_argparser.add_argument('Titel', type=str, help="{error_msg}: De titel van dit object")
 modify_argparser.add_argument('Omschrijving', type=str, help="{error_msg}: De omschrijving van dit object")
-modify_argparser.add_argument('Weblink', type=str, help="{error_msg}: De weblink van dit object")
 modify_argparser.add_argument('Begin_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object ingaat")
 modify_argparser.add_argument('Eind_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object eindigt")
 modify_argparser.add_argument('Modified_By', type=str, help="{error_msg}: De gebruiker die dit object heeft aangepast", required=True)
 modify_argparser.add_argument('Modified_Date', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop dit object is aangepast", required=True)
 
 
-class Ambitie(Resource):
-    """Deze resource vertegenwoordigd de Ambities van de provincie"""
-    @swag_from('ambitie.yml')
-    def get(self, ambitie_uuid=None):
-        if ambitie_uuid:
-            val_ambitie_uuid = validate_UUID(ambitie_uuid)
+class Thema(Resource):
+    """Deze resource vertegenwoordigd de Beleidsregels van de provincie"""
+    @swag_from('thema.yml')
+    def get(self, thema_uuid=None):
+        if thema_uuid:
+            val_thema_uuid = validate_UUID(thema_uuid)
             
-            if not val_ambitie_uuid:
-                return {'message': f"Waarde {ambitie_uuid} is geen geldige UUID"}, 400
+            if not val_thema_uuid:
+                return {'message': f"Waarde {thema_uuid} is geen geldige UUID"}, 400
             
-            ambitie = single_object_by_uuid('Ambities', ambitie_op_uuid, uuid=ambitie_uuid)
+            thema = single_object_by_uuid('Thema', thema_op_uuid, uuid=thema_uuid)
             
-            if not ambitie:
-                return {'message': f"Ambitie met UUID {ambitie_uuid} is niet gevonden"}, 400
+            if not thema:
+                return {'message': f"Thema met UUID {thema_uuid} is niet gevonden"}, 400
             
-            return marshal(ambitie.as_dict(), resource_fields)
+            return marshal(thema.as_dict(), resource_fields)
         else:    
-            ambities = objects_from_query('Ambities', alle_ambities)
+            themas = objects_from_query('Thema', alle_themas)
 
-            return marshal(list(map(lambda ambitie: ambitie.as_dict(), ambities)), resource_fields)
+            return marshal(list(map(lambda thema: thema.as_dict(), themas)), resource_fields)
 
-    def post(self, ambitie_uuid=None):
-        if ambitie_uuid:
+    def post(self, thema_uuid=None):
+        if thema_uuid:
             return {'message': "Methode POST niet geldig op een enkel object, verwijder identiteit uit URL"}, 400
 
         args = create_argparser.parse_args(strict=True)
         connection = pyodbc.connect(db_connection_settings)
         cursor = connection.cursor()
-        cursor.execute(ambitie_aanmaken,
+        cursor.execute(thema_aanmaken,
         args.Titel,
         args.Omschrijving,
-        args.Weblink,
         args.Begin_Geldigheid,
         args.Eind_Geldigheid,
         args.Created_By,
@@ -81,38 +77,38 @@ class Ambitie(Resource):
         connection.commit()
         return {"Resultaat_UUID": f"{new_uuid}"}
     
-    def patch(self, ambitie_uuid=None):
-        if not ambitie_uuid:
+    def patch(self, thema_uuid=None):
+        if not thema_uuid:
             return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan de URL"}, 400
         args = modify_argparser.parse_args(strict=True)
-        val_ambitie_uuid = validate_UUID(ambitie_uuid)
+        val_thema_uuid = validate_UUID(thema_uuid)
         
-        if not val_ambitie_uuid:
-            return {'message': f"Waarde {ambitie_uuid} is geen geldige UUID"}, 400
+        if not val_thema_uuid:
+            return {'message': f"Waarde {thema_uuid} is geen geldige UUID"}, 400
         
-        ambitie = single_object_by_uuid('Ambities', ambitie_op_uuid, uuid=ambitie_uuid)
+        thema = single_object_by_uuid('Thema', thema_op_uuid, uuid=thema_uuid)
         
-        if not ambitie:
-            return {'message': f"Ambitie met UUID {ambitie_uuid} is niet gevonden"}, 400
+        if not thema:
+            return {'message': f"Thema met UUID {thema_uuid} is niet gevonden"}, 400
             
-        new_ambitie = ambitie.as_dict()
-        for key in new_ambitie:
+        new_thema = thema.as_dict()
+        for key in new_thema:
             if key in args and args[key]:
-                new_ambitie[key] = args[key]
+                new_thema[key] = args[key]
         
         connection = pyodbc.connect(db_connection_settings)
         cursor = connection.cursor()
-        cursor.execute(ambitie_aanpassen,
-        new_ambitie['ID'],
-        new_ambitie['Titel'],
-        new_ambitie['Omschrijving'],
-        new_ambitie['Weblink'],
-        new_ambitie['Begin_Geldigheid'],
-        new_ambitie['Eind_Geldigheid'],
-        new_ambitie['Created_By'],
-        new_ambitie['Created_Date'],
-        new_ambitie['Modified_By'],
-        new_ambitie['Modified_Date'])
+        cursor.execute(
+        thema_aanpassen,
+        new_thema['ID'],
+        new_thema['Titel'],
+        new_thema['Omschrijving'],
+        new_thema['Begin_Geldigheid'],
+        new_thema['Eind_Geldigheid'],
+        new_thema['Created_By'],
+        new_thema['Created_Date'],
+        new_thema['Modified_By'],
+        new_thema['Modified_Date'])
         new_uuid = cursor.fetchone()[0]
         connection.commit()
         return {"Resultaat_UUID": f"{new_uuid}"}

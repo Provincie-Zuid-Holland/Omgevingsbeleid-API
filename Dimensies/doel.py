@@ -39,35 +39,35 @@ modify_argparser.add_argument('Modified_By', type=str, help="{error_msg}: De geb
 modify_argparser.add_argument('Modified_Date', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop dit object is aangepast", required=True)
 
 
-class Ambitie(Resource):
-    """Deze resource vertegenwoordigd de Ambities van de provincie"""
-    @swag_from('ambitie.yml')
-    def get(self, ambitie_uuid=None):
-        if ambitie_uuid:
-            val_ambitie_uuid = validate_UUID(ambitie_uuid)
+class Doel(Resource):
+    """Deze resource vertegenwoordigd de Beleidsregels van de provincie"""
+    @swag_from('doel.yml')
+    def get(self, doel_uuid=None):
+        if doel_uuid:
+            val_doel_uuid = validate_UUID(doel_uuid)
             
-            if not val_ambitie_uuid:
-                return {'message': f"Waarde {ambitie_uuid} is geen geldige UUID"}, 400
+            if not val_doel_uuid:
+                return {'message': f"Waarde {doel_uuid} is geen geldige UUID"}, 400
             
-            ambitie = single_object_by_uuid('Ambities', ambitie_op_uuid, uuid=ambitie_uuid)
+            doel = single_object_by_uuid('Doel', doel_op_uuid, uuid=doel_uuid)
             
-            if not ambitie:
-                return {'message': f"Ambitie met UUID {ambitie_uuid} is niet gevonden"}, 400
+            if not doel:
+                return {'message': f"Doel met UUID {doel_uuid} is niet gevonden"}, 400
             
-            return marshal(ambitie.as_dict(), resource_fields)
+            return marshal(doel.as_dict(), resource_fields)
         else:    
-            ambities = objects_from_query('Ambities', alle_ambities)
+            doelen = objects_from_query('Doel', alle_doelen)
 
-            return marshal(list(map(lambda ambitie: ambitie.as_dict(), ambities)), resource_fields)
+            return marshal(list(map(lambda doel: doel.as_dict(), doelen)), resource_fields)
 
-    def post(self, ambitie_uuid=None):
-        if ambitie_uuid:
+    def post(self, doel_uuid=None):
+        if doel_uuid:
             return {'message': "Methode POST niet geldig op een enkel object, verwijder identiteit uit URL"}, 400
 
         args = create_argparser.parse_args(strict=True)
         connection = pyodbc.connect(db_connection_settings)
         cursor = connection.cursor()
-        cursor.execute(ambitie_aanmaken,
+        cursor.execute(doel_aanmaken,
         args.Titel,
         args.Omschrijving,
         args.Weblink,
@@ -81,38 +81,39 @@ class Ambitie(Resource):
         connection.commit()
         return {"Resultaat_UUID": f"{new_uuid}"}
     
-    def patch(self, ambitie_uuid=None):
-        if not ambitie_uuid:
+    def patch(self, doel_uuid=None):
+        if not doel_uuid:
             return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan de URL"}, 400
         args = modify_argparser.parse_args(strict=True)
-        val_ambitie_uuid = validate_UUID(ambitie_uuid)
+        val_doel_uuid = validate_UUID(doel_uuid)
         
-        if not val_ambitie_uuid:
-            return {'message': f"Waarde {ambitie_uuid} is geen geldige UUID"}, 400
+        if not val_doel_uuid:
+            return {'message': f"Waarde {doel_uuid} is geen geldige UUID"}, 400
         
-        ambitie = single_object_by_uuid('Ambities', ambitie_op_uuid, uuid=ambitie_uuid)
+        doel = single_object_by_uuid('BeleidsRegel', doel_op_uuid, uuid=doel_uuid)
         
-        if not ambitie:
-            return {'message': f"Ambitie met UUID {ambitie_uuid} is niet gevonden"}, 400
+        if not doel:
+            return {'message': f"BeleidsRegel met UUID {doel_uuid} is niet gevonden"}, 400
             
-        new_ambitie = ambitie.as_dict()
-        for key in new_ambitie:
+        new_doel = doel.as_dict()
+        for key in new_doel:
             if key in args and args[key]:
-                new_ambitie[key] = args[key]
+                new_doel[key] = args[key]
         
         connection = pyodbc.connect(db_connection_settings)
         cursor = connection.cursor()
-        cursor.execute(ambitie_aanpassen,
-        new_ambitie['ID'],
-        new_ambitie['Titel'],
-        new_ambitie['Omschrijving'],
-        new_ambitie['Weblink'],
-        new_ambitie['Begin_Geldigheid'],
-        new_ambitie['Eind_Geldigheid'],
-        new_ambitie['Created_By'],
-        new_ambitie['Created_Date'],
-        new_ambitie['Modified_By'],
-        new_ambitie['Modified_Date'])
+        cursor.execute(
+        doel_aanpassen,
+        new_doel['ID'],
+        new_doel['Titel'],
+        new_doel['Omschrijving'],
+        new_doel['Weblink'],
+        new_doel['Begin_Geldigheid'],
+        new_doel['Eind_Geldigheid'],
+        new_doel['Created_By'],
+        new_doel['Created_Date'],
+        new_doel['Modified_By'],
+        new_doel['Modified_Date'])
         new_uuid = cursor.fetchone()[0]
         connection.commit()
         return {"Resultaat_UUID": f"{new_uuid}"}
