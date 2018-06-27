@@ -242,3 +242,48 @@ thema_aanpassen = '''
         OUTPUT inserted.UUID
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
         '''
+# Queries voor BeleidsBeslissingen
+
+# Alle actuele beleidsbeslissingen selecteren
+alle_beleidsbeslissingen = 'SELECT * FROM Beleidsbeslissingen'
+
+# Een provenciaal belang selecteren op 'uuid'
+# Argumenten: uuid
+beleidsbeslissing_op_uuid = 'SELECT * FROM Beleidsbeslissingen WHERE UUID=:uuid'
+
+# Een provenciaal belang aanmaken via een insert
+# Argumenten: 
+#        Titel,
+#        Omschrijving,
+#        Begin_Geldigheid,
+#        Eind_Geldigheid,
+#        Created_By,
+#        Created_Date,
+#        Created_By,
+#        Created_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+# thema_aanmaken = '''
+        # INSERT INTO Themas (Titel, Omschrijving, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        # OUTPUT inserted.UUID
+        # VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        # '''
+
+# Een provenciaal belang aanpassen via een insert (we maken altijd een kopie)
+# Argumenten: 
+#        ID
+#        Titel,
+#        Omschrijving,
+#        Begin_Geldigheid,
+#        Eind_Geldigheid,
+#        Created_By,
+#        Created_Date,
+#        Modified_By,
+#        Modified_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+# thema_aanpassen = '''
+        # INSERT INTO Themas (ID, Titel, Omschrijving, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        # OUTPUT inserted.UUID
+        # VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        # '''

@@ -1,6 +1,7 @@
 import records
 from globals import db_connection_string
 from uuid import UUID
+from flask_restful.fields import Raw, MarshallingException
 
 def dictkeys_tolower(dictionary):
     lower_dict = {}
@@ -36,3 +37,13 @@ def validate_UUID(uuid_str):
         return val
     except ValueError:
         return False
+        
+# Custom Flask Restful fields
+class UUIDfield(Raw):
+    def format(self, value):
+        try:
+            val = UUID(value, version=4)
+            return str(val)
+        except ValueError as ve:
+            raise MarshallingException(ve)
+        
