@@ -22,10 +22,10 @@ resource_fields = {
 
 create_argparser= reqparse.RequestParser()
 create_argparser.add_argument('Titel', type=str, help="{error_msg}: De titel van dit object", required=True)
-create_argparser.add_argument('Omschrijving', type=str, help="{error_msg}: De omschrijving van dit object", required=True)
+create_argparser.add_argument('Omschrijving', type=str, help="{error_msg}: De omschrijving van dit object", nullable=True)
 create_argparser.add_argument('Weblink', type=str, help="{error_msg}: De weblink van dit object")
-create_argparser.add_argument('Begin_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object ingaat", required=True)
-create_argparser.add_argument('Eind_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object eindigt", required=True)
+create_argparser.add_argument('Begin_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object ingaat")
+create_argparser.add_argument('Eind_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object eindigt")
 create_argparser.add_argument('Created_By', type=str, help="{error_msg}: De gebruiker die dit object heeft aangemaakt", required=True)
 create_argparser.add_argument('Created_Date', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop dit object is aangemaakt", required=True)
 

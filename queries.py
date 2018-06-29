@@ -263,11 +263,33 @@ beleidsbeslissing_op_uuid = 'SELECT * FROM Beleidsbeslissingen WHERE UUID=:uuid'
 #        Created_Date
 # !Argumenten worden als vraagtekens ontvangen!
 # !OUTPUT inserted.UUID is verplicht!
-# thema_aanmaken = '''
-        # INSERT INTO Themas (Titel, Omschrijving, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
-        # OUTPUT inserted.UUID
-        # VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-        # '''
+beleidsbeslissing_aanmaken = '''
+        INSERT INTO Beleidsbeslissingen (
+            Eigenaar_1,
+            Eigenaar_2,
+            Status,
+            Titel,
+            Omschrijving_Keuze,
+            Omschrijving_Werking,
+            Motivering,
+            Aanleiding,
+            Afweging,
+            Verordening_Realisatie,
+            Begin_Geldigheid,
+            Eind_Geldigheid,
+            Created_By,
+            Created_Date,
+            Modified_By,
+            Modified_Date
+        )
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?, ?, ? ,? ,?);
+        '''
+
+# Alle omgevinsbeleid objecten bij een beleidsbeslissing verkrijgen
+# Argumenten: uuid (van beleidsbeslissing)
+omgevingsbeleid_bij_beleidsbeslissing = '''SELECT * FROM Omgevingsbeleid 
+                                        WHERE fk_Beleidsbeslissingen = :uuid'''
 
 # Een provenciaal belang aanpassen via een insert (we maken altijd een kopie)
 # Argumenten: 

@@ -2,6 +2,8 @@ import records
 from globals import db_connection_string
 from uuid import UUID
 from flask_restful.fields import Raw, MarshallingException
+from queries import omgevingsbeleid_bij_beleidsbeslissing
+
 
 def dictkeys_tolower(dictionary):
     lower_dict = {}
@@ -46,4 +48,58 @@ class UUIDfield(Raw):
             return str(val)
         except ValueError as ve:
             raise MarshallingException(ve)
+
+            
+# Omgevingsbeleid (de)serialisatie
+
+def flatten_obs(bb_uuid):
+    """
+    This is an utility function which collects al the linked Omgevingsbeleid
+    objects linked to a Beleidsbelissings object and flattens them into a dictionary of lists
+    """
+    flattened = {}
+    db = records.Database(db_connection_string)
+    results = db.query(omgevingsbeleid_bij_beleidsbeslissing, uuid=bb_uuid)
+    for row in results:
+        for key in row.as_dict():
+            if row[key]:
+                if key in flattened:
+                    flattened[key].append(row[key])
+                else:
+                    flattened[key] = [row[key]]
+    return flattened
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         

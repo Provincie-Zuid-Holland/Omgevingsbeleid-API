@@ -4,7 +4,7 @@ import pyodbc
 from flasgger import swag_from
 
 from queries import *
-from helpers import single_object_by_uuid, objects_from_query, related_objects_from_query, validate_UUID, UUIDfield
+from helpers import *
 from globals import db_connection_string, db_connection_settings
 from uuid import UUID
 
@@ -12,22 +12,25 @@ resource_fields = {
     'UUID': UUIDfield,
     'Eigenaar_1': fields.String,
     'Eigenaar_2': fields.String,
+    'Status': fields.String,
     'Titel': fields.String,
     'Omschrijving_Keuze':fields.String,
-    'WerkingsGebieden': UUIDfield(attribute='fk_WerkingsGebieden'),
     'Omschrijving_Werking': fields.String,
     'Motivering': fields.String,
     'Aanleiding': fields.String,
     'Afweging': fields.String,
-    'BeleidsRelaties': UUIDfield(attribute='fk_BeleidsRelaties'),
-    'Verordening_Realisatie' : fields.String,
-    'Maatregelen': UUIDfield(attribute='fk_Maatregelen'),
-    'BeleidsRegels': UUIDfield(attribute='fk_BeleidsRegels'),
-    'Themas': UUIDfield(attribute='fk_Themas'),
-    'Ambities': UUIDfield(attribute='fk_Ambities'),
-    'Doelen': UUIDfield(attribute='fk_Doelen'),
-    'ProvincialeBelangen': UUIDfield(attribute='fk_ProvincialeBelangen'),
+    'Verordening_Realisatie': fields.String,
+    # Vanaf hier hebben we het over omgevingsbeleid objecten
     'Ambitie_Omschrijving': fields.String,
+    'Werkingsgebieden':fields.List(UUIDfield, default=[], attribute='fk_WerkingsGebieden'),
+    'BeleidsRelaties':fields.List(UUIDfield, default=[], attribute='fk_BeleidsRelaties'),
+    'Verorderingen':fields.List(UUIDfield, default=[], attribute='fk_Verorderingen'),
+    'Maatregelen':fields.List(UUIDfield, default=[], attribute='fk_Maatregelen'),
+    'Beleids_regels':fields.List(UUIDfield, default=[], attribute='fk_BeleidsRegels'),
+    'Themas':fields.List(UUIDfield, default=[], attribute='fk_Themas'),
+    'Ambities':fields.List(UUIDfield, default=[], attribute='fk_Ambities'),
+    'Doelen':fields.List(UUIDfield, default=[], attribute='fk_Doelen'),
+    'Provinciale_belangen':fields.List(UUIDfield, default=[], attribute='fk_ProvincialeBelangen'),
     'Begin_Geldigheid': fields.DateTime(dt_format='iso8601'),
     'Eind_Geldigheid': fields.DateTime(dt_format='iso8601'),
     'Created_By': fields.String,
@@ -37,13 +40,20 @@ resource_fields = {
     }
 
 create_argparser= reqparse.RequestParser()
-create_argparser.add_argument('Titel', type=str, help="{error_msg}: De titel van dit object", required=True)
-create_argparser.add_argument('Omschrijving', type=str, help="{error_msg}: De omschrijving van dit object", required=True)
-create_argparser.add_argument('fk_WerkingsGebieden', type=UUID, help="{error_msg}: Werkingsgebieden", required=True)
-create_argparser.add_argument('Begin_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object ingaat", required=True)
-create_argparser.add_argument('Eind_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object eindigt", required=True)
-create_argparser.add_argument('Created_By', type=str, help="{error_msg}: De gebruiker die dit object heeft aangemaakt", required=True)
-create_argparser.add_argument('Created_Date', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop dit object is aangemaakt", required=True)
+create_argparser.add_argument('Eigenaar_1', type=str, required=True)
+create_argparser.add_argument('Eigenaar_2', type=str, required=True)
+create_argparser.add_argument('Status', type=str, required=True)
+create_argparser.add_argument('Titel', type=str, required=True)
+create_argparser.add_argument('Omschrijving_Keuze', type=str)
+create_argparser.add_argument('Omschrijving_Werking', type=str)
+create_argparser.add_argument('Motivering', type=str)
+create_argparser.add_argument('Aanleiding', type=str)
+create_argparser.add_argument('Afweging', type=str)
+create_argparser.add_argument('Verordening_Realisatie', type=str)
+create_argparser.add_argument('Begin_Geldigheid', type=inputs.datetime_from_iso8601, required=True)
+create_argparser.add_argument('Eind_Geldigheid', type=inputs.datetime_from_iso8601, required=True)
+create_argparser.add_argument('Created_By', type=str, required=True)
+create_argparser.add_argument('Created_Date', type=inputs.datetime_from_iso8601, required=True)
 
 modify_argparser = reqparse.RequestParser()
 modify_argparser.add_argument('Titel', type=str, help="{error_msg}: De titel van dit object")
@@ -70,7 +80,10 @@ class BeleidsBeslissing(Resource):
             if not beleidsbeslissing:
                 return {'message': f"BeleidsBeslissing met UUID {beleidsbeslissing_uuid} is niet gevonden"}, 400
             
-            return marshal(beleidsbeslissing.as_dict(), resource_fields)
+            flat_obs = flatten_obs(beleidsbeslissing_uuid)
+            beleidsbeslissing = {**flat_obs, **beleidsbeslissing.as_dict()}
+            print(beleidsbeslissing)
+            return marshal(beleidsbeslissing, resource_fields)
         else:    
             beleidsbeslissingen = objects_from_query('BeleidsBeslissing', alle_beleidsbeslissingen)
 
@@ -81,22 +94,28 @@ class BeleidsBeslissing(Resource):
             return {'message': "Methode POST niet geldig op een enkel object, verwijder identiteit uit URL"}, 400
 
         args = create_argparser.parse_args(strict=True)
-        # connection = pyodbc.connect(db_connection_settings)
-        # cursor = connection.cursor()
-        # cursor.execute(beleidsbeslissing_aanmaken,
-        # args.Titel,
-        # args.Omschrijving,
-        # args.Weblink,
-        # args.Begin_Geldigheid,
-        # args.Eind_Geldigheid,
-        # args.Created_By,
-        # args.Created_Date,
-        # args.Created_By,
-        # args.Created_Date)
-        # new_uuid = cursor.fetchone()[0]
-        # connection.commit()
-        # return {"Resultaat_UUID": f"{new_uuid}"}
-        return str(args)
+        connection = pyodbc.connect(db_connection_settings)
+        cursor = connection.cursor()
+        cursor.execute(beleidsbeslissing_aanmaken,
+        args.Eigenaar_1,
+        args.Eigenaar_2,
+        args.Status,
+        args.Titel,
+        args.Omschrijving_Keuze,
+        args.Omschrijving_Werking,
+        args.Motivering,
+        args.Aanleiding,
+        args.Afweging,
+        args.Verordening_Realisatie,
+        args.Begin_Geldigheid,
+        args.Eind_Geldigheid,
+        args.Created_By,
+        args.Created_Date,
+        args.Created_By,
+        args.Created_Date)
+        new_uuid = cursor.fetchone()[0]
+        connection.commit()
+        return {"Resultaat_UUID": f"{new_uuid}"}
     
     # def patch(self, provinciaalbelang_uuid=None):
         # if not provinciaalbelang_uuid:
