@@ -3,7 +3,7 @@ from globals import db_connection_string
 from uuid import UUID
 from flask_restful.fields import Raw, MarshallingException
 from queries import omgevingsbeleid_bij_beleidsbeslissing
-
+import json
 
 def dictkeys_tolower(dictionary):
     lower_dict = {}
@@ -67,6 +67,8 @@ def flatten_obs(bb_uuid):
                     flattened[key].append(row[key])
                 else:
                     flattened[key] = [row[key]]
+    for key in flattened:
+        flattened[key] = list(set(flattened[key]))
     return flattened
 
 

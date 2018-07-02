@@ -14,8 +14,12 @@ wfastcgi = "*"
 flask-restful = "*"
 flask-restful-swagger = "*"
 flasgger = "*"
+marshmallow = "3.0.0"
 
 [dev-packages]
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true
