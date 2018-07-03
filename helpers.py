@@ -4,6 +4,7 @@ from uuid import UUID
 from flask_restful.fields import Raw, MarshallingException
 from queries import omgevingsbeleid_bij_beleidsbeslissing
 import json
+import marshmallow as MM 
 
 def dictkeys_tolower(dictionary):
     lower_dict = {}
@@ -62,46 +63,28 @@ def flatten_obs(bb_uuid):
     results = db.query(omgevingsbeleid_bij_beleidsbeslissing, uuid=bb_uuid)
     for row in results:
         for key in row.as_dict():
-            if row[key]:
-                if key in flattened:
-                    flattened[key].append(row[key])
+            
+            if key.startswith('fk_') and not (row[key] is None):
+                fieldname = key.replace('fk_', '')
+                omschrijving_key = fieldname + '_Omschrijving'
+                if fieldname in flattened:
+                    flattened[fieldname].append({'UUID':row[key], 
+                    'Omschrijving': row[omschrijving_key]})
                 else:
-                    flattened[key] = [row[key]]
-    for key in flattened:
-        flattened[key] = list(set(flattened[key]))
+                    flattened[fieldname]= [{'UUID':row[key], 
+                    'Omschrijving': row[omschrijving_key]}]
     return flattened
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
+def deflatten_obs(ob_dict):
+    rows = []
+    max_height = max(map(len, ob_dict.values()))
+    for heigth in range(max_height):
+        row = {}
+        for key in ob_dict:
+            if len(ob_dict[key]) > heigth:
+                row[key] = ob_dict[key][heigth]
+            else:
+                row[key] = {'UUID': None, 'Omschrijving':None}
+        rows.append(row)
+    return rows     

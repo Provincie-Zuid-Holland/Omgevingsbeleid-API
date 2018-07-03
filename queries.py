@@ -287,25 +287,80 @@ beleidsbeslissing_aanmaken = '''
         '''
 
 # Alle omgevinsbeleid objecten bij een beleidsbeslissing verkrijgen
+# Alleen de relaties teruggeven
 # Argumenten: uuid (van beleidsbeslissing)
-omgevingsbeleid_bij_beleidsbeslissing = '''SELECT * FROM Omgevingsbeleid 
+omgevingsbeleid_bij_beleidsbeslissing = '''SELECT 
+                                            fk_WerkingsGebieden,
+                                            fk_BeleidsRelaties,
+                                            fk_Verordening,
+                                            fk_Maatregelen,
+                                            fk_BeleidsRegels,
+                                            fk_Themas,
+                                            fk_Ambities,
+                                            fk_Doelen,
+                                            fk_ProvincialeBelangen,
+                                            fk_Opgaven,
+                                            WerkingsGebieden_Omschrijving,
+                                            BeleidsRelaties_Omschrijving,
+                                            Verordening_Omschrijving,
+                                            Maatregelen_Omschrijving,
+                                            BeleidsRegels_Omschrijving,
+                                            Themas_Omschrijving,
+                                            Ambities_Omschrijving,
+                                            Doelen_Omschrijving,
+                                            ProvincialeBelangen_Omschrijving,
+                                            Opgaven_Omschrijving 
+                                        FROM Omgevingsbeleid 
                                         WHERE fk_Beleidsbeslissingen = :uuid'''
 
-# Een provenciaal belang aanpassen via een insert (we maken altijd een kopie)
-# Argumenten: 
-#        ID
-#        Titel,
-#        Omschrijving,
-#        Begin_Geldigheid,
-#        Eind_Geldigheid,
-#        Created_By,
-#        Created_Date,
-#        Modified_By,
-#        Modified_Date
-# !Argumenten worden als vraagtekens ontvangen!
-# !OUTPUT inserted.UUID is verplicht!
-# thema_aanpassen = '''
-        # INSERT INTO Themas (ID, Titel, Omschrijving, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
-        # OUTPUT inserted.UUID
-        # VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-        # '''
+
+omgevingsbeleid_aanmaken = '''
+        INSERT INTO Omgevingsbeleid (
+            fk_Beleidsbeslissingen,
+            fk_WerkingsGebieden,
+            fk_BeleidsRelaties,
+            fk_Verordening,
+            fk_Maatregelen,
+            fk_BeleidsRegels,
+            fk_Themas,
+            fk_Ambities,
+            fk_Doelen,
+            fk_ProvincialeBelangen,
+            fk_Opgaven,
+            WerkingsGebieden_Omschrijving,
+            BeleidsRelaties_Omschrijving,
+            Verordening_Omschrijving,
+            Maatregelen_Omschrijving,
+            BeleidsRegels_Omschrijving,
+            Themas_Omschrijving,
+            Ambities_Omschrijving,
+            Doelen_Omschrijving,
+            ProvincialeBelangen_Omschrijving,
+            Opgaven_Omschrijving,
+            Eind_Geldigheid,
+            Begin_Geldigheid,
+            Modified_By,
+            Modified_Date,
+            Created_By,
+            Created_Date
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
