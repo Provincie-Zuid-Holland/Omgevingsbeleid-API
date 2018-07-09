@@ -6,6 +6,7 @@ Dit is een nieuwe versie van de service laag (API) voor het project 'omgevingsbe
     + [Flask](http://flask.pocoo.org/)
     + [Records](https://github.com/kennethreitz/records)
     + [Flask-restful](https://github.com/flask-restful/flask-restful)
+    + [Marshmallow](http://marshmallow.readthedocs.io/en/3.0/)
     + [PyODBC] (https://github.com/mkleehammer/pyodbc)
 - Bash
 
