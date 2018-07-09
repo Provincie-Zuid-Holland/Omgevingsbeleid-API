@@ -1,0 +1,59 @@
+Endpoint voor het beheren van thema objecten
+---
+paths:
+    /themas:
+        get:
+            summary: Verkrijg een lijst met alle themaen
+    /themas/{thema_uuid}:
+        get:
+            summary: Verkrijg een specifieke thema
+            parameters:
+            - name: UUID
+            in: path
+            description: UUID van de te verkrijgen thema
+            required: false
+            type: string
+definitions:
+    Thema:
+        type: object
+        properties:
+            UUID:
+                type: string
+            Titel:
+                type: string
+            Omschrijving:
+                type: string
+            Weblink:
+                type: string
+            Begin_Geldigheid:
+                type: date-time
+            Eind_Geldigheid:
+                type: date-time
+            Created_By:
+                type: string
+            Created_Date:
+                type: date-time
+            Modified_By:
+                type: string
+            Modified_Date:
+                type: string
+responses:
+    200:
+        description: Een lijst van alle actuele themaen of een enkele thema
+        schema:
+            $ref: '#/definitions/Thema'
+        examples:
+            UUID: 00000000-0000-0000-0000-000000000000
+            Titel: Thema titel
+            Omschrijving: Thema omschrijving
+            Weblink: www.thema.nl
+            Begin_Geldigheid: 2000-11-23T16:00:00
+            Eind_Geldigheid: 2018-11-23T16:00:00
+            Created_By: "Gebruiker"
+            Created_Date: 2000-11-23T14:00:00
+            Modified_By: "Gebruiker"
+            Modified_Date: 2018-06-25T16:45:00
+    400:
+        description: Resultaat wanneer een ongeldig of niet bestaand UUID wordt gevraagd
+        examples:
+            message: Waarde 00000000-0000-0000-0000-000000000000 is geen geldig UUID
