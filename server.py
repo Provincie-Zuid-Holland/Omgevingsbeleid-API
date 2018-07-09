@@ -7,6 +7,7 @@ from Dimensies.beleidsregel import BeleidsRegel
 from Dimensies.doel import Doel
 from Dimensies.provinciaalbelang import ProvinciaalBelang
 from Dimensies.thema import Thema
+from Dimensies.opgaven import Opgave
 from Feiten.beleidsbeslissing import BeleidsBeslissing
 current_version = '0.1'
 
@@ -34,6 +35,7 @@ api.add_resource(BeleidsRegel, '/beleidsregels', '/beleidsregels/<string:beleids
 api.add_resource(Doel, '/doelen', '/doelen/<string:doel_uuid>')
 api.add_resource(ProvinciaalBelang, '/provincialebelangen', '/provincialebelangen/<string:provinciaalbelang_uuid>')
 api.add_resource(Thema, '/themas', '/themas/<string:thema_uuid>')
+api.add_resource(Opgave, '/opgaven', '/opgaven/<string:opgave_uuid>')
 api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen', '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
 if __name__ == '__main__':
     app.run()

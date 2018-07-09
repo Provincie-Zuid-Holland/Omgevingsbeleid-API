@@ -197,16 +197,63 @@ provinciaalbelang_aanpassen = '''
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         '''
 
+# Queries voor Opgaven
+
+# Alle actuele doel selecteren
+alle_opgaven = 'SELECT * FROM Opgaven'
+
+# Een doel selecteren op 'uuid'
+# Argumenten: uuid
+opgave_op_uuid = 'SELECT * FROM Opgaven WHERE UUID=:uuid'
+
+# Een opgave aanmaken via een insert
+# Argumenten: 
+#        Titel,
+#        Omschrijving,
+#        Weblink
+#        Begin_Geldigheid,
+#        Eind_Geldigheid,
+#        Created_By,
+#        Created_Date,
+#        Created_By,
+#        Created_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+opgave_aanmaken = '''
+        INSERT INTO Opgaven (Titel, Omschrijving, Weblink, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        '''
+# Een opgave aanpassen via een insert (we maken altijd een kopie)
+# Argumenten: 
+#        ID
+#        Titel,
+#        Omschrijving,
+#        Weblink,
+#        Begin_Geldigheid,
+#        Eind_Geldigheid,
+#        Created_By,
+#        Created_Date,
+#        Modified_By,
+#        Modified_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+opgave_aanpassen = '''
+        INSERT INTO Opgaven (ID, Titel, Omschrijving, Weblink, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
+        '''
+ 
 # Queries voor Themas
 
-# Alle actuele provenciaal belang selecteren
+# Alle actuele thema's belang selecteren
 alle_themas = 'SELECT * FROM Actuele_Themas'
 
-# Een provenciaal belang selecteren op 'uuid'
+# Een thema selecteren op 'uuid'
 # Argumenten: uuid
 thema_op_uuid = 'SELECT * FROM Themas WHERE UUID=:uuid'
 
-# Een provenciaal belang aanmaken via een insert
+# Een thema aanmaken via een insert
 # Argumenten: 
 #        Titel,
 #        Omschrijving,

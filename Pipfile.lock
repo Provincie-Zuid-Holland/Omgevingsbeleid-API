@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "56569805ccd1e713868452be56ce65551dbcdeab4fc63c211420122a48967905"
+            "sha256": "1372ba9d505f1ac45b4a00a6488f6ef6d8b1ee758da69d771cb003103ac77309"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -22,13 +22,6 @@
                 "sha256:94f90871fcd314a458a3d4eca1c84448efbd200e86f55fe4c733c7a40149ef50"
             ],
             "version": "==3.0.2"
-        },
-        "cerberus": {
-            "hashes": [
-                "sha256:f5c2e048fb15ecb3c088d192164316093fcfa602a74b3386eefb2983aa7e800a"
-            ],
-            "index": "pypi",
-            "version": "==1.2"
         },
         "click": {
             "hashes": [
@@ -65,13 +58,6 @@
             "index": "pypi",
             "version": "==1.0.2"
         },
-        "flask-graphql": {
-            "hashes": [
-                "sha256:0e54ed00e1a2c5ccd957a024ecd1932a212efe879f840328a44c4fea3b033c98"
-            ],
-            "index": "pypi",
-            "version": "==2.0rc0"
-        },
         "flask-restful": {
             "hashes": [
                 "sha256:5795519501347e108c436b693ff9a4d7b373a3ac9069627d64e4001c05dd3407",
@@ -79,41 +65,6 @@
             ],
             "index": "pypi",
             "version": "==0.3.6"
-        },
-        "flask-restful-swagger": {
-            "hashes": [
-                "sha256:78d39e6c03549c02d1cd1e1b1ead32124396e3bafd9af2adbdfefeb25072c6dc"
-            ],
-            "index": "pypi",
-            "version": "==0.20.1"
-        },
-        "graphene": {
-            "hashes": [
-                "sha256:8fd8e6195c56c15b2936e7dee2e156692eba4752ee1978f65e10925eafe8d014",
-                "sha256:98e74c32d0415e5b5362738c1c1cb4b7a4e411b5d3d828abb29ccd3efb378c44"
-            ],
-            "index": "pypi",
-            "version": "==2.1.2"
-        },
-        "graphql-core": {
-            "hashes": [
-                "sha256:7b00e588f06c9066bf8a4e14ed19f9c7dcf9d2d2958f4208010eef496260374c",
-                "sha256:e5710539d3098aa2ccdb0014901e2e1ac4af0ef09e3de9283192bc7b97211cf8"
-            ],
-            "version": "==2.1rc2"
-        },
-        "graphql-relay": {
-            "hashes": [
-                "sha256:2716b7245d97091af21abf096fabafac576905096d21ba7118fba722596f65db"
-            ],
-            "version": "==0.4.5"
-        },
-        "graphql-server-core": {
-            "hashes": [
-                "sha256:0cfcb72ceb8173c4d3b3b6eac44b02282bfcbb654117056548a6df5702d97d07",
-                "sha256:c0a3b7768b3319236d7bf1ec182a42d1114cd45349868f1d70eae0b5fc9c61c0"
-            ],
-            "version": "==1.1rc0"
         },
         "itsdangerous": {
             "hashes": [
@@ -150,11 +101,11 @@
         },
         "marshmallow": {
             "hashes": [
-                "sha256:6ead3c21519714521882f2d76082f6d7cb51be2b6c443bdeea70248f8f3be012",
-                "sha256:c6b162ce3544cb4acbe8ce7676ec61aac9fa0a69714be10ded5163e7195d4e11"
+                "sha256:29fe07df512746856459addf8531f7902b5e28bead17afc21204590953963906",
+                "sha256:dee61f63579ab69b9bed628709c4e33ad8da80aea2f40c7a64584537aade47ed"
             ],
             "index": "pypi",
-            "version": "==3.0.0b11"
+            "version": "==3.0.0b12"
         },
         "mistune": {
             "hashes": [
@@ -175,13 +126,6 @@
                 "sha256:9239b74faf175dc4276a5fc277655fc53c2f704ded39e680d35e6a39e1913f69"
             ],
             "version": "==2.5.4"
-        },
-        "promise": {
-            "hashes": [
-                "sha256:0bca4ed933e3d50e3d18fb54fc1432fa84b0564838cd093e824abcd718ab9304",
-                "sha256:95506bac89df7a495e0b8c813fd782dd1ae590decb52f95248e316c6659ca49b"
-            ],
-            "version": "==2.1"
         },
         "pyodbc": {
             "hashes": [
@@ -231,13 +175,6 @@
             "index": "pypi",
             "version": "==0.5.2"
         },
-        "rx": {
-            "hashes": [
-                "sha256:13a1d8d9e252625c173dc795471e614eadfe1cf40ffc684e08b8fff0d9748c23",
-                "sha256:7357592bc7e881a95e0c2013b73326f704953301ab551fbc8133a6fadab84105"
-            ],
-            "version": "==1.6.1"
-        },
         "six": {
             "hashes": [
                 "sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9",
@@ -256,14 +193,6 @@
                 "sha256:b8cf50a61d66655229993f2ee29220553fb2c80403479f8e6de77c0c24649d87"
             ],
             "version": "==0.12.1"
-        },
-        "typing": {
-            "hashes": [
-                "sha256:3a887b021a77b292e151afb75323dea88a7bc1b3dfa92176cff8e44c8b68bddf",
-                "sha256:b2c689d54e1144bbcfd191b0832980a21c2dbcf7b5ff7a66248a60c90e951eb8",
-                "sha256:d400a9344254803a2368533e4533a4200d21eb7b6b729c173bc38201a74db3f2"
-            ],
-            "version": "==3.6.4"
         },
         "unicodecsv": {
             "hashes": [
