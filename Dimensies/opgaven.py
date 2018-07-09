@@ -50,7 +50,6 @@ class Opgave(Resource):
             return {'message': "Methode POST niet geldig op een enkel object, verwijder identiteit uit URL"}, 400
         
         schema = Opgaven_Schema(
-            partial=('UUID','Modified_By', 'Modified_Date'), 
             exclude = ('UUID','Modified_By', 'Modified_Date'),
             unknown=MM.utils.RAISE)
         try:
