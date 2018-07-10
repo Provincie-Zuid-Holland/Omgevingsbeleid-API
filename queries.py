@@ -399,7 +399,7 @@ omgevingsbeleid_aanmaken = '''
 # Alle actuele maatregelen selecteren
 alle_maatregelen = 'SELECT * FROM Maatregelen'
 
-# Een ambitie selecteren op `uuid`
+# Een maatregel selecteren op `uuid`
 # Argumenten: uuid
 maatregel_op_uuid = 'SELECT * FROM Maatregelen WHERE UUID=:uuid' 
 
@@ -422,31 +422,37 @@ maatregel_op_uuid = 'SELECT * FROM Maatregelen WHERE UUID=:uuid'
 # !OUTPUT inserted.UUID is verplicht!
  
 maatregel_aanmaken = '''
-        INSERT INTO Maatregelen (Titel, Motivering, Beleids_Document, Gebied, Verplicht_Programma, Specifiek_Of_Generiek, Weblink, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        INSERT INTO Maatregelen (Titel, Motivering, Beleids_Document, fk_Gebied, Verplicht_Programma, Specifiek_Of_Generiek, Weblink, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
         OUTPUT inserted.UUID
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         '''
 
-# Een ambitie aanpassen via een insert (we maken altijd een kopie)
+# Een maatregel aanpassen via een insert (we maken altijd een kopie)
 # Argumenten: 
        # ID
-       # Titel,
-       # Omschrijving,
-       # Weblink,
-       # Begin_Geldigheid,
-       # Eind_Geldigheid,
-       # Created_By,
-       # Created_Date,
-       # Modified_By,
+       # Titel
+       # Motivering
+       # Beleids_Document
+       # Gebied
+       # Verplicht_Programma
+       # Specifiek_Of_Generiek
+       # Weblink
+       # Begin_Geldigheid
+       # Eind_Geldigheid
+       # Created_By
+       # Created_Date
+       # Modified_By
        # Modified_Date
 # !Argumenten worden als vraagtekens ontvangen!
 # !OUTPUT inserted.UUID is verplicht!
 
-# ambitie_aanpassen = '''
-        # INSERT INTO Ambities (ID, Titel, Omschrijving, Weblink, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
-        # OUTPUT inserted.UUID
-        # VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-        # '''
+maatregel_aanpassen = '''
+        INSERT INTO Maatregelen
+        (ID, Titel, Motivering, Beleids_Document, fk_Gebied, Verplicht_Programma, Specifiek_Of_Generiek, Weblink, Begin_Geldigheid, 
+        Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        '''
 
 
 
