@@ -197,16 +197,63 @@ provinciaalbelang_aanpassen = '''
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         '''
 
+# Queries voor Opgaven
+
+# Alle actuele doel selecteren
+alle_opgaven = 'SELECT * FROM Opgaven'
+
+# Een doel selecteren op 'uuid'
+# Argumenten: uuid
+opgave_op_uuid = 'SELECT * FROM Opgaven WHERE UUID=:uuid'
+
+# Een opgave aanmaken via een insert
+# Argumenten: 
+#        Titel,
+#        Omschrijving,
+#        Weblink
+#        Begin_Geldigheid,
+#        Eind_Geldigheid,
+#        Created_By,
+#        Created_Date,
+#        Created_By,
+#        Created_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+opgave_aanmaken = '''
+        INSERT INTO Opgaven (Titel, Omschrijving, Weblink, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        '''
+# Een opgave aanpassen via een insert (we maken altijd een kopie)
+# Argumenten: 
+#        ID
+#        Titel,
+#        Omschrijving,
+#        Weblink,
+#        Begin_Geldigheid,
+#        Eind_Geldigheid,
+#        Created_By,
+#        Created_Date,
+#        Modified_By,
+#        Modified_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+opgave_aanpassen = '''
+        INSERT INTO Opgaven (ID, Titel, Omschrijving, Weblink, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
+        '''
+ 
 # Queries voor Themas
 
-# Alle actuele provenciaal belang selecteren
+# Alle actuele thema's belang selecteren
 alle_themas = 'SELECT * FROM Actuele_Themas'
 
-# Een provenciaal belang selecteren op 'uuid'
+# Een thema selecteren op 'uuid'
 # Argumenten: uuid
 thema_op_uuid = 'SELECT * FROM Themas WHERE UUID=:uuid'
 
-# Een provenciaal belang aanmaken via een insert
+# Een thema aanmaken via een insert
 # Argumenten: 
 #        Titel,
 #        Omschrijving,
@@ -347,7 +394,65 @@ omgevingsbeleid_aanmaken = '''
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
 '''
 
+# Queries voor Maatregelen
 
+# Alle actuele maatregelen selecteren
+alle_maatregelen = 'SELECT * FROM Maatregelen'
+
+# Een maatregel selecteren op `uuid`
+# Argumenten: uuid
+maatregel_op_uuid = 'SELECT * FROM Maatregelen WHERE UUID=:uuid' 
+
+# Een maatregel aanmaken via een insert
+# Argumenten: 
+       # Titel,
+       # Motivering,
+       # Beleids_Document
+       # Gebied
+       # Verplicht_Programma
+       # Specifiek_Of_Generiek
+       # Weblink,
+       # Begin_Geldigheid,
+       # Eind_Geldigheid,
+       # Created_By,
+       # Created_Date,
+       # Created_By,
+       # Created_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+ 
+maatregel_aanmaken = '''
+        INSERT INTO Maatregelen (Titel, Motivering, Beleids_Document, fk_Gebied, Verplicht_Programma, Specifiek_Of_Generiek, Weblink, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        '''
+
+# Een maatregel aanpassen via een insert (we maken altijd een kopie)
+# Argumenten: 
+       # ID
+       # Titel
+       # Motivering
+       # Beleids_Document
+       # Gebied
+       # Verplicht_Programma
+       # Specifiek_Of_Generiek
+       # Weblink
+       # Begin_Geldigheid
+       # Eind_Geldigheid
+       # Created_By
+       # Created_Date
+       # Modified_By
+       # Modified_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+
+maatregel_aanpassen = '''
+        INSERT INTO Maatregelen
+        (ID, Titel, Motivering, Beleids_Document, fk_Gebied, Verplicht_Programma, Specifiek_Of_Generiek, Weblink, Begin_Geldigheid, 
+        Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        '''
 
 
 

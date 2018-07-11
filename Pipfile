@@ -6,15 +6,12 @@ name = "pypi"
 [packages]
 flask = "*"
 records = "*"
-flask-graphql = "*"
-graphene = "*"
-cerberus = "*"
 pyodbc = "*"
 wfastcgi = "*"
 flask-restful = "*"
-flask-restful-swagger = "*"
 flasgger = "*"
-marshmallow = "3.0.0"
+marshmallow = "*"
+apispec = "*"
 
 [dev-packages]
 
