@@ -454,7 +454,64 @@ maatregel_aanpassen = '''
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         '''
 
+# Queries voor Verordening
 
+# Alle actuele verordeningen selecteren
+alle_verordeningen = 'SELECT * FROM Verordeningen'
+
+# Een verordening selecteren op `uuid`
+# Argumenten: uuid
+verordening_op_uuid = 'SELECT * FROM Verordening WHERE UUID=:uuid' 
+
+# Een verordening aanmaken via een insert
+# Argumenten: 
+       # Titel ,
+       # Omschrijving ,
+       # Status ,
+       # Type ,
+       # Volgnummer ,
+       # Werkingsgebied,
+       # Begin_Geldigheid ,
+       # Eind_Geldigheid ,
+       # Created_By ,
+       # Created_Date ,
+       # Created_By ,
+       # Created_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+        
+verordening_aanmaken = '''
+        INSERT INTO Verordening (Titel, Omschrijving, Status, Type, Volgnummer, fk_WerkingsGebied, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        '''
+
+# Een verordening aanpassen via een insert (we maken altijd een kopie)
+# Argumenten: 
+       # ID
+       # Titel
+       # Motivering
+       # Beleids_Document
+       # Gebied
+       # Verplicht_Programma
+       # Specifiek_Of_Generiek
+       # Weblink
+       # Begin_Geldigheid
+       # Eind_Geldigheid
+       # Created_By
+       # Created_Date
+       # Modified_By
+       # Modified_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+
+# verordening_aanpassen = '''
+        # INSERT INTO Verordening
+        # (ID, Titel, Motivering, Beleids_Document, fk_Gebied, Verplicht_Programma, Specifiek_Of_Generiek, Weblink, Begin_Geldigheid, 
+        # Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        # OUTPUT inserted.UUID
+        # VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        # '''
 
 
 

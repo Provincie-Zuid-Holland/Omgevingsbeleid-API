@@ -13,14 +13,13 @@ from Dimensies.provinciaalbelang import ProvinciaalBelang
 from Dimensies.thema import Thema
 from Dimensies.opgaven import Opgave
 from Dimensies.maatregelen import Maatregel, Maatregelen_Schema
+from Dimensies.verordening import Verordening
 from Feiten.beleidsbeslissing import BeleidsBeslissing
-
 
 current_version = '0.1'
 
 app = Flask(__name__)
 api = Api(app, prefix=f'/v{current_version}')
-
 
 
 api.add_resource(Ambitie, '/ambities', '/ambities/<string:ambitie_uuid>')
@@ -30,6 +29,7 @@ api.add_resource(ProvinciaalBelang, '/provincialebelangen', '/provincialebelange
 api.add_resource(Thema, '/themas', '/themas/<string:thema_uuid>')
 api.add_resource(Opgave, '/opgaven', '/opgaven/<string:opgave_uuid>')
 api.add_resource(Maatregel, '/maatregelen', '/maatregelen/<string:maatregel_uuid>')
+api.add_resource(Verordening, '/verordeningen', '/verordeningen/<string:verordening_uuid>')
 api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen', '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
 if __name__ == '__main__':
     app.run()
