@@ -200,7 +200,7 @@ provinciaalbelang_aanpassen = '''
 # Queries voor Opgaven
 
 # Alle actuele doel selecteren
-alle_opgaven = 'SELECT * FROM Opgaven'
+alle_opgaven = 'SELECT * FROM Actuele_Opgaven'
 
 # Een doel selecteren op 'uuid'
 # Argumenten: uuid
@@ -292,7 +292,7 @@ thema_aanpassen = '''
 # Queries voor BeleidsBeslissingen
 
 # Alle actuele beleidsbeslissingen selecteren
-alle_beleidsbeslissingen = 'SELECT * FROM Beleidsbeslissingen'
+alle_beleidsbeslissingen = 'SELECT * FROM Actuele_Beleidsbeslissingen'
 
 # Een provenciaal belang selecteren op 'uuid'
 # Argumenten: uuid
@@ -397,7 +397,7 @@ omgevingsbeleid_aanmaken = '''
 # Queries voor Maatregelen
 
 # Alle actuele maatregelen selecteren
-alle_maatregelen = 'SELECT * FROM Maatregelen'
+alle_maatregelen = 'SELECT * FROM Actuele_Maatregelen'
 
 # Een maatregel selecteren op `uuid`
 # Argumenten: uuid
