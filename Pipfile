@@ -11,6 +11,7 @@ wfastcgi = "*"
 flask-restful = "*"
 flasgger = "*"
 marshmallow = "*"
+apispec = "*"
 
 [dev-packages]
 
