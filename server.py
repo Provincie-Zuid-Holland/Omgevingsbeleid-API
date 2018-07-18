@@ -14,6 +14,11 @@ from Dimensies.thema import Thema
 from Dimensies.opgaven import Opgave
 from Dimensies.maatregelen import Maatregel, Maatregelen_Schema
 from Dimensies.verordening import Verordening
+from Dimensies.werkingsgebieden import Werkingsgebied
+from Dimensies.geothemas import Geothema
+from Dimensies.beleidsrelaties import BeleidsRelatie
+
+
 from Feiten.beleidsbeslissing import BeleidsBeslissing
 
 current_version = '0.1'
@@ -30,6 +35,10 @@ api.add_resource(Thema, '/themas', '/themas/<string:thema_uuid>')
 api.add_resource(Opgave, '/opgaven', '/opgaven/<string:opgave_uuid>')
 api.add_resource(Maatregel, '/maatregelen', '/maatregelen/<string:maatregel_uuid>')
 api.add_resource(Verordening, '/verordeningen', '/verordeningen/<string:verordening_uuid>')
+api.add_resource(Werkingsgebied, '/werkingsgebieden', '/werkingsgebieden/<string:werkingsgebied_uuid>')
+api.add_resource(Geothema, '/geothemas', '/geothemas/<string:geothema_uuid>')
+api.add_resource(BeleidsRelatie, '/beleidsrelaties', '/beleidsrelaties/<string:beleidsrelatie_uuid>')
+
 api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen', '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
 if __name__ == '__main__':
     app.run()

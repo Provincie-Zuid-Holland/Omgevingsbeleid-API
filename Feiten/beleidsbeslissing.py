@@ -29,7 +29,7 @@ class BeleidsBeslissing_CreateSchema(MM.Schema):
     Verordening_Realisatie = MM.fields.Str()
     # Vanaf hier hebben we het over omgevingsbeleid objecten
     WerkingsGebieden = MM.fields.Nested(Koppelingen_Schema, many=True, default=[])
-    BeleidsRelaties = MM.fields.Nested(Koppelingen_Schema, many=True, default=[])
+    # BeleidsRelaties = MM.fields.Nested(Koppelingen_Schema, many=True, default=[])
     Verordering = MM.fields.Nested(Koppelingen_Schema, many=True,  default=[])
     Maatregelen = MM.fields.Nested(Koppelingen_Schema, many=True,  default=[])
     BeleidsRegels = MM.fields.Nested(Koppelingen_Schema, many=True,  default=[])
@@ -56,15 +56,6 @@ class BeleidsBeslissing_CreateSchema(MM.Schema):
     class Meta:
         ordered = True
         
-
-modify_argparser = reqparse.RequestParser()
-modify_argparser.add_argument('Titel', type=str, help="{error_msg}: De titel van dit object")
-modify_argparser.add_argument('Omschrijving', type=str, help="{error_msg}: De omschrijving van dit object")
-modify_argparser.add_argument('Weblink', type=str, help="{error_msg}: De weblink van dit object")
-modify_argparser.add_argument('Begin_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object ingaat")
-modify_argparser.add_argument('Eind_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object eindigt")
-modify_argparser.add_argument('Modified_By', type=str, help="{error_msg}: De gebruiker die dit object heeft aangepast", required=True)
-modify_argparser.add_argument('Modified_Date', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop dit object is aangepast", required=True)
 
 OMGEVINGSBELEID_FIELDS = ['WerkingsGebieden', 'BeleidsRelaties' , 'Verorderingen', 'Maatregelen' 
 , 'BeleidsRegels', 'Themas', 'Ambities', 'Doelen', 'ProvincialeBelangen', 'Opgaven']
@@ -138,7 +129,7 @@ class BeleidsBeslissing(Resource):
                 cursor.execute(omgevingsbeleid_aanmaken,
                 beleidsbeslissing_uuid,
                 row['WerkingsGebieden']['UUID'],
-                row['BeleidsRelaties']['UUID'],
+                # row['BeleidsRelaties']['UUID'],
                 row['Verorderingen']['UUID'],
                 row['Maatregelen']['UUID'],
                 row['BeleidsRegels']['UUID'],
@@ -148,7 +139,7 @@ class BeleidsBeslissing(Resource):
                 row['ProvincialeBelangen']['UUID'],
                 row['Opgaven']['UUID'],
                 row['WerkingsGebieden']['Omschrijving'],
-                row['BeleidsRelaties']['Omschrijving'],
+                # row['BeleidsRelaties']['Omschrijving'],
                 row['Verorderingen']['Omschrijving'],
                 row['Maatregelen']['Omschrijving'],
                 row['BeleidsRegels']['Omschrijving'],
@@ -226,7 +217,7 @@ class BeleidsBeslissing(Resource):
                     cursor.execute(omgevingsbeleid_aanmaken,
                     beleidsbeslissing_uuid,
                     row['WerkingsGebieden']['UUID'],
-                    row['BeleidsRelaties']['UUID'],
+                    # row['BeleidsRelaties']['UUID'],
                     row['Verorderingen']['UUID'],
                     row['Maatregelen']['UUID'],
                     row['BeleidsRegels']['UUID'],
@@ -236,7 +227,7 @@ class BeleidsBeslissing(Resource):
                     row['ProvincialeBelangen']['UUID'],
                     row['Opgaven']['UUID'],
                     row['WerkingsGebieden']['Omschrijving'],
-                    row['BeleidsRelaties']['Omschrijving'],
+                    # row['BeleidsRelaties']['Omschrijving'],
                     row['Verorderingen']['Omschrijving'],
                     row['Maatregelen']['Omschrijving'],
                     row['BeleidsRegels']['Omschrijving'],
@@ -263,6 +254,7 @@ class BeleidsBeslissing(Resource):
                     return {"Database error":str(odbcex)}, 400
 
             connection.commit()
+             
             return {"Resultaat_UUID": f"{beleidsbeslissing_uuid}"}
             
         except MM.exceptions.ValidationError as err:

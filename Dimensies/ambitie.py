@@ -80,7 +80,8 @@ class Ambitie(Resource):
         
         patch_schema = Ambitie_Schema(
             partial=('Titel', 'Omschrijving', 'Weblink', 'Begin_Geldigheid', 'Eind_Geldigheid'),
-            exclude = ('UUID', 'Created_By', 'Created_Date')
+            exclude = ('UUID', 'Created_By', 'Created_Date'),
+            unknown=MM.utils.RAISE
             )
         try:
             ambitie_aanpassingen = patch_schema.load(request.get_json())
