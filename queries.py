@@ -200,7 +200,7 @@ provinciaalbelang_aanpassen = '''
 # Queries voor Opgaven
 
 # Alle actuele doel selecteren
-alle_opgaven = 'SELECT * FROM Opgaven'
+alle_opgaven = 'SELECT * FROM Actuele_Opgaven'
 
 # Een doel selecteren op 'uuid'
 # Argumenten: uuid
@@ -292,7 +292,7 @@ thema_aanpassen = '''
 # Queries voor BeleidsBeslissingen
 
 # Alle actuele beleidsbeslissingen selecteren
-alle_beleidsbeslissingen = 'SELECT * FROM Beleidsbeslissingen'
+alle_beleidsbeslissingen = 'SELECT * FROM Actuele_Beleidsbeslissingen'
 
 # Een provenciaal belang selecteren op 'uuid'
 # Argumenten: uuid
@@ -338,7 +338,6 @@ beleidsbeslissing_aanmaken = '''
 # Argumenten: uuid (van beleidsbeslissing)
 omgevingsbeleid_bij_beleidsbeslissing = '''SELECT 
                                             fk_WerkingsGebieden,
-                                            fk_BeleidsRelaties,
                                             fk_Verordening,
                                             fk_Maatregelen,
                                             fk_BeleidsRegels,
@@ -348,7 +347,6 @@ omgevingsbeleid_bij_beleidsbeslissing = '''SELECT
                                             fk_ProvincialeBelangen,
                                             fk_Opgaven,
                                             WerkingsGebieden_Omschrijving,
-                                            BeleidsRelaties_Omschrijving,
                                             Verordening_Omschrijving,
                                             Maatregelen_Omschrijving,
                                             BeleidsRegels_Omschrijving,
@@ -365,7 +363,6 @@ omgevingsbeleid_aanmaken = '''
         INSERT INTO Omgevingsbeleid (
             fk_Beleidsbeslissingen,
             fk_WerkingsGebieden,
-            fk_BeleidsRelaties,
             fk_Verordening,
             fk_Maatregelen,
             fk_BeleidsRegels,
@@ -375,7 +372,6 @@ omgevingsbeleid_aanmaken = '''
             fk_ProvincialeBelangen,
             fk_Opgaven,
             WerkingsGebieden_Omschrijving,
-            BeleidsRelaties_Omschrijving,
             Verordening_Omschrijving,
             Maatregelen_Omschrijving,
             BeleidsRegels_Omschrijving,
@@ -391,13 +387,13 @@ omgevingsbeleid_aanmaken = '''
             Created_By,
             Created_Date
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
 '''
 
 # Queries voor Maatregelen
 
 # Alle actuele maatregelen selecteren
-alle_maatregelen = 'SELECT * FROM Maatregelen'
+alle_maatregelen = 'SELECT * FROM Actuele_Maatregelen'
 
 # Een maatregel selecteren op `uuid`
 # Argumenten: uuid
@@ -454,14 +450,237 @@ maatregel_aanpassen = '''
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         '''
 
+# Queries voor Verordening
 
+# Alle actuele verordeningen selecteren
+alle_verordeningen = 'SELECT * FROM Actuele_Verordeningen'
 
+# Een verordening selecteren op `uuid`
+# Argumenten: uuid
+verordening_op_uuid = 'SELECT * FROM Verordeningen WHERE UUID=:uuid' 
 
+# Een verordening aanmaken via een insert
+# Argumenten: 
+       # Titel ,
+       # Omschrijving ,
+       # Status ,
+       # Type ,
+       # Volgnummer ,
+       # Werkingsgebied,
+       # Begin_Geldigheid ,
+       # Eind_Geldigheid ,
+       # Created_By ,
+       # Created_Date ,
+       # Created_By ,
+       # Created_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+        
+verordening_aanmaken = '''
+        INSERT INTO Verordeningen (Titel, Omschrijving, Status, Type, Volgnummer, fk_WerkingsGebied, Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        '''
 
+# Een verordening aanpassen via een insert (we maken altijd een kopie)
+# Argumenten: 
+       # ID,
+       # Titel ,
+       # Omschrijving ,
+       # Status ,
+       # Type ,
+       # Volgnummer ,
+       # Werkingsgebied,
+       # Begin_Geldigheid ,
+       # Eind_Geldigheid ,
+       # Created_By ,
+       # Created_Date ,
+       # Modified_By ,
+       # Mofified_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
 
+verordening_aanpassen = '''
+        INSERT INTO Verordeningen
+        (ID, Titel, Omschrijving, Status, Type, Volgnummer, fk_WerkingsGebied, 
+         Begin_Geldigheid, Eind_Geldigheid, Created_By, Created_Date, Modified_By, Modified_Date)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        '''
 
+# Queries voor Werkingsgebieden
 
+# Alle beschikbare werkingsgebieden selecteren
+alle_werkingsgebieden = '''
+SELECT [UUID]
+      ,[OBJECTID]
+      ,[Werkingsgebied]
+      ,[Onderverdeling]
+      ,[PRIMA]
+      ,[FID]
+      ,[Begin_Geldigheid]
+      ,[Eind_Geldigheid]
+      ,[Created_By]
+      ,[Created_Date]
+      ,[Modified_By]
+      ,[Modified_Date]
+  FROM [PZH_db].[dbo].[WerkingsGebieden]'''
 
+# Een werkingsgebied selecteren op `uuid`
+# Argumenten: uuid
+werkingsgebied_op_uuid = '''
+SELECT [UUID]
+      ,[OBJECTID]
+      ,[Werkingsgebied]
+      ,[Onderverdeling]
+      ,[PRIMA]
+      ,[FID]
+      ,[Begin_Geldigheid]
+      ,[Eind_Geldigheid]
+      ,[Created_By]
+      ,[Created_Date]
+      ,[Modified_By]
+      ,[Modified_Date]
+  FROM [PZH_db].[dbo].[WerkingsGebieden]
+  WHERE UUID=:uuid
+  '''
+
+# Queries voor Geothemas
+
+# Alle beschikbare geothemas selecteren
+alle_geothemas = '''
+SELECT [UUID]
+      ,[Titel]
+      ,[Omschrijving]
+      ,[Begin_Geldigheid]
+      ,[Eind_Geldigheid]
+      ,[Created_By]
+      ,[Created_Date]
+      ,[Modified_By]
+      ,[Modified_Date]
+  FROM [PZH_db].[dbo].[GeoThemas]'''
+
+# Een werkingsgebied selecteren op `uuid`
+# Argumenten: uuid
+geothema_op_uuid = '''
+SELECT [UUID]
+      ,[Titel]
+      ,[Omschrijving]
+      ,[Begin_Geldigheid]
+      ,[Eind_Geldigheid]
+      ,[Created_By]
+      ,[Created_Date]
+      ,[Modified_By]
+      ,[Modified_Date]
+  FROM [PZH_db].[dbo].[GeoThemas]
+  WHERE UUID=:uuid
+  '''
+
+# Queries voor BeleidsRelaties
+
+# Alle actuele beleidsrelaties selecteren
+alle_beleidsrelaties = 'SELECT * FROM Actuele_BeleidsRelaties'
+
+# Een verordening selecteren op `uuid`
+# Argumenten: uuid
+beleidsrelatie_op_uuid = 'SELECT * FROM BeleidsRelaties WHERE UUID=:uuid' 
+
+# Een beleidsrelatie aanmaken via een insert
+# Argumenten: 
+       # Van_Beleidsbeslissing ,
+       # Naar_Beleidsbeslissing ,
+       # Omschrijving ,
+       # Status ,
+       # Aanvraag_Datum ,
+       # Datum_Akkoord,
+       # Begin_Geldigheid ,
+       # Eind_Geldigheid ,
+       # Created_By ,
+       # Created_Date ,
+       # Modified_By ,
+       # Modified_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+        
+beleidsrelatie_aanmaken = '''
+        INSERT INTO BeleidsRelaties (
+           Van_Beleidsbeslissing ,
+           Naar_Beleidsbeslissing ,
+           Omschrijving ,
+           Status ,
+           Aanvraag_Datum ,
+           Datum_Akkoord,
+           Begin_Geldigheid ,
+           Eind_Geldigheid ,
+           Created_By ,
+           Created_Date ,
+           Modified_By ,
+           Modified_Date
+        )
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        '''
+# Checken of een beleidsrelatie al bestaat tussen twee beleidsbeslissingen
+# (Named) Argumenten:
+    # bb1_UUID
+    # bb2_UUID
+    # bb1_UUID
+    # bb2_UUID
+    
+check_beleidsrelatie = '''
+    SELECT 
+       UUID
+      ,Van_Beleidsbeslissing
+      ,Naar_Beleidsbeslissing
+  FROM Actuele_BeleidsRelaties
+  WHERE (Van_Beleidsbeslissing=?
+  AND Naar_Beleidsbeslissing=?)
+  OR (Naar_Beleidsbeslissing=?
+    AND Van_Beleidsbeslissing=?);
+'''
+        
+        
+# Een beleidsrelatie aanpassen via een insert (we maken altijd een kopie)
+# Argumenten: 
+       # ID,
+       # Van_Beleidsbeslissing ,
+       # Naar_Beleidsbeslissing ,
+       # Omschrijving ,
+       # Status ,
+       # Aanvraag_Datum ,
+       # Datum_Akkoord,
+       # Begin_Geldigheid ,
+       # Eind_Geldigheid ,
+       # Created_By ,
+       # Created_Date ,
+       # Modified_By ,
+       # Modified_Date
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+beleidsrelatie_aanpassen = '''
+        INSERT INTO BeleidsRelaties (
+           ID,
+           Van_Beleidsbeslissing ,
+           Naar_Beleidsbeslissing ,
+           Omschrijving ,
+           Status ,
+           Aanvraag_Datum ,
+           Datum_Akkoord,
+           Begin_Geldigheid ,
+           Eind_Geldigheid ,
+           Created_By ,
+           Created_Date ,
+           Modified_By ,
+           Modified_Date
+        )
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        '''
+
+# Een beleidsrelatie selecteren op van/naar `uuid`
+# Argumenten: uuid
+beleidsrelatie_op_van_uuid = 'SELECT * FROM BeleidsRelaties WHERE Van_Beleidsbeslissing=:uuid' 
+beleidsrelatie_op_naar_uuid = 'SELECT * FROM BeleidsRelaties WHERE Naar_Beleidsbeslissing=:uuid' 
 
 
 
