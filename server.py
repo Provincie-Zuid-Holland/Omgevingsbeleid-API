@@ -17,7 +17,7 @@ from Dimensies.verordening import Verordening
 from Dimensies.werkingsgebieden import Werkingsgebied
 from Dimensies.geothemas import Geothema
 from Dimensies.beleidsrelaties import BeleidsRelatie
-
+from Dimensies.gebruikers import Gebruiker
 
 from Feiten.beleidsbeslissing import BeleidsBeslissing
 
@@ -38,6 +38,7 @@ api.add_resource(Verordening, '/verordeningen', '/verordeningen/<string:verorden
 api.add_resource(Werkingsgebied, '/werkingsgebieden', '/werkingsgebieden/<string:werkingsgebied_uuid>')
 api.add_resource(Geothema, '/geothemas', '/geothemas/<string:geothema_uuid>')
 api.add_resource(BeleidsRelatie, '/beleidsrelaties', '/beleidsrelaties/<string:beleidsrelatie_uuid>')
+api.add_resource(Gebruiker, '/gebruikers', '/gebruikers/<string:gebruiker_uuid>')
 
 api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen', '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
 if __name__ == '__main__':
