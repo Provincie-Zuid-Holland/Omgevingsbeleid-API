@@ -53,7 +53,7 @@ def generate_client_creds(client_identifier):
     click.pause()
 
 
-app.add_url_rule('/login', 'login', login, methods=['POST'])
+app.add_url_rule(f'/v{current_version}/login', 'login', login, methods=['POST'])
 
 
 api.add_resource(Ambitie, '/ambities',

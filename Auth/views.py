@@ -26,7 +26,7 @@ def login():
     cursor.execute("SELECT * FROM Clients WHERE identifier = ?", identifier)
     result = cursor.fetchone()
     if result:
-        passwordhash = cursor.fetchone()[1]
+        passwordhash = result[1]
         if passwordhash:
             if bcrypt.verify(password, passwordhash):
                 access_token = create_access_token(identity=identifier)
