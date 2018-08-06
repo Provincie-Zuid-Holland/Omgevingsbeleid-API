@@ -50,6 +50,7 @@ def custom_unauthorized_loader(reason):
 def generate_client_creds(client_identifier):
     result = new_client_creds(client_identifier)
     click.echo(result)
+    click.pause()
 
 
 app.add_url_rule('/login', 'login', login, methods=['POST'])
