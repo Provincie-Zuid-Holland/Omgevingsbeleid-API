@@ -24,11 +24,13 @@ def login():
     connection = pyodbc.connect(db_connection_settings)
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM Clients WHERE identifier = ?", identifier)
-    passwordhash = cursor.fetchone()[1]
-    if passwordhash:
-        if bcrypt.verify(password, passwordhash):
-            access_token = create_access_token(identity=identifier)
-            return jsonify(access_token=access_token), 200    
+    result = cursor.fetchone()
+    if result:
+        passwordhash = cursor.fetchone()[1]
+        if passwordhash:
+            if bcrypt.verify(password, passwordhash):
+                access_token = create_access_token(identity=identifier)
+                return jsonify(access_token=access_token), 200    
     return jsonify(
         {"message": "Wachtwoord of gebruikersnaam ongeldig"}), 401
     
