@@ -12,6 +12,8 @@ flask-restful = "*"
 flasgger = "*"
 marshmallow = "*"
 apispec = "*"
+flask-jwt-extended = "*"
+passlib = {extras = ["bcrypt"]}
 
 [dev-packages]
 
