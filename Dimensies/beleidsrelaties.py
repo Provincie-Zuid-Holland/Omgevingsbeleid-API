@@ -11,30 +11,6 @@ from helpers import single_object_by_uuid, objects_from_query, related_objects_f
 from globals import db_connection_string, db_connection_settings
 from uuid import UUID
 
-# DEFAULT
-# BB1 >BR(Akkoord)> BB2
-# BB1' >BR(Open)> BB2
-# 
-# WIJZIG BB2
-# BB1 >BR(Akkoord)> BB2
-# BB2' >BR(Open)> BB1
-# 
-# WIJZIG BR (vanuit BB1)
-# BB1 >BR(Akkoord)> BB2
-# BB1 >BR'(Open)> BB2
-# 
-# WIJZIG BR (vanuit BB2)
-# BB1 >BR(Akkoord)> BB2
-# BB2 >BR'(Open)> BB1
-#
-# KAN NIET 
-# NIEUWE BB2
-# BB1 >BR(Akkoord)> BB2
-# BB1 >BR(Open)> BB3
-#
-# NIEUWE BB1
-# BB1 >BR(Akkoord)> BB2
-# BB3 <BR(Open)< BB2
 
 class BeleidsRelatie_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
