@@ -683,6 +683,43 @@ beleidsrelatie_op_van_uuid = 'SELECT * FROM BeleidsRelaties WHERE Van_Beleidsbes
 beleidsrelatie_op_naar_uuid = 'SELECT * FROM BeleidsRelaties WHERE Naar_Beleidsbeslissing=:uuid' 
 
 
+# Queries voor Gebruikers
+
+# Alle gebruikers selecteren
+alle_gebruikers = 'SELECT * FROM Gebruikers'
+
+# Een verordening selecteren op `uuid`
+# Argumenten: uuid
+gebruiker_op_uuid = 'SELECT * FROM Gebruikers WHERE UUID=:uuid' 
+
+# Een gebruiker aanmaken via een insert
+# Argumenten: 
+       # Gebruikersnaam
+       # Rol
+       # Email
+# !Argumenten worden als vraagtekens ontvangen!
+# !OUTPUT inserted.UUID is verplicht!
+        
+gebruiker_aanmaken = '''
+        INSERT INTO Gebruikers (Gebruikersnaam, Rol, Email)
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?);
+        '''
+
+# Een gebruiker aanpassen via een update
+# Argumenten: 
+       # Gebruikersnaam,
+       # Rol,
+       # Email,
+       # UUID
+# !Argumenten worden als vraagtekens ontvangen!
+
+gebruiker_aanpassen = '''
+        UPDATE Gebruikers
+        SET Gebruikersnaam=?, Rol=?, Email=?
+        WHERE UUID=?
+        '''
+
 
 
 
