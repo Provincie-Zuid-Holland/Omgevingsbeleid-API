@@ -91,7 +91,7 @@ class Ambitie(Resource):
         oude_ambitie = single_object_by_uuid('Ambities', ambitie_op_uuid, uuid=ambitie_uuid)
             
         if not oude_ambitie:
-            return {'message': f"Ambitie met UUID {ambitie_uuid} is niet gevonden"}, 400
+            return {'message': f"Ambitie met UUID {ambitie_uuid} is niet gevonden"}, 404
             
         ambitie = {**oude_ambitie, **ambitie_aanpassingen}
         

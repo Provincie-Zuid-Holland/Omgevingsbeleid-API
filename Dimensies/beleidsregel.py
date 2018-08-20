@@ -2,119 +2,119 @@ from flask_restful import Resource, Api, fields, marshal, reqparse, inputs, abor
 import records
 import pyodbc
 from flasgger import swag_from
+import marshmallow as MM
+from flask import request
 
 from queries import *
 from helpers import single_object_by_uuid, objects_from_query, related_objects_from_query, validate_UUID
 from globals import db_connection_string, db_connection_settings
 from uuid import UUID
 
-resource_fields = {
-    'UUID': fields.String,
-    'Titel': fields.String,
-    'Omschrijving':fields.String,
-    'Weblink': fields.String,
-    'Begin_Geldigheid': fields.DateTime(dt_format='iso8601'),
-    'Eind_Geldigheid': fields.DateTime(dt_format='iso8601'),
-    'Created_By': fields.String,
-    'Created_Date': fields.DateTime(dt_format='iso8601'),
-    'Modified_By': fields.String,
-    'Modified_Date': fields.DateTime(dt_format='iso8601')}
 
-create_argparser= reqparse.RequestParser()
-create_argparser.add_argument('Titel', type=str, help="{error_msg}: De titel van dit object", required=True)
-create_argparser.add_argument('Omschrijving', type=str, help="{error_msg}: De omschrijving van dit object", nullable=True)
-create_argparser.add_argument('Weblink', type=str, help="{error_msg}: De weblink van dit object")
-create_argparser.add_argument('Begin_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object ingaat")
-create_argparser.add_argument('Eind_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object eindigt")
-create_argparser.add_argument('Created_By', type=str, help="{error_msg}: De gebruiker die dit object heeft aangemaakt", required=True)
-create_argparser.add_argument('Created_Date', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop dit object is aangemaakt", required=True)
-
-modify_argparser = reqparse.RequestParser()
-modify_argparser.add_argument('Titel', type=str, help="{error_msg}: De titel van dit object")
-modify_argparser.add_argument('Omschrijving', type=str, help="{error_msg}: De omschrijving van dit object")
-modify_argparser.add_argument('Weblink', type=str, help="{error_msg}: De weblink van dit object")
-modify_argparser.add_argument('Begin_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object ingaat")
-modify_argparser.add_argument('Eind_Geldigheid', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop de geldigheid van dit object eindigt")
-modify_argparser.add_argument('Modified_By', type=str, help="{error_msg}: De gebruiker die dit object heeft aangepast", required=True)
-modify_argparser.add_argument('Modified_Date', type=inputs.datetime_from_iso8601, help="{error_msg}: De datum waarop dit object is aangepast", required=True)
-
+class BeleidsRegel_Schema(MM.Schema):
+    UUID = MM.fields.UUID(required=True)
+    Titel = MM.fields.Str(required=True)
+    Omschrijving = MM.fields.Str(missing=None)
+    Weblink = MM.fields.Str(missing=None)
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
+    Created_By = MM.fields.Str(required=True)
+    Created_Date = MM.fields.DateTime(format='iso', required=True)
+    Modified_By = MM.fields.Str(required=True)
+    Modified_Date = MM.fields.DateTime(format='iso', required=True) 
+    
+    class Meta:
+        ordered = True
+        
 
 class BeleidsRegel(Resource):
     """Deze resource vertegenwoordigd de Beleidsregels van de provincie"""
-    @swag_from('beleidsregel.yml')
     def get(self, beleidsregel_uuid=None):
-        if beleidsregel_uuid:
-            val_beleidsregel_uuid = validate_UUID(beleidsregel_uuid)
-            
-            if not val_beleidsregel_uuid:
-                return {'message': f"Waarde {beleidsregel_uuid} is geen geldige UUID"}, 400
-            
+        if beleidsregel_uuid:           
             beleidsregel = single_object_by_uuid('BeleidsRegel', beleidsregel_op_uuid, uuid=beleidsregel_uuid)
             
             if not beleidsregel:
                 return {'message': f"BeleidsRegel met UUID {beleidsregel_uuid} is niet gevonden"}, 400
             
-            return marshal(beleidsregel.as_dict(), resource_fields)
+            schema = BeleidsRegel_Schema()
+            return schema.dump(beleidsregel)
         else:    
             beleidsregels = objects_from_query('BeleidsRegel', alle_beleidsregels)
 
-            return marshal(list(map(lambda beleidsregel: beleidsregel.as_dict(), beleidsregels)), resource_fields)
+            schema = BeleidsRegel_Schema()
+            return schema.dump(beleidsregels, many=True)
 
     def post(self, beleidsregel_uuid=None):
         if beleidsregel_uuid:
             return {'message': "Methode POST niet geldig op een enkel object, verwijder identiteit uit URL"}, 400
+        
+        schema = BeleidsRegel_Schema(
+            exclude = ('UUID','Modified_By', 'Modified_Date'),
+            unknown=MM.utils.RAISE)
+        try:
+            beleidsregel = schema.load(request.get_json())
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400
 
-        args = create_argparser.parse_args(strict=True)
+            
         connection = pyodbc.connect(db_connection_settings)
         cursor = connection.cursor()
         cursor.execute(beleidsregel_aanmaken,
-        args.Titel,
-        args.Omschrijving,
-        args.Weblink,
-        args.Begin_Geldigheid,
-        args.Eind_Geldigheid,
-        args.Created_By,
-        args.Created_Date,
-        args.Created_By,
-        args.Created_Date)
+        beleidsregel['Titel'],
+        beleidsregel['Omschrijving'],
+        beleidsregel['Weblink'],
+        beleidsregel['Begin_Geldigheid'],
+        beleidsregel['Eind_Geldigheid'],
+        beleidsregel['Created_By'],
+        beleidsregel['Created_Date'],
+        beleidsregel['Created_By'],
+        beleidsregel['Created_Date'])
         new_uuid = cursor.fetchone()[0]
+
         connection.commit()
+        
         return {"Resultaat_UUID": f"{new_uuid}"}
     
     def patch(self, beleidsregel_uuid=None):
         if not beleidsregel_uuid:
             return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan de URL"}, 400
-        args = modify_argparser.parse_args(strict=True)
-        val_beleidsregel_uuid = validate_UUID(beleidsregel_uuid)
         
-        if not val_beleidsregel_uuid:
-            return {'message': f"Waarde {beleidsregel_uuid} is geen geldige UUID"}, 400
+        patch_schema = BeleidsRegel_Schema(
+            partial=('Titel', 'Omschrijving', 'Weblink', 'Begin_Geldigheid', 'Eind_Geldigheid'),
+            exclude = ('UUID', 'Created_By', 'Created_Date'),
+            unknown=MM.utils.RAISE
+        )
+        try:
+            beleidsregel_aanpassingen = patch_schema.load(request.get_json())
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400    
         
-        beleidsregel = single_object_by_uuid('BeleidsRegel', beleidsregel_op_uuid, uuid=beleidsregel_uuid)
         
-        if not beleidsregel:
-            return {'message': f"BeleidsRegel met UUID {beleidsregel_uuid} is niet gevonden"}, 400
-            
-        new_beleidsregel = beleidsregel.as_dict()
-        for key in new_beleidsregel:
-            if key in args and args[key]:
-                new_beleidsregel[key] = args[key]
+        
+        oude_beleidsregel = single_object_by_uuid('BeleidsRegel', beleidsregel_op_uuid, uuid=beleidsregel_uuid)
+        
+        if not oude_beleidsregel:
+            return {'message': f"BeleidsRegel met UUID {beleidsregel_uuid} is niet gevonden"}, 404
+        
+        
+        beleidsregel = {**oude_beleidsregel, **beleidsregel_aanpassingen}
         
         connection = pyodbc.connect(db_connection_settings)
         cursor = connection.cursor()
         cursor.execute(
         beleidsregel_aanpassen,
-        new_beleidsregel['ID'],
-        new_beleidsregel['Titel'],
-        new_beleidsregel['Omschrijving'],
-        new_beleidsregel['Weblink'],
-        new_beleidsregel['Begin_Geldigheid'],
-        new_beleidsregel['Eind_Geldigheid'],
-        new_beleidsregel['Created_By'],
-        new_beleidsregel['Created_Date'],
-        new_beleidsregel['Modified_By'],
-        new_beleidsregel['Modified_Date'])
+        beleidsregel['ID'],
+        beleidsregel['Titel'],
+        beleidsregel['Omschrijving'],
+        beleidsregel['Weblink'],
+        beleidsregel['Begin_Geldigheid'],
+        beleidsregel['Eind_Geldigheid'],
+        beleidsregel['Created_By'],
+        beleidsregel['Created_Date'],
+        beleidsregel['Modified_By'],
+        beleidsregel['Modified_Date'])
         new_uuid = cursor.fetchone()[0]
+        
         connection.commit()
         return {"Resultaat_UUID": f"{new_uuid}"}
 

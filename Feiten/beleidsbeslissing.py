@@ -19,6 +19,7 @@ class BeleidsBeslissing_CreateSchema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     Eigenaar_1 = MM.fields.Str(required=True)
     Eigenaar_2 = MM.fields.Str(required=True)
+    Portefeuillehouder = MM.fields.Str(required=True)
     Status = MM.fields.Str(required=True)
     Titel = MM.fields.Str(required=True)
     Omschrijving_Keuze = MM.fields.Str()
@@ -90,7 +91,9 @@ class BeleidsBeslissing(Resource):
         if beleidsbeslissing_uuid:
             return {'message': "Methode POST niet geldig op een enkel object, verwijder identiteit uit URL"}, 400
         
-        schema = BeleidsBeslissing_CreateSchema(partial=('UUID','Modified_By', 'Modified_Date'))
+        schema = BeleidsBeslissing_CreateSchema(
+            exclude=('UUID','Modified_By', 'Modified_Date'))
+        
         try:
             beleidsbeslissing = schema.load(request.get_json())
         except MM.exceptions.ValidationError as err:
@@ -101,6 +104,7 @@ class BeleidsBeslissing(Resource):
         cursor.execute(beleidsbeslissing_aanmaken,
         beleidsbeslissing['Eigenaar_1'],
         beleidsbeslissing['Eigenaar_2'],
+        beleidsbeslissing['Portefeuillehouder'],
         beleidsbeslissing['Status'],
         beleidsbeslissing['Titel'],
         beleidsbeslissing['Omschrijving_Keuze'],
@@ -172,7 +176,21 @@ class BeleidsBeslissing(Resource):
         if not beleidsbeslissing_uuid:
             return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan de URL"}, 400
         
-        patch_schema = BeleidsBeslissing_CreateSchema(partial=['UUID', 'Created_Date', 'Created_By', 'Eigenaar_1', 'Eigenaar_2', 'Status', 'Begin_Geldigheid', 'Eind_Geldigheid', 'Titel'])
+        patch_schema = BeleidsBeslissing_CreateSchema(exclude=['UUID', 'Created_Date', 'Created_By'],                                                    
+                                                      partial=('Eigenaar_1',
+                                                            'Eigenaar_2',
+                                                            'Portefeuillehouder',
+                                                            'Status',
+                                                            'Titel',
+                                                            'Omschrijving_Keuze',
+                                                            'Omschrijving_Werking',
+                                                            'Motivering',
+                                                            'Aanleiding',
+                                                            'Afweging',
+                                                            'Verordening_Realisatie',
+                                                            'Begin_Geldigheid',
+                                                            'Eind_Geldigheid'
+                                                            ))
         schema = BeleidsBeslissing_CreateSchema()
         try:
             beleidsbeslissing_aanpassingen = patch_schema.load(request.get_json())
@@ -186,9 +204,11 @@ class BeleidsBeslissing(Resource):
             
             connection = pyodbc.connect(db_connection_settings)
             cursor = connection.cursor()
-            cursor.execute(beleidsbeslissing_aanmaken,
+            cursor.execute(beleidsbeslissing_aanpassen,
+            beleidsbeslissing_oud['ID'],
             beleidsbeslissing_oud['Eigenaar_1'],
             beleidsbeslissing_oud['Eigenaar_2'],
+            beleidsbeslissing_oud['Portefeuillehouder'],
             beleidsbeslissing_oud['Status'],
             beleidsbeslissing_oud['Titel'],
             beleidsbeslissing_oud['Omschrijving_Keuze'],

@@ -62,27 +62,27 @@ class BeleidsRelatie(Resource):
             return err.normalized_messages(), 400
         
         # Check of er geen zelfkoppeling plaatsvind
-        if beleidsrelatie['Van_Beleidsbeslissing'] == beleidsrelatie['Naar_Beleidsbeslissing']:
-            return {'message': "Een beleidsbesslising kan niet naar zichzelf koppelen"}, 400
+        # if beleidsrelatie['Van_Beleidsbeslissing'] == beleidsrelatie['Naar_Beleidsbeslissing']:
+            # return {'message': "Een beleidsbesslising kan niet naar zichzelf koppelen"}, 400
         
         # Check of er al een relatie de andere kant op bestaat
-        connection = pyodbc.connect(db_connection_settings)
-        cursor = connection.cursor()
-        cursor.execute(check_beleidsrelatie,
-            beleidsrelatie['Van_Beleidsbeslissing'],
-            beleidsrelatie['Naar_Beleidsbeslissing'],
-            beleidsrelatie['Van_Beleidsbeslissing'],
-            beleidsrelatie['Naar_Beleidsbeslissing'])
+        # connection = pyodbc.connect(db_connection_settings)
+        # cursor = connection.cursor()
+        # cursor.execute(check_beleidsrelatie,
+            # beleidsrelatie['Van_Beleidsbeslissing'],
+            # beleidsrelatie['Naar_Beleidsbeslissing'],
+            # beleidsrelatie['Van_Beleidsbeslissing'],
+            # beleidsrelatie['Naar_Beleidsbeslissing'])
         
-        conflict_row = cursor.fetchone()
+        # conflict_row = cursor.fetchone()
 
-        if conflict_row:
-            return {'message': 'Er bestaat al een relatie tussen deze objecten',
-                    'UUID': conflict_row.UUID}, 400 
+        # if conflict_row:
+            # return {'message': 'Er bestaat al een relatie tussen deze objecten',
+                    # 'UUID': conflict_row.UUID}, 400 
         
         
-        if beleidsrelatie['Status'] != 'Open':
-            return {'Status':["Must be 'Open'",]}, 400
+        # if beleidsrelatie['Status'] != 'Open':
+            # return {'Status':["Must be 'Open'",]}, 400
             
         
         try:
