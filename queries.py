@@ -298,7 +298,7 @@ alle_beleidsbeslissingen = 'SELECT * FROM Actuele_Beleidsbeslissingen'
 # Argumenten: uuid
 beleidsbeslissing_op_uuid = 'SELECT * FROM Beleidsbeslissingen WHERE UUID=:uuid'
 
-# Een provenciaal belang aanmaken via een insert
+# Een beleidsbeslissing aanmaken via een insert
 # Argumenten: 
 #        Titel,
 #        Omschrijving,
@@ -314,6 +314,7 @@ beleidsbeslissing_aanmaken = '''
         INSERT INTO Beleidsbeslissingen (
             Eigenaar_1,
             Eigenaar_2,
+            Portefeuillehouder,
             Status,
             Titel,
             Omschrijving_Keuze,
@@ -330,7 +331,32 @@ beleidsbeslissing_aanmaken = '''
             Modified_Date
         )
         OUTPUT inserted.UUID
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?, ?, ? ,? ,?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?, ?, ? ,? ,?);
+        '''
+
+beleidsbeslissing_aanpassen = '''
+        INSERT INTO Beleidsbeslissingen (
+            ID,
+            Eigenaar_1,
+            Eigenaar_2,
+            Portefeuillehouder,
+            Status,
+            Titel,
+            Omschrijving_Keuze,
+            Omschrijving_Werking,
+            Motivering,
+            Aanleiding,
+            Afweging,
+            Verordening_Realisatie,
+            Begin_Geldigheid,
+            Eind_Geldigheid,
+            Created_By,
+            Created_Date,
+            Modified_By,
+            Modified_Date
+        )
+        OUTPUT inserted.UUID
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?, ?, ? ,? ,?);
         '''
 
 # Alle omgevinsbeleid objecten bij een beleidsbeslissing verkrijgen
