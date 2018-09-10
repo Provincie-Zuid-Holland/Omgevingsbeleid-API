@@ -16,6 +16,7 @@ flask-jwt-extended = "*"
 passlib = {extras = ["bcrypt"]}
 
 [dev-packages]
+pylint = "*"
 
 [requires]
 python_version = "3.6"
