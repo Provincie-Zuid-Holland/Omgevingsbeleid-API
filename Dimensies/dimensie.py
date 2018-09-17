@@ -5,14 +5,28 @@ from flask import request
 import marshmallow as MM
 from operator import eq
 from globals import db_connection_string, db_connection_settings
+import marshmallow as MM
+# from .dimensie import Dimensie
+
+
+class Dimensie_Schema(MM.Schema):
+    UUID = MM.fields.UUID(required=True)
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
+    Created_By = MM.fields.Str(required=True)
+    Created_Date = MM.fields.DateTime(format='iso', required=True)
+    Modified_By = MM.fields.Str(required=True)
+    Modified_Date = MM.fields.DateTime(format='iso', required=True)
+
+    class Meta:
+        ordered = True
 
 
 class Dimensie(Resource):
     """Een algemene dimensie
     Assumpties:
         - General fields zijn aanwezig
-        - [UUID, specific_fields, Created_By, Begin_Geldigheid,
-            Eind_Geldigheid, Created_Date, Modified_By, Modified_Data]
+        - Kind van Ambitie_Schema
     Ideeën:
         - Subclass general_dimensie_schema
     """
@@ -36,16 +50,19 @@ class Dimensie(Resource):
         self._tableschema = tableschema
         self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
         self.all_query = f'SELECT * FROM {tablename_actueel}'
-        self.non_id_fields = list(filter(lambda f: not(eq(f, "UUID")),
-                                         tableschema().fields.keys()))
+        self.post_fields = list(filter(lambda f: not(eq(f, "UUID")),
+                                       tableschema().fields.keys()))
 
-        self.non_id_fields_query = ', '.join(self.non_id_fields)
-        parameter_marks = ', '.join(['?' for _ in self.non_id_fields])
+        post_fields_list = ', '.join(self.post_fields)
+        parameter_marks = ', '.join(['?' for _ in self.post_fields])
+
+        print(post_fields_list)
 
         self.create_query = f'''INSERT INTO {tablename_all}
-            ({self.non_id_fields_query})
+            ({post_fields_list})
             OUTPUT inserted.UUID
             VALUES ({parameter_marks})'''
+        print(self.create_query)
 
     def single_object_by_uuid(self, uuid):
         """
@@ -98,19 +115,11 @@ class Dimensie(Resource):
         except MM.exceptions.ValidationError as err:
             return err.normalized_messages(), 400
 
-        # Specific fields are all fields that are not required for every dimension
-        specific_fields = [
-            dim_object[f] for f in schema.fields if f not in self._general_fields]
-
         # Modified equals created on creation
         dim_object['Modified_By'] = dim_object['Created_By']
         dim_object['Modified_Date'] = dim_object['Created_Date']
 
-        general_fields = [
-            dim_object[f] for f in self._general_fields
-        ]
-
-        values = specific_fields + general_fields
+        values = [dim_object[k] for k in self.post_fields]
 
         connection = pyodbc.connect(db_connection_settings)
         cursor = connection.cursor()
@@ -120,41 +129,45 @@ class Dimensie(Resource):
         connection.commit()
         return {"Resultaat_UUID": f"{new_uuid}"}
 
-    # def patch(self, ambitie_uuid=None):
-    #     if not ambitie_uuid:
-    #         return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan de URL"}, 400
+    def patch(self, uuid=None):
+        """
+        PATCH endpoint voor deze dimensie
+        """
+        if not uuid:
+            return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan URL"}, 400
+        try:
+            patch_schema = self._tableschema(
+                exclude = ('UUID', 'Created_By', 'Created_Date'),
+                partial=('Titel', 'Omschrijving', 'Weblink', 'Begin_Geldigheid', 'Eind_Geldigheid'),
+                unknown=MM.utils.RAISE)
+        except ValueError:
+            return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
+        try:
+            aanpassingen = patch_schema.load(request.get_json())
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400
 
-    #     patch_schema = Ambitie_Schema(
-    #         partial=('Titel', 'Omschrijving', 'Weblink', 'Begin_Geldigheid', 'Eind_Geldigheid'),
-    #         exclude = ('UUID', 'Created_By', 'Created_Date'),
-    #         unknown=MM.utils.RAISE
-    #         )
-    #     try:
-    #         ambitie_aanpassingen = patch_schema.load(request.get_json())
-    #     except MM.exceptions.ValidationError as err:
-    #         return err.normalized_messages(), 400
+        oude_dimensie_object = dimensie_object = self.single_object_by_uuid(uuid)
 
-    #     oude_ambitie = single_object_by_uuid('Ambities', ambitie_op_uuid, uuid=ambitie_uuid)
+        if not oude_ambitie_object:
+            return {'message': f"Object met identifier {uuid} is niet gevonden in table {self._tablename_all}"}, 404
 
-    #     if not oude_ambitie:
-    #         return {'message': f"Ambitie met UUID {ambitie_uuid} is niet gevonden"}, 404
+        dimensie_object = {**oude_dimensie_object, **aanpassingen}
 
-    #     ambitie = {**oude_ambitie, **ambitie_aanpassingen}
+        # connection = pyodbc.connect(db_connection_settings)
+        # cursor = connection.cursor()
+        # cursor.execute(ambitie_aanpassen,
+        # ambitie['ID'],
+        # ambitie['Titel'],
+        # ambitie['Omschrijving'],
+        # ambitie['Weblink'],
+        # ambitie['Begin_Geldigheid'],
+        # ambitie['Eind_Geldigheid'],
+        # ambitie['Created_By'],
+        # ambitie['Created_Date'],
+        # ambitie['Modified_By'],
+        # ambitie['Modified_Date'])
+        # ambitie_uuid = cursor.fetchone()[0]
 
-    #     connection = pyodbc.connect(db_connection_settings)
-    #     cursor = connection.cursor()
-    #     cursor.execute(ambitie_aanpassen,
-    #     ambitie['ID'],
-    #     ambitie['Titel'],
-    #     ambitie['Omschrijving'],
-    #     ambitie['Weblink'],
-    #     ambitie['Begin_Geldigheid'],
-    #     ambitie['Eind_Geldigheid'],
-    #     ambitie['Created_By'],
-    #     ambitie['Created_Date'],
-    #     ambitie['Modified_By'],
-    #     ambitie['Modified_Date'])
-    #     ambitie_uuid = cursor.fetchone()[0]
-
-    #     connection.commit()
-    #     return {"Resultaat_UUID": f"{ambitie_uuid}"}
+        # connection.commit()
+        return {"Resultaat_UUID": f"{ambitie_uuid}"}
