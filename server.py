@@ -35,7 +35,8 @@ app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3rVx'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['JWT_HEADER_TYPE'] = "Token"
-api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required, ])
+# api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required, ])
+api = Api(app, prefix=f'/v{current_version}')
 jwt = JWTManager(app)
 
 
@@ -54,13 +55,12 @@ def generate_client_creds(client_identifier):
     click.pause()
 
 
-app.add_url_rule(f'/v{current_version}/login', 'login', login, methods=['POST'])
+app.add_url_rule(f'/v{current_version}/login',
+                 'login', login, methods=['POST'])
 
 
-api.add_resource(Dimensie, '/ambities'
-                , '/ambities/<string:uuid>'
-                , endpoint='Ambities'
-                , resource_class_args=(Ambitie_Schema, 'Ambities', 'Actuele_Ambities'))
+api.add_resource(Dimensie, '/ambities', '/ambities/<string:uuid>', endpoint='Ambities',
+                 resource_class_args=(Ambitie_Schema, 'Ambities', 'Actuele_Ambities'))
 # api.add_resource(BeleidsRegel, '/beleidsregels',
 #                  '/beleidsregels/<string:beleidsregel_uuid>')
 # api.add_resource(Doel, '/doelen',
