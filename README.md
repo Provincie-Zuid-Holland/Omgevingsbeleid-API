@@ -53,3 +53,23 @@ Deployment stappen op een nieuwe VM:
     - Typ `get --version`
     - Als er een git version string verschijnt is Git succesvol geïnstalleerd.
 
+### 3: Gitlab Runner installeren
+- Download de nieuwste versie van GitLab Runner (x86) van [de GitLab Runner windows pagina](https://docs.gitlab.com/runner/install/windows.html).
+- Maak een map aan `C:\GitLab-Runner` en plaats de gedownloade binary in deze folder.
+- Hernoem de binary naar `gitlab-runner.exe`.
+- Start een command prompt in administrator mode
+- Registreer de runner in de command prompt:
+    - `cd C:\GitLab-Runner`
+    - `gitlab-runner register`
+    - Nu moet je de gitlab runner registreren:
+        - `Please enter the gitlab-ci coordinator URL (e.g. https://gitlab.com )` -> `https://gitlab.com`
+        - `Please enter the gitlab-ci token for this runner` ->
+            - Verkrijg een gitlab token van het project onder `Settings` > `CI/CD` > `Runners (expand)` > `Setup a specific Runner manually`
+            - Deze token voer je in als antwoord
+        - `Please enter the gitlab-ci description for this runner` -> Naam van de runner (meestal is genoeg 'runner')
+        - `Please enter the gitlab-ci tags for this runner (comma separated):` -> Leeglaten
+        - `Please enter the executor: ssh, docker+machine, docker-ssh+machine, kubernetes, docker, parallels, virtualbox, docker-ssh, shell:` -> `shell`
+    - Stel GitLab runner is als deamon service:
+        - `gitlab-runner install`
+    - Deze runner zou nu beschikbaar moeten zijn op de Gitlab project pagina (deze pagina) onder `Settings` > `CI/CD` > `Runners (expand)` > `Runners activated for this project`
+
