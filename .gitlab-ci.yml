@@ -13,8 +13,6 @@ build:
   stage: build
   script: |
     echo "Building the app"
-    echo "Creating testfile"
-    echo testfile  > testfile.txt
   tags: 
     - acc
     - test

@@ -7,8 +7,7 @@ Dit is een nieuwe versie van de service laag (API) voor het project 'omgevingsbe
     + [Records](https://github.com/kennethreitz/records)
     + [Flask-restful](https://github.com/flask-restful/flask-restful)
     + [Marshmallow](http://marshmallow.readthedocs.io/en/3.0/)
-    + [PyODBC] (https://github.com/mkleehammer/pyodbc)
-- Bash
+    + [PyODBC](https://github.com/mkleehammer/pyodbc)
 
 ## Installeren
 Dit project maakt gebruik van [pipenv](https://github.com/pypa/pipenv). Installeer pipenv en voer de volgende commands uit:
