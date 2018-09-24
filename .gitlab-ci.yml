@@ -9,7 +9,7 @@ deploy_test:
   script:
     - echo 'Deploying to Test'
     - echo 'Copying files from %CI_PROJECT_DIR%'
-    - xcopy %CI_PROJECT_DIR% %DEPLOYMENT_ROOT% /Y /E /I
+    - xcopy %CI_PROJECT_DIR% C:\Deployed\test /Y /E /I
     - echo 'Files copied to %DEPLOYMENT_ROOT%\test'
   only:
     - test
