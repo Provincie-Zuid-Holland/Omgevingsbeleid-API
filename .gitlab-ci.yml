@@ -8,7 +8,7 @@ deploy_test:
   stage: deploy
   script:
     - echo 'Deploying to Test'
-    - echo Files in %CI_PROJECT_DIR%
+    - echo 'Files in %CI_PROJECT_DIR%'
   only:
     - test
   tags:
