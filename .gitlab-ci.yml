@@ -9,6 +9,7 @@ deploy_test:
   script:
     - echo 'Deploying to Test'
     - echo 'Copying files from $env:CI_PROJECT_DIR'
+    - echo $env:CI_PROJECT_DIR
     - xcopy C:\test C:\Deployed\test /Y /E /I
     - echo 'Files copied to $env:DEPLOYMENT_ROOT\test'
   only:
