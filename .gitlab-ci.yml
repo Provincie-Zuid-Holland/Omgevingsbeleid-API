@@ -1,6 +1,7 @@
 stages:
   - test
   - build
+  - deploy
 
 test:
   stage: test
@@ -8,6 +9,8 @@ test:
   tags: 
     - acc
     - test
+    - prod
+  
 
 build:
   stage: build
@@ -16,3 +19,31 @@ build:
   tags: 
     - acc
     - test
+    - prod
+
+deploy_test:
+  stage: deploy
+  script:
+    - echo "Deploying to Test"
+  only:
+    - test
+  tags:
+    - test
+
+deploy_acc:
+  stage: deploy
+  script:
+    - echo "Deploying to Acc"
+  only:
+    - acc
+  tags:
+    - acc
+
+deploy_prod:
+  stage: deploy
+  script:
+    - echo "Deploying to Prod"
+  only:
+    - prod
+  tags:
+    - prod
