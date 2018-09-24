@@ -8,9 +8,9 @@ deploy_test:
   stage: deploy
   script:
     - echo 'Deploying to Test'
-    - echo 'Copying files from %CI_PROJECT_DIR%'
+    - echo 'Copying files from $env:CI_PROJECT_DIR'
     - xcopy C:\test C:\Deployed\test /Y /E /I
-    - echo 'Files copied to %DEPLOYMENT_ROOT%\test'
+    - echo 'Files copied to $env:DEPLOYMENT_ROOT\test'
   only:
     - test
   tags:
