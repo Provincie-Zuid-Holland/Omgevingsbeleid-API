@@ -2,7 +2,7 @@ stages:
   - deploy
 
 variables:
-  DEPLOYMENT_ROOT: "C:\Deployed"
+  DEPLOYMENT_ROOT: 'C:\Deployed'
 
 deploy_test:
   stage: deploy
