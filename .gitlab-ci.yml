@@ -1,25 +1,5 @@
 stages:
-  - test
-  - build
   - deploy
-
-test:
-  stage: test
-  script: echo "Running tests"
-  tags: 
-    - acc
-    - test
-    - prod
-  
-
-build:
-  stage: build
-  script: |
-    echo "Building the app"
-  tags: 
-    - acc
-    - test
-    - prod
 
 deploy_test:
   stage: deploy
