@@ -2,14 +2,14 @@ stages:
   - deploy
 
 variables:
-  DEPLOYMENT_ROOT: 'C:\Deployed'
+  DEPLOYMENT_ROOT: 'C:\Deployed\test'
 
 deploy_test:
   stage: deploy
   script:
     - echo 'Deploying to Test'
     - echo 'Copying files from %CI_PROJECT_DIR%'
-    - xcopy /Y /E /I %CI_PROJECT_DIR% %DEPLOYMENT_ROOT%\test
+    - xcopy /Y /E /I %CI_PROJECT_DIR% %DEPLOYMENT_ROOT%
     - echo 'Files copied to %DEPLOYMENT_ROOT%\test'
   only:
     - test
