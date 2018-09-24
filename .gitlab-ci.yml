@@ -1,10 +1,14 @@
 stages:
   - deploy
 
+variables:
+  DEPLOYMENT_ROOT: "C:\Deployed"
+
 deploy_test:
   stage: deploy
   script:
-    - echo "Deploying to Test"
+    - echo 'Deploying to Test'
+    - echo Files in %CI_PROJECT_DIR%
   only:
     - test
   tags:
