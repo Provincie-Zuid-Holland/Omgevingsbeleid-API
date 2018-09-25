@@ -7,12 +7,14 @@ variables:
 
 deploy_test:
   stage: deploy
+  variables:
+    envname: 'test'
   script:
     - echo 'Deploying to Test'
     - echo 'Creating folder for Test'
-    - New-Item -Path $env:DEPLOYMENT_ROOT -Name "test" -ItemType "directory" -Force
+    - New-Item -Path $env:DEPLOYMENT_ROOT -Name $env:envname -ItemType "directory" -Force
     - echo 'Copying files to deployment folder'
-    - $target = Join-Path $env:DEPLOYMENT_ROOT "test/"
+    - $target = Join-Path $env:DEPLOYMENT_ROOT $env:envname
     - $source = Join-Path $env:CI_PROJECT_DIR "*" 
     - Copy-Item $source -Destination $target -Recurse -Container -Force
     - echo 'Files copied to $target'
