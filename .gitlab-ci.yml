@@ -19,6 +19,8 @@ variables:
     - echo "Files copied to target"
     - echo "Setting up Python dependencies"
     - pip install --upgrade pipenv
+    - cd $target
+    - pipenv install
 
 deploy_test:
   extends: .deploy_env
