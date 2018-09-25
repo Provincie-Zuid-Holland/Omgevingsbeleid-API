@@ -5,10 +5,8 @@ variables:
   DEPLOYMENT_ROOT: 'C:/Deployment'
   ErrorActionPreference: STOP
 
-deploy_test:
+.deploy_env:
   stage: deploy
-  variables:
-    envname: 'testy'
   script:
     - echo 'Deploying to Test'
     - echo 'Creating folder for Test'
@@ -18,6 +16,12 @@ deploy_test:
     - $source = Join-Path $env:CI_PROJECT_DIR "*" 
     - Copy-Item $source -Destination $target -Recurse -Container -Force
     - echo "Files copied to $target"
+
+deploy_test:
+  extends: .deploy_env
+  stage: deploy
+  variables:
+    envname: 'test'
   only:
     - test
   tags:
