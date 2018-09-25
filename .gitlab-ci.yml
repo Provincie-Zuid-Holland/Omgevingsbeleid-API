@@ -12,9 +12,8 @@ deploy_test:
     - echo 'Creating folder for Test'
     - New-Item -Path $env:DEPLOYMENT_ROOT -Name "test" -ItemType "directory" -Force
     - echo 'Copying files to deployment folder'
-    - $target = Join-Path $env:DEPLOYMENT_ROOT "test/"
-    - echo $target
-    - Copy-Item $env:CI_PROJECT_DIR -Destination $target
+    - $target = Join-Path $env:DEPLOYMENT_ROOT "test/" 
+    - Copy-Item $env:CI_PROJECT_PATH -Destination $target -Recurse -Container -Force
     - echo 'Files copied to $target'
   only:
     - test
