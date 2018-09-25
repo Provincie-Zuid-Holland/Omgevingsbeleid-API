@@ -4,6 +4,7 @@ stages:
 variables:
   DEPLOYMENT_ROOT: 'C:/Deployment'
   ErrorActionPreference: STOP
+  PIPENV_VENV_IN_PROJECT: 1
 
 .deploy_env:
   stage: deploy
@@ -16,7 +17,12 @@ variables:
     - $target = Join-Path $env:DEPLOYMENT_ROOT $env:envname
     - $source = Join-Path $env:CI_PROJECT_DIR "*" 
     - Copy-Item $source -Destination $target -Recurse -Container -Force
-    - echo "Files copied to $target"
+    - echo "Files copied to target"
+    - echo "Setting up Python dependencies"
+    - & {pip install --upgrade pipenv}
+    - & {pipenv clean}
+    - & {pipenv install}
+    - & {pipenv sync}
 
 deploy_test:
   extends: .deploy_env
