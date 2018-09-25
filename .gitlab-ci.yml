@@ -8,6 +8,7 @@ variables:
 .deploy_env:
   stage: deploy
   script:
+    - $env:path
     - echo 'Deploying to Test'
     - echo 'Creating folder for Test'
     - New-Item -Path $env:DEPLOYMENT_ROOT -Name $env:envname -ItemType "directory" -Force
