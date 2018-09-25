@@ -11,7 +11,7 @@ deploy_test:
     - echo 'Deploying to Test'
     - echo 'Copying files from $env:CI_PROJECT_DIR'
     - echo $env:CI_PROJECT_DIR
-    - Copy-Item "C:/test/" -Destination "C:/Deployed/test" -Force -Recurccce -Container
+    - Copy-Item "C:/test/" -Destination "C:/Deployed/test" -Force -Recurse -Container
     - echo 'Files copied to $env:DEPLOYMENT_ROOT\test'
   only:
     - test
