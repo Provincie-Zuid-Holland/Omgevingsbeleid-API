@@ -10,8 +10,12 @@ deploy_test:
   script:
     - echo 'Deploying to Test'
     - echo 'Creating folder for Test'
-    - New-Item -Path $env:DEPLOYMENT_ROOT -Name "test" -ItemType "directory" -Force
-    - echo 'Files copied to $env:DEPLOYMENT_ROOT\test'
+    # - New-Item -Path $env:DEPLOYMENT_ROOT -Name "test" -ItemType "directory" -Force
+    - echo 'Copying files to deployment folder'
+    - $target = Join-Path $env:DEPLOYMENT_ROOT "test/"
+    - echo $target
+    # - Copy-Item $env:CI_PROJECT_DIR -Destination $env:DEPLOYMENT_ROOT
+    # - echo 'Files copied to $env:DEPLOYMENT_ROOT\test'
   only:
     - test
   tags:
