@@ -9,18 +9,16 @@ variables:
 .deploy_env:
   stage: deploy
   script:
-    - echo 'Setting PATH'
-    - $env:path=”$env:path;c:\users\master\appdata\local\programs\python\python36\scripts\;c:\users\master\appdata\local\programs\python\python36\”
-    - $env:path
-    # - echo 'Deploying to Test'
-    # - echo 'Creating folder for Test'
-    # - New-Item -Path $env:DEPLOYMENT_ROOT -Name $env:envname -ItemType "directory" -Force
-    # - echo 'Copying files to deployment folder'
-    # - $target = Join-Path $env:DEPLOYMENT_ROOT $env:envname
-    # - $source = Join-Path $env:CI_PROJECT_DIR "*" 
-    # - Copy-Item $source -Destination $target -Recurse -Container -Force
-    # - echo "Files copied to target"
-    # - echo "Setting up Python dependencies"
+    - echo 'Deploying to Test'
+    - echo 'Creating folder for Test'
+    - New-Item -Path $env:DEPLOYMENT_ROOT -Name $env:envname -ItemType "directory" -Force
+    - echo 'Copying files to deployment folder'
+    - $target = Join-Path $env:DEPLOYMENT_ROOT $env:envname
+    - $source = Join-Path $env:CI_PROJECT_DIR "*" 
+    - Copy-Item $source -Destination $target -Recurse -Container -Force
+    - echo "Files copied to target"
+    - echo "Setting up Python dependencies"
+    - pip install --upgrade pipenv
 
 deploy_test:
   extends: .deploy_env
