@@ -1,5 +1,5 @@
 import records
-# DEPLOYMENT
+
 # Database settings
 
 DB_USER = 'sa'
