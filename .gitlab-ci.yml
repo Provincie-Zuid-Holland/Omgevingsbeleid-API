@@ -8,7 +8,7 @@ variables:
 deploy_test:
   stage: deploy
   variables:
-    envname: 'test'
+    envname: 'testy'
   script:
     - echo 'Deploying to Test'
     - echo 'Creating folder for Test'
