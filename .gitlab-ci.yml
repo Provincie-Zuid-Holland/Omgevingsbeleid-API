@@ -17,7 +17,7 @@ deploy_test:
     - $target = Join-Path $env:DEPLOYMENT_ROOT $env:envname
     - $source = Join-Path $env:CI_PROJECT_DIR "*" 
     - Copy-Item $source -Destination $target -Recurse -Container -Force
-    - echo 'Files copied to $target'
+    - echo "Files copied to $target"
   only:
     - test
   tags:
