@@ -20,6 +20,8 @@ variables:
 deploy_test:
   extends: .deploy_env
   stage: deploy
+  environment:
+    name: Test
   variables:
     envname: 'test'
   only:
@@ -28,18 +30,24 @@ deploy_test:
     - test
 
 deploy_acc:
+  extends: .deploy_env
   stage: deploy
-  script:
-    - echo "Deploying to Acc"
+  environment:
+    name: Acc
+  variables:
+    envname: 'acc'
   only:
     - acc
   tags:
     - acc
 
 deploy_prod:
+  extends: .deploy_env
   stage: deploy
-  script:
-    - echo "Deploying to Prod"
+  environment:
+    name: Prod
+  variables:
+    envname: 'prod'
   only:
     - prod
   tags:
