@@ -2,16 +2,15 @@ stages:
   - deploy
 
 variables:
-  DEPLOYMENT_ROOT: 'C:\\Deployed\\test'
+  DEPLOYMENT_ROOT: 'C:/Deployment'
   ErrorActionPreference: STOP
 
 deploy_test:
   stage: deploy
   script:
     - echo 'Deploying to Test'
-    - echo 'Copying files from $env:CI_PROJECT_DIR'
-    - echo $env:CI_PROJECT_DIR
-    - Copy-Item "C:/test/" -Destination "C:/Deployed/test" -Force -Recurse -Container
+    - echo 'Creating folder for Test'
+    - New-Item -Path $env:DEPLOYMENT_ROOT -Name "test" -ItemType "directory" -Force
     - echo 'Files copied to $env:DEPLOYMENT_ROOT\test'
   only:
     - test
