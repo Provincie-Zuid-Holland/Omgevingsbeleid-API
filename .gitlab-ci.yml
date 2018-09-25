@@ -10,7 +10,7 @@ variables:
   stage: deploy
   script:
     - echo 'Setting PATH'
-    - $env:PATH=”$ENV:PATH;C:\Users\master\AppData\Local\Programs\Python\Python36\Scripts\;C:\Users\master\AppData\Local\Programs\Python\Python36\”
+    - $env:PATH=”$ENV:PATH;c:\Users\master\AppData\Local\Programs\Python\Python36\Scripts\;c:\Users\master\AppData\Local\Programs\Python\Python36\”
     - $env:PATH
     # - echo 'Deploying to Test'
     # - echo 'Creating folder for Test'
