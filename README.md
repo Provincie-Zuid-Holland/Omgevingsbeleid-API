@@ -75,4 +75,19 @@ Deployment stappen op een nieuwe VM:
     - Stel GitLab runner is als deamon service:
         - `gitlab-runner install`
     - Deze runner zou nu beschikbaar moeten zijn op de Gitlab project pagina (deze pagina) onder `Settings` > `CI/CD` > `Runners (expand)` > `Runners activated for this project`
+- Op de Gitlab project pagina kun je onder `Settings` > `CI/CD` > `Runners (expand)` > `Runners activated for this project` de runner aanpassen (klik op het edit icoon naast de identifier).
+    - Voeg afhankelijk van welke omgeving deze runner draait de volgende tags toe:
+        - `acc`, `prod` of `test`
+    - Bijvoorbeeld voor een runner op een acc/test server:
+        - `acc, test`
 
+### 4: De eerste pipeline draaien
+- Ga op de project pagina naar: `CI/CD` > `Pipelines` en klik op `Run Pipeline`
+- Kies voor `Create for` een van je relevante omgeving (bijvoorbeeld `test`)
+- Klik op `Create Pipeline`
+- Je deploy gaat nu draaien, als het afgelopen is zou het volgende resultaat op de server te vinden moeten zijn:
+    - Een nieuwe map in `C:\` genaamd `Deployment`
+    - In `Deployment` zit voor iedere actieve omgeving (`acc`, `prod`, `test`) een nieuwe map
+    - In deze omgevingsmap zit een map genaamd `.venv`
+- Herhaal bovenstaande stap tot er voor elke omgeving een map is.
+- **Als een van de bovenstaande zaken niet waar zijn, neem dan contact op met de systeembeheerder.**
