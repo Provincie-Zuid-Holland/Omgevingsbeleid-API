@@ -18,10 +18,12 @@ variables:
     - Copy-Item $source -Destination $target -Recurse -Container -Force
     - echo "Files copied to target"
     - echo "Setting up Python dependencies"
-    - & {pip install --upgrade pipenv}
-    - & {pipenv clean}
-    - & {pipenv install}
-    - & {pipenv sync}
+    - pip install --upgrade pipenv
+    - cd $target
+    - pipenv clean
+    - pipenv install
+    - pipenv sync
+
 
 deploy_test:
   extends: .deploy_env
