@@ -17,13 +17,13 @@ class Dimensie_Schema(MM.Schema):
     Created_Date = MM.fields.DateTime(format='iso', required=True)
     Modified_By = MM.fields.Str(required=True)
     Modified_Date = MM.fields.DateTime(format='iso', required=True)
-
+    
     class Meta:
         ordered = True
 
 
 class Dimensie(Resource):
-    """Een algemene dimensie
+    """Een algemene dimensie met endpoints
     Assumpties:
         - General fields zijn aanwezig
         - Kind van Ambitie_Schema
@@ -154,20 +154,4 @@ class Dimensie(Resource):
 
         dimensie_object = {**oude_dimensie_object, **aanpassingen}
 
-        # connection = pyodbc.connect(db_connection_settings)
-        # cursor = connection.cursor()
-        # cursor.execute(ambitie_aanpassen,
-        # ambitie['ID'],
-        # ambitie['Titel'],
-        # ambitie['Omschrijving'],
-        # ambitie['Weblink'],
-        # ambitie['Begin_Geldigheid'],
-        # ambitie['Eind_Geldigheid'],
-        # ambitie['Created_By'],
-        # ambitie['Created_Date'],
-        # ambitie['Modified_By'],
-        # ambitie['Modified_Date'])
-        # ambitie_uuid = cursor.fetchone()[0]
-
-        # connection.commit()
         return {"Resultaat_UUID": f"{ambitie_uuid}"}

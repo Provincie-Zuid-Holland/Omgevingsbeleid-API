@@ -9,6 +9,7 @@ from flask_jwt_extended import (
     JWTManager, jwt_required
 )
 import click
+from collections import namedtuple
 
 from Dimensies.dimensie import Dimensie
 from Dimensies.ambitie import Ambitie_Schema
@@ -35,7 +36,6 @@ app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3rVx'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['JWT_HEADER_TYPE'] = "Token"
-# api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required, ])
 api = Api(app, prefix=f'/v{current_version}')
 jwt = JWTManager(app)
 
@@ -58,6 +58,17 @@ def generate_client_creds(client_identifier):
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
 
+
+# schema = naam van schema (moet erven van Dimensie_schema)
+# single = Naam van dimensie in enkelvoud
+# all = Naam van dimensie in meervoud
+# actueel = Optionele tablenaam voor een 'actuele' view
+
+Dimensie_record = namedtuple('Dimensie_record', ['schema', 'single', 'all', 'acuteel'])
+
+dimensies = [
+    Dimensie_record(Ambitie_Schema, 'Ambities', 'Actuele_Ambities')
+]
 
 api.add_resource(Dimensie, '/ambities', '/ambities/<string:uuid>', endpoint='Ambities',
                  resource_class_args=(Ambitie_Schema, 'Ambities', 'Actuele_Ambities'))
