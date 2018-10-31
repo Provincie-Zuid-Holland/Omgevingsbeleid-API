@@ -1,8 +1,6 @@
 from flask import Flask, jsonify
 from flask_restful import Resource, Api
 from apispec import APISpec
-from apispec.ext.flask import FlaskPlugin
-from apispec.ext.marshmallow import MarshmallowPlugin
 from pprint import pprint
 from datetime import timedelta
 from flask_jwt_extended import (
