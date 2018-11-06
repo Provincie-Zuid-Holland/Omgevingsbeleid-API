@@ -25,13 +25,10 @@ def stats():
         for table in tables:
             result[table] = {}
             # Aantal objecten
-            query = f"SELECT COUNT(DISTINCT(ID)) from {table} WHERE UUID != '00000000-0000-0000-0000-000000000000'"
+            query = f"SELECT COUNT(DISTINCT(ID)), COUNT(*) from {table} WHERE UUID != '00000000-0000-0000-0000-000000000000'"
             results = db.query(query)
             result[table]['Aantal objecten'] = results.first()[0]
-            # Aantal rows
-            query = f"SELECT COUNT(*) from {table} WHERE UUID != '00000000-0000-0000-0000-000000000000'"
-            results = db.query(query)
-            result[table]['Aantal rows'] = results.first()[0]
+            result[table]['Aantal rows'] = results.first()[1]
             # Laatste modificatie
             query = f"SELECT TOP 1 UUID, Modified_Date from {table} ORDER BY Modified_Date DESC"
             results = db.query(query)
