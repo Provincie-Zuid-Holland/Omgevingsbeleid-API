@@ -33,9 +33,9 @@ def stats():
             results = db.query(query)
             result[table]['Aantal rows'] = results.first()[0]
             # Laatste modificatie
-            query = f"SELECT UUID, Modified_Date from {table} ORDER BY Modified_Date DESC"
+            query = f"SELECT TOP 1 UUID, Modified_Date from {table} ORDER BY Modified_Date DESC"
             results = db.query(query)
             first = results.first()
-            result[table]['Laatste modificatie'] = {'UUID': first[0], 'Modified_Date': first[1]}
+            result[table]['Laatste modificatie'] = {'UUID': first[0], 'Modified_Date': first[1].isoformat(sep=' ')}
 
     return jsonify(result)
