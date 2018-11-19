@@ -5,5 +5,5 @@ settings.py
 web.config
 .vscode/settings.json
 cgi.log
-Pipfile.lock
+./Pipfile.lock
 wfastcgi.py
