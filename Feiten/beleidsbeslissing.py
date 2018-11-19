@@ -31,7 +31,7 @@ class BeleidsBeslissing_CreateSchema(MM.Schema):
     # Vanaf hier hebben we het over omgevingsbeleid objecten
     WerkingsGebieden = MM.fields.Nested(Koppelingen_Schema, many=True, default=[])
     # BeleidsRelaties = MM.fields.Nested(Koppelingen_Schema, many=True, default=[])
-    Verordering = MM.fields.Nested(Koppelingen_Schema, many=True,  default=[])
+    Verordening = MM.fields.Nested(Koppelingen_Schema, many=True,  default=[])
     Maatregelen = MM.fields.Nested(Koppelingen_Schema, many=True,  default=[])
     BeleidsRegels = MM.fields.Nested(Koppelingen_Schema, many=True,  default=[])
     Themas = MM.fields.Nested(Koppelingen_Schema, many=True, default=[])
@@ -58,7 +58,7 @@ class BeleidsBeslissing_CreateSchema(MM.Schema):
         ordered = True
         
 
-OMGEVINGSBELEID_FIELDS = ['WerkingsGebieden', 'BeleidsRelaties' , 'Verorderingen', 'Maatregelen' 
+OMGEVINGSBELEID_FIELDS = ['WerkingsGebieden', 'BeleidsRelaties' , 'Verordening', 'Maatregelen' 
 , 'BeleidsRegels', 'Themas', 'Ambities', 'Doelen', 'ProvincialeBelangen', 'Opgaven']
 
 
@@ -133,8 +133,7 @@ class BeleidsBeslissing(Resource):
                 cursor.execute(omgevingsbeleid_aanmaken,
                 beleidsbeslissing_uuid,
                 row['WerkingsGebieden']['UUID'],
-                # row['BeleidsRelaties']['UUID'],
-                row['Verorderingen']['UUID'],
+                row['Verordening']['UUID'],
                 row['Maatregelen']['UUID'],
                 row['BeleidsRegels']['UUID'],
                 row['Themas']['UUID'],
@@ -143,8 +142,7 @@ class BeleidsBeslissing(Resource):
                 row['ProvincialeBelangen']['UUID'],
                 row['Opgaven']['UUID'],
                 row['WerkingsGebieden']['Omschrijving'],
-                # row['BeleidsRelaties']['Omschrijving'],
-                row['Verorderingen']['Omschrijving'],
+                row['Verordening']['Omschrijving'],
                 row['Maatregelen']['Omschrijving'],
                 row['BeleidsRegels']['Omschrijving'],
                 row['Themas']['Omschrijving'],
@@ -167,7 +165,7 @@ class BeleidsBeslissing(Resource):
                 
             except Exception as odbcex:
                 connection.close()
-                return {"Database error":str(odbcex)}, 400
+                return odbcex, 400
 
         connection.commit()
         return {"Resultaat_UUID": f"{beleidsbeslissing_uuid}"}
@@ -238,7 +236,7 @@ class BeleidsBeslissing(Resource):
                     beleidsbeslissing_uuid,
                     row['WerkingsGebieden']['UUID'],
                     # row['BeleidsRelaties']['UUID'],
-                    row['Verorderingen']['UUID'],
+                    row['Verordening']['UUID'],
                     row['Maatregelen']['UUID'],
                     row['BeleidsRegels']['UUID'],
                     row['Themas']['UUID'],
@@ -248,7 +246,7 @@ class BeleidsBeslissing(Resource):
                     row['Opgaven']['UUID'],
                     row['WerkingsGebieden']['Omschrijving'],
                     # row['BeleidsRelaties']['Omschrijving'],
-                    row['Verorderingen']['Omschrijving'],
+                    row['Verordening']['Omschrijving'],
                     row['Maatregelen']['Omschrijving'],
                     row['BeleidsRegels']['Omschrijving'],
                     row['Themas']['Omschrijving'],
