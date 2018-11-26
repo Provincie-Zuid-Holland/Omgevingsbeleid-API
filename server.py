@@ -1,8 +1,5 @@
 from flask import Flask, jsonify
 from flask_restful import Resource, Api
-from apispec import APISpec
-from apispec.ext.flask import FlaskPlugin
-from apispec.ext.marshmallow import MarshmallowPlugin
 from pprint import pprint
 from datetime import timedelta
 from flask_jwt_extended import (
@@ -64,11 +61,11 @@ app.add_url_rule(f'/v{current_version}/login',
 # all = Naam van dimensie in meervoud
 # actueel = Optionele tablenaam voor een 'actuele' view
 
-Dimensie_record = namedtuple('Dimensie_record', ['schema', 'single', 'all', 'acuteel'])
+# Dimensie_record = namedtuple('Dimensie_record', ['schema', 'single', 'all', 'actueel'])
 
-dimensies = [
-    Dimensie_record(Ambitie_Schema, 'Ambities', 'Actuele_Ambities')
-]
+# dimensies = [
+#     Dimensie_record(Ambitie_Schema, 'Ambitie','Ambities', 'Actuele_Ambities')
+# ]
 
 api.add_resource(Dimensie, '/ambities', '/ambities/<string:uuid>', endpoint='Ambities',
                  resource_class_args=(Ambitie_Schema, 'Ambities', 'Actuele_Ambities'))

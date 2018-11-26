@@ -6,10 +6,14 @@ import marshmallow as MM
 from operator import eq
 from globals import db_connection_string, db_connection_settings
 import marshmallow as MM
+import re
 # from .dimensie import Dimensie
 
 
 class Dimensie_Schema(MM.Schema):
+    """
+    Schema voor de standaard velden van een dimensie
+    """
     UUID = MM.fields.UUID(required=True)
     Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
     Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
@@ -23,21 +27,25 @@ class Dimensie_Schema(MM.Schema):
 
 
 class Dimensie(Resource):
-    """Een algemene dimensie met endpoints
-    Assumpties:
-        - General fields zijn aanwezig
-        - Kind van Ambitie_Schema
-    Ideeën:
-        - Subclass general_dimensie_schema
     """
+    Een algemene dimensie met bijbehorend lees/schrijf gedrag
+    """
+    # Veld dat dient als identificatie
     _identifier_field = 'UUID'
 
+    # Velden die altijd aanwezig zullen zijn
     _general_fields = ['Begin_Geldigheid',
                        'Eind_Geldigheid',
                        'Created_By',
                        'Created_Date',
                        'Modified_By',
                        'Modified_Date']
+
+    # Velden die niet in een POST request gestuurd mogen worden
+    _excluded_post_fields = ['UUID', 'Modified_By', 'Modified_Date']
+
+    # Velden die niet in een PATCH request gestuurd mogen worden
+    _excluded_patch_fields = ['UUID', 'Created_By', 'Created_Date']
 
     def __init__(self, tableschema, tablename_all, tablename_actueel=None):
         self._tablename_all = tablename_all
@@ -47,22 +55,29 @@ class Dimensie(Resource):
         else:
             self._tablename_actueel = tablename_all
 
+        # Is het gegeven schema een superset van Dimensie_Schema?
+        required_fields = Dimensie_Schema().fields.keys()
+        recieved_fields = tableschema().fields.keys()
+        assert all([field in recieved_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
+        
+        # Partial velden voor de PATCH
+        self._partial_fields = [field for field in recieved_fields if field not in self._general_fields]
+
+        # Bouw hier de queries op
         self._tableschema = tableschema
         self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
         self.all_query = f'SELECT * FROM {tablename_actueel}'
-        self.post_fields = list(filter(lambda f: not(eq(f, "UUID")),
-                                       tableschema().fields.keys()))
+        
+        # Queries are build using this list (preserving order) 
+        self.query_fields = list(filter(lambda fieldname: not(eq(fieldname, self._identifier_field)), recieved_fields))
 
-        post_fields_list = ', '.join(self.post_fields)
-        parameter_marks = ', '.join(['?' for _ in self.post_fields])
-
-        print(post_fields_list)
+        query_fields_list = ', '.join(self.query_fields)
+        parameter_marks = ', '.join(['?' for _ in self.query_fields])
 
         self.create_query = f'''INSERT INTO {tablename_all}
-            ({post_fields_list})
+            ({query_fields_list})
             OUTPUT inserted.UUID
             VALUES ({parameter_marks})'''
-        print(self.create_query)
 
     def single_object_by_uuid(self, uuid):
         """
@@ -82,6 +97,7 @@ class Dimensie(Resource):
         """
         GET endpoint voor deze dimensie
         """
+        # Een enkel object verkrijgen
         if uuid:
             dimensie_object = self.single_object_by_uuid(uuid)
 
@@ -90,9 +106,9 @@ class Dimensie(Resource):
 
             schema = self._tableschema()
             return(schema.dump(dimensie_object))
+        # Alle objecten verkrijgen
         else:
             dimensie_objecten = self.objects_from_query()
-
             schema = self._tableschema()
             return(schema.dump(dimensie_objecten, many=True))
 
@@ -104,7 +120,7 @@ class Dimensie(Resource):
             return {'message': 'Methode POST niet geldig op een enkel object, verwijder identifier uit URL'}, 400
         try:
             schema = self._tableschema(
-                exclude=('UUID', 'Modified_By', 'Modified_Date'),
+                exclude=self._excluded_post_fields,
                 unknown=MM.utils.RAISE)
 
         except ValueError:
@@ -115,18 +131,28 @@ class Dimensie(Resource):
         except MM.exceptions.ValidationError as err:
             return err.normalized_messages(), 400
 
-        # Modified equals created on creation
+        # Modification data is the same as creation data (because we just created this object)
         dim_object['Modified_By'] = dim_object['Created_By']
         dim_object['Modified_Date'] = dim_object['Created_Date']
 
-        values = [dim_object[k] for k in self.post_fields]
-
-        connection = pyodbc.connect(db_connection_settings)
-        cursor = connection.cursor()
-        cursor.execute(self.create_query, *values)
-        new_uuid = cursor.fetchone()[0]
-
-        connection.commit()
+        values = [dim_object[k] for k in self.query_fields]
+        
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+            try:
+                cursor.execute(self.create_query, *values)
+                new_uuid = cursor.fetchone()[0]
+            except pyodbc.IntegrityError as e:
+                pattern = re.compile('FK_\w+_(\w+)')
+                match = pattern.search(e.args[-1]).group(1)
+                if match:
+                    return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
+                else:
+                    return {'message': 'Database integriteitsfout'}, 404
+            except pyodbc.DatabaseError:
+                    return {'message': f'Database fout, neem contact op met de systeembeheerder'}, 500
+            connection.commit()
+        
         return {"Resultaat_UUID": f"{new_uuid}"}
 
     def patch(self, uuid=None):
@@ -137,21 +163,23 @@ class Dimensie(Resource):
             return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan URL"}, 400
         try:
             patch_schema = self._tableschema(
-                exclude = ('UUID', 'Created_By', 'Created_Date'),
-                partial=('Titel', 'Omschrijving', 'Weblink', 'Begin_Geldigheid', 'Eind_Geldigheid'),
-                unknown=MM.utils.RAISE)
+                exclude = self._excluded_patch_fields,
+                partial = self._partial_fields + ['Begin_Geldigheid', 'Eind_Geldigheid'],
+                unknown = MM.utils.RAISE)
+
         except ValueError:
             return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
+        
         try:
             aanpassingen = patch_schema.load(request.get_json())
         except MM.exceptions.ValidationError as err:
             return err.normalized_messages(), 400
 
-        oude_dimensie_object = dimensie_object = self.single_object_by_uuid(uuid)
+        oude_dimensie_object = self.single_object_by_uuid(uuid)
 
-        if not oude_ambitie_object:
-            return {'message': f"Object met identifier {uuid} is niet gevonden in table {self._tablename_all}"}, 404
+        if not oude_dimensie_object:
+            return {'message': f"Object met identifier {uuid} is niet gevonden"}, 404
 
         dimensie_object = {**oude_dimensie_object, **aanpassingen}
-
-        return {"Resultaat_UUID": f"{ambitie_uuid}"}
+        return str(dimensie_object)
+        # return {"Resultaat_UUID": f"{ambitie_uuid}"}
