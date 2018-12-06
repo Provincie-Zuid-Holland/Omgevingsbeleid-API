@@ -57,27 +57,39 @@ class Dimensie(Resource):
 
         # Is het gegeven schema een superset van Dimensie_Schema?
         required_fields = Dimensie_Schema().fields.keys()
-        recieved_fields = tableschema().fields.keys()
-        assert all([field in recieved_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
+        schema_fields = tableschema().fields.keys()
+        # Dit checkt of Dimensie_Schema geërft wordt
+        assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
         
         # Partial velden voor de PATCH
-        self._partial_fields = [field for field in recieved_fields if field not in self._general_fields]
+        self._partial_fields = [field for field in schema_fields if field not in self._general_fields]
 
         # Bouw hier de queries op
         self._tableschema = tableschema
         self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
         self.all_query = f'SELECT * FROM {tablename_actueel}'
         
-        # Queries are build using this list (preserving order) 
-        self.query_fields = list(filter(lambda fieldname: not(eq(fieldname, self._identifier_field)), recieved_fields))
+        # POST Queries are build using this list (preserving order) 
+        self.query_fields = list(filter(lambda fieldname: not(eq(fieldname, self._identifier_field)), schema_fields))
 
-        query_fields_list = ', '.join(self.query_fields)
-        parameter_marks = ', '.join(['?' for _ in self.query_fields])
+        # PATCH Queries are build using this list (preserving order)
+        self.update_fields = self.query_fields + ['ID']
+        
+        update_fields_list = ', '.join(self.update_fields)
+        update_parameter_marks = ', '.join(['?' for _ in self.update_fields])
+
+        create_fields_list = ', '.join(self.query_fields)
+        create_parameter_marks = ', '.join(['?' for _ in self.query_fields])
 
         self.create_query = f'''INSERT INTO {tablename_all}
-            ({query_fields_list})
+            ({create_fields_list})
             OUTPUT inserted.UUID
-            VALUES ({parameter_marks})'''
+            VALUES ({create_parameter_marks})'''
+
+        self.update_query = f'''INSERT INTO {tablename_all}
+            ({update_fields_list})
+            OUTPUT inserted.UUID
+            VALUES ({update_parameter_marks})'''
 
     def single_object_by_uuid(self, uuid):
         """
@@ -143,7 +155,7 @@ class Dimensie(Resource):
                 cursor.execute(self.create_query, *values)
                 new_uuid = cursor.fetchone()[0]
             except pyodbc.IntegrityError as e:
-                pattern = re.compile('FK_\w+_(\w+)')
+                pattern = re.compile(r'FK_\w+_(\w+)')
                 match = pattern.search(e.args[-1]).group(1)
                 if match:
                     return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
@@ -180,6 +192,25 @@ class Dimensie(Resource):
         if not oude_dimensie_object:
             return {'message': f"Object met identifier {uuid} is niet gevonden"}, 404
 
+        # Voeg de twee objecten samen
         dimensie_object = {**oude_dimensie_object, **aanpassingen}
-        return str(dimensie_object)
-        # return {"Resultaat_UUID": f"{ambitie_uuid}"}
+        
+        values = [dimensie_object[k] for k in self.update_fields]
+        
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+            try:
+                cursor.execute(self.update_query, *values)
+                new_uuid = cursor.fetchone()[0]
+            except pyodbc.IntegrityError as e:
+                pattern = re.compile(r'FK_\w+_(\w+)')
+                match = pattern.search(e.args[-1]).group(1)
+                if match:
+                    return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
+                else:
+                    return {'message': 'Database integriteitsfout'}, 404
+            except pyodbc.DatabaseError:
+                    return {'message': f'Database fout, neem contact op met de systeembeheerder'}, 500
+            connection.commit()
+        
+        return {"Resultaat_UUID": f"{new_uuid}"}

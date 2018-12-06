@@ -1,0 +1,1516 @@
+2018-11-19 10:18:17.243285: wfastcgi.py 3.0.0 started
+2018-11-19 10:18:17.253284: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 10:18:17.269745: wfastcgi.py 3.0.0 initializing
+2018-11-19 10:18:22.173826: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 10:18:22.183793: wfastcgi.py 3.0.0 initialized
+2018-11-19 10:18:36.040099: wfastcgi.py 3.0.0 started
+2018-11-19 10:18:36.059108: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 10:18:36.071101: wfastcgi.py 3.0.0 initializing
+2018-11-19 10:18:38.439337: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 10:18:38.450117: wfastcgi.py 3.0.0 initialized
+2018-11-19 10:23:13.569943: Unhandled exception in wfastcgi.py: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 774, in main
+    record = read_fastcgi_record(fcgi_stream)
+  File "C:\Development\dev\wfastcgi.py", line 158, in read_fastcgi_record
+    data = stream.read(8)     # read record
+OSError: [Errno 22] Invalid argument
+2018-11-19 10:23:22.983379: wfastcgi.py 3.0.0 started
+2018-11-19 10:23:22.992375: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 10:23:23.003375: wfastcgi.py 3.0.0 initializing
+2018-11-19 10:23:25.374396: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 10:23:25.382390: wfastcgi.py 3.0.0 initialized
+2018-11-19 10:23:55.039473: wfastcgi.py 3.0.0 started
+2018-11-19 10:23:55.045430: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 10:23:55.057469: wfastcgi.py 3.0.0 initializing
+2018-11-19 10:23:57.415445: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 10:23:57.426445: wfastcgi.py 3.0.0 initialized
+2018-11-19 10:28:57.801612: wfastcgi.py 3.0.0 started
+2018-11-19 10:28:57.814539: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 10:28:57.831539: wfastcgi.py 3.0.0 initializing
+2018-11-19 10:29:00.142597: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 10:29:00.150563: wfastcgi.py 3.0.0 initialized
+2018-11-19 10:30:46.065423: wfastcgi.py 3.0.0 started
+2018-11-19 10:30:46.072381: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 10:30:46.089431: wfastcgi.py 3.0.0 initializing
+2018-11-19 10:30:48.404396: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 10:30:48.414470: wfastcgi.py 3.0.0 initialized
+2018-11-19 12:57:26.877730: wfastcgi.py 3.0.0 started
+2018-11-19 12:57:26.886732: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 12:57:26.889757: wfastcgi.py 3.0.0 initializing
+2018-11-19 12:57:32.215939: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 12:57:32.218975: wfastcgi.py 3.0.0 initialized
+2018-11-19 12:58:54.689210: wfastcgi.py exiting because web.config has changed, matching .*((\.py)|(\.config))$
+2018-11-19 12:58:54.704209: Running on_exit tasks
+2018-11-19 13:00:00.471048: wfastcgi.py 3.0.0 started
+2018-11-19 13:00:00.475078: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 13:00:00.481047: wfastcgi.py 3.0.0 initializing
+2018-11-19 13:00:02.223099: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 13:00:02.232228: wfastcgi.py 3.0.0 initialized
+2018-11-19 13:06:43.712520: wfastcgi.py exiting because web.config has changed, matching .*((\.py)|(\.config))$
+2018-11-19 13:06:43.719517: Running on_exit tasks
+2018-11-19 13:09:08.442265: wfastcgi.py 3.0.0 started
+2018-11-19 13:09:08.451265: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 13:09:08.460265: wfastcgi.py 3.0.0 initializing
+2018-11-19 13:09:10.200275: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 13:09:10.210308: wfastcgi.py 3.0.0 initialized
+2018-11-19 13:14:12.768253: wfastcgi.py 3.0.0 started
+2018-11-19 13:14:12.772214: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 13:14:12.778255: wfastcgi.py 3.0.0 initializing
+2018-11-19 13:14:14.521261: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 13:14:14.525224: wfastcgi.py 3.0.0 initialized
+2018-11-19 13:16:34.207337: wfastcgi.py 3.0.0 started
+2018-11-19 13:16:34.211308: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 13:16:34.218308: wfastcgi.py 3.0.0 initializing
+2018-11-19 13:16:35.940374: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 13:16:35.945316: wfastcgi.py 3.0.0 initialized
+2018-11-19 13:20:40.435143: Unhandled exception in wfastcgi.py: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 774, in main
+    record = read_fastcgi_record(fcgi_stream)
+  File "C:\Development\dev\wfastcgi.py", line 158, in read_fastcgi_record
+    data = stream.read(8)     # read record
+OSError: [Errno 22] Invalid argument
+2018-11-19 13:20:57.862543: wfastcgi.py 3.0.0 started
+2018-11-19 13:20:57.865550: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 13:20:57.874525: wfastcgi.py 3.0.0 initializing
+2018-11-19 13:20:59.079527: wfastcgi.py 3.0.0 started
+2018-11-19 13:20:59.088839: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 13:20:59.098830: wfastcgi.py 3.0.0 initializing
+2018-11-19 13:20:59.637535: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 13:20:59.648535: wfastcgi.py 3.0.0 initialized
+2018-11-19 13:21:00.904590: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 13:21:00.914767: wfastcgi.py 3.0.0 initialized
+2018-11-19 13:36:20.133886: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 35, in reraise
+    raise value
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 35, in reraise
+    raise value
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "c:\development\dev\Auth\views.py", line 31, in login
+    if bcrypt.verify(password, passwordhash):
+  File "C:\Development\dev\.venv\lib\site-packages\passlib\utils\handlers.py", line 761, in verify
+    return consteq(self._calc_checksum(secret), chk)
+  File "C:\Development\dev\.venv\lib\site-packages\passlib\handlers\bcrypt.py", line 530, in _calc_checksum
+    self._stub_requires_backend()
+  File "C:\Development\dev\.venv\lib\site-packages\passlib\utils\handlers.py", line 2221, in _stub_requires_backend
+    cls.set_backend()
+  File "C:\Development\dev\.venv\lib\site-packages\passlib\utils\handlers.py", line 2143, in set_backend
+    raise default_error
+passlib.exc.MissingBackendError: bcrypt: no backends available -- recommend you install one (e.g. 'pip install bcrypt')
+
+
+StdOut: 
+
+StdErr: 
+2018-11-19 13:39:20.636289: wfastcgi.py 3.0.0 started
+2018-11-19 13:39:20.644326: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 13:39:20.654340: wfastcgi.py 3.0.0 initializing
+2018-11-19 13:39:22.380347: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 13:39:22.387410: wfastcgi.py 3.0.0 initialized
+2018-11-19 13:50:27.591518: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_jwt_extended\view_decorators.py", line 103, in wrapper
+    return fn(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\verordening.py", line 78, in post
+    verordening['Created_Date'])
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][SQL Server Native Client 11.0][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Verordening_WerkingsGebieden". The conflict occurred in database "db-dev-omgevingsbeleid", table "dbo.WerkingsGebieden", column \'UUID\'. (547) (SQLExecDirectW); [23000] [Microsoft][SQL Server Native Client 11.0][SQL Server]The statement has been terminated. (3621)')
+
+
+StdOut: 
+
+StdErr: 
+2018-11-19 13:52:45.124735: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_jwt_extended\view_decorators.py", line 103, in wrapper
+    return fn(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Feiten\beleidsbeslissing.py", line 121, in post
+    beleidsbeslissing['Created_Date'])
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][SQL Server Native Client 11.0][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Beleidsbeslissingen_Gebruikers". The conflict occurred in database "db-dev-omgevingsbeleid", table "dbo.Gebruikers", column \'UUID\'. (547) (SQLExecDirectW); [23000] [Microsoft][SQL Server Native Client 11.0][SQL Server]The statement has been terminated. (3621)')
+
+
+StdOut: 
+
+StdErr: 
+2018-11-19 13:53:02.504014: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_jwt_extended\view_decorators.py", line 103, in wrapper
+    return fn(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Feiten\beleidsbeslissing.py", line 121, in post
+    beleidsbeslissing['Created_Date'])
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][SQL Server Native Client 11.0][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Beleidsbeslissingen_Gebruikers2". The conflict occurred in database "db-dev-omgevingsbeleid", table "dbo.Gebruikers", column \'UUID\'. (547) (SQLExecDirectW); [23000] [Microsoft][SQL Server Native Client 11.0][SQL Server]The statement has been terminated. (3621)')
+
+
+StdOut: 
+
+StdErr: 
+2018-11-19 13:53:38.047552: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1193, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 509, in do_execute
+    cursor.execute(statement, parameters)
+pyodbc.ProgrammingError: ('42000', "[42000] [Microsoft][SQL Server Native Client 11.0][SQL Server]Reference to database and/or server name in 'db-test-omgevingsbeleid.dbo.Beleidsbeslissingen' is not supported in this version of SQL Server. (40515) (SQLExecDirectW)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_jwt_extended\view_decorators.py", line 103, in wrapper
+    return fn(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Feiten\beleidsbeslissing.py", line 85, in get
+    beleidsbeslissingen = objects_from_query('BeleidsBeslissing', alle_beleidsbeslissingen)
+  File "c:\development\dev\helpers.py", line 25, in objects_from_query
+    results = db.query(query)
+  File "C:\Development\dev\.venv\lib\site-packages\records.py", line 275, in query
+    cursor = self.db.execute(text(query), **params) # TODO: PARAMS GO HERE
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 948, in execute
+    return meth(self, multiparams, params)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\sql\elements.py", line 269, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1060, in _execute_clauseelement
+    compiled_sql, distilled_params
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1200, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1413, in _handle_dbapi_exception
+    exc_info
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\util\compat.py", line 265, in raise_from_cause
+    reraise(type(exception), exception, tb=exc_tb, cause=cause)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\util\compat.py", line 248, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1193, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 509, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (pyodbc.ProgrammingError) ('42000', "[42000] [Microsoft][SQL Server Native Client 11.0][SQL Server]Reference to database and/or server name in 'db-test-omgevingsbeleid.dbo.Beleidsbeslissingen' is not supported in this version of SQL Server. (40515) (SQLExecDirectW)") [SQL: 'SELECT * FROM Actuele_Beleidsbeslissingen'] (Background on this error at: http://sqlalche.me/e/f405)
+
+
+StdOut: 
+
+StdErr: 
+2018-11-19 13:54:29.082312: wfastcgi.py 3.0.0 started
+2018-11-19 13:54:29.093304: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 13:54:29.103305: wfastcgi.py 3.0.0 initializing
+2018-11-19 13:54:30.860304: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 13:54:30.869306: wfastcgi.py 3.0.0 initialized
+2018-11-19 13:54:31.156207: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1193, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 509, in do_execute
+    cursor.execute(statement, parameters)
+pyodbc.ProgrammingError: ('42000', "[42000] [Microsoft][ODBC SQL Server Driver][SQL Server]Reference to database and/or server name in 'db-test-omgevingsbeleid.dbo.Beleidsbeslissingen' is not supported in this version of SQL Server. (40515) (SQLExecDirectW)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_jwt_extended\view_decorators.py", line 103, in wrapper
+    return fn(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Feiten\beleidsbeslissing.py", line 85, in get
+    beleidsbeslissingen = objects_from_query('BeleidsBeslissing', alle_beleidsbeslissingen)
+  File "c:\development\dev\helpers.py", line 25, in objects_from_query
+    results = db.query(query)
+  File "C:\Development\dev\.venv\lib\site-packages\records.py", line 275, in query
+    cursor = self.db.execute(text(query), **params) # TODO: PARAMS GO HERE
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 948, in execute
+    return meth(self, multiparams, params)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\sql\elements.py", line 269, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1060, in _execute_clauseelement
+    compiled_sql, distilled_params
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1200, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1413, in _handle_dbapi_exception
+    exc_info
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\util\compat.py", line 265, in raise_from_cause
+    reraise(type(exception), exception, tb=exc_tb, cause=cause)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\util\compat.py", line 248, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1193, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 509, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (pyodbc.ProgrammingError) ('42000', "[42000] [Microsoft][ODBC SQL Server Driver][SQL Server]Reference to database and/or server name in 'db-test-omgevingsbeleid.dbo.Beleidsbeslissingen' is not supported in this version of SQL Server. (40515) (SQLExecDirectW)") [SQL: 'SELECT * FROM Actuele_Beleidsbeslissingen'] (Background on this error at: http://sqlalche.me/e/f405)
+
+
+StdOut: 
+
+StdErr: 
+2018-11-19 13:57:30.669590: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1193, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 509, in do_execute
+    cursor.execute(statement, parameters)
+pyodbc.ProgrammingError: ('42000', "[42000] [Microsoft][ODBC SQL Server Driver][SQL Server]Reference to database and/or server name in 'db-test-omgevingsbeleid.dbo.Ambities' is not supported in this version of SQL Server. (40515) (SQLExecDirectW)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_jwt_extended\view_decorators.py", line 103, in wrapper
+    return fn(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\ambitie.py", line 44, in get
+    ambities = objects_from_query('Ambities', alle_ambities)
+  File "c:\development\dev\helpers.py", line 25, in objects_from_query
+    results = db.query(query)
+  File "C:\Development\dev\.venv\lib\site-packages\records.py", line 275, in query
+    cursor = self.db.execute(text(query), **params) # TODO: PARAMS GO HERE
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 948, in execute
+    return meth(self, multiparams, params)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\sql\elements.py", line 269, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1060, in _execute_clauseelement
+    compiled_sql, distilled_params
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1200, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1413, in _handle_dbapi_exception
+    exc_info
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\util\compat.py", line 265, in raise_from_cause
+    reraise(type(exception), exception, tb=exc_tb, cause=cause)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\util\compat.py", line 248, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1193, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 509, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (pyodbc.ProgrammingError) ('42000', "[42000] [Microsoft][ODBC SQL Server Driver][SQL Server]Reference to database and/or server name in 'db-test-omgevingsbeleid.dbo.Ambities' is not supported in this version of SQL Server. (40515) (SQLExecDirectW)") [SQL: 'SELECT * FROM Actuele_Ambities'] (Background on this error at: http://sqlalche.me/e/f405)
+
+
+StdOut: 
+
+StdErr: 
+2018-11-19 14:06:38.262896: wfastcgi.py 3.0.0 started
+2018-11-19 14:06:38.273861: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 14:06:38.281858: wfastcgi.py 3.0.0 initializing
+2018-11-19 14:06:40.013922: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 14:06:40.024966: wfastcgi.py 3.0.0 initialized
+2018-11-19 14:09:43.743574: wfastcgi.py 3.0.0 started
+2018-11-19 14:09:43.754540: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 14:09:43.766540: wfastcgi.py 3.0.0 initializing
+2018-11-19 14:09:45.480588: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 14:09:45.490551: wfastcgi.py 3.0.0 initialized
+2018-11-19 14:13:31.161625: wfastcgi.py 3.0.0 started
+2018-11-19 14:13:31.168588: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 14:13:31.172625: wfastcgi.py 3.0.0 initializing
+2018-11-19 14:13:32.843599: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 14:13:32.855629: wfastcgi.py 3.0.0 initialized
+2018-11-19 14:31:16.919472: wfastcgi.py 3.0.0 started
+2018-11-19 14:31:16.930435: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 14:31:16.938475: wfastcgi.py 3.0.0 initializing
+2018-11-19 14:31:18.650446: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 14:31:18.659446: wfastcgi.py 3.0.0 initialized
+2018-11-19 14:40:11.653250: wfastcgi.py 3.0.0 started
+2018-11-19 14:40:11.659214: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 14:40:11.670213: wfastcgi.py 3.0.0 initializing
+2018-11-19 14:40:13.401258: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 14:40:13.409226: wfastcgi.py 3.0.0 initialized
+2018-11-19 14:51:18.422062: wfastcgi.py 3.0.0 started
+2018-11-19 14:51:18.433062: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 14:51:18.442062: wfastcgi.py 3.0.0 initializing
+2018-11-19 14:51:20.242108: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 14:51:20.251248: wfastcgi.py 3.0.0 initialized
+2018-11-19 14:56:04.983819: wfastcgi.py 3.0.0 started
+2018-11-19 14:56:04.995781: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 14:56:05.005781: wfastcgi.py 3.0.0 initializing
+2018-11-19 14:56:06.638790: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 14:56:06.645823: wfastcgi.py 3.0.0 initialized
+2018-11-19 14:56:52.929281: wfastcgi.py 3.0.0 started
+2018-11-19 14:56:52.938281: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 14:56:52.942290: wfastcgi.py 3.0.0 initializing
+2018-11-19 14:56:54.674293: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 14:56:54.683294: wfastcgi.py 3.0.0 initialized
+2018-11-19 15:00:45.915551: wfastcgi.py 3.0.0 started
+2018-11-19 15:00:45.927591: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-19 15:00:45.932552: wfastcgi.py 3.0.0 initializing
+2018-11-19 15:00:47.703601: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-19 15:00:47.707573: wfastcgi.py 3.0.0 initialized
+2018-11-26 09:36:09.870436: wfastcgi.py 3.0.0 started
+2018-11-26 09:36:09.876436: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 09:36:09.882446: wfastcgi.py 3.0.0 initializing
+2018-11-26 09:36:16.631214: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 09:36:16.634254: wfastcgi.py 3.0.0 initialized
+2018-11-26 09:42:56.030001: wfastcgi.py 3.0.0 started
+2018-11-26 09:42:56.035000: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 09:42:56.042038: wfastcgi.py 3.0.0 initializing
+2018-11-26 09:42:56.509043: Error occurred while reading WSGI handler:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 791, in main
+    env, handler = read_wsgi_handler(response.physical_path)
+  File "C:\Development\dev\wfastcgi.py", line 633, in read_wsgi_handler
+    handler = get_wsgi_handler(os.getenv("WSGI_HANDLER"))
+  File "C:\Development\dev\wfastcgi.py", line 616, in get_wsgi_handler
+    raise ValueError('"%s" could not be imported%s' % (handler_name, last_tb))
+ValueError: "server.app" could not be imported: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 600, in get_wsgi_handler
+    handler = __import__(module_name, fromlist=[name_list[0][0]])
+  File "c:\development\dev\server.py", line 4, in <module>
+    from apispec.ext.flask import FlaskPlugin
+ModuleNotFoundError: No module named 'apispec.ext.flask'
+
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 09:42:56.513002: Unhandled exception in wfastcgi.py: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 791, in main
+    env, handler = read_wsgi_handler(response.physical_path)
+  File "C:\Development\dev\wfastcgi.py", line 633, in read_wsgi_handler
+    handler = get_wsgi_handler(os.getenv("WSGI_HANDLER"))
+  File "C:\Development\dev\wfastcgi.py", line 616, in get_wsgi_handler
+    raise ValueError('"%s" could not be imported%s' % (handler_name, last_tb))
+ValueError: "server.app" could not be imported: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 600, in get_wsgi_handler
+    handler = __import__(module_name, fromlist=[name_list[0][0]])
+  File "c:\development\dev\server.py", line 4, in <module>
+    from apispec.ext.flask import FlaskPlugin
+ModuleNotFoundError: No module named 'apispec.ext.flask'
+
+2018-11-26 09:42:56.520012: Running on_exit tasks
+2018-11-26 09:42:56.529002: wfastcgi.py 3.0.0 closed
+2018-11-26 09:43:13.487866: wfastcgi.py 3.0.0 started
+2018-11-26 09:43:13.496866: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 09:43:13.506873: wfastcgi.py 3.0.0 initializing
+2018-11-26 09:43:14.872877: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 09:43:14.877889: wfastcgi.py 3.0.0 initialized
+2018-11-26 09:43:56.872772: wfastcgi.py 3.0.0 started
+2018-11-26 09:43:56.883202: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 09:43:56.893155: wfastcgi.py 3.0.0 initializing
+2018-11-26 09:43:58.232176: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 09:43:58.256177: wfastcgi.py 3.0.0 initialized
+2018-11-26 12:33:08.588685: wfastcgi.py 3.0.0 started
+2018-11-26 12:33:08.591683: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 12:33:08.601649: wfastcgi.py 3.0.0 initializing
+2018-11-26 12:33:09.076651: Error occurred while reading WSGI handler:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 791, in main
+    env, handler = read_wsgi_handler(response.physical_path)
+  File "C:\Development\dev\wfastcgi.py", line 633, in read_wsgi_handler
+    handler = get_wsgi_handler(os.getenv("WSGI_HANDLER"))
+  File "C:\Development\dev\wfastcgi.py", line 600, in get_wsgi_handler
+    handler = __import__(module_name, fromlist=[name_list[0][0]])
+  File "c:\development\dev\server.py", line 11, in <module>
+    from Dimensies.dimensie import Dimensie
+  File "c:\development\dev\Dimensies\dimensie.py", line 69
+    query_fields_list = ', '.join(self.query_fields)
+                    ^
+SyntaxError: invalid syntax
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 12:33:09.086653: Unhandled exception in wfastcgi.py: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 791, in main
+    env, handler = read_wsgi_handler(response.physical_path)
+  File "C:\Development\dev\wfastcgi.py", line 633, in read_wsgi_handler
+    handler = get_wsgi_handler(os.getenv("WSGI_HANDLER"))
+  File "C:\Development\dev\wfastcgi.py", line 600, in get_wsgi_handler
+    handler = __import__(module_name, fromlist=[name_list[0][0]])
+  File "c:\development\dev\server.py", line 11, in <module>
+    from Dimensies.dimensie import Dimensie
+  File "c:\development\dev\Dimensies\dimensie.py", line 69
+    query_fields_list = ', '.join(self.query_fields)
+                    ^
+SyntaxError: invalid syntax
+2018-11-26 12:33:09.089689: Running on_exit tasks
+2018-11-26 12:33:09.097694: wfastcgi.py 3.0.0 closed
+2018-11-26 12:34:20.206673: wfastcgi.py 3.0.0 started
+2018-11-26 12:34:20.216617: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 12:34:20.220584: wfastcgi.py 3.0.0 initializing
+2018-11-26 12:34:23.524663: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 12:34:23.529664: wfastcgi.py 3.0.0 initialized
+2018-11-26 12:34:23.574697: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 87, in view
+    self = view.view_class(*class_args, **class_kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 67, in __init__
+    self.query_fields = list(filter(lambda fieldname: not(eq(fieldname, _identifier_field)), recieved_fields))
+  File "c:\development\dev\Dimensies\dimensie.py", line 67, in <lambda>
+    self.query_fields = list(filter(lambda fieldname: not(eq(fieldname, _identifier_field)), recieved_fields))
+NameError: name '_identifier_field' is not defined
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 12:35:18.029449: wfastcgi.py 3.0.0 started
+2018-11-26 12:35:18.039338: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 12:35:18.049364: wfastcgi.py 3.0.0 initializing
+2018-11-26 12:35:19.390347: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 12:35:19.395311: wfastcgi.py 3.0.0 initialized
+2018-11-26 12:35:33.141054: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 138, in post
+    cursor.execute(self.create_query, *values)
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Ambities_Gebruikers". The conflict occurred in database "db-dev-omgevingsbeleid", table "dbo.Gebruikers", column \'UUID\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The statement has been terminated. (3621)')
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 12:36:20.503362: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 138, in post
+    cursor.execute(self.create_query, *values)
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Ambities_Gebruikers". The conflict occurred in database "db-dev-omgevingsbeleid", table "dbo.Gebruikers", column \'UUID\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The statement has been terminated. (3621)')
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 12:38:48.173495: wfastcgi.py 3.0.0 started
+2018-11-26 12:38:48.182532: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 12:38:48.192496: wfastcgi.py 3.0.0 initializing
+2018-11-26 12:38:49.526504: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 12:38:49.534536: wfastcgi.py 3.0.0 initialized
+2018-11-26 12:38:49.665505: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 138, in post
+    cursor.execute(self.create_query, *values)
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Ambities_Gebruikers". The conflict occurred in database "db-dev-omgevingsbeleid", table "dbo.Gebruikers", column \'UUID\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The statement has been terminated. (3621)')
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 13:02:34.576012: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 138, in post
+    cursor.execute(self.create_query, *values)
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Ambities_Gebruikers". The conflict occurred in database "db-dev-omgevingsbeleid", table "dbo.Gebruikers", column \'UUID\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The statement has been terminated. (3621)')
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 13:05:14.983033: wfastcgi.py 3.0.0 started
+2018-11-26 13:05:14.993993: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:05:15.004035: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:05:16.351037: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:05:16.356003: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:05:58.541103: wfastcgi.py 3.0.0 started
+2018-11-26 13:05:58.552322: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:05:58.563071: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:05:59.916076: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:05:59.927115: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:08:27.922101: wfastcgi.py 3.0.0 started
+2018-11-26 13:08:27.954041: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:08:27.984040: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:08:29.358050: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:08:29.368094: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:08:29.602152: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 484, in wrapper
+    return self.make_response(data, code, headers=headers)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 513, in make_response
+    resp = self.representations[mediatype](data, *args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\representations\json.py", line 21, in output_json
+    dumped = dumps(data, **settings) + "\n"
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\encoder.py", line 201, in encode
+    chunks = list(chunks)
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\encoder.py", line 430, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\encoder.py", line 404, in _iterencode_dict
+    yield from chunks
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\encoder.py", line 437, in _iterencode
+    o = _default(o)
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\encoder.py", line 180, in default
+    o.__class__.__name__)
+TypeError: Object of type 'IntegrityError' is not JSON serializable
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 13:08:53.629664: wfastcgi.py 3.0.0 started
+2018-11-26 13:08:53.639663: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:08:53.649667: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:08:54.961673: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:08:54.976672: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:08:55.179513: Error occurred:
+
+Traceback (most recent call last):
+  File "c:\development\dev\Dimensies\dimensie.py", line 139, in post
+    cursor.execute(self.create_query, *values)
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Ambities_Gebruikers". The conflict occurred in database "db-dev-omgevingsbeleid", table "dbo.Gebruikers", column \'UUID\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The statement has been terminated. (3621)')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 143, in post
+    'error': string(e)}, 404
+NameError: name 'string' is not defined
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 13:09:30.953753: wfastcgi.py 3.0.0 started
+2018-11-26 13:09:30.978717: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:09:31.009768: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:09:32.338777: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:09:32.366736: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:09:32.514133: Error occurred:
+
+Traceback (most recent call last):
+  File "c:\development\dev\Dimensies\dimensie.py", line 139, in post
+    cursor.execute(self.create_query, *values)
+pyodbc.IntegrityError: ('23000', '[23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Ambities_Gebruikers". The conflict occurred in database "db-dev-omgevingsbeleid", table "dbo.Gebruikers", column \'UUID\'. (547) (SQLExecDirectW); [23000] [Microsoft][ODBC SQL Server Driver][SQL Server]The statement has been terminated. (3621)')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 143, in post
+    'error': toString(e)}, 404
+NameError: name 'toString' is not defined
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 13:10:05.129258: wfastcgi.py 3.0.0 started
+2018-11-26 13:10:05.160163: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:10:05.191119: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:10:06.596174: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:10:06.621159: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:14:12.000084: wfastcgi.py 3.0.0 started
+2018-11-26 13:14:12.025084: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:14:12.048084: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:14:13.381094: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:14:13.417097: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:14:21.771673: Unhandled exception in wfastcgi.py: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 774, in main
+    record = read_fastcgi_record(fcgi_stream)
+  File "C:\Development\dev\wfastcgi.py", line 158, in read_fastcgi_record
+    data = stream.read(8)     # read record
+OSError: [Errno 22] Invalid argument
+2018-11-26 13:14:31.835388: wfastcgi.py 3.0.0 started
+2018-11-26 13:14:31.878089: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:14:31.921090: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:14:33.287099: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:14:33.308112: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:15:10.251249: wfastcgi.py 3.0.0 started
+2018-11-26 13:15:10.275212: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:15:10.305079: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:15:11.654166: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:15:11.685137: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:43:21.541196: wfastcgi.py 3.0.0 started
+2018-11-26 13:43:21.562229: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:43:21.583196: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:43:22.967196: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:43:22.993196: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:47:03.234246: wfastcgi.py 3.0.0 started
+2018-11-26 13:47:03.261254: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:47:03.285277: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:47:04.575292: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:47:04.599256: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:49:09.677775: wfastcgi.py 3.0.0 started
+2018-11-26 13:49:09.708743: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:49:09.737742: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:49:11.048749: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:49:11.079750: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:54:28.071916: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 167, in patch
+    partial = self._partial_fields ++ ['Begin_Geldigheid', 'Eind_Geldigheid'],
+TypeError: bad operand type for unary +: 'list'
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 13:55:38.151061: wfastcgi.py 3.0.0 started
+2018-11-26 13:55:38.157029: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:55:38.166290: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:55:39.448036: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:55:39.459073: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:56:28.290340: wfastcgi.py 3.0.0 started
+2018-11-26 13:56:28.300337: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:56:28.310362: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:56:29.668347: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:56:29.677385: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:57:48.766817: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 180, in patch
+    if not oude_ambitie_object:
+NameError: name 'oude_ambitie_object' is not defined
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 13:58:06.537050: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 180, in patch
+    if not oude_dimensie_object:
+NameError: name 'oude_ambitie_object' is not defined
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 13:58:21.143983: wfastcgi.py 3.0.0 started
+2018-11-26 13:58:21.152019: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:58:21.161988: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:58:22.532023: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:58:22.540992: wfastcgi.py 3.0.0 initialized
+2018-11-26 13:58:22.724601: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 484, in wrapper
+    return self.make_response(data, code, headers=headers)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 513, in make_response
+    resp = self.representations[mediatype](data, *args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\representations\json.py", line 21, in output_json
+    dumped = dumps(data, **settings) + "\n"
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\encoder.py", line 201, in encode
+    chunks = list(chunks)
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\encoder.py", line 430, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\encoder.py", line 404, in _iterencode_dict
+    yield from chunks
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\encoder.py", line 437, in _iterencode
+    o = _default(o)
+  File "C:\Users\master\AppData\Local\Programs\Python\Python36\Lib\json\encoder.py", line 180, in default
+    o.__class__.__name__)
+TypeError: Object of type 'datetime' is not JSON serializable
+
+
+StdOut: 
+
+StdErr: 
+2018-11-26 13:59:02.758131: wfastcgi.py 3.0.0 started
+2018-11-26 13:59:02.764130: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-11-26 13:59:02.770130: wfastcgi.py 3.0.0 initializing
+2018-11-26 13:59:04.310171: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-11-26 13:59:04.319140: wfastcgi.py 3.0.0 initialized
+2018-12-03 09:31:57.715938: wfastcgi.py 3.0.0 started
+2018-12-03 09:31:57.724914: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-03 09:31:57.735904: wfastcgi.py 3.0.0 initializing
+2018-12-03 09:32:05.877945: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-03 09:32:05.885945: wfastcgi.py 3.0.0 initialized
+2018-12-06 10:43:32.284347: wfastcgi.py 3.0.0 started
+2018-12-06 10:43:32.294361: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 10:43:32.303392: wfastcgi.py 3.0.0 initializing
+2018-12-06 10:43:37.680986: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 10:43:37.691022: wfastcgi.py 3.0.0 initialized
+2018-12-06 11:51:13.649847: wfastcgi.py 3.0.0 started
+2018-12-06 11:51:13.662855: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 11:51:13.673848: wfastcgi.py 3.0.0 initializing
+2018-12-06 11:51:14.279853: Error occurred while reading WSGI handler:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 791, in main
+    env, handler = read_wsgi_handler(response.physical_path)
+  File "C:\Development\dev\wfastcgi.py", line 633, in read_wsgi_handler
+    handler = get_wsgi_handler(os.getenv("WSGI_HANDLER"))
+  File "C:\Development\dev\wfastcgi.py", line 600, in get_wsgi_handler
+    handler = __import__(module_name, fromlist=[name_list[0][0]])
+  File "c:\development\dev\server.py", line 11, in <module>
+    from Dimensies.dimensie import Dimensie
+  File "c:\development\dev\Dimensies\dimensie.py", line 82
+    create_parameter_marks = ', '.join(['?' for _ in self.query_fields)])
+                                                                      ^
+SyntaxError: invalid syntax
+
+
+StdOut: 
+
+StdErr: 
+2018-12-06 11:51:14.289876: Unhandled exception in wfastcgi.py: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 791, in main
+    env, handler = read_wsgi_handler(response.physical_path)
+  File "C:\Development\dev\wfastcgi.py", line 633, in read_wsgi_handler
+    handler = get_wsgi_handler(os.getenv("WSGI_HANDLER"))
+  File "C:\Development\dev\wfastcgi.py", line 600, in get_wsgi_handler
+    handler = __import__(module_name, fromlist=[name_list[0][0]])
+  File "c:\development\dev\server.py", line 11, in <module>
+    from Dimensies.dimensie import Dimensie
+  File "c:\development\dev\Dimensies\dimensie.py", line 82
+    create_parameter_marks = ', '.join(['?' for _ in self.query_fields)])
+                                                                      ^
+SyntaxError: invalid syntax
+2018-12-06 11:51:14.306946: Running on_exit tasks
+2018-12-06 11:51:14.317851: wfastcgi.py 3.0.0 closed
+2018-12-06 11:51:56.236615: wfastcgi.py 3.0.0 started
+2018-12-06 11:51:56.267065: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 11:51:56.277623: wfastcgi.py 3.0.0 initializing
+2018-12-06 11:51:58.349618: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 11:51:58.367619: wfastcgi.py 3.0.0 initialized
+2018-12-06 11:51:58.764619: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 198, in patch
+    values = [dim_object[k] for k in self.update_fields]
+  File "c:\development\dev\Dimensies\dimensie.py", line 198, in <listcomp>
+    values = [dim_object[k] for k in self.update_fields]
+NameError: name 'dim_object' is not defined
+
+
+StdOut: 
+
+StdErr: 
+2018-12-06 11:52:17.028275: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 198, in patch
+    values = [dimensie_object[k] for k in self.update_fields]
+  File "c:\development\dev\Dimensies\dimensie.py", line 198, in <listcomp>
+    values = [dimensie_object[k] for k in self.update_fields]
+NameError: name 'dim_object' is not defined
+
+
+StdOut: 
+
+StdErr: 
+2018-12-06 11:52:27.474939: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 198, in patch
+    values = [dimensie_object[k] for k in self.update_fields]
+  File "c:\development\dev\Dimensies\dimensie.py", line 198, in <listcomp>
+    values = [dimensie_object[k] for k in self.update_fields]
+NameError: name 'dim_object' is not defined
+
+
+StdOut: 
+
+StdErr: 
+2018-12-06 11:53:25.709009: wfastcgi.py 3.0.0 started
+2018-12-06 11:53:25.719048: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 11:53:25.729008: wfastcgi.py 3.0.0 initializing
+2018-12-06 11:53:27.477054: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 11:53:27.486008: wfastcgi.py 3.0.0 initialized
+2018-12-06 11:53:32.974460: wfastcgi.py 3.0.0 started
+2018-12-06 11:53:32.982460: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 11:53:32.999470: wfastcgi.py 3.0.0 initializing
+2018-12-06 11:53:34.750457: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 11:53:34.761494: wfastcgi.py 3.0.0 initialized
+2018-12-06 11:53:55.083578: wfastcgi.py 3.0.0 started
+2018-12-06 11:53:55.095579: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 11:53:55.112614: wfastcgi.py 3.0.0 initializing
+2018-12-06 11:53:57.039572: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 11:53:57.061571: wfastcgi.py 3.0.0 initialized
+2018-12-06 11:54:17.199180: wfastcgi.py 3.0.0 started
+2018-12-06 11:54:17.205215: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 11:54:17.211180: wfastcgi.py 3.0.0 initializing
+2018-12-06 11:54:18.962181: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 11:54:18.970186: wfastcgi.py 3.0.0 initialized
+2018-12-06 11:55:02.143839: wfastcgi.py 3.0.0 started
+2018-12-06 11:55:02.153798: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 11:55:02.169008: wfastcgi.py 3.0.0 initializing
+2018-12-06 11:55:04.007796: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 11:55:04.014798: wfastcgi.py 3.0.0 initialized
+2018-12-06 11:55:36.106287: wfastcgi.py 3.0.0 started
+2018-12-06 11:55:36.112491: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 11:55:36.123466: wfastcgi.py 3.0.0 initializing
+2018-12-06 11:55:37.890465: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 11:55:37.902463: wfastcgi.py 3.0.0 initialized
+2018-12-06 11:56:15.381590: wfastcgi.py 3.0.0 started
+2018-12-06 11:56:15.389533: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 11:56:15.400533: wfastcgi.py 3.0.0 initializing
+2018-12-06 11:56:17.240533: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 11:56:17.255979: wfastcgi.py 3.0.0 initialized
+2018-12-06 12:16:14.529606: wfastcgi.py 3.0.0 started
+2018-12-06 12:16:14.540636: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 12:16:14.551606: wfastcgi.py 3.0.0 initializing
+2018-12-06 12:16:16.376606: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 12:16:16.385610: wfastcgi.py 3.0.0 initialized
