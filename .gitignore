@@ -4,3 +4,4 @@ __pycache__/
 settings.py
 web.config
 .vscode/settings.json
+cgi.log

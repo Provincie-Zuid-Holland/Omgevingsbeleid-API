@@ -11,7 +11,7 @@ from collections import namedtuple
 from Dimensies.dimensie import Dimensie
 from Dimensies.ambitie import Ambitie_Schema
 # from Dimensies.beleidsregel import BeleidsRegel
-# from Dimensies.doel import Doel
+from Dimensies.doel import Doel_Schema
 # from Dimensies.provinciaalbelang import ProvinciaalBelang
 # from Dimensies.thema import Thema
 # from Dimensies.opgaven import Opgave
@@ -69,6 +69,9 @@ app.add_url_rule(f'/v{current_version}/login',
 
 api.add_resource(Dimensie, '/ambities', '/ambities/<string:uuid>', endpoint='Ambities',
                  resource_class_args=(Ambitie_Schema, 'Ambities', 'Actuele_Ambities'))
+
+api.add_resource(Dimensie, '/doelen', '/doelen/<string:uuid>', endpoint='Doelen',
+                 resource_class_args=(Doel_Schema, 'Doelen', 'Actuele_Doelen'))
 # api.add_resource(BeleidsRegel, '/beleidsregels',
 #                  '/beleidsregels/<string:beleidsregel_uuid>')
 # api.add_resource(Doel, '/doelen',

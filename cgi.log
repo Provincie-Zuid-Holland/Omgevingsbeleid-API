@@ -1514,3 +1514,8 @@ StdErr:
 2018-12-06 12:16:14.551606: wfastcgi.py 3.0.0 initializing
 2018-12-06 12:16:16.376606: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
 2018-12-06 12:16:16.385610: wfastcgi.py 3.0.0 initialized
+2018-12-06 12:30:39.221219: wfastcgi.py 3.0.0 started
+2018-12-06 12:30:39.232223: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-06 12:30:39.249452: wfastcgi.py 3.0.0 initializing
+2018-12-06 12:30:41.201200: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-06 12:30:41.216200: wfastcgi.py 3.0.0 initialized
