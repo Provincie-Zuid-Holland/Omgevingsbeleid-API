@@ -1519,3 +1519,183 @@ StdErr:
 2018-12-06 12:30:39.249452: wfastcgi.py 3.0.0 initializing
 2018-12-06 12:30:41.201200: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
 2018-12-06 12:30:41.216200: wfastcgi.py 3.0.0 initialized
+2018-12-11 12:08:47.411337: wfastcgi.py 3.0.0 started
+2018-12-11 12:08:47.421324: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-11 12:08:47.422325: wfastcgi.py 3.0.0 initializing
+2018-12-11 12:08:53.758989: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-11 12:08:53.765989: wfastcgi.py 3.0.0 initialized
+2018-12-11 13:48:54.543290: wfastcgi.py 3.0.0 started
+2018-12-11 13:48:54.561288: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-11 13:48:54.572291: wfastcgi.py 3.0.0 initializing
+2018-12-11 13:48:56.643303: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-11 13:48:56.655312: wfastcgi.py 3.0.0 initialized
+2018-12-11 14:03:21.781115: wfastcgi.py 3.0.0 started
+2018-12-11 14:03:21.798362: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-11 14:03:21.809116: wfastcgi.py 3.0.0 initializing
+2018-12-11 14:03:23.684130: Error occurred while reading WSGI handler:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 791, in main
+    env, handler = read_wsgi_handler(response.physical_path)
+  File "C:\Development\dev\wfastcgi.py", line 633, in read_wsgi_handler
+    handler = get_wsgi_handler(os.getenv("WSGI_HANDLER"))
+  File "C:\Development\dev\wfastcgi.py", line 616, in get_wsgi_handler
+    raise ValueError('"%s" could not be imported%s' % (handler_name, last_tb))
+ValueError: "server.app" could not be imported: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 600, in get_wsgi_handler
+    handler = __import__(module_name, fromlist=[name_list[0][0]])
+  File "c:\development\dev\server.py", line 15, in <module>
+    from Dimensies.provincialebelangen import ProvincialeBelangen_Schema
+ImportError: cannot import name 'ProvincialeBelangen_Schema'
+
+
+
+StdOut: 
+
+StdErr: 
+2018-12-11 14:03:23.693133: Unhandled exception in wfastcgi.py: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 791, in main
+    env, handler = read_wsgi_handler(response.physical_path)
+  File "C:\Development\dev\wfastcgi.py", line 633, in read_wsgi_handler
+    handler = get_wsgi_handler(os.getenv("WSGI_HANDLER"))
+  File "C:\Development\dev\wfastcgi.py", line 616, in get_wsgi_handler
+    raise ValueError('"%s" could not be imported%s' % (handler_name, last_tb))
+ValueError: "server.app" could not be imported: Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 600, in get_wsgi_handler
+    handler = __import__(module_name, fromlist=[name_list[0][0]])
+  File "c:\development\dev\server.py", line 15, in <module>
+    from Dimensies.provincialebelangen import ProvincialeBelangen_Schema
+ImportError: cannot import name 'ProvincialeBelangen_Schema'
+
+2018-12-11 14:03:23.702127: Running on_exit tasks
+2018-12-11 14:03:23.712137: wfastcgi.py 3.0.0 closed
+2018-12-11 14:03:54.102117: wfastcgi.py 3.0.0 started
+2018-12-11 14:03:54.111081: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-11 14:03:54.122087: wfastcgi.py 3.0.0 initializing
+2018-12-11 14:03:55.993097: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-11 14:03:56.004119: wfastcgi.py 3.0.0 initialized
+2018-12-11 14:03:56.021137: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 87, in view
+    self = view.view_class(*class_args, **class_kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 62, in __init__
+    assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
+AssertionError: Gegeven schema is geen superset van Dimensie Schema
+
+
+StdOut: 
+
+StdErr: 
+2018-12-11 14:04:37.872807: wfastcgi.py 3.0.0 started
+2018-12-11 14:04:37.884859: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-11 14:04:37.901860: wfastcgi.py 3.0.0 initializing
+2018-12-11 14:04:39.722871: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-11 14:04:39.741081: wfastcgi.py 3.0.0 initialized
+2018-12-11 14:04:40.506375: Error occurred:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1193, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 509, in do_execute
+    cursor.execute(statement, parameters)
+pyodbc.ProgrammingError: ('42S02', "[42S02] [Microsoft][ODBC SQL Server Driver][SQL Server]Invalid object name 'Actuele_ProvencialeBelangen'. (208) (SQLExecDirectW)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Development\dev\wfastcgi.py", line 847, in main
+    result = handler(record.params, response.start)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2309, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2295, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1741, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 2292, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1815, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 273, in error_router
+    return original_handler(e)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1718, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\_compat.py", line 34, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1813, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Development\dev\.venv\lib\site-packages\flask\app.py", line 1799, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 480, in wrapper
+    resp = resource(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask\views.py", line 88, in view
+    return self.dispatch_request(*args, **kwargs)
+  File "C:\Development\dev\.venv\lib\site-packages\flask_restful\__init__.py", line 595, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "c:\development\dev\Dimensies\dimensie.py", line 123, in get
+    dimensie_objecten = self.objects_from_query()
+  File "c:\development\dev\Dimensies\dimensie.py", line 106, in objects_from_query
+    return db.query(self.all_query)
+  File "C:\Development\dev\.venv\lib\site-packages\records.py", line 275, in query
+    cursor = self.db.execute(text(query), **params) # TODO: PARAMS GO HERE
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 948, in execute
+    return meth(self, multiparams, params)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\sql\elements.py", line 269, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1060, in _execute_clauseelement
+    compiled_sql, distilled_params
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1200, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1413, in _handle_dbapi_exception
+    exc_info
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\util\compat.py", line 265, in raise_from_cause
+    reraise(type(exception), exception, tb=exc_tb, cause=cause)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\util\compat.py", line 248, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\base.py", line 1193, in _execute_context
+    context)
+  File "C:\Development\dev\.venv\lib\site-packages\sqlalchemy\engine\default.py", line 509, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (pyodbc.ProgrammingError) ('42S02', "[42S02] [Microsoft][ODBC SQL Server Driver][SQL Server]Invalid object name 'Actuele_ProvencialeBelangen'. (208) (SQLExecDirectW)") [SQL: 'SELECT * FROM Actuele_ProvencialeBelangen'] (Background on this error at: http://sqlalche.me/e/f405)
+
+
+StdOut: 
+
+StdErr: 
+2018-12-11 14:05:59.035191: wfastcgi.py 3.0.0 started
+2018-12-11 14:05:59.047139: Python version: 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)]
+2018-12-11 14:05:59.067147: wfastcgi.py 3.0.0 initializing
+2018-12-11 14:06:00.830151: wfastcgi.py will restart when files in C:\empty\ are changed: .*((\.py)|(\.config))$
+2018-12-11 14:06:00.849152: wfastcgi.py 3.0.0 initialized

@@ -10,17 +10,9 @@ from collections import namedtuple
 
 from Dimensies.dimensie import Dimensie
 from Dimensies.ambitie import Ambitie_Schema
-# from Dimensies.beleidsregel import BeleidsRegel
+from Dimensies.beleidsregel import BeleidsRegel_Schema
 from Dimensies.doel import Doel_Schema
-# from Dimensies.provinciaalbelang import ProvinciaalBelang
-# from Dimensies.thema import Thema
-# from Dimensies.opgaven import Opgave
-# from Dimensies.maatregelen import Maatregel, Maatregelen_Schema
-# from Dimensies.verordening import Verordening
-# from Dimensies.werkingsgebieden import Werkingsgebied
-# from Dimensies.geothemas import Geothema
-# from Dimensies.beleidsrelaties import BeleidsRelatie
-# from Dimensies.gebruikers import Gebruiker
+from Dimensies.provincialebelangen import ProvincialeBelangen_Schema
 
 # from Feiten.beleidsbeslissing import BeleidsBeslissing
 
@@ -55,29 +47,18 @@ def generate_client_creds(client_identifier):
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
 
-
-# schema = naam van schema (moet erven van Dimensie_schema)
-# single = Naam van dimensie in enkelvoud
-# all = Naam van dimensie in meervoud
-# actueel = Optionele tablenaam voor een 'actuele' view
-
-# Dimensie_record = namedtuple('Dimensie_record', ['schema', 'single', 'all', 'actueel'])
-
-# dimensies = [
-#     Dimensie_record(Ambitie_Schema, 'Ambitie','Ambities', 'Actuele_Ambities')
-# ]
-
 api.add_resource(Dimensie, '/ambities', '/ambities/<string:uuid>', endpoint='Ambities',
                  resource_class_args=(Ambitie_Schema, 'Ambities', 'Actuele_Ambities'))
 
 api.add_resource(Dimensie, '/doelen', '/doelen/<string:uuid>', endpoint='Doelen',
                  resource_class_args=(Doel_Schema, 'Doelen', 'Actuele_Doelen'))
-# api.add_resource(BeleidsRegel, '/beleidsregels',
-#                  '/beleidsregels/<string:beleidsregel_uuid>')
-# api.add_resource(Doel, '/doelen',
-#                  '/doelen/<string:doel_uuid>')
-# api.add_resource(ProvinciaalBelang, '/provincialebelangen',
-#                  '/provincialebelangen/<string:provinciaalbelang_uuid>')
+
+api.add_resource(Dimensie, '/beleidsregels', '/beleidsregels/<string:uuid>', endpoint='Beleidsregels',
+                 resource_class_args=(BeleidsRegel_Schema, 'BeleidsRegels', 'Actuele_BeleidsRegels'))                 
+
+api.add_resource(Dimensie, '/provincialebelangen',
+                 '/provincialebelangen/<string:uuid>', endpoint='Provincialebelangen',
+                 resource_class_args=(ProvincialeBelangen_Schema, 'ProvinicialeBelangen', 'Actuele_ProvincialeBelangen'))
 # api.add_resource(Thema, '/themas',
 #                  '/themas/<string:thema_uuid>')
 # api.add_resource(Opgave, '/opgaven',
