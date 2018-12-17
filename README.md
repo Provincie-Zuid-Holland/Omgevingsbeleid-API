@@ -39,12 +39,12 @@ Deployment stappen op een nieuwe VM:
     - __!!! Vink `Add Python 3.6 to PATH` & `Install launcher for all users (recommended)` aan op het eerste scherm van de installer!__
 - Klik op 'Install Now'
 - Test de installatie:
-    - Start een nieuwe Command Prompt
+    - Start een nieuwe Command Prompt (Niet als administrator!)
     - Typ `python --version`
     - Als er Python 3.6.x verschijnt is Python sucessvol geïnstalleerd.
-- Python moet nu nog worden toegevoegs aan het system PATH
+- Python moet nu nog worden toegevoegd aan het system PATH
     - klik op `Start` -> `Edit the system environment variables` -> `Environment Variables`
-    - Voeg onder `System Variables` de Python locatie toe aan je Path. Je kan de locatie vinden in `User variables for master` 
+    - Voeg onder `System Variables` de Python locatie toe aan je Path. Je kan de locatie vinden in `User variables for master` Let op alleen de verwijzing naar de Python3* map?
 
 ### 2: Git installeren
 - Download de nieuwste versie van Git (64-bit Git for Windows Setup) op [de Git download pagina](https://git-scm.com/download/win)
