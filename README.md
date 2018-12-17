@@ -49,8 +49,16 @@ Deployment stappen op een nieuwe VM:
 ### 2: Git installeren
 - Download de nieuwste versie van Git (64-bit Git for Windows Setup) op [de Git download pagina](https://git-scm.com/download/win)
 - Run de installer
-    - __Op het scherm `Adjusting your PATH evironment` vink `Use Git from the Windows Command Prompt` aan.__
-    - __OP het scherm `Configuring the teminal emulator to use with Git Bash` vink `Use Windows default console window`.__
+    - Ik zie veel meer opties, zijn die allen "default"?
+    - Destination location?
+    - Install Components?
+    - Start menu folder?
+    - Default editor used by Git "Use Vim"?
+    - __Op het scherm `Adjusting your PATH evironment` vink `Use Git from the Command Line` aan.__
+    - Use https transport backend "Open SSL"?
+    - Configure line ending conversions "Checkout Windows Style"
+    - __Op het scherm `Configuring the terminal emulator to use with Git Bash` vink `Use Windows default console window`.__
+    - Configure extra options "File system caching" and "Git credential Manager" Niet "Symbolic links"
 - Test de installatie:
     - Start een nieuwe Command Prompt
     - Typ `get --version`
