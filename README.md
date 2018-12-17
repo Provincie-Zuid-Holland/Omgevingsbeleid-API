@@ -126,7 +126,7 @@ Deployment stappen op een nieuwe VM:
     - Als de installatie voltooid is:
     - `wfastcgi-enable`
     - Je krijgt nu een melding dat er een configuratie is toegepast. En ook een pad naar de locatie van het wfastcgi.py script. 
-    - Kopieer het `wfastcgi.py` script naar de root van je omgevingsmap(pen).
+    - Kopieer het `wfastcgi.py` script naar de root van je omgevingsmap(pen). ?????
 
 - Start IIS Manager op
 - Maak een nieuwe website aan (n.b. er is maar een website nodig, ook voor meerdere omgevingen!)
