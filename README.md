@@ -20,7 +20,7 @@ $ pipenv install --dev
 Een settings.py file is nodig om de omgevings specifieke instellingen te verkrijgen.
 ``` python
 DB_USER = 'Database gebruiker'
-DB_PASS = 'Wacthwoord van gebruiker'
+DB_PASS = 'Wachtwoord van gebruiker'
 DB_HOST = 'Locatie van SQL-server'
 DB_PORT = 'Poort van SQL-server (1433 default)'
 DB_NAME = 'Naam van de database'
