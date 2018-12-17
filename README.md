@@ -108,7 +108,7 @@ Deployment stappen op een nieuwe VM:
 
 ### 5: Database verbindingen instellen.
 - Ga naar de omgevingsmap (i.e. `C:/Deployment/test`)
-- Maak een koppie van `example_settings.py` en noem deze `settings.py`
+- Maak een kopie van `example_settings.py` en noem deze `settings.py`
 - Open de `settings.py` in een text-editor
 - Plaats de juiste waardes:
     - `DB_DRIVER` zal in de meeste gevallen de waarde `SQL Server Native Client 11.0` moeten krijgen
@@ -121,7 +121,8 @@ Deployment stappen op een nieuwe VM:
 
 - Installeer WFastCGI via PIP:
     - Start een nieuwe Command Prompt as Administrator
-    - `pip install wfastcgi`
+    - `pip install wfastcgi` 
+    - (You are using pip version 10.0.1, however version 18.1 is available.) ???
     - Als de installatie voltooid is:
     - `wfastcgi-enable`
     - Je krijgt nu een melding dat er een configuratie is toegepast. En ook een pad naar de locatie van het wfastcgi.py script. 
