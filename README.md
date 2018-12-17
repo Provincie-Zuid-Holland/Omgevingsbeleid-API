@@ -88,7 +88,7 @@ Deployment stappen op een nieuwe VM:
         - `acc`, `prod` of `test`
     - Bijvoorbeeld voor een runner op een acc/test server:
         - `acc, test`
-- De Gitlab runner kan je instellen via de file `config.toml`
+- De Gitlab runner kan je instellen via de file `config.toml` in de directory C:\GitLab-Runner
     - onder `[[runners]]` moeten de volgende instellingen staan:
     ```toml
         executor = "shell"
