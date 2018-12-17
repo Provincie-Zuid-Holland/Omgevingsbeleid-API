@@ -77,7 +77,7 @@ Deployment stappen op een nieuwe VM:
         - `Please enter the gitlab-ci token for this runner` ->
             - Verkrijg een gitlab token van het project onder `Settings` > `CI/CD` > `Runners (expand)` > `Setup a specific Runner manually`
             - Het token onder "Use the following registration token during setup:" voer je in als antwoord
-        - `Please enter the gitlab-ci description for this runner` -> Naam van de runner (meestal is genoeg 'runner' maar beter is '<machinenaam>-runner')
+        - `Please enter the gitlab-ci description for this runner` -> Naam van de runner (meestal is genoeg 'runner' maar beter is 'machinenaam-runner')
         - `Please enter the gitlab-ci tags for this runner (comma separated):` -> Leeglaten
         - `Please enter the executor: ssh, docker+machine, docker-ssh+machine, kubernetes, docker, parallels, virtualbox, docker-ssh, shell:` -> `shell`
     - Stel GitLab runner is als deamon service:
