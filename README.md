@@ -61,7 +61,7 @@ Deployment stappen op een nieuwe VM:
     - Configure extra options "File system caching" and "Git credential Manager" Niet "Symbolic links"
 - Test de installatie:
     - Start een nieuwe Command Prompt
-    - Typ `get --version`
+    - Typ `git --version`
     - Als er een git version string verschijnt is Git succesvol geïnstalleerd.
 
 ### 3: Gitlab Runner installeren
