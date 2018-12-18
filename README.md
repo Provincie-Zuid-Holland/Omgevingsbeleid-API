@@ -45,7 +45,8 @@ Deployment stappen op een nieuwe VM:
 - Python moet nu nog worden toegevoegd aan het system PATH
     - klik op `Start` -> `Edit the system environment variables` -> `Environment Variables`
     - Voeg onder `System Variables` de Python locatie toe aan je Path. Je kan de locatie vinden in `User variables for master` Let op alleen de verwijzing naar de Python3* map?
-
+    - Voeg ook de map /Scripts/ toe aan je Path, deze bevindt zich in dezelfde folder als je Python locatie.
+    - 
 ### 2: Git installeren
 - Download de nieuwste versie van Git (64-bit Git for Windows Setup) op [de Git download pagina](https://git-scm.com/download/win)
 - Run de installer
