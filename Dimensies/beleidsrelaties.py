@@ -19,7 +19,7 @@ class BeleidsRelatie_Schema(MM.Schema):
     Omschrijving = MM.fields.Str(missing=None)
     Status = MM.fields.Str(required=True, validate= [MM.validate.OneOf(['Open', 'Akkoord', 'NietAkkoord']),])
     Aanvraag_Datum = MM.fields.DateTime(format='iso', required=True)
-    Datum_Akkoord = MM.fields.DateTime(format='iso', allow_none=True)
+    Datum_Akkoord = MM.fields.DateTime(format='iso', allow_none=True, missing=None)
     Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
     Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
     Created_By = MM.fields.Str(required=True)
@@ -60,31 +60,7 @@ class BeleidsRelatie(Resource):
             beleidsrelatie = schema.load(request.get_json())
         except MM.exceptions.ValidationError as err:
             return err.normalized_messages(), 400
-        
-        # Check of er geen zelfkoppeling plaatsvind
-        # if beleidsrelatie['Van_Beleidsbeslissing'] == beleidsrelatie['Naar_Beleidsbeslissing']:
-            # return {'message': "Een beleidsbesslising kan niet naar zichzelf koppelen"}, 400
-        
-        # Check of er al een relatie de andere kant op bestaat
-        # connection = pyodbc.connect(db_connection_settings)
-        # cursor = connection.cursor()
-        # cursor.execute(check_beleidsrelatie,
-            # beleidsrelatie['Van_Beleidsbeslissing'],
-            # beleidsrelatie['Naar_Beleidsbeslissing'],
-            # beleidsrelatie['Van_Beleidsbeslissing'],
-            # beleidsrelatie['Naar_Beleidsbeslissing'])
-        
-        # conflict_row = cursor.fetchone()
-
-        # if conflict_row:
-            # return {'message': 'Er bestaat al een relatie tussen deze objecten',
-                    # 'UUID': conflict_row.UUID}, 400 
-        
-        
-        # if beleidsrelatie['Status'] != 'Open':
-            # return {'Status':["Must be 'Open'",]}, 400
-            
-        
+                
         try:
             connection = pyodbc.connect(db_connection_settings)
             cursor = connection.cursor()

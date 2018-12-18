@@ -42,6 +42,9 @@ Deployment stappen op een nieuwe VM:
     - Start een nieuwe Command Prompt
     - Typ `python --version`
     - Als er Python 3.6.x verschijnt is Python sucessvol geïnstalleerd.
+- Python moet nu nog worden toegevoegs aan het system PATH
+    - klik op `Start` -> `Edit the system environment variables` -> `Environment Variables`
+    - Voeg onder `System Variables` de Python locatie toe aan je Path. Je kan de locatie vinden in `User variables for master` 
 
 ### 2: Git installeren
 - Download de nieuwste versie van Git (64-bit Git for Windows Setup) op [de Git download pagina](https://git-scm.com/download/win)
@@ -72,4 +75,78 @@ Deployment stappen op een nieuwe VM:
     - Stel GitLab runner is als deamon service:
         - `gitlab-runner install`
     - Deze runner zou nu beschikbaar moeten zijn op de Gitlab project pagina (deze pagina) onder `Settings` > `CI/CD` > `Runners (expand)` > `Runners activated for this project`
+- Op de Gitlab project pagina kun je onder `Settings` > `CI/CD` > `Runners (expand)` > `Runners activated for this project` de runner aanpassen (klik op het edit icoon naast de identifier).
+    - Voeg afhankelijk van welke omgeving deze runner draait de volgende tags toe:
+        - `acc`, `prod` of `test`
+    - Bijvoorbeeld voor een runner op een acc/test server:
+        - `acc, test`
+- De Gitlab runner kan je instellen via de file `config.toml`
+    - onder `[[runners]]` moeten de volgende instellingen staan:
+    ```toml
+        executor = "shell"
+        shell = "powershell"
+    ```
 
+### 4: De eerste pipeline draaien
+- Ga op de project pagina naar: `CI/CD` > `Pipelines` en klik op `Run Pipeline`
+- Kies voor `Create for` een van je relevante omgeving (bijvoorbeeld `test`)
+- Klik op `Create Pipeline`
+- Je deploy gaat nu draaien, als het afgelopen is zou het volgende resultaat op de server te vinden moeten zijn:
+    - Een nieuwe map in `C:\` genaamd `Deployment`
+    - In `Deployment` zit voor iedere actieve omgeving (`acc`, `prod`, `test`) een nieuwe map
+    - In deze omgevingsmap zit een map genaamd `.venv`
+- Herhaal bovenstaande stap tot er voor elke omgeving een map is.
+- **Als een van de bovenstaande zaken niet waar zijn, neem dan contact op met de systeembeheerder.**
+
+### 5: Database verbindingen instellen.
+- Ga naar de omgevingsmap (i.e. `C:/Deployment/test`)
+- Maak een koppie van `example_settings.py` en noem deze `settings.py`
+- Open de `settings.py` in een text-editor
+- Plaats de juiste waardes:
+    - `DB_DRIVER` zal in de meeste gevallen de waarde `SQL Server Native Client 11.0` moeten krijgen
+
+### 6: IIS installeren en instellen
+- Installeer IIS d.m.v. de Server Manager
+- Accepteer de standaarden tot het scherm `Role Services` verschijnt.
+    - Vink `CGI` aan onder `Application Development`
+- Voltooi de installatie
+
+- Installeer WFastCGI via PIP:
+    - Start een nieuwe Command Prompt as Administrator
+    - `pip install wfastcgi`
+    - Als de installatie voltooid is:
+    - `wfastcgi-enable`
+    - Je krijgt nu een melding dat er een configuratie is toegepast. En ook een pad naar de locatie van het wfastcgi.py script. 
+    - Kopieer het `wfastcgi.py` script naar de root van je omgevingsmap(pen).
+
+- Start IIS Manager op
+- Maak een nieuwe website aan (n.b. er is maar een website nodig, ook voor meerdere omgevingen!)
+- Per omgeving die je wilt aanmaken:
+    - Dubbelklik op `Handler Mappings`
+    - Klik onder `actions` op `Add Module Mapping`
+        - `Request Path` -> `*` wanneer je maar één omgeving wilt maken, anders kan je per omgeving kiezen voor bijvoorbeeld `test/*` zodat deze aplicatie bereikbaar is op `domeinnaam.com/test/`
+        - `Module` -> `FastCgiModule`
+        - `Executable` -> `[locatie van je python exe]`|`[locatie van je wfastcgi.py in je omgeving]`
+        - Bijvoorbeeld: `c:\users\master\appdata\local\programs\python\python36\python.exe|c:\deployment\test\wfastcgi.py`
+    - `Name` -> `wfcgi [omgevingsnaam]`
+- Klik op `Request Restrictions` en uncheck het `Invoke handler only if request is mapped to:` vinkje
+- Klik op ok en bevestig
+
+- Ga in IIS naar de root server en klik op `FastCGI Settings`
+- Per handler mapping die je hebt aangemaakt:
+    - Klik op `Add Application`
+    - `Full path` -> Pad naar `python.exe` in de .venv map in je omgevingsmap (bijv: `c:\deployment\acc\.venv\scripts\python.exe`)
+    - `Arguments` -> Pas naar `wfastcgi.py` in je omgevingsmap (bijv: `c:\Deployment\acc\wfastcgi.py`)
+    - Stel de volgende `Environment Variables` in:
+        - `PYTHONPATH` -> Pad naar je omgevingsmap (bijv: `c:\deployment\acc`)
+        - `WSGI_HANDLER` -> `server.app`
+        - `SCRIPT_NAME` -> de foldernaam van je omgevingsmap (bijv: `/test`)
+        - `WSGI_LOG` -> locatie waarin je wilt loggen, in ons geval de omgevingsmap (bijv: `c:\deployment\acc\cgi.log`)
+    - Reset iis (`iisreset` in de terminal)
+
+### 7: Client credentials genereren
+- Run het script `generate_client_creds.sh` in de omgevingsmap
+- Typ de naam van een client
+- Je krijgt nu nieuwe credentials terug. Kopier de string en deel die met de front-end ontwikkelaars.
+
+Als alles gelukt is dan ben je klaar voor deployment!

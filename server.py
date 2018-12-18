@@ -1,8 +1,6 @@
 from flask import Flask, jsonify
 from flask_restful import Resource, Api
 from apispec import APISpec
-from apispec.ext.flask import FlaskPlugin
-from apispec.ext.marshmallow import MarshmallowPlugin
 from pprint import pprint
 from datetime import timedelta
 from flask_jwt_extended import (
@@ -27,6 +25,8 @@ from Feiten.beleidsbeslissing import BeleidsBeslissing
 
 from Auth.views import login
 from Auth.commands import new_client_creds
+
+from Stats.views import stats
 
 current_version = '0.1'
 
@@ -54,6 +54,7 @@ def generate_client_creds(client_identifier):
 
 
 app.add_url_rule(f'/v{current_version}/login', 'login', login, methods=['POST'])
+app.add_url_rule(f'/v{current_version}/stats', 'stats', stats, methods=['GET'])
 
 
 api.add_resource(Ambitie, '/ambities',

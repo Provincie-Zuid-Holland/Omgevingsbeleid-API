@@ -14,9 +14,11 @@ marshmallow = "*"
 apispec = "*"
 flask-jwt-extended = "*"
 passlib = {extras = ["bcrypt"]}
+bcrypt = "*"
 
 [dev-packages]
 pylint = "*"
+"autopep8" = "*"
 
 [requires]
 python_version = "3.6"
