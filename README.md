@@ -151,7 +151,7 @@ Deployment stappen op een nieuwe VM:
         - `PYTHONPATH` -> Pad naar je omgevingsmap (bijv: `c:\deployment\acc`)
         - `WSGI_HANDLER` -> `server.app` Vaste variabele????
         - `SCRIPT_NAME` -> de foldernaam van je omgevingsmap (bijv: `/test`) soort lokale verwijzing??
-        - `WSGI_LOG` -> locatie waarin je wilt loggen, in ons geval de omgevingsmap (bijv: `c:\deployment\acc\cgi.log`)
+        - `WSGI_LOG` -> locatie waarin je wilt loggen, in ons geval de omgevingsmap (bijv: `c:\deployment\acc\cgi.log`) Bestand (cgi.log) bestaat niet moet deze aangemaakt worden????
     - Reset iis (`iisreset` in de terminal)
 
 ### 7: Client credentials genereren
