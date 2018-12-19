@@ -158,5 +158,7 @@ Deployment stappen op een nieuwe VM:
 - Run het script `generate_client_creds.sh` in de omgevingsmap Ik zie alleen maar generate_client_creds.ps1 staan execute with powershell (niet openen in Powershell IDE) ????
 - Typ de naam van een client - Wat is de naam van de client Mx_Cap?????
 - Je krijgt nu nieuwe credentials terug. Kopier de string en deel die met de front-end ontwikkelaars.
+- ???? genereert de volgende fout: flask : The term 'flask' is not recognized as the name of a cmdlet, function, script file, or operable program
+
 
 Als alles gelukt is dan ben je klaar voor deployment!
