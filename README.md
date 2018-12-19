@@ -149,8 +149,8 @@ Deployment stappen op een nieuwe VM:
     - `Arguments` -> Pas naar `wfastcgi.py` in je omgevingsmap (bijv: `c:\Deployment\acc\wfastcgi.py`)
     - Stel de volgende `Environment Variables` in:
         - `PYTHONPATH` -> Pad naar je omgevingsmap (bijv: `c:\deployment\acc`)
-        - `WSGI_HANDLER` -> `server.app`
-        - `SCRIPT_NAME` -> de foldernaam van je omgevingsmap (bijv: `/test`)
+        - `WSGI_HANDLER` -> `server.app` Vaste variabele????
+        - `SCRIPT_NAME` -> de foldernaam van je omgevingsmap (bijv: `/test`) soort lokale verwijzing??
         - `WSGI_LOG` -> locatie waarin je wilt loggen, in ons geval de omgevingsmap (bijv: `c:\deployment\acc\cgi.log`)
     - Reset iis (`iisreset` in de terminal)
 
