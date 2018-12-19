@@ -155,8 +155,8 @@ Deployment stappen op een nieuwe VM:
     - Reset iis (`iisreset` in de terminal)
 
 ### 7: Client credentials genereren
-- Run het script `generate_client_creds.sh` in de omgevingsmap Ik zie alleen maar generate_client_creds.ps1 staan openen in powershell ????
-- Typ de naam van een client
+- Run het script `generate_client_creds.sh` in de omgevingsmap Ik zie alleen maar generate_client_creds.ps1 staan execute with powershell (niet openen in Powershell IDE) ????
+- Typ de naam van een client - Wat is de naam van de client Mx_Cap?????
 - Je krijgt nu nieuwe credentials terug. Kopier de string en deel die met de front-end ontwikkelaars.
 
 Als alles gelukt is dan ben je klaar voor deployment!
