@@ -145,13 +145,13 @@ Deployment stappen op een nieuwe VM:
 - Ga in IIS naar de root server en klik op `FastCGI Settings`
 - Per handler mapping die je hebt aangemaakt:
     - Klik op `Add Application`
-    - `Full path` -> Pad naar `python.exe` in de .venv map in je omgevingsmap (bijv: `c:\deployment\acc\.venv\scripts\python.exe`)
+    - `Full path` -> Pad naar `python.exe` in de .venv map in je omgevingsmap (bijv: `c:\Deployment\acc\.venv\scripts\python.exe`)
     - `Arguments` -> Pas naar `wfastcgi.py` in je omgevingsmap (bijv: `c:\Deployment\acc\wfastcgi.py`)
     - Stel de volgende `Environment Variables` in:
-        - `PYTHONPATH` -> Pad naar je omgevingsmap (bijv: `c:\deployment\acc`)
+        - `PYTHONPATH` -> Pad naar je omgevingsmap (bijv: `c:\Deployment\acc`)
         - `WSGI_HANDLER` -> `server.app` Vaste variabele????
         - `SCRIPT_NAME` -> de foldernaam van je omgevingsmap (bijv: `/test`) soort lokale verwijzing??
-        - `WSGI_LOG` -> locatie waarin je wilt loggen, in ons geval de omgevingsmap (bijv: `c:\deployment\acc\cgi.log`) Bestand (cgi.log) bestaat niet moet deze aangemaakt worden????
+        - `WSGI_LOG` -> locatie waarin je wilt loggen, in ons geval de omgevingsmap (bijv: `c:\Deployment\acc\cgi.log`) Bestand (cgi.log) bestaat niet moet deze aangemaakt worden????
     - Reset iis (`iisreset` in de terminal)
 
 ### 7: Client credentials genereren
