@@ -60,6 +60,7 @@ Deployment stappen op een nieuwe VM:
     - Configure line ending conversions "Checkout Windows Style"
     - __Op het scherm `Configuring the terminal emulator to use with Git Bash` vink `Use Windows default console window`.__
     - Configure extra options "File system caching" and "Git credential Manager" Niet "Symbolic links"
+
 - Test de installatie:
     - Start een nieuwe Command Prompt
     - Typ `git --version`
@@ -95,6 +96,8 @@ Deployment stappen op een nieuwe VM:
         executor = "shell"
         shell = "powershell"
     ```
+    Test de installatie:
+
 
 ### 4: De eerste pipeline draaien
 - Ga op de project pagina naar: `CI/CD` > `Pipelines` en klik op `Run Pipeline`
