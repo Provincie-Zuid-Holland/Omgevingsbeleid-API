@@ -140,7 +140,7 @@ Deployment stappen op een nieuwe VM:
         - `Request Path` -> `*` wanneer je maar één omgeving wilt maken, anders kan je per omgeving kiezen voor bijvoorbeeld `test/*` zodat deze aplicatie bereikbaar is op `domeinnaam.com/test/`
         - `Module` -> `FastCgiModule`
         - `Executable` -> `[locatie van je python exe]`|`[locatie van je wfastcgi.py in je omgeving]`
-        - Bijvoorbeeld: `c:\users\master\appdata\local\programs\python\python36\python.exe|c:\deployment\test\wfastcgi.py`
+        - Bijvoorbeeld: `\deployment\test\.venv\Scripts\python.exe|c:\deployment\test\wfastcgi.py`
     - `Name` -> `wfcgi [omgevingsnaam]`
 - Klik op `Request Restrictions` en uncheck het `Invoke handler only if request is mapped to:` vinkje
 - Klik op ok en bevestig
