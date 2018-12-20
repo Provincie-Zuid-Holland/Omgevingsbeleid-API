@@ -145,6 +145,11 @@ Deployment stappen op een nieuwe VM:
 - Klik op `Request Restrictions` en uncheck het `Invoke handler only if request is mapped to:` vinkje
 - Klik op ok en bevestig
 
+- LET OP klik op de vraag die je krijgt op NO!!
+- When prompted "Do you want to create a FastCGI application for this executable?" click "No" since we created the application earlier.
+- Note that you CAN have it create the FastCGI application for you from the module mapping, but the settings seem to be different and the end result isn't fully editable. I also detailed how to create the FastCGI application to be as thorough as possible with all the various pieces involved.
+
+
 - Ga in IIS naar de root server en klik op `FastCGI Settings`
 - Per handler mapping die je hebt aangemaakt:
     - Klik op `Add Application`
