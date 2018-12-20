@@ -152,9 +152,9 @@ Deployment stappen op een nieuwe VM:
     - `Arguments` -> Pas naar `wfastcgi.py` in je omgevingsmap (bijv: `c:\Deployment\acc\wfastcgi.py`)
     - Stel de volgende `Environment Variables` in:
         - `PYTHONPATH` -> Pad naar je omgevingsmap (bijv: `c:\Deployment\acc`)
-        - `WSGI_HANDLER` -> `server.app` Vaste variabele????
-        - `SCRIPT_NAME` -> de foldernaam van je omgevingsmap (bijv: `/test`) soort lokale verwijzing??
-        - `WSGI_LOG` -> locatie waarin je wilt loggen, in ons geval de omgevingsmap (bijv: `c:\Deployment\acc\cgi.log`) Bestand (cgi.log) bestaat niet moet deze aangemaakt worden????
+        - `WSGI_HANDLER` -> `server.app` dit is een vaste variabele.
+        - `SCRIPT_NAME` -> de foldernaam van je omgevingsmap (bijv: `/test`) Het laatste deel van het python path.
+        - `WSGI_LOG` -> locatie waarin je wilt loggen, in ons geval de omgevingsmap (bijv: `c:\Deployment\acc\cgi.log`) Bestand (cgi.log) wordt vanzelf aangemaakt.
     - Reset iis (`iisreset` in de terminal)
 
 ### 7: Client credentials genereren
