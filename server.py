@@ -28,6 +28,8 @@ from Dimensies.werkingsgebieden import Werkingsgebied
 from Auth.views import login
 from Auth.commands import new_client_creds
 
+from Stats.views import stats
+
 current_version = '0.1'
 
 app = Flask(__name__)
@@ -55,6 +57,8 @@ def generate_client_creds(client_identifier):
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
+app.add_url_rule(f'/v{current_version}/stats',
+                 'stats', stats, methods=['GET'])
 
 api.add_resource(Dimensie, '/ambities', '/ambities/<string:uuid>', endpoint='Ambities',
                  resource_class_args=(Ambitie_Schema, 'Ambities', 'Actuele_Ambities'))
