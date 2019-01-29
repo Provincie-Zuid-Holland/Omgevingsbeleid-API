@@ -30,7 +30,12 @@ from Auth.commands import new_client_creds
 
 from Stats.views import stats
 
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
+from apispec_webframeworks.flask import FlaskPlugin
 current_version = '0.1'
+
+# FLASK SETUP
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3rVx'
@@ -39,6 +44,19 @@ app.config['JWT_HEADER_TYPE'] = "Token"
 api = Api(app, prefix=f'/v{current_version}')
 jwt = JWTManager(app)
 
+# APISPEC SETUP
+
+spec = APISpec(
+    title='Omgevingsbeleid service',
+    version=current_version,
+    openapi_version='2.0',
+    plugins=[
+        MarshmallowPlugin(), 
+        FlaskPlugin()
+        ]
+)
+
+# JWT CONFIG
 
 @jwt.unauthorized_loader
 def custom_unauthorized_loader(reason):
@@ -46,7 +64,8 @@ def custom_unauthorized_loader(reason):
         {"message": f"Authorisatie niet geldig: '{reason}'"}), 400
 
 
-# Custom commands
+# CUSTOM COMMANDS
+
 @app.cli.command()
 @click.argument('client_identifier')
 def generate_client_creds(client_identifier):
@@ -54,6 +73,7 @@ def generate_client_creds(client_identifier):
     click.echo(result)
     click.pause()
 
+# ROUTING RULES
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
