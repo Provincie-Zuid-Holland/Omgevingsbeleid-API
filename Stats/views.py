@@ -34,5 +34,9 @@ def stats():
             results = db.query(query)
             first = results.first()
             result[table]['Laatste modificatie'] = {'UUID': first[0], 'Modified_Date': first[1].isoformat(sep=' ')}
+        query = f"SELECT COUNT(*) FROM Gebruikers WHERE UUID != '00000000-0000-0000-0000-000000000000'"
+        results = db.query(query)
+        result['Gebruikers'] = {}
+        result['Gebruikers']['Aantal objecten'] = results.first()[0]   
 
     return jsonify(result)
