@@ -7,6 +7,7 @@ from operator import eq
 from globals import db_connection_string, db_connection_settings
 import marshmallow as MM
 import re
+
 # from .dimensie import Dimensie
 
 
@@ -28,7 +29,7 @@ class Dimensie_Schema(MM.Schema):
 
 class Dimensie(Resource):
     """
-    Een algemene dimensie met bijbehorend lees/schrijf gedrag
+    Een dimensie met bijbehorend lees/schrijf gedrag.
     """
     # Veld dat dient als identificatie
     _identifier_field = 'UUID'
@@ -107,7 +108,18 @@ class Dimensie(Resource):
 
     def get(self, uuid=None):
         """
-        GET endpoint voor deze dimensie
+        GET endpoint voor deze dimensie.
+        ---
+        description: Verkrijg een object op basis van UUID
+        responses:
+            200:
+                content:
+                    application/json:
+                        schema: Ambitie_Schema
+            404:
+                content:
+                    application/json:
+                        schema: Ambitie_Schema
         """
         # Een enkel object verkrijgen
         if uuid:
