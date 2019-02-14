@@ -52,7 +52,7 @@ jwt = JWTManager(app)
 spec = APISpec(
     title='Omgevingsbeleid service',
     version=current_version,
-    openapi_version='2.0',
+    openapi_version='3.0.2',
     plugins=[
         MarshmallowPlugin(), 
         FlaskPlugin()
@@ -89,6 +89,20 @@ def generate_client_creds(client_identifier):
 
 # ROUTING RULES
 
+dimension_ept = []
+
+for schema, slug, tn, ac_tn in dimensie_schemas:
+    schema_name = schema.__name__.split('_')[0]
+    spec.components.schema(schema_name, schema=schema)
+    api.add_resource(Dimensie, f'/{slug}', f'/{slug}/<string:uuid>', endpoint=schema_name,
+        resource_class_args=(schema, tn, ac_tn))
+    dimension_ept.append(schema_name)
+
+for ept, view_func in app.view_functions.items():
+    if ept in dimension_ept:
+        with app.test_request_context():
+            spec.path(view=view_func)
+
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
 app.add_url_rule(f'/v{current_version}/stats',
@@ -96,11 +110,7 @@ app.add_url_rule(f'/v{current_version}/stats',
 app.add_url_rule(f'/v{current_version}/spec',
                  'spec', lambda : json.dumps(spec.to_dict(), indent=2), methods=['GET'])
 
-for schema, slug, tn, ac_tn in dimensie_schemas:
-    schema_name = schema.__name__.split('_')[0]
-    spec.components.schema(schema_name, schema=schema)
-    api.add_resource(Dimensie, f'/{slug}', f'/{slug}/<string:uuid>', endpoint=schema_name,
-                 resource_class_args=(schema, tn, ac_tn))
+  
 
 # for schema in dimensie_schemas:
 #     schema_name = schema.__name__.split('_')[0]

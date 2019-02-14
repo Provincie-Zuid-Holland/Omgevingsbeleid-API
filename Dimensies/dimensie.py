@@ -138,7 +138,18 @@ class Dimensie(Resource):
 
     def post(self, uuid=None):
         """
-        POST endpoint voor deze dimensie
+        POST endpoint voor deze dimensie.
+        ---
+        description: Creeer een object op basis van UUID
+        responses:
+            200:
+                content:
+                    application/json:
+                        schema: Ambitie_Schema
+            404:
+                content:
+                    application/json:
+                        schema: Ambitie_Schema
         """
         if uuid:
             return {'message': 'Methode POST niet geldig op een enkel object, verwijder identifier uit URL'}, 400
@@ -181,7 +192,18 @@ class Dimensie(Resource):
 
     def patch(self, uuid=None):
         """
-        PATCH endpoint voor deze dimensie
+        PATCH endpoint voor deze dimensie.
+        ---
+        description: Wijzig een object op basis van UUID
+        responses:
+            200:
+                content:
+                    application/json:
+                        schema: Ambitie_Schema
+            404:
+                content:
+                    application/json:
+                        schema: Ambitie_Schema
         """
         if not uuid:
             return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan URL"}, 400
