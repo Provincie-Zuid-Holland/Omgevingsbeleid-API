@@ -8,7 +8,7 @@ from flask_jwt_extended import (
 import click
 from collections import namedtuple
 
-from Dimensies.dimensie import Dimensie
+from Dimensies.dimensie import Dimensie, DimensieList
 from Dimensies.ambitie import Ambitie_Schema
 from Dimensies.beleidsregel import BeleidsRegel_Schema
 from Dimensies.doel import Doel_Schema
@@ -68,7 +68,7 @@ dimensie_schemas = [(Ambitie_Schema, 'ambities','Ambities', 'Actuele_Ambities'),
             (Maatregelen_Schema, 'maatregelen', 'Maatregelen', 'Actuele_Maatregelen'),
             (Themas_Schema, 'themas', 'Themas', 'Actuele_Themas'),
             (Opgaven_Schema,'opgaven', 'Opgaven', 'Actuele_Opgaven'),
-            (Verordening_Schema, 'verordeningen', 'Verordening', 'Actuele_Verordeningen')]
+            (Verordening_Schema, 'verordeningen', 'Verordeningen', 'Actuele_Verordeningen')]
 
 # JWT CONFIG
 
@@ -94,9 +94,11 @@ dimension_ept = []
 for schema, slug, tn, ac_tn in dimensie_schemas:
     schema_name = schema.__name__.split('_')[0]
     spec.components.schema(schema_name, schema=schema)
-    api.add_resource(Dimensie, f'/{slug}', f'/{slug}/<string:uuid>', endpoint=schema_name,
+    api.add_resource(Dimensie, f'/{slug}/<string:uuid>', endpoint=schema_name,
         resource_class_args=(schema, tn, ac_tn))
-    dimension_ept.append(schema_name)
+    api.add_resource(DimensieList, f'/{slug}', endpoint=f"{schema_name}_lijst",
+        resource_class_args=(schema, tn, ac_tn))
+    dimension_ept.append(f"{schema_name}_lijst")
 
 for ept, view_func in app.view_functions.items():
     if ept in dimension_ept:

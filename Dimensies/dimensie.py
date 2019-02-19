@@ -18,18 +18,125 @@ class Dimensie_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
     Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
-    Created_By = MM.fields.Str(required=True)
+    Created_By = MM.fields.UUID(required=True)
     Created_Date = MM.fields.DateTime(format='iso', required=True)
-    Modified_By = MM.fields.Str(required=True)
+    Modified_By = MM.fields.UUID(required=True)
     Modified_Date = MM.fields.DateTime(format='iso', required=True)
     
     class Meta:
         ordered = True
 
+# Helper methods
+
+def objects_from_query(query):
+        """
+        Verkrijg alle objecten uit een table
+        """
+        db = records.Database(db_connection_string)
+        return db.query(query)
+
+class DimensieList(Resource):
+    # Velden die niet in een POST request gestuurd mogen worden
+    _excluded_post_fields = ['UUID', 'Modified_By', 'Modified_Date']
+
+    # Veld dat dient als identificatie
+    _identifier_field = 'UUID'
+
+    def __init__(self, tableschema, tablename_all, tablename_actueel):
+        self.all_query = f'SELECT * FROM {tablename_actueel}'
+        self._tableschema = tableschema
+
+        # Is het gegeven schema een superset van Dimensie_Schema?
+        required_fields = Dimensie_Schema().fields.keys()
+        schema_fields = tableschema().fields.keys()
+        assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
+
+        # POST Queries worden met deze argumenten gemaakt
+        self.query_fields = []
+        for fieldkey, fieldobj in tableschema().fields.items():
+            if fieldkey == self._identifier_field: continue
+            if fieldobj.attribute:
+                self.query_fields.append(fieldobj.attribute)
+            else:
+                self.query_fields.append(fieldkey)
+
+        create_fields_list = ', '.join(self.query_fields)
+        create_parameter_marks = ', '.join(['?' for _ in self.query_fields])
+
+        self.create_query = f'''INSERT INTO {tablename_all}
+            ({create_fields_list})
+            OUTPUT inserted.UUID
+            VALUES ({create_parameter_marks})'''
+        
+
+
+    def get(self):
+        # Alle objecten verkrijgen
+        dimensie_objecten = objects_from_query(self.all_query)
+        schema = self._tableschema()
+        return(schema.dump(dimensie_objecten, many=True))
+    
+    def post(self):
+        """
+        POST endpoint voor deze dimensie.
+        ---
+        description: Creeër een nieuw dimensie object
+        responses:
+            200:
+                content:
+                    application/json:
+                        schema: Ambitie_Schema
+            404:
+                content:
+                    application/json:
+                        schema: Ambitie_Schema
+        """
+        try:
+            schema = self._tableschema(
+                exclude=self._excluded_post_fields,
+                unknown=MM.utils.RAISE)
+
+        except ValueError:
+            return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
+
+        try:
+            dim_object = schema.load(request.get_json())
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400
+
+        # Modification date is the same as creation date (because we just created this object)
+        dim_object['Modified_By'] = dim_object['Created_By']
+        dim_object['Modified_Date'] = dim_object['Created_Date']
+        print(request.get_json())
+        print(dim_object)
+        try:
+            values = [dim_object[k] for k in self.query_fields]
+        except KeyError as e:
+            raise(e)
+            return {'message': f'Attribuut {e} niet gevonden'}, 400
+
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+            try:
+                cursor.execute(self.create_query, *values)
+                new_uuid = cursor.fetchone()[0]
+            except pyodbc.IntegrityError as e:
+                pattern = re.compile(r'FK_\w+_(\w+)')
+                match = pattern.search(e.args[-1]).group(1)
+                if match:
+                    return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
+                else:
+                    return {'message': 'Database integriteitsfout'}, 404
+            except pyodbc.DatabaseError as e:
+                    return {'message': f'Database fout, neem contact op met de systeembeheerder:[{e}]'}, 500
+            connection.commit()
+        
+        return {"Resultaat_UUID": f"{new_uuid}"}
+
 
 class Dimensie(Resource):
     """
-    Een dimensie met bijbehorend lees/schrijf gedrag.
+    Een enkel dimensie object met bijbehorend lees/schrijf gedrag.
     """
     # Veld dat dient als identificatie
     _identifier_field = 'UUID'
@@ -41,9 +148,6 @@ class Dimensie(Resource):
                        'Created_Date',
                        'Modified_By',
                        'Modified_Date']
-
-    # Velden die niet in een POST request gestuurd mogen worden
-    _excluded_post_fields = ['UUID', 'Modified_By', 'Modified_Date']
 
     # Velden die niet in een PATCH request gestuurd mogen worden
     _excluded_patch_fields = ['UUID', 'Created_By', 'Created_Date']
@@ -70,7 +174,7 @@ class Dimensie(Resource):
         self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
         self.all_query = f'SELECT * FROM {tablename_actueel}'
         
-        # POST Queries are build using this list (preserving order) 
+
         self.query_fields = list(filter(lambda fieldname: not(eq(fieldname, self._identifier_field)), schema_fields))
 
         # PATCH Queries are build using this list (preserving order)
@@ -78,14 +182,6 @@ class Dimensie(Resource):
         
         update_fields_list = ', '.join(self.update_fields)
         update_parameter_marks = ', '.join(['?' for _ in self.update_fields])
-
-        create_fields_list = ', '.join(self.query_fields)
-        create_parameter_marks = ', '.join(['?' for _ in self.query_fields])
-
-        self.create_query = f'''INSERT INTO {tablename_all}
-            ({create_fields_list})
-            OUTPUT inserted.UUID
-            VALUES ({create_parameter_marks})'''
 
         self.update_query = f'''INSERT INTO {tablename_all}
             ({update_fields_list})
@@ -99,107 +195,67 @@ class Dimensie(Resource):
         db = records.Database(db_connection_string)
         return db.query(self.uuid_query, uuid=uuid).first()
 
-    def objects_from_query(self):
-        """
-        Verkrijg alle objecten uit een table
-        """
-        db = records.Database(db_connection_string)
-        return db.query(self.all_query)
 
-    def get(self, uuid=None):
+    def get(self, uuid):
         """
         GET endpoint voor deze dimensie.
         ---
         description: Verkrijg een object op basis van UUID
+        parameters:
+            - in: path
+              name: uuid
+              description: De UUID van het te verkrijgen object
+              schema:
+                type: string
+                format: uuid
         responses:
             200:
+                description: Succesvolle GET
                 content:
                     application/json:
                         schema: Ambitie_Schema
             404:
+                description: Object met dit UUID niet gevonden
                 content:
                     application/json:
-                        schema: Ambitie_Schema
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
         """
         # Een enkel object verkrijgen
-        if uuid:
-            dimensie_object = self.single_object_by_uuid(uuid)
+        dimensie_object = self.single_object_by_uuid(uuid)
 
-            if not dimensie_object:
-                return {'message': f"Object met identifier {uuid} is niet gevonden in table {self._tablename_all}"}, 404
+        if not dimensie_object:
+            return {'message': f"Object met identifier {uuid} is niet gevonden in table {self._tablename_all}"}, 404
 
-            schema = self._tableschema()
-            return(schema.dump(dimensie_object))
-        # Alle objecten verkrijgen
-        else:
-            dimensie_objecten = self.objects_from_query()
-            schema = self._tableschema()
-            return(schema.dump(dimensie_objecten, many=True))
-
-    def post(self, uuid=None):
-        """
-        POST endpoint voor deze dimensie.
-        ---
-        description: Creeer een object op basis van UUID
-        responses:
-            200:
-                content:
-                    application/json:
-                        schema: Ambitie_Schema
-            404:
-                content:
-                    application/json:
-                        schema: Ambitie_Schema
-        """
-        if uuid:
-            return {'message': 'Methode POST niet geldig op een enkel object, verwijder identifier uit URL'}, 400
-        try:
-            schema = self._tableschema(
-                exclude=self._excluded_post_fields,
-                unknown=MM.utils.RAISE)
-
-        except ValueError:
-            return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
-
-        try:
-            dim_object = schema.load(request.get_json())
-        except MM.exceptions.ValidationError as err:
-            return err.normalized_messages(), 400
-
-        # Modification data is the same as creation data (because we just created this object)
-        dim_object['Modified_By'] = dim_object['Created_By']
-        dim_object['Modified_Date'] = dim_object['Created_Date']
-
-        values = [dim_object[k] for k in self.query_fields]
+        schema = self._tableschema()
+        return(schema.dump(dimensie_object))
         
-        with pyodbc.connect(db_connection_settings) as connection:
-            cursor = connection.cursor()
-            try:
-                cursor.execute(self.create_query, *values)
-                new_uuid = cursor.fetchone()[0]
-            except pyodbc.IntegrityError as e:
-                pattern = re.compile(r'FK_\w+_(\w+)')
-                match = pattern.search(e.args[-1]).group(1)
-                if match:
-                    return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
-                else:
-                    return {'message': 'Database integriteitsfout'}, 404
-            except pyodbc.DatabaseError:
-                    return {'message': f'Database fout, neem contact op met de systeembeheerder'}, 500
-            connection.commit()
-        
-        return {"Resultaat_UUID": f"{new_uuid}"}
 
     def patch(self, uuid=None):
         """
         PATCH endpoint voor deze dimensie.
         ---
         description: Wijzig een object op basis van UUID
+        parameters:
+            - in: path
+              name: uuid
+              description: De UUID van het te wijzigen object
+              schema:
+                type: string
+                format: uuid
         responses:
             200:
+                description: Object succesvol is gewijzigd
                 content:
                     application/json:
-                        schema: Ambitie_Schema
+                        schema: 
+                           type: object
+                           properties:
+                              message: 
+                                type: string
             404:
                 content:
                     application/json:
