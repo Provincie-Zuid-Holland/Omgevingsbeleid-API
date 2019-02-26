@@ -71,6 +71,22 @@ class DimensieList(Resource):
 
 
     def get(self):
+        """
+        GET endpoint voor deze dimensie.
+        ---
+        description: Verkrijg een lijst van alle fungerende objecten
+        responses:
+            200:
+                content:
+                    application/json:
+                        schema:
+                            type: array
+                            items: Ambitie_Schema
+            404:
+                content:
+                    application/json:
+                        schema: Ambitie_Schema
+        """
         # Alle objecten verkrijgen
         dimensie_objecten = objects_from_query(self.all_query)
         schema = self._tableschema()

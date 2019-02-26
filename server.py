@@ -96,6 +96,7 @@ for schema, slug, tn, ac_tn in dimensie_schemas:
     spec.components.schema(schema_name, schema=schema)
     api.add_resource(Dimensie, f'/{slug}/<string:uuid>', endpoint=schema_name,
         resource_class_args=(schema, tn, ac_tn))
+    dimension_ept.append(schema_name)
     api.add_resource(DimensieList, f'/{slug}', endpoint=f"{schema_name}_lijst",
         resource_class_args=(schema, tn, ac_tn))
     dimension_ept.append(f"{schema_name}_lijst")
