@@ -104,6 +104,13 @@ for schema, slug, tn, ac_tn in dimensie_schemas:
 for ept, view_func in app.view_functions.items():
     if ept in dimension_ept:
         with app.test_request_context():
+            # TODO: PROVIDE PROPER KWARGS TO FORMATTING
+            
+            # Hacky code die de dynamische docstrings maakt
+            for method_name in view_func.methods:
+                method_name = method_name.lower()
+                method = getattr(view_func.view_class, method_name)
+                method.__doc__ = method.__doc__.format(dimensie_naams="SWENNEN", dimensie_schema="Ambitie_Schema") 
             spec.path(view=view_func)
 
 app.add_url_rule(f'/v{current_version}/login',

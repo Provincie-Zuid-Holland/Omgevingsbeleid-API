@@ -42,6 +42,11 @@ class DimensieList(Resource):
     # Veld dat dient als identificatie
     _identifier_field = 'UUID'
 
+    # def __new__(cls, tableschema, tablename_all, tablename_actueel):
+    #     # Dynamische documentatie generatie
+    #     cls.get.__func__.__doc__ = self.get.__func__.__doc__.format(dimensie_naams=tablename_all, dimensie_schema=tableschema.__name__) 
+
+
     def __init__(self, tableschema, tablename_all, tablename_actueel):
         self.all_query = f'SELECT * FROM {tablename_actueel}'
         self._tableschema = tableschema
@@ -53,6 +58,7 @@ class DimensieList(Resource):
 
         # POST Queries worden met deze argumenten gemaakt
         self.query_fields = []
+        # filter alle velden, als een veld gebruik maakt van een 'attribute' naam gebruik die naam dan
         for fieldkey, fieldobj in tableschema().fields.items():
             if fieldkey == self._identifier_field: continue
             if fieldobj.attribute:
@@ -67,25 +73,30 @@ class DimensieList(Resource):
             ({create_fields_list})
             OUTPUT inserted.UUID
             VALUES ({create_parameter_marks})'''
-        
 
 
     def get(self):
         """
-        GET endpoint voor deze dimensie.
+        GET endpoint voor {dimensie_naams}.
         ---
-        description: Verkrijg een lijst van alle fungerende objecten
+        description: Verkrijg een lijst van alle fungerende {dimensie_naams}
         responses:
             200:
+                description: Succesvolle request
                 content:
                     application/json:
                         schema:
                             type: array
-                            items: Ambitie_Schema
+                            items: {dimensie_schema}
             404:
+                description: Foutieve request
                 content:
                     application/json:
-                        schema: Ambitie_Schema
+                        schema: 
+                            type: object
+                            properties:
+                                message:
+                                    type: string
         """
         # Alle objecten verkrijgen
         dimensie_objecten = objects_from_query(self.all_query)
@@ -99,14 +110,20 @@ class DimensieList(Resource):
         description: Creeër een nieuw dimensie object
         responses:
             200:
+                description: Object succesvol aangemaakt
                 content:
                     application/json:
                         schema: Ambitie_Schema
-            404:
+            400:
+                description: Foutieve request
                 content:
                     application/json:
-                        schema: Ambitie_Schema
-        """
+                        schema: 
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+        """ 
         try:
             schema = self._tableschema(
                 exclude=self._excluded_post_fields,
@@ -120,16 +137,14 @@ class DimensieList(Resource):
         except MM.exceptions.ValidationError as err:
             return err.normalized_messages(), 400
 
-        # Modification date is the same as creation date (because we just created this object)
+        # Modification date is hetzelfde als de created date want we maken dit object nieuw aan
         dim_object['Modified_By'] = dim_object['Created_By']
         dim_object['Modified_Date'] = dim_object['Created_Date']
-        print(request.get_json())
-        print(dim_object)
         try:
             values = [dim_object[k] for k in self.query_fields]
         except KeyError as e:
-            raise(e)
-            return {'message': f'Attribuut {e} niet gevonden'}, 400
+            # Als deze error voorkomt is er iets mis met de schema's
+            return {'message': f'Schemafout voor attribuut: {e}. Neem contact op met de administrator.'}, 400
 
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
@@ -140,11 +155,11 @@ class DimensieList(Resource):
                 pattern = re.compile(r'FK_\w+_(\w+)')
                 match = pattern.search(e.args[-1]).group(1)
                 if match:
-                    return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
+                    return {'message': f'Database integriteitsfout, een identifier van een "{match}" object is niet geldig'}, 404
                 else:
-                    return {'message': 'Database integriteitsfout'}, 404
+                    return {'message': 'Database integriteitsfout'}, 400
             except pyodbc.DatabaseError as e:
-                    return {'message': f'Database fout, neem contact op met de systeembeheerder:[{e}]'}, 500
+                    return {'message': f'Database fout, neem contact op met de systeembeheerder:[{e}]'}, 400
             connection.commit()
         
         return {"Resultaat_UUID": f"{new_uuid}"}
@@ -273,9 +288,14 @@ class Dimensie(Resource):
                               message: 
                                 type: string
             404:
+                description: Foutieve request
                 content:
                     application/json:
-                        schema: Ambitie_Schema
+                        schema: 
+                           type: object
+                           properties:
+                              message: 
+                                type: string
         """
         if not uuid:
             return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan URL"}, 400
