@@ -42,11 +42,6 @@ class DimensieList(Resource):
     # Veld dat dient als identificatie
     _identifier_field = 'UUID'
 
-    # def __new__(cls, tableschema, tablename_all, tablename_actueel):
-    #     # Dynamische documentatie generatie
-    #     cls.get.__func__.__doc__ = self.get.__func__.__doc__.format(dimensie_naams=tablename_all, dimensie_schema=tableschema.__name__) 
-
-
     def __init__(self, tableschema, tablename_all, tablename_actueel):
         self.all_query = f'SELECT * FROM {tablename_actueel}'
         self._tableschema = tableschema
@@ -77,9 +72,9 @@ class DimensieList(Resource):
 
     def get(self):
         """
-        GET endpoint voor {dimensie_naams}.
+        GET endpoint voor {plural}.
         ---
-        description: Verkrijg een lijst van alle fungerende {dimensie_naams}
+        description: Verkrijg een lijst van alle fungerende {plural}
         responses:
             200:
                 description: Succesvolle request
@@ -87,7 +82,7 @@ class DimensieList(Resource):
                     application/json:
                         schema:
                             type: array
-                            items: {dimensie_schema}
+                            items: {schema}
             404:
                 description: Foutieve request
                 content:
@@ -105,15 +100,15 @@ class DimensieList(Resource):
     
     def post(self):
         """
-        POST endpoint voor deze dimensie.
+        POST endpoint voor {plural}.
         ---
-        description: Creeër een nieuw dimensie object
+        description: Creeër een nieuwe {singular}
         responses:
             200:
-                description: Object succesvol aangemaakt
+                description: {singular} succesvol aangemaakt
                 content:
                     application/json:
-                        schema: Ambitie_Schema
+                        schema: {schema}
             400:
                 description: Foutieve request
                 content:
@@ -229,9 +224,9 @@ class Dimensie(Resource):
 
     def get(self, uuid):
         """
-        GET endpoint voor deze dimensie.
+        GET endpoint voor {plural}.
         ---
-        description: Verkrijg een object op basis van UUID
+        description: Verkrijg een {singular} op basis van UUID
         parameters:
             - in: path
               name: uuid
@@ -244,9 +239,9 @@ class Dimensie(Resource):
                 description: Succesvolle GET
                 content:
                     application/json:
-                        schema: Ambitie_Schema
+                        schema: {schema}
             404:
-                description: Object met dit UUID niet gevonden
+                description: {singular} met dit UUID niet gevonden
                 content:
                     application/json:
                         schema:
@@ -269,7 +264,7 @@ class Dimensie(Resource):
         """
         PATCH endpoint voor deze dimensie.
         ---
-        description: Wijzig een object op basis van UUID
+        description: Wijzig een {singular} op basis van UUID
         parameters:
             - in: path
               name: uuid
@@ -279,7 +274,7 @@ class Dimensie(Resource):
                 format: uuid
         responses:
             200:
-                description: Object succesvol is gewijzigd
+                description: {singular} is succesvol gewijzigd
                 content:
                     application/json:
                         schema: 

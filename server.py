@@ -59,19 +59,18 @@ spec = APISpec(
         ]
 )
 
-# (schema, slug, tablenaam, actuele_tablenaam)
-dimensie_schemas = [(Ambitie_Schema, 'ambities','Ambities', 'Actuele_Ambities'),
-            (BeleidsRegel_Schema, 'beleidsregels', 'Beleidsregels', 'Actuele_Beleidsregels'),
-            (Doel_Schema, 'doelen', 'Doelen', 'Actuele_Doelen'),
-            (ProvincialeBelangen_Schema, 'provincialebelangen', 'ProvincialeBelangen', 'Actuele_ProvincialeBelangen'),
-            (BeleidsRelatie_Schema, 'beleidsrelaties', 'BeleidsRelaties', 'Actuele_BeleidsRelaties'),
-            (Maatregelen_Schema, 'maatregelen', 'Maatregelen', 'Actuele_Maatregelen'),
-            (Themas_Schema, 'themas', 'Themas', 'Actuele_Themas'),
-            (Opgaven_Schema,'opgaven', 'Opgaven', 'Actuele_Opgaven'),
-            (Verordening_Schema, 'verordeningen', 'Verordeningen', 'Actuele_Verordeningen')]
+# (schema, slug, tablenaam, actuele_tablenaam, singular, plural)
+dimensie_schemas = [(Ambitie_Schema, 'ambities','Ambities', 'Actuele_Ambities', 'Ambitie', 'Ambities'),
+            (BeleidsRegel_Schema, 'beleidsregels', 'Beleidsregels', 'Actuele_Beleidsregels', 'Beleidsregel', 'Beleidsregels'),
+            (Doel_Schema, 'doelen', 'Doelen', 'Actuele_Doelen', 'Doel', 'Doelen'),
+            (ProvincialeBelangen_Schema, 'provincialebelangen', 'ProvincialeBelangen', 'Actuele_ProvincialeBelangen', 'Provinciale Belang', 'Provinciale Belangen'),
+            (BeleidsRelatie_Schema, 'beleidsrelaties', 'BeleidsRelaties', 'Actuele_BeleidsRelaties', 'Beleidsrelatie', 'Beleidsrelaties'),
+            (Maatregelen_Schema, 'maatregelen', 'Maatregelen', 'Actuele_Maatregelen', 'Maatregel', 'Maatregelen'),
+            (Themas_Schema, 'themas', 'Themas', 'Actuele_Themas', 'Thema', "Thema's"),
+            (Opgaven_Schema,'opgaven', 'Opgaven', 'Actuele_Opgaven', 'Opgave', 'Opgaven'),
+            (Verordening_Schema, 'verordeningen', 'Verordeningen', 'Actuele_Verordeningen', 'Verordening', 'Verordeningen')]
 
 # JWT CONFIG
-
 @jwt.unauthorized_loader
 def custom_unauthorized_loader(reason):
     return jsonify(
@@ -91,7 +90,7 @@ def generate_client_creds(client_identifier):
 
 dimension_ept = []
 
-for schema, slug, tn, ac_tn in dimensie_schemas:
+for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
     schema_name = schema.__name__.split('_')[0]
     spec.components.schema(schema_name, schema=schema)
     api.add_resource(Dimensie, f'/{slug}/<string:uuid>', endpoint=schema_name,
@@ -104,13 +103,13 @@ for schema, slug, tn, ac_tn in dimensie_schemas:
 for ept, view_func in app.view_functions.items():
     if ept in dimension_ept:
         with app.test_request_context():
-            # TODO: PROVIDE PROPER KWARGS TO FORMATTING
-            
+            schema_name = ept.split("_")[0] + "_Schema"
+            schema, slug, tn, ac_tn, sn, pl = list(filter(lambda l: l[0].__name__ == schema_name, dimensie_schemas))[0]
             # Hacky code die de dynamische docstrings maakt
             for method_name in view_func.methods:
                 method_name = method_name.lower()
                 method = getattr(view_func.view_class, method_name)
-                method.__doc__ = method.__doc__.format(dimensie_naams="SWENNEN", dimensie_schema="Ambitie_Schema") 
+                method.__doc__ = method.__doc__.format(singular=sn, schema=schema.__name__, plural=pl) 
             spec.path(view=view_func)
 
 app.add_url_rule(f'/v{current_version}/login',
@@ -118,42 +117,7 @@ app.add_url_rule(f'/v{current_version}/login',
 app.add_url_rule(f'/v{current_version}/stats',
                  'stats', stats, methods=['GET'])
 app.add_url_rule(f'/v{current_version}/spec',
-                 'spec', lambda : json.dumps(spec.to_dict(), indent=2), methods=['GET'])
-
-  
-
-# for schema in dimensie_schemas:
-#     schema_name = schema.__name__.split('_')[0]
-#     spec.components.schema(schema_name, schema=schema)
-#     view = Dimensie(schema, schema_name, 'Actuele_{schema_name}').as_view(schema_name)
-#     with app.test_request_context():
-#         print(app.view_functions)
-#         spec.path(view=view)
-
-
-# api.add_resource(Dimensie, '/doelen', '/doelen/<string:uuid>', endpoint='Doelen',
-#                  resource_class_args=(Doel_Schema, 'Doelen', 'Actuele_Doelen'))
-
-# api.add_resource(Dimensie, '/beleidsregels', '/beleidsregels/<string:uuid>', endpoint='Beleidsregels',
-#                  resource_class_args=(BeleidsRegel_Schema, 'BeleidsRegels', 'Actuele_BeleidsRegels'))                 
-
-# api.add_resource(Dimensie, '/provincialebelangen', '/provincialebelangen/<string:uuid>', endpoint='Provincialebelangen',
-#                  resource_class_args=(ProvincialeBelangen_Schema, 'ProvinicialeBelangen', 'Actuele_ProvincialeBelangen'))
-
-# api.add_resource(Dimensie, '/beleidsrelaties', '/beleidsrelaties/<string:uuid>', endpoint='Beleidsrelaties',
-#                  resource_class_args=(BeleidsRelatie_Schema, 'BeleidsRelaties', 'Actuele_BeleidsRelaties'))
-
-# api.add_resource(Dimensie, '/maatregelen', '/maatregelen/<string:uuid>', endpoint='Maatregelen', 
-#                  resource_class_args=(Maatregelen_Schema, 'Maatregelen', 'Actuele_Maatregelen'))
-
-# api.add_resource(Dimensie, '/themas', '/themas/<string:uuid>', endpoint='Themas', 
-#                  resource_class_args=(Themas_Schema, 'Themas', 'Actuele_Themas'))                 
-
-# api.add_resource(Dimensie, '/opgaven', '/opgaven/<string:uuid>', endpoint='Opgaven', 
-#                  resource_class_args=(Opgaven_Schema, 'Opgaven', 'Actuele_Opgaven'))                 
-
-# api.add_resource(Dimensie, '/verordeningen', '/verordeningen/<string:uuid>', endpoint='Verordeningen',
-#                  resource_class_args=(Verordening_Schema, 'Verordeningen', 'Actuele_Verordeningen'))
+                 'spec', lambda : json.dumps(spec.to_dict(), indent=2), methods=['GET'])  
 
 api.add_resource(Werkingsgebied, '/werkingsgebieden',
                  '/werkingsgebieden/<string:werkingsgebied_uuid>')
