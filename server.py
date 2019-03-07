@@ -8,7 +8,7 @@ from flask_jwt_extended import (
 import click
 from collections import namedtuple
 
-from Dimensies.dimensie import Dimensie, DimensieList
+from Dimensies.dimensie import Dimensie, DimensieList, DimensieLineage
 from Dimensies.ambitie import Ambitie_Schema
 from Dimensies.beleidsregel import BeleidsRegel_Schema
 from Dimensies.doel import Doel_Schema
@@ -100,6 +100,8 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
         resource_class_args=(schema, tn, ac_tn))
     dimension_ept.append(f"{schema_name}_lijst")
 
+# DOCUMENTATIE
+
 for ept, view_func in app.view_functions.items():
     if ept in dimension_ept:
         with app.test_request_context():
@@ -111,6 +113,9 @@ for ept, view_func in app.view_functions.items():
                 method = getattr(view_func.view_class, method_name)
                 method.__doc__ = method.__doc__.format(singular=sn, schema=schema.__name__, plural=pl) 
             spec.path(view=view_func)
+
+api.add_resource(DimensieLineage, '/lineage/ambities/<int:id>', endpoint='Ambitie Lineage',
+                resource_class_args=(Ambitie_Schema, 'Ambities'))
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])

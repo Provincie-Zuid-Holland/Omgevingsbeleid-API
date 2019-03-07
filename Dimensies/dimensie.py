@@ -15,6 +15,7 @@ class Dimensie_Schema(MM.Schema):
     """
     Schema voor de standaard velden van een dimensie
     """
+    ID = MM.fields.Integer()
     UUID = MM.fields.UUID(required=True)
     Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
     Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
@@ -35,12 +36,59 @@ def objects_from_query(query):
         db = records.Database(db_connection_string)
         return db.query(query)
 
+
+# GET /lineage/ambities/ID -> Short form for all objects in lineage (max: 20?)
+# POST /lineage/ambities/ID -> Add new descendant (according to bussines rules) 
+# PATCH /lineage/ambities/ID -> 400
+
+#  GET /ambities -> All ambitie object lineages (fungerend)
+# GET /ambities/UUID -> Specific version of ambitie object 
+
+class DimensieLineage(Resource):
+    def __init__(self, tableschema, tablename_all):
+        self.lineage_query = f'''SELECT * FROM {tablename_all} WHERE ID = :id ORDER BY Modified_Date DESC'''
+        self._tableschema = tableschema
+
+        # Is het gegeven schema een superset van Dimensie_Schema?
+        required_fields = Dimensie_Schema().fields.keys()
+        schema_fields = tableschema().fields.keys()
+        assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
+
+    def get(self, id):
+        """
+        GET endpoint voor {plural} lineages.
+        ---
+        description: Verkrijg een de lineage lijst van een {singular} object
+        responses:
+            200:
+                description: Succesvolle request
+                content:
+                    application/json:
+                        schema:
+                            type: array
+                            items: {schema}
+            404:
+                description: Foutieve request
+                content:
+                    application/json:
+                        schema: 
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+        """
+        db = records.Database(db_connection_string)
+        dimensie_objecten = db.query(self.lineage_query, id=id)
+        schema = self._tableschema()
+        return(schema.dump(dimensie_objecten, many=True))
+
+
 class DimensieList(Resource):
     # Velden die niet in een POST request gestuurd mogen worden
-    _excluded_post_fields = ['UUID', 'Modified_By', 'Modified_Date']
+    _excluded_post_fields = ['ID', 'UUID', 'Modified_By', 'Modified_Date']
 
     # Veld dat dient als identificatie
-    _identifier_field = 'UUID'
+    _identifier_fields = ['UUID', 'ID']
 
     def __init__(self, tableschema, tablename_all, tablename_actueel):
         self.all_query = f'SELECT * FROM {tablename_actueel}'
@@ -55,7 +103,7 @@ class DimensieList(Resource):
         self.query_fields = []
         # filter alle velden, als een veld gebruik maakt van een 'attribute' naam gebruik die naam dan
         for fieldkey, fieldobj in tableschema().fields.items():
-            if fieldkey == self._identifier_field: continue
+            if fieldkey in self._identifier_fields: continue
             if fieldobj.attribute:
                 self.query_fields.append(fieldobj.attribute)
             else:
@@ -176,7 +224,7 @@ class Dimensie(Resource):
                        'Modified_Date']
 
     # Velden die niet in een PATCH request gestuurd mogen worden
-    _excluded_patch_fields = ['UUID', 'Created_By', 'Created_Date']
+    _excluded_patch_fields = ['ID', 'UUID', 'Created_By', 'Created_Date']
 
     def __init__(self, tableschema, tablename_all, tablename_actueel=None):
         self._tablename_all = tablename_all
@@ -204,7 +252,7 @@ class Dimensie(Resource):
         self.query_fields = list(filter(lambda fieldname: not(eq(fieldname, self._identifier_field)), schema_fields))
 
         # PATCH Queries are build using this list (preserving order)
-        self.update_fields = self.query_fields + ['ID']
+        self.update_fields = self.query_fields
         
         update_fields_list = ', '.join(self.update_fields)
         update_parameter_marks = ', '.join(['?' for _ in self.update_fields])
@@ -330,8 +378,8 @@ class Dimensie(Resource):
                     return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
                 else:
                     return {'message': 'Database integriteitsfout'}, 404
-            except pyodbc.DatabaseError:
-                    return {'message': f'Database fout, neem contact op met de systeembeheerder'}, 500
+            except pyodbc.DatabaseError as e:
+                    return {'message': f'Database fout, neem contact op met de systeembeheerder Exception:[{e}]'}, 500
             connection.commit()
         
         return {"Resultaat_UUID": f"{new_uuid}"}
