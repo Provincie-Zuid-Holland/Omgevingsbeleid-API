@@ -63,7 +63,7 @@ spec = APISpec(
 dimensie_schemas = [(Ambitie_Schema, 'ambities','Ambities', 'Actuele_Ambities', 'Ambitie', 'Ambities'),
             (BeleidsRegel_Schema, 'beleidsregels', 'Beleidsregels', 'Actuele_Beleidsregels', 'Beleidsregel', 'Beleidsregels'),
             (Doel_Schema, 'doelen', 'Doelen', 'Actuele_Doelen', 'Doel', 'Doelen'),
-            (ProvincialeBelangen_Schema, 'provincialebelangen', 'ProvincialeBelangen', 'Actuele_ProvincialeBelangen', 'Provinciale Belang', 'Provinciale Belangen'),
+            (ProvincialeBelangen_Schema, 'provincialebelangen', 'ProvincialeBelangen', 'Actuele_ProvincialeBelangen', 'Provinciaal Belang', 'Provinciale Belangen'),
             (BeleidsRelatie_Schema, 'beleidsrelaties', 'BeleidsRelaties', 'Actuele_BeleidsRelaties', 'Beleidsrelatie', 'Beleidsrelaties'),
             (Maatregelen_Schema, 'maatregelen', 'Maatregelen', 'Actuele_Maatregelen', 'Maatregel', 'Maatregelen'),
             (Themas_Schema, 'themas', 'Themas', 'Actuele_Themas', 'Thema', "Thema's"),
