@@ -93,7 +93,7 @@ dimension_ept = []
 for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
     schema_name = schema.__name__.split('_')[0]
     spec.components.schema(schema_name, schema=schema)
-    api.add_resource(Dimensie, f'/{slug}/<string:uuid>', endpoint=schema_name,
+    api.add_resource(Dimensie, f'/{slug}/version/<string:uuid>', endpoint=schema_name,
         resource_class_args=(schema, tn, ac_tn))
     dimension_ept.append(schema_name)
     api.add_resource(DimensieList, f'/{slug}', endpoint=f"{schema_name}_lijst",
@@ -102,7 +102,7 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
 
 # DOCUMENTATIE
 
-for ept, view_func in app.view_functions.items():
+    for ept, view_func in app.view_functions.items():
     if ept in dimension_ept:
         with app.test_request_context():
             schema_name = ept.split("_")[0] + "_Schema"
@@ -114,7 +114,7 @@ for ept, view_func in app.view_functions.items():
                 method.__doc__ = method.__doc__.format(singular=sn, schema=schema.__name__, plural=pl) 
             spec.path(view=view_func)
 
-api.add_resource(DimensieLineage, '/lineage/ambities/<int:id>', endpoint='Ambitie Lineage',
+api.add_resource(DimensieLineage, '/ambities/<int:id>', endpoint='Ambitie Lineage',
                 resource_class_args=(Ambitie_Schema, 'Ambities'))
 
 app.add_url_rule(f'/v{current_version}/login',

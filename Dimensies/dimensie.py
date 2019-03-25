@@ -54,7 +54,7 @@ class DimensieLineage(Resource):
         schema_fields = tableschema().fields.keys()
         assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
 
-    def get(self, id):
+    def get(self, id=None):
         """
         GET endpoint voor {plural} lineages.
         ---
@@ -79,6 +79,8 @@ class DimensieLineage(Resource):
         """
         db = records.Database(db_connection_string)
         dimensie_objecten = db.query(self.lineage_query, id=id)
+        if not(any(dimensie_objecten)):
+            return {'message': f'Object met ID={id} niet gevonden'}, 404
         schema = self._tableschema()
         return(schema.dump(dimensie_objecten, many=True))
 
