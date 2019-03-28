@@ -10,7 +10,6 @@ import re
 
 # from .dimensie import Dimensie
 
-
 class Dimensie_Schema(MM.Schema):
     """
     Schema voor de standaard velden van een dimensie
@@ -37,24 +36,27 @@ def objects_from_query(query):
         return db.query(query)
 
 
-# GET /lineage/ambities/ID -> Short form for all objects in lineage (max: 20?)
-# POST /lineage/ambities/ID -> Add new descendant (according to bussines rules) 
-# PATCH /lineage/ambities/ID -> 400
-
-#  GET /ambities -> All ambitie object lineages (fungerend)
-# GET /ambities/UUID -> Specific version of ambitie object 
+# DONE:
+# GET /ambities/ID -> Short form for all objects in lineage (max: 20?)
+# GET /ambities -> All ambitie object lineages (fungerend)
+# GET /ambities/version/UUID -> Specific version of ambitie object 
+# TODO:
+# PATCH /ambities/ID -> change latest (according to bussinnes rules)
+# - No overlapping begin/eind geldigheid
+# - Modified date = moment van ontvangen requests
+# - Created date = moment van ontvangen post
+# POST /ambities -> New lineage
 
 class DimensieLineage(Resource):
     def __init__(self, tableschema, tablename_all):
         self.lineage_query = f'''SELECT * FROM {tablename_all} WHERE ID = :id ORDER BY Modified_Date DESC'''
         self._tableschema = tableschema
-
         # Is het gegeven schema een superset van Dimensie_Schema?
         required_fields = Dimensie_Schema().fields.keys()
         schema_fields = tableschema().fields.keys()
         assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
 
-    def get(self, id=None):
+    def get(self, id):
         """
         GET endpoint voor {plural} lineages.
         ---
