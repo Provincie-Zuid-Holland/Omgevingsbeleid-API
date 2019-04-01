@@ -1,12 +1,13 @@
 from flask_restful import Resource
 import records
 import pyodbc
-from flask import request
+from flask import request, jsonify
 import marshmallow as MM
 from operator import eq
 from globals import db_connection_string, db_connection_settings
 import marshmallow as MM
 import re
+import datetime
 
 # from .dimensie import Dimensie
 
@@ -46,6 +47,7 @@ def objects_from_query(query):
 # - Modified date = moment van ontvangen requests
 # - Created date = moment van ontvangen post
 # POST /ambities -> New lineage
+# - Return object
 
 class DimensieLineage(Resource):
     def __init__(self, tableschema, tablename_all):
@@ -89,7 +91,7 @@ class DimensieLineage(Resource):
 
 class DimensieList(Resource):
     # Velden die niet in een POST request gestuurd mogen worden
-    _excluded_post_fields = ['ID', 'UUID', 'Modified_By', 'Modified_Date']
+    _excluded_post_fields = ['ID', 'UUID', 'Modified_By', 'Modified_Date', 'Created_Date']
 
     # Veld dat dient als identificatie
     _identifier_fields = ['UUID', 'ID']
@@ -120,6 +122,8 @@ class DimensieList(Resource):
             ({create_fields_list})
             OUTPUT inserted.UUID
             VALUES ({create_parameter_marks})'''
+        
+        self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
 
 
     def get(self):
@@ -184,9 +188,14 @@ class DimensieList(Resource):
         except MM.exceptions.ValidationError as err:
             return err.normalized_messages(), 400
 
-        # Modification date is hetzelfde als de created date want we maken dit object nieuw aan
-        dim_object['Modified_By'] = dim_object['Created_By']
+        # Add missing information
+        dim_object['Created_Date'] = datetime.datetime.now()
         dim_object['Modified_Date'] = dim_object['Created_Date']
+        dim_object['Modified_By'] = dim_object['Created_By']
+        
+
+        # return dump_schema.dump(dim_object), 200
+        
         try:
             values = [dim_object[k] for k in self.query_fields]
         except KeyError as e:
@@ -209,7 +218,11 @@ class DimensieList(Resource):
                     return {'message': f'Database fout, neem contact op met de systeembeheerder:[{e}]'}, 400
             connection.commit()
         
-        return {"Resultaat_UUID": f"{new_uuid}"}
+        db = records.Database(db_connection_string)
+        result = db.query(self.uuid_query, uuid=new_uuid).first()
+        dump_schema = self._tableschema()
+        
+        return dump_schema.dump(result), 201
 
 
 class Dimensie(Resource):
