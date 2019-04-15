@@ -37,19 +37,19 @@ def objects_from_query(query):
         return db.query(query)
 
 
-# DONE:
-# GET /ambities/ID -> Short form for all objects in lineage (max: 20?)
-# GET /ambities -> All ambitie object lineages (fungerend)
-# GET /ambities/version/UUID -> Specific version of ambitie object 
-# TODO:
-# PATCH /ambities/ID -> change latest (according to bussinnes rules)
-# - No overlapping begin/eind geldigheid
-# - Modified date = moment van ontvangen requests
-# - Created date = moment van ontvangen post
-# POST /ambities -> New lineage
-# - Return object
-
 class DimensieLineage(Resource):
+
+     # Velden die niet in een PATCH request gestuurd mogen worden
+    _excluded_patch_fields = ['ID', 'UUID', 'Created_By', 'Created_Date', 'Modified_Date']
+    _general_fields = ['ID',
+                       'UUID',
+                       'Begin_Geldigheid',
+                       'Eind_Geldigheid',
+                       'Created_By',
+                       'Created_Date',
+                       'Modified_By',
+                       'Modified_Date']
+    
     def __init__(self, tableschema, tablename_all):
         self.lineage_query = f'''SELECT * FROM {tablename_all} WHERE ID = :id ORDER BY Modified_Date DESC'''
         self._tableschema = tableschema
@@ -57,7 +57,21 @@ class DimensieLineage(Resource):
         required_fields = Dimensie_Schema().fields.keys()
         schema_fields = tableschema().fields.keys()
         assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
+        
+        self.lineage_last_query = f'''SELECT TOP(1) * FROM Ambities WHERE ID = :id ORDER BY Modified_Date DESC'''
+         
+         # Partial velden voor de PATCH
+        self._partial_patch_fields = [field for field in schema_fields if field not in self._general_fields]
 
+        self.patch_query_fields = list(filter(lambda field: field != "UUID", map(str,schema_fields)))
+        
+        update_fields_list = ', '.join(self.patch_query_fields)
+        update_parameter_marks = ', '.join(['?' for _ in self.patch_query_fields])
+
+        self.update_query = f'''INSERT INTO {tablename_all} ({update_fields_list}) OUTPUT inserted.UUID VALUES ({update_parameter_marks})'''
+        
+        self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
+        
     def get(self, id):
         """
         GET endpoint voor {plural} lineages.
@@ -87,6 +101,118 @@ class DimensieLineage(Resource):
             return {'message': f'Object met ID={id} niet gevonden'}, 404
         schema = self._tableschema()
         return(schema.dump(dimensie_objecten, many=True))
+
+    def patch(self, id):
+        """
+        PATCH endpoint voor deze dimensie.
+        ---
+        description: Wijzig een {singular} op basis van ID
+        parameters:
+            - in: path
+              name:id
+              description: De UUID van het te wijzigen object
+              schema:
+                type: string
+                format: uuid
+        responses:
+            200:
+                description: {singular} is succesvol gewijzigd
+                content:
+                    application/json:
+                        schema: 
+                           type: object
+                           properties:
+                              message: 
+                                type: string
+            404:
+                description: Foutieve request
+                content:
+                    application/json:
+                        schema: 
+                           type: object
+                           properties:
+                              message: 
+                                type: string
+        """
+        request_time = datetime.datetime.now()
+        try:
+            patch_schema = self._tableschema(
+                exclude = self._excluded_patch_fields,
+                partial = self._partial_patch_fields,
+                unknown = MM.utils.RAISE)
+
+        except ValueError:
+            return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
+        
+        try:
+            aanpassingen = patch_schema.load(request.get_json())
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400
+
+        db = records.Database(db_connection_string)
+        dimensie_objecten = db.query(self.lineage_last_query, id=id)
+        if not(any(dimensie_objecten)):
+            return {'message': f'Object met ID={id} niet gevonden'}, 404
+        if len(dimensie_objecten) != 1:
+            return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
+        oude_object = dimensie_objecten[0]
+        
+        dimensie_object = {**oude_object, **aanpassingen} # Dict merging using kwargs method
+
+        dimensie_object.pop('UUID')
+        dimensie_object['Modified_Date'] = request_time
+        
+        values = [dimensie_object[k] for k in self.patch_query_fields]
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+            try:
+                cursor.execute(self.update_query, *values)
+            except pyodbc.IntegrityError as e:
+                pattern = re.compile(r'FK_\w+_(\w+)')
+                match = pattern.search(e.args[-1]).group(1)
+                if match:
+                    return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
+                else:
+                    return {'message': 'Database integriteitsfout'}, 404
+            except pyodbc.DatabaseError as e:
+                    return {'message': f'Database fout, neem contact op met de systeembeheerder Exception:[{e}]'}, 500
+            new_uuid = cursor.fetchone()[0]
+            connection.commit()
+        
+        db = records.Database(db_connection_string)
+        result = db.query(self.uuid_query, uuid=new_uuid).first()
+        dump_schema = self._tableschema()
+        
+        return dump_schema.dump(result), 200
+
+        
+    #     oude_dimensie_object = self.single_object_by_uuid(uuid)
+    #     if not oude_dimensie_object:
+    #         return {'message': f"Object met identifier {uuid} is niet gevonden"}, 404
+
+    #     # Voeg de twee objecten samen
+    #     dimensie_object = {**oude_dimensie_object, **aanpassingen}
+        
+    #     values = [dimensie_object[k] for k in self.update_fields]
+        
+    #     with pyodbc.connect(db_connection_settings) as connection:
+    #         cursor = connection.cursor()
+    #         try:
+    #             cursor.execute(self.update_query, *values)
+    #             new_uuid = cursor.fetchone()[0]
+    #         except pyodbc.IntegrityError as e:
+    #             pattern = re.compile(r'FK_\w+_(\w+)')
+    #             match = pattern.search(e.args[-1]).group(1)
+    #             if match:
+    #                 return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
+    #             else:
+    #                 return {'message': 'Database integriteitsfout'}, 404
+    #         except pyodbc.DatabaseError as e:
+    #                 return {'message': f'Database fout, neem contact op met de systeembeheerder Exception:[{e}]'}, 500
+    #         connection.commit()
+        
+    #     return {"Resultaat_UUID": f"{new_uuid}"}
+
 
 
 class DimensieList(Resource):
@@ -240,9 +366,6 @@ class Dimensie(Resource):
                        'Modified_By',
                        'Modified_Date']
 
-    # Velden die niet in een PATCH request gestuurd mogen worden
-    _excluded_patch_fields = ['ID', 'UUID', 'Created_By', 'Created_Date']
-
     def __init__(self, tableschema, tablename_all, tablename_actueel=None):
         self._tablename_all = tablename_all
 
@@ -257,9 +380,6 @@ class Dimensie(Resource):
         # Dit checkt of Dimensie_Schema geërft wordt
         assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
         
-        # Partial velden voor de PATCH
-        self._partial_fields = [field for field in schema_fields if field not in self._general_fields]
-
         # Bouw hier de queries op
         self._tableschema = tableschema
         self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
@@ -323,80 +443,3 @@ class Dimensie(Resource):
 
         schema = self._tableschema()
         return(schema.dump(dimensie_object))
-        
-
-    def patch(self, uuid=None):
-        """
-        PATCH endpoint voor deze dimensie.
-        ---
-        description: Wijzig een {singular} op basis van UUID
-        parameters:
-            - in: path
-              name: uuid
-              description: De UUID van het te wijzigen object
-              schema:
-                type: string
-                format: uuid
-        responses:
-            200:
-                description: {singular} is succesvol gewijzigd
-                content:
-                    application/json:
-                        schema: 
-                           type: object
-                           properties:
-                              message: 
-                                type: string
-            404:
-                description: Foutieve request
-                content:
-                    application/json:
-                        schema: 
-                           type: object
-                           properties:
-                              message: 
-                                type: string
-        """
-        if not uuid:
-            return {'message': "Methode PATCH alleen geldig op een enkel object, voeg een identifier toe aan URL"}, 400
-        try:
-            patch_schema = self._tableschema(
-                exclude = self._excluded_patch_fields,
-                partial = self._partial_fields + ['Begin_Geldigheid', 'Eind_Geldigheid'],
-                unknown = MM.utils.RAISE)
-
-        except ValueError:
-            return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
-        
-        try:
-            aanpassingen = patch_schema.load(request.get_json())
-        except MM.exceptions.ValidationError as err:
-            return err.normalized_messages(), 400
-
-        oude_dimensie_object = self.single_object_by_uuid(uuid)
-
-        if not oude_dimensie_object:
-            return {'message': f"Object met identifier {uuid} is niet gevonden"}, 404
-
-        # Voeg de twee objecten samen
-        dimensie_object = {**oude_dimensie_object, **aanpassingen}
-        
-        values = [dimensie_object[k] for k in self.update_fields]
-        
-        with pyodbc.connect(db_connection_settings) as connection:
-            cursor = connection.cursor()
-            try:
-                cursor.execute(self.update_query, *values)
-                new_uuid = cursor.fetchone()[0]
-            except pyodbc.IntegrityError as e:
-                pattern = re.compile(r'FK_\w+_(\w+)')
-                match = pattern.search(e.args[-1]).group(1)
-                if match:
-                    return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
-                else:
-                    return {'message': 'Database integriteitsfout'}, 404
-            except pyodbc.DatabaseError as e:
-                    return {'message': f'Database fout, neem contact op met de systeembeheerder Exception:[{e}]'}, 500
-            connection.commit()
-        
-        return {"Resultaat_UUID": f"{new_uuid}"}
