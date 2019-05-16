@@ -58,7 +58,7 @@ class DimensieLineage(Resource):
         schema_fields = tableschema().fields.keys()
         assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
         
-        self.lineage_last_query = f'''SELECT TOP(1) * FROM Ambities WHERE ID = :id ORDER BY Modified_Date DESC'''
+        self.lineage_last_query = f'''SELECT TOP(1) * FROM {tablename_all} WHERE ID = :id ORDER BY Modified_Date DESC'''
          
          # Partial velden voor de PATCH
         self._partial_patch_fields = [field for field in schema_fields if field not in self._general_fields]
@@ -184,35 +184,6 @@ class DimensieLineage(Resource):
         dump_schema = self._tableschema()
         
         return dump_schema.dump(result), 200
-
-        
-    #     oude_dimensie_object = self.single_object_by_uuid(uuid)
-    #     if not oude_dimensie_object:
-    #         return {'message': f"Object met identifier {uuid} is niet gevonden"}, 404
-
-    #     # Voeg de twee objecten samen
-    #     dimensie_object = {**oude_dimensie_object, **aanpassingen}
-        
-    #     values = [dimensie_object[k] for k in self.update_fields]
-        
-    #     with pyodbc.connect(db_connection_settings) as connection:
-    #         cursor = connection.cursor()
-    #         try:
-    #             cursor.execute(self.update_query, *values)
-    #             new_uuid = cursor.fetchone()[0]
-    #         except pyodbc.IntegrityError as e:
-    #             pattern = re.compile(r'FK_\w+_(\w+)')
-    #             match = pattern.search(e.args[-1]).group(1)
-    #             if match:
-    #                 return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
-    #             else:
-    #                 return {'message': 'Database integriteitsfout'}, 404
-    #         except pyodbc.DatabaseError as e:
-    #                 return {'message': f'Database fout, neem contact op met de systeembeheerder Exception:[{e}]'}, 500
-    #         connection.commit()
-        
-    #     return {"Resultaat_UUID": f"{new_uuid}"}
-
 
 
 class DimensieList(Resource):

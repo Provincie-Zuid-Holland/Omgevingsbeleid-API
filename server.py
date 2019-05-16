@@ -41,11 +41,13 @@ current_version = '0.1'
 # FLASK SETUP
 
 app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3rVx'
+app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3rVxdev'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['JWT_HEADER_TYPE'] = "Token"
-api = Api(app, prefix=f'/v{current_version}')
+api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required,])
+# api = Api(app, prefix=f'/v{current_version}')
 jwt = JWTManager(app)
+
 
 # APISPEC SETUP
 
@@ -86,6 +88,8 @@ def generate_client_creds(client_identifier):
     click.echo(result)
     click.pause()
 
+app.add_url_rule(f'/v{current_version}/login', 'login', login, methods=['POST'])
+
 # ROUTING RULES
 
 dimension_ept = []
@@ -99,23 +103,22 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
     api.add_resource(DimensieList, f'/{slug}', endpoint=f"{schema_name}_lijst",
         resource_class_args=(schema, tn, ac_tn))
     dimension_ept.append(f"{schema_name}_lijst")
+    api.add_resource(DimensieLineage, f'/{slug}/<int:id>', endpoint=f"{schema_name}_lineage", resource_class_args=(schema, tn))
 
 # DOCUMENTATIE
 
-for ept, view_func in app.view_functions.items():
-    if ept in dimension_ept:
-        with app.test_request_context():
-            schema_name = ept.split("_")[0] + "_Schema"
-            schema, slug, tn, ac_tn, sn, pl = list(filter(lambda l: l[0].__name__ == schema_name, dimensie_schemas))[0]
-            # Hacky code die de dynamische docstrings maakt
-            for method_name in view_func.methods:
-                method_name = method_name.lower()
-                method = getattr(view_func.view_class, method_name)
-                method.__doc__ = method.__doc__.format(singular=sn, schema=schema.__name__, plural=pl) 
-            spec.path(view=view_func)
 
-api.add_resource(DimensieLineage, '/ambities/<int:id>', endpoint='Ambitie Lineage',
-                resource_class_args=(Ambitie_Schema, 'Ambities'))
+# for ept, view_func in app.view_functions.items():
+#     if ept in dimension_ept:
+#         with app.test_request_context():
+#             schema_name = ept.split("_")[0] + "_Schema"
+#             schema, slug, tn, ac_tn, sn, pl = list(filter(lambda l: l[0].__name__ == schema_name, dimensie_schemas))[0]
+#             # Hacky code die de dynamische docstrings maakt
+#             for method_name in view_func.methods:
+#                 method_name = method_name.lower()
+#                 method = getattr(view_func.view_class, method_name)
+#                 method.__doc__ = method.__doc__.format(singular=sn, schema=schema.__name__, plural=pl) 
+#             spec.path(view=view_func)
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
