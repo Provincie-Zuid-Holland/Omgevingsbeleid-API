@@ -25,7 +25,7 @@ from Dimensies.geothemas import Geothema
 from Dimensies.gebruikers import Gebruiker
 from Dimensies.werkingsgebieden import Werkingsgebied
 
-from Auth.views import login
+from Auth.views import login, tokenstat
 from Auth.commands import new_client_creds
 
 from Stats.views import stats
@@ -124,6 +124,8 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
+app.add_url_rule(f'/v{current_version}/tokeninfo',
+                 'tokenstat', tokenstat, methods=['GET'])  
 app.add_url_rule(f'/v{current_version}/stats',
                  'stats', stats, methods=['GET'])
 app.add_url_rule(f'/v{current_version}/spec',
