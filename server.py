@@ -34,6 +34,8 @@ from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 
+from flask_cors import CORS
+
 import json
 
 current_version = '0.1'
@@ -41,6 +43,7 @@ current_version = '0.1'
 # FLASK SETUP
 
 app = Flask(__name__)
+CORS(app)
 app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3rVxdev'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['JWT_HEADER_TYPE'] = "Token"
@@ -106,7 +109,6 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
     api.add_resource(DimensieLineage, f'/{slug}/<int:id>', endpoint=f"{schema_name}_lineage", resource_class_args=(schema, tn))
 
 # DOCUMENTATIE
-
 
 # for ept, view_func in app.view_functions.items():
 #     if ept in dimension_ept:

@@ -15,6 +15,7 @@ apispec = "*"
 flask-jwt-extended = "*"
 passlib = {extras = ["bcrypt"]}
 apispec-webframeworks = "*"
+flask-cors = "*"
 
 [dev-packages]
 pylint = "*"
