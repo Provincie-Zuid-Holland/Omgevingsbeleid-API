@@ -26,7 +26,7 @@ from Dimensies.gebruikers import Gebruiker
 from Dimensies.werkingsgebieden import Werkingsgebied
 
 from Auth.views import login, tokenstat
-from Auth.commands import new_client_creds
+from Auth.commands import new_client_creds, new_client_creds_gebruikers
 
 from Stats.views import stats
 
@@ -89,6 +89,13 @@ def custom_unauthorized_loader(reason):
 def generate_client_creds(client_identifier):
     result = new_client_creds(client_identifier)
     click.echo(result)
+    click.pause()
+
+@app.cli.command()
+def generate_passwords():
+    result = new_client_creds_gebruikers()
+    for gebruikersnaam, credentials in result:
+        click.echo(f"{gebruikersnaam}\t\t{credentials}")
     click.pause()
 
 app.add_url_rule(f'/v{current_version}/login', 'login', login, methods=['POST'])
