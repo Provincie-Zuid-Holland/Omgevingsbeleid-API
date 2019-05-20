@@ -9,6 +9,8 @@ from passlib.hash import bcrypt
 from globals import db_connection_string, db_connection_settings
 import pyodbc
 import time
+import records
+
 
 
 def login():
@@ -24,12 +26,14 @@ def login():
         return jsonify({"message": "Password parameter niet gevonden"}), 400
 
     # Find identifier
-    connection = pyodbc.connect(db_connection_settings)
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM Clients WHERE identifier = ?", identifier)
-    result = cursor.fetchone()
+    # connection = pyodbc.connect(db_connection_settings)
+    # cursor = connection.cursor()
+    # cursor.execute("SELECT * FROM Gebruikers WHERE Gebruikersnaam = ?", identifier)
+    db = records.Database(db_connection_string)
+    row = db.query("""SELECT * FROM Gebruikers WHERE Gebruikersnaam = :gebruikersnaam""", gebruikersnaam=identifier)
+    result = row.first()
     if result:
-        passwordhash = result[1]
+        passwordhash = result['Wachtwoord']
         if passwordhash:
             if bcrypt.verify(password, passwordhash):
                 access_token = create_access_token(identity=identifier)
