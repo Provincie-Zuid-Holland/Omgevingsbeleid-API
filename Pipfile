@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 flask = "*"
-records = "*"
+records = "==0.5.2"
 pyodbc = "*"
 wfastcgi = "*"
 flask-restful = "*"
@@ -15,6 +15,7 @@ apispec = "*"
 flask-jwt-extended = "*"
 passlib = {extras = ["bcrypt"]}
 apispec-webframeworks = "*"
+flask-cors = "*"
 
 [dev-packages]
 pylint = "*"

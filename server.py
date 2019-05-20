@@ -25,7 +25,7 @@ from Dimensies.geothemas import Geothema
 from Dimensies.gebruikers import Gebruiker
 from Dimensies.werkingsgebieden import Werkingsgebied
 
-from Auth.views import login
+from Auth.views import login, tokenstat
 from Auth.commands import new_client_creds
 
 from Stats.views import stats
@@ -34,6 +34,8 @@ from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 
+from flask_cors import CORS
+
 import json
 
 current_version = '0.1'
@@ -41,6 +43,7 @@ current_version = '0.1'
 # FLASK SETUP
 
 app = Flask(__name__)
+CORS(app)
 app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3rVxdev'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['JWT_HEADER_TYPE'] = "Token"
@@ -107,7 +110,6 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
 
 # DOCUMENTATIE
 
-
 # for ept, view_func in app.view_functions.items():
 #     if ept in dimension_ept:
 #         with app.test_request_context():
@@ -122,6 +124,8 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
+app.add_url_rule(f'/v{current_version}/tokeninfo',
+                 'tokenstat', tokenstat, methods=['GET'])  
 app.add_url_rule(f'/v{current_version}/stats',
                  'stats', stats, methods=['GET'])
 app.add_url_rule(f'/v{current_version}/spec',
