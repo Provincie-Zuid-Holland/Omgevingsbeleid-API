@@ -30,13 +30,13 @@ def login():
     # cursor = connection.cursor()
     # cursor.execute("SELECT * FROM Gebruikers WHERE Gebruikersnaam = ?", identifier)
     db = records.Database(db_connection_string)
-    row = db.query("""SELECT * FROM Gebruikers WHERE Gebruikersnaam = :gebruikersnaam""", gebruikersnaam=identifier)
+    row = db.query("""SELECT * FROM Gebruikers WHERE Email = :gebruikersnaam""", gebruikersnaam=identifier)
     result = row.first()
     if result:
         passwordhash = result['Wachtwoord']
         if passwordhash:
             if bcrypt.verify(password, passwordhash):
-                access_token = create_access_token(identity=identifier)
+                access_token = create_access_token(identity=result['Gebruikersnaam'])
                 return jsonify(access_token=access_token), 200    
     return jsonify(
         {"message": "Wachtwoord of gebruikersnaam ongeldig"}), 401
