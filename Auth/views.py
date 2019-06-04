@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_jwt_extended import (
     create_access_token,
+    decode_token,
     get_jwt_identity,
     jwt_required,
     get_raw_jwt
@@ -30,14 +31,19 @@ def login():
     # cursor = connection.cursor()
     # cursor.execute("SELECT * FROM Gebruikers WHERE Gebruikersnaam = ?", identifier)
     db = records.Database(db_connection_string)
-    row = db.query("""SELECT * FROM Gebruikers WHERE Email = :gebruikersnaam""", gebruikersnaam=identifier)
+    row = db.query("""SELECT UUID, Gebruikersnaam, Email, Rol, Wachtwoord FROM Gebruikers WHERE Email = :gebruikersnaam""", gebruikersnaam=identifier)
     result = row.first()
     if result:
         passwordhash = result['Wachtwoord']
         if passwordhash:
             if bcrypt.verify(password, passwordhash):
-                access_token = create_access_token(identity=result['Gebruikersnaam'])
-                return jsonify(access_token=access_token), 200    
+                identity_result = dict(result)
+                identity_result.pop('Wachtwoord')
+                access_token = create_access_token(identity=identity_result)
+                raw_token = decode_token(access_token)
+                return jsonify({'access_token':access_token, 
+                                'expires':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.localtime(raw_token['exp'])),
+                                'identifier':raw_token['identity']}), 200    
     return jsonify(
         {"message": "Wachtwoord of gebruikersnaam ongeldig"}), 401
     
