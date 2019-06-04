@@ -38,6 +38,8 @@ from flask_cors import CORS
 
 import json
 
+from Stats.views import stats
+
 current_version = '0.1'
 
 # FLASK SETUP
@@ -99,6 +101,7 @@ def generate_passwords():
     click.pause()
 
 app.add_url_rule(f'/v{current_version}/login', 'login', login, methods=['POST'])
+app.add_url_rule(f'/v{current_version}/stats', 'stats', stats, methods=['GET'])
 
 # ROUTING RULES
 
