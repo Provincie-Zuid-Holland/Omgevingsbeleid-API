@@ -19,7 +19,8 @@ from Dimensies.themas import Themas_Schema
 from Dimensies.opgaven import Opgaven_Schema
 from Dimensies.verordening import Verordening_Schema
 
-from Feiten.beleidsbeslissing import BeleidsBeslissing
+from Feiten.feit import FeitenList
+from Feiten.beleidsbeslissing import Beleidsbeslissingen_Schema
 
 from Dimensies.geothemas import Geothema
 from Dimensies.gebruikers import Gebruiker
@@ -118,6 +119,9 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
     dimension_ept.append(f"{schema_name}_lijst")
     api.add_resource(DimensieLineage, f'/{slug}/<int:id>', endpoint=f"{schema_name}_lineage", resource_class_args=(schema, tn))
 
+api.add_resource(FeitenList, '/beleidsbeslissingen', endpoint='beleidsbeslissingen_lijst',
+    resource_class_args=(Beleidsbeslissingen_Schema, 'beleidsbeslissingen', 'beleidsbeslissingen'))
+
 # DOCUMENTATIE
 
 # for ept, view_func in app.view_functions.items():
@@ -148,8 +152,8 @@ api.add_resource(Geothema, '/geothemas',
 api.add_resource(Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
 
-api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen',
-                 '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
+# api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen',
+#                  '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
 
 if __name__ == '__main__':
     app.run()

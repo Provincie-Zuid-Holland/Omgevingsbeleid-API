@@ -5,9 +5,9 @@ from flask import request, jsonify
 import marshmallow as MM
 from operator import eq
 from globals import db_connection_string, db_connection_settings
-import marshmallow as MM
 import re
 import datetime
+from flask_jwt_extended import get_jwt_identity
 
 # from .dimensie import Dimensie
 
@@ -36,11 +36,20 @@ def objects_from_query(query):
         db = records.Database(db_connection_string)
         return db.query(query)
 
+def attribute_or_str(mmfield):
+    """
+    This functions takes an Marsmallow Field object and returns it's name as String if the field has no 'attibute' set.
+    If it does have an attribute set, it returns the attribute value
+    """
+    if mmfield[1].attribute:
+        return mmfield[1].attribute
+    else:
+         return mmfield[0]
 
 class DimensieLineage(Resource):
 
      # Velden die niet in een PATCH request gestuurd mogen worden
-    _excluded_patch_fields = ['ID', 'UUID', 'Created_By', 'Created_Date', 'Modified_Date']
+    _excluded_patch_fields = ['ID', 'UUID', 'Created_By', 'Created_Date', 'Modified_Date', 'Modified_By']
     _general_fields = ['ID',
                        'UUID',
                        'Begin_Geldigheid',
@@ -55,15 +64,15 @@ class DimensieLineage(Resource):
         self._tableschema = tableschema
         # Is het gegeven schema een superset van Dimensie_Schema?
         required_fields = Dimensie_Schema().fields.keys()
-        schema_fields = tableschema().fields.keys()
+        schema_fields = tableschema().fields
         assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
         
         self.lineage_last_query = f'''SELECT TOP(1) * FROM {tablename_all} WHERE ID = :id ORDER BY Modified_Date DESC'''
          
          # Partial velden voor de PATCH
         self._partial_patch_fields = [field for field in schema_fields if field not in self._general_fields]
-
-        self.patch_query_fields = list(filter(lambda field: field != "UUID", map(str,schema_fields)))
+        # convert all fields to the correct naming  
+        self.patch_query_fields = list(filter(lambda field: field != "UUID", map(attribute_or_str,schema_fields.items()))) 
         
         update_fields_list = ', '.join(self.patch_query_fields)
         update_parameter_marks = ', '.join(['?' for _ in self.patch_query_fields])
@@ -161,6 +170,7 @@ class DimensieLineage(Resource):
 
         dimensie_object.pop('UUID')
         dimensie_object['Modified_Date'] = request_time
+        dimensie_object['Modified_By'] = get_jwt_identity()['UUID']
         
         values = [dimensie_object[k] for k in self.patch_query_fields]
         with pyodbc.connect(db_connection_settings) as connection:
@@ -188,7 +198,7 @@ class DimensieLineage(Resource):
 
 class DimensieList(Resource):
     # Velden die niet in een POST request gestuurd mogen worden
-    _excluded_post_fields = ['ID', 'UUID', 'Modified_By', 'Modified_Date', 'Created_Date']
+    _excluded_post_fields = ['ID', 'UUID', 'Modified_By', 'Modified_Date', 'Created_Date', 'Created_By']
 
     # Veld dat dient als identificatie
     _identifier_fields = ['UUID', 'ID']
@@ -286,6 +296,7 @@ class DimensieList(Resource):
             return err.normalized_messages(), 400
 
         # Add missing information
+        dim_object['Created_By'] = get_jwt_identity()['UUID']
         dim_object['Created_Date'] = datetime.datetime.now()
         dim_object['Modified_Date'] = dim_object['Created_Date']
         dim_object['Modified_By'] = dim_object['Created_By']
