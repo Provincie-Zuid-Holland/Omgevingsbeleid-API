@@ -5,7 +5,6 @@ from flask import request, jsonify
 import marshmallow as MM
 from operator import eq
 from globals import db_connection_string, db_connection_settings
-import marshmallow as MM
 import re
 import datetime
 from flask_jwt_extended import get_jwt_identity
