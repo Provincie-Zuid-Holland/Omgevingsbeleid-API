@@ -17,7 +17,8 @@ class Beleidsbeslissingen_Meta_Schema(Feiten_Schema):
 
 
 
-class Beleidsbeslissingen_Fact_Schema(Feiten_Schema):
+class Beleidsbeslissingen_Fact_Schema(MM.Schema):
+    Beleidsbeslissing = MM.fields.UUID(required=True, attribute='fk_Beleidsbeslissingen')
     WerkingsGebieden = MM.fields.Nested(Link_Schema, many=True, default=[])
     BeleidsRegels = MM.fields.Nested(Link_Schema, many=True,  default=[])
     Verordening = MM.fields.Nested(Link_Schema, many=True,  default=[])

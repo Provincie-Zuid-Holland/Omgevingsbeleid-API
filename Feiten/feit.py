@@ -39,30 +39,47 @@ class Link_Schema(MM.Schema):
     class Meta:
         ordered = True
 
-def generate_fact(meta_uuid, fact_tablename, fact_to_meta_field):
-    relevant_facts_query = f'SELECT * FROM {fact_tablename} WHERE :ftmf = :muuid'
+def generate_fact(meta_uuid, fact_tablename, fact_to_meta_field, fact_schema):
+    relevant_facts_query = f"SELECT * FROM {fact_tablename} WHERE {fact_to_meta_field} = :muuid"
     db = records.Database(db_connection_string)
-    relevant_facts = db.query(relevant_facts_query, ftmf=fact_to_meta_field, muuid=meta_uuid)
-    # TODO: THIS DOES NOT RETURN ANY RESULT (IT SHOULD)
-    print(meta_uuid)
+    relevant_facts = db.query(relevant_facts_query, muuid=meta_uuid)
+    schema = fact_schema()
+    result = {}
     for fact in relevant_facts:
-        print(fact)
-    print("done")
-    # print(relevant_facts[0])
-    # print(list(relevant_facts))
+        fact = fact.as_dict()
+        for field in schema.declared_fields:
+            if f'fk_{field}' in fact or f'{field}_Omschrijving' in fact:
+                try:
+                    assert(f'fk_{field}' in fact and f'{field}_Omschrijving' in fact)
+                except AssertionError:
+                    raise Exception(f"Configuration for field '{field}' invalid, missing 'fk_{field}' or '{field}_Omschrijving' in database")
+                link_object = {'UUID': fact[f'fk_{field}'], 'Omschrijving': fact[f'{field}_Omschrijving']}
+                if field in result:
+                    result[field].append(link_object)
+                else:
+                    result[field] = [link_object]
+    return(schema.dump(result))
+
 
 class FeitenList(Resource):
 
     def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field):
         self.all_query = f'SELECT * FROM {meta_tablename}'
         self._meta_schema = meta_schema
+        self._fact_schema = fact_schema
+        self._fact_to_meta_field = fact_to_meta_field
+        self._fact_tablename = fact_tablename
 
     def get(self):
         """
         GET endpoint voor feiten
         """
-        feiten_objecten = objects_from_query(self.all_query)
-        generate_fact(feiten_objecten[1].UUID, 'Omgevingsbeleid', 'fk_Beleidsbeslissingen')
+        fact_objects = objects_from_query(self.all_query)
         schema = self._meta_schema()
-        raise
-        return(schema.dump(feiten_objecten, many=True))
+        results = []
+        for fact in fact_objects:
+            meta = generate_fact(fact.UUID, self._fact_tablename, self._fact_to_meta_field, self._fact_schema)
+            fact = schema.dump(fact)
+            result = {**fact, **meta}
+            results.append(result)
+        return(results)

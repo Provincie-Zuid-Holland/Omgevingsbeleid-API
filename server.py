@@ -20,7 +20,7 @@ from Dimensies.opgaven import Opgaven_Schema
 from Dimensies.verordening import Verordening_Schema
 
 from Feiten.feit import FeitenList
-from Feiten.beleidsbeslissing import Beleidsbeslissingen_Meta_Schema
+from Feiten.beleidsbeslissing import Beleidsbeslissingen_Meta_Schema, Beleidsbeslissingen_Fact_Schema
 
 from Dimensies.geothemas import Geothema
 from Dimensies.gebruikers import Gebruiker
@@ -120,7 +120,7 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
     api.add_resource(DimensieLineage, f'/{slug}/<int:id>', endpoint=f"{schema_name}_lineage", resource_class_args=(schema, tn))
 
 api.add_resource(FeitenList, '/beleidsbeslissingen', endpoint='beleidsbeslissingen_lijst',
-    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'beleidsbeslissingen', 'beleidsbeslissingen', 0 , 0))
+    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'fk_Beleidsbeslissingen'))
 
 # DOCUMENTATIE
 
