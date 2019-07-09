@@ -19,13 +19,13 @@ class Beleidsbeslissingen_Meta_Schema(Feiten_Schema):
 
 class Beleidsbeslissingen_Fact_Schema(MM.Schema):
     Beleidsbeslissing = MM.fields.UUID(required=True, attribute='fk_Beleidsbeslissingen')
-    WerkingsGebieden = MM.fields.Nested(Link_Schema, many=True, default=[])
-    BeleidsRegels = MM.fields.Nested(Link_Schema, many=True,  default=[])
-    Verordening = MM.fields.Nested(Link_Schema, many=True,  default=[])
-    Maatregelen = MM.fields.Nested(Link_Schema, many=True,  default=[])
-    Themas = MM.fields.Nested(Link_Schema, many=True, default=[])
-    Ambities = MM.fields.Nested(Link_Schema, many=True, default=[])
-    Doelen = MM.fields.Nested(Link_Schema, many=True, default=[])
-    ProvincialeBelangen = MM.fields.Nested(Link_Schema, many=True, default=[])
-    Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[])  
+    WerkingsGebieden = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
+    BeleidsRegels = MM.fields.Nested(Link_Schema, many=True,  default=[], missing=[])
+    Verordening = MM.fields.Nested(Link_Schema, many=True,  default=[], missing=[])
+    Maatregelen = MM.fields.Nested(Link_Schema, many=True,  default=[], missing=[])
+    Themas = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
+    Ambities = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
+    Doelen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
+    ProvincialeBelangen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
+    Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])  
 

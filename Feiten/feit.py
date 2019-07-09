@@ -2,6 +2,7 @@ import marshmallow as MM
 import records
 import pyodbc
 from flask_restful import Resource
+from flask import request, jsonify
 from globals import db_connection_string, db_connection_settings
 
 # FEIT:
@@ -54,14 +55,17 @@ def generate_fact(meta_uuid, fact_tablename, fact_to_meta_field, fact_schema):
                 except AssertionError:
                     raise Exception(f"Configuration for field '{field}' invalid, missing 'fk_{field}' or '{field}_Omschrijving' in database")
                 link_object = {'UUID': fact[f'fk_{field}'], 'Omschrijving': fact[f'{field}_Omschrijving']}
-                if field in result:
-                    result[field].append(link_object)
-                else:
-                    result[field] = [link_object]
+                if link_object['UUID'] or link_object['Omschrijving']:
+                    if field in result:
+                        result[field].append(link_object)
+                    else:
+                        result[field] = [link_object]
     return(schema.dump(result))
 
 
 class FeitenList(Resource):
+
+    _excluded_post_fields = ['ID', 'UUID', 'Modified_By', 'Modified_Date', 'Created_Date', 'Created_By', 'Modified_By' ]
 
     def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field):
         self.all_query = f'SELECT * FROM {meta_tablename}'
@@ -83,3 +87,24 @@ class FeitenList(Resource):
             result = {**fact, **meta}
             results.append(result)
         return(results)
+    
+    def post(self):
+        """
+        POST endpoint voor feiten
+        """
+        try:
+            meta_schema = self._meta_schema(
+                exclude = self._excluded_post_fields
+            )
+            fact_schema = self._fact_schema()
+        except ValueError:
+            return {'message': 'Server fout in endpoint, neeem contact op met de administrator'}, 500
+        
+        if request.get_json() == None:
+            return {'message': 'Request data empty'}, 400
+
+        try:
+            meta_object = meta_schema.load(request.get_json())
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400
+        return jsonify(meta_object)
