@@ -120,7 +120,7 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
     api.add_resource(DimensieLineage, f'/{slug}/<int:id>', endpoint=f"{schema_name}_lineage", resource_class_args=(schema, tn))
 
 api.add_resource(FeitenList, '/beleidsbeslissingen', endpoint='beleidsbeslissingen_lijst',
-    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'fk_Beleidsbeslissingen'))
+    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing'))
 
 # DOCUMENTATIE
 
