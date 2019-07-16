@@ -16,7 +16,7 @@ class Beleidsbeslissingen_Meta_Schema(Feiten_Schema):
     Verordening_Realisatie = MM.fields.Str(missing=None)
 
 
-class Beleidsbeslissingen_Fact_Schema(MM.Schema):
+class Beleidsbeslissingen_Fact_Schema(Feiten_Schema):
     Beleidsbeslissing = MM.fields.UUID(
         required=True, attribute='fk_Beleidsbeslissingen')
     WerkingsGebieden = MM.fields.Nested(
@@ -33,6 +33,3 @@ class Beleidsbeslissingen_Fact_Schema(MM.Schema):
     ProvincialeBelangen = MM.fields.Nested(
         Link_Schema, many=True, default=[], missing=[])
     Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
-    
-    class Meta:
-        ordered = True
