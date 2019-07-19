@@ -7,7 +7,7 @@ import datetime
 from flask_jwt_extended import get_jwt_identity
 import pyodbc
 from globals import db_connection_string, db_connection_settings
-
+import json
 # FEIT:
 # - Metadata object
 # - Koppelingen object
@@ -47,16 +47,13 @@ class Link_Schema(MM.Schema):
         ordered = True
 
 
-def generate_fact(meta_uuid, fact_tablename, fact_to_meta_field, fact_schema):
+def generate_fact(facts, fact_schema):
     """
     Turns a set of flat rows into a schema with nested relationships
     """
-    relevant_facts_query = f"SELECT * FROM {fact_tablename} WHERE {fact_to_meta_field} = :muuid"
-    db = records.Database(db_connection_string)
-    relevant_facts = db.query(relevant_facts_query, muuid=meta_uuid)
     schema = fact_schema()
     result = {}
-    for fact in relevant_facts:
+    for fact in facts:
         fact = fact.as_dict()
         for field in schema.declared_fields:
             if f'fk_{field}' in fact or f'{field}_Omschrijving' in fact:
@@ -69,10 +66,11 @@ def generate_fact(meta_uuid, fact_tablename, fact_to_meta_field, fact_schema):
                 link_object = {
                     'UUID': fact[f'fk_{field}'], 'Omschrijving': fact[f'{field}_Omschrijving']}
                 if link_object['UUID'] or link_object['Omschrijving']:
-                    if field in result:
-                        result[field].append(link_object)
-                    else:
-                        result[field] = [link_object]
+                    if link_object['UUID'] != "00000000-0000-0000-0000-000000000000":
+                        if field in result:
+                            result[field].append(link_object)
+                        else:
+                            result[field] = [link_object]
     return(schema.dump(result))
 
 
@@ -100,16 +98,16 @@ def generate_rows(fact_schema, fact, fact_to_meta_field, excluded_fields):
 
 class FeitenList(Resource):
 
-    # Fields that cannot be send for API POST
-    _excluded_meta_post_fields = ['ID', 'UUID', 'Modified_By',
-                                  'Modified_Date', 'Created_Date', 'Created_By', 'Modified_By']
-    _excluded_fact_post_fields = ['ID', 'UUID', 'Modified_By',
-                                  'Modified_Date', 'Created_Date', 'Created_By', 'Begin_Geldigheid', 'Eind_Geldigheid']
+    def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+        # Fields that cannot be send for API POST
+        self._excluded_meta_post_fields = ['ID', 'UUID', 'Modified_By',
+                                    'Modified_Date', 'Created_Date', 'Created_By', 'Modified_By']
+        self._excluded_fact_post_fields = ['ID', 'UUID', 'Modified_By',
+                                    'Modified_Date', 'Created_Date', 'Created_By', 'Begin_Geldigheid', 'Eind_Geldigheid']
 
-    # Fields that cannot be used for SQL INSERT
-    _excluded_create_fields = ["UUID", "ID"]
+        # Fields that cannot be used for SQL INSERT
+        self._excluded_create_fields = ["UUID", "ID"]
 
-    def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field):
         self.all_query = f'SELECT * FROM {meta_tablename}'
         self._meta_tablename = meta_tablename
         self._meta_schema = meta_schema
@@ -119,21 +117,27 @@ class FeitenList(Resource):
         self._fact_to_meta_field = fact_to_meta_field
         self._fact_tablename = fact_tablename
         self._excluded_fact_post_fields.append(fact_to_meta_field)
+        self._read_schema = read_schema
 
     def get(self):
         """
         GET endpoint voor feiten
         """
-        fact_objects = objects_from_query(self.all_query)
+        all_meta_query = f"SELECT * FROM {self._meta_tablename} WHERE UUID != '00000000-0000-0000-0000-000000000000'"
+        meta_objects = objects_from_query(all_meta_query)
         schema = self._meta_schema()
         results = []
-        for fact in fact_objects:
-            meta = generate_fact(
-                fact.UUID, self._fact_tablename, self._fact_to_meta_field_attr, self._fact_schema)
-            fact = schema.dump(fact)
-            result = {**fact, **meta}
-            results.append(result)
-        return(results)
+        for meta in meta_objects:
+            relevant_facts_query = f"SELECT * FROM {self._fact_tablename} WHERE {self._fact_to_meta_field_attr} = :muuid"
+            db = records.Database(db_connection_string)
+            relevant_facts = db.query(relevant_facts_query, muuid=meta.UUID)
+            fact = generate_fact(
+                relevant_facts, self._fact_schema)
+            result = {**meta, **fact}
+            results.append(self._read_schema().dump(result))
+        # print(json.dumps(results[0]))
+        # raise
+        return(results), 200
 
     def post(self):
         """
@@ -203,7 +207,7 @@ class FeitenList(Resource):
         if linked_rows:
             fact_create_fields = ""
             fact_create_values = ""
-            all_fields = (list(linked_rows[0].keys()) + self._excluded_fact_post_fields) 
+            all_fields = (list(linked_rows[0].keys()) + self._excluded_fact_post_fields)
             all_create_fields = [field for field in all_fields if field not in self._excluded_create_fields]
             if self._fact_to_meta_field_attr:
                 all_create_fields.remove(self._fact_to_meta_field)
@@ -237,12 +241,14 @@ class FeitenList(Resource):
                         row[field] = fact_uuid
                 elif field not in row.keys():
                     row[field] = meta_object[field] # any field not filled in should be in the meta object
-            # print(row)
-            print(row_create_query)
             cursor.execute(row_create_query, *[row[field] for field in all_create_fields])
-
         connection.commit()
         connection.close()
-        # TODO: Return proper object
-        return (fact_uuid + " : " + str(fact_id))
+
+        result = {**meta_object, **fact_object}
+        result['UUID'] = fact_uuid
+        result['ID'] = fact_id
+
+        return(jsonify(result))
+        # return (fact_uuid + " : " + str(fact_id))
         # return jsonify({**meta_object, **fact_object})
