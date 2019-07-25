@@ -8,10 +8,15 @@ from flask_jwt_extended import get_jwt_identity
 import pyodbc
 from globals import db_connection_string, db_connection_settings
 import json
-# FEIT:
-# - Metadata object
-# - Koppelingen object
-# - Definieer veld als join
+
+
+def handle_odbc_exception(odbc_ex):
+    code, desc = odbc_ex.args[0], odbc_ex.args[1]
+    return {"message": f"Database error [{code}] during handling of request"}
+
+
+def row_to_dict(row):
+    return dict(zip([t[0] for t in row.cursor_description], row))
 
 
 def objects_from_query(query):
@@ -54,7 +59,7 @@ def generate_fact(facts, fact_schema):
     schema = fact_schema()
     result = {}
     for fact in facts:
-        fact = fact.as_dict()
+        fact = row_to_dict(fact)
         for field in schema.declared_fields:
             if f'fk_{field}' in fact or f'{field}_Omschrijving' in fact:
                 try:
@@ -95,15 +100,120 @@ def generate_rows(fact_schema, fact, fact_to_meta_field, excluded_fields):
             result[i][f'{field}_Omschrijving'] = linked['Omschrijving']
     return result
 
+# GET /id -> Lineage X
+# PATCH /id -> patch on last child
+# GET / -> List X
+# GET /UUID 
+# POST / -> Add new X
+
+def generate_allowed_fields(meta_schema, fact_schema, excluded_fields):
+    """Generates a list of allowed fields for a meta and fact object combination"""
+    possible_fields = list(
+        {**meta_schema.declared_fields, **fact_schema.declared_fields}.keys())
+    allowed_fields = [
+        field for field in possible_fields if field not in excluded_fields]
+    return allowed_fields
+
+
+def generate_meta_insert(meta_tablename, meta_schema, excluded_create_fields):
+    """
+    generate an INSERT INTO query for Meta objects, includes an OUTPUT for UUID & ID.
+    Returns a tuple (field_order, query)
+    """
+    meta_create_fields = ""
+    meta_create_values = ""
+    meta_field_order = []
+    for field in meta_schema.declared_fields:
+        if field not in excluded_create_fields:
+            if meta_schema.declared_fields[field].attribute:
+                meta_create_fields += f"[{field.attribute}], "
+            else:
+                meta_create_fields += f"[{field}], "
+            meta_create_values += "?, "
+            meta_field_order.append(field)
+    meta_create_fields = meta_create_fields[:-2]
+    meta_create_values = meta_create_values[:-2]
+    return (meta_field_order, f'''INSERT INTO [{meta_tablename}] ({meta_create_fields}) OUTPUT inserted.UUID, inserted.ID VALUES ({meta_create_values})''')
+
+
+def generate_fact_insert(linked_rows, fact_tablename, fact_schema, fact_to_meta_field, excluded_create_fields, excluded_fact_post_fields):
+    """
+    generate an INSERT INTO query for Fact objects
+    Returns a tuple (field_order, query)
+    """
+    fact_create_fields = ""
+    fact_create_values = ""
+    all_fields = (list(linked_rows[0].keys()) + excluded_fact_post_fields)
+    fact_field_order = [field for field in all_fields if field not in excluded_create_fields]
+    if fact_to_meta_field in fact_schema.declared_fields:
+        f2m_field = fact_schema.declared_fields[fact_to_meta_field]
+        if f2m_field.attribute:
+            fact_field_order.remove(fact_to_meta_field)
+            fact_field_order.append(f2m_field.attribute)
+    for field in fact_field_order:
+        fact_create_fields += f"[{field}], "
+        fact_create_values += "?, "
+    fact_create_fields = fact_create_fields[:-2]
+    fact_create_values = fact_create_values[:-2]
+    return (fact_field_order, f'''INSERT INTO [{fact_tablename}] ({fact_create_fields}) VALUES ({fact_create_values})''')
+        
+
+class FeitenLineage(Resource):
+    def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema)::
+        self._meta_tablename = meta_tablename
+        self._meta_schema = meta_schema
+        self._fact_schema = fact_schema
+        self._fact_to_meta_field_attr = fact_schema(
+        ).declared_fields[fact_to_meta_field].attribute
+        self._fact_to_meta_field = fact_to_meta_field
+        self._fact_tablename = fact_tablename
+        self._read_schema = read_schema
+
+    def get(self, id):
+        id_meta_query = f"SELECT * FROM {self._meta_tablename} WHERE UUID != '00000000-0000-0000-0000-000000000000' AND ID == ?"
+        try:
+            meta_objects = objects_from_query(id_meta_query, id)
+        
+        except pyodbc.Error as odbc_ex:
+            return handle_odbc_exception(odbc_ex), 500
+        
+        schema = self._meta_schema()
+        results = []
+        for meta in meta_objects:
+            relevant_facts_query = f"SELECT * FROM {self._fact_tablename} WHERE {self._fact_to_meta_field_attr} = ?"
+
+            try:
+                connection = pyodbc.connect(db_connection_settings)
+                cursor = connection.cursor()
+                cursor.execute(relevant_facts_query, meta.UUID)
+                relevant_facts = cursor.fetchall()
+
+            except pyodbc.Error as odbc_ex:
+                connection.close()
+                return handle_odbc_exception(odbc_ex), 500
+            
+            connection.close()
+            fact = generate_fact(
+                relevant_facts, self._fact_schema)
+            result = {**meta, **fact}
+            results.append(self._read_schema().dump(result))
+        return(results), 200
+
 
 class FeitenList(Resource):
 
     def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
         # Fields that cannot be send for API POST
-        self._excluded_meta_post_fields = ['ID', 'UUID', 'Modified_By',
-                                    'Modified_Date', 'Created_Date', 'Created_By', 'Modified_By']
-        self._excluded_fact_post_fields = ['ID', 'UUID', 'Modified_By',
-                                    'Modified_Date', 'Created_Date', 'Created_By', 'Begin_Geldigheid', 'Eind_Geldigheid']
+        self._excluded_meta_post_fields = [
+            'ID', 'UUID', 'Modified_By',
+            'Modified_Date', 'Created_Date', 
+            'Created_By', 'Modified_By'
+            ]
+        self._excluded_fact_post_fields = [
+            'ID', 'UUID', 'Modified_By',
+            'Modified_Date', 'Created_Date', 
+            'Created_By', 'Begin_Geldigheid', 'Eind_Geldigheid'
+            ]
 
         # Fields that cannot be used for SQL INSERT
         self._excluded_create_fields = ["UUID", "ID"]
@@ -124,19 +234,33 @@ class FeitenList(Resource):
         GET endpoint voor feiten
         """
         all_meta_query = f"SELECT * FROM {self._meta_tablename} WHERE UUID != '00000000-0000-0000-0000-000000000000'"
-        meta_objects = objects_from_query(all_meta_query)
+        
+        try:
+            meta_objects = objects_from_query(all_meta_query)
+        
+        except pyodbc.Error as odbc_ex:
+            return handle_odbc_exception(odbc_ex), 500
+        
         schema = self._meta_schema()
         results = []
         for meta in meta_objects:
-            relevant_facts_query = f"SELECT * FROM {self._fact_tablename} WHERE {self._fact_to_meta_field_attr} = :muuid"
-            db = records.Database(db_connection_string)
-            relevant_facts = db.query(relevant_facts_query, muuid=meta.UUID)
+            relevant_facts_query = f"SELECT * FROM {self._fact_tablename} WHERE {self._fact_to_meta_field_attr} = ?"
+
+            try:
+                connection = pyodbc.connect(db_connection_settings)
+                cursor = connection.cursor()
+                cursor.execute(relevant_facts_query, meta.UUID)
+                relevant_facts = cursor.fetchall()
+
+            except pyodbc.Error as odbc_ex:
+                connection.close()
+                return handle_odbc_exception(odbc_ex), 500
+            
+            connection.close()
             fact = generate_fact(
                 relevant_facts, self._fact_schema)
             result = {**meta, **fact}
             results.append(self._read_schema().dump(result))
-        # print(json.dumps(results[0]))
-        # raise
         return(results), 200
 
     def post(self):
@@ -155,19 +279,13 @@ class FeitenList(Resource):
         except ValueError as err:
             return {'message': 'Server fout in endpoint, neeem contact op met de administrator'}, 500
 
-        possible_fields = list(
-            {**meta_schema.declared_fields, **fact_schema.declared_fields}.keys())
-        excluded_fields = self._excluded_meta_post_fields
-        allowed_fields = [
-            field for field in possible_fields if field not in excluded_fields]
-        invalid_fields = [field for field in request.get_json(
-        ).keys() if (field not in allowed_fields)]
+        allowed_fields = generate_allowed_fields(meta_schema, fact_schema, self._excluded_meta_post_fields)
+        invalid_fields = [field for field in request.get_json().keys() if (field not in allowed_fields)]
 
         if invalid_fields:
             return {field: ['Unknown field.'] for field in invalid_fields}, 400
 
-        # return jsonify(allowed_fields)
-        if request.get_json() == None:
+        if request.get_json() is None:
             return {'message': 'Request data empty'}, 400
 
         try:
@@ -179,76 +297,45 @@ class FeitenList(Resource):
             fact_object = fact_schema.load(request.get_json())
         except MM.exceptions.ValidationError as err:
             return err.normalized_messages(), 400
+
         linked_rows = generate_rows(
             fact_schema, fact_object, self._fact_to_meta_field, self._excluded_fact_post_fields)
-        
+
         meta_object['Created_By'] = get_jwt_identity()['UUID']
         meta_object['Created_Date'] = datetime.datetime.now()
         meta_object['Modified_Date'] = meta_object['Created_Date']
         meta_object['Modified_By'] = meta_object['Created_By']
 
+        try:
+            connection = pyodbc.connect(db_connection_settings)
+            cursor = connection.cursor()
 
-        # generate an INSERT INTO query for Meta object
-        meta_create_fields = ""
-        meta_create_values = ""
-        meta_field_order = []
-        for field in meta_schema.declared_fields:
-            if field not in self._excluded_create_fields:
-                if meta_schema.declared_fields[field].attribute:
-                    meta_create_fields += f"[{field.attribute}], "
-                else:
-                    meta_create_fields += f"[{field}], "
-                meta_create_values += "?, "
-                meta_field_order.append(field)
-        meta_create_fields = meta_create_fields[:-2]
-        meta_create_values = meta_create_values[:-2]
+            meta_field_order, meta_create_query = generate_meta_insert(self._meta_tablename, meta_schema, self._excluded_create_fields)       
+            cursor.execute(meta_create_query, *[meta_object[field] for field in meta_field_order])
         
-        # generate an INSERT INTO query for Fact objects
-        if linked_rows:
-            fact_create_fields = ""
-            fact_create_values = ""
-            all_fields = (list(linked_rows[0].keys()) + self._excluded_fact_post_fields)
-            all_create_fields = [field for field in all_fields if field not in self._excluded_create_fields]
-            if self._fact_to_meta_field_attr:
-                all_create_fields.remove(self._fact_to_meta_field)
-                all_create_fields.append(self._fact_to_meta_field_attr)
-            for field in all_create_fields:
-                fact_create_fields += f"[{field}], "
-                fact_create_values += "?, "
-            fact_create_fields = fact_create_fields[:-2]
-            fact_create_values = fact_create_values[:-2]
-
-        meta_create_query = f'''INSERT INTO [dbo].[{self._meta_tablename}] ({meta_create_fields}) OUTPUT inserted.UUID, inserted.ID VALUES ({meta_create_values})'''
+            outputted = cursor.fetchone()
+            fact_uuid = outputted[0]
+            fact_id = outputted[1]
+            
+            if linked_rows:
+                fact_field_order, fact_create_query = generate_fact_insert(
+                    linked_rows, self._fact_tablename, fact_schema, self._fact_to_meta_field, self._excluded_create_fields, self._excluded_fact_post_fields)
+                for row in linked_rows:
+                    for field in fact_field_order:
+                        if field == self._fact_to_meta_field_attr:
+                                row[self._fact_to_meta_field_attr] = fact_uuid
+                        elif field not in row.keys():
+                            row[field] = meta_object[field]  # any field not filled in should be in the meta object
+                    cursor.execute(fact_create_query, *[row[field] for field in fact_field_order])
+            
+            connection.commit()
         
-        connection = pyodbc.connect(db_connection_settings)
-        cursor = connection.cursor()
+        except pyodbc.Error as odbc_ex:
+            connection.close()
+            return handle_odbc_exception(odbc_ex), 500
         
-        # TODO: CATCH EM ALL
-        cursor.execute(meta_create_query, *[meta_object[field] for field in meta_field_order])
-        
-        outputted = cursor.fetchone()
-        fact_uuid = outputted[0]
-        fact_id = outputted[1]
-        
-        # TODO: CATCH EM ALL
-        row_create_query = f'''INSERT INTO [dbo].[{self._fact_tablename}] ({fact_create_fields}) VALUES ({fact_create_values})'''
-        for row in linked_rows:
-            for field in all_create_fields:
-                if field == self._fact_to_meta_field or field == self._fact_to_meta_field_attr:
-                    if self._fact_to_meta_field_attr:
-                        row[self._fact_to_meta_field_attr] = fact_uuid
-                    else:
-                        row[field] = fact_uuid
-                elif field not in row.keys():
-                    row[field] = meta_object[field] # any field not filled in should be in the meta object
-            cursor.execute(row_create_query, *[row[field] for field in all_create_fields])
-        connection.commit()
         connection.close()
-
         result = {**meta_object, **fact_object}
         result['UUID'] = fact_uuid
         result['ID'] = fact_id
-
-        return(jsonify(result))
-        # return (fact_uuid + " : " + str(fact_id))
-        # return jsonify({**meta_object, **fact_object})
+        return self._read_schema().dump(result), 200
