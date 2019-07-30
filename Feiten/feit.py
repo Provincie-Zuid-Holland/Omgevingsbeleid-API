@@ -1,5 +1,4 @@
 import marshmallow as MM
-import records
 import pyodbc
 from flask_restful import Resource
 from flask import request, jsonify
@@ -19,12 +18,20 @@ def row_to_dict(row):
     return dict(zip([t[0] for t in row.cursor_description], row))
 
 
-def objects_from_query(query):
+def objects_from_query(query, *args):
     """
     Verkrijg alle objecten uit een table
     """
-    db = records.Database(db_connection_string)
-    return db.query(query)
+    connection = pyodbc.connect(db_connection_settings)
+    cursor = connection.cursor()
+    cursor.execute(query, *args)
+    headers = [column[0] for column in cursor.description]
+    rows = cursor.fetchall()
+    results = []
+    for row in rows:
+        results.append(dict(zip(headers, row)))
+    connection.close()
+    return results
 
 
 class Feiten_Schema(MM.Schema):
@@ -103,7 +110,7 @@ def generate_rows(fact_schema, fact, fact_to_meta_field, excluded_fields):
 # GET /id -> Lineage X
 # PATCH /id -> patch on last child
 # GET / -> List X
-# GET /UUID 
+# GET /UUID X
 # POST / -> Add new X
 
 def generate_allowed_fields(meta_schema, fact_schema, excluded_fields):
@@ -159,7 +166,22 @@ def generate_fact_insert(linked_rows, fact_tablename, fact_schema, fact_to_meta_
         
 
 class FeitenLineage(Resource):
-    def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema)::
+    def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+        # Fields that cannot be send for API POST
+        self._excluded_meta_patch_fields = [
+            'ID', 'UUID', 'Modified_By',
+            'Modified_Date', 'Created_Date', 
+            'Created_By'
+            ]
+        self._excluded_fact_post_fields = [
+            'ID', 'UUID', 'Modified_By',
+            'Modified_Date', 'Created_Date', 
+            'Created_By', 'Begin_Geldigheid', 'Eind_Geldigheid'
+            ]
+
+        # Fields that cannot be used for SQL INSERT
+        self._excluded_create_fields = ["UUID", "ID"]
+
         self._meta_tablename = meta_tablename
         self._meta_schema = meta_schema
         self._fact_schema = fact_schema
@@ -170,28 +192,28 @@ class FeitenLineage(Resource):
         self._read_schema = read_schema
 
     def get(self, id):
-        id_meta_query = f"SELECT * FROM {self._meta_tablename} WHERE UUID != '00000000-0000-0000-0000-000000000000' AND ID == ?"
+        id_meta_query = f"SELECT * FROM {self._meta_tablename} WHERE UUID != '00000000-0000-0000-0000-000000000000' AND ID = ?"
         try:
             meta_objects = objects_from_query(id_meta_query, id)
-        
+
         except pyodbc.Error as odbc_ex:
             return handle_odbc_exception(odbc_ex), 500
-        
-        schema = self._meta_schema()
+
         results = []
         for meta in meta_objects:
+            print(meta)
             relevant_facts_query = f"SELECT * FROM {self._fact_tablename} WHERE {self._fact_to_meta_field_attr} = ?"
 
             try:
                 connection = pyodbc.connect(db_connection_settings)
                 cursor = connection.cursor()
-                cursor.execute(relevant_facts_query, meta.UUID)
+                cursor.execute(relevant_facts_query, meta['UUID'])
                 relevant_facts = cursor.fetchall()
 
             except pyodbc.Error as odbc_ex:
                 connection.close()
                 return handle_odbc_exception(odbc_ex), 500
-            
+  
             connection.close()
             fact = generate_fact(
                 relevant_facts, self._fact_schema)
@@ -199,6 +221,32 @@ class FeitenLineage(Resource):
             results.append(self._read_schema().dump(result))
         return(results), 200
 
+    # def patch(self, id):
+    #     """
+    #     PATCH endpoint voor feiten
+    #     """
+    #     try:
+    #         meta_schema = self._meta_schema(
+    #             exclude=self._excluded_meta_post_fields,
+    #             unknown=MM.utils.EXCLUDE
+    #         )
+    #         fact_schema = self._fact_schema(
+    #             exclude=self._excluded_fact_post_fields,
+    #             unknown=MM.utils.EXCLUDE
+    #         )
+    #     except ValueError:
+    #         return {'message': 'Server fout in endpoint, neeem contact op met de administrator'}, 500
+        
+    #     allowed_fields = generate_allowed_fields(meta_schema, fact_schema, self._excluded_meta_patch_fields)
+    #     invalid_fields = [field for field in request.get_json().keys() if (field not in allowed_fields)]
+
+    #     if invalid_fields:
+    #         return {field: ['Unknown field.'] for field in invalid_fields}, 400
+        
+    #     if request.get_json() is None:
+    #         return {'message': 'Request data empty.'}, 400
+        
+    #     try:
 
 class FeitenList(Resource):
 
@@ -207,7 +255,7 @@ class FeitenList(Resource):
         self._excluded_meta_post_fields = [
             'ID', 'UUID', 'Modified_By',
             'Modified_Date', 'Created_Date', 
-            'Created_By', 'Modified_By'
+            'Created_By'
             ]
         self._excluded_fact_post_fields = [
             'ID', 'UUID', 'Modified_By',
@@ -240,8 +288,7 @@ class FeitenList(Resource):
         
         except pyodbc.Error as odbc_ex:
             return handle_odbc_exception(odbc_ex), 500
-        
-        schema = self._meta_schema()
+
         results = []
         for meta in meta_objects:
             relevant_facts_query = f"SELECT * FROM {self._fact_tablename} WHERE {self._fact_to_meta_field_attr} = ?"
@@ -249,7 +296,7 @@ class FeitenList(Resource):
             try:
                 connection = pyodbc.connect(db_connection_settings)
                 cursor = connection.cursor()
-                cursor.execute(relevant_facts_query, meta.UUID)
+                cursor.execute(relevant_facts_query, meta['UUID'])
                 relevant_facts = cursor.fetchall()
 
             except pyodbc.Error as odbc_ex:
@@ -276,7 +323,7 @@ class FeitenList(Resource):
                 exclude=self._excluded_fact_post_fields,
                 unknown=MM.utils.EXCLUDE
             )
-        except ValueError as err:
+        except ValueError:
             return {'message': 'Server fout in endpoint, neeem contact op met de administrator'}, 500
 
         allowed_fields = generate_allowed_fields(meta_schema, fact_schema, self._excluded_meta_post_fields)
@@ -286,7 +333,7 @@ class FeitenList(Resource):
             return {field: ['Unknown field.'] for field in invalid_fields}, 400
 
         if request.get_json() is None:
-            return {'message': 'Request data empty'}, 400
+            return {'message': 'Request data empty.'}, 400
 
         try:
             meta_object = meta_schema.load(request.get_json())
@@ -327,15 +374,60 @@ class FeitenList(Resource):
                         elif field not in row.keys():
                             row[field] = meta_object[field]  # any field not filled in should be in the meta object
                     cursor.execute(fact_create_query, *[row[field] for field in fact_field_order])
-            
+
             connection.commit()
+
+        except pyodbc.Error as odbc_ex:
+            connection.close()
+            return handle_odbc_exception(odbc_ex), 500
+
+        connection.close()
+        result = {**meta_object, **fact_object}
+        result['UUID'] = fact_uuid
+        result['ID'] = fact_id
+        return self._read_schema().dump(result), 200
+
+
+class Feit(Resource):
+
+    def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+        self.all_query = f'SELECT * FROM {meta_tablename}'
+        self._meta_tablename = meta_tablename
+        self._meta_schema = meta_schema
+        self._fact_schema = fact_schema
+        self._fact_to_meta_field_attr = fact_schema(
+        ).declared_fields[fact_to_meta_field].attribute
+        self._fact_to_meta_field = fact_to_meta_field
+        self._fact_tablename = fact_tablename
+        self._excluded_fact_post_fields.append(fact_to_meta_field)
+        self._read_schema = read_schema
+
+    def get(self, uuid):
+        uuid_meta_query = f"SELECT * FROM {self._meta_tablename} WHERE UUID == ?"
+        try:
+            meta_objects = objects_from_query(uuid_meta_query, uuid)
+            assert(len(meta_objects) == 1)
+
+        except pyodbc.Error as odbc_ex:
+            return handle_odbc_exception(odbc_ex), 500
+
+        except AssertionError:
+            return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
         
+        relevant_facts_query = f"SELECT * FROM {self._fact_tablename} WHERE {self._fact_to_meta_field_attr} = ?"
+        meta = meta_objects[0]
+        try:
+            connection = pyodbc.connect(db_connection_settings)
+            cursor = connection.cursor()
+            cursor.execute(relevant_facts_query, meta.UUID)
+            relevant_facts = cursor.fetchall()
+
         except pyodbc.Error as odbc_ex:
             connection.close()
             return handle_odbc_exception(odbc_ex), 500
         
         connection.close()
-        result = {**meta_object, **fact_object}
-        result['UUID'] = fact_uuid
-        result['ID'] = fact_id
+        fact = generate_fact(
+            relevant_facts, self._fact_schema)
+        result = {**meta, **fact}
         return self._read_schema().dump(result), 200
