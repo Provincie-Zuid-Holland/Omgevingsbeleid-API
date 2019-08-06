@@ -75,7 +75,7 @@ dimensie_schemas = [(Ambitie_Schema, 'ambities','Ambities', 'Actuele_Ambities', 
             (BeleidsRelatie_Schema, 'beleidsrelaties', 'BeleidsRelaties', 'Actuele_BeleidsRelaties', 'Beleidsrelatie', 'Beleidsrelaties'),
             (Maatregelen_Schema, 'maatregelen', 'Maatregelen', 'Actuele_Maatregelen', 'Maatregel', 'Maatregelen'),
             (Themas_Schema, 'themas', 'Themas', 'Actuele_Themas', 'Thema', "Thema's"),
-            (Opgaven_Schema,'opgaven', 'Opgaven', 'Actuele_Opgaven', 'Opgave', 'Opgaven'),
+            (Opgaven_Schema, 'opgaven', 'Opgaven', 'Actuele_Opgaven', 'Opgave', 'Opgaven'),
             (Verordening_Schema, 'verordeningen', 'Verordeningen', 'Actuele_Verordeningen', 'Verordening', 'Verordeningen')]
 
 # JWT CONFIG
@@ -121,11 +121,11 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
 
 
 api.add_resource(FeitenList, '/beleidsbeslissingen', endpoint='beleidsbeslissingen_lijst',
-    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
+    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
 api.add_resource(FeitenLineage, '/beleidsbeslissingen/<string:id>', endpoint='beleidsbeslissingen_lineage',
-    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
+    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
 api.add_resource(Feit, '/beleidsbeslissingen/version/<string:uuid>', endpoint='Beleidsbeslissingen',
-    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
+    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
 # DOCUMENTATIE
 
 # for ept, view_func in app.view_functions.items():

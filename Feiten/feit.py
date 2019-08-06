@@ -41,10 +41,11 @@ class Link_Schema(MM.Schema):
 
 class FactManager:
 
-    def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings, ignore_null=True):
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings, ignore_null=True):
         self._ignore_null = ignore_null
         self.db_connection_settings = db_connection_settings
         self._meta_tablename = meta_tablename
+        self._meta_tablename_actueel = meta_tablename_actueel
         self._fact_tablename = fact_tablename
         self._fact_to_meta_field_attr = fact_schema().declared_fields[fact_to_meta_field].attribute or fact_to_meta_field
         self._fact_schema = fact_schema
@@ -138,8 +139,14 @@ class FactManager:
                         meta_create_fields += f"[{field}], "
                     meta_create_values += "?, "
                     meta_field_order.append(field)
+            if id:
+                meta_create_fields += f"[ID], "
+                meta_create_values += "?, "
+                meta_field_order.append("ID")
+                fact["ID"] = id
             meta_create_fields = meta_create_fields[:-2]
             meta_create_values = meta_create_values[:-2]
+
             meta_create_query = f'''INSERT INTO [{self._meta_tablename}] ({meta_create_fields}) OUTPUT inserted.UUID, inserted.ID VALUES ({meta_create_values})'''
 
             cursor.execute(meta_create_query, *[fact[field] for field in meta_field_order])
@@ -171,7 +178,6 @@ class FactManager:
             connection.commit()
 
         except pyodbc.Error as odbc_ex:
-            connection.close()
             raise odbc_ex
         finally:
             connection.close()
@@ -205,6 +211,7 @@ class FactManager:
                 connection.close()
 
             fact = self.generate_fact(
+                
                 relevant_facts)
             result = {**meta, **fact}
             results.append(result)
@@ -230,11 +237,13 @@ class FactManager:
 
         return(self._read_schema().dump(meta))
 
-    def retrieve_facts(self, id=None):
+    def retrieve_facts(self, id=None, latest=False):
         """
         Retrieves a list of schema based facts, optionally specify an id to get a lineage.
         """
-        if id:
+        if id and latest:
+            meta_query = f"SELECT * FROM {self._meta_tablename_actueel} WHERE ID = ?"
+        elif id:
             meta_query = f"SELECT * FROM {self._meta_tablename} WHERE ID = ?"
             if self._ignore_null:
                 meta_query += " AND UUID != '00000000-0000-0000-0000-000000000000'"
@@ -252,12 +261,14 @@ class FactManager:
             raise odbc_ex
         if len(fact_objects) == 0:
             return []
-
+        if id and latest:
+            fact_object = fact_objects[0]
+            return(self._read_schema().dump(fact_object))
         return(self._read_schema().dump(fact_objects, many=True))
 
 
 class FeitenLineage(Resource):
-    def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
         # Fields that cannot be send for API POST
         self._excluded_meta_patch_fields = [
             'ID', 'UUID', 'Modified_By',
@@ -281,11 +292,11 @@ class FeitenLineage(Resource):
         self._fact_to_meta_field = fact_to_meta_field
         self._fact_tablename = fact_tablename
         self._read_schema = read_schema
-        self.manager = FactManager(meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
+        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self, id):
         try:
-            result = self.manager.retrieve_facts(id)
+            result = self.manager.retrieve_facts(id=id)
             if result is None:
                 return {'message': f'Object with ID: \'{id}\' not found'}, 404
             else:
@@ -298,12 +309,37 @@ class FeitenLineage(Resource):
         """
         PATCH endpoint voor feiten
         """
-        pass
+        request_time = datetime.datetime.now()
+        read_schema = self._read_schema(
+            exclude=self._excluded_meta_patch_fields,
+            unknown=MM.utils.RAISE,
+            partial=True
+        )
+        try:
+            new_fact = read_schema.load(request.get_json())
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400
+
+        old_fact = self.manager.retrieve_facts(id, latest=True)
+        new_fact = self._read_schema().dump(new_fact)
+        
+        new_fact = {**old_fact, **new_fact}  # Dict merging
+        new_fact['Modified_By'] = get_jwt_identity()['UUID']
+        new_fact['Modified_Date'] = MM.utils.isoformat(request_time)
+        try:
+            new_fact = self._read_schema().load(new_fact)
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 500
+
+        try:
+            return self.manager.save_fact(new_fact, id=id), 200
+        except pyodbc.Error as odbc_ex:
+            return handle_odbc_exception(odbc_ex), 500
 
 
 class FeitenList(Resource):
 
-    def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
         # Fields that cannot be send for API POST
         self._excluded_meta_post_fields = [
             'ID', 'UUID', 'Modified_By',
@@ -329,7 +365,7 @@ class FeitenList(Resource):
         self._fact_tablename = fact_tablename
         self._excluded_fact_post_fields.append(fact_to_meta_field)
         self._read_schema = read_schema
-        self.manager = FactManager(meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
+        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self):
         """
@@ -368,8 +404,8 @@ class FeitenList(Resource):
 
 class Feit(Resource):
 
-    def __init__(self, meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
-        self.manager = FactManager(meta_schema, meta_tablename, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self, uuid):
         try:
