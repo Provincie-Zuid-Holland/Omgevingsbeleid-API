@@ -11,6 +11,7 @@ from flask_jwt_extended import get_jwt_identity
 
 # from .dimensie import Dimensie
 
+
 class Dimensie_Schema(MM.Schema):
     """
     Schema voor de standaard velden van een dimensie
@@ -23,18 +24,20 @@ class Dimensie_Schema(MM.Schema):
     Created_Date = MM.fields.DateTime(format='iso', required=True)
     Modified_By = MM.fields.UUID(required=True)
     Modified_Date = MM.fields.DateTime(format='iso', required=True)
-    
+
     class Meta:
         ordered = True
 
 # Helper methods
 
+
 def objects_from_query(query):
-        """
-        Verkrijg alle objecten uit een table
-        """
-        db = records.Database(db_connection_string)
-        return db.query(query)
+    """
+    Verkrijg alle objecten uit een table
+    """
+    db = records.Database(db_connection_string)
+    return db.query(query)
+
 
 def attribute_or_str(mmfield):
     """
@@ -44,11 +47,12 @@ def attribute_or_str(mmfield):
     if mmfield[1].attribute:
         return mmfield[1].attribute
     else:
-         return mmfield[0]
+        return mmfield[0]
+
 
 class DimensieLineage(Resource):
 
-     # Velden die niet in een PATCH request gestuurd mogen worden
+    # Velden die niet in een PATCH request gestuurd mogen worden
     _excluded_patch_fields = ['ID', 'UUID', 'Created_By', 'Created_Date', 'Modified_Date', 'Modified_By']
     _general_fields = ['ID',
                        'UUID',
@@ -58,7 +62,7 @@ class DimensieLineage(Resource):
                        'Created_Date',
                        'Modified_By',
                        'Modified_Date']
-    
+
     def __init__(self, tableschema, tablename_all):
         self.lineage_query = f'''SELECT * FROM {tablename_all} WHERE ID = :id ORDER BY Modified_Date DESC'''
         self._tableschema = tableschema
@@ -66,21 +70,21 @@ class DimensieLineage(Resource):
         required_fields = Dimensie_Schema().fields.keys()
         schema_fields = tableschema().fields
         assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
-        
+
         self.lineage_last_query = f'''SELECT TOP(1) * FROM {tablename_all} WHERE ID = :id ORDER BY Modified_Date DESC'''
-         
-         # Partial velden voor de PATCH
+
+        # Partial velden voor de PATCH
         self._partial_patch_fields = [field for field in schema_fields if field not in self._general_fields]
-        # convert all fields to the correct naming  
-        self.patch_query_fields = list(filter(lambda field: field != "UUID", map(attribute_or_str,schema_fields.items()))) 
-        
+        # convert all fields to the correct naming
+        self.patch_query_fields = list(filter(lambda field: field != "UUID", map(attribute_or_str, schema_fields.items())))
+
         update_fields_list = ', '.join(self.patch_query_fields)
         update_parameter_marks = ', '.join(['?' for _ in self.patch_query_fields])
 
         self.update_query = f'''INSERT INTO {tablename_all} ({update_fields_list}) OUTPUT inserted.UUID VALUES ({update_parameter_marks})'''
-        
+
         self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
-        
+
     def get(self, id):
         """
         GET endpoint voor {plural} lineages.
@@ -98,7 +102,7 @@ class DimensieLineage(Resource):
                 description: Foutieve request
                 content:
                     application/json:
-                        schema: 
+                        schema:
                             type: object
                             properties:
                                 message:
@@ -128,31 +132,31 @@ class DimensieLineage(Resource):
                 description: {singular} is succesvol gewijzigd
                 content:
                     application/json:
-                        schema: 
+                        schema:
                            type: object
                            properties:
-                              message: 
+                              message:
                                 type: string
             404:
                 description: Foutieve request
                 content:
                     application/json:
-                        schema: 
+                        schema:
                            type: object
                            properties:
-                              message: 
+                              message:
                                 type: string
         """
         request_time = datetime.datetime.now()
         try:
             patch_schema = self._tableschema(
-                exclude = self._excluded_patch_fields,
-                partial = self._partial_patch_fields,
-                unknown = MM.utils.RAISE)
+                exclude=self._excluded_patch_fields,
+                partial=self._partial_patch_fields,
+                unknown=MM.utils.RAISE)
 
         except ValueError:
             return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
-        
+
         try:
             aanpassingen = patch_schema.load(request.get_json())
         except MM.exceptions.ValidationError as err:
@@ -165,13 +169,13 @@ class DimensieLineage(Resource):
         if len(dimensie_objecten) != 1:
             return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
         oude_object = dimensie_objecten[0]
-        
-        dimensie_object = {**oude_object, **aanpassingen} # Dict merging using kwargs method
+
+        dimensie_object = {**oude_object, **aanpassingen}  # Dict merging using kwargs method
 
         dimensie_object.pop('UUID')
         dimensie_object['Modified_Date'] = request_time
         dimensie_object['Modified_By'] = get_jwt_identity()['UUID']
-        
+
         values = [dimensie_object[k] for k in self.patch_query_fields]
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
@@ -185,14 +189,14 @@ class DimensieLineage(Resource):
                 else:
                     return {'message': 'Database integriteitsfout'}, 404
             except pyodbc.DatabaseError as e:
-                    return {'message': f'Database fout, neem contact op met de systeembeheerder Exception:[{e}]'}, 500
+                return {'message': f'Database fout, neem contact op met de systeembeheerder Exception:[{e}]'}, 500
             new_uuid = cursor.fetchone()[0]
             connection.commit()
-        
+
         db = records.Database(db_connection_string)
         result = db.query(self.uuid_query, uuid=new_uuid).first()
         dump_schema = self._tableschema()
-        
+
         return dump_schema.dump(result), 200
 
 
@@ -216,7 +220,8 @@ class DimensieList(Resource):
         self.query_fields = []
         # filter alle velden, als een veld gebruik maakt van een 'attribute' naam gebruik die naam dan
         for fieldkey, fieldobj in tableschema().fields.items():
-            if fieldkey in self._identifier_fields: continue
+            if fieldkey in self._identifier_fields:
+                continue
             if fieldobj.attribute:
                 self.query_fields.append(fieldobj.attribute)
             else:
@@ -229,9 +234,8 @@ class DimensieList(Resource):
             ({create_fields_list})
             OUTPUT inserted.UUID
             VALUES ({create_parameter_marks})'''
-        
-        self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
 
+        self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
 
     def get(self):
         """
@@ -260,7 +264,7 @@ class DimensieList(Resource):
         dimensie_objecten = objects_from_query(self.all_query)
         schema = self._tableschema()
         return(schema.dump(dimensie_objecten, many=True))
-    
+
     def post(self):
         """
         POST endpoint voor {plural}.
@@ -281,7 +285,7 @@ class DimensieList(Resource):
                             properties:
                                 message:
                                     type: string
-        """ 
+        """
         try:
             schema = self._tableschema(
                 exclude=self._excluded_post_fields,
@@ -290,7 +294,7 @@ class DimensieList(Resource):
         except ValueError:
             return {'message': 'Server fout in endpoint, neem contact op met de administrator'}, 500
 
-        if request.get_json() == None:
+        if request.get_json() is None:
             return {'message': 'Request data empty'}, 400
 
         try:
@@ -303,10 +307,9 @@ class DimensieList(Resource):
         dim_object['Created_Date'] = datetime.datetime.now()
         dim_object['Modified_Date'] = dim_object['Created_Date']
         dim_object['Modified_By'] = dim_object['Created_By']
-        
 
         # return dump_schema.dump(dim_object), 200
-        
+
         try:
             values = [dim_object[k] for k in self.query_fields]
         except KeyError as e:
@@ -326,13 +329,13 @@ class DimensieList(Resource):
                 else:
                     return {'message': 'Database integriteitsfout'}, 400
             except pyodbc.DatabaseError as e:
-                    return {'message': f'Database fout, neem contact op met de systeembeheerder:[{e}]'}, 400
+                return {'message': f'Database fout, neem contact op met de systeembeheerder:[{e}]'}, 400
             connection.commit()
-        
+
         db = records.Database(db_connection_string)
         result = db.query(self.uuid_query, uuid=new_uuid).first()
         dump_schema = self._tableschema()
-        
+
         return dump_schema.dump(result), 201
 
 
@@ -364,18 +367,17 @@ class Dimensie(Resource):
         schema_fields = tableschema().fields.keys()
         # Dit checkt of Dimensie_Schema geërft wordt
         assert all([field in schema_fields for field in required_fields]), "Gegeven schema is geen superset van Dimensie Schema"
-        
+
         # Bouw hier de queries op
         self._tableschema = tableschema
         self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
         self.all_query = f'SELECT * FROM {tablename_actueel}'
-        
 
         self.query_fields = list(filter(lambda fieldname: not(eq(fieldname, self._identifier_field)), schema_fields))
 
         # PATCH Queries are build using this list (preserving order)
         self.update_fields = self.query_fields
-        
+
         update_fields_list = ', '.join(self.update_fields)
         update_parameter_marks = ', '.join(['?' for _ in self.update_fields])
 
@@ -390,7 +392,6 @@ class Dimensie(Resource):
         """
         db = records.Database(db_connection_string)
         return db.query(self.uuid_query, uuid=uuid).first()
-
 
     def get(self, uuid):
         """
