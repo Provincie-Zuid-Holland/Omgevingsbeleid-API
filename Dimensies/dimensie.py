@@ -288,7 +288,10 @@ class DimensieList(Resource):
                 unknown=MM.utils.RAISE)
 
         except ValueError:
-            return {'message': 'Server fout in endpoint, neem contact op met administrator'}, 500
+            return {'message': 'Server fout in endpoint, neem contact op met de administrator'}, 500
+
+        if request.get_json() == None:
+            return {'message': 'Request data empty'}, 400
 
         try:
             dim_object = schema.load(request.get_json())

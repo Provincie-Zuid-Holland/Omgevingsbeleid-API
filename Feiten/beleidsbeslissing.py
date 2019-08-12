@@ -1,8 +1,8 @@
 import marshmallow as MM
-from .feit import Feiten_Schema
+from .feit import Feiten_Schema, Link_Schema
 
-class Beleidsbeslissingen_Schema(Feiten_Schema):
-    
+
+class Beleidsbeslissingen_Meta_Schema(Feiten_Schema):
     Eigenaar_1 = MM.fields.UUID(required=True)
     Eigenaar_2 = MM.fields.UUID(required=True)
     Portefeuillehouder = MM.fields.UUID(required=True)
@@ -14,3 +14,55 @@ class Beleidsbeslissingen_Schema(Feiten_Schema):
     Aanleiding = MM.fields.Str(missing=None)
     Afweging = MM.fields.Str(missing=None)
     Verordening_Realisatie = MM.fields.Str(missing=None)
+
+
+class Beleidsbeslissingen_Fact_Schema(Feiten_Schema):
+    Beleidsbeslissing = MM.fields.UUID(
+        required=True, attribute='fk_Beleidsbeslissingen')
+    WerkingsGebieden = MM.fields.Nested(
+        Link_Schema, many=True, default=[], missing=[])
+    BeleidsRegels = MM.fields.Nested(
+        Link_Schema, many=True,  default=[], missing=[])
+    Verordening = MM.fields.Nested(
+        Link_Schema, many=True,  default=[], missing=[])
+    Maatregelen = MM.fields.Nested(
+        Link_Schema, many=True,  default=[], missing=[])
+    Themas = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
+    Ambities = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
+    Doelen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
+    ProvincialeBelangen = MM.fields.Nested(
+        Link_Schema, many=True, default=[], missing=[])
+    Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
+
+
+class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
+    Eigenaar_1 = MM.fields.UUID(required=True, linker=False)
+    Eigenaar_2 = MM.fields.UUID(required=True, linker=False)
+    Portefeuillehouder = MM.fields.UUID(required=True, linker=False)
+    Status = MM.fields.Str(required=True, linker=False)
+    Titel = MM.fields.Str(required=True, linker=False)
+    Omschrijving_Keuze = MM.fields.Str(missing=None, linker=False)
+    Omschrijving_Werking = MM.fields.Str(missing=None, linker=False)
+    Motivering = MM.fields.Str(missing=None, linker=False)
+    Aanleiding = MM.fields.Str(missing=None, linker=False)
+    Afweging = MM.fields.Str(missing=None, linker=False)
+    Verordening_Realisatie = MM.fields.Str(missing=None, linker=False)
+    # Beleidsbeslissing = MM.fields.UUID(
+    #     required=True, attribute='fk_Beleidsbeslissingen', linker=False)
+    WerkingsGebieden = MM.fields.Nested(
+        Link_Schema, many=True, default=[], missing=[], linker=True)
+    BeleidsRegels = MM.fields.Nested(
+        Link_Schema, many=True,  default=[], missing=[], linker=True)
+    Verordening = MM.fields.Nested(
+        Link_Schema, many=True,  default=[], missing=[], linker=True)
+    Maatregelen = MM.fields.Nested(
+        Link_Schema, many=True,  default=[], missing=[], linker=True)
+    Themas = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
+    Ambities = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
+    Doelen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
+    ProvincialeBelangen = MM.fields.Nested(
+        Link_Schema, many=True, default=[], missing=[], linker=True)
+    Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
+
+    class Meta:
+        ordered = True

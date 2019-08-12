@@ -19,8 +19,8 @@ from Dimensies.themas import Themas_Schema
 from Dimensies.opgaven import Opgaven_Schema
 from Dimensies.verordening import Verordening_Schema
 
-from Feiten.feit import FeitenList
-from Feiten.beleidsbeslissing import Beleidsbeslissingen_Schema
+from Feiten.feit import FeitenList, Feit, FeitenLineage
+from Feiten.beleidsbeslissing import Beleidsbeslissingen_Meta_Schema, Beleidsbeslissingen_Fact_Schema, Beleidsbeslissingen_Read_Schema
 
 from Dimensies.geothemas import Geothema
 from Dimensies.gebruikers import Gebruiker
@@ -62,7 +62,7 @@ spec = APISpec(
     version=current_version,
     openapi_version='3.0.2',
     plugins=[
-        MarshmallowPlugin(), 
+        MarshmallowPlugin(),
         FlaskPlugin()
         ]
 )
@@ -75,7 +75,7 @@ dimensie_schemas = [(Ambitie_Schema, 'ambities','Ambities', 'Actuele_Ambities', 
             (BeleidsRelatie_Schema, 'beleidsrelaties', 'BeleidsRelaties', 'Actuele_BeleidsRelaties', 'Beleidsrelatie', 'Beleidsrelaties'),
             (Maatregelen_Schema, 'maatregelen', 'Maatregelen', 'Actuele_Maatregelen', 'Maatregel', 'Maatregelen'),
             (Themas_Schema, 'themas', 'Themas', 'Actuele_Themas', 'Thema', "Thema's"),
-            (Opgaven_Schema,'opgaven', 'Opgaven', 'Actuele_Opgaven', 'Opgave', 'Opgaven'),
+            (Opgaven_Schema, 'opgaven', 'Opgaven', 'Actuele_Opgaven', 'Opgave', 'Opgaven'),
             (Verordening_Schema, 'verordeningen', 'Verordeningen', 'Actuele_Verordeningen', 'Verordening', 'Verordeningen')]
 
 # JWT CONFIG
@@ -119,9 +119,13 @@ for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
     dimension_ept.append(f"{schema_name}_lijst")
     api.add_resource(DimensieLineage, f'/{slug}/<int:id>', endpoint=f"{schema_name}_lineage", resource_class_args=(schema, tn))
 
-api.add_resource(FeitenList, '/beleidsbeslissingen', endpoint='beleidsbeslissingen_lijst',
-    resource_class_args=(Beleidsbeslissingen_Schema, 'beleidsbeslissingen', 'beleidsbeslissingen'))
 
+api.add_resource(FeitenList, '/beleidsbeslissingen', endpoint='beleidsbeslissingen_lijst',
+    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
+api.add_resource(FeitenLineage, '/beleidsbeslissingen/<string:id>', endpoint='beleidsbeslissingen_lineage',
+    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
+api.add_resource(Feit, '/beleidsbeslissingen/version/<string:uuid>', endpoint='Beleidsbeslissingen',
+    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
 # DOCUMENTATIE
 
 # for ept, view_func in app.view_functions.items():
