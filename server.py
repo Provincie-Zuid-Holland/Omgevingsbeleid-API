@@ -50,7 +50,7 @@ CORS(app)
 app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3rVxdev'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['JWT_HEADER_TYPE'] = "Token"
-api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required,])
+api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required, ])
 # api = Api(app, prefix=f'/v{current_version}')
 jwt = JWTManager(app)
 
@@ -68,14 +68,14 @@ spec = APISpec(
 )
 
 # (schema, slug, tablenaam, actuele_tablenaam, singular, plural)
-dimensie_schemas = [(Ambitie_Schema, 'ambities','Ambities', 'Actuele_Ambities', 'Ambitie', 'Ambities'),
-            (BeleidsRegel_Schema, 'beleidsregels', 'Beleidsregels', 'Actuele_Beleidsregels', 'Beleidsregel', 'Beleidsregels'),
-            (Doel_Schema, 'doelen', 'Doelen', 'Actuele_Doelen', 'Doel', 'Doelen'),
-            (ProvincialeBelangen_Schema, 'provincialebelangen', 'ProvincialeBelangen', 'Actuele_ProvincialeBelangen', 'Provinciaal Belang', 'Provinciale Belangen'),
-            (BeleidsRelatie_Schema, 'beleidsrelaties', 'BeleidsRelaties', 'Actuele_BeleidsRelaties', 'Beleidsrelatie', 'Beleidsrelaties'),
-            (Maatregelen_Schema, 'maatregelen', 'Maatregelen', 'Actuele_Maatregelen', 'Maatregel', 'Maatregelen'),
-            (Themas_Schema, 'themas', 'Themas', 'Actuele_Themas', 'Thema', "Thema's"),
-            (Opgaven_Schema, 'opgaven', 'Opgaven', 'Actuele_Opgaven', 'Opgave', 'Opgaven'),
+dimensie_schemas = [(Ambitie_Schema, 'ambities', 'Ambities', 'Actuele_Ambities', 'Ambitie', 'Ambities'),
+                    (BeleidsRegel_Schema, 'beleidsregels', 'Beleidsregels', 'Actuele_Beleidsregels', 'Beleidsregel', 'Beleidsregels'),
+                    (Doel_Schema, 'doelen', 'Doelen', 'Actuele_Doelen', 'Doel', 'Doelen'),
+                    (ProvincialeBelangen_Schema, 'provincialebelangen', 'ProvincialeBelangen', 'Actuele_ProvincialeBelangen', 'Provinciaal Belang', 'Provinciale Belangen'),
+                    (BeleidsRelatie_Schema, 'beleidsrelaties', 'BeleidsRelaties', 'Actuele_BeleidsRelaties', 'Beleidsrelatie', 'Beleidsrelaties'),
+                    (Maatregelen_Schema, 'maatregelen', 'Maatregelen', 'Actuele_Maatregelen', 'Maatregel', 'Maatregelen'),
+                    (Themas_Schema, 'themas', 'Themas', 'Actuele_Themas', 'Thema', "Thema's"),
+                    (Opgaven_Schema, 'opgaven', 'Opgaven', 'Actuele_Opgaven', 'Opgave', 'Opgaven'),
             (Verordening_Schema, 'verordeningen', 'Verordeningen', 'Actuele_Verordeningen', 'Verordening', 'Verordeningen')]
 
 # JWT CONFIG
@@ -126,7 +126,8 @@ api.add_resource(FeitenLineage, '/beleidsbeslissingen/<string:id>', endpoint='be
     resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
 api.add_resource(Feit, '/beleidsbeslissingen/version/<string:uuid>', endpoint='Beleidsbeslissingen',
     resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
-# DOCUMENTATIE
+spec.components.schema('Beleidsbeslissingen', schema=Beleidsbeslissingen_Read_Schema)
+    # DOCUMENTATIE
 
 # for ept, view_func in app.view_functions.items():
 #     if ept in dimension_ept:
