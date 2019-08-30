@@ -10,10 +10,12 @@ from helpers import *
 from globals import db_connection_string, db_connection_settings
 from uuid import UUID
 
+
 class Koppelingen_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     Omschrijving = MM.fields.Str(missing="")
     
+
 class BeleidsBeslissing_CreateSchema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     Eigenaar_1 = MM.fields.Str(required=True)

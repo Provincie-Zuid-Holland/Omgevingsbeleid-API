@@ -9,15 +9,7 @@ import click
 from collections import namedtuple
 
 from Dimensies.dimensie import Dimensie, DimensieList, DimensieLineage
-from Dimensies.ambitie import Ambitie_Schema
-from Dimensies.beleidsregel import BeleidsRegel_Schema
-from Dimensies.doel import Doel_Schema
-from Dimensies.provincialebelangen import ProvincialeBelangen_Schema
-from Dimensies.beleidsrelaties import BeleidsRelatie_Schema
-from Dimensies.maatregelen import Maatregelen_Schema
-from Dimensies.themas import Themas_Schema
-from Dimensies.opgaven import Opgaven_Schema
-from Dimensies.verordening import Verordening_Schema
+
 
 from Feiten.feit import FeitenList, Feit, FeitenLineage
 from Feiten.beleidsbeslissing import Beleidsbeslissingen_Meta_Schema, Beleidsbeslissingen_Fact_Schema, Beleidsbeslissingen_Read_Schema
@@ -37,9 +29,13 @@ from apispec_webframeworks.flask import FlaskPlugin
 
 from flask_cors import CORS
 
+from elasticsearch_dsl import connections, Index
+
 import json
 
 from Stats.views import stats
+
+from datamodel import dimensies, feiten
 
 current_version = '0.1'
 
@@ -64,19 +60,13 @@ spec = APISpec(
     plugins=[
         MarshmallowPlugin(),
         FlaskPlugin()
-        ]
+    ]
 )
 
-# (schema, slug, tablenaam, actuele_tablenaam, singular, plural)
-dimensie_schemas = [(Ambitie_Schema, 'ambities', 'Ambities', 'Actuele_Ambities', 'Ambitie', 'Ambities'),
-                    (BeleidsRegel_Schema, 'beleidsregels', 'Beleidsregels', 'Actuele_Beleidsregels', 'Beleidsregel', 'Beleidsregels'),
-                    (Doel_Schema, 'doelen', 'Doelen', 'Actuele_Doelen', 'Doel', 'Doelen'),
-                    (ProvincialeBelangen_Schema, 'provincialebelangen', 'ProvincialeBelangen', 'Actuele_ProvincialeBelangen', 'Provinciaal Belang', 'Provinciale Belangen'),
-                    (BeleidsRelatie_Schema, 'beleidsrelaties', 'BeleidsRelaties', 'Actuele_BeleidsRelaties', 'Beleidsrelatie', 'Beleidsrelaties'),
-                    (Maatregelen_Schema, 'maatregelen', 'Maatregelen', 'Actuele_Maatregelen', 'Maatregel', 'Maatregelen'),
-                    (Themas_Schema, 'themas', 'Themas', 'Actuele_Themas', 'Thema', "Thema's"),
-                    (Opgaven_Schema, 'opgaven', 'Opgaven', 'Actuele_Opgaven', 'Opgave', 'Opgaven'),
-            (Verordening_Schema, 'verordeningen', 'Verordeningen', 'Actuele_Verordeningen', 'Verordening', 'Verordeningen')]
+# ELASTICSEARCH SETUP
+
+connections.create_connection(hosts=['localhost'], timeout=20)
+
 
 # JWT CONFIG
 @jwt.unauthorized_loader
@@ -94,12 +84,14 @@ def generate_client_creds(client_identifier):
     click.echo(result)
     click.pause()
 
+
 @app.cli.command()
 def generate_passwords():
     result = new_client_creds_gebruikers()
     for gebruikersnaam, credentials in result:
         click.echo(f"{gebruikersnaam}\t\t{credentials}")
     click.pause()
+
 
 app.add_url_rule(f'/v{current_version}/login', 'login', login, methods=['POST'])
 app.add_url_rule(f'/v{current_version}/stats', 'stats', stats, methods=['GET'])
@@ -108,26 +100,26 @@ app.add_url_rule(f'/v{current_version}/stats', 'stats', stats, methods=['GET'])
 
 dimension_ept = []
 
-for schema, slug, tn, ac_tn, sn, pl in dimensie_schemas:
-    schema_name = schema.__name__.split('_')[0]
-    spec.components.schema(schema_name, schema=schema)
-    api.add_resource(Dimensie, f'/{slug}/version/<string:uuid>', endpoint=schema_name,
-        resource_class_args=(schema, tn, ac_tn))
-    dimension_ept.append(schema_name)
-    api.add_resource(DimensieList, f'/{slug}', endpoint=f"{schema_name}_lijst",
-        resource_class_args=(schema, tn, ac_tn))
-    dimension_ept.append(f"{schema_name}_lijst")
-    api.add_resource(DimensieLineage, f'/{slug}/<int:id>', endpoint=f"{schema_name}_lineage", resource_class_args=(schema, tn))
+for dimensie in dimensies:
+    spec.components.schema(dimensie['singular'], schema=dimensie['schema'])
+    api.add_resource(Dimensie, f'/{dimensie["slug"]}/version/<string:uuid>', endpoint=dimensie['singular'],
+                     resource_class_args=(dimensie['schema'], dimensie['tablename'], dimensie['latest_tablename']))
+    dimension_ept.append(dimensie['singular'])
+    api.add_resource(DimensieList, f'/{dimensie["slug"]}', endpoint=f"{dimensie['plural']}_lijst",
+                     resource_class_args=(dimensie['schema'], dimensie['tablename'], dimensie['latest_tablename']))
+    dimension_ept.append(f"{dimensie['plural']}_lijst")
+    api.add_resource(DimensieLineage, f'/{dimensie["slug"]}/<int:id>', endpoint=f"{dimensie['plural']}_lineage", resource_class_args=(dimensie['schema'],  dimensie['tablename']))
 
-
-api.add_resource(FeitenList, '/beleidsbeslissingen', endpoint='beleidsbeslissingen_lijst',
-    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
-api.add_resource(FeitenLineage, '/beleidsbeslissingen/<string:id>', endpoint='beleidsbeslissingen_lineage',
-    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
-api.add_resource(Feit, '/beleidsbeslissingen/version/<string:uuid>', endpoint='Beleidsbeslissingen',
-    resource_class_args=(Beleidsbeslissingen_Meta_Schema, 'Beleidsbeslissingen', 'Actuele_BeleidsBeslissingen', Beleidsbeslissingen_Fact_Schema , 'Omgevingsbeleid', 'Beleidsbeslissing', Beleidsbeslissingen_Read_Schema))
-spec.components.schema('Beleidsbeslissingen', schema=Beleidsbeslissingen_Read_Schema)
-    # DOCUMENTATIE
+for feit in feiten:
+    general_args = (feit['meta_schema'], feit['meta_tablename'], feit['meta_tablename_actueel'], feit['fact_schema'], feit['fact_tablename'], feit['fact_to_meta_field'], feit['read_schema'])
+    api.add_resource(FeitenList, f'/{feit["slug"]}', endpoint=f'{feit["slug"]}_lijst',
+                    resource_class_args=general_args)
+    api.add_resource(FeitenLineage, f'/{feit["slug"]}/<string:id>', endpoint=f'{feit["slug"]}_lineage',
+                    resource_class_args=general_args)
+    api.add_resource(Feit, f'/{feit["slug"]}/version/<string:uuid>', endpoint=f'{feit["slug"]}',
+                    resource_class_args=general_args)
+    spec.components.schema('Beleidsbeslissingen', schema=Beleidsbeslissingen_Read_Schema)
+# DOCUMENTATIE
 
 # for ept, view_func in app.view_functions.items():
 #     if ept in dimension_ept:
@@ -138,17 +130,17 @@ spec.components.schema('Beleidsbeslissingen', schema=Beleidsbeslissingen_Read_Sc
 #             for method_name in view_func.methods:
 #                 method_name = method_name.lower()
 #                 method = getattr(view_func.view_class, method_name)
-#                 method.__doc__ = method.__doc__.format(singular=sn, schema=schema.__name__, plural=pl) 
+#                 method.__doc__ = method.__doc__.format(singular=sn, schema=schema.__name__, plural=pl)
 #             spec.path(view=view_func)
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
 app.add_url_rule(f'/v{current_version}/tokeninfo',
-                 'tokenstat', tokenstat, methods=['GET'])  
+                 'tokenstat', tokenstat, methods=['GET'])
 app.add_url_rule(f'/v{current_version}/stats',
                  'stats', stats, methods=['GET'])
 app.add_url_rule(f'/v{current_version}/spec',
-                 'spec', lambda : json.dumps(spec.to_dict(), indent=2), methods=['GET'])  
+                 'spec', lambda: json.dumps(spec.to_dict(), indent=2), methods=['GET'])
 
 api.add_resource(Werkingsgebied, '/werkingsgebieden',
                  '/werkingsgebieden/<string:werkingsgebied_uuid>')
