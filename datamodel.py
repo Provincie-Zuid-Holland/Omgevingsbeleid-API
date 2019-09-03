@@ -1,7 +1,7 @@
 from Dimensies.ambitie import Ambitie_Schema
 from Dimensies.beleidsregel import BeleidsRegel_Schema
 from Dimensies.doel import Doel_Schema
-from Dimensies.provincialebelangen import ProvincialeBelangen_Schema
+from Dimensies.belangen import Belangen_Schema
 from Dimensies.beleidsrelaties import BeleidsRelatie_Schema
 from Dimensies.maatregelen import Maatregelen_Schema
 from Dimensies.themas import Themas_Schema
@@ -15,8 +15,8 @@ dimensies = [
     {'schema': Ambitie_Schema, 'slug': 'ambities', 'tablename': 'Ambities', 'latest_tablename': 'Actuele_Ambities', 'singular': 'Ambitie', 'plural': 'Ambities'},
     {'schema': BeleidsRegel_Schema, 'slug': 'beleidsregels', 'tablename': 'Beleidsregels', 'latest_tablename': 'Actuele_Beleidsregels', 'singular': 'Beleidsregel', 'plural': 'Beleidsregels'},
     {'schema': Doel_Schema, 'slug': 'doelen', 'tablename': 'Doelen', 'latest_tablename': 'Actuele_Doelen', 'singular': 'Doel', 'plural': 'Doelen'},
-    {'schema': ProvincialeBelangen_Schema, 'slug': 'provincialebelangen', 'tablename': 'ProvincialeBelangen',
-        'latest_tablename': 'Actuele_ProvincialeBelangen', 'singular': 'Provinciaal Belang', 'plural': 'Provinciale Belangen'},
+    {'schema': Belangen_Schema, 'slug': 'belangen', 'tablename': 'Belangen',
+        'latest_tablename': 'Actuele_Belangen', 'singular': 'Belang', 'plural': 'Belangen'},
     {'schema': BeleidsRelatie_Schema, 'slug': 'beleidsrelaties', 'tablename': 'BeleidsRelaties', 'latest_tablename': 'Actuele_BeleidsRelaties', 'singular': 'Beleidsrelatie', 'plural': 'Beleidsrelaties'},
     {'schema': Maatregelen_Schema, 'slug': 'maatregelen', 'tablename': 'Maatregelen', 'latest_tablename': 'Actuele_Maatregelen', 'singular': 'Maatregel', 'plural': 'Maatregelen'},
     {'schema': Themas_Schema, 'slug': 'themas', 'tablename': 'Themas', 'latest_tablename': 'Actuele_Themas', 'singular': 'Thema', 'plural': "Thema's"},

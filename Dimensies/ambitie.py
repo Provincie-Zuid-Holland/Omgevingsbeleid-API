@@ -1,6 +1,5 @@
 import marshmallow as MM
 from .dimensie import Dimensie_Schema
-from elasticsearch_dsl import connections, Index, Document, Text, Integer
 
 
 class Ambitie_Schema(Dimensie_Schema):
