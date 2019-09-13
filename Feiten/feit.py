@@ -1,5 +1,4 @@
 import marshmallow as MM
-import pyodbc
 from flask_restful import Resource
 from flask import request, jsonify
 import datetime
