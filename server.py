@@ -23,6 +23,8 @@ from Auth.commands import new_client_creds, new_client_creds_gebruikers
 
 from Stats.views import stats
 
+from Search.views import search
+
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
@@ -37,6 +39,9 @@ from Stats.views import stats
 
 from datamodel import dimensies, feiten
 
+from elasticsearch_dsl import Index, Keyword, Mapping, Nested, TermsFacet, connections, Search
+from elasticsearch import Elasticsearch
+
 current_version = '0.1'
 
 # FLASK SETUP
@@ -49,6 +54,8 @@ app.config['JWT_HEADER_TYPE'] = "Token"
 api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required, ])
 # api = Api(app, prefix=f'/v{current_version}')
 jwt = JWTManager(app)
+
+
 
 
 # APISPEC SETUP
@@ -65,7 +72,9 @@ spec = APISpec(
 
 # ELASTICSEARCH SETUP
 
+es = Elasticsearch()
 connections.create_connection(hosts=['localhost'], timeout=20)
+app.add_url_rule(f'/v{current_version}/search', 'search', search, methods=['GET'])
 
 
 # JWT CONFIG

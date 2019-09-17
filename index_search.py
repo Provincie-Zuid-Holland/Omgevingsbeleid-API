@@ -12,7 +12,7 @@ from globals import db_connection_string, db_connection_settings
 LOGGING_FILE = 'search-index.log'
 DATE_FILE = 'search-date.json'
 
-logging.basicConfig(format='%(asctime)s : %(message)s',filename=LOGGING_FILE, level=logging.INFO)
+logging.basicConfig(format='%(asctime)s : %(message)s', filename=LOGGING_FILE, level=logging.INFO)
 
 
 def main():
@@ -43,6 +43,7 @@ def main():
             m = Mapping()
             for field in search_fields:
                 m.field(field, 'text')
+            m.field('type', 'text')
             m.save(dimensie['slug'])
             logging.info(f'Mapping created for {dimensie["slug"]}')
 
@@ -55,7 +56,8 @@ def main():
             cursor.execute(query)
             rows = cursor.fetchall()
             for row in rows:
-                rowdict = dict(zip([t[0] for t in row.cursor_description], row)) 
+                rowdict = dict(zip([t[0] for t in row.cursor_description], row))
+                rowdict['type'] = dimensie['singular']
                 es.index(
                     index=dimensie['slug'],
                     body=rowdict)
