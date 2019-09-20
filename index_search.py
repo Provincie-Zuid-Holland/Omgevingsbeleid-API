@@ -1,6 +1,6 @@
 from elasticsearch_dsl import Index, Keyword, Mapping, Nested, TermsFacet, connections, Search
 from elasticsearch import Elasticsearch
-from datamodel import dimensie_and_feiten
+from datamodel import dimensies_and_feiten
 import logging
 from datetime import datetime
 import json
@@ -32,7 +32,7 @@ def main():
     es = Elasticsearch()
     connections.create_connection(hosts=['localhost:9200'], timeout=20)
     logging.info(f'Checking existing indices')
-    for dimensie in dimensie_and_feiten():
+    for dimensie in dimensies_and_feiten():
         ix = Index(dimensie['slug'])
         fields = dimensie["schema"]().declared_fields
         search_fields = [field for field in fields if 'search_field'in fields[field].metadata and fields[field].metadata['search_field'] == "text"]

@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from datamodel import dimensies
+from datamodel import dimensies_and_feiten
 from elasticsearch_dsl import Index, Keyword, Mapping, Nested, TermsFacet, connections, Search
 from elasticsearch import Elasticsearch
 
@@ -18,8 +18,8 @@ def search():
     if not query:
         return jsonify({"message": "Missing or invalid URL parameter 'query'"}), 400
     else:
-        indices_possible = ', '.join([dim['slug'] for dim in dimensies])
-        indices = [dim['slug'] for dim in dimensies]
+        indices_possible = ', '.join([dim['slug'] for dim in dimensies_and_feiten()])
+        indices = [dim['slug'] for dim in dimensies_and_feiten()]
         if type_exclude:
             for t in type_exclude:
                 try:

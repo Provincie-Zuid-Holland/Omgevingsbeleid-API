@@ -1,12 +1,10 @@
 from flask import Flask, jsonify
 from flask_restful import Resource, Api
-from pprint import pprint
 from datetime import timedelta
 from flask_jwt_extended import (
     JWTManager, jwt_required
 )
 import click
-from collections import namedtuple
 
 from Dimensies.dimensie import Dimensie, DimensieList, DimensieLineage
 

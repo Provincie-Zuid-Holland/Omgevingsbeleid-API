@@ -40,7 +40,7 @@ feiten = [
 
 
 # Normalized union of Dimensies en Feiten for use in search
-def dimensie_and_feiten():
+def dimensies_and_feiten():
     normalized_feiten = []
     for feit in feiten:
         normalized_feiten.append(
