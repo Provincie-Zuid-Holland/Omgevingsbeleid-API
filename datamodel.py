@@ -25,7 +25,6 @@ dimensies = [
     {'schema': Verordening_Schema, 'slug': 'verordeningen', 'tablename': 'Verordeningen', 'latest_tablename': 'Actuele_Verordeningen', 'singular': 'Verordening', 'plural': 'Verordeningen'}
 ]
 
-#  (schema_meta, schema_fact, schema_read , slug, tablename, actuele_tablename, singular, plural)
 feiten = [
     {'meta_schema': Beleidsbeslissingen_Meta_Schema,
         'fact_schema': Beleidsbeslissingen_Fact_Schema,
@@ -38,3 +37,20 @@ feiten = [
         'plural': 'Ambities',
         'fact_to_meta_field': 'Beleidsbeslissing'}
 ]
+
+
+# Normalized union of Dimensies en Feiten for use in search
+def dimensie_and_feiten():
+    normalized_feiten = []
+    for feit in feiten:
+        normalized_feiten.append(
+            {
+                'schema': feit['read_schema'],
+                'slug': feit['slug'],
+                'tablename': feit['meta_tablename'],
+                'latest_tablename': feit['meta_tablename_actueel'],
+                'singular': feit['singular'],
+                'plural':feit['plural']
+            }
+        )
+    return dimensies + normalized_feiten
