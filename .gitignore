@@ -5,5 +5,5 @@ settings.py
 web.config
 .vscode/settings.json
 cgi.log
-./Pipfile.lock
-wfastcgi.py
+search-index.log
+search-date.json

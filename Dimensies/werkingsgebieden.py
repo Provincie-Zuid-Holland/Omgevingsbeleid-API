@@ -1,7 +1,6 @@
 from flask_restful import Resource, Api, fields, marshal, reqparse, inputs, abort
 import records
 import pyodbc
-from flasgger import swag_from
 import marshmallow as MM 
 from flask import request
 
@@ -14,7 +13,7 @@ from uuid import UUID
 class Werkingsgebied_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     OBJECTID = MM.fields.Integer(required=True)
-    Werkingsgebied = MM.fields.Str(required=True)
+    Werkingsgebied = MM.fields.Str(required=True, search_field="text")
     Onderverdeling = MM.fields.Str(missing=None)
     PRIMA = MM.fields.Integer()
     FID = MM.fields.Integer()
