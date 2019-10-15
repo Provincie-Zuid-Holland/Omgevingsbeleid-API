@@ -5,6 +5,7 @@ from flask_restful.fields import Raw, MarshallingException
 from queries import omgevingsbeleid_bij_beleidsbeslissing
 import json
 import marshmallow as MM 
+from werkzeug.routing import BaseConverter
 
 def dictkeys_tolower(dictionary):
     lower_dict = {}
@@ -88,3 +89,10 @@ def deflatten_obs(ob_dict):
                 row[key] = {'UUID': None, 'Omschrijving':None}
         rows.append(row)
     return rows     
+
+# List URL serializer
+class ListConverter(BaseConverter):
+    def to_python(self, value):
+        return value.split(',')
+    def to_url(self, values):
+        return ','.join(super(ListConverter, self).to_url(value) for value in values)

@@ -1,5 +1,4 @@
 import marshmallow as MM
-import pyodbc
 from flask_restful import Resource
 from flask import request, jsonify
 import datetime
@@ -247,6 +246,10 @@ class FactManager:
             meta_query = f"SELECT * FROM {self._meta_tablename} WHERE ID = ?"
             if self._ignore_null:
                 meta_query += " AND UUID != '00000000-0000-0000-0000-000000000000'"
+        elif latest:
+            meta_query = f"SELECT * FROM {self._meta_tablename_actueel}"
+            if self._ignore_null:
+                meta_query += " WHERE UUID != '00000000-0000-0000-0000-000000000000'"
         else:
             meta_query = f"SELECT * FROM {self._meta_tablename}"
             if self._ignore_null:
@@ -372,7 +375,7 @@ class FeitenList(Resource):
         GET endpoint voor feiten
         """
         try:
-            result = self.manager.retrieve_facts()
+            result = self.manager.retrieve_facts(latest=True)
             return result, 200
 
         except pyodbc.Error as odbc_ex:

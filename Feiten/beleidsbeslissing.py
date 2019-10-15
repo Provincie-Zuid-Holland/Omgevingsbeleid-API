@@ -38,17 +38,19 @@ class Beleidsbeslissingen_Fact_Schema(Feiten_Schema):
 class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
     Eigenaar_1 = MM.fields.UUID(required=True, linker=False)
     Eigenaar_2 = MM.fields.UUID(required=True, linker=False)
-    Portefeuillehouder = MM.fields.UUID(required=True, linker=False)
+    Portefeuillehouder_1 = MM.fields.UUID(required=True, linker=False)
+    Portefeuillehouder_2 = MM.fields.UUID(required=True, linker=False)
+    Opdrachtgever = MM.fields.UUID(required=True, linker=False)
     Status = MM.fields.Str(required=True, linker=False)
-    Titel = MM.fields.Str(required=True, linker=False)
-    Omschrijving_Keuze = MM.fields.Str(missing=None, linker=False)
-    Omschrijving_Werking = MM.fields.Str(missing=None, linker=False)
-    Motivering = MM.fields.Str(missing=None, linker=False)
-    Aanleiding = MM.fields.Str(missing=None, linker=False)
-    Afweging = MM.fields.Str(missing=None, linker=False)
-    Verordening_Realisatie = MM.fields.Str(missing=None, linker=False)
-    # Beleidsbeslissing = MM.fields.UUID(
-    #     required=True, attribute='fk_Beleidsbeslissingen', linker=False)
+    Titel = MM.fields.Str(required=True, linker=False, search_field="text")
+    Omschrijving_Keuze = MM.fields.Str(missing=None, linker=False, search_field="text")
+    Omschrijving_Werking = MM.fields.Str(missing=None, linker=False, search_field="text")
+    Aanleiding = MM.fields.Str(missing=None, linker=False, search_field="text")
+    Afweging = MM.fields.Str(missing=None, linker=False, search_field="text")
+    Provinciaal_Belang = MM.fields.Str(missing=None, linker=False, search_field="text")
+    Weblink = MM.fields.Str(missing=None, linker=False)
+    Besluitnummer = MM.fields.Str(missing=None)
+    Tags = MM.fields.Str(missing=None)
     WerkingsGebieden = MM.fields.Nested(
         Link_Schema, many=True, default=[], missing=[], linker=True)
     BeleidsRegels = MM.fields.Nested(
@@ -60,7 +62,7 @@ class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
     Themas = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
     Ambities = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
     Doelen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
-    ProvincialeBelangen = MM.fields.Nested(
+    Belangen = MM.fields.Nested(
         Link_Schema, many=True, default=[], missing=[], linker=True)
     Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
 

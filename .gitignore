@@ -5,3 +5,5 @@ settings.py
 web.config
 .vscode/settings.json
 cgi.log
+search-index.log
+search-date.json

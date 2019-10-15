@@ -163,7 +163,8 @@ Deployment stappen op een nieuwe VM:
     - Reset iis (`iisreset` in de terminal)
 
 ### 7: Client credentials genereren
-- Run het script `generate_client_creds.sh` in de omgevingsmap Ik zie alleen maar generate_client_creds.ps1 staan execute with powershell (niet openen in Powershell IDE) ????
+- Run `pipenv shell` in je terminal.
+- Run het script `generate_client_creds.ps1` in de omgevingsmap vanuit een powershell omgeving (of vanuit een Command Prompt door `powershell "./generate_client_creds.ps1"` te runnen)
 - Typ de naam van een client - Wat is de naam van de client Mx_Cap?????
 - Je krijgt nu nieuwe credentials terug. Kopier de string en deel die met de front-end ontwikkelaars.
 - ???? genereert de volgende fout: flask : The term 'flask' is not recognized as the name of a cmdlet, function, script file, or operable program

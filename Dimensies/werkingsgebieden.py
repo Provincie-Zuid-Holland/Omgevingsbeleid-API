@@ -13,7 +13,7 @@ from uuid import UUID
 class Werkingsgebied_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     OBJECTID = MM.fields.Integer(required=True)
-    Werkingsgebied = MM.fields.Str(required=True)
+    Werkingsgebied = MM.fields.Str(required=True, search_field="text")
     Onderverdeling = MM.fields.Str(missing=None)
     PRIMA = MM.fields.Integer()
     FID = MM.fields.Integer()

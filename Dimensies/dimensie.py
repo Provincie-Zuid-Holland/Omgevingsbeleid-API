@@ -8,7 +8,7 @@ from globals import db_connection_string, db_connection_settings
 import re
 import datetime
 from flask_jwt_extended import get_jwt_identity
-
+from elasticsearch_dsl import Document, Integer, Text
 # from .dimensie import Dimensie
 
 
@@ -16,7 +16,7 @@ class Dimensie_Schema(MM.Schema):
     """
     Schema voor de standaard velden van een dimensie
     """
-    ID = MM.fields.Integer()
+    ID = MM.fields.Integer(search_field="Keyword")
     UUID = MM.fields.UUID(required=True)
     Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
     Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
@@ -27,6 +27,7 @@ class Dimensie_Schema(MM.Schema):
 
     class Meta:
         ordered = True
+
 
 # Helper methods
 
@@ -41,8 +42,8 @@ def objects_from_query(query):
 
 def attribute_or_str(mmfield):
     """
-    This functions takes an Marsmallow Field object and returns it's name as String if the field has no 'attibute' set.
-    If it does have an attribute set, it returns the attribute value
+    This functions takes an Marsmallow Field object and returns it's name as String if the field has no 'attribute' value.
+    If it does have an attribute value, it returns the attribute value
     """
     if mmfield[1].attribute:
         return mmfield[1].attribute
@@ -207,7 +208,7 @@ class DimensieList(Resource):
     # Veld dat dient als identificatie
     _identifier_fields = ['UUID', 'ID']
 
-    def __init__(self, tableschema, tablename_all, tablename_actueel):
+    def __init__(self, tableschema, tablename_all, tablename_actueel, search_model=None):
         self.all_query = f'SELECT * FROM {tablename_actueel}'
         self._tableschema = tableschema
 
@@ -236,6 +237,9 @@ class DimensieList(Resource):
             VALUES ({create_parameter_marks})'''
 
         self.uuid_query = f'SELECT * FROM {tablename_all} WHERE UUID=:uuid'
+        self.search_model = search_model
+        if self.search_model:
+            self.search_model.init()
 
     def get(self):
         """
@@ -261,9 +265,32 @@ class DimensieList(Resource):
                                     type: string
         """
         # Alle objecten verkrijgen
-        dimensie_objecten = objects_from_query(self.all_query)
-        schema = self._tableschema()
-        return(schema.dump(dimensie_objecten, many=True))
+        query = self.all_query
+        filter_values = None
+        filters = request.args
+        if filters:
+            invalids = [f for f in filters if f not in self.query_fields]
+            if invalids:
+                return {'message': f"Filter(s) '{' '.join(invalids)}' niet geldig voor dit type object. Geldige filters: '{', '.join(self.query_fields)}''"}, 403
+            conditionals = [f"{f} = ?" for f in filters]
+            conditional = " WHERE " + " AND ".join(conditionals)
+            filter_values = [filters[f] for f in filters]
+            query = query + conditional
+        print(query)
+        # raise
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+            try:
+                if filter_values:
+                    cursor.execute(query, *filter_values)
+                else:
+                    cursor.execute(query)
+            except pyodbc.DatabaseError as e:
+                return {'message': f'Database fout, neem contact op met de systeembeheerder Exception:[{e}]'}, 500
+            dimensie_objecten = cursor.fetchall()
+            # dimensie_objecten = objects_from_query(query)
+            schema = self._tableschema()
+            return(schema.dump(dimensie_objecten, many=True))
 
     def post(self):
         """
@@ -335,8 +362,8 @@ class DimensieList(Resource):
         db = records.Database(db_connection_string)
         result = db.query(self.uuid_query, uuid=new_uuid).first()
         dump_schema = self._tableschema()
-
-        return dump_schema.dump(result), 201
+        result = dump_schema.dump(result)
+        return result, 201
 
 
 class Dimensie(Resource):
