@@ -9,4 +9,4 @@ class BeleidsRelatie_Schema(Dimensie_Schema):
     Omschrijving = MM.fields.Str(missing=None, search_field="text")
     Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf(['Open', 'Akkoord', 'NietAkkoord'])])
     Aanvraag_Datum = MM.fields.DateTime(format='iso', required=True)
-    Datum_Akkoord = MM.fields.DateTime(format='iso', allow_none=True)
+    Datum_Akkoord = MM.fields.DateTime(format='iso', allow_none=True, missing=None)
