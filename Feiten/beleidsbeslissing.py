@@ -30,7 +30,7 @@ class Beleidsbeslissingen_Fact_Schema(Feiten_Schema):
     Themas = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
     Ambities = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
     Doelen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
-    ProvincialeBelangen = MM.fields.Nested(
+    Belangen = MM.fields.Nested(
         Link_Schema, many=True, default=[], missing=[])
     Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[])
 

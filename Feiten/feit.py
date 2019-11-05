@@ -236,7 +236,7 @@ class FactManager:
 
         return(self._read_schema().dump(meta))
 
-    def retrieve_facts(self, id=None, latest=False):
+    def retrieve_facts(self, id=None, latest=False, sorted_by=None):
         """
         Retrieves a list of schema based facts, optionally specify an id to get a lineage.
         """
@@ -254,6 +254,8 @@ class FactManager:
             meta_query = f"SELECT * FROM {self._meta_tablename}"
             if self._ignore_null:
                 meta_query += " WHERE UUID != '00000000-0000-0000-0000-000000000000'"
+        if sorted_by:
+            meta_query += f"ORDER BY {sorted_by} DESC"
 
         try:
             if id:
@@ -299,8 +301,8 @@ class FeitenLineage(Resource):
 
     def get(self, id):
         try:
-            result = self.manager.retrieve_facts(id=id)
-            if result is None:
+            result = self.manager.retrieve_facts(id=id, sorted_by='Modified_Date')
+            if len(result) == 0:
                 return {'message': f'Object with ID: \'{id}\' not found'}, 404
             else:
                 return result, 200

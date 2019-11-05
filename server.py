@@ -16,6 +16,8 @@ from Dimensies.geothemas import Geothema
 from Dimensies.gebruikers import Gebruiker
 from Dimensies.werkingsgebieden import Werkingsgebied
 
+
+from Special.verordeningsstructuur import Verordening_Structuur
 from Auth.views import login, tokenstat
 from Auth.commands import new_client_creds, new_client_creds_gebruikers
 
@@ -155,6 +157,8 @@ api.add_resource(Geothema, '/geothemas',
                  '/geothemas/<string:geothema_uuid>')
 api.add_resource(Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
+api.add_resource(Verordening_Structuur, '/verordeningstructuur',
+                 '/verordeningstructuur/<string:verordeningstructuur_uuid>')
 
 # api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen',
 #                  '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
