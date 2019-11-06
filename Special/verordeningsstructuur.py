@@ -57,15 +57,26 @@ sampletree = '''<?xml version="1.0"?>
 '''
 
 
-def parse_struct_to_Xml(struct):
+def serialize_schema_to_xml(schema):
     """
     Turn a Verordening_Scructuur_Schema into a xml string
     """
     tree = ET.Element('tree', {'xmlns:xs': 'http://www.w3.org/2001/XMLSchema', 'xmlns': 'Verordening_Tree'})
-    xml = ET.ElementTree(tree)
+    # xml = ET.ElementTree(tree)
     uuid = ET.SubElement(tree, 'uuid')
-    uuid.text = str(struct['UUID'])
-    return ET.tostring(tree, encoding='unicode')
+    uuid.text = str(schema['UUID'])
+    for child in schema['Children']:
+        tree.append(_serialize_child_to_xml(child))
+    return ET.tostring(tree, encoding='utf8', method='xml').decode()
+
+
+def _serialize_child_to_xml(childschema):
+    childnode = ET.Element('child')
+    uuid = ET.SubElement(childnode, 'uuid')
+    uuid.text = str(childschema['UUID'])
+    for child in childschema['Children']:
+        childnode.append(_serialize_child_to_xml(child))
+    return childnode
 
 
 def remove_namespace(XMLtag):
@@ -78,7 +89,7 @@ def remove_namespace(XMLtag):
     return XMLtag.split('}')[-1]
 
 
-def parse_struct_from_Xml(_xml):
+def parse_schema_from_xml(_xml):
     structure = ET.fromstring(_xml)
     if remove_namespace(structure.tag) != 'tree': return None
     result = {'UUID': None, 'Children': []}
@@ -86,24 +97,24 @@ def parse_struct_from_Xml(_xml):
         if remove_namespace(child.tag) == 'uuid':
             result['UUID'] = child.text
         if remove_namespace(child.tag) == 'child':
-            result['Children'].append(parse_child(child))
+            result['Children'].append(_parse_child_to_schema(child))
     return result
 
 
-def parse_child(xmlelement):
+def _parse_child_to_schema(xmlelement):
     result = {'UUID': None, 'Children': []}
     for child in xmlelement:
         if remove_namespace(child.tag) == 'uuid':
             result['UUID'] = child.text
         if remove_namespace(child.tag) == 'child':
-            result['Children'].append(parse_child(child))
+            result['Children'].append(_parse_child_to_schema(child))
     return result
 
 
 class Verordening_Structuur(Resource):
 
     def get(self, verordeningstructuur_uuid=None):
-        struct = parse_struct_from_Xml(sampletree)
+        struct = parse_schema_from_xml(sampletree)
         parsedtree = Tree_Node().load(struct)
-        return parse_struct_to_Xml(parsedtree)
+        return serialize_schema_to_xml(parsedtree)
         # return [Tree_Node().dump(Tree_Node().load(struct)),
