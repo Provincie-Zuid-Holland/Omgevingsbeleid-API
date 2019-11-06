@@ -276,8 +276,7 @@ class DimensieList(Resource):
             conditional = " WHERE " + " AND ".join(conditionals)
             filter_values = [filters[f] for f in filters]
             query = query + conditional
-        print(query)
-        # raise
+        
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             try:
