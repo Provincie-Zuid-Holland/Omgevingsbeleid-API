@@ -349,8 +349,9 @@ class DimensieList(Resource):
                 new_uuid = cursor.fetchone()[0]
             except pyodbc.IntegrityError as e:
                 pattern = re.compile(r'FK_\w+_(\w+)')
-                match = pattern.search(e.args[-1]).group(1)
+                match = pattern.search(e.args[-1])
                 if match:
+                    match = match.group(1)
                     return {'message': f'Database integriteitsfout, een identifier van een "{match}" object is niet geldig'}, 404
                 else:
                     return {'message': 'Database integriteitsfout'}, 400
