@@ -5,6 +5,7 @@ import pyodbc
 from flask_jwt_extended import get_jwt_identity
 from globals import db_connection_settings, db_connection_string
 from xml.etree import ElementTree as ET
+import re
 
 
 class Tree_Node(MM.Schema):
@@ -24,7 +25,7 @@ class Verordening_Structuur_Schema(MM.Schema):
     """
     ID = MM.fields.Integer()
     UUID = MM.fields.UUID()
-    Structuur = MM.fields.Nested(Tree_Node, many=True)
+    Structuur = MM.fields.Nested(Tree_Node)
     Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
     Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
     Created_By = MM.fields.UUID(required=True)
@@ -35,26 +36,6 @@ class Verordening_Structuur_Schema(MM.Schema):
 
     class Meta:
         ordered = True
-
-
-sampletree = '''<?xml version="1.0"?>
-<tree xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns="Verordening_Tree">
-    <uuid>481dccbd-366a-4a55-8efc-af878fd68b9a</uuid>
-    <child>
-        <uuid>7e785bd2-5822-4f14-ac1b-f437346f980c</uuid>
-    </child>
-    <child>
-        <uuid>1540a0c5-4fee-435c-a1cf-81eefba0f241</uuid>
-        <child>
-            <uuid>8cd7fc14-b3fb-4aa2-a33e-d1923787d10a</uuid>
-        </child>
-        <child>
-            <uuid>d900a8cb-151b-4420-973d-a6095f04322b</uuid>
-        </child>
-    </child>
-</tree>
-'''
 
 
 def serialize_schema_to_xml(schema):
@@ -91,7 +72,8 @@ def remove_namespace(XMLtag):
 
 def parse_schema_from_xml(_xml):
     structure = ET.fromstring(_xml)
-    if remove_namespace(structure.tag) != 'tree': return None
+    if remove_namespace(structure.tag) != 'tree':
+        return None
     result = {'UUID': None, 'Children': []}
     for child in structure:
         if remove_namespace(child.tag) == 'uuid':
@@ -111,10 +93,68 @@ def _parse_child_to_schema(xmlelement):
     return result
 
 
+def row_to_dict(row):
+    return dict(zip([t[0] for t in row.cursor_description], row))
+
+
 class Verordening_Structuur(Resource):
 
     def get(self, verordeningstructuur_uuid=None):
-        struct = parse_schema_from_xml(sampletree)
-        parsedtree = Tree_Node().load(struct)
-        return serialize_schema_to_xml(parsedtree)
-        # return [Tree_Node().dump(Tree_Node().load(struct)),
+        params = []
+        filters = request.args
+        if filters and verordeningstructuur_uuid:
+            return {'message': 'Filters en UUID kunnen niet gecombineerd worden'}, 400
+        query = "SELECT * FROM VerordeningStructuur"
+        if verordeningstructuur_uuid:
+            query += "WHERE UUID=?"
+            params.append(verordeningstructuur_uuid)
+        elif filters:
+            invalids = [f for f in filters if f not in Verordening_Structuur_Schema().fields.keys()]
+            if invalids:
+                if invalids:
+                    return {'message': f"Filter(s) '{' '.join(invalids)}' niet geldig voor dit type object."}, 403
+            else:
+                conditionals = [f"{f} = ?" for f in filters]
+                conditional = " WHERE " + " AND ".join(conditionals)
+                params = [filters[f] for f in filters]
+                query = query + conditional
+        rows = []
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+            try:
+                cursor.execute(query, *params)
+            except pyodbc.IntegrityError as e:
+                pattern = re.compile(r'FK_\w+_(\w+)')
+                match = pattern.search(e.args[-1]).group(1)
+                if match:
+                    return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
+                else:
+                    return {'message': 'Database integriteitsfout'}, 404
+            except pyodbc.DatabaseError as e:
+                return {'message': f'Database fout, neem contact op met de systeembeheerder Exception:[{e}]'}, 500
+            for row in cursor:
+                rows.append(row)
+        results = []
+        for row in rows:
+            row = row_to_dict(row)
+            # parsedrow = Verordening_Structuur_Schema().load(row)
+            # parsedrow['Structuur'] = Tree_Node().dump(parse_schema_from_xml(row['Structuur']))
+            tree = Tree_Node().load(parse_schema_from_xml(row['Structuur']))
+            row['Structuur'] = tree
+            parsedrow = Verordening_Structuur_Schema().dump(row)
+            # parsedrow['Structuur'] = tree
+
+
+            results.append(parsedrow)
+            # row['Structuur'] = Tree_Node().dump(Tree_Node().load(parse_schema_from_xml(row['Structuur'])))
+            # print(row['Structuur'])
+            # print(type(row['Structuur']))
+            # # raise
+            # results.append(Verordening_Structuur_Schema().dump(row))
+        # return Verordening_Structuur_Schema().dump(results, many=True)
+        return results
+
+        # struct = parse_schema_from_xml(sampletree)
+        # parsedtree = Tree_Node().load(struct)
+        # return serialize_schema_to_xml(parsedtree)
+        # # return [Tree_Node().dump(Tree_Node().load(struct)),
