@@ -1,5 +1,5 @@
 import marshmallow as MM
-from flask import request
+from flask import request, jsonify
 from flask_restful import Resource
 import pyodbc
 from flask_jwt_extended import get_jwt_identity
@@ -23,16 +23,16 @@ class Verordening_Structuur_Schema(MM.Schema):
     """
     Schema voor verordeningstructuur
     """
-    ID = MM.fields.Integer()
-    UUID = MM.fields.UUID()
-    Structuur = MM.fields.Nested(Tree_Node)
-    Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
-    Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
-    Created_By = MM.fields.UUID(required=True)
-    Created_Date = MM.fields.DateTime(format='iso', required=True)
-    Modified_By = MM.fields.UUID(required=True)
-    Modified_Date = MM.fields.DateTime(format='iso', required=True)
-    Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf(['Vigerend', 'Concept', 'Vervallen'])])
+    ID = MM.fields.Integer(ob_auto=True)
+    UUID = MM.fields.UUID(ob_auto=True)
+    Structuur = MM.fields.Nested(Tree_Node, ob_auto=False)
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True, ob_auto=False)
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True, ob_auto=False)
+    Created_By = MM.fields.UUID(required=True, ob_auto=True)
+    Created_Date = MM.fields.DateTime(format='iso', required=True, ob_auto=True)
+    Modified_By = MM.fields.UUID(required=True, ob_auto=True)
+    Modified_Date = MM.fields.DateTime(format='iso', required=True, ob_auto=True)
+    Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf(['Vigerend', 'Concept', 'Vervallen'])], ob_auto=False)
 
     class Meta:
         ordered = True
@@ -97,17 +97,34 @@ def row_to_dict(row):
     return dict(zip([t[0] for t in row.cursor_description], row))
 
 
+def handle_odbc_exception(odbc_ex):
+    pattern = re.compile(r'FK_\w+_(\w+)')
+    match = pattern.search(e.args[-1]).group(1)
+    if match:
+        return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
+    code = odbc_ex.args[0]
+    return {"message": f"Database error [{code}] during handling of request", "detailed": str(odbc_ex)}, 500
+
+def ob_auto_filter(field):
+    return field.metadata.get('ob_auto', False)
+
 class Verordening_Structuur(Resource):
 
-    def get(self, verordeningstructuur_uuid=None):
+    def get(self, verordeningstructuur_id=None, verordeningstructuur_uuid=None):
         params = []
         filters = request.args
-        if filters and verordeningstructuur_uuid:
-            return {'message': 'Filters en UUID kunnen niet gecombineerd worden'}, 400
+        if (filters and verordeningstructuur_uuid) or (filters and verordeningstructuur_id):
+            return {'message': 'Filters en UUID/ID kunnen niet gecombineerd worden'}, 400
         query = "SELECT * FROM VerordeningStructuur"
+
         if verordeningstructuur_uuid:
-            query += "WHERE UUID=?"
+            query += " WHERE UUID = ?"
             params.append(verordeningstructuur_uuid)
+
+        elif verordeningstructuur_id:
+            query += " WHERE ID = ? ORDER BY 'Modified_Date' ASC"
+            params.append(verordeningstructuur_id)
+
         elif filters:
             invalids = [f for f in filters if f not in Verordening_Structuur_Schema().fields.keys()]
             if invalids:
@@ -119,42 +136,37 @@ class Verordening_Structuur(Resource):
                 params = [filters[f] for f in filters]
                 query = query + conditional
         rows = []
+
         with pyodbc.connect(db_connection_settings) as connection:
-            cursor = connection.cursor()
             try:
+                cursor = connection.cursor()
                 cursor.execute(query, *params)
-            except pyodbc.IntegrityError as e:
-                pattern = re.compile(r'FK_\w+_(\w+)')
-                match = pattern.search(e.args[-1]).group(1)
-                if match:
-                    return {'message': f'Database integriteitsfout, een identifier naar een "{match}" object is niet geldig'}, 404
-                else:
-                    return {'message': 'Database integriteitsfout'}, 404
-            except pyodbc.DatabaseError as e:
-                return {'message': f'Database fout, neem contact op met de systeembeheerder Exception:[{e}]'}, 500
-            for row in cursor:
-                rows.append(row)
+                if cursor.rowcount == 0:
+                    if verordeningstructuur_id: return {'message': f'Object met ID={verordeningstructuur_id} niet gevonden'}, 404
+                    if verordeningstructuur_uuid: return {'message': f'Object met ID={verordeningstructuur_uuid} niet gevonden'}, 404
+                for row in cursor:
+                    rows.append(row)
+            except pyodbc.Error as e:
+                return handle_odbc_exception(e), 500
+
         results = []
         for row in rows:
             row = row_to_dict(row)
-            # parsedrow = Verordening_Structuur_Schema().load(row)
-            # parsedrow['Structuur'] = Tree_Node().dump(parse_schema_from_xml(row['Structuur']))
             tree = Tree_Node().load(parse_schema_from_xml(row['Structuur']))
             row['Structuur'] = tree
             parsedrow = Verordening_Structuur_Schema().dump(row)
-            # parsedrow['Structuur'] = tree
-
-
             results.append(parsedrow)
-            # row['Structuur'] = Tree_Node().dump(Tree_Node().load(parse_schema_from_xml(row['Structuur'])))
-            # print(row['Structuur'])
-            # print(type(row['Structuur']))
-            # # raise
-            # results.append(Verordening_Structuur_Schema().dump(row))
-        # return Verordening_Structuur_Schema().dump(results, many=True)
+        if verordeningstructuur_uuid:
+            return results[0]
         return results
 
-        # struct = parse_schema_from_xml(sampletree)
-        # parsedtree = Tree_Node().load(struct)
-        # return serialize_schema_to_xml(parsedtree)
-        # # return [Tree_Node().dump(Tree_Node().load(struct)),
+    def post(self):
+        try:
+            excluded = map(lambda k: k[0], filter(lambda k: ob_auto_filter(k[1]), Verordening_Structuur_Schema().fields.items()))
+            read_schema = Verordening_Structuur_Schema(exclude=excluded, unknown=MM.RAISE)
+            parsed = read_schema.load(request.get_json())
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400
+        if 'Structuur' in parsed:
+            parsed['Structuur'] = serialize_schema_to_xml(parsed['Structuur'])
+        return jsonify(parsed)
