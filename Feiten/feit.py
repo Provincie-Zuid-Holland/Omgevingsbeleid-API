@@ -10,7 +10,7 @@ import json
 
 def handle_odbc_exception(odbc_ex):
     code = odbc_ex.args[0]
-    return {"message": f"Database error [{code}] during handling of request"}
+    return {"message": f"Database error [{code}] during handling of request", "detailed": str(odbc_ex)}
 
 
 class Feiten_Schema(MM.Schema):
