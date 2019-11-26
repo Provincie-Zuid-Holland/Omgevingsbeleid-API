@@ -9,6 +9,12 @@ from xml.etree import ElementTree as ET
 import re
 
 
+class Tree_Root(MM.Schema):
+    """
+    Startpunt voor boomstructuur
+    """
+    Children = MM.fields.Nested("Tree_Node", many=True, allow_none=True)
+
 class Tree_Node(MM.Schema):
     """
     Recursief schema voor boomstructuur
@@ -26,7 +32,7 @@ class Verordening_Structuur_Schema(MM.Schema):
     """
     ID = MM.fields.Integer(ob_auto=True)
     UUID = MM.fields.UUID(ob_auto=True)
-    Structuur = MM.fields.Nested(Tree_Node, ob_auto=False)
+    Structuur = MM.fields.Nested(Tree_Root, ob_auto=False)
     Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True, ob_auto=False)
     Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True, ob_auto=False)
     Created_By = MM.fields.UUID(required=True, ob_auto=True)
@@ -44,8 +50,6 @@ def serialize_schema_to_xml(schema):
     Turn a Verordening_Scructuur_Schema into a xml string
     """
     tree = ET.Element('tree', {'xmlns:xs': 'http://www.w3.org/2001/XMLSchema', 'xmlns': 'Verordening_Tree'})
-    uuid = ET.SubElement(tree, 'uuid')
-    uuid.text = str(schema['UUID'])
     for child in schema['Children']:
         tree.append(_serialize_child_to_xml(child))
     return ET.tostring(tree, encoding='unicode', method='xml')
@@ -74,10 +78,10 @@ def parse_schema_from_xml(_xml):
     structure = ET.fromstring(_xml)
     if remove_namespace(structure.tag) != 'tree':
         return None
-    result = {'UUID': None, 'Children': []}
+    result = {'Children': []}
     for child in structure:
-        if remove_namespace(child.tag) == 'uuid':
-            result['UUID'] = child.text
+        # if remove_namespace(child.tag) == 'uuid':
+        #     result['UUID'] = child.text
         if remove_namespace(child.tag) == 'child':
             result['Children'].append(_parse_child_to_schema(child))
     return result
@@ -155,7 +159,7 @@ class Verordening_Structuur(Resource):
         results = []
         for row in rows:
             row = row_to_dict(row)
-            tree = Tree_Node().load(parse_schema_from_xml(row['Structuur']))
+            tree = Tree_Root().load(parse_schema_from_xml(row['Structuur']))
             row['Structuur'] = tree
             parsedrow = Verordening_Structuur_Schema().dump(row)
             results.append(parsedrow)

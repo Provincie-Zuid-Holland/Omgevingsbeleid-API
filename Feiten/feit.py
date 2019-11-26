@@ -342,6 +342,13 @@ class FeitenLineage(Resource):
             return handle_odbc_exception(odbc_ex), 500
 
 
+def filter_linker(linker, value):
+    for field in linker:
+        if field['UUID'] == value:
+            return True
+    return False
+
+
 class FeitenList(Resource):
 
     def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
@@ -376,8 +383,22 @@ class FeitenList(Resource):
         """
         GET endpoint voor feiten
         """
+        filters = request.args  # TODO: put filtering in DB!
+        linker_filters = {}
+        normal_filters = {}
+        if filters:
+            schema_fields = self._read_schema().fields
+            invalids = [f for f in filters if f not in schema_fields]
+            if invalids:
+                return {'message': f"Filter(s) '{' '.join(invalids)}' niet geldig voor dit type object. Geldige filters: '{', '.join(schema_fields)}''"}, 403
+            linker_filters = {k: v for k, v in filters.items() if 'linker' in schema_fields[k].metadata and schema_fields[k].metadata['linker']}
+            normal_filters = {k: v for k, v in filters.items() if k not in linker_filters}
         try:
             result = self.manager.retrieve_facts(latest=True)
+            for field, value in linker_filters.items():
+                result = list(filter(lambda o: filter_linker(o[field], value), result))
+            for field, value in normal_filters.items():
+                result = list(filter(lambda o: o[field] == value, result))
             return result, 200
 
         except pyodbc.Error as odbc_ex:
