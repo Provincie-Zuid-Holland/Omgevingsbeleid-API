@@ -4,7 +4,7 @@ from flask import request, jsonify
 import datetime
 from flask_jwt_extended import get_jwt_identity
 import pyodbc
-from globals import db_connection_string, db_connection_settings
+from globals import db_connection_string, db_connection_settings, min_datetime, max_datetime
 import json
 
 
@@ -19,12 +19,43 @@ class Feiten_Schema(MM.Schema):
     """
     ID = MM.fields.Integer()
     UUID = MM.fields.UUID(required=True)
-    Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
-    Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', missing=min_datetime, allow_none=True)
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', missing=max_datetime, allow_none=True)
     Created_By = MM.fields.UUID(required=True)
     Created_Date = MM.fields.DateTime(format='iso', required=True)
     Modified_By = MM.fields.UUID(required=True)
     Modified_Date = MM.fields.DateTime(format='iso', required=True)
+
+    def minmax_datetime(self, data):
+        if 'Begin_Geldigheid' in data and data['Begin_Geldigheid'] == min_datetime.isoformat():
+            data['Begin_Geldigheid'] = None
+        if 'Eind_Geldigheid' in data and data['Eind_Geldigheid'] == max_datetime.isoformat():
+            data['Eind_Geldigheid'] = None
+        return data
+
+    # TODO PATCH WERK NOG NIET!!!!!!!!!!!!!
+
+    @MM.post_dump(pass_many=True)
+    def minmax_datetime_many(self, data, many):
+        if many:
+            return list(map(self.minmax_datetime, data))
+        else:
+            return self.minmax_datetime(data)
+
+    def none_to_minmax_datetime(self, data):
+        if 'Begin_Geldigheid' in data and data['Begin_Geldigheid'] == None:
+            data['Begin_Geldigheid'] = min_datetime
+        if 'Eind_Geldigheid' in data and data['Eind_Geldigheid'] == None:
+            data['Eind_Geldigheid'] = max_datetime
+        return data
+    
+    @MM.post_load()
+    def none_to_minmax_datetime_many(self, data, many, partial):
+        if many:
+            return list(map(self.none_to_minmax_datetime, data))
+        else:
+            return self.none_to_minmax_datetime(data)
+
 
     class Meta:
         ordered = True
@@ -183,7 +214,7 @@ class FactManager:
 
         fact['UUID'] = fact_uuid
         fact['ID'] = fact_id
-        return self._read_schema().dump(fact)
+        return fact
 
     def facts_from_query(self, query, *args):
         """
@@ -337,9 +368,12 @@ class FeitenLineage(Resource):
             return err.normalized_messages(), 500
 
         try:
-            return self.manager.save_fact(new_fact, id=id), 200
+            fact = self.manager.save_fact(new_fact, id=id)
+            return read_schema.dump(fact), 200
         except pyodbc.Error as odbc_ex:
             return handle_odbc_exception(odbc_ex), 500
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400
 
 
 def filter_linker(linker, value):
@@ -423,9 +457,12 @@ class FeitenList(Resource):
             return err.normalized_messages(), 400
 
         try:
-            return self.manager.save_fact(fact), 200
+            fact = self.manager.save_fact(fact)
+            return self._read_schema().dump(fact), 200
         except pyodbc.Error as odbc_ex:
             return handle_odbc_exception(odbc_ex), 500
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400
 
 
 class Feit(Resource):

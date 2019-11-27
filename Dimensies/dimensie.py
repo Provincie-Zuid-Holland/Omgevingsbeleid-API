@@ -4,7 +4,7 @@ import pyodbc
 from flask import request, jsonify
 import marshmallow as MM
 from operator import eq
-from globals import db_connection_string, db_connection_settings
+from globals import db_connection_string, db_connection_settings, min_datetime, max_datetime
 import re
 import datetime
 from flask_jwt_extended import get_jwt_identity
@@ -18,12 +18,29 @@ class Dimensie_Schema(MM.Schema):
     """
     ID = MM.fields.Integer(search_field="Keyword")
     UUID = MM.fields.UUID(required=True)
-    Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True)
-    Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True)
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', missing=min_datetime)
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', missing=max_datetime)
     Created_By = MM.fields.UUID(required=True)
     Created_Date = MM.fields.DateTime(format='iso', required=True)
     Modified_By = MM.fields.UUID(required=True)
     Modified_Date = MM.fields.DateTime(format='iso', required=True)
+
+    def minmax_datetime(self, data):
+
+        if 'Begin_Geldigheid' in data and data['Begin_Geldigheid'] == min_datetime.isoformat():
+            data['Begin_Geldigheid'] = None
+        if 'Eind_Geldigheid' in data and data['Eind_Geldigheid'] == max_datetime.isoformat():
+            data['Eind_Geldigheid'] = None
+        return data
+
+    @MM.post_dump(pass_many=True)
+    def minmax_datetime_many(self, data, many):
+        if many:
+            return list(map(self.minmax_datetime, data))
+        else:
+            return self.minmax_datetime(data)
+
+
 
     class Meta:
         ordered = True
@@ -266,7 +283,7 @@ class DimensieList(Resource):
         """
         # Alle objecten verkrijgen
         query = self.all_query
-        filter_values = None
+        filter_values = []
         filters = request.args
         if filters:
             invalids = [f for f in filters if f not in self.query_fields]
@@ -275,8 +292,11 @@ class DimensieList(Resource):
             conditionals = [f"{f} = ?" for f in filters]
             conditional = " WHERE " + " AND ".join(conditionals)
             filter_values = [filters[f] for f in filters]
-            query = query + conditional
-        
+            query = query + conditional + "AND UUID != ?"
+        else:
+            query = query + " WHERE UUID != ?"
+        filter_values.append("00000000-0000-0000-0000-000000000000")
+
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             try:
@@ -334,7 +354,7 @@ class DimensieList(Resource):
         dim_object['Modified_Date'] = dim_object['Created_Date']
         dim_object['Modified_By'] = dim_object['Created_By']
 
-        # return dump_schema.dump(dim_object), 200
+        # return schema.dump(dim_object), 200
 
         try:
             values = [dim_object[k] for k in self.query_fields]
