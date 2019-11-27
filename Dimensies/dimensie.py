@@ -292,7 +292,7 @@ class DimensieList(Resource):
             conditionals = [f"{f} = ?" for f in filters]
             conditional = " WHERE " + " AND ".join(conditionals)
             filter_values = [filters[f] for f in filters]
-            query = query + conditional + "AND UUID != ?"
+            query = query + conditional + " AND UUID != ?"
         else:
             query = query + " WHERE UUID != ?"
         filter_values.append("00000000-0000-0000-0000-000000000000")
