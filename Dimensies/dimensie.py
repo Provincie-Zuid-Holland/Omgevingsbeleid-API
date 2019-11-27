@@ -283,7 +283,7 @@ class DimensieList(Resource):
         """
         # Alle objecten verkrijgen
         query = self.all_query
-        filter_values = None
+        filter_values = []
         filters = request.args
         if filters:
             invalids = [f for f in filters if f not in self.query_fields]
@@ -292,8 +292,11 @@ class DimensieList(Resource):
             conditionals = [f"{f} = ?" for f in filters]
             conditional = " WHERE " + " AND ".join(conditionals)
             filter_values = [filters[f] for f in filters]
-            query = query + conditional
-        
+            query = query + conditional + "AND UUID != ?"
+        else:
+            query = query + " WHERE UUID != ?"
+        filter_values.append("00000000-0000-0000-0000-000000000000")
+
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             try:
