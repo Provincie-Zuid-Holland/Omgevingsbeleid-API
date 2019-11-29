@@ -369,7 +369,7 @@ class FeitenLineage(Resource):
 
         try:
             fact = self.manager.save_fact(new_fact, id=id)
-            return read_schema.dump(fact), 200
+            return self._read_schema().dump(fact), 200
         except pyodbc.Error as odbc_ex:
             return handle_odbc_exception(odbc_ex), 500
         except MM.exceptions.ValidationError as err:
