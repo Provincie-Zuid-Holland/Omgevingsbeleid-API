@@ -33,8 +33,8 @@ feiten = [
         'meta_tablename': 'Beleidsbeslissingen',
         'meta_tablename_actueel': 'Actuele_Beleidsbeslissingen',
         'fact_tablename': 'Omgevingsbeleid',
-        'singular': 'Ambitie',
-        'plural': 'Ambities',
+        'singular': 'Beleidsbeslissing',
+        'plural': 'Beleidsbeslissingen',
         'fact_to_meta_field': 'Beleidsbeslissing'}
 ]
 
