@@ -57,7 +57,7 @@ def main():
             rows = cursor.fetchall()
             for row in rows:
                 rowdict = dict(zip([t[0] for t in row.cursor_description], row))
-                rowdict['type'] = dimensie['singular']
+                rowdict['type'] = dimensie['plural']
                 es.index(
                     index=dimensie['slug'],
                     body=rowdict)
