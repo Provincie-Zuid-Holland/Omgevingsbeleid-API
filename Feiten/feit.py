@@ -48,14 +48,13 @@ class Feiten_Schema(MM.Schema):
         if 'Eind_Geldigheid' in data and data['Eind_Geldigheid'] == None:
             data['Eind_Geldigheid'] = max_datetime
         return data
-    
+
     @MM.post_load()
     def none_to_minmax_datetime_many(self, data, many, partial):
         if many:
             return list(map(self.none_to_minmax_datetime, data))
         else:
             return self.none_to_minmax_datetime(data)
-
 
     class Meta:
         ordered = True
@@ -241,7 +240,7 @@ class FactManager:
                 connection.close()
 
             fact = self.generate_fact(
-                
+
                 relevant_facts)
             result = {**meta, **fact}
             results.append(result)
@@ -358,7 +357,7 @@ class FeitenLineage(Resource):
 
         old_fact = self.manager.retrieve_facts(id, latest=True)
         new_fact = self._read_schema().dump(new_fact)
-        
+
         new_fact = {**old_fact, **new_fact}  # Dict merging
         new_fact['Modified_By'] = get_jwt_identity()['UUID']
         new_fact['Modified_Date'] = MM.utils.isoformat(request_time)
@@ -381,6 +380,18 @@ def filter_linker(linker, value):
         if field['UUID'] == value:
             return True
     return False
+
+
+def dedup_dictlist(key, dlist):
+    keylist = [(d[key], d) for d in dlist]
+    keyset = set([d[key] for d in dlist])
+    results = []
+    for key in keyset:
+        for key_, d in keylist:
+            if key_ == key:
+                results.append(d)
+                break
+    return results
 
 
 class FeitenList(Resource):
@@ -428,12 +439,16 @@ class FeitenList(Resource):
             linker_filters = {k: v for k, v in filters.items() if 'linker' in schema_fields[k].metadata and schema_fields[k].metadata['linker']}
             normal_filters = {k: v for k, v in filters.items() if k not in linker_filters}
         try:
-            result = self.manager.retrieve_facts(latest=True)
-            for field, value in linker_filters.items():
-                result = list(filter(lambda o: filter_linker(o[field], value), result))
-            for field, value in normal_filters.items():
-                result = list(filter(lambda o: o[field] == value, result))
-            return result, 200
+            unfiltered = self.manager.retrieve_facts(latest=True)
+            if linker_filters or normal_filters:
+                result = []
+                for field, value in linker_filters.items():
+                    result += list(filter(lambda o: filter_linker(o[field], value), unfiltered))
+                for field, value in normal_filters.items():
+                    result += list(filter(lambda o: o[field] == value, unfiltered))
+                return dedup_dictlist('UUID', result), 200
+            else:
+                return unfiltered, 200
 
         except pyodbc.Error as odbc_ex:
             return handle_odbc_exception(odbc_ex), 500
