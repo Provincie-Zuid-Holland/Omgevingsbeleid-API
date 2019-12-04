@@ -3,6 +3,8 @@ from datamodel import dimensies_and_feiten
 from elasticsearch_dsl import Index, Keyword, Mapping, Nested, TermsFacet, connections, Search
 from elasticsearch import Elasticsearch
 
+# Any objects that shouldn't be searched
+SEARCH_EXCLUDED = ["beleidsrelaties"]
 
 def splitlist(value):
     value = value.replace(' ', '')
@@ -18,8 +20,9 @@ def search():
     if not query:
         return jsonify({"message": "Missing or invalid URL parameter 'query'"}), 400
     else:
-        indices_possible = ', '.join([dim['slug'] for dim in dimensies_and_feiten()])
-        indices = [dim['slug'] for dim in dimensies_and_feiten()]
+        d_and_f = [dim for dim in dimensies_and_feiten() if dim['slug'] not in SEARCH_EXCLUDED]
+        indices_possible = ', '.join([dim['slug'] for dim in d_and_f])
+        indices = [dim['slug'] for dim in d_and_f]
         if type_exclude:
             for t in type_exclude:
                 try:
