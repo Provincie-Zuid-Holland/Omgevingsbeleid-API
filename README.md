@@ -109,9 +109,11 @@ Deployment stappen op een nieuwe VM:
 
 ### 6: IIS installeren en instellen
 - Installeer IIS d.m.v. de Server Manager
-- Accepteer de standaarden tot het scherm `Role Services` verschijnt.
-    - Vink `CGI` aan onder `Application Development`
-- Voltooi de installatie
+- Server Manager -> Add roles and features
+    - In de tab 'Server Roles' vink 'Web Server (IIS)' aan, 'add features' in de popup is goed
+    - Accepteer de standaarden tot het scherm `Role Services` verschijnt.
+        - Vink `CGI` aan onder `Application Development`
+    - Voltooi de installatie
 
 - Installeer WFastCGI via PIP:
     - Start een nieuwe Command Prompt as Administrator
