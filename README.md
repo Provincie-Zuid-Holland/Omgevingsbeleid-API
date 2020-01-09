@@ -42,25 +42,15 @@ Deployment stappen op een nieuwe VM:
     - Start een nieuwe Command Prompt (Niet als administrator!)
     - Typ `python --version`
     - Als er Python 3.6.x verschijnt is Python sucessvol geïnstalleerd.
-- Python moet nu nog worden toegevoegd aan het system PATH
-    - klik op `Start` -> `Edit the system environment variables` -> `Environment Variables`
-    - Voeg onder `System Variables` de Python locatie toe aan je Path. Je kan de locatie vinden in `User variables for master` Let op alleen de verwijzing naar de Python3* map?
-    - Voeg ook de map /Scripts/ toe aan je Path, deze bevindt zich in dezelfde folder als je Python locatie.
-    - 
+
 ### 2: Git installeren
 - Download de nieuwste versie van Git (64-bit Git for Windows Setup) op [de Git download pagina](https://git-scm.com/download/win)
 - Run de installer
-    - Ik zie veel meer opties, zijn die allen "default"?
-    - Destination location?
-    - Install Components?
-    - Start menu folder?
-    - Default editor used by Git "Use Vim"?
-    - __Op het scherm `Adjusting your PATH evironment` vink `Use Git from the Command Line` aan.__
-    - Use https transport backend "Open SSL"?
-    - Configure line ending conversions "Checkout Windows Style"
-    - __Op het scherm `Configuring the terminal emulator to use with Git Bash` vink `Use Windows default console window`.__
-    - Configure extra options "File system caching" and "Git credential Manager" Niet "Symbolic links"
-
+    - Alle default opties zijn in orde. Behalve voor de opties hieronder:
+        - Choosing the default editor used by git -> Selecteer `Use the Nano editor by default`
+        - Op het scherm `Adjusting your PATH evironment` vink `Use Git from the Command Line` aan.
+        - Op het scherm `Configuring the terminal emulator to use with Git Bash` vink `Use Windows default console window`.
+    - Installeer Git
 - Test de installatie:
     - Start een nieuwe Command Prompt
     - Typ `git --version`
