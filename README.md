@@ -42,6 +42,7 @@ Deployment stappen op een nieuwe VM:
     - Start een nieuwe Command Prompt (Niet als administrator!)
     - Typ `python --version`
     - Als er Python 3.6.x verschijnt is Python sucessvol geïnstalleerd.
+- Installeer 'pipenv' door `pip install pipenv` te runnen in de Command Prompt
 
 ### 2: Git installeren
 - Download de nieuwste versie van Git (64-bit Git for Windows Setup) op [de Git download pagina](https://git-scm.com/download/win)
