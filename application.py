@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
-from datetime import timedelta
 from flask_restful import Resource, Api
+from datetime import timedelta
 from flask_jwt_extended import (
     JWTManager, jwt_required
 )
