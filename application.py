@@ -1,5 +1,4 @@
 from flask import Flask, jsonify
-from apispec import APISpec
 from flask_restful import Resource, Api
 from datetime import timedelta
 from flask_jwt_extended import (
@@ -26,7 +25,7 @@ from Stats.views import stats
 
 from Search.views import search
 
-
+from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 
