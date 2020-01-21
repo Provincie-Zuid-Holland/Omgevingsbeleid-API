@@ -8,3 +8,4 @@ cgi.log
 search-index.log
 search-date.json
 .env
+.azure/
