@@ -158,8 +158,9 @@ api.add_resource(Geothema, '/geothemas',
 api.add_resource(Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
 api.add_resource(Verordening_Structuur, '/verordeningstructuur',
-                 '/verordeningstructuur/<string:verordeningstructuur_id>',
-                 '/verordeningstructuur/version/<string:verordeningstructuur_uuid>')
+                 '/verordeningstructuur/<int:verordeningstructuur_id>',
+                 '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>',
+                 '/verordeningstructuur/<uuid:verordeningstructuur_uuid>')
 
 # api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen',
 #                  '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
