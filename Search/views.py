@@ -5,6 +5,7 @@ from elasticsearch import Elasticsearch
 
 # Any objects that shouldn't be searched
 SEARCH_EXCLUDED = ["beleidsrelaties"]
+IX_POST = '_dev'
 
 def splitlist(value):
     value = value.replace(' ', '')
@@ -36,9 +37,9 @@ def search():
                 except ValueError:
                     return jsonify({"message": f"Invalid type to include '{t}', possible options are: {indices_possible}'"}), 400
             indices = type_only
-
+        indices = [i + IX_POST for i in indices]
         s = Search(index=indices)
         s = s.highlight('*', pre_tags=['<em class="search-highlight">'], post_tags=['</em>'])
-        sq = s.query("multi_match", fields='*', query=query, fuzziness='AUTO', analyzer='dutch')
+        sq = s.query('regexp', Titel={'value': f'.*{query}.*'})
         res = sq.execute()
     return jsonify([{**hit.to_dict(), **{key : value for key, value in hit.meta.to_dict().items() if key not in ['id', 'doc_type']}} for hit in res])
