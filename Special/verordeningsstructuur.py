@@ -1,6 +1,6 @@
 import datetime
 import marshmallow as MM
-from flask import request, jsonify
+from flask import request, jsonify, abort
 from flask_restful import Resource
 import pyodbc
 from flask_jwt_extended import get_jwt_identity
@@ -14,6 +14,7 @@ class Tree_Root(MM.Schema):
     Startpunt voor boomstructuur
     """
     Children = MM.fields.Nested("Tree_Node", many=True, allow_none=True)
+
 
 class Tree_Node(MM.Schema):
     """
@@ -32,6 +33,7 @@ class Verordening_Structuur_Schema(MM.Schema):
     """
     ID = MM.fields.Integer(ob_auto=True)
     UUID = MM.fields.UUID(ob_auto=True)
+    Titel = MM.fields.Str(required=True, ob_auto=False)
     Structuur = MM.fields.Nested(Tree_Root, ob_auto=False)
     Begin_Geldigheid = MM.fields.DateTime(format='iso', required=True, ob_auto=False)
     Eind_Geldigheid = MM.fields.DateTime(format='iso', required=True, ob_auto=False)
@@ -110,9 +112,9 @@ def handle_odbc_exception(odbc_ex):
     code = odbc_ex.args[0]
     return {"message": f"Database error [{code}] during handling of request", "detailed": str(odbc_ex)}, 500
 
+
 def ob_auto_filter(field):
     return field.metadata.get('ob_auto', False)
-
 
 
 class Verordening_Structuur(Resource):
@@ -122,13 +124,15 @@ class Verordening_Structuur(Resource):
         filters = request.args
         if (filters and verordeningstructuur_uuid) or (filters and verordeningstructuur_id):
             return {'message': 'Filters en UUID/ID kunnen niet gecombineerd worden'}, 400
-        query = "SELECT * FROM VerordeningStructuur"
+        query = "SELECT * FROM Actuele_VerordeningStructuur"
 
         if verordeningstructuur_uuid:
+            query = "SELECT * FROM VerordeningStructuur"
             query += " WHERE UUID = ?"
             params.append(verordeningstructuur_uuid)
 
         elif verordeningstructuur_id:
+            query = "SELECT * FROM VerordeningStructuur"
             query += " WHERE ID = ? ORDER BY 'Modified_Date' ASC"
             params.append(verordeningstructuur_id)
 
@@ -149,8 +153,10 @@ class Verordening_Structuur(Resource):
                 cursor = connection.cursor()
                 cursor.execute(query, *params)
                 if cursor.rowcount == 0:
-                    if verordeningstructuur_id: return {'message': f'Object met ID={verordeningstructuur_id} niet gevonden'}, 404
-                    if verordeningstructuur_uuid: return {'message': f'Object met ID={verordeningstructuur_uuid} niet gevonden'}, 404
+                    if verordeningstructuur_id:
+                        return {'message': f'Object met ID={verordeningstructuur_id} niet gevonden'}, 404
+                    if verordeningstructuur_uuid:
+                        return {'message': f'Object met ID={verordeningstructuur_uuid} niet gevonden'}, 404
                 for row in cursor:
                     rows.append(row)
             except pyodbc.Error as e:
@@ -170,20 +176,20 @@ class Verordening_Structuur(Resource):
     def post(self):
         if request.get_json() is None:
             return {'message': 'Request data empty'}, 400
-        
+
         try:
             excluded = map(lambda k: k[0], filter(lambda k: ob_auto_filter(k[1]), Verordening_Structuur_Schema().fields.items()))
             read_schema = Verordening_Structuur_Schema(exclude=excluded, unknown=MM.RAISE)
             vo_object = read_schema.load(request.get_json())
-        
+
         except MM.exceptions.ValidationError as err:
             return err.normalized_messages(), 400
-        
+
         old_struct = vo_object['Structuur']
 
         if 'Structuur' in vo_object:
             vo_object['Structuur'] = serialize_schema_to_xml(vo_object['Structuur'])
-        
+
         # Add missing data
         vo_object['Created_By'] = get_jwt_identity()['UUID']
         vo_object['Created_Date'] = datetime.datetime.now()
@@ -216,5 +222,69 @@ class Verordening_Structuur(Resource):
         vo_object['UUID'] = uuid
         vo_object['ID'] = id
 
-
         return Verordening_Structuur_Schema().dump(vo_object), 200
+
+    def patch(self, verordeningstructuur_id=None):
+        if not verordeningstructuur_id:
+            abort(404)
+
+        if request.get_json() is None:
+            return {'message': 'Request data empty'}, 400
+
+        try:
+            excluded = map(lambda k: k[0], filter(lambda k: ob_auto_filter(k[1]), Verordening_Structuur_Schema().fields.items()))
+            read_schema = Verordening_Structuur_Schema(exclude=excluded, unknown=MM.RAISE, partial=True)
+            vo_object = read_schema.load(request.get_json())
+
+        except MM.exceptions.ValidationError as err:
+            return err.normalized_messages(), 400
+
+        old_struct = vo_object['Structuur']
+
+        if 'Structuur' in vo_object:
+            vo_object['Structuur'] = serialize_schema_to_xml(vo_object['Structuur'])
+
+        query = f'''SELECT TOP(1) * FROM Verordeningstructuur WHERE ID = ? ORDER BY Modified_Date DESC'''
+        with pyodbc.connect(db_connection_settings) as connection:
+            try:
+                cursor = connection.cursor()
+                cursor.execute(query, verordeningstructuur_id)
+                if cursor.rowcount == 0:
+                    return {'message': f'Object met ID={verordeningstructuur_id} niet gevonden'}, 404
+                old_vo_object = row_to_dict(cursor.fetchone())
+            except pyodbc.Error as e:
+                return handle_odbc_exception(e), 500
+        new_vo_object = {**old_vo_object, **vo_object}
+
+        # Add missing data
+        new_vo_object['Modified_By'] = get_jwt_identity()['UUID']
+        new_vo_object['Modified_Date'] = datetime.datetime.now()
+        new_vo_object['ID'] = verordeningstructuur_id
+        new_vo_object.pop('UUID')
+
+        keys, values = list(zip(*new_vo_object.items()))
+        argmarks = ("? ," * len(keys))[:-2]
+
+        create_query = f'''
+        SET NOCOUNT ON
+        DECLARE @generated_identifiers table ([uuid] uniqueidentifier)
+
+        INSERT INTO [VerordeningStructuur] ({', '.join(keys)}) OUTPUT inserted.UUID into @generated_identifiers VALUES ({argmarks})
+
+        SELECT uuid from @generated_identifiers
+        '''
+
+        with pyodbc.connect(db_connection_settings) as connection:
+            try:
+                cursor = connection.cursor()
+                cursor.execute(create_query, *values)
+                outputted = cursor.fetchone()
+                uuid = outputted[0]
+                
+            except pyodbc.Error as e:
+                return handle_odbc_exception(e), 500
+
+        new_vo_object['Structuur'] = old_struct
+        new_vo_object['UUID'] = uuid
+
+        return Verordening_Structuur_Schema().dump(new_vo_object), 200

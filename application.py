@@ -39,10 +39,7 @@ app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3r
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
 app.config['JWT_HEADER_TYPE'] = "Token"
 api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required, ])
-# api = Api(app, prefix=f'/v{current_version}')
 jwt = JWTManager(app)
-
-
 
 
 # APISPEC SETUP
@@ -109,11 +106,11 @@ for dimensie in dimensies:
 for feit in feiten:
     general_args = (feit['meta_schema'], feit['meta_tablename'], feit['meta_tablename_actueel'], feit['fact_schema'], feit['fact_tablename'], feit['fact_to_meta_field'], feit['read_schema'])
     api.add_resource(FeitenList, f'/{feit["slug"]}', endpoint=f'{feit["slug"]}_lijst',
-                    resource_class_args=general_args)
+                     resource_class_args=general_args)
     api.add_resource(FeitenLineage, f'/{feit["slug"]}/<string:id>', endpoint=f'{feit["slug"]}_lineage',
-                    resource_class_args=general_args)
+                     resource_class_args=general_args)
     api.add_resource(Feit, f'/{feit["slug"]}/version/<string:uuid>', endpoint=f'{feit["slug"]}',
-                    resource_class_args=general_args)
+                     resource_class_args=general_args)
     spec.components.schema('Beleidsbeslissingen', schema=Beleidsbeslissingen_Read_Schema)
 
 app.add_url_rule(f'/v{current_version}/login',
@@ -132,11 +129,8 @@ api.add_resource(Geothema, '/geothemas',
 api.add_resource(Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
 api.add_resource(Verordening_Structuur, '/verordeningstructuur',
-                 '/verordeningstructuur/<string:verordeningstructuur_id>',
-                 '/verordeningstructuur/version/<string:verordeningstructuur_uuid>')
-
-# api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen',
-#                  '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
+                 '/verordeningstructuur/<int:verordeningstructuur_id>',
+                 '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>')
 
 if __name__ == '__main__':
     app.run()
