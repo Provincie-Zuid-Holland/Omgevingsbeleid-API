@@ -52,10 +52,7 @@ app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3r
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
 app.config['JWT_HEADER_TYPE'] = "Token"
 api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required, ])
-# api = Api(app, prefix=f'/v{current_version}')
 jwt = JWTManager(app)
-
-
 
 
 # APISPEC SETUP
@@ -122,25 +119,12 @@ for dimensie in dimensies:
 for feit in feiten:
     general_args = (feit['meta_schema'], feit['meta_tablename'], feit['meta_tablename_actueel'], feit['fact_schema'], feit['fact_tablename'], feit['fact_to_meta_field'], feit['read_schema'])
     api.add_resource(FeitenList, f'/{feit["slug"]}', endpoint=f'{feit["slug"]}_lijst',
-                    resource_class_args=general_args)
+                     resource_class_args=general_args)
     api.add_resource(FeitenLineage, f'/{feit["slug"]}/<string:id>', endpoint=f'{feit["slug"]}_lineage',
-                    resource_class_args=general_args)
+                     resource_class_args=general_args)
     api.add_resource(Feit, f'/{feit["slug"]}/version/<string:uuid>', endpoint=f'{feit["slug"]}',
-                    resource_class_args=general_args)
+                     resource_class_args=general_args)
     spec.components.schema('Beleidsbeslissingen', schema=Beleidsbeslissingen_Read_Schema)
-# DOCUMENTATIE
-
-# for ept, view_func in app.view_functions.items():
-#     if ept in dimension_ept:
-#         with app.test_request_context():
-#             schema_name = ept.split("_")[0] + "_Schema"
-#             schema, slug, tn, ac_tn, sn, pl = list(filter(lambda l: l[0].__name__ == schema_name, dimensie_schemas))[0]
-#             # Hacky code die de dynamische docstrings maakt
-#             for method_name in view_func.methods:
-#                 method_name = method_name.lower()
-#                 method = getattr(view_func.view_class, method_name)
-#                 method.__doc__ = method.__doc__.format(singular=sn, schema=schema.__name__, plural=pl)
-#             spec.path(view=view_func)
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
@@ -159,11 +143,7 @@ api.add_resource(Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
 api.add_resource(Verordening_Structuur, '/verordeningstructuur',
                  '/verordeningstructuur/<int:verordeningstructuur_id>',
-                 '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>',
-                 '/verordeningstructuur/<uuid:verordeningstructuur_uuid>')
-
-# api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen',
-#                  '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
+                 '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>')
 
 if __name__ == '__main__':
     app.run()
