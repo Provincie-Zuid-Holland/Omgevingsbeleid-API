@@ -1,46 +1,33 @@
-from flask import Flask, jsonify
-from flask_restful import Resource, Api
+import json
+import os
 from datetime import timedelta
-from flask_jwt_extended import (
-    JWTManager, jwt_required
-)
+
 import click
-
-from Dimensies.dimensie import Dimensie, DimensieList, DimensieLineage
-
-
-from Feiten.feit import FeitenList, Feit, FeitenLineage
-from Feiten.beleidsbeslissing import Beleidsbeslissingen_Meta_Schema, Beleidsbeslissingen_Fact_Schema, Beleidsbeslissingen_Read_Schema
-
-from Dimensies.geothemas import Geothema
-from Dimensies.gebruikers import Gebruiker
-from Dimensies.werkingsgebieden import Werkingsgebied
-
-
-from Special.verordeningsstructuur import Verordening_Structuur
-from Auth.views import login, tokenstat
-from Auth.commands import new_client_creds, new_client_creds_gebruikers
-
-from Stats.views import stats
-
-from Search.views import search
+from flask import Flask, jsonify
 
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
-
-from flask_cors import CORS
-
-from elasticsearch_dsl import connections, Index
-
-import json
-
-from Stats.views import stats
-
+from Auth.commands import new_client_creds, new_client_creds_gebruikers
+from Auth.views import login, tokenstat
 from datamodel import dimensies, feiten
-
-from elasticsearch_dsl import Index, Keyword, Mapping, Nested, TermsFacet, connections, Search
+from Dimensies.dimensie import Dimensie, DimensieLineage, DimensieList
+from Dimensies.gebruikers import Gebruiker
+from Dimensies.geothemas import Geothema
+from Dimensies.werkingsgebieden import Werkingsgebied
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl import (Index, Keyword, Mapping, Nested, Search,
+                               TermsFacet, connections)
+from Feiten.beleidsbeslissing import (Beleidsbeslissingen_Fact_Schema,
+                                      Beleidsbeslissingen_Meta_Schema,
+                                      Beleidsbeslissingen_Read_Schema)
+from Feiten.feit import Feit, FeitenLineage, FeitenList
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager, jwt_required
+from flask_restful import Api, Resource
+from Search.views import search
+from Special.verordeningsstructuur import Verordening_Structuur
+from Stats.views import stats
 
 current_version = '0.1'
 
