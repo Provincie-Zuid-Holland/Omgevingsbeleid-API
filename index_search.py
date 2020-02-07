@@ -11,6 +11,7 @@ from globals import db_connection_string, db_connection_settings
 # Filenames to store the date and logs
 LOGGING_FILE = 'search-index.log'
 DATE_FILE = 'search-date.json'
+IX_POST = '_dev'
 
 logging.basicConfig(format='%(asctime)s : %(message)s', filename=LOGGING_FILE, level=logging.INFO)
 
@@ -33,7 +34,7 @@ def main():
     connections.create_connection(hosts=['localhost:9200'], timeout=20)
     logging.info(f'Checking existing indices')
     for dimensie in dimensies_and_feiten():
-        ix = Index(dimensie['slug'])
+        ix = Index(dimensie['slug'] + IX_POST)
         fields = dimensie["schema"]().declared_fields
         search_fields = [field for field in fields if 'search_field'in fields[field].metadata and fields[field].metadata['search_field'] == "text"]
         search_fields += ["UUID", "ID"]
@@ -42,9 +43,12 @@ def main():
             ix.create()
             m = Mapping()
             for field in search_fields:
-                m.field(field, 'text')
+                if field == 'ID':
+                    field = '_ID'
+                m.field(field, 'text', analyzer='dutch')
             m.field('type', 'text')
-            m.save(dimensie['slug'])
+            print(m)
+            m.save(dimensie['slug'] + IX_POST)
             logging.info(f'Mapping created for {dimensie["slug"]}')
 
         logging.info(f'Index found for {dimensie["slug"]}, populating with objects')
@@ -55,11 +59,13 @@ def main():
             cursor = connection.cursor()
             cursor.execute(query)
             rows = cursor.fetchall()
+            
             for row in rows:
                 rowdict = dict(zip([t[0] for t in row.cursor_description], row))
+                rowdict['_ID'] = rowdict.pop('ID')
                 rowdict['type'] = dimensie['plural']
                 es.index(
-                    index=dimensie['slug'],
+                    index=dimensie['slug'] + IX_POST,
                     body=rowdict)
                 logging.info(f"Added document with UUID {rowdict['UUID']} to index {dimensie['slug']}")
 
