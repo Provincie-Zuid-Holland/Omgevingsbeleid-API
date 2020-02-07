@@ -1,7 +1,7 @@
 import records
 
 # Database settings
-
+# Example settings
 DB_USER = 'sa'
 DB_PASS = 'Zu!dHoll@nd'
 DB_HOST = 'localhost'

@@ -550,7 +550,7 @@ SELECT [UUID]
       ,[Created_Date]
       ,[Modified_By]
       ,[Modified_Date]
-  FROM WerkingsGebieden'''
+  FROM [dbo].[WerkingsGebieden]'''
 
 # Een werkingsgebied selecteren op `uuid`
 # Argumenten: uuid
@@ -567,7 +567,7 @@ SELECT [UUID]
       ,[Created_Date]
       ,[Modified_By]
       ,[Modified_Date]
-  FROM WerkingsGebieden
+  FROM [dbo].[WerkingsGebieden]
   WHERE UUID=:uuid
   '''
 
@@ -584,7 +584,7 @@ SELECT [UUID]
       ,[Created_Date]
       ,[Modified_By]
       ,[Modified_Date]
-  FROM GeoThemas'''
+  FROM [dbo].[GeoThemas]'''
 
 # Een werkingsgebied selecteren op `uuid`
 # Argumenten: uuid
@@ -598,7 +598,7 @@ SELECT [UUID]
       ,[Created_Date]
       ,[Modified_By]
       ,[Modified_Date]
-  FROM GeoThemas
+  FROM [dbo].[GeoThemas]
   WHERE UUID=:uuid
   '''
 
