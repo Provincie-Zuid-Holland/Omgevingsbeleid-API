@@ -11,7 +11,7 @@ from globals import db_connection_string, db_connection_settings
 import pyodbc
 import time
 import records
-
+import os
 
 
 def login():
@@ -43,7 +43,8 @@ def login():
                 raw_token = decode_token(access_token)
                 return jsonify({'access_token':access_token, 
                                 'expires':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.localtime(raw_token['exp'])),
-                                'identifier':raw_token['identity']}), 200    
+                                'identifier':raw_token['identity'],
+                                'deployment type':os.getenv('API_ENV')}), 200    
     return jsonify(
         {"message": "Wachtwoord of gebruikersnaam ongeldig"}), 401
     
