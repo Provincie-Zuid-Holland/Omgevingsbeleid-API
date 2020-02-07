@@ -1,4 +1,4 @@
-# PZH Flask Graph
+# Omgevingsbeleid API
 Dit project is een API voor omgevingsbeleid van de provincie Zuid-Holland
 
 ## Stack
