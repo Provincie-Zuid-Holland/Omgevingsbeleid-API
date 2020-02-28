@@ -27,13 +27,11 @@ DB_NAME=Naam van de database
 DB_DRIVER=Driver naam
 FLASK_APP=server.py
 ```
-
 In development is het makkelijk om ook de FLASK_ENV variabale in te stellen (Niet gebruiken voor productie omgevingen!)
 
 ```bash
 FLASK_ENV=development
 ```
-
 
 ## Lokale versie draaien
 ```bash
