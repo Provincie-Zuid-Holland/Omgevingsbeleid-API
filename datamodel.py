@@ -33,14 +33,14 @@ feiten = [
         'meta_tablename': 'Beleidsbeslissingen',
         'meta_tablename_actueel': 'Actuele_Beleidsbeslissingen',
         'fact_tablename': 'Omgevingsbeleid',
-        'singular': 'Ambitie',
-        'plural': 'Ambities',
+        'singular': 'Beleidsbeslissing',
+        'plural': 'Beleidsbeslissingen',
         'fact_to_meta_field': 'Beleidsbeslissing'}
 ]
 
 
 # Normalized union of Dimensies en Feiten for use in search
-def dimensie_and_feiten():
+def dimensies_and_feiten():
     normalized_feiten = []
     for feit in feiten:
         normalized_feiten.append(

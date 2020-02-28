@@ -17,6 +17,7 @@ passlib = {extras = ["bcrypt"]}
 apispec-webframeworks = "*"
 flask-cors = "*"
 elasticsearch-dsl = "*"
+werkzeug = "*"
 
 [dev-packages]
 pylint = "*"

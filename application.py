@@ -1,46 +1,33 @@
-from flask import Flask, jsonify
-from flask_restful import Resource, Api
-from pprint import pprint
+import json
+import os
 from datetime import timedelta
-from flask_jwt_extended import (
-    JWTManager, jwt_required
-)
+
 import click
-from collections import namedtuple
-
-from Dimensies.dimensie import Dimensie, DimensieList, DimensieLineage
-
-
-from Feiten.feit import FeitenList, Feit, FeitenLineage
-from Feiten.beleidsbeslissing import Beleidsbeslissingen_Meta_Schema, Beleidsbeslissingen_Fact_Schema, Beleidsbeslissingen_Read_Schema
-
-from Dimensies.geothemas import Geothema
-from Dimensies.gebruikers import Gebruiker
-from Dimensies.werkingsgebieden import Werkingsgebied
-
-from Auth.views import login, tokenstat
-from Auth.commands import new_client_creds, new_client_creds_gebruikers
-
-from Stats.views import stats
-
-from Search.views import search
+from flask import Flask, jsonify
 
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
-
-from flask_cors import CORS
-
-from elasticsearch_dsl import connections, Index
-
-import json
-
-from Stats.views import stats
-
+from Auth.commands import new_client_creds, new_client_creds_gebruikers
+from Auth.views import login, tokenstat
 from datamodel import dimensies, feiten
-
-from elasticsearch_dsl import Index, Keyword, Mapping, Nested, TermsFacet, connections, Search
+from Dimensies.dimensie import Dimensie, DimensieLineage, DimensieList
+from Dimensies.gebruikers import Gebruiker
+from Dimensies.geothemas import Geothema
+from Dimensies.werkingsgebieden import Werkingsgebied
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl import (Index, Keyword, Mapping, Nested, Search,
+                               TermsFacet, connections)
+from Feiten.beleidsbeslissing import (Beleidsbeslissingen_Fact_Schema,
+                                      Beleidsbeslissingen_Meta_Schema,
+                                      Beleidsbeslissingen_Read_Schema)
+from Feiten.feit import Feit, FeitenLineage, FeitenList
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager, jwt_required
+from flask_restful import Api, Resource
+from Search.views import search
+from Special.verordeningsstructuur import Verordening_Structuur
+from Stats.views import stats
 
 current_version = '0.1'
 
@@ -49,13 +36,10 @@ current_version = '0.1'
 app = Flask(__name__)
 CORS(app)
 app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3rVxdev'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
 app.config['JWT_HEADER_TYPE'] = "Token"
 api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required, ])
-# api = Api(app, prefix=f'/v{current_version}')
 jwt = JWTManager(app)
-
-
 
 
 # APISPEC SETUP
@@ -122,25 +106,12 @@ for dimensie in dimensies:
 for feit in feiten:
     general_args = (feit['meta_schema'], feit['meta_tablename'], feit['meta_tablename_actueel'], feit['fact_schema'], feit['fact_tablename'], feit['fact_to_meta_field'], feit['read_schema'])
     api.add_resource(FeitenList, f'/{feit["slug"]}', endpoint=f'{feit["slug"]}_lijst',
-                    resource_class_args=general_args)
+                     resource_class_args=general_args)
     api.add_resource(FeitenLineage, f'/{feit["slug"]}/<string:id>', endpoint=f'{feit["slug"]}_lineage',
-                    resource_class_args=general_args)
+                     resource_class_args=general_args)
     api.add_resource(Feit, f'/{feit["slug"]}/version/<string:uuid>', endpoint=f'{feit["slug"]}',
-                    resource_class_args=general_args)
+                     resource_class_args=general_args)
     spec.components.schema('Beleidsbeslissingen', schema=Beleidsbeslissingen_Read_Schema)
-# DOCUMENTATIE
-
-# for ept, view_func in app.view_functions.items():
-#     if ept in dimension_ept:
-#         with app.test_request_context():
-#             schema_name = ept.split("_")[0] + "_Schema"
-#             schema, slug, tn, ac_tn, sn, pl = list(filter(lambda l: l[0].__name__ == schema_name, dimensie_schemas))[0]
-#             # Hacky code die de dynamische docstrings maakt
-#             for method_name in view_func.methods:
-#                 method_name = method_name.lower()
-#                 method = getattr(view_func.view_class, method_name)
-#                 method.__doc__ = method.__doc__.format(singular=sn, schema=schema.__name__, plural=pl)
-#             spec.path(view=view_func)
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
@@ -157,9 +128,9 @@ api.add_resource(Geothema, '/geothemas',
                  '/geothemas/<string:geothema_uuid>')
 api.add_resource(Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
-
-# api.add_resource(BeleidsBeslissing, '/beleidsbeslissingen',
-#                  '/beleidsbeslissingen/<string:beleidsbeslissing_uuid>')
+api.add_resource(Verordening_Structuur, '/verordeningstructuur',
+                 '/verordeningstructuur/<int:verordeningstructuur_id>',
+                 '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>')
 
 if __name__ == '__main__':
     app.run()
