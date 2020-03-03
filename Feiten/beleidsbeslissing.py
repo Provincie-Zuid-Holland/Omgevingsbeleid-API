@@ -69,8 +69,8 @@ class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
     Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
 
     def default_user(self, data):
-        for field in self.fields:
-            if data.get(field) == default_user_uuid and "userfield" in self.fields[field].metadata and self.fields[field].metadata['userfield']:
+        for field in self.fields_with_props('userfield'):
+            if data.get(field) == default_user_uuid:
                 data[field] = None
         return data
 
@@ -82,8 +82,8 @@ class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
             return self.default_user(data)
 
     def none_to_nullUUID(self, data):
-        for field in self.fields:
-            if data.get(field) == None and "userfield" in self.fields[field].metadata and self.fields[field].metadata['userfield']:
+        for field in self.fields_with_props('userfield'):
+            if data.get(field) == None:
                 data[field] = default_user_uuid
         return data
     

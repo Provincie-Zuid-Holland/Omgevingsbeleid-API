@@ -57,6 +57,10 @@ class Feiten_Schema(MM.Schema):
     
     @classmethod
     def fields_with_props(cls, prop):
+        """
+        Class method that returns all fields that have `prop`value in their obprops list.
+        Returns a list
+        """
         return list(map(lambda item: item[0], filter(lambda item: prop in item[1].metadata['obprops'], cls._declared_fields.items())))
 
 
@@ -386,30 +390,6 @@ def dedup_dictlist(key, dlist):
 class FeitenList(Resource):
 
     def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
-        # Fields that cannot be send for API POST
-        self._excluded_meta_post_fields = [
-            'ID', 'UUID', 'Modified_By',
-            'Modified_Date', 'Created_Date',
-            'Created_By'
-        ]
-        self._excluded_fact_post_fields = [
-            'ID', 'UUID', 'Modified_By',
-            'Modified_Date', 'Created_Date',
-            'Created_By', 'Begin_Geldigheid', 'Eind_Geldigheid'
-        ]
-
-        # Fields that cannot be used for SQL INSERT
-        self._excluded_create_fields = ["UUID", "ID"]
-
-        self.all_query = f'SELECT * FROM {meta_tablename}'
-        self._meta_tablename = meta_tablename
-        self._meta_schema = meta_schema
-        self._fact_schema = fact_schema
-        self._fact_to_meta_field_attr = fact_schema(
-        ).declared_fields[fact_to_meta_field].attribute
-        self._fact_to_meta_field = fact_to_meta_field
-        self._fact_tablename = fact_tablename
-        self._excluded_fact_post_fields.append(fact_to_meta_field)
         self._factschema = read_schema
         self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
 
@@ -448,7 +428,7 @@ class FeitenList(Resource):
         POST endpoint voor feiten
         """
         read_schema = self._factschema(
-            exclude=self._excluded_meta_post_fields,
+            exclude=self._factschema.fields_with_props('excluded_post'),
             unknown=MM.utils.RAISE
         )
         try:
@@ -463,7 +443,7 @@ class FeitenList(Resource):
 
         try:
             fact = self.manager.save_fact(fact)
-            return self._read_schema().dump(fact), 200
+            return self._factschema().dump(fact), 200
         except pyodbc.Error as odbc_ex:
             return handle_odbc_exception(odbc_ex), 500
         except MM.exceptions.ValidationError as err:
