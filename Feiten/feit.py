@@ -33,7 +33,6 @@ class Feiten_Schema(MM.Schema):
             data['Eind_Geldigheid'] = None
         return data
 
-    # TODO PATCH WERK NOG NIET!!!!!!!!!!!!!
 
     @MM.post_dump(pass_many=True)
     def minmax_datetime_many(self, data, many):

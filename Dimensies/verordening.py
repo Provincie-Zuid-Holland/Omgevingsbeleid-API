@@ -9,6 +9,7 @@ class Verordening_Schema(Dimensie_Schema):
     Type = MM.fields.Str(required=True, validate=[MM.validate.OneOf(['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel']), ])
     Volgnummer = MM.fields.Str(required=True)
     Werkingsgebied = MM.fields.UUID(missing=None, attribute='fk_Werkingsgebied')
+    Weblink = MM.fields.Str(missing=None, search_field="text")
     Eigenaar_1 = MM.fields.UUID(required=False, missing=default_user_uuid)
     Eigenaar_2 = MM.fields.UUID(required=False, missing=default_user_uuid)
     Portefeuillehouder_1 = MM.fields.UUID(required=False, missing=default_user_uuid)
