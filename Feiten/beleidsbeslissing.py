@@ -1,6 +1,8 @@
 import marshmallow as MM
-from .feit import Feiten_Schema, Link_Schema
 from globals import default_user_uuid
+
+from .feit import Feiten_Schema, Link_Schema
+
 
 class Beleidsbeslissingen_Meta_Schema(Feiten_Schema):
     Eigenaar_1 = MM.fields.UUID(missing=default_user_uuid)
@@ -36,35 +38,35 @@ class Beleidsbeslissingen_Fact_Schema(Feiten_Schema):
 
 
 class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
-    Eigenaar_1 = MM.fields.UUID(default=default_user_uuid, missing=default_user_uuid, allow_none=True, linker=False, userfield=True)
-    Eigenaar_2 = MM.fields.UUID(default=default_user_uuid, missing=default_user_uuid, allow_none=True, linker=False, userfield=True)
-    Portefeuillehouder_1 = MM.fields.UUID(default=default_user_uuid, missing=default_user_uuid, allow_none=True, linker=False, userfield=True)
-    Portefeuillehouder_2 = MM.fields.UUID(default=default_user_uuid, missing=default_user_uuid, allow_none=True, linker=False, userfield=True)
-    Opdrachtgever = MM.fields.UUID(default=default_user_uuid, missing=default_user_uuid, allow_none=True, linker=False, userfield=True)
-    Status = MM.fields.Str(required=True, linker=False)
-    Titel = MM.fields.Str(required=True, linker=False, search_field="text")
-    Omschrijving_Keuze = MM.fields.Str(missing=None, linker=False, search_field="text")
-    Omschrijving_Werking = MM.fields.Str(missing=None, linker=False, search_field="text")
-    Aanleiding = MM.fields.Str(missing=None, linker=False, search_field="text")
-    Afweging = MM.fields.Str(missing=None, linker=False, search_field="text")
-    Provinciaal_Belang = MM.fields.Str(missing=None, linker=False, search_field="text")
-    Weblink = MM.fields.Str(missing=None, linker=False)
-    Besluitnummer = MM.fields.Str(missing=None)
-    Tags = MM.fields.Str(missing=None)
+    Eigenaar_1 = MM.fields.UUID(default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=['userfield'])
+    Eigenaar_2 = MM.fields.UUID(default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=['userfield'])
+    Portefeuillehouder_1 = MM.fields.UUID(default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=['userfield'])
+    Portefeuillehouder_2 = MM.fields.UUID(default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=['userfield'])
+    Opdrachtgever = MM.fields.UUID(default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=['userfield'])
+    Status = MM.fields.Str(required=True, obprops=[])
+    Titel = MM.fields.Str(required=True, obprops=['search_field'])
+    Omschrijving_Keuze = MM.fields.Str(missing=None, obprops=['search_field'])
+    Omschrijving_Werking = MM.fields.Str(missing=None, obprops=['search_field'])
+    Aanleiding = MM.fields.Str(missing=None, obprops=['search_field'])
+    Afweging = MM.fields.Str(missing=None, obprops=['search_field'])
+    Provinciaal_Belang = MM.fields.Str(missing=None, obprops=['search_field'])
+    Weblink = MM.fields.Str(missing=None, obprops=[])
+    Besluitnummer = MM.fields.Str(missing=None, obprops=[])
+    Tags = MM.fields.Str(missing=None, obprops=[])
     WerkingsGebieden = MM.fields.Nested(
-        Link_Schema, many=True, default=[], missing=[], linker=True)
+        Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
     BeleidsRegels = MM.fields.Nested(
-        Link_Schema, many=True,  default=[], missing=[], linker=True)
+        Link_Schema, many=True,  default=[], missing=[], obprops=['linker'])
     Verordening = MM.fields.Nested(
-        Link_Schema, many=True,  default=[], missing=[], linker=True)
+        Link_Schema, many=True,  default=[], missing=[], obprops=['linker'])
     Maatregelen = MM.fields.Nested(
-        Link_Schema, many=True,  default=[], missing=[], linker=True)
-    Themas = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
-    Ambities = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
-    Doelen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
+        Link_Schema, many=True,  default=[], missing=[], obprops=['linker'])
+    Themas = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
+    Ambities = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
+    Doelen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
     Belangen = MM.fields.Nested(
-        Link_Schema, many=True, default=[], missing=[], linker=True)
-    Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], linker=True)
+        Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
+    Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
 
     def default_user(self, data):
         for field in self.fields:

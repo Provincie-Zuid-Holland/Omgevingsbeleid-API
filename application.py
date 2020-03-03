@@ -18,9 +18,7 @@ from Dimensies.werkingsgebieden import Werkingsgebied
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import (Index, Keyword, Mapping, Nested, Search,
                                TermsFacet, connections)
-from Feiten.beleidsbeslissing import (Beleidsbeslissingen_Fact_Schema,
-                                      Beleidsbeslissingen_Meta_Schema,
-                                      Beleidsbeslissingen_Read_Schema)
+from Feiten.beleidsbeslissing import (Beleidsbeslissingen_Read_Schema)
 from Feiten.feit import Feit, FeitenLineage, FeitenList
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required
