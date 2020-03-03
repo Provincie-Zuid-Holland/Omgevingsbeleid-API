@@ -86,13 +86,16 @@ class FactManager:
         self._fact_tablename = fact_tablename
         self._fact_to_meta_field_attr = fact_schema().declared_fields[fact_to_meta_field].attribute or fact_to_meta_field
         self._fact_schema = fact_schema
-        self._read_schema = read_schema
+        self._factschema = read_schema
         # Fields that cannot be used for SQL INSERT
         self._excluded_create_fields = ["UUID", "ID"]
         self._inherited_fields = ['Modified_By', 'Modified_Date', 'Created_Date',
                                   'Created_By', 'Begin_Geldigheid', 'Eind_Geldigheid']
 
     def row_to_dict(self, row):
+        """
+        Turns a row from pyodbc into a dictionary
+        """
         return dict(zip([t[0] for t in row.cursor_description], row))
 
     def generate_fact(self, facts):
@@ -128,11 +131,10 @@ class FactManager:
         connection = pyodbc.connect(self.db_connection_settings)
         cursor = connection.cursor()
         cursor.execute(query, *args)
-        headers = [column[0] for column in cursor.description]
         rows = cursor.fetchall()
         results = []
         for row in rows:
-            results.append(dict(zip(headers, row)))
+            results.append(self.row_to_dict(row))
         connection.close()
         return results
 
@@ -140,8 +142,8 @@ class FactManager:
         """
         Saves a schema based fact object to the database.
         """
-        schema_fields = self._read_schema().declared_fields
-        linker_fields = self._read_schema.fields_with_props('linker')
+        schema_fields = self._factschema().declared_fields
+        linker_fields = self._factschema.fields_with_props('linker')
 
         linker_fields_max_len = max(map(lambda fieldname: len(fact[fieldname]), linker_fields))
         linked_rows = []
@@ -268,7 +270,7 @@ class FactManager:
         assert(len(fact_objects) == 1), 'Multiple results where singular object was expected (duplicate UUID)'
         meta = fact_objects[0]
 
-        return(self._read_schema().dump(meta))
+        return(self._factschema().dump(meta))
 
     def retrieve_facts(self, id=None, latest=False, sorted_by=None):
         """
@@ -302,8 +304,8 @@ class FactManager:
             return []
         if id and latest:
             fact_object = fact_objects[0]
-            return(self._read_schema().dump(fact_object))
-        return(self._read_schema().dump(fact_objects, many=True))
+            return(self._factschema().dump(fact_object))
+        return(self._factschema().dump(fact_objects, many=True))
 
 
 class FeitenLineage(Resource):
