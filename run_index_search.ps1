@@ -1,1 +1,0 @@
-pipenv run python index_search.py
