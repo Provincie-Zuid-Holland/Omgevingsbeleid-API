@@ -1,15 +1,27 @@
 from flask import Flask, jsonify, request
 from datamodel import dimensies_and_feiten
-from elasticsearch_dsl import Index, Keyword, Mapping, Nested, TermsFacet, connections, Search
-from elasticsearch import Elasticsearch
-
+import pyodbc
+from globals import db_connection_settings
 # Any objects that shouldn't be searched
 SEARCH_EXCLUDED = ["beleidsrelaties"]
-IX_POST = '_dev'
 
 def splitlist(value):
     value = value.replace(' ', '')
     return value.split(',')
+
+
+def search_query(tablename, searchfields):
+    """
+    Generates a query to use T-SQL Full text search given a tablename and fields.
+    """
+    if len(searchfields) > 2:
+        fieldnames_inner = ','.join([searchfields[0], 'CONCAT(' + ', '.join(searchfields[1:]) + ') AS Omschrijving'])
+        fieldnames = ','.join([searchfields[0], 'Omschrijving'])
+        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames_inner}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename}) As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, 5) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
+    else:
+        fieldnames = ','.join(searchfields)
+        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename}) As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, 5) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
+    return query.strip()
 
 
 def search():
@@ -37,9 +49,16 @@ def search():
                 except ValueError:
                     return jsonify({"message": f"Invalid type to include '{t}', possible options are: {indices_possible}'"}), 400
             indices = type_only
-        indices = [i + IX_POST for i in indices]
-        s = Search(index=indices)
-        s = s.highlight('*', pre_tags=['<em class="search-highlight">'], post_tags=['</em>'])
-        sq = s.query('regexp', Titel={'value': f'.*{query}.*'})
-        res = sq.execute()
-    return jsonify([{**hit.to_dict(), **{key : value for key, value in hit.meta.to_dict().items() if key not in ['id', 'doc_type']}} for hit in res])
+        queries = []
+        for table in d_and_f:
+            if table['slug'] in indices:
+                queries.append(search_query(table['tablename'], table['schema'].fields_with_props('search_field')))
+        final_query = " UNION ".join(queries) + " ORDER BY RANK DESC"
+        results = []
+        with pyodbc.connect(db_connection_settings) as cnx:
+            cur = cnx.cursor()
+            if len(query.split()) > 1:
+                query = ' AND '.join(query.split())
+            cur.execute(final_query, *([query] * len(queries)))
+            results = [dict(zip([t[0] for t in row.cursor_description], row)) for row in cur.fetchall()]
+        return jsonify(results)

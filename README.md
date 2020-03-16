@@ -26,6 +26,7 @@ DB_PORT=Poort van SQL-server (1433 default)
 DB_NAME=Naam van de database
 DB_DRIVER=Driver naam
 FLASK_APP=server.py
+JWT_SECRET=1234abahsge
 ```
 In development is het makkelijk om ook de FLASK_ENV variabale in te stellen (Niet gebruiken voor productie omgevingen!)
 

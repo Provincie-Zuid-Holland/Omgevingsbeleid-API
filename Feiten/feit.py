@@ -17,14 +17,14 @@ class Feiten_Schema(MM.Schema):
     """
     Schema voor de standaard velden van een feit
     """
-    ID = MM.fields.Integer()
-    UUID = MM.fields.UUID(required=True)
-    Begin_Geldigheid = MM.fields.DateTime(format='iso', missing=min_datetime, allow_none=True)
-    Eind_Geldigheid = MM.fields.DateTime(format='iso', missing=max_datetime, allow_none=True)
-    Created_By = MM.fields.UUID(required=True)
-    Created_Date = MM.fields.DateTime(format='iso', required=True)
-    Modified_By = MM.fields.UUID(required=True)
-    Modified_Date = MM.fields.DateTime(format='iso', required=True)
+    ID = MM.fields.Integer(obprops=['excluded_patch', 'excluded_post'])
+    UUID = MM.fields.UUID(required=True, obprops=['excluded_patch', 'excluded_post'])
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', missing=min_datetime, allow_none=True, obprops=[])
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', missing=max_datetime, allow_none=True, obprops=[])
+    Created_By = MM.fields.UUID(required=True, obprops=['excluded_patch', 'excluded_post'])
+    Created_Date = MM.fields.DateTime(format='iso', required=True, obprops=['excluded_patch', 'excluded_post'])
+    Modified_By = MM.fields.UUID(required=True, obprops=['excluded_patch', 'excluded_post'])
+    Modified_Date = MM.fields.DateTime(format='iso', required=True, obprops=['excluded_patch', 'excluded_post'])
 
     def minmax_datetime(self, data):
         if 'Begin_Geldigheid' in data and data['Begin_Geldigheid'] == min_datetime.isoformat():
@@ -33,7 +33,6 @@ class Feiten_Schema(MM.Schema):
             data['Eind_Geldigheid'] = None
         return data
 
-    # TODO PATCH WERK NOG NIET!!!!!!!!!!!!!
 
     @MM.post_dump(pass_many=True)
     def minmax_datetime_many(self, data, many):
@@ -55,6 +54,15 @@ class Feiten_Schema(MM.Schema):
             return list(map(self.none_to_minmax_datetime, data))
         else:
             return self.none_to_minmax_datetime(data)
+    
+    @classmethod
+    def fields_with_props(cls, prop):
+        """
+        Class method that returns all fields that have `prop`value in their obprops list.
+        Returns a list
+        """
+        return list(map(lambda item: item[0], filter(lambda item: prop in item[1].metadata['obprops'], cls._declared_fields.items())))
+
 
     class Meta:
         ordered = True
@@ -78,13 +86,16 @@ class FactManager:
         self._fact_tablename = fact_tablename
         self._fact_to_meta_field_attr = fact_schema().declared_fields[fact_to_meta_field].attribute or fact_to_meta_field
         self._fact_schema = fact_schema
-        self._read_schema = read_schema
+        self._factschema = read_schema
         # Fields that cannot be used for SQL INSERT
         self._excluded_create_fields = ["UUID", "ID"]
         self._inherited_fields = ['Modified_By', 'Modified_Date', 'Created_Date',
                                   'Created_By', 'Begin_Geldigheid', 'Eind_Geldigheid']
 
     def row_to_dict(self, row):
+        """
+        Turns a row from pyodbc into a dictionary
+        """
         return dict(zip([t[0] for t in row.cursor_description], row))
 
     def generate_fact(self, facts):
@@ -120,11 +131,10 @@ class FactManager:
         connection = pyodbc.connect(self.db_connection_settings)
         cursor = connection.cursor()
         cursor.execute(query, *args)
-        headers = [column[0] for column in cursor.description]
         rows = cursor.fetchall()
         results = []
         for row in rows:
-            results.append(dict(zip(headers, row)))
+            results.append(self.row_to_dict(row))
         connection.close()
         return results
 
@@ -132,12 +142,8 @@ class FactManager:
         """
         Saves a schema based fact object to the database.
         """
-        schema_fields = self._read_schema().declared_fields
-        linker_fields = []
-        for name, field in schema_fields.items():
-            if 'linker' in field.metadata:
-                if field.metadata['linker']:
-                    linker_fields.append(name)
+        schema_fields = self._factschema().declared_fields
+        linker_fields = self._factschema.fields_with_props('linker')
 
         linker_fields_max_len = max(map(lambda fieldname: len(fact[fieldname]), linker_fields))
         linked_rows = []
@@ -264,7 +270,7 @@ class FactManager:
         assert(len(fact_objects) == 1), 'Multiple results where singular object was expected (duplicate UUID)'
         meta = fact_objects[0]
 
-        return(self._read_schema().dump(meta))
+        return(self._factschema().dump(meta))
 
     def retrieve_facts(self, id=None, latest=False, sorted_by=None):
         """
@@ -298,38 +304,19 @@ class FactManager:
             return []
         if id and latest:
             fact_object = fact_objects[0]
-            return(self._read_schema().dump(fact_object))
-        return(self._read_schema().dump(fact_objects, many=True))
+            return(self._factschema().dump(fact_object))
+        return(self._factschema().dump(fact_objects, many=True))
 
 
 class FeitenLineage(Resource):
     def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
-        # Fields that cannot be send for API POST
-        self._excluded_meta_patch_fields = [
-            'ID', 'UUID', 'Modified_By',
-            'Modified_Date', 'Created_Date',
-            'Created_By'
-        ]
-        self._excluded_fact_patch_fields = [
-            'ID', 'UUID', 'Modified_By',
-            'Modified_Date', 'Created_Date',
-            'Created_By', 'Begin_Geldigheid', 'Eind_Geldigheid'
-        ]
-
-        # Fields that cannot be used for SQL INSERT
-        self._excluded_create_fields = ["UUID", "ID"]
-
-        self._meta_tablename = meta_tablename
-        self._meta_schema = meta_schema
-        self._fact_schema = fact_schema
-        self._fact_to_meta_field_attr = fact_schema(
-        ).declared_fields[fact_to_meta_field].attribute
-        self._fact_to_meta_field = fact_to_meta_field
-        self._fact_tablename = fact_tablename
-        self._read_schema = read_schema
+        self._factschema = read_schema
         self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self, id):
+        """
+        Returns a list of versions for a given lineage ID
+        """
         try:
             result = self.manager.retrieve_facts(id=id, sorted_by='Modified_Date')
             if len(result) == 0:
@@ -342,11 +329,11 @@ class FeitenLineage(Resource):
 
     def patch(self, id):
         """
-        PATCH endpoint voor feiten
+        'Modifies' a given object, by creating a new object and adding it to the lineage list
         """
         request_time = datetime.datetime.now()
-        read_schema = self._read_schema(
-            exclude=self._excluded_meta_patch_fields,
+        read_schema = self._factschema(
+            exclude=self._factschema.fields_with_props('excluded_patch'),
             unknown=MM.utils.RAISE,
             partial=True
         )
@@ -356,19 +343,24 @@ class FeitenLineage(Resource):
             return err.normalized_messages(), 400
 
         old_fact = self.manager.retrieve_facts(id, latest=True)
-        new_fact = self._read_schema().dump(new_fact)
+        if not old_fact:
+            return {'message': f'Object with ID: \'{id}\' not found'}, 404
 
-        new_fact = {**old_fact, **new_fact}  # Dict merging
+        new_fact = self._factschema().dump(new_fact)
+
+        # Combine old fields with new changes
+        new_fact = {**old_fact, **new_fact}  
+
         new_fact['Modified_By'] = get_jwt_identity()['UUID']
         new_fact['Modified_Date'] = MM.utils.isoformat(request_time)
         try:
-            new_fact = self._read_schema().load(new_fact)
+            new_fact = self._factschema().load(new_fact)
         except MM.exceptions.ValidationError as err:
             return err.normalized_messages(), 500
 
         try:
             fact = self.manager.save_fact(new_fact, id=id)
-            return self._read_schema().dump(fact), 200
+            return self._factschema().dump(fact), 200
         except pyodbc.Error as odbc_ex:
             return handle_odbc_exception(odbc_ex), 500
         except MM.exceptions.ValidationError as err:
@@ -383,6 +375,9 @@ def filter_linker(linker, value):
 
 
 def dedup_dictlist(key, dlist):
+    """
+    Given a list of dictionaries and a key thats in all of those dictionaries, remove all duplicate dictionaries (based on the key)
+    """
     keylist = [(d[key], d) for d in dlist]
     keyset = set([d[key] for d in dlist])
     results = []
@@ -397,31 +392,7 @@ def dedup_dictlist(key, dlist):
 class FeitenList(Resource):
 
     def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
-        # Fields that cannot be send for API POST
-        self._excluded_meta_post_fields = [
-            'ID', 'UUID', 'Modified_By',
-            'Modified_Date', 'Created_Date',
-            'Created_By'
-        ]
-        self._excluded_fact_post_fields = [
-            'ID', 'UUID', 'Modified_By',
-            'Modified_Date', 'Created_Date',
-            'Created_By', 'Begin_Geldigheid', 'Eind_Geldigheid'
-        ]
-
-        # Fields that cannot be used for SQL INSERT
-        self._excluded_create_fields = ["UUID", "ID"]
-
-        self.all_query = f'SELECT * FROM {meta_tablename}'
-        self._meta_tablename = meta_tablename
-        self._meta_schema = meta_schema
-        self._fact_schema = fact_schema
-        self._fact_to_meta_field_attr = fact_schema(
-        ).declared_fields[fact_to_meta_field].attribute
-        self._fact_to_meta_field = fact_to_meta_field
-        self._fact_tablename = fact_tablename
-        self._excluded_fact_post_fields.append(fact_to_meta_field)
-        self._read_schema = read_schema
+        self._factschema = read_schema
         self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self):
@@ -432,11 +403,11 @@ class FeitenList(Resource):
         linker_filters = {}
         normal_filters = {}
         if filters:
-            schema_fields = self._read_schema().fields
+            schema_fields = self._factschema().fields
             invalids = [f for f in filters if f not in schema_fields]
             if invalids:
                 return {'message': f"Filter(s) '{' '.join(invalids)}' niet geldig voor dit type object. Geldige filters: '{', '.join(schema_fields)}''"}, 403
-            linker_filters = {k: v for k, v in filters.items() if 'linker' in schema_fields[k].metadata and schema_fields[k].metadata['linker']}
+            linker_filters = {k: v for k, v in filters.items() if k in self._factschema.fields_with_props('linker')}
             normal_filters = {k: v for k, v in filters.items() if k not in linker_filters}
         try:
             unfiltered = self.manager.retrieve_facts(latest=True)
@@ -447,6 +418,7 @@ class FeitenList(Resource):
                 for field, value in normal_filters.items():
                     result += list(filter(lambda o: o[field] == value, unfiltered))
                 return dedup_dictlist('UUID', result), 200
+                # return result, 200
             else:
                 return unfiltered, 200
 
@@ -457,8 +429,8 @@ class FeitenList(Resource):
         """
         POST endpoint voor feiten
         """
-        read_schema = self._read_schema(
-            exclude=self._excluded_meta_post_fields,
+        read_schema = self._factschema(
+            exclude=self._factschema.fields_with_props('excluded_post'),
             unknown=MM.utils.RAISE
         )
         try:
@@ -473,7 +445,7 @@ class FeitenList(Resource):
 
         try:
             fact = self.manager.save_fact(fact)
-            return self._read_schema().dump(fact), 200
+            return self._factschema().dump(fact), 200
         except pyodbc.Error as odbc_ex:
             return handle_odbc_exception(odbc_ex), 500
         except MM.exceptions.ValidationError as err:

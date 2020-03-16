@@ -16,14 +16,14 @@ class Dimensie_Schema(MM.Schema):
     """
     Schema voor de standaard velden van een dimensie
     """
-    ID = MM.fields.Integer(search_field="Keyword")
-    UUID = MM.fields.UUID(required=True)
-    Begin_Geldigheid = MM.fields.DateTime(format='iso', missing=min_datetime)
-    Eind_Geldigheid = MM.fields.DateTime(format='iso', missing=max_datetime)
-    Created_By = MM.fields.UUID(required=True)
-    Created_Date = MM.fields.DateTime(format='iso', required=True)
-    Modified_By = MM.fields.UUID(required=True)
-    Modified_Date = MM.fields.DateTime(format='iso', required=True)
+    ID = MM.fields.Integer(search_field="Keyword", obprops=[])
+    UUID = MM.fields.UUID(required=True, obprops=[])
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', missing=min_datetime, obprops=[])
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', missing=max_datetime, obprops=[])
+    Created_By = MM.fields.UUID(required=True, obprops=[])
+    Created_Date = MM.fields.DateTime(format='iso', required=True, obprops=[])
+    Modified_By = MM.fields.UUID(required=True, obprops=[])
+    Modified_Date = MM.fields.DateTime(format='iso', required=True, obprops=[])
 
     def minmax_datetime(self, data):
 
@@ -40,7 +40,13 @@ class Dimensie_Schema(MM.Schema):
         else:
             return self.minmax_datetime(data)
 
-
+    @classmethod
+    def fields_with_props(cls, prop):
+        """
+        Class method that returns all fields that have `prop`value in their obprops list.
+        Returns a list
+        """
+        return list(map(lambda item: item[0], filter(lambda item: prop in item[1].metadata['obprops'], cls._declared_fields.items())))
 
     class Meta:
         ordered = True

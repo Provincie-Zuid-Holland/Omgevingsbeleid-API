@@ -18,9 +18,7 @@ from Dimensies.werkingsgebieden import Werkingsgebied
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import (Index, Keyword, Mapping, Nested, Search,
                                TermsFacet, connections)
-from Feiten.beleidsbeslissing import (Beleidsbeslissingen_Fact_Schema,
-                                      Beleidsbeslissingen_Meta_Schema,
-                                      Beleidsbeslissingen_Read_Schema)
+from Feiten.beleidsbeslissing import (Beleidsbeslissingen_Read_Schema)
 from Feiten.feit import Feit, FeitenLineage, FeitenList
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required
@@ -35,7 +33,7 @@ current_version = '0.1'
 
 app = Flask(__name__)
 CORS(app)
-app.config['JWT_SECRET_KEY'] = 'ZYhFfDSXvdAgkHXSu4NXtJAV8zoWRo8ki4XBtHffLuf4mx3rVxdev'
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
 app.config['JWT_HEADER_TYPE'] = "Token"
 api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required, ])
