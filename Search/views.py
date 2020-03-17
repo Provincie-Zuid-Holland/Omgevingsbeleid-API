@@ -10,17 +10,17 @@ def splitlist(value):
     return value.split(',')
 
 
-def search_query(tablename, searchfields):
+def search_query(tablename, searchfields, limit=5):
     """
     Generates a query to use T-SQL Full text search given a tablename and fields.
     """
     if len(searchfields) > 2:
         fieldnames_inner = ','.join([searchfields[0], 'CONCAT(' + ', '.join(searchfields[1:]) + ') AS Omschrijving'])
         fieldnames = ','.join([searchfields[0], 'Omschrijving'])
-        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames_inner}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename}) As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, 5) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
+        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames_inner}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename}) As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
     else:
         fieldnames = ','.join(searchfields)
-        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename}) As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, 5) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
+        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename}) As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
     return query.strip()
 
 
@@ -28,6 +28,8 @@ def search():
     query = request.args.get('query', default=None, type=str)
     type_exclude = request.args.get('exclude', default=None, type=splitlist)
     type_only = request.args.get('only', default=None, type=splitlist)
+    limit = request.args.get('limit', default=5, type=int)
+    print(limit)
     if type_exclude and type_only:
         return jsonify({"message": "Using exclude and only together is not allowed"}), 403
     if not query:
@@ -52,7 +54,7 @@ def search():
         queries = []
         for table in d_and_f:
             if table['slug'] in indices:
-                queries.append(search_query(table['tablename'], table['schema'].fields_with_props('search_field')))
+                queries.append(search_query(table['tablename'], table['schema'].fields_with_props('search_field'), limit=limit))
         final_query = " UNION ".join(queries) + " ORDER BY RANK DESC"
         results = []
         with pyodbc.connect(db_connection_settings) as cnx:
