@@ -9,7 +9,7 @@ from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 from Auth.commands import new_client_creds, new_client_creds_gebruikers
-from Auth.views import login, tokenstat
+from Auth.views import login, tokenstat, jwt_required_not_GET
 from datamodel import dimensies, feiten
 from Dimensies.dimensie import Dimensie, DimensieLineage, DimensieList
 from Dimensies.gebruikers import Gebruiker
@@ -36,7 +36,7 @@ CORS(app)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
 app.config['JWT_HEADER_TYPE'] = "Token"
-api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required, ])
+api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required_not_GET, ])
 jwt = JWTManager(app)
 
 
