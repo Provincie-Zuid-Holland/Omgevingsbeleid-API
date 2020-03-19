@@ -8,7 +8,7 @@ class Verordening_Schema(Dimensie_Schema):
     Status = MM.fields.Str(required=True, obprops=[])
     Type = MM.fields.Str(required=True, validate=[MM.validate.OneOf(['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel']), ], obprops=[])
     Volgnummer = MM.fields.Str(required=True, obprops=[])
-    Werkingsgebied = MM.fields.UUID(missing=None, attribute='fk_Werkingsgebied', obprops=[])
+    Werkingsgebied = MM.fields.UUID(missing=None, attribute='fk_Werkingsgebied', obprops=['geo_field'])
     Weblink = MM.fields.Str(missing=None, search_field="text", obprops=[])
     Eigenaar_1 = MM.fields.UUID(required=False, missing=default_user_uuid, obprops=[])
     Eigenaar_2 = MM.fields.UUID(required=False, missing=default_user_uuid, obprops=[])

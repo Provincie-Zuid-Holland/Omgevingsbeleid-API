@@ -23,7 +23,7 @@ from Feiten.feit import Feit, FeitenLineage, FeitenList
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required
 from flask_restful import Api, Resource
-from Search.views import search
+from Search.views import search, geo_search
 from Special.verordeningsstructuur import Verordening_Structuur
 from Stats.views import stats
 
@@ -54,9 +54,10 @@ spec = APISpec(
 
 # ELASTICSEARCH SETUP
 
-es = Elasticsearch()
-connections.create_connection(hosts=['localhost'], timeout=20)
+# es = Elasticsearch()
+# connections.create_connection(hosts=['localhost'], timeout=20)
 app.add_url_rule(f'/v{current_version}/search', 'search', search, methods=['GET'])
+app.add_url_rule(f'/v{current_version}/search/geo', 'geo-search', geo_search, methods=['GET'])
 
 
 # JWT CONFIG
