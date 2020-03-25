@@ -92,7 +92,6 @@ def parse_schema_from_xml(_xml, vo_mappings):
 
 
 def _parse_child_to_schema(xmlelement, vo_mappings):
-    # print(vo_mappings)
     result = {'UUID': None, 'Titel': None, 'Children': []}
     for child in xmlelement:
         if remove_namespace(child.tag) == 'uuid':
@@ -194,7 +193,7 @@ class Verordening_Structuur(Resource):
             row_linked_objects = linked_objects(row['UUID'])
             tree = Tree_Root().load(parse_schema_from_xml(row['Structuur'], row_linked_objects))
             row['Structuur'] = tree
-            print(row)
+
             parsedrow = Verordening_Structuur_Schema().dump(row)
             results.append(parsedrow)
         if verordeningstructuur_uuid:
