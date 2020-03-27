@@ -19,7 +19,7 @@ def search_query(tablename, searchfields, limit=5):
     """
     if tablename == 'Verordeningen':
         fieldnames = ','.join(searchfields)
-        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename} WHERE Type != 'Lid') As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
+        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename} WHERE Type = 'Artikel') As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
         return query.strip()
     else:
         if len(searchfields) > 2:
