@@ -23,7 +23,7 @@ class Tree_Node(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     Children = MM.fields.Nested("self", many=True, allow_none=True)
     Titel = MM.fields.String(required=False, missing="", allow_none=True)
-    Volgnummer = MM.fields.String(required=True)
+    Volgnummer = MM.fields.String(required=False, missing=None, allow_none=True)
     Type = MM.fields.String(required=True)
 
     class Meta:
