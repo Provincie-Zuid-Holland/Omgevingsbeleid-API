@@ -15,3 +15,9 @@ class Verordening_Schema(Dimensie_Schema):
     Portefeuillehouder_1 = MM.fields.UUID(required=False, missing=default_user_uuid, obprops=[])
     Portefeuillehouder_2 = MM.fields.UUID(required=False, missing=default_user_uuid, obprops=[])
     Opdrachtgever = MM.fields.UUID(required=False, missing=default_user_uuid, obprops=[])
+
+    @MM.post_dump()
+    def remove_carriage_returns(self, data, many,):
+        if 'Inhoud' in data:
+            data['Inhoud'] = data['Inhoud'].replace('\r', '\n')
+        return data
