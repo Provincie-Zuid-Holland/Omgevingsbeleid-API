@@ -25,6 +25,7 @@ class Tree_Node(MM.Schema):
     Titel = MM.fields.String(required=False, missing="", allow_none=True)
     Volgnummer = MM.fields.String(required=False, missing=None, allow_none=True)
     Type = MM.fields.String(required=True)
+    Inhoud = MM.fields.String()
 
     class Meta:
         ordered = True
@@ -100,6 +101,7 @@ def _parse_child_to_schema(xmlelement, vo_mappings):
             result['Titel'] = vo_mappings[child.text.lower()][0]
             result['Volgnummer'] = vo_mappings[child.text.lower()][1]
             result['Type'] = vo_mappings[child.text.lower()][2]
+            result['Inhoud'] = vo_mappings[child.text.lower()][3].replace('\r', '\n')
         if remove_namespace(child.tag) == 'child':
             result['Children'].append(_parse_child_to_schema(child, vo_mappings))
     return result
@@ -123,12 +125,12 @@ def ob_auto_filter(field):
     return field.metadata.get('ob_auto', False)
 
 def linked_objects(uuid):
-    query = """SELECT b.UUID, b.Titel, b.Volgnummer, b.Type FROM 
+    query = """SELECT b.UUID, b.Titel, b.Volgnummer, b.Type, b.Inhoud FROM 
         (SELECT UUID, T2.Loc.value('.','uniqueidentifier') as fk_Verordeningen
             FROM [dbo].[VerordeningStructuur] as T1	CROSS APPLY Structuur.nodes('declare namespace VT="Verordening_Tree";//VT:uuid') as T2(Loc)
             WHERE T2.Loc.value('.','uniqueidentifier') IN (SELECT UUID FROM Verordeningen) AND UUID = ?) AS a
     LEFT JOIN 
-        (SELECT UUID, Titel, Volgnummer, Type FROM Verordeningen) AS b
+        (SELECT UUID, Titel, Volgnummer, Type, Inhoud FROM Verordeningen) AS b
     On a.fk_Verordeningen = b.UUID
     """
     results = {}
@@ -139,7 +141,7 @@ def linked_objects(uuid):
         except pyodbc.Error as err:
             handle_odbc_exception(err)
         for row in cursor:
-            results[row[0].lower()] = (row[1],row[2], row[3])
+            results[row[0].lower()] = (row[1],row[2], row[3], row[4])
     return results
             
     
