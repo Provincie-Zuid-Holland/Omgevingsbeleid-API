@@ -4,7 +4,8 @@ from flask_jwt_extended import (
     decode_token,
     get_jwt_identity,
     jwt_required,
-    get_raw_jwt
+    get_raw_jwt,
+    verify_jwt_in_request
 )
 from passlib.hash import bcrypt
 from globals import db_connection_string, db_connection_settings
@@ -12,7 +13,7 @@ import pyodbc
 import time
 import records
 import os
-
+from functools import wraps
 
 def login():
     if not request.json:
@@ -55,4 +56,16 @@ def tokenstat():
     'identifier': get_jwt_identity(), 
     'expires':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.localtime(raw_jwt['exp']))
     })
-    
+
+def jwt_required_not_GET(fn):
+    """
+    Only requires a JWT on a non GET request
+    """
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if request.method != 'GET':
+            verify_jwt_in_request()
+            return fn(*args, **kwargs)
+        else:
+            return fn(*args, **kwargs)
+    return wrapper

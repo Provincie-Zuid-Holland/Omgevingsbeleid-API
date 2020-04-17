@@ -46,7 +46,8 @@ class Dimensie_Schema(MM.Schema):
         Class method that returns all fields that have `prop`value in their obprops list.
         Returns a list
         """
-        return list(map(lambda item: item[0], filter(lambda item: prop in item[1].metadata['obprops'], cls._declared_fields.items())))
+        matched_fields = filter(lambda item: prop in item[1].metadata['obprops'], cls._declared_fields.items())
+        return list(map(lambda item: item[1].attribute or item[0], matched_fields))
 
     class Meta:
         ordered = True

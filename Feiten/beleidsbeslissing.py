@@ -54,7 +54,7 @@ class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
     Besluitnummer = MM.fields.Str(missing=None, obprops=[])
     Tags = MM.fields.Str(missing=None, obprops=[])
     WerkingsGebieden = MM.fields.Nested(
-        Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
+        Link_Schema, many=True, default=[], missing=[], obprops=['linker', 'geo_field'])
     BeleidsRegels = MM.fields.Nested(
         Link_Schema, many=True,  default=[], missing=[], obprops=['linker'])
     Verordening = MM.fields.Nested(
@@ -96,3 +96,5 @@ class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
 
     class Meta:
         ordered = True
+        fact_tn = 'Omgevingsbeleid'
+        fact_fk = 'fk_Beleidsbeslissing'
