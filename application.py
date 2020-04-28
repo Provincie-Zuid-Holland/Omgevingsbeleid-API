@@ -52,10 +52,8 @@ spec = APISpec(
     ]
 )
 
-# ELASTICSEARCH SETUP
 
-# es = Elasticsearch()
-# connections.create_connection(hosts=['localhost'], timeout=20)
+
 app.add_url_rule(f'/v{current_version}/search', 'search', search, methods=['GET'])
 app.add_url_rule(f'/v{current_version}/search/geo', 'geo-search', geo_search, methods=['GET'])
 
