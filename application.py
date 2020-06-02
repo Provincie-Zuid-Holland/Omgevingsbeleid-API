@@ -26,6 +26,7 @@ from flask_restful import Api, Resource
 from Search.views import search, geo_search
 from Special.verordeningsstructuur import Verordening_Structuur
 from Stats.views import stats
+from errors import errors
 
 current_version = '0.1'
 
@@ -36,7 +37,7 @@ CORS(app)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
 app.config['JWT_HEADER_TYPE'] = "Token"
-api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required_not_GET, ])
+api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required_not_GET, ], errors=errors)
 jwt = JWTManager(app)
 
 
@@ -58,11 +59,11 @@ app.add_url_rule(f'/v{current_version}/search', 'search', search, methods=['GET'
 app.add_url_rule(f'/v{current_version}/search/geo', 'geo-search', geo_search, methods=['GET'])
 
 
-# JWT CONFIG
-@jwt.unauthorized_loader
-def custom_unauthorized_loader(reason):
-    return jsonify(
-        {"message": f"Authorisatie niet geldig: '{reason}'"}), 400
+# # JWT CONFIG
+# @jwt.unauthorized_loader
+# def custom_unauthorized_loader(reason):
+#     return jsonify(
+#         {"message": f"Authorisatie niet geldig: '{reason}'"}), 400
 
 
 # CUSTOM COMMANDS
