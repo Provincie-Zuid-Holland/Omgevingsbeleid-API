@@ -1,12 +1,9 @@
 from flask_restful import Resource, Api, fields, marshal, reqparse, inputs, abort
-import records
 import pyodbc
 import marshmallow as MM 
 from flask import request
 
-from queries import *
-from helpers import single_object_by_uuid, objects_from_query, related_objects_from_query, validate_UUID
-from globals import db_connection_string, db_connection_settings
+from globals import db_connection_settings, null_uuid
 from uuid import UUID
 
 
@@ -30,21 +27,21 @@ class Werkingsgebied_Schema(MM.Schema):
 
 
 class Werkingsgebied(Resource):
-    """Deze resource vertegenwoordigd de Ambities van de provincie"""
-    # @swag_from('werkingsgebied.yml')
     def get(self, werkingsgebied_uuid=None):
-        if werkingsgebied_uuid:
-            werkingsgebied = single_object_by_uuid('Werkingsgebieden', werkingsgebied_op_uuid, uuid=werkingsgebied_uuid)        
-            
-            if not werkingsgebied:
-                return {'message': f"Werkingsgebied met UUID {werkingsgebied_uuid} is niet gevonden"}, 400
-            
-            schema = Werkingsgebied_Schema()
-            return(schema.dump(werkingsgebied))
-        else:    
-            werkingsgebieden = objects_from_query('Werkingsgebieden', alle_werkingsgebieden)
-            
-            schema = Werkingsgebied_Schema()
-            return(schema.dump(werkingsgebieden, many=True))
+        fields = Werkingsgebied_Schema().fields.keys()
+        with pyodbc.connect(db_connection_settings) as cnx:
+            cur = cnx.cursor()
+            if werkingsgebied_uuid:
+                werkingsgebieden = list(cur.execute(
+                    f'SELECT {", ".join(fields)} FROM Werkingsgebieden WHERE UUID = ?', werkingsgebied_uuid))
 
+                if not werkingsgebieden:
+                    return {'message': f"Werkingsgebied met UUID {gebruiker_uuid} is niet gevonden"}, 400
 
+                schema = Werkingsgebied_Schema()
+                return(schema.dump(werkingsgebieden[0]))
+            else:
+                werkingsgebieden = cur.execute(
+                    f"SELECT {', '.join(fields)} FROM Werkingsgebieden WHERE UUID != '{null_uuid}'")
+                schema = Werkingsgebied_Schema()
+                return(schema.dump(werkingsgebieden, many=True))
