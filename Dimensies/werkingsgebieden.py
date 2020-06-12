@@ -36,7 +36,7 @@ class Werkingsgebied(Resource):
                     f'SELECT {", ".join(fields)} FROM Werkingsgebieden WHERE UUID = ?', werkingsgebied_uuid))
 
                 if not werkingsgebieden:
-                    return {'message': f"Werkingsgebied met UUID {gebruiker_uuid} is niet gevonden"}, 400
+                    return {'message': f"Werkingsgebied met UUID {werkingsgebied_uuid} is niet gevonden"}, 400
 
                 schema = Werkingsgebied_Schema()
                 return(schema.dump(werkingsgebieden[0]))
