@@ -4,7 +4,7 @@ import pyodbc
 from flask import request, jsonify
 import marshmallow as MM
 from operator import eq
-from globals import db_connection_string, db_connection_settings, min_datetime, max_datetime
+from globals import db_connection_string, db_connection_settings, min_datetime, max_datetime, null_uuid
 import re
 import datetime
 from flask_jwt_extended import get_jwt_identity
@@ -39,6 +39,33 @@ class Dimensie_Schema(MM.Schema):
             return list(map(self.minmax_datetime, data))
         else:
             return self.minmax_datetime(data)
+
+    @MM.post_dump()
+    def uppercase(self, dumped, many):
+        """
+        Ensure UUID's are uppercase.
+        """
+        for field in dumped:
+            try:
+                uuid.UUID(dumped[field])
+                dumped[field] = dumped[field].upper()
+            except:
+                pass
+        return dumped
+
+    @MM.post_dump()
+    def remove_nill(self, dumped, many):
+        """
+        Change nill UUIDs to null
+        """
+        for field in dumped:
+            try:
+                if dumped[field] == null_uuid:
+                    # print(field)
+                    dumped[field] = None
+            except:
+                pass
+        return dumped
 
     @classmethod
     def fields_with_props(cls, prop):
