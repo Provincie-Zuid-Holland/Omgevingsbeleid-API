@@ -7,7 +7,7 @@ from flask_jwt_extended import get_jwt_identity
 from globals import db_connection_settings, db_connection_string
 from xml.etree import ElementTree as ET
 import re
-
+import uuid
 
 class Tree_Root(MM.Schema):
     """
@@ -29,6 +29,19 @@ class Tree_Node(MM.Schema):
 
     class Meta:
         ordered = True
+    
+    @MM.post_dump()
+    def uppercase(self, dumped, many):
+        """
+        Ensure UUID's are uppercase.
+        """
+        for field in dumped:
+            try:
+                uuid.UUID(dumped[field])
+                dumped[field] = dumped[field].upper()
+            except:
+                pass
+        return dumped
 
 
 class Verordening_Structuur_Schema(MM.Schema):
@@ -49,6 +62,19 @@ class Verordening_Structuur_Schema(MM.Schema):
 
     class Meta:
         ordered = True
+    
+    @MM.post_dump()
+    def uppercase(self, dumped, many):
+        """
+        Ensure UUID's are uppercase.
+        """
+        for field in dumped:
+            try:
+                uuid.UUID(dumped[field])
+                dumped[field] = dumped[field].upper()
+            except:
+                pass
+        return dumped
 
 
 def serialize_schema_to_xml(schema):
@@ -97,7 +123,7 @@ def _parse_child_to_schema(xmlelement, vo_mappings):
     result = {'UUID': None, 'Titel': None, 'Children': []}
     for child in xmlelement:
         if remove_namespace(child.tag) == 'uuid':
-            result['UUID'] = child.text
+            result['UUID'] = child.text.upper()
             result['Titel'] = vo_mappings[child.text.lower()][0]
             result['Volgnummer'] = vo_mappings[child.text.lower()][1]
             result['Type'] = vo_mappings[child.text.lower()][2]

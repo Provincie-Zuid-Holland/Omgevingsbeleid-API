@@ -6,7 +6,8 @@ from flask_jwt_extended import get_jwt_identity
 import pyodbc
 from globals import db_connection_string, db_connection_settings, min_datetime, max_datetime
 import json
-
+# TODO:
+# PATCH verwijderd eigenaren op bbs!
 
 def handle_odbc_exception(odbc_ex):
     code = odbc_ex.args[0]
