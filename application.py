@@ -35,6 +35,8 @@ CORS(app)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
 app.config['JWT_HEADER_TYPE'] = "Token"
+app.config['JWT_DECODE_ALGORITHMS'] = ["HS25", "RS256"]
+
 api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required_not_GET, ], errors=errors)
 jwt = JWTManager(app)
 
