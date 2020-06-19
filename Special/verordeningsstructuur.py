@@ -8,6 +8,7 @@ from globals import db_connection_settings, db_connection_string
 from xml.etree import ElementTree as ET
 import re
 import uuid
+import time
 
 class Tree_Root(MM.Schema):
     """
@@ -176,22 +177,25 @@ class Verordening_Structuur(Resource):
 
     def get(self, verordeningstructuur_id=None, verordeningstructuur_uuid=None):
         params = []
-        filters = request.args
+        filters = request.args.copy()
+        limit = filters.pop("limit", None)
         if (filters and verordeningstructuur_uuid) or (filters and verordeningstructuur_id):
             return {'message': 'Filters en UUID/ID kunnen niet gecombineerd worden'}, 400
-        query = "SELECT * FROM Actuele_VerordeningStructuur"
+        if limit:
+            query = f"SELECT TOP({limit}) * FROM Actuele_VerordeningStructuur"
+        else:
+            query = "SELECT * FROM Actuele_VerordeningStructuur"
 
         if verordeningstructuur_uuid:
-            query = "SELECT * FROM VerordeningStructuur"
             query += " WHERE UUID = ?"
             params.append(verordeningstructuur_uuid)
 
         elif verordeningstructuur_id:
-            query = "SELECT * FROM VerordeningStructuur"
             query += " WHERE ID = ? ORDER BY 'Modified_Date' ASC"
             params.append(verordeningstructuur_id)
 
         elif filters:
+            
             invalids = [f for f in filters if f not in Verordening_Structuur_Schema().fields.keys()]
             if invalids:
                 if invalids:
@@ -201,6 +205,7 @@ class Verordening_Structuur(Resource):
                 conditional = " WHERE " + " AND ".join(conditionals)
                 params = [filters[f] for f in filters]
                 query = query + conditional
+                
         rows = []
 
         with pyodbc.connect(db_connection_settings) as connection:
@@ -282,6 +287,8 @@ class Verordening_Structuur(Resource):
         return Verordening_Structuur_Schema().dump(vo_object), 200
 
     def patch(self, verordeningstructuur_id=None):
+        t0 = time.time()
+        print(f"Starting at {t0}")
         if not verordeningstructuur_id:
             abort(404)
 
@@ -297,10 +304,12 @@ class Verordening_Structuur(Resource):
             return err.normalized_messages(), 400
 
         old_struct = vo_object['Structuur']
-
+        
+        
         if 'Structuur' in vo_object:
             vo_object['Structuur'] = serialize_schema_to_xml(vo_object['Structuur'])
-
+        t1 = time.time()
+        print(f"Serialization done at {t1}, took {t1 -t0}")
         query = f'''SELECT TOP(1) * FROM Verordeningstructuur WHERE ID = ? ORDER BY Modified_Date DESC'''
         with pyodbc.connect(db_connection_settings) as connection:
             try:
@@ -311,6 +320,8 @@ class Verordening_Structuur(Resource):
                 old_vo_object = row_to_dict(cursor.fetchone())
             except pyodbc.Error as e:
                 return handle_odbc_exception(e), 500
+        t2 = time.time()
+        print(f"Database read at {t2}, took {t2 - t1}")
         new_vo_object = {**old_vo_object, **vo_object}
 
         # Add missing data
@@ -340,7 +351,8 @@ class Verordening_Structuur(Resource):
                 
             except pyodbc.Error as e:
                 return handle_odbc_exception(e), 500
-
+        t3 = time.time()
+        print(f"Database write at {t3}, took {t3 - t2}")
         new_vo_object['Structuur'] = old_struct
         new_vo_object['UUID'] = uuid
 
