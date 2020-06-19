@@ -287,8 +287,6 @@ class Verordening_Structuur(Resource):
         return Verordening_Structuur_Schema().dump(vo_object), 200
 
     def patch(self, verordeningstructuur_id=None):
-        t0 = time.time()
-        print(f"Starting at {t0}")
         if not verordeningstructuur_id:
             abort(404)
 
@@ -308,8 +306,7 @@ class Verordening_Structuur(Resource):
         
         if 'Structuur' in vo_object:
             vo_object['Structuur'] = serialize_schema_to_xml(vo_object['Structuur'])
-        t1 = time.time()
-        print(f"Serialization done at {t1}, took {t1 -t0}")
+
         query = f'''SELECT TOP(1) * FROM Verordeningstructuur WHERE ID = ? ORDER BY Modified_Date DESC'''
         with pyodbc.connect(db_connection_settings) as connection:
             try:
@@ -320,8 +317,7 @@ class Verordening_Structuur(Resource):
                 old_vo_object = row_to_dict(cursor.fetchone())
             except pyodbc.Error as e:
                 return handle_odbc_exception(e), 500
-        t2 = time.time()
-        print(f"Database read at {t2}, took {t2 - t1}")
+
         new_vo_object = {**old_vo_object, **vo_object}
 
         # Add missing data
@@ -351,8 +347,7 @@ class Verordening_Structuur(Resource):
                 
             except pyodbc.Error as e:
                 return handle_odbc_exception(e), 500
-        t3 = time.time()
-        print(f"Database write at {t3}, took {t3 - t2}")
+
         new_vo_object['Structuur'] = old_struct
         new_vo_object['UUID'] = uuid
 
