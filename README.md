@@ -4,7 +4,6 @@ Dit project is een API voor omgevingsbeleid van de provincie Zuid-Holland
 ## Stack
 - Python
     + [Flask](http://flask.pocoo.org/)
-    + [Records](https://github.com/kennethreitz/records)
     + [Flask-restful](https://github.com/flask-restful/flask-restful)
     + [Marshmallow](http://marshmallow.readthedocs.io/en/3.0/)
     + [PyODBC](https://github.com/mkleehammer/pyodbc)

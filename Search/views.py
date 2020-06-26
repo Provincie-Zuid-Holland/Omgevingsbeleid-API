@@ -22,15 +22,15 @@ def search_query(tablename, searchfields, limit=5):
         fieldnames = ', '.join(searchfields[1:]) + ' AS Omschrijving'
         query = f"""SELECT UUID, {searchfields[0]}, Omschrijving , '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {searchfields[0]}, {fieldnames}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename} WHERE Type = 'Artikel') As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
         return query.strip()
+    if tablename == 'Beleidsbeslissingen':
+        fieldnames_inner = ','.join(
+            [searchfields[0], 'CONCAT(' + ', '.join(searchfields[1:]) + ') AS Omschrijving'])
+        fieldnames = ','.join([searchfields[0], 'Omschrijving'])
+        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames_inner}, Status, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename}) As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1 AND Status = 'Vigerend'"""
+        return query.strip()
     else:
-        if len(searchfields) > 2:
-            fieldnames_inner = ','.join(
-                [searchfields[0], 'CONCAT(' + ', '.join(searchfields[1:]) + ') AS Omschrijving'])
-            fieldnames = ','.join([searchfields[0], 'Omschrijving'])
-            query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames_inner}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename}) As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
-        else:
-            fieldnames = ','.join(searchfields)
-            query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename}) As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
+        fieldnames = ','.join(searchfields)
+        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename}) As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
         return query.strip()
 
 
@@ -66,6 +66,7 @@ def search():
             if table['slug'] in indices:
                 queries.append(search_query(
                     table['tablename'], table['schema'].fields_with_props('search_field'), limit=limit))
+        print(queries)
         final_query = " UNION ".join(queries) + " ORDER BY RANK DESC"
         results = []
         with pyodbc.connect(db_connection_settings) as cnx:
@@ -79,7 +80,8 @@ def search():
                 for field in result:
                     try:
                         result[field] = result[field].replace('\r', '\n')
-                    except: continue
+                    except:
+                        continue
 
         return jsonify(results)
 
