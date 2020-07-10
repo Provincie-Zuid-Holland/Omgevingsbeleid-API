@@ -79,11 +79,12 @@ class Link_Schema(MM.Schema):
 
 class FactManager:
 
-    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings, ignore_null=True):
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings, ignore_null=True):
         self._ignore_null = ignore_null
         self.db_connection_settings = db_connection_settings
         self._meta_tablename = meta_tablename
         self._meta_tablename_actueel = meta_tablename_actueel
+        self._meta_tablename_vigerend = meta_tablename_vigerend
         self._fact_tablename = fact_tablename
         self._fact_to_meta_field_attr = fact_schema().declared_fields[fact_to_meta_field].attribute or fact_to_meta_field
         self._fact_schema = fact_schema
@@ -273,26 +274,29 @@ class FactManager:
 
         return(self._factschema().dump(meta))
 
-    def retrieve_facts(self, id=None, latest=False, sorted_by=None):
+    def retrieve_facts(self, id=None, latest=False, sorted_by=None, vigerend=False):
         """
         Retrieves a list of schema based facts, optionally specify an id to get a lineage.
         """
-        if id and latest:
-            meta_query = f"SELECT * FROM {self._meta_tablename_actueel} WHERE ID = ?"
-        elif id:
-            meta_query = f"SELECT * FROM {self._meta_tablename} WHERE ID = ?"
-            if self._ignore_null:
-                meta_query += " AND UUID != '00000000-0000-0000-0000-000000000000'"
-        elif latest:
-            meta_query = f"SELECT * FROM {self._meta_tablename_actueel}"
-            if self._ignore_null:
-                meta_query += " WHERE UUID != '00000000-0000-0000-0000-000000000000'"
+        if vigerend:
+            meta_query = f"SELECT * FROM {self._meta_tablename_vigerend}"
         else:
-            meta_query = f"SELECT * FROM {self._meta_tablename}"
-            if self._ignore_null:
-                meta_query += " WHERE UUID != '00000000-0000-0000-0000-000000000000'"
-        if sorted_by:
-            meta_query += f"ORDER BY {sorted_by} DESC"
+            if id and latest:
+                meta_query = f"SELECT * FROM {self._meta_tablename_actueel} WHERE ID = ?"
+            elif id:
+                meta_query = f"SELECT * FROM {self._meta_tablename} WHERE ID = ?"
+                if self._ignore_null:
+                    meta_query += " AND UUID != '00000000-0000-0000-0000-000000000000'"
+            elif latest:
+                meta_query = f"SELECT * FROM {self._meta_tablename_actueel}"
+                if self._ignore_null:
+                    meta_query += " WHERE UUID != '00000000-0000-0000-0000-000000000000'"
+            else:
+                meta_query = f"SELECT * FROM {self._meta_tablename}"
+                if self._ignore_null:
+                    meta_query += " WHERE UUID != '00000000-0000-0000-0000-000000000000'"
+            if sorted_by:
+                meta_query += f"ORDER BY {sorted_by} DESC"
 
         try:
             if id:
@@ -310,9 +314,9 @@ class FactManager:
 
 
 class FeitenLineage(Resource):
-    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
         self._factschema = read_schema
-        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
+        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self, id):
         """
@@ -392,9 +396,9 @@ def dedup_dictlist(key, dlist):
 
 class FeitenList(Resource):
 
-    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
         self._factschema = read_schema
-        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
+        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self):
         """
@@ -411,7 +415,10 @@ class FeitenList(Resource):
             linker_filters = {k: v for k, v in filters.items() if k in self._factschema.fields_with_props('linker')}
             normal_filters = {k: v for k, v in filters.items() if k not in linker_filters}
         try:
-            unfiltered = self.manager.retrieve_facts(latest=True)
+            if 'Status' in normal_filters and normal_filters['Status'] == 'Vigerend': #TODO: Move to DB!
+                unfiltered = self.manager.retrieve_facts(vigerend=True)
+            else:
+                unfiltered = self.manager.retrieve_facts(latest=True)
             if linker_filters or normal_filters:
                 result = []
                 for field, value in linker_filters.items():
@@ -455,8 +462,8 @@ class FeitenList(Resource):
 
 class Feit(Resource):
 
-    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
-        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self, uuid):
         try:
