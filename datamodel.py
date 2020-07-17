@@ -50,6 +50,7 @@ def dimensies_and_feiten():
                 'slug': feit['slug'],
                 'tablename': feit['meta_tablename'],
                 'latest_tablename': feit['meta_tablename_actueel'],
+                'meta_tablename_vigerend': feit['meta_tablename_vigerend'],
                 'singular': feit['singular'],
                 'plural':feit['plural']
             }
