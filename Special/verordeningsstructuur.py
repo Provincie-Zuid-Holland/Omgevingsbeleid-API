@@ -7,7 +7,8 @@ from flask_jwt_extended import get_jwt_identity
 from globals import db_connection_settings, db_connection_string
 from xml.etree import ElementTree as ET
 import re
-
+import uuid
+import time
 
 class Tree_Root(MM.Schema):
     """
@@ -22,9 +23,26 @@ class Tree_Node(MM.Schema):
     """
     UUID = MM.fields.UUID(required=True)
     Children = MM.fields.Nested("self", many=True, allow_none=True)
+    Titel = MM.fields.String(required=False, missing="", allow_none=True)
+    Volgnummer = MM.fields.String(required=False, missing=None, allow_none=True)
+    Type = MM.fields.String(required=True)
+    Inhoud = MM.fields.String()
 
     class Meta:
         ordered = True
+    
+    @MM.post_dump()
+    def uppercase(self, dumped, many):
+        """
+        Ensure UUID's are uppercase.
+        """
+        for field in dumped:
+            try:
+                uuid.UUID(dumped[field])
+                dumped[field] = dumped[field].upper()
+            except:
+                pass
+        return dumped
 
 
 class Verordening_Structuur_Schema(MM.Schema):
@@ -45,6 +63,19 @@ class Verordening_Structuur_Schema(MM.Schema):
 
     class Meta:
         ordered = True
+    
+    @MM.post_dump()
+    def uppercase(self, dumped, many):
+        """
+        Ensure UUID's are uppercase.
+        """
+        for field in dumped:
+            try:
+                uuid.UUID(dumped[field])
+                dumped[field] = dumped[field].upper()
+            except:
+                pass
+        return dumped
 
 
 def serialize_schema_to_xml(schema):
@@ -76,7 +107,7 @@ def remove_namespace(XMLtag):
     return XMLtag.split('}')[-1]
 
 
-def parse_schema_from_xml(_xml):
+def parse_schema_from_xml(_xml, vo_mappings):
     structure = ET.fromstring(_xml)
     if remove_namespace(structure.tag) != 'tree':
         return None
@@ -85,17 +116,21 @@ def parse_schema_from_xml(_xml):
         # if remove_namespace(child.tag) == 'uuid':
         #     result['UUID'] = child.text
         if remove_namespace(child.tag) == 'child':
-            result['Children'].append(_parse_child_to_schema(child))
+            result['Children'].append(_parse_child_to_schema(child, vo_mappings))
     return result
 
 
-def _parse_child_to_schema(xmlelement):
-    result = {'UUID': None, 'Children': []}
+def _parse_child_to_schema(xmlelement, vo_mappings):
+    result = {'UUID': None, 'Titel': None, 'Children': []}
     for child in xmlelement:
         if remove_namespace(child.tag) == 'uuid':
-            result['UUID'] = child.text
+            result['UUID'] = child.text.upper()
+            result['Titel'] = vo_mappings[child.text.lower()][0]
+            result['Volgnummer'] = vo_mappings[child.text.lower()][1]
+            result['Type'] = vo_mappings[child.text.lower()][2]
+            result['Inhoud'] = vo_mappings[child.text.lower()][3].replace('\r', '\n')
         if remove_namespace(child.tag) == 'child':
-            result['Children'].append(_parse_child_to_schema(child))
+            result['Children'].append(_parse_child_to_schema(child, vo_mappings))
     return result
 
 
@@ -116,27 +151,51 @@ def handle_odbc_exception(odbc_ex):
 def ob_auto_filter(field):
     return field.metadata.get('ob_auto', False)
 
+def linked_objects(uuid):
+    query = """SELECT b.UUID, b.Titel, b.Volgnummer, b.Type, b.Inhoud FROM 
+        (SELECT UUID, T2.Loc.value('.','uniqueidentifier') as fk_Verordeningen
+            FROM [dbo].[VerordeningStructuur] as T1	CROSS APPLY Structuur.nodes('declare namespace VT="Verordening_Tree";//VT:uuid') as T2(Loc)
+            WHERE T2.Loc.value('.','uniqueidentifier') IN (SELECT UUID FROM Verordeningen) AND UUID = ?) AS a
+    LEFT JOIN 
+        (SELECT UUID, Titel, Volgnummer, Type, Inhoud FROM Verordeningen) AS b
+    On a.fk_Verordeningen = b.UUID
+    """
+    results = {}
+    with pyodbc.connect(db_connection_settings) as connection:
+        try:
+            cursor = connection.cursor()
+            cursor.execute(query, uuid)
+        except pyodbc.Error as err:
+            handle_odbc_exception(err)
+        for row in cursor:
+            results[row[0].lower()] = (row[1],row[2], row[3], row[4])
+    return results
+            
+    
 
 class Verordening_Structuur(Resource):
 
     def get(self, verordeningstructuur_id=None, verordeningstructuur_uuid=None):
         params = []
-        filters = request.args
+        filters = request.args.copy()
+        limit = filters.pop("limit", None)
         if (filters and verordeningstructuur_uuid) or (filters and verordeningstructuur_id):
             return {'message': 'Filters en UUID/ID kunnen niet gecombineerd worden'}, 400
-        query = "SELECT * FROM Actuele_VerordeningStructuur"
+        if limit:
+            query = f"SELECT TOP({limit}) * FROM Actuele_VerordeningStructuur"
+        else:
+            query = "SELECT * FROM Actuele_VerordeningStructuur"
 
         if verordeningstructuur_uuid:
-            query = "SELECT * FROM VerordeningStructuur"
             query += " WHERE UUID = ?"
             params.append(verordeningstructuur_uuid)
 
         elif verordeningstructuur_id:
-            query = "SELECT * FROM VerordeningStructuur"
             query += " WHERE ID = ? ORDER BY 'Modified_Date' ASC"
             params.append(verordeningstructuur_id)
 
         elif filters:
+            
             invalids = [f for f in filters if f not in Verordening_Structuur_Schema().fields.keys()]
             if invalids:
                 if invalids:
@@ -146,6 +205,7 @@ class Verordening_Structuur(Resource):
                 conditional = " WHERE " + " AND ".join(conditionals)
                 params = [filters[f] for f in filters]
                 query = query + conditional
+                
         rows = []
 
         with pyodbc.connect(db_connection_settings) as connection:
@@ -165,8 +225,10 @@ class Verordening_Structuur(Resource):
         results = []
         for row in rows:
             row = row_to_dict(row)
-            tree = Tree_Root().load(parse_schema_from_xml(row['Structuur']))
+            row_linked_objects = linked_objects(row['UUID'])
+            tree = Tree_Root().load(parse_schema_from_xml(row['Structuur'], row_linked_objects))
             row['Structuur'] = tree
+
             parsedrow = Verordening_Structuur_Schema().dump(row)
             results.append(parsedrow)
         if verordeningstructuur_uuid:
@@ -240,7 +302,8 @@ class Verordening_Structuur(Resource):
             return err.normalized_messages(), 400
 
         old_struct = vo_object['Structuur']
-
+        
+        
         if 'Structuur' in vo_object:
             vo_object['Structuur'] = serialize_schema_to_xml(vo_object['Structuur'])
 
@@ -254,6 +317,7 @@ class Verordening_Structuur(Resource):
                 old_vo_object = row_to_dict(cursor.fetchone())
             except pyodbc.Error as e:
                 return handle_odbc_exception(e), 500
+
         new_vo_object = {**old_vo_object, **vo_object}
 
         # Add missing data

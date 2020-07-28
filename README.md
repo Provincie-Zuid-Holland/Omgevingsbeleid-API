@@ -4,7 +4,6 @@ Dit project is een API voor omgevingsbeleid van de provincie Zuid-Holland
 ## Stack
 - Python
     + [Flask](http://flask.pocoo.org/)
-    + [Records](https://github.com/kennethreitz/records)
     + [Flask-restful](https://github.com/flask-restful/flask-restful)
     + [Marshmallow](http://marshmallow.readthedocs.io/en/3.0/)
     + [PyODBC](https://github.com/mkleehammer/pyodbc)
@@ -26,14 +25,13 @@ DB_PORT=Poort van SQL-server (1433 default)
 DB_NAME=Naam van de database
 DB_DRIVER=Driver naam
 FLASK_APP=server.py
+JWT_SECRET=1234abahsge
 ```
-
 In development is het makkelijk om ook de FLASK_ENV variabale in te stellen (Niet gebruiken voor productie omgevingen!)
 
 ```bash
 FLASK_ENV=development
 ```
-
 
 ## Lokale versie draaien
 ```bash

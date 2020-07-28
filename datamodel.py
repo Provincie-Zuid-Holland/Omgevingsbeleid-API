@@ -32,6 +32,7 @@ feiten = [
         'slug': 'beleidsbeslissingen',
         'meta_tablename': 'Beleidsbeslissingen',
         'meta_tablename_actueel': 'Actuele_Beleidsbeslissingen',
+        'meta_tablename_vigerend': 'Vigerende_Beleidsbeslissingen',
         'fact_tablename': 'Omgevingsbeleid',
         'singular': 'Beleidsbeslissing',
         'plural': 'Beleidsbeslissingen',

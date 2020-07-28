@@ -4,7 +4,7 @@ import pyodbc
 from flask import request, jsonify
 import marshmallow as MM
 from operator import eq
-from globals import db_connection_string, db_connection_settings, min_datetime, max_datetime
+from globals import db_connection_string, db_connection_settings, min_datetime, max_datetime, null_uuid
 import re
 import datetime
 from flask_jwt_extended import get_jwt_identity
@@ -16,14 +16,14 @@ class Dimensie_Schema(MM.Schema):
     """
     Schema voor de standaard velden van een dimensie
     """
-    ID = MM.fields.Integer(search_field="Keyword")
-    UUID = MM.fields.UUID(required=True)
-    Begin_Geldigheid = MM.fields.DateTime(format='iso', missing=min_datetime)
-    Eind_Geldigheid = MM.fields.DateTime(format='iso', missing=max_datetime)
-    Created_By = MM.fields.UUID(required=True)
-    Created_Date = MM.fields.DateTime(format='iso', required=True)
-    Modified_By = MM.fields.UUID(required=True)
-    Modified_Date = MM.fields.DateTime(format='iso', required=True)
+    ID = MM.fields.Integer(search_field="Keyword", obprops=[])
+    UUID = MM.fields.UUID(required=True, obprops=[])
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', missing=min_datetime, obprops=[])
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', missing=max_datetime, obprops=[])
+    Created_By = MM.fields.UUID(required=True, obprops=[])
+    Created_Date = MM.fields.DateTime(format='iso', required=True, obprops=[])
+    Modified_By = MM.fields.UUID(required=True, obprops=[])
+    Modified_Date = MM.fields.DateTime(format='iso', required=True, obprops=[])
 
     def minmax_datetime(self, data):
 
@@ -40,7 +40,41 @@ class Dimensie_Schema(MM.Schema):
         else:
             return self.minmax_datetime(data)
 
+    @MM.post_dump()
+    def uppercase(self, dumped, many):
+        """
+        Ensure UUID's are uppercase.
+        """
+        for field in dumped:
+            try:
+                uuid.UUID(dumped[field])
+                dumped[field] = dumped[field].upper()
+            except:
+                pass
+        return dumped
 
+    @MM.post_dump()
+    def remove_nill(self, dumped, many):
+        """
+        Change nill UUIDs to null
+        """
+        for field in dumped:
+            try:
+                if dumped[field] == null_uuid:
+                    # print(field)
+                    dumped[field] = None
+            except:
+                pass
+        return dumped
+
+    @classmethod
+    def fields_with_props(cls, prop):
+        """
+        Class method that returns all fields that have `prop`value in their obprops list.
+        Returns a list
+        """
+        matched_fields = filter(lambda item: prop in item[1].metadata['obprops'], cls._declared_fields.items())
+        return list(map(lambda item: item[1].attribute or item[0], matched_fields))
 
     class Meta:
         ordered = True

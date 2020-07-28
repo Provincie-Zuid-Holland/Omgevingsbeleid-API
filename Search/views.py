@@ -1,11 +1,12 @@
 from flask import Flask, jsonify, request
 from datamodel import dimensies_and_feiten
-from elasticsearch_dsl import Index, Keyword, Mapping, Nested, TermsFacet, connections, Search
-from elasticsearch import Elasticsearch
-
+import pyodbc
+from globals import db_connection_settings, null_uuid
+from uuid import UUID
 # Any objects that shouldn't be searched
 SEARCH_EXCLUDED = ["beleidsrelaties"]
-IX_POST = '_dev'
+GEO_SEARCH_INCLUDED = ['maatregelen', 'verordeningen', 'beleidsbeslissingen']
+
 
 def splitlist(value):
     value = value.replace(' ', '')
@@ -37,12 +38,14 @@ def search():
     query = request.args.get('query', default=None, type=str)
     type_exclude = request.args.get('exclude', default=None, type=splitlist)
     type_only = request.args.get('only', default=None, type=splitlist)
+    limit = request.args.get('limit', default=5, type=int)
     if type_exclude and type_only:
         return jsonify({"message": "Using exclude and only together is not allowed"}), 403
     if not query:
         return jsonify({"message": "Missing or invalid URL parameter 'query'"}), 400
     else:
-        d_and_f = [dim for dim in dimensies_and_feiten() if dim['slug'] not in SEARCH_EXCLUDED]
+        d_and_f = [dim for dim in dimensies_and_feiten() if dim['slug']
+                   not in SEARCH_EXCLUDED]
         indices_possible = ', '.join([dim['slug'] for dim in d_and_f])
         indices = [dim['slug'] for dim in d_and_f]
         if type_exclude:
