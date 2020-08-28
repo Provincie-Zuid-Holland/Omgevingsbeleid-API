@@ -35,7 +35,8 @@ CORS(app)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
 app.config['JWT_HEADER_TYPE'] = "Token"
-api = Api(app, prefix=f'/v{current_version}', decorators=[jwt_required_not_GET, ], errors=errors)
+api = Api(app, prefix=f'/v{current_version}',
+          decorators=[jwt_required_not_GET, ], errors=errors)
 jwt = JWTManager(app)
 
 
@@ -52,9 +53,10 @@ spec = APISpec(
 )
 
 
-
-app.add_url_rule(f'/v{current_version}/search', 'search', search, methods=['GET'])
-app.add_url_rule(f'/v{current_version}/search/geo', 'geo-search', geo_search, methods=['GET'])
+app.add_url_rule(f'/v{current_version}/search',
+                 'search', search, methods=['GET'])
+app.add_url_rule(f'/v{current_version}/search/geo',
+                 'geo-search', geo_search, methods=['GET'])
 
 
 # JWT CONFIG
@@ -79,17 +81,20 @@ for dimensie in dimensies:
     api.add_resource(DimensieList, f'/{dimensie["slug"]}', endpoint=f"{dimensie['plural']}_lijst",
                      resource_class_args=(dimensie['schema'], dimensie['tablename'], dimensie['latest_tablename']))
     dimension_ept.append(f"{dimensie['plural']}_lijst")
-    api.add_resource(DimensieLineage, f'/{dimensie["slug"]}/<int:id>', endpoint=f"{dimensie['plural']}_lineage", resource_class_args=(dimensie['schema'],  dimensie['tablename']))
+    api.add_resource(DimensieLineage, f'/{dimensie["slug"]}/<int:id>', endpoint=f"{dimensie['plural']}_lineage",
+                     resource_class_args=(dimensie['schema'],  dimensie['tablename']))
 
 for feit in feiten:
-    general_args = (feit['meta_schema'], feit['meta_tablename'], feit['meta_tablename_actueel'], feit['meta_tablename_vigerend'], feit['fact_schema'], feit['fact_tablename'], feit['fact_to_meta_field'], feit['read_schema'])
+    general_args = (feit['meta_schema'], feit['meta_tablename'], feit['meta_tablename_actueel'], feit['meta_tablename_vigerend'],
+                    feit['fact_schema'], feit['fact_tablename'], feit['fact_view'], feit['fact_to_meta_field'], feit['read_schema'])
     api.add_resource(FeitenList, f'/{feit["slug"]}', endpoint=f'{feit["slug"]}_lijst',
                      resource_class_args=general_args)
     api.add_resource(FeitenLineage, f'/{feit["slug"]}/<string:id>', endpoint=f'{feit["slug"]}_lineage',
                      resource_class_args=general_args)
     api.add_resource(Feit, f'/{feit["slug"]}/version/<string:uuid>', endpoint=f'{feit["slug"]}',
                      resource_class_args=general_args)
-    spec.components.schema('Beleidsbeslissingen', schema=Beleidsbeslissingen_Read_Schema)
+    spec.components.schema('Beleidsbeslissingen',
+                           schema=Beleidsbeslissingen_Read_Schema)
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
