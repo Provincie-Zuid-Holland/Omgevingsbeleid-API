@@ -72,6 +72,7 @@ class Feiten_Schema(MM.Schema):
 class Link_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     Omschrijving = MM.fields.Str(missing="")
+    Titel = MM.fields.Str(missing="")
 
     class Meta:
         ordered = True
@@ -112,12 +113,12 @@ class FactManager:
                 if f'fk_{field}' in fact or f'{field}_Omschrijving' in fact:
                     try:
                         assert(
-                            f'fk_{field}' in fact and f'{field}_Omschrijving' in fact)
+                            f'fk_{field}' in fact and f'{field}_Omschrijving' in fact and f'{field}_Titel' in fact)
                     except AssertionError:
                         raise Exception(
-                            f"Configuration for field '{field}' invalid, missing 'fk_{field}' or '{field}_Omschrijving' in database")
+                            f"Configuration for field '{field}' invalid, missing 'fk_{field}' or '{field}_Omschrijving' or '{field}_Titel' in database. Found fields: {fact.keys()}")
                     link_object = {
-                        'UUID': fact[f'fk_{field}'], 'Omschrijving': fact[f'{field}_Omschrijving']}
+                        'UUID': fact[f'fk_{field}'], 'Omschrijving': fact[f'{field}_Omschrijving'], 'Titel': fact[f'{field}_Titel']}
                     if link_object['UUID'] or link_object['Omschrijving']:
                         if link_object['UUID'] != "00000000-0000-0000-0000-000000000000":
                             if field in result:
@@ -248,7 +249,6 @@ class FactManager:
                 connection.close()
 
             fact = self.generate_fact(
-
                 relevant_facts)
             result = {**meta, **fact}
             results.append(result)

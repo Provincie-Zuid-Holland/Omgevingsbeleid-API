@@ -96,5 +96,5 @@ class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
 
     class Meta:
         ordered = True
-        fact_tn = 'Omgevingsbeleid'
+        fact_tn = 'OB_Linked'
         fact_fk = 'fk_Beleidsbeslissing'
