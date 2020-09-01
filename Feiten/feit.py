@@ -72,6 +72,7 @@ class Feiten_Schema(MM.Schema):
 class Link_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     Omschrijving = MM.fields.Str(missing="")
+    Titel = MM.fields.Str(missing="")
 
     class Meta:
         ordered = True
@@ -79,13 +80,14 @@ class Link_Schema(MM.Schema):
 
 class FactManager:
 
-    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings, ignore_null=True):
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_view, fact_to_meta_field, read_schema, db_connection_settings, ignore_null=True):
         self._ignore_null = ignore_null
         self.db_connection_settings = db_connection_settings
         self._meta_tablename = meta_tablename
         self._meta_tablename_actueel = meta_tablename_actueel
         self._meta_tablename_vigerend = meta_tablename_vigerend
         self._fact_tablename = fact_tablename
+        self._fact_view = fact_view
         self._fact_to_meta_field_attr = fact_schema().declared_fields[fact_to_meta_field].attribute or fact_to_meta_field
         self._fact_schema = fact_schema
         self._factschema = read_schema
@@ -112,12 +114,12 @@ class FactManager:
                 if f'fk_{field}' in fact or f'{field}_Omschrijving' in fact:
                     try:
                         assert(
-                            f'fk_{field}' in fact and f'{field}_Omschrijving' in fact)
+                            f'fk_{field}' in fact and f'{field}_Omschrijving' in fact and f'{field}_Titel' in fact)
                     except AssertionError:
                         raise Exception(
-                            f"Configuration for field '{field}' invalid, missing 'fk_{field}' or '{field}_Omschrijving' in database")
+                            f"Configuration for field '{field}' invalid, missing 'fk_{field}' or '{field}_Omschrijving' or '{field}_Titel' in database. Found fields: {fact.keys()}")
                     link_object = {
-                        'UUID': fact[f'fk_{field}'], 'Omschrijving': fact[f'{field}_Omschrijving']}
+                        'UUID': fact[f'fk_{field}'], 'Omschrijving': fact[f'{field}_Omschrijving'], 'Titel': fact[f'{field}_Titel']}
                     if link_object['UUID'] or link_object['Omschrijving']:
                         if link_object['UUID'] != "00000000-0000-0000-0000-000000000000":
                             if field in result:
@@ -233,7 +235,7 @@ class FactManager:
             raise odbc_ex
         results = []
         for meta in meta_objects:
-            facts_query = f"SELECT * FROM {self._fact_tablename} WHERE {self._fact_to_meta_field_attr} = ?"
+            facts_query = f"SELECT * FROM {self._fact_view} WHERE {self._fact_to_meta_field_attr} = ?"
 
             try:
                 connection = pyodbc.connect(self.db_connection_settings)
@@ -248,7 +250,6 @@ class FactManager:
                 connection.close()
 
             fact = self.generate_fact(
-
                 relevant_facts)
             result = {**meta, **fact}
             results.append(result)
@@ -314,9 +315,9 @@ class FactManager:
 
 
 class FeitenLineage(Resource):
-    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_view, fact_to_meta_field, read_schema):
         self._factschema = read_schema
-        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
+        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_view, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self, id):
         """
@@ -396,9 +397,9 @@ def dedup_dictlist(key, dlist):
 
 class FeitenList(Resource):
 
-    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_view, fact_to_meta_field, read_schema):
         self._factschema = read_schema
-        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
+        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_view, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self):
         """
@@ -462,8 +463,8 @@ class FeitenList(Resource):
 
 class Feit(Resource):
 
-    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema):
-        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_to_meta_field, read_schema, db_connection_settings)
+    def __init__(self, meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_view, fact_to_meta_field, read_schema):
+        self.manager = FactManager(meta_schema, meta_tablename, meta_tablename_actueel, meta_tablename_vigerend, fact_schema, fact_tablename, fact_view, fact_to_meta_field, read_schema, db_connection_settings)
 
     def get(self, uuid):
         try:
