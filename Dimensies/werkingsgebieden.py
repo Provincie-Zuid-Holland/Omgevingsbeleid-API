@@ -8,6 +8,7 @@ from uuid import UUID
 
 
 class Werkingsgebied_Schema(MM.Schema):
+    ID = MM.fields.Int(required=True)
     UUID = MM.fields.UUID(required=True)
     Werkingsgebied = MM.fields.Str(required=True, search_field="text")
     symbol = MM.fields.Str(missing=None)
@@ -21,17 +22,6 @@ class Werkingsgebied_Schema(MM.Schema):
     class Meta:
         ordered = True
     
-# [UUID] [uniqueidentifier] NULL,
-# 	[ID] [bigint] NULL,
-# 	[Werkingsgebied] [nvarchar](256) NULL,
-# 	[SHAPE] [geometry] NULL,
-# 	[symbol] [nvarchar](256) NULL,
-# 	[Begin_Geldigheid] [datetime] NULL,
-# 	[Eind_Geldigheid] [datetime] NULL,
-# 	[Created_By] [uniqueidentifier] NULL,
-# 	[Created_Date] [datetime] NULL,
-# 	[Modified_By] [uniqueidentifier] NULL,
-# 	[Modified_Date] [datetime] NULL
 
 class Werkingsgebied(Resource):
     def get(self, werkingsgebied_uuid=None):
