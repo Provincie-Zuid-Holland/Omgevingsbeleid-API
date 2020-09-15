@@ -18,6 +18,7 @@ apispec-webframeworks = "*"
 flask-cors = "*"
 elasticsearch-dsl = "*"
 werkzeug = "*"
+lxml = "*"
 
 [dev-packages]
 pylint = "*"

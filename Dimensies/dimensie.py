@@ -391,6 +391,8 @@ class DimensieList(Resource):
         # return schema.dump(dim_object), 200
 
         try:
+            print(dim_object)
+            print(self.query_fields)
             values = [dim_object[k] for k in self.query_fields]
         except KeyError as e:
             # Als deze error voorkomt is er iets mis met de schema's
