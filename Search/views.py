@@ -4,7 +4,7 @@ import pyodbc
 from globals import db_connection_settings, null_uuid
 from uuid import UUID
 # Any objects that shouldn't be searched
-SEARCH_EXCLUDED = ["beleidsrelaties"]
+SEARCH_EXCLUDED = ["beleidsrelaties", "doelen", "themas", "belangen"]
 GEO_SEARCH_INCLUDED = ['maatregelen', 'verordeningen', 'beleidsbeslissingen']
 
 
