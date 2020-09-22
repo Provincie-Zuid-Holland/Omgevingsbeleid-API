@@ -1,6 +1,7 @@
 import marshmallow as MM
 from .dimensie import Dimensie_Schema
 from lxml import html
+from globals import min_datetime, max_datetime
 
 
 class Maatregelen_Schema(Dimensie_Schema):
@@ -18,6 +19,8 @@ class Maatregelen_Schema(Dimensie_Schema):
     Tags = MM.fields.Str(missing=None, obprops=[])
     Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf([
         "Definitief ontwerp GS", "Definitief ontwerp GS concept", "Definitief ontwerp PS", "Niet-Actief", "Ontwerp GS", "Ontwerp GS Concept", "Ontwerp in inspraak", "Ontwerp PS", "Uitgecheckt", "Vastgesteld", "Vigerend", "Vigerend gearchiveerd"])], obprops=[])
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', missing=min_datetime, allow_none=True, obprops=[])
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', missing=max_datetime, allow_none=True, obprops=[])
 
     @MM.post_load
     def toelichting_to_raw(self, data, **kwargs):
