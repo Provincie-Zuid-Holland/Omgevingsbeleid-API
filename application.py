@@ -25,6 +25,7 @@ from Search.views import search, geo_search
 from Special.verordeningsstructuur import Verordening_Structuur
 from Stats.views import stats
 from errors import errors
+from Dimensies.maatregelen import Vigerende_Maatregelen
 
 current_version = '0.1'
 
@@ -112,6 +113,8 @@ api.add_resource(Gebruiker, '/gebruikers',
 api.add_resource(Verordening_Structuur, '/verordeningstructuur',
                  '/verordeningstructuur/<int:verordeningstructuur_id>',
                  '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>')
+
+api.add_resource(Vigerende_Maatregelen, '/maatregelen/vigerend')
 
 if __name__ == '__main__':
     app.run()
