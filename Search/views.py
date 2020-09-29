@@ -13,7 +13,7 @@ def splitlist(value):
     return value.split(',')
 
 
-def search_query(tablename, searchfields, limit=5):
+def search_query(tablename, searchfields, limit=100):
     """
     Generates a query to use T-SQL Full text search given a tablename and fields.
     """
@@ -27,6 +27,10 @@ def search_query(tablename, searchfields, limit=5):
             [searchfields[0], 'CONCAT(' + ', '.join(searchfields[1:]) + ') AS Omschrijving'])
         fieldnames = ','.join([searchfields[0], 'Omschrijving'])
         query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames_inner}, Status, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename} WHERE Status='Vigerend') As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1 AND Status = 'Vigerend'"""
+        return query.strip()
+    if tablename == 'Maatregelen':
+        fieldnames = ','.join(searchfields)
+        query = f"""SELECT UUID, {fieldnames}, '{tablename}' as Type, KEY_TBL.RANK FROM ( SELECT UUID, {fieldnames}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) AS RowNumber FROM dbo.{tablename} WHERE Status='Vigerend') As t INNER JOIN CONTAINSTABLE({tablename}, *, ?, {limit}) as KEY_TBL ON t.UUID = KEY_TBL.[KEY] WHERE RowNumber = 1"""
         return query.strip()
     else:
         fieldnames = ','.join(searchfields)
