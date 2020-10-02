@@ -127,7 +127,7 @@ def geo_search():
                 # Dimensions
                 if not (table['schema'].fields_with_props('geo_field')[0] in table['schema'].fields_with_props('linker')):
                     queries.append(geo_search_query(table['tablename'],
-                                                    table['latest_tablename'],
+                                                    table['meta_tablename_vigerend'],
                                                     table['schema'].fields_with_props(
                                                         'search_field'),
                                                     table['schema'].fields_with_props('geo_field')[
@@ -137,7 +137,7 @@ def geo_search():
                 # Facts
                 else:
                     queries.append(fact_search_query(table['tablename'],
-                                                    table['latest_tablename'],
+                                                    table['meta_tablename_vigerend'],
                                                     table['schema'].Meta.fact_tn,
                                                     table['schema'].fields_with_props(
                                                         'search_field'),
