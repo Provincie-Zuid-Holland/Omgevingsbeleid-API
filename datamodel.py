@@ -19,10 +19,10 @@ dimensies = [
         'latest_tablename': 'Actuele_Belangen', 'singular': 'Belang', 'plural': 'Belangen'},
     {'schema': BeleidsRelatie_Schema, 'slug': 'beleidsrelaties', 'tablename': 'BeleidsRelaties',
         'latest_tablename': 'Actuele_BeleidsRelaties', 'singular': 'Beleidsrelatie', 'plural': 'Beleidsrelaties'},
-    {'schema': Maatregelen_Schema, 'slug': 'maatregelen', 'tablename': 'Maatregelen', 'latest_tablename': 'Actuele_Maatregelen', 'singular': 'Maatregel', 'plural': 'Maatregelen'},
+    {'schema': Maatregelen_Schema, 'slug': 'maatregelen', 'tablename': 'Maatregelen', 'latest_tablename': 'Actuele_Maatregelen', 'singular': 'Maatregel', 'plural': 'Maatregelen', 'meta_tablename_vigerend':'Vigerende_Maatregelen'},
     {'schema': Themas_Schema, 'slug': 'themas', 'tablename': 'Themas', 'latest_tablename': 'Actuele_Themas', 'singular': 'Thema', 'plural': "Thema's"},
     {'schema': Opgaven_Schema, 'slug': 'opgaven', 'tablename': 'Opgaven', 'latest_tablename': 'Actuele_Opgaven', 'singular': 'Opgave', 'plural': 'Opgaven'},
-    {'schema': Verordening_Schema, 'slug': 'verordeningen', 'tablename': 'Verordeningen', 'latest_tablename': 'Actuele_Verordeningen', 'singular': 'Verordening', 'plural': 'Verordeningen'}
+    {'schema': Verordening_Schema, 'slug': 'verordeningen', 'tablename': 'Verordeningen', 'latest_tablename': 'Actuele_Verordeningen', 'singular': 'Verordening', 'plural': 'Verordeningen', 'meta_tablename_vigerend':'Actuele_Verordeningen'}
 ]
 
 feiten = [

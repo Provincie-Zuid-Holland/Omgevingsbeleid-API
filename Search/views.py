@@ -123,28 +123,29 @@ def geo_search():
         queries = []
         params = []
         for table in d_and_f:
-            # Dimensions
-            if not (table['schema'].fields_with_props('geo_field')[0] in table['schema'].fields_with_props('linker')):
-                queries.append(geo_search_query(table['tablename'],
-                                                table['latest_tablename'],
-                                                table['schema'].fields_with_props(
-                                                    'search_field'),
-                                                table['schema'].fields_with_props('geo_field')[
-                    0],
-                    geo_uuids))
-                params = params + geo_uuids
-            # Facts
-            else:
-                queries.append(fact_search_query(table['tablename'],
-                                                 table['latest_tablename'],
-                                                 table['schema'].Meta.fact_tn,
-                                                 table['schema'].fields_with_props(
-                                                     'search_field'),
-                                                 "fk_" +
-                                                 table['schema'].fields_with_props('geo_field')[
-                    0],
-                    geo_uuids))
-                params = params + geo_uuids
+            if 'meta_tablename_vigerend' in table:
+                # Dimensions
+                if not (table['schema'].fields_with_props('geo_field')[0] in table['schema'].fields_with_props('linker')):
+                    queries.append(geo_search_query(table['tablename'],
+                                                    table['latest_tablename'],
+                                                    table['schema'].fields_with_props(
+                                                        'search_field'),
+                                                    table['schema'].fields_with_props('geo_field')[
+                        0],
+                        geo_uuids))
+                    params = params + geo_uuids
+                # Facts
+                else:
+                    queries.append(fact_search_query(table['tablename'],
+                                                    table['latest_tablename'],
+                                                    table['schema'].Meta.fact_tn,
+                                                    table['schema'].fields_with_props(
+                                                        'search_field'),
+                                                    "fk_" +
+                                                    table['schema'].fields_with_props('geo_field')[
+                        0],
+                        geo_uuids))
+                    params = params + geo_uuids
         final_query = " UNION ".join(queries)
         results = []
         # return jsonify([final_query, params])
