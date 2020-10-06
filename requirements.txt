@@ -1,6 +1,4 @@
 aniso8601==8.0.0
-apispec==4.4.0b1
-apispec-webframeworks==0.5.2
 astroid==2.3.3
 atomicwrites==1.4.0
 attrs==20.2.0
@@ -47,6 +45,7 @@ pyparsing==2.4.7
 pyrsistent==0.17.3
 pytest==6.0.1
 python-dateutil==2.8.1
+python-dotenv==0.14.0
 pytz==2020.1
 PyYAML==5.3.1
 records==0.5.2

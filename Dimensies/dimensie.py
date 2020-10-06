@@ -331,6 +331,7 @@ class DimensieList(Resource):
             query = query + " WHERE UUID != ?"
         filter_values.append("00000000-0000-0000-0000-000000000000")
 
+
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             try:
