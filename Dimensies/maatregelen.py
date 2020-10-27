@@ -5,13 +5,14 @@ from globals import min_datetime, max_datetime, db_connection_settings
 from flask_restful import Resource
 import pyodbc
 import datetime
-
+from bs4 import BeautifulSoup
+import re
 
 class Maatregelen_Schema(Dimensie_Schema):
     Titel = MM.fields.Str(required=True, obprops=['search_field'])
     # Omschrijving = MM.fields.Str(missing=None, obprops=['search_field'])
-    Toelichting = MM.fields.Str(missing=None, obprops=['search_field'])
-    Toelichting_Raw = MM.fields.Method(missing=None, obprops=[])
+    Toelichting = MM.fields.Str(missing=None, obprops=[])
+    Toelichting_Raw = MM.fields.Method(missing=None, obprops=['search_field'])
     Gebied = MM.fields.UUID(
         missing=None, attribute='fk_Gebied', obprops=['geo_field'])
     Gebied_Duiding = MM.fields.Str(allow_none=True, missing="Indicatief", validate=[
@@ -29,8 +30,11 @@ class Maatregelen_Schema(Dimensie_Schema):
 
     @MM.post_load
     def toelichting_to_raw(self, data, **kwargs):
-        data['Toelichting_Raw'] = str(
-            html.fromstring(data['Toelichting']).text_content())
+        soup = BeautifulSoup(data['Toelichting'], features="lxml")
+        titles = soup.find_all(re.compile(r"h\d"))
+        for title in titles:
+            title.decompose()
+        data['Toelichting_Raw'] = soup.get_text(" ")
         return data
 
 
