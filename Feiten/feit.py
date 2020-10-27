@@ -6,6 +6,7 @@ from flask_jwt_extended import get_jwt_identity
 import pyodbc
 from globals import db_connection_string, db_connection_settings, min_datetime, max_datetime
 import json
+import datetime
 # TODO:
 # PATCH verwijderd eigenaren op bbs!
 
@@ -280,7 +281,7 @@ class FactManager:
         Retrieves a list of schema based facts, optionally specify an id to get a lineage.
         """
         if vigerend:
-            meta_query = f"SELECT * FROM {self._meta_tablename_vigerend}"
+            meta_query = f"SELECT * FROM {self._meta_tablename_vigerend} WHERE ? < Eind_Geldigheid AND ? > Begin_Geldigheid"
         else:
             if id and latest:
                 meta_query = f"SELECT * FROM {self._meta_tablename_actueel} WHERE ID = ?"
@@ -302,6 +303,8 @@ class FactManager:
         try:
             if id:
                 fact_objects = self.facts_from_query(meta_query, id)
+            elif vigerend:
+                fact_objects = self.facts_from_query(meta_query, datetime.datetime.now(), datetime.datetime.now())
             else:
                 fact_objects = self.facts_from_query(meta_query)
         except pyodbc.Error as odbc_ex:

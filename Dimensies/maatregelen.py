@@ -4,6 +4,7 @@ from lxml import html
 from globals import min_datetime, max_datetime, db_connection_settings
 from flask_restful import Resource
 import pyodbc
+import datetime
 
 
 class Maatregelen_Schema(Dimensie_Schema):
@@ -46,6 +47,6 @@ class Vigerende_Maatregelen(Resource):
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             dimensie_objecten = list(
-                map(row_to_dict, cursor.execute('SELECT * FROM Vigerende_Maatregelen')))
+                map(row_to_dict, cursor.execute('SELECT * FROM Vigerende_Maatregelen WHERE ? < Eind_Geldigheid AND ? > Begin_Geldigheid', datetime.datetime.now(), datetime.datetime.now())))
             schema = Maatregelen_Schema()
             return(schema.dump(dimensie_objecten, many=True))
