@@ -451,6 +451,7 @@ class FeitenList(Resource):
             fact['Created_Date'] = datetime.datetime.now()
             fact['Modified_Date'] = fact['Created_Date']
             fact['Modified_By'] = fact['Created_By']
+            fact['Aanpassing_Op'] = None
 
         except MM.exceptions.ValidationError as err:
             return err.normalized_messages(), 400

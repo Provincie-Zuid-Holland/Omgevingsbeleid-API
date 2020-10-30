@@ -16,6 +16,7 @@ class Beleidsbeslissingen_Meta_Schema(Feiten_Schema):
     Aanleiding = MM.fields.Str(missing=None)
     Afweging = MM.fields.Str(missing=None)
     Verordening_Realisatie = MM.fields.Str(missing=None)
+    Aanpassing_Op = MM.fields.UUID(missing=None)
 
 
 class Beleidsbeslissingen_Fact_Schema(Feiten_Schema):
@@ -53,6 +54,7 @@ class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Besluitnummer = MM.fields.Str(missing=None, obprops=[])
     Tags = MM.fields.Str(missing=None, obprops=[])
+    Aanpassing_Op = MM.fields.UUID(missing=None, default=None, obprops=['excluded_post'])
     WerkingsGebieden = MM.fields.Nested(
         Link_Schema, many=True, default=[], missing=[], obprops=['linker', 'geo_field'])
     BeleidsRegels = MM.fields.Nested(
