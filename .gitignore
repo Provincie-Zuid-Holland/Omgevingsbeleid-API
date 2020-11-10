@@ -9,3 +9,4 @@ search-date.json
 .env
 .azure/
 settings.py
+._env
