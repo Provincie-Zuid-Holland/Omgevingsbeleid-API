@@ -18,6 +18,7 @@ from elasticsearch_dsl import (Index, Keyword, Mapping, Nested, Search,
                                TermsFacet, connections)
 from Feiten.beleidsbeslissing import (Beleidsbeslissingen_Read_Schema)
 from Feiten.feit import Feit, FeitenLineage, FeitenList
+from Feiten import feit_new
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required
 from flask_restful import Api, Resource
@@ -113,6 +114,8 @@ api.add_resource(Gebruiker, '/gebruikers',
 api.add_resource(Verordening_Structuur, '/verordeningstructuur',
                  '/verordeningstructuur/<int:verordeningstructuur_id>',
                  '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>')
+
+api.add_resource(feit_new.FeitenList, '/new_bbs', endpoint='New_bbs', resource_class_args=(Beleidsbeslissingen_Read_Schema, Beleidsbeslissingen_Read_Schema, feit_new.Kimball_Manager))
 
 api.add_resource(Vigerende_Maatregelen, '/maatregelen/vigerend')
 

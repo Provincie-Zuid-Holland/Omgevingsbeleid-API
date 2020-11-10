@@ -12,3 +12,12 @@ db_connection_string = "mssql+pyodbc:///?odbc_connect=%s" % params
 min_datetime = datetime.datetime(1753, 1, 1, 0, 0, 0)
 max_datetime = datetime.datetime(9999, 12, 31, 23, 59, 59)
 null_uuid = default_user_uuid = "00000000-0000-0000-0000-000000000000"
+
+# Util functions
+
+
+def row_to_dict(row):
+    """
+    Turns a row from pyodbc into a dictionary
+    """
+    return dict(zip([t[0] for t in row.cursor_description], row))

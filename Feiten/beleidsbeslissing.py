@@ -1,8 +1,15 @@
 import marshmallow as MM
 from globals import default_user_uuid
 
-from .feit import Feiten_Schema, Link_Schema
+from .feit import Feiten_Schema
 
+class Link_Schema(MM.Schema):
+    UUID = MM.fields.UUID(required=True)
+    Omschrijving = MM.fields.Str(missing="")
+    Titel = MM.fields.Str(missing="")
+
+    class Meta:
+        ordered = True
 
 class Beleidsbeslissingen_Meta_Schema(Feiten_Schema):
     Eigenaar_1 = MM.fields.UUID(missing=default_user_uuid)
@@ -100,3 +107,4 @@ class Beleidsbeslissingen_Read_Schema(Feiten_Schema):
         ordered = True
         fact_tn = 'OB_Linked'
         fact_fk = 'fk_Beleidsbeslissing'
+        source_table = 'Beleidsbeslissingen_Kopellingen'  
