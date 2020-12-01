@@ -9,8 +9,8 @@ from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
 from Auth.views import login, tokenstat, jwt_required_not_GET
-from datamodel import dimensies, feiten
-from Dimensies.dimensie import Dimensie, DimensieLineage, DimensieList
+import datamodel
+import Dimensies
 from Dimensies.gebruikers import Gebruiker
 from Dimensies.werkingsgebieden import Werkingsgebied
 from elasticsearch import Elasticsearch
@@ -18,7 +18,6 @@ from elasticsearch_dsl import (Index, Keyword, Mapping, Nested, Search,
                                TermsFacet, connections)
 from Feiten.beleidsbeslissing import (Beleidsbeslissingen_Read_Schema)
 from Feiten.feit import Feit, FeitenLineage, FeitenList
-from Feiten import feit_new
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required
 from flask_restful import Api, Resource
@@ -27,8 +26,12 @@ from Special.verordeningsstructuur import Verordening_Structuur
 from Stats.views import stats
 from errors import errors
 from Dimensies.maatregelen import Vigerende_Maatregelen
+from dotenv import load_dotenv
 
 current_version = '0.1'
+
+# ENV SETUP
+load_dotenv()
 
 # FLASK SETUP
 
@@ -67,36 +70,10 @@ def custom_unauthorized_loader(reason):
     return jsonify(
         {"message": f"Authorisatie niet geldig: '{reason}'"}), 400
 
-
-# app.add_url_rule(f'/v{current_version}/login', 'login', login, methods=['POST'])
-# app.add_url_rule(f'/v{current_version}/stats', 'stats', stats, methods=['GET'])
-
 # ROUTING RULES
-
-dimension_ept = []
-
-for dimensie in dimensies:
-    spec.components.schema(dimensie['singular'], schema=dimensie['schema'])
-    api.add_resource(Dimensie, f'/{dimensie["slug"]}/version/<string:uuid>', endpoint=dimensie['singular'],
-                     resource_class_args=(dimensie['schema'], dimensie['tablename'], dimensie['latest_tablename']))
-    dimension_ept.append(dimensie['singular'])
-    api.add_resource(DimensieList, f'/{dimensie["slug"]}', endpoint=f"{dimensie['plural']}_lijst",
-                     resource_class_args=(dimensie['schema'], dimensie['tablename'], dimensie['latest_tablename']))
-    dimension_ept.append(f"{dimensie['plural']}_lijst")
-    api.add_resource(DimensieLineage, f'/{dimensie["slug"]}/<int:id>', endpoint=f"{dimensie['plural']}_lineage",
-                     resource_class_args=(dimensie['schema'],  dimensie['tablename']))
-
-for feit in feiten:
-    general_args = (feit['meta_schema'], feit['meta_tablename'], feit['meta_tablename_actueel'], feit['meta_tablename_vigerend'],
-                    feit['fact_schema'], feit['fact_tablename'], feit['fact_view'], feit['fact_to_meta_field'], feit['read_schema'])
-    api.add_resource(FeitenList, f'/{feit["slug"]}', endpoint=f'{feit["slug"]}_lijst',
-                     resource_class_args=general_args)
-    api.add_resource(FeitenLineage, f'/{feit["slug"]}/<string:id>', endpoint=f'{feit["slug"]}_lineage',
-                     resource_class_args=general_args)
-    api.add_resource(Feit, f'/{feit["slug"]}/version/<string:uuid>', endpoint=f'{feit["slug"]}',
-                     resource_class_args=general_args)
-    spec.components.schema('Beleidsbeslissingen',
-                           schema=Beleidsbeslissingen_Read_Schema)
+for dimensie in datamodel.dimensies:
+    api.add_resource(Dimensies.dimensie.DimensieLineage, f'/{dimensie.slug}/<int:id>', endpoint=f'{dimensie.slug.capitalize()}_Lineage',
+        resource_class_args=(dimensie.read_schema, dimensie.write_schema))
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
@@ -115,7 +92,7 @@ api.add_resource(Verordening_Structuur, '/verordeningstructuur',
                  '/verordeningstructuur/<int:verordeningstructuur_id>',
                  '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>')
 
-api.add_resource(feit_new.FeitenList, '/new_bbs', endpoint='New_bbs', resource_class_args=(Beleidsbeslissingen_Read_Schema, Beleidsbeslissingen_Read_Schema, feit_new.Kimball_Manager))
+# api.add_resource(feit_new.FeitenList, '/new_bbs', endpoint='New_bbs', resource_class_args=(Beleidsbeslissingen_Read_Schema, Beleidsbeslissingen_Read_Schema, feit_new.Kimball_Manager))
 
 api.add_resource(Vigerende_Maatregelen, '/maatregelen/vigerend')
 
