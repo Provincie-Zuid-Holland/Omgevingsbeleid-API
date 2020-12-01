@@ -4,7 +4,7 @@ from flask import request, jsonify
 import datetime
 from flask_jwt_extended import get_jwt_identity
 import pyodbc
-from globals import db_connection_string, db_connection_settings, min_datetime, max_datetime
+from globals import db_connection_settings, min_datetime, max_datetime
 import json
 import datetime
 # TODO:

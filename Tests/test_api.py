@@ -12,7 +12,7 @@ def client():
 
 def test_endpoints(client):
     for ep in dimensies_and_feiten():
-        list_ep = f"v0.1/{ep['slug']}"
+        list_ep = f"v0.1/{ep.slug}"
         response = client.get(list_ep)
         if response.status_code != 200:
             print(response.data)

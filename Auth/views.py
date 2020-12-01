@@ -8,10 +8,9 @@ from flask_jwt_extended import (
     verify_jwt_in_request
 )
 from passlib.hash import bcrypt
-from globals import db_connection_string, db_connection_settings
+from globals import db_connection_settings, row_to_dict
 import pyodbc
 import time
-import records
 import os
 from functools import wraps
 
@@ -28,13 +27,14 @@ def login():
         return jsonify({"message": "Password parameter niet gevonden"}), 400
 
     # Find identifier
-    # connection = pyodbc.connect(db_connection_settings)
-    # cursor = connection.cursor()
-    # cursor.execute("SELECT * FROM Gebruikers WHERE Gebruikersnaam = ?", identifier)
-    db = records.Database(db_connection_string)
-    row = db.query("""SELECT UUID, Gebruikersnaam, Email, Rol, Wachtwoord FROM Gebruikers WHERE Email = :gebruikersnaam""", gebruikersnaam=identifier)
-    result = row.first()
+    with pyodbc.connect(db_connection_settings) as connection:
+        cursor = connection.cursor()
+        query = """SELECT UUID, Gebruikersnaam, Email, Rol, Wachtwoord FROM Gebruikers WHERE Email = ?"""
+        cursor.execute(query, identifier)
+        result = cursor.fetchone()
+    
     if result:
+        result = row_to_dict(result)
         passwordhash = result['Wachtwoord']
         if passwordhash:
             if bcrypt.verify(password, passwordhash):

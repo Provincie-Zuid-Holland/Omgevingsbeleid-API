@@ -4,7 +4,7 @@ from flask import request, jsonify, abort
 from flask_restful import Resource
 import pyodbc
 from flask_jwt_extended import get_jwt_identity
-from globals import db_connection_settings, db_connection_string
+from globals import db_connection_settings
 from xml.etree import ElementTree as ET
 import re
 import uuid

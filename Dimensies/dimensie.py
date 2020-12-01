@@ -2,7 +2,7 @@ from flask_restful import Resource
 import pyodbc
 from flask import request, jsonify
 import marshmallow as MM
-from globals import db_connection_string, db_connection_settings, min_datetime, max_datetime, null_uuid, row_to_dict
+from globals import db_connection_settings, min_datetime, max_datetime, null_uuid, row_to_dict
 import re
 import datetime
 from flask_jwt_extended import get_jwt_identity
@@ -76,28 +76,6 @@ class Dimensie_Schema(MM.Schema):
         read_only = False
         references = {}
 
-# Helper methods
-
-
-# def objects_from_query(query):
-#     """
-#     Verkrijg alle objecten uit een table
-#     """
-#     db = records.Database(db_connection_string)
-#     return db.query(query)
-
-
-# def attribute_or_str(mmfield):
-#     """
-#     This functions takes an Marsmallow Field object and returns it's name as String if the field has no 'attribute' value.
-#     If it does have an attribute value, it returns the attribute value
-#     """
-#     if mmfield[1].attribute:
-#         return mmfield[1].attribute
-#     else:
-#         return mmfield[0]
-
-
 class DimensieLineage(Resource):
     """
     A lineage is a list of all object that have the same ID, ordered by modified date.
@@ -114,12 +92,40 @@ class DimensieLineage(Resource):
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             query = f"SELECT * FROM {self.read_schema.Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC"
-            dimensie_objecten = list(
+            result_objecten = list(
                 map(row_to_dict, cursor.execute(query, id)))
 
-            if len(dimensie_objecten) == 0:
+            if len(result_objecten) == 0:
                 return {'message': f'Object with ID={id} not found'}, 404
-            return(self.read_schema().dump(dimensie_objecten, many=True))
+            return(self.read_schema().dump(result_objecten, many=True))
+
+
+
+class DimensieList(Resource):
+    """
+    A list of all the different lineages available in the database, 
+    showing the latests version of each object's lineage.
+    """
+    def __init__(self, read_schema, write_schema):
+        self.read_schema = read_schema
+        self.write_schema = write_schema
+    
+    def get(self):
+        """
+        GET endpoint for a list
+        """
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+            query = f"SELECT * FROM {self.read_schema.Meta.table} ORDER BY Modified_Date DESC"
+        
+            result_objecten =  list(
+                map(row_to_dict, cursor.execute(query)))
+        
+            return(self.read_schema().dump(result_objecten, many=True))
+
+
+
+
 
 #     def patch(self, id):
 #         """
