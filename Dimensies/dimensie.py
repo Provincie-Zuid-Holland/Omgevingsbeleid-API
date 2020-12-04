@@ -62,6 +62,16 @@ class Dimensie_Schema(MM.Schema):
                 pass
         return dumped
 
+    @MM.pre_load()
+    def stringify_datetimes(self, in_data, **kwargs):
+        """
+        Assures that datetimes from the database are loaded as isoformat
+        """
+        for field in in_data:
+            if isinstance(in_data[field], datetime.datetime):
+                in_data[field] = in_data[field].isoformat()
+        return in_data
+    
     @classmethod
     def fields_with_props(cls, prop):
         """
@@ -75,6 +85,7 @@ class Dimensie_Schema(MM.Schema):
         ordered = True
         read_only = False
         references = {}
+        unknown = MM.RAISE
 
 class DimensieLineage(Resource):
     """
@@ -82,8 +93,8 @@ class DimensieLineage(Resource):
     This represents the history of an object in our database.
     """
     def __init__(self, read_schema, write_schema):
-        self.read_schema = read_schema
-        self.write_schema = write_schema
+        self.read_schema = read_schema()
+        self.write_schema = write_schema()
 
     def get(self, id):
         """
@@ -92,12 +103,12 @@ class DimensieLineage(Resource):
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             query = f"SELECT * FROM {self.read_schema.Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC"
-            result_objecten = list(
-                map(row_to_dict, cursor.execute(query, id)))
+            result_objecten = list(map(self.read_schema.load,
+                map(row_to_dict, cursor.execute(query, id))))
 
             if len(result_objecten) == 0:
                 return {'message': f'Object with ID={id} not found'}, 404
-            return(self.read_schema().dump(result_objecten, many=True))
+            return(self.read_schema.dump(result_objecten, many=True))
 
 
 
@@ -107,8 +118,8 @@ class DimensieList(Resource):
     showing the latests version of each object's lineage.
     """
     def __init__(self, read_schema, write_schema):
-        self.read_schema = read_schema
-        self.write_schema = write_schema
+        self.read_schema = read_schema()
+        self.write_schema = write_schema()
     
     def get(self):
         """
@@ -117,11 +128,15 @@ class DimensieList(Resource):
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             query = f"SELECT * FROM {self.read_schema.Meta.table} ORDER BY Modified_Date DESC"
+            try:
+                # Load the recieved objects to ensure validation
+                result_objecten =  list(map(self.read_schema.load,
+                    map(row_to_dict, cursor.execute(query))))
+            except MM.exceptions.ValidationError as err:
+                return err.normalized_messages(), 500
+
         
-            result_objecten =  list(
-                map(row_to_dict, cursor.execute(query)))
-        
-            return(self.read_schema().dump(result_objecten, many=True))
+            return(self.read_schema.dump(result_objecten, many=True))
 
 
 
