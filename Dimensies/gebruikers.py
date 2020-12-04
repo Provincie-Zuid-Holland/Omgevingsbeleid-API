@@ -1,10 +1,8 @@
-from flask_restful import Resource, Api, fields, marshal, reqparse, inputs, abort
-import pyodbc
 import marshmallow as MM
-from flask import request
-from globals import db_connection_settings, null_uuid
-from uuid import UUID
+from flask_restful import Resource
 from flask_jwt_extended import jwt_required
+import pyodbc
+from globals import null_uuid, db_connection_settings
 
 
 class Gebruiker_Schema(MM.Schema):
@@ -12,10 +10,14 @@ class Gebruiker_Schema(MM.Schema):
     Gebruikersnaam = MM.fields.Str(required=True)
     Wachtwoord = MM.fields.Str(missing=None)
     Rol = MM.fields.Str(missing=None)
+    Status = MM.fields.Str(missing=None)
     Email = MM.fields.Str(missing=None)
 
     class Meta:
+        table = 'Gebruikers'
+        read_only = True
         ordered = True
+        searchable = False
 
 
 class Gebruiker(Resource):

@@ -53,8 +53,8 @@ app.add_url_rule(f'/v{current_version}/tokeninfo',
 
 # api.add_resource(Werkingsgebied, '/werkingsgebieden',
 #                  '/werkingsgebieden/<string:werkingsgebied_uuid>')
-# api.add_resource(Gebruiker, '/gebruikers',
-#                  '/gebruikers/<string:gebruiker_uuid>')
+api.add_resource(Gebruiker, '/gebruikers',
+                 '/gebruikers/<string:gebruiker_uuid>')
 # api.add_resource(Verordening_Structuur, '/verordeningstructuur',
 #                  '/verordeningstructuur/<int:verordeningstructuur_id>',
 #                  '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>')
