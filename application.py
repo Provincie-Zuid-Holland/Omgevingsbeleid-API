@@ -11,9 +11,8 @@ from flask_restful import Api, Resource
 import datamodel
 from Auth.views import jwt_required_not_GET, login, tokenstat
 from Dimensies.gebruikers import Gebruiker
-from Feiten.feit import Feit, FeitenLineage, FeitenList
-import Dimensies.dimensie
-from Search.views import geo_search, search
+import Endpoints.normal
+# from Search.views import geo_search, search
 from Special.verordeningsstructuur import Verordening_Structuur
 
 current_version = '0.1'
@@ -39,29 +38,20 @@ def custom_unauthorized_loader(reason):
         {"message": f"Authorisatie niet geldig: '{reason}'"}), 400
 
 # ROUTING RULES
-for dimensie in datamodel.dimensies:
-    api.add_resource(Dimensies.dimensie.DimensieLineage, f'/{dimensie.slug}/<int:id>', endpoint=f'{dimensie.slug.capitalize()}_Lineage',
-        resource_class_args=(dimensie.read_schema, dimensie.write_schema))
+for endpoint in datamodel.normal_endpoints:
+    api.add_resource(Endpoints.normal.DimensieLineage, f'/{endpoint.slug}/<int:id>', endpoint=f'{endpoint.slug.capitalize()}_Lineage',
+        resource_class_args=(endpoint.read_schema, endpoint.write_schema))
     
-    api.add_resource(Dimensies.dimensie.DimensieList, f'/{dimensie.slug}', endpoint=f'{dimensie.slug.capitalize()}_List',
-        resource_class_args=(dimensie.read_schema, dimensie.write_schema))
+    api.add_resource(Endpoints.normal.DimensieList, f'/{endpoint.slug}', endpoint=f'{endpoint.slug.capitalize()}_List',
+        resource_class_args=(endpoint.read_schema, endpoint.write_schema))
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
 app.add_url_rule(f'/v{current_version}/tokeninfo',
                  'tokenstat', tokenstat, methods=['GET'])
 
-# api.add_resource(Werkingsgebied, '/werkingsgebieden',
-#                  '/werkingsgebieden/<string:werkingsgebied_uuid>')
 api.add_resource(Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
-# api.add_resource(Verordening_Structuur, '/verordeningstructuur',
-#                  '/verordeningstructuur/<int:verordeningstructuur_id>',
-#                  '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>')
-
-# api.add_resource(feit_new.FeitenList, '/new_bbs', endpoint='New_bbs', resource_class_args=(Beleidsbeslissingen_Read_Schema, Beleidsbeslissingen_Read_Schema, feit_new.Kimball_Manager))
-
-# api.add_resource(Vigerende_Maatregelen, '/maatregelen/vigerend')
 
 if __name__ == '__main__':
     app.run()

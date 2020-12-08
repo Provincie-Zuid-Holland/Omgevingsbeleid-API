@@ -8,7 +8,7 @@ import tempfile
 import pytest
 
 from application import app
-from datamodel import dimensies_and_feiten
+from datamodel import all_endpoints
 from globals import db_connection_settings, null_uuid
 import pyodbc 
 
@@ -18,7 +18,7 @@ def client():
 
 def test_nills(client):
     """Check wether all the tables in the datamodel contain a Nill UUID"""
-    for ep in dimensies_and_feiten():
+    for ep in all_endpoints():
         print(ep)
         with pyodbc.connect(db_connection_settings) as connections:
             cur = connections.cursor()
