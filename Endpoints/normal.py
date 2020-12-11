@@ -8,6 +8,18 @@ import datetime
 from flask_jwt_extended import get_jwt_identity
 from Endpoints.api_errors import handle_integrity_exception, handle_odbc_exception, handle_validation_exception
 
+def save_object(new_object, tn, cursor):
+    column_names, values = tuple(zip(*new_object.items()))
+    parameter_marks = ', '.join(['?'] * len(column_names))
+    query = f'''INSERT INTO {tn} ({', '.join(column_names)}) OUTPUT inserted.UUID, inserted.ID VALUES ({parameter_marks})'''
+    
+    cursor.execute(query, *values)
+    
+    output = cursor.fetchone()
+    new_object['UUID'] = output[0]
+    new_object['ID'] = output[1]
+    return new_object
+
 class Normal_Schema(MM.Schema):
     """
     Schema that defines fields we expect from every object in order to build and keep a history.
@@ -98,7 +110,6 @@ class Normal_Schema(MM.Schema):
         """
         return list(map(lambda item: item[0], filter(lambda item: prop not in item[1].metadata['obprops'], cls._declared_fields.items())))
 
-
     class Meta:
         ordered = True
         read_only = False
@@ -111,13 +122,14 @@ class DimensieLineage(Resource):
     A lineage is a list of all object that have the same ID, ordered by modified date.
     This represents the history of an object in our database.
     """
+
     def __init__(self, read_schema, write_schema):
         self.read_schema = read_schema
         self.write_schema = write_schema
 
     def get(self, id):
         """
-        GET endpoint voor a lineage.        
+        GET endpoint for a lineage.        
         """
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
@@ -126,15 +138,67 @@ class DimensieLineage(Resource):
             try:
                 # Load the objects to ensure validation
                 result_objecten = list(map(self.read_schema().load,
-                    map(row_to_dict, cursor.execute(query, id))))
+                                           map(row_to_dict, cursor.execute(query, id))))
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e)
-
 
             if len(result_objecten) == 0:
                 return {'message': f'Object with ID={id} not found'}, 404
             return(self.read_schema().dump(result_objecten, many=True))
 
+    def patch(self, id):
+        """
+        PATCH endpoint for a lineage.
+        """
+        if self.write_schema.Meta.read_only or self.read_schema.Meta.read_only:
+                return {'message': 'This endpoint is read-only'}, 403
+    
+        if request.json is None:
+                return {'message': 'Request data empty'}, 400
+
+        patch_schema = self.write_schema(
+            exclude=self.write_schema.fields_with_props('exluded_patch'),
+            unknown=MM.RAISE,
+            partial=True
+        )
+
+        request_time = datetime.datetime.now()
+        
+        with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
+            cursor = connection.cursor()
+
+            old_object = None
+            
+            query = f'SELECT TOP(1) * FROM {self.write_schema.Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
+            
+            old_object = list(cursor.execute(query, id))
+            if not(any(old_object)):
+                return {'message': f'Object with ID={id} not found'}, 404
+            else:
+                old_object = row_to_dict(old_object[0])
+
+            try:
+                changes = patch_schema.load(request.json)
+            except MM.exceptions.ValidationError as e:
+                return handle_validation_exception(e)
+            
+            # TODO: Add reference logic
+
+            new_object = {**old_object, **changes}
+
+            new_object.pop('UUID')
+            new_object['Modified_Date'] = request_time
+            new_object['Modified_By'] = get_jwt_identity()['UUID']
+
+            try:
+                new_object = save_object(new_object, self.write_schema.Meta.table, cursor)
+            except pyodbc.IntegrityError as e:
+                return handle_integrity_exception(e)
+            except pyodbc.DatabaseError as e:
+                return handle_odbc_exception(e)
+
+            connection.commit()
+            return self.write_schema().dump(new_object), 200
 
 
 class DimensieList(Resource):
@@ -142,10 +206,11 @@ class DimensieList(Resource):
     A list of all the different lineages available in the database, 
     showing the latests version of each object's lineage.
     """
+
     def __init__(self, read_schema, write_schema):
         self.read_schema = read_schema
         self.write_schema = write_schema
-    
+
     def get(self):
         """
         GET endpoint for a list
@@ -158,56 +223,56 @@ class DimensieList(Resource):
                 f for f in filters if f not in self.read_schema().fields_without_props('reference')]
             if invalids:
                 return {'message': f"Filter(s) '{' '.join(invalids)}' invalid for this endpoint. Valid filters: '{', '.join(self.read_schema().fields_without_props('reference'))}''"}, 403
-            
+
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
-            
+
             # Placeholder for arguments to filter
             query_args = None
             query = f'SELECT * FROM {self.read_schema().Meta.table}'
-            
+
             if filters:
-                query += ' WHERE ' + ' AND '.join(f'{key} = ?' for key in filters)
+                query += ' WHERE ' + \
+                    ' AND '.join(f'{key} = ?' for key in filters)
                 query_args = [filters[key] for key in filters]
-            
-            query +=  ' ORDER BY Modified_Date DESC'
-            
+
+            query += ' ORDER BY Modified_Date DESC'
+
             try:
                 # Load the recieved objects to ensure validation
                 if filters:
-                    result_objecten =  list(map(self.read_schema().load,
-                        map(row_to_dict, cursor.execute(query, query_args))))
+                    result_objecten = list(map(self.read_schema().load,
+                                               map(row_to_dict, cursor.execute(query, query_args))))
                 else:
-                    result_objecten =  list(map(self.read_schema().load,
-                        map(row_to_dict, cursor.execute(query))))
-            
+                    result_objecten = list(map(self.read_schema().load,
+                                               map(row_to_dict, cursor.execute(query))))
+
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e)
 
-        
             return(self.read_schema().dump(result_objecten, many=True))
-    
+
     def post(self):
         """
         POST endpoint for this object.
         """
         if self.write_schema.Meta.read_only or self.read_schema.Meta.read_only:
             return {'message': 'This endpoint is read-only'}, 403
-        
-        request_time = datetime.datetime.now()
-        
-        with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
-            cursor = connection.cursor()
-            
-            if request.json is None:
+
+        if request.json is None:
                 return {'message': 'Request data empty'}, 400
-        
-            post_schema = self.write_schema(
+
+        post_schema = self.write_schema(
                 exclude=self.write_schema.fields_with_props('excluded_post'),
                 unknown=MM.utils.RAISE)
 
+        request_time = datetime.datetime.now()
+
+        with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
+            cursor = connection.cursor()
+
             try:
-                new_object = post_schema.load(request.get_json()) 
+                new_object = post_schema.load(request.get_json())
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e)
 
@@ -217,21 +282,13 @@ class DimensieList(Resource):
             new_object['Created_Date'] = request_time
             new_object['Modified_Date'] = new_object['Created_Date']
             new_object['Modified_By'] = new_object['Created_By']
-
             
-            column_names, values = tuple(zip(*new_object.items()))
-            parameter_marks = ', '.join(['?'] * len(column_names))
-            query = f'''INSERT INTO {self.write_schema.Meta.table} ({', '.join(column_names)}) OUTPUT inserted.UUID, inserted.ID VALUES ({parameter_marks})'''
             try:
-                cursor.execute(query, *values)
+                new_object = save_object(new_object, self.write_schema.Meta.table, cursor)
             except pyodbc.IntegrityError as e:
                 return handle_integrity_exception(e)
             except pyodbc.DatabaseError as e:
                 return handle_odbc_exception(e)
-            
-            output = cursor.fetchone()
-            new_object['UUID'] = output[0]
-            new_object['ID'] = output[1]
 
             connection.commit()
             return self.write_schema().dump(new_object), 201

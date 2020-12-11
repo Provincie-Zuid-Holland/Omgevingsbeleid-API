@@ -82,8 +82,14 @@ def test_endpoints(client, test_user_UUID, auth, cleanup):
         response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Token {auth[1]}'})
         assert response.status_code == 201, f"Status code for POST on {list_ep} was {response.status_code}, should be 201. Body content: {response.json}"
         
+        new_id = response.get_json()['ID']        
+        
         response = client.get(list_ep)
         assert found + 1 == len(response.json)
-
-
+        
+        response = client.patch(list_ep + '/' + str(new_id), json={'Begin_Geldigheid':'1994-11-23T10:00:00'}, headers={'Authorization': f'Token {auth[1]}'})
+        assert response.status_code == 200, f'Status code for PATCH on {list_ep} was {response.status_code}, should be 200. Body contents: {response.json}'
+        
+        response = client.get(list_ep + '/' + str(new_id))
+        assert response.json[0]['Begin_Geldigheid'] == '1994-11-23T10:00:00', 'Patch did not change object.'
 
