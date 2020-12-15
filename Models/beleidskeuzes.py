@@ -2,11 +2,11 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import marshmallow as MM
-from Endpoints.normal import Normal_Schema
+from Endpoints.endpoint import Base_Schema
 from globals import default_user_uuid
 
 
-class Beleidskeuze_Schema(Normal_Schema):
+class Beleidskeuzes_Schema(Base_Schema):
     Eigenaar_1 = MM.fields.UUID(
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
     Eigenaar_2 = MM.fields.UUID(
@@ -44,7 +44,7 @@ class Beleidskeuze_Schema(Normal_Schema):
     Aanpassing_Op = MM.fields.UUID(
         missing=None, default=None, obprops=['excluded_post'])
 
-    class Meta(Normal_Schema.Meta):
+    class Meta(Base_Schema.Meta):
         table = 'Beleidskeuzes'
         read_only = False
         ordered = True

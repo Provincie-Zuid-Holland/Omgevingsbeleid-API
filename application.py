@@ -12,11 +12,9 @@ from flask_jwt_extended import JWTManager, jwt_required
 from flask_restful import Api, Resource
 
 import datamodel
-from Auth.views import jwt_required_not_GET, login, tokenstat
-from Dimensies.gebruikers import Gebruiker
 import Endpoints.endpoint
-# from Search.views import geo_search, search
-from Special.verordeningsstructuur import Verordening_Structuur
+from Auth.views import jwt_required_not_GET, login, tokenstat
+from Models.gebruikers import Gebruiker
 
 current_version = '0.1'
 
@@ -40,13 +38,14 @@ def custom_unauthorized_loader(reason):
     return jsonify(
         {"message": f"Authorisatie niet geldig: '{reason}'"}), 400
 
+
 # ROUTING RULES
 for endpoint in datamodel.endpoints:
-    api.add_resource(Endpoints.endpoint.DimensieLineage, f'/{endpoint.slug}/<int:id>', endpoint=f'{endpoint.slug.capitalize()}_Lineage',
-        resource_class_args=(endpoint.read_schema, endpoint.write_schema))
-    
-    api.add_resource(Endpoints.endpoint.DimensieList, f'/{endpoint.slug}', endpoint=f'{endpoint.slug.capitalize()}_List',
-        resource_class_args=(endpoint.read_schema, endpoint.write_schema))
+    api.add_resource(Endpoints.endpoint.Lineage, f'/{endpoint.slug}/<int:id>', endpoint=f'{endpoint.slug.capitalize()}_Lineage',
+                     resource_class_args=(endpoint.read_schema, endpoint.write_schema))
+
+    api.add_resource(Endpoints.endpoint.List, f'/{endpoint.slug}', endpoint=f'{endpoint.slug.capitalize()}_List',
+                     resource_class_args=(endpoint.read_schema, endpoint.write_schema))
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])

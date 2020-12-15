@@ -1,15 +1,21 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
-from flask_restful import Resource
-import pyodbc
-from flask import request, jsonify
-import marshmallow as MM
-from globals import db_connection_settings, min_datetime, max_datetime, null_uuid, row_to_dict
-import re
 import datetime
+import re
+
+import marshmallow as MM
+import pyodbc
+from flask import jsonify, request
 from flask_jwt_extended import get_jwt_identity
-from Endpoints.errors import handle_integrity_exception, handle_odbc_exception, handle_validation_exception
+from flask_restful import Resource
+from globals import (db_connection_settings, max_datetime, min_datetime,
+                     null_uuid, row_to_dict)
+
+from Endpoints.errors import (handle_integrity_exception,
+                              handle_odbc_exception,
+                              handle_validation_exception)
+
 
 def save_object(new_object, tn, cursor):
     column_names, values = tuple(zip(*new_object.items()))
@@ -23,7 +29,7 @@ def save_object(new_object, tn, cursor):
     new_object['ID'] = output[1]
     return new_object
 
-class Normal_Schema(MM.Schema):
+class Base_Schema(MM.Schema):
     """
     Schema that defines fields we expect from every object in order to build and keep a history.
     """
@@ -121,7 +127,7 @@ class Normal_Schema(MM.Schema):
         unknown = MM.RAISE
 
 
-class DimensieLineage(Resource):
+class Lineage(Resource):
     """
     A lineage is a list of all object that have the same ID, ordered by modified date.
     This represents the history of an object in our database.
@@ -205,7 +211,7 @@ class DimensieLineage(Resource):
             return self.write_schema().dump(new_object), 200
 
 
-class DimensieList(Resource):
+class List(Resource):
     """
     A list of all the different lineages available in the database, 
     showing the latests version of each object's lineage.
