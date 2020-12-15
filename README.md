@@ -10,9 +10,17 @@ Dit project is een API voor omgevingsbeleid van de provincie Zuid-Holland
 - Microsoft SQL Server
 
 ## Installeren
-Dit project maakt gebruik van [pipenv](https://github.com/pypa/pipenv). Installeer pipenv en voer de volgende commands uit:
+Dit project maakt gebruik van [venv](https://docs.python.org/3/tutorial/venv.html). Maak een venv aan:
 ```shell
-$ pipenv install --dev
+$ python -m venv .venv
+```
+Activeer de venv:
+```shell
+$ .venv/Scripts/activate
+```
+Installeer de benodigde packages:
+```shell
+$ pip install -r requirements.txt
 ```
 
 ## Omgevingsvariabelen
@@ -26,6 +34,9 @@ DB_NAME=Naam van de database
 DB_DRIVER=Driver naam
 FLASK_APP=server.py
 JWT_SECRET=1234abahsge
+TEST_MAIL= email van test gebruiker (optioneel)
+TEST_PASS= wachtwoord van test gebruiker (optioneel)
+TEST_UUID= UUID van test gebruiker (optioneel)
 ```
 In development is het makkelijk om ook de FLASK_ENV variabale in te stellen (Niet gebruiken voor productie omgevingen!)
 
@@ -33,7 +44,13 @@ In development is het makkelijk om ook de FLASK_ENV variabale in te stellen (Nie
 FLASK_ENV=development
 ```
 
-## Lokale versie draaien
+## Lokale versie draaien & Tests draaien
+Om een lokale omgeving te draaien (vereist geldige .env):
 ```bash
 > flask run
+```
+
+Om te testen:
+```bash
+> pytest
 ```
