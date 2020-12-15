@@ -1,5 +1,6 @@
 # Omgevingsbeleid API
-Dit project is een API voor omgevingsbeleid van de provincie Zuid-Holland
+Omgevingsbeleid API was originally created in early 2018 in order to meet the requirements
+given by the new 'Omgevingswet' from the dutch national government.
 
 ## Stack
 - Python
@@ -9,48 +10,48 @@ Dit project is een API voor omgevingsbeleid van de provincie Zuid-Holland
     + [PyODBC](https://github.com/mkleehammer/pyodbc)
 - Microsoft SQL Server
 
-## Installeren
-Dit project maakt gebruik van [venv](https://docs.python.org/3/tutorial/venv.html). Maak een venv aan:
+## Installation
+This project utilizes [venv](https://docs.python.org/3/tutorial/venv.html). Create a new venv.
 ```shell
 $ python -m venv .venv
 ```
-Activeer de venv:
+activate your new venv.
 ```shell
 $ .venv/Scripts/activate
 ```
-Installeer de benodigde packages:
+install the required packages.
 ```shell
 $ pip install -r requirements.txt
 ```
 
-## Omgevingsvariabelen
-Deze applicatie verwacht de volgende omgevingsvariabelen
+## Envirnoment Variables
+This application requires the following variables to be available
 ``` bash
-DB_USER=Database gebruiker
-DB_PASS=Wachtwoord van gebruiker
-DB_HOST=Locatie van SQL-server
-DB_PORT=Poort van SQL-server (1433 default)
-DB_NAME=Naam van de database
-DB_DRIVER=Driver naam
+DB_USER=Database user
+DB_PASS=password of user
+DB_HOST=Location of SQL-server
+DB_PORT=Port of SQL-server (1433 default)
+DB_NAME=Name of the database
+DB_DRIVER=Driver name
 FLASK_APP=server.py
 JWT_SECRET=1234abahsge
-TEST_MAIL= email van test gebruiker (optioneel)
-TEST_PASS= wachtwoord van test gebruiker (optioneel)
-TEST_UUID= UUID van test gebruiker (optioneel)
+TEST_MAIL= email of test user (optional)
+TEST_PASS= password of test user (optional)
+TEST_UUID= UUID of test user (optional)
 ```
-In development is het makkelijk om ook de FLASK_ENV variabale in te stellen (Niet gebruiken voor productie omgevingen!)
+When developing it is convencient to set the FLASK_ENV variable to enable auto reload debugging mode.
 
 ```bash
 FLASK_ENV=development
 ```
 
-## Lokale versie draaien & Tests draaien
-Om een lokale omgeving te draaien (vereist geldige .env):
+## Running locally and running tests
+In order to run your local project (requires a valid .env file).
 ```bash
 > flask run
 ```
 
-Om te testen:
+To run the tests.
 ```bash
 > pytest
 ```
