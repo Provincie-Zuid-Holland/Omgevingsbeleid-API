@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2018 - 2020 Provincie Zuid-Holland
+
 import marshmallow as MM
 from lxml import html
 from globals import min_datetime, max_datetime, db_connection_settings

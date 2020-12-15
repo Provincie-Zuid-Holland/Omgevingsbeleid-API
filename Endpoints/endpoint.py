@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2018 - 2020 Provincie Zuid-Holland
+
 from flask_restful import Resource
 import pyodbc
 from flask import request, jsonify
@@ -6,7 +9,7 @@ from globals import db_connection_settings, min_datetime, max_datetime, null_uui
 import re
 import datetime
 from flask_jwt_extended import get_jwt_identity
-from Endpoints.api_errors import handle_integrity_exception, handle_odbc_exception, handle_validation_exception
+from Endpoints.errors import handle_integrity_exception, handle_odbc_exception, handle_validation_exception
 
 def save_object(new_object, tn, cursor):
     column_names, values = tuple(zip(*new_object.items()))
@@ -75,11 +78,12 @@ class Normal_Schema(MM.Schema):
         Change nill UUIDs to null
         """
         for field in dumped:
-            try:
-                if dumped[field] == null_uuid:
-                    dumped[field] = None
-            except:
-                pass
+            if field != 'UUID':
+                try:
+                    if dumped[field] == null_uuid:
+                        dumped[field] = None
+                except:
+                    pass
         return dumped
 
     @MM.pre_load()

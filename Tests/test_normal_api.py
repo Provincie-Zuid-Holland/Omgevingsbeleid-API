@@ -1,10 +1,13 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2018 - 2020 Provincie Zuid-Holland
+
 import os
 import tempfile
 
 import pytest
 import pyodbc
 from application import app
-from datamodel import normal_endpoints
+from datamodel import endpoints
 from Tests.test_data import generate_data
 from globals import db_connection_settings
 
@@ -66,11 +69,11 @@ def cleanup():
     yield 
     with pyodbc.connect(db_connection_settings) as cn:
         cur = cn.cursor()
-        for table in normal_endpoints:
+        for table in endpoints:
             cur.execute(f"DELETE FROM {table.write_schema.Meta.table} WHERE Created_By = ?", test_uuid)
 
 def test_endpoints(client, test_user_UUID, auth, cleanup):
-    for ep in normal_endpoints:
+    for ep in endpoints:
         
         list_ep = f"v0.1/{ep.slug}"
         
@@ -79,6 +82,9 @@ def test_endpoints(client, test_user_UUID, auth, cleanup):
         assert response.status_code == 200, f"Status code for GET on {list_ep} was {response.status_code}, should be 200."
 
         test_data = generate_data(ep.write_schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
+        print(ep.slug)
+        print(test_data)
+        print("----")
         response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Token {auth[1]}'})
         assert response.status_code == 201, f"Status code for POST on {list_ep} was {response.status_code}, should be 201. Body content: {response.json}"
         

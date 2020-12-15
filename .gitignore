@@ -10,3 +10,4 @@ search-date.json
 .azure/
 settings.py
 ._env
+.pytest_cache/

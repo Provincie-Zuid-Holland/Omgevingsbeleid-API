@@ -1,5 +1,8 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2018 - 2020 Provincie Zuid-Holland
+
 """ 
-This file contains all error handling logic
+This file contains all error handling logic for endpoints
 """
 import re
 

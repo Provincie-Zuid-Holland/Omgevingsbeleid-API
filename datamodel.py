@@ -1,14 +1,17 @@
-from Dimensies import ambitie, gebruikers
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2018 - 2020 Provincie Zuid-Holland
+
+from Models import ambitie, gebruikers, beleidskeuze
 from collections import namedtuple
 
 
 Endpoint = namedtuple('Endpoint', ['slug', 'read_schema', 'write_schema'])
 
-normal_endpoints = [
-    Endpoint('ambities', ambitie.Ambitie_Schema, ambitie.Ambitie_Schema)
+endpoints = [
+    Endpoint('ambities', ambitie.Ambitie_Schema, ambitie.Ambitie_Schema),
+    Endpoint('beleidskeuzes', beleidskeuze.Beleidskeuze_Schema, beleidskeuze.Beleidskeuze_Schema)
 ]
 
-feiten = []
 
 def all_endpoints():
-    return normal_endpoints
+    return endpoints

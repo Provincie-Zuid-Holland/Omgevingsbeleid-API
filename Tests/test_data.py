@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2018 - 2020 Provincie Zuid-Holland
+
 import marshmallow as MM
 from globals import null_uuid
 
@@ -7,12 +10,22 @@ def generate_data(schema, user_UUID=null_uuid, excluded_prop = None):
     for field in fields:
         if field == 'Created_By' or field == 'Modified_By':
             result[field] = user_UUID
-        elif isinstance(fields[field], MM.fields.Str) and not isinstance(fields[field], MM.fields.UUID):
+        
+        elif field =='Status':
+            result[field] = 'Niet-Actief'
+        
+        elif type(fields[field]) == MM.fields.String:
             result[field] = "Test String"
-        elif isinstance(fields[field], MM.fields.Integer):
+        
+        elif type(fields[field]) == MM.fields.UUID:
+            result[field] = null_uuid
+            
+        elif type(fields[field]) == MM.fields.Integer:
             result[field] = 42
-        elif isinstance(fields[field], MM.fields.DateTime):
+
+        elif type(fields[field]) == MM.fields.DateTime:
             result[field] = '1992-11-23T10:00:00'
+
         else:
-            raise NotImplementedError(f'Missing implementation for field {field} with value {fields[field]}')
+            raise NotImplementedError(f'Missing implementation for field {field} ({type(fields[field])}) with value {fields[field]}')
     return result
