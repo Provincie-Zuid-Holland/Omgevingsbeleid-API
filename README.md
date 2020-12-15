@@ -24,7 +24,7 @@ install the required packages.
 $ pip install -r requirements.txt
 ```
 
-## Envirnoment Variables
+## Environment Variables
 This application requires the following variables to be available
 ``` bash
 DB_USER=Database user
