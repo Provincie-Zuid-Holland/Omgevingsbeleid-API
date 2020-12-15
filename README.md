@@ -1,3 +1,4 @@
+![Provincie Zuid-Holland logo](https://www.zuid-holland.nl/publish/pages/3/provincie_zuid-holland.png)
 # Omgevingsbeleid API
 Omgevingsbeleid API was originally created in early 2018 in order to meet the requirements
 given by the new 'Omgevingswet' from the dutch national government.
