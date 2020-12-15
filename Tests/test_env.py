@@ -25,7 +25,7 @@ def test_nills(client):
         print(ep)
         with pyodbc.connect(db_connection_settings) as connections:
             cur = connections.cursor()
-            query = f"SELECT * FROM {ep.slug} WHERE UUID = ?"
+            query = f"SELECT UUID FROM {ep.slug} WHERE UUID = ?"
             cur.execute(query, null_uuid)
             results = cur.fetchall()
             assert len(results) == 1, f"No Nill UUID object in table {ep.slug}"

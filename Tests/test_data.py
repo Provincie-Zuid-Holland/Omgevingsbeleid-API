@@ -8,7 +8,10 @@ def generate_data(schema, user_UUID=null_uuid, excluded_prop = None):
     fields = schema(exclude=schema.fields_with_props(excluded_prop)).fields
     result = {}
     for field in fields:
-        if field == 'Created_By' or field == 'Modified_By':
+        if fields[field].validate:
+            result[field] = fields[field].validate.choices[0]
+        
+        elif field == 'Created_By' or field == 'Modified_By':
             result[field] = user_UUID
         
         elif field =='Status':
@@ -25,6 +28,9 @@ def generate_data(schema, user_UUID=null_uuid, excluded_prop = None):
 
         elif type(fields[field]) == MM.fields.DateTime:
             result[field] = '1992-11-23T10:00:00'
+        
+        elif type(fields[field]) == MM.fields.Method:
+            result[field] = ''
 
         else:
             raise NotImplementedError(f'Missing implementation for field {field} ({type(fields[field])}) with value {fields[field]}')

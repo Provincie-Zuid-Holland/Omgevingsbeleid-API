@@ -72,19 +72,18 @@ def cleanup():
         for table in endpoints:
             cur.execute(f"DELETE FROM {table.write_schema.Meta.table} WHERE Created_By = ?", test_uuid)
 
-def test_endpoints(client, test_user_UUID, auth, cleanup):
-    for ep in endpoints:
-        
-        list_ep = f"v0.1/{ep.slug}"
-        
-        response = client.get(list_ep)
-        found = len(response.json)
-        assert response.status_code == 200, f"Status code for GET on {list_ep} was {response.status_code}, should be 200."
+@pytest.mark.parametrize('endpoint', endpoints, ids=(map(lambda ep: ep.slug, endpoints)))
+def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):   
+    list_ep = f"v0.1/{endpoint.slug}"
+    
+    response = client.get(list_ep)
+    found = len(response.json)
+    assert response.status_code == 200, f"Status code for GET on {list_ep} was {response.status_code}, should be 200."
 
-        test_data = generate_data(ep.write_schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
-        print(ep.slug)
-        print(test_data)
-        print("----")
+
+    if not endpoint.write_schema.Meta.read_only:
+        test_data = generate_data(endpoint.write_schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
+            
         response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Token {auth[1]}'})
         assert response.status_code == 201, f"Status code for POST on {list_ep} was {response.status_code}, should be 201. Body content: {response.json}"
         
@@ -98,4 +97,5 @@ def test_endpoints(client, test_user_UUID, auth, cleanup):
         
         response = client.get(list_ep + '/' + str(new_id))
         assert response.json[0]['Begin_Geldigheid'] == '1994-11-23T10:00:00', 'Patch did not change object.'
+    
 

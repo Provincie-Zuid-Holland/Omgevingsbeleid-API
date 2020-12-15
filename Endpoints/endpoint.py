@@ -143,7 +143,11 @@ class Lineage(Resource):
         """
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
-            query = f'SELECT * FROM {self.read_schema().Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
+
+            # Retrieve all the fields we want to query
+            included_fields = ', '.join([field for field in self.read_schema().fields])
+
+            query = f'SELECT {included_fields} FROM {self.read_schema().Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
 
             try:
                 # Load the objects to ensure validation
@@ -239,7 +243,10 @@ class List(Resource):
 
             # Placeholder for arguments to filter
             query_args = None
-            query = f'SELECT * FROM {self.read_schema().Meta.table}'
+            # Retrieve all the fields we want to query
+            included_fields = ', '.join([field for field in self.read_schema().fields])
+            
+            query = f'SELECT {included_fields} FROM {self.read_schema().Meta.table}'
 
             if filters:
                 query += ' WHERE ' + \
