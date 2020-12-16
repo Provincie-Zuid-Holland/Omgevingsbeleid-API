@@ -1,3 +1,4 @@
+![Provincie Zuid-Holland logo](https://www.zuid-holland.nl/publish/pages/3/provincie_zuid-holland.png)
 # Omgevingsbeleid API
 Omgevingsbeleid API was originally created in early 2018 in order to meet the requirements
 given by the new 'Omgevingswet' from the dutch national government.
@@ -13,18 +14,18 @@ given by the new 'Omgevingswet' from the dutch national government.
 ## Installation
 This project utilizes [venv](https://docs.python.org/3/tutorial/venv.html). Create a new venv.
 ```shell
-$ python -m venv .venv
+python -m venv .venv
 ```
 activate your new venv.
 ```shell
-$ .venv/Scripts/activate
+.venv/Scripts/activate
 ```
 install the required packages.
 ```shell
-$ pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-## Envirnoment Variables
+## Environment Variables
 This application requires the following variables to be available
 ``` bash
 DB_USER=Database user
@@ -48,10 +49,10 @@ FLASK_ENV=development
 ## Running locally and running tests
 In order to run your local project (requires a valid .env file).
 ```bash
-> flask run
+flask run
 ```
 
 To run the tests.
 ```bash
-> pytest
+pytest
 ```
