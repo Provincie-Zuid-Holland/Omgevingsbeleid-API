@@ -8,13 +8,11 @@ import pyodbc
 from globals import null_uuid, db_connection_settings
 
 
-class Gebruiker_Schema(MM.Schema):
+class Gebruikers_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     Gebruikersnaam = MM.fields.Str(required=True)
-    Wachtwoord = MM.fields.Str(missing=None)
     Rol = MM.fields.Str(missing=None)
     Status = MM.fields.Str(missing=None)
-    Email = MM.fields.Str(missing=None)
 
     class Meta:
         table = 'Gebruikers'
@@ -36,10 +34,10 @@ class Gebruiker(Resource):
                 if not gebruikers:
                     return {'message': f"Gebruiker met UUID {gebruiker_uuid} is niet gevonden"}, 400
 
-                schema = Gebruiker_Schema(exclude=['Wachtwoord'])
+                schema = Gebruikers_Schema()
                 return(schema.dump(gebruikers[0]))
             else:
                 gebruikers = cur.execute(
                     f"SELECT * FROM Gebruikers WHERE UUID != '{null_uuid}'")
-                schema = Gebruiker_Schema(exclude=['Wachtwoord'])
+                schema = Gebruikers_Schema()
                 return(schema.dump(gebruikers, many=True))

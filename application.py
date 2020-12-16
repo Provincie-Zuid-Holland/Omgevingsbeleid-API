@@ -14,8 +14,7 @@ from flask_restful import Api, Resource
 import datamodel
 import Endpoints.endpoint
 from Auth.views import jwt_required_not_GET, login, tokenstat
-from Models.gebruikers import Gebruiker
-
+from Models import gebruikers
 current_version = '0.1'
 
 # ENV SETUP
@@ -47,13 +46,14 @@ for endpoint in datamodel.endpoints:
     api.add_resource(Endpoints.endpoint.List, f'/{endpoint.slug}', endpoint=f'{endpoint.slug.capitalize()}_List',
                      resource_class_args=(endpoint.read_schema, endpoint.write_schema))
 
+
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
 app.add_url_rule(f'/v{current_version}/tokeninfo',
                  'tokenstat', tokenstat, methods=['GET'])
-
-api.add_resource(Gebruiker, '/gebruikers',
+api.add_resource(gebruikers.Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
+
 
 if __name__ == '__main__':
     app.run()

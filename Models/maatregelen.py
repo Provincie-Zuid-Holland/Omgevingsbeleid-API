@@ -3,6 +3,9 @@
 
 import marshmallow as MM
 from Endpoints.endpoint import Base_Schema
+from Endpoints.references import UUID_Reference
+
+from Models.werkingsgebieden import Werkingsgebieden_Schema
 
 
 class Maatregelen_Schema(Base_Schema):
@@ -26,11 +29,13 @@ class Maatregelen_Schema(Base_Schema):
         obprops=[])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
-    Gebied_Duiding = MM.fields.Str(allow_none=True, missing="Indicatief", validate=
-                                   MM.validate.OneOf(["Indicatief", "Exact"]), obprops=[])
+    Gebied_Duiding = MM.fields.Str(allow_none=True, missing="Indicatief",
+                                   validate=MM.validate.OneOf(["Indicatief", "Exact"]), obprops=[])
 
     class Meta(Base_Schema.Meta):
         table = 'Maatregelen'
         read_only = False
         ordered = True
         searchable = True
+        references = {'Gebied': UUID_Reference(
+                'Werkingsgebieden', Werkingsgebieden_Schema)}
