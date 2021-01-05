@@ -13,7 +13,7 @@ class Maatregelen_Schema(Base_Schema):
     Omschrijving = MM.fields.Str(missing=None, obprops=['search_field'])
     Toelichting = MM.fields.Str(missing=None, obprops=[])
     Toelichting_Raw = MM.fields.Method(missing=None, obprops=['search_field'])
-    Status = MM.fields.Str(required=True, validate=MM.validate.OneOf([
+    Status = MM.fields.Str(missing=None, validate=MM.validate.OneOf([
         "Definitief ontwerp GS",
         "Definitief ontwerp GS concept",
         "Definitief ontwerp PS",

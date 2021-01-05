@@ -29,5 +29,3 @@ def test_nills(client):
             cur.execute(query, null_uuid)
             results = cur.fetchall()
             assert len(results) == 1, f"No Nill UUID object in table {ep.slug}"
-
-

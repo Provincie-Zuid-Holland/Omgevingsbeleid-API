@@ -50,17 +50,17 @@ class Beleidskeuzes_Schema(Base_Schema):
         ordered = True
         searchable = True
 
-    # WerkingsGebieden = MM.fields.Nested(
+    #x WerkingsGebieden = MM.fields.Nested(
     #     Link_Schema, many=True, default=[], missing=[], obprops=['linker', 'geo_field'])
-    # BeleidsRegels = MM.fields.Nested(
+    #x BeleidsRegels = MM.fields.Nested(
     #     Link_Schema, many=True,  default=[], missing=[], obprops=['linker'])
-    # Verordening = MM.fields.Nested(
+    #x Verordening = MM.fields.Nested(
     #     Link_Schema, many=True,  default=[], missing=[], obprops=['linker'])
-    # Maatregelen = MM.fields.Nested(
+    #x Maatregelen = MM.fields.Nested(
     #     Link_Schema, many=True,  default=[], missing=[], obprops=['linker'])
-    # Themas = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
-    # Ambities = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
-    # Doelen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
-    # Belangen = MM.fields.Nested(
+    #x Themas = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
+    #x Ambities = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
+    #x Doelen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
+    #x Belangen = MM.fields.Nested(
     #     Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
-    # Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
+    #x Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])

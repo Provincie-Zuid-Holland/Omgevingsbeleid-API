@@ -78,7 +78,6 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
     
     response = client.get(list_ep)
     found = len(response.json)
-    print(found)
     assert response.status_code == 200, f"Status code for GET on {list_ep} was {response.status_code}, should be 200."
 
 
@@ -86,7 +85,9 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
         test_data = generate_data(endpoint.write_schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
             
         response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Token {auth[1]}'})
+        print("HIEERRR", response.get_json())
         assert response.status_code == 201, f"Status code for POST on {list_ep} was {response.status_code}, should be 201. Body content: {response.json}"
+
         
         new_id = response.get_json()['ID']        
         
@@ -97,5 +98,6 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
         assert response.status_code == 200, f'Status code for PATCH on {list_ep} was {response.status_code}, should be 200. Body contents: {response.json}'
 
         response = client.get(list_ep + '/' + str(new_id))
-        assert response.json[0]['Begin_Geldigheid'] == '1994-11-23T10:00:00', 'Patch did not change object.'    
+        assert response.json[0]['Begin_Geldigheid'] == '1994-11-23T10:00:00', 'Patch did not change object.'
+        response = client.get(list_ep)
         assert found + 1 == len(response.json), "New object after PATCH"

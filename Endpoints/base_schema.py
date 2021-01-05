@@ -9,6 +9,7 @@ from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
 from Endpoints.references import UUID_Reference
 from Models.gebruikers import Gebruikers_Schema
+import uuid
 
 
 class Base_Schema(MM.Schema):
