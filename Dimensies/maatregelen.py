@@ -28,11 +28,12 @@ class Maatregelen_Schema(Dimensie_Schema):
 
     @MM.post_load
     def toelichting_to_raw(self, data, **kwargs):
-        soup = BeautifulSoup(data['Toelichting'], features="lxml")
-        titles = soup.find_all(re.compile(r"h\d"))
-        for title in titles:
-            title.decompose()
-        data['Toelichting_Raw'] = soup.get_text(" ")
+        if 'Toelichting' in data:
+            soup = BeautifulSoup(data['Toelichting'], features="lxml")
+            titles = soup.find_all(re.compile(r"h\d"))
+            for title in titles:
+                title.decompose()
+            data['Toelichting_Raw'] = soup.get_text(" ")
         return data
 
 
