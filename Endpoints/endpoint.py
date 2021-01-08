@@ -20,9 +20,9 @@ from Endpoints.references import merge_references
 
 # TODO: 
 # - Write tests for reference objects
-# - Add ID reference and M2M reference
-# - handle validnes on get (how is this defined?)
 # - Add status validation
+# - Add version on UUID
+
 
 
 def save_object(new_object, tn, cursor):
@@ -101,7 +101,7 @@ class Lineage(Resource):
 
             # Retrieve all the fields we want to query
             included_fields = ', '.join(
-                [field for field in self.read_schema().fields])
+                [field for field in self.read_schema().fields_without_props('reference')])
 
             query = f'SELECT {included_fields} FROM {self.read_schema().Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
 
@@ -193,7 +193,7 @@ class List(Resource):
             query_args = None
             # Retrieve all the fields we want to query
             included_fields = ', '.join(
-                [field for field in self.read_schema().fields])
+                [field for field in self.read_schema().fields_without_props('reference')])
 
             query = f'SELECT {included_fields} FROM (SELECT {included_fields}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] FROM {self.read_schema().Meta.table}) T WHERE RowNumber = 1'
         

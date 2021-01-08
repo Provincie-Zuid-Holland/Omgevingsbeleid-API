@@ -2,8 +2,15 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import marshmallow as MM
+
 from Endpoints.endpoint import Base_Schema
+from Endpoints.references import UUID_Reference, UUID_List_Reference
+
 from globals import default_user_uuid
+
+from Models.gebruikers import Gebruikers_Schema
+from Models.ambities import Ambities_Schema
+
 
 
 class Beleidskeuzes_Schema(Base_Schema):
@@ -43,24 +50,19 @@ class Beleidskeuzes_Schema(Base_Schema):
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
         missing=None, default=None, obprops=['excluded_post'])
-
+    Ambities = MM.fields.Nested(Ambities_Schema, many=True, default=[
+    ], missing=[], obprops=['reference'])
+  
     class Meta(Base_Schema.Meta):
         table = 'Beleidskeuzes'
         read_only = False
         ordered = True
         searchable = True
-
-    #x WerkingsGebieden = MM.fields.Nested(
-    #     Link_Schema, many=True, default=[], missing=[], obprops=['linker', 'geo_field'])
-    #x BeleidsRegels = MM.fields.Nested(
-    #     Link_Schema, many=True,  default=[], missing=[], obprops=['linker'])
-    #x Verordening = MM.fields.Nested(
-    #     Link_Schema, many=True,  default=[], missing=[], obprops=['linker'])
-    #x Maatregelen = MM.fields.Nested(
-    #     Link_Schema, many=True,  default=[], missing=[], obprops=['linker'])
-    #x Themas = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
-    #x Ambities = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
-    #x Doelen = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
-    #x Belangen = MM.fields.Nested(
-    #     Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
-    #x Opgaven = MM.fields.Nested(Link_Schema, many=True, default=[], missing=[], obprops=['linker'])
+        references = {
+            'Eigenaar_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Eigenaar_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Portefeuillehouder_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Portefeuillehouder_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Ambities': UUID_List_Reference('Beleidskeuze_Ambities', 'Ambities', 'Beleidskeuze_UUID', 'Ambitie_UUID', 'Koppeling_Omschrijving', Ambities_Schema)
+        }
