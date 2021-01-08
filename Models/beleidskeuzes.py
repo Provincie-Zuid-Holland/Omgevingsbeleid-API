@@ -4,7 +4,7 @@
 import marshmallow as MM
 
 from Endpoints.endpoint import Base_Schema
-from Endpoints.references import UUID_Reference, UUID_List_Reference
+from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema
 
 from globals import default_user_uuid
 
@@ -50,7 +50,7 @@ class Beleidskeuzes_Schema(Base_Schema):
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
         missing=None, default=None, obprops=['excluded_post'])
-    Ambities = MM.fields.Nested(Ambities_Schema, many=True, default=[
+    Ambities = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
     ], missing=[], obprops=['reference'])
   
     class Meta(Base_Schema.Meta):

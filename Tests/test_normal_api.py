@@ -85,7 +85,7 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
         test_data = generate_data(endpoint.write_schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
             
         response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Token {auth[1]}'})
-        print("HIEERRR", response.get_json())
+
         assert response.status_code == 201, f"Status code for POST on {list_ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
         

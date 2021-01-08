@@ -25,21 +25,29 @@ from Endpoints.references import merge_references
 
 
 
-def save_object(new_object, tn, cursor):
+def save_object(new_object, schema, cursor):
     """Saves an object to a table, retrieves and stores the generated values and return the object.
 
     Args:
         new_object (dict): The object to be stored 
-        tn (str): The table where to store the object
+        schema (marshmallow.Schema): The schema of the object
         cursor (pyodbc.cursor): A cursor with an active database connection
 
     Returns:
         dict: The object that was stored, new values filled in
     """
+    
+    references = schema.fields_with_props('reference')
+    for ref in references:
+        if ref in new_object:
+            new_object.pop(ref)
+    # TODO: References should be saved, not just destroyed!
+    
     column_names, values = tuple(zip(*new_object.items()))
     parameter_marks = ', '.join(['?'] * len(column_names))
-    query = f'''INSERT INTO {tn} ({', '.join(column_names)}) OUTPUT inserted.UUID, inserted.ID VALUES ({parameter_marks})'''
-
+    query = f'''INSERT INTO {schema.Meta.table} ({', '.join(column_names)}) OUTPUT inserted.UUID, inserted.ID VALUES ({parameter_marks})'''
+    print(query)
+    print(values)
     cursor.execute(query, *values)
 
     output = cursor.fetchone()
@@ -54,7 +62,7 @@ def get_objects(query, query_args, schema, cursor):
     Args:
         query (string): Sql query to use
         query_args (list): Arguments to fill the query with (using ? notation from PyODBC)
-        schema (marshmallow.Schema): The schema to validate use for validation
+        schema (marshmallow.Schema): The schema of the object
         cursor (pyodbc.Cursor): A cursor with an active database connection
     
     Returns:
@@ -153,7 +161,7 @@ class Lineage(Resource):
 
             try:
                 new_object = save_object(
-                    new_object, self.write_schema.Meta.table, cursor)
+                    new_object, self.write_schema, cursor)
             except pyodbc.IntegrityError as e:
                 return handle_integrity_exception(e)
             except pyodbc.DatabaseError as e:
@@ -241,10 +249,11 @@ class List(Resource):
 
             try:
                 new_object = save_object(
-                    new_object, self.write_schema.Meta.table, cursor)
+                    new_object, self.write_schema, cursor)
             except pyodbc.IntegrityError as e:
                 return handle_integrity_exception(e)
             except pyodbc.DatabaseError as e:
+                print("GOK")
                 return handle_odbc_exception(e)
 
             connection.commit()

@@ -6,6 +6,15 @@ Collection of reference objects that contain logic for retrieving linkedobjects 
 
 from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
+import marshmallow as MM
+
+
+class UUID_Linker_Schema(MM.Schema):
+    """
+    Schema that represents a UUID_List_Reference
+    """
+    UUID = MM.fields.UUID(required=True, obprops=[])
+    Koppeling_Omschrijving = MM.fields.Str(required=False, obprops=[])
 
 
 def merge_references(obj, schema, cursor):
@@ -34,7 +43,30 @@ def merge_references(obj, schema, cursor):
 
 
 def store_references(obj, schema, cursor):
-    pass
+    """
+    Stores al references for this object
+
+    Args:
+        obj (dict): The object to store the references of
+        schema (marshmallow.Schema): The schema of the object
+        cursor (pyodbc.cursor): A cursor with a database connection
+    Returns:
+        None
+    """
+    references = {**schema.Meta.base_references,
+                  **schema.Meta.references}.items()
+
+    for name, ref in references:
+        if isinstance(ref, UUID_Reference):
+            # This needs no further implementation (just stored in column)
+            continue
+
+        if isinstance(ref, UUID_List_Reference):
+            if name in obj:
+                ref.store(obj['UUID'], obj[name], cursor)
+                obj[name] = ref.retrieve(obj['UUID'], cursor)
+
+    return obj
 
 
 class UUID_List_Reference:
@@ -69,6 +101,22 @@ class UUID_List_Reference:
         result_objects = self.schema.load(
             map(row_to_dict, query_result), many=True)
         return(self.schema.dump(result_objects, many=True))
+
+    def store(self, UUID, linked, cursor):
+        """This function stores the linked object in the appropiate table
+
+        Args:
+            UUID (uuid): The UUID of this object
+            cursor (pyodbc.cursor): A cursor with a database connection
+
+        Return:
+            dict: The refered object 
+        """
+        for link in linked:
+            query = f'''
+                INSERT INTO {self.link_tablename} ({self.my_col}, {self.their_col}, {self.description_col}) VALUES (?, ?, ?)'''
+            # Store the objects
+            cursor.execute(query, UUID, linked['UUID'], linked['Koppeling_Omschrijving'])
 
 
 class UUID_Reference:
