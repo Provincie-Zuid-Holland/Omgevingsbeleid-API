@@ -51,7 +51,7 @@ class Beleidskeuzes_Schema(Base_Schema):
     Aanpassing_Op = MM.fields.UUID(
         missing=None, default=None, obprops=['excluded_post'])
     Ambities = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
-    ], missing=[], obprops=['reference'])
+    ], missing=[], obprops=['referencelist'])
   
     class Meta(Base_Schema.Meta):
         table = 'Beleidskeuzes'

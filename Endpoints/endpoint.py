@@ -16,13 +16,13 @@ from Endpoints.base_schema import Base_Schema
 from Endpoints.errors import (handle_integrity_exception,
                               handle_odbc_exception,
                               handle_validation_exception)
-from Endpoints.references import merge_references
+from Endpoints.references import merge_references, store_references
 
-# TODO: 
+# TODO:
 # - Write tests for reference objects
 # - Add status validation
 # - Add version on UUID
-
+# - Add valid endpoint
 
 
 def save_object(new_object, schema, cursor):
@@ -36,24 +36,32 @@ def save_object(new_object, schema, cursor):
     Returns:
         dict: The object that was stored, new values filled in
     """
-    
-    references = schema.fields_with_props('reference')
+
+    references = schema.fields_with_props('referencelist')
+    reference_cache = {}
     for ref in references:
         if ref in new_object:
-            new_object.pop(ref)
-    # TODO: References should be saved, not just destroyed!
-    
+            reference_cache[ref] = new_object.pop(ref)
+
     column_names, values = tuple(zip(*new_object.items()))
     parameter_marks = ', '.join(['?'] * len(column_names))
     query = f'''INSERT INTO {schema.Meta.table} ({', '.join(column_names)}) OUTPUT inserted.UUID, inserted.ID VALUES ({parameter_marks})'''
-    print(query)
-    print(values)
     cursor.execute(query, *values)
 
     output = cursor.fetchone()
     new_object['UUID'] = output[0]
     new_object['ID'] = output[1]
-    return new_object
+
+    for ref in reference_cache:
+        new_object[ref] = reference_cache[ref]
+
+    new_object = store_references(new_object, schema, cursor)
+
+    # Up to here we have stored the references, and the object itself
+    included_fields = ', '.join(
+        [field for field in schema().fields_without_props('referencelist')])
+    retrieve_query = f'''SELECT {included_fields} FROM {schema.Meta.table} WHERE UUID = ?'''
+    return get_objects(retrieve_query, [new_object['UUID']], schema(), cursor)[0]
 
 
 def get_objects(query, query_args, schema, cursor):
@@ -61,34 +69,24 @@ def get_objects(query, query_args, schema, cursor):
 
     Args:
         query (string): Sql query to use
-        query_args (list): Arguments to fill the query with (using ? notation from PyODBC)
+        query_args (list): Arguments to fill the query with (using '?' notation from PyODBC)
         schema (marshmallow.Schema): The schema of the object
         cursor (pyodbc.Cursor): A cursor with an active database connection
-    
+
     Returns:
         list: A collection of objects that resulted out of the query
     """
-    try:
-        # Load the objects to ensure validation
-        result_objecten = list(map(schema.load,
-                                    map(row_to_dict, cursor.execute(query, *query_args))))
-    except MM.exceptions.ValidationError as e:
-        return handle_validation_exception(e)
-
-    if len(result_objecten) == 0:
-        return {'message': f'Object with ID={id} not found'}, 404
-    try:
-        result_objecten = schema.dump(result_objecten, many=True)
-    except MM.exceptions.ValidationError as e:
-        return handle_validation_exception(e)
-
-    try:
-        for obj in result_objecten:
-            obj = merge_references(obj, schema, cursor)
-    except pyodbc.DatabaseError as e:
-        return handle_odbc_exception(e)
+    query_result = map(row_to_dict, cursor.execute(query, *query_args))
     
+    # Load the objects to ensure validation5754c1ae-ef1a-4f64-90bc-6b50cd7025ad
+    result_objecten = list(map(schema.load, query_result))
+    result_objecten = schema.dump(result_objecten, many=True)
+
+    for obj in result_objecten:
+        obj = merge_references(obj, schema, cursor)
+
     return(result_objecten)
+
 
 class Lineage(Resource):
     """
@@ -109,7 +107,7 @@ class Lineage(Resource):
 
             # Retrieve all the fields we want to query
             included_fields = ', '.join(
-                [field for field in self.read_schema().fields_without_props('reference')])
+                [field for field in self.read_schema().fields_without_props('referencelist')])
 
             query = f'SELECT {included_fields} FROM {self.read_schema().Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
 
@@ -168,7 +166,7 @@ class Lineage(Resource):
                 return handle_odbc_exception(e)
 
             connection.commit()
-            return self.write_schema().dump(new_object), 200
+            return new_object, 200
 
 
 class List(Resource):
@@ -190,9 +188,9 @@ class List(Resource):
         filters = request.args
         if filters:
             invalids = [
-                f for f in filters if f not in self.read_schema().fields_without_props('reference')]
+                f for f in filters if f not in self.read_schema().fields_without_props('referencelist')]
             if invalids:
-                return {'message': f"Filter(s) '{' '.join(invalids)}' invalid for this endpoint. Valid filters: '{', '.join(self.read_schema().fields_without_props('reference'))}''"}, 403
+                return {'message': f"Filter(s) '{' '.join(invalids)}' invalid for this endpoint. Valid filters: '{', '.join(self.read_schema().fields_without_props('referencelist'))}''"}, 403
 
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
@@ -201,20 +199,19 @@ class List(Resource):
             query_args = None
             # Retrieve all the fields we want to query
             included_fields = ', '.join(
-                [field for field in self.read_schema().fields_without_props('reference')])
+                [field for field in self.read_schema().fields_without_props('referencelist')])
 
             query = f'SELECT {included_fields} FROM (SELECT {included_fields}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] FROM {self.read_schema().Meta.table}) T WHERE RowNumber = 1'
-        
+
             # No arguments for the default query
             query_args = []
-            
+
             if filters:
-                query += ' AND '.join(f'{key} = ?' for key in filters)
+                query += ' AND '+ 'AND '.join(f'{key} = ? ' for key in filters)
                 query_args = [filters[key] for key in filters]
 
             query += ' ORDER BY Modified_Date DESC'
             return(get_objects(query, query_args, self.read_schema(), cursor))
-            
 
     def post(self):
         """
@@ -227,7 +224,8 @@ class List(Resource):
             return {'message': 'Request data empty'}, 400
 
         post_schema = self.write_schema(
-            exclude=self.write_schema.fields_with_props('excluded_post'),
+            exclude=self.write_schema.fields_with_props(
+                'excluded_post'),
             unknown=MM.utils.RAISE)
 
         request_time = datetime.datetime.now()
@@ -238,9 +236,7 @@ class List(Resource):
             try:
                 new_object = post_schema.load(request.get_json())
             except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e)
-
-            # TODO: Add reference logic
+                return handle_validation_exception(e), 400
 
             new_object['Created_By'] = get_jwt_identity()['UUID']
             new_object['Created_Date'] = request_time
@@ -251,10 +247,11 @@ class List(Resource):
                 new_object = save_object(
                     new_object, self.write_schema, cursor)
             except pyodbc.IntegrityError as e:
-                return handle_integrity_exception(e)
+                return handle_integrity_exception(e), 400
             except pyodbc.DatabaseError as e:
-                print("GOK")
-                return handle_odbc_exception(e)
+                return handle_odbc_exception(e), 500
+            except MM.exceptions.ValidationError as e:
+                return handle_validation_exception(e), 400
 
             connection.commit()
-            return self.write_schema().dump(new_object), 201
+            return new_object, 201

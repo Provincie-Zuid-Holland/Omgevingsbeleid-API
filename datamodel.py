@@ -10,9 +10,9 @@ from Models import (ambities, belangen, beleidsdoelen, beleidskeuzes,
 Endpoint = namedtuple('Endpoint', ['slug', 'read_schema', 'write_schema'])
 
 endpoints = [
-    Endpoint('ambities', ambities.Ambities_Schema, ambities.Ambities_Schema),
     Endpoint('beleidskeuzes', beleidskeuzes.Beleidskeuzes_Schema,
              beleidskeuzes.Beleidskeuzes_Schema),
+    Endpoint('ambities', ambities.Ambities_Schema, ambities.Ambities_Schema),
     Endpoint('belangen', belangen.Belangen_Schema, belangen.Belangen_Schema),
     Endpoint('beleidsdoelen', beleidsdoelen.Beleidsdoelen_Schema,
              beleidsdoelen.Beleidsdoelen_Schema),

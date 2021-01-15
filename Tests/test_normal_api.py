@@ -8,8 +8,9 @@ import pytest
 import pyodbc
 from application import app
 from datamodel import endpoints
-from Tests.test_data import generate_data
+from Tests.test_data import generate_data, reference_rich_beleidskeuze
 from globals import db_connection_settings
+from Endpoints.references import UUID_List_Reference
 
 @pytest.fixture()
 def test_user_pass():
@@ -70,6 +71,12 @@ def cleanup():
     with pyodbc.connect(db_connection_settings) as cn:
         cur = cn.cursor()
         for table in endpoints:
+            new_uuids = cur.execute(f"SELECT UUID FROM {table.write_schema.Meta.table} WHERE Created_By = ?", test_uuid)
+            for field, ref in table.write_schema.Meta.references.items():
+                    # Remove all references first
+                    if type(ref) == UUID_List_Reference:
+                        for new_uuid in list(new_uuids):        
+                            cur.execute(f"DELETE FROM {ref.link_tablename} WHERE {ref.my_col} = ?", new_uuid[0])    
             cur.execute(f"DELETE FROM {table.write_schema.Meta.table} WHERE Created_By = ?", test_uuid)
 
 @pytest.mark.parametrize('endpoint', endpoints, ids=(map(lambda ep: ep.slug, endpoints)))
@@ -83,12 +90,13 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
 
     if not endpoint.write_schema.Meta.read_only:
         test_data = generate_data(endpoint.write_schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
-            
+        print(endpoint.slug)
+        print(test_data)    
         response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Token {auth[1]}'})
 
         assert response.status_code == 201, f"Status code for POST on {list_ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
-        
+        print(response.get_json())
         new_id = response.get_json()['ID']        
         
         response = client.get(list_ep)
@@ -101,3 +109,14 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
         assert response.json[0]['Begin_Geldigheid'] == '1994-11-23T10:00:00', 'Patch did not change object.'
         response = client.get(list_ep)
         assert found + 1 == len(response.json), "New object after PATCH"
+
+def test_references(client, test_user_UUID, auth, cleanup):
+    ep = f"v0.1/beleidskeuzes"
+    response = client.post(ep, json=reference_rich_beleidskeuze, headers = {'Authorization': f'Token {auth[1]}'})
+    
+    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+
+    new_id = response.get_json()['ID'] 
+    ep = f"v0.1/beleidskeuzes/{new_id}"
+    assert response.status_code == 201, 'Could not get refered object'
+    assert len(response.get_json()['Ambities']) == 2 , 'References not retrieved'

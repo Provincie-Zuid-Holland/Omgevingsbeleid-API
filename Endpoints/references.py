@@ -116,7 +116,7 @@ class UUID_List_Reference:
             query = f'''
                 INSERT INTO {self.link_tablename} ({self.my_col}, {self.their_col}, {self.description_col}) VALUES (?, ?, ?)'''
             # Store the objects
-            cursor.execute(query, UUID, linked['UUID'], linked['Koppeling_Omschrijving'])
+            cursor.execute(query, UUID, link['UUID'], link['Koppeling_Omschrijving'])
 
 
 class UUID_Reference:
