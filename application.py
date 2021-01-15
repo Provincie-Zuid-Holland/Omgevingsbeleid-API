@@ -43,7 +43,7 @@ for endpoint in datamodel.endpoints:
     api.add_resource(Endpoints.endpoint.Lineage, f'/{endpoint.slug}/<int:id>', endpoint=f'{endpoint.slug.capitalize()}_Lineage',
                      resource_class_args=(endpoint.read_schema, endpoint.write_schema))
 
-    api.add_resource(Endpoints.endpoint.List, f'/{endpoint.slug}', endpoint=f'{endpoint.slug.capitalize()}_List',
+    api.add_resource(Endpoints.endpoint.FullList, f'/{endpoint.slug}', endpoint=f'{endpoint.slug.capitalize()}_List',
                      resource_class_args=(endpoint.read_schema, endpoint.write_schema))
 
 

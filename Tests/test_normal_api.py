@@ -90,13 +90,12 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
 
     if not endpoint.write_schema.Meta.read_only:
         test_data = generate_data(endpoint.write_schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
-        print(endpoint.slug)
-        print(test_data)    
+
+
         response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Token {auth[1]}'})
 
         assert response.status_code == 201, f"Status code for POST on {list_ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
-        print(response.get_json())
         new_id = response.get_json()['ID']        
         
         response = client.get(list_ep)
@@ -118,5 +117,11 @@ def test_references(client, test_user_UUID, auth, cleanup):
 
     new_id = response.get_json()['ID'] 
     ep = f"v0.1/beleidskeuzes/{new_id}"
-    assert response.status_code == 201, 'Could not get refered object'
-    assert len(response.get_json()['Ambities']) == 2 , 'References not retrieved'
+    response = client.get(ep)
+    assert response.status_code == 200, 'Could not get refered object'
+    assert len(response.get_json()[0]['Ambities']) == 2 , 'References not retrieved'
+
+    response = client.patch(ep, json={'Titel': 'Changed Title TEST'}, headers = {'Authorization': f'Token {auth[1]}'})
+    assert response.status_code == 200, 'Patch failed'
+    assert response.get_json()['Titel'] == 'Changed Title TEST' , 'Patch did not change title'
+    assert len(response.get_json()['Ambities']) == 2 , 'Patch did not copy references'

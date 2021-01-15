@@ -3,7 +3,7 @@
 
 import datetime
 import re
-
+import pprint
 import marshmallow as MM
 import pyodbc
 from flask import jsonify, request
@@ -64,7 +64,7 @@ def save_object(new_object, schema, cursor):
     return get_objects(retrieve_query, [new_object['UUID']], schema(), cursor)[0]
 
 
-def get_objects(query, query_args, schema, cursor):
+def get_objects(query, query_args, schema, cursor, inline=True):
     """Retrieves objects using a given query
 
     Args:
@@ -77,13 +77,12 @@ def get_objects(query, query_args, schema, cursor):
         list: A collection of objects that resulted out of the query
     """
     query_result = map(row_to_dict, cursor.execute(query, *query_args))
-    
-    # Load the objects to ensure validation5754c1ae-ef1a-4f64-90bc-6b50cd7025ad
+    # Load the objects to ensure validation
     result_objecten = list(map(schema.load, query_result))
     result_objecten = schema.dump(result_objecten, many=True)
 
     for obj in result_objecten:
-        obj = merge_references(obj, schema, cursor)
+        obj = merge_references(obj, schema, cursor, inline)
 
     return(result_objecten)
 
@@ -138,38 +137,34 @@ class Lineage(Resource):
 
             query = f'SELECT TOP(1) * FROM {self.write_schema.Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
 
-            old_object = list(cursor.execute(query, id))
-            if not(any(old_object)):
-                return {'message': f'Object with ID={id} not found'}, 404
-            else:
-                old_object = row_to_dict(old_object[0])
-
+            old_object = get_objects(query, [id], self.write_schema(), cursor, inline=False)[0]
             try:
                 changes = patch_schema.load(request.json)
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e)
-
-            # TODO: Add reference logic
-
+            
+            old_object = self.write_schema(partial=True).load(old_object)
+            
             new_object = {**old_object, **changes}
 
             new_object.pop('UUID')
             new_object['Modified_Date'] = request_time
             new_object['Modified_By'] = get_jwt_identity()['UUID']
-
+            
             try:
                 new_object = save_object(
                     new_object, self.write_schema, cursor)
             except pyodbc.IntegrityError as e:
                 return handle_integrity_exception(e)
             except pyodbc.DatabaseError as e:
+                pprint.pprint(new_object)
                 return handle_odbc_exception(e)
 
             connection.commit()
             return new_object, 200
 
 
-class List(Resource):
+class FullList(Resource):
     """
     A list of all the different lineages available in the database, 
     showing the latests version of each object's lineage.

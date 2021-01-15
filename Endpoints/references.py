@@ -17,7 +17,7 @@ class UUID_Linker_Schema(MM.Schema):
     Koppeling_Omschrijving = MM.fields.Str(required=False, obprops=[])
 
 
-def merge_references(obj, schema, cursor):
+def merge_references(obj, schema, cursor, inline=True):
     """
     Merges al references for this object
 
@@ -34,11 +34,16 @@ def merge_references(obj, schema, cursor):
     for name, ref in references:
         if isinstance(ref, UUID_Reference):
             if name in obj:
-                obj[name] = ref.retrieve(obj[name], cursor)
-
+                if inline:
+                    obj[name] = ref.retrieve_inline(obj[name], cursor)
+                else:
+                    obj[name] = ref.retrieve(obj[name], cursor)
+        
         if isinstance(ref, UUID_List_Reference):
-            obj[name] = ref.retrieve(obj['UUID'], cursor)
-
+            if inline:
+                obj[name] = ref.retrieve_inline(obj['UUID'], cursor)
+            else:
+                obj[name] = ref.retrieve(obj['UUID'], cursor)
     return obj
 
 
@@ -64,7 +69,7 @@ def store_references(obj, schema, cursor):
         if isinstance(ref, UUID_List_Reference):
             if name in obj:
                 ref.store(obj['UUID'], obj[name], cursor)
-                obj[name] = ref.retrieve(obj['UUID'], cursor)
+                obj[name] = ref.retrieve_inline(obj['UUID'], cursor)
 
     return obj
 
@@ -78,8 +83,8 @@ class UUID_List_Reference:
         self.description_col = description_col
         self.schema = schema()
 
-    def retrieve(self, UUID, cursor):
-        """This function retrieves the linked object from the appropiate table
+    def retrieve_inline(self, UUID, cursor):
+        """This function retrieves the linked object from the appropiate table and uses a schema to inline them
 
         Args:
             UUID (uuid): The UUID of this object
@@ -101,6 +106,25 @@ class UUID_List_Reference:
         result_objects = self.schema.load(
             map(row_to_dict, query_result), many=True)
         return(self.schema.dump(result_objects, many=True))
+
+    def retrieve(self, UUID, cursor):
+        """This function retrieves the linked object from the appropiate table and uses the default linker schema
+
+        Args:
+            UUID (uuid): The UUID of this object
+            cursor (pyodbc.cursor): A cursor with a database connection
+
+        Return:
+            dict: The refered object 
+        """
+        query = f'SELECT {self.their_col} as UUID, {self.description_col} as Koppeling_Omschrijving FROM {self.link_tablename} WHERE {self.my_col} = ?'
+        # Retrieve the objects
+        query_result = list(cursor.execute(query, UUID))
+        print(list(map(row_to_dict, query_result)))
+        result_objects = UUID_Linker_Schema().load(
+            map(row_to_dict, query_result), many=True)
+        return(UUID_Linker_Schema().dump(result_objects, many=True))
+
 
     def store(self, UUID, linked, cursor):
         """This function stores the linked object in the appropiate table
@@ -130,7 +154,7 @@ class UUID_Reference:
         self.target_tablename = target_tablename
         self.schema = schema()
 
-    def retrieve(self, UUID, cursor):
+    def retrieve_inline(self, UUID, cursor):
         """This function retrieves the linked object from the appropiate table
 
         Args:
@@ -159,3 +183,6 @@ class UUID_Reference:
         else:
             result_object = self.schema.load(row_to_dict(query_result[0]))
             return(self.schema.dump(result_object))
+
+    def retrieve(self, UUID, cursor):
+        return UUID

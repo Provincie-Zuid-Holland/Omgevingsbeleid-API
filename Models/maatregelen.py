@@ -31,7 +31,8 @@ class Maatregelen_Schema(Base_Schema):
     Gebied = MM.fields.UUID(missing=None, obprops=[])
     Gebied_Duiding = MM.fields.Str(allow_none=True, missing="Indicatief",
                                    validate=MM.validate.OneOf(["Indicatief", "Exact"]), obprops=[])
-
+    Tags = MM.fields.Str(missing=None, obprops=[])
+    
     class Meta(Base_Schema.Meta):
         table = 'Maatregelen'
         read_only = False
