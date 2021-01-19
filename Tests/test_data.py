@@ -35,9 +35,6 @@ def generate_data(schema, user_UUID=null_uuid, excluded_prop = None):
 
         elif type(fields[field]) == MM.fields.Nested:
             result[field] = []
-        
-        elif type(fields[field]) == UUID_ReferenceList:
-            result[field] = []
 
         else:
             raise NotImplementedError(f'Missing implementation for field {field} ({type(fields[field])}) with value {fields[field]}')

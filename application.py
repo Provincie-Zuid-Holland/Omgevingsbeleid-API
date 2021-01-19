@@ -15,6 +15,8 @@ import datamodel
 import Endpoints.endpoint
 from Auth.views import jwt_required_not_GET, login, tokenstat
 from Models import gebruikers
+from Spec.spec import specView
+
 current_version = '0.1'
 
 # ENV SETUP
@@ -59,6 +61,7 @@ app.add_url_rule(f'/v{current_version}/tokeninfo',
                  'tokenstat', tokenstat, methods=['GET'])
 api.add_resource(gebruikers.Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
+app.add_url_rule(f'/v{current_version}/spec','spec', specView,methods=['GET'])
 
 
 if __name__ == '__main__':
