@@ -125,3 +125,18 @@ def test_references(client, test_user_UUID, auth, cleanup):
     assert response.status_code == 200, 'Patch failed'
     assert response.get_json()['Titel'] == 'Changed Title TEST' , 'Patch did not change title'
     assert len(response.get_json()['Ambities']) == 2 , 'Patch did not copy references'
+
+def test_status_404(client, test_user_UUID, auth, cleanup):
+    ep = f"v0.1/valid/ambities"
+    response = client.get(ep)
+    assert response.status_code == 404, 'This endpoint should not exist'
+
+def test_status(client, test_user_UUID, auth, cleanup):
+    ep = f"v0.1/valid/beleidskeuzes"
+    response = client.get(ep)
+    assert response.status_code != 404, 'This endpoint should exist'
+    ids = []
+    for _item in response.get_json():
+        assert _item['Status'] == 'Vigerend'
+        ids.append(_item['ID'])
+    assert sorted(ids) == sorted(list(set(ids))), 'Double IDs in response that should only show valid objects per lineage'

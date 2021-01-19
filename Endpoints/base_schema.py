@@ -41,6 +41,9 @@ class Base_Schema(MM.Schema):
             'Created_By': UUID_Reference('Gebruikers', Gebruikers_Schema)}
         references = {}
         unknown = MM.RAISE
+        # (field_name, valid_value)
+        status_conf = None
+
 
     def minmax_datetime(self, data):
 

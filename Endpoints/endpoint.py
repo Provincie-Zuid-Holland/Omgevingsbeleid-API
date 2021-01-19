@@ -19,10 +19,8 @@ from Endpoints.errors import (handle_integrity_exception,
 from Endpoints.references import merge_references, store_references
 
 # TODO:
-# - Write tests for reference objects
 # - Add status validation
 # - Add version on UUID
-# - Add valid endpoint
 
 
 def save_object(new_object, schema, cursor):
@@ -250,3 +248,70 @@ class FullList(Resource):
 
             connection.commit()
             return new_object, 201
+
+class ValidList(Resource):
+    """
+    A list of all the different lineages available in the database, 
+    showing the latests valid version of each object's lineage.
+
+    Not availabe if the schema's status_conf is None
+    """
+    def __init__(self, read_schema, write_schema):
+        self.read_schema = read_schema
+        self.write_schema = write_schema
+
+
+    def get(self):
+        """
+        GET endpoint for a list of objects, shows the last valid object for each lineage
+        """
+        if not self.read_schema.Meta.status_conf:
+            return {'message': 'This object does not have a status configuration'}, 404
+        
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+
+            # Retrieve all the fields we want to query
+            included_fields = ', '.join(
+                [field for field in self.read_schema().fields_without_props('referencelist')])
+
+            status_field, value = self.read_schema.Meta.status_conf 
+
+            query = f'''SELECT {included_fields} FROM
+                            (SELECT {included_fields}, Row_number() OVER (partition BY [ID]
+                            ORDER BY [Modified_date] DESC) [RowNumber]
+                            FROM {self.read_schema().Meta.table}
+	                        WHERE {status_field} = ?) T 
+                        WHERE rownumber = 1'''
+
+            return(get_objects(query, [value], self.read_schema(), cursor))
+
+    
+class ValidLineage(Resource):
+    """
+    A lineage is a list of all object that have the same ID, ordered by modified date.
+    This represents the history of an object valid states in our database.
+    """
+    def __init__(self, read_schema, write_schema):
+        self.read_schema = read_schema
+        self.write_schema = write_schema
+
+    def get(self, id):
+        """
+        GET endpoint for a lineage.
+        """
+        if not self.read_schema.Meta.status_conf:
+            return {'message': 'This object does not have a status configuration'}, 404
+        
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+
+            # Retrieve all the fields we want to query
+            included_fields = ', '.join(
+                [field for field in self.read_schema().fields_without_props('referencelist')])
+
+            status_field, value = self.read_schema.Meta.status_conf 
+
+            query = f'SELECT {included_fields} FROM {self.read_schema().Meta.table} WHERE ID = ? AND {status_field} = ? ORDER BY Modified_Date DESC '
+
+            return(get_objects(query, [id, value], self.read_schema(), cursor))

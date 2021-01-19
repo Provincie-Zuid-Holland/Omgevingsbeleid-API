@@ -45,6 +45,12 @@ for endpoint in datamodel.endpoints:
 
     api.add_resource(Endpoints.endpoint.FullList, f'/{endpoint.slug}', endpoint=f'{endpoint.slug.capitalize()}_List',
                      resource_class_args=(endpoint.read_schema, endpoint.write_schema))
+    
+    api.add_resource(Endpoints.endpoint.ValidList, f'/valid/{endpoint.slug}', endpoint=f'{endpoint.slug.capitalize()}_Validlist',
+                     resource_class_args=(endpoint.read_schema, endpoint.write_schema))
+
+    api.add_resource(Endpoints.endpoint.ValidLineage, f'/valid/{endpoint.slug}/<int:id>', endpoint=f'{endpoint.slug.capitalize()}_Validlineage',
+                     resource_class_args=(endpoint.read_schema, endpoint.write_schema))
 
 
 app.add_url_rule(f'/v{current_version}/login',

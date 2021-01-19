@@ -66,3 +66,4 @@ class Beleidskeuzes_Schema(Base_Schema):
             'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Ambities': UUID_List_Reference('Beleidskeuze_Ambities', 'Ambities', 'Beleidskeuze_UUID', 'Ambitie_UUID', 'Koppeling_Omschrijving', Ambities_Schema)
         }
+        status_conf = ('Status', 'Vigerend')
