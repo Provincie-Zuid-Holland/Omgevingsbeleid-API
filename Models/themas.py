@@ -11,6 +11,7 @@ class Themas_Schema(Base_Schema):
     Weblink = MM.fields.Str(missing=None, obprops=[])
 
     class Meta(Base_Schema.Meta):
+        slug = 'themas'
         table = 'Themas'
         read_only = False
         ordered = True

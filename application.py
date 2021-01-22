@@ -15,6 +15,8 @@ import datamodel
 import Endpoints.endpoint
 from Auth.views import jwt_required_not_GET, login, tokenstat
 from Models import gebruikers
+from Spec.spec import specView
+
 current_version = '0.1'
 
 # ENV SETUP
@@ -39,18 +41,18 @@ def custom_unauthorized_loader(reason):
 
 
 # ROUTING RULES
-for endpoint in datamodel.endpoints:
-    api.add_resource(Endpoints.endpoint.Lineage, f'/{endpoint.slug}/<int:id>', endpoint=f'{endpoint.slug.capitalize()}_Lineage',
-                     resource_class_args=(endpoint.read_schema, endpoint.write_schema))
+for schema in datamodel.endpoints:
+    api.add_resource(Endpoints.endpoint.Lineage, f'/{schema.Meta.slug}/<int:id>', endpoint=f'{schema.Meta.slug.capitalize()}_Lineage',
+                     resource_class_args=(schema,))
 
-    api.add_resource(Endpoints.endpoint.FullList, f'/{endpoint.slug}', endpoint=f'{endpoint.slug.capitalize()}_List',
-                     resource_class_args=(endpoint.read_schema, endpoint.write_schema))
-    
-    api.add_resource(Endpoints.endpoint.ValidList, f'/valid/{endpoint.slug}', endpoint=f'{endpoint.slug.capitalize()}_Validlist',
-                     resource_class_args=(endpoint.read_schema, endpoint.write_schema))
+    api.add_resource(Endpoints.endpoint.FullList, f'/{schema.Meta.slug}', endpoint=f'{schema.Meta.slug.capitalize()}_List',
+                     resource_class_args=(schema,))
 
-    api.add_resource(Endpoints.endpoint.ValidLineage, f'/valid/{endpoint.slug}/<int:id>', endpoint=f'{endpoint.slug.capitalize()}_Validlineage',
-                     resource_class_args=(endpoint.read_schema, endpoint.write_schema))
+    api.add_resource(Endpoints.endpoint.ValidList, f'/valid/{schema.Meta.slug}', endpoint=f'{schema.Meta.slug.capitalize()}_Validlist',
+                     resource_class_args=(schema,))
+
+    api.add_resource(Endpoints.endpoint.ValidLineage, f'/valid/{schema.Meta.slug}/<int:id>', endpoint=f'{schema.Meta.slug.capitalize()}_Validlineage',
+                     resource_class_args=(schema,))
 
 
 app.add_url_rule(f'/v{current_version}/login',
@@ -59,6 +61,8 @@ app.add_url_rule(f'/v{current_version}/tokeninfo',
                  'tokenstat', tokenstat, methods=['GET'])
 api.add_resource(gebruikers.Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
+app.add_url_rule(f'/v{current_version}/spec',
+                 'spec', specView, methods=['GET'])
 
 
 if __name__ == '__main__':

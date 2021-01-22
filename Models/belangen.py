@@ -12,6 +12,7 @@ class Belangen_Schema(Base_Schema):
     Type = MM.fields.Str(missing=None, validate=MM.validate.OneOf(['Nationaal Belang', 'Wettelijke Taak & Bevoegdheid']), obprops=[])
 
     class Meta(Base_Schema.Meta):
+        slug = 'belangen'
         table = 'Belangen'
         read_only = False
         ordered = True

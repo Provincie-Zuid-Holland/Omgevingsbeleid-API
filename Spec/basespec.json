@@ -1,0 +1,28 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Omgevingsbeleid API",
+        "description": "This API serves all the object that make up the policies of a provincial government",
+        "contact": {
+            "name": "API Developer",
+            "email": "s.j.mulderij@pzh.nl"
+        },
+        "license": {
+            "name": "European Union Public Licence V. 1.2",
+            "url": "https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12"
+        },
+        "version": "0.0.2"
+    },
+    "servers": [
+        {
+            "url": "https://api-omgevingsbeleid-dev-v2.azurewebsites.net/v0.1/",
+            "description": "Development server"
+        }
+    ],
+    "components": {
+        "schemas": {
+        }
+    },
+    "paths": [],
+    "security": []
+}

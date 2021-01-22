@@ -54,6 +54,7 @@ class Beleidskeuzes_Schema(Base_Schema):
     ], missing=[], obprops=['referencelist'])
   
     class Meta(Base_Schema.Meta):
+        slug = 'beleidskeuzes'
         table = 'Beleidskeuzes'
         read_only = False
         ordered = True
