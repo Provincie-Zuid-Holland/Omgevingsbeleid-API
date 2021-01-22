@@ -85,15 +85,20 @@ def get_objects(query, query_args, schema, cursor, inline=True):
     return(result_objecten)
 
 
-class Lineage(Resource):
+class Schema_Resource(Resource):
+    """
+    A base class that accepts a Marshmallow schema as configuration
+    """
+
+    def __init__(self, schema):
+        self.schema = schema
+
+
+class Lineage(Schema_Resource):
     """
     A lineage is a list of all object that have the same ID, ordered by modified date.
     This represents the history of an object in our database.
     """
-
-    def __init__(self, read_schema, write_schema):
-        self.read_schema = read_schema
-        self.write_schema = write_schema
 
     def get(self, id):
         """
@@ -104,24 +109,24 @@ class Lineage(Resource):
 
             # Retrieve all the fields we want to query
             included_fields = ', '.join(
-                [field for field in self.read_schema().fields_without_props('referencelist')])
+                [field for field in self.schema().fields_without_props('referencelist')])
 
-            query = f'SELECT {included_fields} FROM {self.read_schema().Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
+            query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
 
-            return(get_objects(query, [id], self.read_schema(), cursor))
+            return(get_objects(query, [id], self.schema(), cursor))
 
     def patch(self, id):
         """
         PATCH endpoint for a lineage.
         """
-        if self.write_schema.Meta.read_only or self.read_schema.Meta.read_only:
+        if self.schema.Meta.read_only or self.schema.Meta.read_only:
             return {'message': 'This endpoint is read-only'}, 403
 
         if request.json is None:
             return {'message': 'Request data empty'}, 400
 
-        patch_schema = self.write_schema(
-            exclude=self.write_schema.fields_with_props('exluded_patch'),
+        patch_schema = self.schema(
+            exclude=self.schema.fields_with_props('exluded_patch'),
             unknown=MM.RAISE,
             partial=True
         )
@@ -133,25 +138,26 @@ class Lineage(Resource):
 
             old_object = None
 
-            query = f'SELECT TOP(1) * FROM {self.write_schema.Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
+            query = f'SELECT TOP(1) * FROM {self.schema.Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
 
-            old_object = get_objects(query, [id], self.write_schema(), cursor, inline=False)[0]
+            old_object = get_objects(
+                query, [id], self.schema(), cursor, inline=False)[0]
             try:
                 changes = patch_schema.load(request.json)
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e)
-            
-            old_object = self.write_schema(partial=True).load(old_object)
-            
+
+            old_object = self.schema(partial=True).load(old_object)
+
             new_object = {**old_object, **changes}
 
             new_object.pop('UUID')
             new_object['Modified_Date'] = request_time
             new_object['Modified_By'] = get_jwt_identity()['UUID']
-            
+
             try:
                 new_object = save_object(
-                    new_object, self.write_schema, cursor)
+                    new_object, self.schema, cursor)
             except pyodbc.IntegrityError as e:
                 return handle_integrity_exception(e)
             except pyodbc.DatabaseError as e:
@@ -162,15 +168,11 @@ class Lineage(Resource):
             return new_object, 200
 
 
-class FullList(Resource):
+class FullList(Schema_Resource):
     """
     A list of all the different lineages available in the database, 
     showing the latests version of each object's lineage.
     """
-
-    def __init__(self, read_schema, write_schema):
-        self.read_schema = read_schema
-        self.write_schema = write_schema
 
     def get(self):
         """
@@ -181,9 +183,9 @@ class FullList(Resource):
         filters = request.args
         if filters:
             invalids = [
-                f for f in filters if f not in self.read_schema().fields_without_props('referencelist')]
+                f for f in filters if f not in self.schema().fields_without_props('referencelist')]
             if invalids:
-                return {'message': f"Filter(s) '{' '.join(invalids)}' invalid for this endpoint. Valid filters: '{', '.join(self.read_schema().fields_without_props('referencelist'))}''"}, 403
+                return {'message': f"Filter(s) '{' '.join(invalids)}' invalid for this endpoint. Valid filters: '{', '.join(self.schema().fields_without_props('referencelist'))}''"}, 403
 
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
@@ -192,32 +194,33 @@ class FullList(Resource):
             query_args = None
             # Retrieve all the fields we want to query
             included_fields = ', '.join(
-                [field for field in self.read_schema().fields_without_props('referencelist')])
+                [field for field in self.schema().fields_without_props('referencelist')])
 
-            query = f'SELECT {included_fields} FROM (SELECT {included_fields}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] FROM {self.read_schema().Meta.table}) T WHERE RowNumber = 1'
+            query = f'SELECT {included_fields} FROM (SELECT {included_fields}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] FROM {self.schema().Meta.table}) T WHERE RowNumber = 1'
 
             # No arguments for the default query
             query_args = []
 
             if filters:
-                query += ' AND '+ 'AND '.join(f'{key} = ? ' for key in filters)
+                query += ' AND ' + \
+                    'AND '.join(f'{key} = ? ' for key in filters)
                 query_args = [filters[key] for key in filters]
 
             query += ' ORDER BY Modified_Date DESC'
-            return(get_objects(query, query_args, self.read_schema(), cursor))
+            return(get_objects(query, query_args, self.schema(), cursor))
 
     def post(self):
         """
         POST endpoint for this object.
         """
-        if self.write_schema.Meta.read_only or self.read_schema.Meta.read_only:
+        if self.schema.Meta.read_only:
             return {'message': 'This endpoint is read-only'}, 403
 
         if request.json is None:
             return {'message': 'Request data empty'}, 400
 
-        post_schema = self.write_schema(
-            exclude=self.write_schema.fields_with_props(
+        post_schema = self.schema(
+            exclude=self.schema.fields_with_props(
                 'excluded_post'),
             unknown=MM.utils.RAISE)
 
@@ -238,7 +241,7 @@ class FullList(Resource):
 
             try:
                 new_object = save_object(
-                    new_object, self.write_schema, cursor)
+                    new_object, self.schema, cursor)
             except pyodbc.IntegrityError as e:
                 return handle_integrity_exception(e), 400
             except pyodbc.DatabaseError as e:
@@ -249,69 +252,63 @@ class FullList(Resource):
             connection.commit()
             return new_object, 201
 
-class ValidList(Resource):
+
+class ValidList(Schema_Resource):
     """
     A list of all the different lineages available in the database, 
     showing the latests valid version of each object's lineage.
 
     Not availabe if the schema's status_conf is None
     """
-    def __init__(self, read_schema, write_schema):
-        self.read_schema = read_schema
-        self.write_schema = write_schema
-
 
     def get(self):
         """
         GET endpoint for a list of objects, shows the last valid object for each lineage
         """
-        if not self.read_schema.Meta.status_conf:
+        if not self.schema.Meta.status_conf:
             return {'message': 'This object does not have a status configuration'}, 404
-        
+
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
 
             # Retrieve all the fields we want to query
             included_fields = ', '.join(
-                [field for field in self.read_schema().fields_without_props('referencelist')])
+                [field for field in self.schema().fields_without_props('referencelist')])
 
-            status_field, value = self.read_schema.Meta.status_conf 
+            status_field, value = self.schema.Meta.status_conf
 
             query = f'''SELECT {included_fields} FROM
                             (SELECT {included_fields}, Row_number() OVER (partition BY [ID]
                             ORDER BY [Modified_date] DESC) [RowNumber]
-                            FROM {self.read_schema().Meta.table}
+                            FROM {self.schema().Meta.table}
 	                        WHERE {status_field} = ?) T 
                         WHERE rownumber = 1'''
 
-            return(get_objects(query, [value], self.read_schema(), cursor))
+            return(get_objects(query, [value], self.schema(), cursor))
 
-    
-class ValidLineage(Resource):
+
+class ValidLineage(Schema_Resource):
     """
     A lineage is a list of all object that have the same ID, ordered by modified date.
     This represents the history of an object valid states in our database.
     """
-    def __init__(self, read_schema, write_schema):
-        self.read_schema = read_schema
-        self.write_schema = write_schema
 
     def get(self, id):
         """
         GET endpoint for a lineage.
         """
-        if not self.read_schema.Meta.status_conf:
+        if not self.schema.Meta.status_conf:
             return {'message': 'This object does not have a status configuration'}, 404
-        
+
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
 
             # Retrieve all the fields we want to query
             included_fields = ', '.join(
-                [field for field in self.read_schema().fields_without_props('referencelist')])
+                [field for field in self.schema().fields_without_props('referencelist')])
 
-            status_field, value = self.read_schema.Meta.status_conf 
+            status_field, value = self.schema.Meta.status_conf
 
-            query = f'SELECT {included_fields} FROM {self.read_schema().Meta.table} WHERE ID = ? AND {status_field} = ? ORDER BY Modified_Date DESC '
+            query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? AND {status_field} = ? ORDER BY Modified_Date DESC '
 
-            return(get_objects(query, [id, value], self.read_schema(), cursor))
+            return(get_objects(query, [id, value], self.schema(), cursor))

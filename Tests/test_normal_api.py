@@ -71,25 +71,25 @@ def cleanup():
     with pyodbc.connect(db_connection_settings) as cn:
         cur = cn.cursor()
         for table in endpoints:
-            new_uuids = cur.execute(f"SELECT UUID FROM {table.write_schema.Meta.table} WHERE Created_By = ?", test_uuid)
-            for field, ref in table.write_schema.Meta.references.items():
+            new_uuids = cur.execute(f"SELECT UUID FROM {table.Meta.table} WHERE Created_By = ?", test_uuid)
+            for field, ref in table.Meta.references.items():
                     # Remove all references first
                     if type(ref) == UUID_List_Reference:
                         for new_uuid in list(new_uuids):        
                             cur.execute(f"DELETE FROM {ref.link_tablename} WHERE {ref.my_col} = ?", new_uuid[0])    
-            cur.execute(f"DELETE FROM {table.write_schema.Meta.table} WHERE Created_By = ?", test_uuid)
+            cur.execute(f"DELETE FROM {table.Meta.table} WHERE Created_By = ?", test_uuid)
 
-@pytest.mark.parametrize('endpoint', endpoints, ids=(map(lambda ep: ep.slug, endpoints)))
+@pytest.mark.parametrize('endpoint', endpoints, ids=(map(lambda ep: ep.Meta.slug, endpoints)))
 def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):   
-    list_ep = f"v0.1/{endpoint.slug}"
+    list_ep = f"v0.1/{endpoint.Meta.slug}"
     
     response = client.get(list_ep)
     found = len(response.json)
     assert response.status_code == 200, f"Status code for GET on {list_ep} was {response.status_code}, should be 200."
 
 
-    if not endpoint.write_schema.Meta.read_only:
-        test_data = generate_data(endpoint.write_schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
+    if not endpoint.Meta.read_only:
+        test_data = generate_data(endpoint, user_UUID=test_user_UUID, excluded_prop='excluded_post')
 
 
         response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Token {auth[1]}'})

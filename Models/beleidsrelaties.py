@@ -16,6 +16,7 @@ class Beleidsrelaties_Schema(Base_Schema):
     Datum_Akkoord = MM.fields.DateTime(format='iso', allow_none=True, missing=None, obprops=[])
     
     class Meta(Base_Schema.Meta):
+        slug = 'beleidsrelaties'
         table = 'Beleidsrelaties'
         read_only = False
         ordered = True

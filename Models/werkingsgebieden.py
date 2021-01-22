@@ -10,6 +10,7 @@ class Werkingsgebieden_Schema(Base_Schema):
     symbol = MM.fields.Str(missing=None, obprops=[])
 
     class Meta(Base_Schema.Meta):
+        slug = 'werkingsgebieden'
         table = 'Werkingsgebieden'
         read_only = True
         ordered = True

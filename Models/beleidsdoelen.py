@@ -11,6 +11,7 @@ class Beleidsdoelen_Schema(Base_Schema):
     Weblink = MM.fields.Str(missing=None, obprops=[ ])
 
     class Meta(Base_Schema.Meta):
+        slug = 'beleidsdoelen'
         table = 'Beleidsdoelen'
         read_only = False
         ordered = True

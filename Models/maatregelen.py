@@ -34,9 +34,11 @@ class Maatregelen_Schema(Base_Schema):
     Tags = MM.fields.Str(missing=None, obprops=[])
     
     class Meta(Base_Schema.Meta):
+        slug = 'maatregelen'
         table = 'Maatregelen'
         read_only = False
         ordered = True
         searchable = True
         references = {'Gebied': UUID_Reference(
                 'Werkingsgebieden', Werkingsgebieden_Schema)}
+        status_conf = ('Status', 'Vigerend')

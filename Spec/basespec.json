@@ -15,7 +15,7 @@
     },
     "servers": [
         {
-            "url": "https://api-omgevingsbeleid-dev-v2.azurewebsites.net",
+            "url": "https://api-omgevingsbeleid-dev-v2.azurewebsites.net/v0.1/",
             "description": "Development server"
         }
     ],
