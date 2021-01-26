@@ -5,9 +5,10 @@ import datetime
 import re
 import pprint
 import marshmallow as MM
+from marshmallow.schema import Schema
 import pyodbc
 from flask import jsonify, request
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
@@ -99,7 +100,6 @@ class Lineage(Schema_Resource):
     A lineage is a list of all object that have the same ID, ordered by modified date.
     This represents the history of an object in our database.
     """
-
     def get(self, id):
         """
         GET endpoint for a lineage.
@@ -114,7 +114,7 @@ class Lineage(Schema_Resource):
             query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
 
             return(get_objects(query, [id], self.schema(), cursor))
-
+    @jwt_required
     def patch(self, id):
         """
         PATCH endpoint for a lineage.
@@ -208,7 +208,8 @@ class FullList(Schema_Resource):
 
             query += ' ORDER BY Modified_Date DESC'
             return(get_objects(query, query_args, self.schema(), cursor))
-
+    
+    @jwt_required
     def post(self):
         """
         POST endpoint for this object.
@@ -314,11 +315,40 @@ class ValidLineage(Schema_Resource):
             return(get_objects(query, [id, value], self.schema(), cursor))
 
 
+class ValidSingleVersion(Schema_Resource):
+    """
+    This represents a single valid version of an object, identified by it's UUID.
+    """
+
+    def get(self, uuid):
+        """
+        Get endpoint for a single object
+        """
+        if not self.schema.Meta.status_conf:
+            return {'message': 'This object does not have a status configuration'}, 404
+
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+
+            # Retrieve all the fields we want to query
+            included_fields = ', '.join(
+                [field for field in self.schema().fields_without_props('referencelist')])
+
+            status_field, value = self.schema.Meta.status_conf
+
+            query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID = ? AND {status_field} = ?'
+
+            result = get_objects(query, [uuid], self.schema(), cursor)
+            if not result:
+                return {'message': f'Valid object with UUID {uuid} does not exist.'}, 404
+            return(result[0])
+
+
 class SingleVersion(Schema_Resource):
     """
     This represents a single version of an object, identified by it's UUID.
     """
-    
+
     def get(self, uuid):
         """
         Get endpoint for a single object
@@ -332,5 +362,7 @@ class SingleVersion(Schema_Resource):
 
 
             query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID = ?'
-
-            return(get_objects(query, [uuid], self.schema(), cursor))
+            result = get_objects(query, [uuid], self.schema(), cursor)
+            if not result:
+                return {'message': f'Object with UUID {uuid} does not exist.'}, 404
+            return(result[0])

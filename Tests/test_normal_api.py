@@ -81,12 +81,12 @@ def cleanup():
 
 @pytest.mark.parametrize('endpoint', endpoints, ids=(map(lambda ep: ep.Meta.slug, endpoints)))
 def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):   
-    list_ep = f"v0.1/{endpoint.Meta.slug}"
     
+    list_ep = f"v0.1/{endpoint.Meta.slug}"
     response = client.get(list_ep)
     found = len(response.json)
     assert response.status_code == 200, f"Status code for GET on {list_ep} was {response.status_code}, should be 200."
-    
+
     t_uuid = response.json[0]['UUID']
     version_ep = f"v0.1/version/{endpoint.Meta.slug}/{t_uuid}"
     response = client.get(version_ep)
@@ -95,7 +95,7 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
     if not endpoint.Meta.read_only:
         test_data = generate_data(endpoint, user_UUID=test_user_UUID, excluded_prop='excluded_post')
 
-        response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Token {auth[1]}'})
+        response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Bearer {auth[1]}'})
 
         assert response.status_code == 201, f"Status code for POST on {list_ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
@@ -104,7 +104,7 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
         response = client.get(list_ep)
         assert found + 1 == len(response.json), 'No new object after POST'
         
-        response = client.patch(list_ep + '/' + str(new_id), json={'Begin_Geldigheid':'1994-11-23T10:00:00'}, headers={'Authorization': f'Token {auth[1]}'})
+        response = client.patch(list_ep + '/' + str(new_id), json={'Begin_Geldigheid':'1994-11-23T10:00:00'}, headers={'Authorization': f'Bearer {auth[1]}'})
         assert response.status_code == 200, f'Status code for PATCH on {list_ep} was {response.status_code}, should be 200. Body contents: {response.json}'
 
         response = client.get(list_ep + '/' + str(new_id))
@@ -114,7 +114,7 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
 
 def test_references(client, test_user_UUID, auth, cleanup):
     ep = f"v0.1/beleidskeuzes"
-    response = client.post(ep, json=reference_rich_beleidskeuze, headers = {'Authorization': f'Token {auth[1]}'})
+    response = client.post(ep, json=reference_rich_beleidskeuze, headers = {'Authorization': f'Bearer {auth[1]}'})
     
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
@@ -124,7 +124,7 @@ def test_references(client, test_user_UUID, auth, cleanup):
     assert response.status_code == 200, 'Could not get refered object'
     assert len(response.get_json()[0]['Ambities']) == 2 , 'References not retrieved'
 
-    response = client.patch(ep, json={'Titel': 'Changed Title TEST'}, headers = {'Authorization': f'Token {auth[1]}'})
+    response = client.patch(ep, json={'Titel': 'Changed Title TEST'}, headers = {'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, 'Patch failed'
     assert response.get_json()['Titel'] == 'Changed Title TEST' , 'Patch did not change title'
     assert len(response.get_json()['Ambities']) == 2 , 'Patch did not copy references'

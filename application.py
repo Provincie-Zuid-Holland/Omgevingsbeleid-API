@@ -27,7 +27,6 @@ app = Flask(__name__)
 CORS(app)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
-app.config['JWT_HEADER_TYPE'] = "Token"
 api = Api(app, prefix=f'/v{current_version}',
           decorators=[jwt_required_not_GET, ])
 jwt = JWTManager(app)
@@ -52,6 +51,9 @@ for schema in datamodel.endpoints:
                      resource_class_args=(schema,))
 
     api.add_resource(Endpoints.endpoint.ValidLineage, f'/valid/{schema.Meta.slug}/<int:id>', endpoint=f'{schema.Meta.slug.capitalize()}_Validlineage',
+                     resource_class_args=(schema,))
+    
+    api.add_resource(Endpoints.endpoint.ValidSingleVersion, f'/valid/version/{schema.Meta.slug}/<string:uuid>', endpoint=f'{schema.Meta.slug.capitalize()}_ValidVersionlineage',
                      resource_class_args=(schema,))
     
     api.add_resource(Endpoints.endpoint.SingleVersion, f'/version/{schema.Meta.slug}/<string:uuid>', endpoint=f'{schema.Meta.slug.capitalize()}_Version',

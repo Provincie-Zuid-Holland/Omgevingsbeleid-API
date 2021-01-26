@@ -15,6 +15,8 @@ def render_spec():
 
         base_spec['components']['schemas'] = render_schemas(
             datamodel.endpoints)
+        base_spec['components']['securitySchemes'] = {'bearerAuth': {
+            'type': 'http', 'scheme': 'bearer', 'bearerFormat': 'JWT'}}
         base_spec['paths'] = render_paths(datamodel.endpoints)
         return base_spec
 
@@ -125,11 +127,17 @@ def render_schemas(endpoints):
 
 def render_paths(endpoints):
     paths = {}
-    for model in datamodel.endpoints:
+    for model in endpoints:
 
+        # Prepopulate most endpoint to prevent exceptions
         paths[f'/{model.Meta.slug}'] = {}
         paths[f'/{model.Meta.slug}/{{lineage_id}}'] = {}
         paths[f'/valid/{model.Meta.slug}'] = {}
+        paths[f'/valid/{model.Meta.slug}/{{lineage_id}}'] = {}
+        paths[f'/version/{model.Meta.slug}'] = {}
+        paths[f'/valid/version/{model.Meta.slug}'] = {}
+        paths[f'/version/{model.Meta.slug}/{{object_uuid}}'] = {}
+        paths[f'/valid/version/{model.Meta.slug}/{{object_uuid}}'] = {}
 
         paths[f'/{model.Meta.slug}']['get'] = {
             'summary': f'Gets all the {model.Meta.slug} lineages and shows the latests object for each',
@@ -165,6 +173,48 @@ def render_paths(endpoints):
                 }
             }
         }
+
+        paths[f'/version/{model.Meta.slug}/{{object_uuid}}']['get'] = {
+            'parameters': [{
+                'name': 'object_uuid',
+                'in': 'path',
+                'description': 'UUID of the object to read',
+                'required': True,
+                'schema': {
+                        'type': 'uuid'
+                }
+            }],
+            'summary': f'Gets all the {model.Meta.slug} lineages and shows the latests object for each',
+            'responses': {
+                '200': {
+                    'description': 'a list of lineages',
+                    'content': {
+                        'application/json': {
+                            'schema':
+                            {
+                                '$ref': f'#/components/schemas/{model.Meta.slug}-read'
+                            }
+                        }
+                    }
+                },
+                '404': {
+                    'description': 'Item with UUID not found',
+                    'content': {
+                        'application/json': {
+                            'schema':
+                            {'properties': {
+                                'message': {
+                                    'type': 'string',
+                                    'description': 'A description of the error'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         paths[f'/{model.Meta.slug}/{{lineage_id}}']['get'] = {
             'parameters': [{
                 'name': 'lineage_id',
@@ -289,8 +339,50 @@ def render_paths(endpoints):
                 }
             }
 
+            paths[f'/valid/version/{model.Meta.slug}/{{object_uuid}}']['get'] = {
+                'parameters': [{
+                    'name': 'object_uuid',
+                    'in': 'path',
+                    'description': 'UUID of the object to read',
+                    'required': True,
+                    'schema': {
+                        'type': 'uuid'
+                    }
+                }],
+                'summary': f'Gets all the {model.Meta.slug} in this lineage that are valid',
+                'responses': {
+                    '404': {
+                        'description': 'The object does not exist or does not have a status field',
+                        'content': {
+                            'application/json': {
+                                'schema':
+                                {'properties': {
+                                    'message': {
+                                        'type': 'string',
+                                        'description': 'A description of the error'
+                                    }
+                                }
+                                }
+                            }
+                        }
+                    },
+                    '200': {
+                        'description': 'all the latests valid objects for every lineage',
+                        'content': {
+                            'application/json': {
+                                'schema':
+                                {
+                                    '$ref': f'#/components/schemas/{model.Meta.slug}-read'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
         if not model.Meta.read_only:
             paths[f'/{model.Meta.slug}']['post'] = {
+                'security': [{'bearerAuth': []}],
                 'summary': f'Creates a new {model.Meta.slug} lineage',
                 'requestBody': {
                     'required': True,
@@ -362,6 +454,7 @@ def render_paths(endpoints):
                 }
             }
             paths[f'/{model.Meta.slug}/{{lineage_id}}']['patch'] = {
+                'security': [{'bearerAuth': []}],
                 'summary': f'Adds a new {model.Meta.slug} to a lineage',
                 'parameters': [{
                     'name': 'lineage_id',
