@@ -312,3 +312,25 @@ class ValidLineage(Schema_Resource):
             query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? AND {status_field} = ? ORDER BY Modified_Date DESC '
 
             return(get_objects(query, [id, value], self.schema(), cursor))
+
+
+class SingleVersion(Schema_Resource):
+    """
+    This represents a single version of an object, identified by it's UUID.
+    """
+    
+    def get(self, uuid):
+        """
+        Get endpoint for a single object
+        """
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+
+            # Retrieve all the fields we want to query
+            included_fields = ', '.join(
+                [field for field in self.schema().fields_without_props('referencelist')])
+
+
+            query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID = ?'
+
+            return(get_objects(query, [uuid], self.schema(), cursor))

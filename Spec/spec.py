@@ -208,6 +208,7 @@ def render_paths(endpoints):
                 }
             }
         }
+
         if model.Meta.status_conf:
             paths[f'/valid/{model.Meta.slug}']['get'] = {
                 'summary': f'Gets all the {model.Meta.slug} lineages and shows the latests valid object for each',
@@ -243,6 +244,51 @@ def render_paths(endpoints):
                     }
                 }
             }
+
+            paths[f'/valid/{model.Meta.slug}/{{lineage_id}}']['get'] = {
+                'parameters': [{
+                    'name': 'lineage_id',
+                    'in': 'path',
+                    'description': 'ID of the lineage to read',
+                    'required': True,
+                    'schema': {
+                        'type': 'integer'
+                    }
+                }],
+                'summary': f'Gets all the {model.Meta.slug} in this lineage that are valid',
+                'responses': {
+                    '404': {
+                        'description': 'The object does not exist or does not have a status field',
+                        'content': {
+                            'application/json': {
+                                'schema':
+                                {'properties': {
+                                    'message': {
+                                        'type': 'string',
+                                        'description': 'A description of the error'
+                                    }
+                                }
+                                }
+                            }
+                        }
+                    },
+                    '200': {
+                        'description': 'all the latests valid objects for every lineage',
+                        'content': {
+                            'application/json': {
+                                'schema':
+                                {
+                                    'type': 'array',
+                                    'items': {
+                                        '$ref': f'#/components/schemas/{model.Meta.slug}-read'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
         if not model.Meta.read_only:
             paths[f'/{model.Meta.slug}']['post'] = {
                 'summary': f'Creates a new {model.Meta.slug} lineage',

@@ -86,11 +86,14 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
     response = client.get(list_ep)
     found = len(response.json)
     assert response.status_code == 200, f"Status code for GET on {list_ep} was {response.status_code}, should be 200."
-
+    
+    t_uuid = response.json[0]['UUID']
+    version_ep = f"v0.1/version/{endpoint.Meta.slug}/{t_uuid}"
+    response = client.get(version_ep)
+    assert response.status_code == 200, f"Status code for GET on {version_ep} was {response.status_code}, should be 200."
 
     if not endpoint.Meta.read_only:
         test_data = generate_data(endpoint, user_UUID=test_user_UUID, excluded_prop='excluded_post')
-
 
         response = client.post(list_ep, json=test_data, headers = {'Authorization': f'Token {auth[1]}'})
 

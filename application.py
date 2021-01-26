@@ -53,6 +53,9 @@ for schema in datamodel.endpoints:
 
     api.add_resource(Endpoints.endpoint.ValidLineage, f'/valid/{schema.Meta.slug}/<int:id>', endpoint=f'{schema.Meta.slug.capitalize()}_Validlineage',
                      resource_class_args=(schema,))
+    
+    api.add_resource(Endpoints.endpoint.SingleVersion, f'/version/{schema.Meta.slug}/<string:uuid>', endpoint=f'{schema.Meta.slug.capitalize()}_Version',
+                     resource_class_args=(schema,))
 
 
 app.add_url_rule(f'/v{current_version}/login',
