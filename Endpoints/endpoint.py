@@ -19,10 +19,6 @@ from Endpoints.errors import (handle_integrity_exception,
                               handle_validation_exception)
 from Endpoints.references import merge_references, store_references
 
-# TODO:
-# - Add status validation
-# - Add version on UUID
-
 
 def save_object(new_object, schema, cursor):
     """Saves an object to a table, retrieves and stores the generated values and return the object.
@@ -100,6 +96,7 @@ class Lineage(Schema_Resource):
     A lineage is a list of all object that have the same ID, ordered by modified date.
     This represents the history of an object in our database.
     """
+
     def get(self, id):
         """
         GET endpoint for a lineage.
@@ -111,9 +108,10 @@ class Lineage(Schema_Resource):
             included_fields = ', '.join(
                 [field for field in self.schema().fields_without_props('referencelist')])
 
-            query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
+            query = f'''SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC'''
 
             return(get_objects(query, [id], self.schema(), cursor))
+
     @jwt_required
     def patch(self, id):
         """
@@ -203,12 +201,12 @@ class FullList(Schema_Resource):
 
             if filters:
                 query += ' AND ' + \
-                    'AND '.join(f'{key} = ? ' for key in filters)
+                    'OR '.join(f'{key} = ? ' for key in filters)
                 query_args = [filters[key] for key in filters]
 
-            query += ' ORDER BY Modified_Date DESC'
+            query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC"
             return(get_objects(query, [query_args], self.schema(), cursor))
-    
+
     @jwt_required
     def post(self):
         """
@@ -282,7 +280,7 @@ class ValidList(Schema_Resource):
                             (SELECT {included_fields}, Row_number() OVER (partition BY [ID]
                             ORDER BY [Modified_date] DESC) [RowNumber]
                             FROM {self.schema().Meta.table}
-	                        WHERE {status_field} = ?) T 
+	                        WHERE {status_field} = ? AND UUID != '00000000-0000-0000-0000-000000000000') T 
                         WHERE rownumber = 1'''
 
             return(get_objects(query, [value], self.schema(), cursor))
@@ -310,7 +308,7 @@ class ValidLineage(Schema_Resource):
 
             status_field, value = self.schema.Meta.status_conf
 
-            query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? AND {status_field} = ? ORDER BY Modified_Date DESC '
+            query = f'''SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? AND {status_field} = ? AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC '''
 
             return(get_objects(query, [id, value], self.schema(), cursor))
 
@@ -359,7 +357,6 @@ class SingleVersion(Schema_Resource):
             # Retrieve all the fields we want to query
             included_fields = ', '.join(
                 [field for field in self.schema().fields_without_props('referencelist')])
-
 
             query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID = ?'
             result = get_objects(query, [uuid], self.schema(), cursor)
