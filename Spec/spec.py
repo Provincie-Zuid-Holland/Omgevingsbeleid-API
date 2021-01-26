@@ -137,7 +137,6 @@ def render_paths(endpoints):
         paths[f'/version/{model.Meta.slug}'] = {}
         paths[f'/valid/version/{model.Meta.slug}'] = {}
         paths[f'/version/{model.Meta.slug}/{{object_uuid}}'] = {}
-        paths[f'/valid/version/{model.Meta.slug}/{{object_uuid}}'] = {}
 
         paths[f'/{model.Meta.slug}']['get'] = {
             'summary': f'Gets all the {model.Meta.slug} lineages and shows the latests object for each',
@@ -332,47 +331,6 @@ def render_paths(endpoints):
                                     'items': {
                                         '$ref': f'#/components/schemas/{model.Meta.slug}-read'
                                     }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            paths[f'/valid/version/{model.Meta.slug}/{{object_uuid}}']['get'] = {
-                'parameters': [{
-                    'name': 'object_uuid',
-                    'in': 'path',
-                    'description': 'UUID of the object to read',
-                    'required': True,
-                    'schema': {
-                        'type': 'uuid'
-                    }
-                }],
-                'summary': f'Gets all the {model.Meta.slug} in this lineage that are valid',
-                'responses': {
-                    '404': {
-                        'description': 'The object does not exist or does not have a status field',
-                        'content': {
-                            'application/json': {
-                                'schema':
-                                {'properties': {
-                                    'message': {
-                                        'type': 'string',
-                                        'description': 'A description of the error'
-                                    }
-                                }
-                                }
-                            }
-                        }
-                    },
-                    '200': {
-                        'description': 'all the latests valid objects for every lineage',
-                        'content': {
-                            'application/json': {
-                                'schema':
-                                {
-                                    '$ref': f'#/components/schemas/{model.Meta.slug}-read'
                                 }
                             }
                         }

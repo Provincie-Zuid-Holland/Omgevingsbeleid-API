@@ -53,9 +53,6 @@ for schema in datamodel.endpoints:
     api.add_resource(Endpoints.endpoint.ValidLineage, f'/valid/{schema.Meta.slug}/<int:id>', endpoint=f'{schema.Meta.slug.capitalize()}_Validlineage',
                      resource_class_args=(schema,))
     
-    api.add_resource(Endpoints.endpoint.ValidSingleVersion, f'/valid/version/{schema.Meta.slug}/<string:uuid>', endpoint=f'{schema.Meta.slug.capitalize()}_ValidVersionlineage',
-                     resource_class_args=(schema,))
-    
     api.add_resource(Endpoints.endpoint.SingleVersion, f'/version/{schema.Meta.slug}/<string:uuid>', endpoint=f'{schema.Meta.slug.capitalize()}_Version',
                      resource_class_args=(schema,))
 
