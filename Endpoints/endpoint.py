@@ -207,7 +207,7 @@ class FullList(Schema_Resource):
                 query_args = [filters[key] for key in filters]
 
             query += ' ORDER BY Modified_Date DESC'
-            return(get_objects(query, query_args, self.schema(), cursor))
+            return(get_objects(query, [query_args], self.schema(), cursor))
     
     @jwt_required
     def post(self):

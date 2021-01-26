@@ -3,7 +3,7 @@
 
 from Models import (ambities, belangen, beleidsdoelen, beleidskeuzes,
                     beleidsprestaties, beleidsregels, gebruikers, maatregelen,
-                    themas, werkingsgebieden)
+                    themas, werkingsgebieden, verordeningen)
 
 
 endpoints = [
@@ -15,5 +15,6 @@ endpoints = [
     beleidsregels.Beleidsregels_Schema,
     maatregelen.Maatregelen_Schema,
     themas.Themas_Schema,
-    werkingsgebieden.Werkingsgebieden_Schema
+    werkingsgebieden.Werkingsgebieden_Schema,
+    verordeningen.Verordeningen_Schema
 ]

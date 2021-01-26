@@ -10,8 +10,14 @@ from globals import default_user_uuid
 
 from Models.gebruikers import Gebruikers_Schema
 from Models.ambities import Ambities_Schema
-
-
+from Models.belangen import Belangen_Schema
+from Models.werkingsgebieden import Werkingsgebieden_Schema
+from Models.themas import Themas_Schema
+from Models.beleidsdoelen import Beleidsdoelen_Schema
+from Models.beleidsprestaties import Beleidsprestaties_Schema
+from Models.beleidsregels import Beleidsregels_Schema
+from Models.maatregelen import Maatregelen_Schema
+from Models.verordeningen import Verordeningen_Schema
 
 class Beleidskeuzes_Schema(Base_Schema):
     Eigenaar_1 = MM.fields.UUID(
@@ -52,6 +58,22 @@ class Beleidskeuzes_Schema(Base_Schema):
         missing=None, default=None, obprops=['excluded_post'])
     Ambities = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
     ], missing=[], obprops=['referencelist'])
+    Belangen = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
+    ], missing=[], obprops=['referencelist'])
+    Beleidsdoelen = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
+    ], missing=[], obprops=['referencelist'])
+    Beleidsprestaties = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
+    ], missing=[], obprops=['referencelist'])
+    Beleidsregels = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
+    ], missing=[], obprops=['referencelist'])
+    Maatregelen = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
+    ], missing=[], obprops=['referencelist'])
+    Themas = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
+    ], missing=[], obprops=['referencelist'])
+    Verordeningen = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
+    ], missing=[], obprops=['referencelist'])
+    Werkingsgebieden = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
+    ], missing=[], obprops=['referencelist'])
   
     class Meta(Base_Schema.Meta):
         slug = 'beleidskeuzes'
@@ -65,6 +87,14 @@ class Beleidskeuzes_Schema(Base_Schema):
             'Portefeuillehouder_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Portefeuillehouder_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
-            'Ambities': UUID_List_Reference('Beleidskeuze_Ambities', 'Ambities', 'Beleidskeuze_UUID', 'Ambitie_UUID', 'Koppeling_Omschrijving', Ambities_Schema)
+            'Ambities': UUID_List_Reference('Beleidskeuze_Ambities', 'Ambities', 'Beleidskeuze_UUID', 'Ambitie_UUID', 'Koppeling_Omschrijving', Ambities_Schema),
+            'Belangen': UUID_List_Reference('Beleidskeuze_Belangen', 'Belangen', 'Beleidskeuze_UUID', 'Belang_UUID', 'Koppeling_Omschrijving', Belangen_Schema),
+            'Beleidsdoelen': UUID_List_Reference('Beleidskeuze_Beleidsdoelen', 'Beleidsdoelen', 'Beleidskeuze_UUID', 'Beleidsdoel_UUID', 'Koppeling_Omschrijving', Beleidsdoelen_Schema),
+            'Beleidsprestaties': UUID_List_Reference('Beleidskeuze_Beleidsprestaties', 'Beleidsprestaties', 'Beleidskeuze_UUID', 'Beleidsprestatie_UUID', 'Koppeling_Omschrijving', Beleidsprestaties_Schema),
+            'Beleidsregels': UUID_List_Reference('Beleidskeuze_Beleidsregels', 'Beleidsregels', 'Beleidskeuze_UUID', 'Beleidsregel_UUID', 'Koppeling_Omschrijving', Beleidsregels_Schema),
+            'Maatregelen': UUID_List_Reference('Beleidskeuze_Maatregelen', 'Maatregelen', 'Beleidskeuze_UUID', 'Maatregel_UUID', 'Koppeling_Omschrijving', Maatregelen_Schema),
+            'Themas': UUID_List_Reference('Beleidskeuze_Themas', 'Themas', 'Beleidskeuze_UUID', 'Thema_UUID', 'Koppeling_Omschrijving', Themas_Schema),
+            'Verordeningen': UUID_List_Reference('Beleidskeuze_Verordeningen', 'Verordeningen', 'Beleidskeuze_UUID', 'Verordening_UUID', 'Koppeling_Omschrijving', Verordeningen_Schema),
+            'Werkingsgebieden': UUID_List_Reference('Beleidskeuze_Werkingsgebieden', 'Werkingsgebieden', 'Beleidskeuze_UUID', 'Werkingsgebied_UUID', 'Koppeling_Omschrijving', Werkingsgebieden_Schema)            
         }
         status_conf = ('Status', 'Vigerend')

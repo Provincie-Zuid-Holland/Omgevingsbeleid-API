@@ -71,7 +71,7 @@ def cleanup():
     with pyodbc.connect(db_connection_settings) as cn:
         cur = cn.cursor()
         for table in endpoints:
-            new_uuids = cur.execute(f"SELECT UUID FROM {table.Meta.table} WHERE Created_By = ?", test_uuid)
+            new_uuids = list(cur.execute(f"SELECT UUID FROM {table.Meta.table} WHERE Created_By = ?", test_uuid))
             for field, ref in table.Meta.references.items():
                     # Remove all references first
                     if type(ref) == UUID_List_Reference:
