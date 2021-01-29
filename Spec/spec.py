@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
+from typing import DefaultDict
 import datamodel
 import json
 from flask import Flask, jsonify, request
@@ -129,14 +130,16 @@ def render_paths(endpoints):
     paths = {}
     for model in endpoints:
 
+
+        paths = DefaultDict(dict)
         # Prepopulate most endpoint to prevent exceptions
-        paths[f'/{model.Meta.slug}'] = {}
-        paths[f'/{model.Meta.slug}/{{lineage_id}}'] = {}
-        paths[f'/valid/{model.Meta.slug}'] = {}
-        paths[f'/valid/{model.Meta.slug}/{{lineage_id}}'] = {}
-        paths[f'/version/{model.Meta.slug}'] = {}
-        paths[f'/valid/version/{model.Meta.slug}'] = {}
-        paths[f'/version/{model.Meta.slug}/{{object_uuid}}'] = {}
+        # paths[f'/{model.Meta.slug}'] = {}
+        # paths[f'/{model.Meta.slug}/{{lineage_id}}'] = {}
+        # paths[f'/valid/{model.Meta.slug}'] = {}
+        # paths[f'/valid/{model.Meta.slug}/{{lineage_id}}'] = {}
+        # paths[f'/version/{model.Meta.slug}'] = {}
+        # paths[f'/valid/version/{model.Meta.slug}'] = {}
+        # paths[f'/version/{model.Meta.slug}/{{object_uuid}}'] = {}
 
         paths[f'/{model.Meta.slug}']['get'] = {
             'summary': f'Gets all the {model.Meta.slug} lineages and shows the latests object for each',
@@ -205,8 +208,8 @@ def render_paths(endpoints):
                                 'message': {
                                     'type': 'string',
                                     'description': 'A description of the error'
-                                    }
                                 }
+                            }
                             }
                         }
                     }
@@ -486,6 +489,110 @@ def render_paths(endpoints):
                                     }
                                 }
 
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            paths[f'/search']['get'] = {
+                'summary': f'Search for objects with a textual query',
+                'parameters': [{
+                    'name': 'query',
+                    'in': 'query',
+                    'description': 'The textual query to search on',
+                    'required': True,
+                    'schema': {
+                        'type': 'string'
+                    }},
+                    {
+                    'name': 'only',
+                    'in': 'query',
+                    'description': 'Only search these objects (can not be used in combination with `exclude`',
+                    'required': False,
+                    'schema': {
+                        'type': 'string',
+                        'format': 'comma seperated list'
+                    }},
+                    {
+                    'name': 'exclude',
+                    'in': 'query',
+                    'description': 'Exclude these objects form search (can not be used in combination with `only`',
+                    'required': False,
+                    'schema': {
+                        'type': 'string',
+                        'format': 'comma seperated list'
+                    }},
+                    {
+                    'name': 'limit',
+                    'in': 'query',
+                    'description': 'Limit the amount of results',
+                    'required': False,
+                    'schema': {
+                        'type': 'int'
+                    }}
+                ],
+                'responses': {
+                    '200': {
+                        'description': 'Search results',
+                        'content': {
+                            'application/json': {
+                                'schema': {
+                                    'properties': {
+                                        'Omschrijving': {
+                                            'type': 'string',
+                                            'description': 'A description of this object'
+                                        },
+                                        'Titel': {
+                                            'type': 'string',
+                                            'description': 'The title of this object'
+                                        },
+                                        'RANK': {
+                                            'type': 'int',
+                                            'description': 'A representation of the search rank, only usefull for comparing between two results'
+                                        },
+                                        'type': {
+                                            'type': 'string',
+                                            'description': 'The type of this object'
+                                        },
+                                        'UUID': {
+                                            'type': 'string',
+                                            'format': 'uuid',
+                                            'description': 'The UUID of this object'
+                                        }
+
+                                    }
+
+                                }
+                            }
+                        }
+                    },
+                    '400': {
+                        'description': 'No search query provided or no objects in resultset',
+                        'content': {
+                            'application/json': {
+                                'schema':
+                                {'properties': {
+                                    'message': {
+                                        'type': 'string',
+                                        'description': 'A description of the error'
+                                    }
+                                }
+                                }
+                            }
+                        }
+                    },
+                    '403': {
+                        'description': '`Exclude` and `only` in the same query',
+                        'content': {
+                            'application/json': {
+                                'schema':
+                                {'properties': {
+                                    'message': {
+                                        'type': 'string',
+                                        'description': 'A description of the error'
+                                    }
+                                }
                                 }
                             }
                         }

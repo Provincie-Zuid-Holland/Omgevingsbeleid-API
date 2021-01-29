@@ -35,7 +35,7 @@ def searchView():
     query = request.args.get('query', default=None, type=str)
     type_exclude = request.args.get('exclude', default=None, type=splitlist)
     type_only = request.args.get('only', default=None, type=splitlist)
-    limit = request.args.get('limit', default=5, type=int)
+    limit = request.args.get('limit', default=10, type=int)
 
     if not query:
         return jsonify({'message': 'No search query provided.'}), 400
@@ -76,4 +76,4 @@ def searchView():
     search_results = sorted(
         search_results, key=lambda r: r['RANK'], reverse=True)
 
-    return jsonify(search_results)
+    return jsonify(search_results[:limit])
