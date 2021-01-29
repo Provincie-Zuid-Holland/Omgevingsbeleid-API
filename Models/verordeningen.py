@@ -35,7 +35,7 @@ class Verordeningen_Schema(Base_Schema):
         table = 'Verordeningen'
         read_only = False
         ordered = True
-        searchable = True
+        searchable = False
         references =  references = {
             'Eigenaar_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Eigenaar_2': UUID_Reference('Gebruikers', Gebruikers_Schema),

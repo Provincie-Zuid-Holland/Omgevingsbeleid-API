@@ -44,13 +44,13 @@ class Beleidskeuzes_Schema(Base_Schema):
         "Vigerend",
         "Vigerend gearchiveerd"]),
         obprops=[])
-    Titel = MM.fields.Str(required=True, obprops=['search_field'])
-    Omschrijving_Keuze = MM.fields.Str(missing=None, obprops=['search_field'])
+    Titel = MM.fields.Str(required=True, obprops=['search_title'])
+    Omschrijving_Keuze = MM.fields.Str(missing=None, obprops=['search_description'])
     Omschrijving_Werking = MM.fields.Str(
-        missing=None, obprops=['search_field'])
-    Aanleiding = MM.fields.Str(missing=None, obprops=['search_field'])
-    Afweging = MM.fields.Str(missing=None, obprops=['search_field'])
-    Provinciaal_Belang = MM.fields.Str(missing=None, obprops=['search_field'])
+        missing=None, obprops=['search_description'])
+    Aanleiding = MM.fields.Str(missing=None, obprops=[])
+    Afweging = MM.fields.Str(missing=None, obprops=[])
+    Provinciaal_Belang = MM.fields.Str(missing=None, obprops=[])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Besluitnummer = MM.fields.Str(missing=None, obprops=[])
     Tags = MM.fields.Str(missing=None, obprops=[])

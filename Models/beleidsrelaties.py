@@ -20,5 +20,5 @@ class Beleidsrelaties_Schema(Base_Schema):
         table = 'Beleidsrelaties'
         read_only = False
         ordered = True
-        searchable = True
+        searchable = False
     

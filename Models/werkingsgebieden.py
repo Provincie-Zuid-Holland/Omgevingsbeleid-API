@@ -14,4 +14,4 @@ class Werkingsgebieden_Schema(Base_Schema):
         table = 'Werkingsgebieden'
         read_only = True
         ordered = True
-        searchable = True
+        searchable = False

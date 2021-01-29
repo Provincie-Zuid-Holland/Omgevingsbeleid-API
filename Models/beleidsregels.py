@@ -6,8 +6,8 @@ from Endpoints.endpoint import Base_Schema
 
 
 class Beleidsregels_Schema(Base_Schema):
-    Titel = MM.fields.Str(required=True, obprops=['search_field'])
-    Omschrijving = MM.fields.Str(missing=None, obprops=['search_field'])
+    Titel = MM.fields.Str(required=True, obprops=['search_title'])
+    Omschrijving = MM.fields.Str(missing=None, obprops=['search_description'])
     Weblink = MM.fields.Str(missing=None, obprops=[])
 
     class Meta(Base_Schema.Meta):

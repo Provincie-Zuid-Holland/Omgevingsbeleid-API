@@ -16,6 +16,7 @@ import Endpoints.endpoint
 from Auth.views import jwt_required_not_GET, login, tokenstat
 from Models import gebruikers
 from Spec.spec import specView
+from Endpoints.search import searchView
 
 current_version = '0.1'
 
@@ -65,6 +66,8 @@ api.add_resource(gebruikers.Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
 app.add_url_rule(f'/v{current_version}/spec',
                  'spec', specView, methods=['GET'])
+app.add_url_rule(f'/v{current_version}/search',
+                 'search', searchView, methods=['GET'])
 
 
 if __name__ == '__main__':
