@@ -18,6 +18,7 @@ from Endpoints.errors import (handle_integrity_exception,
                               handle_odbc_exception,
                               handle_validation_exception)
 from Endpoints.references import merge_references, store_references
+from Endpoints.comparison import compare_objects
 
 
 def save_object(new_object, schema, cursor):
@@ -363,3 +364,41 @@ class SingleVersion(Schema_Resource):
             if not result:
                 return {'message': f'Object with UUID {uuid} does not exist.'}, 404
             return(result[0])
+
+
+class Changes(Schema_Resource):
+    """
+    This represents the changes between two objects, identified by their UUIDs.
+    """
+
+    def get(self, old_uuid, new_uuid):
+        """
+        Get endpoint for a single object
+        """
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+
+            # Retrieve all the fields we want to query
+            included_fields = ', '.join(
+                [field for field in self.schema().fields_without_props('referencelist')])
+
+            query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID IN (?, ?)'
+            both_obj = get_objects(
+                query, [old_uuid, new_uuid], self.schema(), cursor)
+
+            old_object = None
+            new_object = None
+            for _obj in both_obj:
+                if _obj['UUID'] == old_uuid:
+                    old_object = _obj
+                if _obj['UUID'] == new_uuid:
+                    new_object = _obj
+
+            if not old_object:
+                return {'message': f'Object with UUID {old_uuid} does not exist.'}, 404
+            if not new_object:
+                return {'message': f'Object with UUID {new_uuid} does not exist.'}, 404
+            return({
+                'old': old_object,
+                'changes': compare_objects(self.schema(), old_object, new_object)
+            }), 200
