@@ -38,6 +38,7 @@ def render_schemas(endpoints):
     for model in endpoints:
         read_properties = {}
         write_properties = {}
+        change_properties = {}
         fields = model().fields
         for field in fields:
 
@@ -67,6 +68,27 @@ def render_schemas(endpoints):
                         'type': 'array',
                         'items': {
                             '$ref': f'#/components/schemas/list_reference'}
+                    }
+                    change_properties[field] = {
+                        'description': f'An object that shows the changges in the list',
+                        'type': 'object',
+                        'properties': {
+                            'new': {
+                                'type': 'array',
+                                'items': {
+                                    '$ref': f'#/components/schemas/{slug}-read'}
+                            },
+                            'removed': {
+                                'type': 'array',
+                                'items': {
+                                    '$ref': f'#/components/schemas/{slug}-read'}
+                            },
+                            'same': {
+                                'type': 'array',
+                                'items': {
+                                    '$ref': f'#/components/schemas/{slug}-read'}
+                            }
+                        }
                     }
             # Simple field
             else:
@@ -115,11 +137,15 @@ def render_schemas(endpoints):
                         f'Unable to generate spec for {fieldtype} field'))
 
                 read_properties[field] = props
+                change_properties[field] = props
                 if not ('excluded_post' in fields[field].metadata['obprops'] and 'excluded_patch' in fields[field].metadata['obprops']):
                     write_properties[field] = props
 
         schemas[model.Meta.slug+"-read"] = {'description': f'Schema that defines the structure of {model.Meta.slug} when reading',
                                             'properties': read_properties}
+        
+        schemas[model.Meta.slug+"-change"] = {'description': f'Schema that defines the structure of {model.Meta.slug} when looking at changes',
+                                            'properties': change_properties}
         schemas[model.Meta.slug+"-write"] = {
             'description': f'Schema that defines how to write {model.Meta.slug}', 'properties': write_properties}
 
@@ -200,6 +226,78 @@ def render_paths(endpoints):
                                 }
                             }
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        paths[f'/changes/{model.Meta.slug}/{{old_uuid}}/{{new_uuid}}']['get'] = {
+            'parameters': [{
+                'name': 'old_uuid',
+                'in': 'path',
+                'description': 'UUID of the old object to compare to',
+                'required': True,
+                'schema': {
+                        'type': 'uuid'
+                }
+            }, {
+                'name': 'new_uuid',
+                'in': 'path',
+                'description': 'UUID of the new object to compare with',
+                'required': True,
+                'schema': {
+                        'type': 'uuid'
+                }
+            },
+            ],
+            'summary': f'Shows the changes between two versions of objects',
+            'responses': {
+                '200': {
+                    'description': 'Compare result',
+                    'content': {
+                        'application/json': {
+                            'schema': {
+                                'properties': {
+                                    'old': {
+                                        '$ref': f'#/components/schemas/{model.Meta.slug}-read'
+                                    },
+                                    'changes': {
+                                        '$ref': f'#/components/schemas/{model.Meta.slug}-change'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                '404': {
+                    'description': 'UUID does not exist',
+                    'content': {
+                        'application/json': {
+                            'schema':
+                                {'properties': {
+                                    'message': {
+                                        'type': 'string',
+                                        'description': 'A description of the error'
+                                    }
+                                }
+                                }
+                        }
+                    }
+                },
+                '500': {
+                    'description': 'Server error',
+                    'content': {
+                        'application/json': {
+                            'schema':
+                                {'properties': {
+                                    'message': {
+                                        'type': 'string',
+                                        'description': 'A description of the error'
+                                    }
+                                }
+
+                                }
                         }
                     }
                 }
