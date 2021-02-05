@@ -56,24 +56,15 @@ class Beleidskeuzes_Schema(Base_Schema):
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
         missing=None, default=None, obprops=['excluded_post'])
-    Ambities = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
-    ], missing=[], obprops=['referencelist'])
-    Belangen = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
-    ], missing=[], obprops=['referencelist'])
-    Beleidsdoelen = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
-    ], missing=[], obprops=['referencelist'])
-    Beleidsprestaties = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
-    ], missing=[], obprops=['referencelist'])
-    Beleidsregels = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
-    ], missing=[], obprops=['referencelist'])
-    Maatregelen = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
-    ], missing=[], obprops=['referencelist'])
-    Themas = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
-    ], missing=[], obprops=['referencelist'])
-    Verordeningen = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
-    ], missing=[], obprops=['referencelist'])
-    Werkingsgebieden = MM.fields.Nested(UUID_Linker_Schema, many=True, default=[
-    ], missing=[], obprops=['referencelist'])
+    Ambities = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Belangen = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Beleidsdoelen = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Beleidsprestaties = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Beleidsregels = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Maatregelen = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Themas = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Verordeningen = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Werkingsgebieden = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
   
     class Meta(Base_Schema.Meta):
         slug = 'beleidskeuzes'

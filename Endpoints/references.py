@@ -4,6 +4,7 @@
 Collection of reference objects that contain logic for retrieving linkedobjects in the Database
 """
 
+from functools import partial
 from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
 import marshmallow as MM
@@ -94,8 +95,13 @@ class UUID_List_Reference:
             dict: The refered object 
         """
         # Retrieve all the fields we want to query
-        included_fields = ', '.join(
-            [field for field in self.schema.fields])
+        try:
+            included_fields = ', '.join(
+                [field for field in self.schema.fields_without_props('referencelist')])
+        except AttributeError: # this happens when the inlined object is not based on a base_schema (most probably a user table)
+            included_fields = ', '.join(
+                [field for field in self.schema.fields])
+        
         query = f'''
         SELECT {included_fields} FROM {self.link_tablename} 
         LEFT JOIN {self.their_tablename} ON {self.their_tablename}.UUID = {self.their_col}
@@ -169,20 +175,21 @@ class UUID_Reference:
             return UUID
 
         # Retrieve all the fields we want to query
-        included_fields = ', '.join(
-            [field for field in self.schema.fields])
+        try:
+            included_fields = ', '.join(
+                [field for field in self.schema.fields_without_props('referencelist')])
+        except AttributeError: # this happens when the inlined object is not based on a base_schema (most probably a user table)
+            included_fields = ', '.join(
+                [field for field in self.schema.fields])
+        
         query = f'SELECT {included_fields} FROM {self.target_tablename} WHERE UUID = ?'
 
         # Load the objects to ensure validation
         query_result = list(cursor.execute(query, UUID))
 
-        if len(query_result) > 1:
-            result_object = self.schema.load(
-                map(row_to_dict, query_result), many=True)
-            return(self.schema.dump(result_object, many=True))
-        else:
-            result_object = self.schema.load(row_to_dict(query_result[0]))
-            return(self.schema.dump(result_object))
-
+        assert(len(query_result) == 1)
+        result_object = self.schema.load(row_to_dict(query_result[0]))    
+        return(self.schema.dump(result_object))
+    
     def retrieve(self, UUID, cursor):
         return UUID

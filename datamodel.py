@@ -2,7 +2,7 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 from Models import (ambities, belangen, beleidsdoelen, beleidskeuzes,
-                    beleidsprestaties, beleidsregels, gebruikers, maatregelen,
+                    beleidsprestaties, beleidsregels, beleidsrelaties, maatregelen,
                     themas, werkingsgebieden, verordeningen)
 
 
@@ -16,5 +16,6 @@ endpoints = [
     maatregelen.Maatregelen_Schema,
     themas.Themas_Schema,
     werkingsgebieden.Werkingsgebieden_Schema,
-    verordeningen.Verordeningen_Schema
+    verordeningen.Verordeningen_Schema,
+    beleidsrelaties.Beleidsrelaties_Schema
 ]

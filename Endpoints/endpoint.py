@@ -32,7 +32,6 @@ def save_object(new_object, schema, cursor):
     Returns:
         dict: The object that was stored, new values filled in
     """
-
     references = schema.fields_with_props('referencelist')
     reference_cache = {}
     for ref in references:
@@ -131,7 +130,7 @@ class Lineage(Schema_Resource):
         )
 
         request_time = datetime.datetime.now()
-
+        
         with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
             cursor = connection.cursor()
 
@@ -139,21 +138,25 @@ class Lineage(Schema_Resource):
 
             query = f'SELECT TOP(1) * FROM {self.schema.Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
 
+            print("hoi")
             old_object = get_objects(
                 query, [id], self.schema(), cursor, inline=False)[0]
+            print("hoi")
             try:
                 changes = patch_schema.load(request.json)
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e)
-
-            old_object = self.schema(partial=True).load(old_object)
+            print("hoi")
+            print(old_object)
+            old_object = self.schema().load(old_object)
+            print("hoi")
 
             new_object = {**old_object, **changes}
 
             new_object.pop('UUID')
             new_object['Modified_Date'] = request_time
             new_object['Modified_By'] = get_jwt_identity()['UUID']
-
+            
             try:
                 new_object = save_object(
                     new_object, self.schema, cursor)

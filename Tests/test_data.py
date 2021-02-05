@@ -10,7 +10,10 @@ def generate_data(schema, user_UUID=null_uuid, excluded_prop = None):
     result = {}
     for field in fields:
         if fields[field].validate:
-            result[field] = fields[field].validate.choices[0]
+            try:
+                result[field] = fields[field].validate.choices[0]
+            except AttributeError:
+                continue   
         
         elif field == 'Created_By' or field == 'Modified_By':
             result[field] = user_UUID

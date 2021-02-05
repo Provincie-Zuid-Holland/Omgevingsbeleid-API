@@ -128,7 +128,10 @@ def render_schemas(endpoints):
 
                 # add enums
                 if fields[field].validate:
-                    props['enum'] = fields[field].validate.choices
+                    try:
+                        props['enum'] = fields[field].validate.choices
+                    except AttributeError:
+                        pass
 
                 # Check if the field was processed
                 if not props:
