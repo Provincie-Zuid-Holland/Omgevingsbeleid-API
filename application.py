@@ -14,7 +14,7 @@ from flask_restful import Api, Resource
 import datamodel
 import Endpoints.endpoint
 from Auth.views import jwt_required_not_GET, login, tokenstat
-from Models import gebruikers
+from Models import gebruikers, verordeningsstructuur
 from Spec.spec import specView
 from Endpoints.search import searchView
 
@@ -67,6 +67,9 @@ app.add_url_rule(f'/v{current_version}/tokeninfo',
                  'tokenstat', tokenstat, methods=['GET'])
 api.add_resource(gebruikers.Gebruiker, '/gebruikers',
                  '/gebruikers/<string:gebruiker_uuid>')
+api.add_resource(verordeningsstructuur.Verordening_Structuur, '/verordeningstructuur',
+                 '/verordeningstructuur/<int:verordeningstructuur_id>',
+                 '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>')
 app.add_url_rule(f'/v{current_version}/spec',
                  'spec', specView, methods=['GET'])
 app.add_url_rule(f'/v{current_version}/search',
