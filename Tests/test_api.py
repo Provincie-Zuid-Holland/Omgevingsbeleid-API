@@ -82,7 +82,6 @@ def cleanup():
 @pytest.mark.parametrize('endpoint', endpoints, ids=(map(lambda ep: ep.Meta.slug, endpoints)))
 def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):   
     if endpoint.Meta.slug =='beleidsrelaties':
-        print("hoooi")
         return
     list_ep = f"v0.1/{endpoint.Meta.slug}"
     response = client.get(list_ep)
