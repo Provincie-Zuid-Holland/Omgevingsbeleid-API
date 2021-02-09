@@ -27,3 +27,9 @@ def test_empty_list():
         'removed':[1,2,3],
         'same':[]
     }
+
+def test_text():
+    old_text = '''Oh, well, I'd like to buy a copy of an 'Illustrated History of False Teeth'.'''
+    new_text = '''Oh, well, I'd like to buy 'Illustrated History of False Teeth' do you have that.'''
+    change_text = '''Oh, well, I'd like to buy <div class='removal'>a copy of an </div>'Illustrated History of False Teeth'<div class='insert'> do you have that</div>.'''
+    assert Endpoints.comparison.diff_text_toHTML(old_text, new_text) == change_text
