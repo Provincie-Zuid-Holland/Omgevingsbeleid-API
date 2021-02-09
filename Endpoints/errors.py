@@ -44,4 +44,16 @@ def handle_integrity_exception(int_ex):
         return {"message": f"Database integrity error: {message}"}, 500
 
 def handle_validation_exception(val_ex):
-    return val_ex.normalized_messages(), 400
+    return {"message": f"Validation errors", "errors": val_ex.normalized_messages()}, 400
+
+def handle_empty():
+    return {'message': 'Request data empty'}, 400
+
+def handle_read_only():
+    return {'message': 'This endpoint is read-only'}, 403
+
+def handle_no_status():
+    return {'message': 'This object does not have a status configuration'}, 403
+
+def handle_does_not_exists(uuid):
+    return {'message': f'Object with UUID {uuid} does not exist.'}, 404

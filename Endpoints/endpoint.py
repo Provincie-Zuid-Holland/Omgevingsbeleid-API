@@ -14,9 +14,13 @@ from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
 
 from Endpoints.base_schema import Base_Schema
-from Endpoints.errors import (handle_integrity_exception,
-                              handle_odbc_exception,
-                              handle_validation_exception)
+from Endpoints.errors import (handle_does_not_exists, handle_empty, handle_integrity_exception, handle_no_status,
+                              handle_odbc_exception, handle_read_only,
+                              handle_validation_exception,
+                              handle_empty,
+                              handle_read_only,
+                              handle_does_not_exists,
+                              handle_no_status)
 from Endpoints.references import merge_references, store_references
 from Endpoints.comparison import compare_objects
 
@@ -118,10 +122,10 @@ class Lineage(Schema_Resource):
         PATCH endpoint for a lineage.
         """
         if self.schema.Meta.read_only or self.schema.Meta.read_only:
-            return {'message': 'This endpoint is read-only'}, 403
+            return handle_read_only()
 
         if request.json is None:
-            return {'message': 'Request data empty'}, 400
+            return handle_empty()
 
         patch_schema = self.schema(
             exclude=self.schema.fields_with_props('exluded_patch'),
@@ -130,7 +134,7 @@ class Lineage(Schema_Resource):
         )
 
         request_time = datetime.datetime.now()
-        
+
         with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
             cursor = connection.cursor()
 
@@ -138,32 +142,28 @@ class Lineage(Schema_Resource):
 
             query = f'SELECT TOP(1) * FROM {self.schema.Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
 
-            print("hoi")
             old_object = get_objects(
                 query, [id], self.schema(), cursor, inline=False)[0]
-            print("hoi")
+
             try:
                 changes = patch_schema.load(request.json)
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e)
-            print("hoi")
-            print(old_object)
+
             old_object = self.schema().load(old_object)
-            print("hoi")
 
             new_object = {**old_object, **changes}
 
             new_object.pop('UUID')
             new_object['Modified_Date'] = request_time
             new_object['Modified_By'] = get_jwt_identity()['UUID']
-            
+
             try:
                 new_object = save_object(
                     new_object, self.schema, cursor)
             except pyodbc.IntegrityError as e:
                 return handle_integrity_exception(e)
             except pyodbc.DatabaseError as e:
-                pprint.pprint(new_object)
                 return handle_odbc_exception(e)
 
             connection.commit()
@@ -217,10 +217,10 @@ class FullList(Schema_Resource):
         POST endpoint for this object.
         """
         if self.schema.Meta.read_only:
-            return {'message': 'This endpoint is read-only'}, 403
+            return handle_read_only
 
         if request.json is None:
-            return {'message': 'Request data empty'}, 400
+            return handle_empty
 
         post_schema = self.schema(
             exclude=self.schema.fields_with_props(
@@ -235,7 +235,7 @@ class FullList(Schema_Resource):
             try:
                 new_object = post_schema.load(request.get_json())
             except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e), 400
+                return handle_validation_exception(e)
 
             new_object['Created_By'] = get_jwt_identity()['UUID']
             new_object['Created_Date'] = request_time
@@ -246,11 +246,11 @@ class FullList(Schema_Resource):
                 new_object = save_object(
                     new_object, self.schema, cursor)
             except pyodbc.IntegrityError as e:
-                return handle_integrity_exception(e), 400
+                return handle_integrity_exception(e)
             except pyodbc.DatabaseError as e:
                 return handle_odbc_exception(e), 500
             except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e), 400
+                return handle_validation_exception(e)
 
             connection.commit()
             return new_object, 201
@@ -301,7 +301,7 @@ class ValidLineage(Schema_Resource):
         GET endpoint for a lineage.
         """
         if not self.schema.Meta.status_conf:
-            return {'message': 'This object does not have a status configuration'}, 404
+            return handle_no_status()
 
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
@@ -327,7 +327,7 @@ class ValidSingleVersion(Schema_Resource):
         Get endpoint for a single object
         """
         if not self.schema.Meta.status_conf:
-            return {'message': 'This object does not have a status configuration'}, 404
+            return handle_no_status()
 
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
@@ -365,7 +365,7 @@ class SingleVersion(Schema_Resource):
             query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID = ?'
             result = get_objects(query, [uuid], self.schema(), cursor)
             if not result:
-                return {'message': f'Object with UUID {uuid} does not exist.'}, 404
+                return handle_does_not_exists()
             return(result[0])
 
 
@@ -386,6 +386,7 @@ class Changes(Schema_Resource):
                 [field for field in self.schema().fields_without_props('referencelist')])
 
             query = f'SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID IN (?, ?)'
+
             both_obj = get_objects(
                 query, [old_uuid, new_uuid], self.schema(), cursor)
 
@@ -398,9 +399,9 @@ class Changes(Schema_Resource):
                     new_object = _obj
 
             if not old_object:
-                return {'message': f'Object with UUID {old_uuid} does not exist.'}, 404
+                return handle_does_not_exists(old_uuid)
             if not new_object:
-                return {'message': f'Object with UUID {new_uuid} does not exist.'}, 404
+                return handle_does_not_exists(new_uuid)
             return({
                 'old': old_object,
                 'changes': compare_objects(self.schema(), old_object, new_object)
