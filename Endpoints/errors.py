@@ -44,4 +44,7 @@ def handle_integrity_exception(int_ex):
         return {"message": f"Database integrity error: {message}"}, 500
 
 def handle_validation_exception(val_ex):
-    return val_ex.normalized_messages(), 400
+    return {"message": f"Validation errors", "errors": val_ex.normalized_messages()}, 400
+
+def handle_validation_filter_exception(val_ex):
+    return {"message": f"Validation errors in filters", "errors": val_ex.normalized_messages()}, 400

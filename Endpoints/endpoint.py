@@ -16,7 +16,8 @@ from globals import (db_connection_settings, max_datetime, min_datetime,
 from Endpoints.base_schema import Base_Schema
 from Endpoints.errors import (handle_integrity_exception,
                               handle_odbc_exception,
-                              handle_validation_exception)
+                              handle_validation_exception,
+                              handle_validation_filter_exception)
 from Endpoints.references import merge_references, store_references
 from Endpoints.comparison import compare_objects
 
@@ -130,7 +131,7 @@ class Lineage(Schema_Resource):
         )
 
         request_time = datetime.datetime.now()
-        
+
         with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
             cursor = connection.cursor()
 
@@ -156,7 +157,7 @@ class Lineage(Schema_Resource):
             new_object.pop('UUID')
             new_object['Modified_Date'] = request_time
             new_object['Modified_By'] = get_jwt_identity()['UUID']
-            
+
             try:
                 new_object = save_object(
                     new_object, self.schema, cursor)
@@ -170,30 +171,44 @@ class Lineage(Schema_Resource):
             return new_object, 200
 
 
+def filters_pagination_endpoint(fn):
+    """
+    Decorator that retrieves filters and pagination arguments
+    """
+
+    def new_endpoint(self):
+        q_args = request.args
+        limit = q_args.get('limit', None)
+        offset = q_args.get('offset', 0)
+        filters_strf = q_args.get('filters')
+        if filters_strf:
+            filters = [filter.split(':') for filter in filters_strf.split(',')]
+        else:
+            filters = None
+        return fn(self, filters=filters, limit=limit, offset=offset)
+    return new_endpoint
+
+
 class FullList(Schema_Resource):
     """
     A list of all the different lineages available in the database, 
     showing the latests version of each object's lineage.
     """
 
-    def get(self):
+    @filters_pagination_endpoint
+    def get(self, filters=None, limit=None, offset=0):
         """
         GET endpoint for a list of objects, shows the last object for each lineage
         """
-
-        # Check the filters for this request
-        filters = request.args
         if filters:
             invalids = [
-                f for f in filters if f not in self.schema().fields_without_props('referencelist')]
+                f[0] for f in filters if f[0] not in self.schema().fields_without_props('referencelist')]
             if invalids:
                 return {'message': f"Filter(s) '{' '.join(invalids)}' invalid for this endpoint. Valid filters: '{', '.join(self.schema().fields_without_props('referencelist'))}''"}, 403
 
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
 
-            # Placeholder for arguments to filter
-            query_args = None
             # Retrieve all the fields we want to query
             included_fields = ', '.join(
                 [field for field in self.schema().fields_without_props('referencelist')])
@@ -204,9 +219,16 @@ class FullList(Schema_Resource):
             query_args = []
 
             if filters:
+                filter_dict = dict(filters)
+                filter_schema = self.schema(partial=True)
+                try:
+                    filter_schema.load(filter_dict)
+                except MM.exceptions.ValidationError as e:
+                    return handle_validation_filter_exception(e)
+
                 query += ' AND ' + \
-                    'OR '.join(f'{key} = ? ' for key in filters)
-                query_args = [filters[key] for key in filters]
+                    'OR '.join(f'{filter[0]} = ? ' for filter in filters)
+                query_args = [filter[1] for filter in filters]
 
             query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC"
             return(get_objects(query, [query_args], self.schema(), cursor))
@@ -235,7 +257,7 @@ class FullList(Schema_Resource):
             try:
                 new_object = post_schema.load(request.get_json())
             except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e), 400
+                return handle_validation_exception(e)
 
             new_object['Created_By'] = get_jwt_identity()['UUID']
             new_object['Created_Date'] = request_time
@@ -246,11 +268,11 @@ class FullList(Schema_Resource):
                 new_object = save_object(
                     new_object, self.schema, cursor)
             except pyodbc.IntegrityError as e:
-                return handle_integrity_exception(e), 400
+                return handle_integrity_exception(e)
             except pyodbc.DatabaseError as e:
                 return handle_odbc_exception(e), 500
             except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e), 400
+                return handle_validation_exception(e)
 
             connection.commit()
             return new_object, 201
