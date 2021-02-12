@@ -188,7 +188,7 @@ def parse_query_args(q_args, valid_filters, filter_schema):
     """
     parsed = {}
     parsed['limit'] = q_args.get('limit')
-    parsed['offset'] = q_args.get('offset')
+    parsed['offset'] = q_args.get('offset', 0)
     parsed['filters'] = None
     filters_strf = q_args.get('filters')
     if filters_strf:
@@ -239,6 +239,16 @@ class FullList(Schema_Resource):
             query_args = [filters[key] for key in filters]
 
         query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC"
+        
+        
+        query += " OFFSET ? ROWS"
+        query_args.append(int(q_args['offset']))
+
+                
+        if limit := q_args['limit']:
+            query += " FETCH NEXT ? ROWS ONLY"
+            query_args.append(int(limit))
+
         print(query)
         with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
             cursor = connection.cursor()
