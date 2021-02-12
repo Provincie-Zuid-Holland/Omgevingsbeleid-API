@@ -146,9 +146,9 @@ def render_schemas(endpoints):
 
         schemas[model.Meta.slug+"-read"] = {'description': f'Schema that defines the structure of {model.Meta.slug} when reading',
                                             'properties': read_properties}
-        
+
         schemas[model.Meta.slug+"-change"] = {'description': f'Schema that defines the structure of {model.Meta.slug} when looking at changes',
-                                            'properties': change_properties}
+                                              'properties': change_properties}
         schemas[model.Meta.slug+"-write"] = {
             'description': f'Schema that defines how to write {model.Meta.slug}', 'properties': write_properties}
 
@@ -160,9 +160,39 @@ def render_paths(endpoints):
     paths = DefaultDict(dict)
     for model in endpoints:
         paths[f'/{model.Meta.slug}']['get'] = {
+            'parameters': [{
+                'name': 'filters',
+                'in': 'query',
+                'description': 'Filters to apply to the selection, represented by a comma-seperated list of pairs. The pairs are delimited by a : symbol.',
+                'required': False,
+                'example': 'Status:Vigerend,ID:1',
+                'schema': {
+                    'type': 'string'
+                }
+            },
+                {
+                'name': 'limit',
+                'in': 'query',
+                'description': 'Amount of objects to maximally retrieve',
+                'required': False,
+                'schema': {
+                    'type': 'integer',
+                    'minimum': 0
+                }
+            },
+                {
+                'name': 'offset',
+                'in': 'query',
+                'description': 'The amound of objects to skip',
+                'required': False,
+                'schema': {
+                    'type': 'integer',
+                    'minimum': 0
+                }
+            }],
             'summary': f'Gets all the {model.Meta.slug} lineages and shows the latests object for each',
             'responses': {
-                '403': {
+                '400': {
                     'description': 'Invalid filter provided',
                     'content': {
                         'application/json': {
@@ -315,8 +345,34 @@ def render_paths(endpoints):
                 'required': True,
                 'schema': {
                     'type': 'integer'
-                }
-            }],
+                }},
+                {
+                'name': 'filters',
+                'in': 'query',
+                'description': 'Filters to apply to the selection, represented by a comma-seperated list of pairs. The pairs are delimited by a : symbol.',
+                'required': False,
+                'example': 'Status:Vigerend,ID:1',
+                'schema': {
+                    'type': 'string'
+                }},
+                {
+                'name': 'limit',
+                'in': 'query',
+                'description': 'Amount of objects to maximally retrieve',
+                'required': False,
+                'schema': {
+                    'type': 'integer',
+                    'minimum': 0
+                }},
+                {
+                'name': 'offset',
+                'in': 'query',
+                'description': 'The amound of objects to skip',
+                'required': False,
+                'schema': {
+                    'type': 'integer',
+                    'minimum': 0
+                }}],
             'summary': f'Gets all the {model.Meta.slug} lineages and shows the latests object for each',
             'responses': {
                 '404': {

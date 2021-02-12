@@ -20,10 +20,10 @@ class Base_Schema(MM.Schema):
                            'excluded_patch', 'excluded_post'])
     UUID = MM.fields.UUID(required=True, obprops=[
                           'excluded_patch', 'excluded_post'])
-    Begin_Geldigheid = MM.fields.DateTime(
-        format='iso', missing=min_datetime, obprops=[])
-    Eind_Geldigheid = MM.fields.DateTime(
-        format='iso', missing=max_datetime, obprops=[])
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', 
+        missing=min_datetime, obprops=[])
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', 
+        missing=max_datetime, obprops=[])
     Created_By = MM.fields.UUID(required=True, obprops=[
                                 'excluded_patch', 'excluded_post'])
     Created_Date = MM.fields.DateTime(format='iso', required=True, obprops=[
@@ -46,10 +46,9 @@ class Base_Schema(MM.Schema):
 
 
     def minmax_datetime(self, data):
-
-        if 'Begin_Geldigheid' in data and data['Begin_Geldigheid'] == min_datetime.isoformat():
+        if 'Begin_Geldigheid' in data and data['Begin_Geldigheid'] == min_datetime.replace(tzinfo=datetime.timezone.utc).isoformat():
             data['Begin_Geldigheid'] = None
-        if 'Eind_Geldigheid' in data and data['Eind_Geldigheid'] == max_datetime.isoformat():
+        if 'Eind_Geldigheid' in data and data['Eind_Geldigheid'] == max_datetime.replace(tzinfo=datetime.timezone.utc).isoformat():
             data['Eind_Geldigheid'] = None
         return data
 
@@ -74,6 +73,16 @@ class Base_Schema(MM.Schema):
         return dumped
 
     @MM.post_dump()
+    def zulu_time(self, dumped, many):
+        """
+        Ensure UTC times have Zulu notation
+        """
+        for field in dumped:
+            if isinstance(self.fields[field], MM.fields.DateTime):
+                dumped[field] = dumped[field].replace('+00:00', 'Z')
+        return dumped
+
+    @MM.post_dump()
     def remove_nill(self, dumped, many):
         """
         Change nill UUIDs to null
@@ -95,7 +104,7 @@ class Base_Schema(MM.Schema):
         if in_data:
             for field in in_data:
                 if isinstance(in_data[field], datetime.datetime):
-                    in_data[field] = in_data[field].isoformat()
+                    in_data[field] = in_data[field].replace(tzinfo=datetime.timezone.utc).isoformat()
         return in_data
 
     @classmethod

@@ -174,7 +174,7 @@ def test_valid_filter(client, test_user_UUID, auth, cleanup):
         assert (json_obj['Status'] == 'Uitgecheckt'), 'Filter not filtering'
 
 
-def test_valid_multiple_filter(client, test_user_UUID, auth, cleanup):
+def test_valid_multiple_filter(client):
     response = client.get('v0.1/beleidskeuzes')
     target = response.get_json()[0]
 
@@ -186,7 +186,19 @@ def test_valid_multiple_filter(client, test_user_UUID, auth, cleanup):
             found = True
     assert(found), 'Did not find the target when filtering'
 
-def test_invalid_filter(client, test_user_UUID, auth, cleanup):
+def test_invalid_filter(client):
     ep = f"v0.1/beleidskeuzes?filters=Invalid:not_valid"
     response = client.get(ep)
     assert response.status_code == 400, 'This is an invalid request'
+
+def test_pagination_limit(client):
+    ep = f"v0.1/beleidskeuzes?limit=10"
+    response = client.get(ep)
+    assert len(response.get_json()) == 10, 'Does not limit amount of results'
+
+def test_pagination_offset(client):
+    ep = f"v0.1/beleidskeuzes"
+    response = client.get(ep)
+    total_count = len(response.get_json())
+    response = client.get("v0.1/beleidskeuzes?offset=10")
+    assert len(response.get_json()) == total_count - 10, 'Does not offset the results'
