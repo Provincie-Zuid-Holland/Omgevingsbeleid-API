@@ -117,11 +117,11 @@ def test_endpoints(client, test_user_UUID, auth, cleanup, endpoint):
         assert found + 1 == len(response.json), 'No new object after POST'
 
         response = client.patch(list_ep + '/' + str(new_id), json={
-                                'Begin_Geldigheid': '1994-11-23T10:00:00'}, headers={'Authorization': f'Bearer {auth[1]}'})
+                                'Begin_Geldigheid': '1994-11-23T10:00:00Z'}, headers={'Authorization': f'Bearer {auth[1]}'})
         assert response.status_code == 200, f'Status code for PATCH on {list_ep} was {response.status_code}, should be 200. Body contents: {response.json}'
 
         response = client.get(list_ep + '/' + str(new_id))
-        assert response.json[0]['Begin_Geldigheid'] == '1994-11-23T10:00:00', 'Patch did not change object.'
+        assert response.json[0]['Begin_Geldigheid'] == '1994-11-23T10:00:00Z', 'Patch did not change object.'
         response = client.get(list_ep)
         assert found + 1 == len(response.json), "New object after PATCH"
 
@@ -191,14 +191,18 @@ def test_invalid_filter(client):
     response = client.get(ep)
     assert response.status_code == 400, 'This is an invalid request'
 
-def test_pagination_limit(client):
-    ep = f"v0.1/beleidskeuzes?limit=10"
+@pytest.mark.parametrize('endpoint', endpoints, ids=(map(lambda ep: ep.Meta.slug, endpoints)))
+def test_pagination_limit(client, endpoint):
+    ep = f"v0.1/{endpoint}?limit=10"
     response = client.get(ep)
-    assert len(response.get_json()) == 10, 'Does not limit amount of results'
+    if response.get_json():
+        assert len(response.get_json()) <= 10, 'Does not limit amount of results'
 
-def test_pagination_offset(client):
-    ep = f"v0.1/beleidskeuzes"
+@pytest.mark.parametrize('endpoint', endpoints, ids=(map(lambda ep: ep.Meta.slug, endpoints)))
+def test_pagination_offset(client, endpoint):
+    ep = f"v0.1/{endpoint}"
     response = client.get(ep)
-    total_count = len(response.get_json())
-    response = client.get("v0.1/beleidskeuzes?offset=10")
-    assert len(response.get_json()) == total_count - 10, 'Does not offset the results'
+    if response.get_json():
+        total_count = len(response.get_json())
+        response = client.get(f"v0.1/{endpoint}?offset=10")
+        assert len(response.get_json()) <= total_count - 10, 'Does not offset the results'

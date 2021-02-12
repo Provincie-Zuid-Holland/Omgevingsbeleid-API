@@ -348,23 +348,49 @@ class ValidList(Schema_Resource):
         if not self.schema.Meta.status_conf:
             return {'message': 'This object does not have a status configuration'}, 404
 
+        try:
+            q_args = parse_query_args(
+                request.args, self.schema().fields_without_props('referencelist'), self.schema(partial=True))
+        except QueryArgError as e:
+            # Invalid filter keys
+            return handle_queryarg_exception(e)
+        except MM.exceptions.ValidationError as e:
+            # Invalid filter values
+            return handle_validation_filter_exception(e)
+
+
+        # Retrieve all the fields we want to query
+        included_fields = ', '.join(
+            [field for field in self.schema().fields_without_props('referencelist')])
+
+        status_field, status_value = self.schema.Meta.status_conf
+
+        query = f'''SELECT {included_fields} FROM
+                        (SELECT {included_fields}, Row_number() OVER (partition BY [ID]
+                        ORDER BY [Modified_date] DESC) [RowNumber]
+                        FROM {self.schema().Meta.table}
+                        WHERE {status_field} = ? AND UUID != '00000000-0000-0000-0000-000000000000') T 
+                    WHERE rownumber = 1'''
+        
+        query_args = [status_value]
+        
+        if filters:= q_args['filters']:
+            query += ' AND ' + \
+                'OR '.join(f'{key} = ? ' for key in filters)
+            query_args = [filters[key] for key in filters]
+
+        query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY [Modified_date] DESC"
+
+        query += " OFFSET ? ROWS"
+        query_args.append(int(q_args['offset']))
+
+        if limit:= q_args['limit']:
+            query += " FETCH NEXT ? ROWS ONLY"
+            query_args.append(int(limit))
+
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
-
-            # Retrieve all the fields we want to query
-            included_fields = ', '.join(
-                [field for field in self.schema().fields_without_props('referencelist')])
-
-            status_field, value = self.schema.Meta.status_conf
-
-            query = f'''SELECT {included_fields} FROM
-                            (SELECT {included_fields}, Row_number() OVER (partition BY [ID]
-                            ORDER BY [Modified_date] DESC) [RowNumber]
-                            FROM {self.schema().Meta.table}
-	                        WHERE {status_field} = ? AND UUID != '00000000-0000-0000-0000-000000000000') T 
-                        WHERE rownumber = 1'''
-
-            return(get_objects(query, [value], self.schema(), cursor))
+            return(get_objects(query, query_args, self.schema(), cursor))
 
 
 class ValidLineage(Schema_Resource):
