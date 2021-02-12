@@ -92,9 +92,10 @@ class Base_Schema(MM.Schema):
         """
         Assures that datetimes from the database are loaded as isoformat
         """
-        for field in in_data:
-            if isinstance(in_data[field], datetime.datetime):
-                in_data[field] = in_data[field].isoformat()
+        if in_data:
+            for field in in_data:
+                if isinstance(in_data[field], datetime.datetime):
+                    in_data[field] = in_data[field].isoformat()
         return in_data
 
     @classmethod

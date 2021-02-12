@@ -20,7 +20,12 @@ from Endpoints.errors import (handle_does_not_exists, handle_empty, handle_integ
                               handle_empty,
                               handle_read_only,
                               handle_does_not_exists,
-                              handle_no_status)
+                              handle_no_status,
+                              handle_integrity_exception,
+                              handle_odbc_exception,
+                              handle_validation_exception,
+                              handle_validation_filter_exception,
+                              handle_queryarg_exception)
 from Endpoints.references import merge_references, store_references
 from Endpoints.comparison import compare_objects
 
@@ -170,6 +175,37 @@ class Lineage(Schema_Resource):
             return new_object, 200
 
 
+class QueryArgError(Exception):
+    pass
+
+
+def parse_query_args(q_args, valid_filters, filter_schema):
+    """parses both filter values and pagination setting from the query arguments
+    Args:
+        q_args (Mapping): the query arguments (retrieved from request.args)
+        valid_filters (List): Valid fields to filter on
+        filter_schema (MM.Schema): Schema to validate filters on
+
+    Returns:
+        Dict: A dictionary that contains the filters (Dict) and the Limit (Int) & Offset (Int)
+    """
+    parsed = {}
+    parsed['limit'] = q_args.get('limit')
+    parsed['offset'] = q_args.get('offset', 0)
+    parsed['filters'] = None
+    filters_strf = q_args.get('filters')
+    if filters_strf:
+        parsed['filters'] = dict([tuple(filter.split(':'))
+                             for filter in filters_strf.split(',')])
+        invalids = [f for f in parsed['filters'].keys()
+                    if f not in valid_filters]
+        if invalids:
+            raise QueryArgError(
+                f"Filter(s) '{' '.join(invalids)}' invalid for this endpoint. Valid filters: '{', '.join(valid_filters)}''")
+        parsed['filters'] = filter_schema.load(parsed['filters'])
+    return parsed
+
+
 class FullList(Schema_Resource):
     """
     A list of all the different lineages available in the database, 
@@ -180,36 +216,46 @@ class FullList(Schema_Resource):
         """
         GET endpoint for a list of objects, shows the last object for each lineage
         """
+        try:
+            q_args = parse_query_args(
+                request.args, self.schema().fields_without_props('referencelist'), self.schema(partial=True))
+        except QueryArgError as e:
+            # Invalid filter keys
+            return handle_queryarg_exception(e)
+        except MM.exceptions.ValidationError as e:
+            # Invalid filter values
+            return handle_validation_filter_exception(e)
+        
+        # Retrieve all the fields we want to query
+        included_fields = ', '.join(
+            [field for field in self.schema().fields_without_props('referencelist')])
 
-        # Check the filters for this request
-        filters = request.args
-        if filters:
-            invalids = [
-                f for f in filters if f not in self.schema().fields_without_props('referencelist')]
-            if invalids:
-                return {'message': f"Filter(s) '{' '.join(invalids)}' invalid for this endpoint. Valid filters: '{', '.join(self.schema().fields_without_props('referencelist'))}''"}, 403
+        query = f'''SELECT {included_fields} FROM (SELECT {included_fields}, 
+                        ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
+                        FROM {self.schema().Meta.table}) T WHERE RowNumber = 1'''
+        
+        query_args = []
 
-        with pyodbc.connect(db_connection_settings) as connection:
+        if filters := q_args['filters']:
+            query += ' AND ' + \
+                'OR '.join(f'{key} = ? ' for key in filters)
+            query_args = [filters[key] for key in filters]
+
+        query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC"
+        
+        
+        query += " OFFSET ? ROWS"
+        query_args.append(int(q_args['offset']))
+
+                
+        if limit := q_args['limit']:
+            query += " FETCH NEXT ? ROWS ONLY"
+            query_args.append(int(limit))
+
+        print(query)
+        with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
             cursor = connection.cursor()
-
-            # Placeholder for arguments to filter
-            query_args = None
-            # Retrieve all the fields we want to query
-            included_fields = ', '.join(
-                [field for field in self.schema().fields_without_props('referencelist')])
-
-            query = f'SELECT {included_fields} FROM (SELECT {included_fields}, ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] FROM {self.schema().Meta.table}) T WHERE RowNumber = 1'
-
-            # No arguments for the default query
-            query_args = []
-
-            if filters:
-                query += ' AND ' + \
-                    'OR '.join(f'{key} = ? ' for key in filters)
-                query_args = [filters[key] for key in filters]
-
-            query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC"
-            return(get_objects(query, [query_args], self.schema(), cursor))
+            return(get_objects(query, query_args, self.schema(), cursor))
 
     @jwt_required
     def post(self):
