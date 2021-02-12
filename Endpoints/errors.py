@@ -48,3 +48,6 @@ def handle_validation_exception(val_ex):
 
 def handle_validation_filter_exception(val_ex):
     return {"message": f"Validation errors in filters", "errors": val_ex.normalized_messages()}, 400
+
+def handle_queryarg_exception(val_ex):
+   return {"message": str(val_ex)}, 400
