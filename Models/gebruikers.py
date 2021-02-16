@@ -6,7 +6,7 @@ from flask_restful import Resource
 from flask_jwt_extended import jwt_required
 import pyodbc
 from globals import null_uuid, db_connection_settings
-
+import uuid
 
 class Gebruikers_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
@@ -19,6 +19,19 @@ class Gebruikers_Schema(MM.Schema):
         read_only = True
         ordered = True
         searchable = False
+
+    @MM.post_dump()
+    def uppercase(self, dumped, many):
+        """
+        Ensure UUID's are uppercase.
+        """
+        for field in dumped:
+            try:
+                uuid.UUID(dumped[field])
+                dumped[field] = dumped[field].upper()
+            except:
+                pass
+        return dumped
 
 
 class Gebruiker(Resource):
