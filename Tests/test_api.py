@@ -1,17 +1,21 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
+from datetime import timezone
+from Models import beleidskeuzes
 import os
 import tempfile
-
+import json
 import pytest
 import pyodbc
 from application import app
 from datamodel import endpoints
 from Tests.test_data import generate_data, reference_rich_beleidskeuze
-from globals import db_connection_settings
+from globals import db_connection_settings, min_datetime
 from Endpoints.references import UUID_List_Reference
-
+import copy
+from flask import jsonify
+import datetime
 
 @pytest.fixture()
 def test_user_pass():
@@ -206,3 +210,36 @@ def test_pagination_offset(client, endpoint):
         total_count = len(response.get_json())
         response = client.get(f"v0.1/{endpoint}?offset=10")
         assert len(response.get_json()) <= total_count - 10, 'Does not offset the results'
+
+def test_null_geldigheid(client, test_user_UUID, auth, cleanup):
+    ep = f"v0.1/beleidskeuzes"
+    test_data = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
+    test_data['Begin_Geldigheid'] = None
+    # print(json.dumps(test_data))
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+    
+    new_uuid = response.get_json()['UUID']
+    ep = f"v0.1/version/beleidskeuzes/{new_uuid}"
+    response = client.get(ep)
+    
+    assert response.status_code == 200, 'Could not get posted object'
+    assert response.get_json()['Begin_Geldigheid'] == min_datetime.replace(tzinfo=datetime.timezone.utc).isoformat().replace('+00:00', 'Z'), 'Should be min_datetime'
+
+def test_empty_referencelists(client, test_user_UUID, auth, cleanup):
+    ep = f"v0.1/beleidskeuzes"
+    empty_reference_beleidskeuze = copy.deepcopy(reference_rich_beleidskeuze)
+    empty_reference_beleidskeuze['Ambities'] = []
+    response = client.post(ep, json=empty_reference_beleidskeuze, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+    
+    new_uuid = response.get_json()['UUID']
+
+    ep = f"v0.1/version/beleidskeuzes/{new_uuid}"
+    response = client.get(ep)
+    assert response.status_code == 200, 'Could not get posted object'
+    assert response.get_json()['Ambities'] == [], 'Ambities should be an empty list'
+                   

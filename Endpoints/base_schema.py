@@ -5,6 +5,7 @@ import datetime
 import re
 
 import marshmallow as MM
+from marshmallow.utils import pprint
 from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
 from Endpoints.references import UUID_Reference
@@ -21,9 +22,9 @@ class Base_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True, obprops=[
                           'excluded_patch', 'excluded_post'])
     Begin_Geldigheid = MM.fields.DateTime(format='iso', 
-        missing=min_datetime, obprops=[])
+        missing=min_datetime, allow_none=True, obprops=[])
     Eind_Geldigheid = MM.fields.DateTime(format='iso', 
-        missing=max_datetime, obprops=[])
+        missing=max_datetime, allow_none=True, obprops=[])
     Created_By = MM.fields.UUID(required=True, obprops=[
                                 'excluded_patch', 'excluded_post'])
     Created_Date = MM.fields.DateTime(format='iso', required=True, obprops=[
@@ -105,6 +106,22 @@ class Base_Schema(MM.Schema):
             for field in in_data:
                 if isinstance(in_data[field], datetime.datetime):
                     in_data[field] = in_data[field].replace(tzinfo=datetime.timezone.utc).isoformat()
+        return in_data
+    
+    @MM.post_load()
+    def fill_missing_datetimes(self, in_data, **kwargs):
+        """
+        Save the min and max datetime on datetime fields that have None (null) as value
+        """
+        if in_data:
+            # print(in_data)
+            # print(in_data.get('Begin_Geldigheid'))
+            if 'Begin_Geldigheid' in in_data:
+                if not in_data['Begin_Geldigheid']:
+                    in_data['Begin_Geldigheid'] = min_datetime
+            if 'Eind_Geldigheid' in in_data:
+                if in_data['Eind_Geldigheid']:
+                    in_data['Eind_Geldigheid'] = max_datetime
         return in_data
 
     @classmethod
