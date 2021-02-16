@@ -2,7 +2,7 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 from datetime import timezone
-from Models import beleidskeuzes
+from Models import beleidskeuzes, ambities
 import os
 import tempfile
 import json
@@ -237,9 +237,23 @@ def test_empty_referencelists(client, test_user_UUID, auth, cleanup):
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
     
     new_uuid = response.get_json()['UUID']
+    new_id = response.get_json()['ID']
 
     ep = f"v0.1/version/beleidskeuzes/{new_uuid}"
     response = client.get(ep)
     assert response.status_code == 200, 'Could not get posted object'
     assert response.get_json()['Ambities'] == [], 'Ambities should be an empty list'
-                   
+    
+    ep = f"v0.1/ambities"
+    response = client.post(ep, json=generate_data(ambities.Ambities_Schema, user_UUID=test_user_UUID, excluded_prop='excluded_patch') , headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+    new_uuid = response.get_json()['UUID']
+    
+    ep = f"v0.1/beleidskeuzes/{new_id}"
+    response = client.patch(ep, json={'Ambities': [{'UUID':new_uuid}]}, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+    print(response.get_json())
+    assert len(response.get_json()['Ambities']) == 1
+    response = client.patch(ep, json={'Ambities': []}, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+    assert len(response.get_json()['Ambities']) == 0

@@ -15,7 +15,7 @@ class UUID_Linker_Schema(MM.Schema):
     Schema that represents a UUID_List_Reference
     """
     UUID = MM.fields.UUID(required=True, obprops=[])
-    Koppeling_Omschrijving = MM.fields.Str(required=False, obprops=[])
+    Koppeling_Omschrijving = MM.fields.Str(required=False, missing='', default='', obprops=[])
 
 
 def merge_references(obj, schema, cursor, inline=True):
@@ -143,10 +143,11 @@ class UUID_List_Reference:
             dict: The refered object 
         """
         for link in linked:
+            link = UUID_Linker_Schema().load(link)
             query = f'''
                 INSERT INTO {self.link_tablename} ({self.my_col}, {self.their_col}, {self.description_col}) VALUES (?, ?, ?)'''
             # Store the objects
-            cursor.execute(query, UUID, link['UUID'], link['Koppeling_Omschrijving'])
+            cursor.execute(query, UUID, link['UUID'], link.get('Koppeling_Omschrijving'))
 
 
 class UUID_Reference:
