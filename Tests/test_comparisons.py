@@ -8,7 +8,7 @@ Tests that perform checks on comparison functions.
 import os
 import pytest
 import Endpoints.comparison
-
+import marshmallow as MM
 
 def test_simple_list():
     old_list = [1,2,3]
@@ -33,3 +33,21 @@ def test_text():
     new_text = '''Oh, well, I'd like to buy 'Illustrated History of False Teeth' do you have that.'''
     change_text = '''Oh, well, I'd like to buy <div class='removal'>a copy of an </div>'Illustrated History of False Teeth'<div class='insert'> do you have that</div>.'''
     assert Endpoints.comparison.diff_text_toHTML(old_text, new_text) == change_text
+
+def test_mapping():
+    class SimpleMapping(MM.Schema):
+        name = MM.fields.String(allow_none=True)
+
+    old_mapping = SimpleMapping().load({'name':'John Doe'})
+    new_mapping = SimpleMapping().load({'name':'Jane Doe'})
+    change_mapping = {'name':"J<div class='removal'>ohn</div><div class='insert'>ane</div> Doe"}
+    assert Endpoints.comparison.compare_objects(SimpleMapping(), old_mapping, new_mapping) == change_mapping
+
+def test_empty_field():
+    class SimpleMapping(MM.Schema):
+        name = MM.fields.String(allow_none=True)
+
+    old_mapping = SimpleMapping().load({'name':'John Doe'})
+    new_mapping = SimpleMapping().load({'name':None})
+    change_mapping = {'name':"<div class='removal'>John Doe</div>"}
+    assert Endpoints.comparison.compare_objects(SimpleMapping(), old_mapping, new_mapping) == change_mapping

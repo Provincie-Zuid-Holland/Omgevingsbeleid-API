@@ -11,6 +11,9 @@ def diff_text_toHTML(old, new):
     """
     Generate HTML representing the changes between two pieces of text
     """
+    # None should always be empty string
+    old = old or ""
+    new = new or ""
     diff_maker = diff_match_patch()
     diffs = diff_maker.diff_main(old, new)
     diff_maker.diff_cleanupSemantic(diffs)
