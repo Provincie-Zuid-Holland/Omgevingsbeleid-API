@@ -20,9 +20,9 @@ def diff_text_toHTML(old, new):
     result = ""
     for (op, data) in diffs:
         if op == 1:
-            result += '''<div class='insert'>''' + data + '''</div>'''
+            result += '''<div class='revision-insert'>''' + data + '''</div>'''
         if op == -1:
-            result += '''<div class='removal'>''' + data + '''</div>'''
+            result += '''<div class='revision-removal'>''' + data + '''</div>'''
         if op == 0:
             result += data
     return result
