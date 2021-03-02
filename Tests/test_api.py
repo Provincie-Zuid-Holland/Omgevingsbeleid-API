@@ -216,7 +216,6 @@ def test_null_geldigheid(client, test_user_UUID, auth, cleanup):
     test_data = generate_data(
             beleidskeuzes.Beleidskeuzes_Schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
     test_data['Begin_Geldigheid'] = None
-    # print(json.dumps(test_data))
     response = client.post(ep, json=test_data, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
@@ -252,8 +251,14 @@ def test_empty_referencelists(client, test_user_UUID, auth, cleanup):
     ep = f"v0.1/beleidskeuzes/{new_id}"
     response = client.patch(ep, json={'Ambities': [{'UUID':new_uuid}]}, headers={
                            'Authorization': f'Bearer {auth[1]}'})
-    print(response.get_json())
+
     assert len(response.get_json()['Ambities']) == 1
     response = client.patch(ep, json={'Ambities': []}, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert len(response.get_json()['Ambities']) == 0
+
+# def test_invalid_HTML(client, test_user_UUID, auth, cleanup):
+#     ep = f"v0.1/ambities"
+#     new_amb = {
+#         'Titel': ''
+#     }

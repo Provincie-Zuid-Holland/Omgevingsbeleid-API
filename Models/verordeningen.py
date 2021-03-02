@@ -27,7 +27,7 @@ class Verordeningen_Schema(Base_Schema):
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Status = MM.fields.Str(missing=None, obprops=['search_field'])
     Volgnummer = MM.fields.Str(missing=None, obprops=[])
-    Type = MM.fields.Str(missing=None,  validate=MM.validate.OneOf(['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel', 'Lid']), obprops=['search_field'])
+    Type = MM.fields.Str(missing=None,  validate=[MM.validate.OneOf(['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel', 'Lid'])], obprops=['search_field'])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
 
     class Meta(Base_Schema.Meta):

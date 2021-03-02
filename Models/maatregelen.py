@@ -4,16 +4,16 @@
 import marshmallow as MM
 from Endpoints.endpoint import Base_Schema
 from Endpoints.references import UUID_Reference
-
+from Endpoints.validators import HTML_Validate
 from Models.werkingsgebieden import Werkingsgebieden_Schema
 
 
 class Maatregelen_Schema(Base_Schema):
-    Titel = MM.fields.Str(required=True, obprops=['search_title'])
-    Omschrijving = MM.fields.Str(missing=None, obprops=['search_description'])
-    Toelichting = MM.fields.Str(missing=None, obprops=[])
+    Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])
+    Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
+    Toelichting = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
     Toelichting_Raw = MM.fields.Method(missing=None, obprops=[])
-    Status = MM.fields.Str(missing=None, validate=MM.validate.OneOf([
+    Status = MM.fields.Str(missing=None, validate=[MM.validate.OneOf([
         "Definitief ontwerp GS",
         "Definitief ontwerp GS concept",
         "Definitief ontwerp PS",
@@ -25,7 +25,7 @@ class Maatregelen_Schema(Base_Schema):
         "Uitgecheckt",
         "Vastgesteld",
         "Vigerend",
-        "Vigerend gearchiveerd"]),
+        "Vigerend gearchiveerd"])],
         obprops=[])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
