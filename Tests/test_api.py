@@ -256,9 +256,3 @@ def test_empty_referencelists(client, test_user_UUID, auth, cleanup):
     response = client.patch(ep, json={'Ambities': []}, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert len(response.get_json()['Ambities']) == 0
-
-# def test_invalid_HTML(client, test_user_UUID, auth, cleanup):
-#     ep = f"v0.1/ambities"
-#     new_amb = {
-#         'Titel': ''
-#     }
