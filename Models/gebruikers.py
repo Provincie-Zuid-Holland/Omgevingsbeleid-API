@@ -1,21 +1,37 @@
-from flask_restful import Resource, Api, fields, marshal, reqparse, inputs, abort
-import pyodbc
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2018 - 2020 Provincie Zuid-Holland
+
 import marshmallow as MM
-from flask import request
-from globals import db_connection_settings, null_uuid
-from uuid import UUID
+from flask_restful import Resource
 from flask_jwt_extended import jwt_required
+import pyodbc
+from globals import null_uuid, db_connection_settings
+import uuid
 
-
-class Gebruiker_Schema(MM.Schema):
+class Gebruikers_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     Gebruikersnaam = MM.fields.Str(required=True)
-    Wachtwoord = MM.fields.Str(missing=None)
     Rol = MM.fields.Str(missing=None)
-    Email = MM.fields.Str(missing=None)
+    Status = MM.fields.Str(missing=None)
 
     class Meta:
+        table = 'Gebruikers'
+        read_only = True
         ordered = True
+        searchable = False
+
+    @MM.post_dump()
+    def uppercase(self, dumped, many):
+        """
+        Ensure UUID's are uppercase.
+        """
+        for field in dumped:
+            try:
+                uuid.UUID(dumped[field])
+                dumped[field] = dumped[field].upper()
+            except:
+                pass
+        return dumped
 
 
 class Gebruiker(Resource):
@@ -31,10 +47,10 @@ class Gebruiker(Resource):
                 if not gebruikers:
                     return {'message': f"Gebruiker met UUID {gebruiker_uuid} is niet gevonden"}, 400
 
-                schema = Gebruiker_Schema(exclude=['Wachtwoord'])
+                schema = Gebruikers_Schema()
                 return(schema.dump(gebruikers[0]))
             else:
                 gebruikers = cur.execute(
                     f"SELECT * FROM Gebruikers WHERE UUID != '{null_uuid}'")
-                schema = Gebruiker_Schema(exclude=['Wachtwoord'])
+                schema = Gebruikers_Schema()
                 return(schema.dump(gebruikers, many=True))

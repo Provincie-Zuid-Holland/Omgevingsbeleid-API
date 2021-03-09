@@ -1,0 +1,21 @@
+Omgevingsbeleid API was originally created in early 2018 in order to meet the requirements
+given by the new 'Omgevingswet' from the dutch national government.
+
+Here is an inevitably incomplete list of MUCH-APPRECIATED CONTRIBUTORS --
+people who laid the groundwork, have submitted patches, reported bugs, added
+translations, helped answer questions, and generally made Omgevingsbeleid API that much
+better:
+
+    Swen Mulderij <swenmulderij@gmail.com>
+    Ingmar Emons <i.emons@pzh.nl>
+    Jason Kalmijn <Jason.kalmijn@effectivechanges.com>
+    Erik Verhaar <e.verhaar@pzh.nl>
+    
+
+A big THANK YOU goes to:
+
+    The Provincie Zuid Holland who initiated the project.
+
+    The Foundation for Public Code who helped us get this software open source and maintainable.
+
+    All our testers, early users and fans.
