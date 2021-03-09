@@ -1,21 +1,20 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
-from Models import (ambities, belangen, beleidsdoelen, beleidskeuzes,
-                    beleidsprestaties, beleidsregels, beleidsrelaties, maatregelen,
-                    themas, werkingsgebieden, verordeningen)
-
+from Models import models
 
 endpoints = [
-    beleidskeuzes.Beleidskeuzes_Schema,
-    ambities.Ambities_Schema,
-    belangen.Belangen_Schema,
-    beleidsdoelen.Beleidsdoelen_Schema,
-    beleidsprestaties.Beleidsprestaties_Schema,
-    beleidsregels.Beleidsregels_Schema,
-    maatregelen.Maatregelen_Schema,
-    themas.Themas_Schema,
-    werkingsgebieden.Werkingsgebieden_Schema,
-    verordeningen.Verordeningen_Schema,
-    beleidsrelaties.Beleidsrelaties_Schema
+    models.Beleidskeuzes_Schema,
+    models.Ambities_Schema,
+    models.Belangen_Schema,
+    models.Beleidsdoelen_Schema,
+    models.Beleidsprestaties_Schema,
+    models.Beleidsregels_Schema,
+    models.Maatregelen_Schema,
+    models.Themas_Schema,
+    models.Werkingsgebieden_Schema,
+    models.Verordeningen_Schema,
+    models.Beleidsrelaties_Schema
 ]
+
+registry = {(ep.Meta.slug, ep) for ep in endpoints}
