@@ -8,6 +8,7 @@ import sys
 import base64
 import io
 
+
 whitelist_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'p', 'b', 'i',
                   'strong', 'li', 'ol', 'ul', 'img', 'br', 'u', 'em', 'span', 'sub']
 whitelist_attrs = ['src', 'alt', 'rel', 'target']
@@ -72,6 +73,7 @@ def HTML_Validate(s):
                     picture_data = base64.b64decode(encoded_picture)
                     if bytesto(sys.getsizeof(picture_data), 'm') > 1:
                         raise ValidationError(f'Image larger than 1MB in text')
+
             
         else:
             # Only need to check tags
