@@ -7,8 +7,18 @@ from Endpoints.references import UUID_Reference
 from Endpoints.validators import HTML_Validate
 from Models.werkingsgebieden import Werkingsgebieden_Schema
 
-
+from globals import default_user_uuid
 class Maatregelen_Schema(Base_Schema):
+    Eigenaar_1 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
+    Eigenaar_2 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
+    Portefeuillehouder_1 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Portefeuillehouder_2 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Opdrachtgever = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
     Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])
     Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
     Toelichting = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
