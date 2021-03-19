@@ -3,20 +3,10 @@
 
 import marshmallow as MM
 
-from Endpoints.base_schema import Base_Schema, Short_Base_Schema
-from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema
+from Endpoints.base_schema import Base_Schema
+from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
 from Endpoints.validators import HTML_Validate
-
-
-
-# For reverse lookups we have to define a custom schema in order to prevent circulair imports
-class Short_Beleidskeuze_Schema(Short_Base_Schema):
-    ID = MM.fields.Integer(required=True, obprops=[])
-    UUID = MM.fields.UUID(required=True, obprops=[])
-    Titel = MM.fields.Str(required=True, obprops=[])
-
-    class Meta(Short_Base_Schema.Meta):
-        slug = 'Beleidskeuze-Short'
+from .beleidskeuzes_short import Short_Beleidskeuze_Schema
 
 class Ambities_Schema(Base_Schema):
     Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])
@@ -32,7 +22,7 @@ class Ambities_Schema(Base_Schema):
         ordered = True
         searchable = True
         references = {
-            'Beleidskeuzes': UUID_List_Reference('Beleidskeuze_Ambities',
+            'Beleidskeuzes':Reverse_UUID_Reference('Beleidskeuze_Ambities',
                                                  'Beleidskeuzes',
                                                  'Ambitie_UUID',
                                                  'Beleidskeuze_UUID',
