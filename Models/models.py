@@ -99,6 +99,17 @@ class Beleidsrelaties_Schema(Base_Schema):
         }
 
 
+class Werkingsgebieden_Schema(Base_Schema):
+    Werkingsgebied = MM.fields.Str(required=True, obprops=[])
+    symbol = MM.fields.Str(missing=None, obprops=[])
+
+    class Meta(Base_Schema.Meta):
+        slug = 'werkingsgebieden'
+        table = 'Werkingsgebieden'
+        read_only = True
+        ordered = True
+        searchable = False
+
 class Maatregelen_Schema(Base_Schema):
     Titel = MM.fields.Str(required=True, obprops=['search_title'])
     Omschrijving = MM.fields.Str(missing=None, obprops=['search_description'])
@@ -184,14 +195,3 @@ class Verordeningen_Schema(Base_Schema):
             'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema)
         }
 
-
-class Werkingsgebieden_Schema(Base_Schema):
-    Werkingsgebied = MM.fields.Str(required=True, obprops=[])
-    symbol = MM.fields.Str(missing=None, obprops=[])
-
-    class Meta(Base_Schema.Meta):
-        slug = 'werkingsgebieden'
-        table = 'Werkingsgebieden'
-        read_only = True
-        ordered = True
-        searchable = False

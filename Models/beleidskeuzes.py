@@ -5,7 +5,6 @@ import marshmallow as MM
 
 from Endpoints.endpoint import Base_Schema
 from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema
-
 from globals import default_user_uuid
 
 import Models.gebruikers

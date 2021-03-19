@@ -9,7 +9,6 @@ from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
 import marshmallow as MM
 
-
 class UUID_Linker_Schema(MM.Schema):
     """
     Schema that represents a UUID_List_Reference
@@ -160,6 +159,7 @@ class UUID_Reference:
         """
         self.target_tablename = target_tablename
         self.schema = schema()
+        
 
     def retrieve_inline(self, UUID, cursor):
         """This function retrieves the linked object from the appropiate table
