@@ -5,12 +5,31 @@ from bs4 import BeautifulSoup, element
 from urllib.parse import urlparse
 from urllib import request
 import sys
+import base64
+import io
+
 
 whitelist_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'p', 'b', 'i',
                   'strong', 'li', 'ol', 'ul', 'img', 'br', 'u', 'em', 'span', 'sub']
 whitelist_attrs = ['src', 'alt', 'rel', 'target']
 whitelist_style = ['color']
 whitelist_schema = ['data', 'https', 'http']
+
+
+def bytesto(bytes, to, bsize=1024): 
+    """converts bytes to a different units
+
+    Args:
+        bytes (bytes): The bytes to convert
+        to (string): Target unit descriptor ('k' for kb, 'm' for mb, 'g' for gb)
+        bsize (int, optional): Defaults to 1024.
+
+    Returns:
+        [type]: [description]
+    """
+    a = {'k' : 1, 'm': 2, 'g' : 3 }
+    r = float(bytes)
+    return bytes / (bsize ** a[to])
 
 
 def HTML_Validate(s):
@@ -50,9 +69,11 @@ def HTML_Validate(s):
                     uri_parts = urlparse(val)
                     if not uri_parts.scheme == 'data':
                         raise ValidationError(f'Non data uri for src of image "{val}" in text "{el}"')
-                    with request.urlopen(val) as image:
-                        if sys.getsizeof(image)/(1024**2) > 2:
-                            raise ValidationError(f'Image larger than 5MB in text')
+                    header, encoded_picture = el['src'].split(',', 1)
+                    picture_data = base64.b64decode(encoded_picture)
+                    if bytesto(sys.getsizeof(picture_data), 'm') > 1:
+                        raise ValidationError(f'Image larger than 1MB in text')
+
             
         else:
             # Only need to check tags

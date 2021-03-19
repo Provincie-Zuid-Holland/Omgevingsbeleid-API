@@ -5,6 +5,8 @@ import marshmallow as MM
 
 from Endpoints.endpoint import Base_Schema
 from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema
+from Endpoints.validators import HTML_Validate
+
 from globals import default_user_uuid
 
 import Models.gebruikers
@@ -29,7 +31,7 @@ class Beleidskeuzes_Schema(Base_Schema):
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
     Opdrachtgever = MM.fields.UUID(
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
-    Status = MM.fields.Str(required=True, validate=MM.validate.OneOf([
+    Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf([
         "Definitief ontwerp GS",
         "Definitief ontwerp GS concept",
         "Definitief ontwerp PS",
@@ -41,16 +43,16 @@ class Beleidskeuzes_Schema(Base_Schema):
         "Uitgecheckt",
         "Vastgesteld",
         "Vigerend",
-        "Vigerend gearchiveerd"]),
+        "Vigerend gearchiveerd"])],
         obprops=[])
     Titel = MM.fields.Str(required=True, obprops=['search_title'])
-    Omschrijving_Keuze = MM.fields.Str(missing=None, obprops=['search_description'])
+    Omschrijving_Keuze = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
     Omschrijving_Werking = MM.fields.Str(
-        missing=None, obprops=['search_description'])
-    Aanleiding = MM.fields.Str(missing=None, obprops=[])
-    Afweging = MM.fields.Str(missing=None, obprops=[])
-    Provinciaal_Belang = MM.fields.Str(missing=None, obprops=[])
-    Weblink = MM.fields.Str(missing=None, obprops=[])
+        missing=None, validate=[HTML_Validate], obprops=['search_description'])
+    Aanleiding = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
+    Afweging = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
+    Provinciaal_Belang = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
+    Weblink = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
     Besluitnummer = MM.fields.Str(missing=None, obprops=[])
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(

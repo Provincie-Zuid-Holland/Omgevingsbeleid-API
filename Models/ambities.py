@@ -2,8 +2,10 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import marshmallow as MM
+
 from Endpoints.base_schema import Base_Schema, Short_Base_Schema
 from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema
+from Endpoints.validators import HTML_Validate
 
 
 
@@ -14,8 +16,8 @@ class Short_Beleidskeuze_Schema(Short_Base_Schema):
     Titel = MM.fields.Str(required=True, obprops=[])
 
 class Ambities_Schema(Base_Schema):
-    Titel = MM.fields.Str(required=True, obprops=['search_title'])
-    Omschrijving = MM.fields.Str(missing=None, obprops=['search_description'])
+    Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])
+    Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])

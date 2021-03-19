@@ -4,16 +4,26 @@
 import marshmallow as MM
 from Endpoints.endpoint import Base_Schema
 from Endpoints.references import UUID_Reference
-
+from Endpoints.validators import HTML_Validate
 from Models.werkingsgebieden import Werkingsgebieden_Schema
 
-
+from globals import default_user_uuid
 class Maatregelen_Schema(Base_Schema):
-    Titel = MM.fields.Str(required=True, obprops=['search_title'])
-    Omschrijving = MM.fields.Str(missing=None, obprops=['search_description'])
-    Toelichting = MM.fields.Str(missing=None, obprops=[])
+    Eigenaar_1 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
+    Eigenaar_2 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
+    Portefeuillehouder_1 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Portefeuillehouder_2 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Opdrachtgever = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])
+    Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
+    Toelichting = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
     Toelichting_Raw = MM.fields.Method(missing=None, obprops=[])
-    Status = MM.fields.Str(missing=None, validate=MM.validate.OneOf([
+    Status = MM.fields.Str(missing=None, validate=[MM.validate.OneOf([
         "Definitief ontwerp GS",
         "Definitief ontwerp GS concept",
         "Definitief ontwerp PS",
@@ -25,7 +35,7 @@ class Maatregelen_Schema(Base_Schema):
         "Uitgecheckt",
         "Vastgesteld",
         "Vigerend",
-        "Vigerend gearchiveerd"]),
+        "Vigerend gearchiveerd"])],
         obprops=[])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
