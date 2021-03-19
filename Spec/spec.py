@@ -15,7 +15,7 @@ def render_spec():
         base_spec = json.loads(basefile.read())
 
         base_spec['components']['schemas'] = render_schemas(
-            datamodel.endpoints)
+            datamodel.short_schemas + datamodel.endpoints)
         base_spec['components']['securitySchemes'] = {'bearerAuth': {
             'type': 'http', 'scheme': 'bearer', 'bearerFormat': 'JWT'}}
         base_spec['paths'] = render_paths(datamodel.endpoints)
@@ -23,6 +23,14 @@ def render_spec():
 
 
 def render_schemas(endpoints):
+    """Turns a list of marshmallow schemas in a list of components for the Openapi spec.
+
+    Args:
+        endpoints (List(marshmallow.schema)): The schemas to render
+
+    Returns:
+        dict: The resulting schemas
+    """
     schemas = {}
     schemas['list_reference'] = {
         'properties': {
@@ -70,7 +78,7 @@ def render_schemas(endpoints):
                             '$ref': f'#/components/schemas/list_reference'}
                     }
                     change_properties[field] = {
-                        'description': f'An object that shows the changges in the list',
+                        'description': f'An object that shows the changes in the list',
                         'type': 'object',
                         'properties': {
                             'new': {

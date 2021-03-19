@@ -15,6 +15,9 @@ class Short_Beleidskeuze_Schema(Short_Base_Schema):
     UUID = MM.fields.UUID(required=True, obprops=[])
     Titel = MM.fields.Str(required=True, obprops=[])
 
+    class Meta(Short_Base_Schema.Meta):
+        slug = 'Beleidskeuze-Short'
+
 class Ambities_Schema(Base_Schema):
     Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])
     Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
