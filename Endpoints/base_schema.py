@@ -67,7 +67,8 @@ class Short_Base_Schema(MM.Schema):
         """
         for field in dumped:
             if isinstance(self.fields[field], MM.fields.DateTime):
-                dumped[field] = dumped[field].replace('+00:00', 'Z')
+                if dumped[field]:
+                    dumped[field] = dumped[field].replace('+00:00', 'Z')
         return dumped
 
     @MM.post_dump()
@@ -105,10 +106,10 @@ class Short_Base_Schema(MM.Schema):
             # print(in_data.get('Begin_Geldigheid'))
             if 'Begin_Geldigheid' in in_data:
                 if not in_data['Begin_Geldigheid']:
-                    in_data['Begin_Geldigheid'] = min_datetime
+                    in_data['Begin_Geldigheid'] = min_datetime.replace(tzinfo=datetime.timezone.utc)
             if 'Eind_Geldigheid' in in_data:
                 if in_data['Eind_Geldigheid']:
-                    in_data['Eind_Geldigheid'] = max_datetime
+                    in_data['Eind_Geldigheid'] = max_datetime.replace(tzinfo=datetime.timezone.utc)
         return in_data
 
     @classmethod
