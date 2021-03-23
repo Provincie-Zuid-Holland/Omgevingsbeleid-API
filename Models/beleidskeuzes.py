@@ -20,6 +20,7 @@ from Models.beleidsregels import Beleidsregels_Schema
 from Models.maatregelen import Maatregelen_Schema
 from Models.verordeningen import Verordeningen_Schema
 
+
 class Beleidskeuzes_Schema(Base_Schema):
     Eigenaar_1 = MM.fields.UUID(
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
@@ -46,27 +47,40 @@ class Beleidskeuzes_Schema(Base_Schema):
         "Vigerend gearchiveerd"])],
         obprops=[])
     Titel = MM.fields.Str(required=True, obprops=['search_title'])
-    Omschrijving_Keuze = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
+    Omschrijving_Keuze = MM.fields.Str(
+        missing=None, validate=[HTML_Validate], obprops=['search_description'])
     Omschrijving_Werking = MM.fields.Str(
         missing=None, validate=[HTML_Validate], obprops=['search_description'])
-    Aanleiding = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
-    Afweging = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
-    Provinciaal_Belang = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
+    Aanleiding = MM.fields.Str(missing=None, validate=[
+                               HTML_Validate], obprops=[])
+    Afweging = MM.fields.Str(missing=None, validate=[
+                             HTML_Validate], obprops=[])
+    Provinciaal_Belang = MM.fields.Str(
+        missing=None, validate=[HTML_Validate], obprops=[])
     Weblink = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
     Besluitnummer = MM.fields.Str(missing=None, obprops=[])
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
         missing=None, default=None, obprops=['excluded_post'])
-    Ambities = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
-    Belangen = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
-    Beleidsdoelen = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
-    Beleidsprestaties = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
-    Beleidsregels = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
-    Maatregelen = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
-    Themas = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
-    Verordeningen = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
-    Werkingsgebieden = MM.fields.Nested(UUID_Linker_Schema, many=True, obprops=['referencelist'])
-  
+    Ambities = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Belangen = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Beleidsdoelen = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Beleidsprestaties = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Beleidsregels = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Maatregelen = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Themas = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Verordeningen = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Werkingsgebieden = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
+
     class Meta(Base_Schema.Meta):
         slug = 'beleidskeuzes'
         table = 'Beleidskeuzes'
@@ -87,6 +101,6 @@ class Beleidskeuzes_Schema(Base_Schema):
             'Maatregelen': UUID_List_Reference('Beleidskeuze_Maatregelen', 'Maatregelen', 'Beleidskeuze_UUID', 'Maatregel_UUID', 'Koppeling_Omschrijving', Maatregelen_Schema),
             'Themas': UUID_List_Reference('Beleidskeuze_Themas', 'Themas', 'Beleidskeuze_UUID', 'Thema_UUID', 'Koppeling_Omschrijving', Themas_Schema),
             'Verordeningen': UUID_List_Reference('Beleidskeuze_Verordeningen', 'Verordeningen', 'Beleidskeuze_UUID', 'Verordening_UUID', 'Koppeling_Omschrijving', Verordeningen_Schema),
-            'Werkingsgebieden': UUID_List_Reference('Beleidskeuze_Werkingsgebieden', 'Werkingsgebieden', 'Beleidskeuze_UUID', 'Werkingsgebied_UUID', 'Koppeling_Omschrijving', Werkingsgebieden_Schema)            
+            'Werkingsgebieden': UUID_List_Reference('Beleidskeuze_Werkingsgebieden', 'Werkingsgebieden', 'Beleidskeuze_UUID', 'Werkingsgebied_UUID', 'Koppeling_Omschrijving', Werkingsgebieden_Schema)
         }
         status_conf = ('Status', 'Vigerend')

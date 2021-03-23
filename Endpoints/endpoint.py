@@ -184,7 +184,7 @@ class Lineage(Schema_Resource):
 
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
-            return(get_objects(query, query_args, self.schema(), cursor))
+            return(get_objects(query, query_args, self.schema(), cursor)), 200
 
     @jwt_required
     def patch(self, id):
@@ -286,7 +286,7 @@ class FullList(Schema_Resource):
 
         with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
             cursor = connection.cursor()
-            return(get_objects(query, query_args, self.schema(), cursor))
+            return(get_objects(query, query_args, self.schema(), cursor)), 200
 
     @jwt_required
     def post(self):
@@ -390,7 +390,7 @@ class ValidList(Schema_Resource):
 
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
-            return(get_objects(query, query_args, self.schema(), cursor))
+            return(get_objects(query, query_args, self.schema(), cursor)), 200
 
 
 class ValidLineage(Schema_Resource):
@@ -417,7 +417,7 @@ class ValidLineage(Schema_Resource):
 
             query = f'''SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? AND {status_field} = ? AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC '''
 
-            return(get_objects(query, [id, value], self.schema(), cursor))
+            return(get_objects(query, [id, value], self.schema(), cursor)), 200
 
 
 class SingleVersion(Schema_Resource):
@@ -440,7 +440,7 @@ class SingleVersion(Schema_Resource):
             result = get_objects(query, [uuid], self.schema(), cursor)
             if not result:
                 return handle_does_not_exists()
-            return(result[0])
+            return(result[0]), 200
 
 
 class Changes(Schema_Resource):
