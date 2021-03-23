@@ -263,3 +263,27 @@ def test_HTML_Validation(client, test_user_UUID, auth, cleanup):
     response = client.post(ep, json={'Titel':'Evil ambitie', 'Omschrijving':evil_omschrijving}, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 400, f"Status code for POST on {ep} was {response.status_code}, should be 400. Body content: {response.json}"
+
+
+def test_non_copy_field(client, auth, cleanup):
+    ep = f"v0.1/beleidskeuzes"
+    
+    # create beleidskeuze lineage
+    test_data = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
+    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+    
+    first_uuid = response.get_json()['UUID']
+    ep = f"v0.1/beleidskeuzes/{response.get_json()['ID']}"
+    # Patch a new aanpassing_op field
+    response = client.patch(ep, json={'Titel':'Patched', 'Aanpassing_Op':first_uuid}, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 200, f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
+    assert response.get_json()['Aanpassing_Op'] == first_uuid, 'Aanpassing_Op not saved!'
+
+    # Patch a different field, aanpassing_op should be null
+    response = client.patch(ep, json={'Titel':'Patched twice'}, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 200, f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
+    assert response.get_json()['Aanpassing_Op'] == None, 'Aanpassing_Op was copied!'
+
+
