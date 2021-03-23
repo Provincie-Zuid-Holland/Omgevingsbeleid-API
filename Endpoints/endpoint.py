@@ -280,8 +280,9 @@ class FullList(Schema_Resource):
 
         if filters:= q_args['filters']:
             query += ' AND ' + \
-                'OR '.join(f'{key} = ? ' for key in filters)
+                'AND '.join(f'{key} = ? ' for key in filters)
             query_args = [filters[key] for key in filters]
+
 
         query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC"
 

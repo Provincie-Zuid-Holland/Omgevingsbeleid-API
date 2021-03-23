@@ -331,3 +331,35 @@ def test_non_copy_field(client, auth, cleanup):
     assert response.status_code == 200, f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
     assert response.get_json()['Aanpassing_Op'] == None, 'Aanpassing_Op was copied!'
 
+def test_multiple_filters(client, auth, cleanup):
+    ep = f"v0.1/beleidskeuzes"
+    
+    test_data = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
+    test_data['Status'] = 'Ontwerp PS'
+    test_data['Titel'] = 'First'
+
+    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+
+    test_data = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
+    test_data['Status'] = 'Ontwerp PS'
+    test_data['Titel'] = 'Second'
+
+    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+
+    test_data = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
+    test_data['Status'] = 'Vigerend'
+    test_data['Titel'] = 'Second'
+
+    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+    
+    response = client.get(ep + '?filters=Status:Vigerend,Titel:Second')
+    assert response.status_code == 200, f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
+    for obj in response.get_json():
+        assert(obj['Titel'] == 'Second'), 'Titel should be "Second"'
+        assert(obj['Status'] == 'Vigerend'), 'Titel should be "Second"'
