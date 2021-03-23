@@ -12,7 +12,7 @@ class Ambities_Schema(Base_Schema):
     Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])
     Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
     Weblink = MM.fields.Str(missing=None, obprops=[])
-    Beleidskeuzes = MM.fields.Nested(
+    Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
 
     class Meta(Base_Schema.Meta):
@@ -22,7 +22,7 @@ class Ambities_Schema(Base_Schema):
         ordered = True
         searchable = True
         references = {
-            'Beleidskeuzes':Reverse_UUID_Reference('Beleidskeuze_Ambities',
+            'Ref_Beleidskeuzes':Reverse_UUID_Reference('Beleidskeuze_Ambities',
                                                  'Beleidskeuzes',
                                                  'Ambitie_UUID',
                                                  'Beleidskeuze_UUID',

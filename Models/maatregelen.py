@@ -50,7 +50,7 @@ class Maatregelen_Schema(Base_Schema):
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
         missing=None, default=None, obprops=['excluded_post'])
-    Beleidskeuzes = MM.fields.Nested(
+    Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
 
     class Meta(Base_Schema.Meta):
@@ -61,7 +61,7 @@ class Maatregelen_Schema(Base_Schema):
         searchable = True
         status_conf = ('Status', 'Vigerend')
         references = {
-            'Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Beleidsdoelen',
+            'Ref_Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Beleidsdoelen',
                                                     'Beleidskeuzes',
                                                     'Beleidsdoel_UUID',
                                                     'Beleidskeuze_UUID',

@@ -12,7 +12,7 @@ class Belangen_Schema(Base_Schema):
     Omschrijving = MM.fields.Str(missing=None,validate=[HTML_Validate], obprops=['search_description'])
     Weblink = MM.fields.Str(missing=None, obprops=[ ])
     Type = MM.fields.Str(missing=None, validate=[MM.validate.OneOf(['Nationaal Belang', 'Wettelijke Taak & Bevoegdheid'])], obprops=[])
-    Beleidskeuzes = MM.fields.Nested(
+    Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
 
     class Meta(Base_Schema.Meta):
@@ -22,7 +22,7 @@ class Belangen_Schema(Base_Schema):
         ordered = True
         searchable = True
         references = {
-            'Beleidskeuzes':Reverse_UUID_Reference('Beleidskeuze_Belangen',
+            'Ref_Beleidskeuzes':Reverse_UUID_Reference('Beleidskeuze_Belangen',
                                                  'Beleidskeuzes',
                                                  'Belang_UUID',
                                                  'Beleidskeuze_UUID',

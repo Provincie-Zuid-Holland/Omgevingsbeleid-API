@@ -32,7 +32,7 @@ class Verordeningen_Schema(Base_Schema):
     Type = MM.fields.Str(missing=None,  validate=[MM.validate.OneOf(
         ['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel', 'Lid'])], obprops=['search_field'])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
-    Beleidskeuzes = MM.fields.Nested(
+    Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
 
     class Meta(Base_Schema.Meta):
@@ -48,7 +48,7 @@ class Verordeningen_Schema(Base_Schema):
             'Portefeuillehouder_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema),
-            'Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Beleidsdoelen',
+            'Ref_Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Beleidsdoelen',
                                                     'Beleidskeuzes',
                                                     'Beleidsdoel_UUID',
                                                     'Beleidskeuze_UUID',

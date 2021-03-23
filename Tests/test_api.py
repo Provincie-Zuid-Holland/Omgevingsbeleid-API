@@ -275,7 +275,7 @@ def test_reverse_lookup(client, auth, cleanup):
     response = client.post('v0.1/ambities', json=test_data, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
-    assert response.get_json()['Beleidskeuzes'] == [], f"Reverse lookup not empty on post. Body content: {response.json}"
+    assert response.get_json()['Ref_Beleidskeuzes'] == [], f"Reverse lookup not empty on post. Body content: {response.json}"
 
 
     ambitie_id = response.get_json()['ID']
@@ -307,12 +307,5 @@ def test_reverse_lookup(client, auth, cleanup):
     response = client.get(f'v0.1/ambities/{ambitie_id}', headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, f'Status code for GET was {response.status_code}, should be 200. Body content: {response.json}'
-    assert len(response.get_json()[0]['Beleidskeuzes']) == 1, f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Beleidskeuzes']}"
-    assert response.get_json()[0]['Beleidskeuzes'][0]['UUID'] == beleidskeuze_latest_uuid, f"Nested objects are on object. Body content: {response.json}"
-
-    # Add a new version to the lineage
-    # response = client.patch(f'v0.1/ambities/{ambitie_id}', json={'Titel':'New Ambitie'}, headers={
-    #                        'Authorization': f'Bearer {auth[1]}'})
-    # assert response.status_code == 200, f"Status code for PATCH was {response.status_code}, should be 400. Body content: {response.json}"
-    
-    # Add to BB, check if inlining only has one object
+    assert len(response.get_json()[0]['Ref_Beleidskeuzes']) == 1, f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Beleidskeuzes']}"
+    assert response.get_json()[0]['Ref_Beleidskeuzes'][0]['UUID'] == beleidskeuze_latest_uuid, f"Nested objects are on object. Body content: {response.json}"
