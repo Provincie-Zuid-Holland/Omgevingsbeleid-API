@@ -4,12 +4,14 @@
 import marshmallow as MM
 
 from Endpoints.endpoint import Base_Schema
-from Endpoints.references import UUID_Reference
+from Endpoints.references import UUID_Reference, UUID_Linker_Schema, Reverse_UUID_Reference
 
 from Models.gebruikers import Gebruikers_Schema
 from Models.werkingsgebieden import Werkingsgebieden_Schema
+from .beleidskeuzes_short import Short_Beleidskeuze_Schema
 
 from globals import default_user_uuid
+
 
 class Verordeningen_Schema(Base_Schema):
     Eigenaar_1 = MM.fields.UUID(
@@ -27,8 +29,11 @@ class Verordeningen_Schema(Base_Schema):
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Status = MM.fields.Str(missing=None, obprops=['search_field'])
     Volgnummer = MM.fields.Str(missing=None, obprops=[])
-    Type = MM.fields.Str(missing=None,  validate=[MM.validate.OneOf(['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel', 'Lid'])], obprops=['search_field'])
+    Type = MM.fields.Str(missing=None,  validate=[MM.validate.OneOf(
+        ['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel', 'Lid'])], obprops=['search_field'])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
+    Ref_Beleidskeuzes = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
 
     class Meta(Base_Schema.Meta):
         slug = 'verordeningen'
@@ -36,11 +41,18 @@ class Verordeningen_Schema(Base_Schema):
         read_only = False
         ordered = True
         searchable = False
-        references =  references = {
+        references = references = {
             'Eigenaar_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Eigenaar_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Portefeuillehouder_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Portefeuillehouder_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
-            'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema)
+            'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema),
+            'Ref_Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Beleidsdoelen',
+                                                    'Beleidskeuzes',
+                                                    'Beleidsdoel_UUID',
+                                                    'Beleidskeuze_UUID',
+                                                    'Koppeling_Omschrijving',
+                                                    Short_Beleidskeuze_Schema
+                                                    )
         }

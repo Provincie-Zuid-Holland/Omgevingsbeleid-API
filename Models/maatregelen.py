@@ -3,10 +3,12 @@
 
 import marshmallow as MM
 from Endpoints.endpoint import Base_Schema
-from Endpoints.references import UUID_Reference
+from Endpoints.references import UUID_Reference, UUID_Linker_Schema, Reverse_UUID_Reference
 from Endpoints.validators import HTML_Validate
 from Models.werkingsgebieden import Werkingsgebieden_Schema
+from .beleidskeuzes_short import Short_Beleidskeuze_Schema
 from Models.gebruikers import Gebruikers_Schema
+
 
 from globals import default_user_uuid
 
@@ -50,6 +52,9 @@ class Maatregelen_Schema(Base_Schema):
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
         missing=None, default=None, obprops=['excluded_post'])
+    Ref_Beleidskeuzes = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
+
 
     class Meta(Base_Schema.Meta):
         slug = 'maatregelen'
@@ -57,10 +62,18 @@ class Maatregelen_Schema(Base_Schema):
         read_only = False
         ordered = True
         searchable = True
-        references = {'Eigenaar_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
-                      'Eigenaar_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
-                      'Portefeuillehouder_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
-                      'Portefeuillehouder_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
-                      'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
-                      'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema)}
         status_conf = ('Status', 'Vigerend')
+        references = {
+            'Ref_Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Beleidsdoelen',
+                                                    'Beleidskeuzes',
+                                                    'Beleidsdoel_UUID',
+                                                    'Beleidskeuze_UUID',
+                                                    'Koppeling_Omschrijving',
+                                                    Short_Beleidskeuze_Schema
+                                                    ),
+            'Eigenaar_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Eigenaar_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Portefeuillehouder_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Portefeuillehouder_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema)}

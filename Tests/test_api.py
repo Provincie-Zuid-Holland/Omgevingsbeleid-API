@@ -264,6 +264,51 @@ def test_HTML_Validation(client, test_user_UUID, auth, cleanup):
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 400, f"Status code for POST on {ep} was {response.status_code}, should be 400. Body content: {response.json}"
 
+def test_reverse_lookup(client, auth, cleanup):
+    """
+    Test wether reverse lookups work and show the correct inlined objects
+    """
+    # Create a new lineage of ambities
+    test_data = generate_data(
+            ambities.Ambities_Schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
+    
+    response = client.post('v0.1/ambities', json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 201, f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
+    assert response.get_json()['Ref_Beleidskeuzes'] == [], f"Reverse lookup not empty on post. Body content: {response.json}"
+
+
+    ambitie_id = response.get_json()['ID']
+    ambitie_uuid = response.get_json()['UUID']
+    
+    # Create a new lineage for a Beleidskeuze
+    test_data = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=test_user_UUID, excluded_prop='excluded_post')
+    # Set ambities
+    test_data['Ambities'] = [{'UUID': ambitie_uuid, 'Koppeling_Omschrijving':'Test description'}]
+    response = client.post('v0.1/beleidskeuzes', json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 201, f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
+    assert response.get_json()['Ambities'][0]['UUID'] == ambitie_uuid, f"Nested objects are on object. Body content: {response.json}"
+    
+    beleidskeuze_id = response.get_json()['ID']
+    beleidskeuze_uuid = response.get_json()['UUID']
+
+    # Add a new version to the lineage 
+    response = client.patch(f'v0.1/beleidskeuzes/{beleidskeuze_id}', json={"Titel": "New Title"}, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 200, f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
+    assert response.get_json()['Ambities'][0]['UUID'] == ambitie_uuid, f"Nested objects are on object. Body content: {response.json}"
+
+    beleidskeuze_latest_id = response.get_json()['ID']
+    beleidskeuze_latest_uuid = response.get_json()['UUID']
+
+    # Get the ambitie
+    response = client.get(f'v0.1/ambities/{ambitie_id}', headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 200, f'Status code for GET was {response.status_code}, should be 200. Body content: {response.json}'
+    assert len(response.get_json()[0]['Ref_Beleidskeuzes']) == 1, f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Beleidskeuzes']}"
+    assert response.get_json()[0]['Ref_Beleidskeuzes'][0]['UUID'] == beleidskeuze_latest_uuid, f"Nested objects are on object. Body content: {response.json}"
 
 def test_non_copy_field(client, auth, cleanup):
     ep = f"v0.1/beleidskeuzes"
@@ -285,5 +330,4 @@ def test_non_copy_field(client, auth, cleanup):
     response = client.patch(ep, json={'Titel':'Patched twice'}, headers={'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
     assert response.get_json()['Aanpassing_Op'] == None, 'Aanpassing_Op was copied!'
-
 

@@ -13,27 +13,14 @@ from Models.gebruikers import Gebruikers_Schema
 import uuid
 
 
-class Base_Schema(MM.Schema):
+class Short_Base_Schema(MM.Schema):
     """
-    Schema that defines fields we expect from every object in order to build and keep a history.
+    Schema that defines fields we expect from every object in order to specify a version and lineage
     """
     ID = MM.fields.Integer(search_field="Keyword", obprops=[
                            'excluded_patch', 'excluded_post'])
     UUID = MM.fields.UUID(required=True, obprops=[
                           'excluded_patch', 'excluded_post'])
-    Begin_Geldigheid = MM.fields.DateTime(format='iso', 
-        missing=min_datetime, allow_none=True, obprops=[])
-    Eind_Geldigheid = MM.fields.DateTime(format='iso', 
-        missing=max_datetime, allow_none=True, obprops=[])
-    Created_By = MM.fields.UUID(required=True, obprops=[
-                                'excluded_patch', 'excluded_post'])
-    Created_Date = MM.fields.DateTime(format='iso', required=True, obprops=[
-                                      'excluded_patch', 'excluded_post'])
-    Modified_By = MM.fields.UUID(required=True, obprops=[
-                                 'excluded_patch', 'excluded_post'])
-    Modified_Date = MM.fields.DateTime(format='iso', required=True, obprops=[
-                                       'excluded_patch', 'excluded_post'])
-
     class Meta:
         ordered = True
         read_only = False
@@ -149,3 +136,21 @@ class Base_Schema(MM.Schema):
             list: The fields that do not have the prop in their obprops list
         """
         return list(map(lambda item: item[0], filter(lambda item: prop not in item[1].metadata['obprops'], cls._declared_fields.items())))
+
+class Base_Schema(Short_Base_Schema):
+    """
+    Schema that defines fields we expect from every object in order to build and keep a history.
+    """
+    Begin_Geldigheid = MM.fields.DateTime(format='iso', 
+        missing=min_datetime, allow_none=True, obprops=[])
+    Eind_Geldigheid = MM.fields.DateTime(format='iso', 
+        missing=max_datetime, allow_none=True, obprops=[])
+    Created_By = MM.fields.UUID(required=True, obprops=[
+                                'excluded_patch', 'excluded_post'])
+    Created_Date = MM.fields.DateTime(format='iso', required=True, obprops=[
+                                      'excluded_patch', 'excluded_post'])
+    Modified_By = MM.fields.UUID(required=True, obprops=[
+                                 'excluded_patch', 'excluded_post'])
+    Modified_Date = MM.fields.DateTime(format='iso', required=True, obprops=[
+                                       'excluded_patch', 'excluded_post'])
+ 
