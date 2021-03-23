@@ -61,7 +61,7 @@ class Beleidskeuzes_Schema(Base_Schema):
     Besluitnummer = MM.fields.Str(missing=None, obprops=[])
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
-        missing=None, default=None, obprops=['excluded_post'])
+        missing=None, default=None, obprops=['excluded_post', 'not_inherited'])
     Ambities = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Belangen = MM.fields.Nested(

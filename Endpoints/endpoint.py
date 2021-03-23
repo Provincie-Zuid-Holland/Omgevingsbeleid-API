@@ -222,6 +222,11 @@ class Lineage(Schema_Resource):
 
             old_object = self.schema().load(old_object)
 
+            for field in self.schema.fields_with_props('not_inherited'):
+                if field in old_object:
+                    old_object.pop(field)
+
+
             new_object = {**old_object, **changes}
 
             new_object.pop('UUID')
