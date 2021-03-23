@@ -98,6 +98,35 @@ def render_schemas(endpoints):
                             }
                         }
                     }
+                if isinstance(ref, references.Reverse_UUID_Reference):
+                    read_properties[field] = {
+                        'description': f'An list of {slug} objects that refer to this object (reverse lookup)',
+                        'type': 'array',
+                        'items': {
+                            '$ref': f'#/components/schemas/{slug}-read'}
+                    }
+
+                    change_properties[field] = {
+                        'description': f'An object that shows the changes in the list',
+                        'type': 'object',
+                        'properties': {
+                            'new': {
+                                'type': 'array',
+                                'items': {
+                                    '$ref': f'#/components/schemas/{slug}-read'}
+                            },
+                            'removed': {
+                                'type': 'array',
+                                'items': {
+                                    '$ref': f'#/components/schemas/{slug}-read'}
+                            },
+                            'same': {
+                                'type': 'array',
+                                'items': {
+                                    '$ref': f'#/components/schemas/{slug}-read'}
+                            }
+                        }
+                    }
             # Simple field
             else:
                 props = {}
