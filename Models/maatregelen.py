@@ -7,6 +7,8 @@ from Endpoints.references import UUID_Reference, UUID_Linker_Schema, Reverse_UUI
 from Endpoints.validators import HTML_Validate
 from Models.werkingsgebieden import Werkingsgebieden_Schema
 from .beleidskeuzes_short import Short_Beleidskeuze_Schema
+from Models.gebruikers import Gebruikers_Schema
+
 
 from globals import default_user_uuid
 
@@ -53,6 +55,7 @@ class Maatregelen_Schema(Base_Schema):
     Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
 
+
     class Meta(Base_Schema.Meta):
         slug = 'maatregelen'
         table = 'Maatregelen'
@@ -68,7 +71,9 @@ class Maatregelen_Schema(Base_Schema):
                                                     'Koppeling_Omschrijving',
                                                     Short_Beleidskeuze_Schema
                                                     ),
-            'Gebied': UUID_Reference(
-                'Werkingsgebieden', Werkingsgebieden_Schema)
-
-        }
+            'Eigenaar_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Eigenaar_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Portefeuillehouder_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Portefeuillehouder_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
+            'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema)}
