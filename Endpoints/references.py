@@ -187,7 +187,7 @@ class Reverse_UUID_Reference:
         ON bk.UUID = {self.their_col}
         WHERE {self.my_col} = ?
         '''
-        print(query)
+
         # Retrieve the objects
         query_result = list(cursor.execute(query, UUID))
         result_objects = self.schema.load(

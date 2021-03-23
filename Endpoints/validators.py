@@ -9,9 +9,9 @@ import base64
 import io
 
 
-whitelist_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'p', 'b', 'i',
+whitelist_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'p', 'b', 'i', 'a',
                   'strong', 'li', 'ol', 'ul', 'img', 'br', 'u', 'em', 'span', 'sub']
-whitelist_attrs = ['src', 'alt', 'rel', 'target']
+whitelist_attrs = ['src', 'alt', 'rel', 'target', 'href']
 whitelist_style = ['color']
 whitelist_schema = ['data', 'https', 'http']
 
@@ -57,7 +57,10 @@ def HTML_Validate(s):
                 elif attr not in whitelist_attrs:
                     raise ValidationError(
                         f'Non whitelisted attribute "{attr}" in text "{el}"')
-                uri_parts = urlparse(val)
+                try:
+                    uri_parts = urlparse(val)
+                except AttributeError:
+                    continue # Not an URL                
                 if all([uri_parts.scheme, uri_parts.netloc, uri_parts.path]):
                     if uri_parts.scheme not in whitelist_schema:
                         raise ValidationError(
