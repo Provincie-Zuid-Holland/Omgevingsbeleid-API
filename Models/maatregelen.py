@@ -64,9 +64,9 @@ class Maatregelen_Schema(Base_Schema):
         searchable = True
         status_conf = ('Status', 'Vigerend')
         references = {
-            'Ref_Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Beleidsdoelen',
+            'Ref_Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Maatregelen',
                                                     'Beleidskeuzes',
-                                                    'Beleidsdoel_UUID',
+                                                    'Maatregel_UUID',
                                                     'Beleidskeuze_UUID',
                                                     'Koppeling_Omschrijving',
                                                     Short_Beleidskeuze_Schema

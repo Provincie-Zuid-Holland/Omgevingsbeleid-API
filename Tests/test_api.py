@@ -294,6 +294,14 @@ def test_reverse_lookup(client, auth, cleanup):
     beleidskeuze_id = response.get_json()['ID']
     beleidskeuze_uuid = response.get_json()['UUID']
 
+    # Get the ambitie
+    response = client.get(f'v0.1/ambities/{ambitie_id}', headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 200, f'Status code for GET was {response.status_code}, should be 200. Body content: {response.json}'
+    assert len(response.get_json()[0]['Ref_Beleidskeuzes']) == 1, f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Beleidskeuzes']}"
+    assert response.get_json()[0]['Ref_Beleidskeuzes'][0]['UUID'] == beleidskeuze_uuid, f"Nested objects are not on object. Body content: {response.json}"
+
+
     # Add a new version to the lineage 
     response = client.patch(f'v0.1/beleidskeuzes/{beleidskeuze_id}', json={"Titel": "New Title"}, headers={
                            'Authorization': f'Bearer {auth[1]}'})

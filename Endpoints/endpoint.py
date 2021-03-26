@@ -460,7 +460,7 @@ class SingleVersion(Schema_Resource):
                 return handle_validation_exception(e), 500
             
             if not result:
-                return handle_does_not_exists()
+                return handle_does_not_exists(uuid)
             return(result[0]), 200
 
 
