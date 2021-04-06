@@ -102,13 +102,11 @@ class Short_Base_Schema(MM.Schema):
         Save the min and max datetime on datetime fields that have None (null) as value
         """
         if in_data:
-            # print(in_data)
-            # print(in_data.get('Begin_Geldigheid'))
             if 'Begin_Geldigheid' in in_data:
                 if not in_data['Begin_Geldigheid']:
                     in_data['Begin_Geldigheid'] = min_datetime.replace(tzinfo=datetime.timezone.utc)
             if 'Eind_Geldigheid' in in_data:
-                if in_data['Eind_Geldigheid']:
+                if not in_data['Eind_Geldigheid']:
                     in_data['Eind_Geldigheid'] = max_datetime.replace(tzinfo=datetime.timezone.utc)
         return in_data
 
