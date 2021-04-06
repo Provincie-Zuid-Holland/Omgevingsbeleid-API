@@ -250,11 +250,16 @@ class UUID_Reference:
                 [field for field in self.schema.fields])
         
         query = f'SELECT {included_fields} FROM {self.target_tablename} WHERE UUID = ?'
-
+        
         # Load the objects to ensure validation
         query_result = list(cursor.execute(query, UUID))
+        
+        try:
+            assert(len(query_result) == 1)
+        except AssertionError as e:
+            # Needs to be resolved in a better way
+            return None
 
-        assert(len(query_result) == 1)
         result_object = self.schema.load(row_to_dict(query_result[0]))    
         return(self.schema.dump(result_object))
     
