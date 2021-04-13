@@ -116,7 +116,7 @@ class UUID_List_Reference:
         for res in query_result:
             res_row = row_to_dict(res)
             result_objects.append({
-            'Koppeling_Omschrijving': res_row.pop('Koppeling_Omschrijving'),
+            'Koppeling_Omschrijving': res_row.pop(self.description_col),
             'Object':self.schema.dump(res_row)})
             
         
