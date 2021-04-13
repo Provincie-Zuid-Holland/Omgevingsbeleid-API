@@ -208,9 +208,21 @@ def render_paths(endpoints):
     for model in endpoints:
         paths[f'/{model.Meta.slug}']['get'] = {
             'parameters': [{
-                'name': 'filters',
+                'name': 'all_filters',
                 'in': 'query',
-                'description': 'Filters to apply to the selection, represented by a comma-seperated list of pairs. The pairs are delimited by a : symbol.',
+                'description': '''Filters to apply to the selection, represented by a comma-seperated list of pairs. 
+                        The pairs are delimited by a : symbol. The various filters are combined using an AND operator so in order for an object to get selected by this filter, all the filters should be TRUE.''',
+                'required': False,
+                'example': 'Status:Vigerend,ID:1',
+                'schema': {
+                    'type': 'string'
+                }
+            },
+                {
+                'name': 'any_filters',
+                'in': 'query',
+                'description': '''Filters to apply to the selection, represented by a comma-seperated list of pairs. 
+                        The pairs are delimited by a : symbol. The various filters are combined using an OR operator so in order for an object to get selected by this filter, any on filter should be TRUE.''',
                 'required': False,
                 'example': 'Status:Vigerend,ID:1',
                 'schema': {
@@ -394,14 +406,27 @@ def render_paths(endpoints):
                     'type': 'integer'
                 }},
                 {
-                'name': 'filters',
+                'name': 'all_filters',
                 'in': 'query',
-                'description': 'Filters to apply to the selection, represented by a comma-seperated list of pairs. The pairs are delimited by a : symbol.',
+                'description': '''Filters to apply to the selection, represented by a comma-seperated list of pairs. 
+                        The pairs are delimited by a : symbol. The various filters are combined using an AND operator so in order for an object to get selected by this filter, all the filters should be TRUE.''',
                 'required': False,
                 'example': 'Status:Vigerend,ID:1',
                 'schema': {
                     'type': 'string'
-                }},
+                }
+            },
+                {
+                'name': 'any_filters',
+                'in': 'query',
+                'description': '''Filters to apply to the selection, represented by a comma-seperated list of pairs. 
+                        The pairs are delimited by a : symbol. The various filters are combined using an OR operator so in order for an object to get selected by this filter, any on filter should be TRUE.''',
+                'required': False,
+                'example': 'Status:Vigerend,ID:1',
+                'schema': {
+                    'type': 'string'
+                }
+            },
                 {
                 'name': 'limit',
                 'in': 'query',
@@ -457,14 +482,27 @@ def render_paths(endpoints):
         if model.Meta.status_conf:
             paths[f'/valid/{model.Meta.slug}']['get'] = {
                 'parameters': [{
-                    'name': 'filters',
+                    'name': 'all_filters',
                     'in': 'query',
-                    'description': 'Filters to apply to the selection, represented by a comma-seperated list of pairs. The pairs are delimited by a : symbol.',
+                    'description': '''Filters to apply to the selection, represented by a comma-seperated list of pairs. 
+                        The pairs are delimited by a : symbol. The various filters are combined using an AND operator so in order for an object to get selected by this filter, all the filters should be TRUE.''',
                     'required': False,
                     'example': 'Status:Vigerend,ID:1',
                     'schema': {
                         'type': 'string'
-                    }},
+                    }
+                },
+                    {
+                    'name': 'any_filters',
+                    'in': 'query',
+                    'description': '''Filters to apply to the selection, represented by a comma-seperated list of pairs. 
+                        The pairs are delimited by a : symbol. The various filters are combined using an OR operator so in order for an object to get selected by this filter, any on filter should be TRUE.''',
+                    'required': False,
+                    'example': 'Status:Vigerend,ID:1',
+                    'schema': {
+                        'type': 'string'
+                    }
+                },
                     {
                     'name': 'limit',
                     'in': 'query',
@@ -525,6 +563,47 @@ def render_paths(endpoints):
                     'required': True,
                     'schema': {
                         'type': 'integer'
+                    }
+                }, {
+                    'name': 'all_filters',
+                    'in': 'query',
+                    'description': '''Filters to apply to the selection, represented by a comma-seperated list of pairs. 
+                        The pairs are delimited by a : symbol. The various filters are combined using an AND operator so in order for an object to get selected by this filter, all the filters should be TRUE.''',
+                    'required': False,
+                    'example': 'Status:Vigerend,ID:1',
+                    'schema': {
+                        'type': 'string'
+                    }
+                },
+                    {
+                    'name': 'any_filters',
+                    'in': 'query',
+                    'description': '''Filters to apply to the selection, represented by a comma-seperated list of pairs. 
+                        The pairs are delimited by a : symbol. The various filters are combined using an OR operator so in order for an object to get selected by this filter, any on filter should be TRUE.''',
+                    'required': False,
+                    'example': 'Status:Vigerend,ID:1',
+                    'schema': {
+                        'type': 'string'
+                    }
+                },
+                    {
+                    'name': 'limit',
+                    'in': 'query',
+                    'description': 'Amount of objects to maximally retrieve',
+                    'required': False,
+                    'schema': {
+                        'type': 'integer',
+                        'minimum': 0
+                    }
+                },
+                    {
+                    'name': 'offset',
+                    'in': 'query',
+                    'description': 'The amound of objects to skip',
+                    'required': False,
+                    'schema': {
+                        'type': 'integer',
+                        'minimum': 0
                     }
                 }],
                 'summary': f'Gets all the {model.Meta.slug} in this lineage that are valid',
