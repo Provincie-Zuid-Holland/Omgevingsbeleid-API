@@ -159,6 +159,16 @@ def test_status_404(client, test_user_UUID, auth, cleanup):
     assert response.status_code == 404, 'This endpoint should not exist'
 
 
+def test_id_404(client, test_user_UUID, auth, cleanup):
+    ep = f"v0.1/ambities/99999"
+    response = client.get(ep)
+    assert response.status_code == 404, 'This endpoint should return 404'
+
+def test_id_status_404(client, test_user_UUID, auth, cleanup):
+    ep = f"v0.1/valid/beleidskeuzes/99999"
+    response = client.get(ep)
+    assert response.status_code == 404, 'This endpoint should return 404'
+
 def test_status(client, test_user_UUID, auth, cleanup):
     ep = f"v0.1/valid/beleidskeuzes"
     response = client.get(ep)

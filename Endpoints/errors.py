@@ -55,8 +55,11 @@ def handle_read_only():
 def handle_no_status():
     return {'message': 'This object does not have a status configuration'}, 403
 
-def handle_does_not_exists(uuid):
+def handle_UUID_does_not_exists(uuid):
     return {'message': f'Object with UUID {uuid} does not exist.'}, 404
+
+def handle_ID_does_not_exists(id):
+    return {'message': f'Object with ID {id} does not exist.'}, 404
 
 def handle_validation_filter_exception(val_ex):
     return {"message": f"Validation errors in filters", "errors": val_ex.normalized_messages()}, 400

@@ -14,12 +14,13 @@ from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
 
 from Endpoints.base_schema import Base_Schema
-from Endpoints.errors import (handle_does_not_exists, handle_empty, handle_integrity_exception, handle_no_status,
+from Endpoints.errors import (handle_UUID_does_not_exists, handle_empty, handle_integrity_exception, handle_no_status,
                               handle_odbc_exception, handle_read_only,
                               handle_validation_exception,
                               handle_empty,
                               handle_read_only,
-                              handle_does_not_exists,
+                              handle_UUID_does_not_exists,
+                              handle_ID_does_not_exists,
                               handle_no_status,
                               handle_integrity_exception,
                               handle_odbc_exception,
@@ -185,7 +186,11 @@ class Lineage(Schema_Resource):
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             try:
-                return(get_objects(query, query_args, self.schema(), cursor)), 200
+                results = get_objects(query, query_args, self.schema(), cursor)
+                print(results)
+                if not results:
+                    return handle_ID_does_not_exists(id)
+                return results, 200
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e), 500
 
@@ -432,7 +437,10 @@ class ValidLineage(Schema_Resource):
 
             query = f'''SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? AND {status_field} = ? AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC '''
             try:
-                return(get_objects(query, [id, value], self.schema(), cursor)), 200
+                results = get_objects(query, [id, value], self.schema(), cursor)
+                if not results:
+                    return handle_ID_does_not_exists(id)
+                return(results), 200
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e), 500
 
@@ -460,7 +468,7 @@ class SingleVersion(Schema_Resource):
                 return handle_validation_exception(e), 500
             
             if not result:
-                return handle_does_not_exists(uuid)
+                return handle_UUID_does_not_exists(uuid)
             return(result[0]), 200
 
 
@@ -494,9 +502,9 @@ class Changes(Schema_Resource):
                     new_object = _obj
 
             if not old_object:
-                return handle_does_not_exists(old_uuid)
+                return handle_UUID_does_not_exists(old_uuid)
             if not new_object:
-                return handle_does_not_exists(new_uuid)
+                return handle_UUID_does_not_exists(new_uuid)
             return({
                 'old': old_object,
                 'changes': compare_objects(self.schema(), old_object, new_object)
