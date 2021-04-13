@@ -104,12 +104,13 @@ def parse_query_args(q_args, valid_filters, filter_schema):
         filter_schema (MM.Schema): Schema to validate filters on
 
     Returns:
-        Dict: A dictionary that contains the filters (Dict) and the Limit (Int) & Offset (Int)
+        Dict: A dictionary that contains the filters (Dict, both any_filters and all_filters) and the Limit (Int) & Offset (Int)
     """
     parsed = {}
     parsed['limit'] = q_args.get('limit')
     parsed['offset'] = q_args.get('offset', 0)
-    parsed['filters'] = None
+    parsed['any_filters'] = None  # OR seperated filters
+    parsed['all_filters'] = None  # AND seperated filters
 
     if parsed['limit']:
         if int(parsed['limit']) <= 0:
@@ -118,17 +119,33 @@ def parse_query_args(q_args, valid_filters, filter_schema):
     if parsed['offset'] and int(parsed['offset']) < 0:
         raise QueryArgError(f"Offset must be > 0")
 
-    filters_strf = q_args.get('filters')
-    if filters_strf:
-        parsed['filters'] = dict([tuple(filter.split(':'))
-                                  for filter in filters_strf.split(',')])
-        invalids = [f for f in parsed['filters'].keys()
+    any_filters_strf = q_args.get('any_filters')
+    if any_filters_strf:
+        parsed['any_filters'] = dict([tuple(filter.split(':'))
+                                      for filter in any_filters_strf.split(',')])
+        invalids = [f for f in parsed['any_filters'].keys()
                     if f not in valid_filters]
         if invalids:
             raise QueryArgError(
                 f"Filter(s) '{' '.join(invalids)}' invalid for this endpoint. Valid filters: '{', '.join(valid_filters)}''")
-        parsed['filters'] = filter_schema.load(parsed['filters'])
+        parsed['any_filters'] = filter_schema.load(parsed['any_filters'])
+
+    all_filters_strf = q_args.get('all_filters')
+    if all_filters_strf:
+        if any_filters_strf:
+            raise QueryArgError(
+                "Using both `all_filters` and `any_filters` is not supported")
+        parsed['all_filters'] = dict([tuple(filter.split(':'))
+                                      for filter in all_filters_strf.split(',')])
+        invalids = [f for f in parsed['all_filters'].keys()
+                    if f not in valid_filters]
+        if invalids:
+            raise QueryArgError(
+                f"Filter(s) '{' '.join(invalids)}' invalid for this endpoint. Valid filters: '{', '.join(valid_filters)}''")
+        parsed['all_filters'] = filter_schema.load(parsed['all_filters'])
+
     return parsed
+
 
 class Schema_Resource(Resource):
     """
@@ -158,22 +175,26 @@ class Lineage(Schema_Resource):
         except MM.exceptions.ValidationError as e:
             # Invalid filter values
             return handle_validation_filter_exception(e)
-        
+
         # Retrieve all the fields we want to query
         included_fields = ', '.join(
             [field for field in self.schema().fields_without_props('referencelist')])
 
         query = f'''SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ?'''
-        
 
         # Id is required
         query_args = [id]
-        
-        if filters:= q_args['filters']:
+
+        if filters:= q_args['any_filters']:
             query += ' AND ' + \
                 'OR '.join(f'{key} = ? ' for key in filters)
             query_args = [filters[key] for key in filters]
-        
+
+        if filters:= q_args['all_filters']:
+            query += ' AND ' + \
+                'AND '.join(f'{key} = ? ' for key in filters)
+            query_args = [filters[key] for key in filters]
+
         query += ''' AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC'''
 
         query += " OFFSET ? ROWS"
@@ -181,7 +202,7 @@ class Lineage(Schema_Resource):
 
         if limit:= q_args['limit']:
             query += " FETCH NEXT ? ROWS ONLY"
-            query_args.append(int(limit))     
+            query_args.append(int(limit))
 
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
@@ -234,7 +255,6 @@ class Lineage(Schema_Resource):
                 if field in old_object:
                     old_object.pop(field)
 
-
             new_object = {**old_object, **changes}
 
             new_object.pop('UUID')
@@ -283,11 +303,15 @@ class FullList(Schema_Resource):
 
         query_args = []
 
-        if filters:= q_args['filters']:
+        if filters:= q_args['any_filters']:
+            query += ' AND ' + \
+                'OR '.join(f'{key} = ? ' for key in filters)
+            query_args = [filters[key] for key in filters]
+
+        if filters:= q_args['all_filters']:
             query += ' AND ' + \
                 'AND '.join(f'{key} = ? ' for key in filters)
             query_args = [filters[key] for key in filters]
-
 
         query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC"
 
@@ -375,7 +399,6 @@ class ValidList(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-
         # Retrieve all the fields we want to query
         included_fields = ', '.join(
             [field for field in self.schema().fields_without_props('referencelist')])
@@ -388,12 +411,17 @@ class ValidList(Schema_Resource):
                         FROM {self.schema().Meta.table}
                         WHERE {status_field} = ? AND UUID != '00000000-0000-0000-0000-000000000000') T 
                     WHERE rownumber = 1'''
-        
+
         query_args = [status_value]
-        
-        if filters:= q_args['filters']:
+
+        if filters:= q_args['any_filters']:
             query += ' AND ' + \
                 'OR '.join(f'{key} = ? ' for key in filters)
+            query_args = [filters[key] for key in filters]
+
+        if filters:= q_args['all_filters']:
+            query += ' AND ' + \
+                'AND '.join(f'{key} = ? ' for key in filters)
             query_args = [filters[key] for key in filters]
 
         query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY [Modified_date] DESC"
@@ -426,18 +454,52 @@ class ValidLineage(Schema_Resource):
         if not self.schema.Meta.status_conf:
             return handle_no_status()
 
+        try:
+            q_args = parse_query_args(
+                request.args, self.schema().fields_without_props('referencelist'), self.schema(partial=True))
+        except QueryArgError as e:
+            # Invalid filter keys
+            return handle_queryarg_exception(e)
+        except MM.exceptions.ValidationError as e:
+            # Invalid filter values
+            return handle_validation_filter_exception(e)
+
+        # Retrieve all the fields we want to query
+        included_fields = ', '.join(
+            [field for field in self.schema().fields_without_props('referencelist')])
+
+        status_field, value = self.schema.Meta.status_conf
+
+        query = f'''SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? AND 
+            {status_field} = ?'''
+        
+        query_args = [id, value]
+
+        if filters:= q_args['any_filters']:
+            query += ' AND ' + \
+                'OR '.join(f'{key} = ? ' for key in filters)
+            query_args = [filters[key] for key in filters]
+
+        if filters:= q_args['all_filters']:
+            query += ' AND ' + \
+                'AND '.join(f'{key} = ? ' for key in filters)
+            query_args = [filters[key] for key in filters]
+
+        query += ''' AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC'''
+
+        query += " OFFSET ? ROWS"
+        query_args.append(int(q_args['offset']))
+
+        if limit:= q_args['limit']:
+            query += " FETCH NEXT ? ROWS ONLY"
+            query_args.append(int(limit))
+        
+
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
-
-            # Retrieve all the fields we want to query
-            included_fields = ', '.join(
-                [field for field in self.schema().fields_without_props('referencelist')])
-
-            status_field, value = self.schema.Meta.status_conf
-
-            query = f'''SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? AND {status_field} = ? AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC '''
             try:
-                results = get_objects(query, [id, value], self.schema(), cursor)
+                results = get_objects(
+                    query, query_args, self.schema(), cursor)
                 if not results:
                     return handle_ID_does_not_exists(id)
                 return(results), 200
@@ -466,7 +528,7 @@ class SingleVersion(Schema_Resource):
                 result = get_objects(query, [uuid], self.schema(), cursor)
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e), 500
-            
+
             if not result:
                 return handle_UUID_does_not_exists(uuid)
             return(result[0]), 200
