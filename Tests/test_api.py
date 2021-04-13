@@ -306,7 +306,7 @@ def test_reverse_lookup(client, auth, cleanup):
     response = client.post('v0.1/beleidskeuzes', json=test_data, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
-    assert response.get_json()['Ambities'][0]['UUID'] == ambitie_uuid, f"Nested objects are on object. Body content: {response.json}"
+    assert response.get_json()['Ambities'][0]['Object']['UUID'] == ambitie_uuid, f"Nested objects are not on object. Body content: {response.json}"
     
     beleidskeuze_id = response.get_json()['ID']
     beleidskeuze_uuid = response.get_json()['UUID']
@@ -323,7 +323,7 @@ def test_reverse_lookup(client, auth, cleanup):
     response = client.patch(f'v0.1/beleidskeuzes/{beleidskeuze_id}', json={"Titel": "New Title"}, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
-    assert response.get_json()['Ambities'][0]['UUID'] == ambitie_uuid, f"Nested objects are on object. Body content: {response.json}"
+    assert response.get_json()['Ambities'][0]['Object']['UUID'] == ambitie_uuid, f"Nested objects are not on object. Body content: {response.json}"
 
     beleidskeuze_latest_id = response.get_json()['ID']
     beleidskeuze_latest_uuid = response.get_json()['UUID']

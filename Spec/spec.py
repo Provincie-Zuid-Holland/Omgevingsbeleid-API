@@ -69,8 +69,18 @@ def render_schemas(endpoints):
                         'description': f'An list of {slug} objects',
                         'type': 'array',
                         'items': {
-                            '$ref': f'#/components/schemas/{slug}-read'}
+                            'type': 'object',
+                            'properties': {
+                                'Koppeling_Omschrijving': {
+                                    'type': 'string'
+                                },
+                                'Object': {
+                                    '$ref': f'#/components/schemas/{slug}-read'}
+                            }
+
+                        }
                     }
+
                     write_properties[field] = {
                         'description': f'An list of references to {slug} objects',
                         'type': 'array',

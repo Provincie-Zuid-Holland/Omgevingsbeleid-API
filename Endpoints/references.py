@@ -105,15 +105,22 @@ class UUID_List_Reference:
                 [field for field in self.schema.fields])
 
         query = f'''
-        SELECT {included_fields} FROM {self.link_tablename}
+        SELECT {included_fields}, {self.description_col} FROM {self.link_tablename}
         LEFT JOIN {self.their_tablename} ON {self.their_tablename}.UUID = {self.their_col}
         WHERE {self.my_col} = ?
         '''
         # Retrieve the objects
         query_result = list(cursor.execute(query, UUID))
-        result_objects = self.schema.load(
-            map(row_to_dict, query_result), many=True)
-        return(self.schema.dump(result_objects, many=True))
+        
+        result_objects = []
+        for res in query_result:
+            res_row = row_to_dict(res)
+            result_objects.append({
+            'Koppeling_Omschrijving': res_row.pop(self.description_col),
+            'Object':self.schema.dump(res_row)})
+            
+        
+        return result_objects
 
     def retrieve(self, UUID, cursor):
         """This function retrieves the linked object from the appropiate table and uses the default linker schema
