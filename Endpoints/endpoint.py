@@ -208,12 +208,12 @@ class Lineage(Schema_Resource):
             cursor = connection.cursor()
             try:
                 results = get_objects(query, query_args, self.schema(), cursor)
-                print(results)
+                
                 if not results:
                     return handle_ID_does_not_exists(id)
                 return results, 200
             except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e), 500
+                return handle_validation_exception(e)
 
     @jwt_required
     def patch(self, id):
@@ -272,6 +272,8 @@ class Lineage(Schema_Resource):
                 return handle_integrity_exception(e)
             except pyodbc.DatabaseError as e:
                 return handle_odbc_exception(e)
+            except MM.ValidationError as e:
+                return handle_validation_exception(e)
 
             connection.commit()
             return new_object, 200

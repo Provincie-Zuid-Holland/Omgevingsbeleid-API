@@ -149,7 +149,8 @@ class UUID_List_Reference:
         Return:
             dict: The refered object
         """
-        for link in linked:
+        
+        for link in linked:    
             link = UUID_Linker_Schema().load(link)
             query = f'''
                 INSERT INTO {self.link_tablename} ({self.my_col}, {self.their_col}, {self.description_col}) VALUES (?, ?, ?)'''
