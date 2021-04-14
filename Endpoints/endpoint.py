@@ -241,8 +241,12 @@ class Lineage(Schema_Resource):
 
             query = f'SELECT TOP(1) * FROM {self.schema.Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC'
 
-            old_object = get_objects(
-                query, [id], self.schema(), cursor, inline=False)[0]
+            old_objects = get_objects(
+                query, [id], self.schema(), cursor, inline=False)
+            if not old_objects:
+                return handle_ID_does_not_exists(id)
+            
+            old_object = old_objects[0]
 
             try:
                 changes = patch_schema.load(request.json)
