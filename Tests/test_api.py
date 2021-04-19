@@ -445,3 +445,11 @@ def test_clear_patch_fields_maatregelen(client, auth):
     modify_data = {'Titel': 'Nieuwere Titel'}
     response = client.patch(patch_ep, json=modify_data, headers={'Authorization': f'Bearer {auth[1]}'})
     assert response.get_json()['Aanpassing_Op'] == None
+
+def test_graph(client, auth):
+    ep = f"v0.1/graph"
+    response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 200, 'Graph endpoint not working'
+
+    response = client.get(ep)
+    assert response.status_code != 200, 'Graph endpoint is available without auth'    
