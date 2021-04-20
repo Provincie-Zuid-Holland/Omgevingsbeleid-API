@@ -51,7 +51,7 @@ class Maatregelen_Schema(Base_Schema):
                                    validate=MM.validate.OneOf(["Indicatief", "Exact"]), obprops=[])
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
-        missing=None, default=None, obprops=['excluded_post'])
+        missing=None, default=None, obprops=['excluded_post', 'not_inherited'])
     Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
 

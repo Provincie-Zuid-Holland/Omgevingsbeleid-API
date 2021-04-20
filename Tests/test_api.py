@@ -2,7 +2,7 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 from datetime import timezone
-from Models import beleidskeuzes, ambities
+from Models import beleidskeuzes, ambities, maatregelen
 import os
 import tempfile
 import json
@@ -401,3 +401,47 @@ def test_multiple_filters(client, auth):
     response = client.get(ep + '?any_filters=Titel:Test4325123$%,Afweging:Test4325123$%')
     assert response.status_code == 200, f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
     assert len(response.get_json()) == 3, 'This should return all objects that were created'
+
+def test_clear_patch_fields_beleidskeuzes(client, auth):
+    ep = f"v0.1/beleidskeuzes"
+    test_data = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+
+    new_id = response.get_json()['ID']
+    new_uuid = response.get_json()['UUID']
+
+    modify_data = {'Titel': 'Nieuwe Titel', 'Aanpassing_Op': new_uuid}
+    patch_ep = ep + f'/{new_id}'
+    response = client.patch(patch_ep, json=modify_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+    assert response.status_code == 200, f"Status code for PATCH on {patch_ep} was {response.status_code}, should be 200. Body content: {response.json}"
+    assert response.get_json()['Aanpassing_Op'] == new_uuid
+    
+    modify_data = {'Titel': 'Nieuwere Titel'}
+    response = client.patch(patch_ep, json=modify_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.get_json()['Aanpassing_Op'] == None
+
+def test_clear_patch_fields_maatregelen(client, auth):
+    ep = f"v0.1/maatregelen"
+    test_data = generate_data(
+            maatregelen.Maatregelen_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+
+    new_id = response.get_json()['ID']
+    new_uuid = response.get_json()['UUID']
+
+    modify_data = {'Titel': 'Nieuwe Titel', 'Aanpassing_Op': new_uuid}
+    patch_ep = ep + f'/{new_id}'
+    response = client.patch(patch_ep, json=modify_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+    assert response.status_code == 200, f"Status code for PATCH on {patch_ep} was {response.status_code}, should be 200. Body content: {response.json}"
+    assert response.get_json()['Aanpassing_Op'] == new_uuid
+    
+    modify_data = {'Titel': 'Nieuwere Titel'}
+    response = client.patch(patch_ep, json=modify_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.get_json()['Aanpassing_Op'] == None
