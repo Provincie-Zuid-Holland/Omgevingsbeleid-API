@@ -34,13 +34,22 @@ def graphView():
                 nodes = nodes + list(map(row_to_dict, cursor.execute(query)))
     
     seen_uuids = [node['UUID'] for node in nodes]
+    bbs_uuid_list = ', '.join([f"'{node['UUID']}'" for node in nodes if node['Type'] == 'beleidskeuzes'])
+
 
     for table, link in linker_tables:
-        query =  f'''SELECT Beleidskeuze_UUID as source, {link} as target from {table}'''
+        query =  f'''SELECT Beleidskeuze_UUID as source, {link} as target, 'Koppeling' as type from {table} WHERE Beleidskeuze_UUID IN ({bbs_uuid_list})'''
         with pyodbc.connect(db_connection_settings) as connection:
                 cursor = connection.cursor()                
                 for link in map(row_to_dict, cursor.execute(query)):
-                    if link['source'] in seen_uuids and link['target'] in seen_uuids:
+                    if link['target'] in seen_uuids:
                         links.append(link)
+    
+    query =  f'''SELECT Van_Beleidskeuze as source, Naar_Beleidskeuze as target, 'Relatie' as type from Beleidsrelaties WHERE Van_Beleidskeuze IN ({bbs_uuid_list})'''
+    with pyodbc.connect(db_connection_settings) as connection:
+        cursor = connection.cursor()                
+        for link in map(row_to_dict, cursor.execute(query)):
+            if link['target'] in seen_uuids:
+                links.append(link)
 
     return {'nodes': nodes, 'links': links}
