@@ -3,7 +3,8 @@
 
 import marshmallow as MM
 from globals import null_uuid
-
+import base64
+from pathlib import Path
 
 def generate_data(schema, user_UUID=null_uuid, excluded_prop=None):
     fields = schema(exclude=schema.fields_with_props(excluded_prop)).fields
@@ -74,3 +75,15 @@ reference_rich_beleidskeuze = {
         }
     ]
 }
+
+
+image_folder = Path('./Tests/test_images')
+
+with open(image_folder / "zuidholland_large.png", "rb") as image_file:
+    encoded = base64.b64encode(image_file.read()).decode('utf-8')
+    html_with_large_filesize_image = f"""<h1>Happy</h1><img alt="" src="data:image/png;base64,{encoded}" />"""
+    
+
+with open(image_folder / "zuidholland_wide.jpg", "rb") as image_file:
+    encoded = base64.b64encode(image_file.read()).decode('utf-8')
+    html_with_oversized_width_image = f"""<h1>Happy</h1><img alt="" src="data:image/jpeg;base64,{encoded}" />"""

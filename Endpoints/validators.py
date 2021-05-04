@@ -7,7 +7,7 @@ from urllib import request
 import sys
 import base64
 import io
-
+from PIL import Image
 
 whitelist_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'p', 'b', 'i', 'a',
                   'strong', 'li', 'ol', 'ul', 'img', 'br', 'u', 'em', 'span', 'sub']
@@ -67,17 +67,31 @@ def HTML_Validate(s):
                             f'Non whitelisted url schema "{val}" in text "{el}"')
 
             if el.name == 'img':
-                if 'src' in el.attrs:
-                    val = el.attrs['src']
-                    uri_parts = urlparse(val)
-                    if not uri_parts.scheme == 'data':
-                        raise ValidationError(f'Non data uri for src of image "{val}" in text "{el}"')
-                    header, encoded_picture = el['src'].split(',', 1)
-                    picture_data = base64.b64decode(encoded_picture)
-                    if bytesto(sys.getsizeof(picture_data), 'm') > 1:
-                        raise ValidationError(f'Image larger than 1MB in text')
+                validate_image(el)
 
             
         else:
             # Only need to check tags
             continue
+
+def validate_image(element):
+    """Validates an image HTML element for the following criteria:
+        - The filesize of the image may not exceed 1MB
+        - The width dimensions of the image may not exceed 800px
+    Args:
+        element (Beautifullsoup.Element): The image element to validate
+    """
+    if 'src' in element.attrs:
+        val = element.attrs['src']
+        uri_parts = urlparse(val)
+        if not uri_parts.scheme == 'data':
+            raise ValidationError(f'Non data uri for src of image "{val}" in text "{element}"')
+        _, encoded_picture = element['src'].split(',', 1)
+        picture_data = base64.b64decode(encoded_picture)
+        if bytesto(sys.getsizeof(picture_data), 'm') > 1:
+            raise ValidationError(f'Image filesize larger than 1MB in text')
+        im = Image.open(io.BytesIO(picture_data))
+        width, _ = im.size
+        if width > 800:
+            raise ValidationError(f'Image width larger than 800px in text')
+
