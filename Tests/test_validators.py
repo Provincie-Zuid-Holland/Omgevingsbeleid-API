@@ -4,6 +4,7 @@ import marshmallow as MM
 import io
 import base64
 import sys
+from Tests.test_data import html_with_large_filesize_image
 
 def test_HTML_Validator_XSS():
     with pytest.raises(MM.ValidationError) as val_error:
@@ -18,12 +19,13 @@ def test_HTML_Validator_img_src():
 
 def test_HTML_Validator_img_size():
     with pytest.raises(MM.ValidationError) as val_error:
-        mem_image = io.BytesIO(b"")
-        mem_image.seek(2 * 1024 * 1024) 
-        mem_image.write(b'0')
-        mem_image.seek(0) 
-        print(sys.getsizeof(mem_image))
-        encoded = base64.b64encode(mem_image.read()).decode('utf-8')
-        evil_html =f"""<img src='data:image/png;base64,{encoded}' >"""
+        evil_html = html_with_large_filesize_image
         validators.HTML_Validate(evil_html)
-    assert 'Image larger than' in str(val_error.value)
+    assert 'Image filesize larger than' in str(val_error.value)
+
+# def test_HTML_Validator_img_dimension():
+#     with pytest.raises(MM.ValidationError) as val_error:
+#         evil_html = html_with_oversized_width_image
+#         validators.HTML_Validate(evil_html)
+#     assert 'Image width larger than' in str(val_error.value)
+
