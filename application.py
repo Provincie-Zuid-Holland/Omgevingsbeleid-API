@@ -16,6 +16,7 @@ import Endpoints.endpoint
 from Auth.views import jwt_required_not_GET, login, tokenstat
 from Spec.spec import specView
 from Endpoints.search import searchView
+from Endpoints.graph import graphView
 
 current_version = '0.1'
 
@@ -73,6 +74,9 @@ app.add_url_rule(f'/v{current_version}/spec',
                  'spec', specView, methods=['GET'])
 app.add_url_rule(f'/v{current_version}/search',
                  'search', searchView, methods=['GET'])
+
+app.add_url_rule(f'/v{current_version}/graph',
+                 'graph', graphView, methods=['GET'])
 
 
 if __name__ == '__main__':
