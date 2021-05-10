@@ -81,11 +81,8 @@ def get_objects(query, query_args, schema, cursor, inline=True):
     Returns:
         list: A collection of objects that resulted out of the query
     """
-    query_result = map(row_to_dict, cursor.execute(query, *query_args))
-    # Load the objects to ensure validation
-    result_objecten = list(map(schema.load, query_result))
+    result_objecten = map(row_to_dict, cursor.execute(query, *query_args))
     result_objecten = schema.dump(result_objecten, many=True)
-
     for obj in result_objecten:
         obj = merge_references(obj, schema, cursor, inline)
 

@@ -68,7 +68,7 @@ class Short_Base_Schema(MM.Schema):
         for field in dumped:
             if isinstance(self.fields[field], MM.fields.DateTime):
                 if dumped[field]:
-                    dumped[field] = dumped[field].replace('+00:00', 'Z')
+                    dumped[field] = dumped[field] + 'Z'
         return dumped
 
     @MM.post_dump()
