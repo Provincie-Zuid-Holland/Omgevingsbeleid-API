@@ -28,6 +28,7 @@ app = Flask(__name__)
 CORS(app)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=4)
+app.config['PROPAGATE_EXCEPTIONS'] = True
 api = Api(app, prefix=f'/v{current_version}',
           decorators=[jwt_required_not_GET, ])
 jwt = JWTManager(app)
