@@ -266,7 +266,7 @@ class UUID_Reference:
             # Needs to be resolved in a better way
             return None
 
-        result_object = self.schema.load(row_to_dict(query_result[0]))    
+        result_object = row_to_dict(query_result[0])
         return(self.schema.dump(result_object))
     
     def retrieve(self, UUID, cursor):
