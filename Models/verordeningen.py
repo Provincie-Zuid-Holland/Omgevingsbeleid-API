@@ -48,9 +48,9 @@ class Verordeningen_Schema(Base_Schema):
             'Portefeuillehouder_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema),
-            'Ref_Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Beleidsdoelen',
+            'Ref_Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Verordeningen',
                                                     'Beleidskeuzes',
-                                                    'Beleidsdoel_UUID',
+                                                    'Verordening_UUID',
                                                     'Beleidskeuze_UUID',
                                                     'Koppeling_Omschrijving',
                                                     Short_Beleidskeuze_Schema
