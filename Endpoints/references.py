@@ -135,8 +135,7 @@ class UUID_List_Reference:
         query = f'SELECT {self.their_col} as UUID, {self.description_col} as Koppeling_Omschrijving FROM {self.link_tablename} WHERE {self.my_col} = ?'
         # Retrieve the objects
         query_result = list(cursor.execute(query, UUID))
-        result_objects = UUID_Linker_Schema().load(
-            map(row_to_dict, query_result), many=True)
+        result_objects = map(row_to_dict, query_result)
         return(UUID_Linker_Schema().dump(result_objects, many=True))
 
     def store(self, UUID, linked, cursor):
@@ -198,8 +197,7 @@ class Reverse_UUID_Reference:
 
         # Retrieve the objects
         query_result = list(cursor.execute(query, UUID))
-        result_objects = self.schema.load(
-            map(row_to_dict, query_result), many=True)
+        result_objects = map(row_to_dict, query_result)
         return(self.schema.dump(result_objects, many=True))
 
     def retrieve(self, UUID, cursor):
