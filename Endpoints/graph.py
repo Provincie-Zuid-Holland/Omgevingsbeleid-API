@@ -43,7 +43,6 @@ def graphView():
     seen_uuids = [node['UUID'] for node in nodes]
     bbs_uuid_list = ', '.join([f"'{node['UUID']}'" for node in nodes if node['Type'] == 'beleidskeuzes'])
 
-    print(linker_tables)
     # Gather all the direct links
     for table, link in linker_tables:
         query =  f'''SELECT Beleidskeuze_UUID as source, {link} as target, 'Koppeling' as type from {table} WHERE Beleidskeuze_UUID IN ({bbs_uuid_list})'''
