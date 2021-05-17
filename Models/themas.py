@@ -28,3 +28,4 @@ class Themas_Schema(Base_Schema):
                                                  Short_Beleidskeuze_Schema
                                                  )
         }
+        graph_conf = 'Titel'

@@ -31,6 +31,7 @@ class Short_Base_Schema(MM.Schema):
         unknown = MM.RAISE
         # (field_name, valid_value)
         status_conf = None
+        graph_conf = None
 
 
     def minmax_datetime(self, data):

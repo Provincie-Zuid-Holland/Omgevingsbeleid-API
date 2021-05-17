@@ -24,13 +24,13 @@ class Verordeningen_Schema(Base_Schema):
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
     Opdrachtgever = MM.fields.UUID(
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
-    Titel = MM.fields.Str(missing=None, obprops=['search_field'])
-    Inhoud = MM.fields.Str(missing=None, obprops=['search_field'])
+    Titel = MM.fields.Str(missing=None, obprops=[])
+    Inhoud = MM.fields.Str(missing=None, obprops=[])
     Weblink = MM.fields.Str(missing=None, obprops=[])
-    Status = MM.fields.Str(missing=None, obprops=['search_field'])
+    Status = MM.fields.Str(missing=None, obprops=[])
     Volgnummer = MM.fields.Str(missing=None, obprops=[])
     Type = MM.fields.Str(missing=None,  validate=[MM.validate.OneOf(
-        ['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel', 'Lid'])], obprops=['search_field'])
+        ['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel', 'Lid'])], obprops=[])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
     Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
@@ -56,3 +56,4 @@ class Verordeningen_Schema(Base_Schema):
                                                     Short_Beleidskeuze_Schema
                                                     )
         }
+        graph_conf = 'Titel'

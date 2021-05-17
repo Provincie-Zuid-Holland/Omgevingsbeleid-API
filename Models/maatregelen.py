@@ -77,3 +77,4 @@ class Maatregelen_Schema(Base_Schema):
             'Portefeuillehouder_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema)}
+        graph_conf = 'Titel'

@@ -104,3 +104,4 @@ class Beleidskeuzes_Schema(Base_Schema):
             'Werkingsgebieden': UUID_List_Reference('Beleidskeuze_Werkingsgebieden', 'Werkingsgebieden', 'Beleidskeuze_UUID', 'Werkingsgebied_UUID', 'Koppeling_Omschrijving', Models.werkingsgebieden.Werkingsgebieden_Schema)            
         }
         status_conf = ('Status', 'Vigerend')
+        graph_conf = 'Titel'
