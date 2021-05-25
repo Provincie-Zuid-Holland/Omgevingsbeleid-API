@@ -4,7 +4,7 @@
 import marshmallow as MM
 
 from Endpoints.endpoint import Base_Schema
-from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema
+from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema, ID_List_Reference
 from Endpoints.validators import HTML_Validate
 
 from globals import default_user_uuid
@@ -93,13 +93,13 @@ class Beleidskeuzes_Schema(Base_Schema):
             'Portefeuillehouder_1': UUID_Reference('Gebruikers', Models.gebruikers.Gebruikers_Schema),
             'Portefeuillehouder_2': UUID_Reference('Gebruikers', Models.gebruikers.Gebruikers_Schema),
             'Opdrachtgever': UUID_Reference('Gebruikers', Models.gebruikers.Gebruikers_Schema),
-            'Ambities': UUID_List_Reference('Beleidskeuze_Ambities', 'Ambities', 'Beleidskeuze_UUID', 'Ambitie_UUID', 'Koppeling_Omschrijving', Models.ambities.Ambities_Schema),
+            'Ambities': ID_List_Reference('Beleidskeuze_Ambities', 'Ambities', 'Beleidskeuze_UUID', 'Ambitie_UUID', 'Koppeling_Omschrijving', Models.ambities.Ambities_Schema),
             'Belangen': UUID_List_Reference('Beleidskeuze_Belangen', 'Belangen', 'Beleidskeuze_UUID', 'Belang_UUID', 'Koppeling_Omschrijving', Models.belangen.Belangen_Schema),
-            'Beleidsdoelen': UUID_List_Reference('Beleidskeuze_Beleidsdoelen', 'Beleidsdoelen', 'Beleidskeuze_UUID', 'Beleidsdoel_UUID', 'Koppeling_Omschrijving', Models.beleidsdoelen.Beleidsdoelen_Schema),
-            'Beleidsprestaties': UUID_List_Reference('Beleidskeuze_Beleidsprestaties', 'Beleidsprestaties', 'Beleidskeuze_UUID', 'Beleidsprestatie_UUID', 'Koppeling_Omschrijving', Models.beleidsprestaties.Beleidsprestaties_Schema),
+            'Beleidsdoelen': ID_List_Reference('Beleidskeuze_Beleidsdoelen', 'Beleidsdoelen', 'Beleidskeuze_UUID', 'Beleidsdoel_UUID', 'Koppeling_Omschrijving', Models.beleidsdoelen.Beleidsdoelen_Schema),
+            'Beleidsprestaties': ID_List_Reference('Beleidskeuze_Beleidsprestaties', 'Beleidsprestaties', 'Beleidskeuze_UUID', 'Beleidsprestatie_UUID', 'Koppeling_Omschrijving', Models.beleidsprestaties.Beleidsprestaties_Schema),
             'Beleidsregels': UUID_List_Reference('Beleidskeuze_Beleidsregels', 'Beleidsregels', 'Beleidskeuze_UUID', 'Beleidsregel_UUID', 'Koppeling_Omschrijving', Models.beleidsregels.Beleidsregels_Schema),
-            'Maatregelen': UUID_List_Reference('Beleidskeuze_Maatregelen', 'Maatregelen', 'Beleidskeuze_UUID', 'Maatregel_UUID', 'Koppeling_Omschrijving', Models.maatregelen.Maatregelen_Schema),
-            'Themas': UUID_List_Reference('Beleidskeuze_Themas', 'Themas', 'Beleidskeuze_UUID', 'Thema_UUID', 'Koppeling_Omschrijving', Models.themas.Themas_Schema),
+            'Maatregelen': ID_List_Reference('Beleidskeuze_Maatregelen', 'Maatregelen', 'Beleidskeuze_UUID', 'Maatregel_UUID', 'Koppeling_Omschrijving', Models.maatregelen.Maatregelen_Schema),
+            'Themas': ID_List_Reference('Beleidskeuze_Themas', 'Themas', 'Beleidskeuze_UUID', 'Thema_UUID', 'Koppeling_Omschrijving', Models.themas.Themas_Schema),
             'Verordeningen': UUID_List_Reference('Beleidskeuze_Verordeningen', 'Verordeningen', 'Beleidskeuze_UUID', 'Verordening_UUID', 'Koppeling_Omschrijving', Models.verordeningen.Verordeningen_Schema),
             'Werkingsgebieden': UUID_List_Reference('Beleidskeuze_Werkingsgebieden', 'Werkingsgebieden', 'Beleidskeuze_UUID', 'Werkingsgebied_UUID', 'Koppeling_Omschrijving', Models.werkingsgebieden.Werkingsgebieden_Schema)            
         }

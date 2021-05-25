@@ -76,6 +76,8 @@ def store_references(obj, schema, cursor):
     return obj
 
 
+    
+
 class UUID_List_Reference:
     def __init__(self, link_tablename, their_tablename, my_col, their_col, description_col, schema):
         self.link_tablename = link_tablename
@@ -156,6 +158,90 @@ class UUID_List_Reference:
             # Store the objects
             cursor.execute(query, UUID, link['UUID'], link.get(
                 'Koppeling_Omschrijving'))
+
+
+class ID_List_Reference(UUID_List_Reference):
+
+    def retrieve(self, UUID, cursor):
+        """This function retrieves the linked object from the appropiate table and uses the default linker schema
+
+        Args:
+            UUID (uuid): The UUID of this object
+            cursor (pyodbc.cursor): A cursor with a database connection
+
+        Return:
+            dict: The refered object
+        """
+
+        status_filter = ''
+        if self.schema.Meta.status_conf:
+            field, value = self.schema.Meta.status_conf
+            status_filter = f"""AND {field} = '{value}'"""
+
+        query = f'''
+            SELECT [b].[UUID] as UUID
+                ,{self.description_col}	 	 
+            FROM [db-local-omgevingsbeleid].[dbo].{self.link_tablename}
+            
+            LEFT JOIN {self.their_tablename} a ON a.UUID = {self.their_col}
+            
+            LEFT JOIN (SELECT * FROM
+			    (SELECT *, Row_number() OVER (partition BY [ID]
+			        ORDER BY [Modified_date] DESC) [RowNumber]
+			        FROM {self.their_tablename}
+			    WHERE UUID != '00000000-0000-0000-0000-000000000000' {status_filter}) T 
+            WHERE rownumber = 1) b ON b.ID = a.ID
+            WHERE {self.my_col} = ?'''
+        
+        # Retrieve the objects
+        query_result = list(cursor.execute(query, UUID))
+        result_objects = map(row_to_dict, query_result)
+        
+        
+        return(UUID_Linker_Schema().dump(result_objects, many=True))
+
+    
+    def retrieve_inline(self, UUID, cursor):
+        try:
+            included_fields = ', '.join(
+                [f'b.{field}' for field in self.schema.fields_without_props('referencelist')])
+        # this happens when the inlined object is not based on a base_schema (most probably a user table)
+        except AttributeError:
+            included_fields = ', '.join(
+                [f'b.{field}' for field in self.schema.fields])
+
+        status_filter = ''
+        if self.schema.Meta.status_conf:
+            field, value = self.schema.Meta.status_conf
+            status_filter = f"""AND {field} = '{value}'"""
+
+        query = f'''
+            SELECT {included_fields}
+                ,{self.description_col}	 
+            FROM [db-local-omgevingsbeleid].[dbo].{self.link_tablename}
+            LEFT JOIN {self.their_tablename} a ON a.UUID = {self.their_col}            
+            LEFT JOIN (SELECT * FROM
+			    (SELECT *, Row_number() OVER (partition BY [ID]
+			        ORDER BY [Modified_date] DESC) [RowNumber]
+			        FROM {self.their_tablename}
+			    WHERE UUID != '00000000-0000-0000-0000-000000000000' {status_filter}) T 
+            WHERE rownumber = 1) b ON b.ID = a.ID
+            WHERE {self.my_col} = ?'''
+
+        # Retrieve the objects
+        query_result = list(cursor.execute(query, UUID))
+        
+        result_objects = []
+        
+        for res in query_result:
+            res_row = row_to_dict(res)
+            result_objects.append({
+            'Koppeling_Omschrijving': res_row.pop(self.description_col),
+            'Object':self.schema.dump(res_row)})
+            
+        
+        return result_objects
+        
 
 
 class Reverse_UUID_Reference:

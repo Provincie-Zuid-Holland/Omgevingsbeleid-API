@@ -250,6 +250,7 @@ class Lineage(Schema_Resource):
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e)
 
+
             old_object = self.schema().load(old_object)
 
             for field in self.schema.fields_with_props('not_inherited'):

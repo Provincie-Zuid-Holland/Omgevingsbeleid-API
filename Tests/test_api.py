@@ -12,7 +12,7 @@ from application import app
 from datamodel import endpoints
 from Tests.test_data import generate_data, reference_rich_beleidskeuze
 from globals import db_connection_settings, min_datetime, max_datetime
-from Endpoints.references import UUID_List_Reference
+from Endpoints.references import ID_List_Reference, UUID_List_Reference, ID_List_Reference
 import copy
 from flask import jsonify
 import datetime
@@ -53,7 +53,7 @@ def cleanup(auth):
                 f"SELECT UUID FROM {table.Meta.table} WHERE Created_By = ?", test_uuid))
             for field, ref in table.Meta.references.items():
                 # Remove all references first
-                if type(ref) == UUID_List_Reference:
+                if type(ref) == UUID_List_Reference or type(ref) == ID_List_Reference:
                     for new_uuid in list(new_uuids):
                         cur.execute(
                             f"DELETE FROM {ref.link_tablename} WHERE {ref.my_col} = ?", new_uuid[0])
@@ -453,3 +453,58 @@ def test_graph(client, auth):
 
     response = client.get(ep)
     assert response.status_code != 200, 'Graph endpoint is available without auth'    
+
+def test_ID_ref(client, auth):
+    ep = f"v0.1/ambities"
+    ambitie_data = generate_data(
+            ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=ambitie_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+    am_ID = response.get_json()['ID']
+    am_UUID = response.get_json()['UUID']
+
+    ep = f"v0.1/beleidskeuzes"
+    test_data = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    test_data['Ambities'] = [{'UUID': am_UUID, 'Koppeling_Omschrijving': ''}]
+    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+
+    bk_UUID = response.get_json()['UUID']
+    
+    ep = f"v0.1/ambities/{am_ID}"
+    response = client.patch(ep, json=ambitie_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    new_am_UUID = response.get_json()['UUID']
+
+    ep = f"v0.1/version/beleidskeuzes/{bk_UUID}"
+    response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.get_json()['Ambities'][0]['Object']['UUID'] == new_am_UUID, f'Did not update object, old object UUID: {am_UUID}'
+
+def test_ID_status_ref(client, auth):
+    ep = f"v0.1/maatregelen"
+    maatregel_data = generate_data(
+            maatregelen.Maatregelen_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+    ma_ID = response.get_json()['ID']
+    ma_UUID = response.get_json()['UUID']
+
+    ep = f"v0.1/beleidskeuzes"
+    test_data = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    test_data['Maatregelen'] = [{'UUID': ma_UUID, 'Koppeling_Omschrijving': ''}]
+    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+    bk_UUID = response.get_json()['UUID']
+    
+    ep = f"v0.1/maatregelen/{ma_ID}"
+    maatregel_data['Status'] = 'Vigerend'
+    response = client.patch(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    vigerend_ma_UUID = response.get_json()['UUID']
+
+    maatregel_data['Status'] = 'Ontwerp GS'
+    response = client.patch(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    ontwerp_ma_UUID = response.get_json()['UUID']
+
+    ep = f"v0.1/version/beleidskeuzes/{bk_UUID}"
+    response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.get_json()['Maatregelen'][0]['Object']['UUID'] == vigerend_ma_UUID, f'Did not update object, old object UUID: {ma_UUID}. Later object UUID: {ontwerp_ma_UUID}'
