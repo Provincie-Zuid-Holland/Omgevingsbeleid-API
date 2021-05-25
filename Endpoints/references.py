@@ -185,7 +185,7 @@ class ID_List_Reference(UUID_List_Reference):
             
             LEFT JOIN {self.their_tablename} a ON a.UUID = {self.their_col}
             
-            LEFT JOIN (SELECT * FROM
+            JOIN (SELECT * FROM
 			    (SELECT *, Row_number() OVER (partition BY [ID]
 			        ORDER BY [Modified_date] DESC) [RowNumber]
 			        FROM {self.their_tablename}
@@ -220,7 +220,7 @@ class ID_List_Reference(UUID_List_Reference):
                 ,{self.description_col}	 
             FROM {self.link_tablename}
             LEFT JOIN {self.their_tablename} a ON a.UUID = {self.their_col}            
-            LEFT JOIN (SELECT * FROM
+            JOIN (SELECT * FROM
 			    (SELECT *, Row_number() OVER (partition BY [ID]
 			        ORDER BY [Modified_date] DESC) [RowNumber]
 			        FROM {self.their_tablename}
