@@ -181,7 +181,7 @@ class ID_List_Reference(UUID_List_Reference):
         query = f'''
             SELECT [b].[UUID] as UUID
                 ,{self.description_col}	 	 
-            FROM [db-local-omgevingsbeleid].[dbo].{self.link_tablename}
+            FROM {self.link_tablename}
             
             LEFT JOIN {self.their_tablename} a ON a.UUID = {self.their_col}
             
@@ -218,7 +218,7 @@ class ID_List_Reference(UUID_List_Reference):
         query = f'''
             SELECT {included_fields}
                 ,{self.description_col}	 
-            FROM [db-local-omgevingsbeleid].[dbo].{self.link_tablename}
+            FROM {self.link_tablename}
             LEFT JOIN {self.their_tablename} a ON a.UUID = {self.their_col}            
             LEFT JOIN (SELECT * FROM
 			    (SELECT *, Row_number() OVER (partition BY [ID]
