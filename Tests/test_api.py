@@ -508,3 +508,29 @@ def test_ID_status_ref(client, auth):
     ep = f"v0.1/version/beleidskeuzes/{bk_UUID}"
     response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
     assert response.get_json()['Maatregelen'][0]['Object']['UUID'] == vigerend_ma_UUID, f'Did not update object, old object UUID: {ma_UUID}. Later object UUID: {ontwerp_ma_UUID}'
+
+
+# THIS TEST IS ENV SPECIFIC.
+# def test_graph_naive(client, auth):
+#     response = client.get('v0.1/version/beleidskeuzes/360BD8DD-2D65-49DC-87BD-5B0F384E898C', headers={'Authorization': f'Bearer {auth[1]}'})
+#     source = response.get_json()
+#     targets = []
+#     for link_field, ref in beleidskeuzes.Beleidskeuzes_Schema.Meta.references.items():
+#         if isinstance(ref, UUID_List_Reference) or isinstance(ref, ID_List_Reference):
+#             for linked in source[link_field]:
+#                 targets.append(linked['Object']['UUID'])
+
+#     response = client.get('v0.1/graph', headers={'Authorization': f'Bearer {auth[1]}'})
+#     graph_links = response.get_json()['links']
+#     found_links = []
+#     for link in graph_links:
+#         if link['source'] == source['UUID']:
+#             found_links.append(link['target'])
+    
+#     assert set(targets) == set(found_links), 'Graph not in sync.'
+
+
+        
+
+
+
