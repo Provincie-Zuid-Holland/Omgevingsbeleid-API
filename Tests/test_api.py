@@ -2,7 +2,7 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 from datetime import timezone
-from Models import beleidskeuzes, ambities, maatregelen
+from Models import beleidskeuzes, ambities, maatregelen, belangen    
 import os
 import tempfile
 import json
@@ -452,7 +452,7 @@ def test_graph(client, auth):
     assert response.status_code == 200, 'Graph endpoint not working'
 
     response = client.get(ep)
-    assert response.status_code != 200, 'Graph endpoint is available without auth'    
+    assert response.status_code == 200, 'Graph endpoint is unavailable without auth'    
 
 def test_ID_ref(client, auth):
     ep = f"v0.1/ambities"
@@ -510,24 +510,50 @@ def test_ID_status_ref(client, auth):
     assert response.get_json()['Maatregelen'][0]['Object']['UUID'] == vigerend_ma_UUID, f'Did not update object, old object UUID: {ma_UUID}. Later object UUID: {ontwerp_ma_UUID}'
 
 
-# THIS TEST IS ENV SPECIFIC.
-# def test_graph_naive(client, auth):
-#     response = client.get('v0.1/version/beleidskeuzes/360BD8DD-2D65-49DC-87BD-5B0F384E898C', headers={'Authorization': f'Bearer {auth[1]}'})
-#     source = response.get_json()
-#     targets = []
-#     for link_field, ref in beleidskeuzes.Beleidskeuzes_Schema.Meta.references.items():
-#         if isinstance(ref, UUID_List_Reference) or isinstance(ref, ID_List_Reference):
-#             for linked in source[link_field]:
-#                 targets.append(linked['Object']['UUID'])
+def test_graph(client, auth):
 
-#     response = client.get('v0.1/graph', headers={'Authorization': f'Bearer {auth[1]}'})
-#     graph_links = response.get_json()['links']
-#     found_links = []
-#     for link in graph_links:
-#         if link['source'] == source['UUID']:
-#             found_links.append(link['target'])
+    # Create Ambitie
+    test_amb = generate_data(ambities.Ambities_Schema, excluded_prop='excluded_post')
+    amb_resp = client.post('v0.1/ambities', json=test_amb, headers={'Authorization': f'Bearer {auth[1]}'})
+    amb_UUID = amb_resp.get_json()['UUID']
+    amb_ID = amb_resp.get_json()['ID']
     
-#     assert set(targets) == set(found_links), 'Graph not in sync.'
+    # Make new version of Ambitie
+    amb_resp = client.patch(f'v0.1/ambities/{amb_ID}', json={'Titel': 'Aangepast'}, headers={'Authorization': f'Bearer {auth[1]}'})
+    new_amb_UUID = amb_resp.get_json()['UUID']
+
+    # Create Belang
+    test_belang = generate_data(belangen.Belangen_Schema, excluded_prop='excluded_post')
+    belang_resp = client.post('v0.1/belangen', json=test_belang, headers={'Authorization': f'Bearer {auth[1]}'})
+    belang_UUID = belang_resp.get_json()['UUID']
+    belang_ID = belang_resp.get_json()['ID']
+    # Create new version of Belang
+    # belang_resp = client.patch(f'v0.1/belangen/{belang_ID}', json={'Titel': 'Aangepast'}, headers={'Authorization': f'Bearer {auth[1]}'})
+    # new_belang_UUID = amb_resp.get_json()['UUID']
+    
+    # Create beleidskeuze (add objects)
+    test_bk = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
+    test_bk['Ambities'] = [{'UUID': amb_UUID, 'Koppeling_Omschrijving': ''}]
+    test_bk['Belangen'] = [{'UUID': belang_UUID, 'Koppeling_Omschrijving': ''}]
+    test_bk['Status'] = 'Vigerend'
+    response = client.post('v0.1/beleidskeuzes', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
+    bk_uuid = response.get_json()['UUID']
+
+    # Do Check
+    response = client.get('v0.1/graph', headers={'Authorization': f'Bearer {auth[1]}'})
+    graph_links = response.get_json()['links']
+    graph_nodes = response.get_json()['nodes']
+    found_links = []
+
+    for link in graph_links:
+        if link['source'] == bk_uuid:
+            found_links.append(link['target'])
+    assert len(found_links) == 2, 'Not all links retrieved'
+    assert belang_UUID in found_links, 'Belang not retrieved'
+    assert new_amb_UUID in found_links, 'Ambitie not retrieved'
+    assert not amb_UUID in found_links, 'Old Ambitie retrieved'
+    assert set([new_amb_UUID, belang_UUID]) == set(found_links), 'Unexpected result for links'
 
 
         

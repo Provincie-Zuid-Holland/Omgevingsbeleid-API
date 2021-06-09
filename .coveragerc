@@ -1,0 +1,3 @@
+[run]
+omit = .venv/*, */__init__.py
+include = Endpoints/*, Auth/*, Models/*, Spec/*, application.py
