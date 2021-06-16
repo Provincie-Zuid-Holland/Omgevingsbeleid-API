@@ -11,3 +11,4 @@ search-date.json
 settings.py
 ._env
 .pytest_cache/
+.coverage

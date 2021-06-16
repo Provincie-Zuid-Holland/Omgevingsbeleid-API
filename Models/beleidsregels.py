@@ -11,6 +11,7 @@ class Beleidsregels_Schema(Base_Schema):
     Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])
     Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
     Weblink = MM.fields.Str(missing=None, obprops=[])
+    Externe_URL = MM.fields.Str(missing=None, obprops=[])
     Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
     class Meta(Base_Schema.Meta):
