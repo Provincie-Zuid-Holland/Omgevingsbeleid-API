@@ -78,7 +78,7 @@ class Short_Base_Schema(MM.Schema):
         Change nill UUIDs to null
         """
         for field in dumped:
-            if field != 'UUID':
+            if field not in ['UUID', 'Created_By', 'Modified_By']:
                 try:
                     if dumped[field] == null_uuid:
                         dumped[field] = None
