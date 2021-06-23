@@ -12,6 +12,7 @@ from Models.themas import Themas_Schema
 from Models.werkingsgebieden import Werkingsgebieden_Schema
 from Models.verordeningen import Verordeningen_Schema
 from Models.beleidsrelaties import Beleidsrelaties_Schema
+from Models.beleidsmodule import Beleidsmodule_Schema
 import Endpoints.references as references
 
 short_schemas = [
@@ -29,7 +30,8 @@ endpoints = [
     Themas_Schema,
     Werkingsgebieden_Schema,
     Verordeningen_Schema,
-    Beleidsrelaties_Schema
+    Beleidsrelaties_Schema,
+    Beleidsmodule_Schema
 ]
 
 linker_tables = [

@@ -14,7 +14,7 @@ import Models.beleidskeuzes
 
 
 class Beleidsmodule_Schema(Base_Schema):
-    Titel = MM.fields.Str(required=True, obprops=['search_title'])
+    Titel = MM.fields.Str(required=True, obprops=[])
     Maatregelen = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Beleidskeuzes = MM.fields.Nested(
@@ -28,6 +28,5 @@ class Beleidsmodule_Schema(Base_Schema):
         searchable = False
         references = {
             'Maatregelen': ID_List_Reference('Beleidsmodule_Maatregelen', 'Maatregelen', 'Beleidsmodule_UUID', 'Maatregel_UUID', 'Koppeling_Omschrijving', Models.maatregelen.Maatregelen_Schema),
-            'Beleidskeuzes': ID_List_Reference('Beleidsmodule_Beleidskeuzes', 'Beleidskeuzes', 'Beleidsmodule_UUID', 'Beleidskeuze_UUID', 'Koppeling_Omschrijving', Models.beleidskeuzes)
+            'Beleidskeuzes': ID_List_Reference('Beleidsmodule_Beleidskeuzes', 'Beleidskeuzes', 'Beleidsmodule_UUID', 'Beleidskeuze_UUID', 'Koppeling_Omschrijving', Models.beleidskeuzes.Beleidskeuzes_Schema)
         }
-        graph_conf = 'Titel'
