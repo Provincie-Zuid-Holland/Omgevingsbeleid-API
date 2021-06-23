@@ -14,7 +14,10 @@
         window.onload = function() {
             // Begin Swagger UI call region
             const ui = SwaggerUIBundle({
-                url: "https://api-omgevingsbeleid-dev-v2.azurewebsites.net/v0.1/spec",
+                urls: ["https://api-obzh-dev.azurewebsites.net/v0.1/spec",
+                    "https://api-obzh-test.azurewebsites.net/v0.1/spec",
+                    "https://api-obzh-acc.azurewebsites.net/v0.1/spec"
+                ],
                 dom_id: '#swagger-ui',
                 deepLinking: true,
                 presets: [
