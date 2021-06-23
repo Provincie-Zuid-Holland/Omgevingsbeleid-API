@@ -2,7 +2,7 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 from datetime import timezone
-from Models import beleidskeuzes, ambities, maatregelen, belangen    
+from Models import beleidskeuzes, ambities, maatregelen, belangen, beleidsprestaties    
 import os
 import tempfile
 import json
@@ -510,8 +510,21 @@ def test_ID_status_ref(client, auth):
     assert response.get_json()['Maatregelen'][0]['Object']['UUID'] == vigerend_ma_UUID, f'Did not update object, old object UUID: {ma_UUID}. Later object UUID: {ontwerp_ma_UUID}'
 
 
-def test_graph(client, auth):
+def test_null_date(client, auth):
+    ep = f"v0.1/beleidsprestaties"
+    bp_data = generate_data(
+            beleidsprestaties.Beleidsprestaties_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=bp_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    bp_ID = response.get_json()['ID']
+    
+    response = client.patch(ep + f'/{bp_ID}', json={'Eind_Geldigheid': None}, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 200, 'patch failed'
 
+    response = client.get(ep + f'/{bp_ID}', headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.get_json()[0]['Eind_Geldigheid'] == '9999-12-31T23:59:59Z'
+    
+
+def test_graph(client, auth):
     # Create Ambitie
     test_amb = generate_data(ambities.Ambities_Schema, excluded_prop='excluded_post')
     amb_resp = client.post('v0.1/ambities', json=test_amb, headers={'Authorization': f'Bearer {auth[1]}'})
