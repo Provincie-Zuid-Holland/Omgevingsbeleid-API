@@ -8,7 +8,7 @@ from Endpoints.references import UUID_Reference, UUID_Linker_Schema, Reverse_UUI
 
 from Models.gebruikers import Gebruikers_Schema
 from Models.werkingsgebieden import Werkingsgebieden_Schema
-from .beleidskeuzes_short import Short_Beleidskeuze_Schema
+from Models.short_schemas import Short_Beleidskeuze_Schema
 
 from globals import default_user_uuid
 

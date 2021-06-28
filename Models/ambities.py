@@ -6,7 +6,7 @@ import marshmallow as MM
 from Endpoints.base_schema import Base_Schema
 from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
 from Endpoints.validators import HTML_Validate
-from .beleidskeuzes_short import Short_Beleidskeuze_Schema
+from Models.short_schemas import Short_Beleidskeuze_Schema
 
 class Ambities_Schema(Base_Schema):
     Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])

@@ -6,7 +6,7 @@ from Endpoints.endpoint import Base_Schema
 from Endpoints.references import UUID_Reference, UUID_Linker_Schema, Reverse_UUID_Reference
 from Endpoints.validators import HTML_Validate
 from Models.werkingsgebieden import Werkingsgebieden_Schema
-from .beleidskeuzes_short import Short_Beleidskeuze_Schema
+from Models.short_schemas import Short_Beleidskeuze_Schema, Short_Beleidsmodule_Schema
 from Models.gebruikers import Gebruikers_Schema
 
 
@@ -54,6 +54,8 @@ class Maatregelen_Schema(Base_Schema):
         missing=None, default=None, obprops=['excluded_post', 'not_inherited'])
     Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
+    Ref_Beleidsmodules = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
 
 
     class Meta(Base_Schema.Meta):
@@ -76,5 +78,6 @@ class Maatregelen_Schema(Base_Schema):
             'Portefeuillehouder_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Portefeuillehouder_2': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Opdrachtgever': UUID_Reference('Gebruikers', Gebruikers_Schema),
-            'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema)}
+            'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema),
+            'Ref_Beleidsmodules': Reverse_UUID_Reference('Beleidsmodule_Maatregelen', 'Beleidsmodules', 'Maatregel_UUID', 'Beleidsmodule_UUID', 'Koppeling_Omschrijving', Short_Beleidsmodule_Schema)}
         graph_conf = 'Titel'

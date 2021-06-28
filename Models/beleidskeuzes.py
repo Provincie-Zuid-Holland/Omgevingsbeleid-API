@@ -4,7 +4,7 @@
 import marshmallow as MM
 
 from Endpoints.endpoint import Base_Schema
-from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema, ID_List_Reference
+from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema, ID_List_Reference, Reverse_UUID_Reference
 from Endpoints.validators import HTML_Validate
 
 from globals import default_user_uuid
@@ -19,8 +19,7 @@ import Models.beleidsprestaties
 import Models.beleidsregels
 import Models.maatregelen
 import Models.verordeningen
-
-
+from Models.short_schemas import Short_Beleidsmodule_Schema
 class Beleidskeuzes_Schema(Base_Schema):
     Eigenaar_1 = MM.fields.UUID(
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
@@ -80,6 +79,8 @@ class Beleidskeuzes_Schema(Base_Schema):
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Werkingsgebieden = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Ref_Beleidsmodules = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
 
     class Meta(Base_Schema.Meta):
         slug = 'beleidskeuzes'
@@ -101,7 +102,8 @@ class Beleidskeuzes_Schema(Base_Schema):
             'Maatregelen': ID_List_Reference('Beleidskeuze_Maatregelen', 'Maatregelen', 'Beleidskeuze_UUID', 'Maatregel_UUID', 'Koppeling_Omschrijving', Models.maatregelen.Maatregelen_Schema),
             'Themas': ID_List_Reference('Beleidskeuze_Themas', 'Themas', 'Beleidskeuze_UUID', 'Thema_UUID', 'Koppeling_Omschrijving', Models.themas.Themas_Schema),
             'Verordeningen': UUID_List_Reference('Beleidskeuze_Verordeningen', 'Verordeningen', 'Beleidskeuze_UUID', 'Verordening_UUID', 'Koppeling_Omschrijving', Models.verordeningen.Verordeningen_Schema),
-            'Werkingsgebieden': UUID_List_Reference('Beleidskeuze_Werkingsgebieden', 'Werkingsgebieden', 'Beleidskeuze_UUID', 'Werkingsgebied_UUID', 'Koppeling_Omschrijving', Models.werkingsgebieden.Werkingsgebieden_Schema)            
+            'Werkingsgebieden': UUID_List_Reference('Beleidskeuze_Werkingsgebieden', 'Werkingsgebieden', 'Beleidskeuze_UUID', 'Werkingsgebied_UUID', 'Koppeling_Omschrijving', Models.werkingsgebieden.Werkingsgebieden_Schema),
+            'Ref_Beleidsmodules': Reverse_UUID_Reference('Beleidsmodule_Beleidskeuzes', 'Beleidsmodules', 'Beleidskeuze_UUID', 'Beleidsmodule_UUID', 'Koppeling_Omschrijving', Short_Beleidsmodule_Schema)
         }
         status_conf = ('Status', 'Vigerend')
         graph_conf = 'Titel'
