@@ -22,6 +22,7 @@ short_schemas = [
 ]
 
 endpoints = [
+    Beleidsmodule_Schema,
     Beleidskeuzes_Schema,
     Ambities_Schema,
     Belangen_Schema,
@@ -33,7 +34,7 @@ endpoints = [
     Werkingsgebieden_Schema,
     Verordeningen_Schema,
     Beleidsrelaties_Schema,
-    Beleidsmodule_Schema
+    
 ]
 
 linker_tables = [

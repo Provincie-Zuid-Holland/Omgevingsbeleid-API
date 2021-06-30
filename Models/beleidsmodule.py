@@ -27,6 +27,6 @@ class Beleidsmodule_Schema(Base_Schema):
         ordered = True
         searchable = False
         references = {
-            'Maatregelen': ID_List_Reference('Beleidsmodule_Maatregelen', 'Maatregelen', 'Beleidsmodule_UUID', 'Maatregel_UUID', 'Koppeling_Omschrijving', Models.maatregelen.Maatregelen_Schema),
-            'Beleidskeuzes': ID_List_Reference('Beleidsmodule_Beleidskeuzes', 'Beleidskeuzes', 'Beleidsmodule_UUID', 'Beleidskeuze_UUID', 'Koppeling_Omschrijving', Models.beleidskeuzes.Beleidskeuzes_Schema)
+            'Maatregelen': UUID_List_Reference('Beleidsmodule_Maatregelen', 'Maatregelen', 'Beleidsmodule_UUID', 'Maatregel_UUID', 'Koppeling_Omschrijving', Models.maatregelen.Maatregelen_Schema),
+            'Beleidskeuzes': UUID_List_Reference('Beleidsmodule_Beleidskeuzes', 'Beleidskeuzes', 'Beleidsmodule_UUID', 'Beleidskeuze_UUID', 'Koppeling_Omschrijving', Models.beleidskeuzes.Beleidskeuzes_Schema)
         }

@@ -2,7 +2,7 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 from datetime import timezone
-from Models import beleidskeuzes, ambities, maatregelen, belangen, beleidsprestaties    
+from Models import beleidskeuzes, ambities, maatregelen, belangen, beleidsprestaties, beleidsmodule
 import os
 import tempfile
 import json
@@ -569,7 +569,34 @@ def test_graph(client, auth):
     assert set([new_amb_UUID, belang_UUID]) == set(found_links), 'Unexpected result for links'
 
 
-        
+# def test_reverse_ID(client, auth):
+#     # Create beleidskeuze (add objects)
+#     test_bk = generate_data(
+#             beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
+#     response = client.post('v0.1/beleidskeuzes', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
+#     new_uuid = response.get_json()['UUID']
+#     new_id = response.get_json()['ID']
 
+#     # Create Module
+#     test_module = generate_data(beleidsmodule.Beleidsmodule_Schema, excluded_prop='excluded_post')
+#     test_module['Beleidskeuzes'] = [{'UUID': new_uuid, 'Koppeling_Omschrijving':''}]
+#     response = client.post('v0.1/beleidsmodules', json=test_module, headers={'Authorization': f'Bearer {auth[1]}'})
+#     assert response.status_code == 201
+#     module_uuid = response.get_json()['UUID']
+
+#     # Check reverse
+#     response = client.get(f'v0.1/beleidskeuzes/{new_id}')
+#     assert response.status_code == 200
+
+#     assert response.get_json()[0]['Ref_Beleidsmodules'][0]['UUID'] == module_uuid
+
+#     # Add new version to bk
+#     response = client.patch(f'v0.1/beleidskeuzes/{new_id}', json={'Titel':'Nieuwe Titel'}, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+#     # Check reverse again
+#     response = client.get(f'v0.1/beleidskeuzes/{new_id}')
+#     assert response.status_code == 200
+
+#     assert response.get_json()[0]['Ref_Beleidsmodules'][0]['UUID'] == module_uuid
 
 
