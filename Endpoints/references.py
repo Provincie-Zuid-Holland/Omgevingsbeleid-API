@@ -32,20 +32,22 @@ def merge_references(obj, schema, cursor, inline=True):
     """
     references = {**schema.Meta.base_references,
                   **schema.Meta.references}.items()
-
     for name, ref in references:
+        if isinstance(ref, UUID_List_Reference) or isinstance(ref, Reverse_UUID_Reference):
+            if inline:
+                obj[name] = ref.retrieve_inline(obj, cursor)
+            else:
+                obj[name] = ref.retrieve(obj, cursor)
+        
         if isinstance(ref, UUID_Reference):
+
             if name in obj:
                 if inline:
                     obj[name] = ref.retrieve_inline(obj[name], cursor)
                 else:
                     obj[name] = ref.retrieve(obj[name], cursor)
 
-        if isinstance(ref, UUID_List_Reference) or isinstance(ref, Reverse_UUID_Reference):
-            if inline:
-                obj[name] = ref.retrieve_inline(obj['UUID'], cursor)
-            else:
-                obj[name] = ref.retrieve(obj['UUID'], cursor)
+        
     return obj
 
 
@@ -71,12 +73,10 @@ def store_references(obj, schema, cursor):
         if isinstance(ref, UUID_List_Reference):
             if name in obj:
                 ref.store(obj['UUID'], obj[name], cursor)
-                obj[name] = ref.retrieve_inline(obj['UUID'], cursor)
+                obj[name] = ref.retrieve_inline(obj, cursor)
 
     return obj
 
-
-    
 
 class UUID_List_Reference:
     def __init__(self, link_tablename, their_tablename, my_col, their_col, description_col, schema):
@@ -87,7 +87,7 @@ class UUID_List_Reference:
         self.description_col = description_col
         self.schema = schema()
 
-    def retrieve_inline(self, UUID, cursor):
+    def retrieve_inline(self, obj, cursor):
         """This function retrieves the linked object from the appropiate table and uses a schema to inline them
 
         Args:
@@ -112,19 +112,18 @@ class UUID_List_Reference:
         WHERE {self.my_col} = ?
         '''
         # Retrieve the objects
-        query_result = list(cursor.execute(query, UUID))
-        
+        query_result = list(cursor.execute(query, obj['UUID']))
+
         result_objects = []
         for res in query_result:
             res_row = row_to_dict(res)
             result_objects.append({
-            'Koppeling_Omschrijving': res_row.pop(self.description_col),
-            'Object':self.schema.dump(res_row)})
-            
-        
+                'Koppeling_Omschrijving': res_row.pop(self.description_col),
+                'Object': self.schema.dump(res_row)})
+
         return result_objects
 
-    def retrieve(self, UUID, cursor):
+    def retrieve(self, obj, cursor):
         """This function retrieves the linked object from the appropiate table and uses the default linker schema
 
         Args:
@@ -136,7 +135,7 @@ class UUID_List_Reference:
         """
         query = f'SELECT {self.their_col} as UUID, {self.description_col} as Koppeling_Omschrijving FROM {self.link_tablename} WHERE {self.my_col} = ?'
         # Retrieve the objects
-        query_result = list(cursor.execute(query, UUID))
+        query_result = list(cursor.execute(query, obj['UUID']))
         result_objects = map(row_to_dict, query_result)
         return(UUID_Linker_Schema().dump(result_objects, many=True))
 
@@ -150,8 +149,8 @@ class UUID_List_Reference:
         Return:
             dict: The refered object
         """
-        
-        for link in linked:    
+
+        for link in linked:
             link = UUID_Linker_Schema().load(link)
             query = f'''
                 INSERT INTO {self.link_tablename} ({self.my_col}, {self.their_col}, {self.description_col}) VALUES (?, ?, ?)'''
@@ -162,7 +161,7 @@ class UUID_List_Reference:
 
 class ID_List_Reference(UUID_List_Reference):
 
-    def retrieve(self, UUID, cursor):
+    def retrieve(self, obj, cursor):
         """This function retrieves the linked object from the appropiate table and uses the default linker schema
 
         Args:
@@ -172,7 +171,6 @@ class ID_List_Reference(UUID_List_Reference):
         Return:
             dict: The refered object
         """
-
         status_filter = ''
         if self.schema.Meta.status_conf:
             field, value = self.schema.Meta.status_conf
@@ -192,16 +190,14 @@ class ID_List_Reference(UUID_List_Reference):
 			    WHERE UUID != '00000000-0000-0000-0000-000000000000' {status_filter}) T 
             WHERE rownumber = 1) b ON b.ID = a.ID
             WHERE {self.my_col} = ?'''
-        
+
         # Retrieve the objects
-        query_result = list(cursor.execute(query, UUID))
+        query_result = list(cursor.execute(query, obj['UUID']))
         result_objects = map(row_to_dict, query_result)
-        
-        
+
         return(UUID_Linker_Schema().dump(result_objects, many=True))
 
-    
-    def retrieve_inline(self, UUID, cursor):
+    def retrieve_inline(self, obj, cursor):
         try:
             included_fields = ', '.join(
                 [f'b.{field}' for field in self.schema.fields_without_props('referencelist')])
@@ -229,19 +225,17 @@ class ID_List_Reference(UUID_List_Reference):
             WHERE {self.my_col} = ?'''
 
         # Retrieve the objects
-        query_result = list(cursor.execute(query, UUID))
-        
+        query_result = list(cursor.execute(query, obj['UUID']))
+
         result_objects = []
-        
+
         for res in query_result:
             res_row = row_to_dict(res)
             result_objects.append({
-            'Koppeling_Omschrijving': res_row.pop(self.description_col),
-            'Object':self.schema.dump(res_row)})
-            
-        
+                'Koppeling_Omschrijving': res_row.pop(self.description_col),
+                'Object': self.schema.dump(res_row)})
+
         return result_objects
-        
 
 
 class Reverse_UUID_Reference:
@@ -253,7 +247,7 @@ class Reverse_UUID_Reference:
         self.description_col = description_col
         self.schema = schema()
 
-    def retrieve_inline(self, UUID, cursor):
+    def retrieve_inline(self, obj, cursor):
         """This function retrieves the linked object from the appropiate table and uses a schema to inline them
 
         Args:
@@ -282,11 +276,11 @@ class Reverse_UUID_Reference:
         '''
 
         # Retrieve the objects
-        query_result = list(cursor.execute(query, UUID))
+        query_result = list(cursor.execute(query, obj['UUID']))
         result_objects = map(row_to_dict, query_result)
         return(self.schema.dump(result_objects, many=True))
 
-    def retrieve(self, UUID, cursor):
+    def retrieve(self, obj, cursor):
         """This function retrieves the linked object from the appropiate table and uses the default linker schema
 
         Args:
@@ -296,15 +290,17 @@ class Reverse_UUID_Reference:
         Return:
             dict: The refered object
         """
-        
+
         query = f'SELECT {self.their_col} as UUID, {self.description_col} as Koppeling_Omschrijving FROM {self.link_tablename} WHERE {self.my_col} = ?'
         # Retrieve the objects
-        query_result = list(cursor.execute(query, UUID))
+        query_result = list(cursor.execute(query, obj['UUID']))
         result_objects = UUID_Linker_Schema().load(
             map(row_to_dict, query_result), many=True)
         return(UUID_Linker_Schema().dump(result_objects, many=True))
-        
 
+
+class Reverse_ID_Reference(Reverse_UUID_Reference):
+    pass
 
 
 class UUID_Reference:
@@ -317,7 +313,6 @@ class UUID_Reference:
         """
         self.target_tablename = target_tablename
         self.schema = schema()
-        
 
     def retrieve_inline(self, UUID, cursor):
         """This function retrieves the linked object from the appropiate table
@@ -337,15 +332,16 @@ class UUID_Reference:
         try:
             included_fields = ', '.join(
                 [field for field in self.schema.fields_without_props('referencelist')])
-        except AttributeError: # this happens when the inlined object is not based on a base_schema (most probably a user table)
+        # this happens when the inlined object is not based on a base_schema (most probably a user table)
+        except AttributeError:
             included_fields = ', '.join(
                 [field for field in self.schema.fields])
-        
+
         query = f'SELECT {included_fields} FROM {self.target_tablename} WHERE UUID = ?'
-        
+
         # Load the objects to ensure validation
         query_result = list(cursor.execute(query, UUID))
-        
+
         try:
             assert(len(query_result) == 1)
         except AssertionError as e:
@@ -354,6 +350,6 @@ class UUID_Reference:
 
         result_object = row_to_dict(query_result[0])
         return(self.schema.dump(result_object))
-    
+
     def retrieve(self, UUID, cursor):
         return UUID

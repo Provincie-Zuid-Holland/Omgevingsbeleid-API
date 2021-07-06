@@ -4,7 +4,7 @@
 import marshmallow as MM
 
 from Endpoints.base_schema import Base_Schema
-from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
+from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference, Reverse_ID_Reference
 from Endpoints.validators import HTML_Validate
 from Models.short_schemas import Short_Beleidskeuze_Schema
 

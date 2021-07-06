@@ -569,34 +569,62 @@ def test_graph(client, auth):
     assert set([new_amb_UUID, belang_UUID]) == set(found_links), 'Unexpected result for links'
 
 
-# def test_reverse_ID(client, auth):
-#     # Create beleidskeuze (add objects)
-#     test_bk = generate_data(
-#             beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
-#     response = client.post('v0.1/beleidskeuzes', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
-#     new_uuid = response.get_json()['UUID']
-#     new_id = response.get_json()['ID']
+def test_module_ID(client, auth):
+    # Create beleidskeuze (add objects)
+    test_bk = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
+    response = client.post('v0.1/beleidskeuzes', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
+    new_uuid = response.get_json()['UUID']
+    new_id = response.get_json()['ID']
 
-#     # Create Module
-#     test_module = generate_data(beleidsmodule.Beleidsmodule_Schema, excluded_prop='excluded_post')
-#     test_module['Beleidskeuzes'] = [{'UUID': new_uuid, 'Koppeling_Omschrijving':''}]
-#     response = client.post('v0.1/beleidsmodules', json=test_module, headers={'Authorization': f'Bearer {auth[1]}'})
-#     assert response.status_code == 201
-#     module_uuid = response.get_json()['UUID']
+    # Create Module
+    test_module = generate_data(beleidsmodule.Beleidsmodule_Schema, excluded_prop='excluded_post')
+    test_module['Beleidskeuzes'] = [{'UUID': new_uuid, 'Koppeling_Omschrijving':''}]
+    response = client.post('v0.1/beleidsmodules', json=test_module, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 201
+    module_uuid = response.get_json()['UUID']
 
-#     # Check reverse
-#     response = client.get(f'v0.1/beleidskeuzes/{new_id}')
-#     assert response.status_code == 200
+    # Check reverse
+    response = client.get(f'v0.1/beleidskeuzes/{new_id}')
+    assert response.status_code == 200
 
-#     assert response.get_json()[0]['Ref_Beleidsmodules'][0]['UUID'] == module_uuid
+    assert response.get_json()[0]['Ref_Beleidsmodules'][0]['UUID'] == module_uuid
 
-#     # Add new version to bk
-#     response = client.patch(f'v0.1/beleidskeuzes/{new_id}', json={'Titel':'Nieuwe Titel'}, headers={'Authorization': f'Bearer {auth[1]}'})
+    # Add new version to bk
+    response = client.patch(f'v0.1/beleidskeuzes/{new_id}', json={'Titel':'Nieuwe Titel'}, headers={'Authorization': f'Bearer {auth[1]}'})
     
-#     # Check reverse again
-#     response = client.get(f'v0.1/beleidskeuzes/{new_id}')
-#     assert response.status_code == 200
+    # Check reverse again
+    response = client.get(f'v0.1/beleidskeuzes/{new_id}')
+    assert response.status_code == 200
 
-#     assert response.get_json()[0]['Ref_Beleidsmodules'][0]['UUID'] == module_uuid
+    assert response.get_json()[0]['Ref_Beleidsmodules'][0]['UUID'] == module_uuid
 
+def test_reverse_ID(client, auth):
+    ep = f"v0.1/ambities"
+    ambitie_data = generate_data(
+            ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=ambitie_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+    am_ID = response.get_json()['ID']
+    am_UUID = response.get_json()['UUID']
 
+    ep = f"v0.1/beleidskeuzes"
+    test_data = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    test_data['Ambities'] = [{'UUID': am_UUID, 'Koppeling_Omschrijving': ''}]
+    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+
+    bk_UUID = response.get_json()['UUID']
+    bk_ID = response.get_json()['ID']    
+
+    ep = f"v0.1/ambities/{am_ID}"
+    response = client.patch(ep, json={'Titel':'Nieuwe Title'}, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+    assert response.get_json()['Ref_Beleidskeuzes'], 'Reverse references empty'
+    assert response.get_json()['Ref_Beleidskeuzes'][0]['UUID'] == bk_UUID, f'Reverse ref not working'
+
+    # print(response.get_json())
+    # assert(bk_UUID != new_bk_UUID)
+    # assert response.get_json()[0]['Ref_Beleidskeuzes'][0]['UUID'] == new_bk_UUID, f'Reverse ref not working'
+    # assert len(response.get_json()[0]['Ref_Beleidskeuzes']) == 1, f'Reverse ref not working'
+    # assert(1==2)
