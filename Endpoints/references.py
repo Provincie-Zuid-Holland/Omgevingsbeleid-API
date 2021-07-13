@@ -172,9 +172,9 @@ class ID_List_Reference(UUID_List_Reference):
             dict: The refered object
         """
         status_filter = ''
-        if self.schema.Meta.status_conf:
-            field, value = self.schema.Meta.status_conf
-            status_filter = f"""AND {field} = '{value}'"""
+        # if self.schema.Meta.status_conf:
+        #     field, value = self.schema.Meta.status_conf
+        #     status_filter = f"""AND {field} = '{value}'"""
 
         query = f'''
             SELECT [b].[UUID] as UUID
@@ -207,9 +207,9 @@ class ID_List_Reference(UUID_List_Reference):
                 [f'b.{field}' for field in self.schema.fields])
 
         status_filter = ''
-        if self.schema.Meta.status_conf:
-            field, value = self.schema.Meta.status_conf
-            status_filter = f"""AND {field} = '{value}'"""
+        # if self.schema.Meta.status_conf:
+        #     field, value = self.schema.Meta.status_conf
+        #     status_filter = f"""AND {field} = '{value}'"""
 
         query = f'''
             SELECT {included_fields}

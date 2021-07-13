@@ -479,35 +479,37 @@ def test_ID_ref(client, auth):
     response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
     assert response.get_json()['Ambities'][0]['Object']['UUID'] == new_am_UUID, f'Did not update object, old object UUID: {am_UUID}'
 
-def test_ID_status_ref(client, auth):
-    ep = f"v0.1/maatregelen"
-    maatregel_data = generate_data(
-            maatregelen.Maatregelen_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-    response = client.post(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
+# Not relevant anymore for now 
+
+# def test_ID_status_ref(client, auth):
+#     ep = f"v0.1/maatregelen"
+#     maatregel_data = generate_data(
+#             maatregelen.Maatregelen_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+#     response = client.post(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
     
-    ma_ID = response.get_json()['ID']
-    ma_UUID = response.get_json()['UUID']
+#     ma_ID = response.get_json()['ID']
+#     ma_UUID = response.get_json()['UUID']
 
-    ep = f"v0.1/beleidskeuzes"
-    test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-    test_data['Maatregelen'] = [{'UUID': ma_UUID, 'Koppeling_Omschrijving': ''}]
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
-    assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
-    bk_UUID = response.get_json()['UUID']
+#     ep = f"v0.1/beleidskeuzes"
+#     test_data = generate_data(
+#             beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+#     test_data['Maatregelen'] = [{'UUID': ma_UUID, 'Koppeling_Omschrijving': ''}]
+#     response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+#     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
+#     bk_UUID = response.get_json()['UUID']
     
-    ep = f"v0.1/maatregelen/{ma_ID}"
-    maatregel_data['Status'] = 'Vigerend'
-    response = client.patch(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
-    vigerend_ma_UUID = response.get_json()['UUID']
+#     ep = f"v0.1/maatregelen/{ma_ID}"
+#     maatregel_data['Status'] = 'Vigerend'
+#     response = client.patch(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
+#     vigerend_ma_UUID = response.get_json()['UUID']
 
-    maatregel_data['Status'] = 'Ontwerp GS'
-    response = client.patch(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
-    ontwerp_ma_UUID = response.get_json()['UUID']
+#     maatregel_data['Status'] = 'Ontwerp GS'
+#     response = client.patch(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
+#     ontwerp_ma_UUID = response.get_json()['UUID']
 
-    ep = f"v0.1/version/beleidskeuzes/{bk_UUID}"
-    response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
-    assert response.get_json()['Maatregelen'][0]['Object']['UUID'] == vigerend_ma_UUID, f'Did not update object, old object UUID: {ma_UUID}. Later object UUID: {ontwerp_ma_UUID}'
+#     ep = f"v0.1/version/beleidskeuzes/{bk_UUID}"
+#     response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
+#     assert response.get_json()['Maatregelen'][0]['Object']['UUID'] == vigerend_ma_UUID, f'Did not update object, old object UUID: {ma_UUID}. Later object UUID: {ontwerp_ma_UUID}'
 
 
 def test_null_date(client, auth):
@@ -597,7 +599,29 @@ def test_module_UUID(client, auth):
     response = client.get(f'v0.1/beleidskeuzes/{new_id}')
     assert response.status_code == 200
     assert not(response.get_json()[0]['Ref_Beleidsmodules']), 'Should not be in module'
+
+def test_maatregelen_link(client, auth):
+    # Create Maatregel
+    test_ma = generate_data(
+            maatregelen.Maatregelen_Schema, excluded_prop='excluded_post')
+    response = client.post('v0.1/maatregelen', json=test_ma, headers={'Authorization': f'Bearer {auth[1]}'})
+    ma_uuid = response.get_json()['UUID']
     
+    
+    # Create beleidskeuze (add objects)
+    test_bk = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
+    test_bk['Maatregelen'] = [{'UUID':ma_uuid, 'Koppeling_Omschrijving':'Test'}]
+    print(test_bk)
+    response = client.post('v0.1/beleidskeuzes', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+    
+    bk_id = response.get_json()['ID']
+
+    # Check beleidskeuze
+    response = client.get(f'v0.1/beleidskeuzes/{bk_id}', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.get_json()[0]['Maatregelen'], 'references where empty'
+    assert response.get_json()[0]['Maatregelen'][0]['Object']['UUID'] == ma_uuid, 'Maatregel not linked'
 
 # def test_reverse_ID(client, auth):
 #     ep = f"v0.1/ambities"
