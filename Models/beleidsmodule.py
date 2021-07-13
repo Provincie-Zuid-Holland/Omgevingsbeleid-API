@@ -7,7 +7,7 @@ from Endpoints.endpoint import Base_Schema
 from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema, ID_List_Reference
 from Endpoints.validators import HTML_Validate
 
-from globals import default_user_uuid
+from globals import default_user_uuid, min_datetime
 
 import Models.maatregelen
 import Models.beleidskeuzes
@@ -15,6 +15,8 @@ import Models.beleidskeuzes
 
 class Beleidsmodule_Schema(Base_Schema):
     Titel = MM.fields.Str(required=True, obprops=[])
+    Besluit_Datum = MM.fields.DateTime(format='iso', 
+        missing=min_datetime, allow_none=True, obprops=[])
     Maatregelen = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Beleidskeuzes = MM.fields.Nested(

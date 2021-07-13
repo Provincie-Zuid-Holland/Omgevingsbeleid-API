@@ -569,7 +569,7 @@ def test_graph(client, auth):
     assert set([new_amb_UUID, belang_UUID]) == set(found_links), 'Unexpected result for links'
 
 
-def test_module_ID(client, auth):
+def test_module_UUID(client, auth):
     # Create beleidskeuze (add objects)
     test_bk = generate_data(
             beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
@@ -596,32 +596,32 @@ def test_module_ID(client, auth):
     # Check reverse again
     response = client.get(f'v0.1/beleidskeuzes/{new_id}')
     assert response.status_code == 200
-
-    assert response.get_json()[0]['Ref_Beleidsmodules'][0]['UUID'] == module_uuid
-
-def test_reverse_ID(client, auth):
-    ep = f"v0.1/ambities"
-    ambitie_data = generate_data(
-            ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-    response = client.post(ep, json=ambitie_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert not(response.get_json()[0]['Ref_Beleidsmodules']), 'Should not be in module'
     
-    am_ID = response.get_json()['ID']
-    am_UUID = response.get_json()['UUID']
 
-    ep = f"v0.1/beleidskeuzes"
-    test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-    test_data['Ambities'] = [{'UUID': am_UUID, 'Koppeling_Omschrijving': ''}]
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
-
-    bk_UUID = response.get_json()['UUID']
-    bk_ID = response.get_json()['ID']    
-
-    ep = f"v0.1/ambities/{am_ID}"
-    response = client.patch(ep, json={'Titel':'Nieuwe Title'}, headers={'Authorization': f'Bearer {auth[1]}'})
+# def test_reverse_ID(client, auth):
+#     ep = f"v0.1/ambities"
+#     ambitie_data = generate_data(
+#             ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+#     response = client.post(ep, json=ambitie_data, headers={'Authorization': f'Bearer {auth[1]}'})
     
-    assert response.get_json()['Ref_Beleidskeuzes'], 'Reverse references empty'
-    assert response.get_json()['Ref_Beleidskeuzes'][0]['UUID'] == bk_UUID, f'Reverse ref not working'
+#     am_ID = response.get_json()['ID']
+#     am_UUID = response.get_json()['UUID']
+
+#     ep = f"v0.1/beleidskeuzes"
+#     test_data = generate_data(
+#             beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+#     test_data['Ambities'] = [{'UUID': am_UUID, 'Koppeling_Omschrijving': ''}]
+#     response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+
+#     bk_UUID = response.get_json()['UUID']
+#     bk_ID = response.get_json()['ID']    
+
+#     ep = f"v0.1/ambities/{am_ID}"
+#     response = client.patch(ep, json={'Titel':'Nieuwe Title'}, headers={'Authorization': f'Bearer {auth[1]}'})
+    
+#     assert response.get_json()['Ref_Beleidskeuzes'], 'Reverse references empty'
+#     assert response.get_json()['Ref_Beleidskeuzes'][0]['UUID'] == bk_UUID, f'Reverse ref not working'
 
     # print(response.get_json())
     # assert(bk_UUID != new_bk_UUID)
