@@ -282,7 +282,7 @@ class FullList(Schema_Resource):
     A list of all the different lineages available in the database, 
     showing the latests version of each object's lineage.
     """
-
+    @jwt_required
     def get(self):
         """
         GET endpoint for a list of objects, shows the last object for each lineage
@@ -380,8 +380,9 @@ class FullList(Schema_Resource):
 
 class ValidList(Schema_Resource):
     """
-    A list of all the different lineages available in the database, 
-    showing the latests valid version of each object's lineage.
+    A list of all the different lineages available in the database.
+    The objects are filtered by their start and end date. 
+    If the object has a status conf that is also used to filter the objects. 
 
     Not availabe if the schema's status_conf is None
     """
@@ -390,8 +391,7 @@ class ValidList(Schema_Resource):
         """
         GET endpoint for a list of objects, shows the last valid object for each lineage
         """
-        if not self.schema.Meta.status_conf:
-            return {'message': 'This object does not have a status configuration'}, 404
+        request_time = datetime.datetime.now()
 
         try:
             q_args = parse_query_args(
@@ -407,26 +407,36 @@ class ValidList(Schema_Resource):
         included_fields = ', '.join(
             [field for field in self.schema().fields_without_props('referencelist')])
 
-        status_field, status_value = self.schema.Meta.status_conf
+        query_args = [request_time]
 
-        query = f'''SELECT {included_fields} FROM
+        if self.schema.Meta.status_conf:
+            status_field, status_value = self.schema.Meta.status_conf
+            query = f'''SELECT {included_fields} FROM
                         (SELECT {included_fields}, Row_number() OVER (partition BY [ID]
                         ORDER BY [Modified_date] DESC) [RowNumber]
                         FROM {self.schema().Meta.table}
-                        WHERE {status_field} = ? AND UUID != '00000000-0000-0000-0000-000000000000') T 
+                        WHERE UUID != '00000000-0000-0000-0000-000000000000' AND Eind_Geldigheid > ? AND {status_field} = ?) T 
                     WHERE rownumber = 1'''
 
-        query_args = [status_value]
+            query_args.append(status_value)
+        else:
+            query = f'''SELECT {included_fields} FROM
+                        (SELECT {included_fields}, Row_number() OVER (partition BY [ID]
+                        ORDER BY [Modified_date] DESC) [RowNumber]
+                        FROM {self.schema().Meta.table}
+                        WHERE UUID != '00000000-0000-0000-0000-000000000000' AND Eind_Geldigheid > ?) T 
+                    WHERE rownumber = 1'''
+
 
         if filters:= q_args['any_filters']:
             query += ' AND ' + \
                 'OR '.join(f'{key} = ? ' for key in filters)
-            query_args = [filters[key] for key in filters]
+            query_args += [filters[key] for key in filters]
 
         if filters:= q_args['all_filters']:
             query += ' AND ' + \
                 'AND '.join(f'{key} = ? ' for key in filters)
-            query_args = [filters[key] for key in filters]
+            query_args += [filters[key] for key in filters]
 
         query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY [Modified_date] DESC"
 

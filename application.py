@@ -38,7 +38,7 @@ jwt = JWTManager(app)
 @jwt.unauthorized_loader
 def custom_unauthorized_loader(reason):
     return jsonify(
-        {"message": f"Authorisatie niet geldig: '{reason}'"}), 400
+        {"message": f"Authorisatie niet geldig: '{reason}'"}), 401
 
 
 # ROUTING RULES

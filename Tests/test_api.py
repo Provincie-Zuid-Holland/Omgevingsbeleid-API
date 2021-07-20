@@ -17,6 +17,7 @@ import copy
 from flask import jsonify
 import datetime
 
+
 @pytest.fixture
 def client():
     """
@@ -75,6 +76,10 @@ def test_endpoints(client, auth, endpoint):
     response = client.get(version_ep)
     assert response.status_code == 200, f"Status code for GET on {version_ep} was {response.status_code}, should be 200."
 
+    valid_ep = f"v0.1/valid/{endpoint.Meta.slug}"
+    response = client.get(valid_ep)
+    assert response.status_code == 200, f"Status code for GET on {valid_ep} was {response.status_code}, should be 200."
+
     if not endpoint.Meta.read_only:
         test_data = generate_data(
             endpoint, user_UUID=auth[0], excluded_prop='excluded_post')
@@ -122,21 +127,17 @@ def test_references(client, auth):
                ) == 2, 'Patch did not copy references'
 
 
-def test_status_404(client):
-    ep = f"v0.1/valid/ambities"
-    response = client.get(ep)
-    assert response.status_code == 404, 'This endpoint should not exist'
-
-
 def test_id_404(client):
     ep = f"v0.1/ambities/99999"
     response = client.get(ep)
     assert response.status_code == 404, 'This endpoint should return 404'
 
+
 def test_id_status_404(client):
     ep = f"v0.1/valid/beleidskeuzes/99999"
     response = client.get(ep)
     assert response.status_code == 404, 'This endpoint should return 404'
+
 
 def test_status(client):
     ep = f"v0.1/valid/beleidskeuzes"
@@ -150,29 +151,33 @@ def test_status(client):
         ids))), 'Double IDs in response that should only show valid objects per lineage'
 
 
-def test_valid_filter(client):
+def test_valid_filter(client, auth):
     ep = f"v0.1/beleidskeuzes?all_filters=Status:Uitgecheckt"
-    response = client.get(ep)
+    response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 200
     for json_obj in response.get_json():
         assert (json_obj['Status'] == 'Uitgecheckt'), 'Filter not filtering'
 
 
-def test_valid_multiple_filter(client):
-    response = client.get('v0.1/beleidskeuzes')
+def test_valid_multiple_filter(client, auth):
+    response = client.get('v0.1/beleidskeuzes',
+                          headers={'Authorization': f'Bearer {auth[1]}'})
     target = response.get_json()[0]
 
     ep = f"v0.1/beleidskeuzes?filters=Status:{target['Status']},Titel:{target['Titel']} "
-    response = client.get(ep)
+    response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
     found = False
     for json_obj in response.get_json():
         if json_obj['UUID'] == target['UUID']:
             found = True
     assert(found), 'Did not find the target when filtering'
 
-def test_invalid_filter(client):
+
+def test_invalid_filter(client, auth):
     ep = f"v0.1/beleidskeuzes?all_filters=Invalid:not_valid"
-    response = client.get(ep)
+    response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 400, 'This is an invalid request'
+
 
 @pytest.mark.parametrize('endpoint', endpoints, ids=(map(lambda ep: ep.Meta.slug, endpoints)))
 def test_pagination_limit(client, endpoint):
@@ -181,6 +186,7 @@ def test_pagination_limit(client, endpoint):
     if response.get_json():
         assert len(response.get_json()) <= 10, 'Does not limit amount of results'
 
+
 @pytest.mark.parametrize('endpoint', endpoints, ids=(map(lambda ep: ep.Meta.slug, endpoints)))
 def test_pagination_offset(client, endpoint):
     ep = f"v0.1/{endpoint}"
@@ -188,39 +194,44 @@ def test_pagination_offset(client, endpoint):
     if response.get_json():
         total_count = len(response.get_json())
         response = client.get(f"v0.1/{endpoint}?offset=10")
-        assert len(response.get_json()) <= total_count - 10, 'Does not offset the results'
+        assert len(response.get_json()) <= total_count - \
+            10, 'Does not offset the results'
+
 
 def test_null_begin_geldigheid(client, auth):
     ep = f"v0.1/beleidskeuzes"
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
     test_data['Begin_Geldigheid'] = None
     response = client.post(ep, json=test_data, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
-    
+
     new_uuid = response.get_json()['UUID']
     ep = f"v0.1/version/beleidskeuzes/{new_uuid}"
     response = client.get(ep)
-    
+
     assert response.status_code == 200, 'Could not get posted object'
-    assert response.get_json()['Begin_Geldigheid'] == min_datetime.replace(tzinfo=datetime.timezone.utc).isoformat().replace('+00:00', 'Z'), 'Should be min_datetime'
+    assert response.get_json()['Begin_Geldigheid'] == min_datetime.replace(
+        tzinfo=datetime.timezone.utc).isoformat().replace('+00:00', 'Z'), 'Should be min_datetime'
+
 
 def test_null_eind_geldigheid(client, auth):
     ep = f"v0.1/beleidskeuzes"
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
     test_data['Eind_Geldigheid'] = None
     response = client.post(ep, json=test_data, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
-    
+
     new_uuid = response.get_json()['UUID']
     ep = f"v0.1/version/beleidskeuzes/{new_uuid}"
     response = client.get(ep)
-    
+
     assert response.status_code == 200, 'Could not get posted object'
-    assert response.get_json()['Eind_Geldigheid'] == max_datetime.replace(tzinfo=datetime.timezone.utc).isoformat().replace('+00:00', 'Z'), 'Should be min_datetime'
+    assert response.get_json()['Eind_Geldigheid'] == max_datetime.replace(
+        tzinfo=datetime.timezone.utc).isoformat().replace('+00:00', 'Z'), 'Should be min_datetime'
 
 
 def test_empty_referencelists(client, auth):
@@ -230,35 +241,38 @@ def test_empty_referencelists(client, auth):
     response = client.post(ep, json=empty_reference_beleidskeuze, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
-    
+
     new_uuid = response.get_json()['UUID']
     new_id = response.get_json()['ID']
 
     ep = f"v0.1/version/beleidskeuzes/{new_uuid}"
     response = client.get(ep)
     assert response.status_code == 200, 'Could not get posted object'
-    assert response.get_json()['Ambities'] == [], 'Ambities should be an empty list'
-    
+    assert response.get_json()['Ambities'] == [
+    ], 'Ambities should be an empty list'
+
     ep = f"v0.1/ambities"
-    response = client.post(ep, json=generate_data(ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_patch') , headers={
+    response = client.post(ep, json=generate_data(ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_patch'), headers={
                            'Authorization': f'Bearer {auth[1]}'})
     new_uuid = response.get_json()['UUID']
-    
+
     ep = f"v0.1/beleidskeuzes/{new_id}"
-    response = client.patch(ep, json={'Ambities': [{'UUID':new_uuid}]}, headers={
-                           'Authorization': f'Bearer {auth[1]}'})
+    response = client.patch(ep, json={'Ambities': [{'UUID': new_uuid}]}, headers={
+        'Authorization': f'Bearer {auth[1]}'})
 
     assert len(response.get_json()['Ambities']) == 1
     response = client.patch(ep, json={'Ambities': []}, headers={
-                           'Authorization': f'Bearer {auth[1]}'})
+        'Authorization': f'Bearer {auth[1]}'})
     assert len(response.get_json()['Ambities']) == 0
+
 
 def test_HTML_Validation(client, auth):
     ep = f"v0.1/ambities"
     evil_omschrijving = """<h1>Happy</h1><script>console.log('muhaha')</script>"""
-    response = client.post(ep, json={'Titel':'Evil ambitie', 'Omschrijving':evil_omschrijving}, headers={
+    response = client.post(ep, json={'Titel': 'Evil ambitie', 'Omschrijving': evil_omschrijving}, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 400, f"Status code for POST on {ep} was {response.status_code}, should be 400. Body content: {response.json}"
+
 
 def test_reverse_lookup(client, auth):
     """
@@ -266,148 +280,173 @@ def test_reverse_lookup(client, auth):
     """
     # Create a new lineage of ambities
     test_data = generate_data(
-            ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-    
+        ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+
     response = client.post('v0.1/ambities', json=test_data, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
-    assert response.get_json()['Ref_Beleidskeuzes'] == [], f"Reverse lookup not empty on post. Body content: {response.json}"
-
+    assert response.get_json()['Ref_Beleidskeuzes'] == [
+    ], f"Reverse lookup not empty on post. Body content: {response.json}"
 
     ambitie_id = response.get_json()['ID']
     ambitie_uuid = response.get_json()['UUID']
-    
+
     # Create a new lineage for a Beleidskeuze
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
     # Set ambities
-    test_data['Ambities'] = [{'UUID': ambitie_uuid, 'Koppeling_Omschrijving':'Test description'}]
+    test_data['Ambities'] = [{'UUID': ambitie_uuid,
+                              'Koppeling_Omschrijving': 'Test description'}]
     response = client.post('v0.1/beleidskeuzes', json=test_data, headers={
                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
-    assert response.get_json()['Ambities'][0]['Object']['UUID'] == ambitie_uuid, f"Nested objects are not on object. Body content: {response.json}"
-    
+    assert response.get_json()[
+        'Ambities'][0]['Object']['UUID'] == ambitie_uuid, f"Nested objects are not on object. Body content: {response.json}"
+
     beleidskeuze_id = response.get_json()['ID']
     beleidskeuze_uuid = response.get_json()['UUID']
 
     # Get the ambitie
     response = client.get(f'v0.1/ambities/{ambitie_id}', headers={
-                           'Authorization': f'Bearer {auth[1]}'})
+        'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, f'Status code for GET was {response.status_code}, should be 200. Body content: {response.json}'
-    assert len(response.get_json()[0]['Ref_Beleidskeuzes']) == 1, f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Beleidskeuzes']}"
-    assert response.get_json()[0]['Ref_Beleidskeuzes'][0]['UUID'] == beleidskeuze_uuid, f"Nested objects are not on object. Body content: {response.json}"
+    assert len(response.get_json()[
+               0]['Ref_Beleidskeuzes']) == 1, f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Beleidskeuzes']}"
+    assert response.get_json()[
+        0]['Ref_Beleidskeuzes'][0]['UUID'] == beleidskeuze_uuid, f"Nested objects are not on object. Body content: {response.json}"
 
-
-    # Add a new version to the lineage 
+    # Add a new version to the lineage
     response = client.patch(f'v0.1/beleidskeuzes/{beleidskeuze_id}', json={"Titel": "New Title"}, headers={
-                           'Authorization': f'Bearer {auth[1]}'})
+        'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
-    assert response.get_json()['Ambities'][0]['Object']['UUID'] == ambitie_uuid, f"Nested objects are not on object. Body content: {response.json}"
+    assert response.get_json()[
+        'Ambities'][0]['Object']['UUID'] == ambitie_uuid, f"Nested objects are not on object. Body content: {response.json}"
 
     beleidskeuze_latest_id = response.get_json()['ID']
     beleidskeuze_latest_uuid = response.get_json()['UUID']
 
     # Get the ambitie
     response = client.get(f'v0.1/ambities/{ambitie_id}', headers={
-                           'Authorization': f'Bearer {auth[1]}'})
+        'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, f'Status code for GET was {response.status_code}, should be 200. Body content: {response.json}'
-    assert len(response.get_json()[0]['Ref_Beleidskeuzes']) == 1, f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Beleidskeuzes']}"
-    assert response.get_json()[0]['Ref_Beleidskeuzes'][0]['UUID'] == beleidskeuze_latest_uuid, f"Nested objects are on object. Body content: {response.json}"
+    assert len(response.get_json()[
+               0]['Ref_Beleidskeuzes']) == 1, f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Beleidskeuzes']}"
+    assert response.get_json()[
+        0]['Ref_Beleidskeuzes'][0]['UUID'] == beleidskeuze_latest_uuid, f"Nested objects are on object. Body content: {response.json}"
+
 
 def test_non_copy_field(client, auth):
     ep = f"v0.1/beleidskeuzes"
-    
+
     # create beleidskeuze lineage
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
-    
+
     first_uuid = response.get_json()['UUID']
     ep = f"v0.1/beleidskeuzes/{response.get_json()['ID']}"
     # Patch a new aanpassing_op field
-    response = client.patch(ep, json={'Titel':'Patched', 'Aanpassing_Op':first_uuid}, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.patch(ep, json={'Titel': 'Patched', 'Aanpassing_Op': first_uuid}, headers={
+                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
-    assert response.get_json()['Aanpassing_Op'] == first_uuid, 'Aanpassing_Op not saved!'
+    assert response.get_json(
+    )['Aanpassing_Op'] == first_uuid, 'Aanpassing_Op not saved!'
 
     # Patch a different field, aanpassing_op should be null
-    response = client.patch(ep, json={'Titel':'Patched twice'}, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.patch(ep, json={'Titel': 'Patched twice'}, headers={
+                            'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
-    assert response.get_json()['Aanpassing_Op'] == None, 'Aanpassing_Op was copied!'
+    assert response.get_json(
+    )['Aanpassing_Op'] == None, 'Aanpassing_Op was copied!'
+
 
 def test_all_filters(client, auth):
     ep = f"v0.1/beleidskeuzes"
-    
+
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
     test_data['Status'] = 'Ontwerp PS'
     test_data['Titel'] = 'First'
 
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
     test_data['Status'] = 'Ontwerp PS'
     test_data['Titel'] = 'Second'
 
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
     test_data['Status'] = 'Vigerend'
     test_data['Titel'] = 'Second'
 
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
-    
-    response = client.get(ep + '?all_filters=Status:Vigerend,Titel:Second')
+
+    response = client.get(ep + '?all_filters=Status:Vigerend,Titel:Second', headers={'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
     for obj in response.get_json():
         assert(obj['Titel'] == 'Second'), 'Titel should be "Second"'
         assert(obj['Status'] == 'Vigerend'), 'Status should be "Vigerend"'
 
+
 def test_multiple_filters(client, auth):
     ep = f"v0.1/beleidskeuzes"
-    
+
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
     test_data['Status'] = 'Ontwerp PS'
     test_data['Afweging'] = 'Test4325123$%'
     test_data['Titel'] = 'Test4325123$%'
 
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
     test_data['Status'] = 'Ontwerp GS'
     test_data['Afweging'] = 'Test4325123$%'
     test_data['Titel'] = 'Anders'
 
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
     test_data['Status'] = 'Vigerend'
     test_data['Afweging'] = 'Anders'
     test_data['Titel'] = 'Test4325123$%'
 
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
-    
-    response = client.get(ep + '?any_filters=Titel:Test4325123$%,Afweging:Test4325123$%')
+
+    response = client.get(
+        ep + '?any_filters=Titel:Test4325123$%,Afweging:Test4325123$%', headers={
+                           'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
-    assert len(response.get_json()) == 3, 'This should return all objects that were created'
+    assert len(response.get_json()
+               ) == 3, 'This should return all objects that were created'
+
 
 def test_clear_patch_fields_beleidskeuzes(client, auth):
     ep = f"v0.1/beleidskeuzes"
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
-    
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
     new_id = response.get_json()['ID']
@@ -415,21 +454,25 @@ def test_clear_patch_fields_beleidskeuzes(client, auth):
 
     modify_data = {'Titel': 'Nieuwe Titel', 'Aanpassing_Op': new_uuid}
     patch_ep = ep + f'/{new_id}'
-    response = client.patch(patch_ep, json=modify_data, headers={'Authorization': f'Bearer {auth[1]}'})
-    
+    response = client.patch(patch_ep, json=modify_data, headers={
+                            'Authorization': f'Bearer {auth[1]}'})
+
     assert response.status_code == 200, f"Status code for PATCH on {patch_ep} was {response.status_code}, should be 200. Body content: {response.json}"
     assert response.get_json()['Aanpassing_Op'] == new_uuid
-    
+
     modify_data = {'Titel': 'Nieuwere Titel'}
-    response = client.patch(patch_ep, json=modify_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.patch(patch_ep, json=modify_data, headers={
+                            'Authorization': f'Bearer {auth[1]}'})
     assert response.get_json()['Aanpassing_Op'] == None
+
 
 def test_clear_patch_fields_maatregelen(client, auth):
     ep = f"v0.1/maatregelen"
     test_data = generate_data(
-            maatregelen.Maatregelen_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
-    
+        maatregelen.Maatregelen_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
     new_id = response.get_json()['ID']
@@ -437,14 +480,17 @@ def test_clear_patch_fields_maatregelen(client, auth):
 
     modify_data = {'Titel': 'Nieuwe Titel', 'Aanpassing_Op': new_uuid}
     patch_ep = ep + f'/{new_id}'
-    response = client.patch(patch_ep, json=modify_data, headers={'Authorization': f'Bearer {auth[1]}'})
-    
+    response = client.patch(patch_ep, json=modify_data, headers={
+                            'Authorization': f'Bearer {auth[1]}'})
+
     assert response.status_code == 200, f"Status code for PATCH on {patch_ep} was {response.status_code}, should be 200. Body content: {response.json}"
     assert response.get_json()['Aanpassing_Op'] == new_uuid
-    
+
     modify_data = {'Titel': 'Nieuwere Titel'}
-    response = client.patch(patch_ep, json=modify_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.patch(patch_ep, json=modify_data, headers={
+                            'Authorization': f'Bearer {auth[1]}'})
     assert response.get_json()['Aanpassing_Op'] == None
+
 
 def test_graph(client, auth):
     ep = f"v0.1/graph"
@@ -452,111 +498,94 @@ def test_graph(client, auth):
     assert response.status_code == 200, 'Graph endpoint not working'
 
     response = client.get(ep)
-    assert response.status_code == 200, 'Graph endpoint is unavailable without auth'    
+    assert response.status_code == 200, 'Graph endpoint is unavailable without auth'
+
 
 def test_ID_ref(client, auth):
     ep = f"v0.1/ambities"
     ambitie_data = generate_data(
-            ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-    response = client.post(ep, json=ambitie_data, headers={'Authorization': f'Bearer {auth[1]}'})
-    
+        ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=ambitie_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
+
     am_ID = response.get_json()['ID']
     am_UUID = response.get_json()['UUID']
 
     ep = f"v0.1/beleidskeuzes"
     test_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
     test_data['Ambities'] = [{'UUID': am_UUID, 'Koppeling_Omschrijving': ''}]
-    response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.post(ep, json=test_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
 
     bk_UUID = response.get_json()['UUID']
-    
+
     ep = f"v0.1/ambities/{am_ID}"
-    response = client.patch(ep, json=ambitie_data, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.patch(ep, json=ambitie_data, headers={
+                            'Authorization': f'Bearer {auth[1]}'})
     new_am_UUID = response.get_json()['UUID']
 
     ep = f"v0.1/version/beleidskeuzes/{bk_UUID}"
     response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
-    assert response.get_json()['Ambities'][0]['Object']['UUID'] == new_am_UUID, f'Did not update object, old object UUID: {am_UUID}'
-
-# Not relevant anymore for now 
-
-# def test_ID_status_ref(client, auth):
-#     ep = f"v0.1/maatregelen"
-#     maatregel_data = generate_data(
-#             maatregelen.Maatregelen_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-#     response = client.post(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
-    
-#     ma_ID = response.get_json()['ID']
-#     ma_UUID = response.get_json()['UUID']
-
-#     ep = f"v0.1/beleidskeuzes"
-#     test_data = generate_data(
-#             beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-#     test_data['Maatregelen'] = [{'UUID': ma_UUID, 'Koppeling_Omschrijving': ''}]
-#     response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
-#     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
-#     bk_UUID = response.get_json()['UUID']
-    
-#     ep = f"v0.1/maatregelen/{ma_ID}"
-#     maatregel_data['Status'] = 'Vigerend'
-#     response = client.patch(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
-#     vigerend_ma_UUID = response.get_json()['UUID']
-
-#     maatregel_data['Status'] = 'Ontwerp GS'
-#     response = client.patch(ep, json=maatregel_data, headers={'Authorization': f'Bearer {auth[1]}'})
-#     ontwerp_ma_UUID = response.get_json()['UUID']
-
-#     ep = f"v0.1/version/beleidskeuzes/{bk_UUID}"
-#     response = client.get(ep, headers={'Authorization': f'Bearer {auth[1]}'})
-#     assert response.get_json()['Maatregelen'][0]['Object']['UUID'] == vigerend_ma_UUID, f'Did not update object, old object UUID: {ma_UUID}. Later object UUID: {ontwerp_ma_UUID}'
+    assert response.get_json()[
+        'Ambities'][0]['Object']['UUID'] == new_am_UUID, f'Did not update object, old object UUID: {am_UUID}'
 
 
 def test_null_date(client, auth):
     ep = f"v0.1/beleidsprestaties"
     bp_data = generate_data(
-            beleidsprestaties.Beleidsprestaties_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-    response = client.post(ep, json=bp_data, headers={'Authorization': f'Bearer {auth[1]}'})
+        beleidsprestaties.Beleidsprestaties_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
+    response = client.post(ep, json=bp_data, headers={
+                           'Authorization': f'Bearer {auth[1]}'})
     bp_ID = response.get_json()['ID']
-    
-    response = client.patch(ep + f'/{bp_ID}', json={'Eind_Geldigheid': None}, headers={'Authorization': f'Bearer {auth[1]}'})
+
+    response = client.patch(ep + f'/{bp_ID}', json={'Eind_Geldigheid': None},
+                            headers={'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, 'patch failed'
 
-    response = client.get(ep + f'/{bp_ID}', headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.get(
+        ep + f'/{bp_ID}', headers={'Authorization': f'Bearer {auth[1]}'})
     assert response.get_json()[0]['Eind_Geldigheid'] == '9999-12-31T23:59:59Z'
-    
+
 
 def test_graph(client, auth):
     # Create Ambitie
-    test_amb = generate_data(ambities.Ambities_Schema, excluded_prop='excluded_post')
-    amb_resp = client.post('v0.1/ambities', json=test_amb, headers={'Authorization': f'Bearer {auth[1]}'})
+    test_amb = generate_data(ambities.Ambities_Schema,
+                             excluded_prop='excluded_post')
+    amb_resp = client.post('v0.1/ambities', json=test_amb,
+                           headers={'Authorization': f'Bearer {auth[1]}'})
     amb_UUID = amb_resp.get_json()['UUID']
     amb_ID = amb_resp.get_json()['ID']
-    
+
     # Make new version of Ambitie
-    amb_resp = client.patch(f'v0.1/ambities/{amb_ID}', json={'Titel': 'Aangepast'}, headers={'Authorization': f'Bearer {auth[1]}'})
+    amb_resp = client.patch(f'v0.1/ambities/{amb_ID}', json={
+                            'Titel': 'Aangepast'}, headers={'Authorization': f'Bearer {auth[1]}'})
     new_amb_UUID = amb_resp.get_json()['UUID']
 
     # Create Belang
-    test_belang = generate_data(belangen.Belangen_Schema, excluded_prop='excluded_post')
-    belang_resp = client.post('v0.1/belangen', json=test_belang, headers={'Authorization': f'Bearer {auth[1]}'})
+    test_belang = generate_data(
+        belangen.Belangen_Schema, excluded_prop='excluded_post')
+    belang_resp = client.post(
+        'v0.1/belangen', json=test_belang, headers={'Authorization': f'Bearer {auth[1]}'})
     belang_UUID = belang_resp.get_json()['UUID']
     belang_ID = belang_resp.get_json()['ID']
     # Create new version of Belang
     # belang_resp = client.patch(f'v0.1/belangen/{belang_ID}', json={'Titel': 'Aangepast'}, headers={'Authorization': f'Bearer {auth[1]}'})
     # new_belang_UUID = amb_resp.get_json()['UUID']
-    
+
     # Create beleidskeuze (add objects)
     test_bk = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
     test_bk['Ambities'] = [{'UUID': amb_UUID, 'Koppeling_Omschrijving': ''}]
     test_bk['Belangen'] = [{'UUID': belang_UUID, 'Koppeling_Omschrijving': ''}]
     test_bk['Status'] = 'Vigerend'
-    response = client.post('v0.1/beleidskeuzes', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.post('v0.1/beleidskeuzes', json=test_bk,
+                           headers={'Authorization': f'Bearer {auth[1]}'})
     bk_uuid = response.get_json()['UUID']
 
     # Do Check
-    response = client.get('v0.1/graph', headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.get(
+        'v0.1/graph', headers={'Authorization': f'Bearer {auth[1]}'})
     graph_links = response.get_json()['links']
     graph_nodes = response.get_json()['nodes']
     found_links = []
@@ -568,21 +597,26 @@ def test_graph(client, auth):
     assert belang_UUID in found_links, 'Belang not retrieved'
     assert new_amb_UUID in found_links, 'Ambitie not retrieved'
     assert not amb_UUID in found_links, 'Old Ambitie retrieved'
-    assert set([new_amb_UUID, belang_UUID]) == set(found_links), 'Unexpected result for links'
+    assert set([new_amb_UUID, belang_UUID]) == set(
+        found_links), 'Unexpected result for links'
 
 
 def test_module_UUID(client, auth):
     # Create beleidskeuze (add objects)
     test_bk = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
-    response = client.post('v0.1/beleidskeuzes', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
+    response = client.post('v0.1/beleidskeuzes', json=test_bk,
+                           headers={'Authorization': f'Bearer {auth[1]}'})
     new_uuid = response.get_json()['UUID']
     new_id = response.get_json()['ID']
 
     # Create Module
-    test_module = generate_data(beleidsmodule.Beleidsmodule_Schema, excluded_prop='excluded_post')
-    test_module['Beleidskeuzes'] = [{'UUID': new_uuid, 'Koppeling_Omschrijving':''}]
-    response = client.post('v0.1/beleidsmodules', json=test_module, headers={'Authorization': f'Bearer {auth[1]}'})
+    test_module = generate_data(
+        beleidsmodule.Beleidsmodule_Schema, excluded_prop='excluded_post')
+    test_module['Beleidskeuzes'] = [
+        {'UUID': new_uuid, 'Koppeling_Omschrijving': ''}]
+    response = client.post('v0.1/beleidsmodules', json=test_module,
+                           headers={'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 201
     module_uuid = response.get_json()['UUID']
 
@@ -590,65 +624,80 @@ def test_module_UUID(client, auth):
     response = client.get(f'v0.1/beleidskeuzes/{new_id}')
     assert response.status_code == 200
 
-    assert response.get_json()[0]['Ref_Beleidsmodules'][0]['UUID'] == module_uuid
+    assert response.get_json(
+    )[0]['Ref_Beleidsmodules'][0]['UUID'] == module_uuid
 
     # Add new version to bk
-    response = client.patch(f'v0.1/beleidskeuzes/{new_id}', json={'Titel':'Nieuwe Titel'}, headers={'Authorization': f'Bearer {auth[1]}'})
-    
+    response = client.patch(f'v0.1/beleidskeuzes/{new_id}', json={
+                            'Titel': 'Nieuwe Titel'}, headers={'Authorization': f'Bearer {auth[1]}'})
+
     # Check reverse again
     response = client.get(f'v0.1/beleidskeuzes/{new_id}')
     assert response.status_code == 200
-    assert not(response.get_json()[0]['Ref_Beleidsmodules']), 'Should not be in module'
+    assert not(response.get_json()[
+               0]['Ref_Beleidsmodules']), 'Should not be in module'
+
 
 def test_maatregelen_link(client, auth):
     # Create Maatregel
     test_ma = generate_data(
-            maatregelen.Maatregelen_Schema, excluded_prop='excluded_post')
-    response = client.post('v0.1/maatregelen', json=test_ma, headers={'Authorization': f'Bearer {auth[1]}'})
+        maatregelen.Maatregelen_Schema, excluded_prop='excluded_post')
+    response = client.post('v0.1/maatregelen', json=test_ma,
+                           headers={'Authorization': f'Bearer {auth[1]}'})
     ma_uuid = response.get_json()['UUID']
-    
-    
+
     # Create beleidskeuze (add objects)
     test_bk = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
-    test_bk['Maatregelen'] = [{'UUID':ma_uuid, 'Koppeling_Omschrijving':'Test'}]
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop='excluded_post')
+    test_bk['Maatregelen'] = [
+        {'UUID': ma_uuid, 'Koppeling_Omschrijving': 'Test'}]
     print(test_bk)
-    response = client.post('v0.1/beleidskeuzes', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
-    
-    
+    response = client.post('v0.1/beleidskeuzes', json=test_bk,
+                           headers={'Authorization': f'Bearer {auth[1]}'})
+
     bk_id = response.get_json()['ID']
 
     # Check beleidskeuze
-    response = client.get(f'v0.1/beleidskeuzes/{bk_id}', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
+    response = client.get(
+        f'v0.1/beleidskeuzes/{bk_id}', json=test_bk, headers={'Authorization': f'Bearer {auth[1]}'})
     assert response.get_json()[0]['Maatregelen'], 'references where empty'
-    assert response.get_json()[0]['Maatregelen'][0]['Object']['UUID'] == ma_uuid, 'Maatregel not linked'
+    assert response.get_json(
+    )[0]['Maatregelen'][0]['Object']['UUID'] == ma_uuid, 'Maatregel not linked'
 
-# def test_reverse_ID(client, auth):
-#     ep = f"v0.1/ambities"
-#     ambitie_data = generate_data(
-#             ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-#     response = client.post(ep, json=ambitie_data, headers={'Authorization': f'Bearer {auth[1]}'})
-    
-#     am_ID = response.get_json()['ID']
-#     am_UUID = response.get_json()['UUID']
 
-#     ep = f"v0.1/beleidskeuzes"
-#     test_data = generate_data(
-#             beleidskeuzes.Beleidskeuzes_Schema, user_UUID=auth[0], excluded_prop='excluded_post')
-#     test_data['Ambities'] = [{'UUID': am_UUID, 'Koppeling_Omschrijving': ''}]
-#     response = client.post(ep, json=test_data, headers={'Authorization': f'Bearer {auth[1]}'})
+def test_valid(client, auth):
+    # Create Belang
+    old_belang = generate_data(
+        belangen.Belangen_Schema, excluded_prop='excluded_post')
+    old_belang['Eind_Geldigheid'] = '1992-11-23T10:00:00'
+    new_belang = generate_data(
+        belangen.Belangen_Schema, excluded_prop='excluded_post')
+    new_belang['Eind_Geldigheid'] = '2992-11-23T10:00:00'
 
-#     bk_UUID = response.get_json()['UUID']
-#     bk_ID = response.get_json()['ID']    
+    response = client.post('v0.1/belangen', json=old_belang,
+                           headers={'Authorization': f'Bearer {auth[1]}'})
+    old_belang_uuid = response.get_json()['UUID']
 
-#     ep = f"v0.1/ambities/{am_ID}"
-#     response = client.patch(ep, json={'Titel':'Nieuwe Title'}, headers={'Authorization': f'Bearer {auth[1]}'})
-    
-#     assert response.get_json()['Ref_Beleidskeuzes'], 'Reverse references empty'
-#     assert response.get_json()['Ref_Beleidskeuzes'][0]['UUID'] == bk_UUID, f'Reverse ref not working'
+    response = client.post('v0.1/belangen', json=new_belang,
+                           headers={'Authorization': f'Bearer {auth[1]}'})
+    new_belang_uuid = response.get_json()['UUID']
 
-    # print(response.get_json())
-    # assert(bk_UUID != new_bk_UUID)
-    # assert response.get_json()[0]['Ref_Beleidskeuzes'][0]['UUID'] == new_bk_UUID, f'Reverse ref not working'
-    # assert len(response.get_json()[0]['Ref_Beleidskeuzes']) == 1, f'Reverse ref not working'
-    # assert(1==2)
+    response = client.get('v0.1/valid/belangen')
+    found_new = False
+    for belang in response.get_json():
+        assert belang['UUID'] != old_belang_uuid
+        if belang['UUID'] == new_belang_uuid:
+            found_new = True
+    assert(found_new)
+
+
+def test_protect_invalid(client, auth):
+    response = client.get('v0.1/belangen')
+    assert response.status_code == 401, f'body: {response.get_json()}'
+
+    response = client.get(
+        'v0.1/belangen', headers={'Authorization': f'Bearer {auth[1]}'})
+    assert response.status_code == 200
+
+    response = client.get('v0.1/valid/belangen')
+    assert response.status_code == 200
