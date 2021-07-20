@@ -81,11 +81,11 @@ def get_objects(query, query_args, schema, cursor, inline=True):
     Returns:
         list: A collection of objects that resulted out of the query
     """
-    result_objecten = map(row_to_dict, cursor.execute(query, *query_args))
+    result_objecten = list(map(row_to_dict, cursor.execute(query, *query_args)))
     result_objecten = schema.dump(result_objecten, many=True)
     for obj in result_objecten:
         obj = merge_references(obj, schema, cursor, inline)
-
+    # WIP: Why does this return empty list after listing 'result_objecten'?
     return(result_objecten)
 
 
@@ -204,7 +204,7 @@ class Lineage(Schema_Resource):
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             try:
-                results = get_objects(query, query_args, self.schema(), cursor)
+                results = get_objects(query, query_args, self.schema(partial=True), cursor)
                 
                 if not results:
                     return handle_ID_does_not_exists(id)
@@ -299,9 +299,9 @@ class FullList(Schema_Resource):
 
         # Retrieve all the fields we want to query
         included_fields = ', '.join(
-            [field for field in self.schema().fields_without_props('referencelist')])
-
-        query = f'''SELECT {included_fields} FROM (SELECT {included_fields}, 
+            [field for field in self.schema().fields_with_props('short')])
+        print(included_fields)
+        query = f'''SELECT {included_fields} FROM (SELECT *, 
                         ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
                         FROM {self.schema().Meta.table}) T WHERE RowNumber = 1'''
 
@@ -329,7 +329,7 @@ class FullList(Schema_Resource):
         with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
             cursor = connection.cursor()
             try:
-                return(get_objects(query, query_args, self.schema(), cursor)), 200
+                return(get_objects(query, query_args, self.schema(partial=True), cursor)), 200
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e), 500
 
@@ -412,7 +412,7 @@ class ValidList(Schema_Resource):
         if self.schema.Meta.status_conf:
             status_field, status_value = self.schema.Meta.status_conf
             query = f'''SELECT {included_fields} FROM
-                        (SELECT {included_fields}, Row_number() OVER (partition BY [ID]
+                        (SELECT *, Row_number() OVER (partition BY [ID]
                         ORDER BY [Modified_date] DESC) [RowNumber]
                         FROM {self.schema().Meta.table}
                         WHERE UUID != '00000000-0000-0000-0000-000000000000' AND Eind_Geldigheid > ? AND {status_field} = ?) T 
@@ -421,7 +421,7 @@ class ValidList(Schema_Resource):
             query_args.append(status_value)
         else:
             query = f'''SELECT {included_fields} FROM
-                        (SELECT {included_fields}, Row_number() OVER (partition BY [ID]
+                        (SELECT *, Row_number() OVER (partition BY [ID]
                         ORDER BY [Modified_date] DESC) [RowNumber]
                         FROM {self.schema().Meta.table}
                         WHERE UUID != '00000000-0000-0000-0000-000000000000' AND Eind_Geldigheid > ?) T 

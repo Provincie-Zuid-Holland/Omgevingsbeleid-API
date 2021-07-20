@@ -18,9 +18,9 @@ class Short_Base_Schema(MM.Schema):
     Schema that defines fields we expect from every object in order to specify a version and lineage
     """
     ID = MM.fields.Integer(search_field="Keyword", obprops=[
-                           'excluded_patch', 'excluded_post'])
+                           'excluded_patch', 'excluded_post', 'short'])
     UUID = MM.fields.UUID(required=True, obprops=[
-                          'excluded_patch', 'excluded_post'])
+                          'excluded_patch', 'excluded_post', 'short'])
     class Meta:
         ordered = True
         read_only = False
@@ -146,11 +146,11 @@ class Base_Schema(Short_Base_Schema):
     Eind_Geldigheid = MM.fields.DateTime(format='iso', 
         missing=max_datetime, allow_none=True, obprops=[])
     Created_By = MM.fields.UUID(required=True, obprops=[
-                                'excluded_patch', 'excluded_post'])
+                                'excluded_patch', 'excluded_post', 'short'])
     Created_Date = MM.fields.DateTime(format='iso', required=True, obprops=[
-                                      'excluded_patch', 'excluded_post'])
+                                      'excluded_patch', 'excluded_post', 'short'])
     Modified_By = MM.fields.UUID(required=True, obprops=[
-                                 'excluded_patch', 'excluded_post'])
+                                 'excluded_patch', 'excluded_post', 'short'])
     Modified_Date = MM.fields.DateTime(format='iso', required=True, obprops=[
-                                       'excluded_patch', 'excluded_post'])
+                                       'excluded_patch', 'excluded_post', 'short'])
  

@@ -25,7 +25,7 @@ class Maatregelen_Schema(Base_Schema):
     Opdrachtgever = MM.fields.UUID(
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
     Titel = MM.fields.Str(required=True, validate=[
-                          HTML_Validate], obprops=['search_title'])
+                          HTML_Validate], obprops=['search_title', 'short'])
     Omschrijving = MM.fields.Str(missing=None, validate=[
                                  HTML_Validate], obprops=['search_description'])
     Toelichting = MM.fields.Str(missing=None, validate=[
@@ -44,7 +44,7 @@ class Maatregelen_Schema(Base_Schema):
         "Vastgesteld",
         "Vigerend",
         "Vigerend gearchiveerd"])],
-        obprops=[])
+        obprops=['short'])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
     Gebied_Duiding = MM.fields.Str(allow_none=True, missing="Indicatief",

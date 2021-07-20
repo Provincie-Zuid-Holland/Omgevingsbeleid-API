@@ -44,8 +44,8 @@ class Beleidskeuzes_Schema(Base_Schema):
         "Vastgesteld",
         "Vigerend",
         "Vigerend gearchiveerd"])],
-        obprops=[])
-    Titel = MM.fields.Str(required=True, obprops=['search_title'])
+        obprops=['short'])
+    Titel = MM.fields.Str(required=True, obprops=['search_title', 'short'])
     Omschrijving_Keuze = MM.fields.Str(
         missing=None, validate=[HTML_Validate], obprops=['search_description'])
     Omschrijving_Werking = MM.fields.Str(

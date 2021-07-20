@@ -11,17 +11,17 @@ from globals import null_uuid
 
 class Beleidsrelaties_Schema(Base_Schema):
     Van_Beleidskeuze = MM.fields.UUID(
-        required=True, allow_none=False, validate=MM.validate.NoneOf([null_uuid, ]), obprops=[])
+        required=True, allow_none=False, validate=MM.validate.NoneOf([null_uuid, ]), obprops=['short'])
     Naar_Beleidskeuze = MM.fields.UUID(
-        required=True, allow_none=False, validate=MM.validate.NoneOf([null_uuid, ]), obprops=[])
-    Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_field'])
+        required=True, allow_none=False, validate=MM.validate.NoneOf([null_uuid, ]), obprops=['short'])
+    Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_field', 'short'])
     Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_field'])
     Status = MM.fields.Str(required=True, validate=MM.validate.OneOf(
-        ['Open', 'Akkoord', 'NietAkkoord', 'Verbroken']), obprops=[])
+        ['Open', 'Akkoord', 'NietAkkoord', 'Verbroken']), obprops=['short'])
     Aanvraag_Datum = MM.fields.DateTime(
-        format='iso', required=True, obprops=[])
+        format='iso', required=True, obprops=['short'])
     Datum_Akkoord = MM.fields.DateTime(
-        format='iso', allow_none=True, missing=None, obprops=[])
+        format='iso', allow_none=True, missing=None, obprops=['short'])
 
     class Meta(Base_Schema.Meta):
         slug = 'beleidsrelaties'

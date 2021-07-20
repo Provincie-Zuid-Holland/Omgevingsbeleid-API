@@ -9,7 +9,7 @@ from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
 
 
 class Beleidsprestaties_Schema(Base_Schema):
-    Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])
+    Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title', 'short'])
     Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Ref_Beleidskeuzes = MM.fields.Nested(

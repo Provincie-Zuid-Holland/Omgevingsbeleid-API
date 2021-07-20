@@ -14,7 +14,7 @@ import Models.beleidskeuzes
 
 
 class Beleidsmodule_Schema(Base_Schema):
-    Titel = MM.fields.Str(required=True, obprops=[])
+    Titel = MM.fields.Str(required=True, obprops=['short'])
     Besluit_Datum = MM.fields.DateTime(format='iso', 
         missing=min_datetime, allow_none=True, obprops=[])
     Maatregelen = MM.fields.Nested(
