@@ -32,7 +32,10 @@ def merge_references(obj, schema, cursor, inline=True):
     """
     references = {**schema.Meta.base_references,
                   **schema.Meta.references}.items()
+    
     for name, ref in references:
+        if schema.only and name not in schema.only:
+            continue
         if isinstance(ref, UUID_List_Reference) or isinstance(ref, Reverse_UUID_Reference):
             if inline:
                 obj[name] = ref.retrieve_inline(obj, cursor)

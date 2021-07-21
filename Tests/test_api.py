@@ -121,9 +121,10 @@ def test_references(client, auth):
     response = client.patch(ep, json={'Titel': 'Changed Title TEST'}, headers={
                             'Authorization': f'Bearer {auth[1]}'})
     assert response.status_code == 200, 'Patch failed'
+    response = client.get(ep)
     assert response.get_json(
-    )['Titel'] == 'Changed Title TEST', 'Patch did not change title'
-    assert len(response.get_json()['Ambities']
+    )[0]['Titel'] == 'Changed Title TEST', 'Patch did not change title'
+    assert len(response.get_json()[0]['Ambities']
                ) == 2, 'Patch did not copy references'
 
 

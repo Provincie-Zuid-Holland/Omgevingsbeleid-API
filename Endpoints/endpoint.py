@@ -83,6 +83,7 @@ def get_objects(query, query_args, schema, cursor, inline=True):
     """
     result_objecten = list(map(row_to_dict, cursor.execute(query, *query_args)))
     result_objecten = schema.dump(result_objecten, many=True)
+    
     for obj in result_objecten:
         obj = merge_references(obj, schema, cursor, inline)
     # WIP: Why does this return empty list after listing 'result_objecten'?
@@ -298,9 +299,9 @@ class FullList(Schema_Resource):
             return handle_validation_filter_exception(e)
 
         # Retrieve all the fields we want to query
-        included_fields = ', '.join(
-            [field for field in self.schema().fields_with_props('short')])
-        print(included_fields)
+        short_fields = [field for field in self.schema().fields_with_props('short')]
+        included_fields = ', '.join(short_fields)
+        
         query = f'''SELECT {included_fields} FROM (SELECT *, 
                         ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
                         FROM {self.schema().Meta.table}) T WHERE RowNumber = 1'''
@@ -329,7 +330,7 @@ class FullList(Schema_Resource):
         with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
             cursor = connection.cursor()
             try:
-                return(get_objects(query, query_args, self.schema(partial=True), cursor)), 200
+                return(get_objects(query, query_args, self.schema(only=short_fields), cursor)), 200
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e), 500
 
