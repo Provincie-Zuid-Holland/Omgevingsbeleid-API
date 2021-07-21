@@ -405,8 +405,8 @@ class ValidList(Schema_Resource):
             return handle_validation_filter_exception(e)
 
         # Retrieve all the fields we want to query
-        included_fields = ', '.join(
-            [field for field in self.schema().fields_without_props('referencelist')])
+        short_fields = [field for field in self.schema().fields_with_props('short')]
+        included_fields = ', '.join(short_fields)
 
         query_args = [request_time]
 
@@ -451,7 +451,7 @@ class ValidList(Schema_Resource):
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             try:
-                return(get_objects(query, query_args, self.schema(), cursor)), 200
+                return(get_objects(query, query_args, self.schema(only=short_fields), cursor)), 200
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e), 500
 
