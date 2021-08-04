@@ -80,7 +80,7 @@ class DataManager:
 
             cur.commit()
 
-    def get_all(self, valid_only=False, any_filters=None, all_filters=None):
+    def get_all(self, valid_only=False, any_filters=None, all_filters=None, short=False):
         """
         Retrieve all the latest versions for each lineage
         """
@@ -90,8 +90,13 @@ class DataManager:
         # determine view
         target_view = self.valid_view if valid_only else self.latest_view
 
+        # determine the fields to include in the query
+        fieldset = '*'
+        if short:
+            fieldset = ', '.join([field for field in self.schema().fields_with_props('short')])
+
         query = f'''
-                SELECT * FROM {target_view} 
+                SELECT {fieldset} FROM {target_view} 
                 '''
 
         # generate filter_queries
@@ -103,12 +108,13 @@ class DataManager:
             query += 'AND '.join(f'{key} = ? ' for key in all_filters)
             query_args += [all_filters[key] for key in all_filters]
         
+        # Add ordering
+        query += 'ORDER BY Modified_Date DESC'
+
         # TODO: Merge with inlining (might need a better strategy, might even go on view)
         # TODO: Offset implementation
-        # TODO: Dynamic field sets (should not go in view)
         # TODO: Check wether views exist (and are valid, maybe later)
 
-        print(query)
 
         with pyodbc.connect(db_connection_settings, autocommit=False) as con:
             cur = con.cursor()
@@ -121,7 +127,7 @@ class DataManager:
 
             # for row in result_rows:
             #     row = merge_references(row, self.schema, cur, True)
-            print(result_rows)
+
             return result_rows
 
     def get_lineage(self, id):

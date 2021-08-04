@@ -300,7 +300,7 @@ class FullList(Schema_Resource):
 
         manager = DataManager(self.schema)
 
-        return(manager.get_all(False, q_args['any_filters'], q_args['all_filters']))
+        return(manager.get_all(False, q_args['any_filters'], q_args['all_filters'], True))
         # Retrieve all the fields we want to query
         # short_fields = [field for field in self.schema().fields_with_props('short')]
         # included_fields = ', '.join(short_fields)

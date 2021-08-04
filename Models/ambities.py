@@ -9,8 +9,8 @@ from Endpoints.validators import HTML_Validate
 from Models.short_schemas import Short_Beleidskeuze_Schema
 
 class Ambities_Schema(Base_Schema):
-    Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title'])
-    Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description', 'large_data'])
+    Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_title', 'short'])
+    Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_description'])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
