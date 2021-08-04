@@ -12,7 +12,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
-
+from Endpoints.data_manager import DataManager
 from Endpoints.base_schema import Base_Schema
 from Endpoints.errors import (handle_UUID_does_not_exists, handle_empty, handle_integrity_exception, handle_no_status,
                               handle_odbc_exception, handle_read_only,
@@ -298,41 +298,38 @@ class FullList(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
+        manager = DataManager(self.schema)
+
+        return(manager.get_all(False, q_args['any_filters'], q_args['all_filters']))
         # Retrieve all the fields we want to query
-        short_fields = [field for field in self.schema().fields_with_props('short')]
-        included_fields = ', '.join(short_fields)
+        # short_fields = [field for field in self.schema().fields_with_props('short')]
+        # included_fields = ', '.join(short_fields)
         
-        query = f'''SELECT {included_fields} FROM (SELECT *, 
-                        ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
-                        FROM {self.schema().Meta.table}) T WHERE RowNumber = 1'''
+        # query = f'''SELECT {included_fields} FROM (SELECT *, 
+        #                 ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
+        #                 FROM {self.schema().Meta.table}) T WHERE RowNumber = 1'''
 
-        query_args = []
+        # query_args = []
 
-        if filters:= q_args['any_filters']:
-            query += ' AND ' + \
-                'OR '.join(f'{key} = ? ' for key in filters)
-            query_args = [filters[key] for key in filters]
+        # if filters:= q_args['any_filters']:
+        #     query += ' AND ' + \
+        #         'OR '.join(f'{key} = ? ' for key in filters)
+        #     query_args = [filters[key] for key in filters]
 
-        if filters:= q_args['all_filters']:
-            query += ' AND ' + \
-                'AND '.join(f'{key} = ? ' for key in filters)
-            query_args = [filters[key] for key in filters]
+        # if filters:= q_args['all_filters']:
+        #     query += ' AND ' + \
+        #         'AND '.join(f'{key} = ? ' for key in filters)
+        #     query_args = [filters[key] for key in filters]
 
-        query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC"
+        # query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC"
 
-        query += " OFFSET ? ROWS"
-        query_args.append(int(q_args['offset']))
+        # query += " OFFSET ? ROWS"
+        # query_args.append(int(q_args['offset']))
 
-        if limit:= q_args['limit']:
-            query += " FETCH NEXT ? ROWS ONLY"
-            query_args.append(int(limit))
+        # if limit:= q_args['limit']:
+        #     query += " FETCH NEXT ? ROWS ONLY"
+        #     query_args.append(int(limit))
 
-        with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
-            cursor = connection.cursor()
-            try:
-                return(get_objects(query, query_args, self.schema(only=short_fields), cursor)), 200
-            except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e), 500
 
     @jwt_required
     def post(self):

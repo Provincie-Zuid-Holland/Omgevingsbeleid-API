@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
-from base_schema import Base_Schema
 import pyodbc
 from Endpoints.errors import handle_odbc_exception
 from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
+from Endpoints.references import merge_references
 
 
 class DataManagerException(Exception):
@@ -15,11 +15,11 @@ class DataManager:
 
     def __init__(self, schema):
         self.schema = schema
-        required_fields = ['slug, table']
-        for field in required_fields:
-            if not self.schema_cls.Meta.get(field):
+        required_meta_settings = ['slug', 'table']
+        for setting in required_meta_settings:
+            if setting not in dir(self.schema.Meta):
                 raise DataManagerException(
-                    f'Schema for manager does not define a field "{field}"')
+                    f'Schema for manager does not define a field "{setting}"')
         self.latest_view = f'Latest_{self.schema.Meta.slug}'
         self.valid_view = f'Valid_{self.schema.Meta.slug}'
 
@@ -45,7 +45,7 @@ class DataManager:
 
             except pyodbc.DatabaseError as e:
                 raise handle_odbc_exception(e)
-            
+
             cur.commit()
 
     def _set_up_valid_view(self):
@@ -54,7 +54,7 @@ class DataManager:
         """
         # Check if we need to query for status
         status_condition = ''
-        if status_conf := self.schema.Meta.status_conf:
+        if status_conf:= self.schema.Meta.status_conf:
             status_condition = f'AND {status_conf[0]} = {status_conf[1]}'
 
         query = f'''
@@ -77,59 +77,62 @@ class DataManager:
 
             except pyodbc.DatabaseError as e:
                 raise handle_odbc_exception(e)
-            
+
             cur.commit()
 
     def get_all(self, valid_only=False, any_filters=None, all_filters=None):
-        """Retrieve all the latest versions for each lineage
+        """
+        Retrieve all the latest versions for each lineage
         """
         filter_query = ''
         query_args = []
-        
-        
-        # generate filter_queries
-        if any_filters:
-            filter_query += 'OR '.join(f'{key} = ? ' for key in any_filters)
-            query_args += [any_filters[key] for key in any_filters]
-
-        if any_filters and all_filters:
-            # Combine the filter queries
-            filter_query += 'AND '
-
-        if all_filters:
-            filter_query += 'AND '.join(f'{key} = ? ' for key in all_filters)
-            query_args += [all_filters[key] for key in all_filters]
 
         # determine view
         target_view = self.valid_view if valid_only else self.latest_view
 
         query = f'''
                 SELECT * FROM {target_view} 
-                WHERE {any_filters} {all_filters}
                 '''
+
+        # generate filter_queries
+        if any_filters or any_filters:
+            query += 'WHERE '
+            query += 'OR '.join(f'{key} = ? ' for key in any_filters)
+            query_args += [any_filters[key] for key in any_filters]
+            query += 'AND '
+            query += 'AND '.join(f'{key} = ? ' for key in all_filters)
+            query_args += [all_filters[key] for key in all_filters]
         
         # TODO: Merge with inlining (might need a better strategy, might even go on view)
         # TODO: Offset implementation
         # TODO: Dynamic field sets (should not go in view)
         # TODO: Check wether views exist (and are valid, maybe later)
 
+        print(query)
+
         with pyodbc.connect(db_connection_settings, autocommit=False) as con:
             cur = con.cursor()
             try:
-                cur.execute(query, **query_args)
+                result_rows = list(map(row_to_dict, cur.execute(query, *query_args)))
+                result_rows = self.schema().dump(result_rows, many=True)
 
             except pyodbc.DatabaseError as e:
-                raise handle_odbc_exception(e)
+                return handle_odbc_exception(e)
 
-            cur.commit()
+            # for row in result_rows:
+            #     row = merge_references(row, self.schema, cur, True)
+            print(result_rows)
+            return result_rows
 
     def get_lineage(self, id):
-        """Retrieve all version of a single lineage
+        """
+        Retrieve all version of a single lineage
         """
         pass
 
     def save(self, data, id=None):
-        """[summary]
+        """
+        [summary]
 
         Args:
             data (dict): the data to save
