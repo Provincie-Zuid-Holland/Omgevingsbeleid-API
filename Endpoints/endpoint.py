@@ -301,34 +301,6 @@ class FullList(Schema_Resource):
         manager = DataManager(self.schema)
 
         return(manager.get_all(False, q_args['any_filters'], q_args['all_filters'], True))
-        # Retrieve all the fields we want to query
-        # short_fields = [field for field in self.schema().fields_with_props('short')]
-        # included_fields = ', '.join(short_fields)
-        
-        # query = f'''SELECT {included_fields} FROM (SELECT *, 
-        #                 ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
-        #                 FROM {self.schema().Meta.table}) T WHERE RowNumber = 1'''
-
-        # query_args = []
-
-        # if filters:= q_args['any_filters']:
-        #     query += ' AND ' + \
-        #         'OR '.join(f'{key} = ? ' for key in filters)
-        #     query_args = [filters[key] for key in filters]
-
-        # if filters:= q_args['all_filters']:
-        #     query += ' AND ' + \
-        #         'AND '.join(f'{key} = ? ' for key in filters)
-        #     query_args = [filters[key] for key in filters]
-
-        # query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC"
-
-        # query += " OFFSET ? ROWS"
-        # query_args.append(int(q_args['offset']))
-
-        # if limit:= q_args['limit']:
-        #     query += " FETCH NEXT ? ROWS ONLY"
-        #     query_args.append(int(limit))
 
 
     @jwt_required
