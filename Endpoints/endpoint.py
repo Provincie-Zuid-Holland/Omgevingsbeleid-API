@@ -174,44 +174,14 @@ class Lineage(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        # Retrieve all the fields we want to query
-        included_fields = ', '.join(
-            [field for field in self.schema().fields_without_props('referencelist')])
+        manager = DataManager(self.schema)
 
-        query = f'''SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ?'''
+        result_rows = manager.get_lineage(id, False, q_args['any_filters'], q_args['all_filters'], True)
+        if result_rows:
+            return result_rows, 200
+        else:
+            return handle_ID_does_not_exists(id)
 
-        # Id is required
-        query_args = [id]
-
-        if filters:= q_args['any_filters']:
-            query += ' AND ' + \
-                'OR '.join(f'{key} = ? ' for key in filters)
-            query_args = [filters[key] for key in filters]
-
-        if filters:= q_args['all_filters']:
-            query += ' AND ' + \
-                'AND '.join(f'{key} = ? ' for key in filters)
-            query_args = [filters[key] for key in filters]
-
-        query += ''' AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC'''
-
-        query += " OFFSET ? ROWS"
-        query_args.append(int(q_args['offset']))
-
-        if limit:= q_args['limit']:
-            query += " FETCH NEXT ? ROWS ONLY"
-            query_args.append(int(limit))
-
-        with pyodbc.connect(db_connection_settings) as connection:
-            cursor = connection.cursor()
-            try:
-                results = get_objects(query, query_args, self.schema(partial=True), cursor)
-                
-                if not results:
-                    return handle_ID_does_not_exists(id)
-                return results, 200
-            except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e)
 
     @jwt_required
     def patch(self, id):
@@ -299,8 +269,11 @@ class FullList(Schema_Resource):
             return handle_validation_filter_exception(e)
 
         manager = DataManager(self.schema)
-
-        return(manager.get_all(False, q_args['any_filters'], q_args['all_filters'], True))
+        result_rows = manager.get_all(False, q_args['any_filters'], q_args['all_filters'], True)
+        
+        return result_rows, 200
+        
+        
 
 
     @jwt_required
@@ -361,8 +334,6 @@ class ValidList(Schema_Resource):
         """
         GET endpoint for a list of objects, shows the last valid object for each lineage
         """
-        request_time = datetime.datetime.now()
-
         try:
             q_args = parse_query_args(
                 request.args, self.schema().fields_without_props('referencelist'), self.schema(partial=True))
@@ -373,56 +344,9 @@ class ValidList(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        # Retrieve all the fields we want to query
-        short_fields = [field for field in self.schema().fields_with_props('short')]
-        included_fields = ', '.join(short_fields)
+        manager = DataManager(self.schema)
 
-        query_args = [request_time]
-
-        if self.schema.Meta.status_conf:
-            status_field, status_value = self.schema.Meta.status_conf
-            query = f'''SELECT {included_fields} FROM
-                        (SELECT *, Row_number() OVER (partition BY [ID]
-                        ORDER BY [Modified_date] DESC) [RowNumber]
-                        FROM {self.schema().Meta.table}
-                        WHERE UUID != '00000000-0000-0000-0000-000000000000' AND Eind_Geldigheid > ? AND {status_field} = ?) T 
-                    WHERE rownumber = 1'''
-
-            query_args.append(status_value)
-        else:
-            query = f'''SELECT {included_fields} FROM
-                        (SELECT *, Row_number() OVER (partition BY [ID]
-                        ORDER BY [Modified_date] DESC) [RowNumber]
-                        FROM {self.schema().Meta.table}
-                        WHERE UUID != '00000000-0000-0000-0000-000000000000' AND Eind_Geldigheid > ?) T 
-                    WHERE rownumber = 1'''
-
-
-        if filters:= q_args['any_filters']:
-            query += ' AND ' + \
-                'OR '.join(f'{key} = ? ' for key in filters)
-            query_args += [filters[key] for key in filters]
-
-        if filters:= q_args['all_filters']:
-            query += ' AND ' + \
-                'AND '.join(f'{key} = ? ' for key in filters)
-            query_args += [filters[key] for key in filters]
-
-        query += " AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY [Modified_date] DESC"
-
-        query += " OFFSET ? ROWS"
-        query_args.append(int(q_args['offset']))
-
-        if limit:= q_args['limit']:
-            query += " FETCH NEXT ? ROWS ONLY"
-            query_args.append(int(limit))
-
-        with pyodbc.connect(db_connection_settings) as connection:
-            cursor = connection.cursor()
-            try:
-                return(get_objects(query, query_args, self.schema(only=short_fields), cursor)), 200
-            except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e), 500
+        return(manager.get_all(True, q_args['any_filters'], q_args['all_filters'], True))
 
 
 class ValidLineage(Schema_Resource):
@@ -435,9 +359,6 @@ class ValidLineage(Schema_Resource):
         """
         GET endpoint for a lineage.
         """
-        if not self.schema.Meta.status_conf:
-            return handle_no_status()
-
         try:
             q_args = parse_query_args(
                 request.args, self.schema().fields_without_props('referencelist'), self.schema(partial=True))
@@ -448,47 +369,13 @@ class ValidLineage(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        # Retrieve all the fields we want to query
-        included_fields = ', '.join(
-            [field for field in self.schema().fields_without_props('referencelist')])
+        manager = DataManager(self.schema)
+        result_rows = manager.get_lineage(id, True, q_args['any_filters'], q_args['all_filters'], False)
+        if result_rows:
+            return result_rows, 200
+        else:
+            return handle_ID_does_not_exists(id)
 
-        status_field, value = self.schema.Meta.status_conf
-
-        query = f'''SELECT {included_fields} FROM {self.schema().Meta.table} WHERE ID = ? AND 
-            {status_field} = ?'''
-        
-        query_args = [id, value]
-
-        if filters:= q_args['any_filters']:
-            query += ' AND ' + \
-                'OR '.join(f'{key} = ? ' for key in filters)
-            query_args = [filters[key] for key in filters]
-
-        if filters:= q_args['all_filters']:
-            query += ' AND ' + \
-                'AND '.join(f'{key} = ? ' for key in filters)
-            query_args = [filters[key] for key in filters]
-
-        query += ''' AND UUID != '00000000-0000-0000-0000-000000000000' ORDER BY Modified_Date DESC'''
-
-        query += " OFFSET ? ROWS"
-        query_args.append(int(q_args['offset']))
-
-        if limit:= q_args['limit']:
-            query += " FETCH NEXT ? ROWS ONLY"
-            query_args.append(int(limit))
-        
-
-        with pyodbc.connect(db_connection_settings) as connection:
-            cursor = connection.cursor()
-            try:
-                results = get_objects(
-                    query, query_args, self.schema(), cursor)
-                if not results:
-                    return handle_ID_does_not_exists(id)
-                return(results), 200
-            except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e), 500
 
 
 class SingleVersion(Schema_Resource):
