@@ -176,7 +176,7 @@ class Lineage(Schema_Resource):
 
         manager = DataManager(self.schema)
 
-        result_rows = manager.get_lineage(id, False, q_args['any_filters'], q_args['all_filters'], True)
+        result_rows = manager.get_lineage(id, False, q_args['any_filters'], q_args['all_filters'], False)
         if result_rows:
             return result_rows, 200
         else:

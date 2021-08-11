@@ -114,7 +114,7 @@ def test_references(client, auth):
     new_id = response.get_json()['ID']
     ep = f"v0.1/beleidskeuzes/{new_id}"
     response = client.get(ep)
-    assert response.status_code == 200, 'Could not get refered object'
+    assert response.status_code == 200, f'Could not get object, {response.get_json()}'
     assert len(response.get_json()[0]['Ambities']
                ) == 2, 'References not retrieved'
 

@@ -9,7 +9,12 @@ from globals import (
     null_uuid,
     row_to_dict,
 )
-from Endpoints.references import UUID_List_Reference, merge_references
+from Endpoints.references import (
+    UUID_List_Reference,
+    ID_List_Reference,
+    UUID_Reference,
+    merge_references,
+)
 
 
 class DataManagerException(Exception):
@@ -44,13 +49,11 @@ class DataManager:
                     WHERE UUID != '00000000-0000-0000-0000-000000000000'
                     {status_condition}
                     """
-    
+
         with pyodbc.connect(db_connection_settings, autocommit=True) as con:
             cur = con.cursor()
             cur.execute(query)
             con.commit()
-
-
 
     def _set_up_latest_view(self):
         """
@@ -91,22 +94,28 @@ class DataManager:
                         {status_condition}) T 
                     WHERE RowNumber = 1
                     """
-    
+
         with pyodbc.connect(db_connection_settings, autocommit=True) as con:
             cur = con.cursor()
             cur.execute(query)
             con.commit()
 
     def get_all(
-        self, valid_only=False, any_filters=None, all_filters=None, short=False, offset=None, limit=None
+        self,
+        valid_only=False,
+        any_filters=None,
+        all_filters=None,
+        short=False,
+        offset=None,
+        limit=None,
     ):
         """
         Retrieve all the latest versions for each lineage
         """
-        
+
         self._set_up_latest_view()
         self._set_up_valid_view()
-        
+
         query_args = []
 
         # determine view
@@ -116,14 +125,13 @@ class DataManager:
         fieldset = ["*"]
         if short:
             fieldset = [field for field in self.schema().fields_with_props("short")]
-            
 
         query = f"""
                 SELECT {', '.join(fieldset)} FROM {target_view} 
                 """
 
         # generate filter_queries
-        
+
         if any_filters or all_filters:
             query += "WHERE "
             if any_filters:
@@ -142,57 +150,95 @@ class DataManager:
         if offset:
             query += " OFFSET ? ROWS"
             query_args.append(offset)
-        
+
         # Add limit
         if limit:
             query += " FETCH NEXT ? ROWS ONLY"
             query_args.append(limit)
 
-
         # WIP: Merge with inlining (might need a better strategy, might even go on view), should not scale by N_of_objects
         # TODO: Check wether views exist (and are valid, maybe later)
-        
+
         with pyodbc.connect(db_connection_settings, autocommit=False) as con:
             cur = con.cursor()
             result_rows = list(map(row_to_dict, cur.execute(query, *query_args)))
             result_rows = self.schema().dump(result_rows, many=True)
 
-            
+        all_references = {
+            **self.schema.Meta.base_references,
+            **self.schema.Meta.references,
+        }
 
-        
-        all_references = {**self.schema.Meta.base_references,
-                  **self.schema.Meta.references}
-        
-        included_references = all_references if (fieldset == ['*']) else {ref:all_references[ref] for ref in all_references if ref in fieldset}
-        
+        included_references = (
+            all_references
+            if (fieldset == ["*"])
+            else {ref: all_references[ref] for ref in all_references if ref in fieldset}
+        )
+
         for ref in included_references:
-            references = self._retrieve_references(included_references[ref], [row['UUID'] for row in result_rows])
-            print(references)
+            result_rows = self._retrieve_references(
+                ref, included_references[ref], result_rows
+            )
         return result_rows
 
-    def _retrieve_references(self, ref, source_uuids):
-        if isinstance(ref, UUID_List_Reference):
-            # Get the fieldset excluding references
-            included_fields = [field for field in ref.schema.fields_without_props('referencelist')]
-            
-            query = f'''
-                SELECT {included_fields}, {ref.description_col} FROM {ref.link_tablename}
-                LEFT JOIN {ref.their_tablename} ON {ref.their_tablename}.UUID = {ref.their_col}
-                WHERE {ref.my_col} in ?
-                '''
-            print(query)
+    def _retrieve_references(self, fieldname, ref, source_rows):
+        # Get the fieldset excluding references
+        try:
+            included_fields = [
+                field for field in ref.schema.fields_without_props("referencelist")
+            ]
+        except AttributeError:
+            # This is for objects that are not inheriting from base_schema (probably an user object)
+            included_fields = ref.schema.fields
+
+        if isinstance(ref, UUID_List_Reference) or isinstance(ref, ID_List_Reference):
+            print("HALLLO")
+            # source_uuids = ', '.join([f"'{row['UUID']}'" for row in source_rows])
+            # query = f'''
+            # #     SELECT {included_fields}, {ref.description_col} FROM {ref.link_tablename}
+            # #     LEFT JOIN {ref.their_tablename} ON {ref.their_tablename}.UUID = {ref.their_col}
+            # #     WHERE {ref.my_col} in ({source_uuids})
+            # #     '''
+            # print(query)
+            # with pyodbc.connect(db_connection_settings, autocommit=False) as con:
+            #     cur = con.cursor()
+            #     result_rows = list(map(row_to_dict, cur.execute(query)))
+
+            # result_rows = ref.schema().dump(result_rows, many=True)
+            # row_map = {row.pop(ref.my_col) : row for row in result_rows}
+            # print(row_map)
+
+        if isinstance(ref, UUID_Reference):
+
+            target_uuids = ", ".join(
+                [f"'{row[fieldname]}'" for row in source_rows if row[fieldname]]
+            )
+            if not target_uuids:
+                return source_rows
+            query = f"""
+                    SELECT {', '.join(included_fields)} from {ref.target_tablename} WHERE UUID IN ({target_uuids}) 
+                    """
+
             with pyodbc.connect(db_connection_settings, autocommit=False) as con:
                 cur = con.cursor()
-                result_rows = list(map(row_to_dict, cur.execute(query, source_uuids)))
-            
-            result_rows = ref.schema().dump(result_rows, many=True)
-            return {row.pop(ref.my_col) : row for row in result_rows}
+                result_rows = list(map(row_to_dict, cur.execute(query)))
 
-                
+            result_rows = ref.schema.dump(result_rows, many=True)
+            row_map = {row["UUID"]: row for row in result_rows}
+            for row in source_rows:
+                row[fieldname] = row_map[row[fieldname]]
+            return source_rows
 
-        
-
-    def get_lineage(self, id, valid_only=False, any_filters=None, all_filters=None, short=False, offset=None, limit=None):
+    def get_lineage(
+        self,
+        id,
+        valid_only=False,
+        any_filters=None,
+        all_filters=None,
+        short=False,
+        offset=None,
+        limit=None,
+    ):
         """
         Retrieve all version of a single lineage
         """
@@ -200,11 +246,11 @@ class DataManager:
 
         # determine view/table to query
         target = self.all_valid_view if valid_only else self.schema().Meta.table
-        
-        fieldset = ['*']
+
+        fieldset = ["*"]
         if short:
             fieldset = [field for field in self.schema().fields_with_props("short")]
-        
+
         # ID is required
         query_args = [id]
 
@@ -212,9 +258,8 @@ class DataManager:
                 SELECT {', '.join(fieldset)} FROM {target}
                 WHERE ID = ? 
                 """
-
         # generate filter_queries
-        
+
         if any_filters or all_filters:
             query += "AND "
             if any_filters:
@@ -224,7 +269,7 @@ class DataManager:
                     query += "AND "
             if all_filters:
                 query += "AND ".join(f"{key} = ? " for key in all_filters)
-                query_args += [all_filters[key] for key in all_filters]        
+                query_args += [all_filters[key] for key in all_filters]
 
         # Add ordering
         query += "ORDER BY Modified_Date DESC"
@@ -233,7 +278,7 @@ class DataManager:
         if offset:
             query += " OFFSET ? ROWS"
             query_args.append(offset)
-        
+
         # Add limit
         if limit:
             query += " FETCH NEXT ? ROWS ONLY"
@@ -243,15 +288,21 @@ class DataManager:
             cur = con.cursor()
             result_rows = list(map(row_to_dict, cur.execute(query, *query_args)))
             result_rows = self.schema().dump(result_rows, many=True)
-        
-        all_references = {**self.schema.Meta.base_references,
-                  **self.schema.Meta.references}.items()
-        
-        included_references = all_references if (fieldset == ['*']) else [ref for ref in all_references if ref in fieldset] 
-        
-        for ref in included_references:
-            self._retrieve_references(ref, [row['UUID'] for row in result_rows])
 
+        all_references = {
+            **self.schema.Meta.base_references,
+            **self.schema.Meta.references,
+        }
+
+        included_references = (
+            all_references
+            if (fieldset == ["*"])
+            else {ref: all_references[ref] for ref in all_references if ref in fieldset}
+        )
+
+        # for ref in included_references:
+        #     print(ref)
+        #     result_rows = self._retrieve_references(ref, included_references[ref], result_rows)
         return result_rows
 
     def save(self, data, id=None):
