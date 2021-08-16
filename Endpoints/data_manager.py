@@ -10,6 +10,8 @@ from globals import (
     row_to_dict,
 )
 from Endpoints.references import (
+    Reverse_ID_Reference,
+    Reverse_UUID_Reference,
     UUID_List_Reference,
     ID_List_Reference,
     UUID_Reference,
@@ -36,7 +38,7 @@ class DataManager:
 
     def _set_up_all_valid_view(self):
         """
-        Set up a view that shows the latest valid version for each lineage
+        Set up a view that shows all valid version for each lineage
         """
         # Check if we need to query for status
         status_condition = ""
@@ -182,6 +184,8 @@ class DataManager:
         return result_rows
 
     def _retrieve_references(self, fieldname, ref, source_rows):
+        if not source_rows:
+            return source_rows
         # Get the fieldset excluding references
         try:
             included_fields = [
@@ -192,24 +196,36 @@ class DataManager:
             included_fields = ref.schema.fields
 
         if isinstance(ref, UUID_List_Reference) or isinstance(ref, ID_List_Reference):
-            print("HALLLO")
-            # source_uuids = ', '.join([f"'{row['UUID']}'" for row in source_rows])
-            # query = f'''
-            # #     SELECT {included_fields}, {ref.description_col} FROM {ref.link_tablename}
-            # #     LEFT JOIN {ref.their_tablename} ON {ref.their_tablename}.UUID = {ref.their_col}
-            # #     WHERE {ref.my_col} in ({source_uuids})
-            # #     '''
-            # print(query)
-            # with pyodbc.connect(db_connection_settings, autocommit=False) as con:
-            #     cur = con.cursor()
-            #     result_rows = list(map(row_to_dict, cur.execute(query)))
+            # Also query for the reference row (my column) in order to add the results to the correct objects
+            included_fields.append(ref.my_col)
 
-            # result_rows = ref.schema().dump(result_rows, many=True)
-            # row_map = {row.pop(ref.my_col) : row for row in result_rows}
-            # print(row_map)
+            source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
+            query = f"""
+                 SELECT {", ".join(included_fields)}, {ref.description_col} FROM {ref.link_tablename}
+                 LEFT JOIN {ref.their_tablename} ON {ref.their_tablename}.UUID = {ref.their_col}
+                 WHERE {ref.my_col} in ({source_uuids})
+                 """
+
+            with pyodbc.connect(db_connection_settings, autocommit=False) as con:
+                cur = con.cursor()
+                result_rows = list(map(row_to_dict, cur.execute(query)))
+
+            row_map = {
+                row.pop(ref.my_col): {
+                    "Koppeling_Omschrijving": row.pop(ref.description_col),
+                    "Object": ref.schema.dump(row),
+                }
+                for row in result_rows
+            }
+            for row in source_rows:
+                try:
+                    row[fieldname] = row_map[row["UUID"]]
+                except KeyError:
+                    # No refs
+                    row[fieldname] = []
+            return source_rows
 
         if isinstance(ref, UUID_Reference):
-
             target_uuids = ", ".join(
                 [f"'{row[fieldname]}'" for row in source_rows if row[fieldname]]
             )
@@ -228,6 +244,32 @@ class DataManager:
             for row in source_rows:
                 row[fieldname] = row_map[row[fieldname]]
             return source_rows
+        
+        # TODO: 
+        # How to handle reverse lookups? Should return the latest object that refers to it (per lineage)
+
+        # if isinstance(ref, Reverse_UUID_Reference) or isinstance(ref, Reverse_ID_Reference):
+            # source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
+
+            # query = f"""
+            #         SELECT {', '.join(included_fields)} from {ref.link_tablename} 
+            #         INNER JOIN (SELECT * FROM Latest_{ref.their_tablename}) a
+            #         ON a.UUID = {ref.their_col}
+            #         WHERE {ref.my_col} IN ({source_uuids}) 
+            #         """
+            # print(query)
+            # with pyodbc.connect(db_connection_settings, autocommit=False) as con:
+            #     cur = con.cursor()
+            #     result_rows = list(map(row_to_dict, cur.execute(query)))
+
+            # result_rows = ref.schema.dump(result_rows, many=True)
+            # row_map = {row["UUID"]: row for row in result_rows}
+            # for row in source_rows:
+            #     row[fieldname] = row_map[row[fieldname]]
+            # return source_rows
+
+        return source_rows
+
 
     def get_lineage(
         self,
@@ -299,10 +341,13 @@ class DataManager:
             if (fieldset == ["*"])
             else {ref: all_references[ref] for ref in all_references if ref in fieldset}
         )
-
-        # for ref in included_references:
-        #     print(ref)
-        #     result_rows = self._retrieve_references(ref, included_references[ref], result_rows)
+        old_n = len(result_rows)
+        print(old_n)
+        for ref in included_references:
+            result_rows = self._retrieve_references(
+                ref, included_references[ref], result_rows
+            )
+        assert(old_n == len(result_rows))
         return result_rows
 
     def save(self, data, id=None):

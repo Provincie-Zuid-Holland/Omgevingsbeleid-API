@@ -110,8 +110,9 @@ def test_references(client, auth):
                            'Authorization': f'Bearer {auth[1]}'})
 
     assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
-
+    
     new_id = response.get_json()['ID']
+    
     ep = f"v0.1/beleidskeuzes/{new_id}"
     response = client.get(ep)
     assert response.status_code == 200, f'Could not get object, {response.get_json()}'
