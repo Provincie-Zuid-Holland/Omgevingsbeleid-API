@@ -9,6 +9,7 @@ from globals import (
     min_datetime,
     null_uuid,
     row_to_dict,
+    ftc_name
 )
 from Endpoints.references import (
     Reverse_ID_Reference,
@@ -22,6 +23,12 @@ from Endpoints.references import (
 
 class DataManagerException(Exception):
     pass
+
+# TODO (sorted by prio):
+# - Search (only valids)
+# - Graph view (only valids)
+# - Single object (with auth)
+# - Saving
 
 
 class DataManager:
@@ -41,6 +48,7 @@ class DataManager:
         self._set_up_latest_view()
         self._set_up_valid_view()
         self._set_up_all_valid_view()
+        self._set_up_search()
 
     def _set_up_all_valid_view(self):
         """
@@ -368,4 +376,17 @@ class DataManager:
             data (dict): the data to save
             id (int, optional): The ID of the lineage to add to. Defaults to None.
         """
+        pass
+
+    def _set_up_search(self):
+        with pyodbc.connect(db_connection_settings, autocommit=False) as con:
+            cur = con.cursor()
+            results = cur.execute(f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{ftc_name}'")
+            if not results:
+                cur.execute(f"CREATE FULLTEXT CATALOG '{ftc_name}'")
+            cur.execute(f'DROP FULLTEXT ON {self.schema.Meta.table}')
+            con.commit()
+
+
+    def search(self, query):
         pass
