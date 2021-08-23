@@ -103,6 +103,19 @@ def test_endpoints(client, auth, endpoint):
         response = client.get(list_ep)
         assert found + 1 == len(response.json), "New object after PATCH"
 
+def test_modules(client, auth):
+    response = client.post('v0.1/beleidsmodules', json={'Titel': 'Test'}, headers={
+                               'Authorization': f'Bearer {auth[1]}'})
+    assert(response.status_code == 201)
+    
+
+    response = client.get('v0.1/beleidsmodules',headers={
+                               'Authorization': f'Bearer {auth[1]}'})
+    assert(response.status_code == 200)                              
+    assert(len(response.get_json()) != 0)
+    assert('Maatregelen' in response.get_json()[0])
+
+
 
 def test_references(client, auth):
     ep = f"v0.1/beleidskeuzes"
