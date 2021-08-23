@@ -18,10 +18,9 @@ class Beleidsmodule_Schema(Base_Schema):
     Besluit_Datum = MM.fields.DateTime(format='iso', 
         missing=min_datetime, allow_none=True, obprops=[])
     Maatregelen = MM.fields.Nested(
-        UUID_Linker_Schema, many=True, obprops=['referencelist'])
+        UUID_Linker_Schema, many=True, obprops=['referencelist', 'short'])
     Beleidskeuzes = MM.fields.Nested(
-        UUID_Linker_Schema, many=True, obprops=['referencelist'])
-
+        UUID_Linker_Schema, many=True, obprops=['referencelist', 'short'])
     class Meta(Base_Schema.Meta):
         slug = 'beleidsmodules'
         table = 'Beleidsmodules'
