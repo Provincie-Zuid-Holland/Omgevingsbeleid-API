@@ -460,4 +460,14 @@ class DataManager:
             
 
     def search(self, query):
-        pass
+        # Should get the required fields
+        included_fields = 'Titel'        
+        search_query = f"""SELECT {included_fields} FROM
+                CONTAINSTABLE({self.schema.Meta.table}, *, ?) ct
+                INNER JOIN {self.valid_view} v ON ct.[KEY] = v.UUID
+                ORDER BY RANK DESC"""        
+        args = ' OR '.join([ f'"{word}*"' for word in query.split(' ')] )
+        
+        with pyodbc.connect(db_connection_settings) as connection:
+            cursor = connection.cursor()
+
