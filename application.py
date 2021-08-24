@@ -18,6 +18,7 @@ from Auth.views import jwt_required_not_GET, login, tokenstat
 from Spec.spec import specView
 from Endpoints.search import searchView
 from Endpoints.graph import graphView
+import click
 
 current_version = '0.1'
 
@@ -35,9 +36,10 @@ api = Api(app, prefix=f'/v{current_version}',
 jwt = JWTManager(app)
 
 # DATABASE SETUP
-for schema in datamodel.endpoints:
-    # Initialize views
-    DataManager(schema)._setup() 
+@app.cli.command("setup-db")
+def setup_db():
+    for schema in datamodel.endpoints:
+        DataManager(schema)._setup() 
 
 # JWT CONFIG
 @jwt.unauthorized_loader

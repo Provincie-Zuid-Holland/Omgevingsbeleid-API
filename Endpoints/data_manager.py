@@ -32,7 +32,7 @@ class DataManagerException(Exception):
 # - Saving
 # - Refector reference merging
 
-# Should validation be a part of this? We do have the schemas here. 
+# Should validation be a part of this? We do have the schemas here.
 
 
 class DataManager:
@@ -428,20 +428,36 @@ class DataManager:
         pass
 
     def _set_up_search(self):
-        with pyodbc.connect(db_connection_settings, autocommit=False) as con:
+        print(self.schema.Meta.table)
+        with pyodbc.connect(db_connection_settings, autocommit=True) as con:
             cur = con.cursor()
+            # Start with checking the catalog
             catalog_exists = cur.execute(
                 f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{ftc_name}'"
             )
             if not catalog_exists:
                 cur.execute(f"CREATE FULLTEXT CATALOG '{ftc_name}'")
+
+            # Check is this table already has a search index set up
+            ft_index_exists = list(cur.execute(
+                f"SELECT * FROM sys.fulltext_indexes WHERE object_id = object_id('{self.schema.Meta.table}')"
+            ))
             
-            ft_index_exists = cur.execute(
-                f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{ftc_name}'"
-            )
-            cur.execute(f"DROP FULLTEXT INDEX ON {self.schema.Meta.table}")
-            cur.execute(f"DROP FULLTEXT ON {self.schema.Meta.table}")
-            con.commit()
+            if ft_index_exists:
+                cur.execute(f"DROP FULLTEXT INDEX ON {self.schema.Meta.table}")
+            
+            # Set up new search
+            search_title_fields = self.schema.fields_with_props('search_title')
+            if search_title_fields:
+                field = search_title_fields[0]
+                cur.execute(f"""CREATE FULLTEXT INDEX ON {self.schema.Meta.table} (
+                                    {field} Language 1043
+                                )
+                                KEY INDEX PK_{self.schema.Meta.table}
+                                ON {ftc_name}
+                                WITH CHANGE_TRACKING = AUTO
+                    """)
+            
 
     def search(self, query):
         pass
