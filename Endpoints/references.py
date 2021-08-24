@@ -34,7 +34,7 @@ def merge_references(obj, schema, cursor, inline=True):
                   **schema.Meta.references}.items()
     
     for name, ref in references:
-        if schema.only and name not in schema.only:
+        if 'only' in dir(schema) and schema.only and name not in schema.only:
             continue
         if isinstance(ref, UUID_List_Reference) or isinstance(ref, Reverse_UUID_Reference):
             if inline:

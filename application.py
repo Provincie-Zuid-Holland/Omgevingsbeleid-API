@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
+from Endpoints.data_manager import DataManager
 import json
 import os
 from datetime import timedelta
@@ -33,6 +34,10 @@ api = Api(app, prefix=f'/v{current_version}',
           decorators=[jwt_required_not_GET, ])
 jwt = JWTManager(app)
 
+# DATABASE SETUP
+for schema in datamodel.endpoints:
+    # Initialize views
+    DataManager(schema)._setup() 
 
 # JWT CONFIG
 @jwt.unauthorized_loader
