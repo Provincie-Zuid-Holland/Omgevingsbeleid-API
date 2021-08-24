@@ -9,7 +9,7 @@ from globals import (
     min_datetime,
     null_uuid,
     row_to_dict,
-    ftc_name
+    ftc_name,
 )
 from Endpoints.references import (
     Reverse_ID_Reference,
@@ -24,15 +24,27 @@ from Endpoints.references import (
 class DataManagerException(Exception):
     pass
 
+
 # TODO (sorted by prio):
 # - Search (only valids)
 # - Graph view (only valids)
 # - Single object (with auth)
 # - Saving
+# - Refector reference merging
+
+# Should validation be a part of this? We do have the schemas here. 
 
 
 class DataManager:
     def __init__(self, schema):
+        """A manager object for interacting with the database
+
+        Args:
+            schema (Marshmallow.Schema): The schema that defines this object
+
+        Raises:
+            DataManagerException: Settings are missing on schema
+        """
         self.schema = schema
         required_meta_settings = ["slug", "table"]
         for setting in required_meta_settings:
@@ -45,6 +57,7 @@ class DataManager:
         self.all_valid_view = f"All_Valid_{self.schema.Meta.slug}"
 
     def _setup(self):
+        """Creates all the necessary views and indices"""
         self._set_up_latest_view()
         self._set_up_valid_view()
         self._set_up_all_valid_view()
@@ -116,6 +129,14 @@ class DataManager:
             cur.execute(query)
             con.commit()
 
+    def test(self, this, that=False):
+        """[summary]
+
+        Args:
+            this ([type]): [description]
+            that (bool, optional): [description]. Defaults to False.
+        """
+
     def get_all(
         self,
         valid_only=False,
@@ -125,8 +146,18 @@ class DataManager:
         offset=None,
         limit=None,
     ):
-        """
-        Retrieve all the latest versions for each lineage
+        """Retrieve all the objects of this type
+
+        Args:
+            valid_only (bool, optional): Only retrieve the objects that are valid. Defaults to False
+            any_filters (str, optional): Filters that should apply to the objects (combined with OR). Defaults to None
+            all_filters (str, optional): Filters that should apply to the objects (combined with AND). Defaults to None
+            short (bool, optional): Wether to return a short representation of the objects. Defaults to False
+            offset (int, optional): Offset results with this amount. Defaults to None (equals no offset)
+            limit (int, optional): Return a max amount of objects, counted from offset. Defaults to None (equals no limit)
+
+        Returns:
+            List: The resulting objects
         """
 
         query_args = []
@@ -192,6 +223,16 @@ class DataManager:
         return result_rows
 
     def _retrieve_references(self, fieldname, ref, source_rows):
+        """Retrieve the linked references for this set of objects
+
+        Args:
+            fieldname (string): A fieldname on which to store the references
+            ref (reference): A reference object
+            source_rows (list): The objects to add the references on
+
+        Returns:
+            List: The resulting objects with references added
+        """
         if not source_rows:
             return source_rows
         # Get the fieldset excluding references
@@ -220,10 +261,12 @@ class DataManager:
 
             row_map = defaultdict(list)
             for row in result_rows:
-                row_map[row.pop(ref.my_col)].append({
-                    "Koppeling_Omschrijving": row.pop(ref.description_col),
-                    "Object": ref.schema.dump(row),
-                })
+                row_map[row.pop(ref.my_col)].append(
+                    {
+                        "Koppeling_Omschrijving": row.pop(ref.description_col),
+                        "Object": ref.schema.dump(row),
+                    }
+                )
 
             for row in source_rows:
                 try:
@@ -252,9 +295,6 @@ class DataManager:
             for row in source_rows:
                 row[fieldname] = row_map[row[fieldname]]
             return source_rows
-
-        # TODO:
-        # How to handle reverse lookups? Should return the latest valid object that refers to it (per lineage)
 
         if isinstance(ref, Reverse_UUID_Reference) or isinstance(
             ref, Reverse_ID_Reference
@@ -300,11 +340,20 @@ class DataManager:
         offset=None,
         limit=None,
     ):
-        """
-        Retrieve all version of a single lineage
-        """
-        self._set_up_all_valid_view()
+        """Retrieve all the objects of this type that belong to the same lineage
 
+        Args:
+            self (int): An ID of a lineage
+            valid_only (bool, optional): Only retrieve the objects that are valid. Defaults to False
+            any_filters (str, optional): Filters that should apply to the objects (combined with OR). Defaults to None
+            all_filters (str, optional): Filters that should apply to the objects (combined with AND). Defaults to None
+            short (bool, optional): Wether to return a short representation of the objects. Defaults to False
+            offset (int, optional): Offset results with this amount. Defaults to None (equals no offset)
+            limit (int, optional): Return a max amount of objects, counted from offset. Defaults to None (equals no limit)
+
+        Returns:
+            List: The resulting objects
+        """
         # determine view/table to query
         target = self.all_valid_view if valid_only else self.schema().Meta.table
 
@@ -381,12 +430,18 @@ class DataManager:
     def _set_up_search(self):
         with pyodbc.connect(db_connection_settings, autocommit=False) as con:
             cur = con.cursor()
-            results = cur.execute(f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{ftc_name}'")
-            if not results:
+            catalog_exists = cur.execute(
+                f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{ftc_name}'"
+            )
+            if not catalog_exists:
                 cur.execute(f"CREATE FULLTEXT CATALOG '{ftc_name}'")
-            cur.execute(f'DROP FULLTEXT ON {self.schema.Meta.table}')
+            
+            ft_index_exists = cur.execute(
+                f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{ftc_name}'"
+            )
+            cur.execute(f"DROP FULLTEXT INDEX ON {self.schema.Meta.table}")
+            cur.execute(f"DROP FULLTEXT ON {self.schema.Meta.table}")
             con.commit()
-
 
     def search(self, query):
         pass
