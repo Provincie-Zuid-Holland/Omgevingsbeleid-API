@@ -283,7 +283,6 @@ class FullList(Schema_Resource):
     A list of all the different lineages available in the database, 
     showing the latests version of each object's lineage.
     """
-    @jwt_required
     def get(self):
         """
         GET endpoint for a list of objects, shows the last object for each lineage
@@ -407,7 +406,9 @@ class ValidList(Schema_Resource):
             return handle_validation_filter_exception(e)
 
         # Retrieve all the fields we want to query
-        short_fields = [field for field in self.schema().fields_with_props('short')]
+        all_short_fields = [field for field in self.schema().fields_with_props('short')]
+        ref_fields = [field for field in self.schema().fields_with_props('referencelist')]
+        short_fields = [field for field in all_short_fields if field not in ref_fields]
         included_fields = ', '.join(short_fields)
 
         query_args = [request_time]
@@ -453,7 +454,7 @@ class ValidList(Schema_Resource):
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
             try:
-                return(get_objects(query, query_args, self.schema(only=short_fields), cursor)), 200
+                return(get_objects(query, query_args, self.schema(only=all_short_fields), cursor)), 200
             except MM.exceptions.ValidationError as e:
                 return handle_validation_exception(e), 500
 

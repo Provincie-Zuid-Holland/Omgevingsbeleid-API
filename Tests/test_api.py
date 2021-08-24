@@ -109,11 +109,13 @@ def test_modules(client, auth):
     assert(response.status_code == 201)
     
 
-    response = client.get('v0.1/beleidsmodules',headers={
-                               'Authorization': f'Bearer {auth[1]}'})
+    response = client.get('v0.1/beleidsmodules')
     assert(response.status_code == 200)                              
     assert(len(response.get_json()) != 0)
     assert('Maatregelen' in response.get_json()[0])
+
+    response = client.get('v0.1/valid/beleidsmodules')
+    assert(response.status_code == 200)
 
 
 
@@ -705,13 +707,13 @@ def test_valid(client, auth):
     assert(found_new)
 
 
-def test_protect_invalid(client, auth):
-    response = client.get('v0.1/belangen')
-    assert response.status_code == 401, f'body: {response.get_json()}'
+# def test_protect_invalid(client, auth):
+#     response = client.get('v0.1/belangen')
+#     assert response.status_code == 401, f'body: {response.get_json()}'
 
-    response = client.get(
-        'v0.1/belangen', headers={'Authorization': f'Bearer {auth[1]}'})
-    assert response.status_code == 200
+#     response = client.get(
+#         'v0.1/belangen', headers={'Authorization': f'Bearer {auth[1]}'})
+#     assert response.status_code == 200
 
-    response = client.get('v0.1/valid/belangen')
-    assert response.status_code == 200
+#     response = client.get('v0.1/valid/belangen')
+#     assert response.status_code == 200
