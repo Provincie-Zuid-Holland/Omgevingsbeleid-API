@@ -30,17 +30,17 @@ def test_nills(client):
             results = cur.fetchall()
             assert len(results) == 1, f"No Nill UUID object in table {ep.slug}"
 
-def test_search_index(client):
-    """Check wether all the tables are properly configured for search"""
-    with pyodbc.connect(db_connection_settings) as connections:
-        cur = connections.cursor()
-        query = f'''SELECT DISTINCT OBJECT_NAME(fic.object_id) AS table_name, c.name AS column_name
-                    FROM sys.fulltext_index_columns AS fic INNER JOIN
-                    sys.columns AS c ON c.object_id = fic.object_id AND c.column_id = fic.column_id'''
-        cur.execute(query)
-        fieldmap = DefaultDict(list)
-        for table, field in cur.fetchall():
-            fieldmap[table].append(field)
-        for ep in endpoints:
-            search_fields = ep.fields_with_props('search_title') + ep.fields_with_props('search_description')
-            assert set(fieldmap[ep.Meta.table]) == set(search_fields), f"Search configuration not matching database state for {ep.Meta.slug}"
+# def test_search_index(client):
+#     """Check wether all the tables are properly configured for search"""
+#     with pyodbc.connect(db_connection_settings) as connections:
+#         cur = connections.cursor()
+#         query = f'''SELECT DISTINCT OBJECT_NAME(fic.object_id) AS table_name, c.name AS column_name
+#                     FROM sys.fulltext_index_columns AS fic INNER JOIN
+#                     sys.columns AS c ON c.object_id = fic.object_id AND c.column_id = fic.column_id'''
+#         cur.execute(query)
+#         fieldmap = DefaultDict(list)
+#         for table, field in cur.fetchall():
+#             fieldmap[table].append(field)
+#         for ep in endpoints:
+#             search_fields = ep.fields_with_props('search_title') + ep.fields_with_props('search_description')
+#             assert set(fieldmap[ep.Meta.table]) == set(search_fields), f"Search configuration not matching database state for {ep.Meta.slug}"

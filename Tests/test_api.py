@@ -145,7 +145,7 @@ def test_modules(client, auth):
     assert(response.status_code == 201)
     
 
-    response = client.get('v0.1/beleidsmodules')
+    response = client.get('v0.1/beleidsmodules', headers={'Authorization': f'Bearer {auth[1]}'})
     assert(response.status_code == 200)                              
     assert(len(response.get_json()) != 0)
     assert('Maatregelen' in response.get_json()[0])
@@ -960,5 +960,5 @@ def test_protect_invalid(client, auth):
     assert response.status_code == 200
 
 def test_filter(client, auth):
-    response = client.get(f"v0.1/beleidsmodules?any_filters=Created_By:{auth[0]}")
+    response = client.get(f"v0.1/beleidsmodules?any_filters=Created_By:{auth[0]}", headers={"Authorization": f"Bearer {auth[1]}"})
     assert(response.status_code == 200)

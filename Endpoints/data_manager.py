@@ -32,7 +32,7 @@ class DataManagerException(Exception):
 # - Saving
 # - Refector reference merging
 
-# Should validation be a part of this? We do have the schemas here. 
+# Should validation be a part of this? We do have the schemas here.
 
 
 class DataManager:
@@ -129,14 +129,6 @@ class DataManager:
             cur.execute(query)
             con.commit()
 
-    def test(self, this, that=False):
-        """[summary]
-
-        Args:
-            this ([type]): [description]
-            that (bool, optional): [description]. Defaults to False.
-        """
-
     def get_all(
         self,
         valid_only=False,
@@ -169,9 +161,18 @@ class DataManager:
         fieldset = ["*"]
         if short:
             fieldset = [field for field in self.schema().fields_with_props("short")]
+            # skip references field in short
+            select_fieldset = [
+                field[0]
+                for field in self.schema().fields.items()
+                if ("referencelist" not in field[1].metadata["obprops"])
+            ]
+
+        else:
+            select_fieldset = fieldset
 
         query = f"""
-                SELECT {', '.join(fieldset)} FROM {target_view} 
+                SELECT {', '.join(select_fieldset)} FROM {target_view} 
                 """
 
         # generate filter_queries
@@ -278,7 +279,7 @@ class DataManager:
 
         if isinstance(ref, UUID_Reference):
             target_uuids = ", ".join(
-                [f"'{row[fieldname]}'" for row in source_rows if row[fieldname]]
+                [f"'{row[fieldname]}'" for row in source_rows if row.get(fieldname)]
             )
             if not target_uuids:
                 return source_rows
@@ -360,12 +361,22 @@ class DataManager:
         fieldset = ["*"]
         if short:
             fieldset = [field for field in self.schema().fields_with_props("short")]
+            # skip references field in short
+            select_fieldset = [
+                field[0]
+                for field in self.schema().fields.items()
+                if ("referencelist" not in field[1].metadata["obprops"])
+            ]
+
+        else:
+            select_fieldset = fieldset
+
 
         # ID is required
         query_args = [id]
 
         query = f"""
-                SELECT {', '.join(fieldset)} FROM {target}
+                SELECT {', '.join(select_fieldset)} FROM {target}
                 WHERE ID = ? 
                 """
         # generate filter_queries
@@ -435,7 +446,7 @@ class DataManager:
             )
             if not catalog_exists:
                 cur.execute(f"CREATE FULLTEXT CATALOG '{ftc_name}'")
-            
+
             ft_index_exists = cur.execute(
                 f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{ftc_name}'"
             )
