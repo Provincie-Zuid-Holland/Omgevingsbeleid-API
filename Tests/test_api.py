@@ -943,3 +943,7 @@ def test_protect_invalid(client, auth):
 
     response = client.get("v0.1/valid/belangen")
     assert response.status_code == 200
+
+def test_filter(client, auth):
+    response = client.get(f"v0.1/beleidsmodules?any_filters=Created_By:{auth[0]}")
+    assert(response.status_code == 200)

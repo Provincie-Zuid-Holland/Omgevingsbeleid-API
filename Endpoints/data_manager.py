@@ -61,7 +61,7 @@ class DataManager:
         self._set_up_latest_view()
         self._set_up_valid_view()
         self._set_up_all_valid_view()
-        self._set_up_search()
+        # self._set_up_search()
 
     def _set_up_all_valid_view(self):
         """
