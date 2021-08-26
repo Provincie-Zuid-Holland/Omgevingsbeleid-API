@@ -41,6 +41,7 @@ def setup_db():
     for schema in datamodel.endpoints:
         DataManager(schema)._setup() 
 
+
 # JWT CONFIG
 @jwt.unauthorized_loader
 def custom_unauthorized_loader(reason):

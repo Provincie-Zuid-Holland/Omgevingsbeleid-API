@@ -10,6 +10,7 @@ from globals import (
     null_uuid,
     row_to_dict,
     ftc_name,
+    stoplist_name
 )
 from Endpoints.references import (
     Reverse_ID_Reference,
@@ -19,6 +20,7 @@ from Endpoints.references import (
     UUID_Reference,
     merge_references,
 )
+from Endpoints.stopwords import stopwords
 
 
 class DataManagerException(Exception):
@@ -428,46 +430,85 @@ class DataManager:
         pass
 
     def _set_up_search(self):
-        print(self.schema.Meta.table)
+        if not self.schema.Meta.searchable:
+            return
+
         with pyodbc.connect(db_connection_settings, autocommit=True) as con:
             cur = con.cursor()
-            # Start with checking the catalog
+
+            # Check if a stoplist exists
+            stoplists_exists = cur.execute(
+                f"SELECT name FROM sys.fulltext_stoplists WHERE name = '{stoplist_name}';"
+            )
+            
+            # if not, set it up
+            if not stoplists_exists.rowcount:
+                # Create stoplist
+                cur.execute(f"CREATE FULLTEXT STOPLIST {stoplist_name};")
+            
+            # Populate stoplist
+            words_in_stoplist = [row[0] for row in cur.execute(f"SELECT stopword FROM sys.fulltext_stopwords w LEFT JOIN sys.fulltext_stoplists l ON w.stoplist_id = l.stoplist_id WHERE name = '{stoplist_name}'")]
+            for word in stopwords:
+                if word not in words_in_stoplist:
+                    cur.execute(f"""ALTER FULLTEXT STOPLIST {stoplist_name} ADD '{word}' LANGUAGE 1043;""")
+
+            # Check for a catalog
             catalog_exists = cur.execute(
                 f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{ftc_name}'"
             )
-            if not catalog_exists:
-                cur.execute(f"CREATE FULLTEXT CATALOG '{ftc_name}'")
+            if not catalog_exists.rowcount:
+                cur.execute(f"CREATE FULLTEXT CATALOG {ftc_name}")
+
 
             # Check is this table already has a search index set up
-            ft_index_exists = list(cur.execute(
-                f"SELECT * FROM sys.fulltext_indexes WHERE object_id = object_id('{self.schema.Meta.table}')"
-            ))
-            
+            ft_index_exists = list(
+                cur.execute(
+                    f"SELECT * FROM sys.fulltext_indexes WHERE object_id = object_id('{self.schema.Meta.table}')"
+                )
+            )
+
             if ft_index_exists:
                 cur.execute(f"DROP FULLTEXT INDEX ON {self.schema.Meta.table}")
-            
+
             # Set up new search
-            search_title_fields = self.schema.fields_with_props('search_title')
+            search_title_fields = self.schema.fields_with_props("search_title")
             if search_title_fields:
                 field = search_title_fields[0]
-                cur.execute(f"""CREATE FULLTEXT INDEX ON {self.schema.Meta.table} (
+                cur.execute(
+                    f"""CREATE FULLTEXT INDEX ON {self.schema.Meta.table} (
                                     {field} Language 1043
                                 )
                                 KEY INDEX PK_{self.schema.Meta.table}
                                 ON {ftc_name}
-                                WITH CHANGE_TRACKING = AUTO
-                    """)
-            
+                                WITH CHANGE_TRACKING = AUTO, STOPLIST = {stoplist_name}
+                    """
+                )
 
     def search(self, query):
-        # Should get the required fields
-        included_fields = 'Titel'        
-        search_query = f"""SELECT {included_fields} FROM
+        if not self.schema.Meta.searchable:
+            return
+
+        title_field = self.schema.fields_with_props("search_title")[0]
+        description_fields = self.schema.fields_with_props("search_description")
+
+        # if there is only one value the CONCAT_WS will fail so we just add an empty string
+        if len(description_fields) == 1:
+            description_fields.append("''")
+
+        args = " OR ".join([f'"{word}"' for word in query.split(" ")])
+        
+        search_query = f"""
+                        SELECT
+                            v.UUID as UUID, 
+                            {title_field} as Titel,
+                            CONCAT_WS(' ', {', '.join(description_fields)}) as Omschrijving,
+                            RANK,
+                            '{self.schema.Meta.slug}' as Type
+                            FROM
                 CONTAINSTABLE({self.schema.Meta.table}, *, ?) ct
                 INNER JOIN {self.valid_view} v ON ct.[KEY] = v.UUID
-                ORDER BY RANK DESC"""        
-        args = ' OR '.join([ f'"{word}*"' for word in query.split(' ')] )
-        
-        with pyodbc.connect(db_connection_settings) as connection:
-            cursor = connection.cursor()
+                ORDER BY RANK DESC"""
 
+        with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
+            cursor = connection.cursor()
+            return list(map(row_to_dict, cursor.execute(search_query, args)))

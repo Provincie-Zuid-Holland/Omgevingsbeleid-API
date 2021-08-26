@@ -943,3 +943,10 @@ def test_protect_invalid(client, auth):
 
     response = client.get("v0.1/valid/belangen")
     assert response.status_code == 200
+
+def test_search(client, auth):
+    response = client.get("v0.1/search?query=energie")
+    assert response.status_code == 200
+
+    response = client.get("v0.1/search?query=energie en lopen")
+    assert response.status_code == 200
