@@ -165,7 +165,7 @@ class DataManager:
             select_fieldset = [
                 field[0]
                 for field in self.schema().fields.items()
-                if ("referencelist" not in field[1].metadata["obprops"])
+                if ("referencelist" not in field[1].metadata["obprops"] and field[0] in fieldset)
             ]
 
         else:
@@ -358,6 +358,8 @@ class DataManager:
         # determine view/table to query
         target = self.all_valid_view if valid_only else self.schema().Meta.table
 
+       
+        # determine the fields to include in the query
         fieldset = ["*"]
         if short:
             fieldset = [field for field in self.schema().fields_with_props("short")]
@@ -365,11 +367,12 @@ class DataManager:
             select_fieldset = [
                 field[0]
                 for field in self.schema().fields.items()
-                if ("referencelist" not in field[1].metadata["obprops"])
+                if ("referencelist" not in field[1].metadata["obprops"] and field[0] in fieldset)
             ]
 
         else:
             select_fieldset = fieldset
+
 
 
         # ID is required
