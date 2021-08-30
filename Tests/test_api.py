@@ -962,3 +962,4 @@ def test_protect_invalid(client, auth):
 def test_filter(client, auth):
     response = client.get(f"v0.1/beleidsmodules?any_filters=Created_By:{auth[0]}", headers={"Authorization": f"Bearer {auth[1]}"})
     assert(response.status_code == 200)
+

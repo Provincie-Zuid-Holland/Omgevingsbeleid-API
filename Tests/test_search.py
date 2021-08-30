@@ -16,3 +16,11 @@ def test_fieldset(client):
     res = client.get("v0.1/search?query=water")
     assert(res.status_code == 200)
     assert(list(res.get_json()[0].keys()) == ['Omschrijving','RANK', 'Titel', 'Type', 'UUID'])
+
+
+def test_keywords(client):
+    response = client.get("v0.1/search?query=energie")
+    assert response.status_code == 200
+
+    response = client.get("v0.1/search?query=energie en lopen")
+    assert response.status_code == 200
