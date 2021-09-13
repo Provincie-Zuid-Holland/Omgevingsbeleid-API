@@ -978,6 +978,7 @@ def test_non_valid_reference(client, auth):
     test_bk = generate_data(
         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
     )
+    test_bk['Status'] = 'Ontwerp GS Concept'
     test_bk["Maatregelen"] = [{"UUID": ma_uuid, "Koppeling_Omschrijving": "Test"}]
     response = client.post(
         "v0.1/beleidskeuzes",
