@@ -28,9 +28,9 @@ class Verordeningen_Schema(Base_Schema):
     Inhoud = MM.fields.Str(missing=None, obprops=[])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Status = MM.fields.Str(missing=None, obprops=[])
-    Volgnummer = MM.fields.Str(missing=None, obprops=[])
+    Volgnummer = MM.fields.Str(missing=None, obprops=['short'])
     Type = MM.fields.Str(missing=None,  validate=[MM.validate.OneOf(
-        ['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel', 'Lid'])], obprops=[])
+        ['Hoofdstuk', 'Afdeling', 'Paragraaf', 'Artikel', 'Lid'])], obprops=['short'])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
     Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])

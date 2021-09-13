@@ -6,8 +6,8 @@ from Endpoints.endpoint import Base_Schema
 
 
 class Werkingsgebieden_Schema(Base_Schema):
-    Werkingsgebied = MM.fields.Str(required=True, obprops=[])
-    symbol = MM.fields.Str(missing=None, obprops=[])
+    Werkingsgebied = MM.fields.Str(required=True, obprops=['short'])
+    symbol = MM.fields.Str(missing=None, obprops=['short'])
 
     class Meta(Base_Schema.Meta):
         slug = 'werkingsgebieden'
