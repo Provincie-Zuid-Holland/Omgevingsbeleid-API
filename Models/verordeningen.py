@@ -24,7 +24,7 @@ class Verordeningen_Schema(Base_Schema):
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
     Opdrachtgever = MM.fields.UUID(
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
-    Titel = MM.fields.Str(missing=None, obprops=[])
+    Titel = MM.fields.Str(missing=None, obprops=['short'])
     Inhoud = MM.fields.Str(missing=None, obprops=[])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Status = MM.fields.Str(missing=None, obprops=[])
