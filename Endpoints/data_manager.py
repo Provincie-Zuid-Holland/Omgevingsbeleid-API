@@ -2,15 +2,11 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 from collections import defaultdict
 import pyodbc
-from Endpoints.errors import handle_odbc_exception
 from globals import (
     db_connection_settings,
-    max_datetime,
-    min_datetime,
-    null_uuid,
     row_to_dict,
     ftc_name,
-    stoplist_name
+    stoplist_name,
 )
 from Endpoints.references import (
     Reverse_ID_Reference,
@@ -32,10 +28,13 @@ class DataManagerException(Exception):
 # - Single object (with auth)
 # - Saving
 # - Refector reference merging
+# - Set up seperate tests for API & Data Manager
 
 # Should validation be a part of this? We do have the schemas here.
-
-
+# Catch errors in endpoint logic or here? What would determine that?
+# Still waiting for UUID/ID meeting with team
+# Effectivity -> becomes in effect (USA), Object that are in effect
+# Generate query conditions in schemas (responsibility)
 class DataManager:
     def __init__(self, schema):
         """A manager object for interacting with the database
@@ -71,6 +70,7 @@ class DataManager:
         # Check if we need to query for status
         status_condition = ""
         if status_conf := self.schema.Meta.status_conf:
+            # e.g. "AND Status = 'Vigerend'"
             status_condition = f"AND {status_conf[0]} = '{status_conf[1]}'"
         query = f"""
                     CREATE OR ALTER VIEW {self.all_valid_view} AS
@@ -111,7 +111,10 @@ class DataManager:
         # Check if we need to query for status
         status_condition = ""
         if status_conf := self.schema.Meta.status_conf:
+            # e.g. "AND Status = 'Vigerend'"
             status_condition = f"AND {status_conf[0]} = '{status_conf[1]}'"
+
+        # TODO do we want >= or <= on geldigheid?
         query = f"""
                     CREATE OR ALTER VIEW {self.valid_view} AS
                     SELECT * FROM 
@@ -139,7 +142,8 @@ class DataManager:
         offset=None,
         limit=None,
     ):
-        """Retrieve all the objects of this type
+        """
+        Retrieve all the objects of this type
 
         Args:
             valid_only (bool, optional): Only retrieve the objects that are valid. Defaults to False
@@ -166,7 +170,10 @@ class DataManager:
             select_fieldset = [
                 field[0]
                 for field in self.schema().fields.items()
-                if ("referencelist" not in field[1].metadata["obprops"] and field[0] in fieldset)
+                if (
+                    "referencelist" not in field[1].metadata["obprops"]
+                    and field[0] in fieldset
+                )
             ]
 
         else:
@@ -222,10 +229,12 @@ class DataManager:
             result_rows = self._retrieve_references(
                 ref, included_references[ref], result_rows
             )
+
         return result_rows
 
     def _retrieve_references(self, fieldname, ref, source_rows):
-        """Retrieve the linked references for this set of objects
+        """
+        Retrieve the linked references for this set of objects
 
         Args:
             fieldname (string): A fieldname on which to store the references
@@ -286,7 +295,7 @@ class DataManager:
 
             if not target_uuids:
                 return source_rows
-            
+
             query = f"""
                     SELECT {', '.join(included_fields)} from {ref.target_tablename} WHERE UUID IN ({target_uuids}) 
                     """
@@ -297,7 +306,7 @@ class DataManager:
 
             result_rows = ref.schema.dump(result_rows, many=True)
             row_map = {row["UUID"]: row for row in result_rows}
-            for row in source_rows:            
+            for row in source_rows:
                 row[fieldname] = row_map.get(row[fieldname])
             return source_rows
 
@@ -345,7 +354,8 @@ class DataManager:
         offset=None,
         limit=None,
     ):
-        """Retrieve all the objects of this type that belong to the same lineage
+        """
+        Retrieve all the objects of this type that belong to the same lineage
 
         Args:
             self (int): An ID of a lineage
@@ -362,7 +372,6 @@ class DataManager:
         # determine view/table to query
         target = self.all_valid_view if valid_only else self.schema().Meta.table
 
-       
         # determine the fields to include in the query
         fieldset = ["*"]
         if short:
@@ -371,13 +380,14 @@ class DataManager:
             select_fieldset = [
                 field[0]
                 for field in self.schema().fields.items()
-                if ("referencelist" not in field[1].metadata["obprops"] and field[0] in fieldset)
+                if (
+                    "referencelist" not in field[1].metadata["obprops"]
+                    and field[0] in fieldset
+                )
             ]
 
         else:
             select_fieldset = fieldset
-
-
 
         # ID is required
         query_args = [id]
@@ -446,6 +456,7 @@ class DataManager:
         pass
 
     def _set_up_search(self):
+        """Creates the necessary indices for Full-Text-Search in SQL server, also adding stopwords to the database"""
         if not self.schema.Meta.searchable:
             return
 
@@ -456,17 +467,24 @@ class DataManager:
             stoplists_exists = cur.execute(
                 f"SELECT name FROM sys.fulltext_stoplists WHERE name = '{stoplist_name}';"
             )
-            
+
             # if not, set it up
             if not stoplists_exists.rowcount:
                 # Create stoplist
                 cur.execute(f"CREATE FULLTEXT STOPLIST {stoplist_name};")
-            
+
             # Populate stoplist
-            words_in_stoplist = [row[0] for row in cur.execute(f"SELECT stopword FROM sys.fulltext_stopwords w LEFT JOIN sys.fulltext_stoplists l ON w.stoplist_id = l.stoplist_id WHERE name = '{stoplist_name}'")]
+            words_in_stoplist = [
+                row[0]
+                for row in cur.execute(
+                    f"SELECT stopword FROM sys.fulltext_stopwords w LEFT JOIN sys.fulltext_stoplists l ON w.stoplist_id = l.stoplist_id WHERE name = '{stoplist_name}'"
+                )
+            ]
             for word in stopwords:
                 if word not in words_in_stoplist:
-                    cur.execute(f"""ALTER FULLTEXT STOPLIST {stoplist_name} ADD '{word}' LANGUAGE 1043;""")
+                    cur.execute(
+                        f"""ALTER FULLTEXT STOPLIST {stoplist_name} ADD '{word}' LANGUAGE 1043;"""
+                    )
 
             # Check for a catalog
             catalog_exists = cur.execute(
@@ -474,7 +492,6 @@ class DataManager:
             )
             if not catalog_exists.rowcount:
                 cur.execute(f"CREATE FULLTEXT CATALOG {ftc_name}")
-
 
             # Check is this table already has a search index set up
             ft_index_exists = list(
@@ -501,6 +518,15 @@ class DataManager:
                 )
 
     def search(self, query):
+        """
+        Search for a given query.
+
+        Args:
+            query (str): the search query
+
+        Returns:
+            List: The object matching the query
+        """
         if not self.schema.Meta.searchable:
             return
 
@@ -512,7 +538,7 @@ class DataManager:
             description_fields.append("''")
 
         args = " OR ".join([f'"{word}"' for word in query.split(" ")])
-        
+
         search_query = f"""
                         SELECT
                             v.UUID as UUID, 
