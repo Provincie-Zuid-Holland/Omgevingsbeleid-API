@@ -279,11 +279,14 @@ class DataManager:
             return source_rows
 
         if isinstance(ref, UUID_Reference):
+            # collect the uuids to query
             target_uuids = ", ".join(
                 [f"'{row[fieldname]}'" for row in source_rows if row.get(fieldname)]
             )
+
             if not target_uuids:
                 return source_rows
+            
             query = f"""
                     SELECT {', '.join(included_fields)} from {ref.target_tablename} WHERE UUID IN ({target_uuids}) 
                     """
@@ -294,8 +297,8 @@ class DataManager:
 
             result_rows = ref.schema.dump(result_rows, many=True)
             row_map = {row["UUID"]: row for row in result_rows}
-            for row in source_rows:
-                row[fieldname] = row_map[row[fieldname]]
+            for row in source_rows:            
+                row[fieldname] = row_map.get(row[fieldname])
             return source_rows
 
         if isinstance(ref, Reverse_UUID_Reference) or isinstance(

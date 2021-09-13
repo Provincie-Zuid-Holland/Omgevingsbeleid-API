@@ -963,3 +963,38 @@ def test_filter(client, auth):
     response = client.get(f"v0.1/beleidsmodules?any_filters=Created_By:{auth[0]}", headers={"Authorization": f"Bearer {auth[1]}"})
     assert(response.status_code == 200)
 
+def test_non_valid_reference(client, auth):
+     # Create Maatregel
+    test_ma = generate_data(
+        maatregelen.Maatregelen_Schema, excluded_prop="excluded_post"
+    )
+    test_ma['Status'] = 'Ontwerp GS Concept'
+    response = client.post(
+        "v0.1/maatregelen", json=test_ma, headers={"Authorization": f"Bearer {auth[1]}"}
+    )
+    ma_uuid = response.get_json()["UUID"]
+
+    # Create beleidskeuze
+    test_bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    test_bk["Maatregelen"] = [{"UUID": ma_uuid, "Koppeling_Omschrijving": "Test"}]
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=test_bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    bk_id = response.get_json()["ID"]
+
+    # Check beleidskeuze
+    response = client.get(
+        f"v0.1/beleidskeuzes/{bk_id}",
+        json=test_bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.get_json()[0]["Maatregelen"], "references where empty"
+    assert (
+        response.get_json()[0]["Maatregelen"][0]["Object"]["UUID"] == ma_uuid
+    ), "Maatregel not linked"
+
