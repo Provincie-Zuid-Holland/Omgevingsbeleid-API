@@ -16,7 +16,7 @@ class UUID_Linker_Schema(MM.Schema):
     """
     UUID = MM.fields.UUID(required=True, obprops=[])
     Koppeling_Omschrijving = MM.fields.Str(
-        required=False, missing='', default='', obprops=[])
+        required=False, allow_none=True, missing='', default='', obprops=[])
 
 
 def merge_references(obj, schema, cursor, inline=True):
