@@ -14,8 +14,6 @@ def graphView():
     nodes = []
     links = []
     valid_uuids = []
-    uuid_linker_tables = []
-    id_linker_tables = []
 
     # Collect all objects that are valid right now (they function as source)
     for ep in endpoints:
@@ -23,17 +21,6 @@ def graphView():
             continue
         else:
             title_field = ep.Meta.graph_conf
-            uuid_linker_tables += [
-                ref
-                for _, ref in ep.Meta.references.items()
-                if type(ref) == UUID_List_Reference
-            ]
-            id_linker_tables += [
-                ref
-                for _, ref in ep.Meta.references.items()
-                if type(ref) == ID_List_Reference
-            ]
-
             manager = DataManager(ep)
             valid_objects = manager.get_all(valid_only=True)
             nodes += [
@@ -59,9 +46,9 @@ def graphView():
                                         "type": "Koppeling",
                                     }
                                 )
-
+    valid_links = []
     for link in links:
-        if link["target"] not in valid_uuids:
-            links.remove(link)
+        if link["target"] in valid_uuids:
+            valid_links.append(link)
 
-    return {"nodes": nodes, "links": links}
+    return {"nodes": nodes, "links": valid_links}
