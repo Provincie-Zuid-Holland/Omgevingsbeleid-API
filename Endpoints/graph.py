@@ -36,16 +36,15 @@ def graphView():
 
             manager = DataManager(ep)
             valid_objects = manager.get_all(valid_only=True)
-            nodes.append(
-                [
-                    {
-                        "UUID": obj["UUID"],
-                        "Titel": obj[title_field],
-                        "Type": ep.Meta.slug,
-                    }
-                    for obj in valid_objects
-                ]
-            )
+            nodes += [
+                {
+                    "UUID": obj["UUID"],
+                    "Titel": obj[title_field],
+                    "Type": ep.Meta.slug,
+                }
+                for obj in valid_objects
+            ]
+
             valid_uuids += [obj["UUID"] for obj in valid_objects]
 
             for obj in valid_objects:
