@@ -716,44 +716,6 @@ def test_graph(client, auth):
     assert response.status_code == 200, "Graph endpoint is unavailable without auth"
 
 
-def test_ID_ref(client, auth):
-    ep = f"v0.1/ambities"
-    ambitie_data = generate_data(
-        ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop="excluded_post"
-    )
-    response = client.post(
-        ep, json=ambitie_data, headers={"Authorization": f"Bearer {auth[1]}"}
-    )
-
-    am_ID = response.get_json()["ID"]
-    am_UUID = response.get_json()["UUID"]
-
-    ep = f"v0.1/beleidskeuzes"
-    test_data = generate_data(
-        beleidskeuzes.Beleidskeuzes_Schema,
-        user_UUID=auth[0],
-        excluded_prop="excluded_post",
-    )
-    test_data["Ambities"] = [{"UUID": am_UUID, "Koppeling_Omschrijving": ""}]
-    response = client.post(
-        ep, json=test_data, headers={"Authorization": f"Bearer {auth[1]}"}
-    )
-
-    bk_UUID = response.get_json()["UUID"]
-
-    ep = f"v0.1/ambities/{am_ID}"
-    response = client.patch(
-        ep, json=ambitie_data, headers={"Authorization": f"Bearer {auth[1]}"}
-    )
-    new_am_UUID = response.get_json()["UUID"]
-
-    ep = f"v0.1/version/beleidskeuzes/{bk_UUID}"
-    response = client.get(ep, headers={"Authorization": f"Bearer {auth[1]}"})
-    assert (
-        response.get_json()["Ambities"][0]["Object"]["UUID"] == new_am_UUID
-    ), f"Did not update object, old object UUID: {am_UUID}"
-
-
 def test_null_date(client, auth):
     ep = f"v0.1/beleidsprestaties"
     bp_data = generate_data(
@@ -782,39 +744,39 @@ def test_null_date(client, auth):
 def test_graph(client, auth):
     # Create Ambitie
     test_amb = generate_data(ambities.Ambities_Schema, excluded_prop="excluded_post")
+    test_amb['Eind_Geldigheid'] = '2992-11-23T10:00:00'
     amb_resp = client.post(
         "v0.1/ambities", json=test_amb, headers={"Authorization": f"Bearer {auth[1]}"}
     )
     amb_UUID = amb_resp.get_json()["UUID"]
-    amb_ID = amb_resp.get_json()["ID"]
 
-    # Make new version of Ambitie
-    amb_resp = client.patch(
-        f"v0.1/ambities/{amb_ID}",
-        json={"Titel": "Aangepast"},
-        headers={"Authorization": f"Bearer {auth[1]}"},
-    )
-    new_amb_UUID = amb_resp.get_json()["UUID"]
 
     # Create Belang
     test_belang = generate_data(belangen.Belangen_Schema, excluded_prop="excluded_post")
+    test_belang['Eind_Geldigheid'] = '2992-11-23T10:00:00'
     belang_resp = client.post(
         "v0.1/belangen",
         json=test_belang,
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
     belang_UUID = belang_resp.get_json()["UUID"]
-    belang_ID = belang_resp.get_json()["ID"]
-    # Create new version of Belang
-    # belang_resp = client.patch(f'v0.1/belangen/{belang_ID}', json={'Titel': 'Aangepast'}, headers={'Authorization': f'Bearer {auth[1]}'})
-    # new_belang_UUID = amb_resp.get_json()['UUID']
+
+    # Create Belang that is not valid anymore
+    test_belang = generate_data(belangen.Belangen_Schema, excluded_prop="excluded_post")
+    belang_resp = client.post(
+        "v0.1/belangen",
+        json=test_belang,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    invalid_belang_UUID = belang_resp.get_json()["UUID"]
 
     # Create beleidskeuze (add objects)
     test_bk = generate_data(
         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
     )
+    test_bk['Eind_Geldigheid'] = '2992-11-23T10:00:00'
     test_bk["Ambities"] = [{"UUID": amb_UUID, "Koppeling_Omschrijving": ""}]
-    test_bk["Belangen"] = [{"UUID": belang_UUID, "Koppeling_Omschrijving": ""}]
+    test_bk["Belangen"] = [{"UUID": belang_UUID, "Koppeling_Omschrijving": ""}, {"UUID": invalid_belang_UUID, "Koppeling_Omschrijving": ""}]
     test_bk["Status"] = "Vigerend"
     response = client.post(
         "v0.1/beleidskeuzes",
@@ -834,9 +796,9 @@ def test_graph(client, auth):
             found_links.append(link["target"])
     assert len(found_links) == 2, "Not all links retrieved"
     assert belang_UUID in found_links, "Belang not retrieved"
-    assert new_amb_UUID in found_links, "Ambitie not retrieved"
-    assert not amb_UUID in found_links, "Old Ambitie retrieved"
-    assert set([new_amb_UUID, belang_UUID]) == set(
+    assert not invalid_belang_UUID in found_links, "Invalid belang retrieved"
+    assert amb_UUID in found_links, "Ambitie not retrieved"
+    assert set([amb_UUID, belang_UUID]) == set(
         found_links
     ), "Unexpected result for links"
 

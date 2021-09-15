@@ -13,6 +13,7 @@ from Endpoints.data_manager import DataManager
 def graphView():
     nodes = []
     links = []
+    valid_uuids = []
     uuid_linker_tables = []
     id_linker_tables = []
 
@@ -34,12 +35,34 @@ def graphView():
             ]
 
             manager = DataManager(ep)
-            valid_objects = manager.get_all(valid_only=True) 
-            nodes.append([
-                {'UUID': obj['UUID'], 'Titel': obj[title_field], 'Type':ep.Meta.slug}
-                for obj in valid_objects
-            ])
-            
+            valid_objects = manager.get_all(valid_only=True)
+            nodes.append(
+                [
+                    {
+                        "UUID": obj["UUID"],
+                        "Titel": obj[title_field],
+                        "Type": ep.Meta.slug,
+                    }
+                    for obj in valid_objects
+                ]
+            )
+            valid_uuids += [obj["UUID"] for obj in valid_objects]
 
-    
+            for obj in valid_objects:
+                for ref_field, ref in ep.Meta.references.items():
+                    if obj.get(ref_field):
+                        if type(ref) == UUID_List_Reference:
+                            for link in obj.get(ref_field):
+                                links.append(
+                                    {
+                                        "source": obj["UUID"],
+                                        "target": link["Object"]["UUID"],
+                                        "type": "Koppeling",
+                                    }
+                                )
+
+    for link in links:
+        if link["target"] not in valid_uuids:
+            links.remove(link)
+
     return {"nodes": nodes, "links": links}
