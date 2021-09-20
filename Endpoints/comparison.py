@@ -17,21 +17,19 @@ import re
 
 
 def random_unicode(text):
-    while True:
-        rand = random.randint(0, 1000000)
-        char = chr(rand)
-        if char not in text:
-            return char
+    all_ords = set(map(ord, text))
+    possible_ords = [repl for repl in range(0, 1114111) if ord not in all_ords]
+    for repl in possible_ords:
+        yield chr(repl)
 
 
 def generate_html_tags_maps(text1, text2):
     mapping = {}
     pat = re.compile(r"""</?.+?>""")
     tags = set(re.findall(pat, text1) + re.findall(pat, text2))
-    all_text = text1 + text2
+    repl_gen = random_unicode(text1 + text2)
     for tag in tags:
-        mapping[tag] = random_unicode(all_text)
-
+        mapping[tag] = next(repl_gen)
     return mapping
 
 
