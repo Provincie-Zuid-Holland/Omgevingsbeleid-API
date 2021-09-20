@@ -10,6 +10,9 @@ import pytest
 import Endpoints.comparison
 import marshmallow as MM
 
+class SimpleMapping(MM.Schema):
+        name = MM.fields.String(allow_none=True)
+
 def test_simple_list():
     old_list = [1,2,3]
     new_list = [1,4,5,6]
@@ -35,19 +38,19 @@ def test_text():
     assert Endpoints.comparison.diff_text_toHTML(old_text, new_text) == change_text
 
 def test_mapping():
-    class SimpleMapping(MM.Schema):
-        name = MM.fields.String(allow_none=True)
-
     old_mapping = SimpleMapping().load({'name':'John Doe'})
     new_mapping = SimpleMapping().load({'name':'Jane Doe'})
     change_mapping = {'name':"J<div class='revision-removal'>ohn</div><div class='revision-insert'>ane</div> Doe"}
     assert Endpoints.comparison.compare_objects(SimpleMapping(), old_mapping, new_mapping) == change_mapping
 
 def test_empty_field():
-    class SimpleMapping(MM.Schema):
-        name = MM.fields.String(allow_none=True)
-
     old_mapping = SimpleMapping().load({'name':'John Doe'})
     new_mapping = SimpleMapping().load({'name':None})
     change_mapping = {'name':"<div class='revision-removal'>John Doe</div>"}
+    assert Endpoints.comparison.compare_objects(SimpleMapping(), old_mapping, new_mapping) == change_mapping
+
+def test_tag_change():
+    old_mapping = SimpleMapping().load({"name":"<a>John Doe</a><br>"})
+    new_mapping = SimpleMapping().load({"name":"<a>John Doe</a><img data='lalalala'>"})
+    change_mapping = {'name': "<a>John Doe</a><div class='revision-removal'><br></div><div class='revision-insert'><img data='lalalala'></div>"}
     assert Endpoints.comparison.compare_objects(SimpleMapping(), old_mapping, new_mapping) == change_mapping
