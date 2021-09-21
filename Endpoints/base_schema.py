@@ -142,9 +142,9 @@ class Base_Schema(Short_Base_Schema):
     Schema that defines fields we expect from every object in order to build and keep a history.
     """
     Begin_Geldigheid = MM.fields.DateTime(format='iso', 
-        missing=min_datetime, allow_none=True, obprops=[])
+        missing=min_datetime, allow_none=True, obprops=['short'])
     Eind_Geldigheid = MM.fields.DateTime(format='iso', 
-        missing=max_datetime, allow_none=True, obprops=[])
+        missing=max_datetime, allow_none=True, obprops=['short'])
     Created_By = MM.fields.UUID(required=True, obprops=[
                                 'excluded_patch', 'excluded_post', 'short'])
     Created_Date = MM.fields.DateTime(format='iso', required=True, obprops=[

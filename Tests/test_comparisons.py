@@ -54,3 +54,9 @@ def test_tag_change():
     new_mapping = SimpleMapping().load({"name":"<a>John Doe</a><img data='lalalala'>"})
     change_mapping = {'name': "<a>John Doe</a><div class='revision-removal'><br></div><div class='revision-insert'><img data='lalalala'></div>"}
     assert Endpoints.comparison.compare_objects(SimpleMapping(), old_mapping, new_mapping) == change_mapping
+
+def test_ord_change():
+    old_mapping = SimpleMapping().load({"name":"<a>1</a>"})
+    new_mapping = SimpleMapping().load({"name":"<b>1</b>"})
+    change_mapping = {'name': "<div class='revision-removal'><a>1</a></div><div class='revision-insert'><b>1</b></div>"}
+    assert Endpoints.comparison.compare_objects(SimpleMapping(), old_mapping, new_mapping) == change_mapping
