@@ -24,8 +24,8 @@ class Verordeningen_Schema(Base_Schema):
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
     Opdrachtgever = MM.fields.UUID(
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
-    Titel = MM.fields.Str(missing=None, obprops=['short'])
-    Inhoud = MM.fields.Str(missing=None, obprops=[])
+    Titel = MM.fields.Str(missing=None, obprops=['short', 'search_title'])
+    Inhoud = MM.fields.Str(missing=None, obprops=['search_description'])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Status = MM.fields.Str(missing=None, obprops=[])
     Volgnummer = MM.fields.Str(missing=None, obprops=['short'])
@@ -41,6 +41,7 @@ class Verordeningen_Schema(Base_Schema):
         read_only = False
         ordered = True
         searchable = False
+        geo_searchable = 'Gebied'
         references = references = {
             'Eigenaar_1': UUID_Reference('Gebruikers', Gebruikers_Schema),
             'Eigenaar_2': UUID_Reference('Gebruikers', Gebruikers_Schema),

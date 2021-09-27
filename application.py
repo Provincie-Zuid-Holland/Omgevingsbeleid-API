@@ -16,8 +16,9 @@ import datamodel
 import Endpoints.endpoint
 from Auth.views import jwt_required_not_GET, login, tokenstat
 from Spec.spec import specView
-from Endpoints.search import searchView
+from Endpoints.search import search_view
 from Endpoints.graph import graphView
+from Endpoints.geo_search import geo_search_view
 import click
 
 current_version = '0.1'
@@ -81,8 +82,12 @@ api.add_resource(verordeningsstructuur.Verordening_Structuur, '/verordeningstruc
                  '/verordeningstructuur/version/<uuid:verordeningstructuur_uuid>')
 app.add_url_rule(f'/v{current_version}/spec',
                  'spec', specView, methods=['GET'])
+
 app.add_url_rule(f'/v{current_version}/search',
-                 'search', searchView, methods=['GET'])
+                 'search', search_view, methods=['GET'])
+
+app.add_url_rule(f'/v{current_version}/geo-search',
+                 'geo-search', geo_search_view, methods=['GET'])
 
 app.add_url_rule(f'/v{current_version}/graph',
                  'graph', graphView, methods=['GET'])

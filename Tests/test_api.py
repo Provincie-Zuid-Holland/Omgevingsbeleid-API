@@ -15,6 +15,7 @@ import tempfile
 import json
 import pytest
 import pyodbc
+from globals import null_uuid
 from application import app
 from datamodel import endpoints
 from Tests.test_data import generate_data, reference_rich_beleidskeuze
@@ -138,6 +139,12 @@ def test_endpoints(client, auth, endpoint):
         ), "Patch did not change object."
         response = client.get(list_ep)
         assert found + 1 == len(response.json), "New object after PATCH"
+
+def test_special_endpoints(client):
+    specials = [f'v0.1/geo-search?query={null_uuid},{null_uuid}']
+    for special in specials:
+        response = client.get(special)
+        assert response.status_code == 200
 
 def test_modules(client, auth):
     response = client.post('v0.1/beleidsmodules', json={'Titel': 'Test'}, headers={

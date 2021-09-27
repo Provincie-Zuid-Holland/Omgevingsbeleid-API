@@ -64,6 +64,7 @@ class Maatregelen_Schema(Base_Schema):
         read_only = False
         ordered = True
         searchable = True
+        geo_searchable = 'Gebied'
         status_conf = ('Status', 'Vigerend')
         references = {
             'Ref_Beleidskeuzes': Reverse_UUID_Reference('Beleidskeuze_Maatregelen',

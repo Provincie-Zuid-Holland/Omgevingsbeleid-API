@@ -88,6 +88,7 @@ class Beleidskeuzes_Schema(Base_Schema):
         read_only = False
         ordered = True
         searchable = True
+        geo_searchable = 'Werkingsgebieden'
         references = {
             'Eigenaar_1': UUID_Reference('Gebruikers', Models.gebruikers.Gebruikers_Schema),
             'Eigenaar_2': UUID_Reference('Gebruikers', Models.gebruikers.Gebruikers_Schema),

@@ -16,35 +16,31 @@ def splitlist(value):
     return value.split(",")
 
 
-def searchquery(tablename, slug, title, description):
-    return f"""
-    SELECT {title} as Titel, {description} as Omschrijving, RANK as RANK, UUID as UUID, '{slug}' as Type  FROM CONTAINSTABLE({tablename}, *, ?) CT
-    INNER JOIN (
-	    SELECT * FROM 
-	        (SELECT *, Row_Number() OVER (partition BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] FROM {tablename} WHERE UUID != '00000000-0000-0000-0000-000000000000') A
-	    WHERE [RowNumber] = 1 ) B
-    ON CT.[KEY] = B.UUID
-    WHERE RANK > 0
-    ORDER BY RANK DESC 
-    """
-
-
-def searchView():
+def start_search(args):
     """
     A view that accepts search queries to find object based on a fuzzy text match
     """
-    query = request.args.get("query", default=None, type=str)
-    type_exclude = request.args.get("exclude", default=None, type=splitlist)
-    type_only = request.args.get("only", default=None, type=splitlist)
-    limit = request.args.get("limit", default=10, type=int)
+    query = args.get("query", default=None, type=str)
+    type_exclude = args.get("exclude", default=None, type=splitlist)
+    type_only = args.get("only", default=None, type=splitlist)
+    limit = args.get("limit", default=10, type=int)
 
     if not query:
         return jsonify({"message": "No search query provided."}), 400
+
     if type_exclude and type_only:
         return (
             jsonify({"message": "Using exclude and only together is not allowed"}),
             403,
         )
+    return (query, type_exclude, type_only, limit)
+
+
+def search_view():
+    """
+    A view that accepts search queries to find object based on a fuzzy text match
+    """
+    query, type_exclude, type_only, limit = start_search(request.args)
 
     searchables = [ep for ep in endpoints if ep.Meta.searchable]
 
