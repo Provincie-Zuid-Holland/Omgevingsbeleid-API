@@ -1,6 +1,7 @@
 <img src="https://www.zuid-holland.nl/publish/pages/26873/pzh_basislogo_rgb_1_0.svg" alt="Provincie Zuid-Holland logo" width="220px">
 
-# Omgevingsbeleid API
+# Omgevingsbeleid API · ![License](https://img.shields.io/github/license/Provincie-Zuid-Holland/Omgevingsbeleid-API)
+
 [OpenAPI Specification](https://provincie-zuid-holland.github.io/Omgevingsbeleid-API/) 
 
 Omgevingsbeleid API was originally created in early 2018 in order to meet the requirements
