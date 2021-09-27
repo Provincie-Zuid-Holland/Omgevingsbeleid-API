@@ -86,7 +86,7 @@ app.add_url_rule(f'/v{current_version}/spec',
 app.add_url_rule(f'/v{current_version}/search',
                  'search', search_view, methods=['GET'])
 
-app.add_url_rule(f'/v{current_version}/geo-search',
+app.add_url_rule(f'/v{current_version}/search/geo',
                  'geo-search', geo_search_view, methods=['GET'])
 
 app.add_url_rule(f'/v{current_version}/graph',

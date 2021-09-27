@@ -141,7 +141,7 @@ def test_endpoints(client, auth, endpoint):
         assert found + 1 == len(response.json), "New object after PATCH"
 
 def test_special_endpoints(client):
-    specials = [f'v0.1/geo-search?query={null_uuid},{null_uuid}']
+    specials = [f'v0.1/search/geo?query={null_uuid},{null_uuid}']
     for special in specials:
         response = client.get(special)
         assert response.status_code == 200
