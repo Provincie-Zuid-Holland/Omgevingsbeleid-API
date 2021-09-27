@@ -97,6 +97,7 @@ class DataManager:
                         ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
                         FROM {self.schema.Meta.table}) T
                     WHERE RowNumber = 1 
+                    AND Eind_Geldigheid > GETDATE()
                     AND UUID != '00000000-0000-0000-0000-000000000000'
                     """
 
