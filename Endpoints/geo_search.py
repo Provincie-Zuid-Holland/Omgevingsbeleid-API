@@ -23,8 +23,11 @@ def geo_search_view():
 
     for ep in searchables:
         manager = DataManager(ep)
-        results = manager.geo_search(query)
-        if results:
-            search_results = search_results + results
+        try:
+            results = manager.geo_search(query)
+            if results:
+                search_results = search_results + results
+        except ValueError as e:
+            return {"Message": "Unable to parse UUID"}, 400
 
     return jsonify(search_results[:limit])

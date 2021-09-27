@@ -17,6 +17,7 @@ from Endpoints.references import (
     merge_references,
 )
 from Endpoints.stopwords import stopwords
+from uuid import UUID
 
 
 class DataManagerException(Exception):
@@ -570,11 +571,14 @@ class DataManager:
         ):
             return []
         else:
-            ref_key, ref = self.schema.Meta.geo_searchable, self.schema.Meta.references[self.schema.Meta.geo_searchable]
-            
+            ref_key, ref = (
+                self.schema.Meta.geo_searchable,
+                self.schema.Meta.references[self.schema.Meta.geo_searchable],
+            )
+
             description_fields = self.schema.fields_with_props("search_description")
             title_field = self.schema.fields_with_props("search_title")[0]
-            search_args = [query]
+            query_uuids = [UUID(uid) for uid in query.split(",")]
 
             # if there is only one value the CONCAT_WS will fail so we just add an empty string
             if len(description_fields) == 1:
@@ -590,9 +594,10 @@ class DataManager:
                         100 AS RANK
                         FROM {self.valid_view} vbk
                     INNER JOIN {ref.link_tablename} bw ON vbk.UUID = bw.{ref.my_col}
-                    WHERE bw.{ref.their_col} IN (?) 
                 """
-
+                # generate OR filters:
+                or_filter = " OR ".join([f"bw.{ref.their_col} = ?" for _ in query_uuids])
+                search_query += "WHERE " + or_filter
 
             if isinstance(ref, UUID_Reference):
                 search_query = f"""
@@ -603,9 +608,13 @@ class DataManager:
                     {ref_key} as Gebied,
                     100 AS RANK
                     FROM {self.valid_view}
-                    WHERE {ref_key} in (?)
-                """    
+                """
+
+                # generate OR filters:
+                or_filter = " OR ".join([f"{ref_key} = ?" for _ in query_uuids])
+                search_query += "WHERE " + or_filter
 
             with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
                 cursor = connection.cursor()
-                return list(map(row_to_dict, cursor.execute(search_query, *search_args)))
+                res = cursor.execute(search_query, query_uuids)
+                return list(map(row_to_dict, res))
