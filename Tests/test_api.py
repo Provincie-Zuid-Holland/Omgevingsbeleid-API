@@ -141,26 +141,31 @@ def test_endpoints(client, auth, endpoint):
         response = client.get(list_ep)
         assert found + 1 == len(response.json), "New object after PATCH"
 
+
 def test_special_endpoints(client):
-    specials = [f'v0.1/search/geo?query={null_uuid},{null_uuid}']
+    specials = [f"v0.1/search/geo?query={null_uuid},{null_uuid}"]
     for special in specials:
         response = client.get(special)
         assert response.status_code == 200
 
+
 def test_modules(client, auth):
-    response = client.post('v0.1/beleidsmodules', json={'Titel': 'Test'}, headers={
-                               'Authorization': f'Bearer {auth[1]}'})
-    assert(response.status_code == 201)
-    
+    response = client.post(
+        "v0.1/beleidsmodules",
+        json={"Titel": "Test"},
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 201
 
-    response = client.get('v0.1/beleidsmodules', headers={'Authorization': f'Bearer {auth[1]}'})
-    assert(response.status_code == 200)                              
-    assert(len(response.get_json()) != 0)
-    assert('Maatregelen' in response.get_json()[0])
+    response = client.get(
+        "v0.1/beleidsmodules", headers={"Authorization": f"Bearer {auth[1]}"}
+    )
+    assert response.status_code == 200
+    assert len(response.get_json()) != 0
+    assert "Maatregelen" in response.get_json()[0]
 
-    response = client.get('v0.1/valid/beleidsmodules')
-    assert(response.status_code == 200)
-
+    response = client.get("v0.1/valid/beleidsmodules")
+    assert response.status_code == 200
 
 
 def test_references(client, auth):
@@ -593,6 +598,8 @@ def test_multiple_filters(client, auth):
     test_data["Status"] = "Ontwerp PS"
     test_data["Afweging"] = "Test4325123$%"
     test_data["Titel"] = "Test4325123$%"
+    test_data['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
+
 
     response = client.post(
         ep, json=test_data, headers={"Authorization": f"Bearer {auth[1]}"}
@@ -609,6 +616,7 @@ def test_multiple_filters(client, auth):
     test_data["Status"] = "Ontwerp GS"
     test_data["Afweging"] = "Test4325123$%"
     test_data["Titel"] = "Anders"
+    test_data['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
 
     response = client.post(
         ep, json=test_data, headers={"Authorization": f"Bearer {auth[1]}"}
@@ -625,6 +633,7 @@ def test_multiple_filters(client, auth):
     test_data["Status"] = "Vigerend"
     test_data["Afweging"] = "Anders"
     test_data["Titel"] = "Test4325123$%"
+    test_data['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
 
     response = client.post(
         ep, json=test_data, headers={"Authorization": f"Bearer {auth[1]}"}
@@ -752,16 +761,15 @@ def test_null_date(client, auth):
 def test_graph(client, auth):
     # Create Ambitie
     test_amb = generate_data(ambities.Ambities_Schema, excluded_prop="excluded_post")
-    test_amb['Eind_Geldigheid'] = '2992-11-23T10:00:00'
+    test_amb["Eind_Geldigheid"] = "2992-11-23T10:00:00"
     amb_resp = client.post(
         "v0.1/ambities", json=test_amb, headers={"Authorization": f"Bearer {auth[1]}"}
     )
     amb_UUID = amb_resp.get_json()["UUID"]
 
-
     # Create Belang
     test_belang = generate_data(belangen.Belangen_Schema, excluded_prop="excluded_post")
-    test_belang['Eind_Geldigheid'] = '2992-11-23T10:00:00'
+    test_belang["Eind_Geldigheid"] = "2992-11-23T10:00:00"
     belang_resp = client.post(
         "v0.1/belangen",
         json=test_belang,
@@ -782,9 +790,12 @@ def test_graph(client, auth):
     test_bk = generate_data(
         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
     )
-    test_bk['Eind_Geldigheid'] = '2992-11-23T10:00:00'
+    test_bk["Eind_Geldigheid"] = "2992-11-23T10:00:00"
     test_bk["Ambities"] = [{"UUID": amb_UUID, "Koppeling_Omschrijving": ""}]
-    test_bk["Belangen"] = [{"UUID": belang_UUID, "Koppeling_Omschrijving": ""}, {"UUID": invalid_belang_UUID, "Koppeling_Omschrijving": ""}]
+    test_bk["Belangen"] = [
+        {"UUID": belang_UUID, "Koppeling_Omschrijving": ""},
+        {"UUID": invalid_belang_UUID, "Koppeling_Omschrijving": ""},
+    ]
     test_bk["Status"] = "Vigerend"
     response = client.post(
         "v0.1/beleidskeuzes",
@@ -929,16 +940,21 @@ def test_protect_invalid(client, auth):
     response = client.get("v0.1/valid/belangen")
     assert response.status_code == 200
 
+
 def test_filter(client, auth):
-    response = client.get(f"v0.1/beleidsmodules?any_filters=Created_By:{auth[0]}", headers={"Authorization": f"Bearer {auth[1]}"})
-    assert(response.status_code == 200)
+    response = client.get(
+        f"v0.1/beleidsmodules?any_filters=Created_By:{auth[0]}",
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 200
+
 
 def test_non_valid_reference(client, auth):
-     # Create Maatregel
+    # Create Maatregel
     test_ma = generate_data(
         maatregelen.Maatregelen_Schema, excluded_prop="excluded_post"
     )
-    test_ma['Status'] = 'Ontwerp GS Concept'
+    test_ma["Status"] = "Ontwerp GS Concept"
     response = client.post(
         "v0.1/maatregelen", json=test_ma, headers={"Authorization": f"Bearer {auth[1]}"}
     )
@@ -948,7 +964,7 @@ def test_non_valid_reference(client, auth):
     test_bk = generate_data(
         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
     )
-    test_bk['Status'] = 'Ontwerp GS Concept'
+    test_bk["Status"] = "Ontwerp GS Concept"
     test_bk["Maatregelen"] = [{"UUID": ma_uuid, "Koppeling_Omschrijving": "Test"}]
     response = client.post(
         "v0.1/beleidskeuzes",
@@ -969,6 +985,7 @@ def test_non_valid_reference(client, auth):
         response.get_json()[0]["Maatregelen"][0]["Object"]["UUID"] == ma_uuid
     ), "Maatregel not linked"
 
+
 def test_graph(client, auth):
     # Create BK1 & BK2 (valid)
 
@@ -980,10 +997,10 @@ def test_graph(client, auth):
         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
     )
 
-    bk_1['Status'] = 'Vigerend'
-    bk_1['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
-    bk_2['Status'] = 'Vigerend'
-    bk_2['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
+    bk_1["Status"] = "Vigerend"
+    bk_1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+    bk_2["Status"] = "Vigerend"
+    bk_2["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
 
     response = client.post(
         "v0.1/beleidskeuzes",
@@ -991,23 +1008,23 @@ def test_graph(client, auth):
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
 
-    bk_1_UUID = response.get_json()['UUID']
-    
+    bk_1_UUID = response.get_json()["UUID"]
+
     response = client.post(
         "v0.1/beleidskeuzes",
         json=bk_2,
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
-    
-    bk_2_UUID = response.get_json()['UUID']
+
+    bk_2_UUID = response.get_json()["UUID"]
 
     # Add BR from to
     br = generate_data(
         beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post"
     )
-    br['Van_Beleidskeuze'] = bk_1_UUID
-    br['Naar_Beleidskeuze'] = bk_2_UUID
-    br['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
+    br["Van_Beleidskeuze"] = bk_1_UUID
+    br["Naar_Beleidskeuze"] = bk_2_UUID
+    br["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
 
     response = client.post(
         "v0.1/beleidsrelaties",
@@ -1016,19 +1033,16 @@ def test_graph(client, auth):
     )
 
     # Check graph
-    response = client.get(
-        "v0.1/graph"
-    )
-    links = response.get_json()['links']
+    response = client.get("v0.1/graph")
+    links = response.get_json()["links"]
     found_1, found_2 = False, False
-    for node in response.get_json()['nodes']:
-        if node['UUID'] == bk_1_UUID:
+    for node in response.get_json()["nodes"]:
+        if node["UUID"] == bk_1_UUID:
             found_1 = True
-        if node['UUID'] == bk_2_UUID:
+        if node["UUID"] == bk_2_UUID:
             found_2 = True
-    
+
     assert found_1
     assert found_2
 
-    assert {"source":bk_1_UUID, "target":bk_2_UUID, "type":"Relatie"} in links
-
+    assert {"source": bk_1_UUID, "target": bk_2_UUID, "type": "Relatie"} in links

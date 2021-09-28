@@ -114,7 +114,7 @@ class DataManager:
         status_condition = ""
         if status_conf := self.schema.Meta.status_conf:
             # e.g. "AND Status = 'Vigerend'"
-            status_condition = f"AND {status_conf[0]} = '{status_conf[1]}'"
+            status_condition = f"WHERE {status_conf[0]} = '{status_conf[1]}'"
 
         # TODO do we want >= or <= on geldigheid?
         query = f"""
@@ -123,11 +123,11 @@ class DataManager:
                         (SELECT *, 
                         ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
                         FROM {self.schema.Meta.table}
-                        WHERE UUID != '00000000-0000-0000-0000-000000000000'
-                        AND Eind_Geldigheid > GETDATE()
-                        AND Begin_Geldigheid < GETDATE()
                         {status_condition}) T 
                     WHERE RowNumber = 1
+                    AND UUID != '00000000-0000-0000-0000-000000000000'
+                    AND Eind_Geldigheid > GETDATE()
+                    AND Begin_Geldigheid < GETDATE()
                     """
 
         with pyodbc.connect(db_connection_settings, autocommit=True) as con:
