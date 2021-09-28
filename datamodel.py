@@ -16,12 +16,10 @@ from Models.beleidsmodule import Beleidsmodule_Schema
 from Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
 import Endpoints.references as references
 
-short_schemas = [
-    Short_Beleidskeuze_Schema,
-    Short_Beleidsmodule_Schema
-]
+short_schemas = [Short_Beleidskeuze_Schema, Short_Beleidsmodule_Schema]
 
 endpoints = [
+    Beleidsrelaties_Schema,
     Beleidsmodule_Schema,
     Beleidskeuzes_Schema,
     Ambities_Schema,
@@ -33,35 +31,39 @@ endpoints = [
     Themas_Schema,
     Werkingsgebieden_Schema,
     Verordeningen_Schema,
-    Beleidsrelaties_Schema,
-    
 ]
 
 linker_tables = [
-    ('Beleidskeuze_Ambities', 'Ambitie_UUID'),
-    ('Beleidskeuze_Belangen', 'Belang_UUID'),
-    ('Beleidskeuze_Beleidsdoelen', 'Beleidsdoel_UUID'),
-    ('Beleidskeuze_Beleidsprestaties', 'Beleidsprestatie_UUID'),
-    ('Beleidskeuze_Beleidsregels', 'Beleidsregel_UUID'),
-    ('Beleidskeuze_Maatregelen', 'Maatregel_UUID'),
-    ('Beleidskeuze_Themas', 'Thema_UUID'),
-    ('Beleidskeuze_Verordeningen', 'Verordening_UUID'),
-    ('Beleidskeuze_Werkingsgebieden', 'Werkingsgebied_UUID')
+    ("Beleidskeuze_Ambities", "Ambitie_UUID"),
+    ("Beleidskeuze_Belangen", "Belang_UUID"),
+    ("Beleidskeuze_Beleidsdoelen", "Beleidsdoel_UUID"),
+    ("Beleidskeuze_Beleidsprestaties", "Beleidsprestatie_UUID"),
+    ("Beleidskeuze_Beleidsregels", "Beleidsregel_UUID"),
+    ("Beleidskeuze_Maatregelen", "Maatregel_UUID"),
+    ("Beleidskeuze_Themas", "Thema_UUID"),
+    ("Beleidskeuze_Verordeningen", "Verordening_UUID"),
+    ("Beleidskeuze_Werkingsgebieden", "Werkingsgebied_UUID"),
 ]
 
 
 def show_inlined_properties():
-    """We use this to help the frontend.
-    """
+    """We use this to help the frontend."""
     for ep in endpoints:
         print(ep.Meta.slug)
         for ref in ep.Meta.references:
             if isinstance(ep.Meta.references[ref], references.UUID_List_Reference):
                 print(
-                    '\t', ref, f': Lijst naar {ep.Meta.references[ref].their_tablename}')
+                    "\t", ref, f": Lijst naar {ep.Meta.references[ref].their_tablename}"
+                )
             if isinstance(ep.Meta.references[ref], references.UUID_Reference):
                 print(
-                    '\t', ref, f': Enkele naar {ep.Meta.references[ref].target_tablename}')
+                    "\t",
+                    ref,
+                    f": Enkele naar {ep.Meta.references[ref].target_tablename}",
+                )
             if isinstance(ep.Meta.references[ref], references.Reverse_UUID_Reference):
                 print(
-                    '\t', ref, f': Reverse van {ep.Meta.references[ref].their_tablename}')
+                    "\t",
+                    ref,
+                    f": Reverse van {ep.Meta.references[ref].their_tablename}",
+                )

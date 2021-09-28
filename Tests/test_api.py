@@ -5,6 +5,7 @@ from datetime import timezone
 from Models import (
     beleidskeuzes,
     ambities,
+    beleidsrelaties,
     maatregelen,
     belangen,
     beleidsprestaties,
@@ -967,4 +968,67 @@ def test_non_valid_reference(client, auth):
     assert (
         response.get_json()[0]["Maatregelen"][0]["Object"]["UUID"] == ma_uuid
     ), "Maatregel not linked"
+
+def test_graph(client, auth):
+    # Create BK1 & BK2 (valid)
+
+    bk_1 = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+
+    bk_2 = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+
+    bk_1['Status'] = 'Vigerend'
+    bk_1['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
+    bk_2['Status'] = 'Vigerend'
+    bk_2['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk_1,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    bk_1_UUID = response.get_json()['UUID']
+    
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk_2,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    
+    bk_2_UUID = response.get_json()['UUID']
+
+    # Add BR from to
+    br = generate_data(
+        beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post"
+    )
+    br['Van_Beleidskeuze'] = bk_1_UUID
+    br['Naar_Beleidskeuze'] = bk_2_UUID
+    br['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
+
+    response = client.post(
+        "v0.1/beleidsrelaties",
+        json=br,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    # Check graph
+    response = client.get(
+        "v0.1/graph"
+    )
+    links = response.get_json()['links']
+    found_1, found_2 = False, False
+    for node in response.get_json()['nodes']:
+        if node['UUID'] == bk_1_UUID:
+            found_1 = True
+        if node['UUID'] == bk_2_UUID:
+            found_2 = True
+    
+    assert found_1
+    assert found_2
+
+    assert {"source":bk_1_UUID, "target":bk_2_UUID, "type":"Relatie"} in links
 
