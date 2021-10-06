@@ -42,7 +42,6 @@ def setup_db():
     for schema in datamodel.endpoints:
         DataManager(schema)._setup() 
 
-
 # JWT CONFIG
 @jwt.unauthorized_loader
 def custom_unauthorized_loader(reason):
@@ -91,6 +90,9 @@ app.add_url_rule(f'/v{current_version}/search/geo',
 
 app.add_url_rule(f'/v{current_version}/graph',
                  'graph', graphView, methods=['GET'])
+
+app.add_url_rule(f'/v{current_version}/ts_defs',
+                 'ts_defs', datamodel.generate_typescript_defs, methods=['GET'])
 
 
 if __name__ == '__main__':

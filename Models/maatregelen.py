@@ -30,7 +30,7 @@ class Maatregelen_Schema(Base_Schema):
                                  HTML_Validate], obprops=['search_description'])
     Toelichting = MM.fields.Str(missing=None, validate=[
                                 HTML_Validate], obprops=[])
-    Toelichting_Raw = MM.fields.Method(missing=None, obprops=[])
+    Toelichting_Raw = MM.fields.Str(missing=None, obprops=[])
     Status = MM.fields.Str(missing=None, validate=[MM.validate.OneOf([
         "Definitief ontwerp GS",
         "Definitief ontwerp GS concept",

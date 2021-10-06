@@ -10,11 +10,11 @@ class Short_Beleidskeuze_Schema(Short_Base_Schema):
     Titel = MM.fields.Str(required=True, obprops=[])
 
     class Meta(Short_Base_Schema.Meta):
-        slug = 'Beleidskeuze-Short'
+        slug = 'beleidskeuze-short'
         status_conf = ('Status', 'Vigerend')
 
 class Short_Beleidsmodule_Schema(Short_Base_Schema):
     Titel = MM.fields.Str(required=True, obprops=[])
     
     class Meta(Short_Base_Schema.Meta):
-        slug= 'Beleidsmodule-Short'
+        slug= 'beleidsmodule-short'

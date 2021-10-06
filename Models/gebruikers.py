@@ -15,6 +15,7 @@ class Gebruikers_Schema(MM.Schema):
     Status = MM.fields.Str(missing=None)
 
     class Meta:
+        slug ='gebruikers'
         table = 'Gebruikers'
         read_only = True
         ordered = True

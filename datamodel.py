@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
+from Models.gebruikers import Gebruikers_Schema
+import marshmallow.fields as MMF
+
 from Models.beleidskeuzes import Beleidskeuzes_Schema
 from Models.ambities import Ambities_Schema
 from Models.belangen import Belangen_Schema
@@ -67,3 +70,50 @@ def show_inlined_properties():
                     ref,
                     f": Reverse van {ep.Meta.references[ref].their_tablename}",
                 )
+
+
+def generate_typescript_defs():
+    """This generates typescript definitions for the datamodel"""
+    result = ""
+    schema_list = [*endpoints, Gebruikers_Schema, Short_Beleidskeuze_Schema]
+    for ep in schema_list:
+        try:
+            refs = ep.Meta.references
+        except AttributeError:
+            refs = {}
+
+        result += f"interface {ep.Meta.slug}: {{ \n"
+        for field, type in ep().fields.items():
+            result += _field_to_ts(field, type, refs)
+        result += "}\n"
+    return result
+
+
+def _field_to_ts(name, field_type, refs):
+    field_name = name
+    ts_type = None
+    if name in refs:
+        ref = refs[name]
+        if isinstance(ref, references.UUID_List_Reference) or isinstance(
+            ref, references.ID_List_Reference
+        ):
+            ts_type = f"{ref.schema.Meta.slug}[]"
+        elif isinstance(ref, references.UUID_Reference):
+            ts_type = f"{ref.schema.Meta.slug}"
+        elif isinstance(ref, references.Reverse_UUID_Reference) or isinstance(
+            ref, references.Reverse_ID_Reference
+        ):
+            field_name += "?"
+            ts_type = f"{ref.schema.Meta.slug}"
+    else:
+        if isinstance(field_type, MMF.UUID) or isinstance(field_type, MMF.String):
+            ts_type = "string"
+        elif isinstance(field_type, MMF.Integer):
+            ts_type = "number"
+        elif isinstance(field_type, MMF.DateTime):
+            ts_type = "Date"
+        elif isinstance(field_type, MMF.Nested):
+            ts_type = "any[]"
+        else:
+            raise (ValueError(f"Type not found! {type(field_type)}"))
+    return f"\t {field_name}: {ts_type}; \n"
