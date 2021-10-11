@@ -26,16 +26,17 @@ class DataManagerException(Exception):
 
 # TODO (sorted by prio):
 # - Graph view (only valids)
-# - Single object (with auth)
+# - Single object with auth
 # - Saving
 # - Refector reference merging
 # - Set up seperate tests for API & Data Manager
 
 # Should validation be a part of this? We do have the schemas here.
 # Catch errors in endpoint logic or here? What would determine that?
-# Still waiting for UUID/ID meeting with team
 # Effectivity -> becomes in effect (USA), Object that are in effect
 # Generate query conditions in schemas (responsibility)
+
+
 class DataManager:
     def __init__(self, schema):
         """A manager object for interacting with the database
@@ -47,6 +48,7 @@ class DataManager:
             DataManagerException: Settings are missing on schema
         """
         self.schema = schema
+        # These fields should be present
         required_meta_settings = ["slug", "table"]
         for setting in required_meta_settings:
             if setting not in dir(self.schema.Meta):
@@ -64,6 +66,12 @@ class DataManager:
         self._set_up_all_valid_view()
         self._set_up_search()
 
+    def _run_query_commit(self, query):
+        with pyodbc.connect(db_connection_settings, autocommit=True) as con:
+            cur = con.cursor()
+            cur.execute(query)
+            con.commit()
+
     def _set_up_all_valid_view(self):
         """
         Set up a view that shows all valid version for each lineage
@@ -80,11 +88,7 @@ class DataManager:
                     WHERE UUID != '00000000-0000-0000-0000-000000000000'
                     {status_condition}
                     """
-
-        with pyodbc.connect(db_connection_settings, autocommit=True) as con:
-            cur = con.cursor()
-            cur.execute(query)
-            con.commit()
+        self._run_query_commit(query)
 
     def _set_up_latest_view(self):
         """
@@ -101,10 +105,7 @@ class DataManager:
                     AND UUID != '00000000-0000-0000-0000-000000000000'
                     """
 
-        with pyodbc.connect(db_connection_settings, autocommit=False) as con:
-            cur = con.cursor()
-            cur.execute(query)
-            con.commit()
+        self._run_query_commit(query)
 
     def _set_up_valid_view(self):
         """
@@ -116,7 +117,6 @@ class DataManager:
             # e.g. "AND Status = 'Vigerend'"
             status_condition = f"WHERE {status_conf[0]} = '{status_conf[1]}'"
 
-        # TODO do we want >= or <= on geldigheid?
         query = f"""
                     CREATE OR ALTER VIEW {self.valid_view} AS
                     SELECT * FROM 
@@ -127,13 +127,26 @@ class DataManager:
                     WHERE RowNumber = 1
                     AND UUID != '00000000-0000-0000-0000-000000000000'
                     AND Eind_Geldigheid > GETDATE()
-                    AND Begin_Geldigheid < GETDATE()
+                    AND Begin_Geldigheid <= GETDATE()
                     """
 
-        with pyodbc.connect(db_connection_settings, autocommit=True) as con:
+        self._run_query_commit(query)
+
+    def _run_query_result(self, query, args):
+        """Run a query and return it's results
+
+        Args:
+            query (string): query to run
+            args (list): args to provide to query
+
+        Returns:
+            List or None
+        """
+        with pyodbc.connect(db_connection_settings, autocommit=False) as con:
             cur = con.cursor()
-            cur.execute(query)
-            con.commit()
+            # We unpack the arg list here
+            result_rows = list(map(row_to_dict, cur.execute(query, *args)))
+            return result_rows
 
     def get_single(self, uuid):
         """Retrieve a single version of an object of this type
@@ -146,25 +159,24 @@ class DataManager:
             [field for field in self.schema().fields_without_props("referencelist")]
         )
 
-        query = f"SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID = ?"
+        query = (
+            f"SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID = ?"
+        )
 
-        with pyodbc.connect(db_connection_settings, autocommit=False) as con:
-            cur = con.cursor()
-            result_rows = list(map(row_to_dict, cur.execute(query, uuid)))
-            if not result_rows:
-                return None
-            else:
-                result_rows = self.schema().dump(result_rows, many=True)
-        
+        result_rows = self.schema().dump(
+            self._run_query_result(query, [uuid]), many=True
+        )
+
+        if not result_rows:
+            return None
+
         # Get references
         all_references = {
             **self.schema.Meta.base_references,
             **self.schema.Meta.references,
         }
 
-        included_references = (
-            all_references
-        )
+        included_references = all_references
 
         for ref in included_references:
             result_rows = self._retrieve_references(
@@ -249,10 +261,9 @@ class DataManager:
             query += " FETCH NEXT ? ROWS ONLY"
             query_args.append(limit)
 
-        with pyodbc.connect(db_connection_settings, autocommit=False) as con:
-            cur = con.cursor()
-            result_rows = list(map(row_to_dict, cur.execute(query, *query_args)))
-            result_rows = self.schema().dump(result_rows, many=True)
+        result_rows = self.schema().dump(
+            self._run_query_result(query, query_args), many=True
+        )
 
         # Get references
         all_references = {
@@ -307,9 +318,7 @@ class DataManager:
                  WHERE {ref.my_col} in ({source_uuids})
                  """
 
-            with pyodbc.connect(db_connection_settings, autocommit=False) as con:
-                cur = con.cursor()
-                result_rows = list(map(row_to_dict, cur.execute(query)))
+            result_rows = self._run_query_result(query, [])
 
             row_map = defaultdict(list)
             for row in result_rows:
@@ -341,9 +350,7 @@ class DataManager:
                     SELECT {', '.join(included_fields)} from {ref.target_tablename} WHERE UUID IN ({target_uuids}) 
                     """
 
-            with pyodbc.connect(db_connection_settings, autocommit=False) as con:
-                cur = con.cursor()
-                result_rows = list(map(row_to_dict, cur.execute(query)))
+            result_rows = self._run_query_result(query, [])
 
             result_rows = ref.schema.dump(result_rows, many=True)
             row_map = {row["UUID"]: row for row in result_rows}
@@ -364,9 +371,7 @@ class DataManager:
                     ON b.UUID = a.{ref.their_col} 
                     WHERE {ref.my_col} IN ({source_uuids}) 
                     """
-            with pyodbc.connect(db_connection_settings, autocommit=False) as con:
-                cur = con.cursor()
-                result_rows = list(map(row_to_dict, cur.execute(query)))
+            result_rows = self._run_query_result(query, [])
 
             row_map = defaultdict(list)
             for row in result_rows:
@@ -460,10 +465,7 @@ class DataManager:
             query += " FETCH NEXT ? ROWS ONLY"
             query_args.append(limit)
 
-        with pyodbc.connect(db_connection_settings, autocommit=False) as con:
-            cur = con.cursor()
-            result_rows = list(map(row_to_dict, cur.execute(query, *query_args)))
-            result_rows = self.schema().dump(result_rows, many=True)
+        result_rows = self.schema().dump(self._run_query_result(query, query_args), many=True)
 
         all_references = {
             **self.schema.Meta.base_references,
@@ -588,10 +590,8 @@ class DataManager:
                 CONTAINSTABLE({self.schema.Meta.table}, *, ?) ct
                 INNER JOIN {self.valid_view} v ON ct.[KEY] = v.UUID
                 ORDER BY RANK DESC"""
-
-        with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
-            cursor = connection.cursor()
-            return list(map(row_to_dict, cursor.execute(search_query, args)))
+        result_rows = self._run_query_result(search_query, [args])
+        return result_rows
 
     def geo_search(self, query):
         """
@@ -653,7 +653,5 @@ class DataManager:
                 or_filter = " OR ".join([f"{ref_key} = ?" for _ in query_uuids])
                 search_query += "WHERE " + or_filter
 
-            with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
-                cursor = connection.cursor()
-                res = cursor.execute(search_query, query_uuids)
-                return list(map(row_to_dict, res))
+            result_rows = self.schema().dump(self._run_query_result(search_query, query_uuids), many=True)
+            return result_rows
