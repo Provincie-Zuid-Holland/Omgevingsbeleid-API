@@ -2,9 +2,10 @@
 
 <head>
     <!-- Load the latest Swagger UI code and style from npm using unpkg.com -->
-    <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+    <script src="./dist/swagger-ui-bundle.js" charset="UTF-8"></script>
+    <script src="./dist/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@3/swagger-ui.css" />
-    <title>Omgevingsbeleid API (dev, v2)</title>
+    <title>Omgevingsbeleid API</title>
 </head>
 
 <body>
@@ -14,16 +15,30 @@
         window.onload = function() {
             // Begin Swagger UI call region
             const ui = SwaggerUIBundle({
-                url: "https://api-obzh-dev.azurewebsites.net/v0.1/spec",
+                urls: [{
+                    url: 'https://api-obzh-dev.azurewebsites.net/v0.1/spec',
+                    name: 'dev'
+                }, {
+                    url: 'https://api-obzh-test.azurewebsites.net/v0.1/spec',
+                    name: 'test'
+                }, {
+                    url: 'https://api-obzh-acc.azurewebsites.net/v0.1/spec',
+                    name: 'acc'
+                }, {
+                    url: 'https://api-obzh.azurewebsites.net/v0.1/spec',
+                    name: 'prod'
+                }, ],
                 dom_id: '#swagger-ui',
-                deepLinking: true,
+                layout: "StandaloneLayout",
                 presets: [
                     SwaggerUIBundle.presets.apis,
-                    SwaggerUIBundle.SwaggerUIStandalonePreset
+                    SwaggerUIStandalonePreset
                 ],
                 plugins: [
+                    SwaggerUIBundle.plugins.Topbar,
                     SwaggerUIBundle.plugins.DownloadUrl
-                ],
+                ]
+
             })
             window.ui = ui
         }

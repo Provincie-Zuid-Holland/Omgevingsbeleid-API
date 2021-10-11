@@ -13,15 +13,9 @@
         },
         "version": "0.0.2"
     },
-    "servers": [
-        {
-            "url": "https://api-omgevingsbeleid-dev-v2.azurewebsites.net/v0.1/",
-            "description": "Development server"
-        }
-    ],
+    "servers": [],
     "components": {
-        "schemas": {
-        }
+        "schemas": {}
     },
     "paths": [],
     "security": []
