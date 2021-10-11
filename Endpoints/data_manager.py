@@ -135,6 +135,44 @@ class DataManager:
             cur.execute(query)
             con.commit()
 
+    def get_single(self, uuid):
+        """Retrieve a single version of an object of this type
+
+        Args:
+            uuid (string): the uuid of the target object
+        """
+
+        included_fields = ", ".join(
+            [field for field in self.schema().fields_without_props("referencelist")]
+        )
+
+        query = f"SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID = ?"
+
+        with pyodbc.connect(db_connection_settings, autocommit=False) as con:
+            cur = con.cursor()
+            result_rows = list(map(row_to_dict, cur.execute(query, uuid)))
+            if not result_rows:
+                return None
+            else:
+                result_rows = self.schema().dump(result_rows, many=True)
+        
+        # Get references
+        all_references = {
+            **self.schema.Meta.base_references,
+            **self.schema.Meta.references,
+        }
+
+        included_references = (
+            all_references
+        )
+
+        for ref in included_references:
+            result_rows = self._retrieve_references(
+                ref, included_references[ref], result_rows
+            )
+
+        return result_rows[0]
+
     def get_all(
         self,
         valid_only=False,
@@ -216,6 +254,7 @@ class DataManager:
             result_rows = list(map(row_to_dict, cur.execute(query, *query_args)))
             result_rows = self.schema().dump(result_rows, many=True)
 
+        # Get references
         all_references = {
             **self.schema.Meta.base_references,
             **self.schema.Meta.references,
@@ -320,14 +359,11 @@ class DataManager:
             included_fields.append(ref.my_col)
 
             query = f"""
-                    SELECT {', '.join(included_fields)} from {ref.link_tablename} 
-                    INNER JOIN ( SELECT * FROM (SELECT *,
-                        ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber]
-                        FROM All_Valid_{ref.their_tablename}) T WHERE RowNumber = 1) a
-                    ON a.UUID = {ref.their_col}
+                    SELECT {', '.join(included_fields)} from {ref.link_tablename} a
+                    INNER JOIN Valid_{ref.their_tablename} b
+                    ON b.UUID = a.{ref.their_col} 
                     WHERE {ref.my_col} IN ({source_uuids}) 
                     """
-
             with pyodbc.connect(db_connection_settings, autocommit=False) as con:
                 cur = con.cursor()
                 result_rows = list(map(row_to_dict, cur.execute(query)))
@@ -597,7 +633,9 @@ class DataManager:
                     INNER JOIN {ref.link_tablename} bw ON vbk.UUID = bw.{ref.my_col}
                 """
                 # generate OR filters:
-                or_filter = " OR ".join([f"bw.{ref.their_col} = ?" for _ in query_uuids])
+                or_filter = " OR ".join(
+                    [f"bw.{ref.their_col} = ?" for _ in query_uuids]
+                )
                 search_query += "WHERE " + or_filter
 
             if isinstance(ref, UUID_Reference):

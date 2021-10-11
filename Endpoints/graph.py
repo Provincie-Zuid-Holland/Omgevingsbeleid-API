@@ -62,11 +62,6 @@ def graphView():
                 "type": "Relatie",
             }
         )
-        print({
-                "source": br["Van_Beleidskeuze"]['UUID'],
-                "target": br["Naar_Beleidskeuze"]['UUID'],
-                "type": "Relatie",
-            })
 
     valid_links = []
     for link in links:

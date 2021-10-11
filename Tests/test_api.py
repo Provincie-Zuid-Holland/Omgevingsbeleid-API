@@ -392,13 +392,13 @@ def test_reverse_lookup(client, auth):
     """
     Test wether reverse lookups work and show the correct inlined objects
     """
-    # Create a new lineage of ambities
-    test_data = generate_data(
+    # Create a ambitie
+    ambitie_data = generate_data(
         ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop="excluded_post"
     )
 
     response = client.post(
-        "v0.1/ambities", json=test_data, headers={"Authorization": f"Bearer {auth[1]}"}
+        "v0.1/ambities", json=ambitie_data, headers={"Authorization": f"Bearer {auth[1]}"}
     )
     assert (
         response.status_code == 201
@@ -410,21 +410,22 @@ def test_reverse_lookup(client, auth):
     ambitie_id = response.get_json()["ID"]
     ambitie_uuid = response.get_json()["UUID"]
 
-    # Create a new lineage for a Beleidskeuze
-    test_data = generate_data(
+    # Create a new Beleidskeuze
+    beleidskeuze_data = generate_data(
         beleidskeuzes.Beleidskeuzes_Schema,
         user_UUID=auth[0],
         excluded_prop="excluded_post",
     )
     # Set ambities
-    test_data["Ambities"] = [
+    beleidskeuze_data["Ambities"] = [
         {"UUID": ambitie_uuid, "Koppeling_Omschrijving": "Test description"}
     ]
     # Set status
-    test_data["Status"] = "Vigerend"
+    beleidskeuze_data["Status"] = "Vigerend"
+    beleidskeuze_data["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
     response = client.post(
         "v0.1/beleidskeuzes",
-        json=test_data,
+        json=beleidskeuze_data,
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
     assert (
@@ -441,12 +442,14 @@ def test_reverse_lookup(client, auth):
     response = client.get(
         f"v0.1/ambities/{ambitie_id}", headers={"Authorization": f"Bearer {auth[1]}"}
     )
+
     assert (
         response.status_code == 200
     ), f"Status code for GET was {response.status_code}, should be 200. Body content: {response.json}"
+    
     assert (
         len(response.get_json()[0]["Ref_Beleidskeuzes"]) == 1
-    ), f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Ref_Beleidskeuzes']}"
+    ), f"Wrong amount of objects in reverse lookup field. Lookup field: {response.get_json()[0]['Ref_Beleidskeuzes']}"
 
     assert (
         response.get_json()[0]["Ref_Beleidskeuzes"][0]["UUID"] == beleidskeuze_uuid
@@ -839,7 +842,10 @@ def test_module_UUID(client, auth):
     test_module = generate_data(
         beleidsmodule.Beleidsmodule_Schema, excluded_prop="excluded_post"
     )
+    
+    test_module['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
     test_module["Beleidskeuzes"] = [{"UUID": new_uuid, "Koppeling_Omschrijving": ""}]
+
     response = client.post(
         "v0.1/beleidsmodules",
         json=test_module,
@@ -1046,3 +1052,39 @@ def test_graph(client, auth):
     assert found_2
 
     assert {"source": bk_1_UUID, "target": bk_2_UUID, "type": "Relatie"} in links
+
+def test_reverse_valid_check(client, auth):
+    amb = generate_data(
+        ambities.Ambities_Schema, excluded_prop="excluded_post"
+    )
+
+    response = client.post(
+        "v0.1/ambities",
+        json=amb,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 201
+    assert response.get_json()['Ref_Beleidskeuzes'] == [], "should be empty because nothing refers to this"
+
+    amb_uuid = response.get_json()['UUID']
+
+    bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk["Status"] = "Ontwerp GS Concept"
+    bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+    bk["Ambities"] = [{'UUID': amb_uuid, 'Koppeling_Omschrijving':''}]
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    assert response.status_code == 201, f'Failed to create beleidskeuze: {response.get_json()}'
+
+    response = client.get(f"v0.1/version/ambities/{amb_uuid}")
+    assert response.get_json()['Ref_Beleidskeuzes'] == [], "should be empty because beleidskeuze is not valid"
+    assert response.status_code == 200, f'Failed to get ambitie: {response.get_json()}'
+
+

@@ -414,23 +414,14 @@ class SingleVersion(Schema_Resource):
         """
         Get endpoint for a single object
         """
-        with pyodbc.connect(db_connection_settings) as connection:
-            cursor = connection.cursor()
-
-            # Retrieve all the fields we want to query
-            included_fields = ", ".join(
-                [field for field in self.schema().fields_without_props("referencelist")]
-            )
-
-            query = f"SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID = ?"
-            try:
-                result = get_objects(query, [uuid], self.schema(), cursor)
-            except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e), 500
-
+        manager = DataManager(self.schema)
+        try:
+            result = manager.get_single(uuid)
             if not result:
                 return handle_UUID_does_not_exists(uuid)
-            return (result[0]), 200
+            return result, 200
+        except MM.exceptions.ValidationError as e:
+            return handle_validation_exception(e), 500
 
 
 class Changes(Schema_Resource):
