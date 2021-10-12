@@ -14,7 +14,7 @@ from flask_restful import Api, Resource
 from Models import gebruikers, verordeningsstructuur
 import datamodel
 import Endpoints.endpoint
-from Auth.views import jwt_required_not_GET, login, tokenstat
+from Auth.views import jwt_required_not_GET, login, password_reset, tokenstat
 from Spec.spec import specView
 from Endpoints.search import search_view
 from Endpoints.graph import graphView
@@ -72,6 +72,10 @@ for schema in datamodel.endpoints:
 
 app.add_url_rule(f'/v{current_version}/login',
                  'login', login, methods=['POST'])
+
+app.add_url_rule(f'/v{current_version}/password-reset',
+                 'password-reset', password_reset, methods=['POST'])
+
 app.add_url_rule(f'/v{current_version}/tokeninfo',
                  'tokenstat', tokenstat, methods=['GET'])
 api.add_resource(gebruikers.Gebruiker, '/gebruikers',
