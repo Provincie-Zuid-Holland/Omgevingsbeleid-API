@@ -25,14 +25,10 @@ class DataManagerException(Exception):
 
 
 # TODO (sorted by prio):
-# - Graph view (only valids)
-# - Single object with auth
 # - Saving
 # - Refector reference merging
 # - Set up seperate tests for API & Data Manager
 
-# Should validation be a part of this? We do have the schemas here.
-# Catch errors in endpoint logic or here? What would determine that?
 # Effectivity -> becomes in effect (USA), Object that are in effect
 # Generate query conditions in schemas (responsibility)
 
@@ -465,7 +461,9 @@ class DataManager:
             query += " FETCH NEXT ? ROWS ONLY"
             query_args.append(limit)
 
-        result_rows = self.schema().dump(self._run_query_result(query, query_args), many=True)
+        result_rows = self.schema().dump(
+            self._run_query_result(query, query_args), many=True
+        )
 
         all_references = {
             **self.schema.Meta.base_references,
@@ -545,11 +543,30 @@ class DataManager:
 
             # Set up new search
             search_title_fields = self.schema.fields_with_props("search_title")
+            search_description_fields = self.schema.fields_with_props(
+                "search_description"
+            )
+
+            search_fields = []
+
             if search_title_fields:
-                field = search_title_fields[0]
+                assert (
+                    len(search_title_fields) == 1
+                ), f"More then one search_title field defined on object {self.schema.Meta.slug}"
+
+                search_fields.append(f"{search_title_fields[0]} Language 1043")
+
+            if search_description_fields:
+
+                search_description_fields = map(
+                    lambda f: f"{f} Language 1043", search_description_fields
+                )
+                search_fields += search_description_fields
+
+            if search_fields:
                 cur.execute(
                     f"""CREATE FULLTEXT INDEX ON {self.schema.Meta.table} (
-                                    {field} Language 1043
+                                    {', '.join(search_fields)}
                                 )
                                 KEY INDEX PK_{self.schema.Meta.table}
                                 ON {ftc_name}
@@ -579,18 +596,27 @@ class DataManager:
 
         args = " OR ".join([f'"{word}"' for word in query.split(" ")])
 
+        _title_fields = f"""({self.schema.fields_with_props("search_title")[0]})"""
+        _description_fields = f"""({', '.join((self.schema.fields_with_props("search_description")))})"""
+
         search_query = f"""
                         SELECT
                             v.UUID as UUID, 
                             {title_field} as Titel,
                             CONCAT_WS(' ', {', '.join(description_fields)}) as Omschrijving,
-                            RANK,
+                            CAST(FLOOR(f.WeightedRank) as int) as RANK,
                             '{self.schema.Meta.slug}' as Type
-                            FROM
-                CONTAINSTABLE({self.schema.Meta.table}, *, ?) ct
-                INNER JOIN {self.valid_view} v ON ct.[KEY] = v.UUID
-                ORDER BY RANK DESC"""
-        result_rows = self._run_query_result(search_query, [args])
+                            FROM {self.valid_view} v INNER JOIN 
+                            ( 
+                                SELECT [KEY], SUM(Rank) as WeightedRank FROM
+                                (
+                                SELECT Rank * 1 as Rank, [KEY] from CONTAINSTABLE({self.schema.Meta.table}, {_title_fields}, ?)
+                                    UNION
+                                SELECT Rank * 0.5 as Rank, [KEY] from CONTAINSTABLE({self.schema.Meta.table}, {_description_fields}, ?)
+                                ) as x GROUP BY [KEY]) as f
+                            ON f.[KEY] = v.UUID
+                            ORDER BY f.WeightedRank DESC"""
+        result_rows = self._run_query_result(search_query, [args, args])
         return result_rows
 
     def geo_search(self, query):
@@ -653,5 +679,7 @@ class DataManager:
                 or_filter = " OR ".join([f"{ref_key} = ?" for _ in query_uuids])
                 search_query += "WHERE " + or_filter
 
-            result_rows = self.schema().dump(self._run_query_result(search_query, query_uuids), many=True)
+            result_rows = self.schema().dump(
+                self._run_query_result(search_query, query_uuids), many=True
+            )
             return result_rows
