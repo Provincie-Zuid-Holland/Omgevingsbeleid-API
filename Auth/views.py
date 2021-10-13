@@ -29,13 +29,23 @@ def printTest(test):
     name = type(test).__name__.lower()
     count = test.args[0]
     if name == 'length':
-        return f'moet minimaal {count} karakters bevatten'
+        return f'minimaal {count} karakters bevatten'
     if name == 'uppercase':
-        return f'moet minimaal {count} hoofdletter(s) bevatten'
+        if count > 1:
+            return f'minimaal {count} hoofdletters bevatten'
+        else:
+            return f'minimaal {count} hoofdletter bevatten'
     if name == 'numbers':
-        return f'moet minimaal {count} nummer(s) bevatten'
+        if count > 1:
+            return f'minimaal {count} nummers bevatten'
+        else:
+            return f'minimaal {count} nummer bevatten'
+
     if name == 'special':
-        return f'moet minimaal {count} speciale karakter(s) bevatten'
+        if count > 1:
+            return f'minimaal {count} speciale karakters bevatten'
+        else:
+            return f'minimaal {count} speciaal karakter bevatten'
     
 
 
