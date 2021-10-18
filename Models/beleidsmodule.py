@@ -3,7 +3,7 @@
 
 import marshmallow as MM
 
-from Endpoints.endpoint import Base_Schema
+from Endpoints.base_schema import Base_Schema
 from Endpoints.references import UUID_Reference, UUID_List_Reference, UUID_Linker_Schema, ID_List_Reference
 from Endpoints.validators import HTML_Validate
 

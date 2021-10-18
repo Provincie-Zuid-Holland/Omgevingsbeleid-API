@@ -2,7 +2,7 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import marshmallow as MM
-from Endpoints.endpoint import Base_Schema
+from Endpoints.base_schema import Base_Schema
 from Endpoints.references import UUID_Reference
 from Endpoints.validators import HTML_Validate
 from Models.beleidskeuzes import Beleidskeuzes_Schema

@@ -14,7 +14,6 @@ from Endpoints.references import (
     UUID_List_Reference,
     ID_List_Reference,
     UUID_Reference,
-    merge_references,
 )
 from Endpoints.stopwords import stopwords
 from uuid import UUID
@@ -25,8 +24,6 @@ class DataManagerException(Exception):
 
 
 # TODO (sorted by prio):
-# - Saving
-# - Refector reference merging
 # - Set up seperate tests for API & Data Manager
 
 # Effectivity -> becomes in effect (USA), Object that are in effect
@@ -52,21 +49,30 @@ class DataManager:
                     f'Schema for manager does not define a field "{setting}"'
                 )
         self.latest_view = f"Latest_{self.schema.Meta.slug}"
+        self.all_latest_view = f"All_Latest_{self.schema.Meta.slug}"
         self.valid_view = f"Valid_{self.schema.Meta.slug}"
         self.all_valid_view = f"All_Valid_{self.schema.Meta.slug}"
 
     def _setup(self):
         """Creates all the necessary views and indices"""
         self._set_up_latest_view()
+        self._set_up_all_latest_view()
         self._set_up_valid_view()
         self._set_up_all_valid_view()
         self._set_up_search()
 
-    def _run_query_commit(self, query):
+    def _run_query_commit(self, query, values=[]):
         with pyodbc.connect(db_connection_settings, autocommit=True) as con:
             cur = con.cursor()
-            cur.execute(query)
+            result = cur.execute(query, *values)
             con.commit()
+        try:
+            return list(map(row_to_dict, result))
+        except pyodbc.DatabaseError as e:
+            if e.args[0] == 'No results.  Previous SQL was not a query.':
+                return None
+            else:
+                raise e
 
     def _set_up_all_valid_view(self):
         """
@@ -88,7 +94,7 @@ class DataManager:
 
     def _set_up_latest_view(self):
         """
-        Set up a view that shows the latest version for each lineage
+        Set up a view that shows the latest version for each lineage that is still valid
         """
         query = f"""
                     CREATE OR ALTER VIEW {self.latest_view} AS 
@@ -98,6 +104,22 @@ class DataManager:
                         FROM {self.schema.Meta.table}) T
                     WHERE RowNumber = 1 
                     AND Eind_Geldigheid > GETDATE()
+                    AND UUID != '00000000-0000-0000-0000-000000000000'
+                    """
+
+        self._run_query_commit(query)
+
+    def _set_up_all_latest_view(self):
+        """
+        Set up a view that shows the latest version for each lineage
+        """
+        query = f"""
+                    CREATE OR ALTER VIEW {self.all_latest_view} AS 
+                    SELECT * FROM 
+                        (SELECT *, 
+                        ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
+                        FROM {self.schema.Meta.table}) T
+                    WHERE RowNumber = 1 
                     AND UUID != '00000000-0000-0000-0000-000000000000'
                     """
 
@@ -144,7 +166,7 @@ class DataManager:
             result_rows = list(map(row_to_dict, cur.execute(query, *args)))
             return result_rows
 
-    def get_single(self, uuid):
+    def get_single_on_UUID(self, uuid):
         """Retrieve a single version of an object of this type
 
         Args:
@@ -162,6 +184,39 @@ class DataManager:
         result_rows = self.schema().dump(
             self._run_query_result(query, [uuid]), many=True
         )
+
+        if not result_rows:
+            return None
+
+        # Get references
+        all_references = {
+            **self.schema.Meta.base_references,
+            **self.schema.Meta.references,
+        }
+
+        included_references = all_references
+
+        for ref in included_references:
+            result_rows = self._retrieve_references(
+                ref, included_references[ref], result_rows
+            )
+
+        return result_rows[0]
+
+    def get_single_on_ID(self, id):
+        """Retrieve a single version of an object of this type
+
+        Args:
+            id (int): the id of the target object
+        """
+
+        included_fields = ", ".join(
+            [field for field in self.schema().fields_without_props("referencelist")]
+        )
+
+        query = f"SELECT {included_fields} FROM {self.all_latest_view} WHERE ID = ?"
+
+        result_rows = self.schema().dump(self._run_query_result(query, [id]), many=True)
 
         if not result_rows:
             return None
@@ -279,6 +334,25 @@ class DataManager:
             )
 
         return result_rows
+
+    def _store_references(self, obj_uuid, ref, ref_datalist):
+        """
+        Store the linked references
+
+        Args:
+            obj_uuid (string): the object uuid that this ref belongs to
+            ref (reference): A reference object
+            ref_datalist (list): The data to store
+
+        """
+        if isinstance(ref, UUID_List_Reference):
+            for ref_data in ref_datalist:
+                query = f"""
+                INSERT INTO {ref.link_tablename} ({ref.my_col}, {ref.their_col}, {ref.description_col}) VALUES (?, ?, ?)"""
+                self._run_query_commit(
+                    query,
+                    [obj_uuid, ref_data["UUID"], ref_data.get("Koppeling_Omschrijving") or ''],
+                )
 
     def _retrieve_references(self, fieldname, ref, source_rows):
         """
@@ -483,7 +557,7 @@ class DataManager:
 
         return result_rows
 
-    def save(self, data, id=None):
+    def save(self, data):
         """
         [summary]
 
@@ -491,7 +565,45 @@ class DataManager:
             data (dict): the data to save
             id (int, optional): The ID of the lineage to add to. Defaults to None.
         """
-        pass
+        all_references = {
+            **self.schema.Meta.base_references,
+            **self.schema.Meta.references,
+        }
+        reference_cache = {}
+        for ref in all_references:
+            # Remove all except UUID_References
+            if ref in data and not isinstance(all_references[ref], UUID_Reference):
+                reference_cache[ref] = data.pop(ref)
+
+        assert (
+            "UUID" not in data
+        ), "UUID can not be in data, it should be generated by the database"
+
+        column_names, values = tuple(zip(*data.items()))
+        parameter_marks = ", ".join(["?"] * len(column_names))
+        query = f"""INSERT INTO {self.schema.Meta.table} ({', '.join(column_names)}) OUTPUT inserted.UUID, inserted.ID VALUES ({parameter_marks})"""
+
+        res = self._run_query_commit(query, values)
+
+        output = res[0]
+
+        for ref in reference_cache:
+            self._store_references(
+                output["UUID"], all_references[ref], reference_cache[ref]
+            )
+
+        return self.get_single_on_UUID(output["UUID"])
+
+        # new_object = store_references(new_object, schema, cursor)
+
+        # # Up to here we have stored the references, and the object itself
+        # included_fields = ", ".join(
+        #     [field for field in schema().fields_without_props("referencelist")]
+        # )
+        # retrieve_query = (
+        #     f"""SELECT {included_fields} FROM {schema.Meta.table} WHERE UUID = ?"""
+        # )
+        # return get_objects(retrieve_query, [new_object["UUID"]], schema(), cursor)[0]
 
     def _set_up_search(self):
         """Creates the necessary indices for Full-Text-Search in SQL server, also adding stopwords to the database"""
@@ -597,7 +709,9 @@ class DataManager:
         args = " OR ".join([f'"{word}"' for word in query.split(" ")])
 
         _title_fields = f"""({self.schema.fields_with_props("search_title")[0]})"""
-        _description_fields = f"""({', '.join((self.schema.fields_with_props("search_description")))})"""
+        _description_fields = (
+            f"""({', '.join((self.schema.fields_with_props("search_description")))})"""
+        )
 
         search_query = f"""
                         SELECT

@@ -2,28 +2,16 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import datetime
-import re
-import pprint
 import marshmallow as MM
-from marshmallow.schema import Schema
 import pyodbc
-from flask import jsonify, request
+from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
-from globals import (
-    db_connection_settings,
-    max_datetime,
-    min_datetime,
-    null_uuid,
-    row_to_dict,
-)
 from Endpoints.data_manager import DataManager
-from Endpoints.base_schema import Base_Schema
 from Endpoints.errors import (
     handle_UUID_does_not_exists,
     handle_empty,
     handle_integrity_exception,
-    handle_no_status,
     handle_odbc_exception,
     handle_read_only,
     handle_validation_exception,
@@ -38,72 +26,11 @@ from Endpoints.errors import (
     handle_validation_filter_exception,
     handle_queryarg_exception,
 )
-from Endpoints.references import merge_references, store_references
+from Endpoints.references import (
+    Reverse_ID_Reference,
+    Reverse_UUID_Reference,
+)
 from Endpoints.comparison import compare_objects
-
-
-def save_object(new_object, schema, cursor):
-    """Saves an object to a table, retrieves and stores the generated values and return the object.
-
-    Args:
-        new_object (dict): The object to be stored
-        schema (marshmallow.Schema): The schema of the object
-        cursor (pyodbc.cursor): A cursor with an active database connection
-
-    Returns:
-        dict: The object that was stored, new values filled in
-    """
-    references = schema.fields_with_props("referencelist")
-    reference_cache = {}
-    for ref in references:
-        if ref in new_object:
-            reference_cache[ref] = new_object.pop(ref)
-
-    column_names, values = tuple(zip(*new_object.items()))
-    parameter_marks = ", ".join(["?"] * len(column_names))
-    query = f"""INSERT INTO {schema.Meta.table} ({', '.join(column_names)}) OUTPUT inserted.UUID, inserted.ID VALUES ({parameter_marks})"""
-    cursor.execute(query, *values)
-
-    output = cursor.fetchone()
-    new_object["UUID"] = output[0]
-    new_object["ID"] = output[1]
-
-    for ref in reference_cache:
-        new_object[ref] = reference_cache[ref]
-
-    new_object = store_references(new_object, schema, cursor)
-
-    # Up to here we have stored the references, and the object itself
-    included_fields = ", ".join(
-        [field for field in schema().fields_without_props("referencelist")]
-    )
-    retrieve_query = (
-        f"""SELECT {included_fields} FROM {schema.Meta.table} WHERE UUID = ?"""
-    )
-    return get_objects(retrieve_query, [new_object["UUID"]], schema(), cursor)[0]
-
-
-def get_objects(query, query_args, schema, cursor, inline=True):
-    """Retrieves objects using a given query
-
-    Args:
-        query (string): Sql query to use
-        query_args (list): Arguments to fill the query with (using '?' notation from PyODBC)
-        schema (marshmallow.Schema): The schema of the object
-        cursor (pyodbc.Cursor): A cursor with an active database connection
-
-    Returns:
-        list: A collection of objects that resulted out of the query
-    """
-    result_objecten = list(map(row_to_dict, cursor.execute(query, *query_args)))
-    result_objecten = schema.dump(result_objecten, many=True)
-
-    for obj in result_objecten:
-        obj = merge_references(obj, schema, cursor, inline)
-
-    return result_objecten
-
-
 class QueryArgError(Exception):
     pass
 
@@ -209,7 +136,7 @@ class Lineage(Schema_Resource):
         """
         PATCH endpoint for a lineage.
         """
-        if self.schema.Meta.read_only or self.schema.Meta.read_only:
+        if self.schema.Meta.read_only:
             return handle_read_only()
 
         if request.json is None:
@@ -223,47 +150,74 @@ class Lineage(Schema_Resource):
 
         request_time = datetime.datetime.now()
 
-        with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
-            cursor = connection.cursor()
+        try:
+            new_object = patch_schema.load(request.get_json())
+        except MM.exceptions.ValidationError as e:
+            return handle_validation_exception(e)
 
-            old_object = None
+        manager = DataManager(self.schema)
 
-            query = f"SELECT TOP(1) * FROM {self.schema.Meta.table} WHERE ID = ? ORDER BY Modified_Date DESC"
+        old_object = manager.get_single_on_ID(id)
 
-            old_objects = get_objects(query, [id], self.schema(), cursor, inline=False)
-            if not old_objects:
-                return handle_ID_does_not_exists(id)
+        if not old_object:
+            return handle_ID_does_not_exists(id)
 
-            old_object = old_objects[0]
+        all_references = {
+            **self.schema.Meta.base_references,
+            **self.schema.Meta.references,
+        }
 
-            try:
-                changes = patch_schema.load(request.json)
-            except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e)
+        
 
-            old_object = self.schema().load(old_object)
+        # Rewrite inlined references in patch format
+        for ref in all_references:
+            if ref in old_object:
+                # Remove reverse references
+                if isinstance(all_references[ref], Reverse_UUID_Reference) or isinstance(
+                    all_references[ref], Reverse_ID_Reference
+                ):
+                    old_object.pop(ref)
+                elif old_object[ref]:
+                    if type(old_object[ref]) is list:
 
-            for field in self.schema.fields_with_props("not_inherited"):
-                if field in old_object:
-                    old_object.pop(field)
+                        old_object[ref] = list(
+                            map(
+                                lambda r: {
+                                    "UUID": r["Object"]["UUID"],
+                                    "Koppeling_Omschrijving": r["Koppeling_Omschrijving"],
+                                }
+                                if "Object" in r
+                                else r,
+                                old_object[ref],
+                            )
+                        )
+                    else:
+                        old_object[ref] = old_object[ref]["UUID"]
+        
+        old_object = self.schema().load(old_object)
 
-            new_object = {**old_object, **changes}
+        try:
+            changes = patch_schema.load(request.json)
+        except MM.exceptions.ValidationError as e:
+            return handle_validation_exception(e)
 
-            new_object.pop("UUID")
-            new_object["Modified_Date"] = request_time
-            new_object["Modified_By"] = get_jwt_identity()["UUID"]
+        new_object = {**old_object, **changes}
+        new_object.pop("UUID")
+        new_object["Modified_Date"] = request_time
+        new_object["Modified_By"] = get_jwt_identity()["UUID"]
 
-            try:
-                new_object = save_object(new_object, self.schema, cursor)
-            except pyodbc.IntegrityError as e:
-                return handle_integrity_exception(e)
-            except pyodbc.DatabaseError as e:
-                return handle_odbc_exception(e)
-            except MM.ValidationError as e:
-                return handle_validation_exception(e)
+        if "Aanpassing_Op" in old_object and not "Aanpassing_Op" in changes:
+            new_object.pop("Aanpassing_Op")
 
-            connection.commit()
-            return new_object, 200
+        try:
+            saved_obj = manager.save(new_object)
+            return saved_obj, 200
+        except pyodbc.IntegrityError as e:
+            return handle_integrity_exception(e)
+        except pyodbc.DatabaseError as e:
+            return handle_odbc_exception(e), 500
+        except MM.exceptions.ValidationError as e:
+            return handle_validation_exception(e)
 
 
 class FullList(Schema_Resource):
@@ -303,10 +257,10 @@ class FullList(Schema_Resource):
         POST endpoint for this object.
         """
         if self.schema.Meta.read_only:
-            return handle_read_only
+            return handle_read_only()
 
         if request.json is None:
-            return handle_empty
+            return handle_empty()
 
         post_schema = self.schema(
             exclude=self.schema.fields_with_props("excluded_post"),
@@ -315,30 +269,27 @@ class FullList(Schema_Resource):
 
         request_time = datetime.datetime.now()
 
-        with pyodbc.connect(db_connection_settings, autocommit=False) as connection:
-            cursor = connection.cursor()
+        try:
+            new_object = post_schema.load(request.get_json())
+        except MM.exceptions.ValidationError as e:
+            return handle_validation_exception(e)
 
-            try:
-                new_object = post_schema.load(request.get_json())
-            except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e)
+        new_object["Created_By"] = get_jwt_identity()["UUID"]
+        new_object["Created_Date"] = request_time
+        new_object["Modified_Date"] = new_object["Created_Date"]
+        new_object["Modified_By"] = new_object["Created_By"]
 
-            new_object["Created_By"] = get_jwt_identity()["UUID"]
-            new_object["Created_Date"] = request_time
-            new_object["Modified_Date"] = new_object["Created_Date"]
-            new_object["Modified_By"] = new_object["Created_By"]
+        manager = DataManager(self.schema)
 
-            try:
-                new_object = save_object(new_object, self.schema, cursor)
-            except pyodbc.IntegrityError as e:
-                return handle_integrity_exception(e)
-            except pyodbc.DatabaseError as e:
-                return handle_odbc_exception(e), 500
-            except MM.exceptions.ValidationError as e:
-                return handle_validation_exception(e)
-
-            connection.commit()
-            return new_object, 201
+        try:
+            saved_obj = manager.save(new_object)
+            return saved_obj, 201
+        except pyodbc.IntegrityError as e:
+            return handle_integrity_exception(e)
+        except pyodbc.DatabaseError as e:
+            return handle_odbc_exception(e), 500
+        except MM.exceptions.ValidationError as e:
+            return handle_validation_exception(e)
 
 
 class ValidList(Schema_Resource):
@@ -416,7 +367,7 @@ class SingleVersion(Schema_Resource):
         """
         manager = DataManager(self.schema)
         try:
-            result = manager.get_single(uuid)
+            result = manager.get_single_on_UUID(uuid)
             if not result:
                 return handle_UUID_does_not_exists(uuid)
             return result, 200
@@ -433,33 +384,17 @@ class Changes(Schema_Resource):
         """
         Get endpoint for a single object
         """
-        with pyodbc.connect(db_connection_settings) as connection:
-            cursor = connection.cursor()
-
-            # Retrieve all the fields we want to query
-            included_fields = ", ".join(
-                [field for field in self.schema().fields_without_props("referencelist")]
-            )
-
-            query = f"SELECT {included_fields} FROM {self.schema().Meta.table} WHERE UUID IN (?, ?)"
-
-            both_obj = get_objects(query, [old_uuid, new_uuid], self.schema(), cursor)
-
-            old_object = None
-            new_object = None
-            for _obj in both_obj:
-                if _obj["UUID"] == old_uuid:
-                    old_object = _obj
-                if _obj["UUID"] == new_uuid:
-                    new_object = _obj
-
-            if not old_object:
+        manager = DataManager(self.schema)
+        old_object = manager.get_single_on_UUID(old_uuid)
+        new_object = manager.get_single_on_UUID(new_uuid)
+        
+        if not old_object:
                 return handle_UUID_does_not_exists(old_uuid)
-            if not new_object:
+        if not new_object:
                 return handle_UUID_does_not_exists(new_uuid)
-            return (
-                {
-                    "old": old_object,
-                    "changes": compare_objects(self.schema(), old_object, new_object),
-                }
-            ), 200
+        return (
+            {
+                "old": old_object,
+                "changes": compare_objects(self.schema(), old_object, new_object),
+            }
+        ), 200

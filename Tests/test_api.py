@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
-from datetime import timezone
+
 from Models import (
     beleidskeuzes,
     ambities,
@@ -12,8 +12,6 @@ from Models import (
     beleidsmodule,
 )
 import os
-import tempfile
-import json
 import pytest
 import pyodbc
 from globals import null_uuid
@@ -155,17 +153,17 @@ def test_modules(client, auth):
         json={"Titel": "Test"},
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
-    assert response.status_code == 201
+    assert response.status_code == 201, f"Response: {response.get_json()}"
 
     response = client.get(
         "v0.1/beleidsmodules", headers={"Authorization": f"Bearer {auth[1]}"}
     )
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Response: {response.get_json()}"
     assert len(response.get_json()) != 0
     assert "Maatregelen" in response.get_json()[0]
 
     response = client.get("v0.1/valid/beleidsmodules")
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Response: {response.get_json()}"
 
 
 def test_references(client, auth):
@@ -192,7 +190,7 @@ def test_references(client, auth):
         json={"Titel": "Changed Title TEST"},
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
-    assert response.status_code == 200, "Patch failed"
+    assert response.status_code == 200, f"Body content: {response.json}"
     response = client.get(ep)
     assert (
         response.get_json()[0]["Titel"] == "Changed Title TEST"
@@ -398,7 +396,9 @@ def test_reverse_lookup(client, auth):
     )
 
     response = client.post(
-        "v0.1/ambities", json=ambitie_data, headers={"Authorization": f"Bearer {auth[1]}"}
+        "v0.1/ambities",
+        json=ambitie_data,
+        headers={"Authorization": f"Bearer {auth[1]}"},
     )
     assert (
         response.status_code == 201
@@ -446,7 +446,7 @@ def test_reverse_lookup(client, auth):
     assert (
         response.status_code == 200
     ), f"Status code for GET was {response.status_code}, should be 200. Body content: {response.json}"
-    
+
     assert (
         len(response.get_json()[0]["Ref_Beleidskeuzes"]) == 1
     ), f"Wrong amount of objects in reverse lookup field. Lookup field: {response.get_json()[0]['Ref_Beleidskeuzes']}"
@@ -601,8 +601,7 @@ def test_multiple_filters(client, auth):
     test_data["Status"] = "Ontwerp PS"
     test_data["Afweging"] = "Test4325123$%"
     test_data["Titel"] = "Test4325123$%"
-    test_data['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
-
+    test_data["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
 
     response = client.post(
         ep, json=test_data, headers={"Authorization": f"Bearer {auth[1]}"}
@@ -619,7 +618,7 @@ def test_multiple_filters(client, auth):
     test_data["Status"] = "Ontwerp GS"
     test_data["Afweging"] = "Test4325123$%"
     test_data["Titel"] = "Anders"
-    test_data['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
+    test_data["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
 
     response = client.post(
         ep, json=test_data, headers={"Authorization": f"Bearer {auth[1]}"}
@@ -636,7 +635,7 @@ def test_multiple_filters(client, auth):
     test_data["Status"] = "Vigerend"
     test_data["Afweging"] = "Anders"
     test_data["Titel"] = "Test4325123$%"
-    test_data['Eind_Geldigheid'] = '9999-12-31T23:59:59Z'
+    test_data["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
 
     response = client.post(
         ep, json=test_data, headers={"Authorization": f"Bearer {auth[1]}"}
@@ -842,8 +841,8 @@ def test_module_UUID(client, auth):
     test_module = generate_data(
         beleidsmodule.Beleidsmodule_Schema, excluded_prop="excluded_post"
     )
-    
-    test_module['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
+
+    test_module["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
     test_module["Beleidskeuzes"] = [{"UUID": new_uuid, "Koppeling_Omschrijving": ""}]
 
     response = client.post(
@@ -1053,10 +1052,9 @@ def test_graph(client, auth):
 
     assert {"source": bk_1_UUID, "target": bk_2_UUID, "type": "Relatie"} in links
 
+
 def test_reverse_valid_check(client, auth):
-    amb = generate_data(
-        ambities.Ambities_Schema, excluded_prop="excluded_post"
-    )
+    amb = generate_data(ambities.Ambities_Schema, excluded_prop="excluded_post")
 
     response = client.post(
         "v0.1/ambities",
@@ -1064,16 +1062,18 @@ def test_reverse_valid_check(client, auth):
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
     assert response.status_code == 201
-    assert response.get_json()['Ref_Beleidskeuzes'] == [], "should be empty because nothing refers to this"
+    assert (
+        response.get_json()["Ref_Beleidskeuzes"] == []
+    ), "should be empty because nothing refers to this"
 
-    amb_uuid = response.get_json()['UUID']
+    amb_uuid = response.get_json()["UUID"]
 
     bk = generate_data(
         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
     )
     bk["Status"] = "Ontwerp GS Concept"
     bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-    bk["Ambities"] = [{'UUID': amb_uuid, 'Koppeling_Omschrijving':''}]
+    bk["Ambities"] = [{"UUID": amb_uuid, "Koppeling_Omschrijving": ""}]
 
     response = client.post(
         "v0.1/beleidskeuzes",
@@ -1081,10 +1081,12 @@ def test_reverse_valid_check(client, auth):
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
 
-    assert response.status_code == 201, f'Failed to create beleidskeuze: {response.get_json()}'
+    assert (
+        response.status_code == 201
+    ), f"Failed to create beleidskeuze: {response.get_json()}"
 
     response = client.get(f"v0.1/version/ambities/{amb_uuid}")
-    assert response.get_json()['Ref_Beleidskeuzes'] == [], "should be empty because beleidskeuze is not valid"
-    assert response.status_code == 200, f'Failed to get ambitie: {response.get_json()}'
-
-
+    assert (
+        response.get_json()["Ref_Beleidskeuzes"] == []
+    ), "should be empty because beleidskeuze is not valid"
+    assert response.status_code == 200, f"Failed to get ambitie: {response.get_json()}"
