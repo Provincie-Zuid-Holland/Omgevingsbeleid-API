@@ -117,3 +117,29 @@ def _field_to_ts(name, field_type, refs):
         else:
             raise (ValueError(f"Type not found! {type(field_type)}"))
     return f"\t {field_name}: {ts_type}; \n"
+
+
+def generate_markdown_view():
+    """This generates a markdown rendering of the datamodel"""
+    result = ""
+    schema_list = [*endpoints]
+    for ep in schema_list:
+        print(ep.Meta.slug)
+        result += f"### {ep.Meta.slug.capitalize()} \n| Veldnaam | Type | Opmerking | Verplicht | \n | --- | --- | --- | --- | \n"
+        for field, _type in ep().fields.items():
+            validatorstrf = ""
+            validators = _type.validate
+            if validators:
+                for val in validators:
+                    try:
+                        validatorstrf += f"Geldig: {val.choices},"
+                    except AttributeError:
+                        try:
+                            validatorstrf += f"Niet: {val.iterable},"
+                        except AttributeError:
+                            validatorstrf += f"HTML Validatie,"
+
+            
+            result += f"|{field} | {type(_type).__name__} | {validatorstrf} | {_type.required} |\n"
+        result += "\n"
+    return result

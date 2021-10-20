@@ -42,6 +42,12 @@ def setup_db():
     for schema in datamodel.endpoints:
         DataManager(schema)._setup() 
 
+@app.cli.command("datamodel-markdown")
+def dm_markdown():
+    with open('./datamodel.md', 'w') as mdfile:
+        mdfile.write(datamodel.generate_markdown_view())
+
+
 # JWT CONFIG
 @jwt.unauthorized_loader
 def custom_unauthorized_loader(reason):

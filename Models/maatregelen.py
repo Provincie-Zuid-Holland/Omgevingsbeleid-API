@@ -48,7 +48,7 @@ class Maatregelen_Schema(Base_Schema):
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
     Gebied_Duiding = MM.fields.Str(allow_none=True, missing="Indicatief",
-                                   validate=MM.validate.OneOf(["Indicatief", "Exact"]), obprops=[])
+                                   validate=[MM.validate.OneOf(["Indicatief", "Exact"])], obprops=[])
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
         missing=None, default=None, obprops=['excluded_post', 'not_inherited'])
