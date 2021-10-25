@@ -329,9 +329,12 @@ def test_null_eind_geldigheid(client, auth):
 
 
 def test_empty_referencelists(client, auth):
+    # Create a beleidskeuze
     ep = f"v0.1/beleidskeuzes"
+    
     empty_reference_beleidskeuze = copy.deepcopy(reference_rich_beleidskeuze)
     empty_reference_beleidskeuze["Ambities"] = []
+    
     response = client.post(
         ep,
         json=empty_reference_beleidskeuze,
@@ -350,11 +353,16 @@ def test_empty_referencelists(client, auth):
     assert response.get_json()["Ambities"] == [], "Ambities should be an empty list"
 
     ep = f"v0.1/ambities"
+
+    amb =generate_data(
+            ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop="excluded_patch"
+        )
+
+    amb['Eind_Geldigheid'] = '9999-12-12T23:59:59Z'
+
     response = client.post(
         ep,
-        json=generate_data(
-            ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop="excluded_patch"
-        ),
+        json=amb,
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
     new_uuid = response.get_json()["UUID"]
@@ -366,10 +374,13 @@ def test_empty_referencelists(client, auth):
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
 
+    
+
     assert len(response.get_json()["Ambities"]) == 1
     response = client.patch(
         ep, json={"Ambities": []}, headers={"Authorization": f"Bearer {auth[1]}"}
     )
+    
     assert len(response.get_json()["Ambities"]) == 0
 
 
@@ -394,6 +405,7 @@ def test_reverse_lookup(client, auth):
     ambitie_data = generate_data(
         ambities.Ambities_Schema, user_UUID=auth[0], excluded_prop="excluded_post"
     )
+    ambitie_data['Eind_Geldigheid'] = '9999-12-12T23:59:59Z'
 
     response = client.post(
         "v0.1/ambities",
@@ -877,6 +889,9 @@ def test_maatregelen_link(client, auth):
     test_ma = generate_data(
         maatregelen.Maatregelen_Schema, excluded_prop="excluded_post"
     )
+    test_ma["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+    test_ma["Status"] = "Vigerend"
+
     response = client.post(
         "v0.1/maatregelen", json=test_ma, headers={"Authorization": f"Bearer {auth[1]}"}
     )
@@ -985,10 +1000,7 @@ def test_non_valid_reference(client, auth):
         json=test_bk,
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
-    assert response.get_json()[0]["Maatregelen"], "references where empty"
-    assert (
-        response.get_json()[0]["Maatregelen"][0]["Object"]["UUID"] == ma_uuid
-    ), "Maatregel not linked"
+    assert len(response.get_json()[0]["Maatregelen"]) == 0, "references should be empty"
 
 
 def test_graph(client, auth):
@@ -1090,3 +1102,61 @@ def test_reverse_valid_check(client, auth):
         response.get_json()["Ref_Beleidskeuzes"] == []
     ), "should be empty because beleidskeuze is not valid"
     assert response.status_code == 200, f"Failed to get ambitie: {response.get_json()}"
+
+def test_future_links(client, auth):
+    amb = generate_data(ambities.Ambities_Schema, excluded_prop="excluded_post")
+    
+    future = datetime.datetime.now() + datetime.timedelta(days=2)
+    
+    amb["Begin_Geldigheid"] = future.strftime('%Y-%m-%dT%H:%M:%SZ')
+    amb["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+    response = client.post(
+        "v0.1/ambities",
+        json=amb,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 201
+    
+    
+
+    assert (
+        response.get_json()["Ref_Beleidskeuzes"] == []
+    ), "should be empty because nothing refers to this"
+
+    amb_uuid = response.get_json()["UUID"]
+
+    response = client.get(
+        "v0.1/valid/ambities",
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    assert(amb_uuid not in map(lambda ob: ob.get('UUID'), response.get_json()))
+
+    bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+
+    bk["Status"] = "Vigerend"
+    bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+    bk['Ambities'] = [{'UUID':amb_uuid}]
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    
+
+    assert response.status_code == 201
+    assert (
+        response.get_json()["Ambities"] == []
+    ), "Ambitie is not yet valid"
+
+    bk_uuid = response.get_json()['UUID']
+
+    response = client.get(f"v0.1/version/beleidskeuzes/{bk_uuid}")
+
+    assert (
+        response.get_json()["Ambities"] == []
+    ), "Ambitie is not yet valid"
+
