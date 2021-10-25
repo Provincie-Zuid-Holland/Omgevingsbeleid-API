@@ -384,6 +384,7 @@ class DataManager:
             included_fields.append(ref.my_col)
 
             source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
+            # Query from the Valid view, so only valid objects get inlined.
             query = f"""
                  SELECT {", ".join(included_fields)}, {ref.description_col} FROM {ref.link_tablename} a
                  JOIN Valid_{ref.their_tablename} b ON b.UUID = {ref.their_col}
