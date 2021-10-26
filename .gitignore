@@ -10,5 +10,6 @@ search-date.json
 .azure/
 settings.py
 ._env
+._env_*
 .pytest_cache/
 .coverage
