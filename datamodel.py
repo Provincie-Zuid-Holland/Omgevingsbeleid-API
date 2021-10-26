@@ -124,7 +124,6 @@ def generate_markdown_view():
     result = ""
     schema_list = [*endpoints]
     for ep in schema_list:
-        print(ep.Meta.slug)
         result += f"### {ep.Meta.slug.capitalize()} \n| Veldnaam | Type | Opmerking | Verplicht | \n | --- | --- | --- | --- | \n"
         for field, _type in ep().fields.items():
             validatorstrf = ""

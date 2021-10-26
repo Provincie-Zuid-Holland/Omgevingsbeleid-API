@@ -64,14 +64,12 @@ class DataManager:
         self._set_up_search()
 
     def _run_query_commit(self, query, values=[]):
-        print(query)
         with pyodbc.connect(db_connection_settings, autocommit=True) as con:
             cur = con.cursor()
             result = cur.execute(query, *values)
         try:
             return list(map(row_to_dict, result.fetchall()))
         except pyodbc.DatabaseError as e:
-            print(query)
             if e.args[0] == 'No results.  Previous SQL was not a query.':
                 return None
             else:
