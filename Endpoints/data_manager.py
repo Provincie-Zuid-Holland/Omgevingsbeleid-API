@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 from collections import defaultdict
+from marshmallow import schema
 import pyodbc
+from Endpoints.base_schema import Base_Schema
 from globals import (
     db_connection_settings,
     row_to_dict,
@@ -382,12 +384,13 @@ class DataManager:
             included_fields.append(ref.my_col)
 
             source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
+            # Query from the Valid view, so only valid objects get inlined.
             query = f"""
-                 SELECT {", ".join(included_fields)}, {ref.description_col} FROM {ref.link_tablename}
-                 LEFT JOIN {ref.their_tablename} ON {ref.their_tablename}.UUID = {ref.their_col}
-                 WHERE {ref.my_col} in ({source_uuids})
+                 SELECT {", ".join(included_fields)}, {ref.description_col} FROM {ref.link_tablename} a
+                 JOIN Valid_{ref.their_tablename} b ON b.UUID = {ref.their_col}
+                 WHERE a.{ref.my_col} in ({source_uuids})
                  """
-
+            
             result_rows = self._run_query_result(query, [])
 
             row_map = defaultdict(list)
@@ -413,11 +416,15 @@ class DataManager:
                 [f"'{row[fieldname]}'" for row in source_rows if row.get(fieldname)]
             )
 
+            # If this inherits from base_schema we can ask for valid objects
+            # target_tn =  f'Valid_{ref.target_tablename}' if isinstance(ref.schema, Base_Schema) else ref.target_tablename
+            target_tn = ref.target_tablename
+
             if not target_uuids:
                 return source_rows
 
             query = f"""
-                    SELECT {', '.join(included_fields)} from {ref.target_tablename} WHERE UUID IN ({target_uuids}) 
+                    SELECT {', '.join(included_fields)} from {target_tn} WHERE UUID IN ({target_uuids}) 
                     """
 
             result_rows = self._run_query_result(query, [])
