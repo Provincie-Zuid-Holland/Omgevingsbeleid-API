@@ -69,7 +69,7 @@ class DataManager:
             result = cur.execute(query, *values)
             con.commit()
         try:
-            return list(map(row_to_dict, result))
+            return list(map(row_to_dict, result.fetchall()))
         except pyodbc.DatabaseError as e:
             if e.args[0] == 'No results.  Previous SQL was not a query.':
                 return None
