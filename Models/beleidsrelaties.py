@@ -15,7 +15,7 @@ class Beleidsrelaties_Schema(Base_Schema):
     Naar_Beleidskeuze = MM.fields.UUID(
         required=True, allow_none=False, validate=[MM.validate.NoneOf([null_uuid, ])], obprops=['short'])
     Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_field', 'short'])
-    Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_field'])
+    Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_field', 'short'])
     Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf(
         ['Open', 'Akkoord', 'NietAkkoord', 'Verbroken'])], obprops=['short'])
     Aanvraag_Datum = MM.fields.DateTime(
