@@ -39,8 +39,11 @@ jwt = JWTManager(app)
 # DATABASE SETUP
 @app.cli.command("setup-db")
 def setup_db():
+    print('Setting up database views')
     for schema in datamodel.endpoints:
+        print(f'Updating views for {schema.Meta.slug}...')
         DataManager(schema)._setup() 
+    print('Done updating views')
 
 @app.cli.command("datamodel-markdown")
 def dm_markdown():
