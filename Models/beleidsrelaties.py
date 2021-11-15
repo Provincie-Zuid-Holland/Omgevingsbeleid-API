@@ -25,7 +25,7 @@ class Beleidsrelaties_Schema(Base_Schema):
     class Meta(Base_Schema.Meta):
         slug = 'beleidsrelaties'
         table = 'Beleidsrelaties'
-        read_only = False
+        read_only = True
         ordered = True
         searchable = False
         references = {
