@@ -20,6 +20,7 @@ import Models.beleidsregels
 import Models.maatregelen
 import Models.verordeningen
 from Models.short_schemas import Short_Beleidsmodule_Schema
+from Models.short_schemas import Short_Beleidskeuze_Schema
 class Beleidskeuzes_Schema(Base_Schema):
     Eigenaar_1 = MM.fields.UUID(
         default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
@@ -79,6 +80,8 @@ class Beleidskeuzes_Schema(Base_Schema):
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Werkingsgebieden = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Beleidskeuzes = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Ref_Beleidsmodules = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
 
@@ -104,6 +107,7 @@ class Beleidskeuzes_Schema(Base_Schema):
             'Themas': UUID_List_Reference('Beleidskeuze_Themas', 'Themas', 'Beleidskeuze_UUID', 'Thema_UUID', 'Koppeling_Omschrijving', Models.themas.Themas_Schema),
             'Verordeningen': UUID_List_Reference('Beleidskeuze_Verordeningen', 'Verordeningen', 'Beleidskeuze_UUID', 'Verordening_UUID', 'Koppeling_Omschrijving', Models.verordeningen.Verordeningen_Schema),
             'Werkingsgebieden': UUID_List_Reference('Beleidskeuze_Werkingsgebieden', 'Werkingsgebieden', 'Beleidskeuze_UUID', 'Werkingsgebied_UUID', 'Koppeling_Omschrijving', Models.werkingsgebieden.Werkingsgebieden_Schema),
+            'Beleidskeuzes': UUID_List_Reference('Beleidsrelaties', 'Beleidskeuzes', 'Van_Beleidskeuze', 'Naar_Beleidskeuze', 'Omschrijving', Short_Beleidskeuze_Schema),
             'Ref_Beleidsmodules': Reverse_UUID_Reference('Beleidsmodule_Beleidskeuzes', 'Beleidsmodules', 'Beleidskeuze_UUID', 'Beleidsmodule_UUID', 'Koppeling_Omschrijving', Short_Beleidsmodule_Schema)
         }
         status_conf = ('Status', 'Vigerend')
