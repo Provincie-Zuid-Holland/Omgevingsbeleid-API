@@ -798,8 +798,6 @@ class DataManager:
                 # generate OR filters:
                 or_filter = " OR ".join([f"{ref_key} = ?" for _ in query_uuids])
                 search_query += "WHERE " + or_filter
-
-            result_rows = self.schema().dump(
-                self._run_query_result(search_query, query_uuids), many=True
-            )
+            
+            result_rows = self._run_query_result(search_query, query_uuids)
             return result_rows
