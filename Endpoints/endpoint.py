@@ -5,7 +5,7 @@ import datetime
 import marshmallow as MM
 import pyodbc
 from flask import request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required, NoAuthorizationError
 from flask_restful import Resource
 from Endpoints.data_manager import DataManager
 from Endpoints.errors import (
@@ -31,6 +31,8 @@ from Endpoints.references import (
     Reverse_UUID_Reference,
 )
 from Endpoints.comparison import compare_objects
+
+
 class QueryArgError(Exception):
     pass
 
@@ -167,15 +169,13 @@ class Lineage(Schema_Resource):
             **self.schema.Meta.references,
         }
 
-        
-
         # Rewrite inlined references in patch format
         for ref in all_references:
             if ref in old_object:
                 # Remove reverse references
-                if isinstance(all_references[ref], Reverse_UUID_Reference) or isinstance(
-                    all_references[ref], Reverse_ID_Reference
-                ):
+                if isinstance(
+                    all_references[ref], Reverse_UUID_Reference
+                ) or isinstance(all_references[ref], Reverse_ID_Reference):
                     old_object.pop(ref)
                 elif old_object[ref]:
                     if type(old_object[ref]) is list:
@@ -184,7 +184,9 @@ class Lineage(Schema_Resource):
                             map(
                                 lambda r: {
                                     "UUID": r["Object"]["UUID"],
-                                    "Koppeling_Omschrijving": r["Koppeling_Omschrijving"],
+                                    "Koppeling_Omschrijving": r[
+                                        "Koppeling_Omschrijving"
+                                    ],
                                 }
                                 if "Object" in r
                                 else r,
@@ -193,7 +195,7 @@ class Lineage(Schema_Resource):
                         )
                     else:
                         old_object[ref] = old_object[ref]["UUID"]
-        
+
         old_object = self.schema().load(old_object)
 
         try:
@@ -360,17 +362,26 @@ class SingleVersion(Schema_Resource):
     """
     This represents a single version of an object, identified by it's UUID.
     """
-
+    @jwt_required(optional=True)
     def get(self, uuid):
         """
         Get endpoint for a single object
         """
         manager = DataManager(self.schema)
+       
         try:
             result = manager.get_single_on_UUID(uuid)
             if not result:
                 return handle_UUID_does_not_exists(uuid)
-            return result, 200
+            
+            if not self.schema.Meta.protected_field_values:
+                return result, 200
+            else:
+                for key, values in self.schema.Meta.protected_field_values.items():
+                    if result[key] in values:
+                        if not get_jwt_identity():
+                            return NoAuthorizationError
+                return result, 200
         except MM.exceptions.ValidationError as e:
             return handle_validation_exception(e), 500
 
@@ -384,14 +395,15 @@ class Changes(Schema_Resource):
         """
         Get endpoint for a single object
         """
+
         manager = DataManager(self.schema)
         old_object = manager.get_single_on_UUID(old_uuid)
         new_object = manager.get_single_on_UUID(new_uuid)
-        
+
         if not old_object:
-                return handle_UUID_does_not_exists(old_uuid)
+            return handle_UUID_does_not_exists(old_uuid)
         if not new_object:
-                return handle_UUID_does_not_exists(new_uuid)
+            return handle_UUID_does_not_exists(new_uuid)
         return (
             {
                 "old": old_object,

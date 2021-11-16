@@ -33,7 +33,7 @@ class Short_Base_Schema(MM.Schema):
         status_conf = None
         graph_conf = None
         geo_searchable = None
-
+        protected_field_values = None # Dictionary with keys and values that represent objects that only a logged in user can see
 
     def minmax_datetime(self, data):
         if 'Begin_Geldigheid' in data and data['Begin_Geldigheid'] == min_datetime.replace(tzinfo=datetime.timezone.utc).isoformat():

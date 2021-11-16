@@ -108,3 +108,4 @@ class Beleidskeuzes_Schema(Base_Schema):
         }
         status_conf = ('Status', 'Vigerend')
         graph_conf = 'Titel'
+        protected_field_values = {'Status': ['Ontwerp GS concept', 'Definitief ontwerp GS concept']}
