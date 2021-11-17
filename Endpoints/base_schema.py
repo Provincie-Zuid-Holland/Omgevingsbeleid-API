@@ -114,7 +114,7 @@ class Short_Base_Schema(MM.Schema):
     
     @classmethod
     def check_permissions(cls, data, user=None):
-        """[summary]
+        """This function will run when a user tries to request a single version of an object
 
         Args:
             data (dict): The data of the objects the user requests
