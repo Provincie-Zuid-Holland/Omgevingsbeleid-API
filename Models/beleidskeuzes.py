@@ -20,18 +20,8 @@ import Models.beleidsregels
 import Models.maatregelen
 import Models.verordeningen
 from Models.short_schemas import Short_Beleidsmodule_Schema
-class Beleidskeuzes_Schema(Base_Schema):
-    Eigenaar_1 = MM.fields.UUID(
-        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
-    Eigenaar_2 = MM.fields.UUID(
-        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
-    Portefeuillehouder_1 = MM.fields.UUID(
-        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
-    Portefeuillehouder_2 = MM.fields.UUID(
-        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
-    Opdrachtgever = MM.fields.UUID(
-        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
-    Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf([
+
+status_options = [
         "Definitief ontwerp GS",
         "Definitief ontwerp GS concept",
         "Definitief ontwerp PS",
@@ -43,7 +33,19 @@ class Beleidskeuzes_Schema(Base_Schema):
         "Uitgecheckt",
         "Vastgesteld",
         "Vigerend",
-        "Vigerend gearchiveerd"])],
+        "Vigerend gearchiveerd"]
+class Beleidskeuzes_Schema(Base_Schema):
+    Eigenaar_1 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
+    Eigenaar_2 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
+    Portefeuillehouder_1 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Portefeuillehouder_2 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Opdrachtgever = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf(status_options)],
         obprops=['short'])
     Titel = MM.fields.Str(required=True, obprops=['search_title', 'short'])
     Omschrijving_Keuze = MM.fields.Str(
@@ -81,6 +83,9 @@ class Beleidskeuzes_Schema(Base_Schema):
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Ref_Beleidsmodules = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
+    Laatste_UUID = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated_field'])
+    Laatste_Status = MM.fields.Str(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated_field'], validate=[MM.validate.OneOf(status_options)])
+    Vigerend_UUID = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated_field'])
 
     class Meta(Base_Schema.Meta):
         slug = 'beleidskeuzes'
