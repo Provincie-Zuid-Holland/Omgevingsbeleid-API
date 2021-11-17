@@ -5,7 +5,8 @@ import datetime
 import marshmallow as MM
 import pyodbc
 from flask import request
-from flask_jwt_extended import get_jwt_identity, jwt_required, NoAuthorizationError
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended.exceptions import NoAuthorizationError
 from flask_restful import Resource
 from Endpoints.data_manager import DataManager
 from Endpoints.errors import (
@@ -133,7 +134,7 @@ class Lineage(Schema_Resource):
         else:
             return handle_ID_does_not_exists(id)
 
-    @jwt_required
+    @jwt_required()
     def patch(self, id):
         """
         PATCH endpoint for a lineage.
@@ -228,7 +229,7 @@ class FullList(Schema_Resource):
     showing the latests version of each object's lineage.
     """
 
-    @jwt_required
+    @jwt_required()
     def get(self):
         """
         GET endpoint for a list of objects, shows the last object for each lineage
@@ -253,11 +254,12 @@ class FullList(Schema_Resource):
 
         return result_rows, 200
 
-    @jwt_required
+    @jwt_required()
     def post(self):
         """
         POST endpoint for this object.
         """
+
         if self.schema.Meta.read_only:
             return handle_read_only()
 
@@ -362,26 +364,24 @@ class SingleVersion(Schema_Resource):
     """
     This represents a single version of an object, identified by it's UUID.
     """
+
     @jwt_required(optional=True)
     def get(self, uuid):
         """
         Get endpoint for a single object
         """
         manager = DataManager(self.schema)
-       
+
         try:
             result = manager.get_single_on_UUID(uuid)
-            if not result:
-                return handle_UUID_does_not_exists(uuid)
-            
-            if not self.schema.Meta.protected_field_values:
-                return result, 200
-            else:
-                for key, values in self.schema.Meta.protected_field_values.items():
-                    if result[key] in values:
-                        if not get_jwt_identity():
-                            return NoAuthorizationError
-                return result, 200
+            # if not result:
+            #     return handle_UUID_does_not_exists(uuid)
+
+            # if self.schema(result, get_jwt_identity()):
+            return result, 200
+            # else:
+            #     return NoAuthorizationError
+
         except MM.exceptions.ValidationError as e:
             return handle_validation_exception(e), 500
 

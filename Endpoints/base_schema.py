@@ -33,7 +33,7 @@ class Short_Base_Schema(MM.Schema):
         status_conf = None
         graph_conf = None
         geo_searchable = None
-        protected_field_values = None # Dictionary with keys and values that represent objects that only a logged in user can see
+
 
     def minmax_datetime(self, data):
         if 'Begin_Geldigheid' in data and data['Begin_Geldigheid'] == min_datetime.replace(tzinfo=datetime.timezone.utc).isoformat():
@@ -111,6 +111,19 @@ class Short_Base_Schema(MM.Schema):
                 if not in_data['Eind_Geldigheid']:
                     in_data['Eind_Geldigheid'] = max_datetime.replace(tzinfo=datetime.timezone.utc)
         return in_data
+    
+    @classmethod
+    def check_permissions(cls, data, user=None):
+        """[summary]
+
+        Args:
+            data (dict): The data of the objects the user requests
+            user (dict): The user representation
+
+        Returns:
+            bool: wether this user is authorized to see this data
+        """
+        return True #Default
 
     @classmethod
     def fields_with_props(cls, prop):

@@ -7,8 +7,8 @@ from flask_jwt_extended import (
     decode_token,
     get_jwt_identity,
     jwt_required,
-    get_raw_jwt,
     verify_jwt_in_request,
+    get_jwt,
 )
 from passlib.hash import bcrypt
 from globals import db_connection_settings, row_to_dict
@@ -25,29 +25,28 @@ policy = PasswordPolicy.from_names(
     special=1,
 )
 
+
 def printTest(test):
     name = type(test).__name__.lower()
     count = test.args[0]
-    if name == 'length':
-        return f'minimaal {count} karakters bevatten'
-    if name == 'uppercase':
+    if name == "length":
+        return f"minimaal {count} karakters bevatten"
+    if name == "uppercase":
         if count > 1:
-            return f'minimaal {count} hoofdletters bevatten'
+            return f"minimaal {count} hoofdletters bevatten"
         else:
-            return f'minimaal {count} hoofdletter bevatten'
-    if name == 'numbers':
+            return f"minimaal {count} hoofdletter bevatten"
+    if name == "numbers":
         if count > 1:
-            return f'minimaal {count} nummers bevatten'
+            return f"minimaal {count} nummers bevatten"
         else:
-            return f'minimaal {count} nummer bevatten'
+            return f"minimaal {count} nummer bevatten"
 
-    if name == 'special':
+    if name == "special":
         if count > 1:
-            return f'minimaal {count} speciale karakters bevatten'
+            return f"minimaal {count} speciale karakters bevatten"
         else:
-            return f'minimaal {count} speciaal karakter bevatten'
-    
-
+            return f"minimaal {count} speciaal karakter bevatten"
 
 
 def login():
@@ -81,16 +80,14 @@ def login():
                 access_token = create_access_token(identity=identity_result)
                 raw_token = decode_token(access_token)
                 return (
-                    jsonify(
-                        {
-                            "access_token": access_token,
-                            "expires": time.strftime(
-                                "%Y-%m-%dT%H:%M:%SZ", time.localtime(raw_token["exp"])
-                            ),
-                            "identifier": raw_token["identity"],
-                            "deployment type": os.getenv("API_ENV"),
-                        }
-                    ),
+                    {
+                        "access_token": access_token,
+                        "expires": time.strftime(
+                            "%Y-%m-%dT%H:%M:%SZ", time.localtime(raw_token["exp"])
+                        ),
+                        "identifier": raw_token["sub"],
+                        "deployment type": os.getenv("API_ENV"),
+                    },
                     200,
                 )
     return jsonify({"message": "Wachtwoord of gebruikersnaam ongeldig"}), 401
@@ -106,7 +103,10 @@ def password_reset():
         return jsonify({"message": "new_password parameter not found"}), 400
     else:
         if errors := policy.test(new_password):
-            return {'message':'Password does not meet requirements', 'errors':list(map(printTest ,errors))}, 400
+            return {
+                "message": "Password does not meet requirements",
+                "errors": list(map(printTest, errors)),
+            }, 400
 
         with pyodbc.connect(db_connection_settings) as connection:
             cursor = connection.cursor()
@@ -134,7 +134,7 @@ def password_reset():
 
 @jwt_required
 def tokenstat():
-    raw_jwt = get_raw_jwt()
+    raw_jwt = get_jwt()
     return jsonify(
         {
             "identifier": get_jwt_identity(),
