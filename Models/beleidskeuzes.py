@@ -112,4 +112,10 @@ class Beleidskeuzes_Schema(Base_Schema):
         }
         status_conf = ('Status', 'Vigerend')
         graph_conf = 'Titel'
-        protected_field_values = {'Status': ['Ontwerp GS concept', 'Definitief ontwerp GS concept']}
+    
+    @classmethod
+    def check_permissions(cls, data, user=None):
+        if not user and data['Status'] in ['Ontwerp GS Concept', 'Definitief ontwerp GS Concept']:
+            return False
+        else:
+            return super().check_permissions(data, user=user)

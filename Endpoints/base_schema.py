@@ -123,7 +123,7 @@ class Short_Base_Schema(MM.Schema):
         Returns:
             bool: wether this user is authorized to see this data
         """
-        return True #Default
+        return True # Default
 
     @classmethod
     def fields_with_props(cls, prop):

@@ -374,13 +374,13 @@ class SingleVersion(Schema_Resource):
 
         try:
             result = manager.get_single_on_UUID(uuid)
-            # if not result:
-            #     return handle_UUID_does_not_exists(uuid)
+            if not result:
+                return handle_UUID_does_not_exists(uuid)
 
-            # if self.schema(result, get_jwt_identity()):
-            return result, 200
-            # else:
-            #     return NoAuthorizationError
+            if self.schema.check_permissions(result, get_jwt_identity()):
+                return result, 200
+            else:
+                raise NoAuthorizationError
 
         except MM.exceptions.ValidationError as e:
             return handle_validation_exception(e), 500
