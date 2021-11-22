@@ -376,19 +376,27 @@ class DataManager:
         except AttributeError:
             # This is for objects that are not inheriting from base_schema (probably an user object)
             included_fields = ref.schema.fields
+        
 
         if isinstance(ref, UUID_List_Reference) or isinstance(ref, ID_List_Reference):
+            
+            # Prepare for join query
+            included_fields = [f'b.{field}' for field in included_fields]
+
             # Also query for the reference row (my column) in order to add the results to the correct objects
             included_fields.append(ref.my_col)
 
             source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
             # Query from the Valid view, so only valid objects get inlined.
+            
+            
+
             query = f"""
                  SELECT {", ".join(included_fields)}, {ref.description_col} FROM {ref.link_tablename} a
                  JOIN Valid_{ref.their_tablename} b ON b.UUID = {ref.their_col}
                  WHERE a.{ref.my_col} in ({source_uuids})
                  """
-            
+
             result_rows = self._run_query_result(query, [])
 
             row_map = defaultdict(list)
