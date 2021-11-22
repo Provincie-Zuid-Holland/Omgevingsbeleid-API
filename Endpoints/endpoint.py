@@ -31,6 +31,8 @@ from Endpoints.references import (
     Reverse_UUID_Reference,
 )
 from Endpoints.comparison import compare_objects
+
+
 class QueryArgError(Exception):
     pass
 
@@ -111,7 +113,7 @@ class Lineage(Schema_Resource):
         try:
             q_args = parse_query_args(
                 request.args,
-                self.schema().fields_without_props("referencelist"),
+                self.schema().fields_without_props(["referencelist"]),
                 self.schema(partial=True),
             )
         except QueryArgError as e:
@@ -121,7 +123,7 @@ class Lineage(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
 
         result_rows = manager.get_lineage(
             id, False, q_args["any_filters"], q_args["all_filters"], False
@@ -143,7 +145,7 @@ class Lineage(Schema_Resource):
             return handle_empty()
 
         patch_schema = self.schema(
-            exclude=self.schema.fields_with_props("exluded_patch"),
+            exclude=self.schema.fields_with_props(["excluded_patch"]),
             unknown=MM.RAISE,
             partial=True,
         )
@@ -151,14 +153,14 @@ class Lineage(Schema_Resource):
         request_time = datetime.datetime.now()
 
         try:
-            new_object = patch_schema.load(request.get_json())
+            changes = patch_schema.load(request.get_json())
         except MM.exceptions.ValidationError as e:
             return handle_validation_exception(e)
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
 
         old_object = manager.get_single_on_ID(id)
-
+        
         if not old_object:
             return handle_ID_does_not_exists(id)
 
@@ -167,15 +169,13 @@ class Lineage(Schema_Resource):
             **self.schema.Meta.references,
         }
 
-        
-
         # Rewrite inlined references in patch format
         for ref in all_references:
             if ref in old_object:
                 # Remove reverse references
-                if isinstance(all_references[ref], Reverse_UUID_Reference) or isinstance(
-                    all_references[ref], Reverse_ID_Reference
-                ):
+                if isinstance(
+                    all_references[ref], Reverse_UUID_Reference
+                ) or isinstance(all_references[ref], Reverse_ID_Reference):
                     old_object.pop(ref)
                 elif old_object[ref]:
                     if type(old_object[ref]) is list:
@@ -184,7 +184,9 @@ class Lineage(Schema_Resource):
                             map(
                                 lambda r: {
                                     "UUID": r["Object"]["UUID"],
-                                    "Koppeling_Omschrijving": r["Koppeling_Omschrijving"],
+                                    "Koppeling_Omschrijving": r[
+                                        "Koppeling_Omschrijving"
+                                    ],
                                 }
                                 if "Object" in r
                                 else r,
@@ -193,13 +195,8 @@ class Lineage(Schema_Resource):
                         )
                     else:
                         old_object[ref] = old_object[ref]["UUID"]
-        
-        old_object = self.schema().load(old_object)
 
-        try:
-            changes = patch_schema.load(request.json)
-        except MM.exceptions.ValidationError as e:
-            return handle_validation_exception(e)
+        old_object = self.schema(exclude=self.schema.fields_with_props(["calculated"])).load(old_object)
 
         new_object = {**old_object, **changes}
         new_object.pop("UUID")
@@ -234,7 +231,7 @@ class FullList(Schema_Resource):
         try:
             q_args = parse_query_args(
                 request.args,
-                self.schema().fields_without_props("referencelist"),
+                self.schema().fields_without_props(["referencelist"]),
                 self.schema(partial=True),
             )
         except QueryArgError as e:
@@ -244,7 +241,7 @@ class FullList(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
         result_rows = manager.get_all(
             False, q_args["any_filters"], q_args["all_filters"], True
         )
@@ -263,7 +260,7 @@ class FullList(Schema_Resource):
             return handle_empty()
 
         post_schema = self.schema(
-            exclude=self.schema.fields_with_props("excluded_post"),
+            exclude=self.schema.fields_with_props(["excluded_post"]),
             unknown=MM.utils.RAISE,
         )
 
@@ -279,7 +276,7 @@ class FullList(Schema_Resource):
         new_object["Modified_Date"] = new_object["Created_Date"]
         new_object["Modified_By"] = new_object["Created_By"]
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
 
         try:
             saved_obj = manager.save(new_object)
@@ -308,7 +305,7 @@ class ValidList(Schema_Resource):
         try:
             q_args = parse_query_args(
                 request.args,
-                self.schema().fields_without_props("referencelist"),
+                self.schema().fields_without_props(["referencelist"]),
                 self.schema(partial=True),
             )
         except QueryArgError as e:
@@ -318,7 +315,7 @@ class ValidList(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
 
         return manager.get_all(True, q_args["any_filters"], q_args["all_filters"], True)
 
@@ -336,7 +333,7 @@ class ValidLineage(Schema_Resource):
         try:
             q_args = parse_query_args(
                 request.args,
-                self.schema().fields_without_props("referencelist"),
+                self.schema().fields_without_props(["referencelist"]),
                 self.schema(partial=True),
             )
         except QueryArgError as e:
@@ -346,7 +343,7 @@ class ValidLineage(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
         result_rows = manager.get_lineage(
             id, True, q_args["any_filters"], q_args["all_filters"], False
         )
@@ -365,7 +362,7 @@ class SingleVersion(Schema_Resource):
         """
         Get endpoint for a single object
         """
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
         try:
             result = manager.get_single_on_UUID(uuid)
             if not result:
@@ -384,14 +381,14 @@ class Changes(Schema_Resource):
         """
         Get endpoint for a single object
         """
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
         old_object = manager.get_single_on_UUID(old_uuid)
         new_object = manager.get_single_on_UUID(new_uuid)
-        
+
         if not old_object:
-                return handle_UUID_does_not_exists(old_uuid)
+            return handle_UUID_does_not_exists(old_uuid)
         if not new_object:
-                return handle_UUID_does_not_exists(new_uuid)
+            return handle_UUID_does_not_exists(new_uuid)
         return (
             {
                 "old": old_object,

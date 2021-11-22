@@ -8,10 +8,24 @@ from Endpoints.validators import HTML_Validate
 from Models.werkingsgebieden import Werkingsgebieden_Schema
 from Models.short_schemas import Short_Beleidskeuze_Schema, Short_Beleidsmodule_Schema
 from Models.gebruikers import Gebruikers_Schema
-
+from Endpoints.status_data_manager import StatusDataManager
 
 from globals import default_user_uuid
 
+
+status_options = [
+        "Definitief ontwerp GS",
+        "Definitief ontwerp GS concept",
+        "Definitief ontwerp PS",
+        "Niet-Actief",
+        "Ontwerp GS",
+        "Ontwerp GS Concept",
+        "Ontwerp in inspraak",
+        "Ontwerp PS",
+        "Uitgecheckt",
+        "Vastgesteld",
+        "Vigerend",
+        "Vigerend gearchiveerd"]
 
 class Maatregelen_Schema(Base_Schema):
     Eigenaar_1 = MM.fields.UUID(
@@ -31,19 +45,7 @@ class Maatregelen_Schema(Base_Schema):
     Toelichting = MM.fields.Str(missing=None, validate=[
                                 HTML_Validate], obprops=[])
     Toelichting_Raw = MM.fields.Str(missing=None, obprops=[])
-    Status = MM.fields.Str(missing=None, validate=[MM.validate.OneOf([
-        "Definitief ontwerp GS",
-        "Definitief ontwerp GS concept",
-        "Definitief ontwerp PS",
-        "Niet-Actief",
-        "Ontwerp GS",
-        "Ontwerp GS Concept",
-        "Ontwerp in inspraak",
-        "Ontwerp PS",
-        "Uitgecheckt",
-        "Vastgesteld",
-        "Vigerend",
-        "Vigerend gearchiveerd"])],
+    Status = MM.fields.Str(missing=None, validate=[MM.validate.OneOf(status_options)],
         obprops=['short'])
     Weblink = MM.fields.Str(missing=None, obprops=[])
     Gebied = MM.fields.UUID(missing=None, obprops=[])
@@ -56,7 +58,9 @@ class Maatregelen_Schema(Base_Schema):
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
     Ref_Beleidsmodules = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
-
+    Latest_Version = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated'])
+    Latest_Status = MM.fields.Str(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated'], validate=[MM.validate.OneOf(status_options)])
+    Effective_Version = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated'])
 
     class Meta(Base_Schema.Meta):
         slug = 'maatregelen'
@@ -82,3 +86,4 @@ class Maatregelen_Schema(Base_Schema):
             'Gebied': UUID_Reference('Werkingsgebieden', Werkingsgebieden_Schema),
             'Ref_Beleidsmodules': Reverse_UUID_Reference('Beleidsmodule_Maatregelen', 'Beleidsmodules', 'Maatregel_UUID', 'Beleidsmodule_UUID', 'Koppeling_Omschrijving', Short_Beleidsmodule_Schema)}
         graph_conf = 'Titel'
+        manager = StatusDataManager

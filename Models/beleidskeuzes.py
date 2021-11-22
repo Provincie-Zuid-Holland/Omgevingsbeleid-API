@@ -19,19 +19,10 @@ import Models.beleidsprestaties
 import Models.beleidsregels
 import Models.maatregelen
 import Models.verordeningen
-from Models.short_schemas import Short_Beleidsmodule_Schema
-class Beleidskeuzes_Schema(Base_Schema):
-    Eigenaar_1 = MM.fields.UUID(
-        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
-    Eigenaar_2 = MM.fields.UUID(
-        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
-    Portefeuillehouder_1 = MM.fields.UUID(
-        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
-    Portefeuillehouder_2 = MM.fields.UUID(
-        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
-    Opdrachtgever = MM.fields.UUID(
-        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
-    Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf([
+from Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
+from Endpoints.status_data_manager import StatusDataManager
+
+status_options = [
         "Definitief ontwerp GS",
         "Definitief ontwerp GS concept",
         "Definitief ontwerp PS",
@@ -43,7 +34,19 @@ class Beleidskeuzes_Schema(Base_Schema):
         "Uitgecheckt",
         "Vastgesteld",
         "Vigerend",
-        "Vigerend gearchiveerd"])],
+        "Vigerend gearchiveerd"]
+class Beleidskeuzes_Schema(Base_Schema):
+    Eigenaar_1 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
+    Eigenaar_2 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, userfield=True, obprops=[])
+    Portefeuillehouder_1 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Portefeuillehouder_2 = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Opdrachtgever = MM.fields.UUID(
+        default=default_user_uuid, missing=default_user_uuid, allow_none=True, obprops=[])
+    Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf(status_options)],
         obprops=['short'])
     Titel = MM.fields.Str(required=True, obprops=['search_title', 'short'])
     Omschrijving_Keuze = MM.fields.Str(
@@ -79,8 +82,13 @@ class Beleidskeuzes_Schema(Base_Schema):
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Werkingsgebieden = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
+    Beleidskeuzes = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Ref_Beleidsmodules = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
+    Latest_Version = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated'])
+    Latest_Status = MM.fields.Str(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated'], validate=[MM.validate.OneOf(status_options)])
+    Effective_Version = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated'])
 
     class Meta(Base_Schema.Meta):
         slug = 'beleidskeuzes'
@@ -104,7 +112,9 @@ class Beleidskeuzes_Schema(Base_Schema):
             'Themas': UUID_List_Reference('Beleidskeuze_Themas', 'Themas', 'Beleidskeuze_UUID', 'Thema_UUID', 'Koppeling_Omschrijving', Models.themas.Themas_Schema),
             'Verordeningen': UUID_List_Reference('Beleidskeuze_Verordeningen', 'Verordeningen', 'Beleidskeuze_UUID', 'Verordening_UUID', 'Koppeling_Omschrijving', Models.verordeningen.Verordeningen_Schema),
             'Werkingsgebieden': UUID_List_Reference('Beleidskeuze_Werkingsgebieden', 'Werkingsgebieden', 'Beleidskeuze_UUID', 'Werkingsgebied_UUID', 'Koppeling_Omschrijving', Models.werkingsgebieden.Werkingsgebieden_Schema),
+            'Beleidskeuzes': UUID_List_Reference('Beleidsrelaties', 'Beleidskeuzes', 'Van_Beleidskeuze', 'Naar_Beleidskeuze', 'Omschrijving', Short_Beleidskeuze_Schema),
             'Ref_Beleidsmodules': Reverse_UUID_Reference('Beleidsmodule_Beleidskeuzes', 'Beleidsmodules', 'Beleidskeuze_UUID', 'Beleidsmodule_UUID', 'Koppeling_Omschrijving', Short_Beleidsmodule_Schema)
         }
         status_conf = ('Status', 'Vigerend')
         graph_conf = 'Titel'
+        manager = StatusDataManager

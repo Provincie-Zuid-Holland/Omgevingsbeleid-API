@@ -2,6 +2,7 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 
+from re import A
 from Models import (
     beleidskeuzes,
     ambities,
@@ -738,7 +739,7 @@ def test_clear_patch_fields_maatregelen(client, auth):
     assert response.get_json()["Aanpassing_Op"] == None
 
 
-def test_graph(client, auth):
+def test_graph_ep(client, auth):
     ep = f"v0.1/graph"
     response = client.get(ep, headers={"Authorization": f"Bearer {auth[1]}"})
     assert response.status_code == 200, "Graph endpoint not working"
@@ -772,7 +773,7 @@ def test_null_date(client, auth):
     assert response.get_json()[0]["Eind_Geldigheid"] == "9999-12-31T23:59:59Z"
 
 
-def test_graph(client, auth):
+def test_graph_normal(client, auth):
     # Create Ambitie
     test_amb = generate_data(ambities.Ambities_Schema, excluded_prop="excluded_post")
     test_amb["Eind_Geldigheid"] = "2992-11-23T10:00:00"
@@ -1003,7 +1004,7 @@ def test_non_valid_reference(client, auth):
     assert len(response.get_json()[0]["Maatregelen"]) == 0, "references should be empty"
 
 
-def test_graph(client, auth):
+def test_graph_relation(client, auth):
     # Create BK1 & BK2 (valid)
 
     bk_1 = generate_data(
@@ -1016,38 +1017,28 @@ def test_graph(client, auth):
 
     bk_1["Status"] = "Vigerend"
     bk_1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-    bk_2["Status"] = "Vigerend"
-    bk_2["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-
+    
     response = client.post(
         "v0.1/beleidskeuzes",
         json=bk_1,
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
-
+    
+    assert response.status_code == 201, f"{response.get_json()}"
     bk_1_UUID = response.get_json()["UUID"]
+
+    bk_2["Status"] = "Vigerend"
+    bk_2["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+    bk_2["Beleidskeuzes"] = [{'UUID':bk_1_UUID}]
 
     response = client.post(
         "v0.1/beleidskeuzes",
         json=bk_2,
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
-
+    
+    assert response.status_code == 201, f"{response.get_json()}"
     bk_2_UUID = response.get_json()["UUID"]
-
-    # Add BR from to
-    br = generate_data(
-        beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post"
-    )
-    br["Van_Beleidskeuze"] = bk_1_UUID
-    br["Naar_Beleidskeuze"] = bk_2_UUID
-    br["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-
-    response = client.post(
-        "v0.1/beleidsrelaties",
-        json=br,
-        headers={"Authorization": f"Bearer {auth[1]}"},
-    )
 
     # Check graph
     response = client.get("v0.1/graph")
@@ -1062,7 +1053,7 @@ def test_graph(client, auth):
     assert found_1
     assert found_2
 
-    assert {"source": bk_1_UUID, "target": bk_2_UUID, "type": "Relatie"} in links
+    assert {"source": bk_2_UUID, "target": bk_1_UUID, "type": "Relatie"} in links
 
 
 def test_reverse_valid_check(client, auth):
@@ -1160,3 +1151,65 @@ def test_future_links(client, auth):
         response.get_json()["Ambities"] == []
     ), "Ambitie is not yet valid"
 
+
+def test_latest_version(client, auth):
+    bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk["Status"] = "Ontwerp GS Concept"
+    bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    
+    assert response.status_code == 201
+    bk_ID = response.get_json()['ID']
+    bk_UUID = response.get_json()['UUID']
+
+    bk['Status'] = 'Ontwerp PS'
+    response = client.patch(
+        f"v0.1/beleidskeuzes/{bk_ID}",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )   
+    assert response.status_code == 200
+    new_bk_UUID = response.get_json()['UUID']
+
+    response = client.get(f"v0.1/version/beleidskeuzes/{bk_UUID}")
+    assert response.status_code == 200
+    assert response.get_json()['Latest_Version'] == new_bk_UUID
+    assert response.get_json()['Latest_Status'] == 'Ontwerp PS'
+
+def test_effective_version(client, auth):
+    bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk["Status"] = "Vigerend"
+    bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    
+    assert response.status_code == 201
+    bk_ID = response.get_json()['ID']
+    bk_UUID = response.get_json()['UUID']
+
+    bk['Status'] = 'Ontwerp PS'
+    response = client.patch(
+        f"v0.1/beleidskeuzes/{bk_ID}",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )   
+    assert response.status_code == 200
+    new_bk_UUID = response.get_json()['UUID']
+
+    response = client.get(f"v0.1/version/beleidskeuzes/{new_bk_UUID}")
+    assert response.status_code == 200
+    assert response.get_json()['Effective_Version'] == bk_UUID
+    

@@ -14,7 +14,6 @@ class Beleidsrelaties_Schema(Base_Schema):
         required=True, allow_none=False, validate=[MM.validate.NoneOf([null_uuid, ])], obprops=['short'])
     Naar_Beleidskeuze = MM.fields.UUID(
         required=True, allow_none=False, validate=[MM.validate.NoneOf([null_uuid, ])], obprops=['short'])
-    Titel = MM.fields.Str(required=True, validate=[HTML_Validate], obprops=['search_field', 'short'])
     Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_field', 'short'])
     Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf(
         ['Open', 'Akkoord', 'NietAkkoord', 'Verbroken'])], obprops=['short'])
@@ -26,7 +25,7 @@ class Beleidsrelaties_Schema(Base_Schema):
     class Meta(Base_Schema.Meta):
         slug = 'beleidsrelaties'
         table = 'Beleidsrelaties'
-        read_only = False
+        read_only = True
         ordered = True
         searchable = False
         references = {
