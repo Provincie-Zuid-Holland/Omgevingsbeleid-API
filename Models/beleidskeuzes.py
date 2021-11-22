@@ -83,9 +83,9 @@ class Beleidskeuzes_Schema(Base_Schema):
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Ref_Beleidsmodules = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
-    Laatste_UUID = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated_field'])
-    Laatste_Status = MM.fields.Str(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated_field'], validate=[MM.validate.OneOf(status_options)])
-    Vigerend_UUID = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated_field'])
+    # Latest_Version = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch'])
+    # Latest_Status = MM.fields.Str(required=False, missing=None, obprops=['excluded_post', 'excluded_patch'], validate=[MM.validate.OneOf(status_options)])
+    # Effective_Version = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch'])
 
     class Meta(Base_Schema.Meta):
         slug = 'beleidskeuzes'

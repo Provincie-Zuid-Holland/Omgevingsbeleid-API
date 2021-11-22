@@ -6,6 +6,7 @@ import re
 
 import marshmallow as MM
 from marshmallow.utils import pprint
+from Endpoints.data_manager import DataManager
 from globals import (db_connection_settings, max_datetime, min_datetime,
                      null_uuid, row_to_dict)
 from Endpoints.references import UUID_Reference
@@ -22,6 +23,7 @@ class Short_Base_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True, obprops=[
                           'excluded_patch', 'excluded_post', 'short'])
     class Meta:
+        manager = DataManager
         ordered = True
         read_only = False
         base_references = {

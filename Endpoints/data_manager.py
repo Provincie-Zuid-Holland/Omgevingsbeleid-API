@@ -3,7 +3,6 @@
 from collections import defaultdict
 from marshmallow import schema
 import pyodbc
-from Endpoints.base_schema import Base_Schema
 from globals import (
     db_connection_settings,
     row_to_dict,
