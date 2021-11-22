@@ -115,7 +115,7 @@ class Short_Base_Schema(MM.Schema):
         return in_data
 
     @classmethod
-    def fields_with_props(cls, prop):
+    def fields_with_props(cls, props):
         """Class method that returns all fields that have `prop` value in their obprops list.
 
         Args:
@@ -124,21 +124,37 @@ class Short_Base_Schema(MM.Schema):
         Returns:
             list: The fields that have the prop in their obprops list
         """
-        matched_fields = filter(
-            lambda item: prop in item[1].metadata['obprops'], cls._declared_fields.items())
-        return list(map(lambda item: item[1].attribute or item[0], matched_fields))
+        if type(props) != list:
+            raise TypeError
+
+        result = []
+        for key, field in cls._declared_fields.items():
+            fieldprops = field.metadata['obprops']
+            match = [prop for prop in fieldprops if prop in props]
+            if match:
+                result.append(key)
+        return result
 
     @classmethod
-    def fields_without_props(cls, prop):
+    def fields_without_props(cls, props):
         """Class method that returns all fields that don't have `prop` value in their obprops list.
 
         Args:
-            prop (str): The value to filter on
+            prop (list): List of strings to filter on
 
         Returns:
             list: The fields that do not have the prop in their obprops list
         """
-        return list(map(lambda item: item[0], filter(lambda item: prop not in item[1].metadata['obprops'], cls._declared_fields.items())))
+        if type(props) != list:
+            raise TypeError
+        
+        result = []
+        for key, field in cls._declared_fields.items():
+            fieldprops = field.metadata['obprops']
+            match = [prop for prop in fieldprops if prop in props]
+            if not match:
+                result.append(key)
+        return result
 
 class Base_Schema(Short_Base_Schema):
     """

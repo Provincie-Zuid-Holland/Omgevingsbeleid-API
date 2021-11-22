@@ -2,6 +2,7 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 
+from re import A
 from Models import (
     beleidskeuzes,
     ambities,
@@ -1150,3 +1151,65 @@ def test_future_links(client, auth):
         response.get_json()["Ambities"] == []
     ), "Ambitie is not yet valid"
 
+
+def test_latest_version(client, auth):
+    bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk["Status"] = "Ontwerp GS Concept"
+    bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    
+    assert response.status_code == 201
+    bk_ID = response.get_json()['ID']
+    bk_UUID = response.get_json()['UUID']
+
+    bk['Status'] = 'Ontwerp PS'
+    response = client.patch(
+        f"v0.1/beleidskeuzes/{bk_ID}",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )   
+    assert response.status_code == 200
+    new_bk_UUID = response.get_json()['UUID']
+
+    response = client.get(f"v0.1/version/beleidskeuzes/{bk_UUID}")
+    assert response.status_code == 200
+    assert response.get_json()['Latest_Version'] == new_bk_UUID
+    assert response.get_json()['Latest_Status'] == 'Ontwerp PS'
+
+def test_effective_version(client, auth):
+    bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk["Status"] = "Vigerend"
+    bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    
+    assert response.status_code == 201
+    bk_ID = response.get_json()['ID']
+    bk_UUID = response.get_json()['UUID']
+
+    bk['Status'] = 'Ontwerp PS'
+    response = client.patch(
+        f"v0.1/beleidskeuzes/{bk_ID}",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )   
+    assert response.status_code == 200
+    new_bk_UUID = response.get_json()['UUID']
+
+    response = client.get(f"v0.1/version/beleidskeuzes/{new_bk_UUID}")
+    assert response.status_code == 200
+    assert response.get_json()['Effective_Version'] == bk_UUID
+    

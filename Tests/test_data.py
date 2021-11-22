@@ -7,7 +7,7 @@ import base64
 from pathlib import Path
 
 def generate_data(schema, user_UUID=null_uuid, excluded_prop=None):
-    fields = schema(exclude=schema.fields_with_props(excluded_prop)).fields
+    fields = schema(exclude=schema.fields_with_props([excluded_prop])).fields
     result = {}
     for field in fields:
         validatee = False

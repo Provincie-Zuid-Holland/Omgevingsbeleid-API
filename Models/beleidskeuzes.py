@@ -20,6 +20,7 @@ import Models.beleidsregels
 import Models.maatregelen
 import Models.verordeningen
 from Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
+from Endpoints.status_data_manager import StatusDataManager
 
 status_options = [
         "Definitief ontwerp GS",
@@ -85,9 +86,9 @@ class Beleidskeuzes_Schema(Base_Schema):
         UUID_Linker_Schema, many=True, obprops=['referencelist'])
     Ref_Beleidsmodules = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=['referencelist', 'excluded_patch', 'excluded_post'])
-    # Latest_Version = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch'])
-    # Latest_Status = MM.fields.Str(required=False, missing=None, obprops=['excluded_post', 'excluded_patch'], validate=[MM.validate.OneOf(status_options)])
-    # Effective_Version = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch'])
+    Latest_Version = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated'])
+    Latest_Status = MM.fields.Str(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated'], validate=[MM.validate.OneOf(status_options)])
+    Effective_Version = MM.fields.UUID(required=False, missing=None, obprops=['excluded_post', 'excluded_patch', 'calculated'])
 
     class Meta(Base_Schema.Meta):
         slug = 'beleidskeuzes'
@@ -116,3 +117,4 @@ class Beleidskeuzes_Schema(Base_Schema):
         }
         status_conf = ('Status', 'Vigerend')
         graph_conf = 'Titel'
+        manager = StatusDataManager

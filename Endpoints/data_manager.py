@@ -54,8 +54,13 @@ class DataManager:
         self.valid_view = f"Valid_{self.schema.Meta.slug}"
         self.all_valid_view = f"All_Valid_{self.schema.Meta.slug}"
 
+        self.read_fields = [
+            field for field in self.schema().fields_without_props(["referencelist", "calculated"])
+        ]
+
     def _setup(self):
         """Creates all the necessary views and indices"""
+        print("Default manager setup")
         self._set_up_latest_view()
         self._set_up_all_latest_view()
         self._set_up_valid_view()
@@ -64,14 +69,18 @@ class DataManager:
 
     def _run_query_commit(self, query, values=[]):
         with pyodbc.connect(db_connection_settings, autocommit=True) as con:
-            cur = con.cursor()
-            result = cur.execute(query, *values)
-        try:
-            return list(map(row_to_dict, result.fetchall()))
-        except pyodbc.DatabaseError as e:
-            if e.args[0] == 'No results.  Previous SQL was not a query.':
-                return None
-            else:
+            try:
+                cur = con.cursor()
+                result = cur.execute(query, *values)
+                return list(map(row_to_dict, result.fetchall()))
+            except pyodbc.DatabaseError as e:
+                if e.args[0] == "No results.  Previous SQL was not a query.":
+                    return None
+                else:
+                    print(query)
+                    raise e
+            except pyodbc.ProgrammingError as e:
+                print(query)
                 raise e
 
     def _set_up_all_valid_view(self):
@@ -150,22 +159,6 @@ class DataManager:
 
         self._run_query_commit(query)
 
-    def _run_query_result(self, query, args):
-        """Run a query and return it's results
-
-        Args:
-            query (string): query to run
-            args (list): args to provide to query
-
-        Returns:
-            List or None
-        """
-        with pyodbc.connect(db_connection_settings, autocommit=False) as con:
-            cur = con.cursor()
-            # We unpack the arg list here
-            result_rows = list(map(row_to_dict, cur.execute(query, *args)))
-            return result_rows
-
     def get_single_on_UUID(self, uuid):
         """Retrieve a single version of an object of this type
 
@@ -174,7 +167,7 @@ class DataManager:
         """
 
         included_fields = ", ".join(
-            [field for field in self.schema().fields_without_props("referencelist")]
+            [field for field in self.schema().fields_without_props(["referencelist", "calculated"])]
         )
 
         query = (
@@ -182,7 +175,7 @@ class DataManager:
         )
 
         result_rows = self.schema().dump(
-            self._run_query_result(query, [uuid]), many=True
+            self._run_query_commit(query, [uuid]), many=True
         )
 
         if not result_rows:
@@ -211,12 +204,12 @@ class DataManager:
         """
 
         included_fields = ", ".join(
-            [field for field in self.schema().fields_without_props("referencelist")]
+            [field for field in self.schema().fields_without_props(["referencelist", "calculated"])]
         )
 
         query = f"SELECT {included_fields} FROM {self.all_latest_view} WHERE ID = ?"
 
-        result_rows = self.schema().dump(self._run_query_result(query, [id]), many=True)
+        result_rows = self.schema().dump(self._run_query_commit(query, [id]), many=True)
 
         if not result_rows:
             return None
@@ -268,17 +261,11 @@ class DataManager:
         # determine the fields to include in the query
         fieldset = ["*"]
         if short:
-            fieldset = [field for field in self.schema().fields_with_props("short")]
-            # skip references field in short
             select_fieldset = [
-                field[0]
-                for field in self.schema().fields.items()
-                if (
-                    "referencelist" not in field[1].metadata["obprops"]
-                    and field[0] in fieldset
-                )
+                field
+                for field in self.schema().fields_with_props(["short"])
+                if field not in self.schema().fields_with_props(["referencelist", "calculated"])
             ]
-
         else:
             select_fieldset = fieldset
 
@@ -313,7 +300,7 @@ class DataManager:
             query_args.append(limit)
 
         result_rows = self.schema().dump(
-            self._run_query_result(query, query_args), many=True
+            self._run_query_commit(query, query_args), many=True
         )
 
         # Get references
@@ -351,7 +338,11 @@ class DataManager:
                 INSERT INTO {ref.link_tablename} ({ref.my_col}, {ref.their_col}, {ref.description_col}) VALUES (?, ?, ?)"""
                 self._run_query_commit(
                     query,
-                    [obj_uuid, ref_data["UUID"], ref_data.get("Koppeling_Omschrijving") or ''],
+                    [
+                        obj_uuid,
+                        ref_data["UUID"],
+                        ref_data.get("Koppeling_Omschrijving") or "",
+                    ],
                 )
 
     def _retrieve_references(self, fieldname, ref, source_rows):
@@ -359,7 +350,6 @@ class DataManager:
         Retrieve the linked references for this set of objects
 
         Args:
-            fieldname (string): A fieldname on which to store the references
             ref (reference): A reference object
             source_rows (list): The objects to add the references on
 
@@ -371,25 +361,25 @@ class DataManager:
         # Get the fieldset excluding references
         try:
             included_fields = [
-                field for field in ref.schema.fields_without_props("referencelist")
+                field
+                for field in ref.schema.fields_without_props(
+                    ["referencelist", "calculated"]
+                )
             ]
         except AttributeError:
             # This is for objects that are not inheriting from base_schema (probably an user object)
-            included_fields = ref.schema.fields
-        
+            included_fields = list(ref.schema.fields.keys())
 
         if isinstance(ref, UUID_List_Reference) or isinstance(ref, ID_List_Reference):
-            
+
             # Prepare for join query
-            included_fields = [f'b.{field}' for field in included_fields]
+            included_fields = [f"b.{field}" for field in included_fields]
 
             # Also query for the reference row (my column) in order to add the results to the correct objects
             included_fields.append(ref.my_col)
 
             source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
             # Query from the Valid view, so only valid objects get inlined.
-            
-            
 
             query = f"""
                  SELECT {", ".join(included_fields)}, {ref.description_col} FROM {ref.link_tablename} a
@@ -397,7 +387,7 @@ class DataManager:
                  WHERE a.{ref.my_col} in ({source_uuids})
                  """
 
-            result_rows = self._run_query_result(query, [])
+            result_rows = self._run_query_commit(query, [])
 
             row_map = defaultdict(list)
             for row in result_rows:
@@ -433,7 +423,7 @@ class DataManager:
                     SELECT {', '.join(included_fields)} from {target_tn} WHERE UUID IN ({target_uuids}) 
                     """
 
-            result_rows = self._run_query_result(query, [])
+            result_rows = self._run_query_commit(query, [])
 
             result_rows = ref.schema.dump(result_rows, many=True)
             row_map = {row["UUID"]: row for row in result_rows}
@@ -454,7 +444,7 @@ class DataManager:
                     ON b.UUID = a.{ref.their_col} 
                     WHERE {ref.my_col} IN ({source_uuids}) 
                     """
-            result_rows = self._run_query_result(query, [])
+            result_rows = self._run_query_commit(query, [])
 
             row_map = defaultdict(list)
             for row in result_rows:
@@ -501,7 +491,7 @@ class DataManager:
         # determine the fields to include in the query
         fieldset = ["*"]
         if short:
-            fieldset = [field for field in self.schema().fields_with_props("short")]
+            fieldset = [field for field in self.schema().fields_with_props(["short"])]
             # skip references field in short
             select_fieldset = [
                 field[0]
@@ -549,7 +539,7 @@ class DataManager:
             query_args.append(limit)
 
         result_rows = self.schema().dump(
-            self._run_query_result(query, query_args), many=True
+            self._run_query_commit(query, query_args), many=True
         )
 
         all_references = {
@@ -583,6 +573,7 @@ class DataManager:
             **self.schema.Meta.references,
         }
         reference_cache = {}
+
         for ref in all_references:
             # Remove all except UUID_References
             if ref in data and not isinstance(all_references[ref], UUID_Reference):
@@ -667,9 +658,9 @@ class DataManager:
                 cur.execute(f"DROP FULLTEXT INDEX ON {self.schema.Meta.table}")
 
             # Set up new search
-            search_title_fields = self.schema.fields_with_props("search_title")
+            search_title_fields = self.schema.fields_with_props(["search_title"])
             search_description_fields = self.schema.fields_with_props(
-                "search_description"
+                ["search_description"]
             )
 
             search_fields = []
@@ -712,8 +703,8 @@ class DataManager:
         if not self.schema.Meta.searchable:
             return
 
-        title_field = self.schema.fields_with_props("search_title")[0]
-        description_fields = self.schema.fields_with_props("search_description")
+        title_field = self.schema.fields_with_props(["search_title"])[0]
+        description_fields = self.schema.fields_with_props(["search_description"])
 
         # if there is only one value the CONCAT_WS will fail so we just add an empty string
         if len(description_fields) == 1:
@@ -721,10 +712,8 @@ class DataManager:
 
         args = " OR ".join([f'"{word}"' for word in query.split(" ")])
 
-        _title_fields = f"""({self.schema.fields_with_props("search_title")[0]})"""
-        _description_fields = (
-            f"""({', '.join((self.schema.fields_with_props("search_description")))})"""
-        )
+        _title_fields = f"""({self.schema.fields_with_props(["search_title"])[0]})"""
+        _description_fields = f"""({', '.join((self.schema.fields_with_props(["search_description"])))})"""
 
         search_query = f"""
                         SELECT
@@ -743,7 +732,7 @@ class DataManager:
                                 ) as x GROUP BY [KEY]) as f
                             ON f.[KEY] = v.UUID
                             ORDER BY f.WeightedRank DESC"""
-        result_rows = self._run_query_result(search_query, [args, args])
+        result_rows = self._run_query_commit(search_query, [args, args])
         return result_rows
 
     def geo_search(self, query):
@@ -766,8 +755,8 @@ class DataManager:
                 self.schema.Meta.references[self.schema.Meta.geo_searchable],
             )
 
-            description_fields = self.schema.fields_with_props("search_description")
-            title_field = self.schema.fields_with_props("search_title")[0]
+            description_fields = self.schema.fields_with_props(["search_description"])
+            title_field = self.schema.fields_with_props(["search_title"])[0]
             query_uuids = [UUID(uid) for uid in query.split(",")]
 
             # if there is only one value the CONCAT_WS will fail so we just add an empty string
@@ -805,6 +794,6 @@ class DataManager:
                 # generate OR filters:
                 or_filter = " OR ".join([f"{ref_key} = ?" for _ in query_uuids])
                 search_query += "WHERE " + or_filter
-            
-            result_rows = self._run_query_result(search_query, query_uuids)
+
+            result_rows = self._run_query_commit(search_query, query_uuids)
             return result_rows
