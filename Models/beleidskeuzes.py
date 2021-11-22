@@ -19,7 +19,7 @@ import Models.beleidsprestaties
 import Models.beleidsregels
 import Models.maatregelen
 import Models.verordeningen
-from Models.short_schemas import Short_Beleidsmodule_Schema
+from Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
 
 status_options = [
         "Definitief ontwerp GS",

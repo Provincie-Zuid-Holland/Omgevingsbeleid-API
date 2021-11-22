@@ -121,7 +121,7 @@ class Lineage(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
 
         result_rows = manager.get_lineage(
             id, False, q_args["any_filters"], q_args["all_filters"], False
@@ -155,7 +155,7 @@ class Lineage(Schema_Resource):
         except MM.exceptions.ValidationError as e:
             return handle_validation_exception(e)
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
 
         old_object = manager.get_single_on_ID(id)
 
@@ -244,7 +244,7 @@ class FullList(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
         result_rows = manager.get_all(
             False, q_args["any_filters"], q_args["all_filters"], True
         )
@@ -279,7 +279,7 @@ class FullList(Schema_Resource):
         new_object["Modified_Date"] = new_object["Created_Date"]
         new_object["Modified_By"] = new_object["Created_By"]
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
 
         try:
             saved_obj = manager.save(new_object)
@@ -318,7 +318,7 @@ class ValidList(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
 
         return manager.get_all(True, q_args["any_filters"], q_args["all_filters"], True)
 
@@ -346,7 +346,7 @@ class ValidLineage(Schema_Resource):
             # Invalid filter values
             return handle_validation_filter_exception(e)
 
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
         result_rows = manager.get_lineage(
             id, True, q_args["any_filters"], q_args["all_filters"], False
         )
@@ -365,7 +365,7 @@ class SingleVersion(Schema_Resource):
         """
         Get endpoint for a single object
         """
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
         try:
             result = manager.get_single_on_UUID(uuid)
             if not result:
@@ -384,7 +384,7 @@ class Changes(Schema_Resource):
         """
         Get endpoint for a single object
         """
-        manager = DataManager(self.schema)
+        manager = self.schema.Meta.manager(self.schema)
         old_object = manager.get_single_on_UUID(old_uuid)
         new_object = manager.get_single_on_UUID(new_uuid)
         
