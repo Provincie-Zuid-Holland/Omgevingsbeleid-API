@@ -14,11 +14,13 @@ import pytest
 from application import app
 from datamodel import endpoints
 from globals import db_connection_settings, null_uuid, row_to_dict
-import pyodbc 
+import pyodbc
+
 
 @pytest.fixture
 def client():
     return app.test_client()
+
 
 def test_nills(client):
     """Check wether all the tables in the datamodel contain a Nill UUID"""
@@ -29,6 +31,7 @@ def test_nills(client):
             cur.execute(query, null_uuid)
             results = cur.fetchall()
             assert len(results) == 1, f"No Nill UUID object in table {ep.slug}"
+
 
 # def test_search_index(client):
 #     """Check wether all the tables are properly configured for search"""

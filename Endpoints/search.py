@@ -16,6 +16,10 @@ def splitlist(value):
     return value.split(",")
 
 
+class ArgException(Exception):
+    pass
+
+
 def start_search(args):
     """
     A view that accepts search queries to find object based on a fuzzy text match
@@ -24,23 +28,31 @@ def start_search(args):
     type_exclude = args.get("exclude", default=None, type=splitlist)
     type_only = args.get("only", default=None, type=splitlist)
     limit = args.get("limit", default=10, type=int)
+    offset = args.get("offset", default=0, type=int)
 
     if not query:
-        return jsonify({"message": "No search query provided."}), 400
+        raise ArgException("No search query provided.")
 
     if type_exclude and type_only:
-        return (
-            jsonify({"message": "Using exclude and only together is not allowed"}),
-            403,
-        )
-    return (query, type_exclude, type_only, limit)
+        raise ArgException("Using exclude and only together is not allowed")
+
+    if limit <= 0:
+        raise ArgException("Limit must be a positive integer and not equal to zero")
+
+    if offset < 0:
+        raise ArgException("Offset must be a positive integer or zero")
+
+    return (query, type_exclude, type_only, limit, offset)
 
 
 def search_view():
     """
     A view that accepts search queries to find object based on a fuzzy text match
     """
-    query, type_exclude, type_only, limit = start_search(request.args)
+    try:
+        query, type_exclude, type_only, limit, offset = start_search(request.args)
+    except ArgException as e:
+        return {"message": str(e)}, 403
 
     searchables = [ep for ep in endpoints if ep.Meta.searchable]
 
@@ -63,4 +75,4 @@ def search_view():
     # Sort the results
     search_results = sorted(search_results, key=lambda r: r["RANK"], reverse=True)
 
-    return jsonify(search_results[:limit])
+    return jsonify(search_results[offset:limit])

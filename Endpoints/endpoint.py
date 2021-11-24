@@ -160,7 +160,7 @@ class Lineage(Schema_Resource):
         manager = self.schema.Meta.manager(self.schema)
 
         old_object = manager.get_single_on_ID(id)
-        
+
         if not old_object:
             return handle_ID_does_not_exists(id)
 
@@ -196,7 +196,9 @@ class Lineage(Schema_Resource):
                     else:
                         old_object[ref] = old_object[ref]["UUID"]
 
-        old_object = self.schema(exclude=self.schema.fields_with_props(["calculated"])).load(old_object)
+        old_object = self.schema(
+            exclude=self.schema.fields_with_props(["calculated"])
+        ).load(old_object)
 
         new_object = {**old_object, **changes}
         new_object.pop("UUID")

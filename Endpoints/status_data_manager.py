@@ -8,7 +8,7 @@ class StatusDataManager(DataManager):
 
     def _setup(self):
         super()._setup()
-        print('Status manager setup')
+        print("Status manager setup")
         self.set_up_detail_view()
 
     def set_up_detail_view(self):

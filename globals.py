@@ -15,8 +15,8 @@ max_datetime = datetime.datetime(9999, 12, 31, 23, 59, 59)
 null_uuid = default_user_uuid = "00000000-0000-0000-0000-000000000000"
 
 # Search stuff
-ftc_name = 'Omgevingsbeleid_FTC'
-stoplist_name = 'Omgevingsbeleid_SW'
+ftc_name = "Omgevingsbeleid_FTC"
+stoplist_name = "Omgevingsbeleid_SW"
 
 # Util functions
 def row_to_dict(row):

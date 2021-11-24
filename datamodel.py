@@ -138,7 +138,6 @@ def generate_markdown_view():
                         except AttributeError:
                             validatorstrf += f"HTML Validatie,"
 
-            
             result += f"|{field} | {type(_type).__name__} | {validatorstrf} | {_type.required} |\n"
         result += "\n"
     return result

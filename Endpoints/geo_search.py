@@ -1,13 +1,17 @@
 from flask import Flask, jsonify, request
 from Endpoints.data_manager import DataManager
-from Endpoints.search import start_search
+from Endpoints.search import start_search, ArgException
 from datamodel import endpoints
+
 
 def geo_search_view():
     """
     Find all objects linked to geo areas specified in query
     """
-    query, type_exclude, type_only, limit = start_search(request.args)
+    try:
+        query, type_exclude, type_only, limit, offset = start_search(request.args)
+    except ArgException as e:
+        return {"message": str(e)}, 403
 
     searchables = [ep for ep in endpoints if ep.Meta.geo_searchable]
 
@@ -15,10 +19,10 @@ def geo_search_view():
         searchables = [ep for ep in searchables if ep.Meta.slug in type_only]
     elif type_exclude:
         searchables = [ep for ep in searchables if ep.Meta.slug not in type_exclude]
-    
+
     if not searchables:
         return {"Message": "No objects to search after applying filters"}, 400
-    
+
     search_results = []
 
     for ep in searchables:
@@ -30,4 +34,4 @@ def geo_search_view():
         except ValueError as e:
             return {"Message": "Unable to parse UUID"}, 400
 
-    return jsonify(search_results[:limit])
+    return jsonify(search_results[offset:limit])

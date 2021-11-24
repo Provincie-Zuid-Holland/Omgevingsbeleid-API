@@ -11,25 +11,49 @@ from globals import null_uuid
 
 class Beleidsrelaties_Schema(Base_Schema):
     Van_Beleidskeuze = MM.fields.UUID(
-        required=True, allow_none=False, validate=[MM.validate.NoneOf([null_uuid, ])], obprops=['short'])
+        required=True,
+        allow_none=False,
+        validate=[
+            MM.validate.NoneOf(
+                [
+                    null_uuid,
+                ]
+            )
+        ],
+        obprops=["short"],
+    )
     Naar_Beleidskeuze = MM.fields.UUID(
-        required=True, allow_none=False, validate=[MM.validate.NoneOf([null_uuid, ])], obprops=['short'])
-    Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=['search_field', 'short'])
-    Status = MM.fields.Str(required=True, validate=[MM.validate.OneOf(
-        ['Open', 'Akkoord', 'NietAkkoord', 'Verbroken'])], obprops=['short'])
-    Aanvraag_Datum = MM.fields.DateTime(
-        format='iso', required=True, obprops=['short'])
+        required=True,
+        allow_none=False,
+        validate=[
+            MM.validate.NoneOf(
+                [
+                    null_uuid,
+                ]
+            )
+        ],
+        obprops=["short"],
+    )
+    Omschrijving = MM.fields.Str(
+        missing=None, validate=[HTML_Validate], obprops=["search_field", "short"]
+    )
+    Status = MM.fields.Str(
+        required=True,
+        validate=[MM.validate.OneOf(["Open", "Akkoord", "NietAkkoord", "Verbroken"])],
+        obprops=["short"],
+    )
+    Aanvraag_Datum = MM.fields.DateTime(format="iso", required=True, obprops=["short"])
     Datum_Akkoord = MM.fields.DateTime(
-        format='iso', allow_none=True, missing=None, obprops=['short'])
+        format="iso", allow_none=True, missing=None, obprops=["short"]
+    )
 
     class Meta(Base_Schema.Meta):
-        slug = 'beleidsrelaties'
-        table = 'Beleidsrelaties'
+        slug = "beleidsrelaties"
+        table = "Beleidsrelaties"
         read_only = True
         ordered = True
         searchable = False
         references = {
-            'Van_Beleidskeuze': UUID_Reference('Beleidskeuzes', Beleidskeuzes_Schema),
-            'Naar_Beleidskeuze': UUID_Reference('Beleidskeuzes', Beleidskeuzes_Schema),
-
+            "Van_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),
+            "Naar_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),
         }

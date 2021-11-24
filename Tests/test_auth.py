@@ -161,9 +161,7 @@ def test_password_reset(client, test_user):
         headers={"Authorization": f"Bearer {token}"},
         json={"password": "blabla", "new_password": incorrect_password},
     )
-    assert (
-        reset_password_res.status_code != 200
-    )
+    assert reset_password_res.status_code != 200
 
     # Should work with correct password
     reset_password_res = client.post(

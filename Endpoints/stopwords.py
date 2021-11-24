@@ -105,5 +105,5 @@ stopwords = [
     "andere",
     "zuid",
     "holland",
-    "zuid-holland"
+    "zuid-holland",
 ]

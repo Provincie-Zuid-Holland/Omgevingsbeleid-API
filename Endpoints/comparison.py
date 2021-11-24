@@ -10,7 +10,7 @@ import random
 import re
 
 # The functions below apply a 'trick' to the diffing.
-# By replacing every HTML tag with a random unicode symbol that is not already in the text, 
+# By replacing every HTML tag with a random unicode symbol that is not already in the text,
 # doing the diff and then restoring the tags we can't get tag collisions
 
 # Idea from https://github.com/google/diff-match-patch/wiki/Plain-Text-vs.-Structured-Content

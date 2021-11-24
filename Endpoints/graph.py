@@ -15,7 +15,7 @@ def graphView():
     nodes = []
     links = []
     valid_uuids = []
-    relatie_refs = ['Beleidskeuzes']
+    relatie_refs = ["Beleidskeuzes"]
     # Collect all objects that are valid right now (they function as source)
     for ep in endpoints:
         if not ep.Meta.graph_conf:
@@ -44,10 +44,11 @@ def graphView():
                                     {
                                         "source": obj["UUID"],
                                         "target": link["Object"]["UUID"],
-                                        "type": "Relatie" if (ref_field in relatie_refs) else "Koppeling",
+                                        "type": "Relatie"
+                                        if (ref_field in relatie_refs)
+                                        else "Koppeling",
                                     }
                                 )
-
 
     valid_links = []
     for link in links:

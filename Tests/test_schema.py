@@ -11,6 +11,7 @@ class Sample_Schema(Base_Schema):
     Description = MM.fields.String(obprops=["foo", "bar"])
     Owner = MM.fields.UUID(obprops=["baz"])
 
+
 def test_non_list():
     try:
         Sample_Schema.fields_with_props("foo")
@@ -18,13 +19,19 @@ def test_non_list():
     except TypeError as e:
         assert True
     else:
-        pytest.fail('Calling field selectors without a list should raise an exception')
+        pytest.fail("Calling field selectors without a list should raise an exception")
+
 
 def test_fields_with_props():
-    assert Sample_Schema.fields_with_props(["foo"]) == ['Title', 'Description']
-    assert Sample_Schema.fields_with_props(["foo","baz"]) == ['Title', 'Description', 'Owner']
+    assert Sample_Schema.fields_with_props(["foo"]) == ["Title", "Description"]
+    assert Sample_Schema.fields_with_props(["foo", "baz"]) == [
+        "Title",
+        "Description",
+        "Owner",
+    ]
     assert Sample_Schema.fields_with_props([""]) == []
-    assert Sample_Schema.fields_with_props(["bar"]) == ['Description']
+    assert Sample_Schema.fields_with_props(["bar"]) == ["Description"]
+
 
 def test_fields_without_props():
     assert Sample_Schema.fields_without_props(["foo"]) == [
@@ -36,7 +43,7 @@ def test_fields_without_props():
         "Created_Date",
         "Modified_By",
         "Modified_Date",
-        "Owner"
+        "Owner",
     ]
 
     assert Sample_Schema.fields_without_props(["bla"]) == [

@@ -55,7 +55,10 @@ class DataManager:
         self.all_valid_view = f"All_Valid_{self.schema.Meta.slug}"
 
         self.read_fields = [
-            field for field in self.schema().fields_without_props(["referencelist", "calculated"])
+            field
+            for field in self.schema().fields_without_props(
+                ["referencelist", "calculated"]
+            )
         ]
 
     def _setup(self):
@@ -167,7 +170,12 @@ class DataManager:
         """
 
         included_fields = ", ".join(
-            [field for field in self.schema().fields_without_props(["referencelist", "calculated"])]
+            [
+                field
+                for field in self.schema().fields_without_props(
+                    ["referencelist", "calculated"]
+                )
+            ]
         )
 
         query = (
@@ -204,7 +212,12 @@ class DataManager:
         """
 
         included_fields = ", ".join(
-            [field for field in self.schema().fields_without_props(["referencelist", "calculated"])]
+            [
+                field
+                for field in self.schema().fields_without_props(
+                    ["referencelist", "calculated"]
+                )
+            ]
         )
 
         query = f"SELECT {included_fields} FROM {self.all_latest_view} WHERE ID = ?"
@@ -264,7 +277,8 @@ class DataManager:
             select_fieldset = [
                 field
                 for field in self.schema().fields_with_props(["short"])
-                if field not in self.schema().fields_with_props(["referencelist", "calculated"])
+                if field
+                not in self.schema().fields_with_props(["referencelist", "calculated"])
             ]
         else:
             select_fieldset = fieldset

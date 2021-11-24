@@ -8,6 +8,7 @@ import pyodbc
 from globals import null_uuid, db_connection_settings
 import uuid
 
+
 class Gebruikers_Schema(MM.Schema):
     UUID = MM.fields.UUID(required=True)
     Gebruikersnaam = MM.fields.Str(required=True)
@@ -15,8 +16,8 @@ class Gebruikers_Schema(MM.Schema):
     Status = MM.fields.Str(missing=None)
 
     class Meta:
-        slug ='gebruikers'
-        table = 'Gebruikers'
+        slug = "gebruikers"
+        table = "Gebruikers"
         read_only = True
         ordered = True
         searchable = False
@@ -37,21 +38,28 @@ class Gebruikers_Schema(MM.Schema):
 
 class Gebruiker(Resource):
     """Deze resource vertegenwoordigd de Gebruikers van de applicaite"""
+
     @jwt_required
     def get(self, gebruiker_uuid=None):
         with pyodbc.connect(db_connection_settings) as cnx:
             cur = cnx.cursor()
             if gebruiker_uuid:
-                gebruikers = list(cur.execute(
-                    'SELECT * FROM Gebruikers WHERE UUID = ?', gebruiker_uuid))
+                gebruikers = list(
+                    cur.execute(
+                        "SELECT * FROM Gebruikers WHERE UUID = ?", gebruiker_uuid
+                    )
+                )
 
                 if not gebruikers:
-                    return {'message': f"Gebruiker met UUID {gebruiker_uuid} is niet gevonden"}, 400
+                    return {
+                        "message": f"Gebruiker met UUID {gebruiker_uuid} is niet gevonden"
+                    }, 400
 
                 schema = Gebruikers_Schema()
-                return(schema.dump(gebruikers[0]))
+                return schema.dump(gebruikers[0])
             else:
                 gebruikers = cur.execute(
-                    f"SELECT * FROM Gebruikers WHERE UUID != '{null_uuid}'")
+                    f"SELECT * FROM Gebruikers WHERE UUID != '{null_uuid}'"
+                )
                 schema = Gebruikers_Schema()
-                return(schema.dump(gebruikers, many=True))
+                return schema.dump(gebruikers, many=True)

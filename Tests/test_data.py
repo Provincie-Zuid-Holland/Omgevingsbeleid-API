@@ -6,6 +6,7 @@ from globals import null_uuid
 import base64
 from pathlib import Path
 
+
 def generate_data(schema, user_UUID=null_uuid, excluded_prop=None):
     fields = schema(exclude=schema.fields_with_props([excluded_prop])).fields
     result = {}
@@ -21,11 +22,11 @@ def generate_data(schema, user_UUID=null_uuid, excluded_prop=None):
         if validatee:
             continue
 
-        if field == 'Created_By' or field == 'Modified_By':
+        if field == "Created_By" or field == "Modified_By":
             result[field] = user_UUID
 
-        elif field == 'Status':
-            result[field] = 'Niet-Actief'
+        elif field == "Status":
+            result[field] = "Niet-Actief"
 
         elif type(fields[field]) == MM.fields.String:
             result[field] = "Test String"
@@ -37,17 +38,18 @@ def generate_data(schema, user_UUID=null_uuid, excluded_prop=None):
             result[field] = 42
 
         elif type(fields[field]) == MM.fields.DateTime:
-            result[field] = '1992-11-23T10:00:00'
+            result[field] = "1992-11-23T10:00:00"
 
         elif type(fields[field]) == MM.fields.Method:
-            result[field] = ''
+            result[field] = ""
 
         elif type(fields[field]) == MM.fields.Nested:
             result[field] = []
 
         else:
             raise NotImplementedError(
-                f'Missing implementation for field {field} ({type(fields[field])}) with value {fields[field]}')
+                f"Missing implementation for field {field} ({type(fields[field])}) with value {fields[field]}"
+            )
     return result
 
 
@@ -67,23 +69,27 @@ reference_rich_beleidskeuze = {
     "Ambities": [
         {
             "UUID": "B786487C-3E65-4DD8-B360-D2C56BF83172",
-            "Koppeling_Omschrijving": "TEST"
+            "Koppeling_Omschrijving": "TEST",
         },
         {
             "UUID": "0254A475-08A6-4B2A-A455-96BA6BE70A19",
-            "Koppeling_Omschrijving": "TEST"
-        }
-    ]
+            "Koppeling_Omschrijving": "TEST",
+        },
+    ],
 }
 
 
-image_folder = Path('./Tests/test_images')
+image_folder = Path("./Tests/test_images")
 
 with open(image_folder / "zuidholland_large.png", "rb") as image_file:
-    encoded = base64.b64encode(image_file.read()).decode('utf-8')
-    html_with_large_filesize_image = f"""<h1>Happy</h1><img alt="" src="data:image/png;base64,{encoded}" />"""
-    
+    encoded = base64.b64encode(image_file.read()).decode("utf-8")
+    html_with_large_filesize_image = (
+        f"""<h1>Happy</h1><img alt="" src="data:image/png;base64,{encoded}" />"""
+    )
+
 
 with open(image_folder / "zuidholland_wide.jpg", "rb") as image_file:
-    encoded = base64.b64encode(image_file.read()).decode('utf-8')
-    html_with_oversized_width_image = f"""<h1>Happy</h1><img alt="" src="data:image/jpeg;base64,{encoded}" />"""
+    encoded = base64.b64encode(image_file.read()).decode("utf-8")
+    html_with_oversized_width_image = (
+        f"""<h1>Happy</h1><img alt="" src="data:image/jpeg;base64,{encoded}" />"""
+    )

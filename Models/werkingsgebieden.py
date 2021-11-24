@@ -4,13 +4,14 @@
 import marshmallow as MM
 from Endpoints.base_schema import Base_Schema
 
+
 class Werkingsgebieden_Schema(Base_Schema):
-    Werkingsgebied = MM.fields.Str(required=True, obprops=['short'])
-    symbol = MM.fields.Str(missing=None, obprops=['short'])
+    Werkingsgebied = MM.fields.Str(required=True, obprops=["short"])
+    symbol = MM.fields.Str(missing=None, obprops=["short"])
 
     class Meta(Base_Schema.Meta):
-        slug = 'werkingsgebieden'
-        table = 'Werkingsgebieden'
+        slug = "werkingsgebieden"
+        table = "Werkingsgebieden"
         read_only = True
         ordered = True
         searchable = False
