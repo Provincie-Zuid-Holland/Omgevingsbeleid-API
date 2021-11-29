@@ -1027,7 +1027,7 @@ def test_graph_relation(client, auth):
 
     bk_2["Status"] = "Vigerend"
     bk_2["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-    bk_2["Beleidskeuzes"] = [{"UUID": bk_1_UUID}]
+    # bk_2["Beleidskeuzes"] = [{"UUID": bk_1_UUID}]
 
     response = client.post(
         "v0.1/beleidskeuzes",
@@ -1037,6 +1037,19 @@ def test_graph_relation(client, auth):
 
     assert response.status_code == 201, f"{response.get_json()}"
     bk_2_UUID = response.get_json()["UUID"]
+
+    br = generate_data(beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post")
+    br['Status'] = 'Akkoord'
+    br['Van_Beleidskeuze'] = bk_1_UUID
+    br['Naar_Beleidskeuze'] = bk_2_UUID
+    br["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidsrelaties",
+        json=br,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 201, f"{response.get_json()}"
 
     # Check graph
     response = client.get("v0.1/graph")
@@ -1051,7 +1064,7 @@ def test_graph_relation(client, auth):
     assert found_1
     assert found_2
 
-    assert {"source": bk_2_UUID, "target": bk_1_UUID, "type": "Relatie"} in links
+    assert {"source": bk_1_UUID, "target": bk_2_UUID, "type": "Relatie"} in links
 
 
 def test_reverse_valid_check(client, auth):

@@ -15,7 +15,7 @@ def graphView():
     nodes = []
     links = []
     valid_uuids = []
-    relatie_refs = ["Beleidskeuzes"]
+
     # Collect all objects that are valid right now (they function as source)
     for ep in endpoints:
         if not ep.Meta.graph_conf:
@@ -44,11 +44,24 @@ def graphView():
                                     {
                                         "source": obj["UUID"],
                                         "target": link["Object"]["UUID"],
-                                        "type": "Relatie"
-                                        if (ref_field in relatie_refs)
-                                        else "Koppeling",
+                                        "type": "Koppeling",
                                     }
                                 )
+
+    # Special link objects can be added here
+
+    # Beleidsrelaties
+    br_manager = Beleidsrelaties_Schema.Meta.manager(Beleidsrelaties_Schema)
+    brs = br_manager.get_all(True)
+    for br in brs:
+        
+        links.append(
+            {
+                "source": br["Van_Beleidskeuze"]['UUID'],
+                "target": br["Naar_Beleidskeuze"]['UUID'],
+                "type": "Relatie",
+            }
+        )
 
     valid_links = []
     for link in links:
