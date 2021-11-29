@@ -21,9 +21,7 @@ from datamodel import endpoints
 from Tests.test_data import generate_data, reference_rich_beleidskeuze
 from globals import db_connection_settings, min_datetime, max_datetime
 from Endpoints.references import (
-    ID_List_Reference,
     UUID_List_Reference,
-    ID_List_Reference,
 )
 import copy
 from flask import jsonify
@@ -69,7 +67,7 @@ def cleanup(auth):
             )
             for field, ref in table.Meta.references.items():
                 # Remove all references first
-                if type(ref) == UUID_List_Reference or type(ref) == ID_List_Reference:
+                if type(ref) == UUID_List_Reference:
                     for new_uuid in list(new_uuids):
                         cur.execute(
                             f"DELETE FROM {ref.link_tablename} WHERE {ref.my_col} = ?",
@@ -1038,10 +1036,12 @@ def test_graph_relation(client, auth):
     assert response.status_code == 201, f"{response.get_json()}"
     bk_2_UUID = response.get_json()["UUID"]
 
-    br = generate_data(beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post")
-    br['Status'] = 'Akkoord'
-    br['Van_Beleidskeuze'] = bk_1_UUID
-    br['Naar_Beleidskeuze'] = bk_2_UUID
+    br = generate_data(
+        beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post"
+    )
+    br["Status"] = "Akkoord"
+    br["Van_Beleidskeuze"] = bk_1_UUID
+    br["Naar_Beleidskeuze"] = bk_2_UUID
     br["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
 
     response = client.post(

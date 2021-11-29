@@ -10,10 +10,8 @@ from globals import (
     stoplist_name,
 )
 from Endpoints.references import (
-    Reverse_ID_Reference,
     Reverse_UUID_Reference,
     UUID_List_Reference,
-    ID_List_Reference,
     UUID_Reference,
 )
 from Endpoints.stopwords import stopwords
@@ -384,7 +382,7 @@ class DataManager:
             # This is for objects that are not inheriting from base_schema (probably an user object)
             included_fields = list(ref.schema.fields.keys())
 
-        if isinstance(ref, UUID_List_Reference) or isinstance(ref, ID_List_Reference):
+        if isinstance(ref, UUID_List_Reference):
 
             # Prepare for join query
             included_fields = [f"b.{field}" for field in included_fields]
@@ -445,9 +443,7 @@ class DataManager:
                 row[fieldname] = row_map.get(row[fieldname])
             return source_rows
 
-        if isinstance(ref, Reverse_UUID_Reference) or isinstance(
-            ref, Reverse_ID_Reference
-        ):
+        if isinstance(ref, Reverse_UUID_Reference):
             source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
 
             included_fields.append(ref.my_col)

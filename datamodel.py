@@ -94,15 +94,11 @@ def _field_to_ts(name, field_type, refs):
     ts_type = None
     if name in refs:
         ref = refs[name]
-        if isinstance(ref, references.UUID_List_Reference) or isinstance(
-            ref, references.ID_List_Reference
-        ):
+        if isinstance(ref, references.UUID_List_Reference):
             ts_type = f"{ref.schema.Meta.slug}[]"
         elif isinstance(ref, references.UUID_Reference):
             ts_type = f"{ref.schema.Meta.slug}"
-        elif isinstance(ref, references.Reverse_UUID_Reference) or isinstance(
-            ref, references.Reverse_ID_Reference
-        ):
+        elif isinstance(ref, references.Reverse_UUID_Reference):
             field_name += "?"
             ts_type = f"{ref.schema.Meta.slug}"
     else:
