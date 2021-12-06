@@ -49,6 +49,48 @@ linker_tables = [
 ]
 
 
+def generate_dbdiagram():
+    result_file = open("db_diagram.txt", "w")
+    tables = [
+        {"name": "Gebruikers", "fields": Gebruikers_Schema._declared_fields.items()}
+    ]
+    relations = []
+    for ep in endpoints:
+        tables.append({"name": ep.Meta.slug.capitalize(), "fields": ep._declared_fields.items()})
+        for _from, ref in {**ep.Meta.references, **ep.Meta.base_references}.items():
+            relations.append(
+                {
+                    "table": ep.Meta.slug.capitalize(),
+                    "from": _from,
+                    "to": ref,
+                }
+            )
+            if isinstance(ref, references.UUID_List_Reference):
+                tables.append(
+                    {"name": ref.link_tablename, "fields": [(ref.my_col, MMF.UUID()), (ref.their_col, MMF.UUID())]}
+                )
+    for t in tables:
+        result_file.write(f"""Table {t['name']} {{ \n""")
+        for fk, fv in t["fields"]:
+            result_file.write(f"""\t {fk} {fv.__class__.__name__}\n""")
+        result_file.write("}\n")
+    for r in relations:
+        if isinstance(r["to"], references.UUID_Reference):
+            result_file.write(
+                f"Ref{{{r['table']}.{r['from']} > {r['to'].schema.Meta.slug.capitalize()}.UUID}}\n"
+            )
+
+        if isinstance(r["to"], references.UUID_List_Reference):
+            result_file.write(
+                f"Ref{{{r['table']}.{r['from']} > {r['to'].link_tablename}.{r['to'].my_col}}}\n"
+            )
+            result_file.write(
+                f"Ref{{{r['to'].link_tablename}.{r['to'].their_col} > {r['to'].their_tablename}.UUID}}\n"
+            )
+
+    result_file.close()
+
+
 def show_inlined_properties():
     """We use this to help the frontend."""
     for ep in endpoints:

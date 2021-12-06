@@ -608,17 +608,6 @@ class DataManager:
 
         return self.get_single_on_UUID(output["UUID"])
 
-        # new_object = store_references(new_object, schema, cursor)
-
-        # # Up to here we have stored the references, and the object itself
-        # included_fields = ", ".join(
-        #     [field for field in schema().fields_without_props("referencelist")]
-        # )
-        # retrieve_query = (
-        #     f"""SELECT {included_fields} FROM {schema.Meta.table} WHERE UUID = ?"""
-        # )
-        # return get_objects(retrieve_query, [new_object["UUID"]], schema(), cursor)[0]
-
     def _set_up_search(self):
         """Creates the necessary indices for Full-Text-Search in SQL server, also adding stopwords to the database"""
         if not self.schema.Meta.searchable:

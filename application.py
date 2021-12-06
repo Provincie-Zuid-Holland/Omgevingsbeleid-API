@@ -60,6 +60,10 @@ def dm_markdown():
     with open("./datamodel.md", "w") as mdfile:
         mdfile.write(datamodel.generate_markdown_view())
 
+@app.cli.command("datamodel-dbdiagram")
+def dm_dbdiagram():
+    datamodel.generate_dbdiagram()
+
 
 # JWT CONFIG
 @jwt.unauthorized_loader
