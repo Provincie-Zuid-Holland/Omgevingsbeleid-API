@@ -1218,3 +1218,52 @@ def test_effective_version(client, auth):
     response = client.get(f"v0.1/version/beleidskeuzes/{new_bk_UUID}")
     assert response.status_code == 200
     assert response.get_json()["Effective_Version"] == bk_UUID
+
+
+def test_ID_relations(client, auth):
+    # Create two beleidskeuzes
+    bk_a = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk_a["Status"] = "Vigerend"
+    bk_a["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response_a = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk_a,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    a_uuid = response_a.get_json()['UUID']    
+    a_id = response_a.get_json()['ID']    
+
+    bk_b = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk_b["Status"] = "Vigerend"
+    bk_b["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response_b = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk_b,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    b_uuid = response_b.get_json()['UUID']    
+    b_id = response_b.get_json()['ID']
+
+    # Create a beleidsrelatie
+    br = generate_data(
+        beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post"
+    )
+    br['Status'] = 'Akkoord'
+    br['Van_Beleidskeuze'] = a_uuid
+    br['Naar_Beleidskeuze'] = b_uuid
+    response_br = client.post(
+        "v0.1/beleidsrelaties",
+        json=br,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    assert response_br.status_code == 201
+
+
+
