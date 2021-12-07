@@ -70,9 +70,9 @@ class Maatregelen_Schema(Base_Schema):
         required=True, validate=[HTML_Validate], obprops=["search_title", "short"]
     )
     Omschrijving = MM.fields.Str(
-        missing=None, validate=[HTML_Validate], obprops=["search_description"]
+        missing=None, validate=[HTML_Validate], obprops=[]
     )
-    Toelichting = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
+    Toelichting = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=["search_description"])
     Toelichting_Raw = MM.fields.Str(missing=None, obprops=[])
     Status = MM.fields.Str(
         missing=None, validate=[MM.validate.OneOf(status_options)], obprops=["short"]
