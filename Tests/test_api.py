@@ -1273,8 +1273,9 @@ def test_ID_relations(client, auth):
 
     assert response_get_br.status_code == 200
     assert response_br.get_json()['Van_Beleidskeuze']['UUID'] == a_uuid
+    assert response_br.get_json()['Naar_Beleidskeuze']['UUID'] == b_uuid
 
-    # Update beleidsrelatie
+    # Update beleidskeuze b
     response_patch_b = client.patch(
         f"v0.1/beleidskeuzes/{b_id}",
         json={**bk_b, 'Titel':'SWEN'},
@@ -1287,6 +1288,16 @@ def test_ID_relations(client, auth):
     )
 
     assert response_get_br.status_code == 200
-    assert response_br.get_json()['Naar_Beleidskeuze']['UUID'] == b_patch_uuid
+    # Expect the new beleidskeuze to show    
+    assert response_get_br.get_json()[0]['Van_Beleidskeuze']['UUID'] == a_uuid
+    assert response_get_br.get_json()[0]['Naar_Beleidskeuze']['UUID'] == b_patch_uuid
 
 
+    # Also check the single version
+    response_get_br_ver = client.get(
+        f"v0.1/version/beleidsrelaties/{br_uuid}")
+    
+    assert response_get_br_ver.status_code == 200
+    assert response_get_br_ver.get_json()['Van_Beleidskeuze']['UUID'] == a_uuid
+    assert response_get_br_ver.get_json()['Naar_Beleidskeuze']['UUID'] == b_patch_uuid
+    

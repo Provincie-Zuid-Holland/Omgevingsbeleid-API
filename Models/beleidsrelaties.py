@@ -4,6 +4,7 @@
 import marshmallow as MM
 from Endpoints.base_schema import Base_Schema
 from Endpoints.references import UUID_Reference
+from Endpoints.relation_data_manager import RelationDataManager
 from Endpoints.validators import HTML_Validate
 from Models.beleidskeuzes import Beleidskeuzes_Schema
 from globals import null_uuid
@@ -53,6 +54,7 @@ class Beleidsrelaties_Schema(Base_Schema):
         read_only = False
         ordered = True
         searchable = False
+        manager = RelationDataManager
         references = {
             "Van_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),
             "Naar_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),

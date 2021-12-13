@@ -311,6 +311,8 @@ class DataManager:
             query += " FETCH NEXT ? ROWS ONLY"
             query_args.append(limit)
 
+
+        print(query)
         result_rows = self.schema().dump(
             self._run_query_commit(query, query_args), many=True
         )
@@ -497,7 +499,6 @@ class DataManager:
         """
         # determine view/table to query
         target = self.all_valid_view if valid_only else self.schema().Meta.table
-
         # determine the fields to include in the query
         fieldset = ["*"]
         if short:
