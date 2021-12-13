@@ -1264,6 +1264,29 @@ def test_ID_relations(client, auth):
     )
 
     assert response_br.status_code == 201
+    br_uuid = response_br.get_json()['UUID']
+    br_id = response_br.get_json()['ID']
 
+    response_get_br = client.get(
+        f"v0.1/beleidsrelaties/{br_id}"
+    )
+
+    assert response_get_br.status_code == 200
+    assert response_br.get_json()['Van_Beleidskeuze']['UUID'] == a_uuid
+
+    # Update beleidsrelatie
+    response_patch_b = client.patch(
+        f"v0.1/beleidskeuzes/{b_id}",
+        json={**bk_b, 'Titel':'SWEN'},
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    b_patch_uuid = response_patch_b.get_json()['UUID']    
+
+    response_get_br = client.get(
+        f"v0.1/beleidsrelaties/{br_id}"
+    )
+
+    assert response_get_br.status_code == 200
+    assert response_br.get_json()['Naar_Beleidskeuze']['UUID'] == b_patch_uuid
 
 
