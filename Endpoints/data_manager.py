@@ -312,7 +312,6 @@ class DataManager:
             query_args.append(limit)
 
 
-        print(query)
         result_rows = self.schema().dump(
             self._run_query_commit(query, query_args), many=True
         )

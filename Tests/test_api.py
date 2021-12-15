@@ -1025,7 +1025,7 @@ def test_graph_relation(client, auth):
 
     bk_2["Status"] = "Vigerend"
     bk_2["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-    # bk_2["Beleidskeuzes"] = [{"UUID": bk_1_UUID}]
+    
 
     response = client.post(
         "v0.1/beleidskeuzes",
@@ -1035,6 +1035,11 @@ def test_graph_relation(client, auth):
 
     assert response.status_code == 201, f"{response.get_json()}"
     bk_2_UUID = response.get_json()["UUID"]
+
+    # Check if bks are in valid view
+    get_r = client.get('v0.1/valid/beleidskeuzes')
+    assert bk_1_UUID in (map(lambda bk: bk['UUID'],get_r.get_json()))
+    assert bk_2_UUID in (map(lambda bk: bk['UUID'],get_r.get_json()))
 
     br = generate_data(
         beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post"
@@ -1050,6 +1055,13 @@ def test_graph_relation(client, auth):
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
     assert response.status_code == 201, f"{response.get_json()}"
+    br_id = response.get_json()['ID']
+    br_uuid = response.get_json()['UUID']
+
+    get_r = client.get('v0.1/valid/beleidsrelaties')
+    assert br_uuid in list((map(lambda br: br['UUID'], get_r.get_json())))
+    
+
 
     # Check graph
     response = client.get("v0.1/graph")
@@ -1063,7 +1075,7 @@ def test_graph_relation(client, auth):
 
     assert found_1
     assert found_2
-
+    
     assert {"source": bk_1_UUID, "target": bk_2_UUID, "type": "Relatie"} in links
 
 
@@ -1257,12 +1269,13 @@ def test_ID_relations(client, auth):
     br['Status'] = 'Akkoord'
     br['Van_Beleidskeuze'] = a_uuid
     br['Naar_Beleidskeuze'] = b_uuid
+    br['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
     response_br = client.post(
         "v0.1/beleidsrelaties",
         json=br,
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
-
+    
     assert response_br.status_code == 201
     br_uuid = response_br.get_json()['UUID']
     br_id = response_br.get_json()['ID']
@@ -1301,3 +1314,8 @@ def test_ID_relations(client, auth):
     assert response_get_br_ver.get_json()['Van_Beleidskeuze']['UUID'] == a_uuid
     assert response_get_br_ver.get_json()['Naar_Beleidskeuze']['UUID'] == b_patch_uuid
     
+    # Check BR in valid view
+    response_get_br_valid = client.get(
+        f"v0.1/valid/beleidsrelaties")
+
+    assert br_uuid in (map(lambda br: br['UUID'], response_get_br_valid.get_json()))

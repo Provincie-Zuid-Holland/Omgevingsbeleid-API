@@ -53,8 +53,9 @@ def graphView():
     # Beleidsrelaties
     br_manager = Beleidsrelaties_Schema.Meta.manager(Beleidsrelaties_Schema)
     brs = br_manager.get_all(True)
+    
     for br in brs:
-
+    
         links.append(
             {
                 "source": br["Van_Beleidskeuze"]["UUID"],
