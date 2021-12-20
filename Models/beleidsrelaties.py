@@ -8,7 +8,7 @@ from Endpoints.relation_data_manager import RelationDataManager
 from Endpoints.validators import HTML_Validate
 from Models.beleidskeuzes import Beleidskeuzes_Schema
 from globals import null_uuid
-
+from Endpoints.version_endpoint import VersionedFullList
 
 class Beleidsrelaties_Schema(Base_Schema):
     Van_Beleidskeuze = MM.fields.UUID(
@@ -55,6 +55,7 @@ class Beleidsrelaties_Schema(Base_Schema):
         ordered = True
         searchable = False
         manager = RelationDataManager
+        fulllist_endpoint_cls = VersionedFullList
         references = {
             "Van_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),
             "Naar_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),

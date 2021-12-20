@@ -1319,3 +1319,8 @@ def test_ID_relations(client, auth):
         f"v0.1/valid/beleidsrelaties")
 
     assert br_uuid in (map(lambda br: br['UUID'], response_get_br_valid.get_json()))
+
+
+def test_versioned_list(client, auth):
+    # TODO Check if concept version is returned
+    pass
