@@ -87,8 +87,8 @@ class RelationDataManager(DataManager):
                         (SELECT *, 
                         ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
                         FROM {self.ID_view}) T 
-					JOIN Valid_beleidskeuzes vbk ON vbk.ID = T.Van_Beleidskeuze
-					JOIN Valid_beleidskeuzes nbk ON nbk.ID = T.Naar_Beleidskeuze
+					JOIN Latest_beleidskeuzes vbk ON vbk.ID = T.Van_Beleidskeuze
+					JOIN Latest_beleidskeuzes nbk ON nbk.ID = T.Naar_Beleidskeuze
                     WHERE T.RowNumber = 1
                     AND T.UUID != '00000000-0000-0000-0000-000000000000'
                     AND T.Eind_Geldigheid > GETDATE()

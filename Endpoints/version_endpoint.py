@@ -32,24 +32,22 @@ class VersionedFullList(FullList):
             return handle_validation_filter_exception(e)
 
         manager = self.schema.Meta.manager(self.schema)
-        concept_result_rows = manager.get_all(
+        
+        all_rows = manager.get_all(
             False, q_args["any_filters"], q_args["all_filters"], True
         )
-        valid_result_rows = manager.get_all(
+        valid_rows = manager.get_all(
             True, q_args["any_filters"], q_args["all_filters"], True
         )
-        pairs = {}
-        for row in concept_result_rows:
-            pairs[row['ID']] = {'Ontwerp': row, 'Valid': None}
 
-        for row in valid_result_rows:
-            if row['ID'] in pairs:
-                pairs[row['ID']]['Valid'] = row
-            else:
-                pairs[row['ID']] = {'Valid': row, 'Ontwerp':None}
+        valids_map = {}
+        for row in valid_rows:
+            valids_map[row['ID']] = row
+        
+        
+        for row in all_rows:
+            
+            row['Valid_version'] = valids_map.get(row['ID'])
 
-        results = []
-        for id, row in pairs.items():
-            results.append({'ID': id, **row})
 
-        return results, 200
+        return all_rows, 200
