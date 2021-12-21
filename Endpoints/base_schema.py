@@ -115,7 +115,7 @@ class Short_Base_Schema(MM.Schema):
             for field in in_data:
                 if isinstance(in_data[field], datetime.datetime):
                     in_data[field] = (
-                        in_data[field].replace(tzinfo=datetime.timezone.utc).isoformat()
+                        in_data[field].replace(tzinfo=datetime.timezone.utc)
                     )
         return in_data
 

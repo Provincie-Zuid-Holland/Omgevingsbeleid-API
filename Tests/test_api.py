@@ -1205,3 +1205,51 @@ def test_effective_version(client, auth):
     response = client.get(f"v0.1/version/beleidskeuzes/{new_bk_UUID}")
     assert response.status_code == 200
     assert response.get_json()["Effective_Version"] == bk_UUID
+
+def test_edits_200(client, auth):
+    response = client.get('v0.1/edits')
+    assert response.status_code == 200
+
+def test_edits_latest(client, auth):
+    bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    bk_uuid = response.get_json()['UUID']
+
+    response = client.get('v0.1/edits')
+    assert response.status_code == 200
+    assert response.get_json()[0]['UUID'] == bk_uuid
+
+
+def test_edits_vigerend(client, auth):
+    bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    bk_uuid = response.get_json()['UUID']
+    bk_id = response.get_json()['ID']
+
+    response = client.patch(
+        f"v0.1/beleidskeuzes/{bk_id}",
+        json={'Status':'Vigerend'},
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    response = client.get('v0.1/edits')
+    assert response.status_code == 200
+    for row in response.get_json():
+        assert row['ID'] != bk_id 
+    
