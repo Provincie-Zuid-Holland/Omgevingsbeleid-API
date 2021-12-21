@@ -46,33 +46,28 @@ status_options = [
 
 class Beleidskeuzes_Schema(Base_Schema):
     Eigenaar_1 = MM.fields.UUID(
-        default=default_user_uuid,
         missing=default_user_uuid,
         allow_none=True,
         userfield=True,
         obprops=[],
     )
     Eigenaar_2 = MM.fields.UUID(
-        default=default_user_uuid,
         missing=default_user_uuid,
         allow_none=True,
         userfield=True,
         obprops=[],
     )
     Portefeuillehouder_1 = MM.fields.UUID(
-        default=default_user_uuid,
         missing=default_user_uuid,
         allow_none=True,
         obprops=[],
     )
     Portefeuillehouder_2 = MM.fields.UUID(
-        default=default_user_uuid,
         missing=default_user_uuid,
         allow_none=True,
         obprops=[],
     )
     Opdrachtgever = MM.fields.UUID(
-        default=default_user_uuid,
         missing=default_user_uuid,
         allow_none=True,
         obprops=[],
@@ -96,7 +91,7 @@ class Beleidskeuzes_Schema(Base_Schema):
     Besluitnummer = MM.fields.Str(missing=None, obprops=[])
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
-        missing=None, default=None, obprops=["excluded_post", "not_inherited"]
+        missing=None, obprops=["excluded_post", "not_inherited"]
     )
     Ambities = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=["referencelist"]
