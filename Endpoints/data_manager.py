@@ -79,11 +79,9 @@ class DataManager:
             except pyodbc.DatabaseError as e:
                 if e.args[0] == "No results.  Previous SQL was not a query.":
                     return None
-                else:
-                    print(query)
+                else:                    
                     raise e
             except pyodbc.ProgrammingError as e:
-                print(query)
                 raise e
 
     def _set_up_all_valid_view(self):

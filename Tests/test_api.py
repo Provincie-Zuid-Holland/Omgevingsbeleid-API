@@ -1252,4 +1252,30 @@ def test_edits_vigerend(client, auth):
     assert response.status_code == 200
     for row in response.get_json():
         assert row['ID'] != bk_id 
-    
+
+def test_empty_edit(client, auth):
+    bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk["Status"] = "Vigerend"
+    bk["Eind_Geldigheid"] = "9999-12-31T23:59:59"
+
+    # print(bk)
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    assert response.status_code == 201
+    bk_ID = response.get_json()["ID"]
+    bk_UUID = response.get_json()["UUID"]
+
+    # Patch without changes
+    response = client.patch(
+        f"v0.1/beleidskeuzes/{bk_ID}",
+        json=bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 400

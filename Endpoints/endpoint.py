@@ -11,6 +11,7 @@ from Endpoints.data_manager import DataManager
 from Endpoints.errors import (
     handle_UUID_does_not_exists,
     handle_empty,
+    handle_empty_patch,
     handle_integrity_exception,
     handle_odbc_exception,
     handle_read_only,
@@ -200,8 +201,16 @@ class Lineage(Schema_Resource):
             exclude=self.schema.fields_with_props(["calculated"])
         ).load(old_object)
 
+        # Remove ID & UUID from changes and old object
+        old_object.pop("UUID")
+        _id = old_object.pop("ID")
+
         new_object = {**old_object, **changes}
-        new_object.pop("UUID")
+
+        if new_object == old_object:
+            return handle_empty_patch()
+
+        new_object["ID"] = _id
         new_object["Modified_Date"] = request_time
         new_object["Modified_By"] = get_jwt_identity()["UUID"]
 

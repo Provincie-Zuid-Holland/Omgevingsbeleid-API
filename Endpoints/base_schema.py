@@ -105,11 +105,22 @@ class Short_Base_Schema(MM.Schema):
                 except:
                     pass
         return dumped
+    
+    
+    @MM.post_load()
+    def replace_nill(self, in_data, **kwargs):
+        """
+        Change nill UUIDs to null
+        """
+        for field in in_data:
+            if isinstance(in_data[field], uuid.UUID) and in_data[field] == uuid.UUID(null_uuid):
+                in_data[field] = None
+        return in_data
 
-    @MM.pre_load()
+    @MM.post_load()
     def stringify_datetimes(self, in_data, **kwargs):
         """
-        Assures that datetimes from the database are loaded as isoformat
+        Assures that datetimes from the database are loaded as isoformat, if no timezone info is given, assume UTC
         """
         if in_data:
             for field in in_data:
