@@ -4,7 +4,7 @@
 """
 Tests that check wether the generated OpenAPI specification is valid
 """
-from openapi_spec_validator import openapi_v3_spec_validator, validate_spec
+from openapi_spec_validator import validate_v3_spec 
 import os
 import tempfile
 
@@ -23,6 +23,11 @@ def test_spec(client):
     spec_url = f"v0.1/spec"
     response = client.get(spec_url)
     assert response.status_code == 200, "Spec should be available"
-    assert (
-        list(openapi_v3_spec_validator.iter_errors(response.get_json())) == []
-    ), "Spec should pass validation"
+
+    validate_v3_spec(response.get_json())
+    
+    
+    
+    # assert (
+    #     list(openapi_v3_spec_validator.iter_errors(response.get_json())) == []
+    # ), "Spec should pass validation"
