@@ -35,10 +35,7 @@ class Short_Base_Schema(MM.Schema):
         manager = DataManager
         ordered = True
         read_only = False
-        base_references = {
-            "Modified_By": UUID_Reference("Gebruikers", Gebruikers_Schema),
-            "Created_By": UUID_Reference("Gebruikers", Gebruikers_Schema),
-        }
+        base_references = {}
         references = {}
         unknown = MM.RAISE
         # (field_name, valid_value)
@@ -105,15 +102,16 @@ class Short_Base_Schema(MM.Schema):
                 except:
                     pass
         return dumped
-    
-    
+
     @MM.post_load()
     def replace_nill(self, in_data, **kwargs):
         """
         Change nill UUIDs to null
         """
         for field in in_data:
-            if isinstance(in_data[field], uuid.UUID) and in_data[field] == uuid.UUID(null_uuid):
+            if isinstance(in_data[field], uuid.UUID) and in_data[field] == uuid.UUID(
+                null_uuid
+            ):
                 in_data[field] = None
         return in_data
 
@@ -125,8 +123,8 @@ class Short_Base_Schema(MM.Schema):
         if in_data:
             for field in in_data:
                 if isinstance(in_data[field], datetime.datetime):
-                    in_data[field] = (
-                        in_data[field].replace(tzinfo=datetime.timezone.utc)
+                    in_data[field] = in_data[field].replace(
+                        tzinfo=datetime.timezone.utc
                     )
         return in_data
 
@@ -218,3 +216,9 @@ class Base_Schema(Short_Base_Schema):
         required=True,
         obprops=["excluded_patch", "excluded_post", "short"],
     )
+
+    class Meta(Short_Base_Schema.Meta):
+        base_references = {
+            "Modified_By": UUID_Reference("Gebruikers", Gebruikers_Schema),
+            "Created_By": UUID_Reference("Gebruikers", Gebruikers_Schema),
+        }

@@ -124,7 +124,7 @@ class Beleidskeuzes_Schema(Base_Schema):
     Ref_Beleidsmodules = MM.fields.Nested(
         UUID_Linker_Schema,
         many=True,
-        obprops=["referencelist", "excluded_patch", "excluded_post"],
+        obprops=["referencelist", "excluded_patch", "excluded_post", "short"],
     )
     Latest_Version = MM.fields.UUID(
         required=False,

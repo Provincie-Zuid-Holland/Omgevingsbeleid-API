@@ -288,16 +288,15 @@ class DataManager:
         target_view = self.valid_view if valid_only else self.latest_view
 
         # determine the fields to include in the query
-        fieldset = ["*"]
         if short:
             select_fieldset = [
                 field
                 for field in self.schema().fields_with_props(["short"])
                 if field
-                not in self.schema().fields_with_props(["referencelist", "calculated"])
+                not in self.schema().fields_with_props(["calculated", "referencelist"])
             ]
         else:
-            select_fieldset = fieldset
+            select_fieldset = ["*"]
 
         query = f"""
                 SELECT {', '.join(select_fieldset)} FROM {target_view} 
@@ -339,11 +338,13 @@ class DataManager:
             **self.schema.Meta.references,
         }
 
-        included_references = (
-            all_references
-            if (fieldset == ["*"])
-            else {ref: all_references[ref] for ref in all_references if ref in fieldset}
-        )
+        # Determine the references to include
+        if (select_fieldset == ["*"]):
+            included_references = all_references
+        elif short:
+            included_references = {ref: all_references[ref] for ref in all_references if ref in self.schema().fields_with_props(["short"])}
+        else:
+            included_references = {ref: all_references[ref] for ref in all_references if ref in select_fieldset}
 
         for ref in included_references:
             result_rows = self._retrieve_references(
@@ -580,7 +581,7 @@ class DataManager:
         included_references = (
             all_references
             if (fieldset == ["*"])
-            else {ref: all_references[ref] for ref in all_references if ref in fieldset}
+            else {ref: all_references[ref] for ref in all_references if ref in select_fieldset}
         )
 
         for ref in included_references:
