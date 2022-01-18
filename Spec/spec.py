@@ -126,7 +126,7 @@ def render_schemas(endpoints):
                             },
                         },
                     }
-                    
+
                 if isinstance(ref, references.Reverse_UUID_Reference):
                     read_properties[field] = {
                         "description": f"An list of {slug} objects that refer to this object (reverse lookup)",
@@ -158,7 +158,7 @@ def render_schemas(endpoints):
                             },
                         },
                     }
-        
+
             # Simple field
             else:
                 props = {}
@@ -797,8 +797,8 @@ def render_paths(endpoints):
                     },
                 },
             }
-    
-    # Tokeninfo spec 
+
+    # Tokeninfo spec
     paths[f"/tokeninfo"]["get"] = {
         "summary": f"Get information about the current JWT token",
         "parameters": [],
@@ -809,41 +809,93 @@ def render_paths(endpoints):
                     "application/json": {
                         "schema": {
                             "properties": {
-                                "expires" : {
+                                "expires": {
                                     "type": "string",
                                     "format": "date-time",
-                                    "description": "Moment of expiration for this token"
+                                    "description": "Moment of expiration for this token",
                                 },
                                 "identifier": {
                                     "type": "object",
                                     "properties": {
                                         "Email": {
                                             "type": "string",
-                                            "description": "Email for the user that generated this token"
+                                            "description": "Email for the user that generated this token",
                                         },
                                         "Gebruikersnaam": {
                                             "type": "string",
-                                            "description": "Username for the user that generated this token"
+                                            "description": "Username for the user that generated this token",
                                         },
                                         "Rol": {
                                             "type": "string",
-                                            "description": "Role for the user that generated this token"
+                                            "description": "Role for the user that generated this token",
                                         },
                                         "UUID": {
                                             "type": "string",
                                             "format": "uuid",
-                                            "description": "UUID for the user that generated this token"
+                                            "description": "UUID for the user that generated this token",
                                         },
-
-                                    }
-
-                                }
+                                    },
+                                },
                             }
                         }
                     }
-                }
+                },
             }
-        }
+        },
+    }
+
+    # Edits spec
+    paths[f"/edits"]["get"] = {
+        "summary": f"Get the latest edits for every lineage, active for 'Beleidskeuzes' & 'Maatregelen'",
+        "parameters": [],
+        "responses": {
+            "200": {
+                "description": "A list of edits",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "expires": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "description": "Moment of expiration for this token",
+                                    },
+                                    "identifier": {
+                                        "type": "object",
+                                        "properties": {
+                                            "ID": {
+                                                "type": "integer",
+                                                "description": "ID for this object",
+                                            },
+                                            "UUID": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "description": "UUID for this object",
+                                            },
+                                            "Status": {
+                                                "type": "string",
+                                                "description": "Status for this object",
+                                            },
+                                            "Titel": {
+                                                "type": "string",
+                                                "description": "Title for this object",
+                                            },
+                                            "Type": {
+                                                "type": "string",
+                                                "description": "Type slug for this object",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        }
+                    }
+                },
+            }
+        },
     }
 
     # Search spec
@@ -885,29 +937,33 @@ def render_paths(endpoints):
                 "content": {
                     "application/json": {
                         "schema": {
-                            "properties": {
-                                "Omschrijving": {
-                                    "type": "string",
-                                    "description": "A description of this object",
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "Omschrijving": {
+                                        "type": "string",
+                                        "description": "A description of this object",
+                                    },
+                                    "Titel": {
+                                        "type": "string",
+                                        "description": "The title of this object",
+                                    },
+                                    "RANK": {
+                                        "type": "integer",
+                                        "description": "A representation of the search rank, only usefull for comparing between two results",
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "description": "The type of this object",
+                                    },
+                                    "UUID": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "The UUID of this object",
+                                    },
                                 },
-                                "Titel": {
-                                    "type": "string",
-                                    "description": "The title of this object",
-                                },
-                                "RANK": {
-                                    "type": "integer",
-                                    "description": "A representation of the search rank, only usefull for comparing between two results",
-                                },
-                                "type": {
-                                    "type": "string",
-                                    "description": "The type of this object",
-                                },
-                                "UUID": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "The UUID of this object",
-                                },
-                            }
+                            },
                         }
                     }
                 },
