@@ -844,6 +844,69 @@ def render_paths(endpoints):
         },
     }
 
+    # Graph spec
+    paths[f"/graph"]["get"] = {
+        "summary": f"Get a graph representation of the effective objects",
+        "parameters": [],
+        "responses": {
+            "200": {
+                "description": "A graph representation",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "nodes": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "UUID": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "description": "The UUID of the object this node represents",
+                                            },
+                                            "Titel": {
+                                                "type": "string",
+                                                "description": "The title of the object this node represents",
+                                            },
+                                            "Type": {
+                                                "type": "string",
+                                                "description": "The type slug of the object this node represents",
+                                            },
+                                        },
+                                    },
+                                },
+                                "links": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "source": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "description": "The UUID of the object this link originates from",
+                                            },
+                                            "target": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "description": "The UUID of the object this link targets to",
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "description": "The type slug of the object this link represents",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        }
+                    },
+                },
+            },
+        },
+    }
+
     # Edits spec
     paths[f"/edits"]["get"] = {
         "summary": f"Get the latest edits for every lineage, active for 'Beleidskeuzes' & 'Maatregelen'",
