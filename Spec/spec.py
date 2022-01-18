@@ -41,26 +41,47 @@ def render_schemas(endpoints):
         }
     }
     for model in endpoints:
-        read_properties = {}
-        write_properties = {}
-        change_properties = {}
+        read_properties = {}  # Properties in a detail view (get_single_on_uuid)
+        write_properties = {}  # properties for patch or post
+        change_properties = {}  # properties when looking at changes
+        inline_properties = {}  # properties when inlined
+        short_properties = {}  # Properties in a list view (get_all & get_lineage)
         fields = model().fields
+
+        all_references = {
+            **model.Meta.base_references,
+            **model.Meta.references,
+        }
+
+        inline_fields = [
+            field
+            for field in model.fields_without_props(["referencelist", "calculated"])
+        ]
+
+        short_fields = [field for field in model.fields_with_props(["short"])]
+
         for field in fields:
 
-            # Nested field
-            if type(fields[field]) == MM.fields.Nested:
-                ref = model.Meta.references[field]
+            # Reference field
+            if field in all_references:
+                ref = all_references[field]
                 slug = ref.schema.Meta.slug
                 if isinstance(ref, references.UUID_Reference):
                     read_properties[field] = {
                         "description": f"An inlined {slug} object",
-                        "$ref": f"#/components/schemas/{slug}_read",
+                        "$ref": f"#/components/schemas/{slug}-inline",
                     }
                     write_properties[field] = {
                         "description": f"A UUID reference to a {slug} object",
                         "type": "string",
                         "format": "uuid",
                     }
+                    if field in inline_fields:
+                        inline_properties[field] = {
+                            "description": f"A UUID reference to a {slug} object",
+                            "type": "string",
+                            "format": "uuid",
+                        }
                 if isinstance(ref, references.UUID_List_Reference):
                     read_properties[field] = {
                         "description": f"An list of {slug} objects",
@@ -69,7 +90,9 @@ def render_schemas(endpoints):
                             "type": "object",
                             "properties": {
                                 "Koppeling_Omschrijving": {"type": "string"},
-                                "Object": {"$ref": f"#/components/schemas/{slug}-read"},
+                                "Object": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                         },
                     }
@@ -85,23 +108,30 @@ def render_schemas(endpoints):
                         "properties": {
                             "new": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-read"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                             "removed": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-read"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                             "same": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-read"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                         },
                     }
+                    
                 if isinstance(ref, references.Reverse_UUID_Reference):
                     read_properties[field] = {
                         "description": f"An list of {slug} objects that refer to this object (reverse lookup)",
                         "type": "array",
-                        "items": {"$ref": f"#/components/schemas/{slug}-read"},
+                        "items": {"$ref": f"#/components/schemas/{slug}-inline"},
                     }
 
                     change_properties[field] = {
@@ -110,18 +140,25 @@ def render_schemas(endpoints):
                         "properties": {
                             "new": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-read"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                             "removed": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-read"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                             "same": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-read"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                         },
                     }
+        
             # Simple field
             else:
                 props = {}
@@ -163,6 +200,10 @@ def render_schemas(endpoints):
 
                 read_properties[field] = props
                 change_properties[field] = props
+                if field in inline_fields:
+                    inline_properties[field] = props
+                if field in short_fields:
+                    short_properties[field] = props
                 if not (
                     "excluded_post" in fields[field].metadata["obprops"]
                     and "excluded_patch" in fields[field].metadata["obprops"]
@@ -182,7 +223,26 @@ def render_schemas(endpoints):
             "description": f"Schema that defines how to write {model.Meta.slug}",
             "properties": write_properties,
         }
+        schemas[model.Meta.slug + "-inline"] = {
+            "description": f"Schema that defines the structure of {model.Meta.slug} when inlining",
+            "properties": inline_properties,
+        }
 
+    # Custom definition for gebruikers
+    schemas["gebruikers-read"] = {
+        "description": "Schema that defines the structure of Gebruikers when reading",
+        "properties": {
+            "UUID": {
+                "description": "The UUID of this gebruiker",
+                "type": "string",
+                "format": "uuid",
+            },
+            "Gebruikersnaam": {"type": "string"},
+            "Rol": {"type": "string"},
+            "Status": {"type": "string"},
+        },
+    }
+    schemas["gebruikers-inline"] = schemas["gebruikers-read"]
     return schemas
 
 
@@ -265,7 +325,7 @@ def render_paths(endpoints):
                     "in": "path",
                     "description": "UUID of the object to read",
                     "required": True,
-                    "schema": {"type": "string", "format":"uuid"},
+                    "schema": {"type": "string", "format": "uuid"},
                 }
             ],
             "summary": f"Gets all the {model.Meta.slug} lineages and shows the latests object for each",
@@ -305,14 +365,14 @@ def render_paths(endpoints):
                     "in": "path",
                     "description": "UUID of the old object to compare to",
                     "required": True,
-                    "schema": {"type": "string", "format":"uuid"},
+                    "schema": {"type": "string", "format": "uuid"},
                 },
                 {
                     "name": "new_uuid",
                     "in": "path",
                     "description": "UUID of the new object to compare with",
                     "required": True,
-                    "schema": {"type": "string", "format":"uuid"},
+                    "schema": {"type": "string", "format": "uuid"},
                 },
             ],
             "summary": f"Shows the changes between two versions of objects",
