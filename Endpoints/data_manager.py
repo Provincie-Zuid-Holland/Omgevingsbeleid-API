@@ -202,8 +202,8 @@ class DataManager:
 
         return result_rows[0]
 
-    def get_single_on_ID(self, id):
-        """Retrieve a single version of an object of this type
+    def _get_latest_for_ID(self, id):
+        """Retrieve the latest version of a lineage
 
         Args:
             id (int): the id of the target object
@@ -256,7 +256,7 @@ class DataManager:
         if status_condition:
             query = query + status_condition
         return self.schema(partial=True).dump(self._run_query_commit(query), many=True)
-        
+    
 
     def get_all(
         self,
@@ -352,6 +352,7 @@ class DataManager:
             )
 
         return result_rows
+
 
     def _store_references(self, obj_uuid, ref, ref_datalist):
         """
@@ -516,31 +517,27 @@ class DataManager:
         Returns:
             List: The resulting objects
         """
-        # determine view/table to query
-        target = self.all_valid_view if valid_only else self.schema().Meta.table
-
-        # determine the fields to include in the query
-        fieldset = ["*"]
-        if short:
-            fieldset = [field for field in self.schema().fields_with_props(["short"])]
-            # skip references field in short
-            select_fieldset = [
-                field[0]
-                for field in self.schema().fields.items()
-                if (
-                    "referencelist" not in field[1].metadata["obprops"]
-                    and field[0] in fieldset
-                )
-            ]
-
-        else:
-            select_fieldset = fieldset
-
         # ID is required
         query_args = [id]
 
+        # determine view/table to query
+        target_view = self.all_valid_view if valid_only else self.schema().Meta.table
+
+        # determine the fields to include in the query
+        if short:
+            select_fieldset = [
+                field
+                for field in self.schema().fields_with_props(["short"])
+                if field
+                not in self.schema().fields_with_props(["calculated", "referencelist"])
+            ]
+        else:
+            select_fieldset = ["*"]
+
+        
+
         query = f"""
-                SELECT {', '.join(select_fieldset)} FROM {target}
+                SELECT {', '.join(select_fieldset)} FROM {target_view}
                 WHERE ID = ? 
                 """
         # generate filter_queries
@@ -578,11 +575,12 @@ class DataManager:
             **self.schema.Meta.references,
         }
 
-        included_references = (
-            all_references
-            if (fieldset == ["*"])
-            else {ref: all_references[ref] for ref in all_references if ref in select_fieldset}
-        )
+        if (select_fieldset == ["*"]):
+            included_references = all_references
+        elif short:
+            included_references = {ref: all_references[ref] for ref in all_references if ref in self.schema().fields_with_props(["short"])}
+        else:
+            included_references = {ref: all_references[ref] for ref in all_references if ref in select_fieldset}
 
         for ref in included_references:
             result_rows = self._retrieve_references(
@@ -628,17 +626,6 @@ class DataManager:
             )
 
         return self.get_single_on_UUID(output["UUID"])
-
-        # new_object = store_references(new_object, schema, cursor)
-
-        # # Up to here we have stored the references, and the object itself
-        # included_fields = ", ".join(
-        #     [field for field in schema().fields_without_props("referencelist")]
-        # )
-        # retrieve_query = (
-        #     f"""SELECT {included_fields} FROM {schema.Meta.table} WHERE UUID = ?"""
-        # )
-        # return get_objects(retrieve_query, [new_object["UUID"]], schema(), cursor)[0]
 
     def _set_up_search(self):
         """Creates the necessary indices for Full-Text-Search in SQL server, also adding stopwords to the database"""

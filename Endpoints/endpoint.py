@@ -160,7 +160,7 @@ class Lineage(Schema_Resource):
 
         manager = self.schema.Meta.manager(self.schema)
 
-        old_object = manager.get_single_on_ID(id)
+        old_object = manager._get_latest_for_ID(id)
 
         if not old_object:
             return handle_ID_does_not_exists(id)

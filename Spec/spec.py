@@ -41,11 +41,11 @@ def render_schemas(endpoints):
         }
     }
     for model in endpoints:
-        read_properties = {}
-        write_properties = {}
-        change_properties = {}
-        inline_properties = {}
-        short_properties = {}
+        read_properties = {}  # Properties in a detail view (get_single_on_uuid)
+        write_properties = {}  # properties for patch or post
+        change_properties = {}  # properties when looking at changes
+        inline_properties = {}  # properties when inlined
+        short_properties = {}  # Properties in a list view (get_all & get_lineage)
         fields = model().fields
 
         all_references = {
@@ -58,12 +58,11 @@ def render_schemas(endpoints):
             for field in model.fields_without_props(["referencelist", "calculated"])
         ]
 
-        short_fields = [field
-            for field in model.fields_with_props(["short"])]
+        short_fields = [field for field in model.fields_with_props(["short"])]
 
         for field in fields:
 
-            # Nested field
+            # Reference field
             if field in all_references:
                 ref = all_references[field]
                 slug = ref.schema.Meta.slug
@@ -91,11 +90,12 @@ def render_schemas(endpoints):
                             "type": "object",
                             "properties": {
                                 "Koppeling_Omschrijving": {"type": "string"},
-                                "Object": {"$ref": f"#/components/schemas/{slug}-inline"},
+                                "Object": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                         },
                     }
-                    
 
                     write_properties[field] = {
                         "description": f"An list of references to {slug} objects",
@@ -108,19 +108,25 @@ def render_schemas(endpoints):
                         "properties": {
                             "new": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-inline"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                             "removed": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-inline"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                             "same": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-inline"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                         },
                     }
-                    assert(field not in inline_fields), 'Reference list fields should never be in inline_fields'
+                    
                 if isinstance(ref, references.Reverse_UUID_Reference):
                     read_properties[field] = {
                         "description": f"An list of {slug} objects that refer to this object (reverse lookup)",
@@ -134,19 +140,25 @@ def render_schemas(endpoints):
                         "properties": {
                             "new": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-inline"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                             "removed": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-inline"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                             "same": {
                                 "type": "array",
-                                "items": {"$ref": f"#/components/schemas/{slug}-inline"},
+                                "items": {
+                                    "$ref": f"#/components/schemas/{slug}-inline"
+                                },
                             },
                         },
                     }
-                    assert(field not in inline_fields), 'Reverse reference fields should never be in inline_fields'
+        
             # Simple field
             else:
                 props = {}
@@ -197,7 +209,7 @@ def render_schemas(endpoints):
                     and "excluded_patch" in fields[field].metadata["obprops"]
                 ):
                     write_properties[field] = props
-        
+
         schemas[model.Meta.slug + "-read"] = {
             "description": f"Schema that defines the structure of {model.Meta.slug} when reading",
             "properties": read_properties,
