@@ -797,6 +797,56 @@ def render_paths(endpoints):
                     },
                 },
             }
+    
+    # Tokeninfo spec 
+    paths[f"/tokeninfo"]["get"] = {
+        "summary": f"Get information about the current JWT token",
+        "parameters": [],
+        "responses": {
+            "200": {
+                "description": "Token information",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "expires" : {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "Moment of expiration for this token"
+                                },
+                                "identifier": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Email": {
+                                            "type": "string",
+                                            "description": "Email for the user that generated this token"
+                                        },
+                                        "Gebruikersnaam": {
+                                            "type": "string",
+                                            "description": "Username for the user that generated this token"
+                                        },
+                                        "Rol": {
+                                            "type": "string",
+                                            "description": "Role for the user that generated this token"
+                                        },
+                                        "UUID": {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "description": "UUID for the user that generated this token"
+                                        },
+
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    # Search spec
     paths[f"/search"]["get"] = {
         "summary": f"Search for objects with a textual query",
         "parameters": [
