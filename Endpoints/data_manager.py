@@ -167,7 +167,7 @@ class DataManager:
             result_rows = list(map(row_to_dict, cur.execute(query, *args)))
             return result_rows
 
-    def get_single_on_UUID(self, uuid):
+    def get_single_on_UUID(self, uuid, valid_only=True):
         """Retrieve a single version of an object of this type
 
         Args:
@@ -199,12 +199,12 @@ class DataManager:
 
         for ref in included_references:
             result_rows = self._retrieve_references(
-                ref, included_references[ref], result_rows
+                ref, included_references[ref], result_rows, valid_only
             )
 
         return result_rows[0]
 
-    def get_single_on_ID(self, id):
+    def get_single_on_ID(self, id, valid_only=False):
         """Retrieve a single version of an object of this type
 
         Args:
@@ -232,14 +232,14 @@ class DataManager:
 
         for ref in included_references:
             result_rows = self._retrieve_references(
-                ref, included_references[ref], result_rows
+                ref, included_references[ref], result_rows, valid_only
             )
 
         return result_rows[0]
 
     def get_all(
         self,
-        valid_only=False,
+        valid_only=True,
         any_filters=None,
         all_filters=None,
         short=False,
@@ -331,7 +331,7 @@ class DataManager:
 
         for ref in included_references:
             result_rows = self._retrieve_references(
-                ref, included_references[ref], result_rows
+                ref, included_references[ref], result_rows, valid_only
             )
 
         return result_rows
@@ -355,12 +355,12 @@ class DataManager:
                     [obj_uuid, ref_data["UUID"], ref_data.get("Koppeling_Omschrijving") or ''],
                 )
 
-    def _retrieve_references(self, fieldname, ref, source_rows):
+    def _retrieve_references(self, fieldname, ref, source_rows, valid_only=True):
         """
         Retrieve the linked references for this set of objects
 
         Args:
-            fieldname (string): A fieldname on which to store the references
+            fieldname (string): The fieldname to add the results to
             ref (reference): A reference object
             source_rows (list): The objects to add the references on
 
@@ -383,10 +383,12 @@ class DataManager:
             included_fields.append(ref.my_col)
 
             source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
+            
+            target_tablename = f'Valid_{ref.their_tablename}' if valid_only else ref.their_tablename
             # Query from the Valid view, so only valid objects get inlined.
             query = f"""
                  SELECT {", ".join(included_fields)}, {ref.description_col} FROM {ref.link_tablename} a
-                 JOIN Valid_{ref.their_tablename} b ON b.UUID = {ref.their_col}
+                 JOIN {target_tablename} b ON b.UUID = {ref.their_col}
                  WHERE a.{ref.my_col} in ({source_uuids})
                  """
             
@@ -558,7 +560,7 @@ class DataManager:
 
         for ref in included_references:
             result_rows = self._retrieve_references(
-                ref, included_references[ref], result_rows
+                ref, included_references[ref], result_rows, valid_only
             )
 
         return result_rows

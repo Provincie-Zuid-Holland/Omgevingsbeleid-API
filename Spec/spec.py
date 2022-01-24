@@ -265,7 +265,7 @@ def render_paths(endpoints):
                     "in": "path",
                     "description": "UUID of the object to read",
                     "required": True,
-                    "schema": {"type": "uuid"},
+                    "schema": {"type": "string", "format": "uuid"},
                 }
             ],
             "summary": f"Gets all the {model.Meta.slug} lineages and shows the latests object for each",
@@ -305,14 +305,14 @@ def render_paths(endpoints):
                     "in": "path",
                     "description": "UUID of the old object to compare to",
                     "required": True,
-                    "schema": {"type": "uuid"},
+                    "schema": {"type": "string", "format": "uuid"},
                 },
                 {
                     "name": "new_uuid",
                     "in": "path",
                     "description": "UUID of the new object to compare with",
                     "required": True,
-                    "schema": {"type": "uuid"},
+                    "schema": {"type": "string", "format": "uuid"},
                 },
             ],
             "summary": f"Shows the changes between two versions of objects",
@@ -775,31 +775,44 @@ def render_paths(endpoints):
                 "content": {
                     "application/json": {
                         "schema": {
-                            "properties": {
-                                "Omschrijving": {
-                                    "type": "string",
-                                    "description": "A description of this object",
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "Omschrijving": {
+                                        "type": "string",
+                                        "description": "A description of this object",
+                                    },
+                                    "Titel": {
+                                        "type": "string",
+                                        "description": "The title of this object",
+                                    },
+                                    "RANK": {
+                                        "type": "integer",
+                                        "description": "A representation of the search rank, only usefull for comparing between two results",
+                                    },
+                                    "Type": {
+                                        "type": "string",
+                                        "description": "The type of this object",
+                                        "enum": list(
+                                            map(
+                                                lambda schema: schema.Meta.slug,
+                                                filter(
+                                                    lambda schema: schema.Meta.searchable,
+                                                    datamodel.endpoints,
+                                                ),
+                                            )
+                                        ),
+                                    },
+                                    "UUID": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "The UUID of this object",
+                                    },
                                 },
-                                "Titel": {
-                                    "type": "string",
-                                    "description": "The title of this object",
-                                },
-                                "RANK": {
-                                    "type": "int",
-                                    "description": "A representation of the search rank, only usefull for comparing between two results",
-                                },
-                                "type": {
-                                    "type": "string",
-                                    "description": "The type of this object",
-                                },
-                                "UUID": {
-                                    "type": "string",
-                                    "format": "uuid",
-                                    "description": "The UUID of this object",
-                                },
-                            }
+                            },
                         }
-                    }
+                    },
                 },
             },
             "400": {
