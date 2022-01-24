@@ -4,7 +4,7 @@ from flask import request, jsonify, abort
 from flask_restful import Resource
 import pyodbc
 from flask_jwt_extended import get_jwt_identity
-from globals import db_connection_settings
+from globals import db_connection_settings, null_uuid
 from xml.etree import ElementTree as ET
 import re
 import uuid
@@ -44,6 +44,14 @@ class Tree_Node(MM.Schema):
                 pass
         return dumped
 
+    @MM.post_dump()
+    def null_gebied(self, dumped, many):
+        """
+        Ensure null UUID is null
+        """
+        if 'Gebied' in dumped and dumped['Gebied'] == null_uuid:
+            dumped['Gebied'] = None
+        return dumped
 
 class Verordening_Structuur_Schema(MM.Schema):
     """
