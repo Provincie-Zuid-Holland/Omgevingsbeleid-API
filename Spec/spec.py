@@ -40,6 +40,7 @@ def render_schemas(endpoints):
             "Koppeling_Omschrijving": {"type": "string"},
         }
     }
+
     for model in endpoints:
         read_properties = {}  # Properties in a detail view (get_single_on_uuid)
         write_properties = {}  # properties for patch or post
@@ -1063,6 +1064,184 @@ def render_paths(endpoints):
             },
         },
     }
+    # Tokeninfo spec
+    paths[f"/gebruikers"]["get"] = {
+        "summary": f"Get a list of users",
+        "parameters": [],
+        "responses": {
+            "200": {
+                "description": "List of users",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "description": "A single user",
+                                "$ref": f"#/components/schemas/gebruikers-read",
+                            },
+                        }
+                    }
+                },
+            }
+        },
+    }
+
+    paths[f"/login"]["post"] = {
+        "summary": f"Login an user and receive a JWT token",
+        "requestBody": {
+            "required": True,
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "identifier": {
+                                "description": "Email adress for an user",
+                                "type": "string",
+                            },
+                            "password": {
+                                "description": "password for an user",
+                                "type": "string",
+                            },
+                        },
+                    }
+                }
+            },
+        },
+        "responses": {
+            "200": {
+                "description": "Succesfull login, includes a JWT token",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "access_token": {
+                                    "description": "A JWT token that can be used to make authorized request",
+                                    "type": "string",
+                                },
+                                "expires": {
+                                    "description": "Datetime of the expiration for this token",
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "identifier": {
+                                    "description": "The logged in user",
+                                    "$ref": f"#/components/schemas/gebruikers-read",
+                                },
+                                "deployment type": {
+                                    "type":"string",
+                                    "description": "The api deployment (DEV, TEST or ACC)"
+                                }
+                            },
+                        }
+                    }
+                },
+            },
+            "400": {
+                "description": "Identifier or password missing",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type":"object",
+                            "properties": {
+                                "message": {"type":"string", "description":"An error message specifying what is missing"}
+                            }
+                        }
+                    }
+                }
+            },
+            "401": {
+                "description": "Authentication failed",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type":"object",
+                            "properties": {
+                                "message": {"type":"string", "description":"An error message"}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    }
+
+    paths[f"/password-reset"]["post"] = {
+        "summary": f"Changes password for a user",
+        "requestBody": {
+            "required": True,
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "password": {
+                                "description": "The current password for this user",
+                                "type": "string",
+                            },
+                            "new_password": {
+                                "description": "The new password for this user",
+                                "type": "string",
+                            },
+                        },
+                    }
+                }
+            },
+        },
+        "responses": {
+            "200": {
+                "description": "Password reset successful",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "description": "A success message",
+                                    "type": "string",
+                                }
+                            },
+                        }
+                    }
+                },
+            },
+            "400": {
+                "description": "Invalid new password",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type":"object",
+                            "properties": {
+                                "message": {"type":"string", "description":"An error message"},
+                                "errors": {
+                                    "type":"array",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "A password validation error"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "401": {
+                "description": "Password reset failed",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type":"object",
+                            "properties": {
+                                "message": {"type":"string", "description":"An error message"}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    }
+
     return paths
 
 
