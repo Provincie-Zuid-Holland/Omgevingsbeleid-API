@@ -54,7 +54,7 @@ class Tree_Node(MM.Schema):
         """
         Ensure null UUID is null
         """
-        if dumped['Gebied'] == null_uuid:
+        if 'Gebied' in dumped and dumped['Gebied'] == null_uuid:
             dumped['Gebied'] = None
         return dumped
 
