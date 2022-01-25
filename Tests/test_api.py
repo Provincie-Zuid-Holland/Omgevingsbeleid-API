@@ -1323,3 +1323,81 @@ def test_module_concept(client, auth):
 
     assert len(response.get_json()[0]["Beleidskeuzes"]) == 1
     assert response.get_json()[0]["Beleidskeuzes"][0]['Object']["UUID"] == bk_uuid
+
+
+def test_module_multiple_concept(client, auth):
+    """A module should show non-effective objects
+    """
+    # Create non effective beleidskeuze
+    test_bk = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+
+    test_bk['Status'] = 'Ontwerp GS'
+    test_bk['Begin_Geldigheid'] = "1900-12-31T23:59:59Z"
+    test_bk['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=test_bk,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    bk_uuid = response.get_json()["UUID"]
+    bk_id = response.get_json()["ID"]
+
+    # Create Module
+    test_module = generate_data(
+        beleidsmodule.Beleidsmodule_Schema, excluded_prop="excluded_post"
+    )
+
+    test_module["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+    test_module["Beleidskeuzes"] = [{"UUID": bk_uuid, "Koppeling_Omschrijving": ""}]
+
+    response = client.post(
+        "v0.1/beleidsmodules",
+        json=test_module,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 201
+    module_uuid = response.get_json()["UUID"]
+    module_id = response.get_json()["ID"]
+
+    # Check module
+    response = client.get(f"v0.1/beleidsmodules/{module_id}")
+    assert response.status_code == 200
+
+    assert len(response.get_json()[0]["Beleidskeuzes"]) == 1
+    assert response.get_json()[0]["Beleidskeuzes"][0]['Object']["UUID"] == bk_uuid
+
+    # Create non effective maatregel
+    test_ma = generate_data(
+        maatregelen.Maatregelen_Schema, excluded_prop="excluded_post"
+    )
+
+    test_ma['Status'] = 'Ontwerp GS'
+    test_ma['Begin_Geldigheid'] = "1900-12-31T23:59:59Z"
+    test_ma['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
+    response = client.post(
+        "v0.1/maatregelen",
+        json=test_ma,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    ma_uuid = response.get_json()["UUID"]
+    ma_id = response.get_json()["ID"]
+
+    response = client.patch(
+        f"v0.1/beleidsmodules/{module_id}",
+        json={'Maatregelen': [{"UUID": ma_uuid, "Koppeling_Omschrijving": ""}]},
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    assert response.status_code == 200
+
+    
+    # Check module
+    response = client.get(f"v0.1/beleidsmodules/{module_id}")
+    assert response.status_code == 200
+
+    assert len(response.get_json()[0]["Beleidskeuzes"]) == 1
+    assert len(response.get_json()[0]["Maatregelen"]) == 1
+    assert response.get_json()[0]["Beleidskeuzes"][0]['Object']["UUID"] == bk_uuid
+    assert response.get_json()[0]["Maatregelen"][0]['Object']["UUID"] == ma_uuid

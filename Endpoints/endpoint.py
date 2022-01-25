@@ -2,6 +2,7 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import datetime
+from attr import validate
 import marshmallow as MM
 import pyodbc
 from flask import request
@@ -160,7 +161,7 @@ class Lineage(Schema_Resource):
 
         manager = self.schema.Meta.manager(self.schema)
 
-        old_object = manager._get_latest_for_ID(id)
+        old_object = manager._get_latest_for_ID(id, valid_only=False)
 
         if not old_object:
             return handle_ID_does_not_exists(id)
@@ -170,6 +171,7 @@ class Lineage(Schema_Resource):
             **self.schema.Meta.references,
         }
 
+       
         # Rewrite inlined references in patch format
         for ref in all_references:
             if ref in old_object:
