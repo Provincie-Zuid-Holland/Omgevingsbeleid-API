@@ -50,7 +50,7 @@ def test_search_limit_offset(client):
 
     response = client.get("v0.1/search?query=water&limit=20&offset=5")
     assert response.status_code == 200
-    assert len(response.get_json()) == 15
+    assert len(response.get_json()) == 20
 
     response = client.get("v0.1/search?query=water&limit=20&offset=-5")
     assert response.status_code == 403

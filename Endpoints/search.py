@@ -75,4 +75,4 @@ def search_view():
     # Sort the results
     search_results = sorted(search_results, key=lambda r: r["RANK"], reverse=True)
 
-    return jsonify(search_results[offset:limit])
+    return jsonify(search_results[offset:(offset+ limit)])
