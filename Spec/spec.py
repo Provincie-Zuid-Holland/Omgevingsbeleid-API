@@ -922,41 +922,42 @@ def render_paths(endpoints):
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "expires": {
+                                    "ID": {
+                                        "type": "integer",
+                                        "description": "ID for this object",
+                                    },
+                                    "UUID": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "UUID for this object",
+                                    },
+                                    "Modified_Date": {\
                                         "type": "string",
                                         "format": "date-time",
-                                        "description": "Moment of expiration for this token",
+                                        "description": "The date when this edit was performed",
                                     },
-                                    "identifier": {
-                                        "type": "object",
-                                        "properties": {
-                                            "ID": {
-                                                "type": "integer",
-                                                "description": "ID for this object",
-                                            },
-                                            "UUID": {
-                                                "type": "string",
-                                                "format": "uuid",
-                                                "description": "UUID for this object",
-                                            },
-                                            "Status": {
-                                                "type": "string",
-                                                "description": "Status for this object",
-                                            },
-                                            "Titel": {
-                                                "type": "string",
-                                                "description": "Title for this object",
-                                            },
-                                            "Type": {
-                                                "type": "string",
-                                                "description": "Type slug for this object",
-                                            },
-                                        },
+                                    "Status": {
+                                        "type": "string",
+                                        "description": "Status for this object",
+                                    },
+                                    "Titel": {
+                                        "type": "string",
+                                        "description": "Title for this object",
+                                    },
+                                    "Type": {
+                                        "type": "string",
+                                        "description": "Type slug for this object",
+                                        "enum": list(
+                                            map(
+                                                lambda schema: schema.Meta.slug,
+                                                datamodel.endpoints,
+                                            )
+                                        ),
                                     },
                                 },
                             },
-                        }
-                    }
+                        },
+                    },
                 },
             }
         },
@@ -992,14 +993,20 @@ def render_paths(endpoints):
                 "in": "query",
                 "description": "Limit the amount of results",
                 "required": False,
-                "schema": {"type": "integer", "default":10,},
+                "schema": {
+                    "type": "integer",
+                    "default": 10,
+                },
             },
             {
                 "name": "offset",
                 "in": "query",
                 "description": "Offset the results",
                 "required": False,
-                "schema": {"type": "integer", "default":0,},
+                "schema": {
+                    "type": "integer",
+                    "default": 0,
+                },
             },
         ],
         "responses": {
@@ -1027,7 +1034,15 @@ def render_paths(endpoints):
                                     "Type": {
                                         "type": "string",
                                         "description": "The type of this object",
-                                        "enum": list(map(lambda schema: schema.Meta.slug , filter(lambda schema: schema.Meta.searchable ,datamodel.endpoints)))
+                                        "enum": list(
+                                            map(
+                                                lambda schema: schema.Meta.slug,
+                                                filter(
+                                                    lambda schema: schema.Meta.searchable,
+                                                    datamodel.endpoints,
+                                                ),
+                                            )
+                                        ),
                                     },
                                     "UUID": {
                                         "type": "string",
@@ -1131,16 +1146,16 @@ def render_paths(endpoints):
                                 "expires": {
                                     "description": "Datetime of the expiration for this token",
                                     "type": "string",
-                                    "format": "date-time"
+                                    "format": "date-time",
                                 },
                                 "identifier": {
                                     "description": "The logged in user",
                                     "$ref": f"#/components/schemas/gebruikers-read",
                                 },
                                 "deployment type": {
-                                    "type":"string",
-                                    "description": "The api deployment (DEV, TEST or ACC)"
-                                }
+                                    "type": "string",
+                                    "description": "The api deployment (DEV, TEST or ACC)",
+                                },
                             },
                         }
                     }
@@ -1151,27 +1166,33 @@ def render_paths(endpoints):
                 "content": {
                     "application/json": {
                         "schema": {
-                            "type":"object",
+                            "type": "object",
                             "properties": {
-                                "message": {"type":"string", "description":"An error message specifying what is missing"}
-                            }
+                                "message": {
+                                    "type": "string",
+                                    "description": "An error message specifying what is missing",
+                                }
+                            },
                         }
                     }
-                }
+                },
             },
             "401": {
                 "description": "Authentication failed",
                 "content": {
                     "application/json": {
                         "schema": {
-                            "type":"object",
+                            "type": "object",
                             "properties": {
-                                "message": {"type":"string", "description":"An error message"}
-                            }
+                                "message": {
+                                    "type": "string",
+                                    "description": "An error message",
+                                }
+                            },
                         }
                     }
-                }
-            }
+                },
+            },
         },
     }
 
@@ -1219,34 +1240,40 @@ def render_paths(endpoints):
                 "content": {
                     "application/json": {
                         "schema": {
-                            "type":"object",
+                            "type": "object",
                             "properties": {
-                                "message": {"type":"string", "description":"An error message"},
+                                "message": {
+                                    "type": "string",
+                                    "description": "An error message",
+                                },
                                 "errors": {
-                                    "type":"array",
+                                    "type": "array",
                                     "items": {
                                         "type": "string",
-                                        "description": "A password validation error"
-                                    }
-                                }
-                            }
+                                        "description": "A password validation error",
+                                    },
+                                },
+                            },
                         }
                     }
-                }
+                },
             },
             "401": {
                 "description": "Password reset failed",
                 "content": {
                     "application/json": {
                         "schema": {
-                            "type":"object",
+                            "type": "object",
                             "properties": {
-                                "message": {"type":"string", "description":"An error message"}
-                            }
+                                "message": {
+                                    "type": "string",
+                                    "description": "An error message",
+                                }
+                            },
                         }
                     }
-                }
-            }
+                },
+            },
         },
     }
 
