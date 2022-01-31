@@ -252,6 +252,7 @@ def render_paths(endpoints):
     paths = DefaultDict(dict)
     for model in endpoints:
         paths[f"/{model.Meta.slug}"]["get"] = {
+            "security": [{"bearerAuth": []}],
             "parameters": [
                 {
                     "name": "all_filters",
@@ -259,7 +260,6 @@ def render_paths(endpoints):
                     "description": """Filters to apply to the selection, represented by a comma-seperated list of pairs. 
                         The pairs are delimited by a : symbol. The various filters are combined using an AND operator so in order for an object to get selected by this filter, all the filters should be TRUE.""",
                     "required": False,
-                    "example": "Status:Vigerend,ID:1",
                     "schema": {"type": "string"},
                 },
                 {
@@ -268,7 +268,6 @@ def render_paths(endpoints):
                     "description": """Filters to apply to the selection, represented by a comma-seperated list of pairs. 
                         The pairs are delimited by a : symbol. The various filters are combined using an OR operator so in order for an object to get selected by this filter, any on filter should be TRUE.""",
                     "required": False,
-                    "example": "Status:Vigerend,ID:1",
                     "schema": {"type": "string"},
                 },
                 {
@@ -443,7 +442,6 @@ def render_paths(endpoints):
                     "description": """Filters to apply to the selection, represented by a comma-seperated list of pairs. 
                         The pairs are delimited by a : symbol. The various filters are combined using an AND operator so in order for an object to get selected by this filter, all the filters should be TRUE.""",
                     "required": False,
-                    "example": "Status:Vigerend,ID:1",
                     "schema": {"type": "string"},
                 },
                 {
@@ -452,7 +450,6 @@ def render_paths(endpoints):
                     "description": """Filters to apply to the selection, represented by a comma-seperated list of pairs. 
                         The pairs are delimited by a : symbol. The various filters are combined using an OR operator so in order for an object to get selected by this filter, any on filter should be TRUE.""",
                     "required": False,
-                    "example": "Status:Vigerend,ID:1",
                     "schema": {"type": "string"},
                 },
                 {
@@ -511,7 +508,6 @@ def render_paths(endpoints):
                     "description": """Filters to apply to the selection, represented by a comma-seperated list of pairs. 
                     The pairs are delimited by a : symbol. The various filters are combined using an AND operator so in order for an object to get selected by this filter, all the filters should be TRUE.""",
                     "required": False,
-                    "example": "Status:Vigerend,ID:1",
                     "schema": {"type": "string"},
                 },
                 {
@@ -520,7 +516,6 @@ def render_paths(endpoints):
                     "description": """Filters to apply to the selection, represented by a comma-seperated list of pairs. 
                     The pairs are delimited by a : symbol. The various filters are combined using an OR operator so in order for an object to get selected by this filter, any on filter should be TRUE.""",
                     "required": False,
-                    "example": "Status:Vigerend,ID:1",
                     "schema": {"type": "string"},
                 },
                 {
@@ -586,7 +581,6 @@ def render_paths(endpoints):
                     "description": """Filters to apply to the selection, represented by a comma-seperated list of pairs. 
                     The pairs are delimited by a : symbol. The various filters are combined using an AND operator so in order for an object to get selected by this filter, all the filters should be TRUE.""",
                     "required": False,
-                    "example": "Status:Vigerend,ID:1",
                     "schema": {"type": "string"},
                 },
                 {
@@ -595,7 +589,6 @@ def render_paths(endpoints):
                     "description": """Filters to apply to the selection, represented by a comma-seperated list of pairs. 
                     The pairs are delimited by a : symbol. The various filters are combined using an OR operator so in order for an object to get selected by this filter, any on filter should be TRUE.""",
                     "required": False,
-                    "example": "Status:Vigerend,ID:1",
                     "schema": {"type": "string"},
                 },
                 {
