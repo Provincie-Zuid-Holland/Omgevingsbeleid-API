@@ -1492,3 +1492,46 @@ def test_self_effective_version(client, auth):
     response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
     assert response.status_code == 200
     assert response.get_json()["Effective_Version"] == bk1_UUID
+
+
+def test_effective_in_edits(client, auth):
+    bk1 = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk1["Status"] = "Vigerend"
+    bk1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk1,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    assert response.status_code == 201
+    bk1_UUID = response.get_json()["UUID"]
+    bk_ID = response.get_json()["ID"]
+    
+    # Make new version
+    response = client.patch(
+        f"v0.1/beleidskeuzes/{bk_ID}",
+        json={'Status':'Ontwerp GS'},
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 200
+    bk2_uuid = response.get_json()['UUID']
+    
+    # Check if the effective version shows up in edits
+    response = client.get(f"v0.1/edits")
+    assert response.status_code == 200
+    found = False
+    effective_correct = False
+    for edit in response.get_json():
+        if edit['Type'] == 'beleidskeuzes':
+            if edit['UUID'] == bk2_uuid:
+                if edit['Effective_Version'] == bk1_UUID:
+                    effective_correct = True
+                found = True
+                break
+            
+    assert(found)
+    assert(effective_correct)

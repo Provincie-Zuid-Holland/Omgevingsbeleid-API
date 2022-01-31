@@ -947,6 +947,11 @@ def render_paths(endpoints):
                                             )
                                         ),
                                     },
+                                    "Effective_Version": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "UUID for the current effective version of this lineage",
+                                    },
                                 },
                             },
                         },

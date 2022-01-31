@@ -241,18 +241,20 @@ class DataManager:
         return result_rows[0]
 
     def get_latest_edits(self, title_field='Titel'):
-        """Gets the N latests edits of this object
+        """Gets the latests edits of this object
 
         Args:
-            amount (int): The amount of edits to get
+            title_field (string): The title field
         """
         status_condition = None
         if status_conf := self.schema.Meta.status_conf:
             # e.g. "AND Status = 'Vigerend'"
-            status_condition = f" WHERE {status_conf[0]} != '{status_conf[1]}'"
+            status_condition = f" WHERE cu.{status_conf[0]} != '{status_conf[1]}'"
 
 
-        query = f"SELECT ID, UUID, {title_field}, Status, Modified_Date FROM {self.all_latest_view}"
+        query = f"""SELECT cu.ID, cu.UUID, cu.{title_field}, cu.Status, cu.Modified_Date, va.UUID as Effective_Version FROM {self.all_latest_view} cu
+            LEFT JOIN Valid_{self.schema.Meta.slug} va ON va.ID = cu.ID 
+        """
         if status_condition:
             query = query + status_condition
         return self.schema(partial=True).dump(self._run_query_commit(query), many=True)
