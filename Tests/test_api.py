@@ -1456,3 +1456,39 @@ def test_latest_middle(client, auth):
     assert response.status_code == 200
     assert response.get_json()["Latest_Version"] == bk3_UUID
     assert response.get_json()["Latest_Status"] == "Vigerend"
+
+
+def test_self_effective_version(client, auth):
+    bk1 = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk1["Status"] = "Vigerend"
+    bk1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk1,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    assert response.status_code == 201
+    bk1_UUID = response.get_json()["UUID"]
+    bk_ID = response.get_json()["ID"]
+
+    # Check if latest version matches
+    response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
+    assert response.status_code == 200
+    assert response.get_json()["Effective_Version"] == bk1_UUID
+    
+    # Make new version
+    response = client.patch(
+        f"v0.1/beleidskeuzes/{bk_ID}",
+        json={'Status':'Ontwerp GS'},
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 200
+
+    # Check if latest version matches
+    response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
+    assert response.status_code == 200
+    assert response.get_json()["Effective_Version"] == bk1_UUID
