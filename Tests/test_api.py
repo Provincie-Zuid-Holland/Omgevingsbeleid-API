@@ -1401,3 +1401,58 @@ def test_module_multiple_concept(client, auth):
     assert len(response.get_json()[0]["Maatregelen"]) == 1
     assert response.get_json()[0]["Beleidskeuzes"][0]['Object']["UUID"] == bk_uuid
     assert response.get_json()[0]["Maatregelen"][0]['Object']["UUID"] == ma_uuid
+
+
+def test_latest_middle(client, auth):
+    bk1 = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk1["Status"] = "Ontwerp GS Concept"
+    bk1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk1,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+
+    assert response.status_code == 201
+    bk_ID = response.get_json()["ID"]
+    bk1_UUID = response.get_json()["UUID"]
+
+    bk_2 = {**bk1, 'Status':['Ontwerp GS']}
+
+    response = client.patch(
+        f"v0.1/beleidskeuzes/{bk_ID}",
+        json={'Status':'Ontwerp GS'},
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 200, response.get_json()
+    bk2_UUID = response.get_json()["UUID"]
+
+    # Check if latest version matches
+    response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
+    assert response.status_code == 200
+    assert response.get_json()["Latest_Version"] == bk2_UUID
+    assert response.get_json()["Latest_Status"] == "Ontwerp GS"
+
+    response = client.patch(
+        f"v0.1/beleidskeuzes/{bk_ID}",
+        json={'Status':'Vigerend', 'Begin_Geldigheid':"2010-12-31T23:59:59Z", 'Eind_Geldigheid':"2011-12-31T23:59:59Z" },
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 200
+    bk3_UUID = response.get_json()["UUID"]
+
+    # Check if latest version matches
+    response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
+    assert response.status_code == 200
+    assert response.get_json()["Latest_Version"] == bk3_UUID
+    assert response.get_json()["Latest_Status"] == "Vigerend"
+
+    
+    # Check if latest version matches
+    response = client.get(f"v0.1/version/beleidskeuzes/{bk2_UUID}")
+    assert response.status_code == 200
+    assert response.get_json()["Latest_Version"] == bk3_UUID
+    assert response.get_json()["Latest_Status"] == "Vigerend"

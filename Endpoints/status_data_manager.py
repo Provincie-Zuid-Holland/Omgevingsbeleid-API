@@ -16,8 +16,8 @@ class StatusDataManager(DataManager):
         query = f"""
                 CREATE OR ALTER VIEW {self.detail_view} AS
                 SELECT cu.*, la.UUID as Latest_Version, la.Status as Latest_Status, va.UUID as Effective_Version FROM {self.schema().Meta.table} cu
-                    LEFT JOIN Latest_beleidskeuzes la ON la.ID = cu.ID
-                    LEFT JOIN Valid_beleidskeuzes va ON va.ID = cu.ID 
+                    LEFT JOIN All_Latest_{self.schema.Meta.slug} la ON la.ID = cu.ID
+                    LEFT JOIN Valid_{self.schema.Meta.slug} va ON va.ID = cu.ID 
                 """
         self._run_query_commit(query)
 
