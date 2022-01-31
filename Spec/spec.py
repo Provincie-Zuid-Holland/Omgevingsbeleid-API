@@ -992,7 +992,14 @@ def render_paths(endpoints):
                 "in": "query",
                 "description": "Limit the amount of results",
                 "required": False,
-                "schema": {"type": "integer"},
+                "schema": {"type": "integer", "default":10,},
+            },
+            {
+                "name": "offset",
+                "in": "query",
+                "description": "Offset the results",
+                "required": False,
+                "schema": {"type": "integer", "default":0,},
             },
         ],
         "responses": {
@@ -1017,9 +1024,10 @@ def render_paths(endpoints):
                                         "type": "integer",
                                         "description": "A representation of the search rank, only usefull for comparing between two results",
                                     },
-                                    "type": {
+                                    "Type": {
                                         "type": "string",
                                         "description": "The type of this object",
+                                        "enum": list(map(lambda schema: schema.Meta.slug , filter(lambda schema: schema.Meta.searchable ,datamodel.endpoints)))
                                     },
                                     "UUID": {
                                         "type": "string",
