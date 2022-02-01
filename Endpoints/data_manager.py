@@ -61,7 +61,15 @@ class DataManager:
             )
         ]
 
-    def _setup(self):
+    def _setup_table(self):
+        """Creates a database table for this object
+        """
+        print(f"Setting up table for {self.schema.Meta.slug}")
+        table_fields =[ field for field in self.schema().fields_without_props(["referencelist", "calculated"])]
+        print(table_fields)
+        
+
+    def _setup_views(self):
         """Creates all the necessary views and indices"""
         print("Default manager setup")
         self._set_up_latest_view()

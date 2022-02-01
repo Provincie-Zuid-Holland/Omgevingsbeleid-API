@@ -43,15 +43,25 @@ api = Api(
 jwt = JWTManager(app)
 
 # DATABASE SETUP
-@app.cli.command("setup-db")
+@app.cli.command("setup-views")
 def setup_db():
     if input(f"Working on {os.getenv('DB_NAME')}, continue?") == "y":
-
         print("Setting up database views")
         for schema in datamodel.endpoints:
             print(f"Updating views for {schema.Meta.slug}...")
-            schema.Meta.manager(schema)._setup()
+            schema.Meta.manager(schema)._setup_views()
         print("Done updating views")
+    else:
+        print("exiting..")
+
+@app.cli.command("setup-database")
+def setup_db():
+    if input(f"Working on {os.getenv('DB_NAME')}, continue?") == "y":
+        print("Setting up database tables")
+        for schema in datamodel.endpoints:
+            print(f"Creating table for {schema.Meta.slug}...")
+            schema.Meta.manager(schema)._setup_table()
+        print("Done creating table")
     else:
         print("exiting..")
 
