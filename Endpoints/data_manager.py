@@ -3,6 +3,7 @@
 from collections import defaultdict
 from marshmallow import schema
 import pyodbc
+import re
 from Endpoints.base_schema import Base_Schema
 from globals import (
     db_connection_settings,
@@ -30,6 +31,9 @@ class DataManagerException(Exception):
 
 # Effectivity -> becomes in effect (USA), Object that are in effect
 # Generate query conditions in schemas (responsibility)
+
+# HTML Cleaning regex
+CLEANR = re.compile("<.*?>")
 
 
 class DataManager:
@@ -70,7 +74,7 @@ class DataManager:
         try:
             return list(map(row_to_dict, result.fetchall()))
         except pyodbc.DatabaseError as e:
-            if e.args[0] == 'No results.  Previous SQL was not a query.':
+            if e.args[0] == "No results.  Previous SQL was not a query.":
                 return None
             else:
                 raise e
@@ -352,7 +356,11 @@ class DataManager:
                 INSERT INTO {ref.link_tablename} ({ref.my_col}, {ref.their_col}, {ref.description_col}) VALUES (?, ?, ?)"""
                 self._run_query_commit(
                     query,
-                    [obj_uuid, ref_data["UUID"], ref_data.get("Koppeling_Omschrijving") or ''],
+                    [
+                        obj_uuid,
+                        ref_data["UUID"],
+                        ref_data.get("Koppeling_Omschrijving") or "",
+                    ],
                 )
 
     def _retrieve_references(self, fieldname, ref, source_rows, valid_only=True):
@@ -383,15 +391,17 @@ class DataManager:
             included_fields.append(ref.my_col)
 
             source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
-            
-            target_tablename = f'Valid_{ref.their_tablename}' if valid_only else ref.their_tablename
+
+            target_tablename = (
+                f"Valid_{ref.their_tablename}" if valid_only else ref.their_tablename
+            )
             # Query from the Valid view, so only valid objects get inlined.
             query = f"""
                  SELECT {", ".join(included_fields)}, {ref.description_col} FROM {ref.link_tablename} a
                  JOIN {target_tablename} b ON b.UUID = {ref.their_col}
                  WHERE a.{ref.my_col} in ({source_uuids})
                  """
-            
+
             result_rows = self._run_query_result(query, [])
 
             row_map = defaultdict(list)
@@ -739,6 +749,18 @@ class DataManager:
                             ON f.[KEY] = v.UUID
                             ORDER BY f.WeightedRank DESC"""
         result_rows = self._run_query_result(search_query, [args, args])
+
+        # Clean HTML
+        result_rows = list(
+            map(
+                lambda row: {
+                    **row,
+                    "Omschrijving": re.sub(CLEANR, "", row["Omschrijving"]),
+                },
+                result_rows,
+            )
+        )
+
         return result_rows
 
     def geo_search(self, query):
@@ -800,6 +822,6 @@ class DataManager:
                 # generate OR filters:
                 or_filter = " OR ".join([f"{ref_key} = ?" for _ in query_uuids])
                 search_query += "WHERE " + or_filter
-            
+
             result_rows = self._run_query_result(search_query, query_uuids)
             return result_rows
