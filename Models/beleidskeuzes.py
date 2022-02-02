@@ -51,7 +51,7 @@ class Beleidskeuzes_Schema(Base_Schema):
     Omschrijving_Werking = MM.fields.Str(
         missing=None, validate=[HTML_Validate], obprops=['search_description'])
     Aanleiding = MM.fields.Str(missing=None, validate=[
-                               HTML_Validate], obprops=[])
+                               HTML_Validate], obprops=['search_description'])
     Afweging = MM.fields.Str(missing=None, validate=[
                              HTML_Validate], obprops=[])
     Provinciaal_Belang = MM.fields.Str(
