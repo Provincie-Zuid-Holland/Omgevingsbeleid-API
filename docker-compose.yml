@@ -1,10 +1,10 @@
 version: '3.1'
 
 services:
-  app:
+  api:
     build:
       context: ./
-      dockerfile: ./docker/python/Dockerfile
+      dockerfile: ./docker/api/Dockerfile
     ports:
       - "5000:5000"
     volumes:
@@ -18,26 +18,31 @@ services:
       DB_HOST: mssql
       DB_PORT: 1433
       DB_NAME: db_test
-      DB_DRIVER: ODBC+Driver+17+for+SQL+Server
+      DB_DRIVER: ODBC Driver 17 for SQL Server
       JWT_SECRET: secret
+    depends_on:
+      - mssql
     restart: "no"
 
-  # mysql:
-  #   image: mysql:5
-  #   ports:
-  #     - "3306:3306"
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: password
-  #   volumes:
-  #     - mysql:/var/lib/mysql
-  #     - ./docker/mysql:/docker-entrypoint-initdb.d:ro
-  #   command:
-  #     [
-  #       'mysqld',
-  #       '--character-set-server=utf8mb4',
-  #       '--collation-server=utf8mb4_unicode_ci'
-  #     ]
-  #   restart: "no"
+  frontend:
+    build:
+      context: ./
+      dockerfile: ./docker/frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./docker/frontend/craco.config.js:/opt/Omgevingsbeleid-Frontend/craco.config.js:ro
+    environment:
+      REACT_APP_RELEASE_VERSION: 'omgevingsbeleid@1.0.0'
+      REACT_APP_API_URL: 'http://localhost:8888/v0.1'
+      REACT_APP_API_ENV: 'dev'
+      REACT_APP_KEY_API_ACCESS_TOKEN: 'OB_access_token'
+      REACT_APP_KEY_IDENTIFIER: 'OB_identifier'
+      REACT_APP_ERROR_MSG: 'Er is iets misgegaan, probeer het later nog eens'
+      REACT_APP_KEY_WELCOME_POPUP: 'OB_welkom_popup'
+    depends_on:
+      - api
+    restart: "no"
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
@@ -49,6 +54,17 @@ services:
     volumes:
       - mssql:/var/opt/mssql
       - ./docker/mssql/init.sql:/opt/init.sql:ro
+    restart: "no"
+
+  nginx:
+    image: nginx:1.21
+    ports:
+      - "8888:80"
+    volumes:
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - frontend
+      - api
     restart: "no"
 
 volumes:

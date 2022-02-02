@@ -4,7 +4,14 @@ init: up mssql-create-database info
 
 info:
 	@echo ""
-	@echo "App:	http://localhost:5000/v0.1/ts_defs"
+	@echo ""
+	@echo "	Both services under a proxy: (you probably want this)"
+	@echo "		Web:		http://localhost:8888"
+	@echo ""
+	@echo "	Direct locations:"
+	@echo "		Frontend:	http://localhost:3000"
+	@echo "		Backend:	http://localhost:5000/v0.1/ts_defs"
+	@echo ""
 	@echo ""
 
 up:
@@ -43,16 +50,16 @@ mssql-show-tables:
 	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT TABLE_NAME FROM db_test.INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'"
 
 flask-setup-database:
-	docker-compose exec app flask setup-database
+	docker-compose exec api flask setup-database
 
 flask-setup-tables:
-	docker-compose exec app flask setup-tables
+	docker-compose exec api flask setup-tables
 
 flask-setup-views:
-	docker-compose exec app flask setup-views
+	docker-compose exec api flask setup-views
 
 flask-routes:
-	docker-compose exec app flask routes
+	docker-compose exec api flask routes
 
 flask:
-	docker-compose exec app /bin/bash
+	docker-compose exec api /bin/bash
