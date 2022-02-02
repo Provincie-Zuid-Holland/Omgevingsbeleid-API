@@ -1,0 +1,56 @@
+version: '3.1'
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./docker/python/Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./:/code
+    environment:
+      FLASK_ENV: development
+      FLASK_APP: application.py
+      FLASK_RUN_HOST: 0.0.0.0
+      DB_USER: SA
+      DB_PASS: Passw0rd
+      DB_HOST: mssql
+      DB_PORT: 1433
+      DB_NAME: db_test
+      DB_DRIVER: ODBC+Driver+17+for+SQL+Server
+      JWT_SECRET: secret
+    restart: "no"
+
+  # mysql:
+  #   image: mysql:5
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: password
+  #   volumes:
+  #     - mysql:/var/lib/mysql
+  #     - ./docker/mysql:/docker-entrypoint-initdb.d:ro
+  #   command:
+  #     [
+  #       'mysqld',
+  #       '--character-set-server=utf8mb4',
+  #       '--collation-server=utf8mb4_unicode_ci'
+  #     ]
+  #   restart: "no"
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
+    ports:
+      - "11433:1433"
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: 'Passw0rd'
+    volumes:
+      - mssql:/var/opt/mssql
+      - ./docker/mssql/init.sql:/opt/init.sql:ro
+    restart: "no"
+
+volumes:
+  mysql:
+  mssql:

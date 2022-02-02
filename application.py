@@ -11,6 +11,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required
 from flask_restful import Api, Resource
+from flask_migrate import Migrate
 from Endpoints.edits import editView
 from Models import gebruikers, verordeningsstructuur, beleidskeuzes, maatregelen
 import datamodel
@@ -21,6 +22,8 @@ from Endpoints.search import search_view
 from Endpoints.graph import graphView
 from Endpoints.geo_search import geo_search_view
 import click
+from Models.db import db
+import globals
 
 current_version = "0.1"
 
@@ -33,6 +36,8 @@ CORS(app)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=4)
 app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+app.config["SQLALCHEMY_DATABASE_URI"] = globals.sqlalchemy_database_uri
 api = Api(
     app,
     prefix=f"/v{current_version}",
@@ -41,6 +46,11 @@ api = Api(
     ],
 )
 jwt = JWTManager(app)
+db.init_app(app)
+
+# Migration Setup
+# This will load additional command line options
+migrate = Migrate(app, db)
 
 # DATABASE SETUP
 @app.cli.command("setup-views")
@@ -54,6 +64,7 @@ def setup_db():
     else:
         print("exiting..")
 
+# @depricated
 @app.cli.command("setup-database")
 def setup_db():
     if input(f"Working on {os.getenv('DB_NAME')}, continue?") == "y":
@@ -65,6 +76,13 @@ def setup_db():
     else:
         print("exiting..")
 
+@app.cli.command("setup-tables")
+def setup_tables():
+    print("Hi")
+    print(db)
+    from Models.ambities import Ambities_DB_Schema
+    print(db.metadata.tables)
+    
 
 @app.cli.command("datamodel-markdown")
 def dm_markdown():

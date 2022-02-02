@@ -15,6 +15,15 @@ given by the new 'Omgevingswet' from the dutch national government.
     + [PyODBC](https://github.com/mkleehammer/pyodbc)
 - Microsoft SQL Server
 
+## Dependencies
+
+### Ubuntu
+
+Needed for PyODBC
+```
+apt install unixodbc-dev
+```
+
 ## Installation
 This project utilizes [venv](https://docs.python.org/3/tutorial/venv.html). Create a new venv.
 ```shell

@@ -3,8 +3,8 @@
 
 import marshmallow as MM
 
-from sqlalchemy import Column, Integer, String, UUID, DateTime, ForeignKey
-from sqlalchemy.orm import declarative_base
+# from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+# from sqlalchemy.orm import declarative_base   s
 
 from Endpoints.base_schema import Base_Schema
 from Endpoints.references import (
@@ -14,29 +14,27 @@ from Endpoints.references import (
 )
 from Endpoints.validators import HTML_Validate
 from Models.short_schemas import Short_Beleidskeuze_Schema
+from Models.db import db
 
-
-# declarative base class
-Base = declarative_base()
-
-class Base_DB_Schema(Base):
-    ID = Column(Integer)
-    UUID = Column(UUID, primary_key=True)
-    Begin_Geldigheid = Column(DateTime)  
-    Eind_Geldigheid = Column(DateTime)  
-    Created_By = Column(UUID)
-    Created_Date = Column(DateTime)  
-    Modified_By = Column(UUID)
-    Modified_Date = Column(DateTime)
+class Base_DB_Schema():
+    ID = db.Column(db.Integer)
+    UUID = db.Column(db.String(255), primary_key=True) # @todo: UUID
+    Begin_Geldigheid = db.Column(db.DateTime)  
+    Eind_Geldigheid = db.Column(db.DateTime)  
+    Created_By = db.Column(db.String(255)) # @todo: UUID
+    Created_Date = db.Column(db.DateTime)  
+    Modified_By = db.Column(db.String(255)) # @todo: UUID
+    Modified_Date = db.Column(db.DateTime)
     
 
 # an example mapping using the base
-class Ambities_DB_Schema(Base_DB_Schema):
+class Ambities_DB_Schema(Base_DB_Schema, db.Model):
     __tablename__ = 'Ambities'
 
-    Titel = Column(String)
-    Omschrijving = Column(String)
-    Weblink = Column(String)
+    Titel = db.Column(db.String(255))
+    Omschrijving = db.Column(db.String(255))
+    Weblink = db.Column(db.String(255))
+    Jordy = db.Column(db.Integer)
     
 
 class Ambities_Schema(Base_Schema):
