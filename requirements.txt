@@ -78,6 +78,7 @@ rope==0.18.0
 six==1.15.0
 soupsieve==2.0.1
 SQLAlchemy==1.4.31
+SQLAlchemy-Utils==0.38.2
 style==1.1.0
 tablib==2.0.0
 toml==0.10.1

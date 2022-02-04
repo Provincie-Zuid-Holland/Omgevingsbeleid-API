@@ -16,6 +16,17 @@ from globals import default_user_uuid, min_datetime
 
 import Models.maatregelen
 import Models.beleidskeuzes
+from sqlalchemy import Column, ForeignKey, Integer, String, Table, DateTime
+from sqlalchemy_utils import generic_repr, ChoiceType
+from db import CommonMixin, Base, db
+
+
+@generic_repr
+class Beleidsmodule_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Beleidsmodules'
+
+    Titel = Column(String)
+    Besluit_Datum = Column(DateTime)
 
 
 class Beleidsmodule_Schema(Base_Schema):

@@ -92,6 +92,8 @@ class DataManager:
             except pyodbc.ProgrammingError as e:
                 raise e
 
+    # @todo: maybe this works for us together with migrations:
+    # https://sqlalchemy-utils.readthedocs.io/en/latest/view.html
     def _set_up_all_valid_view(self):
         """
         Set up a view that shows all valid version for each lineage
@@ -762,6 +764,7 @@ class DataManager:
                                 ) as x GROUP BY [KEY]) as f
                             ON f.[KEY] = v.UUID
                             ORDER BY f.WeightedRank DESC"""
+        print(search_query)
         result_rows = self._run_query_commit(search_query, [args, args])
         return result_rows
 

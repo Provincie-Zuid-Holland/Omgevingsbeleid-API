@@ -22,7 +22,7 @@ from Endpoints.search import search_view
 from Endpoints.graph import graphView
 from Endpoints.geo_search import geo_search_view
 import click
-from Models.db import db
+from db import db
 import globals
 
 current_version = "0.1"
@@ -46,10 +46,8 @@ api = Api(
     ],
 )
 jwt = JWTManager(app)
-db.init_app(app)
 
-# Migration Setup
-# This will load additional command line options
+db.init_app(app)
 migrate = Migrate(app, db)
 
 # DATABASE SETUP

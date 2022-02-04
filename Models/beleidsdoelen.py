@@ -6,6 +6,18 @@ from Endpoints.base_schema import Base_Schema
 from Endpoints.validators import HTML_Validate
 from Models.short_schemas import Short_Beleidskeuze_Schema
 from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
+from sqlalchemy import Column, ForeignKey, Integer, String, Table
+from sqlalchemy_utils import generic_repr, ChoiceType
+from db import CommonMixin, Base, db
+
+
+@generic_repr
+class Beleidsdoelen_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Beleidsdoelen'
+
+    Titel = Column(String)
+    Omschrijving = Column(String)
+    Weblink = Column(String)
 
 
 class Beleidsdoelen_Schema(Base_Schema):

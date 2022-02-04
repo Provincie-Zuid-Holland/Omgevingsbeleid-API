@@ -54,6 +54,7 @@ services:
     volumes:
       - mssql:/var/opt/mssql
       - ./docker/mssql/init.sql:/opt/init.sql:ro
+      - ./docker/mssql/old.sql:/opt/old.sql:ro
     restart: "no"
 
   nginx:
