@@ -7,6 +7,19 @@ from flask_jwt_extended import jwt_required
 import pyodbc
 from globals import null_uuid, db_connection_settings
 import uuid
+from sqlalchemy import Column, ForeignKey, Integer, String, Table
+from sqlalchemy_utils import generic_repr
+
+from db import CommonMixin, Base, db
+
+
+@generic_repr
+class Gebruikers_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Gebruikers'
+
+    Gebruikersnaam = Column(String)
+    Rol = Column(String)
+    Status = Column(String)
 
 
 class Gebruikers_Schema(MM.Schema):

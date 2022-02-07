@@ -24,7 +24,7 @@ class Belangen_DB_Schema(CommonMixin, db.Model):
     Titel = Column(String)
     Omschrijving = Column(String)
     Weblink = Column(String)
-    Type = Column(ChoiceType(Belangen_Type_Choices))
+    # Type = Column(ChoiceType(Belangen_Type_Choices))
 
 
 class Belangen_Schema(Base_Schema):
