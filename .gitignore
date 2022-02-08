@@ -13,3 +13,4 @@ settings.py
 ._env_*
 .pytest_cache/
 .coverage
+**/*.hidden*

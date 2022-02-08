@@ -1,19 +1,24 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_utils import UUIDType
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, DateTime, text, ForeignKey
+from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
+from sqlalchemy.ext.declarative import declared_attr
 
 
 class CommonMixin():
-    ID = Column(Integer)
-    UUID = Column(String(40), primary_key=True)
-    Begin_Geldigheid = Column(DateTime)
-    Eind_Geldigheid = Column(DateTime)
-    Created_By = Column(String(40))
-    Created_Date = Column(DateTime)
-    Modified_By = Column(String(40))
-    Modified_Date = Column(DateTime)
+    ID = Column(Integer, nullable=False)
+    UUID = Column(UNIQUEIDENTIFIER, primary_key=True, server_default=text("(newid())"))
+    Begin_Geldigheid = Column(DateTime, nullable=False)
+    Eind_Geldigheid = Column(DateTime, nullable=False)
+    Created_Date = Column(DateTime, nullable=False)
+    Modified_Date = Column(DateTime, nullable=False)
+
+    @declared_attr
+    def Created_By(cls):
+        return Column('Created_By', ForeignKey('Gebruikers.UUID'), nullable=False)
+
+    @declared_attr
+    def Modified_By(cls):
+        return Column('Modified_By', ForeignKey('Gebruikers.UUID'), nullable=False)
 
 
-Base = declarative_base()
 db = SQLAlchemy()

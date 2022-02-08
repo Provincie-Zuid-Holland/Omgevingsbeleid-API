@@ -76,7 +76,7 @@ class DataManager:
         self._set_up_all_latest_view()
         self._set_up_valid_view()
         self._set_up_all_valid_view()
-        self._set_up_search()
+        # self._set_up_search()
 
     def _run_query_commit(self, query, values=[]):
         with pyodbc.connect(db_connection_settings, autocommit=True) as con:

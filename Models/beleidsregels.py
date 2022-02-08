@@ -8,17 +8,17 @@ from Models.short_schemas import Short_Beleidskeuze_Schema
 from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
 from sqlalchemy import Column, ForeignKey, Integer, String, Table, DateTime
 from sqlalchemy_utils import generic_repr, ChoiceType
-from db import CommonMixin, Base, db
+from db import CommonMixin, db
 
 
-@generic_repr
-class Beleidsregels_DB_Schema(CommonMixin, db.Model):
-    __tablename__ = 'Beleidsregels'
+# @generic_repr
+# class Beleidsregels_DB_Schema(CommonMixin, db.Model):
+#     __tablename__ = 'Beleidsregels'
 
-    Titel = Column(String)
-    Omschrijving = Column(String)
-    Weblink = Column(String)
-    Externe_URL = Column(String)
+#     Titel = Column(String)
+#     Omschrijving = Column(String)
+#     Weblink = Column(String)
+#     Externe_URL = Column(String)
 
 
 class Beleidsregels_Schema(Base_Schema):

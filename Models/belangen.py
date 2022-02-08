@@ -6,9 +6,9 @@ from Endpoints.base_schema import Base_Schema
 from Endpoints.validators import HTML_Validate
 from Models.short_schemas import Short_Beleidskeuze_Schema
 from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
-from sqlalchemy import Column, ForeignKey, Integer, String, Table
+from sqlalchemy import Column, Unicode
 from sqlalchemy_utils import generic_repr, ChoiceType
-from db import CommonMixin, Base, db
+from db import CommonMixin, db
 
 
 Belangen_Type_Choices = [
@@ -21,10 +21,10 @@ Belangen_Type_Choices = [
 class Belangen_DB_Schema(CommonMixin, db.Model):
     __tablename__ = 'Belangen'
 
-    Titel = Column(String)
-    Omschrijving = Column(String)
-    Weblink = Column(String)
-    # Type = Column(ChoiceType(Belangen_Type_Choices))
+    Titel = Column(Unicode)
+    Omschrijving = Column(Unicode)
+    Weblink = Column(Unicode)
+    Type = Column(ChoiceType(Belangen_Type_Choices))
 
 
 class Belangen_Schema(Base_Schema):

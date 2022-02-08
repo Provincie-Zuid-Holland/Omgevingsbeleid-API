@@ -27,6 +27,11 @@ import Models.maatregelen
 import Models.verordeningen
 from Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
 from Endpoints.status_data_manager import StatusDataManager
+from sqlalchemy import Column, Unicode, ForeignKey
+from sqlalchemy_utils import generic_repr
+from sqlalchemy.orm import relationship
+
+from db import CommonMixin, db
 
 status_options = [
     "Definitief ontwerp GS",
@@ -42,6 +47,26 @@ status_options = [
     "Vigerend",
     "Vigerend gearchiveerd",
 ]
+
+@generic_repr
+class Beleidskeuzes_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Beleidskeuzes'
+
+    Titel = Column(Unicode, nullable=False)
+    Omschrijving_Keuze = Column(Unicode)
+    Omschrijving_Werking = Column(Unicode)
+    Provinciaal_Belang = Column(Unicode)
+    Aanleiding = Column(Unicode)
+    Afweging = Column(Unicode)
+    Besluitnummer = Column(Unicode)
+    Tags = Column(Unicode)
+    Status = Column(Unicode(50), nullable=False)
+    Weblink = Column(Unicode(200))
+
+    Created_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Created_By == Gebruiker.UUID')
+    Modified_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Modified_By == Gebruiker.UUID')
+
+    Beleidskeuzes = relationship("Beleidskeuzes_Ambities", back_populates="Ambitie")
 
 
 class Beleidskeuzes_Schema(Base_Schema):
