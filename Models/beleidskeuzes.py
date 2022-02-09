@@ -27,11 +27,63 @@ import Models.maatregelen
 import Models.verordeningen
 from Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
 from Endpoints.status_data_manager import StatusDataManager
-from sqlalchemy import Column, Unicode, ForeignKey
-from sqlalchemy_utils import generic_repr
-from sqlalchemy.orm import relationship
 
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from db import CommonMixin, db
+
+
+class Beleidsmodule_Beleidskeuzes_DB_Association(db.Model):
+    __tablename__ = 'Beleidsmodule_Beleidskeuzes'
+
+    Beleidsmodule_UUID = Column('Beleidsmodule_UUID', ForeignKey('Beleidsmodules.UUID'), primary_key=True)
+    Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
+    Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+
+    Beleidsmodule = relationship("Beleidsmodules", back_populates="Beleidskeuzes")
+    Beleidskeuze = relationship("Beleidskeuzes", back_populates="Beleidsmodules")
+
+
+class Beleidskeuzes_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Beleidskeuzes'
+
+    Eigenaar_1 = Column(ForeignKey('Gebruikers.UUID'))
+    Eigenaar_2 = Column(ForeignKey('Gebruikers.UUID'))
+    Portefeuillehouder_1 = Column(ForeignKey('Gebruikers.UUID'))
+    Portefeuillehouder_2 = Column(ForeignKey('Gebruikers.UUID'))
+    Opdrachtgever = Column(ForeignKey('Gebruikers.UUID'))
+    Titel = Column(Unicode, nullable=False)
+    Omschrijving_Keuze = Column(Unicode)
+    Omschrijving_Werking = Column(Unicode)
+    Provinciaal_Belang = Column(Unicode)
+    Aanleiding = Column(Unicode)
+    Afweging = Column(Unicode)
+    Besluitnummer = Column(Unicode)
+    Tags = Column(Unicode)
+    Aanpassing_Op = Column(ForeignKey('Beleidskeuzes.UUID'))
+    Status = Column(Unicode(50), nullable=False)
+    Weblink = Column(Unicode(200))
+
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidskeuzes.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidskeuzes.Modified_By == Gebruikers.UUID')
+    
+    Ref_Eigenaar_1 = relationship('Gebruikers', primaryjoin='Beleidskeuzes.Eigenaar_1 == Gebruikers.UUID')
+    Ref_Eigenaar_2 = relationship('Gebruikers', primaryjoin='Beleidskeuzes.Eigenaar_2 == Gebruikers.UUID')
+    Ref_Portefeuillehouder_1 = relationship('Gebruikers', primaryjoin='Beleidskeuzes.Portefeuillehouder_1 == Gebruikers.UUID')
+    Ref_Portefeuillehouder_2 = relationship('Gebruikers', primaryjoin='Beleidskeuzes.Portefeuillehouder_2 == Gebruikers.UUID')
+    Ref_Opdrachtgever = relationship('Gebruikers', primaryjoin='Beleidskeuzes.Opdrachtgever == Gebruikers.UUID')
+    Ambities = relationship("Beleidskeuze_Ambities", back_populates="Ambities")
+    Belangen = relationship("Beleidskeuze_Belangen", back_populates="Belangen")
+    Beleidsdoelen = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoelen")
+    Beleidsprestaties = relationship("Beleidskeuze_Beleidsprestaties", back_populates="Beleidsprestaties")
+    Beleidsregels = relationship("Beleidskeuze_Beleidsregels", back_populates="Beleidsregels")
+    Maatregelen = relationship("Beleidskeuze_Maatregelen", back_populates="Maatregelen")
+    Themas = relationship("Beleidskeuze_Themas", back_populates="Themas")
+    Verordeningen = relationship("Beleidskeuze_Verordeningen", back_populates="Verordeningen")
+    Werkingsgebieden = relationship("Beleidskeuze_Werkingsgebieden", back_populates="Werkingsgebieden")
+    Beleidskeuzes = relationship("Beleidsrelaties", back_populates="Beleidskeuzes")
+    Ref_Beleidsmodules = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidskeuze")
+            
 
 status_options = [
     "Definitief ontwerp GS",
@@ -48,25 +100,25 @@ status_options = [
     "Vigerend gearchiveerd",
 ]
 
-@generic_repr
-class Beleidskeuzes_DB_Schema(CommonMixin, db.Model):
-    __tablename__ = 'Beleidskeuzes'
+# class Beleidskeuzes_DB_Schema(CommonMixin, db.Model):
+#     __tablename__ = 'Beleidskeuzes'
 
-    Titel = Column(Unicode, nullable=False)
-    Omschrijving_Keuze = Column(Unicode)
-    Omschrijving_Werking = Column(Unicode)
-    Provinciaal_Belang = Column(Unicode)
-    Aanleiding = Column(Unicode)
-    Afweging = Column(Unicode)
-    Besluitnummer = Column(Unicode)
-    Tags = Column(Unicode)
-    Status = Column(Unicode(50), nullable=False)
-    Weblink = Column(Unicode(200))
+#     Titel = Column(Unicode, nullable=False)
+#     Omschrijving_Keuze = Column(Unicode)
+#     Omschrijving_Werking = Column(Unicode)
+#     Provinciaal_Belang = Column(Unicode)
+#     Aanleiding = Column(Unicode)
+#     Afweging = Column(Unicode)
+#     Besluitnummer = Column(Unicode)
+#     Tags = Column(Unicode)
+#     Status = Column(Unicode(50), nullable=False)
+#     Weblink = Column(Unicode(200))
 
-    Created_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Created_By == Gebruiker.UUID')
-    Modified_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Modified_By == Gebruiker.UUID')
+#     Created_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Created_By == Gebruiker.UUID')
+#     Modified_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Modified_By == Gebruiker.UUID')
 
-    Beleidskeuzes = relationship("Beleidskeuzes_Ambities", back_populates="Ambitie")
+#     Ambities = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
+#     Belangen = relationship("Beleidskeuze_Belangen", back_populates="Belang")
 
 
 class Beleidskeuzes_Schema(Base_Schema):

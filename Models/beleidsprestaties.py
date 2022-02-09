@@ -6,18 +6,35 @@ from Endpoints.base_schema import Base_Schema
 from Endpoints.validators import HTML_Validate
 from Models.short_schemas import Short_Beleidskeuze_Schema
 from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
-from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy_utils import generic_repr, ChoiceType
+
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from db import CommonMixin, db
 
 
-# @generic_repr
-# class Beleidsprestaties_DB_Schema(CommonMixin, db.Model):
-#     __tablename__ = 'Beleidsprestaties'
+class Beleidskeuze_Beleidsprestaties_DB_Association(db.Model):
+    __tablename__ = 'Beleidskeuze_Beleidsprestaties'
 
-#     Titel = Column(String)
-#     Omschrijving = Column(String)
-#     Weblink = Column(String)
+    Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
+    Beleidsprestatie_UUID = Column('Beleidsprestatie_UUID', ForeignKey('Beleidsprestaties.UUID'), primary_key=True)
+    Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+
+    Beleidskeuze = relationship("Beleidskeuzes", back_populates="Beleidsprestaties")
+    Beleidsprestatie = relationship("Beleidsprestaties", back_populates="Beleidskeuzes")
+
+
+class Beleidsprestaties_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Beleidsprestaties'
+
+    Titel = Column(Unicode(150), nullable=False)
+    Omschrijving = Column(Unicode)
+    Weblink = Column(Unicode)
+
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsprestaties.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsprestaties.Modified_By == Gebruikers.UUID')
+    
+    Ref_Beleidskeuzes = relationship("Beleidskeuze_Beleidsprestaties", back_populates="Beleidsprestatie")
+
 
 
 class Beleidsprestaties_Schema(Base_Schema):

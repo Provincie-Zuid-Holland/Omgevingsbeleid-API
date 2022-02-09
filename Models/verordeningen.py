@@ -15,6 +15,50 @@ from Models.short_schemas import Short_Beleidskeuze_Schema
 
 from globals import default_user_uuid
 
+from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
+from db import CommonMixin, db
+
+
+class Beleidskeuze_Verordeningen_DB_Association(db.Model):
+    __tablename__ = 'Beleidskeuze_Verordeningen'
+
+    Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
+    Verordening_UUID = Column('Verordening_UUID', ForeignKey('Verordeningen.UUID'), primary_key=True)
+    Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+
+    Beleidskeuze = relationship("Beleidskeuzes", back_populates="Verordeningen")
+    Verordening = relationship("Verordeningen", back_populates="Beleidskeuzes")
+
+
+class Verordeningen_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Verordeningen'
+
+    Portefeuillehouder_1 = Column(ForeignKey('Gebruikers.UUID'))
+    Portefeuillehouder_2 = Column(ForeignKey('Gebruikers.UUID'))
+    Eigenaar_1 = Column(ForeignKey('Gebruikers.UUID'))
+    Eigenaar_2 = Column(ForeignKey('Gebruikers.UUID'))
+    Opdrachtgever = Column(ForeignKey('Gebruikers.UUID'))
+    Titel = Column(Unicode)
+    Inhoud = Column(Unicode)
+    Weblink = Column(Unicode)
+    Status = Column(Unicode(50), nullable=False)
+    Type = Column(Unicode, nullable=False)
+    Gebied = Column(UNIQUEIDENTIFIER)
+    Volgnummer = Column(Unicode, nullable=False)
+
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Verordeningen.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Verordeningen.Modified_By == Gebruikers.UUID')
+    
+    Ref_Eigenaar_1 = relationship('Gebruikers', primaryjoin='Verordeningen.Eigenaar_1 == Gebruikers.UUID')
+    Ref_Eigenaar_2 = relationship('Gebruikers', primaryjoin='Verordeningen.Eigenaar_2 == Gebruikers.UUID')
+    Ref_Portefeuillehouder_1 = relationship('Gebruikers', primaryjoin='Verordeningen.Portefeuillehouder_1 == Gebruikers.UUID')
+    Ref_Portefeuillehouder_2 = relationship('Gebruikers', primaryjoin='Verordeningen.Portefeuillehouder_2 == Gebruikers.UUID')
+    Ref_Opdrachtgever = relationship('Gebruikers', primaryjoin='Verordeningen.Opdrachtgever == Gebruikers.UUID')
+    Ref_Gebied = relationship('Werkingsgebieden', primaryjoin='Verordeningen.Gebied == Werkingsgebieden.UUID')
+    Ref_Beleidskeuzes = relationship("Beleidskeuze_Verordeningen", back_populates="Verordening")
+
 
 class Verordeningen_Schema(Base_Schema):
     Eigenaar_1 = MM.fields.UUID(

@@ -8,13 +8,11 @@ import pyodbc
 from globals import null_uuid, db_connection_settings
 import uuid
 from sqlalchemy import Column, ForeignKey, Integer, Unicode, text
-from sqlalchemy_utils import generic_repr
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 
 from db import CommonMixin, db
 
 
-@generic_repr
 class Gebruikers_DB_Schema(db.Model):
     __tablename__ = 'Gebruikers'
 

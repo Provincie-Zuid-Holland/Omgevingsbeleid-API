@@ -6,25 +6,24 @@ from Endpoints.base_schema import Base_Schema
 from Endpoints.references import (Reverse_ID_Reference, Reverse_UUID_Reference,
                                   UUID_Linker_Schema)
 from Endpoints.validators import HTML_Validate
-from sqlalchemy import Column, Unicode, ForeignKey, String
-from sqlalchemy_utils import generic_repr
-from sqlalchemy.orm import relationship
-
-from db import CommonMixin, db
 from Models.short_schemas import Short_Beleidskeuze_Schema
 
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
+from db import CommonMixin, db
+
+
 class Beleidskeuze_Ambities_DB_Association(db.Model):
-    __tablename__ = 'Beleidskeuzes_Ambities'
+    __tablename__ = 'Beleidskeuze_Ambities'
 
     Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
     Ambitie_UUID = Column('Ambitie_UUID', ForeignKey('Ambities.UUID'), primary_key=True)
-    Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+    Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
 
     Beleidskeuze = relationship("Beleidskeuzes", back_populates="Ambities")
     Ambitie = relationship("Ambities", back_populates="Beleidskeuzes")
 
 
-@generic_repr
 class Ambities_DB_Schema(CommonMixin, db.Model):
     __tablename__ = 'Ambities'
 
@@ -32,10 +31,34 @@ class Ambities_DB_Schema(CommonMixin, db.Model):
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
 
-    Created_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Created_By == Gebruiker.UUID')
-    Modified_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Modified_By == Gebruiker.UUID')
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Ambities.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Ambities.Modified_By == Gebruikers.UUID')
+    
+    Ref_Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
 
-    Beleidskeuzes = relationship("Beleidskeuzes_Ambities", back_populates="Ambitie")
+
+# class Beleidskeuze_Ambities_DB_Association(db.Model):
+#     __tablename__ = 'Beleidskeuze_Ambities'
+
+#     Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
+#     Ambitie_UUID = Column('Ambitie_UUID', ForeignKey('Ambities.UUID'), primary_key=True)
+#     Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+
+#     Beleidskeuze = relationship("Beleidskeuzes", back_populates="Ambities")
+#     Ambitie = relationship("Ambities", back_populates="Beleidskeuzes")
+
+
+# class Ambities_DB_Schema(CommonMixin, db.Model):
+#     __tablename__ = 'Ambities'
+
+#     Titel = Column(Unicode(150), nullable=False)
+#     Omschrijving = Column(Unicode)
+#     Weblink = Column(Unicode)
+
+#     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Ambities.Created_By == Gebruikers.UUID')
+#     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Ambities.Modified_By == Gebruikers.UUID')
+
+#     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
 
 
 class Ambities_Schema(Base_Schema):

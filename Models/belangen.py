@@ -6,25 +6,63 @@ from Endpoints.base_schema import Base_Schema
 from Endpoints.validators import HTML_Validate
 from Models.short_schemas import Short_Beleidskeuze_Schema
 from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
-from sqlalchemy import Column, Unicode
-from sqlalchemy_utils import generic_repr, ChoiceType
+
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from db import CommonMixin, db
 
 
-Belangen_Type_Choices = [
-    (u'admin', u'Admin'),
-    (u'regular-user', u'Regular user')
-]
+class Beleidskeuze_Belangen_DB_Association(db.Model):
+    __tablename__ = 'Beleidskeuze_Belangen'
+
+    Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
+    Belang_UUID = Column('Belang_UUID', ForeignKey('Belangen.UUID'), primary_key=True)
+    Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+
+    Beleidskeuze = relationship("Beleidskeuzes", back_populates="Belangen")
+    Belang = relationship("Belangen", back_populates="Beleidskeuzes")
 
 
-@generic_repr
 class Belangen_DB_Schema(CommonMixin, db.Model):
     __tablename__ = 'Belangen'
 
-    Titel = Column(Unicode)
+    Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
-    Type = Column(ChoiceType(Belangen_Type_Choices))
+    Type = Column(Unicode)
+
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Belangen.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Belangen.Modified_By == Gebruikers.UUID')
+    
+    Ref_Beleidskeuzes = relationship("Beleidskeuze_Belangen", back_populates="Belang")
+
+
+# Belangen_Type_Choices = [
+#     (u'admin', u'Admin'),
+#     (u'regular-user', u'Regular user')
+# ]
+
+
+# class Beleidskeuze_Belangen_DB_Association(db.Model):
+#     __tablename__ = 'Beleidskeuze_Belangen'
+
+#     Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
+#     Belang_UUID = Column('Belang_UUID', ForeignKey('Belangen.UUID'), primary_key=True)
+#     Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+
+#     Beleidskeuze = relationship("Beleidskeuzes", back_populates="Belangen")
+#     Belang = relationship("Belangen", back_populates="Beleidskeuzes")
+
+
+# class Belangen_DB_Schema(CommonMixin, db.Model):
+#     __tablename__ = 'Belangen'
+
+#     Titel = Column(Unicode)
+#     Omschrijving = Column(Unicode)
+#     Weblink = Column(Unicode)
+#     Type = Column(Unicode)
+    
+#     Beleidskeuzes = relationship("Beleidskeuze_Belangen", back_populates="Belang")
 
 
 class Belangen_Schema(Base_Schema):

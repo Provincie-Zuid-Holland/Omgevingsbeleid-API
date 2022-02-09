@@ -7,6 +7,34 @@ from Endpoints.validators import HTML_Validate
 from Models.short_schemas import Short_Beleidskeuze_Schema
 from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
 
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
+from db import CommonMixin, db
+
+
+class Beleidskeuze_Themas_DB_Association(db.Model):
+    __tablename__ = 'Beleidskeuze_Themas'
+
+    Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
+    Thema_UUID = Column('Thema_UUID', ForeignKey('Themas.UUID'), primary_key=True)
+    Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+
+    Beleidskeuze = relationship("Beleidskeuzes", back_populates="Themas")
+    Thema = relationship("Themas", back_populates="Beleidskeuzes")
+
+
+class Themas_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Themas'
+
+    Titel = Column(Unicode(150), nullable=False)
+    Omschrijving = Column(Unicode)
+    Weblink = Column(Unicode)
+
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Themas.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Themas.Modified_By == Gebruikers.UUID')
+    
+    Ref_Beleidskeuzes = relationship("Beleidskeuze_Themas", back_populates="Thema")
+
 
 class Themas_Schema(Base_Schema):
     Titel = MM.fields.Str(

@@ -16,17 +16,22 @@ from globals import default_user_uuid, min_datetime
 
 import Models.maatregelen
 import Models.beleidskeuzes
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, DateTime
-from sqlalchemy_utils import generic_repr, ChoiceType
+
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode, DateTime
 from db import CommonMixin, db
 
+class Beleidsmodules_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Beleidsmodules'
 
-# @generic_repr
-# class Beleidsmodule_DB_Schema(CommonMixin, db.Model):
-#     __tablename__ = 'Beleidsmodules'
+    Titel = Column(Unicode(150), nullable=False)
+    Besluit_Datum = Column(DateTime)
 
-#     Titel = Column(String)
-#     Besluit_Datum = Column(DateTime)
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsmodules.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsmodules.Modified_By == Gebruikers.UUID')
+    
+    Maatregelen = relationship("Beleidsmodule_Maatregelen", back_populates="Maatregelen")
+    Beleidskeuzes = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidskeuzes")
 
 
 class Beleidsmodule_Schema(Base_Schema):

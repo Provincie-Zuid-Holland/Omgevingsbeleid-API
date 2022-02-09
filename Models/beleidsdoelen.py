@@ -6,18 +6,48 @@ from Endpoints.base_schema import Base_Schema
 from Endpoints.validators import HTML_Validate
 from Models.short_schemas import Short_Beleidskeuze_Schema
 from Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
-from sqlalchemy import Column, ForeignKey, Integer, String, Table
-from sqlalchemy_utils import generic_repr, ChoiceType
+
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from db import CommonMixin, db
 
 
-# @generic_repr
+class Beleidskeuze_Beleidsdoelen_DB_Association(db.Model):
+    __tablename__ = 'Beleidskeuze_Beleidsdoelen'
+
+    Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
+    Beleidsdoel_UUID = Column('Beleidsdoel_UUID', ForeignKey('Beleidsdoelen.UUID'), primary_key=True)
+    Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+
+    Beleidskeuze = relationship("Beleidskeuzes", back_populates="Beleidsdoelen")
+    Beleidsdoel = relationship("Beleidsdoelen", back_populates="Beleidskeuzes")
+
+
+class Beleidsdoelen_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Beleidsdoelen'
+
+    Titel = Column(Unicode(150), nullable=False)
+    Omschrijving = Column(Unicode)
+    Weblink = Column(Unicode)
+
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsdoelen.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsdoelen.Modified_By == Gebruikers.UUID')
+    
+    Ref_Beleidskeuzes = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoel")
+
+
 # class Beleidsdoelen_DB_Schema(CommonMixin, db.Model):
 #     __tablename__ = 'Beleidsdoelen'
 
-#     Titel = Column(String)
-#     Omschrijving = Column(String)
-#     Weblink = Column(String)
+#     Titel = Column(Unicode(150), nullable=False)
+#     Omschrijving = Column(Unicode)
+#     Weblink = Column(Unicode)
+
+#     Created_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Created_By == Gebruiker.UUID')
+#     Modified_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Modified_By == Gebruiker.UUID')
+
+#     Beleidskeuzes = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Ambitie")
+
 
 
 class Beleidsdoelen_Schema(Base_Schema):

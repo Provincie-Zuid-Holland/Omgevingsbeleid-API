@@ -8,6 +8,25 @@ from Endpoints.validators import HTML_Validate
 from Models.beleidskeuzes import Beleidskeuzes_Schema
 from globals import null_uuid
 
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode, DateTime, text
+from db import CommonMixin, db
+
+class Beleidsrelaties_DB_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Beleidsrelaties'
+
+    Omschrijving = Column(Unicode)
+    Status = Column(Unicode(50))
+    Aanvraag_Datum = Column(DateTime)
+    Datum_Akkoord = Column(DateTime)
+    Titel = Column(Unicode(50), nullable=False, server_default=text("('Titel')"))
+
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsrelaties.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsrelaties.Modified_By == Gebruikers.UUID')
+    
+    Ref_Van_Beleidskeuze = relationship('Beleidskeuzes', primaryjoin='Beleidsrelaties.Van_Beleidskeuze == Beleidskeuzes.UUID')
+    Ref_Naar_Beleidskeuze = relationship('Beleidskeuzes', primaryjoin='Beleidsrelaties.Naar_Beleidskeuze == Beleidskeuzes.UUID')
+
 
 class Beleidsrelaties_Schema(Base_Schema):
     Van_Beleidskeuze = MM.fields.UUID(
