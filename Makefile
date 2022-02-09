@@ -1,8 +1,19 @@
 .PHONY: init info up down down-hard restart logs logs-all mysql-wait mssql mssql-cli mssql-create-database mssql-show-databases mssql-show-tables flask-setup-database flask-setup-tables flask-setup-views flask-routes flask
 
+ifeq (flask, $(firstword $(MAKECMDGOALS)))
+  RUN_ARGS := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+  $(eval $(RUN_ARGS):;@:)
+endif
+
 init: up mssql-create-database info
 
 info:
+	@echo ""
+	@echo ""
+	@echo "	You can access flask locally via:"
+	@echo "		make flask [sub-commands]"
+	@echo "		make flask db branches"
+	@echo "	NOTE: This requires you to run the python virtual environment"
 	@echo ""
 	@echo ""
 	@echo "	Both services under a proxy: (you probably want this)"
@@ -67,5 +78,16 @@ flask-setup-views:
 flask-routes:
 	docker-compose exec api flask routes
 
-flask:
+flask-shell:
 	docker-compose exec api /bin/bash
+
+# @TODO: DB_DRIVER should be filled in
+# This value is different for linux and windows users
+# It could be passed in by the .env file
+# But i dont like installing that driver locally mmmm
+#
+# Other options are
+# * Run inside container and manually change permissions of created file
+# * Run inside container as host user (not sure if that works on Windows)
+flask:
+	FLASK_APP=application.py DB_USER=SA DB_PASS=Passw0rd DB_HOST=localhost DB_PORT=11433 DB_NAME=db_test flask $(RUN_ARGS)
