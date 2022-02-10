@@ -8,24 +8,49 @@ from Endpoints.validators import HTML_Validate
 from Models.beleidskeuzes import Beleidskeuzes_Schema
 from globals import null_uuid
 
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, Integer, String, Unicode, DateTime, text
-from db import CommonMixin, db
+from db import db
 
-class Beleidsrelaties_DB_Schema(CommonMixin, db.Model):
+class Beleidsrelaties_DB_Schema(db.Model):
     __tablename__ = 'Beleidsrelaties'
 
+    # Overwrites because of different nullable value
+    # @todo: should probably be alligned with CommonMixin at some point
+    ID = Column(Integer, nullable=False)
+    UUID = Column(UNIQUEIDENTIFIER, primary_key=True, server_default=text("(newid())"))
+
+    Begin_Geldigheid = Column(DateTime, nullable=True)
+    Eind_Geldigheid = Column(DateTime, nullable=True)
+    Created_Date = Column(DateTime, nullable=True)
+    Modified_Date = Column(DateTime, nullable=True)
+
+    @declared_attr
+    def Created_By(cls):
+        return Column('Created_By', ForeignKey('Gebruikers.UUID'), nullable=True)
+
+    @declared_attr
+    def Modified_By(cls):
+        return Column('Modified_By', ForeignKey('Gebruikers.UUID'), nullable=True)
+
+    # The rest of the model as normal
     Omschrijving = Column(Unicode)
     Status = Column(Unicode(50))
     Aanvraag_Datum = Column(DateTime)
     Datum_Akkoord = Column(DateTime)
     Titel = Column(Unicode(50), nullable=False, server_default=text("('Titel')"))
 
+    Van_Beleidskeuze = Column(ForeignKey('Beleidskeuzes.UUID'), nullable=False)
+    Naar_Beleidskeuze = Column(ForeignKey('Beleidskeuzes.UUID'), nullable=False)
+
+    Ref_Van_Beleidskeuze = relationship('Beleidskeuzes', primaryjoin='Beleidsrelaties.Van_Beleidskeuze == Beleidskeuzes.UUID')
+    Ref_Naar_Beleidskeuze = relationship('Beleidskeuzes', primaryjoin='Beleidsrelaties.Naar_Beleidskeuze == Beleidskeuzes.UUID')
+
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsrelaties.Created_By == Gebruikers.UUID')
     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsrelaties.Modified_By == Gebruikers.UUID')
     
-    Ref_Van_Beleidskeuze = relationship('Beleidskeuzes', primaryjoin='Beleidsrelaties.Van_Beleidskeuze == Beleidskeuzes.UUID')
-    Ref_Naar_Beleidskeuze = relationship('Beleidskeuzes', primaryjoin='Beleidsrelaties.Naar_Beleidskeuze == Beleidskeuzes.UUID')
 
 
 class Beleidsrelaties_Schema(Base_Schema):

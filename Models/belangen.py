@@ -37,34 +37,6 @@ class Belangen_DB_Schema(CommonMixin, db.Model):
     Ref_Beleidskeuzes = relationship("Beleidskeuze_Belangen", back_populates="Belang")
 
 
-# Belangen_Type_Choices = [
-#     (u'admin', u'Admin'),
-#     (u'regular-user', u'Regular user')
-# ]
-
-
-# class Beleidskeuze_Belangen_DB_Association(db.Model):
-#     __tablename__ = 'Beleidskeuze_Belangen'
-
-#     Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
-#     Belang_UUID = Column('Belang_UUID', ForeignKey('Belangen.UUID'), primary_key=True)
-#     Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
-
-#     Beleidskeuze = relationship("Beleidskeuzes", back_populates="Belangen")
-#     Belang = relationship("Belangen", back_populates="Beleidskeuzes")
-
-
-# class Belangen_DB_Schema(CommonMixin, db.Model):
-#     __tablename__ = 'Belangen'
-
-#     Titel = Column(Unicode)
-#     Omschrijving = Column(Unicode)
-#     Weblink = Column(Unicode)
-#     Type = Column(Unicode)
-    
-#     Beleidskeuzes = relationship("Beleidskeuze_Belangen", back_populates="Belang")
-
-
 class Belangen_Schema(Base_Schema):
     Titel = MM.fields.Str(required=True, obprops=["search_title", "short"])
     Omschrijving = MM.fields.Str(

@@ -54,6 +54,7 @@ services:
     volumes:
       - mssql:/var/opt/mssql
       - ./docker/mssql/init.sql:/opt/init.sql:ro
+      - ./docker/mssql/clear.sql:/opt/clear.sql:ro
       - ./docker/mssql/old.hidden.sql:/opt/old.hidden.sql:ro
       - ./docker/mssql/old-full.hidden.sql:/opt/old-full.hidden.sql:ro
     restart: "no"

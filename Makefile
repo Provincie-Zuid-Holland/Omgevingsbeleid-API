@@ -54,6 +54,9 @@ mssql-cli:
 mssql-create-database:
 	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/init.sql 
 
+mssql-clear-database:
+	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/clear.sql 
+
 mssql-load-old-database:
 	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/old.hidden.sql 
 

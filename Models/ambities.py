@@ -37,30 +37,6 @@ class Ambities_DB_Schema(CommonMixin, db.Model):
     Ref_Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
 
 
-# class Beleidskeuze_Ambities_DB_Association(db.Model):
-#     __tablename__ = 'Beleidskeuze_Ambities'
-
-#     Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
-#     Ambitie_UUID = Column('Ambitie_UUID', ForeignKey('Ambities.UUID'), primary_key=True)
-#     Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
-
-#     Beleidskeuze = relationship("Beleidskeuzes", back_populates="Ambities")
-#     Ambitie = relationship("Ambities", back_populates="Beleidskeuzes")
-
-
-# class Ambities_DB_Schema(CommonMixin, db.Model):
-#     __tablename__ = 'Ambities'
-
-#     Titel = Column(Unicode(150), nullable=False)
-#     Omschrijving = Column(Unicode)
-#     Weblink = Column(Unicode)
-
-#     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Ambities.Created_By == Gebruikers.UUID')
-#     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Ambities.Modified_By == Gebruikers.UUID')
-
-#     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
-
-
 class Ambities_Schema(Base_Schema):
     Titel = MM.fields.Str(
         required=True, validate=[HTML_Validate], obprops=["search_title", "short"]

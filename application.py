@@ -13,7 +13,7 @@ from flask_jwt_extended import JWTManager, jwt_required
 from flask_restful import Api, Resource
 from flask_migrate import Migrate
 from Endpoints.edits import editView
-from Models import gebruikers, verordeningsstructuur, beleidskeuzes, maatregelen
+from Models import gebruikers, verordeningsstructuur, beleidskeuzes, maatregelen, onderverdeling
 import datamodel
 import Endpoints.endpoint
 from Auth.views import jwt_required_not_GET, login, password_reset, tokenstat

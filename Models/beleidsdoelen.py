@@ -36,20 +36,6 @@ class Beleidsdoelen_DB_Schema(CommonMixin, db.Model):
     Ref_Beleidskeuzes = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoel")
 
 
-# class Beleidsdoelen_DB_Schema(CommonMixin, db.Model):
-#     __tablename__ = 'Beleidsdoelen'
-
-#     Titel = Column(Unicode(150), nullable=False)
-#     Omschrijving = Column(Unicode)
-#     Weblink = Column(Unicode)
-
-#     Created_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Created_By == Gebruiker.UUID')
-#     Modified_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Modified_By == Gebruiker.UUID')
-
-#     Beleidskeuzes = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Ambitie")
-
-
-
 class Beleidsdoelen_Schema(Base_Schema):
     Titel = MM.fields.Str(
         required=True, validate=[HTML_Validate], obprops=["search_title", "short"]

@@ -9,7 +9,10 @@ from xml.etree import ElementTree as ET
 import re
 import uuid
 import time
-
+from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER, XML
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
+from db import CommonMixin, db
 
 
 class Tree_Root(MM.Schema):
@@ -57,6 +60,18 @@ class Tree_Node(MM.Schema):
         if 'Gebied' in dumped and dumped['Gebied'] == null_uuid:
             dumped['Gebied'] = None
         return dumped
+
+
+class Verordeningstructuur_Schema(CommonMixin, db.Model):
+    __tablename__ = 'Verordeningstructuur'
+
+    Titel = Column(Unicode(150), nullable=False)
+    Structuur = Column(XML, nullable=False)
+    Status = Column(Unicode(50))
+
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Verordeningstructuur.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Verordeningstructuur.Modified_By == Gebruikers.UUID')
+
 
 class Verordening_Structuur_Schema(MM.Schema):
     """

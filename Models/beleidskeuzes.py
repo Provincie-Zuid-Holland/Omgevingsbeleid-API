@@ -100,26 +100,6 @@ status_options = [
     "Vigerend gearchiveerd",
 ]
 
-# class Beleidskeuzes_DB_Schema(CommonMixin, db.Model):
-#     __tablename__ = 'Beleidskeuzes'
-
-#     Titel = Column(Unicode, nullable=False)
-#     Omschrijving_Keuze = Column(Unicode)
-#     Omschrijving_Werking = Column(Unicode)
-#     Provinciaal_Belang = Column(Unicode)
-#     Aanleiding = Column(Unicode)
-#     Afweging = Column(Unicode)
-#     Besluitnummer = Column(Unicode)
-#     Tags = Column(Unicode)
-#     Status = Column(Unicode(50), nullable=False)
-#     Weblink = Column(Unicode(200))
-
-#     Created_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Created_By == Gebruiker.UUID')
-#     Modified_By_Gebruiker = relationship('Gebruiker', primaryjoin='Ambity.Modified_By == Gebruiker.UUID')
-
-#     Ambities = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
-#     Belangen = relationship("Beleidskeuze_Belangen", back_populates="Belang")
-
 
 class Beleidskeuzes_Schema(Base_Schema):
     Eigenaar_1 = MM.fields.UUID(
