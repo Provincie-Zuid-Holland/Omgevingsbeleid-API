@@ -50,7 +50,7 @@ jwt = JWTManager(app)
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# DATABASE SETUP
+# DATABASE VIEWS
 @app.cli.command("setup-views")
 @click.option('-y', '--auto-yes', is_flag=True)
 def setup_views(auto_yes):

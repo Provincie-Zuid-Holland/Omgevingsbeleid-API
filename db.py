@@ -24,7 +24,6 @@ class CommonMixin():
 # Naming conventions for keys, used to map to the current database setup
 metadata = MetaData(naming_convention={
     'pk': 'PK_%(table_name)s',
-    # 'fk': 'FK_%(table_name)s_%(column_0_name)s_%(referred_table_name)s',
     'fk': 'FK_%(table_name)s_%(column_0_name)s',
     'ix': 'IX_%(table_name)s_%(column_0_name)s',
     'uq': 'UQ_%(table_name)s_%(column_0_name)s',

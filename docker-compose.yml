@@ -28,10 +28,10 @@ services:
     build:
       context: ./
       dockerfile: ./docker/frontend/Dockerfile
+      args:
+        BUILTIME_FRONTEND_BRANCH: "${FRONTEND_BRANCH}"
     ports:
       - "3000:3000"
-    volumes:
-      - ./docker/frontend/craco.config.js:/opt/Omgevingsbeleid-Frontend/craco.config.js:ro
     environment:
       REACT_APP_RELEASE_VERSION: 'omgevingsbeleid@1.0.0'
       REACT_APP_API_URL: 'http://localhost:8888/v0.1'
