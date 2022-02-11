@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, DateTime, text, ForeignKey
+from sqlalchemy import Column, Integer, DateTime, text, ForeignKey, MetaData
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 
@@ -21,4 +21,14 @@ class CommonMixin():
         return Column('Modified_By', ForeignKey('Gebruikers.UUID'), nullable=False)
 
 
-db = SQLAlchemy()
+# Naming conventions for keys, used to map to the current database setup
+metadata = MetaData(naming_convention={
+    'pk': 'PK_%(table_name)s',
+    # 'fk': 'FK_%(table_name)s_%(column_0_name)s_%(referred_table_name)s',
+    'fk': 'FK_%(table_name)s_%(column_0_name)s',
+    'ix': 'IX_%(table_name)s_%(column_0_name)s',
+    'uq': 'UQ_%(table_name)s_%(column_0_name)s',
+    'ck': 'CK_%(table_name)s_%(constraint_name)s',
+})
+
+db = SQLAlchemy(metadata=metadata)

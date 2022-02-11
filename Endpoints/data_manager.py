@@ -61,14 +61,6 @@ class DataManager:
             )
         ]
 
-    def _setup_table(self):
-        """Creates a database table for this object
-        """
-        print(f"Setting up table for {self.schema.Meta.slug}")
-        table_fields =[ field for field in self.schema().fields_without_props(["referencelist", "calculated"])]
-        print(table_fields)
-        
-
     def _setup_views(self):
         """Creates all the necessary views and indices"""
         print("Default manager setup")
@@ -76,7 +68,7 @@ class DataManager:
         self._set_up_all_latest_view()
         self._set_up_valid_view()
         self._set_up_all_valid_view()
-        # self._set_up_search()
+        self._set_up_search()
 
     def _run_query_commit(self, query, values=[]):
         with pyodbc.connect(db_connection_settings, autocommit=True) as con:
@@ -764,7 +756,6 @@ class DataManager:
                                 ) as x GROUP BY [KEY]) as f
                             ON f.[KEY] = v.UUID
                             ORDER BY f.WeightedRank DESC"""
-        print(search_query)
         result_rows = self._run_query_commit(search_query, [args, args])
         return result_rows
 

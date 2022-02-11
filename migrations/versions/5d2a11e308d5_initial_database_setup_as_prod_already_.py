@@ -1,8 +1,8 @@
 """Initial database setup as prod already is
 
-Revision ID: c29ae17f67fa
+Revision ID: 5d2a11e308d5
 Revises: 
-Create Date: 2022-02-10 15:53:06.037978
+Create Date: 2022-02-11 12:30:44.729739
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import Utils
 from sqlalchemy.dialects import mssql
 
 # revision identifiers, used by Alembic.
-revision = 'c29ae17f67fa'
+revision = '5d2a11e308d5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -27,7 +27,7 @@ def upgrade():
     sa.Column('Rol', sa.Unicode(length=50), nullable=False),
     sa.Column('Email', sa.Unicode(length=265), nullable=True),
     sa.Column('Status', sa.Unicode(length=50), server_default=sa.text("('Actief')"), nullable=True),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Gebruikers'))
     )
     op.create_table('Ambities',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -41,9 +41,9 @@ def upgrade():
     sa.Column('Weblink', sa.Unicode(), nullable=True),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Ambities_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Ambities_Modified_By')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Ambities'))
     )
     op.create_table('Belangen',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -58,9 +58,9 @@ def upgrade():
     sa.Column('Type', sa.Unicode(), nullable=True),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Belangen_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Belangen_Modified_By')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Belangen'))
     )
     op.create_table('Beleidsdoelen',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -74,9 +74,9 @@ def upgrade():
     sa.Column('Weblink', sa.Unicode(), nullable=True),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidsdoelen_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidsdoelen_Modified_By')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Beleidsdoelen'))
     )
     op.create_table('Beleidskeuzes',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -103,15 +103,15 @@ def upgrade():
     sa.Column('Weblink', sa.Unicode(length=200), nullable=True),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Aanpassing_Op'], ['Beleidskeuzes.UUID'], ),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Eigenaar_1'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Eigenaar_2'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Opdrachtgever'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Portefeuillehouder_1'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Portefeuillehouder_2'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Aanpassing_Op'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuzes_Aanpassing_Op')),
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidskeuzes_Created_By')),
+    sa.ForeignKeyConstraint(['Eigenaar_1'], ['Gebruikers.UUID'], name=op.f('FK_Beleidskeuzes_Eigenaar_1')),
+    sa.ForeignKeyConstraint(['Eigenaar_2'], ['Gebruikers.UUID'], name=op.f('FK_Beleidskeuzes_Eigenaar_2')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidskeuzes_Modified_By')),
+    sa.ForeignKeyConstraint(['Opdrachtgever'], ['Gebruikers.UUID'], name=op.f('FK_Beleidskeuzes_Opdrachtgever')),
+    sa.ForeignKeyConstraint(['Portefeuillehouder_1'], ['Gebruikers.UUID'], name=op.f('FK_Beleidskeuzes_Portefeuillehouder_1')),
+    sa.ForeignKeyConstraint(['Portefeuillehouder_2'], ['Gebruikers.UUID'], name=op.f('FK_Beleidskeuzes_Portefeuillehouder_2')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Beleidskeuzes'))
     )
     op.create_table('Beleidsmodules',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -124,9 +124,9 @@ def upgrade():
     sa.Column('Besluit_Datum', sa.DateTime(), nullable=True),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidsmodules_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidsmodules_Modified_By')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Beleidsmodules'))
     )
     op.create_table('Beleidsprestaties',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -140,9 +140,9 @@ def upgrade():
     sa.Column('Weblink', sa.Unicode(), nullable=True),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidsprestaties_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidsprestaties_Modified_By')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Beleidsprestaties'))
     )
     op.create_table('Beleidsregels',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -157,9 +157,9 @@ def upgrade():
     sa.Column('Externe_URL', sa.String(length=300, collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidsregels_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidsregels_Modified_By')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Beleidsregels'))
     )
     op.create_table('Themas',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -173,9 +173,9 @@ def upgrade():
     sa.Column('Weblink', sa.Unicode(), nullable=True),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Themas_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Themas_Modified_By')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Themas'))
     )
     op.create_table('Verordeningen',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -198,14 +198,14 @@ def upgrade():
     sa.Column('Volgnummer', sa.Unicode(), nullable=False),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Eigenaar_1'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Eigenaar_2'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Opdrachtgever'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Portefeuillehouder_1'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Portefeuillehouder_2'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Verordeningen_Created_By')),
+    sa.ForeignKeyConstraint(['Eigenaar_1'], ['Gebruikers.UUID'], name=op.f('FK_Verordeningen_Eigenaar_1')),
+    sa.ForeignKeyConstraint(['Eigenaar_2'], ['Gebruikers.UUID'], name=op.f('FK_Verordeningen_Eigenaar_2')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Verordeningen_Modified_By')),
+    sa.ForeignKeyConstraint(['Opdrachtgever'], ['Gebruikers.UUID'], name=op.f('FK_Verordeningen_Opdrachtgever')),
+    sa.ForeignKeyConstraint(['Portefeuillehouder_1'], ['Gebruikers.UUID'], name=op.f('FK_Verordeningen_Portefeuillehouder_1')),
+    sa.ForeignKeyConstraint(['Portefeuillehouder_2'], ['Gebruikers.UUID'], name=op.f('FK_Verordeningen_Portefeuillehouder_2')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Verordeningen'))
     )
     op.create_table('Verordeningstructuur',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -219,9 +219,9 @@ def upgrade():
     sa.Column('Status', sa.Unicode(length=50), nullable=True),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Verordeningstructuur_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Verordeningstructuur_Modified_By')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Verordeningstructuur'))
     )
     op.create_table('Werkingsgebieden',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -235,81 +235,81 @@ def upgrade():
     sa.Column('SHAPE', Utils.sqlalchemy.Geometry(), nullable=False),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Werkingsgebieden_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Werkingsgebieden_Modified_By')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Werkingsgebieden'))
     )
     op.create_table('Beleidskeuze_Ambities',
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Ambitie_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Ambitie_UUID'], ['Ambities.UUID'], ),
-    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Ambitie_UUID')
+    sa.ForeignKeyConstraint(['Ambitie_UUID'], ['Ambities.UUID'], name=op.f('FK_Beleidskeuze_Ambities_Ambitie_UUID')),
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuze_Ambities_Beleidskeuze_UUID')),
+    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Ambitie_UUID', name=op.f('PK_Beleidskeuze_Ambities'))
     )
     op.create_table('Beleidskeuze_Belangen',
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Belang_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Belang_UUID'], ['Belangen.UUID'], ),
-    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Belang_UUID')
+    sa.ForeignKeyConstraint(['Belang_UUID'], ['Belangen.UUID'], name=op.f('FK_Beleidskeuze_Belangen_Belang_UUID')),
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuze_Belangen_Beleidskeuze_UUID')),
+    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Belang_UUID', name=op.f('PK_Beleidskeuze_Belangen'))
     )
     op.create_table('Beleidskeuze_Beleidsdoelen',
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Beleidsdoel_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Beleidsdoel_UUID'], ['Beleidsdoelen.UUID'], ),
-    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Beleidsdoel_UUID')
+    sa.ForeignKeyConstraint(['Beleidsdoel_UUID'], ['Beleidsdoelen.UUID'], name=op.f('FK_Beleidskeuze_Beleidsdoelen_Beleidsdoel_UUID')),
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuze_Beleidsdoelen_Beleidskeuze_UUID')),
+    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Beleidsdoel_UUID', name=op.f('PK_Beleidskeuze_Beleidsdoelen'))
     )
     op.create_table('Beleidskeuze_Beleidsprestaties',
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Beleidsprestatie_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], ),
-    sa.ForeignKeyConstraint(['Beleidsprestatie_UUID'], ['Beleidsprestaties.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Beleidsprestatie_UUID')
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuze_Beleidsprestaties_Beleidskeuze_UUID')),
+    sa.ForeignKeyConstraint(['Beleidsprestatie_UUID'], ['Beleidsprestaties.UUID'], name=op.f('FK_Beleidskeuze_Beleidsprestaties_Beleidsprestatie_UUID')),
+    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Beleidsprestatie_UUID', name=op.f('PK_Beleidskeuze_Beleidsprestaties'))
     )
     op.create_table('Beleidskeuze_Beleidsregels',
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Beleidsregel_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], ),
-    sa.ForeignKeyConstraint(['Beleidsregel_UUID'], ['Beleidsregels.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Beleidsregel_UUID')
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuze_Beleidsregels_Beleidskeuze_UUID')),
+    sa.ForeignKeyConstraint(['Beleidsregel_UUID'], ['Beleidsregels.UUID'], name=op.f('FK_Beleidskeuze_Beleidsregels_Beleidsregel_UUID')),
+    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Beleidsregel_UUID', name=op.f('PK_Beleidskeuze_Beleidsregels'))
     )
     op.create_table('Beleidskeuze_Themas',
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Thema_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], ),
-    sa.ForeignKeyConstraint(['Thema_UUID'], ['Themas.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Thema_UUID')
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuze_Themas_Beleidskeuze_UUID')),
+    sa.ForeignKeyConstraint(['Thema_UUID'], ['Themas.UUID'], name=op.f('FK_Beleidskeuze_Themas_Thema_UUID')),
+    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Thema_UUID', name=op.f('PK_Beleidskeuze_Themas'))
     )
     op.create_table('Beleidskeuze_Verordeningen',
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Verordening_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], ),
-    sa.ForeignKeyConstraint(['Verordening_UUID'], ['Verordeningen.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Verordening_UUID')
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuze_Verordeningen_Beleidskeuze_UUID')),
+    sa.ForeignKeyConstraint(['Verordening_UUID'], ['Verordeningen.UUID'], name=op.f('FK_Beleidskeuze_Verordeningen_Verordening_UUID')),
+    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Verordening_UUID', name=op.f('PK_Beleidskeuze_Verordeningen'))
     )
     op.create_table('Beleidskeuze_Werkingsgebieden',
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Werkingsgebied_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], ),
-    sa.ForeignKeyConstraint(['Werkingsgebied_UUID'], ['Werkingsgebieden.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Werkingsgebied_UUID')
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuze_Werkingsgebieden_Beleidskeuze_UUID')),
+    sa.ForeignKeyConstraint(['Werkingsgebied_UUID'], ['Werkingsgebieden.UUID'], name=op.f('FK_Beleidskeuze_Werkingsgebieden_Werkingsgebied_UUID')),
+    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Werkingsgebied_UUID', name=op.f('PK_Beleidskeuze_Werkingsgebieden'))
     )
     op.create_table('Beleidsmodule_Beleidskeuzes',
     sa.Column('Beleidsmodule_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], ),
-    sa.ForeignKeyConstraint(['Beleidsmodule_UUID'], ['Beleidsmodules.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidsmodule_UUID', 'Beleidskeuze_UUID')
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidsmodule_Beleidskeuzes_Beleidskeuze_UUID')),
+    sa.ForeignKeyConstraint(['Beleidsmodule_UUID'], ['Beleidsmodules.UUID'], name=op.f('FK_Beleidsmodule_Beleidskeuzes_Beleidsmodule_UUID')),
+    sa.PrimaryKeyConstraint('Beleidsmodule_UUID', 'Beleidskeuze_UUID', name=op.f('PK_Beleidsmodule_Beleidskeuzes'))
     )
     op.create_table('Beleidsrelaties',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -327,11 +327,11 @@ def upgrade():
     sa.Column('Naar_Beleidskeuze', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=True),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=True),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Naar_Beleidskeuze'], ['Beleidskeuzes.UUID'], ),
-    sa.ForeignKeyConstraint(['Van_Beleidskeuze'], ['Beleidskeuzes.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidsrelaties_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Beleidsrelaties_Modified_By')),
+    sa.ForeignKeyConstraint(['Naar_Beleidskeuze'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidsrelaties_Naar_Beleidskeuze')),
+    sa.ForeignKeyConstraint(['Van_Beleidskeuze'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidsrelaties_Van_Beleidskeuze')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Beleidsrelaties'))
     )
     op.create_table('Maatregelen',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -357,16 +357,16 @@ def upgrade():
     sa.Column('Opdrachtgever', mssql.UNIQUEIDENTIFIER(), nullable=True),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Aanpassing_Op'], ['Maatregelen.UUID'], ),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Eigenaar_1'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Eigenaar_2'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Gebied'], ['Werkingsgebieden.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Opdrachtgever'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Portefeuillehouder_1'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Portefeuillehouder_2'], ['Gebruikers.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Aanpassing_Op'], ['Maatregelen.UUID'], name=op.f('FK_Maatregelen_Aanpassing_Op')),
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Maatregelen_Created_By')),
+    sa.ForeignKeyConstraint(['Eigenaar_1'], ['Gebruikers.UUID'], name=op.f('FK_Maatregelen_Eigenaar_1')),
+    sa.ForeignKeyConstraint(['Eigenaar_2'], ['Gebruikers.UUID'], name=op.f('FK_Maatregelen_Eigenaar_2')),
+    sa.ForeignKeyConstraint(['Gebied'], ['Werkingsgebieden.UUID'], name=op.f('FK_Maatregelen_Gebied')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Maatregelen_Modified_By')),
+    sa.ForeignKeyConstraint(['Opdrachtgever'], ['Gebruikers.UUID'], name=op.f('FK_Maatregelen_Opdrachtgever')),
+    sa.ForeignKeyConstraint(['Portefeuillehouder_1'], ['Gebruikers.UUID'], name=op.f('FK_Maatregelen_Portefeuillehouder_1')),
+    sa.ForeignKeyConstraint(['Portefeuillehouder_2'], ['Gebruikers.UUID'], name=op.f('FK_Maatregelen_Portefeuillehouder_2')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Maatregelen'))
     )
     op.create_table('Onderverdeling',
     sa.Column('ID', sa.Integer(), nullable=False),
@@ -382,26 +382,26 @@ def upgrade():
     sa.Column('SHAPE', Utils.sqlalchemy.Geometry(), nullable=False),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], ),
-    sa.ForeignKeyConstraint(['UUID_Werkingsgebied'], ['Werkingsgebieden.UUID'], ),
-    sa.PrimaryKeyConstraint('UUID')
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Onderverdeling_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Onderverdeling_Modified_By')),
+    sa.ForeignKeyConstraint(['UUID_Werkingsgebied'], ['Werkingsgebieden.UUID'], name=op.f('FK_Onderverdeling_UUID_Werkingsgebied')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Onderverdeling'))
     )
     op.create_table('Beleidskeuze_Maatregelen',
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Maatregel_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], ),
-    sa.ForeignKeyConstraint(['Maatregel_UUID'], ['Maatregelen.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Maatregel_UUID')
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuze_Maatregelen_Beleidskeuze_UUID')),
+    sa.ForeignKeyConstraint(['Maatregel_UUID'], ['Maatregelen.UUID'], name=op.f('FK_Beleidskeuze_Maatregelen_Maatregel_UUID')),
+    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Maatregel_UUID', name=op.f('PK_Beleidskeuze_Maatregelen'))
     )
     op.create_table('Beleidsmodule_Maatregelen',
     sa.Column('Beleidsmodule_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Maatregel_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
-    sa.ForeignKeyConstraint(['Beleidsmodule_UUID'], ['Beleidsmodules.UUID'], ),
-    sa.ForeignKeyConstraint(['Maatregel_UUID'], ['Maatregelen.UUID'], ),
-    sa.PrimaryKeyConstraint('Beleidsmodule_UUID', 'Maatregel_UUID')
+    sa.ForeignKeyConstraint(['Beleidsmodule_UUID'], ['Beleidsmodules.UUID'], name=op.f('FK_Beleidsmodule_Maatregelen_Beleidsmodule_UUID')),
+    sa.ForeignKeyConstraint(['Maatregel_UUID'], ['Maatregelen.UUID'], name=op.f('FK_Beleidsmodule_Maatregelen_Maatregel_UUID')),
+    sa.PrimaryKeyConstraint('Beleidsmodule_UUID', 'Maatregel_UUID', name=op.f('PK_Beleidsmodule_Maatregelen'))
     )
     # ### end Alembic commands ###
 

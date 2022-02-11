@@ -8,8 +8,6 @@ import os
 
 # Database stuff
 db_connection_settings = f"DRIVER={os.getenv('DB_DRIVER')};SERVER={os.getenv('DB_HOST')};DATABASE={os.getenv('DB_NAME')};UID={os.getenv('DB_USER')};PWD={os.getenv('DB_PASS')}"
-# @todo: use env data
-# sqlalchemy_database_uri = 'mysql+pymysql://root:password@mysql/db_test'
 sqlalchemy_database_uri = "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
 
 # Datetime stuff

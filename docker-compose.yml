@@ -45,7 +45,7 @@ services:
     restart: "no"
 
   mssql:
-    image: mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
+    image: reynier3mil/centos-mssql-full
     ports:
       - "11433:1433"
     environment:
@@ -53,10 +53,7 @@ services:
       MSSQL_SA_PASSWORD: 'Passw0rd'
     volumes:
       - mssql:/var/opt/mssql
-      - ./docker/mssql/init.sql:/opt/init.sql:ro
-      - ./docker/mssql/clear.sql:/opt/clear.sql:ro
-      - ./docker/mssql/old.hidden.sql:/opt/old.hidden.sql:ro
-      - ./docker/mssql/old-full.hidden.sql:/opt/old-full.hidden.sql:ro
+      - ./docker/mssql/:/opt/sql/:ro
     restart: "no"
 
   nginx:

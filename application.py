@@ -52,8 +52,9 @@ migrate = Migrate(app, db)
 
 # DATABASE SETUP
 @app.cli.command("setup-views")
-def setup_db():
-    if input(f"Working on {os.getenv('DB_NAME')}, continue?") == "y":
+@click.option('-y', '--auto-yes', is_flag=True)
+def setup_views(auto_yes):
+    if auto_yes or (input(f"Working on {os.getenv('DB_NAME')}, continue?") == "y"):
         print("Setting up database views")
         for schema in datamodel.endpoints:
             print(f"Updating views for {schema.Meta.slug}...")
@@ -62,25 +63,6 @@ def setup_db():
     else:
         print("exiting..")
 
-# @depricated
-@app.cli.command("setup-database")
-def setup_db():
-    if input(f"Working on {os.getenv('DB_NAME')}, continue?") == "y":
-        print("Setting up database tables")
-        for schema in datamodel.endpoints:
-            print(f"Creating table for {schema.Meta.slug}...")
-            schema.Meta.manager(schema)._setup_table()
-        print("Done creating table")
-    else:
-        print("exiting..")
-
-@app.cli.command("setup-tables")
-def setup_tables():
-    print("Hi")
-    print(db)
-    from Models.ambities import Ambities_DB_Schema
-    print(db.metadata.tables)
-    
 
 @app.cli.command("datamodel-markdown")
 def dm_markdown():
