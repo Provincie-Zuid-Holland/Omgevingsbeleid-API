@@ -13,13 +13,22 @@ given by the new 'Omgevingswet' from the dutch national government.
     + [Flask-restful](https://github.com/flask-restful/flask-restful)
     + [Marshmallow](http://marshmallow.readthedocs.io/en/3.0/)
     + [PyODBC](https://github.com/mkleehammer/pyodbc)
+    + [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy)
 - Microsoft SQL Server
+
+## Setup
+
+For development we currently support two setups:
+- [Manual installation](#manual-installation)
+- [Running in docker](#running-in-docker)
+
+## Manual Installation
 
 ## Dependencies
 
 ### Ubuntu
 
-Needed for PyODBC
+Ubuntu users need `unixodbc-dev` to use the PyODBC package"
 ```
 apt install unixodbc-dev
 ```
@@ -72,4 +81,35 @@ flask run
 To run the tests.
 ```bash
 pytest
+```
+
+## Running in docker
+
+To initialise the project you can run:
+```bash
+make init
+```
+
+This will start this python project as api, and it will also start the mssql database and frontend application.
+Goto [localhost:8888](http://localhost:8888) to view all the services working together.
+
+Note: it can take a while to start as the frontend will be build in development mode.
+
+## Commonly used commands
+
+```bash
+make info # Shows information where all the applications can me accessed.
+make api  # Sends you in the api container
+make logs # Tails the docker-compose logs
+make restart # Restarts the docker services and their volumes
+```
+
+## Use a different frontend branch
+
+By default the `dev` branch of the frontend application will be used.
+You can overwrite the branch by setting the environment variable FRONTEND_BRANCH.
+
+For example in the .env file:
+```bash
+FRONTEND_BRANCH=main
 ```

@@ -56,7 +56,7 @@ flask-setup-views:
 flask-routes:	
 	docker-compose exec api flask routes
 
-flask:
+api:
 	docker-compose exec api /bin/bash
 
 test:
