@@ -204,13 +204,15 @@ class Lineage(Schema_Resource):
         ).load(old_object)
 
         # Remove ID & UUID from changes and old object
-        old_object.pop("UUID")
+        old_uuid = old_object.pop("UUID")
         _id = old_object.pop("ID")
 
         new_object = {**old_object, **changes}
 
+
         if new_object == old_object:
-            return handle_empty_patch()
+            # return handle_empty_patch()
+            return manager.get_single_on_UUID(old_uuid), 200
 
         new_object["ID"] = _id
         new_object["Modified_Date"] = request_time

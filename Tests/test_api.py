@@ -1278,7 +1278,7 @@ def test_empty_edit(client, auth):
         json=bk,
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
-    assert response.status_code == 400
+    assert response.get_json()['UUID'] == bk_UUID
 
 
 def test_module_concept(client, auth):
