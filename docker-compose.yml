@@ -17,7 +17,7 @@ services:
       DB_PASS: Passw0rd
       DB_HOST: mssql
       DB_PORT: 1433
-      DB_NAME: db_test
+      DB_NAME: db_dev
       DB_DRIVER: ODBC Driver 17 for SQL Server
       JWT_SECRET: secret
     depends_on:
