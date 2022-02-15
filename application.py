@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
+from sqlalchemy import true
 from Endpoints.data_manager import DataManager
 import json
 import os
@@ -23,6 +24,7 @@ from Endpoints.graph import graphView
 from Endpoints.geo_search import geo_search_view
 import click
 from db import db
+from create_user import create_user_encrypt_pw
 import globals
 
 current_version = "0.1"
@@ -38,6 +40,9 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=4)
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = globals.sqlalchemy_database_uri
+# This is nice for debugging
+app.config["SQLALCHEMY_ECHO"] = True
+
 api = Api(
     app,
     prefix=f"/v{current_version}",
@@ -69,6 +74,16 @@ def dm_markdown():
     with open("./datamodel.md", "w") as mdfile:
         mdfile.write(datamodel.generate_markdown_view())
 
+
+# TEST: docker-compose exec api flask add-user --id 1 --gebruikersnaam alex --wachtwoord lol --rol test --email alex@pzh.nl
+@app.cli.command("add-user")
+@click.option('--id', is_flag=False,required=True)
+@click.option('--gebruikersnaam', is_flag=False,required=True)
+@click.option('--wachtwoord', is_flag=False,required=True)
+@click.option('--rol', is_flag=False,required=True)
+@click.option('--email', is_flag=False,required=True)
+def add_user(**kwargs):
+    create_user_encrypt_pw(kwargs['id'], kwargs['gebruikersnaam'], kwargs['wachtwoord'], kwargs['rol'], kwargs['email'])
 
 # JWT CONFIG
 @jwt.unauthorized_loader
