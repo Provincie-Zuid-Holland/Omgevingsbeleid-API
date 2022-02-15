@@ -164,7 +164,15 @@ def render_schemas(endpoints):
             else:
                 props = {}
 
-                if type(fields[field]) == MM.fields.String:
+                if field == "Status":
+                    props = {
+                        "description": "The status of this object",
+                        "type": "string",
+                    }
+                    if fields[field].validate:
+                        props["enum"] = fields[field].validate[0].choices
+
+                elif type(fields[field]) == MM.fields.String:
                     props = {"description": "None", "type": "string"}
 
                 elif type(fields[field]) == MM.fields.UUID:
@@ -924,7 +932,7 @@ def render_paths(endpoints):
                                         "format": "uuid",
                                         "description": "UUID for this object",
                                     },
-                                    "Modified_Date": {\
+                                    "Modified_Date": {
                                         "type": "string",
                                         "format": "date-time",
                                         "description": "The date when this edit was performed",
@@ -1085,6 +1093,132 @@ def render_paths(endpoints):
             },
         },
     }
+
+    # Search spec
+    paths[f"/search/geo"]["get"] = {
+        "summary": f"Search for objects that are linked to a specific geo area",
+        "parameters": [
+            {
+                "name": "query",
+                "in": "query",
+                "description": "The uuid of the geo area to search on",
+                "required": True,
+                "schema": {"type": "string"},
+            },
+            {
+                "name": "only",
+                "in": "query",
+                "description": "Only search these objects (can not be used in combination with `exclude`",
+                "required": False,
+                "schema": {"type": "string", "format": "comma seperated list"},
+            },
+            {
+                "name": "exclude",
+                "in": "query",
+                "description": "Exclude these objects form search (can not be used in combination with `only`",
+                "required": False,
+                "schema": {"type": "string", "format": "comma seperated list"},
+            },
+            {
+                "name": "limit",
+                "in": "query",
+                "description": "Limit the amount of results",
+                "required": False,
+                "schema": {
+                    "type": "integer",
+                    "default": 10,
+                },
+            },
+            {
+                "name": "offset",
+                "in": "query",
+                "description": "Offset the results",
+                "required": False,
+                "schema": {
+                    "type": "integer",
+                    "default": 0,
+                },
+            },
+        ],
+        "responses": {
+            "200": {
+                "description": "Search results",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "Omschrijving": {
+                                        "type": "string",
+                                        "description": "A description of this object",
+                                    },
+                                    "Titel": {
+                                        "type": "string",
+                                        "description": "The title of this object",
+                                    },
+                                    "RANK": {
+                                        "type": "integer",
+                                        "description": "A representation of the search rank, only usefull for comparing between two results",
+                                    },
+                                    "Type": {
+                                        "type": "string",
+                                        "description": "The type of this object",
+                                        "enum": list(
+                                            map(
+                                                lambda schema: schema.Meta.slug,
+                                                filter(
+                                                    lambda schema: schema.Meta.searchable,
+                                                    datamodel.endpoints,
+                                                ),
+                                            )
+                                        ),
+                                    },
+                                    "UUID": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "The UUID of this object",
+                                    },
+                                },
+                            },
+                        }
+                    }
+                },
+            },
+            "400": {
+                "description": "No search query provided or no objects in resultset",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "A description of the error",
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+            "403": {
+                "description": "`Exclude` and `only` in the same query",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "A description of the error",
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+        },
+    }
+
     # Tokeninfo spec
     paths[f"/gebruikers"]["get"] = {
         "summary": f"Get a list of users",
