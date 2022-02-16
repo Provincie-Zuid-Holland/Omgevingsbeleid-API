@@ -40,8 +40,8 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=4)
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = globals.sqlalchemy_database_uri
-# This is nice for debugging
-app.config["SQLALCHEMY_ECHO"] = True
+# This is nice for debugging - need to check if its save to have this on in production
+# app.config["SQLALCHEMY_ECHO"] = True
 
 api = Api(
     app,
