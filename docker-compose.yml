@@ -10,8 +10,8 @@ services:
     volumes:
       - ./:/code
     environment:
+      FLASK_APP: main.py
       FLASK_ENV: development
-      FLASK_APP: application.py
       FLASK_RUN_HOST: 0.0.0.0
       DB_USER: SA
       DB_PASS: Passw0rd
