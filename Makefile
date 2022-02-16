@@ -2,6 +2,7 @@
 
 init: up mssql-wait mssql-create-database flask-db-upgrade flask-setup-views info
 
+
 info:
 	@echo ""
 	@echo ""

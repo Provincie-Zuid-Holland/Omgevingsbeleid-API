@@ -1,11 +1,17 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, DateTime, text, ForeignKey, MetaData
+from sqlalchemy import Column, Integer, DateTime, text, ForeignKey, MetaData, Sequence
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.schema import Sequence
 
 
 class CommonMixin():
-    ID = Column(Integer, nullable=False)
+    @declared_attr
+    def ID(cls):
+        seq_name = 'seq_{name}'.format(name=cls.__name__)
+        seq = Sequence(seq_name)
+        return Column(Integer, seq, nullable=False, server_default=seq.next_value())
+    
     UUID = Column(UNIQUEIDENTIFIER, primary_key=True, server_default=text("(newid())"))
     Begin_Geldigheid = Column(DateTime, nullable=False)
     Eind_Geldigheid = Column(DateTime, nullable=False)

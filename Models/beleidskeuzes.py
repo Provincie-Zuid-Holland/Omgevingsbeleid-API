@@ -33,7 +33,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from db import CommonMixin, db
 
 
-class Beleidsmodule_Beleidskeuzes_DB_Association(db.Model):
+class Beleidsmodule_Beleidskeuzes(db.Model):
     __tablename__ = 'Beleidsmodule_Beleidskeuzes'
 
     Beleidsmodule_UUID = Column('Beleidsmodule_UUID', ForeignKey('Beleidsmodules.UUID'), primary_key=True)
@@ -44,7 +44,7 @@ class Beleidsmodule_Beleidskeuzes_DB_Association(db.Model):
     Beleidskeuze = relationship("Beleidskeuzes", back_populates="Beleidsmodules")
 
 
-class Beleidskeuzes_DB_Schema(CommonMixin, db.Model):
+class Beleidskeuzes(CommonMixin, db.Model):
     __tablename__ = 'Beleidskeuzes'
 
     Eigenaar_1 = Column(ForeignKey('Gebruikers.UUID'))
@@ -72,17 +72,17 @@ class Beleidskeuzes_DB_Schema(CommonMixin, db.Model):
     Ref_Portefeuillehouder_1 = relationship('Gebruikers', primaryjoin='Beleidskeuzes.Portefeuillehouder_1 == Gebruikers.UUID')
     Ref_Portefeuillehouder_2 = relationship('Gebruikers', primaryjoin='Beleidskeuzes.Portefeuillehouder_2 == Gebruikers.UUID')
     Ref_Opdrachtgever = relationship('Gebruikers', primaryjoin='Beleidskeuzes.Opdrachtgever == Gebruikers.UUID')
-    Ambities = relationship("Beleidskeuze_Ambities", back_populates="Ambities")
-    Belangen = relationship("Beleidskeuze_Belangen", back_populates="Belangen")
-    Beleidsdoelen = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoelen")
-    Beleidsprestaties = relationship("Beleidskeuze_Beleidsprestaties", back_populates="Beleidsprestaties")
-    Beleidsregels = relationship("Beleidskeuze_Beleidsregels", back_populates="Beleidsregels")
-    Maatregelen = relationship("Beleidskeuze_Maatregelen", back_populates="Maatregelen")
-    Themas = relationship("Beleidskeuze_Themas", back_populates="Themas")
-    Verordeningen = relationship("Beleidskeuze_Verordeningen", back_populates="Verordeningen")
-    Werkingsgebieden = relationship("Beleidskeuze_Werkingsgebieden", back_populates="Werkingsgebieden")
-    Beleidskeuzes = relationship("Beleidsrelaties", back_populates="Beleidskeuzes")
-    Ref_Beleidsmodules = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidskeuze")
+    Ambities = relationship("Beleidskeuze_Ambities", back_populates="Beleidskeuze")
+    Belangen = relationship("Beleidskeuze_Belangen", back_populates="Beleidskeuze")
+    Beleidsdoelen = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Beleidskeuze")
+    Beleidsprestaties = relationship("Beleidskeuze_Beleidsprestaties", back_populates="Beleidskeuze")
+    Beleidsregels = relationship("Beleidskeuze_Beleidsregels", back_populates="Beleidskeuze")
+    Maatregelen = relationship("Beleidskeuze_Maatregelen", back_populates="Beleidskeuze")
+    Themas = relationship("Beleidskeuze_Themas", back_populates="Beleidskeuze")
+    Verordeningen = relationship("Beleidskeuze_Verordeningen", back_populates="Beleidskeuze")
+    Werkingsgebieden = relationship("Beleidskeuze_Werkingsgebieden", back_populates="Beleidskeuze")
+    # Beleidsrelaties = relationship("Beleidsrelaties", back_populates="Beleidskeuzes")
+    Beleidsmodules = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidskeuze")
             
 
 status_options = [

@@ -23,3 +23,17 @@ def upgrade():
 
 def downgrade():
     ${downgrades if downgrades else "pass"}
+
+
+def dialect_supports_sequences():
+    return op._proxy.migration_context.dialect.supports_sequences
+
+
+def create_seq(name):
+    if dialect_supports_sequences():
+       op.execute(sa.schema.CreateSequence(sa.schema.Sequence(name)))
+
+
+def drop_seq(name):
+    if dialect_supports_sequences():
+       op.execute(sa.schema.DropSequence(sa.schema.Sequence(name)))
