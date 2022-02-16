@@ -21,7 +21,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from db import CommonMixin, db
 
 
-class Beleidskeuze_Verordeningen_DB_Association(db.Model):
+class Beleidskeuze_Verordeningen(db.Model):
     __tablename__ = 'Beleidskeuze_Verordeningen'
 
     Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
@@ -32,7 +32,7 @@ class Beleidskeuze_Verordeningen_DB_Association(db.Model):
     Verordening = relationship("Verordeningen", back_populates="Beleidskeuzes")
 
 
-class Verordeningen_DB_Schema(CommonMixin, db.Model):
+class Verordeningen(CommonMixin, db.Model):
     __tablename__ = 'Verordeningen'
 
     Portefeuillehouder_1 = Column(ForeignKey('Gebruikers.UUID'))
@@ -45,7 +45,7 @@ class Verordeningen_DB_Schema(CommonMixin, db.Model):
     Weblink = Column(Unicode)
     Status = Column(Unicode(50), nullable=False)
     Type = Column(Unicode, nullable=False)
-    Gebied = Column(UNIQUEIDENTIFIER)
+    Gebied = Column(UNIQUEIDENTIFIER, ForeignKey('Werkingsgebieden.UUID'))
     Volgnummer = Column(Unicode, nullable=False)
 
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Verordeningen.Created_By == Gebruikers.UUID')
@@ -56,8 +56,9 @@ class Verordeningen_DB_Schema(CommonMixin, db.Model):
     Ref_Portefeuillehouder_1 = relationship('Gebruikers', primaryjoin='Verordeningen.Portefeuillehouder_1 == Gebruikers.UUID')
     Ref_Portefeuillehouder_2 = relationship('Gebruikers', primaryjoin='Verordeningen.Portefeuillehouder_2 == Gebruikers.UUID')
     Ref_Opdrachtgever = relationship('Gebruikers', primaryjoin='Verordeningen.Opdrachtgever == Gebruikers.UUID')
-    Ref_Gebied = relationship('Werkingsgebieden', primaryjoin='Verordeningen.Gebied == Werkingsgebieden.UUID')
-    Ref_Beleidskeuzes = relationship("Beleidskeuze_Verordeningen", back_populates="Verordening")
+    # @todo:
+    # Ref_Gebied = relationship('Werkingsgebieden', primaryjoin='Verordeningen.Gebied == Werkingsgebieden.UUID')
+    Beleidskeuzes = relationship("Beleidskeuze_Verordeningen", back_populates="Verordening")
 
 
 class Verordeningen_Schema(Base_Schema):

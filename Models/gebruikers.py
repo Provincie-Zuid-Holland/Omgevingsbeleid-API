@@ -7,16 +7,22 @@ from flask_jwt_extended import jwt_required
 import pyodbc
 from globals import null_uuid, db_connection_settings
 import uuid
-from sqlalchemy import Column, ForeignKey, Integer, Unicode, text
+from sqlalchemy import Column, ForeignKey, Integer, Unicode, text, Sequence
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
+from sqlalchemy.ext.declarative import declared_attr
 
 from db import CommonMixin, db
 
 
-class Gebruikers_DB_Schema(db.Model):
+class Gebruikers(db.Model):
     __tablename__ = 'Gebruikers'
 
-    ID = Column(Integer, nullable=False)
+    @declared_attr
+    def ID(cls):
+        seq_name = 'seq_{name}'.format(name=cls.__name__)
+        seq = Sequence(seq_name)
+        return Column(Integer, seq, nullable=False, server_default=seq.next_value())
+    
     UUID = Column(UNIQUEIDENTIFIER, primary_key=True, server_default=text("(newid())"))
     Gebruikersnaam = Column(Unicode(50), nullable=False)
     Wachtwoord = Column(Unicode)

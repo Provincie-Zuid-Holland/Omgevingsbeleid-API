@@ -7,7 +7,7 @@ from Utils.sqlalchemy import Geometry
 from db import CommonMixin, db
 
 
-class Onderverdeling_DB_Schema(CommonMixin, db.Model):
+class Onderverdeling(CommonMixin, db.Model):
     __tablename__ = 'Onderverdeling'
 
     Onderverdeling = Column(Unicode, nullable=False)
@@ -16,8 +16,7 @@ class Onderverdeling_DB_Schema(CommonMixin, db.Model):
     UUID_Werkingsgebied = Column(ForeignKey('Werkingsgebieden.UUID'), nullable=False)
     SHAPE = Column(Geometry, nullable=False)
 
-    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Werkingsgebieden.Created_By == Gebruikers.UUID')
-    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Werkingsgebieden.Modified_By == Gebruikers.UUID')
+    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Onderverdeling.Created_By == Gebruikers.UUID')
+    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Onderverdeling.Modified_By == Gebruikers.UUID')
 
     Ref_Werkingsgebied = relationship('Werkingsgebieden', primaryjoin='Onderverdeling.UUID_Werkingsgebied == Werkingsgebieden.UUID')
-

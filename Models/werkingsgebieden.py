@@ -12,7 +12,7 @@ from db import CommonMixin, db
 from Utils.sqlalchemy import Geometry
 
 
-class Beleidskeuze_Werkingsgebieden_DB_Association(db.Model):
+class Beleidskeuze_Werkingsgebieden(db.Model):
     __tablename__ = 'Beleidskeuze_Werkingsgebieden'
 
     Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
@@ -23,7 +23,7 @@ class Beleidskeuze_Werkingsgebieden_DB_Association(db.Model):
     Werkingsgebied = relationship("Werkingsgebieden", back_populates="Beleidskeuzes")
 
 
-class Werkingsgebieden_DB_Schema(CommonMixin, db.Model):
+class Werkingsgebieden(CommonMixin, db.Model):
     __tablename__ = 'Werkingsgebieden'
 
     Werkingsgebied = Column(Unicode, nullable=False)
@@ -33,7 +33,7 @@ class Werkingsgebieden_DB_Schema(CommonMixin, db.Model):
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Werkingsgebieden.Created_By == Gebruikers.UUID')
     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Werkingsgebieden.Modified_By == Gebruikers.UUID')
     
-    Ref_Beleidskeuzes = relationship("Beleidskeuze_Werkingsgebieden", back_populates="Werkingsgebied")
+    Beleidskeuzes = relationship("Beleidskeuze_Werkingsgebieden", back_populates="Werkingsgebied")
 
 
 class Werkingsgebieden_Schema(Base_Schema):

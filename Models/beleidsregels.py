@@ -12,7 +12,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from db import CommonMixin, db
 
 
-class Beleidskeuze_Beleidsregels_DB_Association(db.Model):
+class Beleidskeuze_Beleidsregels(db.Model):
     __tablename__ = 'Beleidskeuze_Beleidsregels'
 
     Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
@@ -23,7 +23,7 @@ class Beleidskeuze_Beleidsregels_DB_Association(db.Model):
     Beleidsregels = relationship("Beleidsregels", back_populates="Beleidskeuzes")
 
 
-class Beleidsregels_DB_Schema(CommonMixin, db.Model):
+class Beleidsregels(CommonMixin, db.Model):
     __tablename__ = 'Beleidsregels'
 
     Titel = Column(Unicode(500), nullable=False)
@@ -34,7 +34,7 @@ class Beleidsregels_DB_Schema(CommonMixin, db.Model):
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsregels.Created_By == Gebruikers.UUID')
     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsregels.Modified_By == Gebruikers.UUID')
     
-    Ref_Beleidskeuzes = relationship("Beleidskeuze_Beleidsregels", back_populates="Beleidsregels")
+    Beleidskeuzes = relationship("Beleidskeuze_Beleidsregels", back_populates="Beleidsregels")
 
 
 class Beleidsregels_Schema(Base_Schema):

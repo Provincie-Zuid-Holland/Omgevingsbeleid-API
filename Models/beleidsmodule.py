@@ -21,7 +21,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, Integer, String, Unicode, DateTime
 from db import CommonMixin, db
 
-class Beleidsmodules_DB_Schema(CommonMixin, db.Model):
+class Beleidsmodules(CommonMixin, db.Model):
     __tablename__ = 'Beleidsmodules'
 
     Titel = Column(Unicode(150), nullable=False)
@@ -30,8 +30,8 @@ class Beleidsmodules_DB_Schema(CommonMixin, db.Model):
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsmodules.Created_By == Gebruikers.UUID')
     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsmodules.Modified_By == Gebruikers.UUID')
     
-    Maatregelen = relationship("Beleidsmodule_Maatregelen", back_populates="Maatregelen")
-    Beleidskeuzes = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidskeuzes")
+    Maatregelen = relationship("Beleidsmodule_Maatregelen", back_populates="Beleidsmodule")
+    Beleidskeuzes = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule")
 
 
 class Beleidsmodule_Schema(Base_Schema):

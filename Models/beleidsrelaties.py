@@ -11,15 +11,20 @@ from globals import null_uuid
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey, Integer, String, Unicode, DateTime, text
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode, DateTime, text, Sequence
 from db import db
 
-class Beleidsrelaties_DB_Schema(db.Model):
+class Beleidsrelaties(db.Model):
     __tablename__ = 'Beleidsrelaties'
 
     # Overwrites because of different nullable value
     # @todo: should probably be alligned with CommonMixin at some point
-    ID = Column(Integer, nullable=False)
+    @declared_attr
+    def ID(cls):
+        seq_name = 'seq_{name}'.format(name=cls.__name__)
+        seq = Sequence(seq_name)
+        return Column(Integer, seq, nullable=False, server_default=seq.next_value())
+    
     UUID = Column(UNIQUEIDENTIFIER, primary_key=True, server_default=text("(newid())"))
 
     Begin_Geldigheid = Column(DateTime, nullable=True)

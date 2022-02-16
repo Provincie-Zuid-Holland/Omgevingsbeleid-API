@@ -21,7 +21,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from db import CommonMixin, db
 
 
-class Beleidskeuze_Maatregelen_DB_Association(db.Model):
+class Beleidskeuze_Maatregelen(db.Model):
     __tablename__ = 'Beleidskeuze_Maatregelen'
 
     Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
@@ -33,7 +33,7 @@ class Beleidskeuze_Maatregelen_DB_Association(db.Model):
 
 
 
-class Beleidsmodule_Maatregelen_DB_Association(db.Model):
+class Beleidsmodule_Maatregelen(db.Model):
     __tablename__ = 'Beleidsmodule_Maatregelen'
 
     Beleidsmodule_UUID = Column('Beleidsmodule_UUID', ForeignKey('Beleidsmodules.UUID'), primary_key=True)
@@ -44,7 +44,7 @@ class Beleidsmodule_Maatregelen_DB_Association(db.Model):
     Maatregel = relationship("Maatregelen", back_populates="Beleidsmodules")
 
 
-class Maatregelen_DB_Schema(CommonMixin, db.Model):
+class Maatregelen(CommonMixin, db.Model):
     __tablename__ = 'Maatregelen'
 
     Titel = Column(Unicode, nullable=False)
@@ -66,7 +66,7 @@ class Maatregelen_DB_Schema(CommonMixin, db.Model):
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Maatregelen.Created_By == Gebruikers.UUID')
     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Maatregelen.Modified_By == Gebruikers.UUID')
     
-    Ref_Beleidskeuzes = relationship("Beleidskeuze_Maatregelen", back_populates="Maatregel")
+    Beleidskeuzes = relationship("Beleidskeuze_Maatregelen", back_populates="Maatregel")
             
     Ref_Eigenaar_1 = relationship('Gebruikers', primaryjoin='Maatregelen.Eigenaar_1 == Gebruikers.UUID')
     Ref_Eigenaar_2 = relationship('Gebruikers', primaryjoin='Maatregelen.Eigenaar_2 == Gebruikers.UUID')
@@ -74,7 +74,7 @@ class Maatregelen_DB_Schema(CommonMixin, db.Model):
     Ref_Portefeuillehouder_2 = relationship('Gebruikers', primaryjoin='Maatregelen.Portefeuillehouder_2 == Gebruikers.UUID')
     Ref_Opdrachtgever = relationship('Gebruikers', primaryjoin='Maatregelen.Opdrachtgever == Gebruikers.UUID')
     Ref_Gebied = relationship('Werkingsgebieden', primaryjoin='Maatregelen.Gebied == Werkingsgebieden.UUID')
-    Ref_Beleidsmodules = relationship("Beleidsmodule_Maatregelen", back_populates="Maatregel")
+    Beleidsmodules = relationship("Beleidsmodule_Maatregelen", back_populates="Maatregel")
 
 status_options = [
     "Definitief ontwerp GS",

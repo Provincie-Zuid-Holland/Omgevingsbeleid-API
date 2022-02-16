@@ -13,7 +13,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from db import CommonMixin, db
 
 
-class Beleidskeuze_Ambities_DB_Association(db.Model):
+class Beleidskeuze_Ambities(db.Model):
     __tablename__ = 'Beleidskeuze_Ambities'
 
     Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
@@ -24,7 +24,7 @@ class Beleidskeuze_Ambities_DB_Association(db.Model):
     Ambitie = relationship("Ambities", back_populates="Beleidskeuzes")
 
 
-class Ambities_DB_Schema(CommonMixin, db.Model):
+class Ambities(CommonMixin, db.Model):
     __tablename__ = 'Ambities'
 
     Titel = Column(Unicode(150), nullable=False)
@@ -34,7 +34,7 @@ class Ambities_DB_Schema(CommonMixin, db.Model):
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Ambities.Created_By == Gebruikers.UUID')
     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Ambities.Modified_By == Gebruikers.UUID')
     
-    Ref_Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
+    Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
 
 
 class Ambities_Schema(Base_Schema):

@@ -62,7 +62,7 @@ class Tree_Node(MM.Schema):
         return dumped
 
 
-class Verordeningstructuur_Schema(CommonMixin, db.Model):
+class Verordeningstructuur(CommonMixin, db.Model):
     __tablename__ = 'Verordeningstructuur'
 
     Titel = Column(Unicode(150), nullable=False)
