@@ -2,14 +2,14 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import marshmallow as MM
-from Endpoints.base_schema import Base_Schema
-from Endpoints.references import Reverse_UUID_Reference
-from Models.short_schemas import Short_Beleidskeuze_Schema
-
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
-from db import CommonMixin, db
-from Utils.sqlalchemy import Geometry
+
+from Api.Endpoints.base_schema import Base_Schema
+from Api.Endpoints.references import Reverse_UUID_Reference
+from Api.Models.short_schemas import Short_Beleidskeuze_Schema
+from Api.database import CommonMixin, db
+from Api.Utils.sqlalchemy import Geometry
 
 
 class Beleidskeuze_Werkingsgebieden(db.Model):

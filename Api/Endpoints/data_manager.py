@@ -3,21 +3,19 @@
 from collections import defaultdict
 from marshmallow import schema
 import pyodbc
-from globals import (
-    db_connection_settings,
-    row_to_dict,
-    ftc_name,
-    stoplist_name,
-)
-from Endpoints.references import (
+from uuid import UUID
+from flask import current_app
+
+from Api.settings import ftc_name, stoplist_name
+from Api.Utils import row_to_dict
+from Api.Endpoints.references import (
     Reverse_ID_Reference,
     Reverse_UUID_Reference,
     UUID_List_Reference,
     ID_List_Reference,
     UUID_Reference,
 )
-from Endpoints.stopwords import stopwords
-from uuid import UUID
+from Api.Endpoints.stopwords import stopwords
 
 
 class DataManagerException(Exception):
@@ -71,7 +69,7 @@ class DataManager:
         self._set_up_search()
 
     def _run_query_commit(self, query, values=[]):
-        with pyodbc.connect(db_connection_settings, autocommit=True) as con:
+        with pyodbc.connect(current_app.config['db_connection_settings'], autocommit=True) as con:
             try:
                 cur = con.cursor()
                 result = cur.execute(query, *values)
@@ -638,7 +636,7 @@ class DataManager:
         if not self.schema.Meta.searchable:
             return
 
-        with pyodbc.connect(db_connection_settings, autocommit=True) as con:
+        with pyodbc.connect(current_app.config['db_connection_settings'], autocommit=True) as con:
             cur = con.cursor()
 
             # Check if a stoplist exists

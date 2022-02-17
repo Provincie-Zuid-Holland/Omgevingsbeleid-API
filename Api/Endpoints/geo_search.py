@@ -1,7 +1,8 @@
-from flask import Flask, jsonify, request
-from Endpoints.data_manager import DataManager
-from Endpoints.search import start_search, ArgException
+from flask import jsonify, request
 from datamodel import endpoints
+
+from Api.Endpoints.data_manager import DataManager
+from Api.Endpoints.search import start_search, ArgException
 
 
 def geo_search_view():

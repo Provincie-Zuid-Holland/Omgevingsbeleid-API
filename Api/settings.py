@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2018 - 2022 Provincie Zuid-Holland
+
+import datetime
+import urllib
+import os
+
+
+# Api version
+current_version = "0.1"
+
+# Datetime stuff
+min_datetime = datetime.datetime(1753, 1, 1, 0, 0, 0)
+max_datetime = datetime.datetime(9999, 12, 31, 23, 59, 59)
+null_uuid = default_user_uuid = "00000000-0000-0000-0000-000000000000"
+
+# Search stuff
+ftc_name = "Omgevingsbeleid_FTC"
+stoplist_name = "Omgevingsbeleid_SW"
+
+
+# Base configuration which holds for every environment or gets overwritten
+class Config():
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET")
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=4)
+    PROPAGATE_EXCEPTIONS = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+
+    db_connection_settings = f"DRIVER={os.getenv('DB_DRIVER')};SERVER={os.getenv('DB_HOST')};DATABASE={os.getenv('DB_NAME')};UID={os.getenv('DB_USER')};PWD={os.getenv('DB_PASS')}"
+    SQLALCHEMY_DATABASE_URI = "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
+    SQLALCHEMY_ECHO  = False
+
+
+
+class ProdConfig(Config):
+    ENV = 'prod'
+    DEBUG = False
+    pass
+
+
+class DevConfig(Config):
+    ENV = 'dev'
+    DEBUG = True
+    SQLALCHEMY_ECHO = True
+    
+    pass
+
+
+class TestConfig(Config):
+    ENV = 'test'
+    DEBUG = True
+    TESTING = True
+    SQLALCHEMY_ECHO = True
+    
+    pass

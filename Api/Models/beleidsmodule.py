@@ -2,24 +2,21 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import marshmallow as MM
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode, DateTime
 
-from Endpoints.base_schema import Base_Schema
-from Endpoints.references import (
+from Api.Endpoints.base_schema import Base_Schema
+from Api.Endpoints.references import (
     UUID_Reference,
     UUID_List_Reference,
     UUID_Linker_Schema,
     ID_List_Reference,
 )
-from Endpoints.validators import HTML_Validate
-
-from globals import default_user_uuid, min_datetime
-
-import Models.maatregelen
-import Models.beleidskeuzes
-
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey, Integer, String, Unicode, DateTime
-from db import CommonMixin, db
+from Api.Endpoints.validators import HTML_Validate
+from Api.settings import default_user_uuid, min_datetime
+import Api.Models.maatregelen
+import Api.Models.beleidskeuzes
+from Api.database import CommonMixin, db
 
 class Beleidsmodules(CommonMixin, db.Model):
     __tablename__ = 'Beleidsmodules'
@@ -59,7 +56,7 @@ class Beleidsmodule_Schema(Base_Schema):
                 "Beleidsmodule_UUID",
                 "Maatregel_UUID",
                 "Koppeling_Omschrijving",
-                Models.maatregelen.Maatregelen_Schema,
+                Api.Models.maatregelen.Maatregelen_Schema,
             ),
             "Beleidskeuzes": UUID_List_Reference(
                 "Beleidsmodule_Beleidskeuzes",
@@ -67,6 +64,6 @@ class Beleidsmodule_Schema(Base_Schema):
                 "Beleidsmodule_UUID",
                 "Beleidskeuze_UUID",
                 "Koppeling_Omschrijving",
-                Models.beleidskeuzes.Beleidskeuzes_Schema,
+                Api.Models.beleidskeuzes.Beleidskeuzes_Schema,
             ),
         }

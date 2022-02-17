@@ -79,7 +79,7 @@ reference_rich_beleidskeuze = {
 }
 
 
-image_folder = Path("./Tests/test_images")
+image_folder = Path("./Tests/resources/images")
 
 with open(image_folder / "zuidholland_large.png", "rb") as image_file:
     encoded = base64.b64encode(image_file.read()).decode("utf-8")

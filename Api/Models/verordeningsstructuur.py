@@ -12,7 +12,8 @@ import time
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER, XML
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
-from db import CommonMixin, db
+
+from Api.database import CommonMixin, db
 
 
 class Tree_Root(MM.Schema):

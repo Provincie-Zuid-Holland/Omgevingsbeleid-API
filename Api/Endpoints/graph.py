@@ -1,14 +1,15 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
-from flask import Flask, jsonify, request
-from datamodel import endpoints
-from globals import row_to_dict, db_connection_settings
+from flask import jsonify, request
 import pyodbc
 from flask_jwt_extended import jwt_required
-from Endpoints.references import UUID_List_Reference, ID_List_Reference
-from Endpoints.data_manager import DataManager
-from Models.beleidsrelaties import Beleidsrelaties_Schema
+
+from Api.Endpoints.references import UUID_List_Reference, ID_List_Reference
+from Api.Endpoints.data_manager import DataManager
+from Api.Models.beleidsrelaties import Beleidsrelaties_Schema
+from Api.datamodel import endpoints
+from Api.Utils import row_to_dict
 
 
 def graphView():

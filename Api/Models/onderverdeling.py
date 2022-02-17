@@ -3,8 +3,9 @@
 
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
-from Utils.sqlalchemy import Geometry
-from db import CommonMixin, db
+
+from Api.Utils.sqlalchemy import Geometry
+from Api.database import CommonMixin, db
 
 
 class Onderverdeling(CommonMixin, db.Model):

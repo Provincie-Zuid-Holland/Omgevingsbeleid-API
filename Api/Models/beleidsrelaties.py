@@ -2,17 +2,17 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import marshmallow as MM
-from Endpoints.base_schema import Base_Schema
-from Endpoints.references import UUID_Reference
-from Endpoints.validators import HTML_Validate
-from Models.beleidskeuzes import Beleidskeuzes_Schema
-from globals import null_uuid
-
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, Integer, String, Unicode, DateTime, text, Sequence
-from db import db
+
+from Api.Endpoints.base_schema import Base_Schema
+from Api.Endpoints.references import UUID_Reference
+from Api.Endpoints.validators import HTML_Validate
+from Api.Models.beleidskeuzes import Beleidskeuzes_Schema
+from Api.settings import null_uuid
+from Api.database import db
 
 class Beleidsrelaties(db.Model):
     __tablename__ = 'Beleidsrelaties'

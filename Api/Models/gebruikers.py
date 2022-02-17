@@ -2,17 +2,17 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import marshmallow as MM
+import pyodbc
+import uuid
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
-import pyodbc
-from globals import null_uuid, db_connection_settings
-import uuid
 from sqlalchemy import Column, ForeignKey, Integer, Unicode, text, Sequence
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
+from flask import current_app
 
-from db import CommonMixin, db
-
+from Api.database import CommonMixin, db
+from Api.settings import null_uuid
 
 class Gebruikers(db.Model):
     __tablename__ = 'Gebruikers'
@@ -29,6 +29,16 @@ class Gebruikers(db.Model):
     Rol = Column(Unicode(50), nullable=False)
     Email = Column(Unicode(265))
     Status = Column(Unicode(50), server_default=text("('Actief')"))
+
+
+def create_user_encrypt_pw(id, username, password, role, email):
+    hashed_pw = bcrypt.hash(password)
+    new_user = Gebruikers(ID=id, Gebruikersnaam=username, Wachtwoord=hashed_pw, Rol=role, Email=email)
+    # db.session.add(new_user)
+    # all_users = db.session.query(Gebruikers_DB_Schema).all()
+    # for row in all_users:
+    #     print(row['Gebruikersnaam'])
+    # db.session.commit()
 
 
 class Gebruikers_Schema(MM.Schema):
@@ -63,7 +73,7 @@ class Gebruiker(Resource):
 
     @jwt_required
     def get(self, gebruiker_uuid=None):
-        with pyodbc.connect(db_connection_settings) as cnx:
+        with pyodbc.connect(current_app.config['db_connection_settings']) as cnx:
             cur = cnx.cursor()
             if gebruiker_uuid:
                 gebruikers = list(

@@ -11,12 +11,14 @@ from flask_jwt_extended import (
     verify_jwt_in_request,
 )
 from passlib.hash import bcrypt
-from globals import db_connection_settings, row_to_dict
 import pyodbc
 import time
 import os
 from functools import wraps
 from password_strength import PasswordPolicy
+from flask import current_app
+
+from Api.Utils import row_to_dict
 
 policy = PasswordPolicy.from_names(
     length=12,
@@ -64,7 +66,7 @@ def login():
         return jsonify({"message": "Password parameter niet gevonden"}), 400
 
     # Find identifier
-    with pyodbc.connect(db_connection_settings) as connection:
+    with pyodbc.connect(current_app.config['db_connection_settings']) as connection:
         cursor = connection.cursor()
         query = """SELECT UUID, Gebruikersnaam, Email, Rol, Wachtwoord FROM Gebruikers WHERE Email = ?"""
         cursor.execute(query, identifier)
@@ -110,7 +112,7 @@ def password_reset():
                 "errors": list(map(printTest, errors)),
             }, 400
 
-        with pyodbc.connect(db_connection_settings) as connection:
+        with pyodbc.connect(current_app.config['db_connection_settings']) as connection:
             cursor = connection.cursor()
             query = """SELECT UUID, Wachtwoord FROM Gebruikers WHERE UUID = ?"""
             cursor.execute(query, get_jwt_identity()["UUID"])
@@ -121,7 +123,7 @@ def password_reset():
 
         if bcrypt.verify(password, result[1]):
             hash = bcrypt.hash(new_password)
-            with pyodbc.connect(db_connection_settings) as connection:
+            with pyodbc.connect(current_app.config['db_connection_settings']) as connection:
                 cursor = connection.cursor()
                 cursor.execute(
                     """UPDATE Gebruikers SET Wachtwoord = ? WHERE UUID = ?""",
@@ -145,19 +147,3 @@ def tokenstat():
             ),
         }
     )
-
-
-def jwt_required_not_GET(fn):
-    """
-    Only requires a JWT on a non GET request
-    """
-
-    @wraps(fn)
-    def wrapper(*args, **kwargs):
-        if request.method != "GET":
-            verify_jwt_in_request()
-            return fn(*args, **kwargs)
-        else:
-            return fn(*args, **kwargs)
-
-    return wrapper

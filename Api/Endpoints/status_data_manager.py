@@ -1,4 +1,4 @@
-from Endpoints.data_manager import DataManager
+from Api.Endpoints.data_manager import DataManager
 
 
 class StatusDataManager(DataManager):

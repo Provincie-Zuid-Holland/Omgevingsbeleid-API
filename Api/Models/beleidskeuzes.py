@@ -1,36 +1,33 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2018 - 2020 Provincie Zuid-Holland
+# Copyright (C) 2018 - 2022 Provincie Zuid-Holland
 
 import marshmallow as MM
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 
-from Endpoints.base_schema import Base_Schema
-from Endpoints.references import (
+from Api.Endpoints.base_schema import Base_Schema
+from Api.Endpoints.references import (
     UUID_Reference,
     UUID_List_Reference,
     UUID_Linker_Schema,
     ID_List_Reference,
     Reverse_UUID_Reference,
 )
-from Endpoints.validators import HTML_Validate
-
-from globals import default_user_uuid
-
-import Models.gebruikers
-import Models.ambities
-import Models.belangen
-import Models.werkingsgebieden
-import Models.themas
-import Models.beleidsdoelen
-import Models.beleidsprestaties
-import Models.beleidsregels
-import Models.maatregelen
-import Models.verordeningen
-from Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
-from Endpoints.status_data_manager import StatusDataManager
-
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
-from db import CommonMixin, db
+from Api.Endpoints.validators import HTML_Validate
+from Api.settings import default_user_uuid
+import Api.Models.gebruikers
+import Api.Models.ambities
+import Api.Models.belangen
+import Api.Models.werkingsgebieden
+import Api.Models.themas
+import Api.Models.beleidsdoelen
+import Api.Models.beleidsprestaties
+import Api.Models.beleidsregels
+import Api.Models.maatregelen
+import Api.Models.verordeningen
+from Api.Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
+from Api.Endpoints.status_data_manager import StatusDataManager
+from Api.database import CommonMixin, db
 
 
 class Beleidsmodule_Beleidskeuzes(db.Model):
@@ -209,19 +206,19 @@ class Beleidskeuzes_Schema(Base_Schema):
         geo_searchable = "Werkingsgebieden"
         references = {
             "Eigenaar_1": UUID_Reference(
-                "Gebruikers", Models.gebruikers.Gebruikers_Schema
+                "Gebruikers", Api.Models.gebruikers.Gebruikers_Schema
             ),
             "Eigenaar_2": UUID_Reference(
-                "Gebruikers", Models.gebruikers.Gebruikers_Schema
+                "Gebruikers", Api.Models.gebruikers.Gebruikers_Schema
             ),
             "Portefeuillehouder_1": UUID_Reference(
-                "Gebruikers", Models.gebruikers.Gebruikers_Schema
+                "Gebruikers", Api.Models.gebruikers.Gebruikers_Schema
             ),
             "Portefeuillehouder_2": UUID_Reference(
-                "Gebruikers", Models.gebruikers.Gebruikers_Schema
+                "Gebruikers", Api.Models.gebruikers.Gebruikers_Schema
             ),
             "Opdrachtgever": UUID_Reference(
-                "Gebruikers", Models.gebruikers.Gebruikers_Schema
+                "Gebruikers", Api.Models.gebruikers.Gebruikers_Schema
             ),
             "Ambities": UUID_List_Reference(
                 "Beleidskeuze_Ambities",
@@ -229,7 +226,7 @@ class Beleidskeuzes_Schema(Base_Schema):
                 "Beleidskeuze_UUID",
                 "Ambitie_UUID",
                 "Koppeling_Omschrijving",
-                Models.ambities.Ambities_Schema,
+                Api.Models.ambities.Ambities_Schema,
             ),
             "Belangen": UUID_List_Reference(
                 "Beleidskeuze_Belangen",
@@ -237,7 +234,7 @@ class Beleidskeuzes_Schema(Base_Schema):
                 "Beleidskeuze_UUID",
                 "Belang_UUID",
                 "Koppeling_Omschrijving",
-                Models.belangen.Belangen_Schema,
+                Api.Models.belangen.Belangen_Schema,
             ),
             "Beleidsdoelen": UUID_List_Reference(
                 "Beleidskeuze_Beleidsdoelen",
@@ -245,7 +242,7 @@ class Beleidskeuzes_Schema(Base_Schema):
                 "Beleidskeuze_UUID",
                 "Beleidsdoel_UUID",
                 "Koppeling_Omschrijving",
-                Models.beleidsdoelen.Beleidsdoelen_Schema,
+                Api.Models.beleidsdoelen.Beleidsdoelen_Schema,
             ),
             "Beleidsprestaties": UUID_List_Reference(
                 "Beleidskeuze_Beleidsprestaties",
@@ -253,7 +250,7 @@ class Beleidskeuzes_Schema(Base_Schema):
                 "Beleidskeuze_UUID",
                 "Beleidsprestatie_UUID",
                 "Koppeling_Omschrijving",
-                Models.beleidsprestaties.Beleidsprestaties_Schema,
+                Api.Models.beleidsprestaties.Beleidsprestaties_Schema,
             ),
             "Beleidsregels": UUID_List_Reference(
                 "Beleidskeuze_Beleidsregels",
@@ -261,7 +258,7 @@ class Beleidskeuzes_Schema(Base_Schema):
                 "Beleidskeuze_UUID",
                 "Beleidsregel_UUID",
                 "Koppeling_Omschrijving",
-                Models.beleidsregels.Beleidsregels_Schema,
+                Api.Models.beleidsregels.Beleidsregels_Schema,
             ),
             "Maatregelen": UUID_List_Reference(
                 "Beleidskeuze_Maatregelen",
@@ -269,7 +266,7 @@ class Beleidskeuzes_Schema(Base_Schema):
                 "Beleidskeuze_UUID",
                 "Maatregel_UUID",
                 "Koppeling_Omschrijving",
-                Models.maatregelen.Maatregelen_Schema,
+                Api.Models.maatregelen.Maatregelen_Schema,
             ),
             "Themas": UUID_List_Reference(
                 "Beleidskeuze_Themas",
@@ -277,7 +274,7 @@ class Beleidskeuzes_Schema(Base_Schema):
                 "Beleidskeuze_UUID",
                 "Thema_UUID",
                 "Koppeling_Omschrijving",
-                Models.themas.Themas_Schema,
+                Api.Models.themas.Themas_Schema,
             ),
             "Verordeningen": UUID_List_Reference(
                 "Beleidskeuze_Verordeningen",
@@ -285,7 +282,7 @@ class Beleidskeuzes_Schema(Base_Schema):
                 "Beleidskeuze_UUID",
                 "Verordening_UUID",
                 "Koppeling_Omschrijving",
-                Models.verordeningen.Verordeningen_Schema,
+                Api.Models.verordeningen.Verordeningen_Schema,
             ),
             "Werkingsgebieden": UUID_List_Reference(
                 "Beleidskeuze_Werkingsgebieden",
@@ -293,7 +290,7 @@ class Beleidskeuzes_Schema(Base_Schema):
                 "Beleidskeuze_UUID",
                 "Werkingsgebied_UUID",
                 "Koppeling_Omschrijving",
-                Models.werkingsgebieden.Werkingsgebieden_Schema,
+                Api.Models.werkingsgebieden.Werkingsgebieden_Schema,
             ),
             "Beleidskeuzes": UUID_List_Reference(
                 "Beleidsrelaties",

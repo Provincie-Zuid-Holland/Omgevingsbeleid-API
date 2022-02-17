@@ -2,23 +2,22 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 import marshmallow as MM
-from Endpoints.base_schema import Base_Schema
-from Endpoints.references import (
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
+
+from Api.Endpoints.base_schema import Base_Schema
+from Api.Endpoints.references import (
     UUID_Reference,
     UUID_Linker_Schema,
     Reverse_UUID_Reference,
 )
-from Endpoints.validators import HTML_Validate
-from Models.werkingsgebieden import Werkingsgebieden_Schema
-from Models.short_schemas import Short_Beleidskeuze_Schema, Short_Beleidsmodule_Schema
-from Models.gebruikers import Gebruikers_Schema
-from Endpoints.status_data_manager import StatusDataManager
-
-from globals import default_user_uuid
-
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
-from db import CommonMixin, db
+from Api.Endpoints.validators import HTML_Validate
+from Api.Models.werkingsgebieden import Werkingsgebieden_Schema
+from Api.Models.short_schemas import Short_Beleidskeuze_Schema, Short_Beleidsmodule_Schema
+from Api.Models.gebruikers import Gebruikers_Schema
+from Api.Endpoints.status_data_manager import StatusDataManager
+from Api.settings import default_user_uuid
+from Api.database import CommonMixin, db
 
 
 class Beleidskeuze_Maatregelen(db.Model):

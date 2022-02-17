@@ -1,23 +1,23 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
-from Models.gebruikers import Gebruikers_Schema
 import marshmallow.fields as MMF
 
-from Models.beleidskeuzes import Beleidskeuzes_Schema
-from Models.ambities import Ambities_Schema
-from Models.belangen import Belangen_Schema
-from Models.beleidsdoelen import Beleidsdoelen_Schema
-from Models.beleidsprestaties import Beleidsprestaties_Schema
-from Models.beleidsregels import Beleidsregels_Schema
-from Models.maatregelen import Maatregelen_Schema
-from Models.themas import Themas_Schema
-from Models.werkingsgebieden import Werkingsgebieden_Schema
-from Models.verordeningen import Verordeningen_Schema
-from Models.beleidsrelaties import Beleidsrelaties_Schema
-from Models.beleidsmodule import Beleidsmodule_Schema
-from Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
-import Endpoints.references as references
+from Api.Models.gebruikers import Gebruikers_Schema
+from Api.Models.beleidskeuzes import Beleidskeuzes_Schema
+from Api.Models.ambities import Ambities_Schema
+from Api.Models.belangen import Belangen_Schema
+from Api.Models.beleidsdoelen import Beleidsdoelen_Schema
+from Api.Models.beleidsprestaties import Beleidsprestaties_Schema
+from Api.Models.beleidsregels import Beleidsregels_Schema
+from Api.Models.maatregelen import Maatregelen_Schema
+from Api.Models.themas import Themas_Schema
+from Api.Models.werkingsgebieden import Werkingsgebieden_Schema
+from Api.Models.verordeningen import Verordeningen_Schema
+from Api.Models.beleidsrelaties import Beleidsrelaties_Schema
+from Api.Models.beleidsmodule import Beleidsmodule_Schema
+from Api.Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
+import Api.Endpoints.references as references
 
 short_schemas = [Short_Beleidskeuze_Schema, Short_Beleidsmodule_Schema]
 

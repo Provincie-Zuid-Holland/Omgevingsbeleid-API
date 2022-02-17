@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
-from Endpoints.data_manager import DataManager
-from flask import Flask, jsonify, request
-from datamodel import endpoints
-from globals import row_to_dict, db_connection_settings
+from flask import jsonify, request
 import pyodbc
+
+from Api.Endpoints.data_manager import DataManager
+from Api.datamodel import endpoints
 
 
 def splitlist(value):

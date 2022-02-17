@@ -8,8 +8,9 @@ import pyodbc
 from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
-from Endpoints.data_manager import DataManager
-from Endpoints.errors import (
+
+from Api.Endpoints.data_manager import DataManager
+from Api.Endpoints.errors import (
     handle_UUID_does_not_exists,
     handle_empty,
     handle_empty_patch,
@@ -28,11 +29,11 @@ from Endpoints.errors import (
     handle_validation_filter_exception,
     handle_queryarg_exception,
 )
-from Endpoints.references import (
+from Api.Endpoints.references import (
     Reverse_ID_Reference,
     Reverse_UUID_Reference,
 )
-from Endpoints.comparison import compare_objects
+from Api.Endpoints.comparison import compare_objects
 
 
 class QueryArgError(Exception):
