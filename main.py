@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2022 - 2022 Provincie Zuid-Holland
 
-
 from flask.helpers import get_debug_flag
 from dotenv import load_dotenv
 
