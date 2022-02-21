@@ -15,6 +15,32 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from Api.database import CommonMixin, db
 from Api.settings import null_uuid
 
+# The schema definition for this structure
+_SCHEMA = """<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:sqlt="http://schemas.microsoft.com/sqlserver/2004/sqltypes" xmlns:t="Verordening_Tree" targetNamespace="Verordening_Tree" elementFormDefault="qualified">
+ <xsd:import namespace="http://schemas.microsoft.com/sqlserver/2004/sqltypes" />
+ <xsd:element name="tree" type="t:treeroot" />
+ <xsd:complexType name="treenode">
+ <xsd:complexContent>
+ <xsd:restriction base="xsd:anyType">
+ <xsd:sequence>
+ <xsd:element name="uuid" type="sqlt:uniqueidentifier" />
+ <xsd:element name="child" type="t:treenode" minOccurs="0" maxOccurs="unbounded" />
+ </xsd:sequence>
+ </xsd:restriction>
+ </xsd:complexContent>
+ </xsd:complexType>
+ <xsd:complexType name="treeroot">
+ <xsd:complexContent>
+ <xsd:restriction base="xsd:anyType">
+ <xsd:sequence>
+ <xsd:element name="child" type="t:treenode" minOccurs="0" maxOccurs="unbounded" />
+ </xsd:sequence>
+ </xsd:restriction>
+ </xsd:complexContent>
+ </xsd:complexType>
+ </xsd:schema>
+"""
+
 
 class Tree_Root(MM.Schema):
     """
@@ -58,20 +84,24 @@ class Tree_Node(MM.Schema):
         """
         Ensure null UUID is null
         """
-        if 'Gebied' in dumped and dumped['Gebied'] == null_uuid:
-            dumped['Gebied'] = None
+        if "Gebied" in dumped and dumped["Gebied"] == null_uuid:
+            dumped["Gebied"] = None
         return dumped
 
 
 class Verordeningstructuur(CommonMixin, db.Model):
-    __tablename__ = 'Verordeningstructuur'
+    __tablename__ = "Verordeningstructuur"
 
     Titel = Column(Unicode(150), nullable=False)
     Structuur = Column(XML, nullable=False)
     Status = Column(Unicode(50))
 
-    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Verordeningstructuur.Created_By == Gebruikers.UUID')
-    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Verordeningstructuur.Modified_By == Gebruikers.UUID')
+    Created_By_Gebruiker = relationship(
+        "Gebruikers", primaryjoin="Verordeningstructuur.Created_By == Gebruikers.UUID"
+    )
+    Modified_By_Gebruiker = relationship(
+        "Gebruikers", primaryjoin="Verordeningstructuur.Modified_By == Gebruikers.UUID"
+    )
 
 
 class Verordening_Structuur_Schema(MM.Schema):
@@ -205,7 +235,7 @@ def linked_objects(uuid):
     On a.fk_Verordeningen = b.UUID
     """
     results = {}
-    with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
+    with pyodbc.connect(current_app.config["DB_CONNECTION_SETTINGS"]) as connection:
         try:
             cursor = connection.cursor()
             cursor.execute(query, uuid)
@@ -260,7 +290,7 @@ class Verordening_Structuur(Resource):
 
         rows = []
 
-        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
+        with pyodbc.connect(current_app.config["DB_CONNECTION_SETTINGS"]) as connection:
             try:
                 cursor = connection.cursor()
                 cursor.execute(query, *params)
@@ -336,7 +366,7 @@ class Verordening_Structuur(Resource):
         SELECT uuid, id from @generated_identifiers
         """
 
-        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
+        with pyodbc.connect(current_app.config["DB_CONNECTION_SETTINGS"]) as connection:
             try:
                 cursor = connection.cursor()
                 cursor.execute(create_query, *values)
@@ -381,7 +411,7 @@ class Verordening_Structuur(Resource):
             vo_object["Structuur"] = serialize_schema_to_xml(vo_object["Structuur"])
 
         query = f"""SELECT TOP(1) * FROM Verordeningstructuur WHERE ID = ? ORDER BY Modified_Date DESC"""
-        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
+        with pyodbc.connect(current_app.config["DB_CONNECTION_SETTINGS"]) as connection:
             try:
                 cursor = connection.cursor()
                 cursor.execute(query, verordeningstructuur_id)
@@ -413,7 +443,7 @@ class Verordening_Structuur(Resource):
         SELECT uuid from @generated_identifiers
         """
 
-        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
+        with pyodbc.connect(current_app.config["DB_CONNECTION_SETTINGS"]) as connection:
             try:
                 cursor = connection.cursor()
                 cursor.execute(create_query, *values)
