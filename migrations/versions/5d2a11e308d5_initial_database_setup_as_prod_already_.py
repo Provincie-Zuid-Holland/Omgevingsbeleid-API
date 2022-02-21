@@ -7,7 +7,7 @@ Create Date: 2022-02-11 12:30:44.729739
 """
 from alembic import op
 import sqlalchemy as sa
-import Utils
+import Api.Utils
 from sqlalchemy.dialects import mssql
 
 # revision identifiers, used by Alembic.
@@ -224,7 +224,7 @@ def upgrade():
     sa.Column('Modified_Date', sa.DateTime(), nullable=False),
     sa.Column('Werkingsgebied', sa.Unicode(), nullable=False),
     sa.Column('symbol', sa.Unicode(length=265), nullable=True),
-    sa.Column('SHAPE', Utils.sqlalchemy.Geometry(), nullable=False),
+    sa.Column('SHAPE', Api.Utils.sqlalchemy.Geometry(), nullable=False),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Werkingsgebieden_Created_By')),
@@ -377,7 +377,7 @@ def upgrade():
     sa.Column('symbol', sa.Unicode(length=265), nullable=True),
     sa.Column('Werkingsgebied', sa.Unicode(length=256), nullable=True),
     sa.Column('UUID_Werkingsgebied', mssql.UNIQUEIDENTIFIER(), nullable=False),
-    sa.Column('SHAPE', Utils.sqlalchemy.Geometry(), nullable=False),
+    sa.Column('SHAPE', Api.Utils.sqlalchemy.Geometry(), nullable=False),
     sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Onderverdeling_Created_By')),

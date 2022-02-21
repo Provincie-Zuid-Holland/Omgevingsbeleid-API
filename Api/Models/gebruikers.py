@@ -73,7 +73,7 @@ class Gebruiker(Resource):
 
     @jwt_required
     def get(self, gebruiker_uuid=None):
-        with pyodbc.connect(current_app.config['db_connection_settings']) as cnx:
+        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as cnx:
             cur = cnx.cursor()
             if gebruiker_uuid:
                 gebruikers = list(

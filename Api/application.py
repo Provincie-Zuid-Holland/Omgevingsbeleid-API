@@ -4,10 +4,12 @@
 from flask import Flask
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 from Api.settings import ProdConfig
 from Api.database import db
-from Api.api import api as rest_api
+from Api.api import create_api
+from Api import commands
 
 
 cors = CORS()
@@ -19,11 +21,19 @@ def create_app(config_object=ProdConfig):
     app.config.from_object(config_object)
 
     register_extensions(app)
-    register_api(app)
-    register_shellcontext(app)
+    rest_api = register_api(app)
+
+    # register_shellcontext(app)
     register_commands(app)
 
     return app
+
+
+def register_api(app):
+    rest_api = create_api(app)
+    rest_api.init_app(app)
+
+    return rest_api
 
 
 def register_extensions(app):
@@ -31,7 +41,11 @@ def register_extensions(app):
     db.init_app(app)
     migrate = Migrate(app, db)
     jwt.init_app(app)
-    rest_api.init(app)
+
+
+def register_commands(app):
+    app.cli.add_command(commands.setup_views)
+    app.cli.add_command(commands.dm_markdown)
 
 
 # JWT CONFIG

@@ -16,7 +16,7 @@ import pyodbc
 from application import app
 from datamodel import endpoints
 from Tests.test_data import generate_data, reference_rich_beleidskeuze
-from globals import db_connection_settings, min_datetime, max_datetime
+from globals import DB_CONNECTION_SETTINGS, min_datetime, max_datetime
 from Endpoints.references import (
     ID_List_Reference,
     UUID_List_Reference,
@@ -60,7 +60,7 @@ def test_user():
         for _ in range(50)
     )
     hashed = bcrypt.hash(password)
-    with pyodbc.connect(db_connection_settings, autocommit=False) as con:
+    with pyodbc.connect(DB_CONNECTION_SETTINGS, autocommit=False) as con:
         cur = con.cursor()
         cur.execute(
             f"""INSERT INTO Gebruikers (Gebruikersnaam, Wachtwoord, Rol, Email) VALUES (?, ?, ?, ?)""",
@@ -91,7 +91,7 @@ def cleanup(auth, test_user):
     """
     yield
     test_uuid = auth[0]
-    with pyodbc.connect(db_connection_settings) as cn:
+    with pyodbc.connect(DB_CONNECTION_SETTINGS) as cn:
         cur = cn.cursor()
         for table in endpoints:
             new_uuids = list(

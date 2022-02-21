@@ -1,10 +1,9 @@
 import datetime
 import marshmallow as MM
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, current_app
 from flask_restful import Resource
 import pyodbc
 from flask_jwt_extended import get_jwt_identity
-from globals import db_connection_settings, null_uuid
 from xml.etree import ElementTree as ET
 import re
 import uuid
@@ -14,6 +13,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 
 from Api.database import CommonMixin, db
+from Api.settings import null_uuid
 
 
 class Tree_Root(MM.Schema):
@@ -205,7 +205,7 @@ def linked_objects(uuid):
     On a.fk_Verordeningen = b.UUID
     """
     results = {}
-    with pyodbc.connect(db_connection_settings) as connection:
+    with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
         try:
             cursor = connection.cursor()
             cursor.execute(query, uuid)
@@ -260,7 +260,7 @@ class Verordening_Structuur(Resource):
 
         rows = []
 
-        with pyodbc.connect(db_connection_settings) as connection:
+        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
             try:
                 cursor = connection.cursor()
                 cursor.execute(query, *params)
@@ -336,7 +336,7 @@ class Verordening_Structuur(Resource):
         SELECT uuid, id from @generated_identifiers
         """
 
-        with pyodbc.connect(db_connection_settings) as connection:
+        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
             try:
                 cursor = connection.cursor()
                 cursor.execute(create_query, *values)
@@ -381,7 +381,7 @@ class Verordening_Structuur(Resource):
             vo_object["Structuur"] = serialize_schema_to_xml(vo_object["Structuur"])
 
         query = f"""SELECT TOP(1) * FROM Verordeningstructuur WHERE ID = ? ORDER BY Modified_Date DESC"""
-        with pyodbc.connect(db_connection_settings) as connection:
+        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
             try:
                 cursor = connection.cursor()
                 cursor.execute(query, verordeningstructuur_id)
@@ -413,7 +413,7 @@ class Verordening_Structuur(Resource):
         SELECT uuid from @generated_identifiers
         """
 
-        with pyodbc.connect(db_connection_settings) as connection:
+        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
             try:
                 cursor = connection.cursor()
                 cursor.execute(create_query, *values)

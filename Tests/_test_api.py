@@ -2,8 +2,15 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 
+import os
+import pytest
+import pyodbc
+import copy
+import datetime
+from flask import jsonify
 from re import A
-from Models import (
+
+from Api.Models import (
     beleidskeuzes,
     ambities,
     beleidsrelaties,
@@ -12,22 +19,16 @@ from Models import (
     beleidsprestaties,
     beleidsmodule,
 )
-import os
-import pytest
-import pyodbc
-from globals import null_uuid
-from application import app
-from datamodel import endpoints
-from Tests.test_data import generate_data, reference_rich_beleidskeuze
-from globals import db_connection_settings, min_datetime, max_datetime
+from Api.settings import null_uuid
+from Api.datamodel import endpoints
+from Api.settings import min_datetime, max_datetime
 from Endpoints.references import (
     ID_List_Reference,
     UUID_List_Reference,
     ID_List_Reference,
 )
-import copy
-from flask import jsonify
-import datetime
+
+from Api.Tests.test_data import generate_data, reference_rich_beleidskeuze
 
 
 @pytest.fixture
@@ -58,7 +59,7 @@ def cleanup(auth):
     """
     yield
     test_uuid = auth[0]
-    with pyodbc.connect(db_connection_settings) as cn:
+    with pyodbc.connect(DB_CONNECTION_SETTINGS) as cn:
         cur = cn.cursor()
         for table in endpoints:
             new_uuids = list(

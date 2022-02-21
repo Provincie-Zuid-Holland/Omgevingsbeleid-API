@@ -2,12 +2,13 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 from typing import DefaultDict
-import datamodel
 import json
 from flask import Flask, jsonify, request
 import os
 import marshmallow as MM
-from Endpoints import references
+
+from Api.Endpoints import references
+import Api.datamodel
 
 
 def render_spec():

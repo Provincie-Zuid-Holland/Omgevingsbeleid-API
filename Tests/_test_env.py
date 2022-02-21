@@ -13,7 +13,7 @@ import pytest
 
 from application import app
 from datamodel import endpoints
-from globals import db_connection_settings, null_uuid, row_to_dict
+from globals import DB_CONNECTION_SETTINGS, null_uuid, row_to_dict
 import pyodbc
 
 
@@ -24,7 +24,7 @@ def client():
 
 def test_nills(client):
     """Check wether all the tables in the datamodel contain a Nill UUID"""
-    with pyodbc.connect(db_connection_settings) as connections:
+    with pyodbc.connect(DB_CONNECTION_SETTINGS) as connections:
         cur = connections.cursor()
         for ep in endpoints:
             query = f"SELECT UUID FROM {ep.Meta.table} WHERE UUID = ?"
@@ -35,7 +35,7 @@ def test_nills(client):
 
 # def test_search_index(client):
 #     """Check wether all the tables are properly configured for search"""
-#     with pyodbc.connect(db_connection_settings) as connections:
+#     with pyodbc.connect(DB_CONNECTION_SETTINGS) as connections:
 #         cur = connections.cursor()
 #         query = f'''SELECT DISTINCT OBJECT_NAME(fic.object_id) AS table_name, c.name AS column_name
 #                     FROM sys.fulltext_index_columns AS fic INNER JOIN

@@ -66,7 +66,7 @@ def login():
         return jsonify({"message": "Password parameter niet gevonden"}), 400
 
     # Find identifier
-    with pyodbc.connect(current_app.config['db_connection_settings']) as connection:
+    with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
         cursor = connection.cursor()
         query = """SELECT UUID, Gebruikersnaam, Email, Rol, Wachtwoord FROM Gebruikers WHERE Email = ?"""
         cursor.execute(query, identifier)
@@ -112,7 +112,7 @@ def password_reset():
                 "errors": list(map(printTest, errors)),
             }, 400
 
-        with pyodbc.connect(current_app.config['db_connection_settings']) as connection:
+        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
             cursor = connection.cursor()
             query = """SELECT UUID, Wachtwoord FROM Gebruikers WHERE UUID = ?"""
             cursor.execute(query, get_jwt_identity()["UUID"])
@@ -123,7 +123,7 @@ def password_reset():
 
         if bcrypt.verify(password, result[1]):
             hash = bcrypt.hash(new_password)
-            with pyodbc.connect(current_app.config['db_connection_settings']) as connection:
+            with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
                 cursor = connection.cursor()
                 cursor.execute(
                     """UPDATE Gebruikers SET Wachtwoord = ? WHERE UUID = ?""",

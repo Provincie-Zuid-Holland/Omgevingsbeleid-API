@@ -69,7 +69,7 @@ class DataManager:
         self._set_up_search()
 
     def _run_query_commit(self, query, values=[]):
-        with pyodbc.connect(current_app.config['db_connection_settings'], autocommit=True) as con:
+        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS'], autocommit=True) as con:
             try:
                 cur = con.cursor()
                 result = cur.execute(query, *values)
@@ -636,7 +636,7 @@ class DataManager:
         if not self.schema.Meta.searchable:
             return
 
-        with pyodbc.connect(current_app.config['db_connection_settings'], autocommit=True) as con:
+        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS'], autocommit=True) as con:
             cur = con.cursor()
 
             # Check if a stoplist exists
