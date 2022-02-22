@@ -19,6 +19,7 @@ services:
       DB_PORT: 1433
       DB_NAME: db_dev
       DB_DRIVER: ODBC Driver 17 for SQL Server
+      TEST_DB_NAME: db_test
       JWT_SECRET: secret
     depends_on:
       - mssql

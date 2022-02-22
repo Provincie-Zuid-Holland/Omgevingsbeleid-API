@@ -1,6 +1,6 @@
-.PHONY: init info up down down-hard restart logs logs-all mysql-wait mssql mssql-cli mssql-create-database mssql-show-databases mssql-show-tables flask-setup-views flask-db-upgrade flask-routes flask
+.PHONY: init info up down down-hard restart logs logs-all mysql-wait mssql mssql-cli mssql-create-database-dev mssql-create-database-test mssql-show-databases mssql-show-tables flask-setup-views flask-db-upgrade flask-routes flask
 
-init: up mssql-wait mssql-create-database flask-db-upgrade flask-setup-views info
+init: up mssql-wait mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views info
 
 
 info:
@@ -50,8 +50,11 @@ mssql:
 mssql-cli:
 	docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd
 
-mssql-create-database:
+mssql-create-database-dev:
 	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-dev.sql 
+
+mssql-create-database-test:
+	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-test.sql 
 
 flask-db-upgrade:
 	docker-compose exec api flask db upgrade
@@ -65,8 +68,10 @@ flask-routes:
 api:
 	docker-compose exec api /bin/bash
 
+reset-test: mssql-create-database-test test
+
 test:
-	docker-compose exec api pytest
+	docker-compose exec api pytest -s
 
 # Very rare utilities
 mssql-clear-database:

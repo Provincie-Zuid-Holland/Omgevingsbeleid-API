@@ -50,5 +50,9 @@ class TestConfig(Config):
     DEBUG = True
     TESTING = True
     SQLALCHEMY_ECHO = True
+
+
+    DB_CONNECTION_SETTINGS = f"DRIVER={os.getenv('DB_DRIVER')};SERVER={os.getenv('DB_HOST')};DATABASE={os.getenv('TEST_DB_NAME')};UID={os.getenv('DB_USER')};PWD={os.getenv('DB_PASS')}"
+    SQLALCHEMY_DATABASE_URI = "mssql+pyodbc:///?odbc_connect=%s" % DB_CONNECTION_SETTINGS
     
     pass

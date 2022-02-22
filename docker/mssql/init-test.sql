@@ -1,5 +1,6 @@
 USE master;
 GO
-IF DB_ID (N'db_test') IS NULL
+DROP DATABASE IF EXISTS db_test;
+GO
 CREATE DATABASE db_test;
 GO
