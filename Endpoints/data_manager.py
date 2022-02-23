@@ -78,10 +78,8 @@ class DataManager:
                 if e.args[0] == "No results.  Previous SQL was not a query.":
                     return None
                 else:
-                    print(query)
                     raise e
             except pyodbc.ProgrammingError as e:
-                print(query)
                 raise e
 
     def _set_up_all_valid_view(self):
@@ -160,7 +158,7 @@ class DataManager:
 
         self._run_query_commit(query)
 
-    def get_single_on_UUID(self, uuid):
+    def get_single_on_UUID(self, uuid, valid_only=True):
         """Retrieve a single version of an object of this type
 
         Args:
@@ -197,13 +195,13 @@ class DataManager:
 
         for ref in included_references:
             result_rows = self._retrieve_references(
-                ref, included_references[ref], result_rows
+                ref, included_references[ref], result_rows, valid_only
             )
 
         return result_rows[0]
 
-    def get_single_on_ID(self, id):
-        """Retrieve a single version of an object of this type
+    def _get_latest_for_ID(self, id, valid_only=True):
+        """Retrieve the latest version of a lineage
 
         Args:
             id (int): the id of the target object
@@ -235,14 +233,32 @@ class DataManager:
 
         for ref in included_references:
             result_rows = self._retrieve_references(
-                ref, included_references[ref], result_rows
+                ref, included_references[ref], result_rows, valid_only
             )
 
         return result_rows[0]
 
+    def get_latest_edits(self, title_field="Titel"):
+        """Gets the latests edits of this object
+
+        Args:
+            title_field (string): The title field
+        """
+        status_condition = None
+        if status_conf := self.schema.Meta.status_conf:
+            # e.g. "AND Status = 'Vigerend'"
+            status_condition = f" WHERE cu.{status_conf[0]} != '{status_conf[1]}'"
+
+        query = f"""SELECT cu.ID, cu.UUID, cu.{title_field}, cu.Status, cu.Modified_Date, va.UUID as Effective_Version FROM {self.all_latest_view} cu
+            LEFT JOIN Valid_{self.schema.Meta.slug} va ON va.ID = cu.ID 
+        """
+        if status_condition:
+            query = query + status_condition
+        return self.schema(partial=True).dump(self._run_query_commit(query), many=True)
+
     def get_all(
         self,
-        valid_only=False,
+        valid_only=True,
         any_filters=None,
         all_filters=None,
         short=False,
@@ -270,16 +286,15 @@ class DataManager:
         target_view = self.valid_view if valid_only else self.latest_view
 
         # determine the fields to include in the query
-        fieldset = ["*"]
         if short:
             select_fieldset = [
                 field
                 for field in self.schema().fields_with_props(["short"])
                 if field
-                not in self.schema().fields_with_props(["referencelist", "calculated"])
+                not in self.schema().fields_with_props(["calculated", "referencelist"])
             ]
         else:
-            select_fieldset = fieldset
+            select_fieldset = ["*"]
 
         query = f"""
                 SELECT {', '.join(select_fieldset)} FROM {target_view} 
@@ -311,7 +326,6 @@ class DataManager:
             query += " FETCH NEXT ? ROWS ONLY"
             query_args.append(limit)
 
-
         result_rows = self.schema().dump(
             self._run_query_commit(query, query_args), many=True
         )
@@ -322,15 +336,25 @@ class DataManager:
             **self.schema.Meta.references,
         }
 
-        included_references = (
-            all_references
-            if (fieldset == ["*"])
-            else {ref: all_references[ref] for ref in all_references if ref in fieldset}
-        )
+        # Determine the references to include
+        if select_fieldset == ["*"]:
+            included_references = all_references
+        elif short:
+            included_references = {
+                ref: all_references[ref]
+                for ref in all_references
+                if ref in self.schema().fields_with_props(["short"])
+            }
+        else:
+            included_references = {
+                ref: all_references[ref]
+                for ref in all_references
+                if ref in select_fieldset
+            }
 
         for ref in included_references:
             result_rows = self._retrieve_references(
-                ref, included_references[ref], result_rows
+                ref, included_references[ref], result_rows, valid_only
             )
 
         return result_rows
@@ -358,11 +382,12 @@ class DataManager:
                     ],
                 )
 
-    def _retrieve_references(self, fieldname, ref, source_rows):
+    def _retrieve_references(self, fieldname, ref, source_rows, valid_only=True):
         """
         Retrieve the linked references for this set of objects
 
         Args:
+            fieldname (string): The fieldname to add the results to
             ref (reference): A reference object
             source_rows (list): The objects to add the references on
 
@@ -392,11 +417,14 @@ class DataManager:
             included_fields.append(ref.my_col)
 
             source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
-            # Query from the Valid view, so only valid objects get inlined.
 
+            target_tablename = (
+                f"Valid_{ref.their_tablename}" if valid_only else ref.their_tablename
+            )
+            # Query from the Valid view, so only valid objects get inlined.
             query = f"""
                  SELECT {", ".join(included_fields)}, {ref.description_col} FROM {ref.link_tablename} a
-                 JOIN Valid_{ref.their_tablename} b ON b.UUID = {ref.their_col}
+                 JOIN {target_tablename} b ON b.UUID = {ref.their_col}
                  WHERE a.{ref.my_col} in ({source_uuids})
                  """
 
@@ -496,30 +524,26 @@ class DataManager:
         Returns:
             List: The resulting objects
         """
-        # determine view/table to query
-        target = self.all_valid_view if valid_only else self.schema().Meta.table
-        # determine the fields to include in the query
-        fieldset = ["*"]
-        if short:
-            fieldset = [field for field in self.schema().fields_with_props(["short"])]
-            # skip references field in short
-            select_fieldset = [
-                field[0]
-                for field in self.schema().fields.items()
-                if (
-                    "referencelist" not in field[1].metadata["obprops"]
-                    and field[0] in fieldset
-                )
-            ]
-
-        else:
-            select_fieldset = fieldset
-
         # ID is required
         query_args = [id]
 
+        # determine view/table to query
+
+        target_view = self.all_valid_view if valid_only else self.schema().Meta.table
+
+        # determine the fields to include in the query
+        if short:
+            select_fieldset = [
+                field
+                for field in self.schema().fields_with_props(["short"])
+                if field
+                not in self.schema().fields_with_props(["calculated", "referencelist"])
+            ]
+        else:
+            select_fieldset = ["*"]
+
         query = f"""
-                SELECT {', '.join(select_fieldset)} FROM {target}
+                SELECT {', '.join(select_fieldset)} FROM {target_view}
                 WHERE ID = ? 
                 """
         # generate filter_queries
@@ -557,15 +581,24 @@ class DataManager:
             **self.schema.Meta.references,
         }
 
-        included_references = (
-            all_references
-            if (fieldset == ["*"])
-            else {ref: all_references[ref] for ref in all_references if ref in fieldset}
-        )
+        if select_fieldset == ["*"]:
+            included_references = all_references
+        elif short:
+            included_references = {
+                ref: all_references[ref]
+                for ref in all_references
+                if ref in self.schema().fields_with_props(["short"])
+            }
+        else:
+            included_references = {
+                ref: all_references[ref]
+                for ref in all_references
+                if ref in select_fieldset
+            }
 
         for ref in included_references:
             result_rows = self._retrieve_references(
-                ref, included_references[ref], result_rows
+                ref, included_references[ref], result_rows, valid_only
             )
 
         return result_rows

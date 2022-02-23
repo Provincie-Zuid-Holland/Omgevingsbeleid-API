@@ -4,7 +4,7 @@
 import pytest
 from werkzeug.test import Client
 from application import app
-
+from globals import null_uuid
 
 @pytest.fixture
 def client():
@@ -17,7 +17,7 @@ def client():
 def test_fieldset(client):
     res = client.get("v0.1/search?query=water")
     assert res.status_code == 200
-    assert list(res.get_json()[0].keys()) == [
+    assert list(res.get_json()['results'][0].keys()) == [
         "Omschrijving",
         "RANK",
         "Titel",
@@ -33,24 +33,35 @@ def test_keywords(client):
     response = client.get("v0.1/search?query=energie en lopen")
     assert response.status_code == 200
 
+def test_search_total(client):
+    response = client.get("v0.1/search?query=water")
+    assert response.status_code == 200
+    assert 'total' in response.get_json()
+    assert 'results' in response.get_json()
+
+def test_geo_search_total(client):
+    response = client.get(f"v0.1/search/geo?query={null_uuid}")
+    assert response.status_code == 200
+    assert 'total' in response.get_json()
+    assert 'results' in response.get_json()
 
 def test_search_limit_offset(client):
 
     response = client.get("v0.1/search?query=water")
     assert response.status_code == 200
-    assert len(response.get_json()) == 10
+    assert len(response.get_json()['results']) == 10
 
     response = client.get("v0.1/search?query=water&limit=100")
     assert response.status_code == 200
-    assert len(response.get_json()) > 10
+    assert len(response.get_json()['results']) > 10
 
     response = client.get("v0.1/search?query=water&limit=3")
     assert response.status_code == 200
-    assert len(response.get_json()) == 3
+    assert len(response.get_json()['results']) == 3
 
     response = client.get("v0.1/search?query=water&limit=20&offset=5")
     assert response.status_code == 200
-    assert len(response.get_json()) == 15
+    assert len(response.get_json()['results']) == 20
 
     response = client.get("v0.1/search?query=water&limit=20&offset=-5")
     assert response.status_code == 403

@@ -11,7 +11,8 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, jwt_required
 from flask_restful import Api, Resource
-from Models import gebruikers, verordeningsstructuur
+from Endpoints.edits import editView
+from Models import gebruikers, verordeningsstructuur, beleidskeuzes, maatregelen
 import datamodel
 import Endpoints.endpoint
 from Auth.views import jwt_required_not_GET, login, password_reset, tokenstat
@@ -140,6 +141,16 @@ api.add_resource(
 app.add_url_rule(f"/v{current_version}/spec", "spec", specView, methods=["GET"])
 
 app.add_url_rule(f"/v{current_version}/search", "search", search_view, methods=["GET"])
+
+api.add_resource(
+    editView,
+    f"/edits",
+    endpoint="edits",
+    resource_class_args=(
+        [beleidskeuzes.Beleidskeuzes_Schema, maatregelen.Maatregelen_Schema],
+    ),
+)
+
 
 app.add_url_rule(
     f"/v{current_version}/search/geo", "geo-search", geo_search_view, methods=["GET"]

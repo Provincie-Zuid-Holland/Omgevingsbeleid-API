@@ -4,11 +4,12 @@ from flask import request, jsonify, abort
 from flask_restful import Resource
 import pyodbc
 from flask_jwt_extended import get_jwt_identity
-from globals import db_connection_settings
+from globals import db_connection_settings, null_uuid
 from xml.etree import ElementTree as ET
 import re
 import uuid
 import time
+
 
 
 class Tree_Root(MM.Schema):
@@ -30,6 +31,7 @@ class Tree_Node(MM.Schema):
     Volgnummer = MM.fields.String(required=False, missing=None, allow_none=True)
     Type = MM.fields.String(required=True)
     Inhoud = MM.fields.String()
+    Gebied = MM.fields.UUID(allow_none=True)
 
     class Meta:
         ordered = True
@@ -47,6 +49,14 @@ class Tree_Node(MM.Schema):
                 pass
         return dumped
 
+    @MM.post_dump()
+    def null_gebied(self, dumped, many):
+        """
+        Ensure null UUID is null
+        """
+        if 'Gebied' in dumped and dumped['Gebied'] == null_uuid:
+            dumped['Gebied'] = None
+        return dumped
 
 class Verordening_Structuur_Schema(MM.Schema):
     """
@@ -140,6 +150,7 @@ def _parse_child_to_schema(xmlelement, vo_mappings):
             result["Volgnummer"] = vo_mappings[child.text.lower()][1]
             result["Type"] = vo_mappings[child.text.lower()][2]
             result["Inhoud"] = vo_mappings[child.text.lower()][3].replace("\r", "\n")
+            result["Gebied"] = vo_mappings[child.text.lower()][4]
         if remove_namespace(child.tag) == "child":
             result["Children"].append(_parse_child_to_schema(child, vo_mappings))
     return result
@@ -169,12 +180,12 @@ def ob_auto_filter(field):
 
 
 def linked_objects(uuid):
-    query = """SELECT b.UUID, b.Titel, b.Volgnummer, b.Type, b.Inhoud FROM 
+    query = """SELECT b.UUID, b.Titel, b.Volgnummer, b.Type, b.Inhoud, b.Gebied FROM 
         (SELECT UUID, T2.Loc.value('.','uniqueidentifier') as fk_Verordeningen
             FROM [dbo].[VerordeningStructuur] as T1	CROSS APPLY Structuur.nodes('declare namespace VT="Verordening_Tree";//VT:uuid') as T2(Loc)
             WHERE T2.Loc.value('.','uniqueidentifier') IN (SELECT UUID FROM Verordeningen) AND UUID = ?) AS a
     LEFT JOIN 
-        (SELECT UUID, Titel, Volgnummer, Type, Inhoud FROM Verordeningen) AS b
+        (SELECT UUID, Titel, Volgnummer, Type, Inhoud, Gebied FROM Verordeningen) AS b
     On a.fk_Verordeningen = b.UUID
     """
     results = {}
@@ -185,7 +196,7 @@ def linked_objects(uuid):
         except pyodbc.Error as err:
             handle_odbc_exception(err)
         for row in cursor:
-            results[row[0].lower()] = (row[1], row[2], row[3], row[4])
+            results[row[0].lower()] = (row[1], row[2], row[3], row[4], row[5])
     return results
 
 

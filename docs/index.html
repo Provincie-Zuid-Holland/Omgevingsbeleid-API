@@ -15,7 +15,11 @@
         window.onload = function() {
             // Begin Swagger UI call region
             const ui = SwaggerUIBundle({
+
                 urls: [{
+                    url: 'http://127.0.0.1:5000/v0.1/spec',
+                    name: 'local'
+                }, {
                     url: 'https://api-obzh-dev.azurewebsites.net/v0.1/spec',
                     name: 'dev'
                 }, {
