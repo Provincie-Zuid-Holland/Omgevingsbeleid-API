@@ -29,7 +29,6 @@ from Endpoints.errors import (
     handle_queryarg_exception,
 )
 from Endpoints.references import (
-    Reverse_ID_Reference,
     Reverse_UUID_Reference,
 )
 from Endpoints.comparison import compare_objects
@@ -176,9 +175,7 @@ class Lineage(Schema_Resource):
         for ref in all_references:
             if ref in old_object:
                 # Remove reverse references
-                if isinstance(
-                    all_references[ref], Reverse_UUID_Reference
-                ) or isinstance(all_references[ref], Reverse_ID_Reference):
+                if isinstance(all_references[ref], Reverse_UUID_Reference):
                     old_object.pop(ref)
                 elif old_object[ref]:
                     if type(old_object[ref]) is list:

@@ -36,10 +36,6 @@ class UUID_List_Reference:
         self.schema = schema()
 
 
-class ID_List_Reference(UUID_List_Reference):
-    pass
-
-
 class Reverse_UUID_Reference:
     def __init__(
         self,
@@ -56,10 +52,6 @@ class Reverse_UUID_Reference:
         self.their_col = their_col
         self.description_col = description_col
         self.schema = schema()
-
-
-class Reverse_ID_Reference(Reverse_UUID_Reference):
-    pass
 
 
 class UUID_Reference:

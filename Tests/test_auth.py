@@ -2,14 +2,6 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 from datetime import timezone
-from Models import (
-    beleidskeuzes,
-    ambities,
-    maatregelen,
-    belangen,
-    beleidsprestaties,
-    beleidsmodule,
-)
 import os
 import pytest
 import pyodbc
@@ -17,11 +9,7 @@ from application import app
 from datamodel import endpoints
 from Tests.test_data import generate_data, reference_rich_beleidskeuze
 from globals import db_connection_settings, min_datetime, max_datetime
-from Endpoints.references import (
-    ID_List_Reference,
-    UUID_List_Reference,
-    ID_List_Reference,
-)
+from Endpoints.references import UUID_List_Reference
 import random
 from flask import jsonify
 import string
@@ -102,7 +90,7 @@ def cleanup(auth, test_user):
             )
             for field, ref in table.Meta.references.items():
                 # Remove all references first
-                if type(ref) == UUID_List_Reference or type(ref) == ID_List_Reference:
+                if type(ref) == UUID_List_Reference:
                     for new_uuid in list(new_uuids):
                         cur.execute(
                             f"DELETE FROM {ref.link_tablename} WHERE {ref.my_col} = ?",

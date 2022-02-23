@@ -17,6 +17,7 @@ from globals import (
 from Endpoints.references import UUID_Reference
 from Models.gebruikers import Gebruikers_Schema
 import uuid
+import Endpoints.endpoint
 
 
 class Short_Base_Schema(MM.Schema):
@@ -33,6 +34,12 @@ class Short_Base_Schema(MM.Schema):
 
     class Meta:
         manager = DataManager
+        lineage_endpoint_cls = Endpoints.endpoint.Lineage
+        fulllist_endpoint_cls = Endpoints.endpoint.FullList
+        validlist_endpoint_cls = Endpoints.endpoint.ValidList
+        validlineage_endpoint_cls = Endpoints.endpoint.ValidLineage
+        singleversion_endpoint_cls = Endpoints.endpoint.SingleVersion
+        changes_endpoint_cls = Endpoints.endpoint.Changes
         ordered = True
         read_only = False
         base_references = {}
