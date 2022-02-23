@@ -4,6 +4,7 @@
 import marshmallow as MM
 from Endpoints.base_schema import Base_Schema
 from Endpoints.references import UUID_Reference
+from Endpoints.relation_data_manager import RelationDataManager
 from Endpoints.validators import HTML_Validate
 from Models.beleidskeuzes import Beleidskeuzes_Schema
 from globals import null_uuid
@@ -13,6 +14,7 @@ from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, Integer, String, Unicode, DateTime, text, Sequence
 from db import db
+
 
 class Beleidsrelaties(db.Model):
     __tablename__ = 'Beleidsrelaties'
@@ -24,7 +26,7 @@ class Beleidsrelaties(db.Model):
         seq_name = 'seq_{name}'.format(name=cls.__name__)
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
-    
+
     UUID = Column(UNIQUEIDENTIFIER, primary_key=True, server_default=text("(newid())"))
 
     Begin_Geldigheid = Column(DateTime, nullable=True)
@@ -55,7 +57,7 @@ class Beleidsrelaties(db.Model):
 
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsrelaties.Created_By == Gebruikers.UUID')
     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsrelaties.Modified_By == Gebruikers.UUID')
-    
+
 
 
 class Beleidsrelaties_Schema(Base_Schema):
@@ -99,9 +101,10 @@ class Beleidsrelaties_Schema(Base_Schema):
     class Meta(Base_Schema.Meta):
         slug = "beleidsrelaties"
         table = "Beleidsrelaties"
-        read_only = True
+        read_only = False
         ordered = True
         searchable = False
+        manager = RelationDataManager
         references = {
             "Van_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),
             "Naar_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),

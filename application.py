@@ -74,6 +74,10 @@ def dm_markdown():
     with open("./datamodel.md", "w") as mdfile:
         mdfile.write(datamodel.generate_markdown_view())
 
+@app.cli.command("datamodel-dbdiagram")
+def dm_dbdiagram():
+    datamodel.generate_dbdiagram()
+
 
 # TEST: docker-compose exec api flask add-user --id 1 --gebruikersnaam alex --wachtwoord lol --rol test --email alex@pzh.nl
 @app.cli.command("add-user")
@@ -94,42 +98,42 @@ def custom_unauthorized_loader(reason):
 # ROUTING RULES
 for schema in datamodel.endpoints:
     api.add_resource(
-        Endpoints.endpoint.Lineage,
+        schema.Meta.lineage_endpoint_cls,
         f"/{schema.Meta.slug}/<int:id>",
         endpoint=f"{schema.Meta.slug.capitalize()}_Lineage",
         resource_class_args=(schema,),
     )
 
     api.add_resource(
-        Endpoints.endpoint.FullList,
+        schema.Meta.fulllist_endpoint_cls,
         f"/{schema.Meta.slug}",
         endpoint=f"{schema.Meta.slug.capitalize()}_List",
         resource_class_args=(schema,),
     )
 
     api.add_resource(
-        Endpoints.endpoint.ValidList,
+        schema.Meta.validlist_endpoint_cls,
         f"/valid/{schema.Meta.slug}",
         endpoint=f"{schema.Meta.slug.capitalize()}_Validlist",
         resource_class_args=(schema,),
     )
 
     api.add_resource(
-        Endpoints.endpoint.ValidLineage,
+        schema.Meta.validlineage_endpoint_cls,
         f"/valid/{schema.Meta.slug}/<int:id>",
         endpoint=f"{schema.Meta.slug.capitalize()}_Validlineage",
         resource_class_args=(schema,),
     )
 
     api.add_resource(
-        Endpoints.endpoint.SingleVersion,
+        schema.Meta.singleversion_endpoint_cls,
         f"/version/{schema.Meta.slug}/<string:uuid>",
         endpoint=f"{schema.Meta.slug.capitalize()}_Version",
         resource_class_args=(schema,),
     )
 
     api.add_resource(
-        Endpoints.endpoint.Changes,
+        schema.Meta.changes_endpoint_cls,
         f"/changes/{schema.Meta.slug}/<string:old_uuid>/<string:new_uuid>",
         endpoint=f"{schema.Meta.slug.capitalize()}_Changes",
         resource_class_args=(schema,),

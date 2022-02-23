@@ -10,10 +10,8 @@ from globals import (
     stoplist_name,
 )
 from Endpoints.references import (
-    Reverse_ID_Reference,
     Reverse_UUID_Reference,
     UUID_List_Reference,
-    ID_List_Reference,
     UUID_Reference,
 )
 from Endpoints.stopwords import stopwords
@@ -79,7 +77,7 @@ class DataManager:
             except pyodbc.DatabaseError as e:
                 if e.args[0] == "No results.  Previous SQL was not a query.":
                     return None
-                else:                    
+                else:
                     raise e
             except pyodbc.ProgrammingError as e:
                 raise e
@@ -242,7 +240,7 @@ class DataManager:
 
         return result_rows[0]
 
-    def get_latest_edits(self, title_field='Titel'):
+    def get_latest_edits(self, title_field="Titel"):
         """Gets the latests edits of this object
 
         Args:
@@ -253,14 +251,12 @@ class DataManager:
             # e.g. "AND Status = 'Vigerend'"
             status_condition = f" WHERE cu.{status_conf[0]} != '{status_conf[1]}'"
 
-
         query = f"""SELECT cu.ID, cu.UUID, cu.{title_field}, cu.Status, cu.Modified_Date, va.UUID as Effective_Version FROM {self.all_latest_view} cu
             LEFT JOIN Valid_{self.schema.Meta.slug} va ON va.ID = cu.ID 
         """
         if status_condition:
             query = query + status_condition
         return self.schema(partial=True).dump(self._run_query_commit(query), many=True)
-    
 
     def get_all(
         self,
@@ -343,12 +339,20 @@ class DataManager:
         }
 
         # Determine the references to include
-        if (select_fieldset == ["*"]):
+        if select_fieldset == ["*"]:
             included_references = all_references
         elif short:
-            included_references = {ref: all_references[ref] for ref in all_references if ref in self.schema().fields_with_props(["short"])}
+            included_references = {
+                ref: all_references[ref]
+                for ref in all_references
+                if ref in self.schema().fields_with_props(["short"])
+            }
         else:
-            included_references = {ref: all_references[ref] for ref in all_references if ref in select_fieldset}
+            included_references = {
+                ref: all_references[ref]
+                for ref in all_references
+                if ref in select_fieldset
+            }
 
         for ref in included_references:
             result_rows = self._retrieve_references(
@@ -356,7 +360,6 @@ class DataManager:
             )
 
         return result_rows
-
 
     def _store_references(self, obj_uuid, ref, ref_datalist):
         """
@@ -407,7 +410,7 @@ class DataManager:
             # This is for objects that are not inheriting from base_schema (probably an user object)
             included_fields = list(ref.schema.fields.keys())
 
-        if isinstance(ref, UUID_List_Reference) or isinstance(ref, ID_List_Reference):
+        if isinstance(ref, UUID_List_Reference):
 
             # Prepare for join query
             included_fields = [f"b.{field}" for field in included_fields]
@@ -416,8 +419,10 @@ class DataManager:
             included_fields.append(ref.my_col)
 
             source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
-            
-            target_tablename = f'Valid_{ref.their_tablename}' if valid_only else ref.their_tablename
+
+            target_tablename = (
+                f"Valid_{ref.their_tablename}" if valid_only else ref.their_tablename
+            )
             # Query from the Valid view, so only valid objects get inlined.
             query = f"""
                  SELECT {", ".join(included_fields)}, {ref.description_col} FROM {ref.link_tablename} a
@@ -469,9 +474,7 @@ class DataManager:
                 row[fieldname] = row_map.get(row[fieldname])
             return source_rows
 
-        if isinstance(ref, Reverse_UUID_Reference) or isinstance(
-            ref, Reverse_ID_Reference
-        ):
+        if isinstance(ref, Reverse_UUID_Reference):
             source_uuids = ", ".join([f"'{row['UUID']}'" for row in source_rows])
 
             included_fields.append(ref.my_col)
@@ -527,6 +530,7 @@ class DataManager:
         query_args = [id]
 
         # determine view/table to query
+
         target_view = self.all_valid_view if valid_only else self.schema().Meta.table
 
         # determine the fields to include in the query
@@ -539,8 +543,6 @@ class DataManager:
             ]
         else:
             select_fieldset = ["*"]
-
-        
 
         query = f"""
                 SELECT {', '.join(select_fieldset)} FROM {target_view}
@@ -581,12 +583,20 @@ class DataManager:
             **self.schema.Meta.references,
         }
 
-        if (select_fieldset == ["*"]):
+        if select_fieldset == ["*"]:
             included_references = all_references
         elif short:
-            included_references = {ref: all_references[ref] for ref in all_references if ref in self.schema().fields_with_props(["short"])}
+            included_references = {
+                ref: all_references[ref]
+                for ref in all_references
+                if ref in self.schema().fields_with_props(["short"])
+            }
         else:
-            included_references = {ref: all_references[ref] for ref in all_references if ref in select_fieldset}
+            included_references = {
+                ref: all_references[ref]
+                for ref in all_references
+                if ref in select_fieldset
+            }
 
         for ref in included_references:
             result_rows = self._retrieve_references(
