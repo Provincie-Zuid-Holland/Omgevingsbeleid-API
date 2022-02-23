@@ -28,16 +28,18 @@ policy = PasswordPolicy.from_names(
 )
 
 
-def printTest(test):
+def __printTest(test):
     name = type(test).__name__.lower()
     count = test.args[0]
     if name == "length":
         return f"minimaal {count} karakters bevatten"
+        
     if name == "uppercase":
         if count > 1:
             return f"minimaal {count} hoofdletters bevatten"
         else:
             return f"minimaal {count} hoofdletter bevatten"
+
     if name == "numbers":
         if count > 1:
             return f"minimaal {count} nummers bevatten"
@@ -109,7 +111,7 @@ def password_reset():
         if errors := policy.test(new_password):
             return {
                 "message": "Password does not meet requirements",
-                "errors": list(map(printTest, errors)),
+                "errors": list(map(__printTest, errors)),
             }, 400
 
         with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
@@ -133,7 +135,7 @@ def password_reset():
                 return {"message": "Password changed"}, 200
 
         else:
-            return {"message": "Password invalid"}, 401
+            return {"message": "Unable to find user"}, 401
 
 
 @jwt_required

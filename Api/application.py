@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2022 Provincie Zuid-Holland
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -42,10 +42,17 @@ def register_extensions(app):
     migrate = Migrate(app, db)
     jwt.init_app(app)
 
+    app.db = db
+
 
 def register_commands(app):
     app.cli.add_command(commands.setup_views)
     app.cli.add_command(commands.dm_markdown)
+
+    if not app.config.get("PROD"):
+        from Tests.TestUtils.commands import load_fixtures, add_user # noqa
+        app.cli.add_command(load_fixtures)
+        app.cli.add_command(add_user)
 
 
 # JWT CONFIG

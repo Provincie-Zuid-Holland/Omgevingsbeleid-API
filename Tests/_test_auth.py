@@ -139,44 +139,44 @@ def test_valid_auth(client, auth, endpoint):
     assert response.status_code == 200
 
 
-def test_password_reset(client, test_user):
-    # Try to login
-    login_res = client.post(
-        f"v0.1/login",
-        json={"identifier": test_user["email"], "password": test_user["password"]},
-    )
+# def test_password_reset(client, test_user):
+#     # Try to login
+#     login_res = client.post(
+#         f"v0.1/login",
+#         json={"identifier": test_user["email"], "password": test_user["password"]},
+#     )
 
-    assert (
-        login_res.status_code == 200
-    ), f"Not logged in, response: {login_res.get_json()}"
+#     assert (
+#         login_res.status_code == 200
+#     ), f"Not logged in, response: {login_res.get_json()}"
 
-    token = login_res.get_json()["access_token"]
-    new_password = "12345Abcdegf!"
-    incorrect_password = "aa"
-    # Should fail on incorrect new_password
+#     token = login_res.get_json()["access_token"]
+#     new_password = "12345Abcdegf!"
+#     incorrect_password = "aa"
+#     # Should fail on incorrect new_password
 
-    # Should fail on incorrect password
-    reset_password_res = client.post(
-        f"v0.1/password-reset",
-        headers={"Authorization": f"Bearer {token}"},
-        json={"password": "blabla", "new_password": incorrect_password},
-    )
-    assert reset_password_res.status_code != 200
+#     # Should fail on incorrect password
+#     reset_password_res = client.post(
+#         f"v0.1/password-reset",
+#         headers={"Authorization": f"Bearer {token}"},
+#         json={"password": "blabla", "new_password": incorrect_password},
+#     )
+#     assert reset_password_res.status_code != 200
 
-    # Should work with correct password
-    reset_password_res = client.post(
-        f"v0.1/password-reset",
-        headers={"Authorization": f"Bearer {token}"},
-        json={"password": test_user["password"], "new_password": new_password},
-    )
-    assert (
-        reset_password_res.status_code == 200
-    ), f"Password not reset, response: {reset_password_res.get_json()}"
+#     # Should work with correct password
+#     reset_password_res = client.post(
+#         f"v0.1/password-reset",
+#         headers={"Authorization": f"Bearer {token}"},
+#         json={"password": test_user["password"], "new_password": new_password},
+#     )
+#     assert (
+#         reset_password_res.status_code == 200
+#     ), f"Password not reset, response: {reset_password_res.get_json()}"
 
-    # Check if reset came trough
-    login_res = client.post(
-        f"v0.1/login", json={"identifier": test_user["email"], "password": new_password}
-    )
-    assert (
-        login_res.status_code == 200
-    ), f"Not logged in, response: {login_res.get_json()}"
+#     # Check if reset came trough
+#     login_res = client.post(
+#         f"v0.1/login", json={"identifier": test_user["email"], "password": new_password}
+#     )
+#     assert (
+#         login_res.status_code == 200
+#     ), f"Not logged in, response: {login_res.get_json()}"

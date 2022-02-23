@@ -33,12 +33,14 @@ class Config():
 
 class ProdConfig(Config):
     ENV = 'prod'
+    PROD = True
     DEBUG = False
     pass
 
 
 class DevConfig(Config):
     ENV = 'dev'
+    PROD = False
     DEBUG = True
     SQLALCHEMY_ECHO = True
     
@@ -47,9 +49,10 @@ class DevConfig(Config):
 
 class TestConfig(Config):
     ENV = 'test'
+    PROD = False
     DEBUG = True
     TESTING = True
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
 
 
     DB_CONNECTION_SETTINGS = f"DRIVER={os.getenv('DB_DRIVER')};SERVER={os.getenv('DB_HOST')};DATABASE={os.getenv('TEST_DB_NAME')};UID={os.getenv('DB_USER')};PWD={os.getenv('DB_PASS')}"

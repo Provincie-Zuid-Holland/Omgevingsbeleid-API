@@ -4,15 +4,16 @@
 import marshmallow as MM
 import pyodbc
 import uuid
+from flask import current_app
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
 from sqlalchemy import Column, ForeignKey, Integer, Unicode, text, Sequence
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
-from flask import current_app
 
 from Api.database import CommonMixin, db
 from Api.settings import null_uuid
+
 
 class Gebruikers(db.Model):
     __tablename__ = 'Gebruikers'
@@ -30,15 +31,14 @@ class Gebruikers(db.Model):
     Email = Column(Unicode(265))
     Status = Column(Unicode(50), server_default=text("('Actief')"))
 
-
-def create_user_encrypt_pw(id, username, password, role, email):
-    hashed_pw = bcrypt.hash(password)
-    new_user = Gebruikers(ID=id, Gebruikersnaam=username, Wachtwoord=hashed_pw, Rol=role, Email=email)
-    # db.session.add(new_user)
-    # all_users = db.session.query(Gebruikers_DB_Schema).all()
-    # for row in all_users:
-    #     print(row['Gebruikersnaam'])
-    # db.session.commit()
+    def as_identity(self):
+        return {
+            "UUID": self.UUID,
+            "Gebruikersnaam": self.Gebruikersnaam,
+            "Rol": self.Rol,
+            "Email": self.Email,
+            "Status": self.Status
+        }
 
 
 class Gebruikers_Schema(MM.Schema):

@@ -34,7 +34,6 @@ class FixtureLoader():
         self._ambitie("amb:2", Created_By="geb:alex", Modified_By="geb:alex")
 
         self._beleidskeuzes("bel:1", Created_By="geb:fred")
-
         self._beleidskeuzes_ambities("bel:1", "amb:1", "Test omschrijving")
 
         self._s.commit()

@@ -1,6 +1,6 @@
-.PHONY: init info up down down-hard restart logs logs-all mysql-wait mssql mssql-cli mssql-create-database-dev mssql-create-database-test mssql-show-databases mssql-show-tables flask-setup-views flask-db-upgrade flask-routes flask
-
-init: up mssql-wait mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views info
+.PHONY: init info up down down-hard restart logs logs-all mysql-wait mssql mssql-cli mssql-create-database-dev mssql-create-database-test mssql-show-databases mssql-show-tables flask-setup-views flask-db-upgrade flask-routes load-fixtures flask
+ 
+init: up mssql-wait mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views load-fixtures info
 
 
 info:
@@ -72,6 +72,9 @@ reset-test: mssql-create-database-test test
 
 test:
 	docker-compose exec api pytest -s
+
+load-fixtures:
+	docker-compose exec api flask load-fixtures
 
 # Very rare utilities
 mssql-clear-database:
