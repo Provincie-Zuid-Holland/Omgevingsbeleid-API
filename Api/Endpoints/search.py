@@ -45,7 +45,7 @@ def start_search(args):
     return (query, type_exclude, type_only, limit, offset)
 
 
-def search_view():
+def search_view_generic(query_fn):
     """
     A view that accepts search queries to find object based on a fuzzy text match
     """
@@ -67,12 +67,19 @@ def search_view():
     search_results = []
 
     for ep in searchables:
-        manager = DataManager(ep)
-        results = manager.search(query)
+        results =query_fn(ep, query)
         if results:
             search_results = search_results + results
 
     # Sort the results
     search_results = sorted(search_results, key=lambda r: r["RANK"], reverse=True)
 
-    return jsonify(search_results[offset:(offset+ limit)])
+    return jsonify(
+        {
+            "total": len(search_results),
+            "results": search_results[offset : (offset + limit)],
+        }
+    )
+
+def search_view():
+    return search_view_generic(lambda ep, query: ep.Meta.manager(ep).search(query))

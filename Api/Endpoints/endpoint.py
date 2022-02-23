@@ -29,10 +29,7 @@ from Api.Endpoints.errors import (
     handle_validation_filter_exception,
     handle_queryarg_exception,
 )
-from Api.Endpoints.references import (
-    Reverse_ID_Reference,
-    Reverse_UUID_Reference,
-)
+from Api.Endpoints.references import Reverse_UUID_Reference
 from Api.Endpoints.comparison import compare_objects
 
 
@@ -177,9 +174,7 @@ class Lineage(Schema_Resource):
         for ref in all_references:
             if ref in old_object:
                 # Remove reverse references
-                if isinstance(
-                    all_references[ref], Reverse_UUID_Reference
-                ) or isinstance(all_references[ref], Reverse_ID_Reference):
+                if isinstance(all_references[ref], Reverse_UUID_Reference):
                     old_object.pop(ref)
                 elif old_object[ref]:
                     if type(old_object[ref]) is list:
@@ -205,13 +200,15 @@ class Lineage(Schema_Resource):
         ).load(old_object)
 
         # Remove ID & UUID from changes and old object
-        old_object.pop("UUID")
+        old_uuid = old_object.pop("UUID")
         _id = old_object.pop("ID")
 
         new_object = {**old_object, **changes}
 
+
         if new_object == old_object:
-            return handle_empty_patch()
+            # return handle_empty_patch()
+            return manager.get_single_on_UUID(old_uuid), 200
 
         new_object["ID"] = _id
         new_object["Modified_Date"] = request_time

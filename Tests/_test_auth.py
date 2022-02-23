@@ -2,26 +2,14 @@
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
 from datetime import timezone
-from Models import (
-    beleidskeuzes,
-    ambities,
-    maatregelen,
-    belangen,
-    beleidsprestaties,
-    beleidsmodule,
-)
 import os
 import pytest
 import pyodbc
 from application import app
 from datamodel import endpoints
 from Tests.test_data import generate_data, reference_rich_beleidskeuze
-from globals import DB_CONNECTION_SETTINGS, min_datetime, max_datetime
-from Endpoints.references import (
-    ID_List_Reference,
-    UUID_List_Reference,
-    ID_List_Reference,
-)
+from globals import db_connection_settings, min_datetime, max_datetime
+from Endpoints.references import UUID_List_Reference
 import random
 from flask import jsonify
 import string
@@ -60,7 +48,7 @@ def test_user():
         for _ in range(50)
     )
     hashed = bcrypt.hash(password)
-    with pyodbc.connect(DB_CONNECTION_SETTINGS, autocommit=False) as con:
+    with pyodbc.connect(db_connection_settings, autocommit=False) as con:
         cur = con.cursor()
         cur.execute(
             f"""INSERT INTO Gebruikers (Gebruikersnaam, Wachtwoord, Rol, Email) VALUES (?, ?, ?, ?)""",
@@ -91,7 +79,7 @@ def cleanup(auth, test_user):
     """
     yield
     test_uuid = auth[0]
-    with pyodbc.connect(DB_CONNECTION_SETTINGS) as cn:
+    with pyodbc.connect(db_connection_settings) as cn:
         cur = cn.cursor()
         for table in endpoints:
             new_uuids = list(
@@ -102,7 +90,7 @@ def cleanup(auth, test_user):
             )
             for field, ref in table.Meta.references.items():
                 # Remove all references first
-                if type(ref) == UUID_List_Reference or type(ref) == ID_List_Reference:
+                if type(ref) == UUID_List_Reference:
                     for new_uuid in list(new_uuids):
                         cur.execute(
                             f"DELETE FROM {ref.link_tablename} WHERE {ref.my_col} = ?",
@@ -139,44 +127,44 @@ def test_valid_auth(client, auth, endpoint):
     assert response.status_code == 200
 
 
-# def test_password_reset(client, test_user):
-#     # Try to login
-#     login_res = client.post(
-#         f"v0.1/login",
-#         json={"identifier": test_user["email"], "password": test_user["password"]},
-#     )
+def test_password_reset(client, test_user):
+    # Try to login
+    login_res = client.post(
+        f"v0.1/login",
+        json={"identifier": test_user["email"], "password": test_user["password"]},
+    )
 
-#     assert (
-#         login_res.status_code == 200
-#     ), f"Not logged in, response: {login_res.get_json()}"
+    assert (
+        login_res.status_code == 200
+    ), f"Not logged in, response: {login_res.get_json()}"
 
-#     token = login_res.get_json()["access_token"]
-#     new_password = "12345Abcdegf!"
-#     incorrect_password = "aa"
-#     # Should fail on incorrect new_password
+    token = login_res.get_json()["access_token"]
+    new_password = "12345Abcdegf!"
+    incorrect_password = "aa"
+    # Should fail on incorrect new_password
 
-#     # Should fail on incorrect password
-#     reset_password_res = client.post(
-#         f"v0.1/password-reset",
-#         headers={"Authorization": f"Bearer {token}"},
-#         json={"password": "blabla", "new_password": incorrect_password},
-#     )
-#     assert reset_password_res.status_code != 200
+    # Should fail on incorrect password
+    reset_password_res = client.post(
+        f"v0.1/password-reset",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"password": "blabla", "new_password": incorrect_password},
+    )
+    assert reset_password_res.status_code != 200
 
-#     # Should work with correct password
-#     reset_password_res = client.post(
-#         f"v0.1/password-reset",
-#         headers={"Authorization": f"Bearer {token}"},
-#         json={"password": test_user["password"], "new_password": new_password},
-#     )
-#     assert (
-#         reset_password_res.status_code == 200
-#     ), f"Password not reset, response: {reset_password_res.get_json()}"
+    # Should work with correct password
+    reset_password_res = client.post(
+        f"v0.1/password-reset",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"password": test_user["password"], "new_password": new_password},
+    )
+    assert (
+        reset_password_res.status_code == 200
+    ), f"Password not reset, response: {reset_password_res.get_json()}"
 
-#     # Check if reset came trough
-#     login_res = client.post(
-#         f"v0.1/login", json={"identifier": test_user["email"], "password": new_password}
-#     )
-#     assert (
-#         login_res.status_code == 200
-#     ), f"Not logged in, response: {login_res.get_json()}"
+    # Check if reset came trough
+    login_res = client.post(
+        f"v0.1/login", json={"identifier": test_user["email"], "password": new_password}
+    )
+    assert (
+        login_res.status_code == 200
+    ), f"Not logged in, response: {login_res.get_json()}"

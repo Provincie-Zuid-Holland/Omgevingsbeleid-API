@@ -14,6 +14,7 @@ from Api.Models.beleidskeuzes import Beleidskeuzes_Schema
 from Api.settings import null_uuid
 from Api.database import db
 
+
 class Beleidsrelaties(db.Model):
     __tablename__ = 'Beleidsrelaties'
 
@@ -24,7 +25,7 @@ class Beleidsrelaties(db.Model):
         seq_name = 'seq_{name}'.format(name=cls.__name__)
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
-    
+
     UUID = Column(UNIQUEIDENTIFIER, primary_key=True, server_default=text("(newid())"))
 
     Begin_Geldigheid = Column(DateTime, nullable=True)
@@ -55,7 +56,6 @@ class Beleidsrelaties(db.Model):
 
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsrelaties.Created_By == Gebruikers.UUID')
     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsrelaties.Modified_By == Gebruikers.UUID')
-    
 
 
 class Beleidsrelaties_Schema(Base_Schema):
@@ -99,9 +99,10 @@ class Beleidsrelaties_Schema(Base_Schema):
     class Meta(Base_Schema.Meta):
         slug = "beleidsrelaties"
         table = "Beleidsrelaties"
-        read_only = True
+        read_only = False
         ordered = True
         searchable = False
+        manager = RelationDataManager
         references = {
             "Van_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),
             "Naar_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),

@@ -6,6 +6,7 @@ import re
 import marshmallow as MM
 from marshmallow.utils import pprint
 import uuid
+import Endpoints.endpoint
 
 from Api.Endpoints.data_manager import DataManager
 from Api.settings import max_datetime, min_datetime, null_uuid
@@ -28,6 +29,12 @@ class Short_Base_Schema(MM.Schema):
 
     class Meta:
         manager = DataManager
+        lineage_endpoint_cls = Endpoints.endpoint.Lineage
+        fulllist_endpoint_cls = Endpoints.endpoint.FullList
+        validlist_endpoint_cls = Endpoints.endpoint.ValidList
+        validlineage_endpoint_cls = Endpoints.endpoint.ValidLineage
+        singleversion_endpoint_cls = Endpoints.endpoint.SingleVersion
+        changes_endpoint_cls = Endpoints.endpoint.Changes
         ordered = True
         read_only = False
         base_references = {}

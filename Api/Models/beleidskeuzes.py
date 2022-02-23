@@ -10,7 +10,6 @@ from Api.Endpoints.references import (
     UUID_Reference,
     UUID_List_Reference,
     UUID_Linker_Schema,
-    ID_List_Reference,
     Reverse_UUID_Reference,
 )
 from Api.Endpoints.validators import HTML_Validate
@@ -172,9 +171,6 @@ class Beleidskeuzes_Schema(Base_Schema):
     Werkingsgebieden = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=["referencelist"]
     )
-    Beleidskeuzes = MM.fields.Nested(
-        UUID_Linker_Schema, many=True, obprops=["referencelist"]
-    )
     Ref_Beleidsmodules = MM.fields.Nested(
         UUID_Linker_Schema,
         many=True,
@@ -291,14 +287,6 @@ class Beleidskeuzes_Schema(Base_Schema):
                 "Werkingsgebied_UUID",
                 "Koppeling_Omschrijving",
                 Api.Models.werkingsgebieden.Werkingsgebieden_Schema,
-            ),
-            "Beleidskeuzes": UUID_List_Reference(
-                "Beleidsrelaties",
-                "Beleidskeuzes",
-                "Van_Beleidskeuze",
-                "Naar_Beleidskeuze",
-                "Omschrijving",
-                Short_Beleidskeuze_Schema,
             ),
             "Ref_Beleidsmodules": Reverse_UUID_Reference(
                 "Beleidsmodule_Beleidskeuzes",

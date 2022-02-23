@@ -23,9 +23,7 @@ from Api.settings import null_uuid
 from Api.datamodel import endpoints
 from Api.settings import min_datetime, max_datetime
 from Endpoints.references import (
-    ID_List_Reference,
     UUID_List_Reference,
-    ID_List_Reference,
 )
 
 from Api.Tests.test_data import generate_data, reference_rich_beleidskeuze
@@ -70,7 +68,7 @@ def cleanup(auth):
             )
             for field, ref in table.Meta.references.items():
                 # Remove all references first
-                if type(ref) == UUID_List_Reference or type(ref) == ID_List_Reference:
+                if type(ref) == UUID_List_Reference:
                     for new_uuid in list(new_uuids):
                         cur.execute(
                             f"DELETE FROM {ref.link_tablename} WHERE {ref.my_col} = ?",
@@ -1028,7 +1026,7 @@ def test_graph_relation(client, auth):
 
     bk_2["Status"] = "Vigerend"
     bk_2["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-    bk_2["Beleidskeuzes"] = [{"UUID": bk_1_UUID}]
+    
 
     response = client.post(
         "v0.1/beleidskeuzes",
@@ -1038,6 +1036,33 @@ def test_graph_relation(client, auth):
 
     assert response.status_code == 201, f"{response.get_json()}"
     bk_2_UUID = response.get_json()["UUID"]
+
+    # Check if bks are in valid view
+    get_r = client.get('v0.1/valid/beleidskeuzes')
+    assert bk_1_UUID in (map(lambda bk: bk['UUID'],get_r.get_json()))
+    assert bk_2_UUID in (map(lambda bk: bk['UUID'],get_r.get_json()))
+
+    br = generate_data(
+        beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post"
+    )
+    br["Status"] = "Akkoord"
+    br["Van_Beleidskeuze"] = bk_1_UUID
+    br["Naar_Beleidskeuze"] = bk_2_UUID
+    br["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response = client.post(
+        "v0.1/beleidsrelaties",
+        json=br,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    assert response.status_code == 201, f"{response.get_json()}"
+    br_id = response.get_json()['ID']
+    br_uuid = response.get_json()['UUID']
+
+    get_r = client.get('v0.1/valid/beleidsrelaties')
+    assert br_uuid in list((map(lambda br: br['UUID'], get_r.get_json())))
+    
+
 
     # Check graph
     response = client.get("v0.1/graph")
@@ -1051,8 +1076,8 @@ def test_graph_relation(client, auth):
 
     assert found_1
     assert found_2
-
-    assert {"source": bk_2_UUID, "target": bk_1_UUID, "type": "Relatie"} in links
+    
+    assert {"source": bk_1_UUID, "target": bk_2_UUID, "type": "Relatie"} in links
 
 
 def test_reverse_valid_check(client, auth):
@@ -1207,6 +1232,176 @@ def test_effective_version(client, auth):
     assert response.status_code == 200
     assert response.get_json()["Effective_Version"] == bk_UUID
 
+def test_ID_relations_valid(client, auth):
+    # Create two beleidskeuzes
+    bk_a = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk_a["Status"] = "Vigerend"
+    bk_a["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response_a = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk_a,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    a_uuid = response_a.get_json()['UUID']    
+    a_id = response_a.get_json()['ID']    
+
+    bk_b = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk_b["Status"] = "Vigerend"
+    bk_b["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response_b = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk_b,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    b_uuid = response_b.get_json()['UUID']    
+    b_id = response_b.get_json()['ID']
+
+    # Create a beleidsrelatie
+    br = generate_data(
+        beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post"
+    )
+    br['Status'] = 'Akkoord'
+    br['Van_Beleidskeuze'] = a_uuid
+    br['Naar_Beleidskeuze'] = b_uuid
+    br['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
+    response_br = client.post(
+        "v0.1/beleidsrelaties",
+        json=br,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    
+    assert response_br.status_code == 201
+    br_uuid = response_br.get_json()['UUID']
+    br_id = response_br.get_json()['ID']
+
+    response_get_br = client.get(
+        f"v0.1/beleidsrelaties/{br_id}"
+    )
+
+    assert response_get_br.status_code == 200
+    assert response_br.get_json()['Van_Beleidskeuze']['UUID'] == a_uuid
+    assert response_br.get_json()['Naar_Beleidskeuze']['UUID'] == b_uuid
+
+    # Update beleidskeuze b
+    response_patch_b = client.patch(
+        f"v0.1/beleidskeuzes/{b_id}",
+        json={**bk_b, 'Titel':'SWEN'},
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    b_patch_uuid = response_patch_b.get_json()['UUID']    
+
+    response_get_br = client.get(
+        f"v0.1/beleidsrelaties/{br_id}"
+    )
+
+    assert response_get_br.status_code == 200
+    # Expect the new beleidskeuze to show    
+    assert response_get_br.get_json()[0]['Van_Beleidskeuze']['UUID'] == a_uuid
+    assert response_get_br.get_json()[0]['Naar_Beleidskeuze']['UUID'] == b_patch_uuid
+
+
+    # Also check the single version
+    response_get_br_ver = client.get(
+        f"v0.1/version/beleidsrelaties/{br_uuid}")
+    
+    assert response_get_br_ver.status_code == 200
+    assert response_get_br_ver.get_json()['Van_Beleidskeuze']['UUID'] == a_uuid
+    assert response_get_br_ver.get_json()['Naar_Beleidskeuze']['UUID'] == b_patch_uuid
+    
+    # Check BR in valid view
+    response_get_br_valid = client.get(
+        f"v0.1/valid/beleidsrelaties")
+
+    assert br_uuid in (map(lambda br: br['UUID'], response_get_br_valid.get_json()))
+
+
+def test_ID_relations_full(client, auth):
+    # Create two beleidskeuzes
+    bk_a = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk_a["Status"] = "Vigerend"
+    bk_a["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response_a = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk_a,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    a_uuid = response_a.get_json()['UUID']    
+    a_id = response_a.get_json()['ID']    
+
+    bk_b = generate_data(
+        beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+    )
+    bk_b["Status"] = "Vigerend"
+    bk_b["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+    response_b = client.post(
+        "v0.1/beleidskeuzes",
+        json=bk_b,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    b_uuid = response_b.get_json()['UUID']    
+    b_id = response_b.get_json()['ID']
+
+    # Create a beleidsrelatie
+    br = generate_data(
+        beleidsrelaties.Beleidsrelaties_Schema, excluded_prop="excluded_post"
+    )
+    br['Status'] = 'Akkoord'
+    br['Van_Beleidskeuze'] = a_uuid
+    br['Naar_Beleidskeuze'] = b_uuid
+    br['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
+    response_br = client.post(
+        "v0.1/beleidsrelaties",
+        json=br,
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    
+    assert response_br.status_code == 201
+    br_uuid = response_br.get_json()['UUID']
+    br_id = response_br.get_json()['ID']
+
+    response_get_br = client.get(
+        f"v0.1/beleidsrelaties/{br_id}"
+    )
+
+    assert response_get_br.status_code == 200
+    assert response_br.get_json()['Van_Beleidskeuze']['UUID'] == a_uuid
+    assert response_br.get_json()['Naar_Beleidskeuze']['UUID'] == b_uuid
+
+    # Update beleidskeuze b
+    response_patch_b = client.patch(
+        f"v0.1/beleidskeuzes/{b_id}",
+        json={**bk_b, 'Titel':'SWEN', 'Status':'Ontwerp GS'},
+        headers={"Authorization": f"Bearer {auth[1]}"},
+    )
+    b_patch_uuid = response_patch_b.get_json()['UUID']    
+
+    all_response = client.get(f"v0.1/beleidsrelaties", headers={"Authorization": f"Bearer {auth[1]}"})
+    valid_response = client.get(f"v0.1/valid/beleidsrelaties")
+
+    assert all_response.status_code == 200
+    assert valid_response.status_code == 200
+
+    # Check if we see the valid version in valid
+    for relation in valid_response.get_json():
+        if relation['ID'] == br_id:
+            assert relation['Van_Beleidskeuze']['UUID'] == a_uuid
+            assert relation['Naar_Beleidskeuze']['UUID'] == b_uuid
+    
+    for relation in all_response.get_json():
+        if relation['ID'] == br_id:
+            assert relation['Van_Beleidskeuze']['UUID'] == a_uuid
+            assert relation['Naar_Beleidskeuze']['UUID'] == b_patch_uuid
+
 def test_edits_200(client, auth):
     response = client.get('v0.1/edits')
     assert response.status_code == 200
@@ -1279,7 +1474,7 @@ def test_empty_edit(client, auth):
         json=bk,
         headers={"Authorization": f"Bearer {auth[1]}"},
     )
-    assert response.status_code == 400
+    assert response.get_json()['UUID'] == bk_UUID
 
 
 def test_module_concept(client, auth):
