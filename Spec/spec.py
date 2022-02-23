@@ -1021,39 +1021,48 @@ def render_paths(endpoints):
                 "content": {
                     "application/json": {
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "Omschrijving": {
-                                        "type": "string",
-                                        "description": "A description of this object",
-                                    },
-                                    "Titel": {
-                                        "type": "string",
-                                        "description": "The title of this object",
-                                    },
-                                    "RANK": {
-                                        "type": "integer",
-                                        "description": "A representation of the search rank, only usefull for comparing between two results",
-                                    },
-                                    "Type": {
-                                        "type": "string",
-                                        "description": "The type of this object",
-                                        "enum": list(
-                                            map(
-                                                lambda schema: schema.Meta.slug,
-                                                filter(
-                                                    lambda schema: schema.Meta.searchable,
-                                                    datamodel.endpoints,
+                            "type": "object",
+                            "properties": {
+                                "total": {
+                                    "type": "integer",
+                                    "description": "The total amount of objects found",
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "Omschrijving": {
+                                                "type": "string",
+                                                "description": "A description of this object",
+                                            },
+                                            "Titel": {
+                                                "type": "string",
+                                                "description": "The title of this object",
+                                            },
+                                            "RANK": {
+                                                "type": "integer",
+                                                "description": "A representation of the search rank, only usefull for comparing between two results",
+                                            },
+                                            "Type": {
+                                                "type": "string",
+                                                "description": "The type of this object",
+                                                "enum": list(
+                                                    map(
+                                                        lambda schema: schema.Meta.slug,
+                                                        filter(
+                                                            lambda schema: schema.Meta.searchable,
+                                                            datamodel.endpoints,
+                                                        ),
+                                                    )
                                                 ),
-                                            )
-                                        ),
-                                    },
-                                    "UUID": {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "The UUID of this object",
+                                            },
+                                            "UUID": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "description": "The UUID of this object",
+                                            },
+                                        },
                                     },
                                 },
                             },
@@ -1146,39 +1155,48 @@ def render_paths(endpoints):
                 "content": {
                     "application/json": {
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "Omschrijving": {
-                                        "type": "string",
-                                        "description": "A description of this object",
-                                    },
-                                    "Titel": {
-                                        "type": "string",
-                                        "description": "The title of this object",
-                                    },
-                                    "RANK": {
-                                        "type": "integer",
-                                        "description": "A representation of the search rank, only usefull for comparing between two results",
-                                    },
-                                    "Type": {
-                                        "type": "string",
-                                        "description": "The type of this object",
-                                        "enum": list(
-                                            map(
-                                                lambda schema: schema.Meta.slug,
-                                                filter(
-                                                    lambda schema: schema.Meta.searchable,
-                                                    datamodel.endpoints,
+                            "type": "object",
+                            "properties": {
+                                "total": {
+                                    "type": "integer",
+                                    "description": "The total amount of objects found",
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "Omschrijving": {
+                                                "type": "string",
+                                                "description": "A description of this object",
+                                            },
+                                            "Titel": {
+                                                "type": "string",
+                                                "description": "The title of this object",
+                                            },
+                                            "RANK": {
+                                                "type": "integer",
+                                                "description": "A representation of the search rank, only usefull for comparing between two results",
+                                            },
+                                            "Type": {
+                                                "type": "string",
+                                                "description": "The type of this object",
+                                                "enum": list(
+                                                    map(
+                                                        lambda schema: schema.Meta.slug,
+                                                        filter(
+                                                            lambda schema: schema.Meta.searchable,
+                                                            datamodel.endpoints,
+                                                        ),
+                                                    )
                                                 ),
-                                            )
-                                        ),
-                                    },
-                                    "UUID": {
-                                        "type": "string",
-                                        "format": "uuid",
-                                        "description": "The UUID of this object",
+                                            },
+                                            "UUID": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "description": "The UUID of this object",
+                                            },
+                                        },
                                     },
                                 },
                             },
