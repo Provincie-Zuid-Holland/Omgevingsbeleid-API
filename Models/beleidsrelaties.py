@@ -55,7 +55,6 @@ class Beleidsrelaties_Schema(Base_Schema):
         ordered = True
         searchable = False
         manager = RelationDataManager
-        fulllist_endpoint_cls = VersionedFullList
         references = {
             "Van_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),
             "Naar_Beleidskeuze": UUID_Reference("Beleidskeuzes", Beleidskeuzes_Schema),
