@@ -1,6 +1,7 @@
 from flask_restful import Api as RestfulApi
 from flask import request
 from functools import wraps
+from flask_jwt_extended import verify_jwt_in_request
 
 from Api.settings import current_version
 import Api.datamodel
@@ -42,47 +43,46 @@ def create_api(app):
     # ROUTING RULES
     for schema in Api.datamodel.endpoints:
         api.add_resource(
-            Api.Endpoints.endpoint.Lineage,
+            schema.Meta.lineage_endpoint_cls,
             f"/{schema.Meta.slug}/<int:id>",
             endpoint=f"{schema.Meta.slug.capitalize()}_Lineage",
             resource_class_args=(schema,),
         )
 
         api.add_resource(
-            Api.Endpoints.endpoint.FullList,
+            schema.Meta.fulllist_endpoint_cls,
             f"/{schema.Meta.slug}",
             endpoint=f"{schema.Meta.slug.capitalize()}_List",
             resource_class_args=(schema,),
         )
 
         api.add_resource(
-            Api.Endpoints.endpoint.ValidList,
+            schema.Meta.validlist_endpoint_cls,
             f"/valid/{schema.Meta.slug}",
             endpoint=f"{schema.Meta.slug.capitalize()}_Validlist",
             resource_class_args=(schema,),
         )
 
         api.add_resource(
-            Api.Endpoints.endpoint.ValidLineage,
+            schema.Meta.validlineage_endpoint_cls,
             f"/valid/{schema.Meta.slug}/<int:id>",
             endpoint=f"{schema.Meta.slug.capitalize()}_Validlineage",
             resource_class_args=(schema,),
         )
 
         api.add_resource(
-            Api.Endpoints.endpoint.SingleVersion,
+            schema.Meta.singleversion_endpoint_cls,
             f"/version/{schema.Meta.slug}/<string:uuid>",
             endpoint=f"{schema.Meta.slug.capitalize()}_Version",
             resource_class_args=(schema,),
         )
 
         api.add_resource(
-            Api.Endpoints.endpoint.Changes,
+            schema.Meta.changes_endpoint_cls,
             f"/changes/{schema.Meta.slug}/<string:old_uuid>/<string:new_uuid>",
             endpoint=f"{schema.Meta.slug.capitalize()}_Changes",
             resource_class_args=(schema,),
         )
-
 
     app.add_url_rule(f"/v{current_version}/login", "login", login, methods=["POST"])
 

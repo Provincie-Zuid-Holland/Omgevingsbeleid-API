@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2018 - 2020 Provincie Zuid-Holland
+# Copyright (C) 2018 - 2022 Provincie Zuid-Holland
 
 import marshmallow as MM
 from sqlalchemy.ext.declarative import declared_attr
@@ -11,6 +11,7 @@ from Api.Endpoints.base_schema import Base_Schema
 from Api.Endpoints.references import UUID_Reference
 from Api.Endpoints.validators import HTML_Validate
 from Api.Models.beleidskeuzes import Beleidskeuzes_Schema
+from Api.Endpoints.relation_data_manager import RelationDataManager
 from Api.settings import null_uuid
 from Api.database import db
 

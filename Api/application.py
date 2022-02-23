@@ -48,6 +48,7 @@ def register_extensions(app):
 def register_commands(app):
     app.cli.add_command(commands.setup_views)
     app.cli.add_command(commands.dm_markdown)
+    app.cli.add_command(commands.dm_dbdiagram)
 
     if not app.config.get("PROD"):
         from Tests.TestUtils.commands import load_fixtures, add_user # noqa

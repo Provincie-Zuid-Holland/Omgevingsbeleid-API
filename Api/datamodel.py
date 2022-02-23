@@ -22,9 +22,9 @@ import Api.Endpoints.references as references
 short_schemas = [Short_Beleidskeuze_Schema, Short_Beleidsmodule_Schema]
 
 endpoints = [
+    Beleidskeuzes_Schema,
     Beleidsrelaties_Schema,
     Beleidsmodule_Schema,
-    Beleidskeuzes_Schema,
     Ambities_Schema,
     Belangen_Schema,
     Beleidsdoelen_Schema,

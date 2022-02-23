@@ -6,8 +6,8 @@ init: up mssql-wait mssql-create-database-dev mssql-create-database-test flask-d
 info:
 	@echo ""
 	@echo ""
-	@echo "	You can access flask inside docker via:"
-	@echo "		make flask"
+	@echo "	You can access the api inside docker via:"
+	@echo "		make api"
 	@echo ""
 	@echo "	Both services under a proxy: (you probably want this)"
 	@echo "		Web:		http://localhost:8888"

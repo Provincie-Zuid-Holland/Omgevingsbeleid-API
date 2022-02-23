@@ -57,7 +57,7 @@ class DataManager:
             )
         ]
 
-    def _setup_views(self):
+    def _setup(self):
         """Creates all the necessary views and indices"""
         print("Default manager setup")
         self._set_up_latest_view()
