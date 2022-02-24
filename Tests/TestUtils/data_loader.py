@@ -26,17 +26,35 @@ class FixtureLoader():
         self._instances = {}
     
     def load_fixtures(self):
+        # Null models
         self._gebruiker("geb:null", UUID=null_uuid, Status="Inactief", Gebruikersnaam="Null", Email="null@example.com")
+        self._ambitie("amb:null", UUID=null_uuid, Titel="", Omschrijving="", Weblink="")
+        self._beleidsdoel("doe:null", UUID=null_uuid, Titel="", Omschrijving="", Weblink="")
+        self._beleidskeuzes("bel:null", UUID=null_uuid, Titel="", Omschrijving_Keuze="", Omschrijving_Werking="", Provinciaal_Belang="", Aanleiding="", Status="", Weblink="")
+        self._werkingsgebieden("wgb:null", UUID=null_uuid, Werkingsgebied="", symbol="")
+        self._maatregelen("maa:null", UUID=null_uuid, Titel="", Omschrijving="", Toelichting="", Toelichting_Raw="", Weblink="", Status="", Tags="")
+        
+        # Gebruikers
         self._gebruiker("geb:admin", Gebruikersnaam="Admin", Rol="Admin", Email="admin@example.com")
         self._gebruiker("geb:alex", Gebruikersnaam="Alex", Rol="Behandelend Ambtenaar", Email="alex@example.com")
         self._gebruiker("geb:fred", Gebruikersnaam="Frederik", Rol="Portefeuillehouder", Email="fred@example.com")
 
         self._ambitie("amb:1", Created_By="geb:admin")
         self._ambitie("amb:2", Created_By="geb:alex", Modified_By="geb:alex")
-        self._ambitie("amb:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Blauw water in Den Haag", Omschrijving="We willen graag meer blauw water hebben in Den Haag.")
 
         self._beleidskeuzes("bel:1", Created_By="geb:fred")
         self._beleidskeuzes_ambities("bel:1", "amb:1", "Test omschrijving")
+
+        # "Water" related models mainly used in search tests
+        self._ambitie("amb:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Geen overstromingen in Den Haag", Omschrijving="We willen water beter begeleiden zodat we geen overstromingen meer hebben.")
+        self._beleidsdoel("doe:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Leven met water", Omschrijving="De provincie wil Zuid-Holland beschermen tegen wateroverlast en overstromingen en de gevolgen van eventuele overstromingen zoveel mogelijk beperken. Deze opgave wordt groter door de effecten van klimaatverandering (zeespiegelstijging en toenemende extreme neerslag), bodemdaling en toenemende druk op de beschikbare ruimte.")
+
+        self._beleidskeuzes("bel:water", Created_By="geb:alex")
+        self._beleidskeuzes_ambities("bel:water", "amb:water")
+        self._beleidskeuzes_beleidsdoelen("bel:water", "doe:water")
+        
+        self._maatregelen("maa:dijk", Titel="Hogere dijken gaan ons redden", Omschrijving="We gaan meer geld steken in het bouwen van hogere dijken")
+        self._beleidskeuzes_maatregelen("bel:water", "maa:dijk")
 
         self._s.commit()
 
@@ -53,7 +71,6 @@ class FixtureLoader():
             kwargs["Email"] = self._fake.ascii_safe_email()
 
         gebruiker = Api.Models.gebruikers.Gebruikers(**kwargs)
-
         self._instances[key] = gebruiker
         self._s.add(gebruiker)
 
@@ -69,10 +86,9 @@ class FixtureLoader():
         if not "Weblink" in kwargs:
             kwargs["Weblink"] = self._fake.uri()
 
-        ambitie = Api.Models.ambities.Ambities(**kwargs)
-
-        self._instances[key] = ambitie
-        self._s.add(ambitie)
+        model = Api.Models.ambities.Ambities(**kwargs)
+        self._instances[key] = model
+        self._s.add(model)
 
     def _beleidskeuzes(self, key, **kwargs):
         kwargs = self._resolve_base_fields(**kwargs)
@@ -98,25 +114,149 @@ class FixtureLoader():
         if not "Weblink" in kwargs:
             kwargs["Weblink"] = self._fake.uri()
 
-        ambitie = Api.Models.beleidskeuzes.Beleidskeuzes(**kwargs)
+        model = Api.Models.beleidskeuzes.Beleidskeuzes(**kwargs)
+        self._instances[key] = model
+        self._s.add(model)
 
-        self._instances[key] = ambitie
-        self._s.add(ambitie)
+    def _beleidsdoel(self, key, **kwargs):
+        kwargs = self._resolve_base_fields(**kwargs)
 
-    def _beleidskeuzes_ambities(self, beleidskeuze_key, ambitie_key, omschrijving):
+        if not "Titel" in kwargs:
+            kwargs["Titel"] = self._fake.sentence(nb_words=10)
+
+        if not "Omschrijving" in kwargs:
+            kwargs["Omschrijving"] = "\n\n".join([self._fake.paragraph(nb_sentences=10) for x in range(5)])
+
+        if not "Weblink" in kwargs:
+            kwargs["Weblink"] = self._fake.uri()
+
+        model = Api.Models.beleidsdoelen.Beleidsdoelen(**kwargs)
+        self._instances[key] = model
+        self._s.add(model)
+
+    def _maatregelen(self, key, **kwargs):
+        kwargs = self._resolve_base_fields(**kwargs)
+
+        if not "Titel" in kwargs:
+            kwargs["Titel"] = self._fake.sentence(nb_words=10)
+
+        if not "Omschrijving" in kwargs:
+            kwargs["Omschrijving"] = "\n\n".join([self._fake.paragraph(nb_sentences=10) for x in range(5)])
+
+        if not "Toelichting" in kwargs:
+            kwargs["Toelichting"] = self._fake.sentence(nb_words=20)
+
+        if not "Toelichting_Raw" in kwargs:
+            kwargs["Toelichting_Raw"] = self._fake.sentence(nb_words=8)
+
+        if not "Weblink" in kwargs:
+            kwargs["Weblink"] = self._fake.uri()
+
+        if "Gebied" in kwargs:
+            kwargs["Gebied"] = self._instances[kwargs["Gebied"]].UUID
+        else:
+            kwargs["Gebied"] = null_uuid
+
+        if not "Status" in kwargs:
+            kwargs["Status"] = "Vigerend"
+
+        if not "Gebied_Duiding" in kwargs:
+            kwargs["Gebied_Duiding"] = "Indicatief"
+
+        if not "Tags" in kwargs:
+            kwargs["Tags"] = ""
+
+        if "Aanpassing_Op" in kwargs:
+            kwargs["Aanpassing_Op"] = self._instances[kwargs["Aanpassing_Op"]].UUID
+        else:
+            kwargs["Aanpassing_Op"] = null_uuid
+
+        if "Eigenaar_1" in kwargs:
+            kwargs["Eigenaar_1"] = self._instances[kwargs["Eigenaar_1"]].UUID
+        else:
+            kwargs["Eigenaar_1"] = null_uuid
+
+        if "Eigenaar_2" in kwargs:
+            kwargs["Eigenaar_2"] = self._instances[kwargs["Eigenaar_2"]].UUID
+        else:
+            kwargs["Eigenaar_2"] = null_uuid
+
+        if "Portefeuillehouder_1" in kwargs:
+            kwargs["Portefeuillehouder_1"] = self._instances[kwargs["Portefeuillehouder_1"]].UUID
+        else:
+            kwargs["Portefeuillehouder_1"] = null_uuid
+
+        if "Portefeuillehouder_2" in kwargs:
+            kwargs["Portefeuillehouder_2"] = self._instances[kwargs["Portefeuillehouder_2"]].UUID
+        else:
+            kwargs["Portefeuillehouder_2"] = null_uuid
+
+        if "Opdrachtgever" in kwargs:
+            kwargs["Opdrachtgever"] = self._instances[kwargs["Opdrachtgever"]].UUID
+        else:
+            kwargs["Opdrachtgever"] = null_uuid
+
+        model = Api.Models.maatregelen.Maatregelen(**kwargs)
+        self._instances[key] = model
+        self._s.add(model)
+
+    def _werkingsgebieden(self, key, **kwargs):
+        kwargs = self._resolve_base_fields(**kwargs)
+
+        if not "Werkingsgebied" in kwargs:
+            kwargs["Werkingsgebied"] = self._fake.sentence(nb_words=10)
+
+        if not "symbol" in kwargs:
+            kwargs["symbol"] = ""
+
+        if not "SHAPE" in kwargs:
+            kwargs["SHAPE"] = "POLYGON ((0 0, 150 0, 150 150, 0 150, 0 0))"
+
+        model = Api.Models.werkingsgebieden.Werkingsgebieden(**kwargs)
+        self._instances[key] = model
+        self._s.add(model)
+
+    def _beleidskeuzes_ambities(self, beleidskeuze_key, ambitie_key, omschrijving=""):
         beleidskeuze = self._instances[beleidskeuze_key]
         ambitie = self._instances[ambitie_key]
-
         association = Api.Models.ambities.Beleidskeuze_Ambities(
-            Koppeling_Omschrijving=omschrijving,
             Beleidskeuze_UUID=beleidskeuze.UUID,
-            Ambitie_UUID=ambitie.UUID
+            Ambitie_UUID=ambitie.UUID,
+            Koppeling_Omschrijving=omschrijving,
         )
+        self._s.add(association)
 
+    def _beleidskeuzes_beleidsdoelen(self, beleidskeuze_key, beleidsdoel_key, omschrijving=""):
+        beleidskeuze = self._instances[beleidskeuze_key]
+        beleidsdoel = self._instances[beleidsdoel_key]
+        association = Api.Models.beleidsdoelen.Beleidskeuze_Beleidsdoelen(
+            Beleidskeuze_UUID=beleidskeuze.UUID,
+            Beleidsdoel_UUID=beleidsdoel.UUID,
+            Koppeling_Omschrijving=omschrijving,
+        )
+        self._s.add(association)
+
+    def _beleidskeuzes_maatregelen(self, beleidskeuze_key, maatregel_key, omschrijving=""):
+        beleidskeuze = self._instances[beleidskeuze_key]
+        maatregel = self._instances[maatregel_key]
+        association = Api.Models.maatregelen.Beleidskeuze_Maatregelen(
+            Beleidskeuze_UUID=beleidskeuze.UUID,
+            Maatregel_UUID=maatregel.UUID,
+            Koppeling_Omschrijving=omschrijving,
+        )
+        self._s.add(association)
+
+    def _beleidskeuzes_werkingsgebieden(self, beleidskeuze_key, werkingsgebied_key, omschrijving=""):
+        beleidskeuze = self._instances[beleidskeuze_key]
+        werkingsgebied = self._instances[werkingsgebied_key]
+        association = Api.Models.werkingsgebieden.Beleidskeuze_Werkingsgebieden(
+            Beleidskeuze_UUID=beleidskeuze.UUID,
+            Werkingsgebied_UUID=werkingsgebied.UUID,
+            Koppeling_Omschrijving=omschrijving,
+        )
         self._s.add(association)
 
     def _resolve_base_fields(self, **kwargs):
-
         if not "UUID" in kwargs:
             kwargs["UUID"] = uuid.uuid4()
         

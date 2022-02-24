@@ -28,7 +28,7 @@ class Werkingsgebieden(CommonMixin, db.Model):
 
     Werkingsgebied = Column(Unicode, nullable=False)
     symbol = Column(Unicode(265))
-    SHAPE = Column(Geometry, nullable=False)
+    SHAPE = Column(Geometry(), nullable=False)
 
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Werkingsgebieden.Created_By == Gebruikers.UUID')
     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Werkingsgebieden.Modified_By == Gebruikers.UUID')

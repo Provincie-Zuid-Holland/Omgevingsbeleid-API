@@ -420,6 +420,7 @@ def upgrade():
     create_xmlSchemaCollection(XML_SCHEMA, 'Verordeningen_Tree')
     associate_xmlSchemaCollection('Verordeningen_Tree', 'Verordeningstructuur', 'Structuur')
     
+    op.alter_column('Verordeningstructuur', 'Structuur', existing_type=mssql.XML(), nullable=False)
 
     create_seq("seq_Werkingsgebieden")
     op.create_table(

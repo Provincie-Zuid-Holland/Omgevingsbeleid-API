@@ -766,6 +766,7 @@ class DataManager:
                             ORDER BY f.WeightedRank DESC"""
         print("\n\n\n")
         print(search_query)
+        print(args)
         print("\n\n\n")
         result_rows = self._run_query_commit(search_query, [args, args])
         return result_rows

@@ -8,12 +8,17 @@ from Api.settings import null_uuid
 
 @pytest.mark.usefixtures("fixture_data", "wait_for_fulltext_index")
 class TestSearch:
+    """
+    Note: We are always expecting "at least" counts because
+    the Faker package might actually create additional matching data
+    """
+
     def test_fieldset(self, client):
         res = client.get("v0.1/search?query=water")
         assert res.status_code == 200
 
         data = res.get_json()
-        assert len(data["results"]) > 0, "Expecting at least one result"
+        assert len(data["results"]) >= 1, "Expecting at least one result"
         assert list(data["results"][0].keys()) == [
             "Omschrijving",
             "RANK",
@@ -23,12 +28,19 @@ class TestSearch:
         ]
 
     def test_keywords(self, client):
-        res = client.get("v0.1/search?query=energie")
+        res = client.get("v0.1/search?query=en")
         assert res.status_code == 200
-        data = res.get_json()
-        print(data)
+        assert res.get_json()["total"] == 0, "Expecting zero results when searching for a stopword"
 
-        res = client.get("v0.1/search?query=energie en lopen")
+        res = client.get("v0.1/search?query=water")
+        assert res.status_code == 200
+        first_result_count = res.get_json()["total"]
+        assert first_result_count >= 2, "Expecting at least two result"
+
+        res = client.get("v0.1/search?query=water en dijken")
+        second_result_count = res.get_json()["total"]
+        assert second_result_count >= 3, "Expecting at least three result"
+        assert second_result_count > first_result_count, "Expecting more results because we search with OR filter"
         assert res.status_code == 200
         data = res.get_json()
         print(data)
