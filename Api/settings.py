@@ -54,6 +54,8 @@ class TestConfig(Config):
     TESTING = True
     SQLALCHEMY_ECHO = False
 
+    # @note: https://stackoverflow.com/questions/26647032/py-test-to-test-flask-register-assertionerror-popped-wrong-request-context
+    PRESERVE_CONTEXT_ON_EXCEPTION = False
 
     DB_CONNECTION_SETTINGS = f"DRIVER={os.getenv('DB_DRIVER')};SERVER={os.getenv('DB_HOST')};DATABASE={os.getenv('TEST_DB_NAME')};UID={os.getenv('DB_USER')};PWD={os.getenv('DB_PASS')}"
     SQLALCHEMY_DATABASE_URI = "mssql+pyodbc:///?odbc_connect=%s" % DB_CONNECTION_SETTINGS

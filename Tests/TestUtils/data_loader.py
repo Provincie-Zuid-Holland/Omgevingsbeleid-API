@@ -4,6 +4,8 @@
 from passlib.hash import bcrypt
 from faker.factory import Factory as FakerFactory
 import uuid
+import pyodbc
+import time
 
 import Api.Models
 from Api.settings import null_uuid
@@ -22,7 +24,6 @@ class FixtureLoader():
         # Dict from `key` (not UUID) to the model
         # Can be used for associations etc
         self._instances = {}
-
     
     def load_fixtures(self):
         self._gebruiker("geb:null", UUID=null_uuid, Status="Inactief", Gebruikersnaam="Null", Email="null@example.com")
@@ -32,12 +33,12 @@ class FixtureLoader():
 
         self._ambitie("amb:1", Created_By="geb:admin")
         self._ambitie("amb:2", Created_By="geb:alex", Modified_By="geb:alex")
+        self._ambitie("amb:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Blauw water in Den Haag", Omschrijving="We willen graag meer blauw water hebben in Den Haag.")
 
         self._beleidskeuzes("bel:1", Created_By="geb:fred")
         self._beleidskeuzes_ambities("bel:1", "amb:1", "Test omschrijving")
 
         self._s.commit()
-        
 
     def _gebruiker(self, key, **kwargs):
         kwargs["Wachtwoord"] = bcrypt.hash(kwargs.get("Wachtwoord", "password"))
@@ -55,7 +56,6 @@ class FixtureLoader():
 
         self._instances[key] = gebruiker
         self._s.add(gebruiker)
-        
 
     def _ambitie(self, key, **kwargs):
         kwargs = self._resolve_base_fields(**kwargs)
@@ -73,7 +73,6 @@ class FixtureLoader():
 
         self._instances[key] = ambitie
         self._s.add(ambitie)
-        
 
     def _beleidskeuzes(self, key, **kwargs):
         kwargs = self._resolve_base_fields(**kwargs)
@@ -104,7 +103,6 @@ class FixtureLoader():
         self._instances[key] = ambitie
         self._s.add(ambitie)
 
-
     def _beleidskeuzes_ambities(self, beleidskeuze_key, ambitie_key, omschrijving):
         beleidskeuze = self._instances[beleidskeuze_key]
         ambitie = self._instances[ambitie_key]
@@ -116,7 +114,6 @@ class FixtureLoader():
         )
 
         self._s.add(association)
-
 
     def _resolve_base_fields(self, **kwargs):
 

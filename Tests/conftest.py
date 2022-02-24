@@ -1,10 +1,15 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Copyright (C) 2018 - 2022 Provincie Zuid-Holland
+
 import pytest
 from flask_jwt_extended import create_access_token
+import time
 
 from Api.application import create_app
 from Api.database import db as _db
 from Api.settings import TestConfig
 from Api.Models.gebruikers import Gebruikers
+from Api.datamodel import setup_views
 
 from Tests.TestUtils.data_loader import FixtureLoader
 from Tests.TestUtils.client import LoggedInClient
@@ -26,8 +31,9 @@ def app():
 def db(app):
 
     with app.app_context():
-        _db.drop_all() # @todo: should not be here, but im lazy
+        _db.drop_all()  # @todo: should not be here, but im lazy
         _db.create_all()
+        setup_views()
 
     _db._app = app
 
@@ -47,23 +53,55 @@ def fixture_data(db):
 
 
 @pytest.fixture(scope="class")
-def client(fixture_data, app):
+def wait_for_fulltext_index(fixture_data, db):
+    max_wait = 60
+    count = 0
+
+    query = """
+        SELECT
+            FULLTEXTCATALOGPROPERTY(cat.name,'PopulateStatus')
+        FROM
+            sys.fulltext_catalogs AS cat
+        """
+
+    while count < max_wait: 
+        count += 1
+
+        res = db.engine.execute(query)
+        for row in res:
+            # We are waiting untill PopulateStatus is 0, which means that the search index is updates
+            if row[0] == 0:
+                print(f"Search index is updated after {count-1} seconds")
+                return
+
+            time.sleep(1)
+            print(f"Waiting for the search index to update {count}/{max_wait} ...")
+
+
+@pytest.fixture(scope="class")
+def client(app):
     """
     Provides access to the flask test_client
-
-    We intentionally get fixture_data in here to fill the database
-    As a client will almost always be used in combination with data
     """
     return app.test_client()
 
 
 @pytest.fixture(scope="class")
 def client_admin(db, fixture_data, app):
-    """
-    This is a client which already has a jwt token for `admin@example.com`
-    """
+    return __create_client(app, db, "admin@example.com")
 
-    gebruiker = db.session.query(Gebruikers).filter(Gebruikers.Email == "admin@example.com").first()
+
+@pytest.fixture(scope="class")
+def client_fred(db, fixture_data, app):
+    return __create_client(app, db, "fred@example.com")
+
+
+def __create_client(app, db, email):
+    """
+    Create a client which already has a jwt token for user matching given email
+    """
+    gebruiker = db.session.query(Gebruikers).filter(
+        Gebruikers.Email == email).first()
     assert gebruiker != None, f"This user should exist"
 
     access_token = create_access_token(identity=gebruiker.as_identity())

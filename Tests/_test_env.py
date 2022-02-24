@@ -5,21 +5,13 @@
 Tests that perform checks on the database and application envirnoment.
 """
 
-import os
-import tempfile
 from typing import DefaultDict
-
 import pytest
-
-from application import app
-from datamodel import endpoints
-from globals import DB_CONNECTION_SETTINGS, null_uuid, row_to_dict
 import pyodbc
 
+from Api.datamodel import endpoints
+from Api.settings import null_uuid
 
-@pytest.fixture
-def client():
-    return app.test_client()
 
 
 def test_nills(client):

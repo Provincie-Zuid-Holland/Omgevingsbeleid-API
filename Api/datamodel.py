@@ -49,6 +49,12 @@ linker_tables = [
 ]
 
 
+def setup_views():
+    for schema in endpoints:
+        print(f"Updating views for {schema.Meta.slug}...")
+        schema.Meta.manager(schema)._setup()
+
+
 def generate_dbdiagram():
     result_file = open("db_diagram.txt", "w")
     tables = [

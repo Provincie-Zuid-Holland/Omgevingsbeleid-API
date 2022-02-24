@@ -77,19 +77,3 @@ reference_rich_beleidskeuze = {
         },
     ],
 }
-
-
-image_folder = Path("./Tests/resources/images")
-
-with open(image_folder / "zuidholland_large.png", "rb") as image_file:
-    encoded = base64.b64encode(image_file.read()).decode("utf-8")
-    html_with_large_filesize_image = (
-        f"""<h1>Happy</h1><img alt="" src="data:image/png;base64,{encoded}" />"""
-    )
-
-
-with open(image_folder / "zuidholland_wide.jpg", "rb") as image_file:
-    encoded = base64.b64encode(image_file.read()).decode("utf-8")
-    html_with_oversized_width_image = (
-        f"""<h1>Happy</h1><img alt="" src="data:image/jpeg;base64,{encoded}" />"""
-    )

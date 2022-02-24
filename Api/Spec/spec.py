@@ -8,11 +8,11 @@ import os
 import marshmallow as MM
 
 from Api.Endpoints import references
-import Api.datamodel
+import Api.datamodel as datamodel
 
 
 def render_spec():
-    with open(os.path.join(os.getcwd(), "Spec/basespec.json"), "r") as basefile:
+    with open(os.path.join(os.getcwd(), "Api/Spec/basespec.json"), "r") as basefile:
         base_spec = json.loads(basefile.read())
 
         base_spec["components"]["schemas"] = render_schemas(

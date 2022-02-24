@@ -764,6 +764,9 @@ class DataManager:
                                 ) as x GROUP BY [KEY]) as f
                             ON f.[KEY] = v.UUID
                             ORDER BY f.WeightedRank DESC"""
+        print("\n\n\n")
+        print(search_query)
+        print("\n\n\n")
         result_rows = self._run_query_commit(search_query, [args, args])
         return result_rows
 

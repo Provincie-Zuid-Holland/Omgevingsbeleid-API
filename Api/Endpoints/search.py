@@ -67,7 +67,7 @@ def search_view_generic(query_fn):
     search_results = []
 
     for ep in searchables:
-        results =query_fn(ep, query)
+        results = query_fn(ep, query)
         if results:
             search_results = search_results + results
 

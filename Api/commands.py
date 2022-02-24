@@ -11,9 +11,7 @@ import Api.datamodel
 def setup_views(auto_yes):
     if auto_yes or (input(f"Working on {os.getenv('DB_NAME')}, continue?") == "y"):
         print("Setting up database views")
-        for schema in Api.datamodel.endpoints:
-            print(f"Updating views for {schema.Meta.slug}...")
-            schema.Meta.manager(schema)._setup()
+        Api.datamodel.setup_views()
         print("Done updating views")
     else:
         print("exiting..")
