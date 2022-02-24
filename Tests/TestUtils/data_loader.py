@@ -29,8 +29,9 @@ class FixtureLoader():
         # Null models
         self._gebruiker("geb:null", UUID=null_uuid, Status="Inactief", Gebruikersnaam="Null", Email="null@example.com")
         self._ambitie("amb:null", UUID=null_uuid, Titel="", Omschrijving="", Weblink="")
+        self._belang("blg:null", UUID=null_uuid, Titel="", Omschrijving="", Weblink="")
         self._beleidsdoel("doe:null", UUID=null_uuid, Titel="", Omschrijving="", Weblink="")
-        self._beleidskeuzes("bel:null", UUID=null_uuid, Titel="", Omschrijving_Keuze="", Omschrijving_Werking="", Provinciaal_Belang="", Aanleiding="", Status="", Weblink="")
+        self._beleidskeuzes("keu:null", UUID=null_uuid, Titel="", Omschrijving_Keuze="", Omschrijving_Werking="", Provinciaal_Belang="", Aanleiding="", Status="", Weblink="")
         self._werkingsgebieden("wgb:null", UUID=null_uuid, Werkingsgebied="", symbol="")
         self._maatregelen("maa:null", UUID=null_uuid, Titel="", Omschrijving="", Toelichting="", Toelichting_Raw="", Weblink="", Status="", Tags="")
         
@@ -42,22 +43,22 @@ class FixtureLoader():
         self._ambitie("amb:1", Created_By="geb:admin")
         self._ambitie("amb:2", Created_By="geb:alex", Modified_By="geb:alex")
 
-        self._beleidskeuzes("bel:1", Created_By="geb:fred")
-        self._beleidskeuzes_ambities("bel:1", "amb:1", "Test omschrijving")
+        self._beleidskeuzes("keu:1", Created_By="geb:fred")
+        self._beleidskeuzes_ambities("keu:1", "amb:1", "Test omschrijving")
 
         # "Water" related models mainly used in search tests
         self._ambitie("amb:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Geen overstromingen in Den Haag", Omschrijving="We willen water beter begeleiden zodat we geen overstromingen meer hebben.")
         self._beleidsdoel("doe:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Leven met water", Omschrijving="De provincie wil Zuid-Holland beschermen tegen wateroverlast en overstromingen en de gevolgen van eventuele overstromingen zoveel mogelijk beperken. Deze opgave wordt groter door de effecten van klimaatverandering (zeespiegelstijging en toenemende extreme neerslag), bodemdaling en toenemende druk op de beschikbare ruimte.")
 
-        self._beleidskeuzes("bel:water", Created_By="geb:alex")
-        self._beleidskeuzes_ambities("bel:water", "amb:water")
-        self._beleidskeuzes_beleidsdoelen("bel:water", "doe:water")
+        self._beleidskeuzes("keu:water", Created_By="geb:alex")
+        self._beleidskeuzes_ambities("keu:water", "amb:water")
+        self._beleidskeuzes_beleidsdoelen("keu:water", "doe:water")
         
         self._maatregelen("maa:dijk", Titel="Hogere dijken gaan ons redden", Omschrijving="We gaan meer geld steken in het bouwen van hogere dijken")
-        self._beleidskeuzes_maatregelen("bel:water", "maa:dijk")
+        self._beleidskeuzes_maatregelen("keu:water", "maa:dijk")
 
         for i in range(30):
-            self._beleidskeuzes(f"bel:water-{i}", Titel=f"{i} - Test informatie voor zoeken naar water")
+            self._beleidskeuzes(f"keu:water-{i}", Titel=f"{i} - Test informatie voor zoeken naar water")
 
         self._s.commit()
 
@@ -90,6 +91,25 @@ class FixtureLoader():
             kwargs["Weblink"] = self._fake.uri()
 
         model = Api.Models.ambities.Ambities(**kwargs)
+        self._instances[key] = model
+        self._s.add(model)
+
+    def _belang(self, key, **kwargs):
+        kwargs = self._resolve_base_fields(**kwargs)
+
+        if not "Titel" in kwargs:
+            kwargs["Titel"] = self._fake.sentence(nb_words=10)
+
+        if not "Omschrijving" in kwargs:
+            kwargs["Omschrijving"] = "\n\n".join([self._fake.paragraph(nb_sentences=10) for x in range(5)])
+
+        if not "Weblink" in kwargs:
+            kwargs["Weblink"] = self._fake.uri()
+
+        if not "Type" in kwargs:
+            kwargs["Type"] = self._fake.random_choices(elements=("Nationaal Belang", "Wettelijk Taak & Bevoegdheid"))
+
+        model = Api.Models.belangen.Belangen(**kwargs)
         self._instances[key] = model
         self._s.add(model)
 
@@ -225,6 +245,16 @@ class FixtureLoader():
         association = Api.Models.ambities.Beleidskeuze_Ambities(
             Beleidskeuze_UUID=beleidskeuze.UUID,
             Ambitie_UUID=ambitie.UUID,
+            Koppeling_Omschrijving=omschrijving,
+        )
+        self._s.add(association)
+
+    def _beleidskeuzes_belangen(self, beleidskeuze_key, belang_key, omschrijving=""):
+        beleidskeuze = self._instances[beleidskeuze_key]
+        belang = self._instances[belang_key]
+        association = Api.Models.belangen.Beleidskeuze_Belangen(
+            Beleidskeuze_UUID=beleidskeuze.UUID,
+            Belang_UUID=belang.UUID,
             Koppeling_Omschrijving=omschrijving,
         )
         self._s.add(association)
