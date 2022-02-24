@@ -56,6 +56,9 @@ class FixtureLoader():
         self._maatregelen("maa:dijk", Titel="Hogere dijken gaan ons redden", Omschrijving="We gaan meer geld steken in het bouwen van hogere dijken")
         self._beleidskeuzes_maatregelen("bel:water", "maa:dijk")
 
+        for i in range(30):
+            self._beleidskeuzes(f"bel:water-{i}", Titel=f"{i} - Test informatie voor zoeken naar water")
+
         self._s.commit()
 
     def _gebruiker(self, key, **kwargs):
@@ -109,7 +112,7 @@ class FixtureLoader():
             kwargs["Aanleiding"] = self._fake.paragraph(nb_sentences=4)
 
         if not "Status" in kwargs:
-            kwargs["Status"] = "Actief"
+            kwargs["Status"] = "Vigerend"
 
         if not "Weblink" in kwargs:
             kwargs["Weblink"] = self._fake.uri()

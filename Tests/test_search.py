@@ -18,6 +18,8 @@ class TestSearch:
         assert res.status_code == 200
 
         data = res.get_json()
+        assert "total" in data, "Expecting a total property"
+        assert "results" in data, "Expecting a results property"
         assert len(data["results"]) >= 1, "Expecting at least one result"
         assert list(data["results"][0].keys()) == [
             "Omschrijving",
@@ -42,20 +44,12 @@ class TestSearch:
         assert second_result_count >= 3, "Expecting at least three result"
         assert second_result_count > first_result_count, "Expecting more results because we search with OR filter"
         assert res.status_code == 200
-        data = res.get_json()
-        print(data)
-
-    def test_search_total(self, client):
-        res = client.get("v0.1/search?query=water")
-        assert res.status_code == 200
-        assert 'total' in res.get_json()
-        assert 'results' in res.get_json()
 
     def test_geo_search_total(self, client):
         res = client.get(f"v0.1/search/geo?query={null_uuid}")
         assert res.status_code == 200
-        assert 'total' in res.get_json()
-        assert 'results' in res.get_json()
+        assert "total" in res.get_json()
+        assert "results" in res.get_json()
 
     def test_search_limit_offset(self, client):
         res = client.get("v0.1/search?query=water")
