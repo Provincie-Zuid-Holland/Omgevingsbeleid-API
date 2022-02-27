@@ -107,7 +107,7 @@ class FixtureLoader():
             kwargs["Weblink"] = self._fake.uri()
 
         if not "Type" in kwargs:
-            kwargs["Type"] = self._fake.random_choices(elements=("Nationaal Belang", "Wettelijk Taak & Bevoegdheid"))
+            kwargs["Type"] = self._fake.random_element(elements=("Nationaal Belang", "Wettelijk Taak & Bevoegdheid"))
 
         model = Api.Models.belangen.Belangen(**kwargs)
         self._instances[key] = model
