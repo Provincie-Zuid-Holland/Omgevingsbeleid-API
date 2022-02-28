@@ -66,6 +66,17 @@ class FixtureLoader():
         
         # Used in Tests.test_api
         self._beleidskeuze("keu:3", UUID=uuid.UUID("82448A0A-989B-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Status="UsedForFiltering", Titel="Title Used For Filtering")
+        self._beleidskeuze("keu:4", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp PS", Titel="First")
+        self._beleidskeuze("keu:5", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp PS", Titel="Second")
+        self._beleidskeuze("keu:6", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Second")
+        
+        self._beleidskeuze("keu:7", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp PS", Afweging="Test4325123$%", Titel="Test4325123$%")
+        self._beleidskeuze("keu:8", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp GS", Afweging="Test4325123$%", Titel="Anders")
+        self._beleidskeuze("keu:9", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Afweging="Anders", Titel="Test4325123$%")
+        
+        self._beleidskeuze("keu:10", UUID=uuid.UUID("94A45F78-98A9-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified")
+        self._maatregel("maa:2", UUID=uuid.UUID("38909E6A-98AC-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified")
+        self._beleidsprestatie("pre:2", UUID=uuid.UUID("B5f7C134-98AD-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Titel="Will be modified")
         
         # 
         self._ambitie("amb:2", Created_By="geb:admin")
@@ -153,6 +164,9 @@ class FixtureLoader():
 
         if not "Provinciaal_Belang" in kwargs:
             kwargs["Provinciaal_Belang"] = "\n\n".join([self._fake.paragraph(nb_sentences=2) for x in range(2)])
+
+        if not "Afweging" in kwargs:
+            kwargs["Afweging"] = self._fake.paragraph(nb_sentences=4)
 
         if not "Aanleiding" in kwargs:
             kwargs["Aanleiding"] = self._fake.paragraph(nb_sentences=4)
