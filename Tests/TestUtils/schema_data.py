@@ -1,10 +1,9 @@
 # SPDX-License-Identifier: EUPL-1.2
-# Copyright (C) 2018 - 2020 Provincie Zuid-Holland
+# Copyright (C) 2018 - 2022 Provincie Zuid-Holland
 
 import marshmallow as MM
-from globals import null_uuid
-import base64
-from pathlib import Path
+
+from Api.settings import null_uuid
 
 
 def generate_data(schema, user_UUID=null_uuid, excluded_prop=None):
@@ -27,6 +26,9 @@ def generate_data(schema, user_UUID=null_uuid, excluded_prop=None):
 
         elif field == "Status":
             result[field] = "Niet-Actief"
+
+        elif field == "Eind_Geldigheid":
+            result[field] = "2033-11-23T10:00:00"
 
         elif type(fields[field]) == MM.fields.String:
             result[field] = "Test String"

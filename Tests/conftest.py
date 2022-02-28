@@ -107,6 +107,11 @@ def __create_client(app, db, email):
     access_token = create_access_token(identity=gebruiker.as_identity())
 
     # this will force our wrapped test client
+    default_class = app.test_client_class
     app.test_client_class = LoggedInClient
+    client = app.test_client(gebruiker=gebruiker, access_token=access_token)
 
-    return app.test_client(gebruiker=gebruiker, access_token=access_token)
+    # put the default class back for next invocations without gebruiker
+    app.test_client_class = default_class
+
+    return client

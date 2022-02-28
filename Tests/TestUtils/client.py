@@ -51,3 +51,9 @@ class LoggedInClient(FlaskClient):
         kwargs["headers"]["Authorization"] = f"Bearer {self._access_token}"
 
         return super(LoggedInClient, self).head(*args, **kwargs)
+
+    def gebruiker(self):
+        return self._gebruiker
+    
+    def uuid(self):
+        return self._gebruiker.UUID

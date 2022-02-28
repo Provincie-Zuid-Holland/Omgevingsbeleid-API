@@ -43,7 +43,7 @@ class Verordeningen(CommonMixin, db.Model):
     Weblink = Column(Unicode)
     Status = Column(Unicode(50), nullable=False)
     Type = Column(Unicode, nullable=False)
-    Gebied = Column(UNIQUEIDENTIFIER, ForeignKey('Werkingsgebieden.UUID'))
+    Gebied = Column(ForeignKey('Werkingsgebieden.UUID'))
     Volgnummer = Column(Unicode, nullable=False)
 
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Verordeningen.Created_By == Gebruikers.UUID')
@@ -54,8 +54,7 @@ class Verordeningen(CommonMixin, db.Model):
     Ref_Portefeuillehouder_1 = relationship('Gebruikers', primaryjoin='Verordeningen.Portefeuillehouder_1 == Gebruikers.UUID')
     Ref_Portefeuillehouder_2 = relationship('Gebruikers', primaryjoin='Verordeningen.Portefeuillehouder_2 == Gebruikers.UUID')
     Ref_Opdrachtgever = relationship('Gebruikers', primaryjoin='Verordeningen.Opdrachtgever == Gebruikers.UUID')
-    # @todo:
-    # Ref_Gebied = relationship('Werkingsgebieden', primaryjoin='Verordeningen.Gebied == Werkingsgebieden.UUID')
+    Ref_Gebied = relationship('Werkingsgebieden', primaryjoin='Verordeningen.Gebied == Werkingsgebieden.UUID')
     Beleidskeuzes = relationship("Beleidskeuze_Verordeningen", back_populates="Verordening")
 
 

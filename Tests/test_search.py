@@ -13,6 +13,12 @@ class TestSearch:
     the Faker package might actually create additional matching data
     """
 
+    def test_geo_endpoints(self, client):
+        specials = [f"v0.1/search/geo?query={null_uuid},{null_uuid}"]
+        for special in specials:
+            response = client.get(special)
+            assert response.status_code == 200
+
     def test_fieldset(self, client):
         res = client.get("v0.1/search?query=water")
         assert res.status_code == 200
