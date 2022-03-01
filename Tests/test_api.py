@@ -860,281 +860,191 @@ class TestApi:
         assert response.get_json()['UUID'] == bk_UUID
 
 
-    # def test_module_concept(client, auth):
-    #     """A module should show non-effective objects
-    #     """
-    #     # Create non effective beleidskeuze
-    #     test_bk = generate_data(
-    #         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
-    #     )
+    def test_module_concept(self, client, client_fred):
+        """A module should show non-effective objects
+        """
+        # Create non effective beleidskeuze
+        test_bk = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+        )
+        test_bk['Status'] = 'Ontwerp GS'
+        test_bk['Begin_Geldigheid'] = "1900-12-31T23:59:59Z"
+        test_bk['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
+        response = client_fred.post("v0.1/beleidskeuzes", json=test_bk)
+        bk_uuid = response.get_json()["UUID"]
+        bk_id = response.get_json()["ID"]
 
-    #     test_bk['Status'] = 'Ontwerp GS'
-    #     test_bk['Begin_Geldigheid'] = "1900-12-31T23:59:59Z"
-    #     test_bk['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
-    #     response = client.post(
-    #         "v0.1/beleidskeuzes",
-    #         json=test_bk,
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-    #     bk_uuid = response.get_json()["UUID"]
-    #     bk_id = response.get_json()["ID"]
+        # Create Module
+        test_module = generate_data(
+            beleidsmodule.Beleidsmodule_Schema, excluded_prop="excluded_post"
+        )
+        test_module["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+        test_module["Beleidskeuzes"] = [{"UUID": bk_uuid, "Koppeling_Omschrijving": ""}]
+        response = client_fred.post("v0.1/beleidsmodules", json=test_module)
+        assert response.status_code == 201
+        module_uuid = response.get_json()["UUID"]
+        module_id = response.get_json()["ID"]
 
-    #     # Create Module
-    #     test_module = generate_data(
-    #         beleidsmodule.Beleidsmodule_Schema, excluded_prop="excluded_post"
-    #     )
-
-    #     test_module["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-    #     test_module["Beleidskeuzes"] = [{"UUID": bk_uuid, "Koppeling_Omschrijving": ""}]
-
-    #     response = client.post(
-    #         "v0.1/beleidsmodules",
-    #         json=test_module,
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-    #     assert response.status_code == 201
-    #     module_uuid = response.get_json()["UUID"]
-    #     module_id = response.get_json()["ID"]
-
-    #     # Check module
-    #     response = client.get(f"v0.1/beleidsmodules/{module_id}")
-    #     assert response.status_code == 200
-
-    #     assert len(response.get_json()[0]["Beleidskeuzes"]) == 1
-    #     assert response.get_json()[0]["Beleidskeuzes"][0]['Object']["UUID"] == bk_uuid
+        # Check module
+        response = client.get(f"v0.1/beleidsmodules/{module_id}")
+        assert response.status_code == 200
+        assert len(response.get_json()[0]["Beleidskeuzes"]) == 1
+        assert response.get_json()[0]["Beleidskeuzes"][0]['Object']["UUID"] == bk_uuid
 
 
-    # def test_module_multiple_concept(client, auth):
-    #     """A module should show non-effective objects
-    #     """
-    #     # Create non effective beleidskeuze
-    #     test_bk = generate_data(
-    #         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
-    #     )
+    def test_module_multiple_concept(self, client, client_fred):
+        """A module should show non-effective objects
+        """
+        # Create non effective beleidskeuze
+        test_bk = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+        )
+        test_bk['Status'] = 'Ontwerp GS'
+        test_bk['Begin_Geldigheid'] = "1900-12-31T23:59:59Z"
+        test_bk['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
+        response = client_fred.post("v0.1/beleidskeuzes", json=test_bk)
+        bk_uuid = response.get_json()["UUID"]
+        bk_id = response.get_json()["ID"]
 
-    #     test_bk['Status'] = 'Ontwerp GS'
-    #     test_bk['Begin_Geldigheid'] = "1900-12-31T23:59:59Z"
-    #     test_bk['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
-    #     response = client.post(
-    #         "v0.1/beleidskeuzes",
-    #         json=test_bk,
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-    #     bk_uuid = response.get_json()["UUID"]
-    #     bk_id = response.get_json()["ID"]
+        # Create Module
+        test_module = generate_data(
+            beleidsmodule.Beleidsmodule_Schema, excluded_prop="excluded_post"
+        )
+        test_module["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+        test_module["Beleidskeuzes"] = [{"UUID": bk_uuid, "Koppeling_Omschrijving": ""}]
 
-    #     # Create Module
-    #     test_module = generate_data(
-    #         beleidsmodule.Beleidsmodule_Schema, excluded_prop="excluded_post"
-    #     )
+        response = client_fred.post("v0.1/beleidsmodules", json=test_module)
+        assert response.status_code == 201
+        module_uuid = response.get_json()["UUID"]
+        module_id = response.get_json()["ID"]
 
-    #     test_module["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-    #     test_module["Beleidskeuzes"] = [{"UUID": bk_uuid, "Koppeling_Omschrijving": ""}]
+        # Check module
+        response = client.get(f"v0.1/beleidsmodules/{module_id}")
+        assert response.status_code == 200
+        assert len(response.get_json()[0]["Beleidskeuzes"]) == 1
+        assert response.get_json()[0]["Beleidskeuzes"][0]['Object']["UUID"] == bk_uuid
 
-    #     response = client.post(
-    #         "v0.1/beleidsmodules",
-    #         json=test_module,
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-    #     assert response.status_code == 201
-    #     module_uuid = response.get_json()["UUID"]
-    #     module_id = response.get_json()["ID"]
+        # Create non effective maatregel
+        test_ma = generate_data(
+            maatregelen.Maatregelen_Schema, excluded_prop="excluded_post"
+        )
+        test_ma['Status'] = 'Ontwerp GS'
+        test_ma['Begin_Geldigheid'] = "1900-12-31T23:59:59Z"
+        test_ma['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
+        response = client_fred.post("v0.1/maatregelen", json=test_ma)
+        ma_uuid = response.get_json()["UUID"]
+        ma_id = response.get_json()["ID"]
 
-    #     # Check module
-    #     response = client.get(f"v0.1/beleidsmodules/{module_id}")
-    #     assert response.status_code == 200
+        data = {'Maatregelen': [{"UUID": ma_uuid, "Koppeling_Omschrijving": ""}]}
+        response = client_fred.patch(f"v0.1/beleidsmodules/{module_id}", json=data)
+        assert response.status_code == 200
 
-    #     assert len(response.get_json()[0]["Beleidskeuzes"]) == 1
-    #     assert response.get_json()[0]["Beleidskeuzes"][0]['Object']["UUID"] == bk_uuid
+        # Check module
+        response = client.get(f"v0.1/beleidsmodules/{module_id}")
+        assert response.status_code == 200
+        assert len(response.get_json()[0]["Beleidskeuzes"]) == 1
+        assert len(response.get_json()[0]["Maatregelen"]) == 1
+        assert response.get_json()[0]["Beleidskeuzes"][0]['Object']["UUID"] == bk_uuid
+        assert response.get_json()[0]["Maatregelen"][0]['Object']["UUID"] == ma_uuid
 
-    #     # Create non effective maatregel
-    #     test_ma = generate_data(
-    #         maatregelen.Maatregelen_Schema, excluded_prop="excluded_post"
-    #     )
 
-    #     test_ma['Status'] = 'Ontwerp GS'
-    #     test_ma['Begin_Geldigheid'] = "1900-12-31T23:59:59Z"
-    #     test_ma['Eind_Geldigheid'] = "9999-12-31T23:59:59Z"
-    #     response = client.post(
-    #         "v0.1/maatregelen",
-    #         json=test_ma,
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-    #     ma_uuid = response.get_json()["UUID"]
-    #     ma_id = response.get_json()["ID"]
+    def test_latest_middle(self, client, client_fred):
+        bk1 = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+        )
+        bk1["Status"] = "Ontwerp GS Concept"
+        bk1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+        response = client_fred.post("v0.1/beleidskeuzes", json=bk1)
+        assert response.status_code == 201
+        bk_ID = response.get_json()["ID"]
+        bk1_UUID = response.get_json()["UUID"]
+        bk_2 = {**bk1, 'Status':['Ontwerp GS']}
 
-    #     response = client.patch(
-    #         f"v0.1/beleidsmodules/{module_id}",
-    #         json={'Maatregelen': [{"UUID": ma_uuid, "Koppeling_Omschrijving": ""}]},
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
+        response = client_fred.patch(f"v0.1/beleidskeuzes/{bk_ID}", json={'Status':'Ontwerp GS'})
+        assert response.status_code == 200, response.get_json()
+        bk2_UUID = response.get_json()["UUID"]
 
-    #     assert response.status_code == 200
+        # Check if latest version matches
+        response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
+        assert response.status_code == 200
+        assert response.get_json()["Latest_Version"] == bk2_UUID
+        assert response.get_json()["Latest_Status"] == "Ontwerp GS"
 
+        data = {'Status':'Vigerend', 'Begin_Geldigheid':"2010-12-31T23:59:59Z", 'Eind_Geldigheid':"2011-12-31T23:59:59Z" }
+        response = client_fred.patch(f"v0.1/beleidskeuzes/{bk_ID}", json=data)
+        assert response.status_code == 200
+        bk3_UUID = response.get_json()["UUID"]
+
+        # Check if latest version matches
+        response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
+        assert response.status_code == 200
+        assert response.get_json()["Latest_Version"] == bk3_UUID
+        assert response.get_json()["Latest_Status"] == "Vigerend"
         
-    #     # Check module
-    #     response = client.get(f"v0.1/beleidsmodules/{module_id}")
-    #     assert response.status_code == 200
-
-    #     assert len(response.get_json()[0]["Beleidskeuzes"]) == 1
-    #     assert len(response.get_json()[0]["Maatregelen"]) == 1
-    #     assert response.get_json()[0]["Beleidskeuzes"][0]['Object']["UUID"] == bk_uuid
-    #     assert response.get_json()[0]["Maatregelen"][0]['Object']["UUID"] == ma_uuid
+        # Check if latest version matches
+        response = client.get(f"v0.1/version/beleidskeuzes/{bk2_UUID}")
+        assert response.status_code == 200
+        assert response.get_json()["Latest_Version"] == bk3_UUID
+        assert response.get_json()["Latest_Status"] == "Vigerend"
 
 
-    # def test_latest_middle(client, auth):
-    #     bk1 = generate_data(
-    #         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
-    #     )
-    #     bk1["Status"] = "Ontwerp GS Concept"
-    #     bk1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+    def test_self_effective_version(self, client, client_fred):
+        bk1 = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+        )
+        bk1["Status"] = "Vigerend"
+        bk1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+        response = client_fred.post("v0.1/beleidskeuzes", json=bk1)
+        assert response.status_code == 201
+        bk1_UUID = response.get_json()["UUID"]
+        bk_ID = response.get_json()["ID"]
 
-    #     response = client.post(
-    #         "v0.1/beleidskeuzes",
-    #         json=bk1,
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-
-    #     assert response.status_code == 201
-    #     bk_ID = response.get_json()["ID"]
-    #     bk1_UUID = response.get_json()["UUID"]
-
-    #     bk_2 = {**bk1, 'Status':['Ontwerp GS']}
-
-    #     response = client.patch(
-    #         f"v0.1/beleidskeuzes/{bk_ID}",
-    #         json={'Status':'Ontwerp GS'},
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-    #     assert response.status_code == 200, response.get_json()
-    #     bk2_UUID = response.get_json()["UUID"]
-
-    #     # Check if latest version matches
-    #     response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
-    #     assert response.status_code == 200
-    #     assert response.get_json()["Latest_Version"] == bk2_UUID
-    #     assert response.get_json()["Latest_Status"] == "Ontwerp GS"
-
-    #     response = client.patch(
-    #         f"v0.1/beleidskeuzes/{bk_ID}",
-    #         json={'Status':'Vigerend', 'Begin_Geldigheid':"2010-12-31T23:59:59Z", 'Eind_Geldigheid':"2011-12-31T23:59:59Z" },
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-    #     assert response.status_code == 200
-    #     bk3_UUID = response.get_json()["UUID"]
-
-    #     # Check if latest version matches
-    #     response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
-    #     assert response.status_code == 200
-    #     assert response.get_json()["Latest_Version"] == bk3_UUID
-    #     assert response.get_json()["Latest_Status"] == "Vigerend"
-
+        # Check if latest version matches
+        response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
+        assert response.status_code == 200
+        assert response.get_json()["Effective_Version"] == bk1_UUID
         
-    #     # Check if latest version matches
-    #     response = client.get(f"v0.1/version/beleidskeuzes/{bk2_UUID}")
-    #     assert response.status_code == 200
-    #     assert response.get_json()["Latest_Version"] == bk3_UUID
-    #     assert response.get_json()["Latest_Status"] == "Vigerend"
+        # Make new version
+        response = client_fred.patch(f"v0.1/beleidskeuzes/{bk_ID}", json={'Status':'Ontwerp GS'})
+        assert response.status_code == 200
+
+        # Check if latest version matches
+        response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
+        assert response.status_code == 200
+        assert response.get_json()["Effective_Version"] == bk1_UUID
 
 
-    # def test_self_effective_version(client, auth):
-    #     bk1 = generate_data(
-    #         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
-    #     )
-    #     bk1["Status"] = "Vigerend"
-    #     bk1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-
-    #     response = client.post(
-    #         "v0.1/beleidskeuzes",
-    #         json=bk1,
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-
-    #     assert response.status_code == 201
-    #     bk1_UUID = response.get_json()["UUID"]
-    #     bk_ID = response.get_json()["ID"]
-
-    #     # Check if latest version matches
-    #     response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
-    #     assert response.status_code == 200
-    #     assert response.get_json()["Effective_Version"] == bk1_UUID
+    def test_effective_in_edits(self, client, client_fred):
+        bk1 = generate_data(
+            beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
+        )
+        bk1["Status"] = "Vigerend"
+        bk1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+        response = client_fred.post("v0.1/beleidskeuzes", json=bk1)
+        assert response.status_code == 201
+        bk1_UUID = response.get_json()["UUID"]
+        bk_ID = response.get_json()["ID"]
         
-    #     # Make new version
-    #     response = client.patch(
-    #         f"v0.1/beleidskeuzes/{bk_ID}",
-    #         json={'Status':'Ontwerp GS'},
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-    #     assert response.status_code == 200
-
-    #     # Check if latest version matches
-    #     response = client.get(f"v0.1/version/beleidskeuzes/{bk1_UUID}")
-    #     assert response.status_code == 200
-    #     assert response.get_json()["Effective_Version"] == bk1_UUID
-
-
-    # def test_effective_in_edits(client, auth):
-    #     bk1 = generate_data(
-    #         beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
-    #     )
-    #     bk1["Status"] = "Vigerend"
-    #     bk1["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-
-    #     response = client.post(
-    #         "v0.1/beleidskeuzes",
-    #         json=bk1,
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-
-    #     assert response.status_code == 201
-    #     bk1_UUID = response.get_json()["UUID"]
-    #     bk_ID = response.get_json()["ID"]
+        # Make new version
+        response = client_fred.patch(f"v0.1/beleidskeuzes/{bk_ID}", json={'Status':'Ontwerp GS'})
+        assert response.status_code == 200
+        bk2_uuid = response.get_json()['UUID']
         
-    #     # Make new version
-    #     response = client.patch(
-    #         f"v0.1/beleidskeuzes/{bk_ID}",
-    #         json={'Status':'Ontwerp GS'},
-    #         headers={"Authorization": f"Bearer {auth[1]}"},
-    #     )
-    #     assert response.status_code == 200
-    #     bk2_uuid = response.get_json()['UUID']
-        
-    #     # Check if the effective version shows up in edits
-    #     response = client.get(f"v0.1/edits")
-    #     assert response.status_code == 200
-    #     found = False
-    #     effective_correct = False
-    #     for edit in response.get_json():
-    #         if edit['Type'] == 'beleidskeuzes':
-    #             if edit['UUID'] == bk2_uuid:
-    #                 if edit['Effective_Version'] == bk1_UUID:
-    #                     effective_correct = True
-    #                 found = True
-    #                 break
+        # Check if the effective version shows up in edits
+        response = client.get(f"v0.1/edits")
+        assert response.status_code == 200
+        found = False
+        effective_correct = False
+        for edit in response.get_json():
+            if edit['Type'] == 'beleidskeuzes':
+                if edit['UUID'] == bk2_uuid:
+                    if edit['Effective_Version'] == bk1_UUID:
+                        effective_correct = True
+                    found = True
+                    break
                 
-    #     assert(found)
-    #     assert(effective_correct)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        assert(found)
+        assert(effective_correct)
 
 
     @pytest.mark.parametrize(
