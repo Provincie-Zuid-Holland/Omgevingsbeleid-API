@@ -3,12 +3,14 @@
 __pycache__/
 web.config
 .vscode/settings.json
+.idea/
 cgi.log
 search-index.log
 search-date.json
 .env
 .azure/
 settings.py
+!Api/settings.py
 ._env
 ._env_*
 .pytest_cache/
