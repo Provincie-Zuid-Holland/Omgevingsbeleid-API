@@ -98,10 +98,13 @@ Note: it can take a while to start as the frontend will be build in development 
 ## Commonly used commands
 
 ```bash
+make init # The entrypoint: Starts docker, loads database and fills database with fixtures
 make info # Shows information where all the applications can me accessed.
 make api  # Sends you in the api container
 make logs # Tails the docker-compose logs
-make restart # Restarts the docker services and their volumes
+make restart # Restarts the docker services and executes `init` afterwards
+make restart-hard # Same as restart, but will also remove the current volumes
+make test # Run the tests inside the docker container
 ```
 
 ## Use a different frontend branch
