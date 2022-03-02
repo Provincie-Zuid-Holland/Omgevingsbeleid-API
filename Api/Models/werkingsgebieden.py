@@ -7,6 +7,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 
 from Api.Endpoints.base_schema import Base_Schema
 from Api.Endpoints.references import Reverse_UUID_Reference
+from Api.Endpoints.werkingsgebieden_data_manager import WerkingsgebiedenDataManager
 from Api.Models.short_schemas import Short_Beleidskeuze_Schema
 from Api.database import CommonMixin, db
 from Api.Utils.sqlalchemy import Geometry
@@ -56,3 +57,4 @@ class Werkingsgebieden_Schema(Base_Schema):
                 Short_Beleidskeuze_Schema,
             )
         }
+        manager = WerkingsgebiedenDataManager

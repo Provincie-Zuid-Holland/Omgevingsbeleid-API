@@ -60,7 +60,7 @@ class FixtureLoader():
         self._thema("tma:1", Created_By="geb:fred", Modified_By="geb:fred")
         self._verordening("ver:1", Created_By="geb:fred", Modified_By="geb:fred")
 
-        # These ambities are expected to existr for tests using `Tests.TestUtils.schema_data.reference_rich_beleidskeuze` 
+        # These ambities are expected to exist for tests using `Tests.TestUtils.schema_data.reference_rich_beleidskeuze` 
         self._ambitie("amb:rrb1", UUID=uuid.UUID("B786487C-3E65-4DD8-B360-D2C56BF83172"), Created_By="geb:fred", Modified_By="geb:fred")
         self._ambitie("amb:rrb2", UUID=uuid.UUID("0254A475-08A6-4B2A-A455-96BA6BE70A19"), Created_By="geb:fred", Modified_By="geb:fred")
         

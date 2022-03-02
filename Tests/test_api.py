@@ -26,6 +26,14 @@ from Api.Models.beleidsprestaties import Beleidsprestaties
 @pytest.mark.usefixtures("fixture_data")
 class TestApi:
 
+    def test_werkingsgebied_all_valid_view(self, client, client_fred):
+        pass
+
+
+    def test_werkingsgebied_valid_view(self, client, client_fred):
+        pass
+
+
     def test_modules(self, client_fred):
         response = client_fred.post("v0.1/beleidsmodules", json={"Titel": "Test"})
         assert response.status_code == 201, f"Response: {response.get_json()}"
