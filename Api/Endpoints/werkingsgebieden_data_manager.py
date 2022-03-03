@@ -13,7 +13,16 @@ class WerkingsgebiedenDataManager(DataManager):
         query = f"""
                     CREATE OR ALTER VIEW {self.all_valid_view} AS
                     SELECT
-                        w.*
+                        w.ID,
+                        w.UUID,
+                        w.Begin_Geldigheid,
+                        w.Eind_Geldigheid,
+                        w.Created_Date,
+                        w.Modified_Date,
+                        w.Created_By,
+                        w.Modified_By,
+                        w.Werkingsgebied,
+                        w.symbol
                     FROM
                         Werkingsgebieden w
                     WHERE
@@ -40,11 +49,25 @@ class WerkingsgebiedenDataManager(DataManager):
         query = f"""
                     CREATE OR ALTER VIEW {self.valid_view} AS
                     SELECT
-                        w.*
-                    FROM
-                        Werkingsgebieden w
+                        w.ID,
+                        w.UUID,
+                        w.Begin_Geldigheid,
+                        w.Eind_Geldigheid,
+                        w.Created_Date,
+                        w.Modified_Date,
+                        w.Created_By,
+                        w.Modified_By,
+                        w.Werkingsgebied,
+                        w.symbol
+                    FROM 
+                        (
+                            SELECT *,
+                            ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
+                            FROM {self.schema.Meta.table}
+                        ) w
                     WHERE
-                        w.UUID IN (
+                        RowNumber = 1
+                        AND w.UUID IN (
                             SELECT
                                 m.Gebied
                             FROM
