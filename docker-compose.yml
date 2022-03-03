@@ -7,7 +7,6 @@ services:
       dockerfile: ./docker/api/Dockerfile
     ports:
       - "5000:5000"
-      - "9999:9999"
     volumes:
       - ./:/code
     environment:

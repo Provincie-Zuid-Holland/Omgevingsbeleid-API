@@ -75,8 +75,19 @@ class FixtureLoader():
         self._beleidskeuze("keu:9", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Afweging="Anders", Titel="Test4325123$%")
         
         self._beleidskeuze("keu:10", UUID=uuid.UUID("94A45F78-98A9-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified")
-        self._maatregel("maa:2", UUID=uuid.UUID("38909E6A-98AC-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified")
         self._beleidsprestatie("pre:2", UUID=uuid.UUID("B5f7C134-98AD-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Titel="Will be modified")
+        
+        self._werkingsgebied("wgb:2", Werkingsgebied="Active as it it joined with active beleidskeuze")
+        self._beleidskeuzes_werkingsgebieden("keu:10", "wgb:2")
+
+        self._werkingsgebied("wgb:3", Werkingsgebied="Active as it is joined with active maatregel")
+        self._maatregel("maa:2", UUID=uuid.UUID("38909E6A-98AC-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified", Gebied="wgb:3")
+        
+        self._werkingsgebied("wgb:4", Werkingsgebied="Inactive as it is joined with wrong maatregel Status")
+        self._maatregel("maa:3", Status="Test", Gebied="wgb:4", Created_By="geb:fred", Modified_By="geb:fred")
+
+        self._werkingsgebied("wgb:5", Werkingsgebied="Joined with maatregel with expired Eind_Geldigheid")
+        self._maatregel("maa:4", Status="Test", Gebied="wgb:5", Created_By="geb:fred", Modified_By="geb:fred", Begin_Geldigheid="1991-11-23T10:00:00", Eind_Geldigheid="1992-11-23T10:00:00")
         
         # 
         self._ambitie("amb:2", Created_By="geb:admin")

@@ -29,6 +29,7 @@ class WerkingsgebiedenDataManager(DataManager):
                                 All_Valid_beleidskeuzes b
                                 INNER JOIN Beleidskeuze_Werkingsgebieden bw ON b.UUID = bw.Beleidskeuze_UUID
                         )
+                        AND UUID != '00000000-0000-0000-0000-000000000000'
                     """
         self._run_query_commit(query)
 
@@ -55,6 +56,7 @@ class WerkingsgebiedenDataManager(DataManager):
                                 Valid_beleidskeuzes b
                                 INNER JOIN Beleidskeuze_Werkingsgebieden bw ON b.UUID = bw.Beleidskeuze_UUID
                         )
+                        AND UUID != '00000000-0000-0000-0000-000000000000'
                     """
 
         self._run_query_commit(query)

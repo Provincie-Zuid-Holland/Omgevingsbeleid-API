@@ -100,6 +100,31 @@ class DataManager:
                     """
         self._run_query_commit(query)
 
+    def _set_up_valid_view(self):
+        """
+        Set up a view that shows the latest valid version for each lineage
+        """
+        # Check if we need to query for status
+        status_condition = ""
+        if status_conf := self.schema.Meta.status_conf:
+            # e.g. "AND Status = 'Vigerend'"
+            status_condition = f"WHERE {status_conf[0]} = '{status_conf[1]}'"
+
+        query = f"""
+                    CREATE OR ALTER VIEW {self.valid_view} AS
+                    SELECT * FROM 
+                        (SELECT *, 
+                        ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
+                        FROM {self.schema.Meta.table}
+                        {status_condition}) T 
+                    WHERE RowNumber = 1
+                    AND UUID != '00000000-0000-0000-0000-000000000000'
+                    AND Eind_Geldigheid > GETDATE()
+                    AND Begin_Geldigheid <= GETDATE()
+                    """
+
+        self._run_query_commit(query)
+
     def _set_up_latest_view(self):
         """
         Set up a view that shows the latest version for each lineage that is still valid
@@ -129,31 +154,6 @@ class DataManager:
                         FROM {self.schema.Meta.table}) T
                     WHERE RowNumber = 1 
                     AND UUID != '00000000-0000-0000-0000-000000000000'
-                    """
-
-        self._run_query_commit(query)
-
-    def _set_up_valid_view(self):
-        """
-        Set up a view that shows the latest valid version for each lineage
-        """
-        # Check if we need to query for status
-        status_condition = ""
-        if status_conf := self.schema.Meta.status_conf:
-            # e.g. "AND Status = 'Vigerend'"
-            status_condition = f"WHERE {status_conf[0]} = '{status_conf[1]}'"
-
-        query = f"""
-                    CREATE OR ALTER VIEW {self.valid_view} AS
-                    SELECT * FROM 
-                        (SELECT *, 
-                        ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
-                        FROM {self.schema.Meta.table}
-                        {status_condition}) T 
-                    WHERE RowNumber = 1
-                    AND UUID != '00000000-0000-0000-0000-000000000000'
-                    AND Eind_Geldigheid > GETDATE()
-                    AND Begin_Geldigheid <= GETDATE()
                     """
 
         self._run_query_commit(query)
