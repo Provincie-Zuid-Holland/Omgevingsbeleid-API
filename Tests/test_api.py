@@ -29,11 +29,68 @@ class TestApi:
     def test_werkingsgebied_all_valid_view(self, client, client_fred):
         response = client_fred.get("v0.1/valid/werkingsgebieden")
         assert response.status_code == 200, f"Status code was {response.status_code}"
-        pprint(response.get_json())
+        data = response.get_json()
+        assert len(data) >= 2, f"Expecting at least 2 results"
+
+        expected_uuids = set([
+            "8EB1ED00-0002-1111-0000-000000000000",
+            "8EB1ED00-0003-0000-0000-000000000000",
+        ])
+        found_uuids = set([r["UUID"] for r in data])
+        assert expected_uuids.issubset(found_uuids), f"Not all expected uuid where found"
+
+        forbidden_uuids = set([
+            "8EB1ED00-0004-0000-0000-000000000000",
+            "8EB1ED00-0005-0000-0000-000000000000",
+            "8EB1ED00-0006-0000-0000-000000000000",
+            "8EB1ED00-0007-0000-0000-000000000000",
+        ])
+        intersect = found_uuids & forbidden_uuids
+        assert len(intersect) == 0, f"Some forbidden uuid where found"
 
 
-    def test_werkingsgebied_valid_view(self, client, client_fred):
-        pass
+    def test_werkingsgebied_valid_view(self, db):
+        query = "SELECT UUID FROM All_Valid_Werkingsgebieden"
+        res = db.engine.execute(query)
+
+        expected_uuids = set([
+            "8EB1ED00-0002-0000-0000-000000000000",
+            "8EB1ED00-0003-0000-0000-000000000000",
+            "8EB1ED00-0006-0000-0000-000000000000",
+            "8EB1ED00-0007-0000-0000-000000000000",
+        ])
+        found_uuids = set([r["UUID"] for r in res])
+        assert len(found_uuids) >= 4, f"Expecting at least 4 results"
+        assert expected_uuids.issubset(found_uuids), f"Not all expected uuid where found"
+
+        forbidden_uuids = set([
+            "8EB1ED00-0004-0000-0000-000000000000",
+            "8EB1ED00-0005-0000-0000-000000000000",
+        ])
+        intersect = found_uuids & forbidden_uuids
+        assert len(intersect) == 0, f"Some forbidden uuid where found"
+
+
+    # def test_werkingsgebied_valid_lineage(self, client, client_fred):
+    #     response = client_fred.get("v0.1/valid/werkingsgebieden/100")
+    #     assert response.status_code == 200, f"Status code was {response.status_code}"
+    #     data = response.get_json()
+    #     assert len(data) >= 5, f"Expecting at least 5 results"
+
+    #     expected_uuids = set([
+    #         "8EB1ED00-0002-0000-0000-000000000000",
+    #         "8EB1ED00-0003-0000-0000-000000000000",
+    #         "8EB1ED00-0006-0000-0000-000000000000",
+    #         "8EB1ED00-0007-0000-0000-000000000000",
+    #     ])
+
+    #     found_uuids = set([r["UUID"] for r in data])
+    #     pprint(expected_uuids)
+    #     print("")
+    #     pprint(found_uuids)
+    #     print("")
+
+    #     assert expected_uuids.issubset(found_uuids), f"Not all expected uuid where found"
 
 
     # def test_modules(self, client_fred):

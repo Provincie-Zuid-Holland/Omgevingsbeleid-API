@@ -57,6 +57,8 @@ class WerkingsgebiedenDataManager(DataManager):
                                 INNER JOIN Beleidskeuze_Werkingsgebieden bw ON b.UUID = bw.Beleidskeuze_UUID
                         )
                         AND UUID != '00000000-0000-0000-0000-000000000000'
+                        AND Eind_Geldigheid > GETDATE()
+                        AND Begin_Geldigheid <= GETDATE()
                     """
 
         self._run_query_commit(query)

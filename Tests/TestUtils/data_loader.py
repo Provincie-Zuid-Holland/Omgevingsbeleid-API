@@ -61,11 +61,11 @@ class FixtureLoader():
         self._verordening("ver:1", Created_By="geb:fred", Modified_By="geb:fred")
 
         # These ambities are expected to exist for tests using `Tests.TestUtils.schema_data.reference_rich_beleidskeuze` 
-        self._ambitie("amb:rrb1", UUID=uuid.UUID("B786487C-3E65-4DD8-B360-D2C56BF83172"), Created_By="geb:fred", Modified_By="geb:fred")
-        self._ambitie("amb:rrb2", UUID=uuid.UUID("0254A475-08A6-4B2A-A455-96BA6BE70A19"), Created_By="geb:fred", Modified_By="geb:fred")
+        self._ambitie("amb:rrb1", UUID="B786487C-3E65-4DD8-B360-D2C56BF83172", Created_By="geb:fred", Modified_By="geb:fred")
+        self._ambitie("amb:rrb2", UUID="0254A475-08A6-4B2A-A455-96BA6BE70A19", Created_By="geb:fred", Modified_By="geb:fred")
         
         # Used in Tests.test_api
-        self._beleidskeuze("keu:3", UUID=uuid.UUID("82448A0A-989B-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Status="UsedForFiltering", Titel="Title Used For Filtering")
+        self._beleidskeuze("keu:3", UUID="82448A0A-989B-11EC-B909-0242AC120002", Created_By="geb:fred", Modified_By="geb:fred", Status="UsedForFiltering", Titel="Title Used For Filtering")
         self._beleidskeuze("keu:4", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp PS", Titel="First")
         self._beleidskeuze("keu:5", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp PS", Titel="Second")
         self._beleidskeuze("keu:6", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Second")
@@ -74,21 +74,30 @@ class FixtureLoader():
         self._beleidskeuze("keu:8", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp GS", Afweging="Test4325123$%", Titel="Anders")
         self._beleidskeuze("keu:9", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Afweging="Anders", Titel="Test4325123$%")
         
-        self._beleidskeuze("keu:10", UUID=uuid.UUID("94A45F78-98A9-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified")
-        self._beleidsprestatie("pre:2", UUID=uuid.UUID("B5f7C134-98AD-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Titel="Will be modified")
+        self._beleidskeuze("keu:10", UUID="94A45F78-98A9-11EC-B909-0242AC120002", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified")
+        self._beleidsprestatie("pre:2", UUID="B5f7C134-98AD-11EC-B909-0242AC120002", Created_By="geb:fred", Modified_By="geb:fred", Titel="Will be modified")
         
-        self._werkingsgebied("wgb:2", Werkingsgebied="Active as it it joined with active beleidskeuze")
+        # Werkingsgebieden which are assigned to beleidskeuzes and maatregelen
+        self._werkingsgebied("wgb:2", ID=1000, UUID="8EB1ED00-0002-1111-0000-000000000000", Werkingsgebied="Not the newest of its version", Created_Date="2022-01-01T10:00:00")
         self._beleidskeuzes_werkingsgebieden("keu:10", "wgb:2")
+        self._werkingsgebied("wgb:2b", ID=1000, UUID="8EB1ED00-0002-2222-0000-000000000000", Werkingsgebied="Valid as it it joined with active beleidskeuze", Created_Date="2022-02-02T10:00:00")
+        self._beleidskeuzes_werkingsgebieden("keu:10", "wgb:2b")
 
-        self._werkingsgebied("wgb:3", Werkingsgebied="Active as it is joined with active maatregel")
-        self._maatregel("maa:2", UUID=uuid.UUID("38909E6A-98AC-11EC-B909-0242AC120002"), Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified", Gebied="wgb:3")
+        self._werkingsgebied("wgb:3", UUID="8EB1ED00-0003-0000-0000-000000000000", Werkingsgebied="Valid as it is joined with active maatregel")
+        self._maatregel("maa:2", UUID="38909E6A-98AC-11EC-B909-0242AC120002", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified", Gebied="wgb:3")
         
-        self._werkingsgebied("wgb:4", Werkingsgebied="Inactive as it is joined with wrong maatregel Status")
+        self._werkingsgebied("wgb:4", UUID="8EB1ED00-0004-0000-0000-000000000000", Werkingsgebied="Invalid as it is joined with wrong maatregel Status")
         self._maatregel("maa:3", Status="Test", Gebied="wgb:4", Created_By="geb:fred", Modified_By="geb:fred")
 
-        self._werkingsgebied("wgb:5", Werkingsgebied="Joined with maatregel with expired Eind_Geldigheid")
+        self._werkingsgebied("wgb:5", UUID="8EB1ED00-0005-0000-0000-000000000000", Werkingsgebied="Invalid as the maatregel has the wrong status")
         self._maatregel("maa:4", Status="Test", Gebied="wgb:5", Created_By="geb:fred", Modified_By="geb:fred", Begin_Geldigheid="1991-11-23T10:00:00", Eind_Geldigheid="1992-11-23T10:00:00")
         
+        self._werkingsgebied("wgb:6", UUID="8EB1ED00-0006-0000-0000-000000000000", Werkingsgebied="All_Valid but not Valid as the Eind_Geldingheid of this werkingsgebied is expired", Begin_Geldigheid="1991-11-23T10:00:00", Eind_Geldigheid="1992-11-23T10:00:00")
+        self._beleidskeuzes_werkingsgebieden("keu:10", "wgb:6")
+        
+        self._werkingsgebied("wgb:7", UUID="8EB1ED00-0007-0000-0000-000000000000", Werkingsgebied="All_Valid but not Valid as the Begin_Geldingheid of this werkingsgebied is in the future", Begin_Geldigheid="9991-11-23T10:00:00", Eind_Geldigheid="9992-11-23T10:00:00")
+        self._beleidskeuzes_werkingsgebieden("keu:10", "wgb:7")
+
         # 
         self._ambitie("amb:2", Created_By="geb:admin")
         self._ambitie("amb:3", Created_By="geb:alex", Modified_By="geb:alex")

@@ -330,6 +330,11 @@ class DataManager:
             self._run_query_commit(query, query_args), many=True
         )
 
+        from pprint import pprint
+        print("\n\n")
+        pprint(query)
+        print("\n\n")
+
         # Get references
         all_references = {
             **self.schema.Meta.base_references,
