@@ -214,6 +214,7 @@ class Lineage(Schema_Resource):
         new_object["Modified_Date"] = request_time
         new_object["Modified_By"] = get_jwt_identity()["UUID"]
 
+        # @note: this is the not_inherited behaviour
         if "Aanpassing_Op" in old_object and not "Aanpassing_Op" in changes:
             new_object.pop("Aanpassing_Op")
 

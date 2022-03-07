@@ -37,7 +37,7 @@ class StatusDataManager(DataManager):
             """
 
         result_rows = self.schema().dump(
-            self._run_query_commit(query, [uuid]), many=True
+            self._run_query_fetch(query, [uuid]), many=True
         )
 
         if not result_rows:

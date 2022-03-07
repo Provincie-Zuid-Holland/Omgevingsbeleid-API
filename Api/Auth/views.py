@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, current_app
 from flask_jwt_extended import (
     create_access_token,
     decode_token,
@@ -68,34 +68,33 @@ def login():
         return jsonify({"message": "Password parameter niet gevonden"}), 400
 
     # Find identifier
-    with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
-        cursor = connection.cursor()
+    with current_app.db.engine.connect() as con:
         query = """SELECT UUID, Gebruikersnaam, Email, Rol, Wachtwoord FROM Gebruikers WHERE Email = ?"""
-        cursor.execute(query, identifier)
-        result = cursor.fetchone()
+        result = con.execute(query, identifier)
+        row = result.first()
 
-    if result:
-        result = row_to_dict(result)
-        passwordhash = result["Wachtwoord"]
-        if passwordhash:
-            if bcrypt.verify(password, passwordhash):
-                identity_result = dict(result)
-                identity_result.pop("Wachtwoord")
-                access_token = create_access_token(identity=identity_result)
-                raw_token = decode_token(access_token)
-                return (
-                    jsonify(
-                        {
-                            "access_token": access_token,
-                            "expires": time.strftime(
-                                "%Y-%m-%dT%H:%M:%SZ", time.localtime(raw_token["exp"])
-                            ),
-                            "identifier": raw_token["identity"],
-                            "deployment type": os.getenv("API_ENV"),
-                        }
-                    ),
-                    200,
-                )
+        if row:
+            gebruiker = row._asdict()
+            passwordhash = gebruiker["Wachtwoord"]
+            if passwordhash:
+                if bcrypt.verify(password, passwordhash):
+                    gebruiker.pop("Wachtwoord")
+                    access_token = create_access_token(identity=gebruiker)
+                    raw_token = decode_token(access_token)
+                    return (
+                        jsonify(
+                            {
+                                "access_token": access_token,
+                                "expires": time.strftime(
+                                    "%Y-%m-%dT%H:%M:%SZ", time.localtime(raw_token["exp"])
+                                ),
+                                "identifier": raw_token["identity"],
+                                "deployment type": os.getenv("API_ENV"),
+                            }
+                        ),
+                        200,
+                    )
+    
     return jsonify({"message": "Wachtwoord of gebruikersnaam ongeldig"}), 401
 
 
@@ -114,28 +113,26 @@ def password_reset():
                 "errors": list(map(__printTest, errors)),
             }, 400
 
-        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
-            cursor = connection.cursor()
+        with current_app.db.engine.connect() as con:
             query = """SELECT UUID, Wachtwoord FROM Gebruikers WHERE UUID = ?"""
-            cursor.execute(query, get_jwt_identity()["UUID"])
-            result = cursor.fetchone()
+            result = con.execute(query, get_jwt_identity()["UUID"])
+            gebruiker = result.first()
 
-        if not result:
-            return {"message": "Unable to find user"}, 401
+            if not gebruiker:
+                return {"message": "Unable to find user"}, 401
 
-        if bcrypt.verify(password, result[1]):
-            hash = bcrypt.hash(new_password)
-            with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connection:
-                cursor = connection.cursor()
-                cursor.execute(
+            gebruiker = gebruiker._asdict()
+            if bcrypt.verify(password, gebruiker["Wachtwoord"]):
+                hash = bcrypt.hash(new_password)
+                con.execute(
                     """UPDATE Gebruikers SET Wachtwoord = ? WHERE UUID = ?""",
                     hash,
                     get_jwt_identity()["UUID"],
                 )
                 return {"message": "Password changed"}, 200
 
-        else:
-            return {"message": "Unable to find user"}, 401
+            else:
+                return {"message": "Unable to find user"}, 401
 
 
 @jwt_required
