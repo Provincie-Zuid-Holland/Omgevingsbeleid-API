@@ -177,7 +177,7 @@ class RelationDataManager(DataManager):
             query_args.append(limit)
 
         result_rows = self.schema().dump(
-            self._run_query_commit(query, query_args), many=True
+            self._run_query_fetch(query, query_args), many=True
         )
 
         all_references = {
@@ -219,7 +219,7 @@ class RelationDataManager(DataManager):
         )
 
         result_rows = self.schema().dump(
-            self._run_query_commit(query, [uuid]), many=True
+            self._run_query_fetch(query, [uuid]), many=True
         )
 
         if not result_rows:

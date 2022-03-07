@@ -66,7 +66,10 @@ class DataManager:
         self._set_up_all_valid_view()
         self._set_up_search()
 
-    def _run_query_commit(self, query, values=[]):
+    # I would like to get rid of this function as it creates a new connection all the time
+    # I still need it until model creation is done by sqlalchemy models instead of hard coding insert queries
+    # As these sometimes return trigger outputs which is badly supported in custom queries
+    def _run_query_commit_old(self, query, values=[]):
         with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS'], autocommit=True) as con:
             try:
                 cur = con.cursor()
@@ -79,6 +82,17 @@ class DataManager:
                     raise e
             except pyodbc.ProgrammingError as e:
                 raise e
+
+    def _run_query_commit(self, query, values=[]):
+        with current_app.db.engine.connect() as con:
+            return con.execute(query, *values)
+
+    def _run_query_fetch(self, query, values=[]):
+        with current_app.db.engine.connect() as con:
+            result = con.execute(query, *values)
+            row_list = [row._asdict() for row in result]
+
+            return row_list
 
     # @todo: maybe this works for us together with migrations:
     # https://sqlalchemy-utils.readthedocs.io/en/latest/view.html
@@ -179,7 +193,7 @@ class DataManager:
         )
 
         result_rows = self.schema().dump(
-            self._run_query_commit(query, [uuid]), many=True
+            self._run_query_fetch(query, [uuid]), many=True
         )
 
         if not result_rows:
@@ -218,7 +232,7 @@ class DataManager:
 
         query = f"SELECT {included_fields} FROM {self.all_latest_view} WHERE ID = ?"
 
-        result_rows = self.schema().dump(self._run_query_commit(query, [id]), many=True)
+        result_rows = self.schema().dump(self._run_query_fetch(query, [id]), many=True)
 
         if not result_rows:
             return None
@@ -254,7 +268,7 @@ class DataManager:
         """
         if status_condition:
             query = query + status_condition
-        return self.schema(partial=True).dump(self._run_query_commit(query), many=True)
+        return self.schema(partial=True).dump(self._run_query_fetch(query), many=True)
 
     def get_all(
         self,
@@ -327,7 +341,7 @@ class DataManager:
             query_args.append(limit)
 
         result_rows = self.schema().dump(
-            self._run_query_commit(query, query_args), many=True
+            self._run_query_fetch(query, query_args), many=True
         )
 
         # Get references
@@ -428,7 +442,7 @@ class DataManager:
                  WHERE a.{ref.my_col} in ({source_uuids})
                  """
 
-            result_rows = self._run_query_commit(query, [])
+            result_rows = self._run_query_fetch(query, [])
 
             row_map = defaultdict(list)
             for row in result_rows:
@@ -464,7 +478,7 @@ class DataManager:
                     SELECT {', '.join(included_fields)} from {target_tn} WHERE UUID IN ({target_uuids}) 
                     """
 
-            result_rows = self._run_query_commit(query, [])
+            result_rows = self._run_query_fetch(query, [])
 
             result_rows = ref.schema.dump(result_rows, many=True)
             row_map = {row["UUID"]: row for row in result_rows}
@@ -483,7 +497,7 @@ class DataManager:
                     ON b.UUID = a.{ref.their_col} 
                     WHERE {ref.my_col} IN ({source_uuids}) 
                     """
-            result_rows = self._run_query_commit(query, [])
+            result_rows = self._run_query_fetch(query, [])
 
             row_map = defaultdict(list)
             for row in result_rows:
@@ -573,7 +587,7 @@ class DataManager:
             query_args.append(limit)
 
         result_rows = self.schema().dump(
-            self._run_query_commit(query, query_args), many=True
+            self._run_query_fetch(query, query_args), many=True
         )
 
         all_references = {
@@ -630,8 +644,7 @@ class DataManager:
         parameter_marks = ", ".join(["?"] * len(column_names))
         query = f"""INSERT INTO {self.schema.Meta.table} ({', '.join(column_names)}) OUTPUT inserted.UUID, inserted.ID VALUES ({parameter_marks})"""
 
-        res = self._run_query_commit(query, values)
-
+        res = self._run_query_commit_old(query, values)
         output = res[0]
 
         for ref in reference_cache:
@@ -764,7 +777,7 @@ class DataManager:
                                 ) as x GROUP BY [KEY]) as f
                             ON f.[KEY] = v.UUID
                             ORDER BY f.WeightedRank DESC"""
-        result_rows = self._run_query_commit(search_query, [args, args])
+        result_rows = self._run_query_fetch(search_query, [args, args])
         return result_rows
 
     def geo_search(self, query):
@@ -827,5 +840,5 @@ class DataManager:
                 or_filter = " OR ".join([f"{ref_key} = ?" for _ in query_uuids])
                 search_query += "WHERE " + or_filter
 
-            result_rows = self._run_query_commit(search_query, query_uuids)
+            result_rows = self._run_query_fetch(search_query, query_uuids)
             return result_rows

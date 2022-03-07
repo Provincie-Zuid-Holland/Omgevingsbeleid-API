@@ -83,5 +83,4 @@ class WerkingsgebiedenDataManager(DataManager):
                         AND Eind_Geldigheid > GETDATE()
                         AND Begin_Geldigheid <= GETDATE()
                     """
-
         self._run_query_commit(query)

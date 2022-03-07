@@ -79,7 +79,7 @@ class Beleidskeuzes(CommonMixin, db.Model):
     Werkingsgebieden = relationship("Beleidskeuze_Werkingsgebieden", back_populates="Beleidskeuze")
     # Beleidsrelaties = relationship("Beleidsrelaties", back_populates="Beleidskeuzes")
     Beleidsmodules = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidskeuze")
-            
+
 
 status_options = [
     "Definitief ontwerp GS",
@@ -144,7 +144,9 @@ class Beleidskeuzes_Schema(Base_Schema):
     Besluitnummer = MM.fields.Str(missing=None, obprops=[])
     Tags = MM.fields.Str(missing=None, obprops=[])
     Aanpassing_Op = MM.fields.UUID(
-        missing=None, obprops=["excluded_post", "not_inherited"]
+        # @note: not_inherited this forces to not create a new version
+        # might need to be changed
+        missing=None, obprops=["excluded_post", "not_inherited"] 
     )
     Ambities = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=["referencelist"]
