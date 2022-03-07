@@ -26,6 +26,27 @@ from Api.Models.beleidsprestaties import Beleidsprestaties
 @pytest.mark.usefixtures("fixture_data")
 class TestApi:
 
+    def test_beleidskeuze_valid_view_future_vigerend(self, client_admin):
+        response = client_admin.get("v0.1/valid/beleidskeuzes?all_filters=Afweging:beleidskeuze1011")
+        assert response.status_code == 200, f"Status code was {response.status_code}"
+        data = response.get_json()
+        assert len(data) >= 1, f"Expecting at least 1 results"
+
+        expected_uuids = set([
+            "FEC2E000-0011-0017-0000-000000000000", # This is Vigerend and still in current date time range
+        ])
+        found_uuids = set([r["UUID"] for r in data])
+        assert expected_uuids.issubset(found_uuids), f"Not all expected uuid where found"
+
+        forbidden_uuids = set([
+            "FEC2E000-0011-0011-0000-000000000000", # first version early status
+            "FEC2E000-0011-0021-0000-000000000000", # second version early status
+            "FEC2E000-0011-0027-0000-000000000000", # New version status Vigerend, but in the future
+        ])
+        intersect = found_uuids & forbidden_uuids
+        assert len(intersect) == 0, f"Some forbidden uuid where found"
+
+
     def test_werkingsgebied_valid_view(self, client, client_fred):
         response = client_fred.get("v0.1/valid/werkingsgebieden")
         assert response.status_code == 200, f"Status code was {response.status_code}"

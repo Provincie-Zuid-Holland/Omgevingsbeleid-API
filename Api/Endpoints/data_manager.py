@@ -122,19 +122,30 @@ class DataManager:
         status_condition = ""
         if status_conf := self.schema.Meta.status_conf:
             # e.g. "AND Status = 'Vigerend'"
-            status_condition = f"WHERE {status_conf[0]} = '{status_conf[1]}'"
+            status_condition = f" {status_conf[0]} = '{status_conf[1]}' AND"
 
         query = f"""
                     CREATE OR ALTER VIEW {self.valid_view} AS
-                    SELECT * FROM 
-                        (SELECT *, 
-                        ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
-                        FROM {self.schema.Meta.table}
-                        {status_condition}) T 
-                    WHERE RowNumber = 1
-                    AND UUID != '00000000-0000-0000-0000-000000000000'
-                    AND Eind_Geldigheid > GETDATE()
-                    AND Begin_Geldigheid <= GETDATE()
+                    WITH {self.valid_view}_inner AS
+                    (
+                        SELECT
+                            *, 
+                            ROW_NUMBER() OVER (PARTITION BY [ID] ORDER BY [Modified_Date] DESC) [RowNumber] 
+                        FROM
+                            {self.schema.Meta.table}
+                        WHERE
+                            {status_condition}
+                            UUID != '00000000-0000-0000-0000-000000000000'
+                        AND Eind_Geldigheid > GETDATE()
+                        AND Begin_Geldigheid <= GETDATE()
+                    )
+
+                    SELECT
+                        *
+                    FROM
+                        {self.valid_view}_inner
+                    WHERE
+                        RowNumber = 1
                     """
 
         self._run_query_commit(query)
