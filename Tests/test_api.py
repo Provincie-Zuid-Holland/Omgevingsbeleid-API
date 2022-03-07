@@ -26,7 +26,7 @@ from Api.Models.beleidsprestaties import Beleidsprestaties
 @pytest.mark.usefixtures("fixture_data")
 class TestApi:
 
-    def test_werkingsgebied_all_valid_view(self, client, client_fred):
+    def test_werkingsgebied_valid_view(self, client, client_fred):
         response = client_fred.get("v0.1/valid/werkingsgebieden")
         assert response.status_code == 200, f"Status code was {response.status_code}"
         data = response.get_json()
@@ -50,7 +50,7 @@ class TestApi:
         assert len(intersect) == 0, f"Some forbidden uuid where found"
 
 
-    def test_werkingsgebied_valid_view(self, db):
+    def test_werkingsgebied_all_valid_view(self, db):
         query = "SELECT UUID FROM All_Valid_Werkingsgebieden"
         res = db.engine.execute(query)
 
