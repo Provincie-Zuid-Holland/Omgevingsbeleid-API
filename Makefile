@@ -20,9 +20,6 @@ info:
 	@echo ""
 
 up:
-	docker-compose up -d
-
-up-build:
 	docker-compose up -d --build
 
 down:
@@ -33,7 +30,7 @@ down-hard:
 
 restart: down init
 
-restart-hard: down-hard up-build init
+restart-hard: down-hard up init
 
 logs:
 	docker-compose logs -f --tail=100
