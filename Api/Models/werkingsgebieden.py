@@ -3,10 +3,12 @@
 
 import marshmallow as MM
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
+from sqlalchemy.orm import deferred
+from sqlalchemy import Column, ForeignKey, String, Unicode
 
 from Api.Endpoints.base_schema import Base_Schema
 from Api.Endpoints.references import Reverse_UUID_Reference
+from Api.Endpoints.werkingsgebieden_data_manager import WerkingsgebiedenDataManager
 from Api.Models.short_schemas import Short_Beleidskeuze_Schema
 from Api.database import CommonMixin, db
 from Api.Utils.sqlalchemy import Geometry
@@ -28,7 +30,7 @@ class Werkingsgebieden(CommonMixin, db.Model):
 
     Werkingsgebied = Column(Unicode, nullable=False)
     symbol = Column(Unicode(265))
-    SHAPE = Column(Geometry(), nullable=False)
+    SHAPE = deferred(Column(Geometry(), nullable=False))
 
     Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Werkingsgebieden.Created_By == Gebruikers.UUID')
     Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Werkingsgebieden.Modified_By == Gebruikers.UUID')
@@ -56,3 +58,4 @@ class Werkingsgebieden_Schema(Base_Schema):
                 Short_Beleidskeuze_Schema,
             )
         }
+        manager = WerkingsgebiedenDataManager
