@@ -1,5 +1,5 @@
 .PHONY: init info up down down-hard restart logs logs-all mysql-wait mssql mssql-cli mssql-create-database-dev mssql-create-database-test mssql-show-databases mssql-show-tables flask-setup-views flask-db-upgrade flask-routes load-fixtures flask test test-verbose
- 
+
 init: up mssql-wait mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views load-fixtures info
 
 
@@ -48,18 +48,18 @@ mssql-cli:
 	docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd
 
 mssql-create-database-dev:
-	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-dev.sql 
+	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-dev.sql
 
 mssql-create-database-test:
-	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-test.sql 
+	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-test.sql
 
 flask-db-upgrade:
 	docker-compose exec api flask db upgrade
-	
+
 flask-setup-views:
 	docker-compose exec api flask setup-views -y
 
-flask-routes:	
+flask-routes:
 	docker-compose exec api flask routes
 
 api:
@@ -81,7 +81,7 @@ setup-no-wait: mssql-create-database-dev mssql-create-database-test flask-db-upg
 
 # Very rare utilities
 mssql-clear-database:
-	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/clear.sql 
+	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/clear.sql
 
 mssql-show-databases:
 	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT name FROM master.dbo.sysdatabases"
@@ -91,11 +91,11 @@ mssql-show-tables:
 
 # @deprecated
 mssql-load-old-database:
-	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/old.hidden.sql 
+	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/old.hidden.sql
 
 # deprecated
 mssql-load-old-full-database:
-	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/old-full.hidden.sql 
+	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/old-full.hidden.sql
 
 # @TODO: DB_DRIVER should be filled in
 # This value is different for linux and windows users
