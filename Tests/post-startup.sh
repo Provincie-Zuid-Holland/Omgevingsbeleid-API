@@ -1,0 +1,1 @@
+flask setup-views -y
