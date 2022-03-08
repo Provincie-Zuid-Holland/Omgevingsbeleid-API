@@ -76,6 +76,9 @@ test-verbose:
 load-fixtures:
 	docker-compose exec api flask load-fixtures
 
+# Specific setup without automatically waiting for sql server
+setup-no-wait: mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views load-fixtures info
+
 # Very rare utilities
 mssql-clear-database:
 	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/clear.sql 

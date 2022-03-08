@@ -136,6 +136,12 @@ class FixtureLoader():
 
         for i in range(30):
             self._beleidskeuze(f"keu:water-{i}", Titel=f"{i} - Test informatie voor zoeken naar water")
+        
+        # Verordeningsobject that are linked to beleidskeuzes
+        self._verordening("ver:2", Created_By="geb:fred", Modified_By="geb:fred", Type="Lid" )
+        self._verordening("ver:3", Created_By="geb:fred", Modified_By="geb:fred", Type="Artikel")
+        self._beleidskeuzes_verordeningen("keu:6", "ver:2")
+        self._beleidskeuzes_verordeningen("keu:6", "ver:3")
 
         self._s.commit()
 

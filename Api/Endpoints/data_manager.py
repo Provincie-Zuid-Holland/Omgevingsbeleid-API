@@ -3,6 +3,7 @@
 from collections import defaultdict
 from marshmallow import schema
 import pyodbc
+import re
 from uuid import UUID
 from flask import current_app
 
@@ -26,7 +27,8 @@ class DataManagerException(Exception):
 # Effectivity -> becomes in effect (USA), Object that are in effect
 # Generate query conditions in schemas (responsibility)
 
-
+# HTML cleaning regex
+CLEANR = re.compile("<.*?>")
 class DataManager:
     def __init__(self, schema):
         """A manager object for interacting with the database
@@ -789,6 +791,17 @@ class DataManager:
                             ON f.[KEY] = v.UUID
                             ORDER BY f.WeightedRank DESC"""
         result_rows = self._run_query_fetch(search_query, [args, args])
+        
+        # Remove HTML from omschrijving
+        result_rows = list(
+            map(
+                lambda row: {
+                    **row,
+                    "Omschrijving": re.sub(CLEANR, "", row["Omschrijving"]),
+                },
+                result_rows,
+            )
+        )
         return result_rows
 
     def geo_search(self, query):

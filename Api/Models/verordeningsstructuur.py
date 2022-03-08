@@ -87,6 +87,15 @@ class Tree_Node(MM.Schema):
         if "Gebied" in dumped and dumped["Gebied"] == null_uuid:
             dumped["Gebied"] = None
         return dumped
+    
+    @MM.post_dump()
+    def null_gebied(self, dumped, many):
+        """
+        Ensure null UUID is null
+        """
+        if 'Gebied' in dumped and dumped['Gebied'] == null_uuid:
+            dumped['Gebied'] = None
+        return dumped
 
 
 class Verordeningstructuur(CommonMixin, db.Model):
