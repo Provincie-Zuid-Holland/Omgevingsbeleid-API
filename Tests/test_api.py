@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2022 Provincie Zuid-Holland
 
+from Tests.conftest import fixture_data
 import pytest
 from pprint import pprint
 import datetime
@@ -25,6 +26,29 @@ from Api.Models.beleidsprestaties import Beleidsprestaties
 
 @pytest.mark.usefixtures("fixture_data")
 class TestApi:
+
+    def test_leden_excluded_from_graph(self, client, client_fred, fixture_data):
+        _link_to3 = {"source": fixture_data._instances['keu:6'].UUID, 
+                "target":fixture_data._instances['ver:3'].UUID, 
+                "type":"Koppeling"}
+        
+        _link_to2 = {"source": fixture_data._instances['keu:6'].UUID, 
+                "target":fixture_data._instances['ver:2'].UUID, 
+                "type":"Koppeling"}
+        
+        response = client_fred.get("v0.1/graph")
+        node_uuids = map(lambda node: node['UUID'], response.get_json()['nodes'])
+        links = response.get_json()['links']
+        # This is the source beleidskeuze
+        assert fixture_data._instances['keu:6'].UUID in node_uuids 
+        
+        # This one should show up (it has Type==Artikel)
+        assert fixture_data._instances['ver:3'].UUID in node_uuids 
+        assert _link_to3 in links
+        
+        # This one should not show up (it has Type==Lid)
+        assert fixture_data._instances['ver:2'].UUID not in node_uuids 
+        assert _link_to2 not in links
 
     def test_werkingsgebied_valid_view(self, client, client_fred):
         response = client_fred.get("v0.1/valid/werkingsgebieden")
