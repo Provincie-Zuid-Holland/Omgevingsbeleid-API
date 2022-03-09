@@ -1,4 +1,4 @@
-<img src="https://www.zuid-holland.nl/publish/pages/26873/pzh_basislogo_rgb_1_0.svg" alt="Provincie Zuid-Holland logo" width="220px">
+<img src="https://omgevingsbeleid.zuid-holland.nl/static/media/PZH_Basislogo.36627253.svg" alt="Provincie Zuid-Holland logo" width="500px">
 
 # Omgevingsbeleid API · ![License](https://img.shields.io/github/license/Provincie-Zuid-Holland/Omgevingsbeleid-API)
 
