@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3.8'
 
 services:
   api:
@@ -22,7 +22,8 @@ services:
       TEST_DB_NAME: db_test
       JWT_SECRET: secret
     depends_on:
-      - mssql
+      mssql:
+        condition: service_healthy
     restart: "no"
 
   frontend:
@@ -55,6 +56,12 @@ services:
     volumes:
       - mssql:/var/opt/mssql
       - ./docker/mssql/:/opt/sql/:ro
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT 1" -b -o /dev/null
+      interval: 1s
+      timeout: 3s
+      retries: 10
+      start_period: 1s
     restart: "no"
 
   nginx:

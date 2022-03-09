@@ -1,6 +1,6 @@
 .PHONY: init info up down down-hard restart logs logs-all mysql-wait mssql mssql-cli mssql-create-database-dev mssql-create-database-test mssql-show-databases mssql-show-tables flask-setup-views flask-db-upgrade flask-routes load-fixtures flask test test-verbose
 
-init: up mssql-wait mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views load-fixtures info
+init: up mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views load-fixtures info
 
 
 info:
@@ -37,9 +37,6 @@ logs:
 
 logs-all:
 	docker-compose logs -f
-
-mssql-wait:
-	@while ! docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "select 1;" > /dev/null 2>&1; do sleep 1; done; sleep 2;
 
 mssql:
 	docker-compose exec mssql /bin/bash
