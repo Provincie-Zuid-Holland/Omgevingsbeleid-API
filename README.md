@@ -85,6 +85,11 @@ pytest
 
 ## Running in docker
 
+### Dependencies for docker
+
+- minimum docker version 17.06.0+
+- minimum docker-compose version 1.27.0
+
 To initialise the project you can run:
 ```bash
 make init
