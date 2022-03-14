@@ -458,6 +458,7 @@ def upgrade():
         ),
         sa.PrimaryKeyConstraint("UUID", name=op.f("PK_Werkingsgebieden")),
     )
+    create_geometry_index_werkingsgebieden()
 
     op.create_table(
         "Beleidskeuze_Ambities",
@@ -1046,6 +1047,10 @@ def dialect_supports_sequences():
     return op._proxy.migration_context.dialect.supports_sequences
 
 
+def dialect_supports_geometry_index():
+    return op._proxy.migration_context.dialect.name == 'mssql'
+
+
 def create_seq(name):
     if dialect_supports_sequences():
         op.execute(sa.schema.CreateSequence(sa.schema.Sequence(name)))
@@ -1075,5 +1080,20 @@ def drop_xmlSchemaCollection(schema_name):
     conn = op.get_bind()
     query = f"""
     DROP XML SCHEMA COLLECTION {schema_name}
+    """
+    conn.execute(text(query))
+
+
+def create_geometry_index_werkingsgebieden():
+    if not dialect_supports_geometry_index():
+        return
+    conn = op.get_bind()
+    query = f"""
+        CREATE SPATIAL INDEX [FDO_Shape] ON [dbo].[WerkingsGebieden]
+        (
+            [SHAPE]
+        )USING  GEOMETRY_AUTO_GRID
+        WITH (BOUNDING_BOX =(-43663, -406692, 138684, 483123),
+        CELLS_PER_OBJECT = 16, STATISTICS_NORECOMPUTE = OFF, DROP_EXISTING = OFF, ONLINE = OFF) ON [PRIMARY]
     """
     conn.execute(text(query))
