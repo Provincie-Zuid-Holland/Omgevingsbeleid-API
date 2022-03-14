@@ -8,6 +8,7 @@ from Api.Utils.sqlalchemy import Geometry
 from Api.database import CommonMixin, db
 
 
+# Onderverdeling is onderdeel van Werkingsgebied
 class Onderverdeling(CommonMixin, db.Model):
     __tablename__ = 'Onderverdeling'
 

@@ -12,6 +12,7 @@ from Api.Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
 from Api.database import CommonMixin, db
 
 
+# Beleidsdoelen gaan via Begroting
 class Beleidskeuze_Beleidsdoelen(db.Model):
     __tablename__ = 'Beleidskeuze_Beleidsdoelen'
 

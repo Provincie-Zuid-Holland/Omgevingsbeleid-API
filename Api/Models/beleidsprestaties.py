@@ -23,6 +23,7 @@ class Beleidskeuze_Beleidsprestaties(db.Model):
     Beleidsprestatie = relationship("Beleidsprestaties", back_populates="Beleidskeuzes")
 
 
+# Beleidsprestaties gaan via Begroting
 class Beleidsprestaties(CommonMixin, db.Model):
     __tablename__ = 'Beleidsprestaties'
 
