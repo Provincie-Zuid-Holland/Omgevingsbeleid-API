@@ -103,7 +103,9 @@ Note: it can take a while to start as the frontend will be build in development 
 ## Commonly used commands
 
 ```bash
+make help # Shows the commonly used make commands with a small description
 make init # The entrypoint: Starts docker, loads database and fills database with fixtures
+
 make info # Shows information where all the applications can me accessed.
 make api  # Sends you in the api container
 make logs # Tails the docker-compose logs
