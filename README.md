@@ -100,7 +100,7 @@ Goto [localhost:8888](http://localhost:8888) to view all the services working to
 
 Note: it can take a while to start as the frontend will be build in development mode.
 
-## Commonly used commands
+### Commonly used commands
 
 ```bash
 make help # Shows the commonly used make commands with a small description
@@ -114,7 +114,18 @@ make restart-hard # Same as restart, but will also remove the current volumes
 make test # Run the tests inside the docker container
 ```
 
-## Use a different frontend branch
+### Frontend Font Awesome dependency
+
+In the frontend we currently have Font Awesome pro installed. To build the frontend you should provide a valid Font Awesome secret.
+The environment variable `PZH_FONTAWESOME_SECRET` should be known to docker-compose.
+This can be done by setting `PZH_FONTAWESOME_SECRET` in the `.env` file.
+
+For example in the .env file:
+```bash
+PZH_FONTAWESOME_SECRET=font-awesome-secret-here
+```
+
+### Use a different frontend branch
 
 By default the `dev` branch of the frontend application will be used.
 You can overwrite the branch by setting the environment variable FRONTEND_BRANCH.

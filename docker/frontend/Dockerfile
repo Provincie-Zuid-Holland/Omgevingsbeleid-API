@@ -6,15 +6,18 @@ RUN set -ex; \
     apt install -y git; \
     rm -rf /var/lib/apt/lists/*rm -rf /var/lib/apt/lists/*;
 
-ARG BUILTIME_FRONTEND_BRANCH=dev
-ENV FRONTEND_BRANCH=${BUILTIME_FRONTEND_BRANCH:-dev}
+ENV FRONTEND_BRANCH=${FRONTEND_BRANCH:-dev}
+ENV PZH_FONTAWESOME_SECRET=${PZH_FONTAWESOME_SECRET}
 
 RUN set -ex; \
     cd /opt/; \
-    git clone -b ${FRONTEND_BRANCH} https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-Frontend.git; \
-    cd Omgevingsbeleid-Frontend; \
-    npm install;
+    git clone https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-Frontend.git; \
+    cd Omgevingsbeleid-Frontend;
 
 WORKDIR /opt/Omgevingsbeleid-Frontend
 
+COPY ./docker/frontend/docker-entrypoint.sh /opt/Omgevingsbeleid-Frontend/docker-entrypoint.sh
+RUN  chmod +x /opt/Omgevingsbeleid-Frontend/docker-entrypoint.sh
+
+ENTRYPOINT ["/opt/Omgevingsbeleid-Frontend/docker-entrypoint.sh"]
 CMD ["npm", "start"]

@@ -30,8 +30,6 @@ services:
     build:
       context: ./
       dockerfile: ./docker/frontend/Dockerfile
-      args:
-        BUILTIME_FRONTEND_BRANCH: "${FRONTEND_BRANCH}"
     ports:
       - "3000:3000"
     environment:
@@ -42,6 +40,8 @@ services:
       REACT_APP_KEY_IDENTIFIER: 'OB_identifier'
       REACT_APP_ERROR_MSG: 'Er is iets misgegaan, probeer het later nog eens'
       REACT_APP_KEY_WELCOME_POPUP: 'OB_welkom_popup'
+      FRONTEND_BRANCH: "${FRONTEND_BRANCH}"
+      PZH_FONTAWESOME_SECRET: "${PZH_FONTAWESOME_SECRET}"
     depends_on:
       - api
     restart: "no"
