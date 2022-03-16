@@ -29,6 +29,10 @@ def dialect_supports_sequences():
     return op._proxy.migration_context.dialect.supports_sequences
 
 
+def dialect_supports_geometry_index():
+    return op._proxy.migration_context.dialect.name == 'mssql'
+
+
 def create_seq(name):
     if dialect_supports_sequences():
        op.execute(sa.schema.CreateSequence(sa.schema.Sequence(name)))
