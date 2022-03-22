@@ -118,10 +118,7 @@ def create_api(app):
         ),
     )
 
-
-    app.add_url_rule(
-        f"/v{current_version}/search/geo", "geo-search", geo_search_view, methods=["GET"]
-    )
+    app.add_url_rule(f"/v{current_version}/search/geo", "geo-search", geo_search_view, methods=["GET", "POST"])
 
     app.add_url_rule(f"/v{current_version}/graph", "graph", graphView, methods=["GET"])
 
