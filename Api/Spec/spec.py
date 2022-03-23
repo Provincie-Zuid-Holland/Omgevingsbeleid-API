@@ -1238,6 +1238,131 @@ def render_paths(endpoints):
         },
     }
 
+    # Search spec
+    paths[f"/search/geo"]["post"] = {
+        "summary": f"Search for objects that are linked to a specific geo area",
+        "requestBody": {
+            "required": True,
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "query": {
+                                "description": "The uuid of the geo area to search on. Comma seperated list",
+                                "type": "string",
+                            },
+                            "only": {
+                                "description": "Only search these objects (can not be used in combination with `exclude`. Comma seperated list",
+                                "type": "string",
+                            },
+                            "exclude": {
+                                "description": "Exclude these objects form search (can not be used in combination with `only`",
+                                "type": "string",
+                            },
+                            "limit": {
+                                "description": "Limit the amount of results. Comma seperated list",
+                                "type": "integer",
+                                "default": 10,
+                            },
+                            "offset": {
+                                "description": "Offset the results",
+                                "type": "integer",
+                                "default": 0,
+                            },
+                        },
+                    }
+                }
+            },
+        },
+        "responses": {
+            "200": {
+                "description": "Search results",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "total": {
+                                    "type": "integer",
+                                    "description": "The total amount of objects found",
+                                },
+                                "results": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "Omschrijving": {
+                                                "type": "string",
+                                                "description": "A description of this object",
+                                            },
+                                            "Titel": {
+                                                "type": "string",
+                                                "description": "The title of this object",
+                                            },
+                                            "RANK": {
+                                                "type": "integer",
+                                                "description": "A representation of the search rank, only usefull for comparing between two results",
+                                            },
+                                            "Type": {
+                                                "type": "string",
+                                                "description": "The type of this object",
+                                                "enum": list(
+                                                    map(
+                                                        lambda schema: schema.Meta.slug,
+                                                        filter(
+                                                            lambda schema: schema.Meta.searchable,
+                                                            datamodel.endpoints,
+                                                        ),
+                                                    )
+                                                ),
+                                            },
+                                            "UUID": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "description": "The UUID of this object",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        }
+                    }
+                },
+            },
+            "400": {
+                "description": "No search query provided or no objects in resultset",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "A description of the error",
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+            "403": {
+                "description": "`Exclude` and `only` in the same query",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "A description of the error",
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+        },
+    }
+
     # Tokeninfo spec
     paths[f"/gebruikers"]["get"] = {
         "summary": f"Get a list of users",
