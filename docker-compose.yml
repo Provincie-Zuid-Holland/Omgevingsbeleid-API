@@ -86,7 +86,6 @@ services:
       # Note: See https://github.com/kartoza/docker-geoserver#activate-stable-plugins-during-contain-startup
       # for more extensions and how to use them
       STABLE_EXTENSIONS: sqlserver-plugin
-      SAMPLE_DATA: 'false'
       TOMCAT_USER: admin
       TOMCAT_PASSWORD: password
       GEOSERVER_ADMIN_USER: admin
