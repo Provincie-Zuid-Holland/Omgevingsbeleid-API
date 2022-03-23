@@ -81,11 +81,12 @@ services:
       - "8080:8080"
     volumes:
       - geoserver:/opt/geoserver/data_dir
+      - ./docker/geoserver/workspaces:/opt/geoserver/data_dir/workspaces
     environment:
       # Note: See https://github.com/kartoza/docker-geoserver#activate-stable-plugins-during-contain-startup
       # for more extensions and how to use them
       STABLE_EXTENSIONS: sqlserver-plugin
-      SAMPLE_DATA: 'true'
+      SAMPLE_DATA: 'false'
       TOMCAT_USER: admin
       TOMCAT_PASSWORD: password
       GEOSERVER_ADMIN_USER: admin

@@ -1,0 +1,16 @@
+<layer>
+  <name>Werkingsgebieden</name>
+  <id>LayerInfoImpl--51a17c8b:17fb648b77d:-7ff3</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--51a17c8b:17fb648b77d:-7ffc</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--51a17c8b:17fb648b77d:-7ff4</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2022-03-23 10:31:15.484 UTC</dateCreated>
+</layer>
