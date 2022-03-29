@@ -21,8 +21,12 @@ stoplist_name = "Omgevingsbeleid_SW"
 
 # Base configuration which holds for every environment or gets overwritten
 class Config():
+    JWT_COOKIE_SECURE = True
     JWT_SECRET_KEY = os.getenv("JWT_SECRET")
-    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=4)
+
+    # Should probably be 20 minutes
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=1)
+
     PROPAGATE_EXCEPTIONS = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
