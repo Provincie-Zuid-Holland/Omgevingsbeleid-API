@@ -55,7 +55,7 @@ packaging==20.4
 passlib==1.7.2
 password-strength==0.0.3.post2
 pathspec==0.9.0
-Pillow==8.3.2
+Pillow==9.0.1
 pip-tools==5.5.0
 pluggy==0.13.1
 protobuf==3.19.4
