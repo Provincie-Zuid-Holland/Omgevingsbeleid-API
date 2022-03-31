@@ -1,0 +1,6 @@
+USE master;
+GO
+DROP DATABASE IF EXISTS db_test;
+GO
+CREATE DATABASE db_test;
+GO

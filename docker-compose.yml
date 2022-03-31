@@ -1,0 +1,80 @@
+version: '3.3'
+
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: ./docker/api/Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./:/code
+    environment:
+      FLASK_APP: index.py
+      FLASK_ENV: development
+      FLASK_RUN_HOST: 0.0.0.0
+      DB_USER: SA
+      DB_PASS: Passw0rd
+      DB_HOST: mssql
+      DB_PORT: 1433
+      DB_NAME: db_dev
+      DB_DRIVER: ODBC Driver 17 for SQL Server
+      TEST_DB_NAME: db_test
+      JWT_SECRET: secret
+    depends_on:
+      mssql:
+        condition: service_healthy
+    restart: "no"
+
+  frontend:
+    build:
+      context: ./
+      dockerfile: ./docker/frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_RELEASE_VERSION: 'omgevingsbeleid@1.0.0'
+      REACT_APP_API_URL: 'http://localhost:8888/v0.1'
+      REACT_APP_API_ENV: 'dev'
+      REACT_APP_KEY_API_ACCESS_TOKEN: 'OB_access_token'
+      REACT_APP_KEY_IDENTIFIER: 'OB_identifier'
+      REACT_APP_ERROR_MSG: 'Er is iets misgegaan, probeer het later nog eens'
+      REACT_APP_KEY_WELCOME_POPUP: 'OB_welkom_popup'
+      FRONTEND_BRANCH: "${FRONTEND_BRANCH}"
+      PZH_FONTAWESOME_SECRET: "${PZH_FONTAWESOME_SECRET}"
+    depends_on:
+      - api
+    restart: "no"
+
+  mssql:
+    image: reynier3mil/centos-mssql-full
+    ports:
+      - "11433:1433"
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: 'Passw0rd'
+    volumes:
+      - mssql:/var/opt/mssql
+      - ./docker/mssql/:/opt/sql/:ro
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT 1" -b -o /dev/null
+      interval: 1s
+      timeout: 3s
+      retries: 10
+      start_period: 1s
+    restart: "no"
+
+  nginx:
+    image: nginx:1.21
+    ports:
+      - "8888:80"
+    volumes:
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - frontend
+      - api
+    restart: "no"
+
+volumes:
+  mysql:
+  mssql:
