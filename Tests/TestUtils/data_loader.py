@@ -116,6 +116,10 @@ class FixtureLoader():
         self._beleidskeuze("keu:23", ID=1011, UUID="FEC2E000-0011-0026-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-06T10:00:00", Modified_By="geb:admin", Status="Vastgesteld",                   Titel="Versie 2 Vastgesteld - datum is tegenwoordig",                   Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
         self._beleidskeuze("keu:24", ID=1011, UUID="FEC2E000-0011-0027-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-07T10:00:00", Modified_By="geb:admin", Status="Vigerend",                      Titel="Versie 2 Vigerend - datum is tegenwoordig",                      Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
 
+        # Beleidskeuze which gets "removed" because a new version is set to the past
+        self._beleidskeuze("keu:30", ID=1030, UUID="FEC2E000-1030-0001-0000-000000000000", Created_By="geb:admin", Created_Date="2020-02-01T10:00:00", Modified_Date="2020-02-01T10:00:00", Modified_By="geb:admin", Status="Vigerend",            Titel="Versie 1 Vigerend en in de huidige tijd", Afweging="beleidskeuze1030", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
+        self._beleidskeuze("keu:31", ID=1030, UUID="FEC2E000-1030-0002-0000-000000000000", Created_By="geb:admin", Created_Date="2020-02-01T10:00:00", Modified_Date="2020-03-01T10:00:00", Modified_By="geb:admin", Status="Vigerend",            Titel="Versie 2 Vigerend maar in het verleden",  Afweging="beleidskeuze1030", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2021-01-01T10:00:00")
+
         # 
         self._ambitie("amb:2", Created_By="geb:admin")
         self._ambitie("amb:3", Created_By="geb:alex", Modified_By="geb:alex")
