@@ -9,6 +9,7 @@ import time
 
 import Api.Models
 from Api.settings import null_uuid
+from Tests.TestUtils.test_shapes import pzh_shape
 
 
 class FixtureLoader():
@@ -98,6 +99,9 @@ class FixtureLoader():
         
         self._werkingsgebied("wgb:7", UUID="8EB1ED00-0007-0000-0000-000000000000", Werkingsgebied="All_Valid but not Valid as the Begin_Geldingheid of this werkingsgebied is in the future", Begin_Geldigheid="9991-11-23T10:00:00", Eind_Geldigheid="9992-11-23T10:00:00")
         self._beleidskeuzes_werkingsgebieden("keu:10", "wgb:7")
+
+        # Werkingsgebied with the shape of the Provincie Zuid Holland, in order to test geo features
+        self._werkingsgebied("wgb:pzh", Werkingsgebied="Shape of the provincie Zuid Holland", SHAPE=pzh_shape, Created_By="geb:fred", Modified_By="geb:fred", Begin_Geldigheid="1991-11-23T10:00:00", Eind_Geldigheid="1992-11-23T10:00:00")
 
         # Beleidskeuze which has a mutation with Status=Vigerend, but is still in the future
         self._beleidskeuze("keu:11", ID=1011, UUID="FEC2E000-0011-0011-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-01T10:00:00", Modified_By="geb:admin", Status="Ontwerp GS Concept",            Titel="Versie 1 in Ontwerp GS Concept - datum is tegenwoordig",         Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
