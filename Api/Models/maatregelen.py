@@ -13,7 +13,10 @@ from Api.Endpoints.references import (
 )
 from Api.Endpoints.validators import HTML_Validate
 from Api.Models.werkingsgebieden import Werkingsgebieden_Schema
-from Api.Models.short_schemas import Short_Beleidskeuze_Schema, Short_Beleidsmodule_Schema
+from Api.Models.short_schemas import (
+    Short_Beleidskeuze_Schema,
+    Short_Beleidsmodule_Schema,
+)
 from Api.Models.gebruikers import Gebruikers_Schema
 from Api.Endpoints.status_data_manager import StatusDataManager
 from Api.settings import default_user_uuid
@@ -21,59 +24,89 @@ from Api.database import CommonMixin, db
 
 
 class Beleidskeuze_Maatregelen(db.Model):
-    __tablename__ = 'Beleidskeuze_Maatregelen'
+    __tablename__ = "Beleidskeuze_Maatregelen"
 
-    Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
-    Maatregel_UUID = Column('Maatregel_UUID', ForeignKey('Maatregelen.UUID'), primary_key=True)
-    Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+    Beleidskeuze_UUID = Column(
+        "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
+    )
+    Maatregel_UUID = Column(
+        "Maatregel_UUID", ForeignKey("Maatregelen.UUID"), primary_key=True
+    )
+    Koppeling_Omschrijving = Column(
+        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
+    )
 
     Beleidskeuze = relationship("Beleidskeuzes", back_populates="Maatregelen")
     Maatregel = relationship("Maatregelen", back_populates="Beleidskeuzes")
 
 
-
 class Beleidsmodule_Maatregelen(db.Model):
-    __tablename__ = 'Beleidsmodule_Maatregelen'
+    __tablename__ = "Beleidsmodule_Maatregelen"
 
-    Beleidsmodule_UUID = Column('Beleidsmodule_UUID', ForeignKey('Beleidsmodules.UUID'), primary_key=True)
-    Maatregel_UUID = Column('Maatregel_UUID', ForeignKey('Maatregelen.UUID'), primary_key=True)
-    Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+    Beleidsmodule_UUID = Column(
+        "Beleidsmodule_UUID", ForeignKey("Beleidsmodules.UUID"), primary_key=True
+    )
+    Maatregel_UUID = Column(
+        "Maatregel_UUID", ForeignKey("Maatregelen.UUID"), primary_key=True
+    )
+    Koppeling_Omschrijving = Column(
+        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
+    )
 
     Beleidsmodule = relationship("Beleidsmodules", back_populates="Maatregelen")
     Maatregel = relationship("Maatregelen", back_populates="Beleidsmodules")
 
 
 class Maatregelen(CommonMixin, db.Model):
-    __tablename__ = 'Maatregelen'
+    __tablename__ = "Maatregelen"
 
     Titel = Column(Unicode, nullable=False)
     Omschrijving = Column(Unicode)
     Toelichting = Column(Unicode)
     Toelichting_Raw = Column(Unicode)
     Weblink = Column(Unicode)
-    Gebied = Column(ForeignKey('Werkingsgebieden.UUID'))
+    Gebied = Column(ForeignKey("Werkingsgebieden.UUID"))
     Status = Column(Unicode(50))
     Gebied_Duiding = Column(Unicode)
     Tags = Column(Unicode)
-    Aanpassing_Op = Column(ForeignKey('Maatregelen.UUID'))
-    Eigenaar_1 = Column(ForeignKey('Gebruikers.UUID'))
-    Eigenaar_2 = Column(ForeignKey('Gebruikers.UUID'))
-    Portefeuillehouder_1 = Column(ForeignKey('Gebruikers.UUID'))
-    Portefeuillehouder_2 = Column(ForeignKey('Gebruikers.UUID'))
-    Opdrachtgever = Column(ForeignKey('Gebruikers.UUID'))
+    Aanpassing_Op = Column(ForeignKey("Maatregelen.UUID"))
+    Eigenaar_1 = Column(ForeignKey("Gebruikers.UUID"))
+    Eigenaar_2 = Column(ForeignKey("Gebruikers.UUID"))
+    Portefeuillehouder_1 = Column(ForeignKey("Gebruikers.UUID"))
+    Portefeuillehouder_2 = Column(ForeignKey("Gebruikers.UUID"))
+    Opdrachtgever = Column(ForeignKey("Gebruikers.UUID"))
 
-    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Maatregelen.Created_By == Gebruikers.UUID')
-    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Maatregelen.Modified_By == Gebruikers.UUID')
-    
+    Created_By_Gebruiker = relationship(
+        "Gebruikers", primaryjoin="Maatregelen.Created_By == Gebruikers.UUID"
+    )
+    Modified_By_Gebruiker = relationship(
+        "Gebruikers", primaryjoin="Maatregelen.Modified_By == Gebruikers.UUID"
+    )
+
     Beleidskeuzes = relationship("Beleidskeuze_Maatregelen", back_populates="Maatregel")
-            
-    Ref_Eigenaar_1 = relationship('Gebruikers', primaryjoin='Maatregelen.Eigenaar_1 == Gebruikers.UUID')
-    Ref_Eigenaar_2 = relationship('Gebruikers', primaryjoin='Maatregelen.Eigenaar_2 == Gebruikers.UUID')
-    Ref_Portefeuillehouder_1 = relationship('Gebruikers', primaryjoin='Maatregelen.Portefeuillehouder_1 == Gebruikers.UUID')
-    Ref_Portefeuillehouder_2 = relationship('Gebruikers', primaryjoin='Maatregelen.Portefeuillehouder_2 == Gebruikers.UUID')
-    Ref_Opdrachtgever = relationship('Gebruikers', primaryjoin='Maatregelen.Opdrachtgever == Gebruikers.UUID')
-    Ref_Gebied = relationship('Werkingsgebieden', primaryjoin='Maatregelen.Gebied == Werkingsgebieden.UUID')
-    Beleidsmodules = relationship("Beleidsmodule_Maatregelen", back_populates="Maatregel")
+
+    Ref_Eigenaar_1 = relationship(
+        "Gebruikers", primaryjoin="Maatregelen.Eigenaar_1 == Gebruikers.UUID"
+    )
+    Ref_Eigenaar_2 = relationship(
+        "Gebruikers", primaryjoin="Maatregelen.Eigenaar_2 == Gebruikers.UUID"
+    )
+    Ref_Portefeuillehouder_1 = relationship(
+        "Gebruikers", primaryjoin="Maatregelen.Portefeuillehouder_1 == Gebruikers.UUID"
+    )
+    Ref_Portefeuillehouder_2 = relationship(
+        "Gebruikers", primaryjoin="Maatregelen.Portefeuillehouder_2 == Gebruikers.UUID"
+    )
+    Ref_Opdrachtgever = relationship(
+        "Gebruikers", primaryjoin="Maatregelen.Opdrachtgever == Gebruikers.UUID"
+    )
+    Ref_Gebied = relationship(
+        "Werkingsgebieden", primaryjoin="Maatregelen.Gebied == Werkingsgebieden.UUID"
+    )
+    Beleidsmodules = relationship(
+        "Beleidsmodule_Maatregelen", back_populates="Maatregel"
+    )
+
 
 status_options = [
     "Definitief ontwerp GS",
@@ -122,10 +155,10 @@ class Maatregelen_Schema(Base_Schema):
     Titel = MM.fields.Str(
         required=True, validate=[HTML_Validate], obprops=["search_title", "short"]
     )
-    Omschrijving = MM.fields.Str(
-        missing=None, validate=[HTML_Validate], obprops=[]
+    Omschrijving = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
+    Toelichting = MM.fields.Str(
+        missing=None, validate=[HTML_Validate], obprops=["search_description"]
     )
-    Toelichting = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=["search_description"])
     Toelichting_Raw = MM.fields.Str(missing=None, obprops=[])
     Status = MM.fields.Str(
         missing=None, validate=[MM.validate.OneOf(status_options)], obprops=["short"]

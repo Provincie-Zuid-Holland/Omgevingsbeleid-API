@@ -169,7 +169,6 @@ class Lineage(Schema_Resource):
             **self.schema.Meta.references,
         }
 
-       
         # Rewrite inlined references in patch format
         for ref in all_references:
             if ref in old_object:
@@ -204,7 +203,6 @@ class Lineage(Schema_Resource):
         _id = old_object.pop("ID")
 
         new_object = {**old_object, **changes}
-
 
         if new_object == old_object:
             # return handle_empty_patch()

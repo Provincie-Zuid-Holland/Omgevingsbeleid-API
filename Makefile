@@ -21,6 +21,10 @@ info: ## Display information how to access services
 	@echo "		Frontend:	http://localhost:3000"
 	@echo "		Backend:	http://localhost:5000/v0.1/ts_defs"
 	@echo "		Mssql:		localhost:11433"
+	@echo "     					user=SU password=Passw0rd"
+	@echo "		Geoserver:	http://localhost:8080/geoserver"
+	@echo "     					user=admin password=password"
+	@echo "     					Note: Geoserver takes a while to start"
 	@echo ""
 	@echo ""
 

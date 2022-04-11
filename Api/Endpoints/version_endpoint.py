@@ -7,6 +7,7 @@ from Endpoints.errors import (
 )
 import marshmallow as MM
 
+
 class VersionedFullList(FullList):
     """
     A list of all the different lineages available in the database,
@@ -32,7 +33,7 @@ class VersionedFullList(FullList):
             return handle_validation_filter_exception(e)
 
         manager = self.schema.Meta.manager(self.schema)
-        
+
         all_rows = manager.get_all(
             False, q_args["any_filters"], q_args["all_filters"], True
         )
@@ -42,12 +43,10 @@ class VersionedFullList(FullList):
 
         valids_map = {}
         for row in valid_rows:
-            valids_map[row['ID']] = row
-        
-        
-        for row in all_rows:
-            
-            row['Valid_version'] = valids_map.get(row['ID'])
+            valids_map[row["ID"]] = row
 
+        for row in all_rows:
+
+            row["Valid_version"] = valids_map.get(row["ID"])
 
         return all_rows, 200

@@ -5,7 +5,6 @@ from Api.Endpoints.data_manager import DataManager
 
 
 class WerkingsgebiedenDataManager(DataManager):
-
     def _set_up_all_valid_view(self):
         """
         Set up a custom view that shows all valid version for werkingsgebieden

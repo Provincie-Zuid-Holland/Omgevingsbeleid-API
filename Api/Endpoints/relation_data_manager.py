@@ -6,18 +6,17 @@ from Api.Endpoints.data_manager import DataManager
 
 class RelationDataManager(DataManager):
     def __init__(self, schema):
-        if schema.Meta.slug != 'beleidsrelaties':
+        if schema.Meta.slug != "beleidsrelaties":
             # TODO: fix this
-            raise AssertionError('This manager should only be used on beleidsrelaties')
+            raise AssertionError("This manager should only be used on beleidsrelaties")
         super().__init__(schema)
         self.ID_view = f"ID_{self.schema.Meta.slug}"
-    
+
     def _setup(self):
         print("Relation manager setup")
         self.set_up_ID_view()
         super()._setup()
-        
-        
+
     def set_up_ID_view(self):
         """Create a view that shows the relation with ID's instead of UUID's"""
         query = f"""
@@ -28,7 +27,7 @@ class RelationDataManager(DataManager):
                 JOIN Beleidskeuzes nbk ON nbk.UUID = T.Naar_Beleidskeuze
         """
         self._run_query_commit(query)
-    
+
     def _set_up_all_valid_view(self):
         """
         Set up a view that shows all valid version for each lineage
@@ -97,8 +96,8 @@ class RelationDataManager(DataManager):
                     AND T.Eind_Geldigheid > GETDATE()
                     AND T.Begin_Geldigheid <= GETDATE()
                 """
-        self._run_query_commit(query)        
-    
+        self._run_query_commit(query)
+
     def get_lineage(
         self,
         id,
@@ -214,9 +213,7 @@ class RelationDataManager(DataManager):
             ]
         )
 
-        query = (
-            f"SELECT {included_fields} FROM {self.all_valid_view} WHERE UUID = ?"
-        )
+        query = f"SELECT {included_fields} FROM {self.all_valid_view} WHERE UUID = ?"
 
         result_rows = self.schema().dump(
             self._run_query_fetch(query, [uuid]), many=True

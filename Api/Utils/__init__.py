@@ -1,4 +1,3 @@
-
 def row_to_dict(row):
     """
     Turns a row from pyodbc into a dictionary

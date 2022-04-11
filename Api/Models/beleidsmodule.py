@@ -17,17 +17,26 @@ import Api.Models.maatregelen
 import Api.Models.beleidskeuzes
 from Api.database import CommonMixin, db
 
+
 class Beleidsmodules(CommonMixin, db.Model):
-    __tablename__ = 'Beleidsmodules'
+    __tablename__ = "Beleidsmodules"
 
     Titel = Column(Unicode(150), nullable=False)
     Besluit_Datum = Column(DateTime)
 
-    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsmodules.Created_By == Gebruikers.UUID')
-    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsmodules.Modified_By == Gebruikers.UUID')
-    
-    Maatregelen = relationship("Beleidsmodule_Maatregelen", back_populates="Beleidsmodule")
-    Beleidskeuzes = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule")
+    Created_By_Gebruiker = relationship(
+        "Gebruikers", primaryjoin="Beleidsmodules.Created_By == Gebruikers.UUID"
+    )
+    Modified_By_Gebruiker = relationship(
+        "Gebruikers", primaryjoin="Beleidsmodules.Modified_By == Gebruikers.UUID"
+    )
+
+    Maatregelen = relationship(
+        "Beleidsmodule_Maatregelen", back_populates="Beleidsmodule"
+    )
+    Beleidskeuzes = relationship(
+        "Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule"
+    )
 
 
 class Beleidsmodule_Schema(Base_Schema):
