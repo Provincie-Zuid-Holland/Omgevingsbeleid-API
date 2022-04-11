@@ -7,7 +7,13 @@ from Api.settings import current_version
 import Api.datamodel
 import Api.Endpoints.endpoint
 import Api.Models
-from Api.Models import gebruikers, verordeningsstructuur, beleidskeuzes, maatregelen, onderverdeling
+from Api.Models import (
+    gebruikers,
+    verordeningsstructuur,
+    beleidskeuzes,
+    maatregelen,
+    onderverdeling,
+)
 from Api.Auth.views import login, password_reset, tokenstat
 from Api.Spec.spec import specView
 from Api.Endpoints.search import search_view
@@ -107,7 +113,9 @@ def create_api(app):
     )
     app.add_url_rule(f"/v{current_version}/spec", "spec", specView, methods=["GET"])
 
-    app.add_url_rule(f"/v{current_version}/search", "search", search_view, methods=["GET"])
+    app.add_url_rule(
+        f"/v{current_version}/search", "search", search_view, methods=["GET"]
+    )
 
     api.add_resource(
         editView,
@@ -118,9 +126,11 @@ def create_api(app):
         ),
     )
 
-
     app.add_url_rule(
-        f"/v{current_version}/search/geo", "geo-search", geo_search_view, methods=["GET"]
+        f"/v{current_version}/search/geo",
+        "geo-search",
+        geo_search_view,
+        methods=["GET", "POST"],
     )
 
     app.add_url_rule(f"/v{current_version}/graph", "graph", graphView, methods=["GET"])

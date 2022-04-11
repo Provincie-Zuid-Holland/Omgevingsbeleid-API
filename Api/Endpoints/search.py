@@ -3,6 +3,7 @@
 
 from flask import jsonify, request
 import pyodbc
+from werkzeug.datastructures import ImmutableMultiDict
 
 from Api.Endpoints.data_manager import DataManager
 from Api.datamodel import endpoints
@@ -50,7 +51,16 @@ def search_view_generic(query_fn):
     A view that accepts search queries to find object based on a fuzzy text match
     """
     try:
-        query, type_exclude, type_only, limit, offset = start_search(request.args)
+        data = request.args
+
+        # this allows the search data to be send as json body
+        # usefull when there is so many search data that it no longer fits in the url
+        if request.method == "POST":
+            if not request.json:
+                raise ArgException("No search query provided.")
+            data = ImmutableMultiDict(request.json)
+
+        query, type_exclude, type_only, limit, offset = start_search(data)
     except ArgException as e:
         return {"message": str(e)}, 403
 
@@ -80,6 +90,7 @@ def search_view_generic(query_fn):
             "results": search_results[offset : (offset + limit)],
         }
     )
+
 
 def search_view():
     return search_view_generic(lambda ep, query: ep.Meta.manager(ep).search(query))

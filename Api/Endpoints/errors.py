@@ -87,5 +87,6 @@ def handle_validation_filter_exception(val_ex):
 def handle_queryarg_exception(val_ex):
     return {"message": str(val_ex)}, 400
 
+
 def handle_empty_patch():
-    return {"message": 'Patching does not result in any changes.'}, 400
+    return {"message": "Patching does not result in any changes."}, 400

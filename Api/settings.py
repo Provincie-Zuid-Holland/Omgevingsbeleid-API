@@ -20,35 +20,37 @@ stoplist_name = "Omgevingsbeleid_SW"
 
 
 # Base configuration which holds for every environment or gets overwritten
-class Config():
+class Config:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET")
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=4)
     PROPAGATE_EXCEPTIONS = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     DB_CONNECTION_SETTINGS = f"DRIVER={os.getenv('DB_DRIVER')};SERVER={os.getenv('DB_HOST')};DATABASE={os.getenv('DB_NAME')};UID={os.getenv('DB_USER')};PWD={os.getenv('DB_PASS')}"
-    SQLALCHEMY_DATABASE_URI = "mssql+pyodbc:///?odbc_connect=%s" % DB_CONNECTION_SETTINGS
-    SQLALCHEMY_ECHO  = False
+    SQLALCHEMY_DATABASE_URI = (
+        "mssql+pyodbc:///?odbc_connect=%s" % DB_CONNECTION_SETTINGS
+    )
+    SQLALCHEMY_ECHO = False
 
 
 class ProdConfig(Config):
-    ENV = 'prod'
+    ENV = "prod"
     PROD = True
     DEBUG = False
     pass
 
 
 class DevConfig(Config):
-    ENV = 'dev'
+    ENV = "dev"
     PROD = False
     DEBUG = True
     SQLALCHEMY_ECHO = True
-    
+
     pass
 
 
 class TestConfig(Config):
-    ENV = 'test'
+    ENV = "test"
     PROD = False
     DEBUG = True
     TESTING = True
@@ -58,6 +60,8 @@ class TestConfig(Config):
     PRESERVE_CONTEXT_ON_EXCEPTION = False
 
     DB_CONNECTION_SETTINGS = f"DRIVER={os.getenv('DB_DRIVER')};SERVER={os.getenv('DB_HOST')};DATABASE={os.getenv('TEST_DB_NAME')};UID={os.getenv('DB_USER')};PWD={os.getenv('DB_PASS')}"
-    SQLALCHEMY_DATABASE_URI = "mssql+pyodbc:///?odbc_connect=%s" % DB_CONNECTION_SETTINGS
-    
+    SQLALCHEMY_DATABASE_URI = (
+        "mssql+pyodbc:///?odbc_connect=%s" % DB_CONNECTION_SETTINGS
+    )
+
     pass
