@@ -16,14 +16,14 @@ from Api.settings import null_uuid
 
 
 class Gebruikers(db.Model):
-    __tablename__ = 'Gebruikers'
+    __tablename__ = "Gebruikers"
 
     @declared_attr
     def ID(cls):
-        seq_name = 'seq_{name}'.format(name=cls.__name__)
+        seq_name = "seq_{name}".format(name=cls.__name__)
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
-    
+
     UUID = Column(UNIQUEIDENTIFIER, primary_key=True, server_default=text("(newid())"))
     Gebruikersnaam = Column(Unicode(50), nullable=False)
     Wachtwoord = Column(Unicode)
@@ -37,7 +37,7 @@ class Gebruikers(db.Model):
             "Gebruikersnaam": self.Gebruikersnaam,
             "Rol": self.Rol,
             "Email": self.Email,
-            "Status": self.Status
+            "Status": self.Status,
         }
 
 
@@ -73,7 +73,7 @@ class Gebruiker(Resource):
 
     @jwt_required
     def get(self, gebruiker_uuid=None):
-        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as cnx:
+        with pyodbc.connect(current_app.config["DB_CONNECTION_SETTINGS"]) as cnx:
             cur = cnx.cursor()
             if gebruiker_uuid:
                 gebruikers = list(

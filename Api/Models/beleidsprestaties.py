@@ -13,11 +13,17 @@ from Api.database import CommonMixin, db
 
 
 class Beleidskeuze_Beleidsprestaties(db.Model):
-    __tablename__ = 'Beleidskeuze_Beleidsprestaties'
+    __tablename__ = "Beleidskeuze_Beleidsprestaties"
 
-    Beleidskeuze_UUID = Column('Beleidskeuze_UUID', ForeignKey('Beleidskeuzes.UUID'), primary_key=True)
-    Beleidsprestatie_UUID = Column('Beleidsprestatie_UUID', ForeignKey('Beleidsprestaties.UUID'), primary_key=True)
-    Koppeling_Omschrijving = Column('Koppeling_Omschrijving', String(collation='SQL_Latin1_General_CP1_CI_AS'))
+    Beleidskeuze_UUID = Column(
+        "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
+    )
+    Beleidsprestatie_UUID = Column(
+        "Beleidsprestatie_UUID", ForeignKey("Beleidsprestaties.UUID"), primary_key=True
+    )
+    Koppeling_Omschrijving = Column(
+        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
+    )
 
     Beleidskeuze = relationship("Beleidskeuzes", back_populates="Beleidsprestaties")
     Beleidsprestatie = relationship("Beleidsprestaties", back_populates="Beleidskeuzes")
@@ -25,17 +31,22 @@ class Beleidskeuze_Beleidsprestaties(db.Model):
 
 # Beleidsprestaties gaan via Begroting
 class Beleidsprestaties(CommonMixin, db.Model):
-    __tablename__ = 'Beleidsprestaties'
+    __tablename__ = "Beleidsprestaties"
 
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
 
-    Created_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsprestaties.Created_By == Gebruikers.UUID')
-    Modified_By_Gebruiker = relationship('Gebruikers', primaryjoin='Beleidsprestaties.Modified_By == Gebruikers.UUID')
-    
-    Beleidskeuzes = relationship("Beleidskeuze_Beleidsprestaties", back_populates="Beleidsprestatie")
+    Created_By_Gebruiker = relationship(
+        "Gebruikers", primaryjoin="Beleidsprestaties.Created_By == Gebruikers.UUID"
+    )
+    Modified_By_Gebruiker = relationship(
+        "Gebruikers", primaryjoin="Beleidsprestaties.Modified_By == Gebruikers.UUID"
+    )
 
+    Beleidskeuzes = relationship(
+        "Beleidskeuze_Beleidsprestaties", back_populates="Beleidsprestatie"
+    )
 
 
 class Beleidsprestaties_Schema(Base_Schema):
