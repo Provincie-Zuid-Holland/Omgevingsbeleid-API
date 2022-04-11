@@ -53,7 +53,8 @@ def register_commands(app):
     app.cli.add_command(commands.database_test_search_index)
 
     if not app.config.get("PROD"):
-        from Tests.TestUtils.commands import load_fixtures, add_user # noqa
+        from Tests.TestUtils.commands import load_fixtures, add_user  # noqa
+
         app.cli.add_command(load_fixtures)
         app.cli.add_command(add_user)
 

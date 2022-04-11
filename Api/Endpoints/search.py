@@ -55,7 +55,7 @@ def search_view_generic(query_fn):
 
         # this allows the search data to be send as json body
         # usefull when there is so many search data that it no longer fits in the url
-        if request.method == 'POST':
+        if request.method == "POST":
             if not request.json:
                 raise ArgException("No search query provided.")
             data = ImmutableMultiDict(request.json)
@@ -90,6 +90,7 @@ def search_view_generic(query_fn):
             "results": search_results[offset : (offset + limit)],
         }
     )
+
 
 def search_view():
     return search_view_generic(lambda ep, query: ep.Meta.manager(ep).search(query))

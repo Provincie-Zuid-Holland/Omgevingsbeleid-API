@@ -26,9 +26,11 @@ def graphView():
             manager = DataManager(ep)
             valid_objects = manager.get_all(valid_only=True)
             # We have to filter out the verordening objects with type 'Lid'
-            if ep.Meta.slug == 'verordeningen':
-                valid_objects = list(filter(lambda ver: ver["Type"] != "Lid", valid_objects))
-            
+            if ep.Meta.slug == "verordeningen":
+                valid_objects = list(
+                    filter(lambda ver: ver["Type"] != "Lid", valid_objects)
+                )
+
             nodes += [
                 {
                     "UUID": obj["UUID"],

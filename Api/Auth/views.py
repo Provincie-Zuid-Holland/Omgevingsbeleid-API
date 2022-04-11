@@ -33,7 +33,7 @@ def __printTest(test):
     count = test.args[0]
     if name == "length":
         return f"minimaal {count} karakters bevatten"
-        
+
     if name == "uppercase":
         if count > 1:
             return f"minimaal {count} hoofdletters bevatten"
@@ -86,7 +86,8 @@ def login():
                             {
                                 "access_token": access_token,
                                 "expires": time.strftime(
-                                    "%Y-%m-%dT%H:%M:%SZ", time.localtime(raw_token["exp"])
+                                    "%Y-%m-%dT%H:%M:%SZ",
+                                    time.localtime(raw_token["exp"]),
                                 ),
                                 "identifier": raw_token["identity"],
                                 "deployment type": os.getenv("API_ENV"),
@@ -94,7 +95,7 @@ def login():
                         ),
                         200,
                     )
-    
+
     return jsonify({"message": "Wachtwoord of gebruikersnaam ongeldig"}), 401
 
 

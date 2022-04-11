@@ -16,7 +16,10 @@ from Api.Models.werkingsgebieden import Werkingsgebieden_Schema
 from Api.Models.verordeningen import Verordeningen_Schema
 from Api.Models.beleidsrelaties import Beleidsrelaties_Schema
 from Api.Models.beleidsmodule import Beleidsmodule_Schema
-from Api.Models.short_schemas import Short_Beleidsmodule_Schema, Short_Beleidskeuze_Schema
+from Api.Models.short_schemas import (
+    Short_Beleidsmodule_Schema,
+    Short_Beleidskeuze_Schema,
+)
 import Api.Endpoints.references as references
 
 short_schemas = [Short_Beleidskeuze_Schema, Short_Beleidsmodule_Schema]
@@ -62,7 +65,9 @@ def generate_dbdiagram():
     ]
     relations = []
     for ep in endpoints:
-        tables.append({"name": ep.Meta.slug.capitalize(), "fields": ep._declared_fields.items()})
+        tables.append(
+            {"name": ep.Meta.slug.capitalize(), "fields": ep._declared_fields.items()}
+        )
         for _from, ref in {**ep.Meta.references, **ep.Meta.base_references}.items():
             relations.append(
                 {
@@ -73,7 +78,13 @@ def generate_dbdiagram():
             )
             if isinstance(ref, references.UUID_List_Reference):
                 tables.append(
-                    {"name": ref.link_tablename, "fields": [(ref.my_col, MMF.UUID()), (ref.their_col, MMF.UUID())]}
+                    {
+                        "name": ref.link_tablename,
+                        "fields": [
+                            (ref.my_col, MMF.UUID()),
+                            (ref.their_col, MMF.UUID()),
+                        ],
+                    }
                 )
     for t in tables:
         result_file.write(f"""Table {t['name']} {{ \n""")

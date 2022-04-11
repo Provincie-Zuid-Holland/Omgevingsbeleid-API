@@ -40,7 +40,7 @@ def database_test_nills():
     """Check wether all the tables in the datamodel contain a Nill UUID"""
     print("\n")
     error_count = 0
-    with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connections:
+    with pyodbc.connect(current_app.config["DB_CONNECTION_SETTINGS"]) as connections:
         cur = connections.cursor()
         for ep in Api.datamodel.endpoints:
             query = f"SELECT UUID FROM {ep.Meta.table} WHERE UUID = ?"
@@ -58,7 +58,7 @@ def database_test_nills():
 @with_appcontext
 def database_test_search_index():
     """Check wether all the tables are properly configured for search"""
-    with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS']) as connections:
+    with pyodbc.connect(current_app.config["DB_CONNECTION_SETTINGS"]) as connections:
         cur = connections.cursor()
         query = f"""SELECT DISTINCT OBJECT_NAME(fic.object_id) AS table_name, c.name AS column_name
                     FROM sys.fulltext_index_columns AS fic INNER JOIN
@@ -68,5 +68,9 @@ def database_test_search_index():
         for table, field in cur.fetchall():
             fieldmap[table].append(field)
         for ep in Api.datamodel.endpoints:
-            search_fields = ep.fields_with_props(["search_title"]) + ep.fields_with_props(["search_description"])
-            assert set(fieldmap[ep.Meta.table]) == set(search_fields), f"Search configuration not matching database state for {ep.Meta.slug}"
+            search_fields = ep.fields_with_props(
+                ["search_title"]
+            ) + ep.fields_with_props(["search_description"])
+            assert set(fieldmap[ep.Meta.table]) == set(
+                search_fields
+            ), f"Search configuration not matching database state for {ep.Meta.slug}"

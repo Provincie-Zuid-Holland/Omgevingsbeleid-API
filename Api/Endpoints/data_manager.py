@@ -29,6 +29,8 @@ class DataManagerException(Exception):
 
 # HTML cleaning regex
 CLEANR = re.compile("<.*?>")
+
+
 class DataManager:
     def __init__(self, schema):
         """A manager object for interacting with the database
@@ -72,7 +74,9 @@ class DataManager:
     # I still need it until model creation is done by sqlalchemy models instead of hard coding insert queries
     # As these sometimes return trigger outputs which is badly supported in custom queries
     def _run_query_commit_old(self, query, values=[]):
-        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS'], autocommit=True) as con:
+        with pyodbc.connect(
+            current_app.config["DB_CONNECTION_SETTINGS"], autocommit=True
+        ) as con:
             try:
                 cur = con.cursor()
                 result = cur.execute(query, *values)
@@ -673,7 +677,9 @@ class DataManager:
         if not self.schema.Meta.searchable:
             return
 
-        with pyodbc.connect(current_app.config['DB_CONNECTION_SETTINGS'], autocommit=True) as con:
+        with pyodbc.connect(
+            current_app.config["DB_CONNECTION_SETTINGS"], autocommit=True
+        ) as con:
             cur = con.cursor()
 
             # Check if a stoplist exists
@@ -792,7 +798,7 @@ class DataManager:
                             ON f.[KEY] = v.UUID
                             ORDER BY f.WeightedRank DESC"""
         result_rows = self._run_query_fetch(search_query, [args, args])
-        
+
         # Remove HTML from omschrijving
         result_rows = list(
             map(
