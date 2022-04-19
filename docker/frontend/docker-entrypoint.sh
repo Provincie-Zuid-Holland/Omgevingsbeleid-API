@@ -10,6 +10,6 @@ printf "\n\nUsing frontend branch: ${COLOR_GREEN}${FRONTEND_BRANCH}${COLOR_NC}\n
 
 git checkout ${FRONTEND_BRANCH}
 git pull
-npm install
+yarn install
 
 exec "$@"
