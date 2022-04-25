@@ -1,2 +1,2 @@
-from .gebruikers import Gebruikers
-from .ambities import Ambities
+from .gebruiker import Gebruiker
+from .ambitie import Ambitie

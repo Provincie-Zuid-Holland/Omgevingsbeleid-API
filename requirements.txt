@@ -14,8 +14,12 @@ click==8.1.2
     # via
     #   pip-tools
     #   uvicorn
+dnspython==2.2.1
+    # via email-validator
 ecdsa==0.17.0
     # via python-jose
+email-validator==1.2.0
+    # via pydantic
 fastapi==0.75.2
     # via -r requirements.in
 greenlet==1.1.2
@@ -25,7 +29,9 @@ h11==0.13.0
 httptools==0.4.0
     # via uvicorn
 idna==3.3
-    # via anyio
+    # via
+    #   anyio
+    #   email-validator
 passlib==1.7.4
     # via -r requirements.in
 pep517==0.12.0
@@ -36,20 +42,26 @@ pyasn1==0.4.8
     # via
     #   python-jose
     #   rsa
-pydantic==1.9.0
+pydantic[email]==1.9.0
     # via
     #   -r requirements.in
     #   fastapi
+pyodbc==4.0.32
+    # via -r requirements.in
 python-dotenv==0.20.0
     # via uvicorn
 python-jose==3.3.0
+    # via -r requirements.in
+python-multipart==0.0.5
     # via -r requirements.in
 pyyaml==6.0
     # via uvicorn
 rsa==4.8
     # via python-jose
 six==1.16.0
-    # via ecdsa
+    # via
+    #   ecdsa
+    #   python-multipart
 sniffio==1.2.0
     # via anyio
 sqlalchemy==1.4.35

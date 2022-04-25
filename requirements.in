@@ -4,10 +4,12 @@ pip-tools
 # Core libraries
 fastapi
 uvicorn[standard]
-pydantic
+pydantic[email]
 sqlalchemy
+pyodbc
 
 # JWT
 python-jose
 
 passlib
+python-multipart

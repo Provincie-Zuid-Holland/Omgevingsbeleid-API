@@ -12,7 +12,7 @@ from app.core.config import settings
 from app.db.session import SessionLocal
 
 reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/login/access-token"
+    tokenUrl=f"{settings.API_V01_STR}/login/access-token"
 )
 
 
@@ -51,7 +51,7 @@ def get_current_active_gebruiker(
     return current_gebruiker
 
 
-def get_current_active_supergebruiker(
+def get_current_active_super_gebruiker(
     current_gebruiker: models.Gebruiker = Depends(get_current_gebruiker),
 ) -> models.Gebruiker:
     if not crud.gebruiker.is_supergebruiker(current_gebruiker):

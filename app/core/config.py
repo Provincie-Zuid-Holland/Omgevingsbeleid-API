@@ -1,4 +1,5 @@
 import secrets
+import os
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
@@ -9,8 +10,8 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 4
-    SERVER_NAME: str
-    SERVER_HOST: AnyHttpUrl
+    # SERVER_NAME: str
+    # SERVER_HOST: AnyHttpUrl
 
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
@@ -25,30 +26,30 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
 
-    PROJECT_NAME: str
-    SENTRY_DSN: Optional[HttpUrl] = None
+    PROJECT_NAME: str = "Omgevingsbeleid API"
+    # SENTRY_DSN: Optional[HttpUrl] = None
 
-    @validator("SENTRY_DSN", pre=True)
-    def sentry_dsn_can_be_blank(cls, v: str) -> Optional[str]:
-        if len(v) == 0:
-            return None
-        return v
+    # @validator("SENTRY_DSN", pre=True)
+    # def sentry_dsn_can_be_blank(cls, v: str) -> Optional[str]:
+    #     if len(v) == 0:
+    #         return None
+    #     return v
 
-    DB_DRIVER: str
-    DB_HOST: str
-    DB_NAME: str
-    DB_USER: str
-    DB_PASS: str
-    
-    SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
+    DB_DRIVER: str = "ODBC Driver 17 for SQL Server"
+    DB_HOST: str = "mssql"
+    DB_NAME: str = "SA"
+    DB_USER: str = "db_dev"
+    DB_PASS: str = "Passw0rd"
+
+    SQLALCHEMY_DATABASE_URI: Optional[str] = None
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
-        
+
         db_connection_settings = f"DRIVER={os.getenv('DB_DRIVER')};SERVER={os.getenv('DB_HOST')};DATABASE={os.getenv('DB_NAME')};UID={os.getenv('DB_USER')};PWD={os.getenv('DB_PASS')}"
         return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
-    
+
     SQLALCHEMY_ECHO = False
 
     class Config:

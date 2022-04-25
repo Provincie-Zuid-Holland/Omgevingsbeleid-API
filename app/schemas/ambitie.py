@@ -10,11 +10,11 @@ class AmbitieBase(BaseModel):
     Weblink: Optional[str] = None
 
 
-class ItemCreate(AmbitieBase):
+class AmbitieCreate(AmbitieBase):
     pass
 
 
-class ItemUpdate(AmbitieBase):
+class AmbitieUpdate(AmbitieBase):
     pass
 
 
@@ -32,5 +32,5 @@ class Ambitie(AmbitieInDBBase):
 
 
 # Properties properties stored in DB
-class AmbitieInDB(ItemInDBBase):
+class AmbitieInDB(AmbitieInDBBase):
     pass

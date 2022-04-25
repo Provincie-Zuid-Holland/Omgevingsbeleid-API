@@ -1,9 +1,11 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
+from sqlalchemy.ext.declarative import declared_attr
 
-from app.db.base_class import Base, ImmutableBase
+from app.db.base_class import Base
 
 if TYPE_CHECKING:
     from .gebruikers import Gebruikers  # noqa: F401
@@ -24,8 +26,27 @@ class Beleidskeuze_Ambities(Base):
     Ambitie = relationship("Ambitie", back_populates="Beleidskeuzes")
 
 
-class Ambitie(ImmutableBase):
+class Ambitie(Base):
     __tablename__ = "Ambities"
+
+    def ID(cls):
+        seq_name = "seq_{name}".format(name=cls.__name__)
+        seq = Sequence(seq_name)
+        return Column(Integer, seq, nullable=False, server_default=seq.next_value())
+
+    UUID = Column(UNIQUEIDENTIFIER, primary_key=True, server_default=text("(newid())"))
+    Begin_Geldigheid = Column(DateTime, nullable=False)
+    Eind_Geldigheid = Column(DateTime, nullable=False)
+    Created_Date = Column(DateTime, nullable=False)
+    Modified_Date = Column(DateTime, nullable=False)
+
+    @declared_attr
+    def Created_By(cls):
+        return Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+
+    @declared_attr
+    def Modified_By(cls):
+        return Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)

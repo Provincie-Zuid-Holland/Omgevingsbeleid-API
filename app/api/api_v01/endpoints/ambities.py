@@ -9,91 +9,88 @@ from app.api import deps
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Item])
-def read_items(
+@router.get("/", response_model=List[schemas.Ambitie])
+def read_ambities(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    current_user: models.User = Depends(deps.get_current_active_user),
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Retrieve items.
+    Retrieve ambities.
     """
-    if crud.user.is_superuser(current_user):
-        items = crud.item.get_multi(db, skip=skip, limit=limit)
-    else:
-        items = crud.item.get_multi_by_owner(
-            db=db, owner_id=current_user.id, skip=skip, limit=limit
-        )
-    return items
+    ambities = crud.ambitie.get_multi_by_owner(
+        db=db, owner_id=current_gebruiker.id, skip=skip, limit=limit
+    )
+    return ambities
 
 
-@router.post("/", response_model=schemas.Item)
-def create_item(
+@router.post("/", response_model=schemas.Ambitie)
+def create_ambitie(
     *,
     db: Session = Depends(deps.get_db),
-    item_in: schemas.ItemCreate,
-    current_user: models.User = Depends(deps.get_current_active_user),
+    ambitie_in: schemas.AmbitieCreate,
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Create new item.
+    Create new ambitie.
     """
-    item = crud.item.create_with_owner(db=db, obj_in=item_in, owner_id=current_user.id)
-    return item
+    ambitie = crud.ambitie.create(db=db, obj_in=ambitie_in, owner_id=current_gebruiker.id)
+    return ambitie
 
 
-@router.put("/{id}", response_model=schemas.Item)
-def update_item(
+@router.put("/{id}", response_model=schemas.Ambitie)
+def update_ambitie(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    item_in: schemas.ItemUpdate,
-    current_user: models.User = Depends(deps.get_current_active_user),
+    ambitie_in: schemas.AmbitieUpdate,
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Update an item.
+    Update an ambitie.
     """
-    item = crud.item.get(db=db, id=id)
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    if not crud.user.is_superuser(current_user) and (item.owner_id != current_user.id):
+    ambitie = crud.ambitie.get(db=db, id=id)
+    if not ambitie:
+        raise HTTPException(status_code=404, detail="Ambitie not found")
+    if ambitie.Created_By != current_gebruiker.id:
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    item = crud.item.update(db=db, db_obj=item, obj_in=item_in)
-    return item
+    ambitie = crud.ambitie.update(db=db, db_obj=ambitie, obj_in=ambitie_in)
+    return ambitie
 
 
-@router.get("/{id}", response_model=schemas.Item)
-def read_item(
+@router.get("/{id}", response_model=schemas.Ambitie)
+def read_ambitie(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.User = Depends(deps.get_current_active_user),
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Get item by ID.
+    Get ambitie by ID.
     """
-    item = crud.item.get(db=db, id=id)
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    if not crud.user.is_superuser(current_user) and (item.owner_id != current_user.id):
+    ambitie = crud.ambitie.get(db=db, id=id)
+    if not ambitie:
+        raise HTTPException(status_code=404, detail="Ambitie not found")
+    if ambitie.Created_By != current_gebruiker.id:
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    return item
+    return ambitie
 
 
-@router.delete("/{id}", response_model=schemas.Item)
-def delete_item(
+@router.delete("/{id}", response_model=schemas.Ambitie)
+def delete_ambitie(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.User = Depends(deps.get_current_active_user),
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Delete an item.
+    Delete an ambitie.
     """
-    item = crud.item.get(db=db, id=id)
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    if not crud.user.is_superuser(current_user) and (item.owner_id != current_user.id):
+    ambitie = crud.ambitie.get(db=db, id=id)
+    if not ambitie:
+        raise HTTPException(status_code=404, detail="Ambitie not found")
+    if ambitie.Created_By != current_gebruiker.id:
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    item = crud.item.remove(db=db, id=id)
-    return item
+    ambitie = crud.ambitie.remove(db=db, id=id)
+    return ambitie

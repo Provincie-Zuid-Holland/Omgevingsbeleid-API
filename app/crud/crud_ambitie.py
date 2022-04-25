@@ -8,7 +8,7 @@ from app.models.ambitie import Ambitie
 from app.schemas.ambitie import AmbitieCreate, AmbitieUpdate
 
 
-class CRUDAmbitie(CRUDBase[Ambities, AmbitieCreate, AmbitieUpdate]):
+class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
     def create(
         self, db: Session, *, obj_in: AmbitieCreate, by_uuid: str
     ) -> Ambitie:
