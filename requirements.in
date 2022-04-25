@@ -1,0 +1,13 @@
+# Dependency manager
+pip-tools
+
+# Core libraries
+fastapi
+uvicorn[standard]
+pydantic
+sqlalchemy
+
+# JWT
+python-jose
+
+passlib
