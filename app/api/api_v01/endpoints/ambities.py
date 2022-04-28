@@ -12,15 +12,16 @@ router = APIRouter()
 @router.get("/", response_model=List[schemas.Ambitie])
 def read_ambities(
     db: Session = Depends(deps.get_db),
-    skip: int = 0,
-    limit: int = 100,
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
+    offset: int = 0,
+    limit: int = 20,
+    all_filters: str = "",
+    any_filters: str = "",
 ) -> Any:
     """
     Retrieve ambities.
     """
-    ambities = crud.ambitie.get_multi_by_owner(
-        db=db, owner_id=current_gebruiker.id, skip=skip, limit=limit
+    ambities = crud.ambitie.get_multi(
+        db=db, skip=offset, limit=limit
     )
     return ambities
 

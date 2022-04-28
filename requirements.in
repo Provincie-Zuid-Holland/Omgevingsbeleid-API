@@ -7,6 +7,7 @@ uvicorn[standard]
 pydantic[email]
 sqlalchemy
 pyodbc
+alembic
 
 # JWT
 python-jose

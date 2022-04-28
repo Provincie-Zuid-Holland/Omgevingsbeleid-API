@@ -30,5 +30,16 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
             .all()
         )
 
+    def get_multi(
+        self, db: Session, *, skip: int = 0, limit: int = 20
+    ) -> List[Ambitie]:
+        return (
+            db.query(self.model)
+            .filter(Ambitie.Created_by == by_uuid)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
 
 ambitie = CRUDAmbitie(Ambitie)

@@ -12,23 +12,8 @@ if TYPE_CHECKING:
     from .beleidskeuze import Beleidskeuze  # noqa: F401
 
 
-class Beleidskeuze_Ambities(Base):
-    __tablename__ = "Beleidskeuze_Ambities"
-
-    Beleidskeuze_UUID = Column(
-        "Beleidskeuze_UUID", ForeignKey("Beleidskeuze.UUID"), primary_key=True
-    )
-    Ambitie_UUID = Column("Ambitie_UUID", ForeignKey("Ambitie.UUID"), primary_key=True)
-    Koppeling_Omschrijving = Column(
-        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
-    )
-
-    Beleidskeuze = relationship("Beleidskeuze", back_populates="Ambities")
-    Ambitie = relationship("Ambitie", back_populates="Beleidskeuzes")
-
-
-class Ambitie(Base):
-    __tablename__ = "Ambities"
+class Beleidsmodule(Base):
+    __tablename__ = "Beleidsmodules"
 
     def ID(cls):
         seq_name = "seq_{name}".format(name=cls.__name__)
@@ -51,13 +36,18 @@ class Ambitie(Base):
 
 
     Titel = Column(Unicode(150), nullable=False)
-    Omschrijving = Column(Unicode)
-    Weblink = Column(Unicode)
+    Besluit_Datum = Column(DateTime)
 
     Created_By_Gebruiker = relationship(
-        "Gebruikers", primaryjoin="Ambitie.Created_By == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Beleidsmodule.Created_By == Gebruiker.UUID"
     )
     Modified_By_Gebruiker = relationship(
-        "Gebruikers", primaryjoin="Ambitie.Modified_By == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Beleidsmodule.Modified_By == Gebruiker.UUID"
     )
-    Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
+
+    Maatregelen = relationship(
+        "Beleidsmodule_Maatregelen", back_populates="Beleidsmodule"
+    )
+    Beleidskeuzes = relationship(
+        "Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule"
+    )
