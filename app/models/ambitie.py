@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode
+from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -16,9 +16,9 @@ class Beleidskeuze_Ambities(Base):
     __tablename__ = "Beleidskeuze_Ambities"
 
     Beleidskeuze_UUID = Column(
-        "Beleidskeuze_UUID", ForeignKey("Beleidskeuze.UUID"), primary_key=True
+        "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
     )
-    Ambitie_UUID = Column("Ambitie_UUID", ForeignKey("Ambitie.UUID"), primary_key=True)
+    Ambitie_UUID = Column("Ambitie_UUID", ForeignKey("Ambities.UUID"), primary_key=True)
     Koppeling_Omschrijving = Column(
         "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
     )
@@ -30,8 +30,9 @@ class Beleidskeuze_Ambities(Base):
 class Ambitie(Base):
     __tablename__ = "Ambities"
 
+    @declared_attr
     def ID(cls):
-        seq_name = "seq_{name}".format(name=cls.__name__)
+        seq_name = "seq_Ambities"
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
 
@@ -43,11 +44,11 @@ class Ambitie(Base):
 
     @declared_attr
     def Created_By(cls):
-        return Column("Created_By", ForeignKey("Gebruiker.UUID"), nullable=False)
+        return Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
     @declared_attr
     def Modified_By(cls):
-        return Column("Modified_By", ForeignKey("Gebruiker.UUID"), nullable=False)
+        return Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
 
     Titel = Column(Unicode(150), nullable=False)

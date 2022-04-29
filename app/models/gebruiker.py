@@ -11,7 +11,7 @@ class Gebruiker(Base):
 
     @declared_attr
     def ID(cls):
-        seq_name = "seq_{name}".format(name=cls.__name__)
+        seq_name = "seq_Gebruikers"
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
 

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode
+from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -16,10 +16,10 @@ class Beleidsmodule_Beleidskeuzes(Base):
     __tablename__ = "Beleidsmodule_Beleidskeuzes"
 
     Beleidsmodule_UUID = Column(
-        "Beleidsmodule_UUID", ForeignKey("Beleidsmodule.UUID"), primary_key=True
+        "Beleidsmodule_UUID", ForeignKey("Beleidsmodules.UUID"), primary_key=True
     )
     Beleidskeuze_UUID = Column(
-        "Beleidskeuze_UUID", ForeignKey("Beleidskeuze.UUID"), primary_key=True
+        "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
     )
     Koppeling_Omschrijving = Column(
         "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
@@ -32,8 +32,9 @@ class Beleidsmodule_Beleidskeuzes(Base):
 class Beleidskeuze(Base):
     __tablename__ = "Beleidskeuzes"
 
+    @declared_attr
     def ID(cls):
-        seq_name = "seq_{name}".format(name=cls.__name__)
+        seq_name = "seq_Beleidskeuzes"
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
 
@@ -45,18 +46,18 @@ class Beleidskeuze(Base):
 
     @declared_attr
     def Created_By(cls):
-        return Column("Created_By", ForeignKey("Gebruiker.UUID"), nullable=False)
+        return Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
     @declared_attr
     def Modified_By(cls):
-        return Column("Modified_By", ForeignKey("Gebruiker.UUID"), nullable=False)
+        return Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
 
-    Eigenaar_1 = Column(ForeignKey("Gebruiker.UUID"))
-    Eigenaar_2 = Column(ForeignKey("Gebruiker.UUID"))
-    Portefeuillehouder_1 = Column(ForeignKey("Gebruiker.UUID"))
-    Portefeuillehouder_2 = Column(ForeignKey("Gebruiker.UUID"))
-    Opdrachtgever = Column(ForeignKey("Gebruiker.UUID"))
+    Eigenaar_1 = Column(ForeignKey("Gebruikers.UUID"))
+    Eigenaar_2 = Column(ForeignKey("Gebruikers.UUID"))
+    Portefeuillehouder_1 = Column(ForeignKey("Gebruikers.UUID"))
+    Portefeuillehouder_2 = Column(ForeignKey("Gebruikers.UUID"))
+    Opdrachtgever = Column(ForeignKey("Gebruikers.UUID"))
     Titel = Column(Unicode, nullable=False)
     Omschrijving_Keuze = Column(Unicode)
     Omschrijving_Werking = Column(Unicode)
@@ -65,33 +66,33 @@ class Beleidskeuze(Base):
     Afweging = Column(Unicode)
     Besluitnummer = Column(Unicode)
     Tags = Column(Unicode)
-    Aanpassing_Op = Column(ForeignKey("Beleidskeuze.UUID"))
+    Aanpassing_Op = Column(ForeignKey("Beleidskeuzes.UUID"))
     Status = Column(Unicode(50), nullable=False)
     Weblink = Column(Unicode(200))
 
     Created_By_Gebruiker = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuze.Created_By == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Beleidskeuzes.Created_By == Gebruikers.UUID"
     )
     Modified_By_Gebruiker = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuze.Modified_By == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Beleidskeuzes.Modified_By == Gebruikers.UUID"
     )
 
     Ref_Eigenaar_1 = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuze.Eigenaar_1 == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Beleidskeuzes.Eigenaar_1 == Gebruikers.UUID"
     )
     Ref_Eigenaar_2 = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuze.Eigenaar_2 == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Beleidskeuzes.Eigenaar_2 == Gebruikers.UUID"
     )
     Ref_Portefeuillehouder_1 = relationship(
         "Gebruiker",
-        primaryjoin="Beleidskeuze.Portefeuillehouder_1 == Gebruiker.UUID",
+        primaryjoin="Beleidskeuzes.Portefeuillehouder_1 == Gebruikers.UUID",
     )
     Ref_Portefeuillehouder_2 = relationship(
         "Gebruiker",
-        primaryjoin="Beleidskeuze.Portefeuillehouder_2 == Gebruiker.UUID",
+        primaryjoin="Beleidskeuzes.Portefeuillehouder_2 == Gebruikers.UUID",
     )
     Ref_Opdrachtgever = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuze.Opdrachtgever == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Beleidskeuzes.Opdrachtgever == Gebruikers.UUID"
     )
     Ambities = relationship("Beleidskeuze_Ambities", back_populates="Beleidskeuze")
     Belangen = relationship("Beleidskeuze_Belangen", back_populates="Beleidskeuze")
