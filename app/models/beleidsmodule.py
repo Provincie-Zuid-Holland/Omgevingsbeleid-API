@@ -27,28 +27,19 @@ class Beleidsmodule(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    @declared_attr
-    def Created_By(cls):
-        return Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-
-    @declared_attr
-    def Modified_By(cls):
-        return Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
 
     Titel = Column(Unicode(150), nullable=False)
     Besluit_Datum = Column(DateTime)
 
-    Created_By_Gebruiker = relationship(
-        "Gebruiker", primaryjoin="Beleidsmodules.Created_By == Gebruikers.UUID"
-    )
-    Modified_By_Gebruiker = relationship(
-        "Gebruiker", primaryjoin="Beleidsmodules.Modified_By == Gebruikers.UUID"
-    )
+    # Created_By_Gebruiker = relationship(
+    #     "Gebruiker", primaryjoin="Beleidsmodules.Created_By == Gebruikers.UUID"
+    # )
+    # Modified_By_Gebruiker = relationship(
+    #     "Gebruiker", primaryjoin="Beleidsmodules.Modified_By == Gebruikers.UUID"
+    # )
 
-    Maatregelen = relationship(
-        "Beleidsmodule_Maatregelen", back_populates="Beleidsmodule"
-    )
-    Beleidskeuzes = relationship(
-        "Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule"
-    )
+    Maatregelen = relationship("Beleidsmodule_Maatregelen", back_populates="Beleidsmodule")
+    Beleidskeuzes = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule")

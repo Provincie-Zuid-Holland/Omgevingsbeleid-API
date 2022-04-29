@@ -13,7 +13,7 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
         self, db: Session, *, obj_in: AmbitieCreate, by_uuid: str
     ) -> Ambitie:
         obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.model(**obj_in_data, created_by=by_uuid)
+        db_obj = self.model(**obj_in_data, Created_By=by_uuid)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
@@ -24,7 +24,8 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
     ) -> List[Ambitie]:
         return (
             db.query(self.model)
-            .filter(Ambitie.Created_by == by_uuid)
+            .order_by(self.model.Modified_Date.desc())
+            .filter(Ambitie.Created_By_Gebruiker == by_uuid)
             .offset(skip)
             .limit(limit)
             .all()
@@ -35,7 +36,7 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
     ) -> List[Ambitie]:
         return (
             db.query(self.model)
-            .filter(Ambitie.Created_by == by_uuid)
+            .order_by(self.model.Modified_Date.desc())
             .offset(skip)
             .limit(limit)
             .all()

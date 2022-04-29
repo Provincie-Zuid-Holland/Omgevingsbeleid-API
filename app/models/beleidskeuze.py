@@ -43,14 +43,8 @@ class Beleidskeuze(Base):
     Eind_Geldigheid = Column(DateTime, nullable=False)
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
-
-    @declared_attr
-    def Created_By(cls):
-        return Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-
-    @declared_attr
-    def Modified_By(cls):
-        return Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
 
     Eigenaar_1 = Column(ForeignKey("Gebruikers.UUID"))
@@ -70,53 +64,50 @@ class Beleidskeuze(Base):
     Status = Column(Unicode(50), nullable=False)
     Weblink = Column(Unicode(200))
 
-    Created_By_Gebruiker = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuzes.Created_By == Gebruikers.UUID"
-    )
-    Modified_By_Gebruiker = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuzes.Modified_By == Gebruikers.UUID"
-    )
+    # Created_By_Gebruiker = relationship(
+    #     "Gebruiker", primaryjoin="Beleidskeuzes.Created_By == Gebruikers.UUID"
+    # )
+    # Modified_By_Gebruiker = relationship(
+    #     "Gebruiker", primaryjoin="Beleidskeuzes.Modified_By == Gebruikers.UUID"
+    # )
 
-    Ref_Eigenaar_1 = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuzes.Eigenaar_1 == Gebruikers.UUID"
-    )
-    Ref_Eigenaar_2 = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuzes.Eigenaar_2 == Gebruikers.UUID"
-    )
-    Ref_Portefeuillehouder_1 = relationship(
-        "Gebruiker",
-        primaryjoin="Beleidskeuzes.Portefeuillehouder_1 == Gebruikers.UUID",
-    )
-    Ref_Portefeuillehouder_2 = relationship(
-        "Gebruiker",
-        primaryjoin="Beleidskeuzes.Portefeuillehouder_2 == Gebruikers.UUID",
-    )
-    Ref_Opdrachtgever = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuzes.Opdrachtgever == Gebruikers.UUID"
-    )
+    # Ref_Eigenaar_1 = relationship(
+    #     "Gebruiker", primaryjoin="Beleidskeuzes.Eigenaar_1 == Gebruikers.UUID"
+    # )
+    # Ref_Eigenaar_2 = relationship(
+    #     "Gebruiker", primaryjoin="Beleidskeuzes.Eigenaar_2 == Gebruikers.UUID"
+    # )
+    # Ref_Portefeuillehouder_1 = relationship(
+    #     "Gebruiker",
+    #     primaryjoin="Beleidskeuzes.Portefeuillehouder_1 == Gebruikers.UUID",
+    # )
+    # Ref_Portefeuillehouder_2 = relationship(
+    #     "Gebruiker",
+    #     primaryjoin="Beleidskeuzes.Portefeuillehouder_2 == Gebruikers.UUID",
+    # )
+    # Ref_Opdrachtgever = relationship(
+    #     "Gebruiker", primaryjoin="Beleidskeuzes.Opdrachtgever == Gebruikers.UUID"
+    # )
     Ambities = relationship("Beleidskeuze_Ambities", back_populates="Beleidskeuze")
     Belangen = relationship("Beleidskeuze_Belangen", back_populates="Beleidskeuze")
-    Beleidsdoelen = relationship(
-        "Beleidskeuze_Beleidsdoelen", back_populates="Beleidskeuze"
-    )
-    Beleidsprestaties = relationship(
-        "Beleidskeuze_Beleidsprestaties", back_populates="Beleidskeuze"
-    )
-    Beleidsregels = relationship(
-        "Beleidskeuze_Beleidsregels", back_populates="Beleidskeuze"
-    )
-    Maatregelen = relationship(
-        "Beleidskeuze_Maatregelen", back_populates="Beleidskeuze"
-    )
-    Themas = relationship("Beleidskeuze_Themas", back_populates="Beleidskeuze")
-    Verordeningen = relationship(
-        "Beleidskeuze_Verordeningen", back_populates="Beleidskeuze"
-    )
-    Werkingsgebieden = relationship(
-        "Beleidskeuze_Werkingsgebieden", back_populates="Beleidskeuze"
-    )
-    # Beleidsrelaties = relationship("Beleidsrelaties", back_populates="Beleidskeuzes")
+    # Beleidsdoelen = relationship(
+    #     "Beleidskeuze_Beleidsdoelen", back_populates="Beleidskeuze"
+    # )
+    # Beleidsprestaties = relationship(
+    #     "Beleidskeuze_Beleidsprestaties", back_populates="Beleidskeuze"
+    # )
+    # Beleidsregels = relationship(
+    #     "Beleidskeuze_Beleidsregels", back_populates="Beleidskeuze"
+    # )
+    Maatregelen = relationship("Beleidskeuze_Maatregelen", back_populates="Beleidskeuze")
+    # Themas = relationship("Beleidskeuze_Themas", back_populates="Beleidskeuze")
+    # Verordeningen = relationship(
+    #     "Beleidskeuze_Verordeningen", back_populates="Beleidskeuze"
+    # )
+    # Werkingsgebieden = relationship(
+    #     "Beleidskeuze_Werkingsgebieden", back_populates="Beleidskeuze"
+    # )
+    # # Beleidsrelaties = relationship("Beleidsrelaties", back_populates="Beleidskeuzes")
     Beleidsmodules = relationship(
         "Beleidsmodule_Beleidskeuzes", back_populates="Beleidskeuze"
     )
-

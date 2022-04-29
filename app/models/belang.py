@@ -12,27 +12,27 @@ if TYPE_CHECKING:
     from .beleidskeuze import Beleidskeuze  # noqa: F401
 
 
-class Beleidskeuze_Ambities(Base):
-    __tablename__ = "Beleidskeuze_Ambities"
+class Beleidskeuze_Belangen(Base):
+    __tablename__ = "Beleidskeuze_Belangen"
 
     Beleidskeuze_UUID = Column(
         "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
     )
-    Ambitie_UUID = Column("Ambitie_UUID", ForeignKey("Ambities.UUID"), primary_key=True)
+    Belang_UUID = Column("Belang_UUID", ForeignKey("Belangen.UUID"), primary_key=True)
     Koppeling_Omschrijving = Column(
         "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
     )
 
-    Beleidskeuze = relationship("Beleidskeuze", back_populates="Ambities")
-    Ambitie = relationship("Ambitie", back_populates="Beleidskeuzes")
+    Beleidskeuze = relationship("Beleidskeuze", back_populates="Belangen")
+    Belang = relationship("Belang", back_populates="Beleidskeuzes")
 
 
-class Ambitie(Base):
-    __tablename__ = "Ambities"
+class Belang(Base):
+    __tablename__ = "Belangen"
 
     @declared_attr
     def ID(cls):
-        seq_name = "seq_Ambities"
+        seq_name = "seq_Belangen"
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
 
@@ -49,11 +49,6 @@ class Ambitie(Base):
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
+    Type = Column(Unicode)
 
-    # Created_By_Gebruiker = relationship(
-    #     "Gebruikers", primaryjoin="Ambitie.Created_By == Gebruiker.UUID"
-    # )
-    # Modified_By_Gebruiker = relationship(
-    #     "Gebruikers", primaryjoin="Ambitie.Modified_By == Gebruiker.UUID"
-    # )
-    Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
+    Beleidskeuzes = relationship("Beleidskeuze_Belangen", back_populates="Belang")

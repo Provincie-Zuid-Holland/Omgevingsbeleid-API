@@ -43,8 +43,8 @@ class Beleidsmodule_Maatregelen(Base):
         "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
     )
 
-    Beleidsmodule = relationship("Beleidsmodules", back_populates="Maatregelen")
-    Maatregel = relationship("Maatregelen", back_populates="Beleidsmodules")
+    Beleidsmodule = relationship("Beleidsmodule", back_populates="Maatregelen")
+    Maatregel = relationship("Maatregel", back_populates="Beleidsmodules")
 
 
 class Maatregel(Base):
@@ -62,13 +62,8 @@ class Maatregel(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    @declared_attr
-    def Created_By(cls):
-        return Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-
-    @declared_attr
-    def Modified_By(cls):
-        return Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
 
     Titel = Column(Unicode, nullable=False)
@@ -87,33 +82,31 @@ class Maatregel(Base):
     Portefeuillehouder_2 = Column(ForeignKey("Gebruikers.UUID"))
     Opdrachtgever = Column(ForeignKey("Gebruikers.UUID"))
 
-    Created_By_Gebruiker = relationship(
-        "Gebruiker", primaryjoin="Maatregelen.Created_By == Gebruikers.UUID"
-    )
-    Modified_By_Gebruiker = relationship(
-        "Gebruiker", primaryjoin="Maatregelen.Modified_By == Gebruikers.UUID"
-    )
+    # Created_By_Gebruiker = relationship(
+    #     "Gebruiker", primaryjoin="Maatregelen.Created_By == Gebruikers.UUID"
+    # )
+    # Modified_By_Gebruiker = relationship(
+    #     "Gebruiker", primaryjoin="Maatregelen.Modified_By == Gebruikers.UUID"
+    # )
 
     Beleidskeuzes = relationship("Beleidskeuze_Maatregelen", back_populates="Maatregel")
+    Beleidsmodules = relationship("Beleidsmodule_Maatregelen", back_populates="Maatregel")
 
-    Ref_Eigenaar_1 = relationship(
-        "Gebruiker", primaryjoin="Maatregelen.Eigenaar_1 == Gebruikers.UUID"
-    )
-    Ref_Eigenaar_2 = relationship(
-        "Gebruiker", primaryjoin="Maatregelen.Eigenaar_2 == Gebruikers.UUID"
-    )
-    Ref_Portefeuillehouder_1 = relationship(
-        "Gebruiker", primaryjoin="Maatregelen.Portefeuillehouder_1 == Gebruikers.UUID"
-    )
-    Ref_Portefeuillehouder_2 = relationship(
-        "Gebruiker", primaryjoin="Maatregelen.Portefeuillehouder_2 == Gebruikers.UUID"
-    )
-    Ref_Opdrachtgever = relationship(
-        "Gebruiker", primaryjoin="Maatregelen.Opdrachtgever == Gebruikers.UUID"
-    )
+    # Ref_Eigenaar_1 = relationship(
+    #     "Gebruiker", primaryjoin="Maatregelen.Eigenaar_1 == Gebruikers.UUID"
+    # )
+    # Ref_Eigenaar_2 = relationship(
+    #     "Gebruiker", primaryjoin="Maatregelen.Eigenaar_2 == Gebruikers.UUID"
+    # )
+    # Ref_Portefeuillehouder_1 = relationship(
+    #     "Gebruiker", primaryjoin="Maatregelen.Portefeuillehouder_1 == Gebruikers.UUID"
+    # )
+    # Ref_Portefeuillehouder_2 = relationship(
+    #     "Gebruiker", primaryjoin="Maatregelen.Portefeuillehouder_2 == Gebruikers.UUID"
+    # )
+    # Ref_Opdrachtgever = relationship(
+    #     "Gebruiker", primaryjoin="Maatregelen.Opdrachtgever == Gebruikers.UUID"
+    # )
     # Ref_Gebied = relationship(
     #     "Werkingsgebieden", primaryjoin="Maatregelen.Gebied == Werkingsgebieden.UUID"
     # )
-    Beleidsmodules = relationship(
-        "Beleidsmodule_Maatregelen", back_populates="Maatregel"
-    )
