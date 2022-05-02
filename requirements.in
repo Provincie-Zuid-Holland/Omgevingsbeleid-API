@@ -14,3 +14,10 @@ python-jose
 
 passlib
 python-multipart
+
+# Command
+Click
+
+# Development Environment
+# @todo: should be moved to -dev file
+Faker

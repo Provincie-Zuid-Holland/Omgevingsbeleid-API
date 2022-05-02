@@ -1,6 +1,19 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
+from datetime import datetime
+
+from .gebruiker import GebruikerInline
+
+
+# class BeleidskeuzeShortInline(BaseModel):
+#     ID: int
+#     UUID: str
+#     Titel: str
+
+#     class Config:
+#         orm_mode = True
+#         arbitrary_types_allowed = True
 
 
 # Shared properties
@@ -20,10 +33,23 @@ class AmbitieUpdate(AmbitieBase):
 
 class AmbitieInDBBase(AmbitieBase):
     ID: int
+    UUID: str
+
+    Created_By: GebruikerInline
+    Created_Date: datetime
+    Modified_By: GebruikerInline
+    Modified_Date: datetime
+    Begin_Geldigheid: datetime
+    Eind_Geldigheid: datetime
+
     Titel: str
+    Omschrijving: str
+    Weblink: str
+    # Beleidskeuzes: List[BeleidskeuzeShortInline]
 
     class Config:
         orm_mode = True
+        arbitrary_types_allowed = True
 
 
 # Properties to return to client

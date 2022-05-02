@@ -3,6 +3,8 @@ from typing import List
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
+from sqlalchemy.orm import joinedload
+
 from app.crud.base import CRUDBase
 from app.models.ambitie import Ambitie
 from app.schemas.ambitie import AmbitieCreate, AmbitieUpdate
@@ -19,23 +21,12 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
         db.refresh(db_obj)
         return db_obj
 
-    def get_multi_by_owner(
-        self, db: Session, *, by_uuid: str, skip: int = 0, limit: int = 100
-    ) -> List[Ambitie]:
-        return (
-            db.query(self.model)
-            .order_by(self.model.Modified_Date.desc())
-            .filter(Ambitie.Created_By_Gebruiker == by_uuid)
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
-
     def get_multi(
         self, db: Session, *, skip: int = 0, limit: int = 20
     ) -> List[Ambitie]:
         return (
             db.query(self.model)
+            # .options(joinedload(self.model.Created_By))
             .order_by(self.model.Modified_Date.desc())
             .offset(skip)
             .limit(limit)

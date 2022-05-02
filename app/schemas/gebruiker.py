@@ -35,3 +35,16 @@ class Gebruiker(GebruikerInDBBase):
 # Additional properties stored in DB
 class GebruikerInDB(GebruikerInDBBase):
     Wachtwoord: str
+
+
+# Joined classes
+
+class GebruikerInline(BaseModel):
+    Gebruikersnaam: str
+    Rol: str
+    Status: str
+    UUID: str
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True

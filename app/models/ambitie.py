@@ -42,18 +42,17 @@ class Ambitie(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-
+    Created_By_UUID = Column('Created_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By_UUID = Column('Modified_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
 
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
 
-    # Created_By_Gebruiker = relationship(
-    #     "Gebruikers", primaryjoin="Ambitie.Created_By == Gebruiker.UUID"
-    # )
-    # Modified_By_Gebruiker = relationship(
-    #     "Gebruikers", primaryjoin="Ambitie.Modified_By == Gebruiker.UUID"
-    # )
+    Created_By = relationship(
+        "Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID"
+    )
+    Modified_By = relationship(
+        "Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID"
+    )
     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")

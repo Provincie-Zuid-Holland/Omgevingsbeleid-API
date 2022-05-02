@@ -1,6 +1,7 @@
 import secrets
 import os
 from typing import Any, Dict, List, Optional, Union
+from datetime import datetime
 
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
 
@@ -50,10 +51,16 @@ class Settings(BaseSettings):
         db_connection_settings = f"DRIVER={os.getenv('DB_DRIVER')};SERVER={os.getenv('DB_HOST')};DATABASE={os.getenv('DB_NAME')};UID={os.getenv('DB_USER')};PWD={os.getenv('DB_PASS')}"
         return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
 
-    SQLALCHEMY_ECHO = False
+    SQLALCHEMY_ECHO: bool = False
+
+    # Constants
+    MIN_DATETIME: datetime = datetime(1753, 1, 1, 0, 0, 0)
+    MAX_DATETIME: datetime = datetime(9999, 12, 31, 23, 59, 59)
+    NULL_UUID: str = "00000000-0000-0000-0000-000000000000"
 
     class Config:
         case_sensitive = True
 
 
 settings = Settings()
+

@@ -1,4 +1,5 @@
 from sqlalchemy import Boolean, Column, Integer, String, text, Unicode
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.schema import Sequence
@@ -21,6 +22,8 @@ class Gebruiker(Base):
     Rol = Column(Unicode(50), nullable=False)
     Email = Column(Unicode(265))
     Status = Column(Unicode(50), server_default=text("('Actief')"))
+
+    Ambities = relationship("Ambitie", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID")
 
     @property
     def is_active(self):

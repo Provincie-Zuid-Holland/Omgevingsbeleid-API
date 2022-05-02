@@ -9,16 +9,17 @@ from app.api import deps
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Ambitie])
+@router.get("/ambities", response_model=List[schemas.Ambitie])
 def read_ambities(
     db: Session = Depends(deps.get_db),
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     offset: int = 0,
     limit: int = 20,
     all_filters: str = "",
     any_filters: str = "",
 ) -> Any:
     """
-    Retrieve ambities.
+    Gets all the ambities lineages and shows the latests object for each
     """
     ambities = crud.ambitie.get_multi(
         db=db, skip=offset, limit=limit
@@ -26,7 +27,7 @@ def read_ambities(
     return ambities
 
 
-@router.post("/", response_model=schemas.Ambitie)
+@router.post("/ambities", response_model=schemas.Ambitie)
 def create_ambitie(
     *,
     db: Session = Depends(deps.get_db),
@@ -34,22 +35,38 @@ def create_ambitie(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Create new ambitie.
+    Creates a new ambities lineage
     """
     ambitie = crud.ambitie.create(db=db, obj_in=ambitie_in, owner_id=current_gebruiker.id)
     return ambitie
 
 
-@router.put("/{id}", response_model=schemas.Ambitie)
+@router.get("/ambities/{lineage_id}", response_model=schemas.Ambitie)
+def read_ambitie(
+    *,
+    db: Session = Depends(deps.get_db),
+    lineage_id: int,
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
+) -> Any:
+    """
+    Gets all the ambities versions by lineage
+    """
+    ambitie = crud.ambitie.get(db=db, id=lineage_id)
+    if not ambitie:
+        raise HTTPException(status_code=404, detail="Ambitie not found")
+    return ambitie
+
+
+@router.patch("/ambities/{lineage_id}", response_model=schemas.Ambitie)
 def update_ambitie(
     *,
     db: Session = Depends(deps.get_db),
-    id: int,
+    lineage_id: int,
     ambitie_in: schemas.AmbitieUpdate,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Update an ambitie.
+    Adds a new ambities to a lineage
     """
     ambitie = crud.ambitie.get(db=db, id=id)
     if not ambitie:
@@ -60,38 +77,51 @@ def update_ambitie(
     return ambitie
 
 
-@router.get("/{id}", response_model=schemas.Ambitie)
-def read_ambitie(
-    *,
+@router.get("/changes/ambities/{old_uuid}/{new_uuid}", response_model=List[schemas.Ambitie])
+def changes_ambities(
+    old_uuid: str,
+    new_uuid: str,
     db: Session = Depends(deps.get_db),
-    id: int,
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Get ambitie by ID.
+    Shows the changes between two versions of ambities-
     """
-    ambitie = crud.ambitie.get(db=db, id=id)
-    if not ambitie:
-        raise HTTPException(status_code=404, detail="Ambitie not found")
-    if ambitie.Created_By != current_gebruiker.id:
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    return ambitie
+    ambities = crud.ambitie.get_multi(
+        db=db, skip=offset, limit=limit
+    )
+    return ambities
 
 
-@router.delete("/{id}", response_model=schemas.Ambitie)
-def delete_ambitie(
-    *,
+@router.get("/valid/ambities", response_model=List[schemas.Ambitie])
+def read_ambities(
     db: Session = Depends(deps.get_db),
-    id: int,
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
+    offset: int = 0,
+    limit: int = 20,
+    all_filters: str = "",
+    any_filters: str = "",
 ) -> Any:
     """
-    Delete an ambitie.
+    Gets all the ambities lineages and shows the latests valid object for each.
     """
-    ambitie = crud.ambitie.get(db=db, id=id)
-    if not ambitie:
-        raise HTTPException(status_code=404, detail="Ambitie not found")
-    if ambitie.Created_By != current_gebruiker.id:
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    ambitie = crud.ambitie.remove(db=db, id=id)
-    return ambitie
+    ambities = crud.ambitie.get_multi(
+        db=db, skip=offset, limit=limit
+    )
+    return ambities
+
+
+@router.get("/valid/ambities/{lineage_id}", response_model=List[schemas.Ambitie])
+def read_ambities(
+    lineage_id: str,
+    offset: int = 0,
+    limit: int = 20,
+    all_filters: str = "",
+    any_filters: str = "",
+    db: Session = Depends(deps.get_db),
+) -> Any:
+    """
+    Gets all the ambities in this lineage that are valid
+    """
+    ambities = crud.ambitie.get_multi(
+        db=db, skip=offset, limit=limit
+    )
+    return ambities
