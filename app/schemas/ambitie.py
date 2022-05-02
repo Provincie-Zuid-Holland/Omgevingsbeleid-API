@@ -35,9 +35,9 @@ class AmbitieInDBBase(AmbitieBase):
     ID: int
     UUID: str
 
-    Created_By: GebruikerInline
+    Created_By: str
     Created_Date: datetime
-    Modified_By: GebruikerInline
+    Modified_By: str
     Modified_Date: datetime
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
@@ -54,6 +54,8 @@ class AmbitieInDBBase(AmbitieBase):
 
 # Properties to return to client
 class Ambitie(AmbitieInDBBase):
+    Created_By: GebruikerInline
+    Modified_By: GebruikerInline
     pass
 
 
