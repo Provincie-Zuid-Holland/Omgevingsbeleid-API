@@ -21,7 +21,7 @@ class Beleidskeuze_Beleidsregels(Base):
     Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
     Beleidskeuze = relationship("Beleidskeuze", back_populates="Beleidsregels")
-    Beleidsregels = relationship("Beleidsregel", back_populates="Beleidskeuzes")
+    Beleidsregel = relationship("Beleidsregel", back_populates="Beleidskeuzes")
 
 
 class Beleidsregel(Base):

@@ -42,8 +42,8 @@ class Beleidsrelatie(Base):
     Van_Beleidskeuze_UUID = Column("Van_Beleidskeuze", ForeignKey("Beleidskeuzes.UUID"), nullable=False)
     Naar_Beleidskeuze_UUID = Column("Naar_Beleidskeuze", ForeignKey("Beleidskeuzes.UUID"), nullable=False)
 
-    Created_By = relationship("Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID")
-    Modified_By = relationship("Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID")
+    Created_By = relationship("Gebruiker", primaryjoin="Beleidsrelatie.Created_By_UUID == Gebruiker.UUID")
+    Modified_By = relationship("Gebruiker", primaryjoin="Beleidsrelatie.Modified_By_UUID == Gebruiker.UUID")
 
     Van_Beleidskeuze = relationship("Beleidskeuze", primaryjoin="Beleidsrelatie.Van_Beleidskeuze_UUID == Beleidskeuze.UUID")
     Naar_Beleidskeuze = relationship("Beleidskeuze", primaryjoin="Beleidsrelatie.Naar_Beleidskeuze_UUID == Beleidskeuze.UUID")
