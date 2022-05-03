@@ -7,35 +7,32 @@ from sqlalchemy.ext.declarative import declared_attr
 
 from app.db.base_class import Base
 
-
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401
     from .beleidskeuze import Beleidskeuze  # noqa: F401
 
 
-class Beleidskeuze_Beleidsprestaties(Base):
-    __tablename__ = "Beleidskeuze_Beleidsprestaties"
+class Beleidskeuze_Themas(Base):
+    __tablename__ = "Beleidskeuze_Themas"
 
     Beleidskeuze_UUID = Column(
         "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
     )
-    Beleidsprestatie_UUID = Column(
-        "Beleidsprestatie_UUID", ForeignKey("Beleidsprestaties.UUID"), primary_key=True
-    )
+    Thema_UUID = Column("Thema_UUID", ForeignKey("Themas.UUID"), primary_key=True)
     Koppeling_Omschrijving = Column(
         "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
     )
 
-    Beleidskeuze = relationship("Beleidskeuze", back_populates="Beleidsprestaties")
-    Beleidsprestatie = relationship("Beleidsprestatie", back_populates="Beleidskeuzes")
+    Beleidskeuze = relationship("Beleidskeuze", back_populates="Themas")
+    Thema = relationship("Thema", back_populates="Beleidskeuzes")
 
 
-class Beleidsprestatie(Base):
-    __tablename__ = "Beleidsprestaties"
+class Thema(Base):
+    __tablename__ = "Themas"
 
     @declared_attr
     def ID(cls):
-        seq_name = "seq_Beleidsprestaties"
+        seq_name = "seq_Themas"
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
 
@@ -53,9 +50,9 @@ class Beleidsprestatie(Base):
     Weblink = Column(Unicode)
 
     Created_By = relationship(
-        "Gebruiker", primaryjoin="Beleidsprestatie.Created_By_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Thema.Created_By_UUID == Gebruiker.UUID"
     )
     Modified_By = relationship(
-        "Gebruiker", primaryjoin="Beleidsprestatie.Modified_By_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Thema.Modified_By_UUID == Gebruiker.UUID"
     )
-    Beleidskeuzes = relationship("Beleidskeuze_Beleidsprestaties", back_populates="Beleidsprestatie")
+    Beleidskeuzes = relationship("Beleidskeuze_Themas", back_populates="Thema")

@@ -6,6 +6,8 @@ from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 
 from app.db.base_class import Base
+from app.util.sqlalchemy import Geometry
+
 
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401

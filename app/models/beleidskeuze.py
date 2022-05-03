@@ -7,6 +7,7 @@ from sqlalchemy.ext.declarative import declared_attr
 
 from app.db.base_class import Base
 
+
 if TYPE_CHECKING:
     from .gebruikers import Gebruikers  # noqa: F401
     from .beleidsmodule import Beleidsmodule  # noqa: F401

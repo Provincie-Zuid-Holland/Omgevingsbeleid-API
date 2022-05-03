@@ -10,3 +10,5 @@ from .beleidsregel import Beleidsregel, Beleidskeuze_Beleidsregels
 from .beleidsrelatie import Beleidsrelatie
 from .maatregel import Maatregel, Beleidskeuze_Maatregelen, Beleidsmodule_Maatregelen
 from .onderverdeling import Onderverdeling
+from .thema import Thema, Beleidskeuze_Themas
+from .werkingsgebied import Werkingsgebied, Beleidskeuze_Werkingsgebieden

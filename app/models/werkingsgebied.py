@@ -1,11 +1,12 @@
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 
 from app.db.base_class import Base
+from app.util.sqlalchemy import Geometry
 
 
 if TYPE_CHECKING:
@@ -13,29 +14,29 @@ if TYPE_CHECKING:
     from .beleidskeuze import Beleidskeuze  # noqa: F401
 
 
-class Beleidskeuze_Beleidsprestaties(Base):
-    __tablename__ = "Beleidskeuze_Beleidsprestaties"
+class Beleidskeuze_Werkingsgebieden(Base):
+    __tablename__ = "Beleidskeuze_Werkingsgebieden"
 
     Beleidskeuze_UUID = Column(
         "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
     )
-    Beleidsprestatie_UUID = Column(
-        "Beleidsprestatie_UUID", ForeignKey("Beleidsprestaties.UUID"), primary_key=True
+    Werkingsgebied_UUID = Column(
+        "Werkingsgebied_UUID", ForeignKey("Werkingsgebieden.UUID"), primary_key=True
     )
     Koppeling_Omschrijving = Column(
         "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
     )
 
-    Beleidskeuze = relationship("Beleidskeuze", back_populates="Beleidsprestaties")
-    Beleidsprestatie = relationship("Beleidsprestatie", back_populates="Beleidskeuzes")
+    Beleidskeuze = relationship("Beleidskeuze", back_populates="Werkingsgebieden")
+    Werkingsgebied = relationship("Werkingsgebied", back_populates="Beleidskeuzes")
 
 
-class Beleidsprestatie(Base):
-    __tablename__ = "Beleidsprestaties"
+class Werkingsgebied(Base):
+    __tablename__ = "Werkingsgebieden"
 
     @declared_attr
     def ID(cls):
-        seq_name = "seq_Beleidsprestaties"
+        seq_name = "seq_Werkingsgebieden"
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
 
@@ -48,14 +49,14 @@ class Beleidsprestatie(Base):
     Created_By_UUID = Column('Created_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
     Modified_By_UUID = Column('Modified_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
 
-    Titel = Column(Unicode(150), nullable=False)
-    Omschrijving = Column(Unicode)
-    Weblink = Column(Unicode)
+    Werkingsgebied = Column(Unicode, nullable=False)
+    symbol = Column(Unicode(265))
+    SHAPE = deferred(Column(Geometry(), nullable=False))
 
     Created_By = relationship(
-        "Gebruiker", primaryjoin="Beleidsprestatie.Created_By_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Werkingsgebied.Created_By_UUID == Gebruiker.UUID"
     )
     Modified_By = relationship(
-        "Gebruiker", primaryjoin="Beleidsprestatie.Modified_By_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Werkingsgebied.Modified_By_UUID == Gebruiker.UUID"
     )
-    Beleidskeuzes = relationship("Beleidskeuze_Beleidsprestaties", back_populates="Beleidsprestatie")
+    Beleidskeuzes = relationship("Beleidskeuze_Werkingsgebieden", back_populates="Werkingsgebied")
