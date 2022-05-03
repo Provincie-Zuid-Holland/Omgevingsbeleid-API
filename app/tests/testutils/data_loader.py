@@ -56,7 +56,7 @@ class FixtureLoader():
         null_uuid = settings.NULL_UUID
 
         # Null models
-        self._gebruiker("geb:null", UUID=null_uuid, Status="Inactief", Gebruikersnaam="Null", Email="null@example.com")
+        self._gebruiker("geb:null", UUID=null_uuid, Status="Inactief", Gebruikersnaam="Null", Email="null@test.com")
         self._ambitie("amb:null", UUID=null_uuid, Titel="", Omschrijving="", Weblink="")
         self._belang("blg:null", UUID=null_uuid, Titel="", Omschrijving="", Weblink="")
         self._beleidsdoel("doe:null", UUID=null_uuid, Titel="", Omschrijving="", Weblink="")
@@ -71,10 +71,10 @@ class FixtureLoader():
         self._verordening("ver:null", UUID=null_uuid, Titel="", Inhoud="", Weblink="", Status="", Type="", Volgnummer="")
         
         # Gebruikers
-        self._gebruiker("geb:admin", Gebruikersnaam="Admin", Rol="Superuser", Email="admin@example.com")
-        self._gebruiker("geb:alex", Gebruikersnaam="Alex", Rol="Behandelend Ambtenaar", Email="alex@example.com")
-        self._gebruiker("geb:fred", Gebruikersnaam="Frederik", Rol="Portefeuillehouder", Email="fred@example.com")
-        self._gebruiker("geb:beheerder-jan", Gebruikersnaam="Beheerder Jan", Rol="Beheerder", Email="beheerder@example.com")
+        self._gebruiker("geb:admin", Gebruikersnaam="Admin", Rol="Superuser", Email="admin@test.com")
+        self._gebruiker("geb:alex", Gebruikersnaam="Alex", Rol="Behandelend Ambtenaar", Email="alex@test.com")
+        self._gebruiker("geb:fred", Gebruikersnaam="Frederik", Rol="Portefeuillehouder", Email="fred@test.com")
+        self._gebruiker("geb:beheerder-jan", Gebruikersnaam="Beheerder Jan", Rol="Beheerder", Email="beheerder@test.com")
 
         # Api tests require that of each model at least one record exists
         self._ambitie("amb:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
@@ -642,7 +642,6 @@ class FixtureLoader():
         return kwargs
 
     def _add(self, key, model):
-        print("\nKey: " + key + "\n")
         assert not key in self._instances, f"instance key '{key}' already exists, please use a different key"
         self._instances[key] = model
         self._s.add(model)

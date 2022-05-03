@@ -27,19 +27,33 @@ def get_db() -> Generator:
 def get_current_gebruiker(
     db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
 ) -> models.Gebruiker:
+
+    from pprint import pprint
+
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
         token_data = schemas.TokenPayload(**payload)
-    except (jwt.JWTError, ValidationError):
+    except (jwt.JWTError, ValidationError) as err:
+        pprint(err)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Kan inloggegevens niet valideren",
         )
-    gebruiker = crud.gebruiker.get(db, id=token_data.sub)
+    print("\n\n")
+    print(token_data)
+    print("\n\n")
+
+    gebruiker = crud.gebruiker.get_by_uuid(db, uuid=token_data.sub)
+
+    pprint(gebruiker)
+    pprint(gebruiker.Email)
+
     if not gebruiker:
-        raise HTTPException(status_code=404, detail="Gebruiker niuet gevonden")
+        raise HTTPException(status_code=404, detail="Gebruiker niet gevonden")
+    
+    print("return the gebruiker")
     return gebruiker
 
 

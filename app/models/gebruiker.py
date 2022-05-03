@@ -26,7 +26,6 @@ class Gebruiker(Base):
     # @todo, is this needed?
     Ambities = relationship("Ambitie", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID")
 
-    @property
     def is_active(self):
         return self.Status == "Actief"
 

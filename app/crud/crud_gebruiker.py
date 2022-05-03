@@ -10,7 +10,7 @@ from app.schemas.gebruiker import GebruikerCreate, GebruikerUpdate
 
 class CRUDGebruiker(CRUDBase[Gebruiker, GebruikerCreate, GebruikerUpdate]):
     def get_by_email(self, db: Session, *, email: str) -> Optional[Gebruiker]:
-        return db.query(Gebruiker).filter(Gebruiker.email == email).first()
+        return db.query(Gebruiker).filter(Gebruiker.Email == email).first()
 
     def create(self, db: Session, *, obj_in: GebruikerCreate) -> Gebruiker:
         db_obj = Gebruiker(
@@ -42,7 +42,7 @@ class CRUDGebruiker(CRUDBase[Gebruiker, GebruikerCreate, GebruikerUpdate]):
         gebruiker = self.get_by_email(db, email=email)
         if not gebruiker:
             return None
-        if not verify_password(password, gebruiker.hashed_password):
+        if not verify_password(password, gebruiker.Wachtwoord):
             return None
         return gebruiker
 
