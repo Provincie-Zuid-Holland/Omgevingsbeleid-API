@@ -10,10 +10,19 @@ import time
 from app.models import (
     Ambitie,
     Belang,
+    Beleidsdoel,
     Beleidskeuze,
     Beleidsmodule,
+    Beleidsprestatie,
+    Beleidsregel,
+    Beleidsrelatie,
     Gebruiker,
     Maatregel,
+    Onderverdeling,
+    Thema,
+    Verordening,
+    Verordeningstructuur,
+    Werkingsgebied,
     Beleidskeuze_Ambities,
     Beleidskeuze_Belangen,
     Beleidskeuze_Beleidsdoelen,
@@ -42,7 +51,7 @@ class FixtureLoader():
         # Dict from `key` (not UUID) to the model
         # Can be used for associations etc
         self._instances = {}
-    
+
     def load_fixtures(self):
         null_uuid = settings.NULL_UUID
 
@@ -68,35 +77,35 @@ class FixtureLoader():
         self._gebruiker("geb:beheerder-jan", Gebruikersnaam="Beheerder Jan", Rol="Beheerder", Email="beheerder@example.com")
 
         # Api tests require that of each model at least one record exists
-        self._ambitie("amb:1", Created_By="geb:fred", Modified_By="geb:fred")
-        self._belang("blg:1", Created_By="geb:fred", Modified_By="geb:fred")
-        self._beleidsdoel("doe:1", Created_By="geb:fred", Modified_By="geb:fred")
-        self._beleidskeuze("keu:1", Created_By="geb:fred", Modified_By="geb:fred", Status="Uitgecheckt")
-        self._beleidsrelatie("rla:1", Created_By="geb:fred", Modified_By="geb:fred")
-        self._werkingsgebied("wgb:1", Created_By="geb:fred", Modified_By="geb:fred")
-        self._maatregel("maa:1", Created_By="geb:fred", Modified_By="geb:fred")
-        self._beleidsmodule("mod:1", Created_By="geb:fred", Modified_By="geb:fred")
-        self._beleidsprestatie("pre:1", Created_By="geb:fred", Modified_By="geb:fred")
-        self._beleidsregel("rgl:1", Created_By="geb:fred", Modified_By="geb:fred")
-        self._thema("tma:1", Created_By="geb:fred", Modified_By="geb:fred")
-        self._verordening("ver:1", Created_By="geb:fred", Modified_By="geb:fred")
+        self._ambitie("amb:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._belang("blg:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._beleidsdoel("doe:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._beleidskeuze("keu:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Status="Uitgecheckt")
+        self._beleidsrelatie("rla:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._werkingsgebied("wgb:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._maatregel("maa:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._beleidsmodule("mod:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._beleidsprestatie("pre:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._beleidsregel("rgl:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._thema("tma:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._verordening("ver:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
 
         # These ambities are expected to exist for tests using `Tests.TestUtils.schema_data.reference_rich_beleidskeuze` 
-        self._ambitie("amb:rrb1", UUID="B786487C-3E65-4DD8-B360-D2C56BF83172", Created_By="geb:fred", Modified_By="geb:fred")
-        self._ambitie("amb:rrb2", UUID="0254A475-08A6-4B2A-A455-96BA6BE70A19", Created_By="geb:fred", Modified_By="geb:fred")
+        self._ambitie("amb:rrb1", UUID="B786487C-3E65-4DD8-B360-D2C56BF83172", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
+        self._ambitie("amb:rrb2", UUID="0254A475-08A6-4B2A-A455-96BA6BE70A19", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
         
         # Used in Tests.test_api
-        self._beleidskeuze("keu:3", UUID="82448A0A-989B-11EC-B909-0242AC120002", Created_By="geb:fred", Modified_By="geb:fred", Status="UsedForFiltering", Titel="Title Used For Filtering")
-        self._beleidskeuze("keu:4", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp PS", Titel="First")
-        self._beleidskeuze("keu:5", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp PS", Titel="Second")
-        self._beleidskeuze("keu:6", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Second")
+        self._beleidskeuze("keu:3", UUID="82448A0A-989B-11EC-B909-0242AC120002", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Status="UsedForFiltering", Titel="Title Used For Filtering")
+        self._beleidskeuze("keu:4", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Status="Ontwerp PS", Titel="First")
+        self._beleidskeuze("keu:5", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Status="Ontwerp PS", Titel="Second")
+        self._beleidskeuze("keu:6", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Status="Vigerend", Titel="Second")
         
-        self._beleidskeuze("keu:7", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp PS", Afweging="Test4325123$%", Titel="Test4325123$%")
-        self._beleidskeuze("keu:8", Created_By="geb:fred", Modified_By="geb:fred", Status="Ontwerp GS", Afweging="Test4325123$%", Titel="Anders")
-        self._beleidskeuze("keu:9", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Afweging="Anders", Titel="Test4325123$%")
+        self._beleidskeuze("keu:7", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Status="Ontwerp PS", Afweging="Test4325123$%", Titel="Test4325123$%")
+        self._beleidskeuze("keu:8", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Status="Ontwerp GS", Afweging="Test4325123$%", Titel="Anders")
+        self._beleidskeuze("keu:9", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Status="Vigerend", Afweging="Anders", Titel="Test4325123$%")
         
-        self._beleidskeuze("keu:10", UUID="94A45F78-98A9-11EC-B909-0242AC120002", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified")
-        self._beleidsprestatie("pre:2", UUID="B5f7C134-98AD-11EC-B909-0242AC120002", Created_By="geb:fred", Modified_By="geb:fred", Titel="Will be modified")
+        self._beleidskeuze("keu:10", UUID="94A45F78-98A9-11EC-B909-0242AC120002", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Status="Vigerend", Titel="Will be modified")
+        self._beleidsprestatie("pre:2", UUID="B5f7C134-98AD-11EC-B909-0242AC120002", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Titel="Will be modified")
         
         # Werkingsgebieden which are assigned to beleidskeuzes and maatregelen
         self._werkingsgebied("wgb:2", ID=1000, UUID="8EB1ED00-0002-1111-0000-000000000000", Werkingsgebied="Not the newest of its version", Created_Date="2022-01-01T10:00:00")
@@ -105,13 +114,13 @@ class FixtureLoader():
         self._beleidskeuzes_werkingsgebieden("keu:10", "wgb:2b")
 
         self._werkingsgebied("wgb:3", UUID="8EB1ED00-0003-0000-0000-000000000000", Werkingsgebied="Valid as it is joined with active maatregel")
-        self._maatregel("maa:2", UUID="38909E6A-98AC-11EC-B909-0242AC120002", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend", Titel="Will be modified", Gebied="wgb:3")
+        self._maatregel("maa:2", UUID="38909E6A-98AC-11EC-B909-0242AC120002", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Status="Vigerend", Titel="Will be modified", Gebied_UUID="wgb:3")
         
         self._werkingsgebied("wgb:4", UUID="8EB1ED00-0004-0000-0000-000000000000", Werkingsgebied="Invalid as it is joined with wrong maatregel Status")
-        self._maatregel("maa:3", Status="Test", Gebied="wgb:4", Created_By="geb:fred", Modified_By="geb:fred")
+        self._maatregel("maa:3", Status="Test", Gebied_UUID="wgb:4", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred")
 
         self._werkingsgebied("wgb:5", UUID="8EB1ED00-0005-0000-0000-000000000000", Werkingsgebied="Invalid as the maatregel has the wrong status")
-        self._maatregel("maa:4", Status="Test", Gebied="wgb:5", Created_By="geb:fred", Modified_By="geb:fred", Begin_Geldigheid="1991-11-23T10:00:00", Eind_Geldigheid="1992-11-23T10:00:00")
+        self._maatregel("maa:4", Status="Test", Gebied_UUID="wgb:5", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Begin_Geldigheid="1991-11-23T10:00:00", Eind_Geldigheid="1992-11-23T10:00:00")
         
         self._werkingsgebied("wgb:6", UUID="8EB1ED00-0006-0000-0000-000000000000", Werkingsgebied="All_Valid but not Valid as the Eind_Geldingheid of this werkingsgebied is expired", Begin_Geldigheid="1991-11-23T10:00:00", Eind_Geldigheid="1992-11-23T10:00:00")
         self._beleidskeuzes_werkingsgebieden("keu:10", "wgb:6")
@@ -120,41 +129,41 @@ class FixtureLoader():
         self._beleidskeuzes_werkingsgebieden("keu:10", "wgb:7")
 
         # Werkingsgebied with the shape of the Provincie Zuid Holland, in order to test geo features
-        self._werkingsgebied("wgb:pzh", Werkingsgebied="Shape of the provincie Zuid Holland", SHAPE=pzh_shape, Created_By="geb:fred", Modified_By="geb:fred", Begin_Geldigheid="1991-11-23T10:00:00", Eind_Geldigheid="1992-11-23T10:00:00")
+        self._werkingsgebied("wgb:pzh", Werkingsgebied="Shape of the provincie Zuid Holland", SHAPE=pzh_shape, Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Begin_Geldigheid="1991-11-23T10:00:00", Eind_Geldigheid="1992-11-23T10:00:00")
 
         # Beleidskeuze which has a mutation with Status=Vigerend, but is still in the future
-        self._beleidskeuze("keu:11", ID=1011, UUID="FEC2E000-0011-0011-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-01T10:00:00", Modified_By="geb:admin", Status="Ontwerp GS Concept",            Titel="Versie 1 in Ontwerp GS Concept - datum is tegenwoordig",         Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
-        self._beleidskeuze("keu:12", ID=1011, UUID="FEC2E000-0011-0012-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-02T10:00:00", Modified_By="geb:admin", Status="Ontwerp GS",                    Titel="Versie 1 Ontwerp GS - datum is tegenwoordig",                    Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
-        self._beleidskeuze("keu:13", ID=1011, UUID="FEC2E000-0011-0013-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-03T10:00:00", Modified_By="geb:admin", Status="Ontwerp in inspraak",           Titel="Versie 1 Ontwerp in inspraak - datum is tegenwoordig",           Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
-        self._beleidskeuze("keu:14", ID=1011, UUID="FEC2E000-0011-0014-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-04T10:00:00", Modified_By="geb:admin", Status="Definitief ontwerp GS concept", Titel="Versie 1 Definitief ontwerp GS concept - datum is tegenwoordig", Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
-        self._beleidskeuze("keu:15", ID=1011, UUID="FEC2E000-0011-0015-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-05T10:00:00", Modified_By="geb:admin", Status="Definitief ontwerp GS",         Titel="Versie 1 Definitief ontwerp GS - datum is tegenwoordig",         Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
-        self._beleidskeuze("keu:16", ID=1011, UUID="FEC2E000-0011-0016-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-06T10:00:00", Modified_By="geb:admin", Status="Vastgesteld",                   Titel="Versie 1 Vastgesteld - datum is tegenwoordig",                   Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
-        self._beleidskeuze("keu:17", ID=1011, UUID="FEC2E000-0011-0017-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-07T10:00:00", Modified_By="geb:admin", Status="Vigerend",                      Titel="Versie 1 Vigerend - datum is tegenwoordig",                      Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
+        self._beleidskeuze("keu:11", ID=1011, UUID="FEC2E000-0011-0011-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-01T10:00:00", Modified_By_UUID="geb:admin", Status="Ontwerp GS Concept",            Titel="Versie 1 in Ontwerp GS Concept - datum is tegenwoordig",         Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
+        self._beleidskeuze("keu:12", ID=1011, UUID="FEC2E000-0011-0012-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-02T10:00:00", Modified_By_UUID="geb:admin", Status="Ontwerp GS",                    Titel="Versie 1 Ontwerp GS - datum is tegenwoordig",                    Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
+        self._beleidskeuze("keu:13", ID=1011, UUID="FEC2E000-0011-0013-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-03T10:00:00", Modified_By_UUID="geb:admin", Status="Ontwerp in inspraak",           Titel="Versie 1 Ontwerp in inspraak - datum is tegenwoordig",           Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
+        self._beleidskeuze("keu:14", ID=1011, UUID="FEC2E000-0011-0014-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-04T10:00:00", Modified_By_UUID="geb:admin", Status="Definitief ontwerp GS concept", Titel="Versie 1 Definitief ontwerp GS concept - datum is tegenwoordig", Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
+        self._beleidskeuze("keu:15", ID=1011, UUID="FEC2E000-0011-0015-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-05T10:00:00", Modified_By_UUID="geb:admin", Status="Definitief ontwerp GS",         Titel="Versie 1 Definitief ontwerp GS - datum is tegenwoordig",         Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
+        self._beleidskeuze("keu:16", ID=1011, UUID="FEC2E000-0011-0016-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-06T10:00:00", Modified_By_UUID="geb:admin", Status="Vastgesteld",                   Titel="Versie 1 Vastgesteld - datum is tegenwoordig",                   Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
+        self._beleidskeuze("keu:17", ID=1011, UUID="FEC2E000-0011-0017-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-07T10:00:00", Modified_By_UUID="geb:admin", Status="Vigerend",                      Titel="Versie 1 Vigerend - datum is tegenwoordig",                      Afweging="beleidskeuze1011", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
 
-        self._beleidskeuze("keu:18", ID=1011, UUID="FEC2E000-0011-0021-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-01T10:00:00", Modified_By="geb:admin", Status="Ontwerp GS Concept",            Titel="Versie 2 in Ontwerp GS Concept - datum is tegenwoordig",         Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
-        self._beleidskeuze("keu:19", ID=1011, UUID="FEC2E000-0011-0022-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-02T10:00:00", Modified_By="geb:admin", Status="Ontwerp GS",                    Titel="Versie 2 Ontwerp GS - datum is tegenwoordig",                    Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
-        self._beleidskeuze("keu:20", ID=1011, UUID="FEC2E000-0011-0023-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-03T10:00:00", Modified_By="geb:admin", Status="Ontwerp in inspraak",           Titel="Versie 2 Ontwerp in inspraak - datum is tegenwoordig",           Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
-        self._beleidskeuze("keu:21", ID=1011, UUID="FEC2E000-0011-0024-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-04T10:00:00", Modified_By="geb:admin", Status="Definitief ontwerp GS concept", Titel="Versie 2 Definitief ontwerp GS concept - datum is tegenwoordig", Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
-        self._beleidskeuze("keu:22", ID=1011, UUID="FEC2E000-0011-0025-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-05T10:00:00", Modified_By="geb:admin", Status="Definitief ontwerp GS",         Titel="Versie 2 Definitief ontwerp GS - datum is tegenwoordig",         Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
-        self._beleidskeuze("keu:23", ID=1011, UUID="FEC2E000-0011-0026-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-06T10:00:00", Modified_By="geb:admin", Status="Vastgesteld",                   Titel="Versie 2 Vastgesteld - datum is tegenwoordig",                   Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
-        self._beleidskeuze("keu:24", ID=1011, UUID="FEC2E000-0011-0027-0000-000000000000", Created_By="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-07T10:00:00", Modified_By="geb:admin", Status="Vigerend",                      Titel="Versie 2 Vigerend - datum is tegenwoordig",                      Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
+        self._beleidskeuze("keu:18", ID=1011, UUID="FEC2E000-0011-0021-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-01-01T10:00:00", Modified_By_UUID="geb:admin", Status="Ontwerp GS Concept",            Titel="Versie 2 in Ontwerp GS Concept - datum is tegenwoordig",         Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
+        self._beleidskeuze("keu:19", ID=1011, UUID="FEC2E000-0011-0022-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-02T10:00:00", Modified_By_UUID="geb:admin", Status="Ontwerp GS",                    Titel="Versie 2 Ontwerp GS - datum is tegenwoordig",                    Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
+        self._beleidskeuze("keu:20", ID=1011, UUID="FEC2E000-0011-0023-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-03T10:00:00", Modified_By_UUID="geb:admin", Status="Ontwerp in inspraak",           Titel="Versie 2 Ontwerp in inspraak - datum is tegenwoordig",           Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
+        self._beleidskeuze("keu:21", ID=1011, UUID="FEC2E000-0011-0024-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-04T10:00:00", Modified_By_UUID="geb:admin", Status="Definitief ontwerp GS concept", Titel="Versie 2 Definitief ontwerp GS concept - datum is tegenwoordig", Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
+        self._beleidskeuze("keu:22", ID=1011, UUID="FEC2E000-0011-0025-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-05T10:00:00", Modified_By_UUID="geb:admin", Status="Definitief ontwerp GS",         Titel="Versie 2 Definitief ontwerp GS - datum is tegenwoordig",         Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
+        self._beleidskeuze("keu:23", ID=1011, UUID="FEC2E000-0011-0026-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-06T10:00:00", Modified_By_UUID="geb:admin", Status="Vastgesteld",                   Titel="Versie 2 Vastgesteld - datum is tegenwoordig",                   Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
+        self._beleidskeuze("keu:24", ID=1011, UUID="FEC2E000-0011-0027-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-01-01T10:00:00", Modified_Date="2020-02-07T10:00:00", Modified_By_UUID="geb:admin", Status="Vigerend",                      Titel="Versie 2 Vigerend - datum is tegenwoordig",                      Afweging="beleidskeuze1011", Begin_Geldigheid="2120-01-01T10:00:00", Eind_Geldigheid="9999-01-01T10:00:00")
 
         # Beleidskeuze which gets "removed" because a new version is set to the past
-        self._beleidskeuze("keu:30", ID=1030, UUID="FEC2E000-1030-0001-0000-000000000000", Created_By="geb:admin", Created_Date="2020-02-01T10:00:00", Modified_Date="2020-02-01T10:00:00", Modified_By="geb:admin", Status="Vigerend",            Titel="Versie 1 Vigerend en in de huidige tijd", Afweging="beleidskeuze1030", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
-        self._beleidskeuze("keu:31", ID=1030, UUID="FEC2E000-1030-0002-0000-000000000000", Created_By="geb:admin", Created_Date="2020-02-01T10:00:00", Modified_Date="2020-03-01T10:00:00", Modified_By="geb:admin", Status="Vigerend",            Titel="Versie 2 Vigerend maar in het verleden",  Afweging="beleidskeuze1030", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2021-01-01T10:00:00")
+        self._beleidskeuze("keu:30", ID=1030, UUID="FEC2E000-1030-0001-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-02-01T10:00:00", Modified_Date="2020-02-01T10:00:00", Modified_By_UUID="geb:admin", Status="Vigerend",            Titel="Versie 1 Vigerend en in de huidige tijd", Afweging="beleidskeuze1030", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
+        self._beleidskeuze("keu:31", ID=1030, UUID="FEC2E000-1030-0002-0000-000000000000", Created_By_UUID="geb:admin", Created_Date="2020-02-01T10:00:00", Modified_Date="2020-03-01T10:00:00", Modified_By_UUID="geb:admin", Status="Vigerend",            Titel="Versie 2 Vigerend maar in het verleden",  Afweging="beleidskeuze1030", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2021-01-01T10:00:00")
 
         # 
-        self._ambitie("amb:2", Created_By="geb:admin")
-        self._ambitie("amb:3", Created_By="geb:alex", Modified_By="geb:alex")
+        self._ambitie("amb:2", Created_By_UUID="geb:admin")
+        self._ambitie("amb:3", Created_By_UUID="geb:alex", Modified_By_UUID="geb:alex")
 
-        self._beleidskeuze("keu:2", Created_By="geb:fred")
+        self._beleidskeuze("keu:2", Created_By_UUID="geb:fred")
         self._beleidskeuzes_ambities("keu:2", "amb:2", "Test omschrijving")
 
         # "Water" related models mainly used in search tests
-        self._ambitie("amb:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Geen overstromingen in Den Haag", Omschrijving="We willen water beter begeleiden zodat we geen overstromingen meer hebben.")
-        self._beleidsdoel("doe:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Leven met water", Omschrijving="De provincie wil Zuid-Holland beschermen tegen wateroverlast en overstromingen en de gevolgen van eventuele overstromingen zoveel mogelijk beperken. Deze opgave wordt groter door de effecten van klimaatverandering (zeespiegelstijging en toenemende extreme neerslag), bodemdaling en toenemende druk op de beschikbare ruimte.")
+        self._ambitie("amb:water", Created_By_UUID="geb:alex", Modified_By_UUID="geb:alex", Titel="Geen overstromingen in Den Haag", Omschrijving="We willen water beter begeleiden zodat we geen overstromingen meer hebben.")
+        self._beleidsdoel("doe:water", Created_By_UUID="geb:alex", Modified_By_UUID="geb:alex", Titel="Leven met water", Omschrijving="De provincie wil Zuid-Holland beschermen tegen wateroverlast en overstromingen en de gevolgen van eventuele overstromingen zoveel mogelijk beperken. Deze opgave wordt groter door de effecten van klimaatverandering (zeespiegelstijging en toenemende extreme neerslag), bodemdaling en toenemende druk op de beschikbare ruimte.")
 
-        self._beleidskeuze("keu:water", Created_By="geb:alex")
+        self._beleidskeuze("keu:water", Created_By_UUID="geb:alex")
         self._beleidskeuzes_ambities("keu:water", "amb:water")
         self._beleidskeuzes_beleidsdoelen("keu:water", "doe:water")
         
@@ -165,8 +174,8 @@ class FixtureLoader():
             self._beleidskeuze(f"keu:water-{i}", Titel=f"{i} - Test informatie voor zoeken naar water")
         
         # Verordeningsobject that are linked to beleidskeuzes
-        self._verordening("ver:2", Created_By="geb:fred", Modified_By="geb:fred", Type="Lid" )
-        self._verordening("ver:3", Created_By="geb:fred", Modified_By="geb:fred", Type="Artikel")
+        self._verordening("ver:2", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Type="Lid" )
+        self._verordening("ver:3", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred", Type="Artikel")
         self._beleidskeuzes_verordeningen("keu:6", "ver:2")
         self._beleidskeuzes_verordeningen("keu:6", "ver:3")
 
@@ -296,15 +305,15 @@ class FixtureLoader():
         if not "Datum_Akkoord" in kwargs:
             kwargs["Datum_Akkoord"] = self._fake.date_time_between(start_date="-100d", end_date="-20d")
            
-        if "Van_Beleidskeuze" in kwargs:
-            kwargs["Van_Beleidskeuze"] = self._instances[kwargs["Van_Beleidskeuze"]].UUID
+        if "Van_Beleidskeuze_UUID" in kwargs:
+            kwargs["Van_Beleidskeuze_UUID"] = self._instances[kwargs["Van_Beleidskeuze_UUID"]].UUID
         else:
-            kwargs["Van_Beleidskeuze"] = settings.NULL_UUID
+            kwargs["Van_Beleidskeuze_UUID"] = settings.NULL_UUID
    
-        if "Naar_Beleidskeuze" in kwargs:
-            kwargs["Naar_Beleidskeuze"] = self._instances[kwargs["Naar_Beleidskeuze"]].UUID
+        if "Naar_Beleidskeuze_UUID" in kwargs:
+            kwargs["Naar_Beleidskeuze_UUID"] = self._instances[kwargs["Naar_Beleidskeuze_UUID"]].UUID
         else:
-            kwargs["Naar_Beleidskeuze"] = settings.NULL_UUID
+            kwargs["Naar_Beleidskeuze_UUID"] = settings.NULL_UUID
 
         model = Beleidsrelatie(**kwargs)
         self._add(key, model)
@@ -375,10 +384,10 @@ class FixtureLoader():
         if not "Weblink" in kwargs:
             kwargs["Weblink"] = self._fake.uri()
 
-        if "Gebied" in kwargs:
-            kwargs["Gebied"] = self._instances[kwargs["Gebied"]].UUID
+        if "Gebied_UUID" in kwargs:
+            kwargs["Gebied_UUID"] = self._instances[kwargs["Gebied_UUID"]].UUID
         else:
-            kwargs["Gebied"] = settings.NULL_UUID
+            kwargs["Gebied_UUID"] = settings.NULL_UUID
 
         if not "Status" in kwargs:
             kwargs["Status"] = "Vigerend"
@@ -389,35 +398,35 @@ class FixtureLoader():
         if not "Tags" in kwargs:
             kwargs["Tags"] = ""
 
-        if "Aanpassing_Op" in kwargs:
-            kwargs["Aanpassing_Op"] = self._instances[kwargs["Aanpassing_Op"]].UUID
+        if "Aanpassing_Op_UUID" in kwargs:
+            kwargs["Aanpassing_Op_UUID"] = self._instances[kwargs["Aanpassing_Op_UUID"]].UUID
         else:
-            kwargs["Aanpassing_Op"] = settings.NULL_UUID
+            kwargs["Aanpassing_Op_UUID"] = settings.NULL_UUID
 
-        if "Eigenaar_1" in kwargs:
-            kwargs["Eigenaar_1"] = self._instances[kwargs["Eigenaar_1"]].UUID
+        if "Eigenaar_1_UUID" in kwargs:
+            kwargs["Eigenaar_1_UUID"] = self._instances[kwargs["Eigenaar_1_UUID"]].UUID
         else:
-            kwargs["Eigenaar_1"] = settings.NULL_UUID
+            kwargs["Eigenaar_1_UUID"] = settings.NULL_UUID
 
-        if "Eigenaar_2" in kwargs:
-            kwargs["Eigenaar_2"] = self._instances[kwargs["Eigenaar_2"]].UUID
+        if "Eigenaar_2_UUID" in kwargs:
+            kwargs["Eigenaar_2_UUID"] = self._instances[kwargs["Eigenaar_2_UUID"]].UUID
         else:
-            kwargs["Eigenaar_2"] = settings.NULL_UUID
+            kwargs["Eigenaar_2_UUID"] = settings.NULL_UUID
 
-        if "Portefeuillehouder_1" in kwargs:
-            kwargs["Portefeuillehouder_1"] = self._instances[kwargs["Portefeuillehouder_1"]].UUID
+        if "Portefeuillehouder_1_UUID" in kwargs:
+            kwargs["Portefeuillehouder_1_UUID"] = self._instances[kwargs["Portefeuillehouder_1_UUID"]].UUID
         else:
-            kwargs["Portefeuillehouder_1"] = settings.NULL_UUID
+            kwargs["Portefeuillehouder_1_UUID"] = settings.NULL_UUID
 
-        if "Portefeuillehouder_2" in kwargs:
-            kwargs["Portefeuillehouder_2"] = self._instances[kwargs["Portefeuillehouder_2"]].UUID
+        if "Portefeuillehouder_2_UUID" in kwargs:
+            kwargs["Portefeuillehouder_2_UUID"] = self._instances[kwargs["Portefeuillehouder_2_UUID"]].UUID
         else:
-            kwargs["Portefeuillehouder_2"] = settings.NULL_UUID
+            kwargs["Portefeuillehouder_2_UUID"] = settings.NULL_UUID
 
-        if "Opdrachtgever" in kwargs:
-            kwargs["Opdrachtgever"] = self._instances[kwargs["Opdrachtgever"]].UUID
+        if "Opdrachtgever_UUID" in kwargs:
+            kwargs["Opdrachtgever_UUID"] = self._instances[kwargs["Opdrachtgever_UUID"]].UUID
         else:
-            kwargs["Opdrachtgever"] = settings.NULL_UUID
+            kwargs["Opdrachtgever_UUID"] = settings.NULL_UUID
 
         model = Maatregel(**kwargs)
         self._add(key, model)
@@ -440,38 +449,38 @@ class FixtureLoader():
         if not "Type" in kwargs:
             kwargs["Type"] = self._fake.random_element(elements=("Hoofdstuk", "Artikel", "Afdeling"))
 
-        if "Gebied" in kwargs:
-            kwargs["Gebied"] = self._instances[kwargs["Gebied"]].UUID
+        if "Gebied_UUID" in kwargs:
+            kwargs["Gebied_UUID"] = self._instances[kwargs["Gebied_UUID"]].UUID
         else:
-            kwargs["Gebied"] = settings.NULL_UUID
+            kwargs["Gebied_UUID"] = settings.NULL_UUID
 
         if not "Volgnummer" in kwargs:
             kwargs["Volgnummer"] = self._fake.bothify(text="????-########")
 
-        if "Portefeuillehouder_1" in kwargs:
-            kwargs["Portefeuillehouder_1"] = self._instances[kwargs["Portefeuillehouder_1"]].UUID
+        if "Portefeuillehouder_1_UUID" in kwargs:
+            kwargs["Portefeuillehouder_1_UUID"] = self._instances[kwargs["Portefeuillehouder_1_UUID"]].UUID
         else:
-            kwargs["Portefeuillehouder_1"] = settings.NULL_UUID
+            kwargs["Portefeuillehouder_1_UUID"] = settings.NULL_UUID
 
-        if "Portefeuillehouder_2" in kwargs:
-            kwargs["Portefeuillehouder_2"] = self._instances[kwargs["Portefeuillehouder_2"]].UUID
+        if "Portefeuillehouder_2_UUID" in kwargs:
+            kwargs["Portefeuillehouder_2_UUID"] = self._instances[kwargs["Portefeuillehouder_2_UUID"]].UUID
         else:
-            kwargs["Portefeuillehouder_2"] = settings.NULL_UUID
+            kwargs["Portefeuillehouder_2_UUID"] = settings.NULL_UUID
 
-        if "Eigenaar_1" in kwargs:
-            kwargs["Eigenaar_1"] = self._instances[kwargs["Eigenaar_1"]].UUID
+        if "Eigenaar_1_UUID" in kwargs:
+            kwargs["Eigenaar_1_UUID"] = self._instances[kwargs["Eigenaar_1_UUID"]].UUID
         else:
-            kwargs["Eigenaar_1"] = settings.NULL_UUID
+            kwargs["Eigenaar_1_UUID"] = settings.NULL_UUID
 
-        if "Eigenaar_2" in kwargs:
-            kwargs["Eigenaar_2"] = self._instances[kwargs["Eigenaar_2"]].UUID
+        if "Eigenaar_2_UUID" in kwargs:
+            kwargs["Eigenaar_2_UUID"] = self._instances[kwargs["Eigenaar_2_UUID"]].UUID
         else:
-            kwargs["Eigenaar_2"] = settings.NULL_UUID
+            kwargs["Eigenaar_2_UUID"] = settings.NULL_UUID
 
-        if "Opdrachtgever" in kwargs:
-            kwargs["Opdrachtgever"] = self._instances[kwargs["Opdrachtgever"]].UUID
+        if "Opdrachtgever_UUID" in kwargs:
+            kwargs["Opdrachtgever_UUID"] = self._instances[kwargs["Opdrachtgever_UUID"]].UUID
         else:
-            kwargs["Opdrachtgever"] = settings.NULL_UUID
+            kwargs["Opdrachtgever_UUID"] = settings.NULL_UUID
 
         model = Verordening(**kwargs)
         self._add(key, model)
@@ -619,20 +628,21 @@ class FixtureLoader():
         
         # If we do have a Created_By then we expect it to be a key reference
         # So we have to resolve it to the model
-        if "Created_By" in kwargs:
-            kwargs["Created_By"] = self._instances[kwargs["Created_By"]].UUID
+        if "Created_By_UUID" in kwargs:
+            kwargs["Created_By_UUID"] = self._instances[kwargs["Created_By_UUID"]].UUID
         else:
             # If we don't have a Created_By then we will use the null user
-            kwargs["Created_By"] = settings.NULL_UUID
+            kwargs["Created_By_UUID"] = settings.NULL_UUID
    
-        if "Modified_By" in kwargs:
-            kwargs["Modified_By"] = self._instances[kwargs["Modified_By"]].UUID
+        if "Modified_By_UUID" in kwargs:
+            kwargs["Modified_By_UUID"] = self._instances[kwargs["Modified_By_UUID"]].UUID
         else:
-            kwargs["Modified_By"] = settings.NULL_UUID
+            kwargs["Modified_By_UUID"] = settings.NULL_UUID
 
         return kwargs
 
     def _add(self, key, model):
+        print("\nKey: " + key + "\n")
         assert not key in self._instances, f"instance key '{key}' already exists, please use a different key"
         self._instances[key] = model
         self._s.add(model)

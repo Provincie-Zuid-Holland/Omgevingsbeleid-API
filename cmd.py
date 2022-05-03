@@ -12,8 +12,10 @@ def cli():
 @click.command()
 def initdb():
     click.echo('Initialized the database')
-    loader = FixtureLoader(SessionLocal)
-    loader.load_fixtures()
+    with SessionLocal() as session:
+        loader = FixtureLoader(session)
+        loader.load_fixtures()
+
     click.echo('Done')
 
 
