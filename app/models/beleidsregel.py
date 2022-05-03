@@ -16,15 +16,9 @@ if TYPE_CHECKING:
 class Beleidskeuze_Beleidsregels(Base):
     __tablename__ = "Beleidskeuze_Beleidsregels"
 
-    Beleidskeuze_UUID = Column(
-        "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
-    )
-    Beleidsregel_UUID = Column(
-        "Beleidsregel_UUID", ForeignKey("Beleidsregels.UUID"), primary_key=True
-    )
-    Koppeling_Omschrijving = Column(
-        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
-    )
+    Beleidskeuze_UUID = Column(ForeignKey("Beleidskeuzes.UUID"), primary_key=True)
+    Beleidsregel_UUID = Column(ForeignKey("Beleidsregels.UUID"), primary_key=True)
+    Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
     Beleidskeuze = relationship("Beleidskeuze", back_populates="Beleidsregels")
     Beleidsregels = relationship("Beleidsregel", back_populates="Beleidskeuzes")
@@ -45,18 +39,14 @@ class Beleidsregel(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column('Created_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column('Modified_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
     Externe_URL = Column(String(300, "SQL_Latin1_General_CP1_CI_AS"))
 
-    Created_By = relationship(
-        "Gebruiker", primaryjoin="Beleidsregel.Created_By_UUID == Gebruiker.UUID"
-    )
-    Modified_By = relationship(
-        "Gebruiker", primaryjoin="Beleidsregel.Modified_By_UUID == Gebruiker.UUID"
-    )
+    Created_By = relationship("Gebruiker", primaryjoin="Beleidsregel.Created_By_UUID == Gebruiker.UUID")
+    Modified_By = relationship("Gebruiker", primaryjoin="Beleidsregel.Modified_By_UUID == Gebruiker.UUID")
     Beleidskeuzes = relationship("Beleidskeuze_Beleidsregels", back_populates="Beleidsregel")

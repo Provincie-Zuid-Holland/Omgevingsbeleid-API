@@ -16,13 +16,9 @@ if TYPE_CHECKING:
 class Beleidskeuze_Ambities(Base):
     __tablename__ = "Beleidskeuze_Ambities"
 
-    Beleidskeuze_UUID = Column(
-        "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
-    )
-    Ambitie_UUID = Column("Ambitie_UUID", ForeignKey("Ambities.UUID"), primary_key=True)
-    Koppeling_Omschrijving = Column(
-        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
-    )
+    Beleidskeuze_UUID = Column(ForeignKey("Beleidskeuzes.UUID"), primary_key=True)
+    Ambitie_UUID = Column(ForeignKey("Ambities.UUID"), primary_key=True)
+    Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
     Beleidskeuze = relationship("Beleidskeuze", back_populates="Ambities")
     Ambitie = relationship("Ambitie", back_populates="Beleidskeuzes")
@@ -43,17 +39,13 @@ class Ambitie(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column('Created_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column('Modified_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
 
-    Created_By = relationship(
-        "Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID"
-    )
-    Modified_By = relationship(
-        "Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID"
-    )
+    Created_By = relationship("Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID")
+    Modified_By = relationship("Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID")
     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")

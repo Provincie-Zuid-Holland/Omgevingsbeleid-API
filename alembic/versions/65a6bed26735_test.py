@@ -137,6 +137,34 @@ def upgrade():
     sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Maatregelen'))
     )
 
+    create_seq("seq_Belangen")
+    op.create_table('Belangen',
+    sa.Column('UUID', mssql.UNIQUEIDENTIFIER(), server_default=sa.text('(newid())'), nullable=False),
+    sa.Column('Begin_Geldigheid', sa.DateTime(), nullable=False),
+    sa.Column('Eind_Geldigheid', sa.DateTime(), nullable=False),
+    sa.Column('Created_Date', sa.DateTime(), nullable=False),
+    sa.Column('Modified_Date', sa.DateTime(), nullable=False),
+    sa.Column('Created_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
+    sa.Column('Modified_By', mssql.UNIQUEIDENTIFIER(), nullable=False),
+    sa.Column('Titel', sa.Unicode(length=150), nullable=False),
+    sa.Column('Omschrijving', sa.Unicode(), nullable=True),
+    sa.Column('Weblink', sa.Unicode(), nullable=True),
+    sa.Column('Type', sa.Unicode(), nullable=True),
+    sa.Column('ID', sa.Integer(), server_default=sa.text('NEXT VALUE FOR [seq_Belangen]'), nullable=False),
+    sa.ForeignKeyConstraint(['Created_By'], ['Gebruikers.UUID'], name=op.f('FK_Belangen_Created_By')),
+    sa.ForeignKeyConstraint(['Modified_By'], ['Gebruikers.UUID'], name=op.f('FK_Belangen_Modified_By')),
+    sa.PrimaryKeyConstraint('UUID', name=op.f('PK_Belangen'))
+    )
+
+    op.create_table('Beleidskeuze_Belangen',
+    sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
+    sa.Column('Belang_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
+    sa.Column('Koppeling_Omschrijving', sa.String(collation='SQL_Latin1_General_CP1_CI_AS'), nullable=True),
+    sa.ForeignKeyConstraint(['Belang_UUID'], ['Belangen.UUID'], name=op.f('FK_Beleidskeuze_Belangen_Belang_UUID')),
+    sa.ForeignKeyConstraint(['Beleidskeuze_UUID'], ['Beleidskeuzes.UUID'], name=op.f('FK_Beleidskeuze_Belangen_Beleidskeuze_UUID')),
+    sa.PrimaryKeyConstraint('Beleidskeuze_UUID', 'Belang_UUID', name=op.f('PK_Beleidskeuze_Belangen'))
+    )
+
     op.create_table('Beleidskeuze_Ambities',
     sa.Column('Beleidskeuze_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),
     sa.Column('Ambitie_UUID', mssql.UNIQUEIDENTIFIER(), nullable=False),

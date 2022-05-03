@@ -16,13 +16,9 @@ if TYPE_CHECKING:
 class Beleidskeuze_Belangen(Base):
     __tablename__ = "Beleidskeuze_Belangen"
 
-    Beleidskeuze_UUID = Column(
-        "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
-    )
-    Belang_UUID = Column("Belang_UUID", ForeignKey("Belangen.UUID"), primary_key=True)
-    Koppeling_Omschrijving = Column(
-        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
-    )
+    Beleidskeuze_UUID = Column(ForeignKey("Beleidskeuzes.UUID"), primary_key=True)
+    Belang_UUID = Column(ForeignKey("Belangen.UUID"), primary_key=True)
+    Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
     Beleidskeuze = relationship("Beleidskeuze", back_populates="Belangen")
     Belang = relationship("Belang", back_populates="Beleidskeuzes")
@@ -43,8 +39,8 @@ class Belang(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
 
     Titel = Column(Unicode(150), nullable=False)
@@ -52,4 +48,6 @@ class Belang(Base):
     Weblink = Column(Unicode)
     Type = Column(Unicode)
 
+    Created_By = relationship("Gebruiker", primaryjoin="Belang.Created_By_UUID == Gebruiker.UUID")
+    Modified_By = relationship("Gebruiker", primaryjoin="Belang.Modified_By_UUID == Gebruiker.UUID")
     Beleidskeuzes = relationship("Beleidskeuze_Belangen", back_populates="Belang")

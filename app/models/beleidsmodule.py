@@ -28,19 +28,14 @@ class Beleidsmodule(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
 
     Titel = Column(Unicode(150), nullable=False)
     Besluit_Datum = Column(DateTime)
 
-    # Created_By_Gebruiker = relationship(
-    #     "Gebruiker", primaryjoin="Beleidsmodules.Created_By == Gebruikers.UUID"
-    # )
-    # Modified_By_Gebruiker = relationship(
-    #     "Gebruiker", primaryjoin="Beleidsmodules.Modified_By == Gebruikers.UUID"
-    # )
-
+    Created_By = relationship("Gebruiker", primaryjoin="Beleidsmodule.Created_By_UUID == Gebruiker.UUID")
+    Modified_By = relationship("Gebruiker", primaryjoin="Beleidsmodule.Modified_By_UUID == Gebruiker.UUID")
     Maatregelen = relationship("Beleidsmodule_Maatregelen", back_populates="Beleidsmodule")
     Beleidskeuzes = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule")

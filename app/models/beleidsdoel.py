@@ -16,18 +16,12 @@ if TYPE_CHECKING:
 class Beleidskeuze_Beleidsdoelen(Base):
     __tablename__ = "Beleidskeuze_Beleidsdoelen"
 
-    Beleidskeuze_UUID = Column(
-        "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
-    )
-    Beleidsdoel_UUID = Column(
-        "Beleidsdoel_UUID", ForeignKey("Beleidsdoelen.UUID"), primary_key=True
-    )
-    Koppeling_Omschrijving = Column(
-        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
-    )
+    Beleidskeuze_UUID = Column(ForeignKey("Beleidskeuzes.UUID"), primary_key=True)
+    Beleidsdoel_UUID = Column(ForeignKey("Beleidsdoelen.UUID"), primary_key=True)
+    Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
-    Beleidskeuze = relationship("Beleidskeuzes", back_populates="Beleidsdoelen")
-    Beleidsdoel = relationship("Beleidsdoelen", back_populates="Beleidskeuzes")
+    Beleidskeuze = relationship("Beleidskeuze", back_populates="Beleidsdoelen")
+    Beleidsdoel = relationship("Beleidsdoel", back_populates="Beleidskeuzes")
 
 
 class Beleidsdoel(Base):
@@ -45,17 +39,13 @@ class Beleidsdoel(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column('Created_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column('Modified_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
 
-    Created_By = relationship(
-        "Gebruiker", primaryjoin="Beleidsdoel.Created_By_UUID == Gebruiker.UUID"
-    )
-    Modified_By = relationship(
-        "Gebruiker", primaryjoin="Beleidsdoel.Modified_By_UUID == Gebruiker.UUID"
-    )
+    Created_By = relationship("Gebruiker", primaryjoin="Beleidsdoel.Created_By_UUID == Gebruiker.UUID")
+    Modified_By = relationship("Gebruiker", primaryjoin="Beleidsdoel.Modified_By_UUID == Gebruiker.UUID")
     Beleidskeuzes = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoel")

@@ -30,8 +30,8 @@ class Beleidsrelatie(Base):
     Created_Date = Column(DateTime, nullable=True)
     Modified_Date = Column(DateTime, nullable=True)
 
-    Created_By_UUID = Column('Created_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column('Modified_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
     Omschrijving = Column(Unicode)
     Status = Column(Unicode(50))
@@ -39,20 +39,12 @@ class Beleidsrelatie(Base):
     Datum_Akkoord = Column(DateTime)
     Titel = Column(Unicode(50), nullable=False, server_default=text("('Titel')"))
 
-    Van_Beleidskeuze_UUID = Column('Van_Beleidskeuze', ForeignKey("Beleidskeuzes.UUID"), nullable=False)
-    Naar_Beleidskeuze_UUID = Column('Van_Beleidskeuze', ForeignKey("Beleidskeuzes.UUID"), nullable=False)
+    Van_Beleidskeuze_UUID = Column("Van_Beleidskeuze", ForeignKey("Beleidskeuzes.UUID"), nullable=False)
+    Naar_Beleidskeuze_UUID = Column("Naar_Beleidskeuze", ForeignKey("Beleidskeuzes.UUID"), nullable=False)
 
-    Created_By = relationship(
-        "Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID"
-    )
-    Modified_By = relationship(
-        "Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID"
-    )
+    Created_By = relationship("Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID")
+    Modified_By = relationship("Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID")
 
-    Van_Beleidskeuze = relationship(
-        "Beleidskeuze", primaryjoin="Beleidsrelatie.Van_Beleidskeuze_UUID == Beleidskeuze.UUID"
-    )
-    Naar_Beleidskeuze = relationship(
-        "Beleidskeuze", primaryjoin="Beleidsrelatie.Naar_Beleidskeuze_UUID == Beleidskeuze.UUID"
-    )
+    Van_Beleidskeuze = relationship("Beleidskeuze", primaryjoin="Beleidsrelatie.Van_Beleidskeuze_UUID == Beleidskeuze.UUID")
+    Naar_Beleidskeuze = relationship("Beleidskeuze", primaryjoin="Beleidsrelatie.Naar_Beleidskeuze_UUID == Beleidskeuze.UUID")
     

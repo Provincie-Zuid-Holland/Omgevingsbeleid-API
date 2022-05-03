@@ -17,15 +17,9 @@ if TYPE_CHECKING:
 class Beleidskeuze_Werkingsgebieden(Base):
     __tablename__ = "Beleidskeuze_Werkingsgebieden"
 
-    Beleidskeuze_UUID = Column(
-        "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
-    )
-    Werkingsgebied_UUID = Column(
-        "Werkingsgebied_UUID", ForeignKey("Werkingsgebieden.UUID"), primary_key=True
-    )
-    Koppeling_Omschrijving = Column(
-        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
-    )
+    Beleidskeuze_UUID = Column(ForeignKey("Beleidskeuzes.UUID"), primary_key=True)
+    Werkingsgebied_UUID = Column(ForeignKey("Werkingsgebieden.UUID"), primary_key=True)
+    Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
     Beleidskeuze = relationship("Beleidskeuze", back_populates="Werkingsgebieden")
     Werkingsgebied = relationship("Werkingsgebied", back_populates="Beleidskeuzes")
@@ -46,17 +40,13 @@ class Werkingsgebied(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column('Created_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column('Modified_By', UNIQUEIDENTIFIER, ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
 
     Werkingsgebied = Column(Unicode, nullable=False)
     symbol = Column(Unicode(265))
     SHAPE = deferred(Column(Geometry(), nullable=False))
 
-    Created_By = relationship(
-        "Gebruiker", primaryjoin="Werkingsgebied.Created_By_UUID == Gebruiker.UUID"
-    )
-    Modified_By = relationship(
-        "Gebruiker", primaryjoin="Werkingsgebied.Modified_By_UUID == Gebruiker.UUID"
-    )
+    Created_By = relationship("Gebruiker", primaryjoin="Werkingsgebied.Created_By_UUID == Gebruiker.UUID")
+    Modified_By = relationship("Gebruiker", primaryjoin="Werkingsgebied.Modified_By_UUID == Gebruiker.UUID")
     Beleidskeuzes = relationship("Beleidskeuze_Werkingsgebieden", back_populates="Werkingsgebied")

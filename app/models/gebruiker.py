@@ -23,11 +23,12 @@ class Gebruiker(Base):
     Email = Column(Unicode(265))
     Status = Column(Unicode(50), server_default=text("('Actief')"))
 
+    # @todo, is this needed?
     Ambities = relationship("Ambitie", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID")
 
     @property
     def is_active(self):
-        return self.Status == 'Actief'
+        return self.Status == "Actief"
 
     def as_identity(self):
         return {

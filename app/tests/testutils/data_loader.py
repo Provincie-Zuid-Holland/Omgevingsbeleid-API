@@ -299,12 +299,12 @@ class FixtureLoader():
         if "Van_Beleidskeuze" in kwargs:
             kwargs["Van_Beleidskeuze"] = self._instances[kwargs["Van_Beleidskeuze"]].UUID
         else:
-            kwargs["Van_Beleidskeuze"] = null_uuid
+            kwargs["Van_Beleidskeuze"] = settings.NULL_UUID
    
         if "Naar_Beleidskeuze" in kwargs:
             kwargs["Naar_Beleidskeuze"] = self._instances[kwargs["Naar_Beleidskeuze"]].UUID
         else:
-            kwargs["Naar_Beleidskeuze"] = null_uuid
+            kwargs["Naar_Beleidskeuze"] = settings.NULL_UUID
 
         model = Beleidsrelatie(**kwargs)
         self._add(key, model)
@@ -378,7 +378,7 @@ class FixtureLoader():
         if "Gebied" in kwargs:
             kwargs["Gebied"] = self._instances[kwargs["Gebied"]].UUID
         else:
-            kwargs["Gebied"] = null_uuid
+            kwargs["Gebied"] = settings.NULL_UUID
 
         if not "Status" in kwargs:
             kwargs["Status"] = "Vigerend"
@@ -392,32 +392,32 @@ class FixtureLoader():
         if "Aanpassing_Op" in kwargs:
             kwargs["Aanpassing_Op"] = self._instances[kwargs["Aanpassing_Op"]].UUID
         else:
-            kwargs["Aanpassing_Op"] = null_uuid
+            kwargs["Aanpassing_Op"] = settings.NULL_UUID
 
         if "Eigenaar_1" in kwargs:
             kwargs["Eigenaar_1"] = self._instances[kwargs["Eigenaar_1"]].UUID
         else:
-            kwargs["Eigenaar_1"] = null_uuid
+            kwargs["Eigenaar_1"] = settings.NULL_UUID
 
         if "Eigenaar_2" in kwargs:
             kwargs["Eigenaar_2"] = self._instances[kwargs["Eigenaar_2"]].UUID
         else:
-            kwargs["Eigenaar_2"] = null_uuid
+            kwargs["Eigenaar_2"] = settings.NULL_UUID
 
         if "Portefeuillehouder_1" in kwargs:
             kwargs["Portefeuillehouder_1"] = self._instances[kwargs["Portefeuillehouder_1"]].UUID
         else:
-            kwargs["Portefeuillehouder_1"] = null_uuid
+            kwargs["Portefeuillehouder_1"] = settings.NULL_UUID
 
         if "Portefeuillehouder_2" in kwargs:
             kwargs["Portefeuillehouder_2"] = self._instances[kwargs["Portefeuillehouder_2"]].UUID
         else:
-            kwargs["Portefeuillehouder_2"] = null_uuid
+            kwargs["Portefeuillehouder_2"] = settings.NULL_UUID
 
         if "Opdrachtgever" in kwargs:
             kwargs["Opdrachtgever"] = self._instances[kwargs["Opdrachtgever"]].UUID
         else:
-            kwargs["Opdrachtgever"] = null_uuid
+            kwargs["Opdrachtgever"] = settings.NULL_UUID
 
         model = Maatregel(**kwargs)
         self._add(key, model)
@@ -443,7 +443,7 @@ class FixtureLoader():
         if "Gebied" in kwargs:
             kwargs["Gebied"] = self._instances[kwargs["Gebied"]].UUID
         else:
-            kwargs["Gebied"] = null_uuid
+            kwargs["Gebied"] = settings.NULL_UUID
 
         if not "Volgnummer" in kwargs:
             kwargs["Volgnummer"] = self._fake.bothify(text="????-########")
@@ -451,27 +451,27 @@ class FixtureLoader():
         if "Portefeuillehouder_1" in kwargs:
             kwargs["Portefeuillehouder_1"] = self._instances[kwargs["Portefeuillehouder_1"]].UUID
         else:
-            kwargs["Portefeuillehouder_1"] = null_uuid
+            kwargs["Portefeuillehouder_1"] = settings.NULL_UUID
 
         if "Portefeuillehouder_2" in kwargs:
             kwargs["Portefeuillehouder_2"] = self._instances[kwargs["Portefeuillehouder_2"]].UUID
         else:
-            kwargs["Portefeuillehouder_2"] = null_uuid
+            kwargs["Portefeuillehouder_2"] = settings.NULL_UUID
 
         if "Eigenaar_1" in kwargs:
             kwargs["Eigenaar_1"] = self._instances[kwargs["Eigenaar_1"]].UUID
         else:
-            kwargs["Eigenaar_1"] = null_uuid
+            kwargs["Eigenaar_1"] = settings.NULL_UUID
 
         if "Eigenaar_2" in kwargs:
             kwargs["Eigenaar_2"] = self._instances[kwargs["Eigenaar_2"]].UUID
         else:
-            kwargs["Eigenaar_2"] = null_uuid
+            kwargs["Eigenaar_2"] = settings.NULL_UUID
 
         if "Opdrachtgever" in kwargs:
             kwargs["Opdrachtgever"] = self._instances[kwargs["Opdrachtgever"]].UUID
         else:
-            kwargs["Opdrachtgever"] = null_uuid
+            kwargs["Opdrachtgever"] = settings.NULL_UUID
 
         model = Verordening(**kwargs)
         self._add(key, model)
@@ -623,12 +623,12 @@ class FixtureLoader():
             kwargs["Created_By"] = self._instances[kwargs["Created_By"]].UUID
         else:
             # If we don't have a Created_By then we will use the null user
-            kwargs["Created_By"] = null_uuid
+            kwargs["Created_By"] = settings.NULL_UUID
    
         if "Modified_By" in kwargs:
             kwargs["Modified_By"] = self._instances[kwargs["Modified_By"]].UUID
         else:
-            kwargs["Modified_By"] = null_uuid
+            kwargs["Modified_By"] = settings.NULL_UUID
 
         return kwargs
 
