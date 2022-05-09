@@ -68,7 +68,7 @@ def update_ambitie(
     """
     Adds a new ambities to a lineage
     """
-    ambitie = crud.ambitie.get(db=db, id=id)
+    ambitie = crud.ambitie.get_newest_by_lineage(db=db, lineage_id=lineage_id)
     if not ambitie:
         raise HTTPException(status_code=404, detail="Ambitie not found")
     if ambitie.Created_By != current_gebruiker.id:

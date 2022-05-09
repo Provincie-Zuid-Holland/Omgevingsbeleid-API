@@ -1,5 +1,5 @@
 
-from .ambitie import Ambitie, Beleidskeuze_Ambities
+from .ambitie import Ambitie, Beleidskeuze_Ambities, ViewValidAmbitie, valid_ambitie_view
 from .belang import Belang, Beleidskeuze_Belangen
 from .beleidsdoel import Beleidsdoel, Beleidskeuze_Beleidsdoelen
 from .beleidskeuze import Beleidskeuze, Beleidsmodule_Beleidskeuzes

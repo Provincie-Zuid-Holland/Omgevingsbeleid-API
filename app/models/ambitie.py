@@ -1,11 +1,13 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
+import sqlalchemy as sa
+from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence, Table, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 
 from app.db.base_class import Base
+from app.db.view import view
 
 
 if TYPE_CHECKING:
@@ -49,3 +51,9 @@ class Ambitie(Base):
     Created_By = relationship("Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID")
     Modified_By = relationship("Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID")
     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
+
+
+valid_ambitie_stmt = sa.select([Ambitie.UUID]).where(Ambitie.Weblink != "")
+valid_ambitie_view = create_view("Valid_Ambities", valid_ambitie_stmt, Base.metadata)
+class ViewValidAmbitie(Base):
+    __table__ = valid_ambitie_view

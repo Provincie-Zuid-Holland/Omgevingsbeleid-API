@@ -8,6 +8,7 @@ pydantic[email]
 sqlalchemy
 pyodbc
 alembic
+SQLAlchemy-Utils
 
 # JWT
 python-jose
