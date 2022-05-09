@@ -24,7 +24,7 @@ class Gebruiker(Base):
     Status = Column(Unicode(50), server_default=text("('Actief')"))
 
     # @todo, is this needed?
-    Ambities = relationship("Ambitie", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID")
+    # Ambities = relationship("Ambitie", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID")
 
     def is_active(self):
         return self.Status == "Actief"

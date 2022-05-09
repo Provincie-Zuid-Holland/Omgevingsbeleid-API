@@ -1,3 +1,4 @@
+from optparse import Option
 from typing import Optional, List
 
 from pydantic import BaseModel
@@ -24,7 +25,8 @@ class AmbitieBase(BaseModel):
 
 
 class AmbitieCreate(AmbitieBase):
-    pass
+    Begin_Geldigheid: datetime
+    Eind_Geldigheid: datetime
 
 
 class AmbitieUpdate(AmbitieBase):

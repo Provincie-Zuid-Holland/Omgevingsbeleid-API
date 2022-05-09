@@ -21,3 +21,4 @@ Click
 # Development Environment
 # @todo: should be moved to -dev file
 Faker
+pytest

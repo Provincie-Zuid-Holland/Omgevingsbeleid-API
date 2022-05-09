@@ -37,7 +37,7 @@ def create_ambitie(
     """
     Creates a new ambities lineage
     """
-    ambitie = crud.ambitie.create(db=db, obj_in=ambitie_in, owner_id=current_gebruiker.id)
+    ambitie = crud.ambitie.create(db=db, obj_in=ambitie_in, by_uuid=current_gebruiker.UUID)
     return ambitie
 
 
