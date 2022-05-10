@@ -51,7 +51,7 @@ def read_ambitie(
     """
     Gets all the ambities versions by lineage
     """
-    ambitie = crud.ambitie.get(db=db, id=lineage_id)
+    ambitie = crud.ambitie.get_newest_by_lineage(db=db, lineage_id=lineage_id)
     if not ambitie:
         raise HTTPException(status_code=404, detail="Ambitie not found")
     return ambitie

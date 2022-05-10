@@ -5,9 +5,9 @@ from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unic
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy_utils import create_view
 
 from app.db.base_class import Base
-from app.db.view import view
 
 
 if TYPE_CHECKING:

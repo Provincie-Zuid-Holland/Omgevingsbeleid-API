@@ -38,7 +38,7 @@ def initview():
         bind=engine,
         checkfirst=True,
         tables=[
-            # base.valid_ambitie_view,
+            base.valid_ambitie_view,
         ]
     )
 
