@@ -9,7 +9,9 @@ from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, v
 class Settings(BaseSettings):
     API_V01_STR: str = "/v0.1"
 
-    SECRET_KEY: str = "abc" # @todo: secrets.token_urlsafe(32)
+    SECRET_KEY: str = os.getenv(
+        "JWT_SECRET", "secret"
+    )  # @todo: secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 4
     # SERVER_NAME: str
     # SERVER_HOST: AnyHttpUrl
@@ -36,19 +38,20 @@ class Settings(BaseSettings):
     #         return None
     #     return v
 
-    DB_DRIVER: str = "ODBC Driver 17 for SQL Server"
-    DB_HOST: str = "mssql"
-    DB_NAME: str = "SA"
-    DB_USER: str = "db_dev"
-    DB_PASS: str = "Passw0rd"
+    DB_DRIVER: str = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
+    DB_HOST: str = os.getenv("DB_DRIVER", "mssql")
+    DB_NAME: str = os.getenv("DB_NAME", "SA")
+    DB_USER: str = os.getenv("DB_USER", "db_dev")
+    DB_PASS: str = os.getenv("DB_PASS", "Passw0rd")
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
+
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
 
-        db_connection_settings = f"DRIVER={os.getenv('DB_DRIVER')};SERVER={os.getenv('DB_HOST')};DATABASE={os.getenv('DB_NAME')};UID={os.getenv('DB_USER')};PWD={os.getenv('DB_PASS')}"
+        db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
         return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
 
     SQLALCHEMY_ECHO: bool = False
@@ -63,4 +66,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-

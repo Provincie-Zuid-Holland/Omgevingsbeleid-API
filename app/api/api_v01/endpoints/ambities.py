@@ -21,9 +21,7 @@ def read_ambities(
     """
     Gets all the ambities lineages and shows the latests object for each
     """
-    ambities = crud.ambitie.get_multi(
-        db=db, skip=offset, limit=limit
-    )
+    ambities = crud.ambitie.list(offset=offset, limit=limit)
     return ambities
 
 
@@ -103,9 +101,7 @@ def read_ambities(
     """
     Gets all the ambities lineages and shows the latests valid object for each.
     """
-    ambities = crud.ambitie.get_multi(
-        db=db, skip=offset, limit=limit
-    )
+    ambities = crud.ambitie.valid()
     return ambities
 
 
@@ -121,7 +117,5 @@ def read_ambities(
     """
     Gets all the ambities in this lineage that are valid
     """
-    ambities = crud.ambitie.get_multi(
-        db=db, skip=offset, limit=limit
-    )
+    ambities = crud.ambitie.valid()
     return ambities

@@ -10,17 +10,14 @@ services:
     volumes:
       - ./:/code
     environment:
-      FLASK_APP: index.py
-      FLASK_ENV: development
-      FLASK_RUN_HOST: 0.0.0.0
-      DB_USER: SA
-      DB_PASS: Passw0rd
-      DB_HOST: mssql
-      DB_PORT: 1433
-      DB_NAME: db_dev
-      DB_DRIVER: ODBC Driver 17 for SQL Server
-      TEST_DB_NAME: db_test
-      JWT_SECRET: secret
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_DRIVER: ${DB_DRIVER}
+      TEST_DB_NAME: ${TEST_DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
     depends_on:
       mssql:
         condition: service_healthy

@@ -14,3 +14,4 @@ search-date.json
 .pytest_cache/
 .coverage
 **/*.hidden*
+env/

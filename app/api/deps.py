@@ -45,7 +45,7 @@ def get_current_gebruiker(
     print(token_data)
     print("\n\n")
 
-    gebruiker = crud.gebruiker.get_by_uuid(db, uuid=token_data.sub)
+    gebruiker = crud.gebruiker.get(uuid=token_data.sub)
 
     pprint(gebruiker)
     pprint(gebruiker.Email)
