@@ -6,7 +6,7 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 
-init: up mssql-create-database-dev mssql-create-database-test wait db-upgrade load-fixtures info ## --> Starts docker services and loads the database <--
+init: up mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views load-fixtures info ## --> Starts docker services and loads the database <--
 
 info: ## Display information how to access services
 	@echo ""
@@ -62,13 +62,13 @@ mssql-create-database-dev:
 mssql-create-database-test:
 	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-test.sql
 
-wait:
-	sleep 20
+flask-db-upgrade: ## Run database migrations
+	docker-compose exec api flask db upgrade
 
-db-upgrade: ## Run database migrations
-	docker-compose exec api python -m alembic upgrade 2b26c46368ec
+flask-setup-views: ## Run database views
+	docker-compose exec api flask setup-views -y
 
-routes: ## Show flask routes
+flask-routes: ## Show flask routes
 	docker-compose exec api flask routes
 
 test: up mssql-create-database-test ## Run the tests
@@ -78,10 +78,10 @@ test-verbose: up mssql-create-database-test	## Run the tests in verbose mode
 	docker-compose exec api pytest -s
 
 load-fixtures: ## This will load the fixtures (happens as part of `init`)
-	docker-compose exec api python cmd.py initdb
+	docker-compose exec api flask load-fixtures
 
 # Specific setup without automatically waiting for sql server
-setup-no-wait: mssql-create-database-dev mssql-create-database-test db-upgrade flask-setup-views load-fixtures info
+setup-no-wait: mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views load-fixtures info
 
 # Very rare utilities
 mssql-clear-database:
