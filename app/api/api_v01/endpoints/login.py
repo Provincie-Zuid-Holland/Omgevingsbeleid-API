@@ -37,7 +37,9 @@ def login_access_token(
 
 
 @router.post("/login/test-token", response_model=schemas.Gebruiker)
-def test_token(current_gebruiker: models.Gebruiker = Depends(deps.get_current_gebruiker)) -> Any:
+def test_token(
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_gebruiker),
+) -> Any:
     """
     Test access token
     """

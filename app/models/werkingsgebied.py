@@ -1,6 +1,15 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    text,
+    DateTime,
+    Unicode,
+    Sequence,
+)
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -40,13 +49,23 @@ class Werkingsgebied(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column(
+        "Created_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
+    Modified_By_UUID = Column(
+        "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
 
     Werkingsgebied = Column(Unicode, nullable=False)
     symbol = Column(Unicode(265))
     SHAPE = deferred(Column(Geometry(), nullable=False))
 
-    Created_By = relationship("Gebruiker", primaryjoin="Werkingsgebied.Created_By_UUID == Gebruiker.UUID")
-    Modified_By = relationship("Gebruiker", primaryjoin="Werkingsgebied.Modified_By_UUID == Gebruiker.UUID")
-    Beleidskeuzes = relationship("Beleidskeuze_Werkingsgebieden", back_populates="Werkingsgebied")
+    Created_By = relationship(
+        "Gebruiker", primaryjoin="Werkingsgebied.Created_By_UUID == Gebruiker.UUID"
+    )
+    Modified_By = relationship(
+        "Gebruiker", primaryjoin="Werkingsgebied.Modified_By_UUID == Gebruiker.UUID"
+    )
+    Beleidskeuzes = relationship(
+        "Beleidskeuze_Werkingsgebieden", back_populates="Werkingsgebied"
+    )

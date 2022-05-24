@@ -1,6 +1,15 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    text,
+    DateTime,
+    Unicode,
+    Sequence,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -38,14 +47,21 @@ class Beleidskeuze(Base):
     Eind_Geldigheid = Column(DateTime, nullable=False)
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
-    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-
+    Created_By_UUID = Column(
+        "Created_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
+    Modified_By_UUID = Column(
+        "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
 
     Eigenaar_1_UUID = Column("Eigenaar_1", ForeignKey("Gebruikers.UUID"))
     Eigenaar_2_UUID = Column("Eigenaar_2", ForeignKey("Gebruikers.UUID"))
-    Portefeuillehouder_1_UUID = Column("Portefeuillehouder_1", ForeignKey("Gebruikers.UUID"))
-    Portefeuillehouder_2_UUID = Column("Portefeuillehouder_2", ForeignKey("Gebruikers.UUID"))
+    Portefeuillehouder_1_UUID = Column(
+        "Portefeuillehouder_1", ForeignKey("Gebruikers.UUID")
+    )
+    Portefeuillehouder_2_UUID = Column(
+        "Portefeuillehouder_2", ForeignKey("Gebruikers.UUID")
+    )
     Opdrachtgever_UUID = Column("Opdrachtgever", ForeignKey("Gebruikers.UUID"))
     Aanpassing_Op_UUID = Column("Aanpassing_Op", ForeignKey("Beleidskeuzes.UUID"))
 
@@ -60,26 +76,65 @@ class Beleidskeuze(Base):
     Status = Column(Unicode(50), nullable=False)
     Weblink = Column(Unicode(200))
 
-    Created_By = relationship("Gebruiker", primaryjoin="Beleidskeuze.Created_By_UUID == Gebruiker.UUID")
-    Modified_By = relationship("Gebruiker", primaryjoin="Beleidskeuze.Modified_By_UUID == Gebruiker.UUID")
+    Created_By = relationship(
+        "Gebruiker", primaryjoin="Beleidskeuze.Created_By_UUID == Gebruiker.UUID"
+    )
+    Modified_By = relationship(
+        "Gebruiker", primaryjoin="Beleidskeuze.Modified_By_UUID == Gebruiker.UUID"
+    )
 
-    Eigenaar_1 = relationship("Gebruiker", primaryjoin="Beleidskeuze.Eigenaar_1_UUID == Gebruiker.UUID")
-    Eigenaar_2 = relationship("Gebruiker", primaryjoin="Beleidskeuze.Eigenaar_2_UUID == Gebruiker.UUID")
-    Portefeuillehouder_1 = relationship("Gebruiker", primaryjoin="Beleidskeuze.Portefeuillehouder_1_UUID == Gebruiker.UUID")
-    Portefeuillehouder_2 = relationship("Gebruiker", primaryjoin="Beleidskeuze.Portefeuillehouder_2_UUID == Gebruiker.UUID")
-    Opdrachtgever = relationship("Gebruiker", primaryjoin="Beleidskeuze.Opdrachtgever_UUID == Gebruiker.UUID")
-    Aanpassing_Op = relationship("Beleidskeuze", primaryjoin="Beleidskeuze.Aanpassing_Op_UUID == Beleidskeuze.UUID")
+    Eigenaar_1 = relationship(
+        "Gebruiker", primaryjoin="Beleidskeuze.Eigenaar_1_UUID == Gebruiker.UUID"
+    )
+    Eigenaar_2 = relationship(
+        "Gebruiker", primaryjoin="Beleidskeuze.Eigenaar_2_UUID == Gebruiker.UUID"
+    )
+    Portefeuillehouder_1 = relationship(
+        "Gebruiker",
+        primaryjoin="Beleidskeuze.Portefeuillehouder_1_UUID == Gebruiker.UUID",
+    )
+    Portefeuillehouder_2 = relationship(
+        "Gebruiker",
+        primaryjoin="Beleidskeuze.Portefeuillehouder_2_UUID == Gebruiker.UUID",
+    )
+    Opdrachtgever = relationship(
+        "Gebruiker", primaryjoin="Beleidskeuze.Opdrachtgever_UUID == Gebruiker.UUID"
+    )
+    Aanpassing_Op = relationship(
+        "Beleidskeuze",
+        primaryjoin="Beleidskeuze.Aanpassing_Op_UUID == Beleidskeuze.UUID",
+    )
 
     Ambities = relationship("Beleidskeuze_Ambities", back_populates="Beleidskeuze")
     Belangen = relationship("Beleidskeuze_Belangen", back_populates="Beleidskeuze")
-    Beleidsdoelen = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Beleidskeuze")
-    Beleidsprestaties = relationship("Beleidskeuze_Beleidsprestaties", back_populates="Beleidskeuze")
-    Beleidsregels = relationship("Beleidskeuze_Beleidsregels", back_populates="Beleidskeuze")
-    Maatregelen = relationship("Beleidskeuze_Maatregelen", back_populates="Beleidskeuze")
+    Beleidsdoelen = relationship(
+        "Beleidskeuze_Beleidsdoelen", back_populates="Beleidskeuze"
+    )
+    Beleidsprestaties = relationship(
+        "Beleidskeuze_Beleidsprestaties", back_populates="Beleidskeuze"
+    )
+    Beleidsregels = relationship(
+        "Beleidskeuze_Beleidsregels", back_populates="Beleidskeuze"
+    )
+    Maatregelen = relationship(
+        "Beleidskeuze_Maatregelen", back_populates="Beleidskeuze"
+    )
     Themas = relationship("Beleidskeuze_Themas", back_populates="Beleidskeuze")
-    Verordeningen = relationship("Beleidskeuze_Verordeningen", back_populates="Beleidskeuze")
-    Werkingsgebieden = relationship("Beleidskeuze_Werkingsgebieden", back_populates="Beleidskeuze")
-    Beleidsmodules = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidskeuze")
+    Verordeningen = relationship(
+        "Beleidskeuze_Verordeningen", back_populates="Beleidskeuze"
+    )
+    Werkingsgebieden = relationship(
+        "Beleidskeuze_Werkingsgebieden", back_populates="Beleidskeuze"
+    )
+    Beleidsmodules = relationship(
+        "Beleidsmodule_Beleidskeuzes", back_populates="Beleidskeuze"
+    )
 
-    Van_Beleidsrelaties = relationship("Beleidsrelatie", primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Van_Beleidskeuze_UUID")
-    Naar_Beleidsrelaties = relationship("Beleidsrelatie", primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Naar_Beleidskeuze_UUID")
+    Van_Beleidsrelaties = relationship(
+        "Beleidsrelatie",
+        primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Van_Beleidskeuze_UUID",
+    )
+    Naar_Beleidsrelaties = relationship(
+        "Beleidsrelatie",
+        primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Naar_Beleidskeuze_UUID",
+    )

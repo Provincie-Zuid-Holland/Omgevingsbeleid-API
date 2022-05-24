@@ -1,6 +1,15 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    text,
+    DateTime,
+    Unicode,
+    Sequence,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -39,14 +48,24 @@ class Beleidsregel(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column(
+        "Created_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
+    Modified_By_UUID = Column(
+        "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
 
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
     Externe_URL = Column(String(300, "SQL_Latin1_General_CP1_CI_AS"))
 
-    Created_By = relationship("Gebruiker", primaryjoin="Beleidsregel.Created_By_UUID == Gebruiker.UUID")
-    Modified_By = relationship("Gebruiker", primaryjoin="Beleidsregel.Modified_By_UUID == Gebruiker.UUID")
-    Beleidskeuzes = relationship("Beleidskeuze_Beleidsregels", back_populates="Beleidsregel")
+    Created_By = relationship(
+        "Gebruiker", primaryjoin="Beleidsregel.Created_By_UUID == Gebruiker.UUID"
+    )
+    Modified_By = relationship(
+        "Gebruiker", primaryjoin="Beleidsregel.Modified_By_UUID == Gebruiker.UUID"
+    )
+    Beleidskeuzes = relationship(
+        "Beleidskeuze_Beleidsregels", back_populates="Beleidsregel"
+    )

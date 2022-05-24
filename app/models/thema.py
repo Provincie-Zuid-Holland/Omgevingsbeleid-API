@@ -1,6 +1,15 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    text,
+    DateTime,
+    Unicode,
+    Sequence,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -38,13 +47,21 @@ class Thema(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column(
+        "Created_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
+    Modified_By_UUID = Column(
+        "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
 
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
 
-    Created_By = relationship("Gebruiker", primaryjoin="Thema.Created_By_UUID == Gebruiker.UUID")
-    Modified_By = relationship("Gebruiker", primaryjoin="Thema.Modified_By_UUID == Gebruiker.UUID")
+    Created_By = relationship(
+        "Gebruiker", primaryjoin="Thema.Created_By_UUID == Gebruiker.UUID"
+    )
+    Modified_By = relationship(
+        "Gebruiker", primaryjoin="Thema.Modified_By_UUID == Gebruiker.UUID"
+    )
     Beleidskeuzes = relationship("Beleidskeuze_Themas", back_populates="Thema")

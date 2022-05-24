@@ -1,6 +1,15 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    text,
+    DateTime,
+    Unicode,
+    Sequence,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -17,7 +26,9 @@ class Beleidskeuze_Beleidsprestaties(Base):
     __tablename__ = "Beleidskeuze_Beleidsprestaties"
 
     Beleidskeuze_UUID = Column(ForeignKey("Beleidskeuzes.UUID"), primary_key=True)
-    Beleidsprestatie_UUID = Column(ForeignKey("Beleidsprestaties.UUID"), primary_key=True)
+    Beleidsprestatie_UUID = Column(
+        ForeignKey("Beleidsprestaties.UUID"), primary_key=True
+    )
     Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
     Beleidskeuze = relationship("Beleidskeuze", back_populates="Beleidsprestaties")
@@ -39,13 +50,23 @@ class Beleidsprestatie(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column(
+        "Created_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
+    Modified_By_UUID = Column(
+        "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
 
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
 
-    Created_By = relationship("Gebruiker", primaryjoin="Beleidsprestatie.Created_By_UUID == Gebruiker.UUID")
-    Modified_By = relationship("Gebruiker", primaryjoin="Beleidsprestatie.Modified_By_UUID == Gebruiker.UUID")
-    Beleidskeuzes = relationship("Beleidskeuze_Beleidsprestaties", back_populates="Beleidsprestatie")
+    Created_By = relationship(
+        "Gebruiker", primaryjoin="Beleidsprestatie.Created_By_UUID == Gebruiker.UUID"
+    )
+    Modified_By = relationship(
+        "Gebruiker", primaryjoin="Beleidsprestatie.Modified_By_UUID == Gebruiker.UUID"
+    )
+    Beleidskeuzes = relationship(
+        "Beleidskeuze_Beleidsprestaties", back_populates="Beleidsprestatie"
+    )

@@ -1,6 +1,15 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    text,
+    DateTime,
+    Unicode,
+    Sequence,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -28,14 +37,25 @@ class Beleidsmodule(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-
+    Created_By_UUID = Column(
+        "Created_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
+    Modified_By_UUID = Column(
+        "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
 
     Titel = Column(Unicode(150), nullable=False)
     Besluit_Datum = Column(DateTime)
 
-    Created_By = relationship("Gebruiker", primaryjoin="Beleidsmodule.Created_By_UUID == Gebruiker.UUID")
-    Modified_By = relationship("Gebruiker", primaryjoin="Beleidsmodule.Modified_By_UUID == Gebruiker.UUID")
-    Maatregelen = relationship("Beleidsmodule_Maatregelen", back_populates="Beleidsmodule")
-    Beleidskeuzes = relationship("Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule")
+    Created_By = relationship(
+        "Gebruiker", primaryjoin="Beleidsmodule.Created_By_UUID == Gebruiker.UUID"
+    )
+    Modified_By = relationship(
+        "Gebruiker", primaryjoin="Beleidsmodule.Modified_By_UUID == Gebruiker.UUID"
+    )
+    Maatregelen = relationship(
+        "Beleidsmodule_Maatregelen", back_populates="Beleidsmodule"
+    )
+    Beleidskeuzes = relationship(
+        "Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule"
+    )

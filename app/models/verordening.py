@@ -1,6 +1,15 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    text,
+    DateTime,
+    Unicode,
+    Sequence,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -39,11 +48,19 @@ class Verordening(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column(
+        "Created_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
+    Modified_By_UUID = Column(
+        "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
 
-    Portefeuillehouder_1_UUID = Column("Portefeuillehouder_1", ForeignKey("Gebruikers.UUID"))
-    Portefeuillehouder_2_UUID = Column("Portefeuillehouder_2", ForeignKey("Gebruikers.UUID"))
+    Portefeuillehouder_1_UUID = Column(
+        "Portefeuillehouder_1", ForeignKey("Gebruikers.UUID")
+    )
+    Portefeuillehouder_2_UUID = Column(
+        "Portefeuillehouder_2", ForeignKey("Gebruikers.UUID")
+    )
     Eigenaar_1_UUID = Column("Eigenaar_1", ForeignKey("Gebruikers.UUID"))
     Eigenaar_2_UUID = Column("Eigenaar_2", ForeignKey("Gebruikers.UUID"))
     Opdrachtgever_UUID = Column("Opdrachtgever", ForeignKey("Gebruikers.UUID"))
@@ -56,14 +73,34 @@ class Verordening(Base):
     Gebied_UUID = Column("Gebied", ForeignKey("Werkingsgebieden.UUID"))
     Volgnummer = Column(Unicode, nullable=False)
 
-    Created_By = relationship("Gebruiker", primaryjoin="Verordening.Created_By_UUID == Gebruiker.UUID")
-    Modified_By = relationship("Gebruiker", primaryjoin="Verordening.Modified_By_UUID == Gebruiker.UUID")
+    Created_By = relationship(
+        "Gebruiker", primaryjoin="Verordening.Created_By_UUID == Gebruiker.UUID"
+    )
+    Modified_By = relationship(
+        "Gebruiker", primaryjoin="Verordening.Modified_By_UUID == Gebruiker.UUID"
+    )
 
-    Portefeuillehouder_1 = relationship("Gebruiker", primaryjoin="Verordening.Portefeuillehouder_1_UUID == Gebruiker.UUID")
-    Portefeuillehouder_2 = relationship("Gebruiker", primaryjoin="Verordening.Portefeuillehouder_2_UUID == Gebruiker.UUID")
-    Eigenaar_1 = relationship("Gebruiker", primaryjoin="Verordening.Eigenaar_1_UUID == Gebruiker.UUID")
-    Eigenaar_2 = relationship("Gebruiker", primaryjoin="Verordening.Eigenaar_2_UUID == Gebruiker.UUID")
-    Opdrachtgever = relationship("Gebruiker", primaryjoin="Verordening.Opdrachtgever_UUID == Gebruiker.UUID")
-    Gebied = relationship("Werkingsgebied", primaryjoin="Verordening.Gebied_UUID == Werkingsgebied.UUID")
+    Portefeuillehouder_1 = relationship(
+        "Gebruiker",
+        primaryjoin="Verordening.Portefeuillehouder_1_UUID == Gebruiker.UUID",
+    )
+    Portefeuillehouder_2 = relationship(
+        "Gebruiker",
+        primaryjoin="Verordening.Portefeuillehouder_2_UUID == Gebruiker.UUID",
+    )
+    Eigenaar_1 = relationship(
+        "Gebruiker", primaryjoin="Verordening.Eigenaar_1_UUID == Gebruiker.UUID"
+    )
+    Eigenaar_2 = relationship(
+        "Gebruiker", primaryjoin="Verordening.Eigenaar_2_UUID == Gebruiker.UUID"
+    )
+    Opdrachtgever = relationship(
+        "Gebruiker", primaryjoin="Verordening.Opdrachtgever_UUID == Gebruiker.UUID"
+    )
+    Gebied = relationship(
+        "Werkingsgebied", primaryjoin="Verordening.Gebied_UUID == Werkingsgebied.UUID"
+    )
 
-    Beleidskeuzes = relationship("Beleidskeuze_Verordeningen", back_populates="Verordening")
+    Beleidskeuzes = relationship(
+        "Beleidskeuze_Verordeningen", back_populates="Verordening"
+    )

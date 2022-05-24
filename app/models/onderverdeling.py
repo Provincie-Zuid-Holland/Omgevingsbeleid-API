@@ -1,6 +1,15 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    text,
+    DateTime,
+    Unicode,
+    Sequence,
+)
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -28,15 +37,28 @@ class Onderverdeling(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column(
+        "Created_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
+    Modified_By_UUID = Column(
+        "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
 
     Onderverdeling = Column(Unicode, nullable=False)
     symbol = Column(Unicode(265))
     Werkingsgebied_Description = Column("Werkingsgebied", Unicode(256))
-    Werkingsgebied_UUID = Column("UUID_Werkingsgebied", ForeignKey("Werkingsgebieden.UUID"), nullable=False)
+    Werkingsgebied_UUID = Column(
+        "UUID_Werkingsgebied", ForeignKey("Werkingsgebieden.UUID"), nullable=False
+    )
     SHAPE = deferred(Column(Geometry, nullable=False))
 
-    Created_By = relationship("Gebruiker", primaryjoin="Onderverdeling.Created_By_UUID == Gebruiker.UUID")
-    Modified_By = relationship("Gebruiker", primaryjoin="Onderverdeling.Modified_By_UUID == Gebruiker.UUID")
-    Werkingsgebied = relationship("Werkingsgebied", primaryjoin="Onderverdeling.Werkingsgebied_UUID == Werkingsgebied.UUID")
+    Created_By = relationship(
+        "Gebruiker", primaryjoin="Onderverdeling.Created_By_UUID == Gebruiker.UUID"
+    )
+    Modified_By = relationship(
+        "Gebruiker", primaryjoin="Onderverdeling.Modified_By_UUID == Gebruiker.UUID"
+    )
+    Werkingsgebied = relationship(
+        "Werkingsgebied",
+        primaryjoin="Onderverdeling.Werkingsgebied_UUID == Werkingsgebied.UUID",
+    )
