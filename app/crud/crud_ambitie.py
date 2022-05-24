@@ -35,23 +35,5 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
         self.db.refresh(db_obj)
         return db_obj
 
-    def latest(self, all: bool = False) -> List[ModelType]:
-        partition = func.row_number().over(partition_by="ID", order_by="Modified_Date")
-        row_number = label("RowNumber", partition)
-
-        sub_query = self.db.query(self.model, row_number).subquery()
-        model_alias = aliased(self.model, sub_query)
-
-        query = (
-            self.db.query(model_alias)
-            .filter(sub_query.c.RowNumber == 1)
-            .filter(model_alias.UUID != NULL_UUID)
-        )
-
-        if not all:
-            query = query.filter(model_alias.Eind_Geldigheid > datetime.utcnow())
-
-        # TODO filter and limit with _build_default_query
-        return query.all()
 
 ambitie = CRUDAmbitie(Ambitie)

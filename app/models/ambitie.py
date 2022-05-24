@@ -1,7 +1,18 @@
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
-from sqlalchemy import Column, ForeignKey, Integer, String, text, DateTime, Unicode, Sequence, Table, Boolean
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    text,
+    DateTime,
+    Unicode,
+    Sequence,
+    Table,
+    Boolean,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -41,19 +52,27 @@ class Ambitie(Base):
     Created_Date = Column(DateTime, nullable=False)
     Modified_Date = Column(DateTime, nullable=False)
 
-    Created_By_UUID = Column("Created_By", ForeignKey("Gebruikers.UUID"), nullable=False)
-    Modified_By_UUID = Column("Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False)
+    Created_By_UUID = Column(
+        "Created_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
+    Modified_By_UUID = Column(
+        "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
+    )
 
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
 
-    Created_By = relationship("Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID")
-    Modified_By = relationship("Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID")
+    Created_By = relationship(
+        "Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID"
+    )
+    Modified_By = relationship(
+        "Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID"
+    )
     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
 
     # SQL partitions through hybrid property expressions
-    
+
     # @hybrid_property
     # def row_number(self):
     #     return -1
@@ -62,7 +81,10 @@ class Ambitie(Base):
     # def row_number(cls):
     #     return sa.func.row_number().over(partition_by=cls.ID, order_by=cls.Modified_Date)
 
+
 valid_ambitie_stmt = sa.select([Ambitie.UUID]).where(Ambitie.Weblink != "")
 valid_ambitie_view = create_view("Valid_Ambities", valid_ambitie_stmt, Base.metadata)
+
+
 class ViewValidAmbitie(Base):
     __table__ = valid_ambitie_view

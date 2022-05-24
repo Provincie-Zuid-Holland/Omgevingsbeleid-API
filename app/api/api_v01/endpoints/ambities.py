@@ -5,11 +5,17 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
+from app.models.ambitie import Ambitie 
+from app.models.gebruiker import GebruikersRol
 
 router = APIRouter()
 
 
-@router.get("/ambities", response_model=List[schemas.Ambitie])
+@router.get(
+    "/ambities",
+    response_model=List[schemas.Ambitie],
+    response_model_exclude={"Omschrijving"},
+)
 def read_ambities(
     db: Session = Depends(deps.get_db),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
@@ -21,7 +27,7 @@ def read_ambities(
     """
     Gets all the ambities lineages and shows the latests object for each
     """
-    ambities = crud.ambitie.list(offset=offset, limit=limit)
+    ambities = crud.ambitie.latest(offset=offset, limit=limit)
     return ambities
 
 
@@ -35,7 +41,7 @@ def create_ambitie(
     """
     Creates a new ambities lineage
     """
-    ambitie = crud.ambitie.create(db=db, obj_in=ambitie_in, by_uuid=current_gebruiker.UUID)
+    ambitie = crud.ambitie.create(obj_in=ambitie_in, by_uuid=current_gebruiker.UUID)
     return ambitie
 
 
@@ -49,7 +55,7 @@ def read_ambitie(
     """
     Gets all the ambities versions by lineage
     """
-    ambitie = crud.ambitie.get_newest_by_lineage(db=db, lineage_id=lineage_id)
+    ambitie = crud.ambitie.get_latest_by_id(id=lineage_id)
     if not ambitie:
         raise HTTPException(status_code=404, detail="Ambitie not found")
     return ambitie
@@ -66,16 +72,21 @@ def update_ambitie(
     """
     Adds a new ambities to a lineage
     """
-    ambitie = crud.ambitie.get_newest_by_lineage(db=db, lineage_id=lineage_id)
+    ambitie = crud.ambitie.get_latest_by_id(id=lineage_id)
     if not ambitie:
         raise HTTPException(status_code=404, detail="Ambitie not found")
-    if ambitie.Created_By != current_gebruiker.id:
-        raise HTTPException(status_code=400, detail="Not enough permissions")
-    ambitie = crud.ambitie.update(db=db, db_obj=ambitie, obj_in=ambitie_in)
+    if ambitie.Created_By != current_gebruiker.UUID:
+        if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
+            raise HTTPException(
+                status_code=403, detail="Forbidden: Not the owner of this resource"
+            )
+    ambitie = crud.ambitie.update(db_obj=ambitie, obj_in=ambitie_in)
     return ambitie
 
 
-@router.get("/changes/ambities/{old_uuid}/{new_uuid}", response_model=List[schemas.Ambitie])
+@router.get(
+    "/changes/ambities/{old_uuid}/{new_uuid}", response_model=List[schemas.Ambitie]
+)
 def changes_ambities(
     old_uuid: str,
     new_uuid: str,
@@ -84,9 +95,7 @@ def changes_ambities(
     """
     Shows the changes between two versions of ambities-
     """
-    ambities = crud.ambitie.get_multi(
-        db=db, skip=offset, limit=limit
-    )
+    ambities = crud.ambitie.get_multi(db=db, skip=offset, limit=limit)
     return ambities
 
 

@@ -6,7 +6,7 @@ from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.schema import Sequence
 
 metadata = MetaData(
-    naming_convention = {
+    naming_convention={
         "pk": "PK_%(table_name)s",
         "fk": "FK_%(table_name)s_%(column_0_name)s",
         "ix": "IX_%(table_name)s_%(column_0_name)s",
@@ -15,7 +15,8 @@ metadata = MetaData(
     }
 )
 
-NULL_UUID = '00000000-0000-0000-0000-000000000000' 
+NULL_UUID = "00000000-0000-0000-0000-000000000000"
+
 
 @as_declarative(metadata=metadata)
 class Base:
