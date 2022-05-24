@@ -45,7 +45,7 @@ def create_ambitie(
     return ambitie
 
 
-@router.get("/ambities/{lineage_id}", response_model=schemas.Ambitie)
+@router.get("/ambities/{lineage_id}", response_model=List[schemas.Ambitie])
 def read_ambitie(
     *,
     db: Session = Depends(deps.get_db),
@@ -55,10 +55,10 @@ def read_ambitie(
     """
     Gets all the ambities versions by lineage
     """
-    ambitie = crud.ambitie.get_latest_by_id(id=lineage_id)
-    if not ambitie:
-        raise HTTPException(status_code=404, detail="Ambitie not found")
-    return ambitie
+    ambities = crud.ambitie.all(ID=lineage_id)
+    if not ambities:
+        raise HTTPException(status_code=404, detail="Ambities not found")
+    return ambities
 
 
 @router.patch("/ambities/{lineage_id}", response_model=schemas.Ambitie)
@@ -99,7 +99,7 @@ def changes_ambities(
     return ambities
 
 
-@router.get("/valid/ambities", response_model=List[schemas.Ambitie])
+@router.get("/valid/ambities", response_model=List[schemas.Ambitie], response_model_exclude={"Omschrijving"})
 def read_ambities(
     db: Session = Depends(deps.get_db),
     offset: int = 0,

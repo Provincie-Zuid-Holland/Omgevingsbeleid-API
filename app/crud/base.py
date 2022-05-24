@@ -35,12 +35,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def get(self, uuid: str) -> Optional[ModelType]:
         return self.db.query(self.model).filter(self.model.UUID == uuid).first()
 
-    def get_latest_by_id(self, id: Any) -> Optional[ModelType]:
-        query: Query = self.db.query(self.model)
-        return (
-            query.filter(self.model.ID == id).order_by(self.model.Modified_Date.desc()).first()
-        )
-
     def create(self, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)
         db_obj = self.model(**obj_in_data)  # type: ignore
