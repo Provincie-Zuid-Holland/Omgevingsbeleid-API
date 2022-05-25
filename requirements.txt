@@ -62,7 +62,7 @@ protobuf==3.19.4
 py==1.10.0
 pycodestyle==2.5.0
 pycparser==2.20
-PyJWT==1.7.1
+PyJWT==2.4.0
 pylint==2.4.4
 PyMySQL==1.0.2
 pyodbc==4.0.32
