@@ -22,3 +22,14 @@ NULL_UUID = "00000000-0000-0000-0000-000000000000"
 class Base:
     ID: Any
     __name__: str
+
+@as_declarative(metadata=metadata)
+class BaseTimeStamped:
+    ID: Any
+    
+    Begin_Geldigheid = Column(DateTime, nullable=False)
+    Eind_Geldigheid = Column(DateTime, nullable=False)
+    Created_Date = Column(DateTime, nullable=False)
+    Modified_Date = Column(DateTime, nullable=False)
+
+    __name__: str

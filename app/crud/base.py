@@ -11,10 +11,10 @@ from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.elements import ColumnElement, Label
 
 from app.core.exceptions import DatabaseError
-from app.db.base_class import Base, NULL_UUID
+from app.db.base_class import BaseTimeStamped, NULL_UUID
 from app.db.session import SessionLocal
 
-ModelType = TypeVar("ModelType", bound=Base)
+ModelType = TypeVar("ModelType", bound=BaseTimeStamped)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
@@ -79,26 +79,40 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     #
 
     def latest(
-        self, all: bool = False, offset: int = 0, limit: int = 20
+        self, all: bool = False, offset: int = 0, limit: int = 20, criteria: dict = dict()
     ) -> List[ModelType]:
+        # List current model with latest view filters applied
+        query = self._build_latest_view_filter(all, criteria)
+        query = query.offset(offset).limit(limit)
+
+        return query.all()
+
+    def valid(
+
+        self, ID: int = None, offset: int = 0, limit: int = 20
+    ) -> List[ModelType]:
+        # List current model with valid view filters applied
+        query = self._build_valid_view_filter(ID=ID)
+        query = query.offset(offset).limit(limit)
+
+        return query.all()
+
+    def _build_latest_view_filter(self, all: bool, criteria: dict = dict()) -> Query:
         """
         Retrieve a model with the 'Latest' view filters applied.
         Defaults to:
         - distinct ID's by latest modified
         - no null UUID row
-        - Eind_Geldigheid in the future
+        - Eind_Geldigheid in the futur
 
         **Parameters**
 
         * `all`: If true, omits Eind_Geldigheid check
         """
 
-        partition: ColumnElement = func.row_number().over(
-            partition_by="ID", order_by="Modified_Date"
-        )
-        row_number: Label = label("RowNumber", partition)
+        row_number = self._add_rownumber_latest_id()
+        sub_query: Query = self.db.query(self.model, row_number).subquery("inner")
 
-        sub_query: Query = self.db.query(self.model, row_number).subquery()
         model_alias: AliasedClass = aliased(
             element=self.model, alias=sub_query, name="inner", adapt_on_names=True
         )
@@ -112,13 +126,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if not all:
             query = query.filter(model_alias.Eind_Geldigheid > datetime.utcnow())
 
-        # TODO filter and limit with _build_default_query
-        query = query.order_by(model_alias.ID.desc()).offset(offset).limit(limit)
+        return query.order_by(model_alias.ID.desc())
 
-        return query.all()
-
-    # TODO: DRY, is same filter as latest with 1 added
-    def valid(self, offset: int = 0, limit: int = 20) -> List[ModelType]:
+    def _build_valid_view_filter(self, ID: int = None) -> Query:
         """
         Retrieve a model with the 'Valid' view filters applied.
         Defaults to:
@@ -128,15 +138,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         - Begin_Geldigheid today or in the past
         """
 
-        partition: ColumnElement = func.row_number().over(
-            partition_by="ID", order_by="Modified_Date"
-        )
-        row_number = label("RowNumber", partition)
+        row_number = self._add_rownumber_latest_id()
 
         sub_query: Query = (
             self.db.query(self.model, row_number)
             .filter(self.model.Begin_Geldigheid <= datetime.utcnow())
-            .subquery()
+            .subquery("inner")
         )
 
         model_alias: AliasedClass = aliased(
@@ -150,10 +157,19 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             .filter(model_alias.Eind_Geldigheid > datetime.utcnow())
         )
 
-        # TODO filter and limit with _build_default_query
-        query = query.order_by(model_alias.ID.desc()).offset(offset).limit(limit)
+        if ID is not None:
+            query = query.filter(model_alias.ID == ID)
 
-        return query.all()
+        return query.order_by(model_alias.ID.desc())
+
+    def _add_rownumber_latest_id(self) -> Label:
+        """
+        Builds sql expression that assigns RowNumber 1 to the latest ID
+        """
+        partition: ColumnElement = func.row_number().over(
+            partition_by=self.model.ID, order_by=self.model.Modified_Date.desc()
+        )
+        return label("RowNumber", partition)
 
     #
     # Common repository actions
@@ -195,12 +211,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def search(self, **criteria) -> Query:
         return self._build_filtered_query(**criteria)
 
-    def _build_filtered_query(self, **criteria) -> Query:
+    def _build_filtered_query(self, query: Query = None, **criteria) -> Query:
         """
         Allows simply passing arguments as filter criteria
         for any model.
         """
-        query = self._build_default_query()
+        if query is None:
+            query = self._build_default_query()
 
         for criterion, value in criteria.items():
             column = getattr(self.model, criterion)
@@ -212,11 +229,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return query
 
-    def _build_default_query(self) -> Query:
-        query = self.db.query(self.model)
+    def _build_default_query(self, query: Query = None) -> Query:
+        if query is None:
+            query = self.db.query(self.model)
 
         # Apply 'valid' filter
-        query: Query = query.filter(self.model.UUID != NULL_UUID)
+        query = query.filter(self.model.UUID != NULL_UUID)
 
         # Default to order by ID
         if hasattr(self.model, "Modified_Date"):

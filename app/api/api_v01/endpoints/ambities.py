@@ -5,16 +5,19 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
-from app.models.ambitie import Ambitie 
+from app.models.ambitie import Ambitie
 from app.models.gebruiker import GebruikersRol
+from app.util.legacy_helpers import parse_filter_str
 
 router = APIRouter()
+
+defer_attributes = {"Omschrijving"}
 
 
 @router.get(
     "/ambities",
     response_model=List[schemas.Ambitie],
-    response_model_exclude={"Omschrijving"},
+    response_model_exclude=defer_attributes,
 )
 def read_ambities(
     db: Session = Depends(deps.get_db),
@@ -27,7 +30,10 @@ def read_ambities(
     """
     Gets all the ambities lineages and shows the latests object for each
     """
-    ambities = crud.ambitie.latest(offset=offset, limit=limit)
+    ambities = crud.ambitie.latest(
+        offset=offset, 
+        limit=limit,
+    )
     return ambities
 
 
@@ -46,7 +52,7 @@ def create_ambitie(
 
 
 @router.get("/ambities/{lineage_id}", response_model=List[schemas.Ambitie])
-def read_ambitie(
+def read_ambitie_lineage(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
@@ -99,8 +105,12 @@ def changes_ambities(
     return ambities
 
 
-@router.get("/valid/ambities", response_model=List[schemas.Ambitie], response_model_exclude={"Omschrijving"})
-def read_ambities(
+@router.get(
+    "/valid/ambities",
+    response_model=List[schemas.Ambitie],
+    response_model_exclude=defer_attributes,
+)
+def read_valid_ambities(
     db: Session = Depends(deps.get_db),
     offset: int = 0,
     limit: int = 20,
@@ -115,8 +125,8 @@ def read_ambities(
 
 
 @router.get("/valid/ambities/{lineage_id}", response_model=List[schemas.Ambitie])
-def read_ambities(
-    lineage_id: str,
+def read_valid_ambitie_lineage(
+    lineage_id: int,
     offset: int = 0,
     limit: int = 20,
     all_filters: str = "",
@@ -126,5 +136,9 @@ def read_ambities(
     """
     Gets all the ambities in this lineage that are valid
     """
-    ambities = crud.ambitie.valid()
+    ambities = crud.ambitie.valid(
+        ID=lineage_id,
+        offset=offset,
+        limit=limit
+    )
     return ambities
