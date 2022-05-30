@@ -33,6 +33,7 @@ def read_ambities(
     ambities = crud.ambitie.latest(
         offset=offset, 
         limit=limit,
+        criteria=parse_filter_str(all_filters)
     )
     return ambities
 
@@ -120,7 +121,11 @@ def read_valid_ambities(
     """
     Gets all the ambities lineages and shows the latests valid object for each.
     """
-    ambities = crud.ambitie.valid()
+    ambities = crud.ambitie.valid(
+        offset=offset, 
+        limit=limit,
+        criteria=parse_filter_str(all_filters)
+    )
     return ambities
 
 

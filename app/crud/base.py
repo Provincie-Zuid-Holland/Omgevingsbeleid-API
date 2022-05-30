@@ -89,10 +89,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def valid(
 
-        self, ID: int = None, offset: int = 0, limit: int = 20
+        self, ID: int = None, offset: int = 0, limit: int = 20, criteria: dict = dict()
     ) -> List[ModelType]:
         # List current model with valid view filters applied
-        query = self._build_valid_view_filter(ID=ID)
+        query = self._build_valid_view_filter(ID=ID, criteria=criteria)
         query = query.offset(offset).limit(limit)
 
         return query.all()
@@ -126,9 +126,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if not all:
             query = query.filter(model_alias.Eind_Geldigheid > datetime.utcnow())
 
+        query = self._build_filtered_query(query=query, model=model_alias, **criteria)
+
         return query.order_by(model_alias.ID.desc())
 
-    def _build_valid_view_filter(self, ID: int = None) -> Query:
+    def _build_valid_view_filter(self, ID: int = None, criteria: dict = dict()) -> Query:
         """
         Retrieve a model with the 'Valid' view filters applied.
         Defaults to:
@@ -159,6 +161,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         if ID is not None:
             query = query.filter(model_alias.ID == ID)
+
+        query = self._build_filtered_query(query=query, model=model_alias, **criteria)
 
         return query.order_by(model_alias.ID.desc())
 
@@ -211,7 +215,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def search(self, **criteria) -> Query:
         return self._build_filtered_query(**criteria)
 
-    def _build_filtered_query(self, query: Query = None, **criteria) -> Query:
+    def _build_filtered_query(self, query: Query = None, model: object = None, **criteria) -> Query:
         """
         Allows simply passing arguments as filter criteria
         for any model.
@@ -219,8 +223,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if query is None:
             query = self._build_default_query()
 
+        if model is None:
+            model = self.model
+
         for criterion, value in criteria.items():
-            column = getattr(self.model, criterion)
+            column = getattr(model, criterion)
 
             if isinstance(value, list):
                 query = query.filter(column.in_(value))
