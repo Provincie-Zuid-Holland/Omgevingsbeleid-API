@@ -12,9 +12,11 @@ SQLAlchemy-Utils
 
 # JWT
 python-jose
-
 passlib
 python-multipart
+
+# Util
+diff-match-patch
 
 # Command
 Click

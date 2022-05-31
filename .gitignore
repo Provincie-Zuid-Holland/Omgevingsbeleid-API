@@ -2,7 +2,7 @@
 .venv/
 __pycache__/
 web.config
-.vscode/settings.json
+.vscode/
 .idea/
 cgi.log
 search-index.log
