@@ -1,13 +1,18 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
 from app.models.ambitie import Ambitie
 from app.models.gebruiker import GebruikersRol
+from app.schemas.ambitie import AmbitieInDBBase
 from app.util.legacy_helpers import parse_filter_str
+from app.util.compare import Comparator
 
 router = APIRouter()
 
@@ -31,9 +36,7 @@ def read_ambities(
     Gets all the ambities lineages and shows the latests object for each
     """
     ambities = crud.ambitie.latest(
-        offset=offset, 
-        limit=limit,
-        criteria=parse_filter_str(all_filters)
+        offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
     )
     return ambities
 
@@ -91,19 +94,31 @@ def update_ambitie(
     return ambitie
 
 
-@router.get(
-    "/changes/ambities/{old_uuid}/{new_uuid}", response_model=List[schemas.Ambitie]
-)
+@router.get("/changes/ambities/{old_uuid}/{new_uuid}")
 def changes_ambities(
     old_uuid: str,
     new_uuid: str,
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
-    Shows the changes between two versions of ambities-
+    Shows the changes between two versions of ambities.
     """
-    ambities = crud.ambitie.get_multi(db=db, skip=offset, limit=limit)
-    return ambities
+    try:
+        old = crud.ambitie.get(old_uuid)
+        new = crud.ambitie.get(new_uuid)
+    except NoResultFound as e:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist."
+        )
+
+    c = Comparator(AmbitieInDBBase, old, new)
+
+    json_data = jsonable_encoder({
+        "old": old,
+        "changes": c.compare_objects()
+    })
+
+    return JSONResponse(content=json_data)
 
 
 @router.get(
@@ -122,9 +137,7 @@ def read_valid_ambities(
     Gets all the ambities lineages and shows the latests valid object for each.
     """
     ambities = crud.ambitie.valid(
-        offset=offset, 
-        limit=limit,
-        criteria=parse_filter_str(all_filters)
+        offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
     )
     return ambities
 
@@ -141,9 +154,5 @@ def read_valid_ambitie_lineage(
     """
     Gets all the ambities in this lineage that are valid
     """
-    ambities = crud.ambitie.valid(
-        ID=lineage_id,
-        offset=offset,
-        limit=limit
-    )
+    ambities = crud.ambitie.valid(ID=lineage_id, offset=offset, limit=limit)
     return ambities
