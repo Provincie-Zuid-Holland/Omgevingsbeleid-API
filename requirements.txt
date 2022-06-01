@@ -12,6 +12,8 @@ anyio==3.5.0
     #   watchgod
 asgiref==3.5.0
     # via uvicorn
+asttokens==2.0.5
+    # via devtools
 attrs==21.4.0
     # via pytest
 black==22.3.0
@@ -22,6 +24,8 @@ click==8.1.2
     #   black
     #   pip-tools
     #   uvicorn
+devtools==0.8.0
+    # via -r requirements.in
 diff-match-patch==20200713
     # via -r requirements.in
 dnspython==2.2.1
@@ -30,6 +34,8 @@ ecdsa==0.17.0
     # via python-jose
 email-validator==1.2.0
     # via pydantic
+executing==0.8.3
+    # via devtools
 faker==13.6.0
     # via -r requirements.in
 fastapi==0.75.2
@@ -100,6 +106,7 @@ rsa==4.8
     # via python-jose
 six==1.16.0
     # via
+    #   asttokens
     #   ecdsa
     #   python-dateutil
     #   python-multipart
