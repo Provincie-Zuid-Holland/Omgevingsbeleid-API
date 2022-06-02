@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
+from copy import deepcopy
 from typing import DefaultDict
 import json
 from flask import Flask, jsonify, request
@@ -218,7 +219,11 @@ def render_schemas(endpoints):
                     "excluded_post" in fields[field].metadata["obprops"]
                     and "excluded_patch" in fields[field].metadata["obprops"]
                 ):
-                    write_properties[field] = props
+                    # make datetime fields optional for writing
+                    write_props = deepcopy(props)
+                    if type(fields[field]) == MM.fields.DateTime:
+                        write_props["required"] = False
+                    write_properties[field] = write_props
 
         schemas[model.Meta.slug + "-read"] = {
             "description": f"Schema that defines the structure of {model.Meta.slug} when reading",
