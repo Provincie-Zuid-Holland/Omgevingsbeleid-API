@@ -10,7 +10,6 @@ from app import crud, models, schemas
 from app.api import deps
 from app.models.ambitie import Ambitie
 from app.models.gebruiker import GebruikersRol
-from app.schemas.ambitie import AmbitieInDBBase
 from app.util.legacy_helpers import parse_filter_str
 from app.util.compare import Comparator
 
@@ -36,8 +35,12 @@ def read_ambities(
     Gets all the ambities lineages and shows the latests object for each
     """
     ambities = crud.ambitie.latest(
-        offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
+        all=True,
+        offset=offset, 
+        limit=limit, 
+        criteria=parse_filter_str(all_filters)
     )
+
     return ambities
 
 
@@ -111,8 +114,8 @@ def changes_ambities(
             detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist."
         )
 
-    c = Comparator(AmbitieInDBBase, old, new)
-
+    c = Comparator(schemas.Ambitie, old, new)
+    # print(c.fields)
     json_data = jsonable_encoder({
         "old": old,
         "changes": c.compare_objects()

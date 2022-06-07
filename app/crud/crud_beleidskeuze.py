@@ -3,15 +3,14 @@ from typing import List, Any
 from datetime import datetime
 
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.orm import joinedload
 
 from app.crud.base import CRUDBase, ModelType
-from app.models.ambitie import Ambitie
-from app.schemas.ambitie import AmbitieCreate, AmbitieUpdate
+from app.models.beleidskeuze import Beleidskeuze
+from app.schemas.beleidskeuze import BeleidskeuzeCreate, BeleidskeuzeUpdate
 
 
-class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
-    def create(self, *, obj_in: AmbitieCreate, by_uuid: str) -> Ambitie:
+class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUpdate]):
+    def create(self, *, obj_in: BeleidskeuzeCreate, by_uuid: str) -> Beleidskeuze:
         obj_in_data = jsonable_encoder(
             obj_in,
             custom_encoder={
@@ -32,12 +31,5 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
         self.db.refresh(db_obj)
         return db_obj
 
-    def get(self, uuid: str) -> ModelType:
-        return (
-            self.db.query(self.model)
-            .options(joinedload(Ambitie.Beleidskeuzes))
-            .filter(self.model.UUID == uuid)
-            .one()
-        )
 
-ambitie = CRUDAmbitie(Ambitie)
+beleidskeuze = CRUDBeleidskeuze(Beleidskeuze)

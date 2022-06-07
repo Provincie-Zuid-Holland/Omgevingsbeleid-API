@@ -1,20 +1,37 @@
 from optparse import Option
-from typing import Optional, List
+from typing import Optional, List, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from pydantic.utils import GetterDict
+
 from datetime import datetime
 
 from .gebruiker import GebruikerInline
 
+# from .beleidskeuze import BeleidskeuzeShortInline
 
-# class BeleidskeuzeShortInline(BaseModel):
-#     ID: int
-#     UUID: str
-#     Titel: str
+from app.util.legacy_helpers import to_ref_field
 
-#     class Config:
-#         orm_mode = True
-#         arbitrary_types_allowed = True
+# Many to many schema's
+
+
+class AmbitieBeleidskeuzesGetter(GetterDict):
+    def get(self, key: str, default: Any = None) -> Any:
+        keys = BeleidskeuzeShortInline.__fields__.keys()
+        if key in keys:
+            return getattr(self._obj.Beleidskeuze, key)
+        else:
+            return super(AmbitieBeleidskeuzesGetter, self).get(key, default)
+
+
+class BeleidskeuzeShortInline(BaseModel):
+    ID: int
+    UUID: str
+    Titel: str
+
+    class Config:
+        orm_mode = True
+        getter_dict = AmbitieBeleidskeuzesGetter
 
 
 # Shared properties
@@ -47,7 +64,6 @@ class AmbitieInDBBase(AmbitieBase):
     Titel: str
     Omschrijving: str
     Weblink: str
-    # Beleidskeuzes: List[BeleidskeuzeShortInline]
 
     class Config:
         orm_mode = True
@@ -58,7 +74,12 @@ class AmbitieInDBBase(AmbitieBase):
 class Ambitie(AmbitieInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
-    pass
+
+    Beleidskeuzes: List[BeleidskeuzeShortInline]
+
+    class Config:
+        allow_population_by_field_name = True
+        alias_generator = to_ref_field
 
 
 # Properties properties stored in DB

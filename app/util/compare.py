@@ -19,19 +19,17 @@ class Comparator:
         if self.old.keys() != self.new.keys():
             raise KeyError("Objects to compare do not share same keys")
 
+        # Ensure only comparable attrs/keys are used
+        self.fields = self._get_comparable_fields(schema, self.old)
+        
+        # Copy to which results are written
         self.changes = deepcopy(self.old)
-
-        # Ensure only comparable keys are used
-        schema_keys = set(schema.__fields__.keys())
-        schema_keys.difference_update(set(self.old.keys()))
-        self.schema = schema.__fields__
-        for diff in schema_keys : self.schema.pop(diff)
 
     def compare_objects(self) -> dict:
         """
         Compares two mappings (dicts), showing the changes inline
         """
-        for attr, field in self.schema.items():
+        for attr, field in self.fields.items():
             if field.type_ == str:
                 self.changes[attr] = self._diff_text_toHTML(
                     self.old[attr], self.new[attr]
@@ -44,6 +42,21 @@ class Comparator:
                 continue
 
         return self.changes
+    
+    def _get_comparable_fields(self, schema: V, obj: dict):
+        """
+        Diff pydantic schema keys vs Model keys and
+        return fields comparable for changes
+        """
+        fields = deepcopy(schema.__fields__)
+        
+        model_diff = set(schema.__fields__.keys())
+        model_diff.difference_update(set(obj.keys()))
+        
+        for diff in model_diff : fields.pop(diff)
+
+        print(fields)
+        return fields
 
     def _diff_text_toHTML(self, old: str, new: str) -> str:
         """
