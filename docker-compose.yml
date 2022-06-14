@@ -18,30 +18,42 @@ services:
       DB_DRIVER: ${DB_DRIVER}
       TEST_DB_NAME: ${TEST_DB_NAME}
       JWT_SECRET: ${JWT_SECRET}
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost/health/ || exit 1
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 1s
     depends_on:
       mssql:
         condition: service_healthy
     restart: "no"
 
-  # frontend:
-  #   build:
-  #     context: ./
-  #     dockerfile: ./docker/frontend/Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     REACT_APP_RELEASE_VERSION: 'omgevingsbeleid@1.0.0'
-  #     REACT_APP_API_URL: 'http://localhost:8888/v0.1'
-  #     REACT_APP_API_ENV: 'dev'
-  #     REACT_APP_KEY_API_ACCESS_TOKEN: 'OB_access_token'
-  #     REACT_APP_KEY_IDENTIFIER: 'OB_identifier'
-  #     REACT_APP_ERROR_MSG: 'Er is iets misgegaan, probeer het later nog eens'
-  #     REACT_APP_KEY_WELCOME_POPUP: 'OB_welkom_popup'
-  #     FRONTEND_BRANCH: "${FRONTEND_BRANCH}"
-  #     PZH_FONTAWESOME_SECRET: "${PZH_FONTAWESOME_SECRET}"
-  #   depends_on:
-  #     - api
-  #   restart: "no"
+  frontend:
+    build:
+      context: ./
+      dockerfile: ./docker/frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_RELEASE_VERSION: 'omgevingsbeleid@1.0.0'
+      REACT_APP_API_URL: 'http://localhost:8888/v0.1'
+      REACT_APP_API_ENV: 'dev'
+      REACT_APP_KEY_API_ACCESS_TOKEN: 'OB_access_token'
+      REACT_APP_KEY_IDENTIFIER: 'OB_identifier'
+      REACT_APP_ERROR_MSG: 'Er is iets misgegaan, probeer het later nog eens'
+      REACT_APP_KEY_WELCOME_POPUP: 'OB_welkom_popup'
+      FRONTEND_BRANCH: "${FRONTEND_BRANCH}"
+      PZH_FONTAWESOME_SECRET: "${PZH_FONTAWESOME_SECRET}"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 1s
+    depends_on:
+      - api
+    restart: "no"
 
   mssql:
     image: reynier3mil/centos-mssql-full
@@ -68,8 +80,10 @@ services:
     volumes:
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
-      # - frontend
-      - api
+      api:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
     restart: "no"
 
   # geoserver:

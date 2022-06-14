@@ -1,13 +1,14 @@
-.PHONY: init info up down down-hard restart logs logs-all mysql-wait mssql mssql-cli mssql-create-database-dev mssql-create-database-test mssql-show-databases mssql-show-tables flask-setup-views flask-db-upgrade flask-routes load-fixtures flask test test-verbose check-requirements
 
 .DEFAULT_GOAL := help
 default: help;
+.PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+.PHONY: init
+init: up mssql-create-database-dev mssql-create-database-test db-upgrade load-fixtures info ## --> Starts docker services and loads the database <--
 
-init: up mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views load-fixtures info ## --> Starts docker services and loads the database <--
-
+.PHONY: info
 info: ## Display information how to access services
 	@echo ""
 	@echo ""
@@ -19,7 +20,7 @@ info: ## Display information how to access services
 	@echo ""
 	@echo "	Direct locations:"
 	@echo "		Frontend:	http://localhost:3000"
-	@echo "		Backend:	http://localhost:5000/v0.1/ts_defs"
+	@echo "		Backend:	http://localhost:8000/docs/"
 	@echo "		Mssql:		localhost:11433"
 	@echo "     					user=SU password=Passw0rd"
 	@echo "		Geoserver:	http://localhost:8080/geoserver"
@@ -62,56 +63,17 @@ mssql-create-database-dev:
 mssql-create-database-test:
 	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-test.sql
 
-flask-db-upgrade: ## Run database migrations
-	docker-compose exec api flask db upgrade
-
-flask-setup-views: ## Run database views
-	docker-compose exec api flask setup-views -y
+db-upgrade: ## Run database migrations
+	docker-compose exec api python -m alembic upgrade head
 
 flask-routes: ## Show flask routes
 	docker-compose exec api flask routes
 
-test: up mssql-create-database-test ## Run the tests
+test: up mssql-create-database-test ## Run the tests	
 	docker-compose exec api pytest
 
 test-verbose: up mssql-create-database-test	## Run the tests in verbose mode
 	docker-compose exec api pytest -s
 
 load-fixtures: ## This will load the fixtures (happens as part of `init`)
-	docker-compose exec api flask load-fixtures
-
-# Specific setup without automatically waiting for sql server
-setup-no-wait: mssql-create-database-dev mssql-create-database-test flask-db-upgrade flask-setup-views load-fixtures info
-
-# Very rare utilities
-mssql-clear-database:
-	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/clear.sql
-
-mssql-show-databases:
-	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT name FROM master.dbo.sysdatabases"
-
-mssql-show-tables:
-	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT TABLE_NAME FROM db_dev.INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'"
-
-# @deprecated
-mssql-load-old-database:
-	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/old.hidden.sql
-
-# deprecated
-mssql-load-old-full-database:
-	@docker-compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/old-full.hidden.sql
-
-# @TODO: DB_DRIVER should be filled in
-# This value is different for linux and windows users
-# It could be passed in by the .env file
-# But i dont like installing that driver locally mmmm
-#
-# Other options are
-# * Run inside container and manually change permissions of created file
-# * Run inside container as host user (not sure if that works on Windows)
-ifeq (flask-shell, $(firstword $(MAKECMDGOALS)))
-  RUN_ARGS := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
-  $(eval $(RUN_ARGS):;@:)
-endif
-flask-shell:
-	FLASK_APP=application.py DB_USER=SA DB_PASS=Passw0rd DB_HOST=localhost DB_PORT=11433 DB_NAME=db_dev flask $(RUN_ARGS)
+	docker-compose exec api python cmd.py

@@ -1,5 +1,4 @@
-FROM node:16-bullseye
-
+FROM node:14-bullseye
 
 RUN set -ex; \
     apt update; \
@@ -20,4 +19,4 @@ COPY ./docker/frontend/docker-entrypoint.sh /opt/Omgevingsbeleid-Frontend/docker
 RUN  chmod +x /opt/Omgevingsbeleid-Frontend/docker-entrypoint.sh
 
 ENTRYPOINT ["/opt/Omgevingsbeleid-Frontend/docker-entrypoint.sh"]
-CMD ["npm", "start"]
+CMD ["yarn", "start"]

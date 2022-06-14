@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
 
-from app.api.api_v01.api import api_router
+from app.api.api_general.api import api_router as api_router_general
+from app.api.api_v01.api import api_router as api_router_v01
 from app.core.config import settings
 from app.util.legacy_helpers import parse_filter_str
 
@@ -38,4 +39,5 @@ if settings.BACKEND_CORS_ORIGINS:
 
 #     return response
 
-app.include_router(api_router, prefix=settings.API_V01_STR)
+app.include_router(api_router_general)
+app.include_router(api_router_v01, prefix=settings.API_V01_STR)
