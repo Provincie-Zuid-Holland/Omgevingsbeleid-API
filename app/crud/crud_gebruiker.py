@@ -46,6 +46,9 @@ class CRUDGebruiker(CRUDBase[Gebruiker, GebruikerCreate, GebruikerUpdate]):
         self, db: Session, *, email: str, password: str
     ) -> Optional[Gebruiker]:
         gebruiker = self.get_by_email(db, email=email)
+        print("\n\n\nGebruiker:")
+        print(gebruiker)
+        print("\n\n\n")
         if not gebruiker:
             return None
         if not verify_password(password, gebruiker.Wachtwoord):

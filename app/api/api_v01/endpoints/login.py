@@ -10,6 +10,7 @@ from app.api import deps
 from app.core import security
 from app.core.config import settings
 
+
 router = APIRouter()
 
 
@@ -33,6 +34,7 @@ def login_access_token(
             gebruiker.UUID, expires_delta=access_token_expires
         ),
         "token_type": "bearer",
+        "identifier": gebruiker,
     }
 
 
