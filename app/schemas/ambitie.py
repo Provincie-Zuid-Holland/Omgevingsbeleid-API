@@ -1,7 +1,6 @@
-from optparse import Option
 from typing import Optional, List, Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from pydantic.utils import GetterDict
 
 from datetime import datetime

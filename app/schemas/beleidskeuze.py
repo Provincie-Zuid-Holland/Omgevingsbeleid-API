@@ -1,5 +1,4 @@
-from optparse import Option
-from typing import Optional, List
+from typing import Optional
 from app.util.legacy_helpers import to_ref_field
 
 from pydantic import BaseModel

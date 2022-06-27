@@ -1,9 +1,7 @@
 from typing import Any, List
 
-from sqlalchemy import Column, Integer, DateTime, text, ForeignKey, MetaData, Sequence
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
-from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
-from sqlalchemy.schema import Sequence
+from sqlalchemy import Column, DateTime, MetaData
+from sqlalchemy.ext.declarative import as_declarative
 
 metadata = MetaData(
     naming_convention={

@@ -1,5 +1,3 @@
-from curses.ascii import NUL
-from typing import List, Any
 from datetime import datetime
 
 from fastapi.encoders import jsonable_encoder

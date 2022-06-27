@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-import sqlalchemy as sa
 from sqlalchemy import (
     Column,
     ForeignKey,
@@ -10,13 +9,10 @@ from sqlalchemy import (
     DateTime,
     Unicode,
     Sequence,
-    Table,
-    Boolean,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy_utils import create_view
 
 from app.db.base_class import Base
 

@@ -1,4 +1,3 @@
-from app.core.exceptions import QueryParamValidation
 
 
 def to_ref_field(string: str) -> str:

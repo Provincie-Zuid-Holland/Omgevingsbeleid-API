@@ -4,8 +4,6 @@
 from passlib.hash import bcrypt
 from faker.factory import Factory as FakerFactory
 import uuid
-import pyodbc
-import time
 
 from app.models import (
     Ambitie,
@@ -18,10 +16,8 @@ from app.models import (
     Beleidsrelatie,
     Gebruiker,
     Maatregel,
-    Onderverdeling,
     Thema,
     Verordening,
-    Verordeningstructuur,
     Werkingsgebied,
     Beleidskeuze_Ambities,
     Beleidskeuze_Belangen,

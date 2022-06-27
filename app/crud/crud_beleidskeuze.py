@@ -1,10 +1,8 @@
-from curses.ascii import NUL
-from typing import List, Any
 from datetime import datetime
 
 from fastapi.encoders import jsonable_encoder
 
-from app.crud.base import CRUDBase, ModelType
+from app.crud.base import CRUDBase
 from app.models.beleidskeuze import Beleidskeuze
 from app.schemas.beleidskeuze import BeleidskeuzeCreate, BeleidskeuzeUpdate
 

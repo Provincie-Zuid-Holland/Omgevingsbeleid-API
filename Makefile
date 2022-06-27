@@ -84,3 +84,4 @@ pip-compile:
 
 fix:
 	docker-compose exec api python -m black app/
+	docker-compose exec api python -m autoflake -ri --remove-all-unused-imports app/

@@ -27,3 +27,5 @@ Faker
 pytest
 black
 devtools
+autoflake
+freezegun

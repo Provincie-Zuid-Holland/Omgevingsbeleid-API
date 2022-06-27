@@ -1,12 +1,10 @@
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union, Mapping
+from typing import List, TypeVar
 from diff_match_patch import diff_match_patch
 from copy import deepcopy
 from pydantic import BaseModel
-from sqlalchemy import inspect
-import random
 import re
 
-from app.db.base_class import Base, BaseTimeStamped
+from app.db.base_class import Base
 
 K = TypeVar("K", bound=Base)
 V = TypeVar("V", bound=BaseModel)
