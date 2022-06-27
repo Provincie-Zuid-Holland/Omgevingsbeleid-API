@@ -8,7 +8,7 @@ def to_ref_field(string: str) -> str:
     """
     to_alias = ["Beleidskeuzes"]
 
-    if string not in to_alias: 
+    if string not in to_alias:
         return string
-    
+
     return "".join(["Ref_", string])

@@ -31,7 +31,7 @@ def string_filters(
 
     if any_filters:
         filters.add_from_string(FilterCombiner.OR, any_filters)
-    
+
     return filters
 
 
@@ -71,7 +71,7 @@ def get_current_gebruiker(
 
     if not gebruiker:
         raise HTTPException(status_code=404, detail="Gebruiker niet gevonden")
-    
+
     print("return the gebruiker")
     return gebruiker
 

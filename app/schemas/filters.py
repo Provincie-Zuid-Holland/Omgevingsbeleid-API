@@ -33,9 +33,9 @@ class Filters(BaseModel):
         # We are using csv to parse the string as it knows how to parse strings with quotes
         reader = csv.reader([data])
         for item in list(reader)[0]:
-            pieces = item.split(':', 1)
+            pieces = item.split(":", 1)
             if len(pieces) != 2:
-                raise ValueError('Filter does not have a key and a value')
+                raise ValueError("Filter does not have a key and a value")
             result_items.append(Filter(key=pieces[0], value=pieces[1]))
 
         self.clauses.append(FilterClause(combiner=combiner, items=result_items))

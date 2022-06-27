@@ -35,10 +35,7 @@ def read_beleidskeuzes(
     Gets all the beleidskeuzes lineages and shows the latests object for each
     """
     beleidskeuzes = crud.beleidskeuze.latest(
-        all=True,
-        offset=offset, 
-        limit=limit, 
-        criteria=parse_filter_str(all_filters)
+        all=True, offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
     )
 
     return beleidskeuzes
@@ -54,7 +51,9 @@ def create_beleidskeuze(
     """
     Creates a new beleidskeuzes lineage
     """
-    beleidskeuze = crud.beleidskeuze.create(obj_in=beleidskeuze_in, by_uuid=current_gebruiker.UUID)
+    beleidskeuze = crud.beleidskeuze.create(
+        obj_in=beleidskeuze_in, by_uuid=current_gebruiker.UUID
+    )
     return beleidskeuze
 
 
@@ -110,16 +109,13 @@ def changes_beleidskeuzes(
         new = crud.beleidskeuze.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
-            status_code=404, 
-            detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist."
+            status_code=404,
+            detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist.",
         )
 
     c = Comparator(schemas.Beleidskeuze, old, new)
     # print(c.fields)
-    json_data = jsonable_encoder({
-        "old": old,
-        "changes": c.compare_objects()
-    })
+    json_data = jsonable_encoder({"old": old, "changes": c.compare_objects()})
 
     return JSONResponse(content=json_data)
 
@@ -145,7 +141,9 @@ def read_valid_beleidskeuzes(
     return beleidskeuzes
 
 
-@router.get("/valid/beleidskeuzes/{lineage_id}", response_model=List[schemas.Beleidskeuze])
+@router.get(
+    "/valid/beleidskeuzes/{lineage_id}", response_model=List[schemas.Beleidskeuze]
+)
 def read_valid_beleidskeuze_lineage(
     lineage_id: int,
     offset: int = 0,

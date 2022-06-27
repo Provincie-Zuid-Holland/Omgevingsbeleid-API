@@ -40,4 +40,5 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
             .one()
         )
 
+
 ambitie = CRUDAmbitie(Ambitie)

@@ -35,8 +35,8 @@ def read_ambities(
     """
     ambities = crud.ambitie.latest(
         all=True,
-        offset=offset, 
-        limit=limit, 
+        offset=offset,
+        limit=limit,
         filters=filters,
     )
 
@@ -109,16 +109,13 @@ def changes_ambities(
         new = crud.ambitie.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
-            status_code=404, 
-            detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist."
+            status_code=404,
+            detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist.",
         )
 
     c = Comparator(schemas.Ambitie, old, new)
     # print(c.fields)
-    json_data = jsonable_encoder({
-        "old": old,
-        "changes": c.compare_objects()
-    })
+    json_data = jsonable_encoder({"old": old, "changes": c.compare_objects()})
 
     return JSONResponse(content=json_data)
 
@@ -138,7 +135,9 @@ def read_valid_ambities(
     Gets all the ambities lineages and shows the latests valid object for each.
     """
     ambities = crud.ambitie.valid(
-        offset=offset, limit=limit, filters=filters,
+        offset=offset,
+        limit=limit,
+        filters=filters,
     )
     return ambities
 
@@ -154,5 +153,7 @@ def read_valid_ambitie_lineage(
     """
     Gets all the ambities in this lineage that are valid
     """
-    ambities = crud.ambitie.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    ambities = crud.ambitie.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return ambities

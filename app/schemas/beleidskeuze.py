@@ -71,4 +71,3 @@ class Beleidskeuze(BeleidskeuzeInDBBase):
 # Properties properties stored in DB
 class BeleidskeuzeInDB(BeleidskeuzeInDBBase):
     pass
-

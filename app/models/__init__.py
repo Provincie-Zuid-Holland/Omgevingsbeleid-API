@@ -1,4 +1,3 @@
-
 from .ambitie import Ambitie, Beleidskeuze_Ambities
 from .belang import Belang, Beleidskeuze_Belangen
 from .beleidsdoel import Beleidsdoel, Beleidskeuze_Beleidsdoelen

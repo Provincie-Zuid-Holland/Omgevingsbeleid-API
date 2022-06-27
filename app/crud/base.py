@@ -81,7 +81,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     #
 
     def latest(
-        self, all: bool = False, offset: int = 0, limit: int = 20, filters: Optional[Filters] = None,
+        self,
+        all: bool = False,
+        offset: int = 0,
+        limit: int = 20,
+        filters: Optional[Filters] = None,
     ) -> List[ModelType]:
         # List current model with latest view filters applied
         query = self._build_latest_view_filter(all, filters)
@@ -90,7 +94,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return query.all()
 
     def valid(
-        self, ID: int = None, offset: int = 0, limit: int = 20, filters: Optional[Filters] = None,
+        self,
+        ID: int = None,
+        offset: int = 0,
+        limit: int = 20,
+        filters: Optional[Filters] = None,
     ) -> List[ModelType]:
         # List current model with valid view filters applied
         query = self._build_valid_view_filter(ID=ID, filters=filters)
@@ -98,7 +106,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return query.all()
 
-    def _build_latest_view_filter(self, all: bool, filters: Optional[Filters] = None) -> Query:
+    def _build_latest_view_filter(
+        self, all: bool, filters: Optional[Filters] = None
+    ) -> Query:
         """
         Retrieve a model with the 'Latest' view filters applied.
         Defaults to:
@@ -127,11 +137,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if not all:
             query = query.filter(model_alias.Eind_Geldigheid > datetime.utcnow())
 
-        query = self._build_filtered_query(query=query, model=model_alias, filters=filters)
+        query = self._build_filtered_query(
+            query=query, model=model_alias, filters=filters
+        )
 
         return query.order_by(model_alias.ID.desc())
 
-    def _build_valid_view_filter(self, ID: int = None, filters: Optional[Filters] = None) -> Query:
+    def _build_valid_view_filter(
+        self, ID: int = None, filters: Optional[Filters] = None
+    ) -> Query:
         """
         Retrieve a model with the 'Valid' view filters applied.
         Defaults to:
@@ -163,7 +177,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if ID is not None:
             query = query.filter(model_alias.ID == ID)
 
-        query = self._build_filtered_query(query=query, model=model_alias, filters=filters)
+        query = self._build_filtered_query(
+            query=query, model=model_alias, filters=filters
+        )
 
         return query.order_by(model_alias.ID.desc())
 
@@ -180,13 +196,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     # Common repository actions
     #
 
-    def list(self, offset: int = 0, limit: int = 100, filters: Optional[Filters] = None) -> List[ModelType]:
+    def list(
+        self, offset: int = 0, limit: int = 100, filters: Optional[Filters] = None
+    ) -> List[ModelType]:
         query = self._build_filtered_query(filters=filters)
         query.offset(offset).limit(limit)
 
         return query.all()
 
-    def all(self, select: List = None, filters: Optional[Filters] = None) -> List[ModelType]:
+    def all(
+        self, select: List = None, filters: Optional[Filters] = None
+    ) -> List[ModelType]:
         """
         Fetch all available objects of this model matching
         the filter criteria and/or specified columns.
@@ -216,7 +236,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def search(self, **criteria) -> Query:
         return self._build_filtered_query(**criteria)
 
-    def _build_filtered_query(self, query: Query = None, model: object = None, filters: Optional[Filters] = None) -> Query:
+    def _build_filtered_query(
+        self,
+        query: Query = None,
+        model: object = None,
+        filters: Optional[Filters] = None,
+    ) -> Query:
         """
         Allows simply passing arguments as filter criteria
         for any model.
@@ -233,11 +258,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         allowed_filter_keys = model.get_allowed_filter_keys()
         for cause in filters.clauses:
             expressions = []
-            
+
             for item in cause.items:
                 if item.key not in allowed_filter_keys:
-                    raise ValueError('Given filter key is not allowed')
-                    
+                    raise ValueError("Given filter key is not allowed")
+
                 column = getattr(model, item.key)
                 expressions.add(column == item.value)
 

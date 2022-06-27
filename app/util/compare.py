@@ -11,6 +11,7 @@ from app.db.base_class import Base, BaseTimeStamped
 K = TypeVar("K", bound=Base)
 V = TypeVar("V", bound=BaseModel)
 
+
 class Comparator:
     def __init__(self, schema: V, old: K, new: K) -> None:
         self.old = old.__dict__
@@ -21,7 +22,7 @@ class Comparator:
 
         # Ensure only comparable attrs/keys are used
         self.fields = self._get_comparable_fields(schema, self.old)
-        
+
         # Copy to which results are written
         self.changes = deepcopy(self.old)
 
@@ -35,25 +36,24 @@ class Comparator:
                     self.old[attr], self.new[attr]
                 )
             elif field.type_ == List:
-                self.changes[attr] = self._diff_lists(
-                    self.old[attr], self.new[attr]
-                )
+                self.changes[attr] = self._diff_lists(self.old[attr], self.new[attr])
             else:
                 continue
 
         return self.changes
-    
+
     def _get_comparable_fields(self, schema: V, obj: dict):
         """
         Diff pydantic schema keys vs Model keys and
         return fields comparable for changes
         """
         fields = deepcopy(schema.__fields__)
-        
+
         model_diff = set(schema.__fields__.keys())
         model_diff.difference_update(set(obj.keys()))
-        
-        for diff in model_diff : fields.pop(diff)
+
+        for diff in model_diff:
+            fields.pop(diff)
 
         print(fields)
         return fields
