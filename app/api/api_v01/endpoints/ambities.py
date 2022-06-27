@@ -1,4 +1,5 @@
 from typing import Any, List
+from app.schemas.filters import Filters
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -10,7 +11,6 @@ from app import crud, models, schemas
 from app.api import deps
 from app.models.ambitie import Ambitie
 from app.models.gebruiker import GebruikersRol
-from app.util.legacy_helpers import parse_filter_str
 from app.util.compare import Comparator
 
 router = APIRouter()
@@ -26,10 +26,9 @@ defer_attributes = {"Omschrijving"}
 def read_ambities(
     db: Session = Depends(deps.get_db),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
 ) -> Any:
     """
     Gets all the ambities lineages and shows the latests object for each
@@ -38,7 +37,7 @@ def read_ambities(
         all=True,
         offset=offset, 
         limit=limit, 
-        criteria=parse_filter_str(all_filters)
+        filters=filters,
     )
 
     return ambities
@@ -131,16 +130,15 @@ def changes_ambities(
 )
 def read_valid_ambities(
     db: Session = Depends(deps.get_db),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
 ) -> Any:
     """
     Gets all the ambities lineages and shows the latests valid object for each.
     """
     ambities = crud.ambitie.valid(
-        offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
+        offset=offset, limit=limit, filters=filters,
     )
     return ambities
 
@@ -150,12 +148,11 @@ def read_valid_ambitie_lineage(
     lineage_id: int,
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the ambities in this lineage that are valid
     """
-    ambities = crud.ambitie.valid(ID=lineage_id, offset=offset, limit=limit)
+    ambities = crud.ambitie.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
     return ambities

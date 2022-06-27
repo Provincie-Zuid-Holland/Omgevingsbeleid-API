@@ -77,3 +77,10 @@ test-verbose: up mssql-create-database-test	## Run the tests in verbose mode
 
 load-fixtures: ## This will load the fixtures (happens as part of `init`)
 	docker-compose exec api python cmd.py initdb
+
+
+pip-compile:
+	docker-compose exec api python -m piptools compile requirements.in
+
+fix:
+	docker-compose exec api python -m black app/

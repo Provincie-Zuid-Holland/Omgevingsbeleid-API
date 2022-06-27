@@ -1,10 +1,15 @@
-from typing import Generator
+from email.policy import default
+from enum import Enum
+from tkinter.ttk import Separator
+from typing import Dict, Generator, List, Optional
+from app.schemas.filters import FilterCombiner, Filters
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel, Field
 from sqlalchemy.orm import Session
+import csv
 
 from app import crud, models, schemas
 from app.core import security
@@ -14,6 +19,20 @@ from app.db.session import SessionLocal
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V01_STR}/login/access-token"
 )
+
+
+def string_filters(
+    all_filters: Optional[str] = None,
+    any_filters: Optional[str] = None,
+) -> Filters:
+    filters = Filters()
+    if all_filters:
+        filters.add_from_string(FilterCombiner.AND, all_filters)
+
+    if any_filters:
+        filters.add_from_string(FilterCombiner.OR, any_filters)
+    
+    return filters
 
 
 def get_db() -> Generator:

@@ -1,5 +1,6 @@
 from optparse import Option
 from typing import Optional, List
+from app.util.legacy_helpers import to_ref_field
 
 from pydantic import BaseModel
 from datetime import datetime
@@ -41,6 +42,17 @@ class BeleidskeuzeInDBBase(BeleidskeuzeBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
+    Titel: str
+    Omschrijving_Keuze: str
+    Omschrijving_Werking: str
+    Provinciaal_Belang: str
+    Aanleiding: str
+    Afweging: str
+    Besluitnummer: str
+    Tags: str
+    Status: str
+    Weblink: str
+
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True
@@ -50,7 +62,10 @@ class BeleidskeuzeInDBBase(BeleidskeuzeBase):
 class Beleidskeuze(BeleidskeuzeInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
-    pass
+
+    class Config:
+        allow_population_by_field_name = True
+        alias_generator = to_ref_field
 
 
 # Properties properties stored in DB

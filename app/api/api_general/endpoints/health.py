@@ -10,7 +10,6 @@ from app import crud, models, schemas
 from app.api import deps
 from app.models.ambitie import Ambitie
 from app.models.gebruiker import GebruikersRol
-from app.util.legacy_helpers import parse_filter_str
 from app.util.compare import Comparator
 
 router = APIRouter()

@@ -4,8 +4,6 @@ from app.db.base_class import Base  # noqa
 from app.models.ambitie import (
     Ambitie,
     Beleidskeuze_Ambities,
-    valid_ambitie_view,
-    ViewValidAmbitie,
 )  # noqa
 from app.models.belang import Belang, Beleidskeuze_Belangen  # noqa
 from app.models.beleidsdoel import Beleidsdoel, Beleidskeuze_Beleidsdoelen  # noqa

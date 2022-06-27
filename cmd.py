@@ -20,29 +20,29 @@ def initdb():
     click.echo('Done')
 
 
-@click.command()
-def initview():
-    click.echo('Initialized the views')
-    # base.Base.metadata.create_all(
-    #     bind=engine,
-    #     checkfirst=True,
-    #     tables=[
-    #         base.valid_ambitie_view,
-    #     ]
-    # )
-    # print(base.Base.metadata.tables.keys())
-    # print("\n\n")
-    # print(base.valid_ambitie_view.create(bind=engine))
+# @click.command()
+# def initview():
+#     click.echo('Initialized the views')
+#     # base.Base.metadata.create_all(
+#     #     bind=engine,
+#     #     checkfirst=True,
+#     #     tables=[
+#     #         base.valid_ambitie_view,
+#     #     ]
+#     # )
+#     # print(base.Base.metadata.tables.keys())
+#     # print("\n\n")
+#     # print(base.valid_ambitie_view.create(bind=engine))
 
-    base.Base.metadata.create_all(
-        bind=engine,
-        checkfirst=True,
-        tables=[
-            base.valid_ambitie_view,
-        ]
-    )
+#     base.Base.metadata.create_all(
+#         bind=engine,
+#         checkfirst=True,
+#         tables=[
+#             base.valid_ambitie_view,
+#         ]
+#     )
 
-    click.echo('Done')
+#     click.echo('Done')
 
 
 @click.command()
@@ -51,7 +51,7 @@ def dropdb():
 
 
 cli.add_command(initdb)
-cli.add_command(initview)
+# cli.add_command(initview)
 cli.add_command(dropdb)
 
 

@@ -82,9 +82,9 @@ class Ambitie(Base):
     #     return sa.func.row_number().over(partition_by=cls.ID, order_by=cls.Modified_Date)
 
 
-valid_ambitie_stmt = sa.select([Ambitie.UUID]).where(Ambitie.Weblink != "")
-valid_ambitie_view = create_view("Valid_Ambities", valid_ambitie_stmt, Base.metadata)
+# valid_ambitie_stmt = sa.select([Ambitie.UUID]).where(Ambitie.Weblink != "")
+# valid_ambitie_view = create_view("Valid_Ambities", valid_ambitie_stmt, Base.metadata)
 
 
-class ViewValidAmbitie(Base):
-    __table__ = valid_ambitie_view
+# class ViewValidAmbitie(Base):
+#     __table__ = valid_ambitie_view

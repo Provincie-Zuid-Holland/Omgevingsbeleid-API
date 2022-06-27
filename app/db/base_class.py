@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from sqlalchemy import Column, Integer, DateTime, text, ForeignKey, MetaData, Sequence
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
@@ -23,10 +23,15 @@ class Base:
     ID: Any
     __name__: str
 
+    def get_allowed_filter_keys() -> List[str]:
+        return []
+
+
 @as_declarative(metadata=metadata)
 class BaseTimeStamped:
+    # @TODO: we should only have 1 base, so this base should extend the `class Base`
     ID: Any
-    
+
     Begin_Geldigheid = Column(DateTime, nullable=False)
     Eind_Geldigheid = Column(DateTime, nullable=False)
     Created_Date = Column(DateTime, nullable=False)
