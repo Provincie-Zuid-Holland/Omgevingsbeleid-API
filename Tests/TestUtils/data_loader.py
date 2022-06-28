@@ -146,10 +146,16 @@ class FixtureLoader():
             self._beleidskeuze(f"keu:water-{i}", Titel=f"{i} - Test informatie voor zoeken naar water")
         
         # Verordeningsobject that are linked to beleidskeuzes
-        self._verordening("ver:2", Created_By="geb:fred", Modified_By="geb:fred", Type="Lid" )
+        self._verordening("ver:2", Created_By="geb:fred", Modified_By="geb:fred", Type="Lid")
         self._verordening("ver:3", Created_By="geb:fred", Modified_By="geb:fred", Type="Artikel")
         self._beleidskeuzes_verordeningen("keu:6", "ver:2")
         self._beleidskeuzes_verordeningen("keu:6", "ver:3")
+
+        # Gebiedsprogrammas that are linked to Maatregelen
+        self._gebiedsprogramma("gpr:1", Titel="101 oud Vigerend", ID=101, UUID="CEB96000-0101-0001-0000-000000000000", Created_Date="2022-02-01T10:00:00", Modified_Date="2022-02-01T10:00:00", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend")
+        self._gebiedsprogramma("gpr:2", Titel="101 oud Uitgecheckt", ID=101, UUID="CEB96000-0101-0002-0000-000000000000", Created_Date="2022-02-01T10:00:00", Modified_Date="2022-03-01T10:00:00", Created_By="geb:fred", Modified_By="geb:fred", Status="Uitgecheckt")
+        self._gebiedsprogramma("gpr:3", Titel="101 Vigerend", ID=101, UUID="CEB96000-0101-0003-0000-000000000000", Created_Date="2022-02-01T10:00:00", Modified_Date="2022-04-01T10:00:00", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend")
+        self._gebiedsprogramma("gpr:4", Titel="102 Vigerend", ID=102, UUID="CEB96000-0102-0001-0000-000000000000", Created_Date="2022-02-01T10:00:00", Modified_Date="2022-04-01T10:00:00", Created_By="geb:fred", Modified_By="geb:fred", Status="Vigerend")
 
         self._s.commit()
 
@@ -336,6 +342,24 @@ class FixtureLoader():
             kwargs["Weblink"] = self._fake.uri()
 
         model = Api.Models.themas.Themas(**kwargs)
+        self._add(key, model)
+
+    def _gebiedsprogramma(self, key, **kwargs):
+        kwargs = self._resolve_base_fields(**kwargs)
+
+        if not "Status" in kwargs:
+            kwargs["Status"] = "Vigerend"
+
+        if not "Titel" in kwargs:
+            kwargs["Titel"] = self._fake.sentence(nb_words=10)
+
+        if not "Omschrijving" in kwargs:
+            kwargs["Omschrijving"] = "\n\n".join([self._fake.paragraph(nb_sentences=10) for x in range(5)])
+
+        if not "Afbeelding" in kwargs:
+            kwargs["Afbeelding"] = None
+
+        model = Api.Models.gebiedsprogrammas.Gebiedsprogrammas(**kwargs)
         self._add(key, model)
 
     def _maatregel(self, key, **kwargs):

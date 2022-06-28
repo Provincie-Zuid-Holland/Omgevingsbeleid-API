@@ -219,11 +219,7 @@ def render_schemas(endpoints):
                     "excluded_post" in fields[field].metadata["obprops"]
                     and "excluded_patch" in fields[field].metadata["obprops"]
                 ):
-                    # make datetime fields optional for writing
-                    write_props = deepcopy(props)
-                    if type(fields[field]) == MM.fields.DateTime:
-                        write_props["required"] = False
-                    write_properties[field] = write_props
+                    write_properties[field] = props
 
         schemas[model.Meta.slug + "-read"] = {
             "description": f"Schema that defines the structure of {model.Meta.slug} when reading",

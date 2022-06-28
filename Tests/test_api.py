@@ -478,6 +478,19 @@ class TestApi:
         assert response.get_json()[0]["Eind_Geldigheid"] == "9999-12-31T23:59:59Z"
 
 
+    def test_gebiedsprogrammas_afbeelding(self, db, client_fred):
+        given_uuid = "B5f7C134-98AD-11EC-B909-0242AC120002"
+        prestatie = db.session.query(Beleidsprestaties).filter(Beleidsprestaties.UUID == given_uuid).first()
+        assert prestatie, f"Expect prestatie with UUID {given_uuid} to exist"
+
+        ep = f"v0.1/beleidsprestaties/{prestatie.ID}"
+        response = client_fred.patch(ep, json={"Eind_Geldigheid": None})
+        assert response.status_code == 200, "patch failed"
+
+        response = client_fred.get(ep)
+        assert response.get_json()[0]["Eind_Geldigheid"] == "9999-12-31T23:59:59Z"
+
+
     #
     # @todo: From here we should try te remove generate_data
     #           if it does not explicitly used for the main purpose of the test
@@ -1177,7 +1190,7 @@ class TestApi:
     def test_endpoints_create_and_patch_most_endpoints(self, client_fred, endpoint):
         if endpoint.Meta.slug in ["beleidsrelaties", "beleidsmodules"]:
             return
-        
+
         list_ep = f"v0.1/{endpoint.Meta.slug}"
         response = client_fred.get(list_ep)
         assert response.status_code == 200, f"Status code for GET on {list_ep} was {response.status_code}, should be 200. Response body: {response.get_json()}"
@@ -1198,6 +1211,7 @@ class TestApi:
             test_data = generate_data(
                 endpoint, user_UUID=client_fred.uuid(), excluded_prop="excluded_post"
             )
+
             response = client_fred.post(list_ep, json=test_data)
             assert response.status_code == 201, f"Status code for POST on {list_ep} was {response.status_code}, should be 201. Body content: {response.json}"
             new_id = response.get_json()["ID"]

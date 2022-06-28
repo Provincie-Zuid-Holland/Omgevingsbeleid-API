@@ -31,7 +31,7 @@ class Ambities(CommonMixin, db.Model):
     __tablename__ = "Ambities"
 
     Titel = Column(Unicode(150), nullable=False)
-    Omschrijving = Column(Unicode)
+    Omscshrijving = Column(Unicode)
     Weblink = Column(Unicode)
 
     Created_By_Gebruiker = relationship(
