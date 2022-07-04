@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2022 Provincie Zuid-Holland
 
+import base64
 import pytest
 from pprint import pprint
 import datetime
 import copy
+import uuid
 
 from Api.settings import null_uuid, min_datetime, max_datetime
 from Api.datamodel import endpoints
@@ -13,6 +15,7 @@ from Api.Models import (
     beleidskeuzes,
     ambities,
     beleidsrelaties,
+    gebiedsprogrammas,
     maatregelen,
     belangen,
     beleidsprestaties,
@@ -479,16 +482,54 @@ class TestApi:
 
 
     def test_gebiedsprogrammas_afbeelding(self, db, client_fred):
-        given_uuid = "B5f7C134-98AD-11EC-B909-0242AC120002"
-        prestatie = db.session.query(Beleidsprestaties).filter(Beleidsprestaties.UUID == given_uuid).first()
-        assert prestatie, f"Expect prestatie with UUID {given_uuid} to exist"
+        # Create a new Gebiedsprogramma
+        data = generate_data(
+            gebiedsprogrammas.Gebiedsprogrammas_Schema,
+            user_UUID=client_fred.uuid(),
+            excluded_prop="excluded_post",
+        )
 
-        ep = f"v0.1/beleidsprestaties/{prestatie.ID}"
-        response = client_fred.patch(ep, json={"Eind_Geldigheid": None})
-        assert response.status_code == 200, "patch failed"
+        with open("./Tests/TestUtils/image-1.png", "rb") as image:
+            afbeelding_1_binary = image.read()
+            afbeelding_1_b64_bytes = base64.b64encode(afbeelding_1_binary)
+            afbeeling_1_b64_string = afbeelding_1_b64_bytes.decode("utf-8")
 
-        response = client_fred.get(ep)
-        assert response.get_json()[0]["Eind_Geldigheid"] == "9999-12-31T23:59:59Z"
+        with open("./Tests/TestUtils/image-2.png", "rb") as image:
+            afbeelding_2_binary = image.read()
+            afbeelding_2_b64_bytes = base64.b64encode(afbeelding_2_binary)
+            afbeeling_2_b64_string = afbeelding_2_b64_bytes.decode("utf-8")
+
+        data["Afbeelding"] = afbeeling_1_b64_string
+        data["Status"] = "Vigerend"
+        data["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+        response = client_fred.post("v0.1/gebiedsprogrammas", json=data)
+        assert response.status_code == 201, f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
+        assert response.get_json()["Afbeelding"] == afbeeling_1_b64_string
+
+        gebiedsprogramma_id = response.get_json()["ID"]
+
+        # Add a new version to the lineage
+        # Do not change the Afbeelding
+        response = client_fred.patch(f"v0.1/gebiedsprogrammas/{gebiedsprogramma_id}", json={
+            "Titel": "New Title 1",
+        })
+        assert response.status_code == 200, f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
+        assert response.get_json()["Afbeelding"] == afbeeling_1_b64_string
+
+        # Add a new version to the lineage
+        # Change the Afbeelding
+        response = client_fred.patch(f"v0.1/gebiedsprogrammas/{gebiedsprogramma_id}", json={
+            "Titel": "New Title 2",
+            "Afbeelding": afbeeling_2_b64_string,
+        })
+        assert response.status_code == 200, f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
+        assert response.get_json()["Afbeelding"] == afbeeling_2_b64_string
+
+        # # Get the changed afbeelding
+        response = client_fred.get(f"v0.1/gebiedsprogrammas/{gebiedsprogramma_id}")
+        assert response.status_code == 200, f"Status code for GET was {response.status_code}, should be 200. Body content: {response.json}"
+        assert response.get_json()[0]["Afbeelding"] == afbeeling_2_b64_string
 
 
     #

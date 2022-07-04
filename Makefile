@@ -74,6 +74,9 @@ flask-routes: ## Show flask routes
 test: up mssql-create-database-test ## Run the tests
 	docker-compose exec api pytest
 
+testcase: up mssql-create-database-test ## Run the tests
+	docker-compose exec api pytest -s -vvv -k ${case}
+
 test-verbose: up mssql-create-database-test	## Run the tests in verbose mode
 	docker-compose exec api pytest -s
 
