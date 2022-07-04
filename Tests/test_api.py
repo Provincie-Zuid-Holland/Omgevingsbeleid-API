@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2022 Provincie Zuid-Holland
 
+import base64
 import pytest
 from pprint import pprint
 import datetime
 import copy
+import uuid
 
 from Api.settings import null_uuid, min_datetime, max_datetime
 from Api.datamodel import endpoints
@@ -13,6 +15,7 @@ from Api.Models import (
     beleidskeuzes,
     ambities,
     beleidsrelaties,
+    gebiedsprogrammas,
     maatregelen,
     belangen,
     beleidsprestaties,
@@ -476,6 +479,57 @@ class TestApi:
 
         response = client_fred.get(ep)
         assert response.get_json()[0]["Eind_Geldigheid"] == "9999-12-31T23:59:59Z"
+
+
+    def test_gebiedsprogrammas_afbeelding(self, db, client_fred):
+        # Create a new Gebiedsprogramma
+        data = generate_data(
+            gebiedsprogrammas.Gebiedsprogrammas_Schema,
+            user_UUID=client_fred.uuid(),
+            excluded_prop="excluded_post",
+        )
+
+        with open("./Tests/TestUtils/image-1.png", "rb") as image:
+            afbeelding_1_binary = image.read()
+            afbeelding_1_b64_bytes = base64.b64encode(afbeelding_1_binary)
+            afbeeling_1_b64_string = afbeelding_1_b64_bytes.decode("utf-8")
+
+        with open("./Tests/TestUtils/image-2.png", "rb") as image:
+            afbeelding_2_binary = image.read()
+            afbeelding_2_b64_bytes = base64.b64encode(afbeelding_2_binary)
+            afbeeling_2_b64_string = afbeelding_2_b64_bytes.decode("utf-8")
+
+        data["Afbeelding"] = afbeeling_1_b64_string
+        data["Status"] = "Vigerend"
+        data["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+
+        response = client_fred.post("v0.1/gebiedsprogrammas", json=data)
+        assert response.status_code == 201, f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
+        assert response.get_json()["Afbeelding"] == afbeeling_1_b64_string
+
+        gebiedsprogramma_id = response.get_json()["ID"]
+
+        # Add a new version to the lineage
+        # Do not change the Afbeelding
+        response = client_fred.patch(f"v0.1/gebiedsprogrammas/{gebiedsprogramma_id}", json={
+            "Titel": "New Title 1",
+        })
+        assert response.status_code == 200, f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
+        assert response.get_json()["Afbeelding"] == afbeeling_1_b64_string
+
+        # Add a new version to the lineage
+        # Change the Afbeelding
+        response = client_fred.patch(f"v0.1/gebiedsprogrammas/{gebiedsprogramma_id}", json={
+            "Titel": "New Title 2",
+            "Afbeelding": afbeeling_2_b64_string,
+        })
+        assert response.status_code == 200, f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
+        assert response.get_json()["Afbeelding"] == afbeeling_2_b64_string
+
+        # # Get the changed afbeelding
+        response = client_fred.get(f"v0.1/gebiedsprogrammas/{gebiedsprogramma_id}")
+        assert response.status_code == 200, f"Status code for GET was {response.status_code}, should be 200. Body content: {response.json}"
+        assert response.get_json()[0]["Afbeelding"] == afbeeling_2_b64_string
 
 
     #
@@ -1177,7 +1231,7 @@ class TestApi:
     def test_endpoints_create_and_patch_most_endpoints(self, client_fred, endpoint):
         if endpoint.Meta.slug in ["beleidsrelaties", "beleidsmodules"]:
             return
-        
+
         list_ep = f"v0.1/{endpoint.Meta.slug}"
         response = client_fred.get(list_ep)
         assert response.status_code == 200, f"Status code for GET on {list_ep} was {response.status_code}, should be 200. Response body: {response.get_json()}"
@@ -1198,6 +1252,7 @@ class TestApi:
             test_data = generate_data(
                 endpoint, user_UUID=client_fred.uuid(), excluded_prop="excluded_post"
             )
+
             response = client_fred.post(list_ep, json=test_data)
             assert response.status_code == 201, f"Status code for POST on {list_ep} was {response.status_code}, should be 201. Body content: {response.json}"
             new_id = response.get_json()["ID"]
