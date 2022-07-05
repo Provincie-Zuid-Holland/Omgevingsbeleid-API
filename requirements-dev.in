@@ -1,0 +1,16 @@
+# Development Environment
+Faker
+pytest
+black
+pylint
+devtools
+autoflake
+freezegun
+bandit
+coverage
+coverage-badge
+pytest
+pytest-cov
+pytest-mock
+requests-mock
+freezegun

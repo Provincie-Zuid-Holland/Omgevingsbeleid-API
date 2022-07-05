@@ -20,12 +20,3 @@ diff-match-patch
 
 # Command
 Click
-
-# Development Environment
-# @todo: should be moved to -dev file
-Faker
-pytest
-black
-devtools
-autoflake
-freezegun
