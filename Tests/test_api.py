@@ -10,7 +10,7 @@ import uuid
 
 from Api.settings import null_uuid, min_datetime, max_datetime
 from Api.datamodel import endpoints
-from Tests.TestUtils.schema_data import generate_data, reference_rich_beleidskeuze
+from Tests.TestUtils.schema_data import generate_data, reference_rich_beleidsdoel
 from Api.Models import (
     beleidskeuzes,
     ambities,
@@ -156,12 +156,12 @@ class TestApi:
 
 
     def test_references(self, client_fred):
-        ep = f"v0.1/beleidskeuzes"
-        response = client_fred.post(ep, json=reference_rich_beleidskeuze)
+        ep = f"v0.1/beleidsdoelen"
+        response = client_fred.post(ep, json=reference_rich_beleidsdoel)
         assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
         new_id = response.get_json()["ID"]
-        ep = f"v0.1/beleidskeuzes/{new_id}"
+        ep = f"v0.1/beleidsdoelen/{new_id}"
         response = client_fred.get(ep)
         assert response.status_code == 200, f"Could not get object, {response.get_json()}"
         assert len(response.get_json()[0]["Ambities"]) == 2, "References not retrieved"
@@ -287,15 +287,15 @@ class TestApi:
 
 
     def test_empty_referencelists(self, client_fred):
-        empty_reference_beleidskeuze = copy.deepcopy(reference_rich_beleidskeuze)
+        empty_reference_beleidskeuze = copy.deepcopy(reference_rich_beleidsdoel)
         empty_reference_beleidskeuze["Ambities"] = []
-        ep = f"v0.1/beleidskeuzes"
+        ep = f"v0.1/beleidsdoelen"
         response = client_fred.post(ep, json=empty_reference_beleidskeuze)
         assert response.status_code == 201, f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json}"
 
         new_uuid = response.get_json()["UUID"]
         new_id = response.get_json()["ID"]
-        ep = f"v0.1/version/beleidskeuzes/{new_uuid}"
+        ep = f"v0.1/version/beleidsdoelen/{new_uuid}"
         response = client_fred.get(ep)
         assert response.status_code == 200, "Could not get posted object"
         assert response.get_json()["Ambities"] == [], "Ambities should be an empty list"
@@ -310,7 +310,7 @@ class TestApi:
         response = client_fred.post(ep, json=amb)
         new_uuid = response.get_json()["UUID"]
 
-        ep = f"v0.1/beleidskeuzes/{new_id}"
+        ep = f"v0.1/beleidsdoelen/{new_id}"
         response = client_fred.patch(ep, json={"Ambities": [{"UUID": new_uuid}]})
         assert len(response.get_json()["Ambities"]) == 1
         response = client_fred.patch(ep, json={"Ambities": []})
