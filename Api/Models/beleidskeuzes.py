@@ -3,7 +3,7 @@
 
 import marshmallow as MM
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
+from sqlalchemy import Column, ForeignKey, String, Unicode
 
 from Api.Endpoints.base_schema import Base_Schema
 from Api.Endpoints.references import (
@@ -15,7 +15,6 @@ from Api.Endpoints.references import (
 from Api.Endpoints.validators import HTML_Validate
 from Api.settings import default_user_uuid
 import Api.Models.gebruikers
-import Api.Models.ambities
 import Api.Models.belangen
 import Api.Models.werkingsgebieden
 import Api.Models.themas
@@ -24,10 +23,7 @@ import Api.Models.beleidsprestaties
 import Api.Models.beleidsregels
 import Api.Models.maatregelen
 import Api.Models.verordeningen
-from Api.Models.short_schemas import (
-    Short_Beleidsmodule_Schema,
-    Short_Beleidskeuze_Schema,
-)
+from Api.Models.short_schemas import Short_Beleidsmodule_Schema
 from Api.Endpoints.status_data_manager import StatusDataManager
 from Api.database import CommonMixin, db
 
@@ -93,7 +89,6 @@ class Beleidskeuzes(CommonMixin, db.Model):
     Ref_Opdrachtgever = relationship(
         "Gebruikers", primaryjoin="Beleidskeuzes.Opdrachtgever == Gebruikers.UUID"
     )
-    Ambities = relationship("Beleidskeuze_Ambities", back_populates="Beleidskeuze")
     Belangen = relationship("Beleidskeuze_Belangen", back_populates="Beleidskeuze")
     Beleidsdoelen = relationship(
         "Beleidskeuze_Beleidsdoelen", back_populates="Beleidskeuze"
@@ -190,9 +185,6 @@ class Beleidskeuzes_Schema(Base_Schema):
         missing=None,
         obprops=["excluded_post", "not_inherited"],
     )
-    Ambities = MM.fields.Nested(
-        UUID_Linker_Schema, many=True, obprops=["referencelist"]
-    )
     Belangen = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=["referencelist"]
     )
@@ -259,14 +251,6 @@ class Beleidskeuzes_Schema(Base_Schema):
             ),
             "Opdrachtgever": UUID_Reference(
                 "Gebruikers", Api.Models.gebruikers.Gebruikers_Schema
-            ),
-            "Ambities": UUID_List_Reference(
-                "Beleidskeuze_Ambities",
-                "Ambities",
-                "Beleidskeuze_UUID",
-                "Ambitie_UUID",
-                "Koppeling_Omschrijving",
-                Api.Models.ambities.Ambities_Schema,
             ),
             "Belangen": UUID_List_Reference(
                 "Beleidskeuze_Belangen",

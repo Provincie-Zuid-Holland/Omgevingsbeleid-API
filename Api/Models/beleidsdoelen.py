@@ -8,8 +8,9 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
 from Api.Endpoints.base_schema import Base_Schema
 from Api.Endpoints.validators import HTML_Validate
 from Api.Models.short_schemas import Short_Beleidskeuze_Schema
-from Api.Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference
+from Api.Endpoints.references import UUID_Linker_Schema, Reverse_UUID_Reference, UUID_List_Reference
 from Api.database import CommonMixin, db
+import Api.Models.ambities
 
 
 # Beleidsdoelen gaan via Begroting
@@ -44,9 +45,8 @@ class Beleidsdoelen(CommonMixin, db.Model):
         "Gebruikers", primaryjoin="Beleidsdoelen.Modified_By == Gebruikers.UUID"
     )
 
-    Beleidskeuzes = relationship(
-        "Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoel"
-    )
+    Beleidskeuzes = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoel")
+    Ambities = relationship("Beleidsdoel_Ambities", back_populates="Beleidsdoel")
 
 
 class Beleidsdoelen_Schema(Base_Schema):
@@ -57,6 +57,9 @@ class Beleidsdoelen_Schema(Base_Schema):
         missing=None, validate=[HTML_Validate], obprops=["search_description"]
     )
     Weblink = MM.fields.Str(missing=None, obprops=[])
+    Ambities = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=["referencelist"]
+    )
     Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema,
         many=True,
@@ -70,6 +73,14 @@ class Beleidsdoelen_Schema(Base_Schema):
         ordered = True
         searchable = True
         references = {
+            "Ambities": UUID_List_Reference(
+                "Beleidsdoel_Ambities",
+                "Ambities",
+                "Beleidsdoel_UUID",
+                "Ambitie_UUID",
+                "Koppeling_Omschrijving",
+                Api.Models.ambities.Ambities_Schema,
+            ),
             "Ref_Beleidskeuzes": Reverse_UUID_Reference(
                 "Beleidskeuze_Beleidsdoelen",
                 "Beleidskeuzes",
