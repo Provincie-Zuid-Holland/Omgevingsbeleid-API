@@ -65,6 +65,9 @@ mssql-create-database-test:
 flask-db-upgrade: ## Run database migrations
 	docker-compose exec api flask db upgrade
 
+flask-db-show-sql:
+	docker-compose exec api flask db upgrade --sql
+
 flask-setup-views: ## Run database views
 	docker-compose exec api flask setup-views -y
 
