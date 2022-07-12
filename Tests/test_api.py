@@ -20,6 +20,7 @@ from Api.Models import (
     belangen,
     beleidsprestaties,
     beleidsmodule,
+    beleidsdoelen,
 )
 from Api.Models.beleidskeuzes import Beleidskeuzes
 from Api.Models.maatregelen import Maatregelen
@@ -343,47 +344,45 @@ class TestApi:
             json=ambitie_data,
         )
         assert response.status_code == 201, f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
-        assert response.get_json()["Ref_Beleidskeuzes"] == [], f"Reverse lookup not empty on post. Body content: {response.json}"
+        assert response.get_json()["Ref_Beleidsdoelen"] == [], f"Reverse lookup not empty on post. Body content: {response.json}"
         ambitie_id = response.get_json()["ID"]
         ambitie_uuid = response.get_json()["UUID"]
 
-        # Create a new Beleidskeuze
-        beleidskeuze_data = generate_data(
-            beleidskeuzes.Beleidskeuzes_Schema,
+        # Create a new Beleidsdoel
+        beleidsdoel_data = generate_data(
+            beleidsdoelen.Beleidsdoelen_Schema,
             user_UUID=client_fred.uuid(),
             excluded_prop="excluded_post",
         )
         # Set ambities
-        beleidskeuze_data["Ambities"] = [
+        beleidsdoel_data["Ambities"] = [
             {"UUID": ambitie_uuid, "Koppeling_Omschrijving": "Test description"}
         ]
-        # Set status
-        beleidskeuze_data["Status"] = "Vigerend"
-        beleidskeuze_data["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-        response = client_fred.post("v0.1/beleidskeuzes", json=beleidskeuze_data)
+        # Store
+        beleidsdoel_data["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+        response = client_fred.post("v0.1/beleidsdoelen", json=beleidsdoel_data)
         assert response.status_code == 201, f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
         assert response.get_json()["Ambities"][0]["Object"]["UUID"] == ambitie_uuid, f"Nested objects are not on object. Body content: {response.json}"
 
-        beleidskeuze_id = response.get_json()["ID"]
-        beleidskeuze_uuid = response.get_json()["UUID"]
+        beleidsdoel_id = response.get_json()["ID"]
+        beleidsdoel_uuid = response.get_json()["UUID"]
         # Get the ambitie
         response = client_fred.get(f"v0.1/ambities/{ambitie_id}")
         assert response.status_code == 200, f"Status code for GET was {response.status_code}, should be 200. Body content: {response.json}"
-        assert len(response.get_json()[0]["Ref_Beleidskeuzes"]) == 1, f"Wrong amount of objects in reverse lookup field. Lookup field: {response.get_json()[0]['Ref_Beleidskeuzes']}"
-        assert response.get_json()[0]["Ref_Beleidskeuzes"][0]["UUID"] == beleidskeuze_uuid, f"Nested objects are not on object. Body content: {response.json}"
+        assert len(response.get_json()[0]["Ref_Beleidsdoelen"]) == 1, f"Wrong amount of objects in reverse lookup field. Lookup field: {response.get_json()[0]['Ref_Beleidsdoelen']}"
+        assert response.get_json()[0]["Ref_Beleidsdoelen"][0]["UUID"] == beleidsdoel_uuid, f"Nested objects are not on object. Body content: {response.json}"
 
         # Add a new version to the lineage
-        response = client_fred.patch(f"v0.1/beleidskeuzes/{beleidskeuze_id}", json={"Titel": "New Title"})
+        response = client_fred.patch(f"v0.1/beleidsdoelen/{beleidsdoel_id}", json={"Titel": "New Title"})
         assert response.status_code == 200, f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
         assert response.get_json()["Ambities"][0]["Object"]["UUID"] == ambitie_uuid, f"Nested objects are not on object. Body content: {response.json}"
-        beleidskeuze_latest_id = response.get_json()["ID"]
-        beleidskeuze_latest_uuid = response.get_json()["UUID"]
+        beleidsdoel_latest_uuid = response.get_json()["UUID"]
 
         # Get the ambitie
         response = client_fred.get(f"v0.1/ambities/{ambitie_id}")
         assert response.status_code == 200, f"Status code for GET was {response.status_code}, should be 200. Body content: {response.json}"
-        assert len(response.get_json()[0]["Ref_Beleidskeuzes"]) == 1, f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Ref_Beleidskeuzes']}"
-        assert response.get_json()[0]["Ref_Beleidskeuzes"][0]["UUID"] == beleidskeuze_latest_uuid, f"Nested objects are on object. Body content: {response.json}"
+        assert len(response.get_json()[0]["Ref_Beleidsdoelen"]) == 1, f"Too many objects in reverse lookup field. Lookup field: {response.get_json()[0]['Ref_Beleidsdoelen']}"
+        assert response.get_json()[0]["Ref_Beleidsdoelen"][0]["UUID"] == beleidsdoel_latest_uuid, f"Nested objects are on object. Body content: {response.json}"
 
 
     def test_non_copy_field(self, client_fred):
@@ -541,11 +540,12 @@ class TestApi:
 
 
     def test_graph_normal(self, client_fred):
-        # Create Ambitie
-        test_amb = generate_data(ambities.Ambities_Schema, excluded_prop="excluded_post")
-        test_amb["Eind_Geldigheid"] = "2992-11-23T10:00:00"
-        amb_resp = client_fred.post("v0.1/ambities", json=test_amb)
-        amb_UUID = amb_resp.get_json()["UUID"]
+        # Create Beleidsdoel
+        test_doel = generate_data(beleidsdoelen.Beleidsdoelen_Schema, excluded_prop="excluded_post")
+        test_doel["Eind_Geldigheid"] = "2992-11-23T10:00:00"
+        doel_resp = client_fred.post("v0.1/beleidsdoelen", json=test_doel)
+        assert doel_resp.status_code == 201, f"Status code for GET was {doel_resp.status_code}, should be 201. Body content: {doel_resp.json}"
+        doel_UUID = doel_resp.get_json()["UUID"]
 
         # Create Belang
         test_belang = generate_data(belangen.Belangen_Schema, excluded_prop="excluded_post")
@@ -564,13 +564,14 @@ class TestApi:
             beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
         )
         test_bk["Eind_Geldigheid"] = "2992-11-23T10:00:00"
-        test_bk["Ambities"] = [{"UUID": amb_UUID, "Koppeling_Omschrijving": ""}]
+        test_bk["Beleidsdoelen"] = [{"UUID": doel_UUID, "Koppeling_Omschrijving": ""}]
         test_bk["Belangen"] = [
             {"UUID": belang_UUID, "Koppeling_Omschrijving": ""},
             {"UUID": invalid_belang_UUID, "Koppeling_Omschrijving": ""},
         ]
         test_bk["Status"] = "Vigerend"
         response = client_fred.post("v0.1/beleidskeuzes", json=test_bk)
+        assert response.status_code == 201, f"Status code for GET was {response.status_code}, should be 201. Body content: {response.json}"
         bk_uuid = response.get_json()["UUID"]
 
         # Do Check
@@ -585,8 +586,8 @@ class TestApi:
         assert not invalid_belang_UUID in found_links, "Invalid belang retrieved"
         assert len(found_links) == 2, "Not all links retrieved"
         assert belang_UUID in found_links, "Belang not retrieved"
-        assert amb_UUID in found_links, "Ambitie not retrieved"
-        assert set([amb_UUID, belang_UUID]) == set(found_links), "Unexpected result for links"
+        assert doel_UUID in found_links, "Beleidsdoel not retrieved"
+        assert set([doel_UUID, belang_UUID]) == set(found_links), "Unexpected result for links"
 
 
     def test_module_UUID(self, client_fred):
@@ -764,53 +765,53 @@ class TestApi:
 
 
     def test_reverse_valid_check(self, client, client_fred):
-        amb = generate_data(ambities.Ambities_Schema, excluded_prop="excluded_post")
-        response = client_fred.post("v0.1/ambities", json=amb)
+        doel = generate_data(beleidsdoelen.Beleidsdoelen_Schema, excluded_prop="excluded_post")
+        response = client_fred.post("v0.1/beleidsdoelen", json=doel)
         assert response.status_code == 201
         assert response.get_json()["Ref_Beleidskeuzes"] == [], "should be empty because nothing refers to this"
 
-        amb_uuid = response.get_json()["UUID"]
+        doel_uuid = response.get_json()["UUID"]
         bk = generate_data(
             beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
         )
         bk["Status"] = "Ontwerp GS Concept"
         bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-        bk["Ambities"] = [{"UUID": amb_uuid, "Koppeling_Omschrijving": ""}]
+        bk["Beleidsdoelen"] = [{"UUID": doel_uuid, "Koppeling_Omschrijving": ""}]
         response = client_fred.post("v0.1/beleidskeuzes", json=bk)
 
         assert response.status_code == 201, f"Failed to create beleidskeuze: {response.get_json()}"
-        response = client.get(f"v0.1/version/ambities/{amb_uuid}")
+        response = client.get(f"v0.1/version/beleidsdoelen/{doel_uuid}")
         assert response.get_json()["Ref_Beleidskeuzes"] == [], "should be empty because beleidskeuze is not valid"
         assert response.status_code == 200, f"Failed to get ambitie: {response.get_json()}"
 
 
     def test_future_links(self, client, client_fred):
-        amb = generate_data(ambities.Ambities_Schema, excluded_prop="excluded_post")
+        doel = generate_data(beleidsdoelen.Beleidsdoelen_Schema, excluded_prop="excluded_post")
         future = datetime.datetime.now() + datetime.timedelta(days=2)
-        amb["Begin_Geldigheid"] = future.strftime("%Y-%m-%dT%H:%M:%SZ")
-        amb["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-        response = client_fred.post("v0.1/ambities", json=amb)
+        doel["Begin_Geldigheid"] = future.strftime("%Y-%m-%dT%H:%M:%SZ")
+        doel["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+        response = client_fred.post("v0.1/beleidsdoelen", json=doel)
         assert response.status_code == 201
         assert response.get_json()["Ref_Beleidskeuzes"] == [], "should be empty because nothing refers to this"
-        
-        amb_uuid = response.get_json()["UUID"]
-        response = client.get("v0.1/valid/ambities")
-        assert amb_uuid not in map(lambda ob: ob.get("UUID"), response.get_json())
+
+        doel_uuid = response.get_json()["UUID"]
+        response = client.get("v0.1/valid/beleidsdoelen")
+        assert doel_uuid not in map(lambda ob: ob.get("UUID"), response.get_json())
 
         bk = generate_data(
             beleidskeuzes.Beleidskeuzes_Schema, excluded_prop="excluded_post"
         )
         bk["Status"] = "Vigerend"
         bk["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
-        bk["Ambities"] = [{"UUID": amb_uuid}]
+        bk["Beleidsdoelen"] = [{"UUID": doel_uuid}]
 
         response = client_fred.post("v0.1/beleidskeuzes", json=bk)
         assert response.status_code == 201
-        assert response.get_json()["Ambities"] == [], "Ambitie is not yet valid"
+        assert response.get_json()["Beleidsdoelen"] == [], "Beleidsdoel is not yet valid"
 
         bk_uuid = response.get_json()["UUID"]
         response = client.get(f"v0.1/version/beleidskeuzes/{bk_uuid}")
-        assert response.get_json()["Ambities"] == [], "Ambitie is not yet valid"
+        assert response.get_json()["Beleidsdoelen"] == [], "Beleidsdoel is not yet valid"
 
 
     def test_latest_version(self, client, client_fred):

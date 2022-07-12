@@ -126,19 +126,16 @@ class FixtureLoader():
         self._beleidskeuze("keu:30", ID=1030, UUID="FEC2E000-1030-0001-0000-000000000000", Created_By="geb:admin", Created_Date="2020-02-01T10:00:00", Modified_Date="2020-02-01T10:00:00", Modified_By="geb:admin", Status="Vigerend",            Titel="Versie 1 Vigerend en in de huidige tijd", Afweging="beleidskeuze1030", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2120-01-01T10:00:00")
         self._beleidskeuze("keu:31", ID=1030, UUID="FEC2E000-1030-0002-0000-000000000000", Created_By="geb:admin", Created_Date="2020-02-01T10:00:00", Modified_Date="2020-03-01T10:00:00", Modified_By="geb:admin", Status="Vigerend",            Titel="Versie 2 Vigerend maar in het verleden",  Afweging="beleidskeuze1030", Begin_Geldigheid="2020-01-01T10:00:00", Eind_Geldigheid="2021-01-01T10:00:00")
 
-        # 
         self._ambitie("amb:2", Created_By="geb:admin")
         self._ambitie("amb:3", Created_By="geb:alex", Modified_By="geb:alex")
 
         self._beleidskeuze("keu:2", Created_By="geb:fred")
-        # self._beleidskeuzes_ambities("keu:2", "amb:2", "Test omschrijving")
 
         # "Water" related models mainly used in search tests
         self._ambitie("amb:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Geen overstromingen in Den Haag", Omschrijving="We willen water beter begeleiden zodat we geen overstromingen meer hebben.")
         self._beleidsdoel("doe:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Leven met water", Omschrijving="De provincie wil Zuid-Holland beschermen tegen wateroverlast en overstromingen en de gevolgen van eventuele overstromingen zoveel mogelijk beperken. Deze opgave wordt groter door de effecten van klimaatverandering (zeespiegelstijging en toenemende extreme neerslag), bodemdaling en toenemende druk op de beschikbare ruimte.")
 
         self._beleidskeuze("keu:water", Created_By="geb:alex")
-        # self._beleidskeuzes_ambities("keu:water", "amb:water")
         self._beleidskeuzes_beleidsdoelen("keu:water", "doe:water")
         
         self._maatregel("maa:dijk", Titel="Hogere dijken gaan ons redden", Omschrijving="We gaan meer geld steken in het bouwen van hogere dijken")

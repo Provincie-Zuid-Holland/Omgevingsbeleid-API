@@ -18,6 +18,7 @@ from Api.Models.verordeningen import Verordeningen_Schema
 from Api.Models.beleidsrelaties import Beleidsrelaties_Schema
 from Api.Models.beleidsmodule import Beleidsmodule_Schema
 from Api.Models.short_schemas import (
+    Short_Beleidsdoel_Schema,
     Short_Beleidsmodule_Schema,
     Short_Beleidskeuze_Schema,
     Short_Gebiedsprogramma_Schema,
@@ -25,6 +26,7 @@ from Api.Models.short_schemas import (
 import Api.Endpoints.references as references
 
 short_schemas = [
+    Short_Beleidsdoel_Schema,
     Short_Beleidskeuze_Schema,
     Short_Beleidsmodule_Schema,
     Short_Gebiedsprogramma_Schema,
