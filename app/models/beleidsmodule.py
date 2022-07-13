@@ -4,6 +4,7 @@ from sqlalchemy import (
     Column,
     ForeignKey,
     Integer,
+    String,
     text,
     DateTime,
     Unicode,
@@ -58,3 +59,4 @@ class Beleidsmodule(Base):
     Beleidskeuzes = relationship(
         "Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule"
     )
+

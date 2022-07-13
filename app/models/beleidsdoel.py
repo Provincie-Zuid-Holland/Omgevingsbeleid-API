@@ -5,6 +5,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Table,
     text,
     DateTime,
     Unicode,
