@@ -38,4 +38,16 @@ class Filters(BaseModel):
                 raise ValueError("Filter does not have a key and a value")
             result_items.append(Filter(key=pieces[0], value=pieces[1]))
 
-        self.clauses.append(FilterClause(combiner=combiner, items=result_items))
+        self._append_clause(combiner, result_items)
+
+    def add_from_dict(self, combiner: FilterCombiner, filters: dict):
+        result_items: List[Filter] = []
+
+        for key, value in filters.items():
+            result_items.append(Filter(key=key, value=value))
+
+        self._append_clause(combiner, result_items)
+
+    def _append_clause(self, combiner: FilterCombiner, items: List):
+        clause = FilterClause(combiner=combiner, items=items)
+        self.clauses.append(clause)

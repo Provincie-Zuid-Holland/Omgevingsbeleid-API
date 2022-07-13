@@ -113,7 +113,7 @@ def changes_ambities(
         )
 
     c = Comparator(schemas.Ambitie, old, new)
-    # print(c.fields)
+
     json_data = jsonable_encoder({"old": old, "changes": c.compare_objects()})
 
     return JSONResponse(content=json_data)

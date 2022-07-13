@@ -12,8 +12,6 @@ from .gebruiker import GebruikerInline
 from app.util.legacy_helpers import to_ref_field
 
 # Many to many schema's
-
-
 class AmbitieBeleidskeuzesGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
         keys = BeleidskeuzeShortInline.__fields__.keys()

@@ -1,5 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+
+from h11 import Data
 from app.schemas.filters import FilterCombiner, Filters
 
 from fastapi.encoders import jsonable_encoder
@@ -37,9 +39,34 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def get(self, uuid: str) -> ModelType:
         return self.db.query(self.model).filter(self.model.UUID == uuid).one()
 
-    def create(self, *, obj_in: CreateSchemaType) -> ModelType:
-        obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self.model(**obj_in_data)  # type: ignore
+    # def create(self, *, obj_in: CreateSchemaType) -> ModelType:
+        # obj_in_data = jsonable_encoder(obj_in)
+        # db_obj = self.model(**obj_in_data)  # type: ignore
+        # try:
+            # self.db.add(db_obj)
+            # self.db.commit()
+            # self.db.refresh(db_obj)
+            # return db_obj
+        # except IntegrityError:
+            # raise DatabaseError()
+
+    def create(self, *, obj_in: CreateSchemaType, by_uuid: str) -> ModelType:
+        obj_in_data = jsonable_encoder(
+            obj_in,
+            custom_encoder={
+                datetime: lambda dt: dt,
+            },
+        )
+
+        request_time = datetime.now()
+
+        obj_in_data["Created_By_UUID"] = by_uuid
+        obj_in_data["Modified_By_UUID"] = by_uuid
+        obj_in_data["Created_Date"] = request_time
+        obj_in_data["Modified_Date"] = request_time
+
+        db_obj = self.model(**obj_in_data)
+
         try:
             self.db.add(db_obj)
             self.db.commit()
@@ -256,18 +283,18 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             return query
 
         allowed_filter_keys = model.get_allowed_filter_keys()
-        for cause in filters.clauses:
+        for clause in filters.clauses:
             expressions = []
 
-            for item in cause.items:
+            for item in clause.items:
                 if item.key not in allowed_filter_keys:
                     raise ValueError("Given filter key is not allowed")
 
                 column = getattr(model, item.key)
-                expressions.add(column == item.value)
+                expressions.append(column == item.value)
 
             if expressions:
-                if cause.combiner == FilterCombiner.OR:
+                if clause.combiner == FilterCombiner.OR:
                     query.filter(or_(*expressions))
                 else:
                     query.filter(and_(*expressions))
