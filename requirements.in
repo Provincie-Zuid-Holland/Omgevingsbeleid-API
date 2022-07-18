@@ -1,6 +1,3 @@
-# Dependency manager
-pip-tools
-
 # Core libraries
 fastapi
 uvicorn[standard]
@@ -20,3 +17,6 @@ diff-match-patch
 
 # Command
 Click
+
+# Async requests
+httpx

@@ -86,9 +86,15 @@ pip-upgrade:
 	docker-compose exec api pip-compile --upgrade requirements.in
 	docker-compose exec api pip-compile --upgrade requirements-dev.in
 
-pip-sync:  ## This installs the requirements.txt files. Use on the servers
+pip-sync:  ## This installs the requirements.txt file. Use on the servers
 	docker-compose exec api pip-sync requirements.txt
-	docker-compose exec api pip-sync requirements-dev.txt
+
+pip-sync-dev:  ## This installs the requirements.txt and requirements-dev.txt files. Use for development / pipelines.
+	docker-compose exec api pip-sync requirements.txt requirements-dev.txt
+
+local-env:
+	pip install -U pip pip-tools==6.8.0
+	pip-sync requirements.txt requirements-dev.txt
 
 fix:
 	docker-compose exec api python -m black app/

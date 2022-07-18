@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import (
     Column,
@@ -66,6 +66,9 @@ class Ambitie(Base):
         "Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID"
     )
     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
+
+    def get_allowed_filter_keys() -> List[str]:
+        return []
 
     # SQL partitions through hybrid property expressions
 
