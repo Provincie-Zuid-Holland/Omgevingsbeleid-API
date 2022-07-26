@@ -13,6 +13,7 @@ from .gebruiker import GebruikerInline
 class RelatedBeleidskeuzeGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
         from .beleidskeuze import BeleidskeuzeInDB
+
         keys = BeleidskeuzeInDB.__fields__.keys()
         if key in keys:
             return getattr(self._obj.Maatregel, key)
@@ -28,6 +29,7 @@ class RelatedBeleidskeuze(BeleidskeuzeShortInline):
 class RelatedBeleidsmoduleGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
         from .beleidsmodule import BeleidsmoduleInDB
+
         keys = BeleidsmoduleInDB.__fields__.keys()
         if key in keys:
             return getattr(self._obj.Maatregel, key)
@@ -44,6 +46,7 @@ class RelatedBeleidsmodule(BaseModel):
     class Config:
         orm_mode = True
         getter_dict = RelatedBeleidsmoduleGetter
+
 
 # Shared properties
 class MaatregelBase(BaseModel):

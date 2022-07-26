@@ -33,7 +33,7 @@ def read_werkingsgebied(
     Gets all the werkingsgebied lineages and shows the latests object for each
     """
     werkingsgebied = crud.beleidsprestatie.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
+        all=True, filters=filters, offset=offset, limit=limit
     )
 
     return werkingsgebied
@@ -55,7 +55,9 @@ def create_beleidsprestatie(
     return beleidsprestatie
 
 
-@router.get("/werkingsgebieden/{lineage_id}", response_model=List[schemas.Werkingsgebied])
+@router.get(
+    "/werkingsgebieden/{lineage_id}", response_model=List[schemas.Werkingsgebied]
+)
 def read_beleidsprestatie_lineage(
     *,
     db: Session = Depends(deps.get_db),
@@ -90,7 +92,9 @@ def update_beleidsprestatie(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsprestatie = crud.beleidsprestatie.update(db_obj=beleidsprestatie, obj_in=beleidsprestatie_in)
+    beleidsprestatie = crud.beleidsprestatie.update(
+        db_obj=beleidsprestatie, obj_in=beleidsprestatie_in
+    )
     return beleidsprestatie
 
 
@@ -152,5 +156,7 @@ def read_valid_beleidsprestatie_lineage(
     """
     Gets all the werkingsgebied in this lineage that are valid
     """
-    werkingsgebied = crud.beleidsprestatie.valid(ID=lineage_id, offset=offset, limit=limit)
+    werkingsgebied = crud.beleidsprestatie.valid(
+        ID=lineage_id, offset=offset, limit=limit
+    )
     return werkingsgebied

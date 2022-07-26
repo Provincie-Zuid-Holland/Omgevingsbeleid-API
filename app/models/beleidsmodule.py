@@ -59,4 +59,3 @@ class Beleidsmodule(Base):
     Beleidskeuzes = relationship(
         "Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule"
     )
-

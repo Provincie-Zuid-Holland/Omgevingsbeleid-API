@@ -79,6 +79,7 @@ class Verordening(VerordeningInDBBase):
         allow_population_by_field_name = True
         alias_generator = to_ref_field
 
+
 # Properties properties stored in DB
 class VerordeningInDB(VerordeningInDBBase):
     pass

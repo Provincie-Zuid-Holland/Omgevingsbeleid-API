@@ -8,7 +8,9 @@ from app.models.beleidsmodule import Beleidsmodule
 from app.schemas.beleidsmodule import BeleidsmoduleCreate, BeleidsmoduleUpdate
 
 
-class CRUDBeleidsmodule(CRUDBase[Beleidsmodule, BeleidsmoduleCreate, BeleidsmoduleUpdate]):
+class CRUDBeleidsmodule(
+    CRUDBase[Beleidsmodule, BeleidsmoduleCreate, BeleidsmoduleUpdate]
+):
     def get(self, uuid: str) -> Beleidsmodule:
         return (
             self.db.query(self.model)
@@ -19,5 +21,6 @@ class CRUDBeleidsmodule(CRUDBase[Beleidsmodule, BeleidsmoduleCreate, Beleidsmodu
             .filter(self.model.UUID == uuid)
             .one()
         )
+
 
 beleidsmodule = CRUDBeleidsmodule(Beleidsmodule)

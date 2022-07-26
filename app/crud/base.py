@@ -40,15 +40,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return self.db.query(self.model).filter(self.model.UUID == uuid).one()
 
     # def create(self, *, obj_in: CreateSchemaType) -> ModelType:
-        # obj_in_data = jsonable_encoder(obj_in)
-        # db_obj = self.model(**obj_in_data)  # type: ignore
-        # try:
-            # self.db.add(db_obj)
-            # self.db.commit()
-            # self.db.refresh(db_obj)
-            # return db_obj
-        # except IntegrityError:
-            # raise DatabaseError()
+    # obj_in_data = jsonable_encoder(obj_in)
+    # db_obj = self.model(**obj_in_data)  # type: ignore
+    # try:
+    # self.db.add(db_obj)
+    # self.db.commit()
+    # self.db.refresh(db_obj)
+    # return db_obj
+    # except IntegrityError:
+    # raise DatabaseError()
 
     def create(self, *, obj_in: CreateSchemaType, by_uuid: str) -> ModelType:
         obj_in_data = jsonable_encoder(

@@ -19,4 +19,5 @@ class CRUDBeleidsdoel(CRUDBase[Beleidsdoel, BeleidsdoelCreate, BeleidsdoelUpdate
             .one()
         )
 
+
 beleidsdoel = CRUDBeleidsdoel(Beleidsdoel)

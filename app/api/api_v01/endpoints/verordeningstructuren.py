@@ -33,7 +33,7 @@ def read_verordeningstructuurs(
     Gets all the verordeningstructuurs lineages and shows the latests object for each
     """
     verordeningstructuurs = crud.verordeningstructuur.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
+        all=True, filters=filters, offset=offset, limit=limit
     )
 
     return verordeningstructuurs
@@ -55,7 +55,10 @@ def create_verordeningstructuur(
     return verordeningstructuur
 
 
-@router.get("/verordeningstructuren/{lineage_id}", response_model=List[schemas.Verordeningstructuur])
+@router.get(
+    "/verordeningstructuren/{lineage_id}",
+    response_model=List[schemas.Verordeningstructuur],
+)
 def read_verordeningstructuur_lineage(
     *,
     db: Session = Depends(deps.get_db),
@@ -71,7 +74,9 @@ def read_verordeningstructuur_lineage(
     return verordeningstructuurs
 
 
-@router.patch("/verordeningstructuren/{lineage_id}", response_model=schemas.Verordeningstructuur)
+@router.patch(
+    "/verordeningstructuren/{lineage_id}", response_model=schemas.Verordeningstructuur
+)
 def update_verordeningstructuur(
     *,
     db: Session = Depends(deps.get_db),
@@ -90,7 +95,9 @@ def update_verordeningstructuur(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    verordeningstructuur = crud.verordeningstructuur.update(db_obj=verordeningstructuur, obj_in=verordeningstructuur_in)
+    verordeningstructuur = crud.verordeningstructuur.update(
+        db_obj=verordeningstructuur, obj_in=verordeningstructuur_in
+    )
     return verordeningstructuur
 
 
@@ -139,7 +146,8 @@ def read_valid_verordeningstructuurs(
 
 
 @router.get(
-    "/valid/verordeningstructuren/{lineage_id}", response_model=List[schemas.Verordeningstructuur]
+    "/valid/verordeningstructuren/{lineage_id}",
+    response_model=List[schemas.Verordeningstructuur],
 )
 def read_valid_verordeningstructuur_lineage(
     lineage_id: int,
@@ -152,5 +160,7 @@ def read_valid_verordeningstructuur_lineage(
     """
     Gets all the verordeningstructuurs in this lineage that are valid
     """
-    verordeningstructuurs = crud.verordeningstructuur.valid(ID=lineage_id, offset=offset, limit=limit)
+    verordeningstructuurs = crud.verordeningstructuur.valid(
+        ID=lineage_id, offset=offset, limit=limit
+    )
     return verordeningstructuurs

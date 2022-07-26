@@ -32,9 +32,7 @@ def read_themas(
     """
     Gets all the themas lineages and shows the latests object for each
     """
-    themas = crud.thema.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
-    )
+    themas = crud.thema.latest(all=True, filters=filters, offset=offset, limit=limit)
 
     return themas
 
@@ -49,9 +47,7 @@ def create_thema(
     """
     Creates a new themas lineage
     """
-    thema = crud.thema.create(
-        obj_in=thema_in, by_uuid=current_gebruiker.UUID
-    )
+    thema = crud.thema.create(obj_in=thema_in, by_uuid=current_gebruiker.UUID)
     return thema
 
 
@@ -138,9 +134,7 @@ def read_valid_themas(
     return themas
 
 
-@router.get(
-    "/valid/themas/{lineage_id}", response_model=List[schemas.Thema]
-)
+@router.get("/valid/themas/{lineage_id}", response_model=List[schemas.Thema])
 def read_valid_thema_lineage(
     lineage_id: int,
     offset: int = 0,

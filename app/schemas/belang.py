@@ -78,4 +78,3 @@ class AmbitieInDB(AmbitieInDBBase):
 # Properties properties stored in DB
 class BelangInDB(BelangInDBBase):
     pass
-

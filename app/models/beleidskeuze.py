@@ -140,9 +140,4 @@ class Beleidskeuze(Base):
     )
 
     def get_allowed_filter_keys(self) -> List[str]:
-        return [
-            'ID',
-            'UUID',
-            'Begin_Geldigheid',
-            'Eind_Geldigheid'
-        ]
+        return ["ID", "UUID", "Begin_Geldigheid", "Eind_Geldigheid"]

@@ -50,6 +50,7 @@ class Beleidsrelatie(BeleidsrelatieInDBBase):
     Van_Beleidskeuze: BeleidskeuzeShortInline
     Naar_Beleidskeuze: BeleidskeuzeShortInline
 
+
 # Properties properties stored in DB
 class BeleidsrelatieInDB(BeleidsrelatieInDBBase):
     pass

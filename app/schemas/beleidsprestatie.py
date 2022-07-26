@@ -51,7 +51,6 @@ class BeleidsprestatieInDBBase(BeleidsprestatieBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
-
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True
@@ -66,6 +65,7 @@ class Beleidsprestatie(BeleidsprestatieInDBBase):
     class Config:
         allow_population_by_field_name = True
         alias_generator = to_ref_field
+
 
 # Properties properties stored in DB
 class BeleidsprestatieInDB(BeleidsprestatieInDBBase):

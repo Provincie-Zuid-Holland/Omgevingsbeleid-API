@@ -77,4 +77,3 @@ class WerkingsgebiedShortInline(BaseModel):
 
     class Config:
         orm_mode = True
-

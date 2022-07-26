@@ -7,7 +7,9 @@ from app.models.beleidsprestatie import Beleidsprestatie
 from app.schemas.beleidsprestatie import BeleidsprestatieCreate, BeleidsprestatieUpdate
 
 
-class CRUDBeleidsprestatie(CRUDBase[Beleidsprestatie, BeleidsprestatieCreate, BeleidsprestatieUpdate]):
+class CRUDBeleidsprestatie(
+    CRUDBase[Beleidsprestatie, BeleidsprestatieCreate, BeleidsprestatieUpdate]
+):
     def get(self, uuid: str) -> Beleidsprestatie:
         return (
             self.db.query(self.model)
@@ -17,5 +19,6 @@ class CRUDBeleidsprestatie(CRUDBase[Beleidsprestatie, BeleidsprestatieCreate, Be
             .filter(self.model.UUID == uuid)
             .one()
         )
+
 
 beleidsprestatie = CRUDBeleidsprestatie(Beleidsprestatie)

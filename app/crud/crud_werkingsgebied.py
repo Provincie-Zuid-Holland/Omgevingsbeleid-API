@@ -7,7 +7,9 @@ from app.models.werkingsgebied import Werkingsgebied
 from app.schemas.werkingsgebied import WerkingsgebiedCreate, WerkingsgebiedUpdate
 
 
-class CRUDWerkingsgebied(CRUDBase[Werkingsgebied, WerkingsgebiedCreate, WerkingsgebiedUpdate]):
+class CRUDWerkingsgebied(
+    CRUDBase[Werkingsgebied, WerkingsgebiedCreate, WerkingsgebiedUpdate]
+):
     def get(self, uuid: str) -> Werkingsgebied:
         return (
             self.db.query(self.model)
@@ -17,5 +19,6 @@ class CRUDWerkingsgebied(CRUDBase[Werkingsgebied, WerkingsgebiedCreate, Werkings
             .filter(self.model.UUID == uuid)
             .one()
         )
+
 
 werkingsgebied = CRUDWerkingsgebied(Werkingsgebied)

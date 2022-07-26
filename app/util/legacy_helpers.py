@@ -12,7 +12,7 @@ def to_ref_field(string: str) -> str:
         "Beleidsrelaties",
         "Beleidsregels",
         "Verordeningen",
-        "Maatregelen"
+        "Maatregelen",
     ]
 
     if string not in to_alias:

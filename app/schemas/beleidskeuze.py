@@ -11,6 +11,7 @@ from .gebruiker import GebruikerInline
 class RelatedBeleidsmoduleGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
         from .beleidsmodule import BeleidsmoduleInDB
+
         keys = BeleidsmoduleInDB.__fields__.keys()
         if key in keys:
             return getattr(self._obj.Beleidskeuze, key)
@@ -32,6 +33,7 @@ class RelatedBeleidsmodule(BaseModel):
 class RelatedBeleidsdoelGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
         from .beleidsdoel import BeleidsdoelInDB
+
         keys = BeleidsdoelInDB.__fields__.keys()
         if key in keys:
             return getattr(self._obj.Beleidsdoel, key)
@@ -53,6 +55,7 @@ class RelatedBeleidsdoel(BaseModel):
 class RelatedMaatregelGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
         from .maatregel import MaatregelInDB
+
         keys = MaatregelInDB.__fields__.keys()
         if key in keys:
             return getattr(self._obj.Maatregel, key)

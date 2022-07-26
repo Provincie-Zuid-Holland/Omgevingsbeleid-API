@@ -18,4 +18,5 @@ class CRUDVerordening(CRUDBase[Verordening, VerordeningCreate, VerordeningUpdate
             .one()
         )
 
+
 verordening = CRUDVerordening(Verordening)

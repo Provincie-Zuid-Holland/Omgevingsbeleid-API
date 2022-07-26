@@ -33,7 +33,7 @@ def read_verordening(
     Gets all the verordening lineages and shows the latests object for each
     """
     verordening = crud.verordening.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
+        all=True, filters=filters, offset=offset, limit=limit
     )
 
     return verordening

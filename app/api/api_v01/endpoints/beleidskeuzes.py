@@ -33,7 +33,7 @@ def read_beleidskeuzes(
     Gets all the beleidskeuzes lineages and shows the latests object for each
     """
     beleidskeuzes = crud.beleidskeuze.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
+        all=True, filters=filters, offset=offset, limit=limit
     )
 
     return beleidskeuzes

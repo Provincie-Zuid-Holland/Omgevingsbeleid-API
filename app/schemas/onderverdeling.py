@@ -37,7 +37,6 @@ class OnderverdelingInDBBase(OnderverdelingBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
-
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True

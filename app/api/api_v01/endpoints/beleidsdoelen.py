@@ -33,7 +33,7 @@ def read_beleidsdoelen(
     Gets all the beleidsdoelen lineages and shows the latests object for each
     """
     beleidsdoelen = crud.beleidsdoel.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
+        all=True, filters=filters, offset=offset, limit=limit
     )
 
     return beleidsdoelen

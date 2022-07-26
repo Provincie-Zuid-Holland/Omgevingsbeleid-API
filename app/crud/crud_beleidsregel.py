@@ -18,4 +18,5 @@ class CRUDBeleidsregel(CRUDBase[Beleidsregel, BeleidsregelCreate, BeleidsregelUp
             .one()
         )
 
+
 beleidsregel = CRUDBeleidsregel(Beleidsregel)

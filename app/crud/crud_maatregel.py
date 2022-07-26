@@ -19,4 +19,5 @@ class CRUDMaatregel(CRUDBase[Maatregel, MaatregelCreate, MaatregelUpdate]):
             .one()
         )
 
+
 maatregel = CRUDMaatregel(Maatregel)

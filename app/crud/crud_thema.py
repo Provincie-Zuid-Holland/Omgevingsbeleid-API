@@ -18,4 +18,5 @@ class CRUDThema(CRUDBase[Thema, ThemaCreate, ThemaUpdate]):
             .one()
         )
 
+
 thema = CRUDThema(Thema)

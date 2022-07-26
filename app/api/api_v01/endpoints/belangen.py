@@ -1,4 +1,3 @@
-
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -33,9 +32,7 @@ def read_belangen(
     """
     Gets all the belangen lineages and shows the latests object for each
     """
-    belangen = crud.belang.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
-    )
+    belangen = crud.belang.latest(all=True, filters=filters, offset=offset, limit=limit)
 
     return belangen
 
@@ -50,9 +47,7 @@ def create_belang(
     """
     Creates a new belangen lineage
     """
-    belang = crud.belang.create(
-        obj_in=belang_in, by_uuid=current_gebruiker.UUID
-    )
+    belang = crud.belang.create(obj_in=belang_in, by_uuid=current_gebruiker.UUID)
     return belang
 
 
@@ -139,9 +134,7 @@ def read_valid_belangen(
     return belangen
 
 
-@router.get(
-    "/valid/belangen/{lineage_id}", response_model=List[schemas.Belang]
-)
+@router.get("/valid/belangen/{lineage_id}", response_model=List[schemas.Belang])
 def read_valid_belang_lineage(
     lineage_id: int,
     offset: int = 0,

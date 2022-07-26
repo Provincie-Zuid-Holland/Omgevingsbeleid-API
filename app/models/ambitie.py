@@ -66,10 +66,6 @@ class Ambitie(Base):
         "Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID"
     )
     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
-    
+
     def get_allowed_filter_keys() -> List[str]:
-        return [
-            'ID',
-            'UUID',
-            'Begin_Geldigheid'
-        ]
+        return ["ID", "UUID", "Begin_Geldigheid"]

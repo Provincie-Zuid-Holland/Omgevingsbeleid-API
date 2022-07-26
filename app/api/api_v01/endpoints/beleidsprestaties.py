@@ -33,7 +33,7 @@ def read_beleidsprestaties(
     Gets all the beleidsprestaties lineages and shows the latests object for each
     """
     beleidsprestaties = crud.beleidsprestatie.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
+        all=True, filters=filters, offset=offset, limit=limit
     )
 
     return beleidsprestaties
@@ -55,7 +55,9 @@ def create_beleidsprestatie(
     return beleidsprestatie
 
 
-@router.get("/beleidsprestaties/{lineage_id}", response_model=List[schemas.Beleidsprestatie])
+@router.get(
+    "/beleidsprestaties/{lineage_id}", response_model=List[schemas.Beleidsprestatie]
+)
 def read_beleidsprestatie_lineage(
     *,
     db: Session = Depends(deps.get_db),
@@ -71,7 +73,9 @@ def read_beleidsprestatie_lineage(
     return beleidsprestaties
 
 
-@router.patch("/beleidsprestaties/{lineage_id}", response_model=schemas.Beleidsprestatie)
+@router.patch(
+    "/beleidsprestaties/{lineage_id}", response_model=schemas.Beleidsprestatie
+)
 def update_beleidsprestatie(
     *,
     db: Session = Depends(deps.get_db),
@@ -90,7 +94,9 @@ def update_beleidsprestatie(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsprestatie = crud.beleidsprestatie.update(db_obj=beleidsprestatie, obj_in=beleidsprestatie_in)
+    beleidsprestatie = crud.beleidsprestatie.update(
+        db_obj=beleidsprestatie, obj_in=beleidsprestatie_in
+    )
     return beleidsprestatie
 
 
@@ -139,7 +145,8 @@ def read_valid_beleidsprestaties(
 
 
 @router.get(
-    "/valid/beleidsprestaties/{lineage_id}", response_model=List[schemas.Beleidsprestatie]
+    "/valid/beleidsprestaties/{lineage_id}",
+    response_model=List[schemas.Beleidsprestatie],
 )
 def read_valid_beleidsprestatie_lineage(
     lineage_id: int,
@@ -152,5 +159,7 @@ def read_valid_beleidsprestatie_lineage(
     """
     Gets all the beleidsprestaties in this lineage that are valid
     """
-    beleidsprestaties = crud.beleidsprestatie.valid(ID=lineage_id, offset=offset, limit=limit)
+    beleidsprestaties = crud.beleidsprestatie.valid(
+        ID=lineage_id, offset=offset, limit=limit
+    )
     return beleidsprestaties

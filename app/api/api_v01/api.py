@@ -1,19 +1,19 @@
 from fastapi import APIRouter
 
 from app.api.api_v01.endpoints import (
-        ambities, 
-        beleidsmodules, 
-        beleidsprestaties, 
-        login, 
-        beleidskeuzes, 
-        beleidsdoelen,
-        beleidsrelaties,
-        beleidsregels,
-        themas,
-        verordeningen,
-        verordeningstructuren,
-        maatregelen,
-        werkingsgebieden
+    ambities,
+    beleidsmodules,
+    beleidsprestaties,
+    login,
+    beleidskeuzes,
+    beleidsdoelen,
+    beleidsrelaties,
+    beleidsregels,
+    themas,
+    verordeningen,
+    verordeningstructuren,
+    maatregelen,
+    werkingsgebieden,
 )
 
 api_router = APIRouter()

@@ -33,7 +33,7 @@ def read_beleidsmodules(
     Gets all the beleidsmodules lineages and shows the latests object for each
     """
     beleidsmodules = crud.beleidsmodule.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
+        all=True, filters=filters, offset=offset, limit=limit
     )
 
     return beleidsmodules
@@ -90,7 +90,9 @@ def update_beleidsmodule(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsmodule = crud.beleidsmodule.update(db_obj=beleidsmodule, obj_in=beleidsmodule_in)
+    beleidsmodule = crud.beleidsmodule.update(
+        db_obj=beleidsmodule, obj_in=beleidsmodule_in
+    )
     return beleidsmodule
 
 

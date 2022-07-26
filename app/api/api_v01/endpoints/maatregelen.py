@@ -33,7 +33,7 @@ def read_maatregelen(
     Gets all the maatregelen lineages and shows the latests object for each
     """
     maatregelen = crud.maatregel.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
+        all=True, filters=filters, offset=offset, limit=limit
     )
 
     return maatregelen
@@ -138,9 +138,7 @@ def read_valid_maatregelen(
     return maatregelen
 
 
-@router.get(
-    "/valid/maatregelen/{lineage_id}", response_model=List[schemas.Maatregel]
-)
+@router.get("/valid/maatregelen/{lineage_id}", response_model=List[schemas.Maatregel])
 def read_valid_maatregel_lineage(
     lineage_id: int,
     offset: int = 0,

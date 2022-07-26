@@ -33,7 +33,7 @@ def read_beleidsrelaties(
     Gets all the beleidsrelaties lineages and shows the latests object for each
     """
     beleidsrelaties = crud.beleidsrelatie.latest(
-        all=True, filters=filters, offset=offset, limit=limit 
+        all=True, filters=filters, offset=offset, limit=limit
     )
 
     return beleidsrelaties
@@ -55,7 +55,9 @@ def create_beleidsrelatie(
     return beleidsrelatie
 
 
-@router.get("/beleidsrelaties/{lineage_id}", response_model=List[schemas.Beleidsrelatie])
+@router.get(
+    "/beleidsrelaties/{lineage_id}", response_model=List[schemas.Beleidsrelatie]
+)
 def read_beleidsrelatie_lineage(
     *,
     db: Session = Depends(deps.get_db),
@@ -90,7 +92,9 @@ def update_beleidsrelatie(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsrelatie = crud.beleidsrelatie.update(db_obj=beleidsrelatie, obj_in=beleidsrelatie_in)
+    beleidsrelatie = crud.beleidsrelatie.update(
+        db_obj=beleidsrelatie, obj_in=beleidsrelatie_in
+    )
     return beleidsrelatie
 
 
@@ -152,5 +156,7 @@ def read_valid_beleidsrelatie_lineage(
     """
     Gets all the beleidsrelaties in this lineage that are valid
     """
-    beleidsrelaties = crud.beleidsrelatie.valid(ID=lineage_id, offset=offset, limit=limit)
+    beleidsrelaties = crud.beleidsrelatie.valid(
+        ID=lineage_id, offset=offset, limit=limit
+    )
     return beleidsrelaties
