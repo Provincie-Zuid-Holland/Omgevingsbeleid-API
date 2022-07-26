@@ -3,8 +3,8 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
@@ -18,11 +18,11 @@ defer_attributes = {"Omschrijving"}
 
 
 @router.get(
-    "/beleidsdoelen",
-    response_model=List[schemas.Beleidsdoel],
+    "/themas",
+    response_model=List[schemas.Thema],
     response_model_exclude=defer_attributes,
 )
-def read_beleidsdoelen(
+def read_themas(
     db: Session = Depends(deps.get_db),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
@@ -30,99 +30,99 @@ def read_beleidsdoelen(
     limit: int = 20,
 ) -> Any:
     """
-    Gets all the beleidsdoelen lineages and shows the latests object for each
+    Gets all the themas lineages and shows the latests object for each
     """
-    beleidsdoelen = crud.beleidsdoel.latest(
+    themas = crud.thema.latest(
         all=True, filters=filters, offset=offset, limit=limit 
     )
 
-    return beleidsdoelen
+    return themas
 
 
-@router.post("/beleidsdoelen", response_model=schemas.Beleidsdoel)
-def create_beleidsdoel(
+@router.post("/themas", response_model=schemas.Thema)
+def create_thema(
     *,
     db: Session = Depends(deps.get_db),
-    beleidsdoel_in: schemas.BeleidsdoelCreate,
+    thema_in: schemas.ThemaCreate,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Creates a new beleidsdoelen lineage
+    Creates a new themas lineage
     """
-    beleidsdoel = crud.beleidsdoel.create(
-        obj_in=beleidsdoel_in, by_uuid=current_gebruiker.UUID
+    thema = crud.thema.create(
+        obj_in=thema_in, by_uuid=current_gebruiker.UUID
     )
-    return beleidsdoel
+    return thema
 
 
-@router.get("/beleidsdoelen/{lineage_id}", response_model=List[schemas.Beleidsdoel])
-def read_beleidsdoel_lineage(
+@router.get("/themas/{lineage_id}", response_model=List[schemas.Thema])
+def read_thema_lineage(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Gets all the beleidsdoelen versions by lineage
+    Gets all the themas versions by lineage
     """
-    beleidsdoelen = crud.beleidsdoel.all(ID=lineage_id)
-    if not beleidsdoelen:
-        raise HTTPException(status_code=404, detail="Beleidsdoels not found")
-    return beleidsdoelen
+    themas = crud.thema.all(ID=lineage_id)
+    if not themas:
+        raise HTTPException(status_code=404, detail="Themas not found")
+    return themas
 
 
-@router.patch("/beleidsdoelen/{lineage_id}", response_model=schemas.Beleidsdoel)
-def update_beleidsdoel(
+@router.patch("/themas/{lineage_id}", response_model=schemas.Thema)
+def update_thema(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
-    beleidsdoel_in: schemas.BeleidsdoelUpdate,
+    thema_in: schemas.ThemaUpdate,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Adds a new beleidsdoelen to a lineage
+    Adds a new themas to a lineage
     """
-    beleidsdoel = crud.beleidsdoel.get_latest_by_id(id=lineage_id)
-    if not beleidsdoel:
-        raise HTTPException(status_code=404, detail="Beleidsdoel not found")
-    if beleidsdoel.Created_By != current_gebruiker.UUID:
+    thema = crud.thema.get_latest_by_id(id=lineage_id)
+    if not thema:
+        raise HTTPException(status_code=404, detail="Thema not found")
+    if thema.Created_By != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsdoel = crud.beleidsdoel.update(db_obj=beleidsdoel, obj_in=beleidsdoel_in)
-    return beleidsdoel
+    thema = crud.thema.update(db_obj=thema, obj_in=thema_in)
+    return thema
 
 
-@router.get("/changes/beleidsdoelen/{old_uuid}/{new_uuid}")
-def changes_beleidsdoelen(
+@router.get("/changes/themas/{old_uuid}/{new_uuid}")
+def changes_themas(
     old_uuid: str,
     new_uuid: str,
 ) -> Any:
     """
-    Shows the changes between two versions of beleidsdoelen.
+    Shows the changes between two versions of themas.
     """
     try:
-        old = crud.beleidsdoel.get(old_uuid)
-        new = crud.beleidsdoel.get(new_uuid)
+        old = crud.thema.get(old_uuid)
+        new = crud.thema.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
             detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist.",
         )
 
-    c = Comparator(schemas.Beleidsdoel, old, new)
+    c = Comparator(schemas.Thema, old, new)
     json_data = jsonable_encoder({"old": old, "changes": c.compare_objects()})
 
     return JSONResponse(content=json_data)
 
 
 @router.get(
-    "/valid/beleidsdoelen",
-    response_model=List[schemas.Beleidsdoel],
+    "/valid/themas",
+    response_model=List[schemas.Thema],
     response_model_exclude=defer_attributes,
 )
-def read_valid_beleidsdoelen(
+def read_valid_themas(
     db: Session = Depends(deps.get_db),
     offset: int = 0,
     limit: int = 20,
@@ -130,18 +130,18 @@ def read_valid_beleidsdoelen(
     any_filters: str = "",
 ) -> Any:
     """
-    Gets all the beleidsdoelen lineages and shows the latests valid object for each.
+    Gets all the themas lineages and shows the latests valid object for each.
     """
-    beleidsdoelen = crud.beleidsdoel.valid(
+    themas = crud.thema.valid(
         offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
     )
-    return beleidsdoelen
+    return themas
 
 
 @router.get(
-    "/valid/beleidsdoelen/{lineage_id}", response_model=List[schemas.Beleidsdoel]
+    "/valid/themas/{lineage_id}", response_model=List[schemas.Thema]
 )
-def read_valid_beleidsdoel_lineage(
+def read_valid_thema_lineage(
     lineage_id: int,
     offset: int = 0,
     limit: int = 20,
@@ -150,7 +150,7 @@ def read_valid_beleidsdoel_lineage(
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
-    Gets all the beleidsdoelen in this lineage that are valid
+    Gets all the themas in this lineage that are valid
     """
-    beleidsdoelen = crud.beleidsdoel.valid(ID=lineage_id, offset=offset, limit=limit)
-    return beleidsdoelen
+    themas = crud.thema.valid(ID=lineage_id, offset=offset, limit=limit)
+    return themas

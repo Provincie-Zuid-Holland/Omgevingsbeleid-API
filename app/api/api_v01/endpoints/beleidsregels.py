@@ -3,8 +3,8 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
@@ -18,11 +18,11 @@ defer_attributes = {"Omschrijving"}
 
 
 @router.get(
-    "/beleidsdoelen",
-    response_model=List[schemas.Beleidsdoel],
+    "/beleidsregels",
+    response_model=List[schemas.Beleidsregel],
     response_model_exclude=defer_attributes,
 )
-def read_beleidsdoelen(
+def read_beleidsregels(
     db: Session = Depends(deps.get_db),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
@@ -30,99 +30,99 @@ def read_beleidsdoelen(
     limit: int = 20,
 ) -> Any:
     """
-    Gets all the beleidsdoelen lineages and shows the latests object for each
+    Gets all the beleidsregels lineages and shows the latests object for each
     """
-    beleidsdoelen = crud.beleidsdoel.latest(
+    beleidsregels = crud.beleidsregel.latest(
         all=True, filters=filters, offset=offset, limit=limit 
     )
 
-    return beleidsdoelen
+    return beleidsregels
 
 
-@router.post("/beleidsdoelen", response_model=schemas.Beleidsdoel)
-def create_beleidsdoel(
+@router.post("/beleidsregels", response_model=schemas.Beleidsregel)
+def create_beleidsregel(
     *,
     db: Session = Depends(deps.get_db),
-    beleidsdoel_in: schemas.BeleidsdoelCreate,
+    beleidsregel_in: schemas.BeleidsregelCreate,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Creates a new beleidsdoelen lineage
+    Creates a new beleidsregels lineage
     """
-    beleidsdoel = crud.beleidsdoel.create(
-        obj_in=beleidsdoel_in, by_uuid=current_gebruiker.UUID
+    beleidsregel = crud.beleidsregel.create(
+        obj_in=beleidsregel_in, by_uuid=current_gebruiker.UUID
     )
-    return beleidsdoel
+    return beleidsregel
 
 
-@router.get("/beleidsdoelen/{lineage_id}", response_model=List[schemas.Beleidsdoel])
-def read_beleidsdoel_lineage(
+@router.get("/beleidsregels/{lineage_id}", response_model=List[schemas.Beleidsregel])
+def read_beleidsregel_lineage(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Gets all the beleidsdoelen versions by lineage
+    Gets all the beleidsregels versions by lineage
     """
-    beleidsdoelen = crud.beleidsdoel.all(ID=lineage_id)
-    if not beleidsdoelen:
-        raise HTTPException(status_code=404, detail="Beleidsdoels not found")
-    return beleidsdoelen
+    beleidsregels = crud.beleidsregel.all(ID=lineage_id)
+    if not beleidsregels:
+        raise HTTPException(status_code=404, detail="Beleidsregels not found")
+    return beleidsregels
 
 
-@router.patch("/beleidsdoelen/{lineage_id}", response_model=schemas.Beleidsdoel)
-def update_beleidsdoel(
+@router.patch("/beleidsregels/{lineage_id}", response_model=schemas.Beleidsregel)
+def update_beleidsregel(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
-    beleidsdoel_in: schemas.BeleidsdoelUpdate,
+    beleidsregel_in: schemas.BeleidsregelUpdate,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Adds a new beleidsdoelen to a lineage
+    Adds a new beleidsregels to a lineage
     """
-    beleidsdoel = crud.beleidsdoel.get_latest_by_id(id=lineage_id)
-    if not beleidsdoel:
-        raise HTTPException(status_code=404, detail="Beleidsdoel not found")
-    if beleidsdoel.Created_By != current_gebruiker.UUID:
+    beleidsregel = crud.beleidsregel.get_latest_by_id(id=lineage_id)
+    if not beleidsregel:
+        raise HTTPException(status_code=404, detail="Beleidsregel not found")
+    if beleidsregel.Created_By != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsdoel = crud.beleidsdoel.update(db_obj=beleidsdoel, obj_in=beleidsdoel_in)
-    return beleidsdoel
+    beleidsregel = crud.beleidsregel.update(db_obj=beleidsregel, obj_in=beleidsregel_in)
+    return beleidsregel
 
 
-@router.get("/changes/beleidsdoelen/{old_uuid}/{new_uuid}")
-def changes_beleidsdoelen(
+@router.get("/changes/beleidsregels/{old_uuid}/{new_uuid}")
+def changes_beleidsregels(
     old_uuid: str,
     new_uuid: str,
 ) -> Any:
     """
-    Shows the changes between two versions of beleidsdoelen.
+    Shows the changes between two versions of beleidsregels.
     """
     try:
-        old = crud.beleidsdoel.get(old_uuid)
-        new = crud.beleidsdoel.get(new_uuid)
+        old = crud.beleidsregel.get(old_uuid)
+        new = crud.beleidsregel.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
             detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist.",
         )
 
-    c = Comparator(schemas.Beleidsdoel, old, new)
+    c = Comparator(schemas.Beleidsregel, old, new)
     json_data = jsonable_encoder({"old": old, "changes": c.compare_objects()})
 
     return JSONResponse(content=json_data)
 
 
 @router.get(
-    "/valid/beleidsdoelen",
-    response_model=List[schemas.Beleidsdoel],
+    "/valid/beleidsregels",
+    response_model=List[schemas.Beleidsregel],
     response_model_exclude=defer_attributes,
 )
-def read_valid_beleidsdoelen(
+def read_valid_beleidsregels(
     db: Session = Depends(deps.get_db),
     offset: int = 0,
     limit: int = 20,
@@ -130,18 +130,18 @@ def read_valid_beleidsdoelen(
     any_filters: str = "",
 ) -> Any:
     """
-    Gets all the beleidsdoelen lineages and shows the latests valid object for each.
+    Gets all the beleidsregels lineages and shows the latests valid object for each.
     """
-    beleidsdoelen = crud.beleidsdoel.valid(
+    beleidsregels = crud.beleidsregel.valid(
         offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
     )
-    return beleidsdoelen
+    return beleidsregels
 
 
 @router.get(
-    "/valid/beleidsdoelen/{lineage_id}", response_model=List[schemas.Beleidsdoel]
+    "/valid/beleidsregels/{lineage_id}", response_model=List[schemas.Beleidsregel]
 )
-def read_valid_beleidsdoel_lineage(
+def read_valid_beleidsregel_lineage(
     lineage_id: int,
     offset: int = 0,
     limit: int = 20,
@@ -150,7 +150,7 @@ def read_valid_beleidsdoel_lineage(
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
-    Gets all the beleidsdoelen in this lineage that are valid
+    Gets all the beleidsregels in this lineage that are valid
     """
-    beleidsdoelen = crud.beleidsdoel.valid(ID=lineage_id, offset=offset, limit=limit)
-    return beleidsdoelen
+    beleidsregels = crud.beleidsregel.valid(ID=lineage_id, offset=offset, limit=limit)
+    return beleidsregels

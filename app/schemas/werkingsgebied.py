@@ -1,50 +1,44 @@
-from datetime import datetime
 from typing import Any, List, Optional
 
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
+from datetime import datetime
 
 from app.util.legacy_helpers import to_ref_field
 
 from .gebruiker import GebruikerInline
+from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
 
 # Many to many schema's
-class AmbitieBeleidskeuzesGetter(GetterDict):
+class RelatedBeleidskeuzeGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
-        keys = BeleidskeuzeShortInline.__fields__.keys()
+        keys = BeleidskeuzeInDB.__fields__.keys()
         if key in keys:
             return getattr(self._obj.Beleidskeuze, key)
         else:
-            return super(AmbitieBeleidskeuzesGetter, self).get(key, default)
+            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
 
 
-class BeleidskeuzeShortInline(BaseModel):
-    ID: int
-    UUID: str
-    Titel: str
-
+class RelatedBeleidskeuze(BeleidskeuzeShortInline):
     class Config:
-        orm_mode = True
-        getter_dict = AmbitieBeleidskeuzesGetter
+        getter_dict = RelatedBeleidskeuzeGetter
 
 
 # Shared properties
-class AmbitieBase(BaseModel):
-    Titel: Optional[str] = None
-    Omschrijving: Optional[str] = None
-    Weblink: Optional[str] = None
+class WerkingsgebiedBase(BaseModel):
+    Werkingsgebied: str
 
 
-class AmbitieCreate(AmbitieBase):
+class WerkingsgebiedCreate(WerkingsgebiedBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
 
-class AmbitieUpdate(AmbitieBase):
+class WerkingsgebiedUpdate(WerkingsgebiedBase):
     pass
 
 
-class AmbitieInDBBase(AmbitieBase):
+class WerkingsgebiedInDBBase(WerkingsgebiedBase):
     ID: int
     UUID: str
 
@@ -55,21 +49,16 @@ class AmbitieInDBBase(AmbitieBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
-    Titel: str
-    Omschrijving: str
-    Weblink: str
-
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True
 
 
 # Properties to return to client
-class Ambitie(AmbitieInDBBase):
+class Werkingsgebied(WerkingsgebiedInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
-
-    Beleidskeuzes: List[BeleidskeuzeShortInline]
+    Beleidskeuzes: List[RelatedBeleidskeuze]
 
     class Config:
         allow_population_by_field_name = True
@@ -77,5 +66,15 @@ class Ambitie(AmbitieInDBBase):
 
 
 # Properties properties stored in DB
-class AmbitieInDB(AmbitieInDBBase):
+class WerkingsgebiedInDB(WerkingsgebiedInDBBase):
     pass
+
+
+class WerkingsgebiedShortInline(BaseModel):
+    ID: int
+    UUID: str
+    Werkingsgebied: str
+
+    class Config:
+        orm_mode = True
+

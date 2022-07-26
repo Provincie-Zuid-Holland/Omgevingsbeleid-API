@@ -1,18 +1,18 @@
-from typing import TYPE_CHECKING, List
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy import (
     Column,
+    DateTime,
     ForeignKey,
     Integer,
-    String,
-    text,
-    DateTime,
-    Unicode,
     Sequence,
+    String,
+    Unicode,
+    text,
 )
-from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
@@ -139,7 +139,7 @@ class Beleidskeuze(Base):
         primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Naar_Beleidskeuze_UUID",
     )
 
-    def get_allowed_filter_keys() -> List[str]:
+    def get_allowed_filter_keys(self) -> List[str]:
         return [
             'ID',
             'UUID',

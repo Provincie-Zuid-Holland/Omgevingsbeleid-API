@@ -6,45 +6,46 @@ from pydantic.utils import GetterDict
 
 from app.util.legacy_helpers import to_ref_field
 
+from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
 from .gebruiker import GebruikerInline
+from .werkingsgebied import WerkingsgebiedShortInline
 
 # Many to many schema's
-class AmbitieBeleidskeuzesGetter(GetterDict):
+class RelatedBeleidskeuzeGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
-        keys = BeleidskeuzeShortInline.__fields__.keys()
+        keys = BeleidskeuzeInDB.__fields__.keys()
         if key in keys:
             return getattr(self._obj.Beleidskeuze, key)
         else:
-            return super(AmbitieBeleidskeuzesGetter, self).get(key, default)
+            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
 
 
-class BeleidskeuzeShortInline(BaseModel):
-    ID: int
-    UUID: str
-    Titel: str
-
+class RelatedBeleidskeuze(BeleidskeuzeShortInline):
     class Config:
-        orm_mode = True
-        getter_dict = AmbitieBeleidskeuzesGetter
+        getter_dict = RelatedBeleidskeuzeGetter
 
 
 # Shared properties
-class AmbitieBase(BaseModel):
+class VerordeningBase(BaseModel):
     Titel: Optional[str] = None
-    Omschrijving: Optional[str] = None
+    Inhoud: Optional[str] = None
     Weblink: Optional[str] = None
+    Status: Optional[str] = None
+    Type: Optional[str] = None
+    Gebied_UUID: Optional[str] = None
+    Volgnummer: Optional[str] = None
 
 
-class AmbitieCreate(AmbitieBase):
+class VerordeningCreate(VerordeningBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
 
-class AmbitieUpdate(AmbitieBase):
+class VerordeningUpdate(VerordeningBase):
     pass
 
 
-class AmbitieInDBBase(AmbitieBase):
+class VerordeningInDBBase(VerordeningBase):
     ID: int
     UUID: str
 
@@ -55,27 +56,29 @@ class AmbitieInDBBase(AmbitieBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
-    Titel: str
-    Omschrijving: str
-    Weblink: str
-
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True
 
 
 # Properties to return to client
-class Ambitie(AmbitieInDBBase):
+class Verordening(VerordeningInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Beleidskeuzes: List[BeleidskeuzeShortInline]
+    Portefeuillehouder_1: GebruikerInline
+    Portefeuillehouder_2: GebruikerInline
+    Eigenaar_1: GebruikerInline
+    Eigenaar_2: GebruikerInline
+    Opdrachtgever: GebruikerInline
+    Gebied: WerkingsgebiedShortInline
+
+    Beleidskeuzes: List[RelatedBeleidskeuze]
 
     class Config:
         allow_population_by_field_name = True
         alias_generator = to_ref_field
 
-
 # Properties properties stored in DB
-class AmbitieInDB(AmbitieInDBBase):
+class VerordeningInDB(VerordeningInDBBase):
     pass

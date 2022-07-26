@@ -3,8 +3,8 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
@@ -14,15 +14,15 @@ from app.util.compare import Comparator
 
 router = APIRouter()
 
-defer_attributes = {"Omschrijving"}
+defer_attributes = {"Inhoud"}
 
 
 @router.get(
-    "/beleidsdoelen",
-    response_model=List[schemas.Beleidsdoel],
+    "/verordeningen",
+    response_model=List[schemas.Verordening],
     response_model_exclude=defer_attributes,
 )
-def read_beleidsdoelen(
+def read_verordening(
     db: Session = Depends(deps.get_db),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
@@ -30,99 +30,99 @@ def read_beleidsdoelen(
     limit: int = 20,
 ) -> Any:
     """
-    Gets all the beleidsdoelen lineages and shows the latests object for each
+    Gets all the verordening lineages and shows the latests object for each
     """
-    beleidsdoelen = crud.beleidsdoel.latest(
+    verordening = crud.verordening.latest(
         all=True, filters=filters, offset=offset, limit=limit 
     )
 
-    return beleidsdoelen
+    return verordening
 
 
-@router.post("/beleidsdoelen", response_model=schemas.Beleidsdoel)
-def create_beleidsdoel(
+@router.post("/verordeningen", response_model=schemas.Verordening)
+def create_verordening(
     *,
     db: Session = Depends(deps.get_db),
-    beleidsdoel_in: schemas.BeleidsdoelCreate,
+    verordening_in: schemas.VerordeningCreate,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Creates a new beleidsdoelen lineage
+    Creates a new verordening lineage
     """
-    beleidsdoel = crud.beleidsdoel.create(
-        obj_in=beleidsdoel_in, by_uuid=current_gebruiker.UUID
+    verordening = crud.verordening.create(
+        obj_in=verordening_in, by_uuid=current_gebruiker.UUID
     )
-    return beleidsdoel
+    return verordening
 
 
-@router.get("/beleidsdoelen/{lineage_id}", response_model=List[schemas.Beleidsdoel])
-def read_beleidsdoel_lineage(
+@router.get("/verordeningen/{lineage_id}", response_model=List[schemas.Verordening])
+def read_verordening_lineage(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Gets all the beleidsdoelen versions by lineage
+    Gets all the verordening versions by lineage
     """
-    beleidsdoelen = crud.beleidsdoel.all(ID=lineage_id)
-    if not beleidsdoelen:
-        raise HTTPException(status_code=404, detail="Beleidsdoels not found")
-    return beleidsdoelen
+    verordening = crud.verordening.all(ID=lineage_id)
+    if not verordening:
+        raise HTTPException(status_code=404, detail="verordening not found")
+    return verordening
 
 
-@router.patch("/beleidsdoelen/{lineage_id}", response_model=schemas.Beleidsdoel)
-def update_beleidsdoel(
+@router.patch("/verordeningen/{lineage_id}", response_model=schemas.Verordening)
+def update_verordening(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
-    beleidsdoel_in: schemas.BeleidsdoelUpdate,
+    verordening_in: schemas.VerordeningUpdate,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Adds a new beleidsdoelen to a lineage
+    Adds a new verordening to a lineage
     """
-    beleidsdoel = crud.beleidsdoel.get_latest_by_id(id=lineage_id)
-    if not beleidsdoel:
-        raise HTTPException(status_code=404, detail="Beleidsdoel not found")
-    if beleidsdoel.Created_By != current_gebruiker.UUID:
+    verordening = crud.verordening.get_latest_by_id(id=lineage_id)
+    if not verordening:
+        raise HTTPException(status_code=404, detail="Verordening not found")
+    if verordening.Created_By != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsdoel = crud.beleidsdoel.update(db_obj=beleidsdoel, obj_in=beleidsdoel_in)
-    return beleidsdoel
+    verordening = crud.verordening.update(db_obj=verordening, obj_in=verordening_in)
+    return verordening
 
 
-@router.get("/changes/beleidsdoelen/{old_uuid}/{new_uuid}")
-def changes_beleidsdoelen(
+@router.get("/changes/verordeningen/{old_uuid}/{new_uuid}")
+def changes_verordening(
     old_uuid: str,
     new_uuid: str,
 ) -> Any:
     """
-    Shows the changes between two versions of beleidsdoelen.
+    Shows the changes between two versions of verordening.
     """
     try:
-        old = crud.beleidsdoel.get(old_uuid)
-        new = crud.beleidsdoel.get(new_uuid)
+        old = crud.verordening.get(old_uuid)
+        new = crud.verordening.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
             detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist.",
         )
 
-    c = Comparator(schemas.Beleidsdoel, old, new)
+    c = Comparator(schemas.Verordening, old, new)
     json_data = jsonable_encoder({"old": old, "changes": c.compare_objects()})
 
     return JSONResponse(content=json_data)
 
 
 @router.get(
-    "/valid/beleidsdoelen",
-    response_model=List[schemas.Beleidsdoel],
+    "/valid/verordeningen",
+    response_model=List[schemas.Verordening],
     response_model_exclude=defer_attributes,
 )
-def read_valid_beleidsdoelen(
+def read_valid_verordening(
     db: Session = Depends(deps.get_db),
     offset: int = 0,
     limit: int = 20,
@@ -130,18 +130,18 @@ def read_valid_beleidsdoelen(
     any_filters: str = "",
 ) -> Any:
     """
-    Gets all the beleidsdoelen lineages and shows the latests valid object for each.
+    Gets all the verordening lineages and shows the latests valid object for each.
     """
-    beleidsdoelen = crud.beleidsdoel.valid(
+    verordening = crud.verordening.valid(
         offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
     )
-    return beleidsdoelen
+    return verordening
 
 
 @router.get(
-    "/valid/beleidsdoelen/{lineage_id}", response_model=List[schemas.Beleidsdoel]
+    "/valid/verordeningen/{lineage_id}", response_model=List[schemas.Verordening]
 )
-def read_valid_beleidsdoel_lineage(
+def read_valid_verordening_lineage(
     lineage_id: int,
     offset: int = 0,
     limit: int = 20,
@@ -150,7 +150,7 @@ def read_valid_beleidsdoel_lineage(
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
-    Gets all the beleidsdoelen in this lineage that are valid
+    Gets all the verordening in this lineage that are valid
     """
-    beleidsdoelen = crud.beleidsdoel.valid(ID=lineage_id, offset=offset, limit=limit)
-    return beleidsdoelen
+    verordening = crud.verordening.valid(ID=lineage_id, offset=offset, limit=limit)
+    return verordening

@@ -1,12 +1,13 @@
+from datetime import datetime
 from typing import Any, List, Optional
-from app.util.legacy_helpers import to_ref_field
 
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
-from datetime import datetime
 
-from .gebruiker import GebruikerInline
+from app.util.legacy_helpers import to_ref_field
+
 from .beleidskeuze import Beleidskeuze
+from .gebruiker import GebruikerInline
 from .maatregel import Maatregel, MaatregelInDB
 
 # Many to many schema's

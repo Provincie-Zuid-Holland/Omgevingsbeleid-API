@@ -8,7 +8,7 @@ import uuid
 from app.models import (
     Ambitie,
     Belang,
-    Beleidsdoel,
+    Beleidsprestatie,
     Beleidskeuze,
     Beleidsmodule,
     Beleidsprestatie,
@@ -747,7 +747,7 @@ class FixtureLoader:
         if not "Weblink" in kwargs:
             kwargs["Weblink"] = self._fake.uri()
 
-        model = Beleidsdoel(**kwargs)
+        model = Beleidsprestatie(**kwargs)
         self._add(key, model)
 
     def _beleidsrelatie(self, key, **kwargs):
