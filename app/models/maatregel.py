@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import (
     Column,
@@ -121,3 +121,30 @@ class Maatregel(Base):
     Gebied = relationship(
         "Werkingsgebied", primaryjoin="Maatregel.Gebied_UUID == Werkingsgebied.UUID"
     )
+
+    def get_allowed_filter_keys() -> List[str]:
+        return [
+            "ID", 
+            "UUID", 
+            "Begin_Geldigheid",
+            "Eind_Geldigheid",
+            "Created_Date",
+            "Modified_Date",
+            "Created_By_UUID",
+            "Modified_By_UUID",
+            "Titel",
+            "Omschrijving",
+            "Toelichting",
+            "Toelichting_Raw",
+            "Weblink",
+            "Gebied_UUID",
+            "Gebied_Duiding",
+            "Status",
+            "Tags",
+            "Aanpassing_Op_UUID",
+            "Eigenaar_1_UUID",
+            "Eigenaar_2_UUID",
+            "Portefeuillehouder_1_UUID",
+            "Portefeuillehouder_2_UUID",
+            "Opdrachtgever_UUID"
+        ]

@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, List
 
 from sqlalchemy import (
     Column,
@@ -139,5 +139,24 @@ class Beleidskeuze(Base):
         primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Naar_Beleidskeuze_UUID",
     )
 
-    def get_allowed_filter_keys(self) -> List[str]:
-        return ["ID", "UUID", "Begin_Geldigheid", "Eind_Geldigheid"]
+    def get_allowed_filter_keys() -> List[str]:
+        return [
+            "ID", 
+            "UUID", 
+            "Begin_Geldigheid",
+            "Eind_Geldigheid",
+            "Created_Date",
+            "Modified_Date",
+            "Created_By_UUID",
+            "Modified_By_UUID",
+            "Titel",
+            "Omschrijving_Keuze",
+            "Omschrijving_Werking",
+            "Provinciaal_Belang",
+            "Aanleiding",
+            "Afweging",
+            "Besluitnummer",
+            "Weblink",
+            "Status",
+            "Tags"
+        ]

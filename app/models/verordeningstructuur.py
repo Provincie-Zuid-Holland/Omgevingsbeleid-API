@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import (
     Column,
@@ -55,3 +55,19 @@ class Verordeningstructuur(Base):
         "Gebruiker",
         primaryjoin="Verordeningstructuur.Modified_By_UUID == Gebruiker.UUID",
     )
+
+    def get_allowed_filter_keys() -> List[str]:
+        return [
+            "ID", 
+            "UUID", 
+            "Begin_Geldigheid",
+            "Eind_Geldigheid",
+            "Created_Date",
+            "Modified_Date",
+            "Created_By_UUID",
+            "Modified_By_UUID",
+            "Titel",
+            "Structuur",
+            "Status"
+        ]
+

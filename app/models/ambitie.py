@@ -68,4 +68,16 @@ class Ambitie(Base):
     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
 
     def get_allowed_filter_keys() -> List[str]:
-        return ["ID", "UUID", "Begin_Geldigheid"]
+        return [
+            "ID", 
+            "UUID", 
+            "Begin_Geldigheid",
+            "Eind_Geldigheid",
+            "Created_Date",
+            "Modified_Date",
+            "Titel",
+            "Omschrijving",
+            "Weblink",
+            "Created_By_UUID",
+            "Modified_By_UUID" 
+        ]
