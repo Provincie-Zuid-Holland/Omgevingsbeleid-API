@@ -15,7 +15,7 @@ from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.elements import ColumnElement, Label
 
 from app.core.exceptions import DatabaseError
-from app.db.base_class import BaseTimeStamped, NULL_UUID
+from app.db.base_class import Base, BaseTimeStamped, NULL_UUID
 from app.db.session import SessionLocal
 
 ModelType = TypeVar("ModelType", bound=BaseTimeStamped)
@@ -38,17 +38,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def get(self, uuid: str) -> ModelType:
         return self.db.query(self.model).filter(self.model.UUID == uuid).one()
-
-    # def create(self, *, obj_in: CreateSchemaType) -> ModelType:
-    # obj_in_data = jsonable_encoder(obj_in)
-    # db_obj = self.model(**obj_in_data)  # type: ignore
-    # try:
-    # self.db.add(db_obj)
-    # self.db.commit()
-    # self.db.refresh(db_obj)
-    # return db_obj
-    # except IntegrityError:
-    # raise DatabaseError()
 
     def create(self, *, obj_in: CreateSchemaType, by_uuid: str) -> ModelType:
         obj_in_data = jsonable_encoder(
@@ -122,7 +111,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def valid(
         self,
-        ID: int = None,
+        ID: Optional[int] = None,
         offset: int = 0,
         limit: int = 20,
         filters: Optional[Filters] = None,
@@ -168,10 +157,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             query=query, model=model_alias, filters=filters
         )
 
+        # query = query.filter(model_alias.ID == 5)
+
         return query.order_by(model_alias.ID.desc())
 
     def _build_valid_view_filter(
-        self, ID: int = None, filters: Optional[Filters] = None
+        self, ID: Optional[int] = None, filters: Optional[Filters] = None
     ) -> Query:
         """
         Retrieve a model with the 'Valid' view filters applied.
@@ -232,7 +223,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return query.all()
 
     def all(
-        self, select: List = None, filters: Optional[Filters] = None
+        self, select: Optional[List] = None, filters: Optional[Filters] = None
     ) -> List[ModelType]:
         """
         Fetch all available objects of this model matching
@@ -265,8 +256,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def _build_filtered_query(
         self,
-        query: Query = None,
-        model: object = None,
+        query: Optional[Query] = None,
+        model: Optional[Type[ModelType]] = None,
         filters: Optional[Filters] = None,
     ) -> Query:
         """
@@ -279,29 +270,30 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if model is None:
             model = self.model
 
-        if not filters:
+        if filters is None:
             return query
 
         allowed_filter_keys = model.get_allowed_filter_keys()
+
         for clause in filters.clauses:
             expressions = []
 
             for item in clause.items:
                 if item.key not in allowed_filter_keys:
-                    raise ValueError("Given filter key is not allowed")
+                    raise ValueError(f"Filter not in allowed list: {allowed_filter_keys}")
 
                 column = getattr(model, item.key)
                 expressions.append(column == item.value)
 
             if expressions:
                 if clause.combiner == FilterCombiner.OR:
-                    query.filter(or_(*expressions))
+                    query = query.filter(or_(*expressions))
                 else:
-                    query.filter(and_(*expressions))
+                    query = query.filter(and_(*expressions))
 
         return query
 
-    def _build_default_query(self, query: Query = None) -> Query:
+    def _build_default_query(self, query: Optional[Query] = None) -> Query:
         if query is None:
             query = self.db.query(self.model)
 
