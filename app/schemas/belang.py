@@ -1,4 +1,5 @@
 from datetime import datetime
+from os import wait
 from typing import Any, List, Optional
 
 from pydantic import BaseModel
@@ -68,11 +69,6 @@ class Belang(BelangInDBBase):
     class Config:
         allow_population_by_field_name = True
         alias_generator = to_ref_field
-
-
-# Properties properties stored in DB
-class AmbitieInDB(AmbitieInDBBase):
-    pass
 
 
 # Properties properties stored in DB
