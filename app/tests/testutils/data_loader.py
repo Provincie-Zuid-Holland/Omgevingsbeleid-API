@@ -32,6 +32,7 @@ from app.models import (
     Beleidskeuze_Verordeningen,
 )
 from app.core.config import settings
+from app.models.beleidsdoel import Beleidsdoel
 from .test_shapes import pzh_shape
 
 
@@ -747,7 +748,7 @@ class FixtureLoader:
         if not "Weblink" in kwargs:
             kwargs["Weblink"] = self._fake.uri()
 
-        model = Beleidsprestatie(**kwargs)
+        model = Beleidsdoel(**kwargs)
         self._add(key, model)
 
     def _beleidsrelatie(self, key, **kwargs):

@@ -85,4 +85,3 @@ class Beleidsprestatie(Base):
             "Omschrijving",
             "Weblink"
         ]
-
