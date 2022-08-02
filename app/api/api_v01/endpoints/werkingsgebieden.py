@@ -67,7 +67,7 @@ def read_beleidsprestatie_lineage(
     """
     Gets all the werkingsgebied versions by lineage
     """
-    werkingsgebied = crud.beleidsprestatie.all(ID=lineage_id)
+    werkingsgebied = crud.beleidsprestatie.all(filters=Filters({"ID": lineage_id}))
     if not werkingsgebied:
         raise HTTPException(status_code=404, detail="werkingsgebied not found")
     return werkingsgebied

@@ -65,7 +65,7 @@ def read_verordening_lineage(
     """
     Gets all the verordening versions by lineage
     """
-    verordening = crud.verordening.all(ID=lineage_id)
+    verordening = crud.verordening.all(filters=Filters({"ID": lineage_id}))
     if not verordening:
         raise HTTPException(status_code=404, detail="verordening not found")
     return verordening

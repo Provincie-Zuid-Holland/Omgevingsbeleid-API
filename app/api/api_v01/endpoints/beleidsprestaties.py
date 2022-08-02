@@ -67,7 +67,7 @@ def read_beleidsprestatie_lineage(
     """
     Gets all the beleidsprestaties versions by lineage
     """
-    beleidsprestaties = crud.beleidsprestatie.all(ID=lineage_id)
+    beleidsprestaties = crud.beleidsprestatie.all(filters=Filters({"ID": lineage_id}))
     if not beleidsprestaties:
         raise HTTPException(status_code=404, detail="Beleidsprestaties not found")
     return beleidsprestaties

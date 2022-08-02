@@ -65,7 +65,7 @@ def read_beleidsdoel_lineage(
     """
     Gets all the beleidsdoelen versions by lineage
     """
-    beleidsdoelen = crud.beleidsdoel.all(ID=lineage_id)
+    beleidsdoelen = crud.beleidsdoel.all(filters=Filters({"ID": lineage_id}))
     if not beleidsdoelen:
         raise HTTPException(status_code=404, detail="Beleidsdoels not found")
     return beleidsdoelen

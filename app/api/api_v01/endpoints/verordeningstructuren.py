@@ -68,7 +68,9 @@ def read_verordeningstructuur_lineage(
     """
     Gets all the verordeningstructuurs versions by lineage
     """
-    verordeningstructuurs = crud.verordeningstructuur.all(ID=lineage_id)
+    verordeningstructuurs = crud.verordeningstructuur.all(
+        filters=Filters({"ID": lineage_id})
+    )
     if not verordeningstructuurs:
         raise HTTPException(status_code=404, detail="Verordeningstructuurs not found")
     return verordeningstructuurs
@@ -118,9 +120,9 @@ def changes_verordeningstructuurs(
             detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist.",
         )
 
-    c = Comparator(schemas.Verordeningstructuur, old, new)
-    json_data = jsonable_encoder({"old": old, "changes": c.compare_objects()})
-
+    json_data = Comparator(
+        schema=schemas.Verordeningstructuur, old=old, new=new
+    ).get_json_result()
     return JSONResponse(content=json_data)
 
 

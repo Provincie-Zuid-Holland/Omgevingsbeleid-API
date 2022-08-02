@@ -67,7 +67,7 @@ def read_beleidsrelatie_lineage(
     """
     Gets all the beleidsrelaties versions by lineage
     """
-    beleidsrelaties = crud.beleidsrelatie.all(ID=lineage_id)
+    beleidsrelaties = crud.beleidsrelatie.all(filters=Filters({"ID": lineage_id}))
     if not beleidsrelaties:
         raise HTTPException(status_code=404, detail="Beleidsrelaties not found")
     return beleidsrelaties

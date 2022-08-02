@@ -65,7 +65,7 @@ def read_beleidsregel_lineage(
     """
     Gets all the beleidsregels versions by lineage
     """
-    beleidsregels = crud.beleidsregel.all(ID=lineage_id)
+    beleidsregels = crud.beleidsregel.all(filters=Filters({"ID": lineage_id}))
     if not beleidsregels:
         raise HTTPException(status_code=404, detail="Beleidsregels not found")
     return beleidsregels

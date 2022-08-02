@@ -65,7 +65,7 @@ def read_maatregel_lineage(
     """
     Gets all the maatregelen versions by lineage
     """
-    maatregelen = crud.maatregel.all(ID=lineage_id)
+    maatregelen = crud.maatregel.all(filters=Filters({"ID": lineage_id}))
     if not maatregelen:
         raise HTTPException(status_code=404, detail="Maatregels not found")
     return maatregelen

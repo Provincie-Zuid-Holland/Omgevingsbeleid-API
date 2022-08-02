@@ -61,7 +61,7 @@ def read_belang_lineage(
     """
     Gets all the belangen versions by lineage
     """
-    belangen = crud.belang.all(ID=lineage_id)
+    belangen = crud.belang.all(filters=Filters({"ID": lineage_id}))
     if not belangen:
         raise HTTPException(status_code=404, detail="Belangs not found")
     return belangen

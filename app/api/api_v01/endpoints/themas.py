@@ -61,7 +61,7 @@ def read_thema_lineage(
     """
     Gets all the themas versions by lineage
     """
-    themas = crud.thema.all(ID=lineage_id)
+    themas = crud.thema.all(filters=Filters({"ID": lineage_id}))
     if not themas:
         raise HTTPException(status_code=404, detail="Themas not found")
     return themas

@@ -65,7 +65,7 @@ def read_beleidskeuze_lineage(
     """
     Gets all the beleidskeuzes versions by lineage
     """
-    beleidskeuzes = crud.beleidskeuze.all(ID=lineage_id)
+    beleidskeuzes = crud.beleidskeuze.all(filters=Filters({"ID": lineage_id}))
     if not beleidskeuzes:
         raise HTTPException(status_code=404, detail="Beleidskeuzes not found")
     return beleidskeuzes

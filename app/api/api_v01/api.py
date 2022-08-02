@@ -11,7 +11,6 @@ from app.api.api_v01.endpoints import (
     beleidsregels,
     themas,
     verordeningen,
-    verordeningstructuren,
     maatregelen,
     werkingsgebieden,
 )
@@ -27,6 +26,5 @@ api_router.include_router(beleidsrelaties.router, tags=["beleidsrelaties"])
 api_router.include_router(beleidsregels.router, tags=["beleidsregels"])
 api_router.include_router(themas.router, tags=["themas"])
 api_router.include_router(verordeningen.router, tags=["verordeningen"])
-api_router.include_router(verordeningstructuren.router, tags=["verordeningstructuren"])
 api_router.include_router(maatregelen.router, tags=["maatregelen"])
 api_router.include_router(werkingsgebieden.router, tags=["werkingsgebieden"])

@@ -65,7 +65,7 @@ def read_beleidsmodule_lineage(
     """
     Gets all the beleidsmodules versions by lineage
     """
-    beleidsmodules = crud.beleidsmodule.all(ID=lineage_id)
+    beleidsmodules = crud.beleidsmodule.all(filters=Filters({"ID": lineage_id}))
     if not beleidsmodules:
         raise HTTPException(status_code=404, detail="Beleidsmodules not found")
     return beleidsmodules
