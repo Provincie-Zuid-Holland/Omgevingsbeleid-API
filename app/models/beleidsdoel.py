@@ -1,19 +1,18 @@
-from typing import TYPE_CHECKING, List
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy import (
     Column,
+    DateTime,
     ForeignKey,
     Integer,
-    String,
-    Table,
-    text,
-    DateTime,
-    Unicode,
     Sequence,
+    String,
+    Unicode,
+    text,
 )
-from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
@@ -72,8 +71,8 @@ class Beleidsdoel(Base):
 
     def get_allowed_filter_keys() -> List[str]:
         return [
-            "ID", 
-            "UUID", 
+            "ID",
+            "UUID",
             "Begin_Geldigheid",
             "Eind_Geldigheid",
             "Created_Date",
@@ -82,5 +81,5 @@ class Beleidsdoel(Base):
             "Modified_By_UUID",
             "Titel",
             "Omschrijving",
-            "Weblink"
+            "Weblink",
         ]

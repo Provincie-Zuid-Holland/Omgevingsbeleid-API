@@ -107,8 +107,8 @@ class Verordening(Base):
 
     def get_allowed_filter_keys() -> List[str]:
         return [
-            "ID", 
-            "UUID", 
+            "ID",
+            "UUID",
             "Begin_Geldigheid",
             "Eind_Geldigheid",
             "Created_Date",
@@ -120,5 +120,5 @@ class Verordening(Base):
             "Weblink",
             "Gebied_UUID",
             "Status",
-            "Volgnummer"
+            "Volgnummer",
         ]

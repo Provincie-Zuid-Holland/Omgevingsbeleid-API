@@ -66,7 +66,7 @@ def read_ambitie_lineage(
     """
     Gets all the ambities versions by lineage
     """
-    ambities = crud.ambitie.all(ID=lineage_id)
+    ambities = crud.ambitie.all(filters=Filters({"ID": lineage_id}))
     if not ambities:
         raise HTTPException(status_code=404, detail="Ambities not found")
     return ambities
@@ -111,11 +111,7 @@ def changes_ambities(
             status_code=404,
             detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist.",
         )
-
-    c = Comparator(schemas.Ambitie, old, new)
-
-    json_data = jsonable_encoder({"old": old, "changes": c.compare_objects()})
-
+    json_data = Comparator(schema=schemas.Ambitie, old=old, new=new).get_json_result()
     return JSONResponse(content=json_data)
 
 

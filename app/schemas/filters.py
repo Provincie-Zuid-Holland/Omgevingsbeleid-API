@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import List, Optional
 import csv
 
 from pydantic import BaseModel, Field
@@ -23,6 +23,16 @@ class FilterClause(BaseModel):
 class Filters(BaseModel):
     clauses: List[FilterClause] = Field(default=[])
 
+    def __init__(self, filter_dict: Optional[dict] = None):
+        """
+        If dict supplied on instantiation, build filter clauses
+        from dict using the AND combiner
+        """
+        super().__init__()
+        self.clauses = []
+        if filter_dict:
+            self.add_from_dict(FilterCombiner.AND, filter_dict)
+
     def add_from_string(self, combiner: FilterCombiner, data: str):
         """
         example:
@@ -41,6 +51,10 @@ class Filters(BaseModel):
         self._append_clause(combiner, result_items)
 
     def add_from_dict(self, combiner: FilterCombiner, filters: dict):
+        """
+        Build filter clauses from dictionaries in
+        Attribute : Value format.
+        """
         result_items: List[Filter] = []
 
         for key, value in filters.items():

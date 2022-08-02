@@ -73,8 +73,8 @@ class Beleidsprestatie(Base):
 
     def get_allowed_filter_keys() -> List[str]:
         return [
-            "ID", 
-            "UUID", 
+            "ID",
+            "UUID",
             "Begin_Geldigheid",
             "Eind_Geldigheid",
             "Created_Date",
@@ -83,5 +83,5 @@ class Beleidsprestatie(Base):
             "Modified_By_UUID",
             "Titel",
             "Omschrijving",
-            "Weblink"
+            "Weblink",
         ]

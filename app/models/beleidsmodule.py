@@ -62,8 +62,8 @@ class Beleidsmodule(Base):
 
     def get_allowed_filter_keys() -> List[str]:
         return [
-            "ID", 
-            "UUID", 
+            "ID",
+            "UUID",
             "Begin_Geldigheid",
             "Eind_Geldigheid",
             "Created_Date",
@@ -71,6 +71,5 @@ class Beleidsmodule(Base):
             "Created_By_UUID",
             "Modified_By_UUID",
             "Titel",
-            "Besluit_Datum"
+            "Besluit_Datum",
         ]
-

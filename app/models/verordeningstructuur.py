@@ -58,8 +58,8 @@ class Verordeningstructuur(Base):
 
     def get_allowed_filter_keys() -> List[str]:
         return [
-            "ID", 
-            "UUID", 
+            "ID",
+            "UUID",
             "Begin_Geldigheid",
             "Eind_Geldigheid",
             "Created_Date",
@@ -68,6 +68,5 @@ class Verordeningstructuur(Base):
             "Modified_By_UUID",
             "Titel",
             "Structuur",
-            "Status"
+            "Status",
         ]
-

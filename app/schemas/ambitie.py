@@ -3,21 +3,14 @@ from typing import Any, List, Optional
 
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
+from app.schemas.beleidskeuze import BeleidskeuzeInDB
 
 from app.util.legacy_helpers import to_ref_field
 
 from .gebruiker import GebruikerInline
 
+
 # Many to many schema's
-class AmbitieBeleidskeuzesGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = BeleidskeuzeShortInline.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(AmbitieBeleidskeuzesGetter, self).get(key, default)
-
-
 class BeleidskeuzeShortInline(BaseModel):
     ID: int
     UUID: str
@@ -25,7 +18,20 @@ class BeleidskeuzeShortInline(BaseModel):
 
     class Config:
         orm_mode = True
-        getter_dict = AmbitieBeleidskeuzesGetter
+
+
+class RelatedBeleidskeuzeGetter(GetterDict):
+    def get(self, key: str, default: Any = None) -> Any:
+        keys = BeleidskeuzeInDB.__fields__.keys()
+        if key in keys:
+            return getattr(self._obj.Beleidskeuze, key)
+        else:
+            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
+
+
+class RelatedBeleidskeuze(BeleidskeuzeShortInline):
+    class Config:
+        getter_dict = RelatedBeleidskeuzeGetter
 
 
 # Shared properties
@@ -69,7 +75,7 @@ class Ambitie(AmbitieInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Beleidskeuzes: List[BeleidskeuzeShortInline]
+    Beleidskeuzes: List[RelatedBeleidskeuze]
 
     class Config:
         allow_population_by_field_name = True

@@ -76,8 +76,8 @@ class Beleidsrelatie(Base):
 
     def get_allowed_filter_keys() -> List[str]:
         return [
-            "ID", 
-            "UUID", 
+            "ID",
+            "UUID",
             "Begin_Geldigheid",
             "Eind_Geldigheid",
             "Created_Date",
@@ -88,6 +88,5 @@ class Beleidsrelatie(Base):
             "Omschrijving",
             "Status",
             "Aanvraag_Datum",
-            "Datum_Akkoord"
+            "Datum_Akkoord",
         ]
-

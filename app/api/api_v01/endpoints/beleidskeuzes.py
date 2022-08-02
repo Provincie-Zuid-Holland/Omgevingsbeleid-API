@@ -110,11 +110,9 @@ def changes_beleidskeuzes(
             status_code=404,
             detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist.",
         )
-
-    c = Comparator(schemas.Beleidskeuze, old, new)
-    # print(c.fields)
-    json_data = jsonable_encoder({"old": old, "changes": c.compare_objects()})
-
+    json_data = Comparator(
+        schema=schemas.Beleidskeuze, old=old, new=new
+    ).get_json_result()
     return JSONResponse(content=json_data)
 
 

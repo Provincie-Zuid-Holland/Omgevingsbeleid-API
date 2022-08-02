@@ -124,8 +124,8 @@ class Maatregel(Base):
 
     def get_allowed_filter_keys() -> List[str]:
         return [
-            "ID", 
-            "UUID", 
+            "ID",
+            "UUID",
             "Begin_Geldigheid",
             "Eind_Geldigheid",
             "Created_Date",
@@ -146,5 +146,5 @@ class Maatregel(Base):
             "Eigenaar_2_UUID",
             "Portefeuillehouder_1_UUID",
             "Portefeuillehouder_2_UUID",
-            "Opdrachtgever_UUID"
+            "Opdrachtgever_UUID",
         ]

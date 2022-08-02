@@ -111,9 +111,9 @@ def changes_verordening(
             detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist.",
         )
 
-    c = Comparator(schemas.Verordening, old, new)
-    json_data = jsonable_encoder({"old": old, "changes": c.compare_objects()})
-
+    json_data = Comparator(
+        schema=schemas.Verordening, old=old, new=new
+    ).get_json_result()
     return JSONResponse(content=json_data)
 
 

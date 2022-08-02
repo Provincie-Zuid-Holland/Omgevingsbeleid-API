@@ -1,4 +1,5 @@
 from datetime import datetime
+from os import wait
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from h11 import Data
@@ -14,7 +15,7 @@ from sqlalchemy.sql import label
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.elements import ColumnElement, Label
 
-from app.core.exceptions import DatabaseError
+from app.core.exceptions import DatabaseError, FilterNotAllowed
 from app.db.base_class import Base, BaseTimeStamped, NULL_UUID
 from app.db.session import SessionLocal
 
@@ -246,8 +247,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return query.all()
 
-    def find_one(self, **criteria) -> ModelType:
-        query = self._build_filtered_query(**criteria)
+    def find_one(self, filters: Optional[Filters] = None) -> ModelType:
+        query = self._build_filtered_query(filters=filters)
 
         return query.one()
 
@@ -280,7 +281,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
             for item in clause.items:
                 if item.key not in allowed_filter_keys:
-                    raise ValueError(f"Filter not in allowed list: {allowed_filter_keys}")
+                    raise FilterNotAllowed(filter=item.key)
 
                 column = getattr(model, item.key)
                 expressions.append(column == item.value)

@@ -1,8 +1,10 @@
-from typing import List, TypeVar
-from diff_match_patch import diff_match_patch
 from copy import deepcopy
-from pydantic import BaseModel
 import re
+from typing import List, TypeVar
+
+from diff_match_patch import diff_match_patch
+from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel
 
 from app.db.base_class import Base
 
@@ -14,6 +16,7 @@ class Comparator:
     def __init__(self, schema: V, old: K, new: K) -> None:
         self.old = old.__dict__
         self.new = new.__dict__
+        self.changes = dict()
 
         if self.old.keys() != self.new.keys():
             raise KeyError("Objects to compare do not share same keys")
@@ -21,13 +24,16 @@ class Comparator:
         # Ensure only comparable attrs/keys are used
         self.fields = self._get_comparable_fields(schema, self.old)
 
-        # Copy to which results are written
-        self.changes = deepcopy(self.old)
+        # Compare
+        self.compare_objects()
 
     def compare_objects(self) -> dict:
         """
         Compares two mappings (dicts), showing the changes inline
         """
+        # Store copy to which changes are written
+        self.changes = deepcopy(self.old)
+
         for attr, field in self.fields.items():
             if field.type_ == str:
                 self.changes[attr] = self._diff_text_toHTML(
@@ -39,6 +45,12 @@ class Comparator:
                 continue
 
         return self.changes
+
+    def get_json_result(self):
+        """
+        Returns the compared chages in json format for api responses
+        """
+        return jsonable_encoder({"old": self.old, "changes": self.changes})
 
     def _get_comparable_fields(self, schema: V, obj: dict):
         """
@@ -53,7 +65,6 @@ class Comparator:
         for diff in model_diff:
             fields.pop(diff)
 
-        print(fields)
         return fields
 
     def _diff_text_toHTML(self, old: str, new: str) -> str:
