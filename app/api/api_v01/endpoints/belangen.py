@@ -119,14 +119,13 @@ def read_valid_belangen(
     db: Session = Depends(deps.get_db),
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the belangen lineages and shows the latests valid object for each.
     """
     belangen = crud.belang.valid(
-        offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
+        offset=offset, limit=limit, filters=filters
     )
     return belangen
 
@@ -136,12 +135,11 @@ def read_valid_belang_lineage(
     lineage_id: int,
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the belangen in this lineage that are valid
     """
-    belangen = crud.belang.valid(ID=lineage_id, offset=offset, limit=limit)
+    belangen = crud.belang.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
     return belangen

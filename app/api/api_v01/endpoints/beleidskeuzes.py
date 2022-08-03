@@ -125,14 +125,13 @@ def read_valid_beleidskeuzes(
     db: Session = Depends(deps.get_db),
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the beleidskeuzes lineages and shows the latests valid object for each.
     """
     beleidskeuzes = crud.beleidskeuze.valid(
-        offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
+        offset=offset, limit=limit, filters=filters
     )
     return beleidskeuzes
 
@@ -144,12 +143,11 @@ def read_valid_beleidskeuze_lineage(
     lineage_id: int,
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the beleidskeuzes in this lineage that are valid
     """
-    beleidskeuzes = crud.beleidskeuze.valid(ID=lineage_id, offset=offset, limit=limit)
+    beleidskeuzes = crud.beleidskeuze.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
     return beleidskeuzes

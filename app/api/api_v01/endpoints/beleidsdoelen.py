@@ -126,14 +126,13 @@ def read_valid_beleidsdoelen(
     db: Session = Depends(deps.get_db),
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the beleidsdoelen lineages and shows the latests valid object for each.
     """
     beleidsdoelen = crud.beleidsdoel.valid(
-        offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
+        offset=offset, limit=limit, filters=filters
     )
     return beleidsdoelen
 
@@ -145,12 +144,11 @@ def read_valid_beleidsdoel_lineage(
     lineage_id: int,
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the beleidsdoelen in this lineage that are valid
     """
-    beleidsdoelen = crud.beleidsdoel.valid(ID=lineage_id, offset=offset, limit=limit)
+    beleidsdoelen = crud.beleidsdoel.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
     return beleidsdoelen

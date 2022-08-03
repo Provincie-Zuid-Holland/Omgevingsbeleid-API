@@ -128,14 +128,13 @@ def read_valid_beleidsmodules(
     db: Session = Depends(deps.get_db),
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the beleidsmodules lineages and shows the latests valid object for each.
     """
     beleidsmodules = crud.beleidsmodule.valid(
-        offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
+        offset=offset, limit=limit, filters=filters
     )
     return beleidsmodules
 
@@ -147,12 +146,11 @@ def read_valid_beleidsmodule_lineage(
     lineage_id: int,
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the beleidsmodules in this lineage that are valid
     """
-    beleidsmodules = crud.beleidsmodule.valid(ID=lineage_id, offset=offset, limit=limit)
+    beleidsmodules = crud.beleidsmodule.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
     return beleidsmodules

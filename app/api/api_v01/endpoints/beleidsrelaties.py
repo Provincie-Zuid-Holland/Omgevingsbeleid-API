@@ -130,14 +130,13 @@ def read_valid_beleidsrelaties(
     db: Session = Depends(deps.get_db),
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the beleidsrelaties lineages and shows the latests valid object for each.
     """
     beleidsrelaties = crud.beleidsrelatie.valid(
-        offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
+        offset=offset, limit=limit, filters=filters
     )
     return beleidsrelaties
 
@@ -149,14 +148,13 @@ def read_valid_beleidsrelatie_lineage(
     lineage_id: int,
     offset: int = 0,
     limit: int = 20,
-    all_filters: str = "",
-    any_filters: str = "",
+    filters: Filters = Depends(deps.string_filters),
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the beleidsrelaties in this lineage that are valid
     """
     beleidsrelaties = crud.beleidsrelatie.valid(
-        ID=lineage_id, offset=offset, limit=limit
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return beleidsrelaties
