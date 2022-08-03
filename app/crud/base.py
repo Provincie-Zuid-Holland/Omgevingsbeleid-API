@@ -110,11 +110,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return query.all()
 
-    def get_latest_by_id(self, id: int):
+    def get_latest_by_id(self, id: int) -> Optional[ModelType]:
         """
         Fetch the last version of a given Lineage
         """
-        return self.latest(filters=Filters({"ID": id}))
+        results = self.latest(filters=Filters({"ID": id}))
+
+        if len(results):
+            return results[0]
+        
+        return None
 
     def valid(
         self,
