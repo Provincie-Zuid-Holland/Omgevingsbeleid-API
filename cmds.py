@@ -12,12 +12,12 @@ def cli():
 
 @click.command()
 def initdb():
-    click.echo('Initialized the database')
+    click.echo("Initialized the database")
     with SessionLocal() as session:
         loader = FixtureLoader(session)
         loader.load_fixtures()
 
-    click.echo('Done')
+    click.echo("Done")
 
 
 # @click.command()
@@ -47,7 +47,7 @@ def initdb():
 
 @click.command()
 def dropdb():
-    click.echo('Dropped the database')
+    click.echo("Dropped the database")
 
 
 cli.add_command(initdb)
@@ -55,5 +55,5 @@ cli.add_command(initdb)
 cli.add_command(dropdb)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

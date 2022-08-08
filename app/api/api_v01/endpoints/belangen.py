@@ -124,9 +124,7 @@ def read_valid_belangen(
     """
     Gets all the belangen lineages and shows the latests valid object for each.
     """
-    belangen = crud.belang.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    belangen = crud.belang.valid(offset=offset, limit=limit, filters=filters)
     return belangen
 
 
@@ -141,5 +139,7 @@ def read_valid_belang_lineage(
     """
     Gets all the belangen in this lineage that are valid
     """
-    belangen = crud.belang.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    belangen = crud.belang.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return belangen

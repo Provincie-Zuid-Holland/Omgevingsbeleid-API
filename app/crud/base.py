@@ -118,7 +118,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         if len(results):
             return results[0]
-        
+
         return None
 
     def valid(

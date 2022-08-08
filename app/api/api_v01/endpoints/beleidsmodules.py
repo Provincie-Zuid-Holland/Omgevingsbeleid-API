@@ -152,5 +152,7 @@ def read_valid_beleidsmodule_lineage(
     """
     Gets all the beleidsmodules in this lineage that are valid
     """
-    beleidsmodules = crud.beleidsmodule.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    beleidsmodules = crud.beleidsmodule.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return beleidsmodules

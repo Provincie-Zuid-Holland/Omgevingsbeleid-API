@@ -131,9 +131,7 @@ def read_valid_beleidsdoelen(
     """
     Gets all the beleidsdoelen lineages and shows the latests valid object for each.
     """
-    beleidsdoelen = crud.beleidsdoel.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    beleidsdoelen = crud.beleidsdoel.valid(offset=offset, limit=limit, filters=filters)
     return beleidsdoelen
 
 
@@ -150,5 +148,7 @@ def read_valid_beleidsdoel_lineage(
     """
     Gets all the beleidsdoelen in this lineage that are valid
     """
-    beleidsdoelen = crud.beleidsdoel.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    beleidsdoelen = crud.beleidsdoel.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return beleidsdoelen

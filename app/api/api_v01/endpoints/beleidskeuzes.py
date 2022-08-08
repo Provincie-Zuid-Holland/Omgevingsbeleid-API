@@ -130,9 +130,7 @@ def read_valid_beleidskeuzes(
     """
     Gets all the beleidskeuzes lineages and shows the latests valid object for each.
     """
-    beleidskeuzes = crud.beleidskeuze.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    beleidskeuzes = crud.beleidskeuze.valid(offset=offset, limit=limit, filters=filters)
     return beleidskeuzes
 
 
@@ -149,5 +147,7 @@ def read_valid_beleidskeuze_lineage(
     """
     Gets all the beleidskeuzes in this lineage that are valid
     """
-    beleidskeuzes = crud.beleidskeuze.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    beleidskeuzes = crud.beleidskeuze.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return beleidskeuzes

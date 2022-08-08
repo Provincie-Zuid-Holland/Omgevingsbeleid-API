@@ -129,9 +129,7 @@ def read_valid_maatregelen(
     """
     Gets all the maatregelen lineages and shows the latests valid object for each.
     """
-    maatregelen = crud.maatregel.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    maatregelen = crud.maatregel.valid(offset=offset, limit=limit, filters=filters)
     return maatregelen
 
 
@@ -146,5 +144,7 @@ def read_valid_maatregel_lineage(
     """
     Gets all the maatregelen in this lineage that are valid
     """
-    maatregelen = crud.maatregel.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    maatregelen = crud.maatregel.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return maatregelen

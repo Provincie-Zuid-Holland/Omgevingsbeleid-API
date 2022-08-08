@@ -131,9 +131,7 @@ def read_valid_verordening(
     """
     Gets all the verordening lineages and shows the latests valid object for each.
     """
-    verordening = crud.verordening.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    verordening = crud.verordening.valid(offset=offset, limit=limit, filters=filters)
     return verordening
 
 
@@ -150,5 +148,7 @@ def read_valid_verordening_lineage(
     """
     Gets all the verordening in this lineage that are valid
     """
-    verordening = crud.verordening.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    verordening = crud.verordening.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return verordening

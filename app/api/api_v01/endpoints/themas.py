@@ -125,9 +125,7 @@ def read_valid_themas(
     """
     Gets all the themas lineages and shows the latests valid object for each.
     """
-    themas = crud.thema.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    themas = crud.thema.valid(offset=offset, limit=limit, filters=filters)
     return themas
 
 
@@ -142,5 +140,7 @@ def read_valid_thema_lineage(
     """
     Gets all the themas in this lineage that are valid
     """
-    themas = crud.thema.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    themas = crud.thema.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return themas
