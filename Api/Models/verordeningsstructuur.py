@@ -287,7 +287,7 @@ def linked_objects(uuid):
                 Volgnummer=row[2] or "",
                 Type=row[3] or "",
                 Inhoud=row[4] or "",
-                Gebied=row[5] or "",
+                Gebied=row[5] or null_uuid,
             )
     return results
 
