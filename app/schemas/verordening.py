@@ -1,8 +1,12 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
-from .relationships import GebruikerInline, RelatedBeleidskeuze, WerkingsgebiedShortInline
+from .relationships import (
+    GebruikerInline,
+    RelatedBeleidskeuze,
+    WerkingsgebiedShortInline,
+)
 
 from app.util.legacy_helpers import to_ref_field
 

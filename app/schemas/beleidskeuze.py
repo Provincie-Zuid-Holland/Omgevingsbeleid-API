@@ -3,7 +3,12 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from .relationships import GebruikerInline, RelatedBeleidsdoel, RelatedBeleidsmodule, RelatedMaatregel
+from .relationships import (
+    GebruikerInline,
+    RelatedBeleidsdoel,
+    RelatedBeleidsmodule,
+    RelatedMaatregel,
+)
 from app.util.legacy_helpers import to_ref_field
 
 

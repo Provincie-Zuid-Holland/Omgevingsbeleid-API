@@ -4,6 +4,7 @@ from pydantic.utils import GetterDict
 
 # Ambitie
 
+
 class AmbitieShortInline(BaseModel):
     ID: int
     UUID: str
@@ -30,6 +31,7 @@ class RelatedAmbitie(AmbitieShortInline):
 
 
 # Beleidsdoel
+
 
 class BeleidsdoelShortInline(BaseModel):
     ID: int
@@ -58,6 +60,7 @@ class RelatedBeleidsdoel(BeleidsdoelShortInline):
 
 # Beleidskeuze
 
+
 class BeleidskeuzeShortInline(BaseModel):
     ID: int
     UUID: str
@@ -84,6 +87,7 @@ class RelatedBeleidskeuze(BeleidskeuzeShortInline):
 
 
 # Beleidsmodule
+
 
 class BeleidsmoduleShortInline(BaseModel):
     ID: int
@@ -113,6 +117,7 @@ class RelatedBeleidsmodule(BeleidsmoduleShortInline):
 
 # Gebiedsprogramma
 
+
 class GebiedsprogrammaShortInline(BaseModel):
     ID: int
     UUID: str
@@ -121,6 +126,7 @@ class GebiedsprogrammaShortInline(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class RelatedGebiedsprogrammaGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
@@ -140,6 +146,7 @@ class RelatedGebiedsprogramma(GebiedsprogrammaShortInline):
 
 # Gebruiker
 
+
 class GebruikerInline(BaseModel):
     Gebruikersnaam: str
     Rol: str
@@ -150,7 +157,9 @@ class GebruikerInline(BaseModel):
         orm_mode = True
         arbitrary_types_allowed = True
 
+
 # Maatregel
+
 
 class RelatedMaatregelShortInline(BaseModel):
     ID: int
@@ -179,6 +188,7 @@ class RelatedMaatregel(RelatedMaatregelShortInline):
 
 
 # Werkingsgebieden
+
 
 class WerkingsgebiedShortInline(BaseModel):
     ID: int

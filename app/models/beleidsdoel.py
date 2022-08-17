@@ -65,7 +65,9 @@ class Beleidsdoel(Base):
     Modified_By = relationship(
         "Gebruiker", primaryjoin="Beleidsdoel.Modified_By_UUID == Gebruiker.UUID"
     )
-    Beleidskeuzes = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoel")
+    Beleidskeuzes = relationship(
+        "Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoel"
+    )
     Ambities = relationship("Beleidsdoel_Ambities", back_populates="Beleidsdoel")
 
     def get_allowed_filter_keys() -> List[str]:
