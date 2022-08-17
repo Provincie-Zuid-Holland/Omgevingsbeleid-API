@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import TYPE_CHECKING, List
 
 from sqlalchemy import (
@@ -15,6 +16,7 @@ from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 
 from app.db.base_class import Base
+from app.util.legacy_helpers import SearchFields
 
 
 if TYPE_CHECKING:
@@ -67,7 +69,12 @@ class Ambitie(Base):
     )
     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
 
-    def get_allowed_filter_keys() -> List[str]:
+    @classmethod 
+    def get_search_fields(cls):
+        return SearchFields(title=["Titel"], description=["Omschrijving"])
+
+    @classmethod 
+    def get_allowed_filter_keys(cls) -> List[str]:
         return [
             "ID",
             "UUID",

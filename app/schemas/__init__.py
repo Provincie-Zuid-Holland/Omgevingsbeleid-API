@@ -19,6 +19,7 @@ from .gebruiker import Gebruiker, GebruikerCreate, GebruikerInDB, GebruikerUpdat
 from .maatregel import Maatregel, MaatregelCreate, MaatregelUpdate
 from .msg import Msg
 from .onderverdeling import Onderverdeling, OnderverdelingCreate, OnderverdelingUpdate
+from .search import SearchResult
 from .thema import Thema, ThemaCreate, ThemaUpdate
 from .token import Token, TokenPayload
 from .verordening import Verordening, VerordeningCreate, VerordeningUpdate

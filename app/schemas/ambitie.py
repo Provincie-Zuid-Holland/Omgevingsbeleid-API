@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Any, List, Optional
 
-from pydantic import BaseModel
+from .base import BaseModel
 from pydantic.utils import GetterDict
 from app.schemas.beleidskeuze import BeleidskeuzeInDB
 
-from app.util.legacy_helpers import to_ref_field
+from app.util.legacy_helpers import to_ref_field, DEFAULT_SEARCH_FIELDS
 
 from .gebruiker import GebruikerInline
 

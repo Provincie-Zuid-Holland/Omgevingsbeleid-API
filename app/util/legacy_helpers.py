@@ -1,3 +1,19 @@
+from collections import namedtuple
+
+
+# Search
+
+DEFAULT_SEARCH_FIELDS = {
+    "title": ["Titel"],
+    "description": [
+        "Omschrijving",
+    ]
+}
+SearchFields = namedtuple('SearchFields', ['title', 'description'])
+
+
+# Endpoints
+
 def to_ref_field(string: str) -> str:
     """
     Custom alias for relationship objects in json output.
@@ -19,3 +35,5 @@ def to_ref_field(string: str) -> str:
         return string
 
     return "".join(["Ref_", string])
+
+

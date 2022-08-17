@@ -1,23 +1,20 @@
 from datetime import datetime
-from os import wait
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
-
-from h11 import Data
-from app.schemas.filters import FilterCombiner, Filters
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import and_, or_
-from sqlalchemy.orm import Session, Query, load_only, aliased
-from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Query, Session, aliased, load_only
+from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql import label
-from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.elements import ColumnElement, Label
+from sqlalchemy.sql.expression import func
 
 from app.core.exceptions import DatabaseError, FilterNotAllowed
-from app.db.base_class import Base, BaseTimeStamped, NULL_UUID
+from app.db.base_class import BaseTimeStamped, NULL_UUID
 from app.db.session import SessionLocal
+from app.schemas.filters import FilterCombiner, Filters
 
 ModelType = TypeVar("ModelType", bound=BaseTimeStamped)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
