@@ -4,6 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from .relationships import GebruikerInline, RelatedAmbitie, RelatedBeleidskeuze
+from .ambitie import Ambitie
 
 
 # Shared properties
@@ -16,6 +17,7 @@ class BeleidsdoelBase(BaseModel):
 class BeleidsdoelCreate(BeleidsdoelBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
+    Ambities: Optional[List[Ambitie]]
 
 
 class BeleidsdoelUpdate(BeleidsdoelBase):
