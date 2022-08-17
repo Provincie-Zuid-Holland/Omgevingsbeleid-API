@@ -1,7 +1,7 @@
+from http import HTTPStatus
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
@@ -39,7 +39,11 @@ def read_beleidsmodules(
     return beleidsmodules
 
 
-@router.post("/beleidsmodules", response_model=schemas.Beleidsmodule)
+@router.post(
+    "/beleidsmodules",
+    response_model=schemas.Beleidsmodule,
+    status_code=HTTPStatus.CREATED,
+)
 def create_beleidsmodule(
     *,
     db: Session = Depends(deps.get_db),
@@ -152,5 +156,7 @@ def read_valid_beleidsmodule_lineage(
     """
     Gets all the beleidsmodules in this lineage that are valid
     """
-    beleidsmodules = crud.beleidsmodule.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    beleidsmodules = crud.beleidsmodule.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return beleidsmodules

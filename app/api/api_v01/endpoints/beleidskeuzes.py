@@ -1,7 +1,7 @@
+from http import HTTPStatus
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
@@ -39,7 +39,11 @@ def read_beleidskeuzes(
     return beleidskeuzes
 
 
-@router.post("/beleidskeuzes", response_model=schemas.Beleidskeuze)
+@router.post(
+    "/beleidskeuzes",
+    response_model=schemas.Beleidskeuze,
+    status_code=HTTPStatus.CREATED,
+)
 def create_beleidskeuze(
     *,
     db: Session = Depends(deps.get_db),
@@ -130,9 +134,7 @@ def read_valid_beleidskeuzes(
     """
     Gets all the beleidskeuzes lineages and shows the latests valid object for each.
     """
-    beleidskeuzes = crud.beleidskeuze.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    beleidskeuzes = crud.beleidskeuze.valid(offset=offset, limit=limit, filters=filters)
     return beleidskeuzes
 
 
@@ -149,5 +151,7 @@ def read_valid_beleidskeuze_lineage(
     """
     Gets all the beleidskeuzes in this lineage that are valid
     """
-    beleidskeuzes = crud.beleidskeuze.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    beleidskeuzes = crud.beleidskeuze.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return beleidskeuzes

@@ -1,7 +1,7 @@
+from http import HTTPStatus
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
@@ -39,7 +39,11 @@ def read_beleidsrelaties(
     return beleidsrelaties
 
 
-@router.post("/beleidsrelaties", response_model=schemas.Beleidsrelatie)
+@router.post(
+    "/beleidsrelaties",
+    response_model=schemas.Beleidsrelatie,
+    status_code=HTTPStatus.CREATED,
+)
 def create_beleidsrelatie(
     *,
     db: Session = Depends(deps.get_db),

@@ -1,8 +1,8 @@
+from http import HTTPStatus
 from typing import Any, List
 from app.schemas.filters import Filters
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
@@ -42,7 +42,9 @@ def read_ambities(
     return ambities
 
 
-@router.post("/ambities", response_model=schemas.Ambitie)
+@router.post(
+    "/ambities", response_model=schemas.Ambitie, status_code=HTTPStatus.CREATED
+)
 def create_ambitie(
     *,
     db: Session = Depends(deps.get_db),

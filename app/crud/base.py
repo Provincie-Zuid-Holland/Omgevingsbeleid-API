@@ -1,8 +1,6 @@
 from datetime import datetime
-from os import wait
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
-from h11 import Data
 from app.schemas.filters import FilterCombiner, Filters
 
 from fastapi.encoders import jsonable_encoder
@@ -15,8 +13,9 @@ from sqlalchemy.sql import label
 from sqlalchemy.sql.expression import func
 from sqlalchemy.sql.elements import ColumnElement, Label
 
+from app.core.config import settings
 from app.core.exceptions import DatabaseError, FilterNotAllowed
-from app.db.base_class import Base, BaseTimeStamped, NULL_UUID
+from app.db.base_class import BaseTimeStamped
 from app.db.session import SessionLocal
 
 ModelType = TypeVar("ModelType", bound=BaseTimeStamped)
@@ -118,7 +117,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         if len(results):
             return results[0]
-        
+
         return None
 
     def valid(
@@ -159,7 +158,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         query: Query = (
             self.db.query(model_alias)
             .filter(sub_query.c.RowNumber == 1)
-            .filter(model_alias.UUID != NULL_UUID)
+            .filter(model_alias.UUID != settings.NULL_UUID)
         )
 
         if not all:
@@ -200,7 +199,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         query: Query = (
             self.db.query(model_alias)
             .filter(sub_query.c.RowNumber == 1)
-            .filter(model_alias.UUID != NULL_UUID)
+            .filter(model_alias.UUID != settings.NULL_UUID)
             .filter(model_alias.Eind_Geldigheid > datetime.utcnow())
         )
 
@@ -310,7 +309,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             query = self.db.query(self.model)
 
         # Apply 'valid' filter
-        query = query.filter(self.model.UUID != NULL_UUID)
+        query = query.filter(self.model.UUID != settings.NULL_UUID)
 
         # Default to order by ID
         if hasattr(self.model, "Modified_Date"):

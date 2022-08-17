@@ -105,7 +105,6 @@ class Beleidskeuze(Base):
         primaryjoin="Beleidskeuze.Aanpassing_Op_UUID == Beleidskeuze.UUID",
     )
 
-    Ambities = relationship("Beleidskeuze_Ambities", back_populates="Beleidskeuze")
     Belangen = relationship("Beleidskeuze_Belangen", back_populates="Beleidskeuze")
     Beleidsdoelen = relationship(
         "Beleidskeuze_Beleidsdoelen", back_populates="Beleidskeuze"

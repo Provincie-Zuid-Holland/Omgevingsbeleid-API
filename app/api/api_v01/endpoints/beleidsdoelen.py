@@ -1,7 +1,7 @@
+from http import HTTPStatus
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -39,7 +39,9 @@ def read_beleidsdoelen(
     return beleidsdoelen
 
 
-@router.post("/beleidsdoelen", response_model=schemas.Beleidsdoel)
+@router.post(
+    "/beleidsdoelen", response_model=schemas.Beleidsdoel, status_code=HTTPStatus.CREATED
+)
 def create_beleidsdoel(
     *,
     db: Session = Depends(deps.get_db),
@@ -131,9 +133,7 @@ def read_valid_beleidsdoelen(
     """
     Gets all the beleidsdoelen lineages and shows the latests valid object for each.
     """
-    beleidsdoelen = crud.beleidsdoel.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    beleidsdoelen = crud.beleidsdoel.valid(offset=offset, limit=limit, filters=filters)
     return beleidsdoelen
 
 
@@ -150,5 +150,7 @@ def read_valid_beleidsdoel_lineage(
     """
     Gets all the beleidsdoelen in this lineage that are valid
     """
-    beleidsdoelen = crud.beleidsdoel.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    beleidsdoelen = crud.beleidsdoel.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return beleidsdoelen

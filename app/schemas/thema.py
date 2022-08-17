@@ -1,30 +1,12 @@
-from typing import Any, List, Optional
+from typing import List, Optional
 
-from pydantic import BaseModel, PyObjectError
-from pydantic.utils import GetterDict
+from pydantic import BaseModel
 from datetime import datetime
 
 from app.util.legacy_helpers import to_ref_field
-
-from .gebruiker import GebruikerInline
-from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
-
-# Many to many schema's
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = BeleidskeuzeInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
+from .relationships import GebruikerInline, RelatedBeleidskeuze
 
 
-class RelatedBeleidskeuze(BeleidskeuzeShortInline):
-    class Config:
-        getter_dict = RelatedBeleidskeuzeGetter
-
-
-# Shared properties
 class ThemaBase(BaseModel):
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None

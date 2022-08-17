@@ -1,54 +1,17 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
 
+from .relationships import (
+    GebruikerInline,
+    RelatedBeleidskeuze,
+    RelatedBeleidsmodule,
+    RelatedGebiedsprogramma,
+)
 from app.util.legacy_helpers import to_ref_field
 
-from .beleidskeuze import BeleidskeuzeShortInline
-from .gebruiker import GebruikerInline
 
-# Many to many schema's
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        from .beleidskeuze import BeleidskeuzeInDB
-
-        keys = BeleidskeuzeInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Maatregel, key)
-        else:
-            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
-
-
-class RelatedBeleidskeuze(BeleidskeuzeShortInline):
-    class Config:
-        getter_dict = RelatedBeleidskeuzeGetter
-
-
-class RelatedBeleidsmoduleGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        from .beleidsmodule import BeleidsmoduleInDB
-
-        keys = BeleidsmoduleInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Maatregel, key)
-        else:
-            return super(RelatedBeleidsmoduleGetter, self).get(key, default)
-
-
-class RelatedBeleidsmodule(BaseModel):
-    ID: str
-    UUID: str
-    Titel: str
-    Koppeling_Omschrijving: str
-
-    class Config:
-        orm_mode = True
-        getter_dict = RelatedBeleidsmoduleGetter
-
-
-# Shared properties
 class MaatregelBase(BaseModel):
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None
@@ -101,6 +64,7 @@ class Maatregel(MaatregelInDBBase):
 
     Beleidskeuzes: List[RelatedBeleidskeuze]
     Beleidsmodules: List[RelatedBeleidsmodule]
+    Gebiedsprogrammas: List[RelatedGebiedsprogramma]
 
     # Aanpassing Op
     # Eigenaar

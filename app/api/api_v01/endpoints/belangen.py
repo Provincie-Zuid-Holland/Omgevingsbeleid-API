@@ -1,7 +1,7 @@
+from http import HTTPStatus
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -37,7 +37,7 @@ def read_belangen(
     return belangen
 
 
-@router.post("/belangen", response_model=schemas.Belang)
+@router.post("/belangen", response_model=schemas.Belang, status_code=HTTPStatus.CREATED)
 def create_belang(
     *,
     db: Session = Depends(deps.get_db),
@@ -124,9 +124,7 @@ def read_valid_belangen(
     """
     Gets all the belangen lineages and shows the latests valid object for each.
     """
-    belangen = crud.belang.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    belangen = crud.belang.valid(offset=offset, limit=limit, filters=filters)
     return belangen
 
 
@@ -141,5 +139,7 @@ def read_valid_belang_lineage(
     """
     Gets all the belangen in this lineage that are valid
     """
-    belangen = crud.belang.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    belangen = crud.belang.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return belangen

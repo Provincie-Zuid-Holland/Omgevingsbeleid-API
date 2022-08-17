@@ -99,6 +99,9 @@ class Maatregel(Base):
     Beleidsmodules = relationship(
         "Beleidsmodule_Maatregelen", back_populates="Maatregel"
     )
+    Gebiedsprogrammas = relationship(
+        "Maatregel_Gebiedsprogrammas", back_populates="Maatregel"
+    )
 
     Aanpassing_Op = relationship(
         "Maatregel", primaryjoin="Maatregel.Aanpassing_Op_UUID == Maatregel.UUID"

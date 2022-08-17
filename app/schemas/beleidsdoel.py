@@ -2,27 +2,8 @@ from datetime import datetime
 from typing import Any, List, Optional
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
 
-from app.schemas.ambitie import BeleidskeuzeShortInline
-from app.util.legacy_helpers import to_ref_field
-
-from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
-from .gebruiker import GebruikerInline
-
-# Many to many schema's
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = BeleidskeuzeInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
-
-
-class RelatedBeleidskeuze(BeleidskeuzeShortInline):
-    class Config:
-        getter_dict = RelatedBeleidskeuzeGetter
+from .relationships import GebruikerInline, RelatedAmbitie, RelatedBeleidskeuze
 
 
 # Shared properties
@@ -62,6 +43,7 @@ class Beleidsdoel(BeleidsdoelInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
     Beleidskeuzes: List[RelatedBeleidskeuze]
+    Ambities: List[RelatedAmbitie]
 
 
 # Properties properties stored in DB

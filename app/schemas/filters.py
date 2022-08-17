@@ -1,6 +1,6 @@
+import csv
 from enum import Enum
 from typing import List, Optional
-import csv
 
 from pydantic import BaseModel, Field
 

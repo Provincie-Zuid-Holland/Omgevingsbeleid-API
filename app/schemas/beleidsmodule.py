@@ -1,61 +1,21 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import List, Optional
 
-from pydantic import BaseModel
-from pydantic.utils import GetterDict
+from pydantic import BaseModel, Field
 
-from app.util.legacy_helpers import to_ref_field
-
-from .beleidskeuze import Beleidskeuze
-from .gebruiker import GebruikerInline
-from .maatregel import Maatregel, MaatregelInDB
-
-# Many to many schema's
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = Beleidskeuze.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
-
-
-class RelatedBeleidskeuze(Beleidskeuze):
-    Koppeling_Omschrijving: str
-
-    class Config:
-        orm_mode = True
-        getter_dict = RelatedBeleidskeuzeGetter
-
-
-class RelatedMaatregelGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = Maatregel.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Maatregel, key)
-        else:
-            return super(RelatedMaatregelGetter, self).get(key, default)
-
-
-class RelatedMaatregel(MaatregelInDB):
-    Created_By: GebruikerInline
-    Modified_By: GebruikerInline
-    Koppeling_Omschrijving: str
-
-    class Config:
-        orm_mode = True
-        getter_dict = RelatedMaatregelGetter
+from .relationships import GebruikerInline, RelatedBeleidskeuze, RelatedMaatregel
+from app.core.config import settings
 
 
 # Shared properties
 class BeleidsmoduleBase(BaseModel):
     Titel: Optional[str] = None
-    Besluit_Datum: Optional[str] = None
+    Besluit_Datum: datetime = Field(default=settings.MIN_DATETIME)
 
 
 class BeleidsmoduleCreate(BeleidsmoduleBase):
-    Begin_Geldigheid: datetime
-    Eind_Geldigheid: datetime
+    Begin_Geldigheid: datetime = Field(default=settings.MIN_DATETIME)
+    Eind_Geldigheid: datetime = Field(default=settings.MIN_DATETIME)
 
 
 class BeleidsmoduleUpdate(BeleidsmoduleBase):

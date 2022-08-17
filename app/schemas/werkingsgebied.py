@@ -1,27 +1,10 @@
-from typing import Any, List, Optional
+from typing import List
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
 from datetime import datetime
+from .relationships import GebruikerInline, RelatedBeleidskeuze
 
 from app.util.legacy_helpers import to_ref_field
-
-from .gebruiker import GebruikerInline
-from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
-
-# Many to many schema's
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = BeleidskeuzeInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
-
-
-class RelatedBeleidskeuze(BeleidskeuzeShortInline):
-    class Config:
-        getter_dict = RelatedBeleidskeuzeGetter
 
 
 # Shared properties
@@ -68,12 +51,3 @@ class Werkingsgebied(WerkingsgebiedInDBBase):
 # Properties properties stored in DB
 class WerkingsgebiedInDB(WerkingsgebiedInDBBase):
     pass
-
-
-class WerkingsgebiedShortInline(BaseModel):
-    ID: int
-    UUID: str
-    Werkingsgebied: str
-
-    class Config:
-        orm_mode = True

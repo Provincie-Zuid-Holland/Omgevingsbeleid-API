@@ -1,11 +1,9 @@
-from typing import Any, List, Optional
-
-from pydantic import BaseModel
-from pydantic.utils import GetterDict
+from typing import Optional
 from datetime import datetime
 
-from .gebruiker import GebruikerInline
-from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
+from pydantic import BaseModel
+
+from .relationships import BeleidskeuzeShortInline, GebruikerInline
 
 
 # Shared properties

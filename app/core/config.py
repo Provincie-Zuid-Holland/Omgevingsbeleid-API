@@ -1,6 +1,6 @@
 import os
 from typing import Any, Dict, List, Optional, Union
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pydantic import AnyHttpUrl, BaseSettings, validator
 
@@ -56,8 +56,8 @@ class Settings(BaseSettings):
     SQLALCHEMY_ECHO: bool = False
 
     # Constants
-    MIN_DATETIME: datetime = datetime(1753, 1, 1, 0, 0, 0)
-    MAX_DATETIME: datetime = datetime(9999, 12, 31, 23, 59, 59)
+    MIN_DATETIME: datetime = datetime(1753, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    MAX_DATETIME: datetime = datetime(9999, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
     NULL_UUID: str = "00000000-0000-0000-0000-000000000000"
 
     class Config:

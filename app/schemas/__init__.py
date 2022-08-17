@@ -15,6 +15,11 @@ from .beleidsprestatie import (
 )
 from .beleidsregel import Beleidsregel, BeleidsregelCreate, BeleidsregelUpdate
 from .beleidsrelatie import Beleidsrelatie, BeleidsrelatieCreate, BeleidsrelatieUpdate
+from .gebiedsprogramma import (
+    Gebiedsprogramma,
+    GebiedsprogrammaCreate,
+    GebiedsprogrammaUpdate,
+)
 from .gebruiker import Gebruiker, GebruikerCreate, GebruikerInDB, GebruikerUpdate
 from .maatregel import Maatregel, MaatregelCreate, MaatregelUpdate
 from .msg import Msg

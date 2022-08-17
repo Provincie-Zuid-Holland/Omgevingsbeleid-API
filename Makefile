@@ -66,11 +66,17 @@ mssql-create-database-test:
 db-upgrade: ## Run database migrations
 	docker-compose exec api python -m alembic upgrade head
 
+db-generate-migration: ## Create new database migration
+	docker-compose exec api python -m alembic revision --autogenerate
+
 flask-routes: ## Show flask routes
 	docker-compose exec api flask routes
 
 test: up mssql-create-database-test ## Run the tests	
 	docker-compose exec api pytest
+
+testcase: up mssql-create-database-test ## Run the tests filtered by name
+	docker-compose exec api pytest -s -vvv -k ${case}
 
 test-verbose: up mssql-create-database-test	## Run the tests in verbose mode
 	docker-compose exec api pytest -s

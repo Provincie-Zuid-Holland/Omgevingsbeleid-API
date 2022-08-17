@@ -10,6 +10,7 @@ bandit
 coverage
 coverage-badge
 pytest
+pytest-asyncio
 pytest-cov
 pytest-mock
 requests-mock

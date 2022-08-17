@@ -2,30 +2,29 @@ from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel
+from .relationships import GebruikerInline, RelatedMaatregel
 
-from .relationships import GebruikerInline, RelatedBeleidskeuze
 from app.util.legacy_helpers import to_ref_field
 
 
 # Shared properties
-class BelangBase(BaseModel):
+class GebiedsprogrammaBase(BaseModel):
+    Status: Optional[str] = None
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None
-    Status: Optional[str] = None
-    Weblink: Optional[str] = None
-    Type: Optional[str] = None
+    Afbeelding: Optional[str] = None
 
 
-class BelangCreate(BelangBase):
+class GebiedsprogrammaCreate(GebiedsprogrammaBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
 
-class BelangUpdate(BelangBase):
+class GebiedsprogrammaUpdate(GebiedsprogrammaBase):
     pass
 
 
-class BelangInDBBase(BelangBase):
+class GebiedsprogrammaInDBBase(GebiedsprogrammaBase):
     ID: int
     UUID: str
 
@@ -36,17 +35,22 @@ class BelangInDBBase(BelangBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
+    Status: str
+    Titel: str
+    Omschrijving: str
+    Afbeelding: str
+
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True
 
 
 # Properties to return to client
-class Belang(BelangInDBBase):
+class Gebiedsprogramma(GebiedsprogrammaInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Beleidskeuzes: List[RelatedBeleidskeuze]
+    Maatregelen: List[RelatedMaatregel]
 
     class Config:
         allow_population_by_field_name = True
@@ -54,5 +58,5 @@ class Belang(BelangInDBBase):
 
 
 # Properties properties stored in DB
-class BelangInDB(BelangInDBBase):
+class GebiedsprogrammaInDB(GebiedsprogrammaInDBBase):
     pass

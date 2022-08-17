@@ -1,26 +1,9 @@
-from typing import Any, List, Optional
-from app.schemas.ambitie import BeleidskeuzeShortInline
-
-from pydantic import BaseModel
-from pydantic.utils import GetterDict
+from typing import List, Optional
 from datetime import datetime
 
-from .gebruiker import GebruikerInline
-from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
+from pydantic import BaseModel
 
-# Many to many schema's
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = BeleidskeuzeInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
-
-
-class RelatedBeleidskeuze(BeleidskeuzeShortInline):
-    class Config:
-        getter_dict = RelatedBeleidskeuzeGetter
+from .relationships import GebruikerInline, RelatedBeleidskeuze
 
 
 # Shared properties

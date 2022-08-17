@@ -1,7 +1,7 @@
+from http import HTTPStatus
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
@@ -39,7 +39,9 @@ def read_verordening(
     return verordening
 
 
-@router.post("/verordeningen", response_model=schemas.Verordening)
+@router.post(
+    "/verordeningen", response_model=schemas.Verordening, status_code=HTTPStatus.CREATED
+)
 def create_verordening(
     *,
     db: Session = Depends(deps.get_db),
@@ -131,9 +133,7 @@ def read_valid_verordening(
     """
     Gets all the verordening lineages and shows the latests valid object for each.
     """
-    verordening = crud.verordening.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    verordening = crud.verordening.valid(offset=offset, limit=limit, filters=filters)
     return verordening
 
 
@@ -150,5 +150,7 @@ def read_valid_verordening_lineage(
     """
     Gets all the verordening in this lineage that are valid
     """
-    verordening = crud.verordening.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    verordening = crud.verordening.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return verordening

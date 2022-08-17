@@ -2,36 +2,9 @@ from datetime import datetime
 from typing import Any, List, Optional
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
-from app.schemas.beleidskeuze import BeleidskeuzeInDB
 
 from app.util.legacy_helpers import to_ref_field
-
-from .gebruiker import GebruikerInline
-
-
-# Many to many schema's
-class BeleidskeuzeShortInline(BaseModel):
-    ID: int
-    UUID: str
-    Titel: str
-
-    class Config:
-        orm_mode = True
-
-
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = BeleidskeuzeInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
-
-
-class RelatedBeleidskeuze(BeleidskeuzeShortInline):
-    class Config:
-        getter_dict = RelatedBeleidskeuzeGetter
+from .relationships import GebruikerInline, RelatedBeleidsdoel
 
 
 # Shared properties
@@ -75,7 +48,7 @@ class Ambitie(AmbitieInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Beleidskeuzes: List[RelatedBeleidskeuze]
+    Beleidsdoelen: List[RelatedBeleidsdoel]
 
     class Config:
         allow_population_by_field_name = True

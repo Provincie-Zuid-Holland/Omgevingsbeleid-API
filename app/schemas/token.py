@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from .gebruiker import GebruikerInline
+from .relationships import GebruikerInline
 
 
 class Token(BaseModel):

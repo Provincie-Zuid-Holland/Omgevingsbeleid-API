@@ -22,15 +22,15 @@ if TYPE_CHECKING:
     from .beleidskeuze import Beleidskeuze  # noqa: F401
 
 
-class Beleidskeuze_Ambities(Base):
-    __tablename__ = "Beleidskeuze_Ambities"
+class Beleidsdoel_Ambities(Base):
+    __tablename__ = "Beleidsdoel_Ambities"
 
-    Beleidskeuze_UUID = Column(ForeignKey("Beleidskeuzes.UUID"), primary_key=True)
+    Beleidsdoel_UUID = Column(ForeignKey("Beleidsdoelen.UUID"), primary_key=True)
     Ambitie_UUID = Column(ForeignKey("Ambities.UUID"), primary_key=True)
     Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
-    Beleidskeuze = relationship("Beleidskeuze", back_populates="Ambities")
-    Ambitie = relationship("Ambitie", back_populates="Beleidskeuzes")
+    Beleidsdoel = relationship("Beleidsdoel", back_populates="Ambities")
+    Ambitie = relationship("Ambitie", back_populates="Beleidsdoelen")
 
 
 class Ambitie(Base):
@@ -65,7 +65,7 @@ class Ambitie(Base):
     Modified_By = relationship(
         "Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID"
     )
-    Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
+    Beleidsdoelen = relationship("Beleidsdoel_Ambities", back_populates="Ambitie")
 
     def get_allowed_filter_keys() -> List[str]:
         return [

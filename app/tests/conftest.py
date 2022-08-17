@@ -1,6 +1,8 @@
 from typing import Dict
+import asyncio  # noqa
 
 import pytest
+import pytest_asyncio  # noqa
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -22,8 +24,8 @@ from main import app
 # @pytest.fixture
 # def non_mocked_hosts() -> List[str]:
 #     return ["test"]
-# 
-# 
+#
+#
 # @pytest.fixture
 # async def client() -> AsyncClient:
 #     async with AsyncClient(app=app, base_url="http://test") as client:
@@ -38,7 +40,8 @@ def db() -> Session:
 @pytest.fixture(scope="class")
 def fixture_data(db: Session):
     engine = db.get_bind()
-    metadata.drop_all(bind=engine, checkfirst=False)
+    metadata.drop_all(bind=engine)
+    metadata.create_all(bind=engine)
 
     loader = FixtureLoader(db)
     loader.load_fixtures()

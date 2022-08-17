@@ -7,6 +7,7 @@ from .crud_beleidsdoel import beleidsdoel
 from .crud_beleidsprestatie import beleidsprestatie
 from .crud_beleidsrelatie import beleidsrelatie
 from .crud_beleidsregel import beleidsregel
+from .crud_gebeidsprogramma import gebiedsprogramma
 from .crud_maatregel import maatregel
 from .crud_thema import thema
 from .crud_verordening import verordening

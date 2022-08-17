@@ -1,7 +1,7 @@
+from http import HTTPStatus
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
@@ -39,7 +39,11 @@ def read_beleidsregels(
     return beleidsregels
 
 
-@router.post("/beleidsregels", response_model=schemas.Beleidsregel)
+@router.post(
+    "/beleidsregels",
+    response_model=schemas.Beleidsregel,
+    status_code=HTTPStatus.CREATED,
+)
 def create_beleidsregel(
     *,
     db: Session = Depends(deps.get_db),
@@ -131,9 +135,7 @@ def read_valid_beleidsregels(
     """
     Gets all the beleidsregels lineages and shows the latests valid object for each.
     """
-    beleidsregels = crud.beleidsregel.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    beleidsregels = crud.beleidsregel.valid(offset=offset, limit=limit, filters=filters)
     return beleidsregels
 
 
@@ -150,5 +152,7 @@ def read_valid_beleidsregel_lineage(
     """
     Gets all the beleidsregels in this lineage that are valid
     """
-    beleidsregels = crud.beleidsregel.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    beleidsregels = crud.beleidsregel.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return beleidsregels

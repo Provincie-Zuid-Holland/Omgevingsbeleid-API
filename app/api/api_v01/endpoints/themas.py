@@ -1,7 +1,7 @@
+from http import HTTPStatus
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
@@ -37,7 +37,7 @@ def read_themas(
     return themas
 
 
-@router.post("/themas", response_model=schemas.Thema)
+@router.post("/themas", response_model=schemas.Thema, status_code=HTTPStatus.CREATED)
 def create_thema(
     *,
     db: Session = Depends(deps.get_db),
@@ -125,9 +125,7 @@ def read_valid_themas(
     """
     Gets all the themas lineages and shows the latests valid object for each.
     """
-    themas = crud.thema.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    themas = crud.thema.valid(offset=offset, limit=limit, filters=filters)
     return themas
 
 
@@ -142,5 +140,7 @@ def read_valid_thema_lineage(
     """
     Gets all the themas in this lineage that are valid
     """
-    themas = crud.thema.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    themas = crud.thema.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return themas

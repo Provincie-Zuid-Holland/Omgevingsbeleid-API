@@ -1,7 +1,7 @@
+from http import HTTPStatus
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
@@ -39,7 +39,9 @@ def read_maatregelen(
     return maatregelen
 
 
-@router.post("/maatregelen", response_model=schemas.Maatregel)
+@router.post(
+    "/maatregelen", response_model=schemas.Maatregel, status_code=HTTPStatus.CREATED
+)
 def create_maatregel(
     *,
     db: Session = Depends(deps.get_db),
@@ -129,9 +131,7 @@ def read_valid_maatregelen(
     """
     Gets all the maatregelen lineages and shows the latests valid object for each.
     """
-    maatregelen = crud.maatregel.valid(
-        offset=offset, limit=limit, filters=filters
-    )
+    maatregelen = crud.maatregel.valid(offset=offset, limit=limit, filters=filters)
     return maatregelen
 
 
@@ -146,5 +146,7 @@ def read_valid_maatregel_lineage(
     """
     Gets all the maatregelen in this lineage that are valid
     """
-    maatregelen = crud.maatregel.valid(ID=lineage_id, offset=offset, limit=limit, filters=filters)
+    maatregelen = crud.maatregel.valid(
+        ID=lineage_id, offset=offset, limit=limit, filters=filters
+    )
     return maatregelen

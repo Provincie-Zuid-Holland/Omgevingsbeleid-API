@@ -1,44 +1,58 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import (
     Column,
-    DateTime,
     ForeignKey,
     Integer,
-    Sequence,
     String,
-    Unicode,
     text,
+    DateTime,
+    Unicode,
+    Sequence,
 )
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
 
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401
-    from .beleidskeuze import Beleidskeuze  # noqa: F401
+    from .maatregel import Maatregel  # noqa: F401
 
 
-class Beleidskeuze_Beleidsdoelen(Base):
-    __tablename__ = "Beleidskeuze_Beleidsdoelen"
+status_options = [
+    "Definitief ontwerp GS",
+    "Definitief ontwerp GS concept",
+    "Ontwerp GS",
+    "Ontwerp GS Concept",
+    "Ontwerp in inspraak",
+    "Ontwerp PS",
+    "Vastgesteld",
+    "Vigerend",
+]
 
-    Beleidskeuze_UUID = Column(ForeignKey("Beleidskeuzes.UUID"), primary_key=True)
-    Beleidsdoel_UUID = Column(ForeignKey("Beleidsdoelen.UUID"), primary_key=True)
+
+class Maatregel_Gebiedsprogrammas(Base):
+    __tablename__ = "Maatregel_Gebiedsprogrammas"
+
+    Maatregel_UUID = Column(ForeignKey("Maatregelen.UUID"), primary_key=True)
+    Gebiedsprogramma_UUID = Column(
+        ForeignKey("Gebiedsprogrammas.UUID"), primary_key=True
+    )
     Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
-    Beleidskeuze = relationship("Beleidskeuze", back_populates="Beleidsdoelen")
-    Beleidsdoel = relationship("Beleidsdoel", back_populates="Beleidskeuzes")
+    Maatregel = relationship("Maatregel", back_populates="Gebiedsprogrammas")
+    Gebiedsprogramma = relationship("Gebiedsprogramma", back_populates="Maatregelen")
 
 
-class Beleidsdoel(Base):
-    __tablename__ = "Beleidsdoelen"
+class Gebiedsprogramma(Base):
+    __tablename__ = "Gebiedsprogrammas"
 
     @declared_attr
     def ID(cls):
-        seq_name = "seq_Beleidsdoelen"
+        seq_name = "seq_Gebiedsprogrammas"
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
 
@@ -55,18 +69,21 @@ class Beleidsdoel(Base):
         "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
     )
 
+    Status = Column(Unicode(50), nullable=False)
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
-    Weblink = Column(Unicode)
+    Afbeelding = Column(Unicode)
 
     Created_By = relationship(
-        "Gebruiker", primaryjoin="Beleidsdoel.Created_By_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Gebiedsprogramma.Created_By_UUID == Gebruiker.UUID"
     )
     Modified_By = relationship(
-        "Gebruiker", primaryjoin="Beleidsdoel.Modified_By_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Gebiedsprogramma.Modified_By_UUID == Gebruiker.UUID"
     )
-    Beleidskeuzes = relationship("Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoel")
-    Ambities = relationship("Beleidsdoel_Ambities", back_populates="Beleidsdoel")
+
+    Maatregelen = relationship(
+        "Maatregel_Gebiedsprogrammas", back_populates="Gebiedsprogramma"
+    )
 
     def get_allowed_filter_keys() -> List[str]:
         return [
@@ -76,9 +93,9 @@ class Beleidsdoel(Base):
             "Eind_Geldigheid",
             "Created_Date",
             "Modified_Date",
-            "Created_By_UUID",
-            "Modified_By_UUID",
+            "Status",
             "Titel",
             "Omschrijving",
-            "Weblink",
+            "Created_By_UUID",
+            "Modified_By_UUID",
         ]

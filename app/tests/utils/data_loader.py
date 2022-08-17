@@ -14,12 +14,13 @@ from app.models import (
     Beleidsprestatie,
     Beleidsregel,
     Beleidsrelatie,
+    Gebiedsprogramma,
     Gebruiker,
     Maatregel,
     Thema,
     Verordening,
     Werkingsgebied,
-    Beleidskeuze_Ambities,
+    Beleidsdoel_Ambities,
     Beleidskeuze_Belangen,
     Beleidskeuze_Beleidsdoelen,
     Beleidskeuze_Maatregelen,
@@ -33,6 +34,7 @@ from app.models import (
 )
 from app.core.config import settings
 from app.models.beleidsdoel import Beleidsdoel
+from app.models.gebiedsprogramma import Maatregel_Gebiedsprogrammas
 from .test_shapes import pzh_shape
 
 
@@ -171,7 +173,7 @@ class FixtureLoader:
             "ver:1", Created_By_UUID="geb:fred", Modified_By_UUID="geb:fred"
         )
 
-        # These ambities are expected to exist for tests using `Tests.TestUtils.schema_data.reference_rich_beleidskeuze`
+        # These ambities are expected to exist for tests using `Tests.TestUtils.schema_data.reference_rich_beleidsdoel`
         self._ambitie(
             "amb:rrb1",
             UUID="B786487C-3E65-4DD8-B360-D2C56BF83172",
@@ -184,6 +186,8 @@ class FixtureLoader:
             Created_By_UUID="geb:fred",
             Modified_By_UUID="geb:fred",
         )
+        self._beleidsdoel_ambities("doe:1", "amb:rrb1")
+        self._beleidsdoel_ambities("doe:1", "amb:rrb2")
 
         # Used in Tests.test_api
         self._beleidskeuze(
@@ -581,7 +585,6 @@ class FixtureLoader:
         self._ambitie("amb:3", Created_By_UUID="geb:alex", Modified_By_UUID="geb:alex")
 
         self._beleidskeuze("keu:2", Created_By_UUID="geb:fred")
-        self._beleidskeuzes_ambities("keu:2", "amb:2", "Test omschrijving")
 
         # "Water" related models mainly used in search tests
         self._ambitie(
@@ -600,7 +603,6 @@ class FixtureLoader:
         )
 
         self._beleidskeuze("keu:water", Created_By_UUID="geb:alex")
-        self._beleidskeuzes_ambities("keu:water", "amb:water")
         self._beleidskeuzes_beleidsdoelen("keu:water", "doe:water")
 
         self._maatregel(
@@ -627,6 +629,52 @@ class FixtureLoader:
         )
         self._beleidskeuzes_verordeningen("keu:6", "ver:2")
         self._beleidskeuzes_verordeningen("keu:6", "ver:3")
+
+        # Gebiedsprogrammas that are linked to Maatregelen
+        self._gebiedsprogramma(
+            "gpr:1",
+            Titel="101 oud Vigerend",
+            ID=101,
+            UUID="CEB96000-0101-0001-0000-000000000000",
+            Created_Date="2022-02-01T10:00:00",
+            Modified_Date="2022-02-01T10:00:00",
+            Created_By_UUID="geb:fred",
+            Modified_By_UUID="geb:fred",
+            Status="Vigerend",
+        )
+        self._gebiedsprogramma(
+            "gpr:2",
+            Titel="101 oud Uitgecheckt",
+            ID=101,
+            UUID="CEB96000-0101-0002-0000-000000000000",
+            Created_Date="2022-02-01T10:00:00",
+            Modified_Date="2022-03-01T10:00:00",
+            Created_By_UUID="geb:fred",
+            Modified_By_UUID="geb:fred",
+            Status="Uitgecheckt",
+        )
+        self._gebiedsprogramma(
+            "gpr:3",
+            Titel="101 Vigerend",
+            ID=101,
+            UUID="CEB96000-0101-0003-0000-000000000000",
+            Created_Date="2022-02-01T10:00:00",
+            Modified_Date="2022-04-01T10:00:00",
+            Created_By_UUID="geb:fred",
+            Modified_By_UUID="geb:fred",
+            Status="Vigerend",
+        )
+        self._gebiedsprogramma(
+            "gpr:4",
+            Titel="102 Vigerend",
+            ID=102,
+            UUID="CEB96000-0102-0001-0000-000000000000",
+            Created_Date="2022-02-01T10:00:00",
+            Modified_Date="2022-04-01T10:00:00",
+            Created_By_UUID="geb:fred",
+            Modified_By_UUID="geb:fred",
+            Status="Vigerend",
+        )
 
         self._s.commit()
 
@@ -846,6 +894,26 @@ class FixtureLoader:
         model = Thema(**kwargs)
         self._add(key, model)
 
+    def _gebiedsprogramma(self, key, **kwargs):
+        kwargs = self._resolve_base_fields(**kwargs)
+
+        if not "Status" in kwargs:
+            kwargs["Status"] = "Vigerend"
+
+        if not "Titel" in kwargs:
+            kwargs["Titel"] = self._fake.sentence(nb_words=10)
+
+        if not "Omschrijving" in kwargs:
+            kwargs["Omschrijving"] = "\n\n".join(
+                [self._fake.paragraph(nb_sentences=10) for x in range(5)]
+            )
+
+        if not "Afbeelding" in kwargs:
+            kwargs["Afbeelding"] = None
+
+        model = Gebiedsprogramma(**kwargs)
+        self._add(key, model)
+
     def _maatregel(self, key, **kwargs):
         kwargs = self._resolve_base_fields(**kwargs)
 
@@ -1000,11 +1068,11 @@ class FixtureLoader:
         model = Werkingsgebied(**kwargs)
         self._add(key, model)
 
-    def _beleidskeuzes_ambities(self, beleidskeuze_key, ambitie_key, omschrijving=""):
-        beleidskeuze = self._instances[beleidskeuze_key]
+    def _beleidsdoel_ambities(self, beleidsdoel_key, ambitie_key, omschrijving=""):
+        beleidsdoel = self._instances[beleidsdoel_key]
         ambitie = self._instances[ambitie_key]
-        association = Beleidskeuze_Ambities(
-            Beleidskeuze_UUID=beleidskeuze.UUID,
+        association = Beleidsdoel_Ambities(
+            Beleidsdoel_UUID=beleidsdoel.UUID,
             Ambitie_UUID=ambitie.UUID,
             Koppeling_Omschrijving=omschrijving,
         )
@@ -1122,6 +1190,18 @@ class FixtureLoader:
         association = Beleidskeuze_Verordeningen(
             Beleidskeuze_UUID=beleidskeuze.UUID,
             Verordening_UUID=verordening.UUID,
+            Koppeling_Omschrijving=omschrijving,
+        )
+        self._s.add(association)
+
+    def _maatregelen_gebiedsprogrammas(
+        self, maatregel_key, gebiedsprogramma_key, omschrijving=""
+    ):
+        maatregel = self._instances[maatregel_key]
+        gebiedsprogramma = self._instances[gebiedsprogramma_key]
+        association = Maatregel_Gebiedsprogrammas(
+            Maatregel_UUID=maatregel.UUID,
+            Gebiedsprogramma_UUID=gebiedsprogramma.UUID,
             Koppeling_Omschrijving=omschrijving,
         )
         self._s.add(association)
