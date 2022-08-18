@@ -3,8 +3,12 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from .relationships import GebruikerInline, RelatedAmbitie, RelatedBeleidskeuze
-from .ambitie import Ambitie
+from .relationships import (
+    AmbitieCreateShortInline,
+    GebruikerInline,
+    RelatedAmbitie,
+    RelatedBeleidskeuze,
+)
 
 
 # Shared properties
@@ -17,7 +21,7 @@ class BeleidsdoelBase(BaseModel):
 class BeleidsdoelCreate(BeleidsdoelBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
-    Ambities: Optional[List[Ambitie]]
+    Ambities: Optional[List[AmbitieCreateShortInline]]
 
 
 class BeleidsdoelUpdate(BeleidsdoelBase):

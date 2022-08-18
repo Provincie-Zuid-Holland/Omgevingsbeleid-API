@@ -5,6 +5,14 @@ from pydantic.utils import GetterDict
 # Ambitie
 
 
+class AmbitieCreateShortInline(BaseModel):
+    UUID: str
+    Koppeling_Omschrijving: str
+
+    class Config:
+        orm_mode = True
+
+
 class AmbitieShortInline(BaseModel):
     ID: int
     UUID: str

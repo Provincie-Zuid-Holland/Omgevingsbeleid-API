@@ -163,6 +163,10 @@ class TestApi:
             json=reference_rich_beleidsdoel,
             headers=fred_headers,
         )
+        print("\n\n\n")
+        pprint(response.json())
+        print("\n\n\n")
+
         assert (
             response.status_code == 201
         ), f"Status code for POST on {ep} was {response.status_code}, should be 201. Body content: {response.json()}"
