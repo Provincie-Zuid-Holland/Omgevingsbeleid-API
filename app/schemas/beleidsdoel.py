@@ -18,10 +18,25 @@ class BeleidsdoelBase(BaseModel):
     Weblink: Optional[str] = None
 
 
+class BeleidsdoelCreateWithoutRelations(BeleidsdoelBase):
+    Begin_Geldigheid: datetime
+    Eind_Geldigheid: datetime
+
+
+class BeleidsdoelCreateRelations(BaseModel):
+    Ambities: List[AmbitieCreateShortInline]
+
+
 class BeleidsdoelCreate(BeleidsdoelBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
-    Ambities: Optional[List[AmbitieCreateShortInline]]
+    Ambities: List[AmbitieCreateShortInline]
+
+    def as_create_model(self) -> BeleidsdoelCreateWithoutRelations:
+        return BeleidsdoelCreateWithoutRelations(**self.dict())
+    
+    def as_create_relations(self) -> BeleidsdoelCreateRelations:
+        return BeleidsdoelCreateRelations(**self.dict())
 
 
 class BeleidsdoelUpdate(BeleidsdoelBase):

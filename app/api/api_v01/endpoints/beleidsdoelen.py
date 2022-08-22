@@ -51,9 +51,17 @@ def create_beleidsdoel(
     """
     Creates a new beleidsdoelen lineage
     """
+    print("\n\n\n")
+    print("start of create_beleidsdoel")
+    from pprint import pprint
+    pprint(beleidsdoel_in.__dict__)
+    print("\n\n")
     beleidsdoel = crud.beleidsdoel.create(
-        obj_in=beleidsdoel_in, by_uuid=current_gebruiker.UUID
+        obj_in=beleidsdoel_in,
+        by_uuid=current_gebruiker.UUID,
     )
+    print("\nBeforereturn=")
+    print(beleidsdoel)
     return beleidsdoel
 
 

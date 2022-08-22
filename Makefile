@@ -75,11 +75,11 @@ flask-routes: ## Show flask routes
 test: up mssql-create-database-test ## Run the tests	
 	docker-compose exec api pytest
 
+testx: up mssql-create-database-test	## Run the tests and stop after a fail
+	docker-compose exec api pytest -s -x
+
 testcase: up mssql-create-database-test ## Run the tests filtered by name
 	docker-compose exec api pytest -s -vvv -k ${case}
-
-test-verbose: up mssql-create-database-test	## Run the tests in verbose mode
-	docker-compose exec api pytest -s
 
 load-fixtures: ## This will load the fixtures (happens as part of `init`)
 	docker-compose exec api python cmds.py initdb

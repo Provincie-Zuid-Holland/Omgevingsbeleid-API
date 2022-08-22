@@ -1,0 +1,63 @@
+{
+    "_meta": {
+        "version": 1
+    },
+    "data": {
+        "module": {
+            "status": "GS"
+        },
+        "beleidskeuzes": {
+            "1": [
+                {
+                    "uuid": "1",
+                    "titel": "inital title",
+                    "created-by": "jordy"
+                },
+                {
+                    "uuid": "2",
+                    "titel": "Edited title",
+                    "modified-by": "erik",
+                    "text": ""
+                },
+                {
+                    "uuid": "2",
+                    "titel": "Edited title",
+                    "modified-by": "erik",
+                    "text": ""
+                },
+                {
+                    "uuid": "2",
+                    "titel": "Edited title",
+                    "modified-by": "erik",
+                    "text": ""
+                },
+                {
+                    "uuid": "2",
+                    "titel": "Edited title",
+                    "modified-by": "erik",
+                    "text": ""
+                },
+                {
+                    "uuid": "2",
+                    "titel": "Edited title",
+                    "modified-by": "erik",
+                    "text": ""
+                },
+                {
+                    "uuid": "2",
+                    "titel": "Edited title",
+                    "modified-by": "erik",
+                    "text": ""
+                }
+            ]
+        },
+        "ambities": {
+            "1": [
+                {
+                    "uuid": "1",
+                    "titel": "inital title"
+                }
+            ]
+        }
+    }
+}
