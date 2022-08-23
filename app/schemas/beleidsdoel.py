@@ -1,7 +1,10 @@
+from abc import ABCMeta
 from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel
+
+from app.models import Beleidsdoel_Ambities
 
 from .relationships import (
     AmbitieCreateShortInline,
@@ -25,6 +28,15 @@ class BeleidsdoelCreateWithoutRelations(BeleidsdoelBase):
 
 class BeleidsdoelCreateRelations(BaseModel):
     Ambities: List[AmbitieCreateShortInline]
+
+    def add_relations(self, beleidsdoel, session):
+        for ambitie in self.Ambities:
+            r = Beleidsdoel_Ambities(
+                Beleidsdoel=beleidsdoel,
+                Ambitie_UUID=ambitie.UUID,
+                Koppeling_Omschrijving=ambitie.Koppeling_Omschrijving,
+            )
+            session.add(r)
 
 
 class BeleidsdoelCreate(BeleidsdoelBase):

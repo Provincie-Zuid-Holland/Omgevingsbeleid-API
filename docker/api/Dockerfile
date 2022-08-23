@@ -10,11 +10,6 @@ RUN set -ex; \
     ACCEPT_EULA=Y apt install -y msodbcsql17 mssql-tools; \
     rm -rf /var/lib/apt/lists/*rm -rf /var/lib/apt/lists/*;
 
-# COPY requirements.txt /
-# RUN pip install -r /requirements.txt
-
-# CMD ["uvicorn", "main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80", "--reload"]
-
 COPY ./docker/api/docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN  chmod +x /docker-entrypoint.sh

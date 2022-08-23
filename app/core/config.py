@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, Union
 from datetime import datetime, timezone
 
 from pydantic import AnyHttpUrl, BaseSettings, validator
+from tomlkit import value
 
 
 class Settings(BaseSettings):
@@ -39,8 +40,8 @@ class Settings(BaseSettings):
 
     DB_DRIVER: str = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
     DB_HOST: str = os.getenv("DB_DRIVER", "mssql")
-    DB_NAME: str = os.getenv("DB_NAME", "SA")
-    DB_USER: str = os.getenv("DB_USER", "db_dev")
+    DB_NAME: str = os.getenv("DB_NAME", "db_dev")
+    DB_USER: str = os.getenv("DB_USER", "SA")
     DB_PASS: str = os.getenv("DB_PASS", "Passw0rd")
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None

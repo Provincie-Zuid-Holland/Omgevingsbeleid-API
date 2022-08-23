@@ -1,3 +1,4 @@
+from uuid import uuid4
 from app.crud import crud_beleidsdoel
 from datetime import datetime
 from fastapi.encoders import jsonable_encoder
@@ -16,8 +17,8 @@ create = BeleidsdoelCreate(
     Omschrijving="Omschrijving",
     Weblink="Weblink",
     Ambities=[
-        AmbitieCreateShortInline(UUID="1234", Koppeling_Omschrijving="Omschrijving"),
-        AmbitieCreateShortInline(UUID="1234", Koppeling_Omschrijving="Omschrijving"),
+        AmbitieCreateShortInline(UUID="B786487C-3E65-4DD8-B360-D2C56BF83172", Koppeling_Omschrijving="Omschrijving"),
+        # AmbitieCreateShortInline(UUID="1234", Koppeling_Omschrijving="Omschrijving"),
     ]
 )
 
@@ -44,7 +45,10 @@ obj_in_data["Created_Date"] = request_time
 obj_in_data["Modified_Date"] = request_time
 
 db_obj = Beleidsdoel(**obj_in_data)
-
 db.add(db_obj)
+
+relations_data = create.as_create_relations()
+relations_data.add_relations(db_obj, db)
+
 db.commit()
 db.refresh(db_obj)  
