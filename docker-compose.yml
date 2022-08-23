@@ -7,6 +7,8 @@ services:
       dockerfile: ./docker/api/Dockerfile
     ports:
       - "8000:80"
+      - "5678:5678" # Debug app port
+      - "5679:5679" # Debug DAP adapter port
     volumes:
       - ./:/code
     environment:
@@ -28,6 +30,10 @@ services:
       mssql:
         condition: service_healthy
     restart: "no"
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
 
   # frontend:
   #   build:

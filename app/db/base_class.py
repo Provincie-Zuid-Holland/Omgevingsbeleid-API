@@ -3,6 +3,8 @@ from typing import Any, List
 from sqlalchemy import Column, DateTime, MetaData
 from sqlalchemy.ext.declarative import as_declarative
 
+from app.core.exceptions import SearchException
+
 metadata = MetaData(
     naming_convention={
         "pk": "PK_%(table_name)s",
@@ -21,8 +23,13 @@ class Base:
     ID: Any
     __name__: str
 
-    def get_allowed_filter_keys() -> List[str]:
+    @classmethod
+    def get_allowed_filter_keys(cls) -> List[str]:
         return []
+
+    @classmethod
+    def get_search_fields(cls):
+        raise SearchException("Model not searchable") 
 
 
 @as_declarative(metadata=metadata)

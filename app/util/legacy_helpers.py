@@ -10,6 +10,7 @@ DEFAULT_SEARCH_FIELDS = {
     ]
 }
 SearchFields = namedtuple('SearchFields', ['title', 'description'])
+RankedSearchObject = namedtuple('RankedSearchObject', ['object', 'rank'])
 
 
 # Endpoints

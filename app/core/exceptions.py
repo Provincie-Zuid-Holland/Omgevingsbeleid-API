@@ -15,6 +15,10 @@ class FilterNotAllowed(Exception):
         self.filter = filter
 
 
+class SearchException(Exception):
+    pass
+
+
 # Handlers
 def filter_valdiation_handler(request: Request, exc: FilterNotAllowed):
     return JSONResponse(

@@ -71,7 +71,7 @@ class Ambitie(Base):
 
     @classmethod 
     def get_search_fields(cls):
-        return SearchFields(title=["Titel"], description=["Omschrijving"])
+        return SearchFields(title=cls.Titel, description=[cls.Omschrijving])
 
     @classmethod 
     def get_allowed_filter_keys(cls) -> List[str]:

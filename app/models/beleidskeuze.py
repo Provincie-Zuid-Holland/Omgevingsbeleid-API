@@ -15,6 +15,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
+from app.util.legacy_helpers import SearchFields
 
 
 if TYPE_CHECKING:
@@ -139,7 +140,19 @@ class Beleidskeuze(Base):
         primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Naar_Beleidskeuze_UUID",
     )
 
-    def get_allowed_filter_keys() -> List[str]:
+    @classmethod 
+    def get_search_fields(cls):
+        return SearchFields(
+            title=cls.Titel, 
+            description=[
+                cls.Omschrijving_Keuze,
+                cls.Omschrijving_Werking,
+                cls.Aanleiding
+            ]
+        )
+
+    @classmethod 
+    def get_allowed_filter_keys(cls) -> List[str]:
         return [
             "ID",
             "UUID",
