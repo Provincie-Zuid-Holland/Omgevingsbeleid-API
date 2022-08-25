@@ -69,11 +69,11 @@ class Ambitie(Base):
     )
     Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
 
-    @classmethod 
+    @classmethod
     def get_search_fields(cls):
         return SearchFields(title=cls.Titel, description=[cls.Omschrijving])
 
-    @classmethod 
+    @classmethod
     def get_allowed_filter_keys(cls) -> List[str]:
         return [
             "ID",

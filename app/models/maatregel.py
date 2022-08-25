@@ -1,21 +1,21 @@
-from typing import TYPE_CHECKING, List
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy import (
     Column,
+    DateTime,
     ForeignKey,
     Integer,
-    String,
-    text,
-    DateTime,
-    Unicode,
     Sequence,
+    String,
+    Unicode,
+    text,
 )
-from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
-
+from app.util.legacy_helpers import SearchFields
 
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401
@@ -122,7 +122,12 @@ class Maatregel(Base):
         "Werkingsgebied", primaryjoin="Maatregel.Gebied_UUID == Werkingsgebied.UUID"
     )
 
-    def get_allowed_filter_keys() -> List[str]:
+    @classmethod
+    def get_search_fields(cls):
+        return SearchFields(title=cls.Titel, description=[cls.Toelichting])
+
+    @classmethod
+    def get_allowed_filter_keys(cls) -> List[str]:
         return [
             "ID",
             "UUID",

@@ -2,18 +2,12 @@ from collections import namedtuple
 
 
 # Search
-
-DEFAULT_SEARCH_FIELDS = {
-    "title": ["Titel"],
-    "description": [
-        "Omschrijving",
-    ]
-}
-SearchFields = namedtuple('SearchFields', ['title', 'description'])
-RankedSearchObject = namedtuple('RankedSearchObject', ['object', 'rank'])
+SearchFields = namedtuple("SearchFields", ["title", "description"])
+RankedSearchObject = namedtuple("RankedSearchObject", ["object", "rank"])
 
 
 # Endpoints
+
 
 def to_ref_field(string: str) -> str:
     """
@@ -36,5 +30,3 @@ def to_ref_field(string: str) -> str:
         return string
 
     return "".join(["Ref_", string])
-
-

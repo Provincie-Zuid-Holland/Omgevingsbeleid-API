@@ -25,16 +25,16 @@ class Base:
 
     @classmethod
     def get_allowed_filter_keys(cls) -> List[str]:
-        return []
-
+        raise SearchException("Model not searchable")
+   
     @classmethod
     def get_search_fields(cls):
-        raise SearchException("Model not searchable") 
+        raise SearchException("Model not searchable")
 
 
 @as_declarative(metadata=metadata)
 class BaseTimeStamped:
-    #TODO: we should only have 1 base, so this base should extend the `class Base`
+    # TODO: we should only have 1 base, so this base should extend the `class Base`
     ID: Any
 
     Begin_Geldigheid = Column(DateTime, nullable=False)

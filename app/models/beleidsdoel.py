@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
-
+from app.util.legacy_helpers import SearchFields
 
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401
@@ -69,7 +69,12 @@ class Beleidsdoel(Base):
         "Beleidskeuze_Beleidsdoelen", back_populates="Beleidsdoel"
     )
 
-    def get_allowed_filter_keys() -> List[str]:
+    @classmethod
+    def get_search_fields(cls):
+        return SearchFields(title=cls.Titel, description=[cls.Omschrijving])
+
+    @classmethod
+    def get_allowed_filter_keys(cls) -> List[str]:
         return [
             "ID",
             "UUID",

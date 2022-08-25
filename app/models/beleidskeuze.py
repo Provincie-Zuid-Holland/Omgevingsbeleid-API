@@ -140,18 +140,18 @@ class Beleidskeuze(Base):
         primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Naar_Beleidskeuze_UUID",
     )
 
-    @classmethod 
+    @classmethod
     def get_search_fields(cls):
         return SearchFields(
-            title=cls.Titel, 
+            title=cls.Titel,
             description=[
                 cls.Omschrijving_Keuze,
                 cls.Omschrijving_Werking,
-                cls.Aanleiding
-            ]
+                cls.Aanleiding,
+            ],
         )
 
-    @classmethod 
+    @classmethod
     def get_allowed_filter_keys(cls) -> List[str]:
         return [
             "ID",
