@@ -480,7 +480,7 @@ class TestApi:
         assert response.get_json()[0]["Eind_Geldigheid"] == "9999-12-31T23:59:59Z"
 
 
-    def test_gebiedsprogrammas_afbeelding(self, db, client_fred):
+    def test_gebiedsprogrammas_afbeelding(self, db, client_fred, client_admin):
         # Create a new Gebiedsprogramma
         data = generate_data(
             gebiedsprogrammas.Gebiedsprogrammas_Schema,
@@ -527,6 +527,11 @@ class TestApi:
 
         # # Get the changed afbeelding
         response = client_fred.get(f"v0.1/gebiedsprogrammas/{gebiedsprogramma_id}")
+        assert response.status_code == 200, f"Status code for GET was {response.status_code}, should be 200. Body content: {response.json}"
+        assert response.get_json()[0]["Afbeelding"] == afbeeling_2_b64_string
+
+        # # Get the changed afbeelding in valid view
+        response = client_fred.get(f"v0.1/valid/gebiedsprogrammas/{gebiedsprogramma_id}")
         assert response.status_code == 200, f"Status code for GET was {response.status_code}, should be 200. Body content: {response.json}"
         assert response.get_json()[0]["Afbeelding"] == afbeeling_2_b64_string
 
