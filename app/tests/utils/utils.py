@@ -37,11 +37,11 @@ reference_rich_beleidsdoel = {
     "Weblink": "www.beleidsdoel.beslissing.nl",
     "Ambities": [
         {
-            "Ambitie_UUID": "B786487C-3E65-4DD8-B360-D2C56BF83172",
+            "UUID": "B786487C-3E65-4DD8-B360-D2C56BF83172",
             "Koppeling_Omschrijving": "TEST",
         },
         {
-            "Ambitie_UUID": "0254A475-08A6-4B2A-A455-96BA6BE70A19",
+            "UUID": "0254A475-08A6-4B2A-A455-96BA6BE70A19",
             "Koppeling_Omschrijving": "TEST",
         },
     ],

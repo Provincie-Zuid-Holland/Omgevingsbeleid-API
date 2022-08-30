@@ -73,6 +73,16 @@ services:
       start_period: 1s
     restart: "no"
 
+  arangodb:
+    image: arangodb
+    ports:
+      - "8529:8529"
+    environment:
+      ARANGO_NO_AUTH: 1
+    volumes:
+      - arangodb:/var/lib/arangodb3
+    restart: "no"
+
   nginx:
     image: nginx:1.21
     ports:
@@ -114,3 +124,4 @@ services:
 volumes:
   mssql:
   geoserver:
+  arangodb:

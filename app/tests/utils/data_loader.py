@@ -117,22 +117,29 @@ class FixtureLoader:
 
         # Gebruikers
         self._gebruiker(
-            "geb:admin", Gebruikersnaam="Admin", Rol="Superuser", Email="admin@test.com"
+            "geb:admin",
+            UUID="BBBBBBBB-0001-0000-0000-000000000000",
+            Gebruikersnaam="Admin",
+            Rol="Superuser",
+            Email="admin@test.com",
         )
         self._gebruiker(
             "geb:alex",
+            UUID="BBBBBBBB-0002-0000-0000-000000000000",
             Gebruikersnaam="Alex",
             Rol="Behandelend Ambtenaar",
             Email="alex@test.com",
         )
         self._gebruiker(
             "geb:fred",
+            UUID="BBBBBBBB-0003-0000-0000-000000000000",
             Gebruikersnaam="Frederik",
             Rol="Portefeuillehouder",
             Email="fred@test.com",
         )
         self._gebruiker(
             "geb:beheerder-jan",
+            UUID="BBBBBBBB-0004-0000-0000-000000000000",
             Gebruikersnaam="Beheerder Jan",
             Rol="Beheerder",
             Email="beheerder@test.com",

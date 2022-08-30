@@ -43,6 +43,9 @@ def get_current_gebruiker(
     db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
 ) -> models.Gebruiker:
     try:
+        print("\n\n\nget_current_gebruiker:\n")
+        print(token)
+        print("\n\n\n")
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
@@ -57,6 +60,8 @@ def get_current_gebruiker(
 
     if not gebruiker:
         raise HTTPException(status_code=404, detail="Gebruiker niet gevonden")
+
+    print("return gebruiker")
 
     return gebruiker
 

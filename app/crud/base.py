@@ -41,7 +41,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def create(self, *, obj_in: CreateSchemaType, by_uuid: str) -> ModelType:
         obj_in_data = jsonable_encoder(
-            obj_in,
+            obj_in.as_create_model(),
             custom_encoder={
                 datetime: lambda dt: dt,
             },
