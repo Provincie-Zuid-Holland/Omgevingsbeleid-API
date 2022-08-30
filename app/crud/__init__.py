@@ -1,4 +1,3 @@
-from os import wait
 from .crud_ambitie import ambitie
 from .crud_belang import belang
 from .crud_beleidskeuze import beleidskeuze

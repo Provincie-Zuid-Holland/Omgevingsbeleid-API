@@ -166,12 +166,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             query=query, model=model_alias, filters=filters
         )
 
-        # query = query.filter(model_alias.ID == 5)
-
         return query.order_by(model_alias.ID.desc())
 
     def _build_valid_view_filter(
-        self, ID: Optional[int] = None, filters: Optional[Filters] = None
+            self, ID: Optional[int] = None, filters: Optional[Filters] = None, as_subquery: Optional[bool] = False
     ) -> Query:
         """
         Retrieve a model with the 'Valid' view filters applied.
@@ -200,6 +198,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             .filter(model_alias.UUID != NULL_UUID)
             .filter(model_alias.Eind_Geldigheid > datetime.utcnow())
         )
+
+        if as_subquery:
+            return query.subquery()
 
         if ID is not None:
             query = query.filter(model_alias.ID == ID)

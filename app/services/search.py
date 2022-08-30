@@ -8,6 +8,7 @@ from sqlalchemy.sql.expression import func, label, or_
 
 from app import models
 from app.core.exceptions import SearchException
+from app.crud.base import CRUDBase
 from app.db.base_class import Base
 from app.db.session import SessionLocal
 from app.util.legacy_helpers import RankedSearchObject, SearchFields
@@ -47,10 +48,12 @@ class SearchService:
         Returns:
             List: results listing found models
         """
-        query_results = self.build_search_query(model, query).all()
-        ranked_items = [
-            RankedSearchObject(object=item[0], rank=item[1]) for item in query_results
-        ]
+        query_results = self.build_search_query(
+                model=model, 
+                search_query=query, 
+        ).all()
+
+        ranked_items = [RankedSearchObject(object=item[0], rank=item[1]) for item in query_results]
         return ranked_items
 
     def search_all_optimized(self, search_query: str):
@@ -86,7 +89,7 @@ class SearchService:
         return sorted_results
 
     def build_search_query(
-        self, model: Any, query: str
+            self, model: Any, search_query: str
     ) -> Query:
         """
         Search model for a given search query.
@@ -98,7 +101,13 @@ class SearchService:
         Returns:
             Query: The query object for search execution
         """
-        search_criteria = query.split(" ")
+        crud_service = CRUDBase(model)
+        base_query = crud_service._build_valid_view_filter(as_subquery=True)
+        base_alias: AliasedClass = aliased(
+            element=model, alias=base_query, name="inner", adapt_on_names=True
+        )
+
+        search_criteria = search_query.split(" ")
         title_column_search, description_column_search = self._build_search_clauses(
             model=model, search_criteria=search_criteria
         )
@@ -109,31 +118,31 @@ class SearchService:
         )
 
         title_search_query: Query = (
-            self.db.query(model)
+            self.db.query(base_alias)
             .add_column(label("Search_Rank", rank))
             .filter(or_(*title_column_search))
         )
 
         description_search_query: Query = (
-            self.db.query(model)
+            self.db.query(base_alias)
             .add_column(label("Search_Rank", (rank + self.RANK_WEIGHT_HEAVY)))
             .filter(or_(*description_column_search))
         )
 
+
         combined_query: Any = title_search_query.union(
             description_search_query
-        ).subquery("inner")
+        ).distinct().subquery("inner")
 
         alias: Any = aliased(element=model, alias=combined_query, name="inner")
 
         # Fetch results
-        search_query: Query = (
+        final_query: Query = (
             self.db.query(alias)
             .add_columns(combined_query.c.Search_Rank)
-            .filter()
             .order_by(combined_query.c.Search_Rank)
         )
-        return search_query
+        return final_query
 
     def _build_search_clauses(self, model: Any, search_criteria: List[str]):
         """
