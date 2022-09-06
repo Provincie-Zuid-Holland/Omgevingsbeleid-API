@@ -61,12 +61,16 @@ class Gebiedsprogrammas(CommonMixin, db.Model):
 status_options = [
     "Definitief ontwerp GS",
     "Definitief ontwerp GS concept",
+    "Definitief ontwerp PS",
+    "Niet-Actief",
     "Ontwerp GS",
     "Ontwerp GS Concept",
     "Ontwerp in inspraak",
     "Ontwerp PS",
+    "Uitgecheckt",
     "Vastgesteld",
     "Vigerend",
+    "Vigerend gearchiveerd",
 ]
 
 
