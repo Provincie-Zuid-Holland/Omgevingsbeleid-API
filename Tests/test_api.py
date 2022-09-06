@@ -52,7 +52,7 @@ class TestApi:
         assert response.status_code == 200, f"Status code was {response.status_code}"
         data = response.get_json()
 
-        # assert len(data['Ref_Beleidskeuzes']) == 1
+        assert len(data['Ref_Beleidskeuzes']) == 1
         new_uuid = data['UUID']
 
         response = client_admin.get(f"v0.1/version/beleidsdoelen/{new_uuid}")
