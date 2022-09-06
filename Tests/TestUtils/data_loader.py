@@ -133,7 +133,7 @@ class FixtureLoader():
 
         # "Water" related models mainly used in search tests
         self._ambitie("amb:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Geen overstromingen in Den Haag", Omschrijving="We willen water beter begeleiden zodat we geen overstromingen meer hebben.")
-        self._beleidsdoel("doe:water", Created_By="geb:alex", Modified_By="geb:alex", Titel="Leven met water", Omschrijving="De provincie wil Zuid-Holland beschermen tegen wateroverlast en overstromingen en de gevolgen van eventuele overstromingen zoveel mogelijk beperken. Deze opgave wordt groter door de effecten van klimaatverandering (zeespiegelstijging en toenemende extreme neerslag), bodemdaling en toenemende druk op de beschikbare ruimte.")
+        self._beleidsdoel("doe:water", ID=430, UUID="0000D0E1-0001-0001-0000-000000000000", Created_By="geb:alex", Modified_By="geb:alex", Titel="Leven met water", Omschrijving="De provincie wil Zuid-Holland beschermen tegen wateroverlast en overstromingen en de gevolgen van eventuele overstromingen zoveel mogelijk beperken. Deze opgave wordt groter door de effecten van klimaatverandering (zeespiegelstijging en toenemende extreme neerslag), bodemdaling en toenemende druk op de beschikbare ruimte.")
 
         self._beleidskeuze("keu:water", Created_By="geb:alex")
         self._beleidskeuzes_beleidsdoelen("keu:water", "doe:water")
