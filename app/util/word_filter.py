@@ -1,4 +1,7 @@
-stopwords_NL = [
+from typing import List
+
+
+STOPWORDS_NL = [
     "de",
     "en",
     "van",
@@ -102,11 +105,18 @@ stopwords_NL = [
     "andere",
 ]
 
-additional_filter_words = [
+ADDITIONAL_FILTER_WORDS = [
     "zuid",
     "holland",
     "zuid-holland",
 ]
 
-word_filter = stopwords_NL.extend(additional_filter_words)
+STOPWORD_LIST = STOPWORDS_NL + ADDITIONAL_FILTER_WORDS
+
+
+def get_filtered_search_criteria(search_query: str): 
+    case_normalized = search_query.lower()
+    query_words = case_normalized.split(" ")
+    filtered_query = filter(lambda v: v not in STOPWORD_LIST, query_words)
+    return list(filtered_query)
 

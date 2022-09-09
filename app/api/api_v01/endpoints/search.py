@@ -30,25 +30,23 @@ def search(
     """
     Fetches items matching the search query parameters
     """
-    search_results = search_service.search_all(
-        search_query=query
-    )
+    search_results = search_service.search_all(search_query=query)
+
     results = list()
+
     for item in search_results:
         model = item.object
         search_fields = model.get_search_fields().description
         try:
             description = getattr(model, search_fields[0].key)
-            results.append(
-                schemas.SearchResult(
-                    Omschrijving=description,
-                    Type=model.__tablename__,
-                    RANK=item.rank, 
-                    UUID=model.UUID
-                )
+            search_result = schemas.SearchResult(
+                Omschrijving=description,
+                Type=model.__tablename__,
+                RANK=item.rank, 
+                UUID=model.UUID
             )
+            results.append(search_result)
         except AttributeError:
             raise SearchException(f"Description value not found for {type(model)}: {model.UUID}")
 
     return results
-
