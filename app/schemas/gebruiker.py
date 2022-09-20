@@ -38,8 +38,6 @@ class GebruikerInDB(GebruikerInDBBase):
 
 
 # Joined classes
-
-
 class GebruikerInline(BaseModel):
     Gebruikersnaam: str
     Rol: str

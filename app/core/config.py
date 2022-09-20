@@ -8,16 +8,21 @@ from pydantic import AnyHttpUrl, BaseSettings, validator
 class Settings(BaseSettings):
     API_V01_STR: str = "/v0.1"
 
+    DEBUG_MODE: bool = bool(os.getenv("DEBUG_MODE", False))
+
     SECRET_KEY: str = os.getenv(
         "JWT_SECRET", "secret"
     )  # @todo: secrets.token_urlsafe(32)
+
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 4
+
     # SERVER_NAME: str
     # SERVER_HOST: AnyHttpUrl
 
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
     # "http://localhost:8080", "http://local.dockertoolbox.tiangolo.com"]'
+
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
@@ -29,8 +34,8 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     PROJECT_NAME: str = "Omgevingsbeleid API"
-    # SENTRY_DSN: Optional[HttpUrl] = None
 
+    # SENTRY_DSN: Optional[HttpUrl] = None
     # @validator("SENTRY_DSN", pre=True)
     # def sentry_dsn_can_be_blank(cls, v: str) -> Optional[str]:
     #     if len(v) == 0:
@@ -39,7 +44,7 @@ class Settings(BaseSettings):
 
     DB_DRIVER: str = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
     DB_HOST: str = os.getenv("DB_DRIVER", "mssql")
-    DB_NAME: str = os.getenv("DB_NAME", "db_dev")
+    DB_NAME: str = os.getenv("DB_NAME", "development")
     DB_USER: str = os.getenv("DB_USER", "SA")
     DB_PASS: str = os.getenv("DB_PASS", "Passw0rd")
 

@@ -1,21 +1,38 @@
 from os import wait
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from uuid import UUID
+from devtools import debug
 
-from pydantic import BaseModel
 from sqlalchemy.orm import DeclarativeMeta, Query, Session, Session, aliased
 from sqlalchemy.orm.util import AliasedClass
-from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import and_, func, label, or_
 
-from app import models
-from app.core.exceptions import SearchException
+from app import crud, models, schemas
 from app.crud.base import CRUDBase
-from app.db.base_class import Base
 from app.db.session import SessionLocal
+from app.schemas.search import GeoSearchResult
 from app.util.legacy_helpers import RankedSearchObject, SearchFields
-from app.util.word_filter import get_filtered_search_criteria
 
-ModelType = TypeVar("ModelType", bound=Base)
+
+SEARCHABLE_MODELS: List[Any] = [
+    models.Ambitie,
+    models.Beleidskeuze,
+    models.Belang,
+    models.Beleidsdoel,
+    models.Beleidsprestatie,
+    models.Beleidsregel,
+    models.Maatregel,
+    models.Thema,
+]
+
+GEO_SEARCHABLES: List[Any] = [
+    (models.Beleidskeuze, crud.beleidskeuze, schemas.Beleidskeuze), 
+    (models.Maatregel, crud.maatregel, schemas.Maatregel), 
+    (models.Verordening, crud.verordening, schemas.Verordening), 
+]
+
+RANK_WEIGHT = 1
+RANK_WEIGHT_HEAVY = 100
 
 
 class SearchService:
@@ -23,25 +40,11 @@ class SearchService:
     Service providing text search on generic models
     for per-model configured search fields
     """
-
-    SEARCHABLE_MODELS: List[Any] = [
-        models.Ambitie,
-        models.Beleidskeuze,
-        models.Belang,
-        models.Beleidsdoel,
-        models.Beleidsprestatie,
-        models.Beleidsregel,
-        models.Maatregel,
-        models.Thema,
-    ]
-    RANK_WEIGHT = 1
-    RANK_WEIGHT_HEAVY = 100
-
     def __init__(self):
         self.db: Session = SessionLocal()
 
     def search(
-        self, model: Any, query: str
+        self, model: Any, search_criteria: List[str]
     ) -> List[RankedSearchObject]:
         """
         Search model for a given search query.
@@ -50,26 +53,28 @@ class SearchService:
         Returns:
             List: results listing found models
         """
-        query_results = self.build_search_query(model=model, search_query=query).all()
+
+        query_results = self.build_search_query(model=model, search_criteria=search_criteria).all()
+        
         ranked_items = [RankedSearchObject(object=item[0], rank=item[1]) for item in query_results]
         return ranked_items
 
-    def search_all_optimized(self, search_query: str):
+    #TODO: self.search currently inefficient
+    def search_all_optimized(self, search_criteria: List[str]):
         """
         Execute search function for all models defined as searchable, and
         aggregate its search results ordered by rank.
         """
-        #TODO: self.search currently inefficient
         raise NotImplementedError() 
 
-    def search_all(self, search_query: str) -> List[RankedSearchObject]:
+    def search_all(self, search_criteria: List[str]) -> List[RankedSearchObject]:
         """
         Execute search function for all models defined as searchable, and
         aggregate its search results ordered by rank.
         """
         aggregated_results = list()
-        for entity in self.SEARCHABLE_MODELS:
-            search_results = self.search(model=entity, query=search_query)
+        for entity in SEARCHABLE_MODELS:
+            search_results = self.search(model=entity, search_criteria=search_criteria)
             if search_results:
                 aggregated_results.extend(search_results)
 
@@ -77,7 +82,7 @@ class SearchService:
         return sorted_results
 
     def build_search_query(
-            self, model: Any, search_query: str
+            self, model: Any, search_criteria: List[str]
     ) -> Query:
         """
         Search model for a given search query.
@@ -94,7 +99,6 @@ class SearchService:
         base_alias: AliasedClass = aliased(element=model, alias=valid_sub_query)
         
         # Search clauses
-        search_criteria = get_filtered_search_criteria(search_query)
         title_column_search, description_column_search = self._build_search_clauses(
             model=model, search_criteria=search_criteria, aliased_model=base_alias
         )
@@ -112,7 +116,7 @@ class SearchService:
 
         heavy_weight_query: Query = (
             self.db.query(base_alias)
-            .add_column(label("Search_Rank", (rank + self.RANK_WEIGHT_HEAVY)))
+            .add_column(label("Search_Rank", (rank + RANK_WEIGHT_HEAVY)))
             .filter(or_(*description_column_search))
         )
 
@@ -121,7 +125,7 @@ class SearchService:
         return combined_query.order_by(rank)
 
 
-    def _build_search_clauses(self, model: Any, search_criteria: List[str], aliased_model: AliasedClass = None):
+    def _build_search_clauses(self, model: Any, search_criteria: List[str], aliased_model: AliasedClass):
         """
         Build sql filter clauses for every search_field <-> search word
         combination.
@@ -148,6 +152,40 @@ class SearchService:
                 description_column.append(description_field.ilike(f"%{crit}%"))
 
         return title_column, description_column
+
+    def geo_search(self, uuid_list: List[str], limit: int = 10) -> List[GeoSearchResult]:
+        """
+        Search the geo-searchable models and find all objects linked to a Werkingsgebied.
+
+        Args:
+            query (str): list of Werkingsgebied UUIDs to match
+
+        """
+        search_results = []
+
+        for model, service, schema in GEO_SEARCHABLES:
+            if len(search_results) >= limit:
+                return search_results
+
+            search_hits = service.fetch_in_geo(uuid_list, limit)
+
+            for item in search_hits:
+                pyd_object = schema.from_orm(item)
+                search_fields = model.get_search_fields()
+                area_value = getattr(item, 'Gebied')
+
+                if type(area_value) is not str:
+                    area_value = area_value.UUID
+
+                search_results.append(schemas.GeoSearchResult(
+                    Gebied=area_value,
+                    Titel=getattr(pyd_object, search_fields.title.key),
+                    Omschrijving=getattr(pyd_object, search_fields.description[0].key),
+                    Type=item.__tablename__,
+                    UUID=pyd_object.UUID
+                ))
+
+        return search_results
 
 
 search_service = SearchService()

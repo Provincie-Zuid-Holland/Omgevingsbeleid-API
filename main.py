@@ -1,7 +1,8 @@
+import logging
 import sys
 
 import debugpy
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 import uvicorn
 
@@ -33,16 +34,23 @@ app.add_exception_handler(
     exceptions.FilterNotAllowed, exceptions.filter_valdiation_handler
 )
 
+# Logging
+logger = logging.getLogger(__name__)
+
+
 if __name__ == "__main__":
     # Allow starting app from main file
-    # to setup DebugPy instance
+    # primarily to setup extra DebugPy instance
     host = sys.argv[1]
     port = int(sys.argv[2])
-    dap_port = int(sys.argv[3])
+    print(f"MODE IS ---------- {settings.DEBUG_MODE}")
+    if settings.DEBUG_MODE:
+        dap_port = int(sys.argv[3])
+        logger.info("---Initializing Debug application and DAP server---")
+        logger.info("Socket serving debug Application: ", host, port)
+        logger.info("DAP server listening on socket: ", host, dap_port)
+        debugpy.listen((host, dap_port))
+    else:
+        logger.info("DEBUG_MODE False, skipping DAP instance")
 
-    print("---Initializing Debug application and DAP server---")
-    print("Socket serving debug Application: ", host, port)
-    print("DAP server listening on socket: ", host, dap_port)
-
-    debugpy.listen((host, dap_port))
-    uvicorn.run(app, host=host, port=port)
+    uvicorn.run(app, host=host, port=port, debug=settings.DEBUG_MODE)

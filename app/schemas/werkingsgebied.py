@@ -56,8 +56,16 @@ class WerkingsgebiedInDBBase(WerkingsgebiedBase):
 
 # Properties to return to client
 class Werkingsgebied(WerkingsgebiedInDBBase):
+    ID: int
+    UUID: str
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
+    Begin_Geldigheid: datetime
+    Eind_Geldigheid: datetime
+
+    Werkingsgebied: str
+    symbol: str
+
     Beleidskeuzes: List[RelatedBeleidskeuze]
 
     class Config:
@@ -73,7 +81,14 @@ class WerkingsgebiedInDB(WerkingsgebiedInDBBase):
 class WerkingsgebiedShortInline(BaseModel):
     ID: int
     UUID: str
+
+    Created_By: Optional[GebruikerInline]
+    Modified_by: Optional[GebruikerInline]
+    Begin_Geldigheid: datetime
+    Eind_Geldigheid: datetime
+
     Werkingsgebied: str
+    symbol: str
 
     class Config:
         orm_mode = True

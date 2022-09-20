@@ -1,4 +1,4 @@
-from typing import List
+from app.core.exceptions import EmptySearchCriteria
 
 
 STOPWORDS_NL = [
@@ -115,8 +115,17 @@ STOPWORD_LIST = STOPWORDS_NL + ADDITIONAL_FILTER_WORDS
 
 
 def get_filtered_search_criteria(search_query: str): 
+    """
+    Sanitize input string from stopwords or 
+    other specified filter words
+    """
     case_normalized = search_query.lower()
     query_words = case_normalized.split(" ")
-    filtered_query = filter(lambda v: v not in STOPWORD_LIST, query_words)
-    return list(filtered_query)
+    filtered = filter(lambda v: v not in STOPWORD_LIST, query_words)
+    search_criteria = list(filtered)
+
+    if len(search_criteria) is 0:
+        raise EmptySearchCriteria("Filtered search query contains 0 criteria")
+
+    return search_criteria
 

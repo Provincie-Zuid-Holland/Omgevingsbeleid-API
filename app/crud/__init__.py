@@ -12,3 +12,4 @@ from .crud_verordening import verordening
 from .crud_verordeningstructuur import verordeningstructuur
 from .crud_gebruiker import gebruiker
 from .crud_werkingsgebied import werkingsgebied
+

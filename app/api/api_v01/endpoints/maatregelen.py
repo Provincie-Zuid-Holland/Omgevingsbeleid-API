@@ -63,11 +63,11 @@ def read_maatregel_lineage(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Gets all the maatregelen versions by lineage
+    Gets all the maatregel versions by lineage
     """
     maatregelen = crud.maatregel.all(filters=Filters({"ID": lineage_id}))
     if not maatregelen:
-        raise HTTPException(status_code=404, detail="Maatregels not found")
+        raise HTTPException(status_code=404, detail="Maatregelen not found")
     return maatregelen
 
 

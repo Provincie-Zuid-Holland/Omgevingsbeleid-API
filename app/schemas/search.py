@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union, List
 from pydantic import BaseModel
 
 
@@ -7,3 +7,17 @@ class SearchResult(BaseModel):
     Type: str
     RANK: int
     UUID: str
+
+
+class GeoSearchResult(BaseModel):
+    Gebied: str
+    Titel: str
+    Omschrijving: str
+    Type: str
+    UUID: str
+    RANK: int = 100
+
+
+class SearchResultWrapper(BaseModel):
+    results: List[Union[GeoSearchResult, SearchResult]] = []
+    count: int = 0

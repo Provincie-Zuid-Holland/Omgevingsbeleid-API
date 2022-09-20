@@ -15,6 +15,7 @@ from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 
 from app.db.base_class import Base
+from app.util.legacy_helpers import SearchFields
 
 
 if TYPE_CHECKING:
@@ -105,7 +106,12 @@ class Verordening(Base):
         "Beleidskeuze_Verordeningen", back_populates="Verordening"
     )
 
-    def get_allowed_filter_keys() -> List[str]:
+    @classmethod
+    def get_search_fields(cls):
+        return SearchFields(title=cls.Titel, description=[cls.Inhoud])
+    
+    @classmethod
+    def get_allowed_filter_keys(cls) -> List[str]:
         return [
             "ID",
             "UUID",

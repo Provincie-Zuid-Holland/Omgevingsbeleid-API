@@ -3,6 +3,7 @@ from typing import Any, List, Optional
 
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
+from app.schemas.werkingsgebied import WerkingsgebiedShortInline
 
 from app.util.legacy_helpers import to_ref_field
 
@@ -94,6 +95,14 @@ class MaatregelInDBBase(MaatregelBase):
         arbitrary_types_allowed = True
 
 
+class AanpassingOp(BaseModel):
+    UUID: str
+
+    class Config:
+        orm_mode = True
+
+
+
 # Properties to return to client
 class Maatregel(MaatregelInDBBase):
     Created_By: GebruikerInline
@@ -102,11 +111,11 @@ class Maatregel(MaatregelInDBBase):
     Beleidskeuzes: List[RelatedBeleidskeuze]
     Beleidsmodules: List[RelatedBeleidsmodule]
 
-    # Aanpassing Op
-    # Eigenaar
-    # Portefeuillehouder
-    # Opdrachtgever
-    # Gebied
+    Eigenaar_1: GebruikerInline
+    Eigenaar_2: GebruikerInline
+    Portefeuillehouder_1: GebruikerInline
+    Portefeuillehouder_2: GebruikerInline
+    Gebied: WerkingsgebiedShortInline
 
     class Config:
         allow_population_by_field_name = True
@@ -116,3 +125,4 @@ class Maatregel(MaatregelInDBBase):
 # Properties properties stored in DB
 class MaatregelInDB(MaatregelInDBBase):
     pass
+
