@@ -16,6 +16,7 @@ from app.util import get_filtered_search_criteria
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
 @router.get(
     "/search",
     response_model=List[schemas.SearchResult],
@@ -32,7 +33,9 @@ def search(
     try:
         search_criteria = get_filtered_search_criteria(query)
     except EmptySearchCriteria:
-        raise HTTPException(status_code=403, detail="Search query empty after filtering")
+        raise HTTPException(
+            status_code=403, detail="Search query empty after filtering"
+        )
 
     search_results = search_service.search_all(search_criteria=search_criteria)
 
@@ -45,12 +48,14 @@ def search(
             search_result = schemas.SearchResult(
                 Omschrijving=description,
                 Type=item.object.__tablename__,
-                RANK=item.rank, 
-                UUID=item.object.UUID
+                RANK=item.rank,
+                UUID=item.object.UUID,
             )
             results.append(search_result)
         except AttributeError:
-            logger.debug(f"Description value not found for {type(item.object)}: {item.object.UUID}")
+            logger.debug(
+                f"Description value not found for {type(item.object)}: {item.object.UUID}"
+            )
 
     return results
 
@@ -69,13 +74,10 @@ def geo_search(
     try:
         query_list = [uuid for uuid in query.split(",")]
     except Exception:
-        raise HTTPException(status_code=403, detail="Invalid list of Werkingsgebied UUIDs")
+        raise HTTPException(
+            status_code=403, detail="Invalid list of Werkingsgebied UUIDs"
+        )
 
     search_results = search_service.geo_search(query_list)
 
-    return {
-        "results": search_results,
-        "count": len(search_results)
-    }
-
-
+    return {"results": search_results, "count": len(search_results)}

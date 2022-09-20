@@ -88,4 +88,3 @@ class Ambitie(Base):
             "Created_By_UUID",
             "Modified_By_UUID",
         ]
-

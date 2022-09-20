@@ -18,8 +18,10 @@ class FilterNotAllowed(Exception):
 class SearchException(Exception):
     pass
 
+
 class EmptySearchCriteria(Exception):
     pass
+
 
 # Handlers
 def filter_valdiation_handler(request: Request, exc: FilterNotAllowed):

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from pydantic.utils import GetterDict
 from app.schemas.beleidskeuze import BeleidskeuzeInDB
 
-from app.util.legacy_helpers import to_ref_field 
+from app.util.legacy_helpers import to_ref_field
 
 from .gebruiker import GebruikerInline
 

@@ -169,7 +169,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return query.order_by(model_alias.ID.desc())
 
     def _build_valid_view_filter(
-            self, ID: Optional[int] = None, filters: Optional[Filters] = None, as_subquery: Optional[bool] = False
+        self,
+        ID: Optional[int] = None,
+        filters: Optional[Filters] = None,
+        as_subquery: Optional[bool] = False,
     ) -> Query:
         """
         Retrieve a model with the 'Valid' view filters applied.

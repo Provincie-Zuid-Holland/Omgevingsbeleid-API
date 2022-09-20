@@ -40,7 +40,7 @@ class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUp
         """
         association = models.Beleidskeuze_Werkingsgebieden
         filter_list = [(association.Werkingsgebied_UUID == uuid) for uuid in area_uuid]
-        
+
         # Query using the geo UUID in assoc table
         result = (
             self.db.query(association)
@@ -56,8 +56,8 @@ class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUp
         def beleidskeuze_mapper(association_object: association):
             # return beleidskeuzes but keep Gebied field
             # to return in GeoSearchResult response
-            mapped = association_object.Beleidskeuze 
-            setattr(mapped, 'Gebied', association_object.Werkingsgebied_UUID)
+            mapped = association_object.Beleidskeuze
+            setattr(mapped, "Gebied", association_object.Werkingsgebied_UUID)
             return mapped
 
         return list(map(beleidskeuze_mapper, result))

@@ -102,7 +102,6 @@ class AanpassingOp(BaseModel):
         orm_mode = True
 
 
-
 # Properties to return to client
 class Maatregel(MaatregelInDBBase):
     Created_By: GebruikerInline
@@ -125,4 +124,3 @@ class Maatregel(MaatregelInDBBase):
 # Properties properties stored in DB
 class MaatregelInDB(MaatregelInDBBase):
     pass
-

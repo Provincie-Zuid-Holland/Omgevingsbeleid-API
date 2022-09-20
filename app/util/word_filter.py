@@ -114,9 +114,9 @@ ADDITIONAL_FILTER_WORDS = [
 STOPWORD_LIST = STOPWORDS_NL + ADDITIONAL_FILTER_WORDS
 
 
-def get_filtered_search_criteria(search_query: str): 
+def get_filtered_search_criteria(search_query: str):
     """
-    Sanitize input string from stopwords or 
+    Sanitize input string from stopwords or
     other specified filter words
     """
     case_normalized = search_query.lower()
@@ -128,4 +128,3 @@ def get_filtered_search_criteria(search_query: str):
         raise EmptySearchCriteria("Filtered search query contains 0 criteria")
 
     return search_criteria
-

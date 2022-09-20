@@ -26,7 +26,7 @@ class Base:
     @classmethod
     def get_allowed_filter_keys(cls) -> List[str]:
         raise SearchException("Model not searchable")
-   
+
     @classmethod
     def get_search_fields(cls):
         raise SearchException("Model not searchable")

@@ -173,5 +173,3 @@ class Beleidskeuze(Base):
             "Status",
             "Tags",
         ]
-
-

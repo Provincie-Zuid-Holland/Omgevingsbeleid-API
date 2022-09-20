@@ -109,7 +109,7 @@ class Verordening(Base):
     @classmethod
     def get_search_fields(cls):
         return SearchFields(title=cls.Titel, description=[cls.Inhoud])
-    
+
     @classmethod
     def get_allowed_filter_keys(cls) -> List[str]:
         return [
