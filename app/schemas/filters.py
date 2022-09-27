@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 class Filter(BaseModel):
     key: str
     value: str
+    negation: bool = False
 
 
 class FilterCombiner(Enum):

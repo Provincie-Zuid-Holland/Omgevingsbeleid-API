@@ -16,10 +16,11 @@ from .beleidsprestatie import (
 from .beleidsregel import Beleidsregel, BeleidsregelCreate, BeleidsregelUpdate
 from .beleidsrelatie import Beleidsrelatie, BeleidsrelatieCreate, BeleidsrelatieUpdate
 from .gebruiker import Gebruiker, GebruikerCreate, GebruikerInDB, GebruikerUpdate
+from .graph import GraphView, LinkItem, NodeItem
 from .maatregel import Maatregel, MaatregelCreate, MaatregelUpdate
 from .msg import Msg
 from .onderverdeling import Onderverdeling, OnderverdelingCreate, OnderverdelingUpdate
-from .search import SearchResult, GeoSearchResult, SearchResultWrapper
+from .search import GeoSearchResult, SearchResult, SearchResultWrapper
 from .thema import Thema, ThemaCreate, ThemaUpdate
 from .token import Token, TokenPayload
 from .verordening import Verordening, VerordeningCreate, VerordeningUpdate

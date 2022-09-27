@@ -60,7 +60,8 @@ class Beleidsmodule(Base):
         "Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule"
     )
 
-    def get_allowed_filter_keys() -> List[str]:
+    @classmethod
+    def get_allowed_filter_keys(cls) -> List[str]:
         return [
             "ID",
             "UUID",

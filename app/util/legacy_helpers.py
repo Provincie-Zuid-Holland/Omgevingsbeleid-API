@@ -7,8 +7,6 @@ RankedSearchObject = namedtuple("RankedSearchObject", ["object", "rank"])
 
 
 # Endpoints
-
-
 def to_ref_field(string: str) -> str:
     """
     Custom alias for relationship objects in json output.

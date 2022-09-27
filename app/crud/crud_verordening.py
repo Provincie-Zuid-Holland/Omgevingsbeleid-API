@@ -26,12 +26,22 @@ class CRUDVerordening(CRUDBase[Verordening, VerordeningCreate, VerordeningUpdate
         to the IDs of provided geological areas.
         """
         col = Verordening.Gebied_UUID
-
-        filters = [Filter(key=col.key, value=id) for id in area_uuid]
         area_filter = Filters()
+        filters = [Filter(key=col.key, value=id) for id in area_uuid]
         area_filter._append_clause(combiner=FilterCombiner.OR, items=filters)
 
         return self.valid(filters=area_filter, limit=limit)
+
+    def valid_without_lid_type(self):
+        """
+        Retrieve valid Verordeningen filered
+        to exclude 'Lid' type records
+        """
+        type_filter = Filters()
+        filter = Filter(key=Verordening.Type.key, value="Lid", negation=True)
+        type_filter._append_clause(combiner=FilterCombiner.OR, items=[filter])
+
+        return self.valid(filters=type_filter, limit=-1)
 
 
 verordening = CRUDVerordening(Verordening)

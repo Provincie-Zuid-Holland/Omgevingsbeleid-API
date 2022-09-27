@@ -127,7 +127,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> List[ModelType]:
         # List current model with valid view filters applied
         query = self._build_valid_view_filter(ID=ID, filters=filters)
-        query = query.offset(offset).limit(limit)
+
+        query = query.offset(offset)
+
+        if limit != -1:
+            query = query.limit(limit)
 
         return query.all()
 
@@ -296,7 +300,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                     raise FilterNotAllowed(filter=item.key)
 
                 column = getattr(model, item.key)
-                expressions.append(column == item.value)
+
+                if item.negation:
+                    # For NOT filters
+                    expressions.append(column != item.value)
+                else:
+                    expressions.append(column == item.value)
 
             if expressions:
                 if clause.combiner == FilterCombiner.OR:

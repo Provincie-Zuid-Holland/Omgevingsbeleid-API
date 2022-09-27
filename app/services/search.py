@@ -1,11 +1,8 @@
-from os import wait
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
-from uuid import UUID
-from devtools import debug
+from typing import Any, List
 
-from sqlalchemy.orm import DeclarativeMeta, Query, Session, Session, aliased
+from sqlalchemy.orm import Query, Session, Session, aliased
 from sqlalchemy.orm.util import AliasedClass
-from sqlalchemy.sql.expression import and_, func, label, or_
+from sqlalchemy.sql.expression import func, label, or_
 
 from app import crud, models, schemas
 from app.crud.base import CRUDBase
@@ -143,7 +140,7 @@ class SearchService:
             # Title search
             title_field = searchable_columns.title
             if aliased_model is not None:
-                title_field = aliased_model.__getattr__(searchable_columns.title.key)
+                title_field = getattr(aliased_model, searchable_columns.title.key)
 
             title_column.append(title_field.ilike(f"%{crit}%"))
 
@@ -151,7 +148,7 @@ class SearchService:
             for column in searchable_columns.description:
                 description_field = column
                 if aliased_model is not None:
-                    description_field = aliased_model.__getattr__(column.key)
+                    description_field = getattr(aliased_model, column.key)
 
                 description_column.append(description_field.ilike(f"%{crit}%"))
 

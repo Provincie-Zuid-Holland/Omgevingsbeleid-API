@@ -9,6 +9,7 @@ from app.api.api_v01.endpoints import (
     beleidsprestaties,
     beleidsregels,
     beleidsrelaties,
+    graph,
     login,
     maatregelen,
     search,
@@ -27,6 +28,7 @@ api_router.include_router(beleidsmodules.router, tags=["beleidsmodules"])
 api_router.include_router(beleidsprestaties.router, tags=["beleidsprestaties"])
 api_router.include_router(beleidsrelaties.router, tags=["beleidsrelaties"])
 api_router.include_router(beleidsregels.router, tags=["beleidsregels"])
+api_router.include_router(graph.router, tags=["graph"])
 api_router.include_router(search.router, tags=["search"])
 api_router.include_router(themas.router, tags=["themas"])
 api_router.include_router(verordeningen.router, tags=["verordeningen"])

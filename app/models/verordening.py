@@ -126,5 +126,6 @@ class Verordening(Base):
             "Weblink",
             "Gebied_UUID",
             "Status",
+            "Type",
             "Volgnummer",
         ]
