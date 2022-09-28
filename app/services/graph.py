@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from devtools import debug
-from sqlalchemy import or_, and_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Query, Session, Session, aliased
 from sqlalchemy_utils import QueryChain
 
@@ -54,10 +54,7 @@ class GraphService:
         node_list = list()
         valid_uuid_list = list()
         for entity, service, schema in self.graphables:
-            if entity is models.Verordening:
-                valid_objects = service.valid_without_lid_type()
-            else:
-                valid_objects = service.valid(limit=-1)
+            valid_objects = service.fetch_graph_nodes()
 
             if len(valid_objects) is 0:
                 continue
@@ -109,32 +106,5 @@ class GraphService:
             "Titel": title_field[0],
             "Type": valid_object.__tablename__.lower(),
         }
-
-    # TODO: fix
-    def _add_special_relations(self):
-        """
-        Relationships that dont fit the generic models
-        """
-        # Beleidsrelaties
-        br_manager = Beleidsrelaties_Schema.Meta.manager(Beleidsrelaties_Schema)
-        brs = br_manager.get_all(True)
-
-        for br in brs:
-
-            links.append(
-                {
-                    "source": br["Van_Beleidskeuze"]["UUID"],
-                    "target": br["Naar_Beleidskeuze"]["UUID"],
-                    "type": "Relatie",
-                }
-            )
-
-        valid_links = []
-        for link in links:
-            if link["target"] in valid_uuids and link["source"] in valid_uuids:
-                valid_links.append(link)
-
-        pass
-
 
 graph_service = GraphService()

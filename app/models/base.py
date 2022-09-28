@@ -15,6 +15,7 @@ from app.models import (
     Beleidsmodule_Beleidskeuzes,
     Beleidsmodule_Maatregelen,
 )
+from app.models.beleidsrelatie import Beleidsrelatie
 
 # MTMRelation = namedtuple("ManyToManyRelation", ["model", "left", "right"])
 class MTMRelation(NamedTuple):
@@ -78,6 +79,11 @@ MANY_TO_MANY_RELATIONS: List[MTMRelation] = [
         model=Beleidsmodule_Maatregelen,
         left=Beleidsmodule_Maatregelen.Beleidsmodule_UUID,
         right=Beleidsmodule_Maatregelen.Maatregel_UUID,
+    ),
+    MTMRelation(
+        model=Beleidsrelatie,
+        left=Beleidsrelatie.Van_Beleidskeuze_UUID,
+        right=Beleidsrelatie.Naar_Beleidskeuze_UUID,
     ),
 ]
 

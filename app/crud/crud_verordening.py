@@ -43,5 +43,9 @@ class CRUDVerordening(CRUDBase[Verordening, VerordeningCreate, VerordeningUpdate
 
         return self.valid(filters=type_filter, limit=-1)
 
+    # Overwrite base valid filter
+    def fetch_graph_nodes(self):
+        return self.valid_without_lid_type()
+
 
 verordening = CRUDVerordening(Verordening)

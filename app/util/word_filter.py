@@ -124,7 +124,7 @@ def get_filtered_search_criteria(search_query: str):
     filtered = filter(lambda v: v not in STOPWORD_LIST, query_words)
     search_criteria = list(filtered)
 
-    if len(search_criteria) is 0:
+    if len(search_criteria) == 0:
         raise EmptySearchCriteria("Filtered search query contains 0 criteria")
 
     return search_criteria

@@ -227,6 +227,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         )
         return label("RowNumber", partition)
 
+    def fetch_graph_nodes(self):
+        """
+        Return valid objects of entity to process
+        as graph nodes. Overwritable per entity.
+        """
+        return self.valid(limit=-1)
+
     #
     # Common repository actions
     #
