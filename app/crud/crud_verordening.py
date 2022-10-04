@@ -12,11 +12,11 @@ from app.schemas.verordening import VerordeningCreate, VerordeningUpdate
 class CRUDVerordening(CRUDBase[Verordening, VerordeningCreate, VerordeningUpdate]):
     def get(self, uuid: str) -> Verordening:
         return (
-            self.db.query(self.model)
+            self.db.query(Verordening)
             .options(
                 joinedload(Verordening.Beleidskeuzes),
             )
-            .filter(self.model.UUID == uuid)
+            .filter(Verordening.UUID == uuid)
             .one()
         )
 

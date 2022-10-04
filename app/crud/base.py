@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union, Tuple
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -7,7 +7,7 @@ from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Query, Session, aliased, load_only
 from sqlalchemy.orm.util import AliasedClass
-from sqlalchemy.sql import label
+from sqlalchemy.sql import Alias, label
 from sqlalchemy.sql.elements import ColumnElement, Label
 from sqlalchemy.sql.expression import func
 
@@ -118,22 +118,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return None
 
-    def valid(
-        self,
-        ID: Optional[int] = None,
-        offset: int = 0,
-        limit: int = 20,
-        filters: Optional[Filters] = None,
-    ) -> List[ModelType]:
-        # List current model with valid view filters applied
-        query = self._build_valid_view_filter(ID=ID, filters=filters)
-
-        query = query.offset(offset)
-
-        if limit != -1:
-            query = query.limit(limit)
-
-        return query.all()
 
     def _build_latest_view_filter(
         self, all: bool, filters: Optional[Filters] = None
@@ -172,6 +156,71 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return query.order_by(model_alias.ID.desc())
 
+
+    def valid(
+        self,
+        ID: Optional[int] = None,
+        offset: int = 0,
+        limit: int = 20,
+        filters: Optional[Filters] = None,
+    ) -> List[ModelType]:
+        # Base valid query
+        query, alias = self._build_valid_view_query(ID)
+
+        # Apply additional filters or ordering
+        filtered = self._build_filtered_query(query=query, filters=filters)
+        ordered = filtered.order_by(alias.ID.desc())
+        query = ordered.offset(offset)
+
+        if limit != -1:
+            query = query.limit(limit)
+
+        return query.all()
+
+
+    def _build_valid_view_query(self, ID: Optional[int] = None) -> Tuple[Query, Any]:
+        """
+        Retrieve a model with the 'Valid' view filters applied.
+        Defaults to:
+        - distinct ID's by latest modified
+        - no null UUID row
+        - Eind_Geldigheid in the future
+        - Begin_Geldigheid today or in the past
+        """
+        sub_query: Alias = self._build_valid_inner_query().subquery("inner")
+        inner_alias: ModelType = aliased(
+            element=self.model, 
+            alias=sub_query, 
+            name="inner"
+        )
+
+        last_modified_id_filter = sub_query.c.get("RowNumber") == 1
+
+        query: Query = (
+            self.db.query(inner_alias)
+            .filter(last_modified_id_filter)
+            .filter(inner_alias.Eind_Geldigheid > datetime.utcnow())
+        )
+
+        if ID is not None:
+            query = query.filter(inner_alias.ID == ID)
+
+        return query, inner_alias
+
+
+    def _build_valid_inner_query(self) -> Query:
+        """
+        Base valid query usable as subquery
+        """
+        row_number = self._add_rownumber_latest_id()
+        query: Query = (
+            self.db.query(self.model, row_number)
+            .filter(self.model.UUID != NULL_UUID)
+            .filter(self.model.Begin_Geldigheid <= datetime.utcnow())
+        )
+        return query
+
+# OLD REMOVE
     def _build_valid_view_filter(
         self,
         ID: Optional[int] = None,
@@ -186,7 +235,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         - Eind_Geldigheid in the future
         - Begin_Geldigheid today or in the past
         """
-
         row_number = self._add_rownumber_latest_id()
 
         sub_query: Query = (
@@ -281,7 +329,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def _build_filtered_query(
         self,
         query: Optional[Query] = None,
-        model: Optional[Type[ModelType]] = None,
+        model: Any = None,
         filters: Optional[Filters] = None,
     ) -> Query:
         """
@@ -326,7 +374,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if query is None:
             query = self.db.query(self.model)
 
-        # Apply 'valid' filter
+        # Default null record filter
         query = query.filter(self.model.UUID != NULL_UUID)
 
         # Default to order by ID

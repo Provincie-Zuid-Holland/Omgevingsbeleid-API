@@ -56,7 +56,7 @@ class GraphService:
         for entity, service, schema in self.graphables:
             valid_objects = service.fetch_graph_nodes()
 
-            if len(valid_objects) is 0:
+            if len(valid_objects) == 0:
                 continue
 
             mapped_nodes = list(map(self._node_mapper, valid_objects))

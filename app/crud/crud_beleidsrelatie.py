@@ -1,19 +1,18 @@
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from datetime import datetime
+from typing import Any, Dict, Generic, List, Optional, Tuple
 
-from sqlalchemy import and_, or_
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Query
-from sqlalchemy.orm import Query, Session, aliased, load_only
-from sqlalchemy.orm.util import AliasedClass
+from sqlalchemy import and_
+from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql import label
-from sqlalchemy.sql.elements import ColumnElement, Label
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.elements import ColumnElement
+from sqlalchemy.sql.expression import Alias, func
 
 from app.crud.base import CRUDBase
-from app.db.base_class import BaseTimeStamped, NULL_UUID
+from app.crud.crud_beleidskeuze import beleidskeuze as beleidskeuze_service
+from app.db.base_class import NULL_UUID
 from app.models.beleidsrelatie import Beleidsrelatie
 from app.schemas.beleidsrelatie import BeleidsrelatieCreate, BeleidsrelatieUpdate
-from app.schemas.filters import FilterCombiner, Filters
+from app.schemas.filters import Filters
 
 class CRUDBeleidsrelatie(
     CRUDBase[Beleidsrelatie, BeleidsrelatieCreate, BeleidsrelatieUpdate]
@@ -24,107 +23,69 @@ class CRUDBeleidsrelatie(
         offset: int = 0,
         limit: int = 20,
         filters: Optional[Filters] = None,
-    ) -> List[ModelType]:
-        # List current model with valid view filters applied
-        query = self._build_valid_view_filter(ID=ID, filters=filters)
+    ) -> List[Beleidsrelatie]:
+        """
+        Retrieve valid beleidsrelaties by building valid query
+        and applying filters/pagination.
+        """
+        # Base valid query
+        query, alias = self._build_valid_view_query(ID)
 
-        query = query.offset(offset)
+        # Apply additional filters or ordering
+        filtered = self._build_filtered_query(query=query, filters=filters)
+        ordered = filtered.order_by(alias.ID.desc())
+        query = ordered.offset(offset)
 
         if limit != -1:
             query = query.limit(limit)
 
         return query.all()
 
-    def _build_latest_view_filter(
-        self, all: bool, filters: Optional[Filters] = None
-    ) -> Query:
+    def _build_valid_view_query(self, ID: Optional[int] = None) -> Tuple[Query, Beleidsrelatie]:
         """
-        Retrieve a model with the 'Latest' view filters applied.
-        Defaults to:
-        - distinct ID's by latest modified
-        - no null UUID row
-        - Eind_Geldigheid in the future
-
-        **Parameters**
-
-        * `all`: If true, omits Eind_Geldigheid check
-        """
-
-        row_number = self._add_rownumber_latest_id()
-        sub_query: Query = self.db.query(self.model, row_number).subquery("inner")
-
-        model_alias: AliasedClass = aliased(
-            element=self.model, alias=sub_query, name="inner", adapt_on_names=True
-        )
-
-        query: Query = (
-            self.db.query(model_alias)
-            .filter(sub_query.c.RowNumber == 1)
-            .filter(model_alias.UUID != NULL_UUID)
-        )
-
-        if not all:
-            query = query.filter(model_alias.Eind_Geldigheid > datetime.utcnow())
-
-        query = self._build_filtered_query(
-            query=query, model=model_alias, filters=filters
-        )
-
-        return query.order_by(model_alias.ID.desc())
-
-    def _build_valid_view_filter(
-        self,
-        ID: Optional[int] = None,
-        filters: Optional[Filters] = None,
-        as_subquery: Optional[bool] = False,
-    ) -> Query:
-        """
-        Retrieve a model with the 'Valid' view filters applied.
+        Build query with the 'Valid' view filters applied.
         Defaults to:
         - distinct ID's by latest modified
         - no null UUID row
         - Eind_Geldigheid in the future
         - Begin_Geldigheid today or in the past
+        - Beleidskeuze UUIDs for valid BKs only
         """
+        sub_query: Alias = self._build_valid_inner_query().subquery("T")
+        inner_alias: Beleidsrelatie = aliased(element=Beleidsrelatie, alias=sub_query, name="T")
 
-        row_number = self._add_rownumber_latest_id()
-
-        sub_query: Query = (
-            self.db.query(self.model, row_number)
-            .filter(self.model.Begin_Geldigheid <= datetime.utcnow())
-            .subquery("inner")
-        )
-
-        model_alias: AliasedClass = aliased(
-            element=self.model, alias=sub_query, name="inner", adapt_on_names=True
+        # only valid if refering to valid beleidskeuzes
+        bk_uuids = beleidskeuze_service.valid_uuids()
+        bk_filter = and_(
+            inner_alias.Van_Beleidskeuze_UUID.in_(bk_uuids),
+            inner_alias.Naar_Beleidskeuze_UUID.in_(bk_uuids)
         )
 
         query: Query = (
-            self.db.query(model_alias)
-            .filter(sub_query.c.RowNumber == 1)
-            .filter(model_alias.UUID != NULL_UUID)
-            .filter(model_alias.Eind_Geldigheid > datetime.utcnow())
+            self.db.query(inner_alias)
+            .filter(sub_query.c.get("RowNumber") == 1)
+            .filter(inner_alias.Begin_Geldigheid <= datetime.utcnow())
+            .filter(inner_alias.Eind_Geldigheid > datetime.utcnow())
+            .filter(inner_alias.UUID != NULL_UUID)
+            .filter(bk_filter)
         )
-
-        if as_subquery:
-            return query.subquery()
 
         if ID is not None:
-            query = query.filter(model_alias.ID == ID)
+            query = query.filter(inner_alias.ID == ID)
 
-        query = self._build_filtered_query(
-            query=query, model=model_alias, filters=filters
-        )
+        return query, inner_alias
 
-        return query.order_by(model_alias.ID.desc())
 
-    def _add_rownumber_latest_id(self) -> Label:
+    def _build_valid_inner_query(self) -> Query:
         """
-        Builds sql expression that assigns RowNumber 1 to the latest ID
+        Base valid query usable as subquery
         """
         partition: ColumnElement = func.row_number().over(
-            partition_by=self.model.ID, order_by=self.model.Modified_Date.desc()
+            partition_by=Beleidsrelatie.ID, order_by=Beleidsrelatie.Modified_Date.desc()
         )
-        return label("RowNumber", partition)
+        query: Query = (
+            self.db.query(Beleidsrelatie, label("RowNumber", partition))
+        )
+        return query
 
 beleidsrelatie = CRUDBeleidsrelatie(Beleidsrelatie)
