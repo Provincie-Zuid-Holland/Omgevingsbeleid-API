@@ -39,6 +39,19 @@ class CRUDMaatregel(CRUDBase[Maatregel, MaatregelCreate, MaatregelUpdate]):
 
         return [bk.UUID for bk in query]
 
+    def valid_werkingsgebied_uuids(self) -> List[str]:
+        """
+        Retrieve list of only gebied UUIDs in valid Maatregelen
+        """
+        sub_query: Alias = self._build_valid_inner_query().subquery("inner")
+        query = (
+            self.db.query(sub_query.c.get("Gebied"))
+            .filter(sub_query.c.get("RowNumber") == 1)
+            .filter(sub_query.c.get("Eind_Geldigheid") > datetime.utcnow())
+        )
+
+        return [maatregel.Gebied for maatregel in query]
+
     # Extra status vigerend check for Maatregelen
     def _build_valid_inner_query(self) -> Query:
         """

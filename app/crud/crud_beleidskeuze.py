@@ -61,7 +61,7 @@ class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUp
         return query.all()
 
 
-    def valid_uuids(self, as_query: bool = False) -> Union[List[str], Query]:
+    def valid_uuids(self) -> List[str]:
         """
         Retrieve list of only valid UUIDs in beleidskeuzes
         """
@@ -71,8 +71,6 @@ class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUp
             .filter(sub_query.c.get("RowNumber") == 1)
             .filter(sub_query.c.get("Eind_Geldigheid") > datetime.utcnow())
         )
-        if as_query:
-            return query
 
         return [bk.UUID for bk in query]
 
