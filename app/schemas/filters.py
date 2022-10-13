@@ -3,6 +3,10 @@ from typing import List, Optional
 import csv
 
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Query
+from sqlalchemy.sql.expression import and_, or_
+
+from app.core.exceptions import FilterNotAllowed
 
 
 class Filter(BaseModel):
@@ -33,6 +37,38 @@ class Filters(BaseModel):
         self.clauses = []
         if filter_dict:
             self.add_from_dict(FilterCombiner.AND, filter_dict)
+
+    def apply_to_query(self, model, query: Query, alias = None) -> Query:
+        """
+        Apply the built filter clauses to a given Query input
+        """
+        allowed_filter_keys = model.get_allowed_filter_keys()
+
+        for clause in self.clauses:
+            expressions = []
+
+            for item in clause.items:
+                if item.key not in allowed_filter_keys:
+                    raise FilterNotAllowed(filter=item.key)
+
+                if alias:
+                    column = getattr(alias, item.key)
+                else:
+                    column = getattr(model, item.key)
+
+                if item.negation:
+                    # For NOT filters
+                    expressions.append(column != item.value)
+                else:
+                    expressions.append(column == item.value)
+
+            if expressions:
+                if clause.combiner == FilterCombiner.OR:
+                    query = query.filter(or_(*expressions))
+                else:
+                    query = query.filter(and_(*expressions))
+
+        return query
 
     def add_from_string(self, combiner: FilterCombiner, data: str):
         """
@@ -66,3 +102,4 @@ class Filters(BaseModel):
     def _append_clause(self, combiner: FilterCombiner, items: List):
         clause = FilterClause(combiner=combiner, items=items)
         self.clauses.append(clause)
+

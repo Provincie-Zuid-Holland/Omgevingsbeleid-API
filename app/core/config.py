@@ -47,15 +47,24 @@ class Settings(BaseSettings):
     DB_NAME: str = os.getenv("DB_NAME", "development")
     DB_USER: str = os.getenv("DB_USER", "SA")
     DB_PASS: str = os.getenv("DB_PASS", "Passw0rd")
+    TEST_DB_NAME: str = os.getenv("TEST_DB_NAME", "db_test")
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
-
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
 
         db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
+        return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
+
+    SQLALCHEMY_TEST_DATABASE_URI: Optional[str] = None
+    @validator("SQLALCHEMY_TEST_DATABASE_URI", pre=True)
+    def assemble_test_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+        if isinstance(v, str):
+            return v
+
+        db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['TEST_DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
         return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
 
     SQLALCHEMY_ECHO: bool = False

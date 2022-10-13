@@ -710,7 +710,6 @@ class FixtureLoader:
 
         if not "Aanleiding" in kwargs:
             kwargs["Aanleiding"] = self._fake.paragraph(nb_sentences=4)
-
         if not "Status" in kwargs:
             kwargs["Status"] = "Vigerend"
 

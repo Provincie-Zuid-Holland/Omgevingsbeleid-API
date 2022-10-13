@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import (
     Column,
@@ -69,3 +69,17 @@ class Werkingsgebied(Base):
     Beleidskeuzes = relationship(
         "Beleidskeuze_Werkingsgebieden", back_populates="Werkingsgebied"
     )
+
+    @classmethod
+    def get_allowed_filter_keys(cls) -> List[str]:
+        return [
+            "ID",
+            "UUID",
+            "Begin_Geldigheid",
+            "Eind_Geldigheid",
+            "Created_Date",
+            "Modified_Date",
+            "Created_By_UUID",
+            "Modified_By_UUID",
+            "Werkingsgebied",
+        ]

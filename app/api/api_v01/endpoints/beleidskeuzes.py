@@ -1,4 +1,5 @@
 from typing import Any, List
+from devtools import debug
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -131,6 +132,8 @@ def read_valid_beleidskeuzes(
     Gets all the beleidskeuzes lineages and shows the latests valid object for each.
     """
     beleidskeuzes = crud.beleidskeuze.valid(offset=offset, limit=limit, filters=filters)
+    debug("COUNT RESULTS::----")
+    debug(len(beleidskeuzes))
     return beleidskeuzes
 
 

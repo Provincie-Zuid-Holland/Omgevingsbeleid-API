@@ -36,30 +36,6 @@ class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUp
         self.db.refresh(db_obj)
         return db_obj
 
-    def valid(
-        self,
-        ID: Optional[int] = None,
-        offset: int = 0,
-        limit: int = 20,
-        filters: Optional[Filters] = None,
-    ) -> List[Beleidskeuze]:
-        """
-        Retrieve valid beleidskeuzes by building valid query
-        and applying filters/pagination.
-        """
-        # Base valid query
-        query, alias = self._build_valid_view_query(ID)
-
-        # Apply additional filters or ordering
-        filtered = self._build_filtered_query(query=query, filters=filters)
-        ordered = filtered.order_by(alias.ID.desc())
-        query = ordered.offset(offset)
-
-        if limit != -1:
-            query = query.limit(limit)
-
-        return query.all()
-
 
     def valid_uuids(self) -> List[str]:
         """

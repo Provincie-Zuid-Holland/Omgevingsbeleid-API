@@ -168,8 +168,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         query, alias = self._build_valid_view_query(ID)
 
         # Apply additional filters or ordering
-        filtered = self._build_filtered_query(query=query, filters=filters)
-        ordered = filtered.order_by(alias.ID.desc())
+        #filtered = self._build_filtered_query(query=query, filters=filters)
+        if filters:
+            query = filters.apply_to_query(model=self.model, query=query, alias=alias)
+
+        ordered = query.order_by(alias.ID.desc())
         query = ordered.offset(offset)
 
         if limit != -1:
@@ -219,52 +222,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             .filter(self.model.Begin_Geldigheid <= datetime.utcnow())
         )
         return query
-
-# OLD REMOVE
-    def _build_valid_view_filter(
-        self,
-        ID: Optional[int] = None,
-        filters: Optional[Filters] = None,
-        as_subquery: Optional[bool] = False,
-    ) -> Query:
-        """
-        Retrieve a model with the 'Valid' view filters applied.
-        Defaults to:
-        - distinct ID's by latest modified
-        - no null UUID row
-        - Eind_Geldigheid in the future
-        - Begin_Geldigheid today or in the past
-        """
-        row_number = self._add_rownumber_latest_id()
-
-        sub_query: Query = (
-            self.db.query(self.model, row_number)
-            .filter(self.model.Begin_Geldigheid <= datetime.utcnow())
-            .subquery("inner")
-        )
-
-        model_alias: AliasedClass = aliased(
-            element=self.model, alias=sub_query, name="inner", adapt_on_names=True
-        )
-
-        query: Query = (
-            self.db.query(model_alias)
-            .filter(sub_query.c.RowNumber == 1)
-            .filter(model_alias.UUID != NULL_UUID)
-            .filter(model_alias.Eind_Geldigheid > datetime.utcnow())
-        )
-
-        if as_subquery:
-            return query.subquery()
-
-        if ID is not None:
-            query = query.filter(model_alias.ID == ID)
-
-        query = self._build_filtered_query(
-            query=query, model=model_alias, filters=filters
-        )
-
-        return query.order_by(model_alias.ID.desc())
 
     def _add_rownumber_latest_id(self) -> Label:
         """
