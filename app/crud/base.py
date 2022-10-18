@@ -1,11 +1,11 @@
 from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union, Tuple
+from typing import Any, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Query, Session, aliased, load_only
+from sqlalchemy.orm import Query, aliased, load_only
 from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql import Alias, label
 from sqlalchemy.sql.elements import ColumnElement, Label
@@ -32,7 +32,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         * `schema`: A Pydantic model (schema) class
         """
         self.model = model
-        self.db: Session = SessionLocal()
+        self.db = SessionLocal()
 
     def get(self, uuid: str) -> ModelType:
         return self.db.query(self.model).filter(self.model.UUID == uuid).one()
@@ -161,16 +161,17 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         ID: Optional[int] = None,
         offset: int = 0,
-        limit: int = 20,
+        limit: int = -1,
         filters: Optional[Filters] = None,
     ) -> List[ModelType]:
         # Base valid query
         query, alias = self._build_valid_view_query(ID)
 
         # Apply additional filters or ordering
-        #filtered = self._build_filtered_query(query=query, filters=filters)
         if filters:
             query = filters.apply_to_query(model=self.model, query=query, alias=alias)
+        else:
+            query = self._build_filtered_query(query=query, filters=filters)
 
         ordered = query.order_by(alias.ID.desc())
         query = ordered.offset(offset)

@@ -99,6 +99,7 @@ def update_beleidskeuze(
 def changes_beleidskeuzes(
     old_uuid: str,
     new_uuid: str,
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Shows the changes between two versions of beleidskeuzes.
@@ -132,8 +133,6 @@ def read_valid_beleidskeuzes(
     Gets all the beleidskeuzes lineages and shows the latests valid object for each.
     """
     beleidskeuzes = crud.beleidskeuze.valid(offset=offset, limit=limit, filters=filters)
-    debug("COUNT RESULTS::----")
-    debug(len(beleidskeuzes))
     return beleidskeuzes
 
 

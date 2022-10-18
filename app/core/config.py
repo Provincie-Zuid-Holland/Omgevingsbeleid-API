@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import lru_cache
 import os
 from typing import Any, Dict, List, Optional, Union
 
@@ -9,6 +10,7 @@ class Settings(BaseSettings):
     API_V01_STR: str = "/v0.1"
 
     DEBUG_MODE: bool = bool(os.getenv("DEBUG_MODE", False))
+    TEST_MODE: bool = bool(os.getenv("TEST_MODE", True))
 
     SECRET_KEY: str = os.getenv(
         "JWT_SECRET", "secret"
@@ -56,6 +58,10 @@ class Settings(BaseSettings):
             return v
 
         db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
+
+        if values["TEST_MODE"] == True:
+            db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['TEST_DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
+
         return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
 
     SQLALCHEMY_TEST_DATABASE_URI: Optional[str] = None
@@ -77,5 +83,7 @@ class Settings(BaseSettings):
     class Config:
         case_sensitive = True
 
+def get_settings():
+    return Settings()
 
-settings = Settings()
+settings = get_settings()

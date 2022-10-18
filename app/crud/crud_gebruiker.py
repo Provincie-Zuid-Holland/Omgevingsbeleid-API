@@ -9,8 +9,8 @@ from app.schemas.gebruiker import GebruikerCreate, GebruikerUpdate
 
 
 class CRUDGebruiker(CRUDBase[Gebruiker, GebruikerCreate, GebruikerUpdate]):
-    def get_by_email(self, db: Session, *, email: str) -> Optional[Gebruiker]:
-        return db.query(Gebruiker).filter(Gebruiker.Email == email).first()
+    def get_by_email(self, email: str) -> Optional[Gebruiker]:
+        return self.db.query(Gebruiker).filter(Gebruiker.Email == email).first()
 
     def create(self, db: Session, *, obj_in: GebruikerCreate) -> Gebruiker:
         db_obj = Gebruiker(

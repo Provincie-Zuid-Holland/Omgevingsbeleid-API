@@ -1,3 +1,4 @@
+from devtools import debug
 from fastapi.testclient import TestClient
 import pytest
 from requests import Response
@@ -8,44 +9,55 @@ from app import models, schemas
 @pytest.mark.usefixtures("fixture_data")
 class TestApi:
     """
-    Functional endpoint tests
+    Test endpoint options/params
     """
-    def test_beleidskeuze_valid_view_past_vigerend(self, client: TestClient):
+
+    def test_limit(self, client: TestClient):
         response = client.get(
-            "v0.1/valid/beleidskeuzes?all_filters=Afweging:beleidskeuze1030"
+            "v0.1/valid/beleidskeuzes?limit=1"
         )
         assert response.status_code == 200, f"Status code was {response.status_code}"
         data = response.json()
 
         assert (
-            len(data) == 0
-        ), f"We are expecting nothing as the most recent Vigerend has its Eind_Geldigheid in the past"
+            len(data) == 1
+        ), f"Expecting only 1 result"
 
 
-    def test_beleidskeuze_valid_view_future_vigerend(self, client: TestClient):
+    def test_offset(self, client: TestClient):
+        base_response = client.get("v0.1/valid/beleidskeuzes?limit=3&offset=0")
+        assert base_response.status_code == 200, f"Status code was {base_response.status_code}"
+        base_data = base_response.json()
+
+        offset_response = client.get("v0.1/valid/beleidskeuzes?limit=3&offset=2")
+        assert offset_response.status_code == 200, f"Status code was {offset_response.status_code}"
+        offset_data = offset_response.json()
+    
+        # should shift 2 spots
+        assert (offset_data[0]["UUID"] == base_data[2]["UUID"])
+
+    
+    def test_filter_all(self, client: TestClient):
+        """
+        Only tests success response
+        """
+        filter = "Afweging:beleidskeuze1011"
         response = client.get(
-            "v0.1/valid/beleidskeuzes?all_filters=Afweging:beleidskeuze1011"
+            f"v0.1/valid/beleidskeuzes?all_filters={filter}"
         )
         assert response.status_code == 200, f"Status code was {response.status_code}"
         data = response.json()
-        assert len(data) >= 1, f"Expecting at least 1 results"
 
-        expected_uuids = set(
-            [
-                "FEC2E000-0011-0017-0000-000000000000",  # This is Vigerend and still in current date time range
-            ]
-        )
-        found_uuids = set([r["UUID"] for r in data])
-        assert expected_uuids.issubset(
-            found_uuids
-        ), f"Not all expected uuid where found"
 
-        forbidden_uuids = set(
-            [
-                "FEC2E000-0011-0011-0000-000000000000",  # first version early status
-                "FEC2E000-0011-0021-0000-000000000000",  # second version early status
-                "FEC2E000-0011-0027-0000-000000000000",  # New version status Vigerend, but in the future
-            ]
+    def test_filter_any(self, client: TestClient):
+        """
+        Only tests success response
+        """
+        filter = "Afweging:beleidskeuze1011"
+        response = client.get(
+            f"v0.1/valid/beleidskeuzes?any_filters={filter}"
         )
-        intersect = found_uuids & forbidden_uuids
-        assert len(intersect) == 0, f"Some forbidden uuid where found"
+        assert response.status_code == 200, f"Status code was {response.status_code}"
+        data = response.json()
+
+

@@ -61,7 +61,6 @@ def read_ambitie_lineage(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the ambities versions by lineage
@@ -99,6 +98,7 @@ def update_ambitie(
 def changes_ambities(
     old_uuid: str,
     new_uuid: str,
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Shows the changes between two versions of ambities.
