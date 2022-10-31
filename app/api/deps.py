@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app.core import security
@@ -55,12 +56,10 @@ def get_current_gebruiker(
             detail="Kan inloggegevens niet valideren",
         )
 
-    gebruiker = crud_gebruiker.get(uuid=token_data.sub)
-
-    if not gebruiker:
+    try:
+        return crud_gebruiker.get(uuid=token_data.sub)
+    except NoResultFound:
         raise HTTPException(status_code=404, detail="Gebruiker niet gevonden")
-
-    return gebruiker
 
 
 def get_current_active_gebruiker(

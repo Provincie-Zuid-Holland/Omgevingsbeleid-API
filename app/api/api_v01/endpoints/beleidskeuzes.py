@@ -15,13 +15,16 @@ from app.util.compare import Comparator
 
 router = APIRouter()
 
-defer_attributes = {"Omschrijving"}
+defer_attrs_list_view = {
+    "Omschrijving",
+    "Omschrijving_Keuze",
+    "Omschrijving_Werking",
+}
 
 
 @router.get(
     "/beleidskeuzes",
-    response_model=List[schemas.Beleidskeuze],
-    response_model_exclude=defer_attributes,
+    response_model=List[schemas.BeleidskeuzeListable],
 )
 def read_beleidskeuzes(
     db: Session = Depends(deps.get_db),
@@ -120,8 +123,7 @@ def changes_beleidskeuzes(
 
 @router.get(
     "/valid/beleidskeuzes",
-    response_model=List[schemas.Beleidskeuze],
-    response_model_exclude=defer_attributes,
+    response_model=List[schemas.BeleidskeuzeListable],
 )
 def read_valid_beleidskeuzes(
     db: Session = Depends(deps.get_db),

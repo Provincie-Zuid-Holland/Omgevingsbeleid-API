@@ -9,8 +9,8 @@ from app.schemas.gebruiker import GebruikerCreate, GebruikerUpdate
 
 
 class CRUDGebruiker(CRUDBase[Gebruiker, GebruikerCreate, GebruikerUpdate]):
-    def get_by_email(self, email: str) -> Optional[Gebruiker]:
-        return self.db.query(Gebruiker).filter(Gebruiker.Email == email).first()
+    def get_by_email(self, db: Session, email: str) -> Optional[Gebruiker]:
+        return self.db.query(Gebruiker).filter(Gebruiker.Email == email).one()
 
     def create(self, db: Session, *, obj_in: GebruikerCreate) -> Gebruiker:
         db_obj = Gebruiker(
@@ -43,16 +43,15 @@ class CRUDGebruiker(CRUDBase[Gebruiker, GebruikerCreate, GebruikerUpdate]):
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def authenticate(
-        self, db: Session, *, email: str, password: str
+        self, db: Session, username: str, password: str
     ) -> Optional[Gebruiker]:
-        gebruiker = self.get_by_email(db, email=email)
-        print("\n\n\nGebruiker:")
-        print(gebruiker)
-        print("\n\n\n")
+        gebruiker = self.get_by_email(db=db, email=username)
+
         if not gebruiker:
             return None
         if not verify_password(password, gebruiker.Wachtwoord):
             return None
+
         return gebruiker
 
     def is_active(self, gebruiker: Gebruiker) -> bool:

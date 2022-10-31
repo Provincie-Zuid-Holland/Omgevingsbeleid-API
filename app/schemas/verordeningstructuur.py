@@ -6,7 +6,7 @@ from pydantic.utils import GetterDict
 
 from app.util.legacy_helpers import to_ref_field
 
-from .gebruiker import GebruikerInline
+from app.schemas.common import GebruikerInline
 
 
 # Shared properties

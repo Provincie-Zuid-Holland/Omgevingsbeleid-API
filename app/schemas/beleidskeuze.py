@@ -1,77 +1,37 @@
+from datetime import datetime
 from typing import Any, List, Optional
-from app.util.legacy_helpers import to_ref_field
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
-from datetime import datetime
 
-from .gebruiker import GebruikerInline
-
-# Many to many schema's
-class RelatedBeleidsmoduleGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        from .beleidsmodule import BeleidsmoduleInDB
-
-        keys = BeleidsmoduleInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(RelatedBeleidsmoduleGetter, self).get(key, default)
-
-
-class RelatedBeleidsmodule(BaseModel):
-    ID: int
-    UUID: str
-    Titel: str
-    Koppeling_Omschrijving: Optional[str]
-
-    class Config:
-        orm_mode = True
-        getter_dict = RelatedBeleidsmoduleGetter
+from app.schemas.common import (
+    BeleidsmoduleReference,
+    BeleidskeuzeShortInline,
+    GebruikerInline,
+    RelatedAmbitie,
+    RelatedBelang,
+    RelatedBeleidsdoel,
+    RelatedBeleidsprestatie,
+    RelatedBeleidsregel,
+    RelatedMaatregel,
+    RelatedThema,
+    RelatedVerordeningen,
+    RelatedWerkingsgebied,
+)
 
 
-class RelatedBeleidsdoelGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        from .beleidsdoel import BeleidsdoelInDB
+def reference_alias_generator(field: str) -> str:
+    """
+    Hack to enable manual aliassing of schema output which
+    is not yet supported in FastApi
+    """
+    aliasses = {
+        "Beleidsmodules": "Ref_Beleidsmodules",
+    }
 
-        keys = BeleidsdoelInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidsdoel, key)
-        else:
-            return super(RelatedBeleidsdoelGetter, self).get(key, default)
+    if field in aliasses:
+        return aliasses[field]
 
-
-class RelatedBeleidsdoel(BaseModel):
-    ID: int
-    UUID: str
-    Titel: str
-    Koppeling_Omschrijving: Optional[str]
-
-    class Config:
-        orm_mode = True
-        getter_dict = RelatedBeleidsdoelGetter
-
-
-class RelatedMaatregelGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        from .maatregel import MaatregelInDB
-
-        keys = MaatregelInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Maatregel, key)
-        else:
-            return super(RelatedMaatregelGetter, self).get(key, default)
-
-
-class RelatedMaatregel(BaseModel):
-    ID: int
-    UUID: str
-    Titel: str
-    Koppeling_Omschrijving: Optional[str]
-
-    class Config:
-        orm_mode = True
-        getter_dict = RelatedMaatregelGetter
+    return field
 
 
 # Shared properties
@@ -93,11 +53,14 @@ class BeleidskeuzeCreate(BeleidskeuzeBase):
     Eind_Geldigheid: datetime
 
 
-class BeleidskeuzeUpdate(BeleidskeuzeBase):
+class BeleidskeuzeUpdate(BeleidskeuzeCreate):
     pass
 
 
 class BeleidskeuzeInDBBase(BeleidskeuzeBase):
+    """
+    Base beleidskeuze schema mirroring ORM model. Raw foreign keys.
+    """
     ID: int
     UUID: str
 
@@ -108,45 +71,84 @@ class BeleidskeuzeInDBBase(BeleidskeuzeBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
-    Titel: str
-    Omschrijving_Keuze: str
-    Omschrijving_Werking: str
-    Provinciaal_Belang: str
-    Aanleiding: str
-    Afweging: str
-    Besluitnummer: Optional[str]
-    Tags: Optional[str]
-    Status: str
-    Weblink: str
+    Eigenaar_1: Optional[str]
+    Eigenaar_2: Optional[str]
+    Portefeuillehouder_1: Optional[str]
+    Portefeuillehouder_2: Optional[str]
+
+    Opdrachtgever: Optional[str]
+    Aanpassing_Op: Optional[str]
 
     class Config:
         orm_mode = True
-        arbitrary_types_allowed = True
 
 
-# Properties to return to client
-class Beleidskeuze(BeleidskeuzeInDBBase):
-    Created_By: GebruikerInline
-    Modified_By: GebruikerInline
-
-    Beleidsmodules: List[RelatedBeleidsmodule]
-    Beleidsdoelen: List[RelatedBeleidsdoel]
-    Maatregelen: List[RelatedMaatregel]
-
-    class Config:
-        allow_population_by_field_name = True
-        alias_generator = to_ref_field
-
-
-# Properties properties stored in DB
 class BeleidskeuzeInDB(BeleidskeuzeInDBBase):
     pass
 
 
-class BeleidskeuzeShortInline(BaseModel):
+class Beleidskeuze(BeleidskeuzeInDB):
+    """
+    Full beleidskeuze object schema with serialized 
+    many to many relationships.
+
+    TODO: cannot alias aanpassing_op, self reference conflict orm model
+    """
+
+    # User serializers
+    Created_By: GebruikerInline
+    Modified_By: GebruikerInline
+
+    Eigenaar_1: Optional[GebruikerInline]
+    Eigenaar_2: Optional[GebruikerInline]
+    Portefeuillehouder_1: Optional[GebruikerInline]
+    Portefeuillehouder_2: Optional[GebruikerInline]
+
+    # Relation serializers
+    Aanpassing_Op: Optional[Any]
+    Ambities: List[RelatedAmbitie]
+    Belangen: List[RelatedBelang]
+    Beleidsprestaties: List[RelatedBeleidsprestatie]
+    Beleidsregels: List[RelatedBeleidsregel]
+    Themas: List[RelatedThema]
+    Verordeningen: List[RelatedVerordeningen]
+    Werkingsgebieden: List[RelatedWerkingsgebied]
+    Beleidsdoelen: List[RelatedBeleidsdoel]
+    Maatregelen: List[RelatedMaatregel]
+    #Beleidsrelaties
+
+    # Refs
+    Beleidsmodules: List[BeleidsmoduleReference]
+
+    class Config:
+        allow_population_by_field_name = True
+        alias_generator = reference_alias_generator
+
+
+
+class BeleidskeuzeListable(BeleidskeuzeShortInline):
+    """
+    Schema containing bare crud details and descriptions
+    for usage in list views.
+    """
     ID: int
     UUID: str
+
+    Created_By: GebruikerInline
+    Created_Date: datetime
+    Modified_By: GebruikerInline
+    Modified_Date: datetime
+
+    Begin_Geldigheid: datetime
+    Eind_Geldigheid: datetime
+
+    Status: str
     Titel: str
+
+    Beleidsmodules: List[BeleidsmoduleReference]
 
     class Config:
         orm_mode = True
+        allow_population_by_field_name = True
+        alias_generator = reference_alias_generator
+

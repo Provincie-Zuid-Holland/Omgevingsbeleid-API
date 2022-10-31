@@ -8,7 +8,8 @@ from pydantic.utils import GetterDict
 from app.util.legacy_helpers import to_ref_field
 
 from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
-from .gebruiker import GebruikerInline
+from app.schemas.common import GebruikerInline
+
 
 # Many to many schema's
 class RelatedBeleidskeuzeGetter(GetterDict):
@@ -29,7 +30,6 @@ class RelatedBeleidskeuze(BeleidskeuzeShortInline):
 class BelangBase(BaseModel):
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None
-    Status: Optional[str] = None
     Weblink: Optional[str] = None
     Type: Optional[str] = None
 

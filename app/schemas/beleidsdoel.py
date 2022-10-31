@@ -4,11 +4,11 @@ from typing import Any, List, Optional
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
 
-from app.schemas.ambitie import BeleidskeuzeShortInline
 from app.util.legacy_helpers import to_ref_field
 
 from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
-from .gebruiker import GebruikerInline
+from app.schemas.common import GebruikerInline, BeleidskeuzeShortInline
+
 
 # Many to many schema's
 class RelatedBeleidskeuzeGetter(GetterDict):

@@ -7,7 +7,7 @@ from pydantic.utils import GetterDict
 from app.util.legacy_helpers import to_ref_field
 
 from .beleidskeuze import Beleidskeuze
-from .gebruiker import GebruikerInline
+from app.schemas.common import GebruikerInline
 from .maatregel import Maatregel, MaatregelInDB
 
 # Many to many schema's

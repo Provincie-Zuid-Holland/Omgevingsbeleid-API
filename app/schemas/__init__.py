@@ -6,6 +6,7 @@ from .beleidskeuze import (
     BeleidskeuzeCreate,
     BeleidskeuzeInDB,
     BeleidskeuzeUpdate,
+    BeleidskeuzeListable
 )
 from .beleidsmodule import Beleidsmodule, BeleidsmoduleCreate, BeleidsmoduleUpdate
 from .beleidsprestatie import (
@@ -16,6 +17,21 @@ from .beleidsprestatie import (
 from .beleidsregel import Beleidsregel, BeleidsregelCreate, BeleidsregelUpdate
 from .beleidsrelatie import Beleidsrelatie, BeleidsrelatieCreate, BeleidsrelatieUpdate
 from .gebruiker import Gebruiker, GebruikerCreate, GebruikerInDB, GebruikerUpdate
+from .common import (
+    BeleidskeuzeReference,
+    BeleidsmoduleReference,
+    BeleidskeuzeShortInline,
+    GebruikerInline,
+    RelatedAmbitie,
+    RelatedBelang,
+    RelatedBeleidsdoel,
+    RelatedBeleidsprestatie,
+    RelatedBeleidsregel,
+    RelatedMaatregel,
+    RelatedThema,
+    RelatedVerordeningen,
+    RelatedWerkingsgebied,
+)
 from .graph import GraphView, LinkItem, NodeItem
 from .maatregel import Maatregel, MaatregelCreate, MaatregelUpdate
 from .msg import Msg

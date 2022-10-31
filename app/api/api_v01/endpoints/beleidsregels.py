@@ -14,7 +14,11 @@ from app.util.compare import Comparator
 
 router = APIRouter()
 
-defer_attributes = {"Omschrijving"}
+defer_attributes = {
+    "Omschrijving",
+    "Externe_URL",
+    "Weblink",
+}
 
 
 @router.get(
@@ -60,7 +64,6 @@ def read_beleidsregel_lineage(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the beleidsregels versions by lineage
@@ -77,7 +80,6 @@ def update_beleidsregel(
     db: Session = Depends(deps.get_db),
     lineage_id: int,
     beleidsregel_in: schemas.BeleidsregelUpdate,
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new beleidsregels to a lineage

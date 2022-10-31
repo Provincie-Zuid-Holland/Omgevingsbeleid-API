@@ -6,7 +6,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.session import sessionmaker
 
-from app.api.deps import get_db
 from app.db.base_class import metadata
 from app.core.config import Settings, settings
 from app.tests.utils.data_loader import FixtureLoader
@@ -19,6 +18,7 @@ def db():
     engine = create_engine(settings.SQLALCHEMY_TEST_DATABASE_URI, echo=False)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     yield SessionLocal()
+    print("---------------------------TEARDOWN------------------")
 
 
 @pytest.fixture(scope="class")
@@ -35,22 +35,11 @@ def fixture_data(db: Session):
 
 @pytest.fixture(scope="module")
 def client() -> TestClient:
-    def get_db_override():
-        try:
-            test_engine = create_engine(settings.SQLALCHEMY_TEST_DATABASE_URI, echo=False)
-            test_session = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
-            session = test_session()
-            yield session
-        finally:
-            session.close()
-
-    app.dependency_overrides[get_db] = get_db_override
-
     with TestClient(app) as c:
         yield c
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def admin_headers(client: TestClient) -> Dict[str, str]:
     return get_admin_headers(client)
 

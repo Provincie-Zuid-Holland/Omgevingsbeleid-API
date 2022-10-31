@@ -14,7 +14,10 @@ from app.util.compare import Comparator
 
 router = APIRouter()
 
-defer_attributes = {"Omschrijving"}
+defer_attributes = {
+    "Omschrijving",
+    "Weblink",
+}
 
 
 @router.get(
@@ -62,7 +65,6 @@ def read_beleidsprestatie_lineage(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the beleidsprestaties versions by lineage
@@ -133,6 +135,7 @@ def read_valid_beleidsprestaties(
     offset: int = 0,
     limit: int = 20,
     filters: Filters = Depends(deps.string_filters),
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the beleidsprestaties lineages and shows the latests valid object for each.

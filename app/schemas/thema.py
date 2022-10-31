@@ -1,13 +1,13 @@
+from datetime import datetime
 from typing import Any, List, Optional
 
-from pydantic import BaseModel, PyObjectError
+from pydantic import BaseModel
 from pydantic.utils import GetterDict
-from datetime import datetime
 
+from app.schemas.common import BeleidskeuzeShortInline, GebruikerInline
 from app.util.legacy_helpers import to_ref_field
 
-from .gebruiker import GebruikerInline
-from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
+from .beleidskeuze import BeleidskeuzeInDB
 
 # Many to many schema's
 class RelatedBeleidskeuzeGetter(GetterDict):

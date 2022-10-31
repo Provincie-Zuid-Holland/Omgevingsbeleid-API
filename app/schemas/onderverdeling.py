@@ -2,11 +2,9 @@ from datetime import datetime
 from typing import Any, List, Optional
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
 
+from app.schemas.common import GebruikerInline
 from app.util.legacy_helpers import to_ref_field
-
-from .gebruiker import GebruikerInline
 
 
 # Shared properties
@@ -42,7 +40,6 @@ class OnderverdelingInDBBase(OnderverdelingBase):
         arbitrary_types_allowed = True
 
 
-# Properties to return to client
 class Onderverdeling(OnderverdelingInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
@@ -52,6 +49,5 @@ class Onderverdeling(OnderverdelingInDBBase):
         alias_generator = to_ref_field
 
 
-# Properties properties stored in DB
 class OnderverdelingInDB(OnderverdelingInDBBase):
     pass

@@ -10,16 +10,24 @@ from app import crud, models, schemas
 from app.api import deps
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
+from app.schemas.maatregel import MaatregelListable
 from app.util.compare import Comparator
 
 router = APIRouter()
 
-defer_attributes = {"Omschrijving"}
+defer_attributes = {
+    "Omschrijving",
+    "Gebied_Duiding",
+    "Toelichting",
+    "Toelichting_Raw",
+    "Weblink",
+    "Tags",
+}
 
 
 @router.get(
     "/maatregelen",
-    response_model=List[schemas.Maatregel],
+    response_model=List[MaatregelListable],
     response_model_exclude=defer_attributes,
 )
 def read_maatregelen(
@@ -117,7 +125,7 @@ def changes_maatregelen(
 
 @router.get(
     "/valid/maatregelen",
-    response_model=List[schemas.Maatregel],
+    response_model=List[MaatregelListable],
     response_model_exclude=defer_attributes,
 )
 def read_valid_maatregelen(

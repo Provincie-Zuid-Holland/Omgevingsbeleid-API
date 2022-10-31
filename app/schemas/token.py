@@ -2,8 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from .gebruiker import GebruikerInline
-
+from app.schemas.common import GebruikerInline
 
 class Token(BaseModel):
     access_token: str

@@ -1,44 +1,67 @@
-from uuid import uuid4
-from fastapi.testclient import TestClient
-import pytest
-from requests import Response
+from uuid import UUID, uuid4
 
-from app import models, schemas, crud
+from fastapi.testclient import TestClient
+from freezegun import freeze_time
+import pytest
+from sqlalchemy.orm.session import Session
+
+from app import crud
 from app.db.base_class import NULL_UUID
-from app.db.session import SessionLocal
+from app.tests.utils.data_loader import FixtureLoader
 
 
 @pytest.mark.usefixtures("fixture_data")
-class TestValid:
+class TestValidSelection:
     """
     Functional endpoint tests to verify expected results
     when requesting 'Valid' objects.
     """
 
-    def test_generic_valid_view(self, client: TestClient):
+    def setup_method(self):
+       print("-------START METHOD SETUP-----------")
+
+    @freeze_time("2022-10-10")
+    def test_generic_valid_view(self, client: TestClient, db: Session):
         """
-        Insert non valid objects and ensure generic valid filters 
+        Insert valid objects and ensure generic valid filters 
         are applied correctly. Ambitie used as example.
         """
-        # Setup
-        user = crud.gebruiker.get_by_email(email="admin@test.com") 
-        input = {
-          "Titel": "test ambities",
-          "Omschrijving": "dit is een ambitie",
-          "Weblink": "http://hark.hark",
+        # Arrange
+        user = crud.gebruiker.get_by_email(db=db, email="admin@test.com") 
+        
+        valid = {
+          "UUID": uuid4(),
+          "ID": 999,
+          "Titel": "valid test ambitie",
+          "Omschrijving": "dit is een valid ambitie",
           "Begin_Geldigheid": "2020-10-10T09:57:05.054Z",
           "Eind_Geldigheid": "2030-10-10T09:57:05.054Z"
         }
-        ambitie_in = schemas.AmbitieCreate(**input)
-        crud.ambitie.create(obj_in=ambitie_in, by_uuid=user.UUID) 
-        
-        # Test
+        invalid = {
+          "UUID": uuid4(),
+          "ID": 998,
+          "Titel": "verlopen valid test ambitie",
+          "Omschrijving": "verlopen valid ambitie",
+          "Begin_Geldigheid": "2020-10-10T09:57:05.054Z",
+          "Eind_Geldigheid": "2021-09-09T09:57:05.054Z" # Expired
+        }
+
+        for amb in [valid, invalid]:
+            fl = FixtureLoader(db)
+            fl._ambitie("amb:water",**amb)
+            db.commit()
+
+        # Act
         response = client.get("v0.1/valid/ambities?limit=-1")
         assert response.status_code == 200, f"Status code was {response.status_code}"
-        data = response.json()
 
-        #TODO add uuid check
-        assert len(data) == 7, f"Expecting 7 valid Ambities"
+        # Assert
+        data = response.json()
+        
+        response_uuids = [UUID(amb["UUID"]) for amb in data]
+
+        assert valid["UUID"] in response_uuids, f"Expected valid {valid['UUID']} to be in response"
+        assert str(invalid["UUID"]) not in response_uuids, f"Expected invalid {valid['UUID']} not in response"
 
     def test_no_null_records(self, client: TestClient):
         response = client.get( "v0.1/valid/ambities?limit=-1")

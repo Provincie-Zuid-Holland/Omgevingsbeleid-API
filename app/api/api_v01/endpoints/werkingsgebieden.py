@@ -1,7 +1,6 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
@@ -14,7 +13,7 @@ from app.util.compare import Comparator
 
 router = APIRouter()
 
-defer_attributes = {"Omschrijving"}
+defer_attributes = { }
 
 
 @router.get(
@@ -61,7 +60,6 @@ def read_werkingsgebied_lineage(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the werkingsgebied versions by lineage
@@ -78,7 +76,6 @@ def update_werkingsgebied(
     db: Session = Depends(deps.get_db),
     lineage_id: int,
     werkingsgebied_in: schemas.WerkingsgebiedUpdate,
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new werkingsgebied to a lineage

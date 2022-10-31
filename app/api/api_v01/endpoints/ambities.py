@@ -14,7 +14,11 @@ from app.util.compare import Comparator
 
 router = APIRouter()
 
-defer_attributes = {"Omschrijving"}
+defer_attributes = {
+    "Omschrijving",
+    "Weblink",
+    "Beleidskeuzes",
+}
 
 
 @router.get(
@@ -52,7 +56,7 @@ def create_ambitie(
     """
     Creates a new ambities lineage
     """
-    ambitie = crud.ambitie.create(obj_in=ambitie_in, by_uuid=current_gebruiker.UUID)
+    ambitie = crud.ambitie.create(obj_in=ambitie_in, by_uuid=str(current_gebruiker.UUID))
     return ambitie
 
 
@@ -61,6 +65,7 @@ def read_ambitie_lineage(
     *,
     db: Session = Depends(deps.get_db),
     lineage_id: int,
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the ambities versions by lineage

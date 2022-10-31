@@ -1,27 +1,9 @@
+from datetime import datetime
 from typing import Any, List, Optional
-from app.schemas.ambitie import BeleidskeuzeShortInline
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
-from datetime import datetime
 
-from .gebruiker import GebruikerInline
-from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
-
-# Many to many schema's
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = BeleidskeuzeInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
-
-
-class RelatedBeleidskeuze(BeleidskeuzeShortInline):
-    class Config:
-        getter_dict = RelatedBeleidskeuzeGetter
-
+from app.schemas.common import BeleidskeuzeReference, GebruikerInline
 
 # Shared properties
 class BeleidsregelBase(BaseModel):
@@ -56,13 +38,36 @@ class BeleidsregelInDBBase(BeleidsregelBase):
         arbitrary_types_allowed = True
 
 
-# Properties to return to client
-class Beleidsregel(BeleidsregelInDBBase):
-    Created_By: GebruikerInline
-    Modified_By: GebruikerInline
-    Beleidskeuzes: List[RelatedBeleidskeuze]
-
-
-# Properties properties stored in DB
 class BeleidsregelInDB(BeleidsregelInDBBase):
     pass
+
+
+def reference_alias_generator(field: str) -> str:
+    """
+    Hack to enable manual aliassing of schema output which
+    is not yet supported in FastApi
+    """
+    aliasses = {
+        "Beleidskeuzes": "Ref_Beleidskeuzes",
+    }
+
+    if field in aliasses:
+        return aliasses[field]
+
+    return field
+
+
+class Beleidsregel(BeleidsregelInDBBase):
+    """
+    Full Beleidsregel object schema with serialized 
+    many to many relationships.
+    """
+    Created_By: GebruikerInline
+    Modified_By: GebruikerInline
+
+    Beleidskeuzes: List[BeleidskeuzeReference]
+
+    class Config:
+        allow_population_by_field_name = True
+        alias_generator = reference_alias_generator
+

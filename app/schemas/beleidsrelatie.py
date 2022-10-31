@@ -1,11 +1,12 @@
+from datetime import datetime
 from typing import Any, List, Optional
 
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
-from datetime import datetime
 
-from .gebruiker import GebruikerInline
-from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
+from app.schemas.common import BeleidskeuzeShortInline, GebruikerInline
+
+from .beleidskeuze import BeleidskeuzeInDB
 
 
 # Shared properties
@@ -42,7 +43,6 @@ class BeleidsrelatieInDBBase(BeleidsrelatieBase):
         arbitrary_types_allowed = True
 
 
-# Properties to return to client
 class Beleidsrelatie(BeleidsrelatieInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
@@ -51,6 +51,5 @@ class Beleidsrelatie(BeleidsrelatieInDBBase):
     Naar_Beleidskeuze: BeleidskeuzeShortInline
 
 
-# Properties properties stored in DB
 class BeleidsrelatieInDB(BeleidsrelatieInDBBase):
     pass
