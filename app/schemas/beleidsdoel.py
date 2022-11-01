@@ -37,7 +37,7 @@ class BeleidsdoelCreate(BeleidsdoelBase):
     Eind_Geldigheid: datetime
 
 
-class BeleidsdoelUpdate(BeleidsdoelBase):
+class BeleidsdoelUpdate(BeleidsdoelCreate):
     pass
 
 

@@ -54,6 +54,7 @@ class DefaultRelatedSchema(BaseModel):
         getter_dict = DefaultGetter
 
 
+#
 # Entity getters
 class AmbitieGetter(DefaultGetter):
     REF_NAME = "Ambitie"

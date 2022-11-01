@@ -18,7 +18,7 @@ class BeleidsprestatieCreate(BeleidsprestatieBase):
     Eind_Geldigheid: datetime
 
 
-class BeleidsprestatieUpdate(BeleidsprestatieBase):
+class BeleidsprestatieUpdate(BeleidsprestatieCreate):
     pass
 
 

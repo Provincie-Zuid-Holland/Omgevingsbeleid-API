@@ -18,7 +18,7 @@ class BeleidsregelCreate(BeleidsregelBase):
     Eind_Geldigheid: datetime
 
 
-class BeleidsregelUpdate(BeleidsregelBase):
+class BeleidsregelUpdate(BeleidsregelCreate):
     pass
 
 

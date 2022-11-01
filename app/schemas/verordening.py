@@ -41,7 +41,7 @@ class VerordeningCreate(VerordeningBase):
     Eind_Geldigheid: datetime
 
 
-class VerordeningUpdate(VerordeningBase):
+class VerordeningUpdate(VerordeningCreate):
     pass
 
 

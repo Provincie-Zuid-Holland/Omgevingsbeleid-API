@@ -39,7 +39,7 @@ class BelangCreate(BelangBase):
     Eind_Geldigheid: datetime
 
 
-class BelangUpdate(BelangBase):
+class BelangUpdate(BelangCreate):
     pass
 
 
