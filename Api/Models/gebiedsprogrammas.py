@@ -10,7 +10,7 @@ from Api.Endpoints.validators import HTML_Validate
 from Api.Endpoints.base_schema import Base_Schema
 from Api.Endpoints.references import Reverse_UUID_Reference
 from Api.Endpoints.werkingsgebieden_data_manager import WerkingsgebiedenDataManager
-from Api.Models.short_schemas import Short_Beleidskeuze_Schema
+from Api.Models.short_schemas import Short_Beleidsmodule_Schema
 from Api.database import CommonMixin, db
 from Api.settings import default_user_uuid
 from Api.Models.maatregelen import Maatregelen_Schema
@@ -40,6 +40,23 @@ class Maatregel_Gebiedsprogrammas(db.Model):
     Gebiedsprogramma = relationship("Gebiedsprogrammas", back_populates="Maatregelen")
 
 
+class Beleidsmodule_Gebiedsprogrammas(db.Model):
+    __tablename__ = "Beleidsmodule_Gebiedsprogrammas"
+
+    Beleidsmodule_UUID = Column(
+        "Beleidsmodule_UUID", ForeignKey("Beleidsmodules.UUID"), primary_key=True
+    )
+    Gebiedsprogramma_UUID = Column(
+        "Gebiedsprogramma_UUID", ForeignKey("Gebiedsprogrammas.UUID"), primary_key=True
+    )
+    Koppeling_Omschrijving = Column(
+        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
+    )
+
+    Beleidsmodule = relationship("Beleidsmodules", back_populates="Gebiedsprogrammas")
+    Gebiedsprogramma = relationship("Gebiedsprogrammas", back_populates="Beleidsmodules")
+
+
 class Gebiedsprogrammas(CommonMixin, db.Model):
     __tablename__ = "Gebiedsprogrammas"
 
@@ -65,6 +82,9 @@ class Gebiedsprogrammas(CommonMixin, db.Model):
 
     Maatregelen = relationship(
         "Maatregel_Gebiedsprogrammas", back_populates="Gebiedsprogramma"
+    )
+    Beleidsmodules = relationship(
+        "Beleidsmodule_Gebiedsprogrammas", back_populates="Gebiedsprogramma"
     )
 
     Ref_Eigenaar_1 = relationship(
@@ -147,6 +167,12 @@ class Gebiedsprogrammas_Schema(Base_Schema):
     Weblink = MM.fields.Str(missing=None, validate=[HTML_Validate], obprops=[])
     Besluitnummer = MM.fields.Str(missing=None, obprops=[])
 
+    Ref_Beleidsmodules = MM.fields.Nested(
+        UUID_Linker_Schema,
+        many=True,
+        obprops=["referencelist", "excluded_patch", "excluded_post"],
+    )
+
     class Meta(Base_Schema.Meta):
         slug = "gebiedsprogrammas"
         table = "Gebiedsprogrammas"
@@ -176,6 +202,14 @@ class Gebiedsprogrammas_Schema(Base_Schema):
                 "Maatregel_UUID",
                 "Koppeling_Omschrijving",
                 Maatregelen_Schema,
+            ),
+            "Ref_Beleidsmodules": Reverse_UUID_Reference(
+                "Beleidsmodule_Gebiedsprogrammas",
+                "Beleidsmodules",
+                "Gebiedsprogramma_UUID",
+                "Beleidsmodule_UUID",
+                "Koppeling_Omschrijving",
+                Short_Beleidsmodule_Schema,
             ),
         }
         status_conf = ("Status", "Vigerend")
