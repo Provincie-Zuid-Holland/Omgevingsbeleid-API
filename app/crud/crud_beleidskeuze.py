@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import joinedload
@@ -11,7 +11,6 @@ from app.crud.base import CRUDBase
 from app.db.base_class import NULL_UUID
 from app.models.beleidskeuze import Beleidskeuze
 from app.schemas.beleidskeuze import BeleidskeuzeCreate, BeleidskeuzeUpdate
-from app.schemas.filters import Filters
 
 
 class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUpdate]):
@@ -35,6 +34,26 @@ class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUp
         self.db.commit()
         self.db.refresh(db_obj)
         return db_obj
+
+
+    def update(
+        self, *, db_obj: Beleidskeuze, obj_in: Union[BeleidskeuzeUpdate, Dict[str, Any]]
+    ) -> Beleidskeuze:
+        obj_data = jsonable_encoder(db_obj)
+        if isinstance(obj_in, dict):
+            update_data = obj_in
+        else:
+            update_data = obj_in.dict(exclude_unset=True)
+        for field in obj_data:
+            if field in update_data:
+                setattr(db_obj, field, update_data[field])
+        try:
+            self.db.add(db_obj)
+            self.db.commit()
+            self.db.refresh(db_obj)
+            return db_obj
+        except:
+            raise DatabaseError()
 
 
     def valid_uuids(self) -> List[str]:

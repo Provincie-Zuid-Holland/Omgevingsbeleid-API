@@ -7,6 +7,7 @@ from app.schemas.common import (
     BeleidsmoduleReference,
     BeleidskeuzeShortInline,
     GebruikerInline,
+    GenericReferenceUpdate,
     RelatedAmbitie,
     RelatedBelang,
     RelatedBeleidsdoel,
@@ -54,8 +55,17 @@ class BeleidskeuzeCreate(BeleidskeuzeBase):
 
 
 class BeleidskeuzeUpdate(BeleidskeuzeCreate):
-    pass
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
 
+    Ambities: Optional[List[GenericReferenceUpdate]]
+    Belangen: Optional[List[GenericReferenceUpdate]]
+    Beleidsprestaties: Optional[List[GenericReferenceUpdate]]
+    Beleidsregels: Optional[List[GenericReferenceUpdate]]
+    Themas: Optional[List[GenericReferenceUpdate]]
+    Verordeningen: Optional[List[GenericReferenceUpdate]]
+    Werkingsgebieden: Optional[List[GenericReferenceUpdate]]
+    Beleidsdoelen: Optional[List[GenericReferenceUpdate]]
 
 class BeleidskeuzeInDBBase(BeleidskeuzeBase):
     """

@@ -2,7 +2,13 @@ from typing import Any, Optional
 from pydantic.main import BaseModel
 from pydantic.utils import GetterDict
 
+# Relations
+class GenericReferenceUpdate(BaseModel):
+    UUID: str
+    Koppeling_Omschrijving: str
 
+
+# Inline
 class BeleidskeuzeShortInline(BaseModel):
     ID: int
     UUID: str

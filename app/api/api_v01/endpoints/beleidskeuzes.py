@@ -84,17 +84,21 @@ def update_beleidskeuze(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
-    Adds a new beleidskeuzes to a lineage
+    Update latest beleidskeuze from a lineage
     """
     beleidskeuze = crud.beleidskeuze.get_latest_by_id(id=lineage_id)
+
     if not beleidskeuze:
         raise HTTPException(status_code=404, detail="Beleidskeuze not found")
+
     if beleidskeuze.Created_By != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
+
     beleidskeuze = crud.beleidskeuze.update(db_obj=beleidskeuze, obj_in=beleidskeuze_in)
+
     return beleidskeuze
 
 
