@@ -19,6 +19,3 @@ class CRUDBeleidsprestatie(
             .filter(self.model.UUID == uuid)
             .one()
         )
-
-
-beleidsprestatie = CRUDBeleidsprestatie(Beleidsprestatie)

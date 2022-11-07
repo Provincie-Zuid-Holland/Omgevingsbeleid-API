@@ -8,6 +8,7 @@ from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
+from app.crud import CRUDVerordeningstructuur
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.util.compare import Comparator
@@ -23,7 +24,7 @@ defer_attributes = {"Inhoud"}
     response_model_exclude=defer_attributes,
 )
 def read_verordeningstructuurs(
-    db: Session = Depends(deps.get_db),
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -32,7 +33,7 @@ def read_verordeningstructuurs(
     """
     Gets all the verordeningstructuurs lineages and shows the latests object for each
     """
-    verordeningstructuurs = crud.verordeningstructuur.latest(
+    verordeningstructuurs = crud_verordeningstructuur.latest(
         all=True, filters=filters, offset=offset, limit=limit
     )
 
@@ -42,14 +43,14 @@ def read_verordeningstructuurs(
 @router.post("/verordeningstructuren", response_model=schemas.Verordeningstructuur)
 def create_verordeningstructuur(
     *,
-    db: Session = Depends(deps.get_db),
     verordeningstructuur_in: schemas.VerordeningstructuurCreate,
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Creates a new verordeningstructuurs lineage
     """
-    verordeningstructuur = crud.verordeningstructuur.create(
+    verordeningstructuur = crud_verordeningstructuur.create(
         obj_in=verordeningstructuur_in, by_uuid=current_gebruiker.UUID
     )
     return verordeningstructuur
@@ -61,14 +62,14 @@ def create_verordeningstructuur(
 )
 def read_verordeningstructuur_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the verordeningstructuurs versions by lineage
     """
-    verordeningstructuurs = crud.verordeningstructuur.all(
+    verordeningstructuurs = crud_verordeningstructuur.all(
         filters=Filters({"ID": lineage_id})
     )
     if not verordeningstructuurs:
@@ -81,15 +82,15 @@ def read_verordeningstructuur_lineage(
 )
 def update_verordeningstructuur(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
     verordeningstructuur_in: schemas.VerordeningstructuurUpdate,
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new verordeningstructuurs to a lineage
     """
-    verordeningstructuur = crud.verordeningstructuur.get_latest_by_id(id=lineage_id)
+    verordeningstructuur = crud_verordeningstructuur.get_latest_by_id(id=lineage_id)
     if not verordeningstructuur:
         raise HTTPException(status_code=404, detail="Verordeningstructuur not found")
     if verordeningstructuur.Created_By != current_gebruiker.UUID:
@@ -97,7 +98,7 @@ def update_verordeningstructuur(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    verordeningstructuur = crud.verordeningstructuur.update(
+    verordeningstructuur = crud_verordeningstructuur.update(
         db_obj=verordeningstructuur, obj_in=verordeningstructuur_in
     )
     return verordeningstructuur
@@ -107,13 +108,14 @@ def update_verordeningstructuur(
 def changes_verordeningstructuurs(
     old_uuid: str,
     new_uuid: str,
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
 ) -> Any:
     """
     Shows the changes between two versions of verordeningstructuurs.
     """
     try:
-        old = crud.verordeningstructuur.get(old_uuid)
-        new = crud.verordeningstructuur.get(new_uuid)
+        old = crud_verordeningstructuur.get(old_uuid)
+        new = crud_verordeningstructuur.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -132,7 +134,7 @@ def changes_verordeningstructuurs(
     response_model_exclude=defer_attributes,
 )
 def read_valid_verordeningstructuurs(
-    db: Session = Depends(deps.get_db),
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
     offset: int = 0,
     limit: int = 20,
     all_filters: str = "",
@@ -141,7 +143,8 @@ def read_valid_verordeningstructuurs(
     """
     Gets all the verordeningstructuurs lineages and shows the latests valid object for each.
     """
-    verordeningstructuurs = crud.verordeningstructuur.valid(
+    # @TODO parse_filter_str ?
+    verordeningstructuurs = crud_verordeningstructuur.valid(
         offset=offset, limit=limit, criteria=parse_filter_str(all_filters)
     )
     return verordeningstructuurs
@@ -153,16 +156,16 @@ def read_valid_verordeningstructuurs(
 )
 def read_valid_verordeningstructuur_lineage(
     lineage_id: int,
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
     offset: int = 0,
     limit: int = 20,
     all_filters: str = "",
     any_filters: str = "",
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the verordeningstructuurs in this lineage that are valid
     """
-    verordeningstructuurs = crud.verordeningstructuur.valid(
+    verordeningstructuurs = crud_verordeningstructuur.valid(
         ID=lineage_id, offset=offset, limit=limit
     )
     return verordeningstructuurs

@@ -10,7 +10,7 @@ from app import models, schemas
 from app.api import deps
 from app.core.exceptions import EmptySearchCriteria
 from app.schemas.search import SearchResultWrapper
-from app.services import search_service
+from app.services import SearchService, GeoSearchService
 from app.util import get_filtered_search_criteria
 
 router = APIRouter()
@@ -23,8 +23,7 @@ logger = logging.getLogger(__name__)
 )
 def search(
     query: str,
-    db: Session = Depends(deps.get_db),
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
+    search_service: SearchService = Depends(deps.get_search_service),
 ) -> Any:
     """
     Fetches items matching the search query parameters
@@ -66,7 +65,7 @@ def search(
 )
 def geo_search(
     query: str,
-    db: Session = Depends(deps.get_db),
+    geo_search_service: GeoSearchService = Depends(deps.get_geo_search_service),
 ) -> Any:
     """
     Lookup geo-searchable entities related to a 'Werkingsgebied'
@@ -78,6 +77,6 @@ def geo_search(
             status_code=403, detail="Invalid list of Werkingsgebied UUIDs"
         )
 
-    search_results = search_service.geo_search(query_list)
+    search_results = geo_search_service.geo_search(query_list)
 
     return {"results": search_results, "count": len(search_results)}

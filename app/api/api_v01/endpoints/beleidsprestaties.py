@@ -8,6 +8,7 @@ from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
+from app.crud import CRUDBeleidsprestatie
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.util.compare import Comparator
@@ -26,7 +27,7 @@ defer_attributes = {
     response_model_exclude=defer_attributes,
 )
 def read_beleidsprestaties(
-    db: Session = Depends(deps.get_db),
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -35,7 +36,7 @@ def read_beleidsprestaties(
     """
     Gets all the beleidsprestaties lineages and shows the latests object for each
     """
-    beleidsprestaties = crud.beleidsprestatie.latest(
+    beleidsprestaties = crud_beleidsprestatie.latest(
         all=True, filters=filters, offset=offset, limit=limit
     )
 
@@ -45,14 +46,14 @@ def read_beleidsprestaties(
 @router.post("/beleidsprestaties", response_model=schemas.Beleidsprestatie)
 def create_beleidsprestatie(
     *,
-    db: Session = Depends(deps.get_db),
     beleidsprestatie_in: schemas.BeleidsprestatieCreate,
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Creates a new beleidsprestaties lineage
     """
-    beleidsprestatie = crud.beleidsprestatie.create(
+    beleidsprestatie = crud_beleidsprestatie.create(
         obj_in=beleidsprestatie_in, by_uuid=current_gebruiker.UUID
     )
     return beleidsprestatie
@@ -63,13 +64,13 @@ def create_beleidsprestatie(
 )
 def read_beleidsprestatie_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
 ) -> Any:
     """
     Gets all the beleidsprestaties versions by lineage
     """
-    beleidsprestaties = crud.beleidsprestatie.all(filters=Filters({"ID": lineage_id}))
+    beleidsprestaties = crud_beleidsprestatie.all(filters=Filters({"ID": lineage_id}))
     if not beleidsprestaties:
         raise HTTPException(status_code=404, detail="Beleidsprestaties not found")
     return beleidsprestaties
@@ -80,15 +81,15 @@ def read_beleidsprestatie_lineage(
 )
 def update_beleidsprestatie(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
     beleidsprestatie_in: schemas.BeleidsprestatieUpdate,
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new beleidsprestaties to a lineage
     """
-    beleidsprestatie = crud.beleidsprestatie.get_latest_by_id(id=lineage_id)
+    beleidsprestatie = crud_beleidsprestatie.get_latest_by_id(id=lineage_id)
     if not beleidsprestatie:
         raise HTTPException(status_code=404, detail="Beleidsprestatie not found")
     if beleidsprestatie.Created_By != current_gebruiker.UUID:
@@ -96,7 +97,7 @@ def update_beleidsprestatie(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsprestatie = crud.beleidsprestatie.update(
+    beleidsprestatie = crud_beleidsprestatie.update(
         db_obj=beleidsprestatie, obj_in=beleidsprestatie_in
     )
     return beleidsprestatie
@@ -106,13 +107,14 @@ def update_beleidsprestatie(
 def changes_beleidsprestaties(
     old_uuid: str,
     new_uuid: str,
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
 ) -> Any:
     """
     Shows the changes between two versions of beleidsprestaties.
     """
     try:
-        old = crud.beleidsprestatie.get(old_uuid)
-        new = crud.beleidsprestatie.get(new_uuid)
+        old = crud_beleidsprestatie.get(old_uuid)
+        new = crud_beleidsprestatie.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -131,16 +133,16 @@ def changes_beleidsprestaties(
     response_model_exclude=defer_attributes,
 )
 def read_valid_beleidsprestaties(
-    db: Session = Depends(deps.get_db),
-    offset: int = 0,
-    limit: int = 20,
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
     filters: Filters = Depends(deps.string_filters),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
+    offset: int = 0,
+    limit: int = 20,
 ) -> Any:
     """
     Gets all the beleidsprestaties lineages and shows the latests valid object for each.
     """
-    beleidsprestaties = crud.beleidsprestatie.valid(
+    beleidsprestaties = crud_beleidsprestatie.valid(
         offset=offset, limit=limit, filters=filters
     )
     return beleidsprestaties
@@ -152,15 +154,15 @@ def read_valid_beleidsprestaties(
 )
 def read_valid_beleidsprestatie_lineage(
     lineage_id: int,
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the beleidsprestaties in this lineage that are valid
     """
-    beleidsprestaties = crud.beleidsprestatie.valid(
+    beleidsprestaties = crud_beleidsprestatie.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return beleidsprestaties

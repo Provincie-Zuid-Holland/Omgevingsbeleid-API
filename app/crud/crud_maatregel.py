@@ -5,24 +5,22 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Query, joinedload
 from sqlalchemy.sql import Alias
 
-from app.crud.base import CRUDBase
+from app.crud.base import GeoCRUDBase
 from app.db.base_class import NULL_UUID
-from app.models.maatregel import Maatregel
+from app import models, schemas
 from app.schemas.filters import Filter, FilterCombiner, Filters
-from app.schemas.maatregel import MaatregelCreate, MaatregelUpdate
 
 
-class CRUDMaatregel(CRUDBase[Maatregel, MaatregelCreate, MaatregelUpdate]):
-    def get(self, uuid: str) -> Maatregel:
+class CRUDMaatregel(GeoCRUDBase[models.Maatregel, schemas.MaatregelCreate, schemas.MaatregelUpdate]):
+    def get(self, uuid: str) -> models.Maatregel:
         return (
             self.db.query(self.model)
             .options(
-                joinedload(Maatregel.Beleidskeuzes),
+                joinedload(models.Maatregel.Beleidskeuzes),
             )
             .filter(self.model.UUID == uuid)
             .one()
         )
-
 
     def valid_uuids(self, as_query: bool = False) -> Union[List[str], Query]:
         """
@@ -59,25 +57,24 @@ class CRUDMaatregel(CRUDBase[Maatregel, MaatregelCreate, MaatregelUpdate]):
         """
         row_number = self._add_rownumber_latest_id()
         query: Query = (
-            self.db.query(Maatregel, row_number)
-            .filter(Maatregel.Status == "Vigerend")
-            .filter(Maatregel.UUID != NULL_UUID)
-            .filter(Maatregel.Begin_Geldigheid <= datetime.utcnow())
+            self.db.query(models.Maatregel, row_number)
+            .filter(models.Maatregel.Status == "Vigerend")
+            .filter(models.Maatregel.UUID != NULL_UUID)
+            .filter(models.Maatregel.Begin_Geldigheid <= datetime.utcnow())
         )
         return query
 
-
-    def fetch_in_geo(self, area_uuid: List[str], limit: int):
+    def fetch_in_geo(self, area_uuid: List[str], limit: int) -> List[models.Maatregel]:
         """
         Retrieve the instances of this entity linked
         to the IDs of provided geological areas.
         """
-        col = Maatregel.Gebied_UUID
+        col = models.Maatregel.Gebied_UUID
         filters = [Filter(key=col.key, value=id) for id in area_uuid]
         area_filter = Filters()
         area_filter._append_clause(combiner=FilterCombiner.OR, items=filters)
 
         return self.valid(filters=area_filter, limit=limit)
 
-
-maatregel = CRUDMaatregel(Maatregel)
+    def as_geo_schema(self, model: models.Maatregel):
+        return schemas.Maatregel.from_orm(model)

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
+from app.crud import CRUDBelang
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.util.compare import Comparator
@@ -23,7 +24,7 @@ defer_attributes = {"Omschrijving"}
     response_model_exclude=defer_attributes,
 )
 def read_belangen(
-    db: Session = Depends(deps.get_db),
+    crud_belang: CRUDBelang = Depends(deps.get_crud_belang),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -32,7 +33,7 @@ def read_belangen(
     """
     Gets all the belangen lineages and shows the latests object for each
     """
-    belangen = crud.belang.latest(all=True, filters=filters, offset=offset, limit=limit)
+    belangen = crud_belang.latest(all=True, filters=filters, offset=offset, limit=limit)
 
     return belangen
 
@@ -40,28 +41,28 @@ def read_belangen(
 @router.post("/belangen", response_model=schemas.Belang)
 def create_belang(
     *,
-    db: Session = Depends(deps.get_db),
     belang_in: schemas.BelangCreate,
+    crud_belang: CRUDBelang = Depends(deps.get_crud_belang),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Creates a new belangen lineage
     """
-    belang = crud.belang.create(obj_in=belang_in, by_uuid=current_gebruiker.UUID)
+    belang = crud_belang.create(obj_in=belang_in, by_uuid=current_gebruiker.UUID)
     return belang
 
 
 @router.get("/belangen/{lineage_id}", response_model=List[schemas.Belang])
 def read_belang_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_belang: CRUDBelang = Depends(deps.get_crud_belang),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the belangen versions by lineage
     """
-    belangen = crud.belang.all(filters=Filters({"ID": lineage_id}))
+    belangen = crud_belang.all(filters=Filters({"ID": lineage_id}))
     if not belangen:
         raise HTTPException(status_code=404, detail="Belangs not found")
     return belangen
@@ -70,15 +71,15 @@ def read_belang_lineage(
 @router.patch("/belangen/{lineage_id}", response_model=schemas.Belang)
 def update_belang(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
     belang_in: schemas.BelangUpdate,
+    crud_belang: CRUDBelang = Depends(deps.get_crud_belang),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new belangen to a lineage
     """
-    belang = crud.belang.get_latest_by_id(id=lineage_id)
+    belang = crud_belang.get_latest_by_id(id=lineage_id)
     if not belang:
         raise HTTPException(status_code=404, detail="Belang not found")
     if belang.Created_By != current_gebruiker.UUID:
@@ -86,7 +87,7 @@ def update_belang(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    belang = crud.belang.update(db_obj=belang, obj_in=belang_in)
+    belang = crud_belang.update(db_obj=belang, obj_in=belang_in)
     return belang
 
 
@@ -94,13 +95,14 @@ def update_belang(
 def changes_belangen(
     old_uuid: str,
     new_uuid: str,
+    crud_belang: CRUDBelang = Depends(deps.get_crud_belang),
 ) -> Any:
     """
     Shows the changes between two versions of belangen.
     """
     try:
-        old = crud.belang.get(old_uuid)
-        new = crud.belang.get(new_uuid)
+        old = crud_belang.get(old_uuid)
+        new = crud_belang.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -116,30 +118,30 @@ def changes_belangen(
     response_model_exclude=defer_attributes,
 )
 def read_valid_belangen(
-    db: Session = Depends(deps.get_db),
+    crud_belang: CRUDBelang = Depends(deps.get_crud_belang),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the belangen lineages and shows the latests valid object for each.
     """
-    belangen = crud.belang.valid(offset=offset, limit=limit, filters=filters)
+    belangen = crud_belang.valid(offset=offset, limit=limit, filters=filters)
     return belangen
 
 
 @router.get("/valid/belangen/{lineage_id}", response_model=List[schemas.Belang])
 def read_valid_belang_lineage(
     lineage_id: int,
+    filters: Filters = Depends(deps.string_filters),
+    crud_belang: CRUDBelang = Depends(deps.get_crud_belang),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the belangen in this lineage that are valid
     """
-    belangen = crud.belang.valid(
+    belangen = crud_belang.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return belangen

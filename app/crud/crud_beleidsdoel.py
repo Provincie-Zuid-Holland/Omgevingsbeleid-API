@@ -18,6 +18,3 @@ class CRUDBeleidsdoel(CRUDBase[Beleidsdoel, BeleidsdoelCreate, BeleidsdoelUpdate
             .filter(self.model.UUID == uuid)
             .one()
         )
-
-
-beleidsdoel = CRUDBeleidsdoel(Beleidsdoel)

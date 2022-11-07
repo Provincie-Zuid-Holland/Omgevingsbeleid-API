@@ -13,6 +13,3 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
             .filter(self.model.UUID == uuid)
             .one()
         )
-
-
-ambitie = CRUDAmbitie(Ambitie)

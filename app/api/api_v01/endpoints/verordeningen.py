@@ -8,6 +8,7 @@ from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
+from app.crud import CRUDVerordening
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.util.compare import Comparator
@@ -23,7 +24,7 @@ defer_attributes = {"Inhoud"}
     response_model_exclude=defer_attributes,
 )
 def read_verordening(
-    db: Session = Depends(deps.get_db),
+    crud_verordening: CRUDVerordening = Depends(deps.get_crud_verordening),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -32,7 +33,7 @@ def read_verordening(
     """
     Gets all the verordening lineages and shows the latests object for each
     """
-    verordening = crud.verordening.latest(
+    verordening = crud_verordening.latest(
         all=True, filters=filters, offset=offset, limit=limit
     )
 
@@ -42,14 +43,14 @@ def read_verordening(
 @router.post("/verordeningen", response_model=schemas.Verordening)
 def create_verordening(
     *,
-    db: Session = Depends(deps.get_db),
     verordening_in: schemas.VerordeningCreate,
+    crud_verordening: CRUDVerordening = Depends(deps.get_crud_verordening),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Creates a new verordening lineage
     """
-    verordening = crud.verordening.create(
+    verordening = crud_verordening.create(
         obj_in=verordening_in, by_uuid=current_gebruiker.UUID
     )
     return verordening
@@ -58,14 +59,14 @@ def create_verordening(
 @router.get("/verordeningen/{lineage_id}", response_model=List[schemas.Verordening])
 def read_verordening_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_verordening: CRUDVerordening = Depends(deps.get_crud_verordening),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the verordening versions by lineage
     """
-    verordening = crud.verordening.all(filters=Filters({"ID": lineage_id}))
+    verordening = crud_verordening.all(filters=Filters({"ID": lineage_id}))
     if not verordening:
         raise HTTPException(status_code=404, detail="verordening not found")
     return verordening
@@ -74,15 +75,15 @@ def read_verordening_lineage(
 @router.patch("/verordeningen/{lineage_id}", response_model=schemas.Verordening)
 def update_verordening(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
     verordening_in: schemas.VerordeningUpdate,
+    crud_verordening: CRUDVerordening = Depends(deps.get_crud_verordening),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new verordening to a lineage
     """
-    verordening = crud.verordening.get_latest_by_id(id=lineage_id)
+    verordening = crud_verordening.get_latest_by_id(id=lineage_id)
     if not verordening:
         raise HTTPException(status_code=404, detail="Verordening not found")
     if verordening.Created_By != current_gebruiker.UUID:
@@ -90,7 +91,7 @@ def update_verordening(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    verordening = crud.verordening.update(db_obj=verordening, obj_in=verordening_in)
+    verordening = crud_verordening.update(db_obj=verordening, obj_in=verordening_in)
     return verordening
 
 
@@ -98,13 +99,14 @@ def update_verordening(
 def changes_verordening(
     old_uuid: str,
     new_uuid: str,
+    crud_verordening: CRUDVerordening = Depends(deps.get_crud_verordening),
 ) -> Any:
     """
     Shows the changes between two versions of verordening.
     """
     try:
-        old = crud.verordening.get(old_uuid)
-        new = crud.verordening.get(new_uuid)
+        old = crud_verordening.get(old_uuid)
+        new = crud_verordening.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -123,15 +125,15 @@ def changes_verordening(
     response_model_exclude=defer_attributes,
 )
 def read_valid_verordening(
-    db: Session = Depends(deps.get_db),
+    crud_verordening: CRUDVerordening = Depends(deps.get_crud_verordening),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the verordening lineages and shows the latests valid object for each.
     """
-    verordening = crud.verordening.valid(offset=offset, limit=limit, filters=filters)
+    verordening = crud_verordening.valid(offset=offset, limit=limit, filters=filters)
     return verordening
 
 
@@ -140,15 +142,15 @@ def read_valid_verordening(
 )
 def read_valid_verordening_lineage(
     lineage_id: int,
+    crud_verordening: CRUDVerordening = Depends(deps.get_crud_verordening),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the verordening in this lineage that are valid
     """
-    verordening = crud.verordening.valid(
+    verordening = crud_verordening.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return verordening

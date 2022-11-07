@@ -7,6 +7,7 @@ from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
+from app.crud import CRUDWerkingsgebied
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.util.compare import Comparator
@@ -22,7 +23,7 @@ defer_attributes = { }
     response_model_exclude=defer_attributes,
 )
 def read_werkingsgebied(
-    db: Session = Depends(deps.get_db),
+    crud_werkingsgebied: CRUDWerkingsgebied = Depends(deps.get_crud_werkingsgebied),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -31,7 +32,7 @@ def read_werkingsgebied(
     """
     Gets all the werkingsgebied lineages and shows the latests object for each
     """
-    werkingsgebied = crud.werkingsgebied.latest(
+    werkingsgebied = crud_werkingsgebied.latest(
         all=True, filters=filters, offset=offset, limit=limit
     )
     return werkingsgebied
@@ -40,14 +41,14 @@ def read_werkingsgebied(
 @router.post("/werkingsgebieden", response_model=schemas.Werkingsgebied)
 def create_werkingsgebied(
     *,
-    db: Session = Depends(deps.get_db),
     werkingsgebied_in: schemas.WerkingsgebiedCreate,
+    crud_werkingsgebied: CRUDWerkingsgebied = Depends(deps.get_crud_werkingsgebied),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Creates a new werkingsgebied lineage
     """
-    werkingsgebied = crud.werkingsgebied.create(
+    werkingsgebied = crud_werkingsgebied.create(
         obj_in=werkingsgebied_in, by_uuid=current_gebruiker.UUID
     )
     return werkingsgebied
@@ -58,13 +59,14 @@ def create_werkingsgebied(
 )
 def read_werkingsgebied_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_werkingsgebied: CRUDWerkingsgebied = Depends(deps.get_crud_werkingsgebied),
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the werkingsgebied versions by lineage
     """
-    werkingsgebied = crud.werkingsgebied.all(filters=Filters({"ID": lineage_id}))
+    werkingsgebied = crud_werkingsgebied.all(filters=Filters({"ID": lineage_id}))
     if not werkingsgebied:
         raise HTTPException(status_code=404, detail="werkingsgebied not found")
     return werkingsgebied
@@ -73,14 +75,15 @@ def read_werkingsgebied_lineage(
 @router.patch("/werkingsgebieden/{lineage_id}", response_model=schemas.Werkingsgebied)
 def update_werkingsgebied(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
     werkingsgebied_in: schemas.WerkingsgebiedUpdate,
+    crud_werkingsgebied: CRUDWerkingsgebied = Depends(deps.get_crud_werkingsgebied),
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new werkingsgebied to a lineage
     """
-    werkingsgebied = crud.werkingsgebied.get_latest_by_id(id=lineage_id)
+    werkingsgebied = crud_werkingsgebied.get_latest_by_id(id=lineage_id)
     if not werkingsgebied:
         raise HTTPException(status_code=404, detail="Werkingsgebied not found")
     if werkingsgebied.Created_By != current_gebruiker.UUID:
@@ -88,7 +91,7 @@ def update_werkingsgebied(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    werkingsgebied = crud.werkingsgebied.update(
+    werkingsgebied = crud_werkingsgebied.update(
         db_obj=werkingsgebied, obj_in=werkingsgebied_in
     )
     return werkingsgebied
@@ -98,13 +101,14 @@ def update_werkingsgebied(
 def changes_werkingsgebied(
     old_uuid: str,
     new_uuid: str,
+    crud_werkingsgebied: CRUDWerkingsgebied = Depends(deps.get_crud_werkingsgebied),
 ) -> Any:
     """
     Shows the changes between two versions of werkingsgebied.
     """
     try:
-        old = crud.werkingsgebied.get(old_uuid)
-        new = crud.werkingsgebied.get(new_uuid)
+        old = crud_werkingsgebied.get(old_uuid)
+        new = crud_werkingsgebied.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -123,15 +127,15 @@ def changes_werkingsgebied(
     response_model_exclude=defer_attributes,
 )
 def read_valid_werkingsgebied(
-    db: Session = Depends(deps.get_db),
+    crud_werkingsgebied: CRUDWerkingsgebied = Depends(deps.get_crud_werkingsgebied),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the werkingsgebied lineages and shows the latests valid object for each.
     """
-    werkingsgebied = crud.werkingsgebied.valid(
+    werkingsgebied = crud_werkingsgebied.valid(
         offset=offset, limit=limit, filters=filters
     )
     return werkingsgebied
@@ -142,15 +146,15 @@ def read_valid_werkingsgebied(
 )
 def read_valid_werkingsgebied_lineage(
     lineage_id: int,
+    crud_werkingsgebied: CRUDWerkingsgebied = Depends(deps.get_crud_werkingsgebied),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the werkingsgebied in this lineage that are valid
     """
-    werkingsgebied = crud.werkingsgebied.valid(
+    werkingsgebied = crud_werkingsgebied.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return werkingsgebied

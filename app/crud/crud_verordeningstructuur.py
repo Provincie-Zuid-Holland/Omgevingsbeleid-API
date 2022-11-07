@@ -12,6 +12,3 @@ class CRUDVerordeningstructuur(
     ]
 ):
     pass
-
-
-verordeningstructuur = CRUDVerordeningstructuur(Verordeningstructuur)

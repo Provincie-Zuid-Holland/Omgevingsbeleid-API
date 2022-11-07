@@ -6,16 +6,14 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import Alias, or_
 
-from app import models
-from app.crud.base import CRUDBase
+from app.crud.base import GeoCRUDBase
 from app.db.base_class import NULL_UUID
-from app.models.beleidskeuze import Beleidskeuze
-from app.schemas.beleidskeuze import BeleidskeuzeCreate, BeleidskeuzeUpdate
-from app.schemas.filters import Filters
+from app import schemas
+from app import models
 
 
-class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUpdate]):
-    def create(self, *, obj_in: BeleidskeuzeCreate, by_uuid: str) -> Beleidskeuze:
+class CRUDBeleidskeuze(GeoCRUDBase[models.Beleidskeuze, schemas.BeleidskeuzeCreate, schemas.BeleidskeuzeUpdate]):
+    def create(self, *, obj_in: schemas.BeleidskeuzeCreate, by_uuid: str) -> models.Beleidskeuze:
         obj_in_data = jsonable_encoder(
             obj_in,
             custom_encoder={
@@ -51,7 +49,7 @@ class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUp
         return [bk.UUID for bk in query]
 
 
-    def _build_valid_view_query(self, ID: Optional[int] = None) -> Tuple[Query, Beleidskeuze]:
+    def _build_valid_view_query(self, ID: Optional[int] = None) -> Tuple[Query, models.Beleidskeuze]:
         """
         Retrieve a model with the 'Valid' view filters applied.
         Defaults to:
@@ -62,8 +60,8 @@ class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUp
         - Begin_Geldigheid today or in the past
         """
         sub_query: Alias = self._build_valid_inner_query().subquery("inner")
-        inner_alias: Beleidskeuze = aliased(
-            element=Beleidskeuze, 
+        inner_alias: models.Beleidskeuze = aliased(
+            element=models.Beleidskeuze, 
             alias=sub_query, 
             name="inner"
         )
@@ -86,14 +84,14 @@ class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUp
         """
         row_number = self._add_rownumber_latest_id()
         query: Query = (
-            self.db.query(Beleidskeuze, row_number)
-            .filter(Beleidskeuze.Status == "Vigerend")
-            .filter(Beleidskeuze.UUID != NULL_UUID)
-            .filter(Beleidskeuze.Begin_Geldigheid <= datetime.utcnow())
+            self.db.query(models.Beleidskeuze, row_number)
+            .filter(models.Beleidskeuze.Status == "Vigerend")
+            .filter(models.Beleidskeuze.UUID != NULL_UUID)
+            .filter(models.Beleidskeuze.Begin_Geldigheid <= datetime.utcnow())
         )
         return query
 
-    def fetch_in_geo(self, area_uuid: List[str], limit: int) -> Any:
+    def fetch_in_geo(self, area_uuid: List[str], limit: int) -> List[models.Beleidskeuze]:
         """
         Retrieve the instances of this entity linked
         to the IDs of provided geological areas.
@@ -122,5 +120,5 @@ class CRUDBeleidskeuze(CRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUp
 
         return list(map(beleidskeuze_mapper, result))
 
-
-beleidskeuze = CRUDBeleidskeuze(Beleidskeuze)
+    def as_geo_schema(self, model: models.Beleidskeuze):
+        return schemas.Beleidskeuze.from_orm(model)

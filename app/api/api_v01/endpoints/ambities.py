@@ -6,8 +6,9 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app import crud, models, schemas
+from app import models, schemas
 from app.api import deps
+from app.crud import CRUDAmbitie
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.util.compare import Comparator
@@ -27,7 +28,7 @@ defer_attributes = {
     response_model_exclude=defer_attributes,
 )
 def read_ambities(
-    db: Session = Depends(deps.get_db),
+    crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -36,7 +37,7 @@ def read_ambities(
     """
     Gets all the ambities lineages and shows the latests object for each
     """
-    ambities = crud.ambitie.latest(
+    ambities = crud_ambitie.latest(
         all=True,
         offset=offset,
         limit=limit,
@@ -49,28 +50,28 @@ def read_ambities(
 @router.post("/ambities", response_model=schemas.Ambitie)
 def create_ambitie(
     *,
-    db: Session = Depends(deps.get_db),
     ambitie_in: schemas.AmbitieCreate,
+    crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Creates a new ambities lineage
     """
-    ambitie = crud.ambitie.create(obj_in=ambitie_in, by_uuid=str(current_gebruiker.UUID))
+    ambitie = crud_ambitie.create(obj_in=ambitie_in, by_uuid=str(current_gebruiker.UUID))
     return ambitie
 
 
 @router.get("/ambities/{lineage_id}", response_model=List[schemas.Ambitie])
 def read_ambitie_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the ambities versions by lineage
     """
-    ambities = crud.ambitie.all(filters=Filters({"ID": lineage_id}))
+    ambities = crud_ambitie.all(filters=Filters({"ID": lineage_id}))
     if not ambities:
         raise HTTPException(status_code=404, detail="Ambities not found")
     return ambities
@@ -79,15 +80,15 @@ def read_ambitie_lineage(
 @router.patch("/ambities/{lineage_id}", response_model=schemas.Ambitie)
 def update_ambitie(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
     ambitie_in: schemas.AmbitieUpdate,
+    crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new ambities to a lineage
     """
-    ambitie = crud.ambitie.get_latest_by_id(id=lineage_id)
+    ambitie = crud_ambitie.get_latest_by_id(id=lineage_id)
     if not ambitie:
         raise HTTPException(status_code=404, detail="Ambitie not found")
     if ambitie.Created_By != current_gebruiker.UUID:
@@ -95,7 +96,7 @@ def update_ambitie(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    ambitie = crud.ambitie.update(db_obj=ambitie, obj_in=ambitie_in)
+    ambitie = crud_ambitie.update(db_obj=ambitie, obj_in=ambitie_in)
     return ambitie
 
 
@@ -103,14 +104,15 @@ def update_ambitie(
 def changes_ambities(
     old_uuid: str,
     new_uuid: str,
+    crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Shows the changes between two versions of ambities.
     """
     try:
-        old = crud.ambitie.get(old_uuid)
-        new = crud.ambitie.get(new_uuid)
+        old = crud_ambitie.get(old_uuid)
+        new = crud_ambitie.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -126,7 +128,7 @@ def changes_ambities(
     response_model_exclude=defer_attributes,
 )
 def read_valid_ambities(
-    db: Session = Depends(deps.get_db),
+    crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
@@ -134,7 +136,7 @@ def read_valid_ambities(
     """
     Gets all the ambities lineages and shows the latests valid object for each.
     """
-    ambities = crud.ambitie.valid(
+    ambities = crud_ambitie.valid(
         offset=offset,
         limit=limit,
         filters=filters,
@@ -145,15 +147,15 @@ def read_valid_ambities(
 @router.get("/valid/ambities/{lineage_id}", response_model=List[schemas.Ambitie])
 def read_valid_ambitie_lineage(
     lineage_id: int,
+    crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the ambities in this lineage that are valid
     """
-    ambities = crud.ambitie.valid(
+    ambities = crud_ambitie.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return ambities

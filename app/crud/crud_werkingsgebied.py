@@ -1,22 +1,33 @@
 from datetime import datetime
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, Type
 
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm import Query, aliased
+from sqlalchemy.orm import Query, aliased, Session
 from sqlalchemy.sql import union
 from sqlalchemy.sql.expression import Alias, or_
 
-from app.crud.base import CRUDBase
-from app import crud, models
+from app.crud.base import CRUDBase, ModelType
+from app import models
 from app.db.base_class import NULL_UUID
-from app.db.session import engine
 from app.models.werkingsgebied import Werkingsgebied
 from app.schemas.werkingsgebied import WerkingsgebiedCreate, WerkingsgebiedUpdate
+from app.crud import CRUDBeleidskeuze, CRUDMaatregel
 
 
 class CRUDWerkingsgebied(
     CRUDBase[Werkingsgebied, WerkingsgebiedCreate, WerkingsgebiedUpdate]
 ):
+    def __init__(
+        self,
+        model: Type[ModelType],
+        db: Session,
+        crud_beleidskeuze: CRUDBeleidskeuze,
+        crud_maatregel: CRUDMaatregel,
+    ):
+        super(CRUDBase, self).__init__(model, db)
+        self.crud_beleidskeuze = crud_beleidskeuze
+        self.crud_maatregel = crud_maatregel
+
     def get(self, uuid: str) -> Werkingsgebied:
         return (
             self.db.query(self.model)
@@ -73,8 +84,8 @@ class CRUDWerkingsgebied(
         Build relationship sub filter list of valid werkingsgebied
         UUIDs in valid maatregelen or valid beleidskeuzes
         """
-        valid_maatregel_gebieden = crud.maatregel.valid_werkingsgebied_uuids() 
-        valid_beleidskeuzes = crud.beleidskeuze.valid_uuids()
+        valid_maatregel_gebieden = self.crud_maatregel.valid_werkingsgebied_uuids() 
+        valid_beleidskeuzes = self.crud_beleidskeuze.valid_uuids()
         
         if alias is None:
             filter = or_(
@@ -88,6 +99,3 @@ class CRUDWerkingsgebied(
             )
 
         return filter
-
-
-werkingsgebied = CRUDWerkingsgebied(Werkingsgebied)

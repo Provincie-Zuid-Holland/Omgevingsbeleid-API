@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import Any, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
+from abc import abstractmethod
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Query, aliased, load_only
+from sqlalchemy.orm import Query, aliased, load_only, Session
 from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql import Alias, label
 from sqlalchemy.sql.elements import ColumnElement, Label
@@ -13,7 +14,6 @@ from sqlalchemy.sql.expression import func
 
 from app.core.exceptions import DatabaseError, FilterNotAllowed
 from app.db.base_class import BaseTimeStamped, NULL_UUID
-from app.db.session import SessionLocal
 from app.schemas.filters import FilterCombiner, Filters
 
 ModelType = TypeVar("ModelType", bound=BaseTimeStamped)
@@ -22,7 +22,7 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    def __init__(self, model: Type[ModelType]):
+    def __init__(self, model: Type[ModelType], db: Session):
         """
         CRUD object with default methods to Create, Read, Update, Delete (CRUD).
 
@@ -31,8 +31,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         * `model`: A SQLAlchemy model class
         * `schema`: A Pydantic model (schema) class
         """
-        self.model = model
-        self.db = SessionLocal()
+        self.model: Type[ModelType] = model
+        self.db: Session = db
 
     def get(self, uuid: str) -> ModelType:
         return self.db.query(self.model).filter(self.model.UUID == uuid).one()
@@ -211,7 +211,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return query, inner_alias
 
-
     def _build_valid_inner_query(self) -> Query:
         """
         Base valid query usable as subquery
@@ -342,3 +341,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             query = query.order_by(self.model.ID.desc())
 
         return query
+
+
+class GeoCRUDBase(CRUDBase[ModelType, CreateSchemaType, UpdateSchemaType]):
+    pass
+
+    @abstractmethod
+    def fetch_in_geo(self, area_uuid: List[str], limit: int) -> List[ModelType]:
+        pass
+    
+    @abstractmethod
+    def as_geo_schema(self, model: Type[ModelType]):
+        pass

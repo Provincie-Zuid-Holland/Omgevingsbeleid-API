@@ -8,6 +8,7 @@ from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
+from app.crud import CRUDBeleidsmodule
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.util.compare import Comparator
@@ -23,7 +24,7 @@ defer_attributes = {"Omschrijving"}
     response_model_exclude=defer_attributes,
 )
 def read_beleidsmodules(
-    db: Session = Depends(deps.get_db),
+    crud_beleidsmodule: CRUDBeleidsmodule = Depends(deps.get_crud_beleidsmodule),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -32,7 +33,7 @@ def read_beleidsmodules(
     """
     Gets all the beleidsmodules lineages and shows the latests object for each
     """
-    beleidsmodules = crud.beleidsmodule.latest(
+    beleidsmodules = crud_beleidsmodule.latest(
         all=True, filters=filters, offset=offset, limit=limit
     )
 
@@ -42,14 +43,14 @@ def read_beleidsmodules(
 @router.post("/beleidsmodules", response_model=schemas.Beleidsmodule)
 def create_beleidsmodule(
     *,
-    db: Session = Depends(deps.get_db),
     beleidsmodule_in: schemas.BeleidsmoduleCreate,
+    crud_beleidsmodule: CRUDBeleidsmodule = Depends(deps.get_crud_beleidsmodule),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Creates a new beleidsmodules lineage
     """
-    beleidsmodule = crud.beleidsmodule.create(
+    beleidsmodule = crud_beleidsmodule.create(
         obj_in=beleidsmodule_in, by_uuid=current_gebruiker.UUID
     )
     return beleidsmodule
@@ -58,14 +59,14 @@ def create_beleidsmodule(
 @router.get("/beleidsmodules/{lineage_id}", response_model=List[schemas.Beleidsmodule])
 def read_beleidsmodule_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_beleidsmodule: CRUDBeleidsmodule = Depends(deps.get_crud_beleidsmodule),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the beleidsmodules versions by lineage
     """
-    beleidsmodules = crud.beleidsmodule.all(filters=Filters({"ID": lineage_id}))
+    beleidsmodules = crud_beleidsmodule.all(filters=Filters({"ID": lineage_id}))
     if not beleidsmodules:
         raise HTTPException(status_code=404, detail="Beleidsmodules not found")
     return beleidsmodules
@@ -74,15 +75,15 @@ def read_beleidsmodule_lineage(
 @router.patch("/beleidsmodules/{lineage_id}", response_model=schemas.Beleidsmodule)
 def update_beleidsmodule(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
     beleidsmodule_in: schemas.BeleidsmoduleUpdate,
+    crud_beleidsmodule: CRUDBeleidsmodule = Depends(deps.get_crud_beleidsmodule),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new beleidsmodules to a lineage
     """
-    beleidsmodule = crud.beleidsmodule.get_latest_by_id(id=lineage_id)
+    beleidsmodule = crud_beleidsmodule.get_latest_by_id(id=lineage_id)
     if not beleidsmodule:
         raise HTTPException(status_code=404, detail="Beleidsmodule not found")
     if beleidsmodule.Created_By != current_gebruiker.UUID:
@@ -90,7 +91,7 @@ def update_beleidsmodule(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsmodule = crud.beleidsmodule.update(
+    beleidsmodule = crud_beleidsmodule.update(
         db_obj=beleidsmodule, obj_in=beleidsmodule_in
     )
     return beleidsmodule
@@ -100,13 +101,14 @@ def update_beleidsmodule(
 def changes_beleidsmodules(
     old_uuid: str,
     new_uuid: str,
+    crud_beleidsmodule: CRUDBeleidsmodule = Depends(deps.get_crud_beleidsmodule),
 ) -> Any:
     """
     Shows the changes between two versions of beleidsmodules.
     """
     try:
-        old = crud.beleidsmodule.get(old_uuid)
-        new = crud.beleidsmodule.get(new_uuid)
+        old = crud_beleidsmodule.get(old_uuid)
+        new = crud_beleidsmodule.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -125,15 +127,15 @@ def changes_beleidsmodules(
     response_model_exclude=defer_attributes,
 )
 def read_valid_beleidsmodules(
-    db: Session = Depends(deps.get_db),
+    crud_beleidsmodule: CRUDBeleidsmodule = Depends(deps.get_crud_beleidsmodule),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the beleidsmodules lineages and shows the latests valid object for each.
     """
-    beleidsmodules = crud.beleidsmodule.valid(
+    beleidsmodules = crud_beleidsmodule.valid(
         offset=offset, limit=limit, filters=filters
     )
     return beleidsmodules
@@ -144,15 +146,15 @@ def read_valid_beleidsmodules(
 )
 def read_valid_beleidsmodule_lineage(
     lineage_id: int,
+    crud_beleidsmodule: CRUDBeleidsmodule = Depends(deps.get_crud_beleidsmodule),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the beleidsmodules in this lineage that are valid
     """
-    beleidsmodules = crud.beleidsmodule.valid(
+    beleidsmodules = crud_beleidsmodule.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return beleidsmodules

@@ -8,6 +8,7 @@ from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
+from app.crud import CRUDMaatregel
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.schemas.maatregel import MaatregelListable
@@ -31,7 +32,7 @@ defer_attributes = {
     response_model_exclude=defer_attributes,
 )
 def read_maatregelen(
-    db: Session = Depends(deps.get_db),
+    crud_maatregel: CRUDMaatregel = Depends(deps.get_crud_maatregel),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -40,7 +41,7 @@ def read_maatregelen(
     """
     Gets all the maatregelen lineages and shows the latests object for each
     """
-    maatregelen = crud.maatregel.latest(
+    maatregelen = crud_maatregel.latest(
         all=True, filters=filters, offset=offset, limit=limit
     )
 
@@ -50,14 +51,14 @@ def read_maatregelen(
 @router.post("/maatregelen", response_model=schemas.Maatregel)
 def create_maatregel(
     *,
-    db: Session = Depends(deps.get_db),
     maatregel_in: schemas.MaatregelCreate,
+    crud_maatregel: CRUDMaatregel = Depends(deps.get_crud_maatregel),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Creates a new maatregelen lineage
     """
-    maatregel = crud.maatregel.create(
+    maatregel = crud_maatregel.create(
         obj_in=maatregel_in, by_uuid=current_gebruiker.UUID
     )
     return maatregel
@@ -66,14 +67,14 @@ def create_maatregel(
 @router.get("/maatregelen/{lineage_id}", response_model=List[schemas.Maatregel])
 def read_maatregel_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_maatregel: CRUDMaatregel = Depends(deps.get_crud_maatregel),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the maatregel versions by lineage
     """
-    maatregelen = crud.maatregel.all(filters=Filters({"ID": lineage_id}))
+    maatregelen = crud_maatregel.all(filters=Filters({"ID": lineage_id}))
     if not maatregelen:
         raise HTTPException(status_code=404, detail="Maatregelen not found")
     return maatregelen
@@ -82,15 +83,15 @@ def read_maatregel_lineage(
 @router.patch("/maatregelen/{lineage_id}", response_model=schemas.Maatregel)
 def update_maatregel(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
     maatregel_in: schemas.MaatregelUpdate,
+    crud_maatregel: CRUDMaatregel = Depends(deps.get_crud_maatregel),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new maatregelen to a lineage
     """
-    maatregel = crud.maatregel.get_latest_by_id(id=lineage_id)
+    maatregel = crud_maatregel.get_latest_by_id(id=lineage_id)
     if not maatregel:
         raise HTTPException(status_code=404, detail="Maatregel not found")
     if maatregel.Created_By != current_gebruiker.UUID:
@@ -98,7 +99,7 @@ def update_maatregel(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    maatregel = crud.maatregel.update(db_obj=maatregel, obj_in=maatregel_in)
+    maatregel = crud_maatregel.update(db_obj=maatregel, obj_in=maatregel_in)
     return maatregel
 
 
@@ -106,13 +107,14 @@ def update_maatregel(
 def changes_maatregelen(
     old_uuid: str,
     new_uuid: str,
+    crud_maatregel: CRUDMaatregel = Depends(deps.get_crud_maatregel),
 ) -> Any:
     """
     Shows the changes between two versions of maatregelen.
     """
     try:
-        old = crud.maatregel.get(old_uuid)
-        new = crud.maatregel.get(new_uuid)
+        old = crud_maatregel.get(old_uuid)
+        new = crud_maatregel.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -129,30 +131,30 @@ def changes_maatregelen(
     response_model_exclude=defer_attributes,
 )
 def read_valid_maatregelen(
-    db: Session = Depends(deps.get_db),
+    crud_maatregel: CRUDMaatregel = Depends(deps.get_crud_maatregel),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the maatregelen lineages and shows the latests valid object for each.
     """
-    maatregelen = crud.maatregel.valid(offset=offset, limit=limit, filters=filters)
+    maatregelen = crud_maatregel.valid(offset=offset, limit=limit, filters=filters)
     return maatregelen
 
 
 @router.get("/valid/maatregelen/{lineage_id}", response_model=List[schemas.Maatregel])
 def read_valid_maatregel_lineage(
     lineage_id: int,
+    crud_maatregel: CRUDMaatregel = Depends(deps.get_crud_maatregel),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the maatregelen in this lineage that are valid
     """
-    maatregelen = crud.maatregel.valid(
+    maatregelen = crud_maatregel.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return maatregelen

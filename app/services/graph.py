@@ -13,15 +13,15 @@ from app.util.legacy_helpers import SearchFields
 
 
 GRAPHABLES: List[Any] = [
-    (models.Ambitie, crud.ambitie, schemas.Ambitie),
-    (models.Beleidskeuze, crud.beleidskeuze, schemas.Beleidskeuze),
-    (models.Belang, crud.belang, schemas.Belang),
-    (models.Beleidsregel, crud.beleidsregel, schemas.Beleidsregel),
-    (models.Beleidsdoel, crud.beleidsdoel, schemas.Beleidsdoel),
-    (models.Beleidsprestatie, crud.beleidsprestatie, schemas.beleidsprestatie),
-    (models.Maatregel, crud.maatregel, schemas.Maatregel),
-    (models.Thema, crud.thema, schemas.Thema),
-    (models.Verordening, crud.verordening, schemas.Verordening),
+    # (models.Ambitie, crud.ambitie, schemas.Ambitie),
+    # (models.Beleidskeuze, crud.beleidskeuze, schemas.Beleidskeuze),
+    # (models.Belang, crud.belang, schemas.Belang),
+    # (models.Beleidsregel, crud.beleidsregel, schemas.Beleidsregel),
+    # (models.Beleidsdoel, crud.beleidsdoel, schemas.Beleidsdoel),
+    # (models.Beleidsprestatie, crud.beleidsprestatie, schemas.beleidsprestatie),
+    # (models.Maatregel, crud.maatregel, schemas.Maatregel),
+    # (models.Thema, crud.thema, schemas.Thema),
+    # (models.Verordening, crud.verordening, schemas.Verordening),
 ]
 
 
@@ -106,5 +106,3 @@ class GraphService:
             "Titel": title_field[0],
             "Type": valid_object.__tablename__.lower(),
         }
-
-graph_service = GraphService()

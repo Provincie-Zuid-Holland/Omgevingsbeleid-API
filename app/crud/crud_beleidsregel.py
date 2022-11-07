@@ -17,6 +17,3 @@ class CRUDBeleidsregel(CRUDBase[Beleidsregel, BeleidsregelCreate, BeleidsregelUp
             .filter(self.model.UUID == uuid)
             .one()
         )
-
-
-beleidsregel = CRUDBeleidsregel(Beleidsregel)

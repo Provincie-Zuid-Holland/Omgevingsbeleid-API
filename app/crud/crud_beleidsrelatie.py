@@ -1,22 +1,27 @@
 from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, Tuple
+from typing import Any, Dict, Generic, List, Optional, Tuple, Type
 
 from sqlalchemy import and_
-from sqlalchemy.orm import Query, aliased
+from sqlalchemy.orm import Query, aliased, Session
 from sqlalchemy.sql import label
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import Alias, func
 
-from app.crud.base import CRUDBase
-from app.crud.crud_beleidskeuze import beleidskeuze as beleidskeuze_service
+from app.crud.base import CRUDBase, ModelType
+from app.crud.crud_beleidskeuze import CRUDBeleidskeuze
 from app.db.base_class import NULL_UUID
 from app.models.beleidsrelatie import Beleidsrelatie
 from app.schemas.beleidsrelatie import BeleidsrelatieCreate, BeleidsrelatieUpdate
 from app.schemas.filters import Filters
 
+
 class CRUDBeleidsrelatie(
     CRUDBase[Beleidsrelatie, BeleidsrelatieCreate, BeleidsrelatieUpdate]
 ):
+    def __init__(self, model: Type[ModelType], db: Session, crud_beleidskeuze: CRUDBeleidskeuze):
+        super(CRUDBase, self).__init__(model, db)
+        self.crud_beleidskeuze = crud_beleidskeuze
+
     def valid(
         self,
         ID: Optional[int] = None,
@@ -55,7 +60,7 @@ class CRUDBeleidsrelatie(
         inner_alias: Beleidsrelatie = aliased(element=Beleidsrelatie, alias=sub_query, name="T")
 
         # only valid if refering to valid beleidskeuzes
-        bk_uuids = beleidskeuze_service.valid_uuids()
+        bk_uuids = self.crud_beleidskeuze.valid_uuids()
         bk_filter = and_(
             inner_alias.Van_Beleidskeuze_UUID.in_(bk_uuids),
             inner_alias.Naar_Beleidskeuze_UUID.in_(bk_uuids)
@@ -87,5 +92,3 @@ class CRUDBeleidsrelatie(
             self.db.query(Beleidsrelatie, label("RowNumber", partition))
         )
         return query
-
-beleidsrelatie = CRUDBeleidsrelatie(Beleidsrelatie)

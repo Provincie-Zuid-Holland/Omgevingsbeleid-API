@@ -9,6 +9,7 @@ from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
+from app.crud import CRUDBeleidskeuze
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.util.compare import Comparator
@@ -27,7 +28,7 @@ defer_attrs_list_view = {
     response_model=List[schemas.BeleidskeuzeListable],
 )
 def read_beleidskeuzes(
-    db: Session = Depends(deps.get_db),
+    crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -36,7 +37,7 @@ def read_beleidskeuzes(
     """
     Gets all the beleidskeuzes lineages and shows the latests object for each
     """
-    beleidskeuzes = crud.beleidskeuze.latest(
+    beleidskeuzes = crud_beleidskeuze.latest(
         all=True, filters=filters, offset=offset, limit=limit
     )
 
@@ -46,14 +47,14 @@ def read_beleidskeuzes(
 @router.post("/beleidskeuzes", response_model=schemas.Beleidskeuze)
 def create_beleidskeuze(
     *,
-    db: Session = Depends(deps.get_db),
     beleidskeuze_in: schemas.BeleidskeuzeCreate,
+    crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Creates a new beleidskeuzes lineage
     """
-    beleidskeuze = crud.beleidskeuze.create(
+    beleidskeuze = crud_beleidskeuze.create(
         obj_in=beleidskeuze_in, by_uuid=current_gebruiker.UUID
     )
     return beleidskeuze
@@ -62,14 +63,14 @@ def create_beleidskeuze(
 @router.get("/beleidskeuzes/{lineage_id}", response_model=List[schemas.Beleidskeuze])
 def read_beleidskeuze_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the beleidskeuzes versions by lineage
     """
-    beleidskeuzes = crud.beleidskeuze.all(filters=Filters({"ID": lineage_id}))
+    beleidskeuzes = crud_beleidskeuze.all(filters=Filters({"ID": lineage_id}))
     if not beleidskeuzes:
         raise HTTPException(status_code=404, detail="Beleidskeuzes not found")
     return beleidskeuzes
@@ -78,15 +79,15 @@ def read_beleidskeuze_lineage(
 @router.patch("/beleidskeuzes/{lineage_id}", response_model=schemas.Beleidskeuze)
 def update_beleidskeuze(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
     beleidskeuze_in: schemas.BeleidskeuzeUpdate,
+    crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new beleidskeuzes to a lineage
     """
-    beleidskeuze = crud.beleidskeuze.get_latest_by_id(id=lineage_id)
+    beleidskeuze = crud_beleidskeuze.get_latest_by_id(id=lineage_id)
     if not beleidskeuze:
         raise HTTPException(status_code=404, detail="Beleidskeuze not found")
     if beleidskeuze.Created_By != current_gebruiker.UUID:
@@ -94,7 +95,7 @@ def update_beleidskeuze(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidskeuze = crud.beleidskeuze.update(db_obj=beleidskeuze, obj_in=beleidskeuze_in)
+    beleidskeuze = crud_beleidskeuze.update(db_obj=beleidskeuze, obj_in=beleidskeuze_in)
     return beleidskeuze
 
 
@@ -102,14 +103,15 @@ def update_beleidskeuze(
 def changes_beleidskeuzes(
     old_uuid: str,
     new_uuid: str,
+    crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Shows the changes between two versions of beleidskeuzes.
     """
     try:
-        old = crud.beleidskeuze.get(old_uuid)
-        new = crud.beleidskeuze.get(new_uuid)
+        old = crud_beleidskeuze.get(old_uuid)
+        new = crud_beleidskeuze.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -126,15 +128,15 @@ def changes_beleidskeuzes(
     response_model=List[schemas.BeleidskeuzeListable],
 )
 def read_valid_beleidskeuzes(
-    db: Session = Depends(deps.get_db),
+    crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the beleidskeuzes lineages and shows the latests valid object for each.
     """
-    beleidskeuzes = crud.beleidskeuze.valid(offset=offset, limit=limit, filters=filters)
+    beleidskeuzes = crud_beleidskeuze.valid(offset=offset, limit=limit, filters=filters)
     return beleidskeuzes
 
 
@@ -143,15 +145,15 @@ def read_valid_beleidskeuzes(
 )
 def read_valid_beleidskeuze_lineage(
     lineage_id: int,
+    crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the beleidskeuzes in this lineage that are valid
     """
-    beleidskeuzes = crud.beleidskeuze.valid(
+    beleidskeuzes = crud_beleidskeuze.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return beleidskeuzes

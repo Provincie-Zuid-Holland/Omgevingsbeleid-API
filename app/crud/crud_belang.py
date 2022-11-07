@@ -5,6 +5,3 @@ from app.schemas.belang import BelangCreate, BelangUpdate
 
 class CRUDBelang(CRUDBase[Belang, BelangCreate, BelangUpdate]):
     pass
-
-
-belang = CRUDBelang(Belang)

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
+from app.crud import CRUDBeleidsdoel
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.util.compare import Comparator
@@ -23,7 +24,7 @@ defer_attributes = {"Omschrijving"}
     response_model_exclude=defer_attributes,
 )
 def read_beleidsdoelen(
-    db: Session = Depends(deps.get_db),
+    crud_beleidsdoel: CRUDBeleidsdoel = Depends(deps.get_crud_beleidsdoel),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -32,7 +33,7 @@ def read_beleidsdoelen(
     """
     Gets all the beleidsdoelen lineages and shows the latests object for each
     """
-    beleidsdoelen = crud.beleidsdoel.latest(
+    beleidsdoelen = crud_beleidsdoel.latest(
         all=True, filters=filters, offset=offset, limit=limit
     )
 
@@ -42,14 +43,14 @@ def read_beleidsdoelen(
 @router.post("/beleidsdoelen", response_model=schemas.Beleidsdoel)
 def create_beleidsdoel(
     *,
-    db: Session = Depends(deps.get_db),
     beleidsdoel_in: schemas.BeleidsdoelCreate,
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
+    crud_beleidsdoel: CRUDBeleidsdoel = Depends(deps.get_crud_beleidsdoel),
 ) -> Any:
     """
     Creates a new beleidsdoelen lineage
     """
-    beleidsdoel = crud.beleidsdoel.create(
+    beleidsdoel = crud_beleidsdoel.create(
         obj_in=beleidsdoel_in, by_uuid=current_gebruiker.UUID
     )
     return beleidsdoel
@@ -58,14 +59,14 @@ def create_beleidsdoel(
 @router.get("/beleidsdoelen/{lineage_id}", response_model=List[schemas.Beleidsdoel])
 def read_beleidsdoel_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_beleidsdoel: CRUDBeleidsdoel = Depends(deps.get_crud_beleidsdoel),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the beleidsdoelen versions by lineage
     """
-    beleidsdoelen = crud.beleidsdoel.all(filters=Filters({"ID": lineage_id}))
+    beleidsdoelen = crud_beleidsdoel.all(filters=Filters({"ID": lineage_id}))
     if not beleidsdoelen:
         raise HTTPException(status_code=404, detail="Beleidsdoels not found")
     return beleidsdoelen
@@ -74,15 +75,15 @@ def read_beleidsdoel_lineage(
 @router.patch("/beleidsdoelen/{lineage_id}", response_model=schemas.Beleidsdoel)
 def update_beleidsdoel(
     *,
-    db: Session = Depends(deps.get_db),
+    crud_beleidsdoel: CRUDBeleidsdoel = Depends(deps.get_crud_beleidsdoel),
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     lineage_id: int,
     beleidsdoel_in: schemas.BeleidsdoelUpdate,
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new beleidsdoelen to a lineage
     """
-    beleidsdoel = crud.beleidsdoel.get_latest_by_id(id=lineage_id)
+    beleidsdoel = crud_beleidsdoel.get_latest_by_id(id=lineage_id)
     if not beleidsdoel:
         raise HTTPException(status_code=404, detail="Beleidsdoel not found")
     if beleidsdoel.Created_By != current_gebruiker.UUID:
@@ -90,7 +91,7 @@ def update_beleidsdoel(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsdoel = crud.beleidsdoel.update(db_obj=beleidsdoel, obj_in=beleidsdoel_in)
+    beleidsdoel = crud_beleidsdoel.update(db_obj=beleidsdoel, obj_in=beleidsdoel_in)
     return beleidsdoel
 
 
@@ -98,13 +99,14 @@ def update_beleidsdoel(
 def changes_beleidsdoelen(
     old_uuid: str,
     new_uuid: str,
+    crud_beleidsdoel: CRUDBeleidsdoel = Depends(deps.get_crud_beleidsdoel),
 ) -> Any:
     """
     Shows the changes between two versions of beleidsdoelen.
     """
     try:
-        old = crud.beleidsdoel.get(old_uuid)
-        new = crud.beleidsdoel.get(new_uuid)
+        old = crud_beleidsdoel.get(old_uuid)
+        new = crud_beleidsdoel.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -123,15 +125,15 @@ def changes_beleidsdoelen(
     response_model_exclude=defer_attributes,
 )
 def read_valid_beleidsdoelen(
-    db: Session = Depends(deps.get_db),
+    crud_beleidsdoel: CRUDBeleidsdoel = Depends(deps.get_crud_beleidsdoel),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the beleidsdoelen lineages and shows the latests valid object for each.
     """
-    beleidsdoelen = crud.beleidsdoel.valid(offset=offset, limit=limit, filters=filters)
+    beleidsdoelen = crud_beleidsdoel.valid(offset=offset, limit=limit, filters=filters)
     return beleidsdoelen
 
 
@@ -140,15 +142,15 @@ def read_valid_beleidsdoelen(
 )
 def read_valid_beleidsdoel_lineage(
     lineage_id: int,
+    filters: Filters = Depends(deps.string_filters),
+    crud_beleidsdoel: CRUDBeleidsdoel = Depends(deps.get_crud_beleidsdoel),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the beleidsdoelen in this lineage that are valid
     """
-    beleidsdoelen = crud.beleidsdoel.valid(
+    beleidsdoelen = crud_beleidsdoel.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return beleidsdoelen

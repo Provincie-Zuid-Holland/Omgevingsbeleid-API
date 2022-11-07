@@ -8,6 +8,7 @@ from sqlalchemy.exc import NoResultFound
 
 from app import crud, models, schemas
 from app.api import deps
+from app.crud import CRUDBeleidsrelatie
 from app.models.gebruiker import GebruikersRol
 from app.schemas.filters import Filters
 from app.util.compare import Comparator
@@ -23,7 +24,7 @@ defer_attributes = {"Omschrijving"}
     response_model_exclude=defer_attributes,
 )
 def read_beleidsrelaties(
-    db: Session = Depends(deps.get_db),
+    crud_beleidsrelatie: CRUDBeleidsrelatie = Depends(deps.get_crud_beleidsrelatie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -32,7 +33,7 @@ def read_beleidsrelaties(
     """
     Gets all the beleidsrelaties lineages and shows the latests object for each
     """
-    beleidsrelaties = crud.beleidsrelatie.latest(
+    beleidsrelaties = crud_beleidsrelatie.latest(
         all=True, filters=filters, offset=offset, limit=limit
     )
 
@@ -42,14 +43,14 @@ def read_beleidsrelaties(
 @router.post("/beleidsrelaties", response_model=schemas.Beleidsrelatie)
 def create_beleidsrelatie(
     *,
-    db: Session = Depends(deps.get_db),
     beleidsrelatie_in: schemas.BeleidsrelatieCreate,
+    crud_beleidsrelatie: CRUDBeleidsrelatie = Depends(deps.get_crud_beleidsrelatie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Creates a new beleidsrelaties lineage
     """
-    beleidsrelatie = crud.beleidsrelatie.create(
+    beleidsrelatie = crud_beleidsrelatie.create(
         obj_in=beleidsrelatie_in, by_uuid=current_gebruiker.UUID
     )
     return beleidsrelatie
@@ -60,14 +61,14 @@ def create_beleidsrelatie(
 )
 def read_beleidsrelatie_lineage(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
+    crud_beleidsrelatie: CRUDBeleidsrelatie = Depends(deps.get_crud_beleidsrelatie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Gets all the beleidsrelaties versions by lineage
     """
-    beleidsrelaties = crud.beleidsrelatie.all(filters=Filters({"ID": lineage_id}))
+    beleidsrelaties = crud_beleidsrelatie.all(filters=Filters({"ID": lineage_id}))
     if not beleidsrelaties:
         raise HTTPException(status_code=404, detail="Beleidsrelaties not found")
     return beleidsrelaties
@@ -76,15 +77,15 @@ def read_beleidsrelatie_lineage(
 @router.patch("/beleidsrelaties/{lineage_id}", response_model=schemas.Beleidsrelatie)
 def update_beleidsrelatie(
     *,
-    db: Session = Depends(deps.get_db),
     lineage_id: int,
     beleidsrelatie_in: schemas.BeleidsrelatieUpdate,
+    crud_beleidsrelatie: CRUDBeleidsrelatie = Depends(deps.get_crud_beleidsrelatie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new beleidsrelaties to a lineage
     """
-    beleidsrelatie = crud.beleidsrelatie.get_latest_by_id(id=lineage_id)
+    beleidsrelatie = crud_beleidsrelatie.get_latest_by_id(id=lineage_id)
     if not beleidsrelatie:
         raise HTTPException(status_code=404, detail="Beleidsrelatie not found")
     if beleidsrelatie.Created_By != current_gebruiker.UUID:
@@ -92,7 +93,7 @@ def update_beleidsrelatie(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsrelatie = crud.beleidsrelatie.update(
+    beleidsrelatie = crud_beleidsrelatie.update(
         db_obj=beleidsrelatie, obj_in=beleidsrelatie_in
     )
     return beleidsrelatie
@@ -102,13 +103,14 @@ def update_beleidsrelatie(
 def changes_beleidsrelaties(
     old_uuid: str,
     new_uuid: str,
+    crud_beleidsrelatie: CRUDBeleidsrelatie = Depends(deps.get_crud_beleidsrelatie),
 ) -> Any:
     """
     Shows the changes between two versions of beleidsrelaties.
     """
     try:
-        old = crud.beleidsrelatie.get(old_uuid)
-        new = crud.beleidsrelatie.get(new_uuid)
+        old = crud_beleidsrelatie.get(old_uuid)
+        new = crud_beleidsrelatie.get(new_uuid)
     except NoResultFound as e:
         raise HTTPException(
             status_code=404,
@@ -127,15 +129,15 @@ def changes_beleidsrelaties(
     response_model_exclude=defer_attributes,
 )
 def read_valid_beleidsrelaties(
-    db: Session = Depends(deps.get_db),
+    crud_beleidsrelatie: CRUDBeleidsrelatie = Depends(deps.get_crud_beleidsrelatie),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
 ) -> Any:
     """
     Gets all the beleidsrelaties lineages and shows the latests valid object for each.
     """
-    beleidsrelaties = crud.beleidsrelatie.valid(
+    beleidsrelaties = crud_beleidsrelatie.valid(
         offset=offset, limit=limit, filters=filters
     )
     return beleidsrelaties
@@ -146,15 +148,15 @@ def read_valid_beleidsrelaties(
 )
 def read_valid_beleidsrelatie_lineage(
     lineage_id: int,
+    crud_beleidsrelatie: CRUDBeleidsrelatie = Depends(deps.get_crud_beleidsrelatie),
+    filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
-    filters: Filters = Depends(deps.string_filters),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Gets all the beleidsrelaties in this lineage that are valid
     """
-    beleidsrelaties = crud.beleidsrelatie.valid(
+    beleidsrelaties = crud_beleidsrelatie.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     return beleidsrelaties

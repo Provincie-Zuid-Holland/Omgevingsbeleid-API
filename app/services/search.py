@@ -4,29 +4,27 @@ from sqlalchemy.orm import Query, Session, Session, aliased
 from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql.expression import func, label, or_
 
-from app import crud, models, schemas
+from app import models, schemas
 from app.crud.base import CRUDBase
-from app.db.session import SessionLocal
-from app.schemas.search import GeoSearchResult
 from app.util.legacy_helpers import RankedSearchObject, SearchFields
 
 
-SEARCHABLE_MODELS: List[Any] = [
-    models.Ambitie,
-    models.Beleidskeuze,
-    models.Belang,
-    models.Beleidsdoel,
-    models.Beleidsprestatie,
-    models.Beleidsregel,
-    models.Maatregel,
-    models.Thema,
-]
+# SEARCHABLE_MODELS: List[Any] = [
+#     models.Ambitie,
+#     models.Beleidskeuze,
+#     models.Belang,
+#     models.Beleidsdoel,
+#     models.Beleidsprestatie,
+#     models.Beleidsregel,
+#     models.Maatregel,
+#     models.Thema,
+# ]
 
-GEO_SEARCHABLES: List[Any] = [
-    (models.Beleidskeuze, crud.beleidskeuze, schemas.Beleidskeuze),
-    (models.Maatregel, crud.maatregel, schemas.Maatregel),
-    (models.Verordening, crud.verordening, schemas.Verordening),
-]
+# GEO_SEARCHABLES: List[Any] = [
+#     (models.Beleidskeuze, crud.beleidskeuze, schemas.Beleidskeuze),
+#     (models.Maatregel, crud.maatregel, schemas.Maatregel),
+#     (models.Verordening, crud.verordening, schemas.Verordening),
+# ]
 
 RANK_WEIGHT = 1
 RANK_WEIGHT_HEAVY = 100
@@ -38,11 +36,12 @@ class SearchService:
     for per-model configured search fields
     """
 
-    def __init__(self):
-        self.db: Session = SessionLocal()
+    def __init__(self, db: Session, search_cruds: List[CRUDBase]):
+        self.db = db
+        self.search_cruds = search_cruds
 
     def search(
-        self, model: Any, search_criteria: List[str]
+        self, crud: CRUDBase, search_criteria: List[str]
     ) -> List[RankedSearchObject]:
         """
         Search model for a given search query.
@@ -53,7 +52,7 @@ class SearchService:
         """
 
         query_results = self.build_search_query(
-            model=model, search_criteria=search_criteria
+            crud=crud, search_criteria=search_criteria
         ).all()
 
         ranked_items = [
@@ -75,15 +74,15 @@ class SearchService:
         aggregate its search results ordered by rank.
         """
         aggregated_results = list()
-        for entity in SEARCHABLE_MODELS:
-            search_results = self.search(model=entity, search_criteria=search_criteria)
+        for crud in self.search_cruds:
+            search_results = self.search(crud=crud, search_criteria=search_criteria)
             if search_results:
                 aggregated_results.extend(search_results)
 
         sorted_results = sorted(aggregated_results, key=lambda x: x[1])
         return sorted_results
 
-    def build_search_query(self, model: Any, search_criteria: List[str]) -> Query:
+    def build_search_query(self, crud: CRUDBase, search_criteria: List[str]) -> Query:
         """
         Search model for a given search query.
 
@@ -94,17 +93,16 @@ class SearchService:
         Returns:
             Query: The query object for search execution
         """
-        crud_service = CRUDBase(model)
-        valid_sub_query = crud_service._build_valid_view_filter(as_subquery=True)
-        base_alias: AliasedClass = aliased(element=model, alias=valid_sub_query)
+        valid_sub_query = crud._build_valid_view_filter(as_subquery=True)
+        base_alias: AliasedClass = aliased(element=crud.model, alias=valid_sub_query)
 
         # Search clauses
         title_column_search, description_column_search = self._build_search_clauses(
-            model=model, search_criteria=search_criteria, aliased_model=base_alias
+            model=crud.model, search_criteria=search_criteria, aliased_model=base_alias
         )
 
         # Rank criteria
-        modified_date = base_alias.__getattr__(model.Modified_Date.key)
+        modified_date = base_alias.__getattr__(crud.model.Modified_Date.key)
         rank = func.row_number().over(order_by=modified_date.desc())
 
         # Search queries
@@ -153,46 +151,3 @@ class SearchService:
                 description_column.append(description_field.ilike(f"%{crit}%"))
 
         return title_column, description_column
-
-    def geo_search(
-        self, uuid_list: List[str], limit: int = 10
-    ) -> List[GeoSearchResult]:
-        """
-        Search the geo-searchable models and find all objects linked to a Werkingsgebied.
-
-        Args:
-            query (str): list of Werkingsgebied UUIDs to match
-
-        """
-        search_results = []
-
-        for model, service, schema in GEO_SEARCHABLES:
-            if len(search_results) >= limit:
-                return search_results
-
-            search_hits = service.fetch_in_geo(uuid_list, limit)
-
-            for item in search_hits:
-                pyd_object = schema.from_orm(item)
-                search_fields = model.get_search_fields()
-                area_value = getattr(item, "Gebied")
-
-                if type(area_value) is not str:
-                    area_value = area_value.UUID
-
-                search_results.append(
-                    schemas.GeoSearchResult(
-                        Gebied=area_value,
-                        Titel=getattr(pyd_object, search_fields.title.key),
-                        Omschrijving=getattr(
-                            pyd_object, search_fields.description[0].key
-                        ),
-                        Type=item.__tablename__,
-                        UUID=pyd_object.UUID,
-                    )
-                )
-
-        return search_results
-
-
-search_service = SearchService()

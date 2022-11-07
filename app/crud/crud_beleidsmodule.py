@@ -21,6 +21,3 @@ class CRUDBeleidsmodule(
             .filter(self.model.UUID == uuid)
             .one()
         )
-
-
-beleidsmodule = CRUDBeleidsmodule(Beleidsmodule)

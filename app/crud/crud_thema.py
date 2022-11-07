@@ -17,6 +17,3 @@ class CRUDThema(CRUDBase[Thema, ThemaCreate, ThemaUpdate]):
             .filter(self.model.UUID == uuid)
             .one()
         )
-
-
-thema = CRUDThema(Thema)
