@@ -1,12 +1,10 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 
-from app import crud, models, schemas
+from app import models, schemas
 from app.api import deps
 from app.crud import CRUDBeleidsprestatie
 from app.models.gebruiker import GebruikersRol
@@ -27,7 +25,9 @@ defer_attributes = {
     response_model_exclude=defer_attributes,
 )
 def read_beleidsprestaties(
-    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(
+        deps.get_crud_beleidsprestatie
+    ),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -47,7 +47,9 @@ def read_beleidsprestaties(
 def create_beleidsprestatie(
     *,
     beleidsprestatie_in: schemas.BeleidsprestatieCreate,
-    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(
+        deps.get_crud_beleidsprestatie
+    ),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
@@ -65,7 +67,9 @@ def create_beleidsprestatie(
 def read_beleidsprestatie_lineage(
     *,
     lineage_id: int,
-    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(
+        deps.get_crud_beleidsprestatie
+    ),
 ) -> Any:
     """
     Gets all the beleidsprestaties versions by lineage
@@ -83,7 +87,9 @@ def update_beleidsprestatie(
     *,
     lineage_id: int,
     beleidsprestatie_in: schemas.BeleidsprestatieUpdate,
-    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(
+        deps.get_crud_beleidsprestatie
+    ),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
@@ -107,7 +113,9 @@ def update_beleidsprestatie(
 def changes_beleidsprestaties(
     old_uuid: str,
     new_uuid: str,
-    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(
+        deps.get_crud_beleidsprestatie
+    ),
 ) -> Any:
     """
     Shows the changes between two versions of beleidsprestaties.
@@ -133,7 +141,9 @@ def changes_beleidsprestaties(
     response_model_exclude=defer_attributes,
 )
 def read_valid_beleidsprestaties(
-    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(
+        deps.get_crud_beleidsprestatie
+    ),
     filters: Filters = Depends(deps.string_filters),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     offset: int = 0,
@@ -154,7 +164,9 @@ def read_valid_beleidsprestaties(
 )
 def read_valid_beleidsprestatie_lineage(
     lineage_id: int,
-    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(
+        deps.get_crud_beleidsprestatie
+    ),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,

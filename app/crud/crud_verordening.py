@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List
 
 from sqlalchemy.orm import joinedload
@@ -8,7 +7,11 @@ from app.schemas.filters import Filter, FilterCombiner, Filters
 from app import models, schemas
 
 
-class CRUDVerordening(GeoCRUDBase[models.Verordening, schemas.VerordeningCreate, schemas.VerordeningUpdate]):
+class CRUDVerordening(
+    GeoCRUDBase[
+        models.Verordening, schemas.VerordeningCreate, schemas.VerordeningUpdate
+    ]
+):
     def get(self, uuid: str) -> models.Verordening:
         return (
             self.db.query(models.Verordening)
@@ -19,7 +22,9 @@ class CRUDVerordening(GeoCRUDBase[models.Verordening, schemas.VerordeningCreate,
             .one()
         )
 
-    def fetch_in_geo(self, area_uuid: List[str], limit: int) -> List[models.Verordening]:
+    def fetch_in_geo(
+        self, area_uuid: List[str], limit: int
+    ) -> List[models.Verordening]:
         """
         Retrieve the instances of this entity linked
         to the IDs of provided geological areas.

@@ -1,5 +1,4 @@
 from datetime import datetime
-from functools import lru_cache
 import os
 from typing import Any, Dict, List, Optional, Union
 
@@ -52,6 +51,7 @@ class Settings(BaseSettings):
     TEST_DB_NAME: str = os.getenv("TEST_DB_NAME", "db_test")
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
+
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
@@ -65,8 +65,11 @@ class Settings(BaseSettings):
         return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
 
     SQLALCHEMY_TEST_DATABASE_URI: Optional[str] = None
+
     @validator("SQLALCHEMY_TEST_DATABASE_URI", pre=True)
-    def assemble_test_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+    def assemble_test_db_connection(
+        cls, v: Optional[str], values: Dict[str, Any]
+    ) -> Any:
         if isinstance(v, str):
             return v
 
@@ -83,7 +86,9 @@ class Settings(BaseSettings):
     class Config:
         case_sensitive = True
 
+
 def get_settings():
     return Settings()
+
 
 settings = get_settings()

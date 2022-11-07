@@ -1,9 +1,8 @@
 from datetime import datetime
-from typing import Any, List, Optional, Tuple, Type
+from typing import Optional, Tuple, Type
 
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Query, aliased, Session
-from sqlalchemy.sql import union
 from sqlalchemy.sql.expression import Alias, or_
 
 from app.crud.base import CRUDBase, ModelType
@@ -38,16 +37,16 @@ class CRUDWerkingsgebied(
             .one()
         )
 
-    def _build_valid_view_query(self, ID: Optional[int] = None) -> Tuple[Query, Werkingsgebied]:
+    def _build_valid_view_query(
+        self, ID: Optional[int] = None
+    ) -> Tuple[Query, Werkingsgebied]:
         """
         Retrieve a Werkingsgebied with the 'Valid' view filters applied.
         Defaults to:
         """
         sub_query: Alias = self._build_valid_inner_query().subquery("inner")
         inner_alias: Werkingsgebied = aliased(
-            element=Werkingsgebied, 
-            alias=sub_query, 
-            name="inner"
+            element=Werkingsgebied, alias=sub_query, name="inner"
         )
 
         valid_uuid_filter = self._build_valid_uuid_filter(alias=inner_alias)
@@ -66,36 +65,37 @@ class CRUDWerkingsgebied(
 
         return query, inner_alias
 
-
     def _build_valid_inner_query(self) -> Query:
         """
         Base valid query usable as subquery
         """
         row_number = self._add_rownumber_latest_id()
-        query: Query = (
-            self.db.query(Werkingsgebied, row_number)
-            .filter(Werkingsgebied.UUID != NULL_UUID)
+        query: Query = self.db.query(Werkingsgebied, row_number).filter(
+            Werkingsgebied.UUID != NULL_UUID
         )
         return query
 
-
-    def _build_valid_uuid_filter(self, alias = None):
+    def _build_valid_uuid_filter(self, alias=None):
         """
         Build relationship sub filter list of valid werkingsgebied
         UUIDs in valid maatregelen or valid beleidskeuzes
         """
-        valid_maatregel_gebieden = self.crud_maatregel.valid_werkingsgebied_uuids() 
+        valid_maatregel_gebieden = self.crud_maatregel.valid_werkingsgebied_uuids()
         valid_beleidskeuzes = self.crud_beleidskeuze.valid_uuids()
-        
+
         if alias is None:
             filter = or_(
                 Werkingsgebied.UUID.in_(valid_maatregel_gebieden),
-                models.Beleidskeuze_Werkingsgebieden.Beleidskeuze_UUID.in_(valid_beleidskeuzes)
+                models.Beleidskeuze_Werkingsgebieden.Beleidskeuze_UUID.in_(
+                    valid_beleidskeuzes
+                ),
             )
-        else:   
+        else:
             filter = or_(
                 alias.UUID.in_(valid_maatregel_gebieden),
-                models.Beleidskeuze_Werkingsgebieden.Beleidskeuze_UUID.in_(valid_beleidskeuzes)
+                models.Beleidskeuze_Werkingsgebieden.Beleidskeuze_UUID.in_(
+                    valid_beleidskeuzes
+                ),
             )
 
         return filter

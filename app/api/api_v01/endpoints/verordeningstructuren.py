@@ -1,12 +1,10 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 
-from app import crud, models, schemas
+from app import models, schemas
 from app.api import deps
 from app.crud import CRUDVerordeningstructuur
 from app.models.gebruiker import GebruikersRol
@@ -24,7 +22,9 @@ defer_attributes = {"Inhoud"}
     response_model_exclude=defer_attributes,
 )
 def read_verordeningstructuurs(
-    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(
+        deps.get_crud_verordeningstructuur
+    ),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -44,7 +44,9 @@ def read_verordeningstructuurs(
 def create_verordeningstructuur(
     *,
     verordeningstructuur_in: schemas.VerordeningstructuurCreate,
-    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(
+        deps.get_crud_verordeningstructuur
+    ),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
@@ -63,7 +65,9 @@ def create_verordeningstructuur(
 def read_verordeningstructuur_lineage(
     *,
     lineage_id: int,
-    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(
+        deps.get_crud_verordeningstructuur
+    ),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
@@ -84,7 +88,9 @@ def update_verordeningstructuur(
     *,
     lineage_id: int,
     verordeningstructuur_in: schemas.VerordeningstructuurUpdate,
-    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(
+        deps.get_crud_verordeningstructuur
+    ),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
@@ -108,7 +114,9 @@ def update_verordeningstructuur(
 def changes_verordeningstructuurs(
     old_uuid: str,
     new_uuid: str,
-    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(
+        deps.get_crud_verordeningstructuur
+    ),
 ) -> Any:
     """
     Shows the changes between two versions of verordeningstructuurs.
@@ -134,7 +142,9 @@ def changes_verordeningstructuurs(
     response_model_exclude=defer_attributes,
 )
 def read_valid_verordeningstructuurs(
-    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(
+        deps.get_crud_verordeningstructuur
+    ),
     offset: int = 0,
     limit: int = 20,
     all_filters: str = "",
@@ -156,7 +166,9 @@ def read_valid_verordeningstructuurs(
 )
 def read_valid_verordeningstructuur_lineage(
     lineage_id: int,
-    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
+    crud_verordeningstructuur: CRUDVerordeningstructuur = Depends(
+        deps.get_crud_verordeningstructuur
+    ),
     offset: int = 0,
     limit: int = 20,
     all_filters: str = "",

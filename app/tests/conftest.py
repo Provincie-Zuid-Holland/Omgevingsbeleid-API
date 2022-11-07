@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.session import sessionmaker
 
 from app.db.base_class import metadata
-from app.core.config import Settings, settings
+from app.core.config import settings
 from app.tests.utils.data_loader import FixtureLoader
 from app.tests.utils.headers import get_admin_headers, get_fred_headers
 from main import app

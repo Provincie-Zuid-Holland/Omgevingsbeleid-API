@@ -35,4 +35,3 @@ class Gebruiker(GebruikerInDBBase):
 # Additional properties stored in DB
 class GebruikerInDB(GebruikerInDBBase):
     Wachtwoord: str
-

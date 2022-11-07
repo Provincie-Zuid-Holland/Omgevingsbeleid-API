@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
 
 from app.util.legacy_helpers import to_ref_field
 

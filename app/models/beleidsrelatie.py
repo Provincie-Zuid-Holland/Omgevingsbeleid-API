@@ -4,7 +4,6 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, Sequence, Unicode,
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
-from sqlalchemy_utils.functions import foreign_keys
 
 from app.db.base_class import Base
 

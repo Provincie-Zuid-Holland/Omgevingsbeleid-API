@@ -38,7 +38,7 @@ class Filters(BaseModel):
         if filter_dict:
             self.add_from_dict(FilterCombiner.AND, filter_dict)
 
-    def apply_to_query(self, model, query: Query, alias = None) -> Query:
+    def apply_to_query(self, model, query: Query, alias=None) -> Query:
         """
         Apply the built filter clauses to a given Query input
         """
@@ -102,4 +102,3 @@ class Filters(BaseModel):
     def _append_clause(self, combiner: FilterCombiner, items: List):
         clause = FilterClause(combiner=combiner, items=items)
         self.clauses.append(clause)
-

@@ -1,4 +1,4 @@
-from typing import Generator, Optional
+from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -151,7 +151,9 @@ def get_crud_verordening(db: Session = Depends(get_db)) -> CRUDVerordening:
     )
 
 
-def get_crud_verordeningstructuur(db: Session = Depends(get_db)) -> CRUDVerordeningstructuur:
+def get_crud_verordeningstructuur(
+    db: Session = Depends(get_db),
+) -> CRUDVerordeningstructuur:
     return CRUDVerordeningstructuur(
         model=Verordeningstructuur,
         db=db,
@@ -209,11 +211,13 @@ def get_geo_search_service(
     crud_maatregel: CRUDMaatregel = Depends(get_crud_maatregel),
     crud_verordening: CRUDVerordening = Depends(get_crud_verordening),
 ):
-    return GeoSearchService(geo_cruds=[
-        crud_beleidskeuze,
-        crud_maatregel,
-        crud_verordening,
-    ])
+    return GeoSearchService(
+        geo_cruds=[
+            crud_beleidskeuze,
+            crud_maatregel,
+            crud_verordening,
+        ]
+    )
 
 
 def get_current_gebruiker(

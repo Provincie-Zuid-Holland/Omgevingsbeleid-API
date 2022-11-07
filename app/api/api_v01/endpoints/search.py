@@ -1,12 +1,9 @@
 import logging
 from typing import Any, List
-from uuid import UUID
-from devtools import debug
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 
-from app import models, schemas
+from app import schemas
 from app.api import deps
 from app.core.exceptions import EmptySearchCriteria
 from app.schemas.search import SearchResultWrapper

@@ -118,7 +118,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return None
 
-
     def _build_latest_view_filter(
         self, all: bool, filters: Optional[Filters] = None
     ) -> Query:
@@ -156,7 +155,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return query.order_by(model_alias.ID.desc())
 
-
     def valid(
         self,
         ID: Optional[int] = None,
@@ -181,7 +179,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return query.all()
 
-
     def _build_valid_view_query(self, ID: Optional[int] = None) -> Tuple[Query, Any]:
         """
         Retrieve a model with the 'Valid' view filters applied.
@@ -193,9 +190,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         sub_query: Alias = self._build_valid_inner_query().subquery("inner")
         inner_alias: ModelType = aliased(
-            element=self.model, 
-            alias=sub_query, 
-            name="inner"
+            element=self.model, alias=sub_query, name="inner"
         )
 
         last_modified_id_filter = sub_query.c.get("RowNumber") == 1
@@ -349,7 +344,7 @@ class GeoCRUDBase(CRUDBase[ModelType, CreateSchemaType, UpdateSchemaType]):
     @abstractmethod
     def fetch_in_geo(self, area_uuid: List[str], limit: int) -> List[ModelType]:
         pass
-    
+
     @abstractmethod
     def as_geo_schema(self, model: Type[ModelType]):
         pass

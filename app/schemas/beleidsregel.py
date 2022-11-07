@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -59,9 +59,10 @@ def reference_alias_generator(field: str) -> str:
 
 class Beleidsregel(BeleidsregelInDBBase):
     """
-    Full Beleidsregel object schema with serialized 
+    Full Beleidsregel object schema with serialized
     many to many relationships.
     """
+
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
@@ -70,4 +71,3 @@ class Beleidsregel(BeleidsregelInDBBase):
     class Config:
         allow_population_by_field_name = True
         alias_generator = reference_alias_generator
-

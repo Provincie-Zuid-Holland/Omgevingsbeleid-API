@@ -1,12 +1,10 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
 
 from app.schemas.common import BeleidskeuzeShortInline, GebruikerInline
 
-from .beleidskeuze import BeleidskeuzeInDB
 
 
 # Shared properties

@@ -61,6 +61,7 @@ class BeleidskeuzeInDBBase(BeleidskeuzeBase):
     """
     Base beleidskeuze schema mirroring ORM model. Raw foreign keys.
     """
+
     ID: int
     UUID: str
 
@@ -89,7 +90,7 @@ class BeleidskeuzeInDB(BeleidskeuzeInDBBase):
 
 class Beleidskeuze(BeleidskeuzeInDB):
     """
-    Full beleidskeuze object schema with serialized 
+    Full beleidskeuze object schema with serialized
     many to many relationships.
 
     TODO: cannot alias aanpassing_op, self reference conflict orm model
@@ -115,7 +116,7 @@ class Beleidskeuze(BeleidskeuzeInDB):
     Werkingsgebieden: List[RelatedWerkingsgebied]
     Beleidsdoelen: List[RelatedBeleidsdoel]
     Maatregelen: List[RelatedMaatregel]
-    #Beleidsrelaties
+    # Beleidsrelaties
 
     # Refs
     Beleidsmodules: List[BeleidsmoduleReference]
@@ -125,12 +126,12 @@ class Beleidskeuze(BeleidskeuzeInDB):
         alias_generator = reference_alias_generator
 
 
-
 class BeleidskeuzeListable(BeleidskeuzeShortInline):
     """
     Schema containing bare crud details and descriptions
     for usage in list views.
     """
+
     ID: int
     UUID: str
 
@@ -151,4 +152,3 @@ class BeleidskeuzeListable(BeleidskeuzeShortInline):
         orm_mode = True
         allow_population_by_field_name = True
         alias_generator = reference_alias_generator
-

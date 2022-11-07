@@ -6,7 +6,7 @@ from .beleidskeuze import (
     BeleidskeuzeCreate,
     BeleidskeuzeInDB,
     BeleidskeuzeUpdate,
-    BeleidskeuzeListable
+    BeleidskeuzeListable,
 )
 from .beleidsmodule import Beleidsmodule, BeleidsmoduleCreate, BeleidsmoduleUpdate
 from .beleidsprestatie import (

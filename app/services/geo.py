@@ -1,27 +1,16 @@
-from typing import Any, List, Generic
+from typing import List
 
-from sqlalchemy.orm import Query, Session, Session, aliased
-from sqlalchemy.orm.util import AliasedClass
-from sqlalchemy.sql.expression import func, label, or_
 
-from app import models, schemas
-from app.crud.base import GeoCRUDBase, ModelType, CreateSchemaType, UpdateSchemaType
+from app import schemas
+from app.crud.base import GeoCRUDBase
 from app.schemas.search import GeoSearchResult
-from app.util.legacy_helpers import RankedSearchObject, SearchFields
 
-
-# GEO_SEARCHABLES: List[Any] = [
-#     (models.Beleidskeuze, crud.beleidskeuze, schemas.Beleidskeuze),
-#     (models.Maatregel, crud.maatregel, schemas.Maatregel),
-#     (models.Verordening, crud.verordening, schemas.Verordening),
-# ]
 
 RANK_WEIGHT = 1
 RANK_WEIGHT_HEAVY = 100
 
 
 class GeoSearchService:
-
     def __init__(self, geo_cruds: List[GeoCRUDBase]):
         self.geo_cruds = geo_cruds
 

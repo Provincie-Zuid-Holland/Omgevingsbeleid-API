@@ -4,27 +4,9 @@ from sqlalchemy.orm import Query, Session, Session, aliased
 from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql.expression import func, label, or_
 
-from app import models, schemas
 from app.crud.base import CRUDBase
 from app.util.legacy_helpers import RankedSearchObject, SearchFields
 
-
-# SEARCHABLE_MODELS: List[Any] = [
-#     models.Ambitie,
-#     models.Beleidskeuze,
-#     models.Belang,
-#     models.Beleidsdoel,
-#     models.Beleidsprestatie,
-#     models.Beleidsregel,
-#     models.Maatregel,
-#     models.Thema,
-# ]
-
-# GEO_SEARCHABLES: List[Any] = [
-#     (models.Beleidskeuze, crud.beleidskeuze, schemas.Beleidskeuze),
-#     (models.Maatregel, crud.maatregel, schemas.Maatregel),
-#     (models.Verordening, crud.verordening, schemas.Verordening),
-# ]
 
 RANK_WEIGHT = 1
 RANK_WEIGHT_HEAVY = 100

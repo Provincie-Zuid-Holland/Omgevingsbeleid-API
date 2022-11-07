@@ -1,12 +1,10 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 
-from app import crud, models, schemas
+from app import models, schemas
 from app.api import deps
 from app.crud import CRUDBeleidsmodule
 from app.models.gebruiker import GebruikersRol

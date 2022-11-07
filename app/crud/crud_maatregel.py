@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Union
 
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Query, joinedload
 from sqlalchemy.sql import Alias
 
@@ -11,7 +10,9 @@ from app import models, schemas
 from app.schemas.filters import Filter, FilterCombiner, Filters
 
 
-class CRUDMaatregel(GeoCRUDBase[models.Maatregel, schemas.MaatregelCreate, schemas.MaatregelUpdate]):
+class CRUDMaatregel(
+    GeoCRUDBase[models.Maatregel, schemas.MaatregelCreate, schemas.MaatregelUpdate]
+):
     def get(self, uuid: str) -> models.Maatregel:
         return (
             self.db.query(self.model)

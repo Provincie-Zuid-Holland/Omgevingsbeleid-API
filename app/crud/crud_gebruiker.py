@@ -1,6 +1,5 @@
 from typing import Any, Dict, Optional, Union
 
-from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash, verify_password
 from app.crud.base import CRUDBase
@@ -41,9 +40,7 @@ class CRUDGebruiker(CRUDBase[Gebruiker, GebruikerCreate, GebruikerUpdate]):
             update_data["hashed_password"] = hashed_password
         return super().update(db_obj=db_obj, obj_in=update_data)
 
-    def authenticate(
-        self, username: str, password: str
-    ) -> Optional[Gebruiker]:
+    def authenticate(self, username: str, password: str) -> Optional[Gebruiker]:
         gebruiker = self.get_by_email(email=username)
 
         if not gebruiker:

@@ -1,4 +1,3 @@
-from collections import namedtuple
 from typing import TYPE_CHECKING, List
 
 from sqlalchemy import (

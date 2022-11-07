@@ -1,11 +1,6 @@
-from datetime import datetime
-from uuid import uuid4
 from fastapi.testclient import TestClient
 import pytest
-from requests import Response
 
-from app import models, schemas, crud
-from app.schemas.filters import Filters
 
 
 @pytest.mark.usefixtures("fixture_data")
@@ -15,7 +10,7 @@ class TestAuth:
 
     def test_login(self, client: TestClient):
         request_data = {
-            "username": self.ADMIN_EMAIL, 
+            "username": self.ADMIN_EMAIL,
             "password": self.USER_PASSWORD,
             "grant_type": "",
             "client_id": "",
@@ -23,10 +18,7 @@ class TestAuth:
             "client_secret": "",
         }
 
-        response = client.post(
-            "v0.1/login/access-token",
-            data=request_data
-        )
+        response = client.post("v0.1/login/access-token", data=request_data)
 
         assert response.status_code == 200, f"Status code was {response.status_code}"
         data = response.json()
@@ -34,7 +26,7 @@ class TestAuth:
 
     def test_incorrect_credentials(self, client: TestClient):
         request_data = {
-            "username": self.ADMIN_EMAIL, 
+            "username": self.ADMIN_EMAIL,
             "password": "wrongpw",
             "grant_type": "",
             "client_id": "",
@@ -42,10 +34,7 @@ class TestAuth:
             "client_secret": "",
         }
 
-        response = client.post(
-            "v0.1/login/access-token",
-            data=request_data
-        )
+        response = client.post("v0.1/login/access-token", data=request_data)
 
         assert response.status_code == 401, f"Status code was {response.status_code}"
 
@@ -63,7 +52,7 @@ class TestAuth:
             "Omschrijving": "test object",
             "Weblink": "test object",
             "Begin_Geldigheid": "2012-10-11T18:31:21.548Z",
-            "Eind_Geldigheid": "2012-10-11T18:31:21.548Z"
+            "Eind_Geldigheid": "2012-10-11T18:31:21.548Z",
         }
 
         responses = [
@@ -73,5 +62,6 @@ class TestAuth:
             client.post("v0.1/ambities", data={}),
         ]
         for response in responses:
-            assert response.status_code == 401, f"Status code was {response.status_code}"
-
+            assert (
+                response.status_code == 401
+            ), f"Status code was {response.status_code}"

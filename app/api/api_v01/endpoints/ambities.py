@@ -1,10 +1,8 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.api import deps
@@ -57,7 +55,9 @@ def create_ambitie(
     """
     Creates a new ambities lineage
     """
-    ambitie = crud_ambitie.create(obj_in=ambitie_in, by_uuid=str(current_gebruiker.UUID))
+    ambitie = crud_ambitie.create(
+        obj_in=ambitie_in, by_uuid=str(current_gebruiker.UUID)
+    )
     return ambitie
 
 

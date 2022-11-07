@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import joinedload
@@ -12,8 +12,14 @@ from app import schemas
 from app import models
 
 
-class CRUDBeleidskeuze(GeoCRUDBase[models.Beleidskeuze, schemas.BeleidskeuzeCreate, schemas.BeleidskeuzeUpdate]):
-    def create(self, *, obj_in: schemas.BeleidskeuzeCreate, by_uuid: str) -> models.Beleidskeuze:
+class CRUDBeleidskeuze(
+    GeoCRUDBase[
+        models.Beleidskeuze, schemas.BeleidskeuzeCreate, schemas.BeleidskeuzeUpdate
+    ]
+):
+    def create(
+        self, *, obj_in: schemas.BeleidskeuzeCreate, by_uuid: str
+    ) -> models.Beleidskeuze:
         obj_in_data = jsonable_encoder(
             obj_in,
             custom_encoder={
@@ -34,7 +40,6 @@ class CRUDBeleidskeuze(GeoCRUDBase[models.Beleidskeuze, schemas.BeleidskeuzeCrea
         self.db.refresh(db_obj)
         return db_obj
 
-
     def valid_uuids(self) -> List[str]:
         """
         Retrieve list of only valid UUIDs in beleidskeuzes
@@ -48,8 +53,9 @@ class CRUDBeleidskeuze(GeoCRUDBase[models.Beleidskeuze, schemas.BeleidskeuzeCrea
 
         return [bk.UUID for bk in query]
 
-
-    def _build_valid_view_query(self, ID: Optional[int] = None) -> Tuple[Query, models.Beleidskeuze]:
+    def _build_valid_view_query(
+        self, ID: Optional[int] = None
+    ) -> Tuple[Query, models.Beleidskeuze]:
         """
         Retrieve a model with the 'Valid' view filters applied.
         Defaults to:
@@ -61,9 +67,7 @@ class CRUDBeleidskeuze(GeoCRUDBase[models.Beleidskeuze, schemas.BeleidskeuzeCrea
         """
         sub_query: Alias = self._build_valid_inner_query().subquery("inner")
         inner_alias: models.Beleidskeuze = aliased(
-            element=models.Beleidskeuze, 
-            alias=sub_query, 
-            name="inner"
+            element=models.Beleidskeuze, alias=sub_query, name="inner"
         )
 
         query: Query = (
@@ -91,7 +95,9 @@ class CRUDBeleidskeuze(GeoCRUDBase[models.Beleidskeuze, schemas.BeleidskeuzeCrea
         )
         return query
 
-    def fetch_in_geo(self, area_uuid: List[str], limit: int) -> List[models.Beleidskeuze]:
+    def fetch_in_geo(
+        self, area_uuid: List[str], limit: int
+    ) -> List[models.Beleidskeuze]:
         """
         Retrieve the instances of this entity linked
         to the IDs of provided geological areas.
