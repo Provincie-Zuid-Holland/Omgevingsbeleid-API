@@ -31,6 +31,11 @@ class DataManagerException(Exception):
 CLEANR = re.compile("<.*?>")
 
 
+# We ignore the shape/geometry field
+def unpack_geometry(raw_bytes):
+    return ''
+
+
 class DataManager:
     def __init__(self, schema):
         """A manager object for interacting with the database
@@ -95,6 +100,7 @@ class DataManager:
 
     def _run_query_fetch(self, query, values=[]):
         with current_app.db.engine.connect() as con:
+            con.connection.add_output_converter(-151, unpack_geometry)
             result = con.execute(query, *values)
             row_list = [row._asdict() for row in result]
 
