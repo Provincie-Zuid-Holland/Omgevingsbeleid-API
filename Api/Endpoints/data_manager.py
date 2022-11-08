@@ -3,7 +3,6 @@
 from collections import defaultdict
 from marshmallow import schema
 import pyodbc
-import struct
 import re
 from uuid import UUID
 from flask import current_app
