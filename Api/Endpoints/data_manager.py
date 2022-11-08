@@ -95,6 +95,10 @@ class DataManager:
 
     def _run_query_fetch(self, query, values=[]):
         with current_app.db.engine.connect() as con:
+            from pprint import pprint
+            print("\n\n\nQuery:\n")
+            pprint(query)
+            print("\n\n\n")
             result = con.execute(query, *values)
             row_list = [row._asdict() for row in result]
 
