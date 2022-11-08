@@ -3,6 +3,7 @@
 from collections import defaultdict
 from marshmallow import schema
 import pyodbc
+import struct
 import re
 from uuid import UUID
 from flask import current_app
@@ -29,6 +30,14 @@ class DataManagerException(Exception):
 
 # HTML cleaning regex
 CLEANR = re.compile("<.*?>")
+
+
+def unpack_geometry(raw_bytes):
+    # adapted from SSCLRT information at
+    #   https://learn.microsoft.com/en-us/openspecs/sql_server_protocols/ms-ssclrt/dc988cb6-4812-4ec6-91cd-cce329f6ecda
+    tup = struct.unpack('<i2b3d', raw_bytes)
+    # tup contains: (unknown, Version, Serialization_Properties, X, Y, SRID)
+    return tup[3], tup[4], tup[5]
 
 
 class DataManager:
@@ -95,10 +104,11 @@ class DataManager:
 
     def _run_query_fetch(self, query, values=[]):
         with current_app.db.engine.connect() as con:
-            from pprint import pprint
-            print("\n\n\nQuery:\n")
-            pprint(query)
-            print("\n\n\n")
+            # from pprint import pprint
+            # print("\n\n\nQuery:\n")
+            # pprint(query)
+            # print("\n\n\n")
+            con.add_output_converter(-151, unpack_geometry)
             result = con.execute(query, *values)
             row_list = [row._asdict() for row in result]
 
