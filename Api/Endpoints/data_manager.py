@@ -108,7 +108,7 @@ class DataManager:
             # print("\n\n\nQuery:\n")
             # pprint(query)
             # print("\n\n\n")
-            con.add_output_converter(-151, unpack_geometry)
+            con.connection.add_output_converter(-151, unpack_geometry)
             result = con.execute(query, *values)
             row_list = [row._asdict() for row in result]
 
