@@ -18,37 +18,37 @@ class TestValidSelection:
     """
 
     def setup_method(self):
-       print("-------START METHOD SETUP-----------")
+        print("-------START METHOD SETUP-----------")
 
     @freeze_time("2022-10-10")
     def test_generic_valid_view(self, client: TestClient, db: Session):
         """
-        Insert valid objects and ensure generic valid filters 
+        Insert valid objects and ensure generic valid filters
         are applied correctly. Ambitie used as example.
         """
         # Arrange
-        user = crud.gebruiker.get_by_email(db=db, email="admin@test.com") 
-        
+        user = crud.gebruiker.get_by_email(db=db, email="admin@test.com")
+
         valid = {
-          "UUID": uuid4(),
-          "ID": 999,
-          "Titel": "valid test ambitie",
-          "Omschrijving": "dit is een valid ambitie",
-          "Begin_Geldigheid": "2020-10-10T09:57:05.054Z",
-          "Eind_Geldigheid": "2030-10-10T09:57:05.054Z"
+            "UUID": uuid4(),
+            "ID": 999,
+            "Titel": "valid test ambitie",
+            "Omschrijving": "dit is een valid ambitie",
+            "Begin_Geldigheid": "2020-10-10T09:57:05.054Z",
+            "Eind_Geldigheid": "2030-10-10T09:57:05.054Z",
         }
         invalid = {
-          "UUID": uuid4(),
-          "ID": 998,
-          "Titel": "verlopen valid test ambitie",
-          "Omschrijving": "verlopen valid ambitie",
-          "Begin_Geldigheid": "2020-10-10T09:57:05.054Z",
-          "Eind_Geldigheid": "2021-09-09T09:57:05.054Z" # Expired
+            "UUID": uuid4(),
+            "ID": 998,
+            "Titel": "verlopen valid test ambitie",
+            "Omschrijving": "verlopen valid ambitie",
+            "Begin_Geldigheid": "2020-10-10T09:57:05.054Z",
+            "Eind_Geldigheid": "2021-09-09T09:57:05.054Z",  # Expired
         }
 
         for amb in [valid, invalid]:
             fl = FixtureLoader(db)
-            fl._ambitie("amb:water",**amb)
+            fl._ambitie("amb:water", **amb)
             db.commit()
 
         # Act
@@ -57,14 +57,18 @@ class TestValidSelection:
 
         # Assert
         data = response.json()
-        
+
         response_uuids = [UUID(amb["UUID"]) for amb in data]
 
-        assert valid["UUID"] in response_uuids, f"Expected valid {valid['UUID']} to be in response"
-        assert str(invalid["UUID"]) not in response_uuids, f"Expected invalid {valid['UUID']} not in response"
+        assert (
+            valid["UUID"] in response_uuids
+        ), f"Expected valid {valid['UUID']} to be in response"
+        assert (
+            str(invalid["UUID"]) not in response_uuids
+        ), f"Expected invalid {valid['UUID']} not in response"
 
     def test_no_null_records(self, client: TestClient):
-        response = client.get( "v0.1/valid/ambities?limit=-1")
+        response = client.get("v0.1/valid/ambities?limit=-1")
         assert response.status_code == 200, f"Status code was {response.status_code}"
         data = response.json()
 
@@ -81,7 +85,6 @@ class TestValidSelection:
         assert (
             len(data) == 0
         ), f"We are expecting nothing as the most recent Vigerend has its Eind_Geldigheid in the past"
-
 
     def test_beleidskeuze_valid_view_future_vigerend(self, client: TestClient):
         response = client.get(

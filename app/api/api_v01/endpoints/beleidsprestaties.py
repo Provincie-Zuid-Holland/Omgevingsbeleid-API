@@ -97,7 +97,9 @@ def update_beleidsprestatie(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
     beleidsprestatie = crud.beleidsprestatie.update(
-        db_obj=beleidsprestatie, obj_in=beleidsprestatie_in
+        db_obj=beleidsprestatie,
+        obj_in=beleidsprestatie_in,
+        by_uuid=current_gebruiker.UUID,
     )
     return beleidsprestatie
 
@@ -163,4 +165,7 @@ def read_valid_beleidsprestatie_lineage(
     beleidsprestaties = crud.beleidsprestatie.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not beleidsprestaties:
+        raise HTTPException(status_code=404, detail="Beleidsregels lineage not found")
+
     return beleidsprestaties

@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from app.schemas.common import BeleidskeuzeReference, GebruikerInline
 
 
-
 class BeleidsprestatieBase(BaseModel):
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None
@@ -55,9 +54,10 @@ def reference_alias_generator(field: str) -> str:
 
 class Beleidsprestatie(BeleidsprestatieInDBBase):
     """
-    Full Beleidsprestatie object schema with serialized 
+    Full Beleidsprestatie object schema with serialized
     many to many relationships.
     """
+
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
@@ -70,4 +70,3 @@ class Beleidsprestatie(BeleidsprestatieInDBBase):
 
 class BeleidsprestatieInDB(BeleidsprestatieInDBBase):
     pass
-

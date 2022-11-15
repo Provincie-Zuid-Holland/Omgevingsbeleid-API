@@ -23,7 +23,6 @@ class CRUDMaatregel(CRUDBase[Maatregel, MaatregelCreate, MaatregelUpdate]):
             .one()
         )
 
-
     def valid_uuids(self, as_query: bool = False) -> Union[List[str], Query]:
         """
         Retrieve list of only valid UUIDs in Maatregelen
@@ -65,7 +64,6 @@ class CRUDMaatregel(CRUDBase[Maatregel, MaatregelCreate, MaatregelUpdate]):
             .filter(Maatregel.Begin_Geldigheid <= datetime.utcnow())
         )
         return query
-
 
     def fetch_in_geo(self, area_uuid: List[str], limit: int):
         """

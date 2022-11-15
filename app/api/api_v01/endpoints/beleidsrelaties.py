@@ -69,7 +69,7 @@ def read_beleidsrelatie_lineage(
     """
     beleidsrelaties = crud.beleidsrelatie.all(filters=Filters({"ID": lineage_id}))
     if not beleidsrelaties:
-        raise HTTPException(status_code=404, detail="Beleidsrelaties not found")
+        raise HTTPException(status_code=404, detail="Beleidsrelatie lineage not found")
     return beleidsrelaties
 
 
@@ -93,7 +93,7 @@ def update_beleidsrelatie(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
     beleidsrelatie = crud.beleidsrelatie.update(
-        db_obj=beleidsrelatie, obj_in=beleidsrelatie_in
+        db_obj=beleidsrelatie, obj_in=beleidsrelatie_in, by_uuid=current_gebruiker.UUID
     )
     return beleidsrelatie
 
@@ -157,4 +157,6 @@ def read_valid_beleidsrelatie_lineage(
     beleidsrelaties = crud.beleidsrelatie.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not beleidsrelaties:
+        raise HTTPException(status_code=404, detail="Lineage not found")
     return beleidsrelaties

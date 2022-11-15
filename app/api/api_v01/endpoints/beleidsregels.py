@@ -80,6 +80,7 @@ def update_beleidsregel(
     db: Session = Depends(deps.get_db),
     lineage_id: int,
     beleidsregel_in: schemas.BeleidsregelUpdate,
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new beleidsregels to a lineage
@@ -92,7 +93,9 @@ def update_beleidsregel(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsregel = crud.beleidsregel.update(db_obj=beleidsregel, obj_in=beleidsregel_in)
+    beleidsregel = crud.beleidsregel.update(
+        db_obj=beleidsregel, obj_in=beleidsregel_in, by_uuid=current_gebruiker.UUID
+    )
     return beleidsregel
 
 
@@ -153,4 +156,6 @@ def read_valid_beleidsregel_lineage(
     beleidsregels = crud.beleidsregel.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not beleidsregels:
+        raise HTTPException(status_code=404, detail="Beleidsregels lineage not found")
     return beleidsregels

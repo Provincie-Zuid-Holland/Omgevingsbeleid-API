@@ -1,8 +1,6 @@
 from typing import Any, List
-from devtools import debug
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
@@ -97,7 +95,9 @@ def update_beleidskeuze(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
 
-    beleidskeuze = crud.beleidskeuze.update(db_obj=beleidskeuze, obj_in=beleidskeuze_in)
+    beleidskeuze = crud.beleidskeuze.update(
+        current_bk=beleidskeuze, obj_in=beleidskeuze_in, by_uuid=current_gebruiker.UUID
+    )
 
     return beleidskeuze
 
@@ -158,4 +158,7 @@ def read_valid_beleidskeuze_lineage(
     beleidskeuzes = crud.beleidskeuze.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not beleidskeuzes:
+        raise HTTPException(status_code=404, detail="Beleidskeuze lineage not found")
+
     return beleidskeuzes

@@ -13,7 +13,7 @@ from app.util.compare import Comparator
 
 router = APIRouter()
 
-defer_attributes = { }
+defer_attributes = {}
 
 
 @router.get(
@@ -76,6 +76,7 @@ def update_werkingsgebied(
     db: Session = Depends(deps.get_db),
     lineage_id: int,
     werkingsgebied_in: schemas.WerkingsgebiedUpdate,
+    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
     Adds a new werkingsgebied to a lineage
@@ -89,7 +90,7 @@ def update_werkingsgebied(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
     werkingsgebied = crud.werkingsgebied.update(
-        db_obj=werkingsgebied, obj_in=werkingsgebied_in
+        db_obj=werkingsgebied, obj_in=werkingsgebied_in, by_uuid=current_gebruiker.UUID
     )
     return werkingsgebied
 
@@ -153,4 +154,6 @@ def read_valid_werkingsgebied_lineage(
     werkingsgebied = crud.werkingsgebied.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not werkingsgebied:
+        raise HTTPException(status_code=404, detail="Beleidsregels lineage not found")
     return werkingsgebied

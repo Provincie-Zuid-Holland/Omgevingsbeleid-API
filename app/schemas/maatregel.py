@@ -61,9 +61,10 @@ def reference_alias_generator(field: str) -> str:
 
 class Maatregel(MaatregelInDBBase):
     """
-    Full Maatregel object schema with serialized 
+    Full Maatregel object schema with serialized
     many to many relationships.
     """
+
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
@@ -86,6 +87,7 @@ class MaatregelListable(BaseModel):
     Schema containing bare crud details and descriptions
     for usage in list views.
     """
+
     ID: int
     UUID: str
 
@@ -103,7 +105,6 @@ class MaatregelListable(BaseModel):
     class Config:
         orm_mode = True
         allow_population_by_field_name = True
-
 
 
 class MaatregelInDB(MaatregelInDBBase):

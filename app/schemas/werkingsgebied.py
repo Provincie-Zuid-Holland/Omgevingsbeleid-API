@@ -10,6 +10,7 @@ class WerkingsgebiedBase(BaseModel):
     Werkingsgebied: str
     symbol: str
 
+
 class WerkingsgebiedCreate(WerkingsgebiedBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
@@ -52,9 +53,10 @@ def reference_alias_generator(field: str) -> str:
 
 class Werkingsgebied(WerkingsgebiedInDBBase):
     """
-    Full Werkingsgebied object schema with serialized 
+    Full Werkingsgebied object schema with serialized
     many to many relationships.
     """
+
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 

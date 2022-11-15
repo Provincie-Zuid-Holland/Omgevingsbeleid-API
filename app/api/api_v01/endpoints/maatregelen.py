@@ -98,7 +98,9 @@ def update_maatregel(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    maatregel = crud.maatregel.update(db_obj=maatregel, obj_in=maatregel_in)
+    maatregel = crud.maatregel.update(
+        db_obj=maatregel, obj_in=maatregel_in, by_uuid=current_gebruiker.UUID
+    )
     return maatregel
 
 
@@ -155,4 +157,6 @@ def read_valid_maatregel_lineage(
     maatregelen = crud.maatregel.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not maatregelen:
+        raise HTTPException(status_code=404, detail="Lineage not found")
     return maatregelen

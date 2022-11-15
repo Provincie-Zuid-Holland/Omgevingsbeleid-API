@@ -107,4 +107,5 @@ class GraphService:
             "Type": valid_object.__tablename__.lower(),
         }
 
+
 graph_service = GraphService()

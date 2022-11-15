@@ -59,7 +59,7 @@ def reference_alias_generator(field: str) -> str:
 
 class Ambitie(AmbitieInDBBase):
     """
-    Full Ambitie object schema with serialized 
+    Full Ambitie object schema with serialized
     many to many relationships.
     """
 
@@ -71,5 +71,3 @@ class Ambitie(AmbitieInDBBase):
     class Config:
         allow_population_by_field_name = True
         alias_generator = reference_alias_generator
-
-

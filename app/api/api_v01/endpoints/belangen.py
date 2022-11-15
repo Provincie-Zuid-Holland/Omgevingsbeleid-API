@@ -86,7 +86,9 @@ def update_belang(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    belang = crud.belang.update(db_obj=belang, obj_in=belang_in)
+    belang = crud.belang.update(
+        db_obj=belang, obj_in=belang_in, by_uuid=current_gebruiker.UUID
+    )
     return belang
 
 
@@ -142,4 +144,6 @@ def read_valid_belang_lineage(
     belangen = crud.belang.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not belangen:
+        raise HTTPException(status_code=404, detail="Lineage not found")
     return belangen

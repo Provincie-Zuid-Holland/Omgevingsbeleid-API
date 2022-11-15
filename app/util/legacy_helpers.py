@@ -13,15 +13,15 @@ def to_ref_field(string: str) -> str:
     Used to match the legacy api format: "Ref_*" fields
     """
     to_alias = [
-#        "Belangen",
-#        "Beleidsdoelen",
-#        "Beleidskeuzes",
+        #        "Belangen",
+        #        "Beleidsdoelen",
+        #        "Beleidskeuzes",
         "Beleidsmodules",
-#        "Beleidsprestaties",
-#        "Beleidsrelaties",
-#        "Beleidsregels",
-#        "Verordeningen",
-#        "Maatregelen",
+        #        "Beleidsprestaties",
+        #        "Beleidsrelaties",
+        #        "Beleidsregels",
+        #        "Verordeningen",
+        #        "Maatregelen",
     ]
 
     if string not in to_alias:

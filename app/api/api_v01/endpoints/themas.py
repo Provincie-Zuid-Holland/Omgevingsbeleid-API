@@ -86,7 +86,9 @@ def update_thema(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    thema = crud.thema.update(db_obj=thema, obj_in=thema_in)
+    thema = crud.thema.update(
+        db_obj=thema, obj_in=thema_in, by_uuid=current_gebruiker.UUID
+    )
     return thema
 
 
@@ -143,4 +145,6 @@ def read_valid_thema_lineage(
     themas = crud.thema.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not themas:
+        raise HTTPException(status_code=404, detail="Lineage not found")
     return themas

@@ -91,7 +91,7 @@ def update_beleidsmodule(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
     beleidsmodule = crud.beleidsmodule.update(
-        db_obj=beleidsmodule, obj_in=beleidsmodule_in
+        db_obj=beleidsmodule, obj_in=beleidsmodule_in, by_uuid=current_gebruiker.UUID
     )
     return beleidsmodule
 

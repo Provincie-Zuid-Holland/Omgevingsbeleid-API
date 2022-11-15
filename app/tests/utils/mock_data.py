@@ -1,24 +1,23 @@
-
 from pydantic.main import ModelMetaclass
 
 from app.db.base_class import NULL_UUID
 
 
 test_ambitie = {
-        'Begin_Geldigheid': '1992-11-23T10:00:00', 
-        'Eind_Geldigheid': '2033-11-23T10:00:00', 
-        'Titel': 'Test String', 
-        'Omschrijving': 'Test String', 
-        'Weblink': 'Test String'
+    "Begin_Geldigheid": "1992-11-23T10:00:00",
+    "Eind_Geldigheid": "2033-11-23T10:00:00",
+    "Titel": "Test String",
+    "Omschrijving": "Test String",
+    "Weblink": "Test String",
 }
 
 test_belang = {
-        'Begin_Geldigheid': '1992-11-23T10:00:00', 
-        'Eind_Geldigheid': '2033-11-23T10:00:00', 
-        'Titel': 'Test String', 
-        'Omschrijving': 'Test String', 
-        'Weblink': 'Test String', 
-        'Type': 'Nationaal Belang'
+    "Begin_Geldigheid": "1992-11-23T10:00:00",
+    "Eind_Geldigheid": "2033-11-23T10:00:00",
+    "Titel": "Test String",
+    "Omschrijving": "Test String",
+    "Weblink": "Test String",
+    "Type": "Nationaal Belang",
 }
 
 reference_rich_beleidskeuze = {
@@ -46,7 +45,8 @@ reference_rich_beleidskeuze = {
     ],
 }
 
-def generate_data(obj_schema: ModelMetaclass, user_UUID = NULL_UUID):
+
+def generate_data(obj_schema: ModelMetaclass, user_UUID=NULL_UUID):
     """
     Take a pydantic base class and return an object filled with mock
     data for testing purposes.
@@ -79,8 +79,7 @@ def generate_data(obj_schema: ModelMetaclass, user_UUID = NULL_UUID):
                 if info["format"] == "date-time":
                     result[field] = "1992-11-23T10:00:00"
 
-        elif ftype == "integer": 
+        elif ftype == "integer":
             result[field] = 42
 
     return result
-

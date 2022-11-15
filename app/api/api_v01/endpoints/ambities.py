@@ -56,7 +56,9 @@ def create_ambitie(
     """
     Creates a new ambities lineage
     """
-    ambitie = crud.ambitie.create(obj_in=ambitie_in, by_uuid=str(current_gebruiker.UUID))
+    ambitie = crud.ambitie.create(
+        obj_in=ambitie_in, by_uuid=str(current_gebruiker.UUID)
+    )
     return ambitie
 
 
@@ -95,7 +97,9 @@ def update_ambitie(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    ambitie = crud.ambitie.update(db_obj=ambitie, obj_in=ambitie_in)
+    ambitie = crud.ambitie.update(
+        db_obj=ambitie, obj_in=ambitie_in, by_uuid=current_gebruiker.UUID
+    )
     return ambitie
 
 
@@ -156,4 +160,6 @@ def read_valid_ambitie_lineage(
     ambities = crud.ambitie.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not ambities:
+        raise HTTPException(status_code=404, detail="Ambitie lineage not found")
     return ambities

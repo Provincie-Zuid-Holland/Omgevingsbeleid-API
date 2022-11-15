@@ -14,6 +14,7 @@ from app.models.beleidsrelatie import Beleidsrelatie
 from app.schemas.beleidsrelatie import BeleidsrelatieCreate, BeleidsrelatieUpdate
 from app.schemas.filters import Filters
 
+
 class CRUDBeleidsrelatie(
     CRUDBase[Beleidsrelatie, BeleidsrelatieCreate, BeleidsrelatieUpdate]
 ):
@@ -41,7 +42,9 @@ class CRUDBeleidsrelatie(
 
         return query.all()
 
-    def _build_valid_view_query(self, ID: Optional[int] = None) -> Tuple[Query, Beleidsrelatie]:
+    def _build_valid_view_query(
+        self, ID: Optional[int] = None
+    ) -> Tuple[Query, Beleidsrelatie]:
         """
         Build query with the 'Valid' view filters applied.
         Defaults to:
@@ -52,13 +55,15 @@ class CRUDBeleidsrelatie(
         - Beleidskeuze UUIDs for valid BKs only
         """
         sub_query: Alias = self._build_valid_inner_query().subquery("T")
-        inner_alias: Beleidsrelatie = aliased(element=Beleidsrelatie, alias=sub_query, name="T")
+        inner_alias: Beleidsrelatie = aliased(
+            element=Beleidsrelatie, alias=sub_query, name="T"
+        )
 
         # only valid if refering to valid beleidskeuzes
         bk_uuids = beleidskeuze_service.valid_uuids()
         bk_filter = and_(
             inner_alias.Van_Beleidskeuze_UUID.in_(bk_uuids),
-            inner_alias.Naar_Beleidskeuze_UUID.in_(bk_uuids)
+            inner_alias.Naar_Beleidskeuze_UUID.in_(bk_uuids),
         )
 
         query: Query = (
@@ -75,7 +80,6 @@ class CRUDBeleidsrelatie(
 
         return query, inner_alias
 
-
     def _build_valid_inner_query(self) -> Query:
         """
         Base valid query usable as subquery
@@ -83,9 +87,8 @@ class CRUDBeleidsrelatie(
         partition: ColumnElement = func.row_number().over(
             partition_by=Beleidsrelatie.ID, order_by=Beleidsrelatie.Modified_Date.desc()
         )
-        query: Query = (
-            self.db.query(Beleidsrelatie, label("RowNumber", partition))
-        )
+        query: Query = self.db.query(Beleidsrelatie, label("RowNumber", partition))
         return query
+
 
 beleidsrelatie = CRUDBeleidsrelatie(Beleidsrelatie)

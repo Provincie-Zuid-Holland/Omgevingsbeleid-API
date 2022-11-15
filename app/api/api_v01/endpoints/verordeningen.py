@@ -90,7 +90,9 @@ def update_verordening(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    verordening = crud.verordening.update(db_obj=verordening, obj_in=verordening_in)
+    verordening = crud.verordening.update(
+        db_obj=verordening, obj_in=verordening_in, by_uuid=current_gebruiker.UUID
+    )
     return verordening
 
 
@@ -146,9 +148,11 @@ def read_valid_verordening_lineage(
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
-    Gets all the verordening in this lineage that are valid
+    Gets all the verordeningen in this lineage that are valid
     """
-    verordening = crud.verordening.valid(
+    verordeningen = crud.verordening.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
-    return verordening
+    if not verordeningen:
+        raise HTTPException(status_code=404, detail="Lineage not found")
+    return verordeningen
