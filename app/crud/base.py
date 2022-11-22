@@ -71,7 +71,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *,
         db_obj: ModelType,
         obj_in: Union[UpdateSchemaType, Dict[str, Any]],
-        by_uuid: str
+        by_uuid: str,
     ) -> ModelType:
         obj_data = jsonable_encoder(db_obj)
         mapper = get_mapper(db_obj)
@@ -94,7 +94,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         new_data["UUID"] = uuid4()
         new_data["Modified_Date"] = datetime.now()
         new_data["Modified_By_UUID"] = by_uuid
-
 
         new_data["Created_Date"] = db_obj.Created_Date
         new_data["Begin_Geldigheid"] = db_obj.Begin_Geldigheid
@@ -140,7 +139,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
             LINK_DESCRIPTION = "Koppeling_Omschrijving"
             REL_UUID_KEY = f"{assoc_table_keys[0]}_UUID"  # Get name of relationship foreign key to update
-            ASSOC_UUID_KEY  = f"{assoc_table_keys[1]}_UUID"  # Get name of current obj foreign key 
+            ASSOC_UUID_KEY = (
+                f"{assoc_table_keys[1]}_UUID"  # Get name of current obj foreign key
+            )
 
             if relation_key in update_data:
                 for update_item in update_data[relation_key]:
@@ -160,7 +161,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                     result.append(assoc_obj)
 
         return result
-
 
     def remove(self, *, id: int) -> ModelType:
         obj = self.db.query(self.model).get(id)

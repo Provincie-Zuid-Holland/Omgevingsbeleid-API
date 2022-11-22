@@ -40,7 +40,8 @@ class BelangCreate(BelangBase):
 
 
 class BelangUpdate(BelangCreate):
-    pass
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
 
 
 class BelangInDBBase(BelangBase):
