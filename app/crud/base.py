@@ -1,22 +1,25 @@
 from datetime import datetime
 from typing import Any, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
 from abc import abstractmethod
+from uuid import UUID, uuid4
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Query, aliased, load_only, Session
+from sqlalchemy.orm import Mapper, Query, aliased, load_only
 from sqlalchemy.orm.util import AliasedClass
-from sqlalchemy.sql import Alias, label
+from sqlalchemy.sql import Alias, Subquery, label
 from sqlalchemy.sql.elements import ColumnElement, Label
 from sqlalchemy.sql.expression import func
+from sqlalchemy_utils import get_mapper
 
 from app.core.exceptions import DatabaseError, FilterNotAllowed
-from app.db.base_class import BaseTimeStamped, NULL_UUID
+from app.db.base_class import Base, NULL_UUID
+from app.db.session import SessionLocal
 from app.schemas.filters import FilterCombiner, Filters
 
-ModelType = TypeVar("ModelType", bound=BaseTimeStamped)
+ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
@@ -37,7 +40,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def get(self, uuid: str) -> ModelType:
         return self.db.query(self.model).filter(self.model.UUID == uuid).one()
 
-    def create(self, *, obj_in: CreateSchemaType, by_uuid: str) -> ModelType:
+    def create(
+        self, *, obj_in: CreateSchemaType, by_uuid: Union[str, UUID]
+    ) -> ModelType:
         obj_in_data = jsonable_encoder(
             obj_in,
             custom_encoder={
@@ -63,23 +68,100 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             raise DatabaseError()
 
     def update(
-        self, *, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+        self,
+        *,
+        db_obj: ModelType,
+        obj_in: Union[UpdateSchemaType, Dict[str, Any]],
+        by_uuid: str,
     ) -> ModelType:
         obj_data = jsonable_encoder(db_obj)
+        mapper = get_mapper(db_obj)
+        base_attrs = mapper.columns.keys()
+
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
-        for field in obj_data:
+
+        # Build updated object
+        new_data = dict()
+        for field in base_attrs:
             if field in update_data:
-                setattr(db_obj, field, update_data[field])
+                new_data[field] = update_data[field]
+            else:
+                new_data[field] = obj_data[field]
+
+        # New BK object (no relations)
+        new_data["UUID"] = uuid4()
+        new_data["Modified_Date"] = datetime.now()
+        new_data["Modified_By_UUID"] = by_uuid
+
+        new_data["Created_Date"] = db_obj.Created_Date
+        new_data["Begin_Geldigheid"] = db_obj.Begin_Geldigheid
+        new_data["Eind_Geldigheid"] = db_obj.Eind_Geldigheid
+        new_obj = self.model(**new_data)
+
+        # Create relationship assoc rows
+        updated_associations = self.update_association_objects(
+            db_obj, new_obj, update_data
+        )
+
         try:
-            self.db.add(db_obj)
+            self.db.add(new_obj)  # Base object
+            for assoc_obj in updated_associations:  # Relations
+                self.db.add(assoc_obj)
+
             self.db.commit()
-            self.db.refresh(db_obj)
-            return db_obj
         except:
+            self.db.rollback()
             raise DatabaseError()
+
+        self.db.refresh(new_obj)
+        return new_obj
+
+    def update_association_objects(
+        self, current_obj: ModelType, new_obj: ModelType, update_data: dict
+    ) -> List[Any]:
+        """
+        "Update" relations by creating new association objects as specified in the request data,
+        or re-create existing relationships with the updated object UUID.
+
+        Returns a list of association objects.
+        """
+        relationships = current_obj.get_relationships()
+        fork = current_obj.get_foreign_column_keys()
+        assoc_relations = [i for i in relationships.keys() if i not in fork]
+
+        result = list()
+
+        for relation_key in assoc_relations:
+            mapper: Mapper = get_mapper(relationships[relation_key].entity.class_)
+            assoc_table_keys = mapper.relationships.keys()
+
+            LINK_DESCRIPTION = "Koppeling_Omschrijving"
+            REL_UUID_KEY = f"{assoc_table_keys[0]}_UUID"  # Get name of relationship foreign key to update
+            ASSOC_UUID_KEY = (
+                f"{assoc_table_keys[1]}_UUID"  # Get name of current obj foreign key
+            )
+
+            if relation_key in update_data:
+                for update_item in update_data[relation_key]:
+                    # Build new association object
+                    assoc_obj = mapper.class_()  # Beleidskeuze_* Instance
+                    setattr(assoc_obj, ASSOC_UUID_KEY, str(new_obj.UUID).upper())
+                    setattr(assoc_obj, REL_UUID_KEY, update_item["UUID"])
+                    setattr(assoc_obj, LINK_DESCRIPTION, update_item[LINK_DESCRIPTION])
+                    result.append(assoc_obj)
+            else:
+                # copy existing relationships
+                for rel in getattr(current_obj, relation_key):
+                    assoc_obj = mapper.class_()  # Beleidskeuze_* Instance
+                    setattr(assoc_obj, ASSOC_UUID_KEY, str(new_obj.UUID))
+                    setattr(assoc_obj, REL_UUID_KEY, getattr(rel, REL_UUID_KEY))
+                    setattr(assoc_obj, LINK_DESCRIPTION, getattr(rel, LINK_DESCRIPTION))
+                    result.append(assoc_obj)
+
+        return result
 
     def remove(self, *, id: int) -> ModelType:
         obj = self.db.query(self.model).get(id)
@@ -134,7 +216,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
 
         row_number = self._add_rownumber_latest_id()
-        sub_query: Query = self.db.query(self.model, row_number).subquery("inner")
+        sub_query: Subquery = self.db.query(self.model, row_number).subquery("inner")
 
         model_alias: AliasedClass = aliased(
             element=self.model, alias=sub_query, name="inner", adapt_on_names=True

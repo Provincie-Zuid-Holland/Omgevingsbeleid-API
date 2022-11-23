@@ -156,4 +156,6 @@ def read_valid_werkingsgebied_lineage(
     werkingsgebied = crud_werkingsgebied.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not werkingsgebied:
+        raise HTTPException(status_code=404, detail="Beleidsregels lineage not found")
     return werkingsgebied

@@ -20,7 +20,7 @@ class OnderverdelingCreate(OnderverdelingBase):
     Eind_Geldigheid: datetime
 
 
-class OnderverdelingUpdate(OnderverdelingBase):
+class OnderverdelingUpdate(OnderverdelingCreate):
     pass
 
 

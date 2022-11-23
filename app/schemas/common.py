@@ -2,7 +2,13 @@ from typing import Any, Optional
 from pydantic.main import BaseModel
 from pydantic.utils import GetterDict
 
+# Relations
+class GenericReferenceUpdate(BaseModel):
+    UUID: str
+    Koppeling_Omschrijving: str
 
+
+# Inline
 class BeleidskeuzeShortInline(BaseModel):
     ID: int
     UUID: str
@@ -54,6 +60,7 @@ class DefaultRelatedSchema(BaseModel):
         getter_dict = DefaultGetter
 
 
+#
 # Entity getters
 class AmbitieGetter(DefaultGetter):
     REF_NAME = "Ambitie"

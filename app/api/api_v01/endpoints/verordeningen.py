@@ -146,9 +146,11 @@ def read_valid_verordening_lineage(
     limit: int = 20,
 ) -> Any:
     """
-    Gets all the verordening in this lineage that are valid
+    Gets all the verordeningen in this lineage that are valid
     """
     verordening = crud_verordening.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
-    return verordening
+    if not verordeningen:
+        raise HTTPException(status_code=404, detail="Lineage not found")
+    return verordeningen

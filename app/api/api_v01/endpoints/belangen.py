@@ -142,4 +142,6 @@ def read_valid_belang_lineage(
     belangen = crud_belang.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not belangen:
+        raise HTTPException(status_code=404, detail="Lineage not found")
     return belangen

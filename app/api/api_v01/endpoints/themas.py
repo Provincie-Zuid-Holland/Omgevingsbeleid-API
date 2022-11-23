@@ -143,4 +143,6 @@ def read_valid_thema_lineage(
     themas = crud_thema.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not themas:
+        raise HTTPException(status_code=404, detail="Lineage not found")
     return themas

@@ -154,4 +154,6 @@ def read_valid_beleidsregel_lineage(
     beleidsregels = crud_beleidsregel.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not beleidsregels:
+        raise HTTPException(status_code=404, detail="Beleidsregels lineage not found")
     return beleidsregels

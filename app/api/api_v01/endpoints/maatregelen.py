@@ -155,4 +155,6 @@ def read_valid_maatregel_lineage(
     maatregelen = crud_maatregel.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not maatregelen:
+        raise HTTPException(status_code=404, detail="Lineage not found")
     return maatregelen

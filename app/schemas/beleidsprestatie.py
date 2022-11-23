@@ -17,8 +17,9 @@ class BeleidsprestatieCreate(BeleidsprestatieBase):
     Eind_Geldigheid: datetime
 
 
-class BeleidsprestatieUpdate(BeleidsprestatieBase):
-    pass
+class BeleidsprestatieUpdate(BeleidsprestatieCreate):
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
 
 
 class BeleidsprestatieInDBBase(BeleidsprestatieBase):

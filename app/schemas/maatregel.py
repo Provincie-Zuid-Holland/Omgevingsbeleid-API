@@ -23,7 +23,7 @@ class MaatregelCreate(MaatregelBase):
     Eind_Geldigheid: datetime
 
 
-class MaatregelUpdate(MaatregelBase):
+class MaatregelUpdate(MaatregelCreate):
     pass
 
 

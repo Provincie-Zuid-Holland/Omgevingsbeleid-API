@@ -158,4 +158,6 @@ def read_valid_ambitie_lineage(
     ambities = crud_ambitie.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+    if not ambities:
+        raise HTTPException(status_code=404, detail="Ambitie lineage not found")
     return ambities

@@ -17,8 +17,9 @@ class AmbitieCreate(AmbitieBase):
     Eind_Geldigheid: datetime
 
 
-class AmbitieUpdate(AmbitieBase):
-    pass
+class AmbitieUpdate(AmbitieCreate):
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
 
 
 class AmbitieInDBBase(AmbitieBase):

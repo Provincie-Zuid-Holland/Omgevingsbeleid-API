@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Dict
+from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 
 from app.db.base_class import NULL_UUID
@@ -46,20 +49,26 @@ reference_rich_beleidskeuze = {
 }
 
 
-def generate_data(obj_schema: ModelMetaclass, user_UUID=NULL_UUID):
+def generate_data(
+    obj_schema: BaseModel,
+    user_UUID=NULL_UUID,
+    default_str="Test String",
+    default_int=42,
+    default_date="1992-11-23T10:00:00",
+) -> Dict:
     """
     Take a pydantic base class and return an object filled with mock
     data for testing purposes.
     """
 
     if type(obj_schema) is not ModelMetaclass:
-        raise Exception("Unexcepted schema type as argument")
+        raise Exception("Unexcepted schema type, should be Pydantic")
 
     result = dict()
-    properties = obj_schema.schema()["properties"].items()
+    properties = obj_schema.__fields__
 
-    for field, info in properties:
-        ftype = info["type"]
+    for field, info in properties.items():
+        ftype = info.type_
 
         if field == "Created_By" or field == "Modified_By":
             result[field] = user_UUID
@@ -73,13 +82,13 @@ def generate_data(obj_schema: ModelMetaclass, user_UUID=NULL_UUID):
         elif field == "Eind_Geldigheid":
             result[field] = "2033-11-23T10:00:00"
 
-        elif ftype == "string":
-            result[field] = "Test String"
-            if "format" in info:
-                if info["format"] == "date-time":
-                    result[field] = "1992-11-23T10:00:00"
+        elif ftype == str:
+            result[field] = default_str
 
-        elif ftype == "integer":
-            result[field] = 42
+        elif ftype == datetime:
+            result[field] = default_date
+
+        elif ftype == int:
+            result[field] = default_int
 
     return result

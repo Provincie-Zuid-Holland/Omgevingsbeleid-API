@@ -18,10 +18,15 @@ class BeleidsrelatieBase(BaseModel):
 class BeleidsrelatieCreate(BeleidsrelatieBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
+    Van_Beleidskeuze: str
+    Naar_Beleidskeuze: str
 
 
-class BeleidsrelatieUpdate(BeleidsrelatieBase):
-    pass
+class BeleidsrelatieUpdate(BeleidsrelatieCreate):
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
+    Van_Beleidskeuze: Optional[str]
+    Naar_Beleidskeuze: Optional[str]
 
 
 class BeleidsrelatieInDBBase(BeleidsrelatieBase):
@@ -34,6 +39,8 @@ class BeleidsrelatieInDBBase(BeleidsrelatieBase):
     Modified_Date: datetime
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
+    Van_Beleidskeuze: str
+    Naar_Beleidskeuze: str
 
     class Config:
         orm_mode = True

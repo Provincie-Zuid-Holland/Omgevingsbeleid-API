@@ -10,6 +10,6 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
         return (
             self.db.query(self.model)
             .options(joinedload(Ambitie.Beleidskeuzes))
-            .filter(self.model.UUID == uuid)
+            .filter(Ambitie.UUID == uuid)
             .one()
         )

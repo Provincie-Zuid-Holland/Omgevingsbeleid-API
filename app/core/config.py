@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     API_V01_STR: str = "/v0.1"
 
     DEBUG_MODE: bool = bool(os.getenv("DEBUG_MODE", False))
-    TEST_MODE: bool = bool(os.getenv("TEST_MODE", False))
+    TEST_MODE: bool = bool(os.getenv("TEST_MODE", True))
 
     SECRET_KEY: str = os.getenv(
         "JWT_SECRET", "secret"

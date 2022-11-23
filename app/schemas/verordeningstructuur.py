@@ -20,7 +20,7 @@ class VerordeningstructuurCreate(VerordeningstructuurBase):
     Eind_Geldigheid: datetime
 
 
-class VerordeningstructuurUpdate(VerordeningstructuurBase):
+class VerordeningstructuurUpdate(VerordeningstructuurCreate):
     pass
 
 
