@@ -1,4 +1,3 @@
-
 from sqlalchemy.orm import joinedload
 
 from app.crud.base import CRUDBase

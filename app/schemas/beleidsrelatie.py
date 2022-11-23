@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from app.schemas.common import BeleidskeuzeShortInline, GebruikerInline
 
 
-
 # Shared properties
 class BeleidsrelatieBase(BaseModel):
     Titel: Optional[str] = None

@@ -2,7 +2,6 @@ from fastapi.testclient import TestClient
 import pytest
 
 
-
 @pytest.mark.usefixtures("fixture_data")
 class TestApi:
     """
