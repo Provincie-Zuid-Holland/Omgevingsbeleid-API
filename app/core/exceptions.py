@@ -24,7 +24,7 @@ class EmptySearchCriteria(Exception):
 
 
 # Handlers
-def filter_valdiation_handler(request: Request, exc: FilterNotAllowed):
+def filter_validation_handler(request: Request, exc: FilterNotAllowed):
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={

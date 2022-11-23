@@ -19,7 +19,8 @@ class BeleidsregelCreate(BeleidsregelBase):
 
 
 class BeleidsregelUpdate(BeleidsregelCreate):
-    pass
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
 
 
 class BeleidsregelInDBBase(BeleidsregelBase):

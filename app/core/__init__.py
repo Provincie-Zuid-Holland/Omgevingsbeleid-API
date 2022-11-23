@@ -1,1 +1,1 @@
-from .exceptions import FilterNotAllowed, filter_valdiation_handler
+from .exceptions import FilterNotAllowed, filter_validation_handler

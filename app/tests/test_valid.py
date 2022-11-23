@@ -5,7 +5,6 @@ from freezegun import freeze_time
 import pytest
 from sqlalchemy.orm.session import Session
 
-from app import crud
 from app.db.base_class import NULL_UUID
 from app.tests.utils.data_loader import FixtureLoader
 
@@ -17,9 +16,6 @@ class TestValidSelection:
     when requesting 'Valid' objects.
     """
 
-    def setup_method(self):
-        print("-------START METHOD SETUP-----------")
-
     @freeze_time("2022-10-10")
     def test_generic_valid_view(self, client: TestClient, db: Session):
         """
@@ -27,8 +23,6 @@ class TestValidSelection:
         are applied correctly. Ambitie used as example.
         """
         # Arrange
-        user = crud.gebruiker.get_by_email(db=db, email="admin@test.com")
-
         valid = {
             "UUID": uuid4(),
             "ID": 999,

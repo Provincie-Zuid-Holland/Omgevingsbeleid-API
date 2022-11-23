@@ -24,7 +24,8 @@ class MaatregelCreate(MaatregelBase):
 
 
 class MaatregelUpdate(MaatregelCreate):
-    pass
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
 
 
 class MaatregelInDBBase(MaatregelBase):

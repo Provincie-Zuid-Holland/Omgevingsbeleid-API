@@ -104,9 +104,7 @@ def update_verordeningstructuur(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    verordeningstructuur = crud_verordeningstructuur.update(
-        db_obj=verordeningstructuur, obj_in=verordeningstructuur_in
-    )
+    verordeningstructuur = crud_verordeningstructuur.update( db_obj=verordeningstructuur, obj_in=verordeningstructuur_in , by_uuid=str(current_gebruiker.UUID))
     return verordeningstructuur
 
 

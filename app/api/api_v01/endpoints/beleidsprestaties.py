@@ -103,9 +103,7 @@ def update_beleidsprestatie(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsprestatie = crud_beleidsprestatie.update(
-        db_obj=beleidsprestatie, obj_in=beleidsprestatie_in
-    )
+    beleidsprestatie = crud_beleidsprestatie.update( db_obj=beleidsprestatie, obj_in=beleidsprestatie_in , by_uuid=str(current_gebruiker.UUID))
     return beleidsprestatie
 
 

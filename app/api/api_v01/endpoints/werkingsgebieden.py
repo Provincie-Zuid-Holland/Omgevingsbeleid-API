@@ -90,9 +90,7 @@ def update_werkingsgebied(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    werkingsgebied = crud_werkingsgebied.update(
-        db_obj=werkingsgebied, obj_in=werkingsgebied_in
-    )
+    werkingsgebied = crud_werkingsgebied.update(db_obj=werkingsgebied, obj_in=werkingsgebied_in , by_uuid=str(current_gebruiker.UUID))
     return werkingsgebied
 
 

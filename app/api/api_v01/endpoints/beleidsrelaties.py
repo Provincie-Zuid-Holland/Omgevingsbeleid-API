@@ -91,9 +91,7 @@ def update_beleidsrelatie(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsrelatie = crud_beleidsrelatie.update(
-        db_obj=beleidsrelatie, obj_in=beleidsrelatie_in
-    )
+    beleidsrelatie = crud_beleidsrelatie.update(db_obj=beleidsrelatie, obj_in=beleidsrelatie_in, by_uuid=str(current_gebruiker.UUID))
     return beleidsrelatie
 
 

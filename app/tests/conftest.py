@@ -3,19 +3,27 @@ from typing import Dict
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
+from pydantic import BaseSettings
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.session import sessionmaker
 
 from app import models, schemas
+from app.api.deps import get_db
+from app.core.config import Settings, settings
 from app.db.base_class import NULL_UUID, metadata
-from app.core.config import settings
 from app.tests.utils.data_loader import FixtureLoader
 from app.tests.utils.exceptions import SetupMethodException
 from app.tests.utils.headers import get_admin_headers, get_fred_headers
 from app.tests.utils.mock_data import generate_data
-from main import app
+from main import create_app
+
+# Overwrite DB url to test DB - method should be dep injected
+def get_test_db():
+    engine = create_engine(settings.SQLALCHEMY_TEST_DATABASE_URI, echo=False)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    yield SessionLocal()
 
 
 @pytest.fixture(scope="class")
@@ -23,7 +31,6 @@ def db():
     engine = create_engine(settings.SQLALCHEMY_TEST_DATABASE_URI, echo=False)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     yield SessionLocal()
-    print("---------------------------TEARDOWN------------------")
 
 
 @pytest.fixture(scope="class")
@@ -40,6 +47,9 @@ def fixture_data(db: Session):
 
 @pytest.fixture(scope="module")
 def client() -> TestClient:
+    app = create_app()
+    # Ensures calls to test client use a test db session
+    app.dependency_overrides[get_db] = get_test_db
     with TestClient(app) as c:
         yield c
 

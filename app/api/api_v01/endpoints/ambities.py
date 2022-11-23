@@ -96,7 +96,7 @@ def update_ambitie(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    ambitie = crud_ambitie.update(db_obj=ambitie, obj_in=ambitie_in)
+    ambitie = crud_ambitie.update(db_obj=ambitie, obj_in=ambitie_in, by_uuid=str(current_gebruiker.UUID))
     return ambitie
 
 
