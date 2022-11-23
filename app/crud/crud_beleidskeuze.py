@@ -11,7 +11,7 @@ from sqlalchemy.sql.expression import Alias, or_
 from sqlalchemy_utils import get_mapper
 
 from app.core.exceptions import DatabaseError
-from app.crud.base import CRUDBase
+from app.crud.base import GeoCRUDBase
 from app.db.base_class import NULL_UUID
 from app.models.beleidskeuze import Beleidskeuze
 from app.models.werkingsgebied import Beleidskeuze_Werkingsgebieden
@@ -23,13 +23,11 @@ ASSOC_UUID_KEY = "Beleidskeuze_UUID"
 
 
 class CRUDBeleidskeuze(
-    GeoCRUDBase[
-        models.Beleidskeuze, schemas.BeleidskeuzeCreate, schemas.BeleidskeuzeUpdate
-    ]
+    GeoCRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUpdate]
 ):
     def create(
-        self, *, obj_in: schemas.BeleidskeuzeCreate, by_uuid: str
-    ) -> models.Beleidskeuze:
+        self, *, obj_in: BeleidskeuzeCreate, by_uuid: str
+    ) -> Beleidskeuze:
         obj_in_data = jsonable_encoder(
             obj_in,
             custom_encoder={
@@ -247,16 +245,16 @@ class CRUDBeleidskeuze(
         """
         row_number = self._add_rownumber_latest_id()
         query: Query = (
-            self.db.query(models.Beleidskeuze, row_number)
-            .filter(models.Beleidskeuze.Status == "Vigerend")
-            .filter(models.Beleidskeuze.UUID != NULL_UUID)
-            .filter(models.Beleidskeuze.Begin_Geldigheid <= datetime.utcnow())
+            self.db.query(Beleidskeuze, row_number)
+            .filter(Beleidskeuze.Status == "Vigerend")
+            .filter(Beleidskeuze.UUID != NULL_UUID)
+            .filter(Beleidskeuze.Begin_Geldigheid <= datetime.utcnow())
         )
         return query
 
     def fetch_in_geo(
         self, area_uuid: List[str], limit: int
-    ) -> List[models.Beleidskeuze]:
+    ) -> List[Beleidskeuze]:
         """
         Retrieve the instances of this entity linked
         to the IDs of provided geological areas.
@@ -287,5 +285,5 @@ class CRUDBeleidskeuze(
 
         return list(map(beleidskeuze_mapper, result))
 
-    def as_geo_schema(self, model: models.Beleidskeuze):
-        return schemas.Beleidskeuze.from_orm(model)
+    def as_geo_schema(self, model: Beleidskeuze):
+        return Beleidskeuze.from_orm(model)
