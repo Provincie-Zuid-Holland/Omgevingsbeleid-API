@@ -1,8 +1,7 @@
 from typing import Any, List
 
-from sqlalchemy import Column, DateTime, MetaData
+from sqlalchemy import Column, MetaData
 from sqlalchemy.ext.declarative import as_declarative
-from sqlalchemy.sql import ColumnCollection
 from sqlalchemy.util import ImmutableProperties
 from sqlalchemy_utils import get_mapper, get_columns
 

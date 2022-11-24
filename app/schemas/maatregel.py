@@ -22,6 +22,13 @@ class MaatregelCreate(MaatregelBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
+    Eigenaar_1_UUID: Optional[str]
+    Eigenaar_2_UUID: Optional[str]
+    Portefeuillehouder_1_UUID: Optional[str]
+    Portefeuillehouder_2_UUID: Optional[str]
+    Opdrachtgever_UUID: Optional[str]
+    Gebied_UUID: Optional[str]
+
 
 class MaatregelUpdate(MaatregelCreate):
     Begin_Geldigheid: Optional[datetime]
@@ -76,6 +83,7 @@ class Maatregel(MaatregelInDBBase):
     Eigenaar_2: GebruikerInline
     Portefeuillehouder_1: GebruikerInline
     Portefeuillehouder_2: GebruikerInline
+    Opdrachtgever: GebruikerInline
     Gebied: WerkingsgebiedShortInline
 
     class Config:

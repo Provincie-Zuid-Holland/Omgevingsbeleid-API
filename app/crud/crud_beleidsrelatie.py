@@ -21,7 +21,7 @@ class CRUDBeleidsrelatie(
     def __init__(
         self, model: Type[ModelType], db: Session, crud_beleidskeuze: CRUDBeleidskeuze
     ):
-        super(CRUDBase, self).__init__(model, db)
+        super().__init__(model, db)
         self.crud_beleidskeuze = crud_beleidskeuze
 
     def valid(

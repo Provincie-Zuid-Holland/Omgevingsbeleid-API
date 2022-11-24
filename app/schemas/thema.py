@@ -37,7 +37,8 @@ class ThemaCreate(ThemaBase):
 
 
 class ThemaUpdate(ThemaBase):
-    pass
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
 
 
 class ThemaInDBBase(ThemaBase):

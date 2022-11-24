@@ -1,9 +1,12 @@
 from datetime import datetime
 from typing import Dict
+from uuid import uuid4
+
 from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 
 from app.db.base_class import NULL_UUID
+from app.tests.utils.exceptions import SetupMethodException
 
 
 test_ambitie = {
@@ -67,11 +70,23 @@ def generate_data(
     result = dict()
     properties = obj_schema.__fields__
 
+    null_uuid_fields = [
+        "Eigenaar_1_UUID",    
+        "Eigenaar_2_UUID",    
+        "Portefeuillehouder_1_UUID",    
+        "Portefeuillehouder_2_UUID",    
+        "Opdrachtgever_UUID",    
+        "Gebied_UUID",    
+    ]
+
     for field, info in properties.items():
         ftype = info.type_
 
         if field == "Created_By" or field == "Modified_By":
             result[field] = user_UUID
+
+        elif field in null_uuid_fields:
+            result[field] = NULL_UUID
 
         elif field == "Status":
             result[field] = "Niet-Actief"
@@ -92,3 +107,45 @@ def generate_data(
             result[field] = default_int
 
     return result
+
+
+def add_modifiable_object(schema, model, db, data=None):
+    """
+    Generate a db model instance and return it. Useful for specific
+    test setups.
+    """
+    if not db:
+        raise Exception(
+            "No Session found. Should be provided as argument or injected by fixtures"
+        )
+
+    if not data:
+        request_data = generate_data(
+            obj_schema=schema,
+            default_str="automated test",
+        )
+    else:
+        request_data = data
+
+    obj_data = schema(**request_data).dict()
+
+    request_time = datetime.now()
+    uuid = uuid4()
+
+    obj_data["UUID"] = uuid
+    obj_data["Created_By_UUID"] = NULL_UUID
+    obj_data["Modified_By_UUID"] = NULL_UUID
+    obj_data["Created_Date"] = request_time
+    obj_data["Modified_Date"] = request_time
+
+    try:
+        instance = model(**obj_data)
+        db.add(instance)
+        db.commit()
+
+        db_obj = db.query(model).filter(model.UUID == uuid).one()
+
+        return db_obj
+    except Exception:
+        db.rollback()
+        raise SetupMethodException

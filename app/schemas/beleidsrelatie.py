@@ -18,15 +18,17 @@ class BeleidsrelatieBase(BaseModel):
 class BeleidsrelatieCreate(BeleidsrelatieBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
-    Van_Beleidskeuze: str
-    Naar_Beleidskeuze: str
+
+    Van_Beleidskeuze_UUID: str
+    Naar_Beleidskeuze_UUID: str
 
 
 class BeleidsrelatieUpdate(BeleidsrelatieCreate):
     Begin_Geldigheid: Optional[datetime]
     Eind_Geldigheid: Optional[datetime]
-    Van_Beleidskeuze: Optional[str]
-    Naar_Beleidskeuze: Optional[str]
+
+    Van_Beleidskeuze_UUID: Optional[str]
+    Naar_Beleidskeuze_UUID: Optional[str]
 
 
 class BeleidsrelatieInDBBase(BeleidsrelatieBase):

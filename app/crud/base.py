@@ -15,6 +15,7 @@ from sqlalchemy.sql.expression import func
 from sqlalchemy_utils import get_mapper
 from app.core.exceptions import DatabaseError, FilterNotAllowed
 from app.db.base_class import Base, NULL_UUID
+from app.db.session import SessionLocal
 from app.schemas.filters import FilterCombiner, Filters
 
 ModelType = TypeVar("ModelType", bound=Base)
