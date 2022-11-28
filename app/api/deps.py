@@ -1,3 +1,4 @@
+from logging import debug
 from typing import Optional
 
 from fastapi import Depends, HTTPException, status
@@ -45,6 +46,7 @@ from app.models import (
 from app.schemas import TokenPayload
 from app.schemas.filters import FilterCombiner, Filters
 from app.services import SearchService, GeoSearchService
+from app.services.graph import GraphService
 
 
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -219,6 +221,36 @@ def get_geo_search_service(
             crud_verordening,
         ]
     )
+
+
+
+def get_graph_service(
+    db: Session = Depends(get_db),
+    crud_ambitie: CRUDAmbitie = Depends(get_crud_ambitie),
+    crud_beleidskeuze: CRUDBeleidskeuze = Depends(get_crud_beleidskeuze),
+    crud_belang: CRUDBelang = Depends(get_crud_belang),
+    crud_beleidsdoel: CRUDBeleidsdoel = Depends(get_crud_beleidsdoel),
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(get_crud_beleidsprestatie),
+    crud_beleidsregel: CRUDBeleidsregel = Depends(get_crud_beleidsregel),
+    crud_maatregel: CRUDMaatregel = Depends(get_crud_maatregel),
+    crud_thema: CRUDThema = Depends(get_crud_thema),
+    crud_verordening: CRUDVerordening = Depends(get_crud_verordening),
+):
+    return GraphService(
+        db=db,
+        graphable_model_services=[
+            crud_ambitie,
+            crud_beleidskeuze,
+            crud_belang,
+            crud_beleidsdoel,
+            crud_beleidsprestatie,
+            crud_beleidsregel,
+            crud_maatregel,
+            crud_thema,
+            crud_verordening,
+        ]
+    )
+
 
 
 def get_current_gebruiker(

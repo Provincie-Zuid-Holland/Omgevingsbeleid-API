@@ -16,7 +16,6 @@ from app.models import (
 )
 from app.models.beleidsrelatie import Beleidsrelatie
 
-# MTMRelation = namedtuple("ManyToManyRelation", ["model", "left", "right"])
 class MTMRelation(NamedTuple):
     """
     Typed NamedTuple helper to generically map
@@ -26,6 +25,7 @@ class MTMRelation(NamedTuple):
     model: Any
     left: Column
     right: Column
+    description: str = "Koppeling_Omschrijving"
 
 
 MANY_TO_MANY_RELATIONS: List[MTMRelation] = [

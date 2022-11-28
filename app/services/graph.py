@@ -1,24 +1,11 @@
-from typing import Any, List
+from typing import Any, List, Optional, Union
 
 from sqlalchemy import and_
-from sqlalchemy.orm import Session, Session
+from sqlalchemy.orm import Session
 
-from app.db.session import SessionLocal
+from app.crud.crud_beleidskeuze import LINK_DESCRIPTION
 from app.models.base import MANY_TO_MANY_RELATIONS
 from app.util.legacy_helpers import SearchFields
-
-
-GRAPHABLES: List[Any] = [
-    # (models.Ambitie, crud.ambitie, schemas.Ambitie),
-    # (models.Beleidskeuze, crud.beleidskeuze, schemas.Beleidskeuze),
-    # (models.Belang, crud.belang, schemas.Belang),
-    # (models.Beleidsregel, crud.beleidsregel, schemas.Beleidsregel),
-    # (models.Beleidsdoel, crud.beleidsdoel, schemas.Beleidsdoel),
-    # (models.Beleidsprestatie, crud.beleidsprestatie, schemas.beleidsprestatie),
-    # (models.Maatregel, crud.maatregel, schemas.Maatregel),
-    # (models.Thema, crud.thema, schemas.Thema),
-    # (models.Verordening, crud.verordening, schemas.Verordening),
-]
 
 
 class GraphService:
@@ -26,10 +13,11 @@ class GraphService:
     Service providing graph representations on generic models
     and their relationships
     """
+    LINK_DESCRIPTION = "Koppeling"
 
-    def __init__(self):
-        self.db: Session = SessionLocal()
-        self.graphables = GRAPHABLES
+    def __init__(self, db: Session, graphable_model_services: List[Any]):
+        self.db = db
+        self.graphables = graphable_model_services
         self.nodes = list()
         self.links = list()
         self.valid_uuids = list()
@@ -49,7 +37,8 @@ class GraphService:
         """
         node_list = list()
         valid_uuid_list = list()
-        for entity, service, schema in self.graphables:
+
+        for service in self.graphables:
             valid_objects = service.fetch_graph_nodes()
 
             if len(valid_objects) == 0:
@@ -63,20 +52,23 @@ class GraphService:
 
         return node_list, valid_uuid_list
 
-    def _populate_links(self):
+    def _populate_links(self, valid_uuids: Optional[List[str]] = None):
         """
         Query each Many-to-Many association
         table for matching valid id's.
         Map the results as graphing links.
         """
+        if not valid_uuids:
+            valid_uuids = self.valid_uuids
+
         links = list()
         for relation in MANY_TO_MANY_RELATIONS:
             association_objects = (
                 self.db.query(relation.model)
                 .filter(
                     and_(
-                        relation.left.in_(self.valid_uuids),
-                        relation.right.in_(self.valid_uuids),
+                        relation.left.in_(valid_uuids),
+                        relation.right.in_(valid_uuids),
                     )
                 )
                 .all()
@@ -88,7 +80,7 @@ class GraphService:
                     {
                         "source": getattr(item, relation.left.key),
                         "target": getattr(item, relation.right.key),
-                        "type": "Koppeling",
+                        "type": LINK_DESCRIPTION,
                     }
                 )
 
