@@ -10,6 +10,7 @@ from app.services.graph import GraphService
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
 @router.get(
     "/graph",
     response_model=schemas.GraphView,
@@ -24,8 +25,4 @@ def graph(
     try:
         return graph_service.calculate_relations()
     except Exception as e:
-        raise HTTPException(
-            status_code=500, 
-            detail="Error building relational graph"
-        )
-
+        raise HTTPException(status_code=500, detail="Error building relational graph")

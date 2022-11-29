@@ -223,7 +223,6 @@ def get_geo_search_service(
     )
 
 
-
 def get_graph_service(
     db: Session = Depends(get_db),
     crud_ambitie: CRUDAmbitie = Depends(get_crud_ambitie),
@@ -248,9 +247,8 @@ def get_graph_service(
             crud_maatregel,
             crud_thema,
             crud_verordening,
-        ]
+        ],
     )
-
 
 
 def get_current_gebruiker(

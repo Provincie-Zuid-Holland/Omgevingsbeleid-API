@@ -89,7 +89,9 @@ def update_beleidsdoel(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsdoel = crud_beleidsdoel.update(db_obj=beleidsdoel, obj_in=beleidsdoel_in, by_uuid=str(current_gebruiker.UUID))
+    beleidsdoel = crud_beleidsdoel.update(
+        db_obj=beleidsdoel, obj_in=beleidsdoel_in, by_uuid=str(current_gebruiker.UUID)
+    )
     return beleidsdoel
 
 

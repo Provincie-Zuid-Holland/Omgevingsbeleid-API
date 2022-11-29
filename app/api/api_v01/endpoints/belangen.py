@@ -85,7 +85,9 @@ def update_belang(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    belang = crud_belang.update(db_obj=belang, obj_in=belang_in, by_uuid=str(current_gebruiker.UUID))
+    belang = crud_belang.update(
+        db_obj=belang, obj_in=belang_in, by_uuid=str(current_gebruiker.UUID)
+    )
     return belang
 
 

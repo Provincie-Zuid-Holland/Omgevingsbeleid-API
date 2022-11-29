@@ -93,7 +93,11 @@ def update_beleidskeuze(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidskeuze = crud_beleidskeuze.update(current_bk=beleidskeuze, obj_in=beleidskeuze_in, by_uuid=str(current_gebruiker.UUID))
+    beleidskeuze = crud_beleidskeuze.update(
+        current_bk=beleidskeuze,
+        obj_in=beleidskeuze_in,
+        by_uuid=str(current_gebruiker.UUID),
+    )
     return beleidskeuze
 
 

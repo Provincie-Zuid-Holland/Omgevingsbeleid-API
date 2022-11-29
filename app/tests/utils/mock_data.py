@@ -71,12 +71,12 @@ def generate_data(
     properties = obj_schema.__fields__
 
     null_uuid_fields = [
-        "Eigenaar_1_UUID",    
-        "Eigenaar_2_UUID",    
-        "Portefeuillehouder_1_UUID",    
-        "Portefeuillehouder_2_UUID",    
-        "Opdrachtgever_UUID",    
-        "Gebied_UUID",    
+        "Eigenaar_1_UUID",
+        "Eigenaar_2_UUID",
+        "Portefeuillehouder_1_UUID",
+        "Portefeuillehouder_2_UUID",
+        "Opdrachtgever_UUID",
+        "Gebied_UUID",
     ]
 
     for field, info in properties.items():

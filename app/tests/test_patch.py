@@ -78,12 +78,8 @@ class TestPatch:
 
     def test_endpoint_patch_beleidsrelatie(self, client: TestClient, admin_headers, db):
         # Arrange
-        bk1 = add_modifiable_object(
-            schemas.BeleidskeuzeCreate, models.Beleidskeuze, db
-        )
-        bk2 = add_modifiable_object(
-            schemas.BeleidskeuzeCreate, models.Beleidskeuze, db
-        )
+        bk1 = add_modifiable_object(schemas.BeleidskeuzeCreate, models.Beleidskeuze, db)
+        bk2 = add_modifiable_object(schemas.BeleidskeuzeCreate, models.Beleidskeuze, db)
 
         br_data = generate_data(
             obj_schema=schemas.BeleidsrelatieCreate,
@@ -164,9 +160,7 @@ class TestPatch:
 
     def test_endpoint_patch_maatregel(self, client: TestClient, admin_headers, db):
         # Arrange
-        base_obj = add_modifiable_object(
-            schemas.MaatregelCreate, models.Maatregel, db
-        )
+        base_obj = add_modifiable_object(schemas.MaatregelCreate, models.Maatregel, db)
 
         # Act
         patch_data = {"Titel": "patched"}

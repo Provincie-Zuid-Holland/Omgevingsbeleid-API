@@ -25,9 +25,7 @@ ASSOC_UUID_KEY = "Beleidskeuze_UUID"
 class CRUDBeleidskeuze(
     GeoCRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUpdate]
 ):
-    def create(
-        self, *, obj_in: BeleidskeuzeCreate, by_uuid: str
-    ) -> Beleidskeuze:
+    def create(self, *, obj_in: BeleidskeuzeCreate, by_uuid: str) -> Beleidskeuze:
         obj_in_data = jsonable_encoder(
             obj_in,
             custom_encoder={
@@ -252,9 +250,7 @@ class CRUDBeleidskeuze(
         )
         return query
 
-    def fetch_in_geo(
-        self, area_uuid: List[str], limit: int
-    ) -> List[Beleidskeuze]:
+    def fetch_in_geo(self, area_uuid: List[str], limit: int) -> List[Beleidskeuze]:
         """
         Retrieve the instances of this entity linked
         to the IDs of provided geological areas.

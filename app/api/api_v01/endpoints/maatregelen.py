@@ -97,7 +97,9 @@ def update_maatregel(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    maatregel = crud_maatregel.update(db_obj=maatregel, obj_in=maatregel_in, by_uuid=str(current_gebruiker.UUID))
+    maatregel = crud_maatregel.update(
+        db_obj=maatregel, obj_in=maatregel_in, by_uuid=str(current_gebruiker.UUID)
+    )
     return maatregel
 
 

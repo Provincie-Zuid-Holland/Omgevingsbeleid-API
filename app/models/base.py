@@ -16,6 +16,7 @@ from app.models import (
 )
 from app.models.beleidsrelatie import Beleidsrelatie
 
+
 class MTMRelation(NamedTuple):
     """
     Typed NamedTuple helper to generically map

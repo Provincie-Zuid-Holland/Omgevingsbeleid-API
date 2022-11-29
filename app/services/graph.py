@@ -13,6 +13,7 @@ class GraphService:
     Service providing graph representations on generic models
     and their relationships
     """
+
     LINK_DESCRIPTION = "Koppeling"
 
     def __init__(self, db: Session, graphable_model_services: List[Any]):

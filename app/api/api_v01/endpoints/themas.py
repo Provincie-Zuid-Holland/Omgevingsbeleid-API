@@ -85,7 +85,9 @@ def update_thema(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    thema = crud_thema.update(db_obj=thema, obj_in=thema_in, by_uuid=str(current_gebruiker.UUID))
+    thema = crud_thema.update(
+        db_obj=thema, obj_in=thema_in, by_uuid=str(current_gebruiker.UUID)
+    )
     return thema
 
 

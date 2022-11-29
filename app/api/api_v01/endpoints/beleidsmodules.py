@@ -89,7 +89,11 @@ def update_beleidsmodule(
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
-    beleidsmodule = crud_beleidsmodule.update(db_obj=beleidsmodule, obj_in=beleidsmodule_in, by_uuid=str(current_gebruiker.UUID))
+    beleidsmodule = crud_beleidsmodule.update(
+        db_obj=beleidsmodule,
+        obj_in=beleidsmodule_in,
+        by_uuid=str(current_gebruiker.UUID),
+    )
     return beleidsmodule
 
 

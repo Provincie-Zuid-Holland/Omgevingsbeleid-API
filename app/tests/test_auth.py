@@ -40,9 +40,9 @@ class TestAuth:
         response = client.get(url="v0.1/ambities", headers=admin_headers)
         assert response.status_code == 200, f"Status code was {response.status_code}"
 
-#    def test_authenticated_graph_endpoint(self, client: TestClient, admin_headers):
-#        response = client.get(url="v0.1/graph", headers=admin_headers)
-#        assert response.status_code == 200, f"Status code was {response.status_code}"
+    def test_authenticated_graph_endpoint(self, client: TestClient, admin_headers):
+        response = client.get(url="v0.1/graph", headers=admin_headers)
+        assert response.status_code == 200, f"Status code was {response.status_code}"
 
     def test_unauthenticated(self, client: TestClient):
         create_request = {
@@ -54,7 +54,7 @@ class TestAuth:
         }
 
         responses = [
-#            client.get("v0.1/graph"),
+            client.get("v0.1/graph"),
             client.get("v0.1/ambities"),
             client.get("v0.1/changes/ambities/test/test"),
             client.post("v0.1/ambities", data={}),

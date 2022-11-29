@@ -9,7 +9,7 @@ class TestApi:
     """
 
     def test_resource_not_found(self, client: TestClient):
-        filter = "ID:9999999"
+        filter = "ID:54312"
         response = client.get(
             url=f"v0.1/valid/beleidskeuzes?all_filters={filter}",
         )
