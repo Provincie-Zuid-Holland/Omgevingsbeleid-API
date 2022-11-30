@@ -185,7 +185,7 @@ def get_crud_werkingsgebied(
 
 def get_search_service(
     db: Session = Depends(get_db),
-    get_crud_ambitie: CRUDAmbitie = Depends(get_crud_ambitie),
+    crud_ambitie: CRUDAmbitie = Depends(get_crud_ambitie),
     crud_beleidskeuze: CRUDBeleidskeuze = Depends(get_crud_beleidskeuze),
     crud_belang: CRUDBelang = Depends(get_crud_belang),
     crud_beleidsdoel: CRUDBeleidsdoel = Depends(get_crud_beleidsdoel),
@@ -196,8 +196,8 @@ def get_search_service(
 ):
     return SearchService(
         db=db,
-        search_cruds=[
-            get_crud_ambitie,
+        search_entities=[
+            crud_ambitie,
             crud_beleidskeuze,
             crud_belang,
             crud_beleidsdoel,

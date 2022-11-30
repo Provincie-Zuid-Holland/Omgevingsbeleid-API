@@ -18,9 +18,9 @@ class SearchService:
     for per-model configured search fields
     """
 
-    def __init__(self, db: Session, search_cruds: List[CRUDBase]):
+    def __init__(self, db: Session, search_entities: List[CRUDBase]):
         self.db = db
-        self.search_cruds = search_cruds
+        self.search_entities = search_entities
 
     def search(
         self, crud: CRUDBase, search_criteria: List[str]
@@ -38,7 +38,10 @@ class SearchService:
         ).all()
 
         ranked_items = [
-            RankedSearchObject(object=item[0], rank=item[1]) for item in query_results
+            RankedSearchObject(
+                object=item[0], 
+                rank=getattr(item, "Search_Rank")
+            ) for item in query_results
         ]
         return ranked_items
 
@@ -56,8 +59,8 @@ class SearchService:
         aggregate its search results ordered by rank.
         """
         aggregated_results = list()
-        for crud in self.search_cruds:
-            search_results = self.search(crud=crud, search_criteria=search_criteria)
+        for service in self.search_entities:
+            search_results = self.search(crud=service, search_criteria=search_criteria)
             if search_results:
                 aggregated_results.extend(search_results)
 
@@ -75,27 +78,35 @@ class SearchService:
         Returns:
             Query: The query object for search execution
         """
-        valid_sub_query = crud._build_valid_view_filter(as_subquery=True)
-        base_alias: AliasedClass = aliased(element=crud.model, alias=valid_sub_query)
+        valid_model_query, valid_model_alias = crud._build_valid_view_query()
+
+        sub_q = valid_model_query.subquery("valid")
+        model_alias = aliased(
+            element=crud.model, alias=sub_q, name="valid"
+        )
 
         # Search clauses
         title_column_search, description_column_search = self._build_search_clauses(
-            model=crud.model, search_criteria=search_criteria, aliased_model=base_alias
+            model=crud.model, 
+            search_criteria=search_criteria, 
+            aliased_model=model_alias
         )
 
         # Rank criteria
-        modified_date = base_alias.__getattr__(crud.model.Modified_Date.key)
-        rank = func.row_number().over(order_by=modified_date.desc())
+        modified_date_col = getattr(model_alias,
+                                    crud.model.Modified_Date.key)
+
+        rank = func.row_number().over(order_by=modified_date_col.desc())
 
         # Search queries
         normal_weight_query: Query = (
-            self.db.query(base_alias)
+            self.db.query(model_alias)
             .add_column(label("Search_Rank", rank))
             .filter(or_(*title_column_search))
         )
 
         heavy_weight_query: Query = (
-            self.db.query(base_alias)
+            self.db.query(model_alias)
             .add_column(label("Search_Rank", (rank + RANK_WEIGHT_HEAVY)))
             .filter(or_(*description_column_search))
         )

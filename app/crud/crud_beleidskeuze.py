@@ -16,6 +16,7 @@ from app.db.base_class import NULL_UUID
 from app.models.beleidskeuze import Beleidskeuze
 from app.models.werkingsgebied import Beleidskeuze_Werkingsgebieden
 from app.schemas.beleidskeuze import BeleidskeuzeCreate, BeleidskeuzeUpdate
+from app.schemas.beleidskeuze import Beleidskeuze as schema_beleidskeuze
 from app.schemas.filters import Filters
 
 LINK_DESCRIPTION = "Koppeling_Omschrijving"
@@ -282,4 +283,4 @@ class CRUDBeleidskeuze(
         return list(map(beleidskeuze_mapper, result))
 
     def as_geo_schema(self, model: Beleidskeuze):
-        return Beleidskeuze.from_orm(model)
+        return schema_beleidskeuze.from_orm(model)

@@ -7,7 +7,7 @@ from app import schemas
 from app.api import deps
 from app.core.exceptions import EmptySearchCriteria
 from app.schemas.search import SearchResultWrapper
-from app.services import SearchService, GeoSearchService
+from app.services import GeoSearchService, SearchService
 from app.util import get_filtered_search_criteria
 
 router = APIRouter()
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 @router.get(
     "/search",
-    response_model=List[schemas.SearchResult],
+    response_model=SearchResultWrapper
 )
 def search(
     query: str,
@@ -36,8 +36,10 @@ def search(
     search_results = search_service.search_all(search_criteria=search_criteria)
 
     results = list()
+    total = 0
     for item in search_results:
-        search_description = item.object.get_search_fields().description
+        search_fields = item.object.get_search_fields()
+        search_description = search_fields.description
 
         try:
             description = getattr(item.object, search_description[0].key)
@@ -48,12 +50,13 @@ def search(
                 UUID=item.object.UUID,
             )
             results.append(search_result)
+            total += 1
         except AttributeError:
             logger.debug(
                 f"Description value not found for {type(item.object)}: {item.object.UUID}"
             )
 
-    return results
+    return SearchResultWrapper(results=results, total=total)
 
 
 @router.get(
@@ -76,4 +79,7 @@ def geo_search(
 
     search_results = geo_search_service.geo_search(query_list)
 
-    return {"results": search_results, "count": len(search_results)}
+    return SearchResultWrapper(
+        results=search_results, 
+        total=len(search_results)
+    )

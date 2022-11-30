@@ -14,10 +14,10 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+
 def create_app() -> FastAPI:
     app = FastAPI(
-        title=settings.PROJECT_NAME, 
-        openapi_url=f"{settings.API_V01_STR}/openapi.json"
+        title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V01_STR}/openapi.json"
     )
 
     # Set all CORS enabled origins
@@ -40,6 +40,7 @@ def create_app() -> FastAPI:
     )
 
     return app
+
 
 app = create_app()
 

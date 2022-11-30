@@ -20,4 +20,4 @@ class GeoSearchResult(BaseModel):
 
 class SearchResultWrapper(BaseModel):
     results: List[Union[GeoSearchResult, SearchResult]] = []
-    count: int = 0
+    total: int = 0
