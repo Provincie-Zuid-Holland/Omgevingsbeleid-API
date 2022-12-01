@@ -11,18 +11,54 @@ class TestSearchService:
     of search requests and its parameters.
     """
 
-    def test_search_success(self, client: TestClient, admin_headers):
-        # Create Ambitie
+    def test_search_matching_pattern(self, client: TestClient, admin_headers):
+        # Arrange
         test_amb = generate_data(AmbitieCreate)
+        test_amb["Titel"] = "Water water en nog eens water"
         test_amb["Eind_Geldigheid"] = "2992-11-23T10:00:00"
         amb_resp = client.post("v0.1/ambities", headers=admin_headers, json=test_amb)
         amb_UUID = amb_resp.json()["UUID"]
 
+        search_query = "water"
+
+        # Act
+        response = client.get(f"v0.1/search?query={search_query}", headers=admin_headers)
+
         # Assert
-        response = client.get("v0.1/graph", headers=admin_headers)
-        count = response.json()["count"]
+        count = response.json()["total"]
         results = response.json()["results"]
 
-        assert len(count) != 0, "Excepted results found"
-#        assert amb_UUID in results, "Ambitie not retrieved"
+        uuid_in_results = False
+        for item in results:
+            if item["UUID"] == amb_UUID:
+                uuid_in_results = True
 
+
+        assert count != 0, "Expected results to be found"
+        assert uuid_in_results == True, f"Ambitie {amb_UUID} expected but not found in results"
+
+    def test_search_non_matching_pattern(self, client: TestClient, admin_headers):
+        # Arrange
+        test_amb = generate_data(AmbitieCreate)
+        test_amb["Titel"] = "Water water en nog eens water"
+        test_amb["Eind_Geldigheid"] = "2992-11-23T10:00:00"
+        amb_resp = client.post("v0.1/ambities", headers=admin_headers, json=test_amb)
+        amb_UUID = amb_resp.json()["UUID"]
+
+        search_query = "VUUR"
+
+        # Act
+        response = client.get(f"v0.1/search?query={search_query}", headers=admin_headers)
+
+        # Assert
+        count = response.json()["total"]
+        results = response.json()["results"]
+
+        uuid_in_results = False
+        for item in results:
+            if item["UUID"] == amb_UUID:
+                uuid_in_results = True
+
+
+        assert count == 0, "Expected no results to be found"
+        assert uuid_in_results != True, f"Ambitie {amb_UUID} should not match"
