@@ -1,4 +1,5 @@
 from typing import Any, List
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
@@ -147,3 +148,27 @@ def read_valid_belang_lineage(
     if not belangen:
         raise HTTPException(status_code=404, detail="Lineage not found")
     return belangen
+
+
+@router.get("/version/belangen/{object_uuid}", response_model=schemas.Belang)
+def read_latest_version_lineage(
+    object_uuid: str,
+    crud_belang: CRUDBelang = Depends(deps.get_crud_belang),
+) -> Any:
+    """
+    Finds the lineage of the resource and retrieves the latest
+    available version.
+    """
+    try:
+        UUID(object_uuid)
+    except ValueError:
+        raise HTTPException(
+            status_code=403, detail="UUID not in valid format"
+        )
+
+    belang = crud_belang.get_latest_by_uuid(uuid=object_uuid)
+
+    if not belang:
+        raise HTTPException(status_code=404, detail="Belangen lineage not found")
+
+    return belang

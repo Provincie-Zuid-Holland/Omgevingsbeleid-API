@@ -1,4 +1,5 @@
 from typing import Any, List
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
@@ -148,3 +149,28 @@ def read_valid_thema_lineage(
     if not themas:
         raise HTTPException(status_code=404, detail="Lineage not found")
     return themas
+
+
+@router.get("/version/themas/{object_uuid}", response_model=schemas.Thema)
+def read_latest_version_lineage(
+    object_uuid: str,
+    crud_thema: CRUDThema = Depends(deps.get_crud_thema),
+) -> Any:
+    """
+    Finds the lineage of the resource and retrieves the latest
+    available version.
+    """
+    try:
+        UUID(object_uuid)
+    except ValueError:
+        raise HTTPException(
+            status_code=403, detail="UUID not in valid format"
+        )
+
+    themas = crud_thema.get_latest_by_uuid(uuid=object_uuid)
+
+    if not themas:
+        raise HTTPException(status_code=404, detail="Thema lineage not found")
+
+    return themas
+

@@ -1,4 +1,5 @@
 from typing import Any, List
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
@@ -159,3 +160,29 @@ def read_valid_beleidsregel_lineage(
     if not beleidsregels:
         raise HTTPException(status_code=404, detail="Beleidsregels lineage not found")
     return beleidsregels
+
+
+@router.get("/version/beleidsregels/{object_uuid}",
+            response_model=schemas.Beleidsregel)
+def read_latest_version_lineage(
+    object_uuid: str,
+    crud_beleidsregel: CRUDBeleidsregel = Depends(deps.get_crud_beleidsregel),
+) -> Any:
+    """
+    Finds the lineage of the resource and retrieves the latest
+    available version.
+    """
+    try:
+        UUID(object_uuid)
+    except ValueError:
+        raise HTTPException(
+            status_code=403, detail="UUID not in valid format"
+        )
+
+    beleidsregels = crud_beleidsregel.get_latest_by_uuid(uuid=object_uuid)
+
+    if not beleidsregels:
+        raise HTTPException(status_code=404, detail="Beleidsregel lineage not found")
+
+    return beleidsregels
+

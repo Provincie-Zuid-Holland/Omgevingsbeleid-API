@@ -1,4 +1,5 @@
 from typing import Any, List
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
@@ -162,4 +163,28 @@ def read_valid_ambitie_lineage(
     )
     if not ambities:
         raise HTTPException(status_code=404, detail="Ambitie lineage not found")
+    return ambities
+
+
+@router.get("/version/ambities/{object_uuid}", response_model=schemas.Ambitie)
+def read_latest_version_lineage(
+    object_uuid: str,
+    crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
+) -> Any:
+    """
+    Finds the lineage of the resource and retrieves the latest
+    available version.
+    """
+    try:
+        UUID(object_uuid)
+    except ValueError:
+        raise HTTPException(
+            status_code=403, detail="UUID not in valid format"
+        )
+
+    ambities = crud_ambitie.get_latest_by_uuid(uuid=object_uuid)
+
+    if not ambities:
+        raise HTTPException(status_code=404, detail="Ambitie lineage not found")
+
     return ambities

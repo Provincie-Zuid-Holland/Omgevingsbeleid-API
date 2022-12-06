@@ -199,6 +199,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return None
 
+
+    def get_latest_by_uuid(self, uuid: str) -> Optional[ModelType]:
+        """
+        Fetch the last version of a given Lineage
+        """
+        item = self.get(uuid=uuid)
+        return self.get_latest_by_id(id=item.ID)
+
     def _build_latest_view_filter(
         self, all: bool, filters: Optional[Filters] = None
     ) -> Query:

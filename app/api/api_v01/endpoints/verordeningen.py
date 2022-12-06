@@ -1,4 +1,5 @@
 from typing import Any, List
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
@@ -150,9 +151,35 @@ def read_valid_verordening_lineage(
     """
     Gets all the verordeningen in this lineage that are valid
     """
-    verordening = crud_verordening.valid(
+    verordeningen = crud_verordening.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     if not verordeningen:
         raise HTTPException(status_code=404, detail="Lineage not found")
     return verordeningen
+
+
+@router.get("/version/verordeningen/{object_uuid}",
+            response_model=schemas.Verordening)
+def read_latest_version_lineage(
+    object_uuid: str,
+    crud_verorderning: CRUDVerordening = Depends(deps.get_crud_verordening),
+) -> Any:
+    """
+    Finds the lineage of the resource and retrieves the latest
+    available version.
+    """
+    try:
+        UUID(object_uuid)
+    except ValueError:
+        raise HTTPException(
+            status_code=403, detail="UUID not in valid format"
+        )
+
+    verordeningen = crud_verorderning.get_latest_by_uuid(uuid=object_uuid)
+
+    if not verordeningen:
+        raise HTTPException(status_code=404, detail="Verorderning lineage not found")
+
+    return verordeningen
+
