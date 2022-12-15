@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, List
+from typing import List, List, TYPE_CHECKING
 
 from sqlalchemy import (
     Column,
@@ -16,7 +16,6 @@ from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 from app.util.legacy_helpers import SearchFields
-from app.schemas.beleidskeuze import Beleidskeuze as schema_beleidskeuze
 
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401

@@ -1,4 +1,6 @@
+from datetime import datetime
 from typing import Any, Optional
+
 from pydantic.main import BaseModel
 from pydantic.utils import GetterDict
 
@@ -172,3 +174,28 @@ class RelatedBeleidsmoduleGetter(GetterDict):
 class BeleidsmoduleReference(DefaultReferenceSchema):
     class Config:
         getter_dict = RelatedBeleidsmoduleGetter
+
+
+# Other shared schemas
+
+
+class LatestVersionInline(BaseModel):
+    """
+    Schema listing inline version of entity showing the latest
+    version available.
+
+    Used in /edits for Beleidskeuzes & Maatregelen
+    """
+
+    ID: int
+    UUID: str
+
+    Modified_Date: datetime
+    Status: str
+    Titel: str
+
+    Effective_Version: Optional[str]
+    Type: str
+
+    class Config:
+        orm_mode = True

@@ -161,8 +161,9 @@ def read_valid_beleidsmodule_lineage(
     return beleidsmodules
 
 
-@router.get("/version/beleidsmodules/{object_uuid}",
-            response_model=schemas.Beleidsmodule)
+@router.get(
+    "/version/beleidsmodules/{object_uuid}", response_model=schemas.Beleidsmodule
+)
 def read_latest_version_lineage(
     object_uuid: str,
     crud_beleidsmodules: CRUDBeleidsmodule = Depends(deps.get_crud_beleidsmodule),
@@ -174,9 +175,7 @@ def read_latest_version_lineage(
     try:
         UUID(object_uuid)
     except ValueError:
-        raise HTTPException(
-            status_code=403, detail="UUID not in valid format"
-        )
+        raise HTTPException(status_code=403, detail="UUID not in valid format")
 
     beleidsmodules = crud_beleidsmodules.get_latest_by_uuid(uuid=object_uuid)
 
@@ -184,4 +183,3 @@ def read_latest_version_lineage(
         raise HTTPException(status_code=404, detail="Beleidsmodule lineage not found")
 
     return beleidsmodules
-

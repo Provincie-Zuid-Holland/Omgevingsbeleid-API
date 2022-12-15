@@ -22,7 +22,9 @@ class TestSearchService:
         search_query = "water"
 
         # Act
-        response = client.get(f"v0.1/search?query={search_query}", headers=admin_headers)
+        response = client.get(
+            f"v0.1/search?query={search_query}", headers=admin_headers
+        )
 
         # Assert
         count = response.json()["total"]
@@ -33,9 +35,10 @@ class TestSearchService:
             if item["UUID"] == amb_UUID:
                 uuid_in_results = True
 
-
         assert count != 0, "Expected results to be found"
-        assert uuid_in_results == True, f"Ambitie {amb_UUID} expected but not found in results"
+        assert (
+            uuid_in_results == True
+        ), f"Ambitie {amb_UUID} expected but not found in results"
 
     def test_search_non_matching_pattern(self, client: TestClient, admin_headers):
         # Arrange
@@ -48,7 +51,9 @@ class TestSearchService:
         search_query = "VUUR"
 
         # Act
-        response = client.get(f"v0.1/search?query={search_query}", headers=admin_headers)
+        response = client.get(
+            f"v0.1/search?query={search_query}", headers=admin_headers
+        )
 
         # Assert
         count = response.json()["total"]
@@ -58,7 +63,6 @@ class TestSearchService:
         for item in results:
             if item["UUID"] == amb_UUID:
                 uuid_in_results = True
-
 
         assert count == 0, "Expected no results to be found"
         assert uuid_in_results != True, f"Ambitie {amb_UUID} should not match"

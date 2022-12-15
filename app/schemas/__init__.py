@@ -31,6 +31,7 @@ from .common import (
     RelatedThema,
     RelatedVerordeningen,
     RelatedWerkingsgebied,
+    LatestVersionInline,
 )
 from .graph import GraphView, LinkItem, NodeItem
 from .maatregel import Maatregel, MaatregelCreate, MaatregelUpdate

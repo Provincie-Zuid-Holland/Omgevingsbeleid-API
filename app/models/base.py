@@ -89,3 +89,4 @@ MANY_TO_MANY_RELATIONS: List[MTMRelation] = [
 
 # TODO: Base model ABC SQLALCHEMY
 # https://sqlalchemy-utils.readthedocs.io/en/latest/generic_relationship.html#abstract-base-classes
+

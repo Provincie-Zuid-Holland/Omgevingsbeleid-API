@@ -1,6 +1,6 @@
+from abc import abstractmethod
 from datetime import datetime
 from typing import Any, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
-from abc import abstractmethod
 from uuid import UUID, uuid4
 
 from fastapi.encoders import jsonable_encoder
@@ -13,6 +13,7 @@ from sqlalchemy.sql import Alias, Subquery, label
 from sqlalchemy.sql.elements import ColumnElement, Label
 from sqlalchemy.sql.expression import func
 from sqlalchemy_utils import get_mapper
+
 from app.core.exceptions import DatabaseError, FilterNotAllowed
 from app.db.base_class import Base, NULL_UUID
 from app.db.session import SessionLocal
@@ -185,7 +186,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         # List current model with latest view filters applied
         query = self._build_latest_view_filter(all, filters)
         query = query.offset(offset).limit(limit)
-
+        query.session = self.db
         return query.all()
 
     def get_latest_by_id(self, id: int) -> Optional[ModelType]:
@@ -198,7 +199,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             return results[0]
 
         return None
-
 
     def get_latest_by_uuid(self, uuid: str) -> Optional[ModelType]:
         """
@@ -223,14 +223,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
 
         row_number = self._add_rownumber_latest_id()
-        sub_query: Subquery = self.db.query(self.model, row_number).subquery("inner")
+        sub_query: Subquery = Query([self.model, row_number]).subquery("inner")
 
         model_alias: AliasedClass = aliased(
             element=self.model, alias=sub_query, name="inner", adapt_on_names=True
         )
 
-        query: Query = (
-            self.db.query(model_alias)
+        query = (
+            Query(model_alias)
             .filter(sub_query.c.RowNumber == 1)
             .filter(model_alias.UUID != NULL_UUID)
         )
@@ -266,6 +266,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if limit != -1:
             query = query.limit(limit)
 
+        query.session = self.db
+
         return query.all()
 
     def _build_valid_view_query(self, ID: Optional[int] = None) -> Tuple[Query, Any]:
@@ -284,8 +286,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         last_modified_id_filter = sub_query.c.get("RowNumber") == 1
 
-        query: Query = (
-            self.db.query(inner_alias)
+        query = (
+            Query(inner_alias)
             .filter(last_modified_id_filter)
             .filter(inner_alias.Eind_Geldigheid > datetime.utcnow())
         )
@@ -300,8 +302,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         Base valid query usable as subquery
         """
         row_number = self._add_rownumber_latest_id()
-        query: Query = (
-            self.db.query(self.model, row_number)
+        query = (
+            Query([self.model, row_number])
             .filter(self.model.UUID != NULL_UUID)
             .filter(self.model.Begin_Geldigheid <= datetime.utcnow())
         )
@@ -413,7 +415,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def _build_default_query(self, query: Optional[Query] = None) -> Query:
         if query is None:
-            query = self.db.query(self.model)
+            query = Query(self.model)
 
         # Default null record filter
         query = query.filter(self.model.UUID != NULL_UUID)

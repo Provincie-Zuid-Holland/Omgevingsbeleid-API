@@ -178,9 +178,7 @@ def read_latest_version_lineage(
     try:
         UUID(object_uuid)
     except ValueError:
-        raise HTTPException(
-            status_code=403, detail="UUID not in valid format"
-        )
+        raise HTTPException(status_code=403, detail="UUID not in valid format")
 
     ambities = crud_ambitie.get_latest_by_uuid(uuid=object_uuid)
 

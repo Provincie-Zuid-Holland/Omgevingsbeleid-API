@@ -186,10 +186,15 @@ def read_valid_verordeningstructuur_lineage(
     return verordeningstructuurs
 
 
-@router.get("/version/verordeningstructuren/{object_uuid}", response_model=schemas.Verordeningstructuur)
+@router.get(
+    "/version/verordeningstructuren/{object_uuid}",
+    response_model=schemas.Verordeningstructuur,
+)
 def read_latest_version_lineage(
     object_uuid: str,
-    crud_verordeningstructuren: CRUDVerordeningstructuur = Depends(deps.get_crud_verordeningstructuur),
+    crud_verordeningstructuren: CRUDVerordeningstructuur = Depends(
+        deps.get_crud_verordeningstructuur
+    ),
 ) -> Any:
     """
     Finds the lineage of the resource and retrieves the latest
@@ -198,14 +203,15 @@ def read_latest_version_lineage(
     try:
         UUID(object_uuid)
     except ValueError:
-        raise HTTPException(
-            status_code=403, detail="UUID not in valid format"
-        )
+        raise HTTPException(status_code=403, detail="UUID not in valid format")
 
-    verordeningstructuren = crud_verordeningstructuren.get_latest_by_uuid(uuid=object_uuid)
+    verordeningstructuren = crud_verordeningstructuren.get_latest_by_uuid(
+        uuid=object_uuid
+    )
 
     if not verordeningstructuren:
-        raise HTTPException(status_code=404, detail="Verordeningstructuur lineage not found")
+        raise HTTPException(
+            status_code=404, detail="Verordeningstructuur lineage not found"
+        )
 
     return verordeningstructuren
-

@@ -1,7 +1,8 @@
 from typing import TypeVar
+
+from sqlalchemy import text
 from sqlalchemy.orm import DeclarativeMeta, RelationshipProperty
 from sqlalchemy.types import UserDefinedType
-from sqlalchemy import text
 from sqlalchemy.util import ImmutableProperties
 
 from app.db.base_class import Base

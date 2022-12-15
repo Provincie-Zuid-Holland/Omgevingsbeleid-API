@@ -1,4 +1,5 @@
 from datetime import datetime
+from devtools import debug
 from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import uuid4
 
@@ -6,8 +7,9 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.orm.mapper import Mapper
+from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql import Subquery
-from sqlalchemy.sql.expression import Alias, or_
+from sqlalchemy.sql.expression import Alias, join, or_
 from sqlalchemy_utils import get_mapper
 
 from app.core.exceptions import DatabaseError

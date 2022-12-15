@@ -186,11 +186,14 @@ def read_valid_beleidsprestatie_lineage(
     return beleidsprestaties
 
 
-@router.get("/version/beleidsprestaties/{object_uuid}",
-            response_model=schemas.Beleidsprestatie)
+@router.get(
+    "/version/beleidsprestaties/{object_uuid}", response_model=schemas.Beleidsprestatie
+)
 def read_latest_version_lineage(
     object_uuid: str,
-    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(deps.get_crud_beleidsprestatie),
+    crud_beleidsprestatie: CRUDBeleidsprestatie = Depends(
+        deps.get_crud_beleidsprestatie
+    ),
 ) -> Any:
     """
     Finds the lineage of the resource and retrieves the latest
@@ -199,14 +202,13 @@ def read_latest_version_lineage(
     try:
         UUID(object_uuid)
     except ValueError:
-        raise HTTPException(
-            status_code=403, detail="UUID not in valid format"
-        )
+        raise HTTPException(status_code=403, detail="UUID not in valid format")
 
     beleidsprestaties = crud_beleidsprestatie.get_latest_by_uuid(uuid=object_uuid)
 
     if not beleidsprestaties:
-        raise HTTPException(status_code=404, detail="Beleidsprestatie lineage not found")
+        raise HTTPException(
+            status_code=404, detail="Beleidsprestatie lineage not found"
+        )
 
     return beleidsprestaties
-

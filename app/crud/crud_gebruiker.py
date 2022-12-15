@@ -1,8 +1,10 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
+from sqlalchemy.exc import NoResultFound
 
 from app.core.security import get_password_hash, verify_password
 from app.crud.base import CRUDBase
+from app.db.base_class import NULL_UUID
 from app.models.gebruiker import Gebruiker
 from app.schemas.gebruiker import GebruikerCreate, GebruikerUpdate
 
@@ -41,11 +43,17 @@ class CRUDGebruiker(CRUDBase[Gebruiker, GebruikerCreate, GebruikerUpdate]):
         return super().update(db_obj=db_obj, obj_in=update_data)
 
     def authenticate(self, username: str, password: str) -> Optional[Gebruiker]:
-        gebruiker = self.get_by_email(email=username)
+        try:
+            gebruiker = self.get_by_email(email=username)
+            hashed_pw = getattr(gebruiker, "Wachtwoord")
 
-        if not gebruiker:
-            return None
-        if not verify_password(password, gebruiker.Wachtwoord):
+            if not verify_password(password, hashed_pw):
+                return None
+
+            return gebruiker
+        except NoResultFound:
             return None
 
-        return gebruiker
+    def list(self) -> List[Gebruiker]:
+        query = self.db.query(Gebruiker).filter(Gebruiker.UUID != NULL_UUID)
+        return query.all()

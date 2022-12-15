@@ -165,8 +165,9 @@ def read_valid_beleidsrelatie_lineage(
     return beleidsrelaties
 
 
-@router.get("/version/beleidsrelaties/{object_uuid}",
-            response_model=schemas.Beleidsrelatie)
+@router.get(
+    "/version/beleidsrelaties/{object_uuid}", response_model=schemas.Beleidsrelatie
+)
 def read_latest_version_lineage(
     object_uuid: str,
     crud_beleidsrelatie: CRUDBeleidsrelatie = Depends(deps.get_crud_beleidsrelatie),
@@ -178,9 +179,7 @@ def read_latest_version_lineage(
     try:
         UUID(object_uuid)
     except ValueError:
-        raise HTTPException(
-            status_code=403, detail="UUID not in valid format"
-        )
+        raise HTTPException(status_code=403, detail="UUID not in valid format")
 
     beleidsrelaties = crud_beleidsrelatie.get_latest_by_uuid(uuid=object_uuid)
 
@@ -188,4 +187,3 @@ def read_latest_version_lineage(
         raise HTTPException(status_code=404, detail="Beleidsrelatie lineage not found")
 
     return beleidsrelaties
-

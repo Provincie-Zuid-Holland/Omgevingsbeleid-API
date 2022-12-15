@@ -14,10 +14,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get(
-    "/search",
-    response_model=SearchResultWrapper
-)
+@router.get("/search", response_model=SearchResultWrapper)
 def search(
     query: str,
     search_service: SearchService = Depends(deps.get_search_service),
@@ -79,7 +76,4 @@ def geo_search(
 
     search_results = geo_search_service.geo_search(query_list)
 
-    return SearchResultWrapper(
-        results=search_results, 
-        total=len(search_results)
-    )
+    return SearchResultWrapper(results=search_results, total=len(search_results))

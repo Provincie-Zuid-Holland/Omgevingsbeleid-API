@@ -2,8 +2,9 @@ import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
+
 from app import schemas
-from app.api.deps import get_graph_service, get_current_active_gebruiker
+from app.api.deps import get_current_active_gebruiker, get_graph_service
 from app.models.gebruiker import Gebruiker
 from app.services.graph import GraphService
 

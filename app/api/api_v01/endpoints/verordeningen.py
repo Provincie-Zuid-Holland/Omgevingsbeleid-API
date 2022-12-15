@@ -159,8 +159,7 @@ def read_valid_verordening_lineage(
     return verordeningen
 
 
-@router.get("/version/verordeningen/{object_uuid}",
-            response_model=schemas.Verordening)
+@router.get("/version/verordeningen/{object_uuid}", response_model=schemas.Verordening)
 def read_latest_version_lineage(
     object_uuid: str,
     crud_verorderning: CRUDVerordening = Depends(deps.get_crud_verordening),
@@ -172,9 +171,7 @@ def read_latest_version_lineage(
     try:
         UUID(object_uuid)
     except ValueError:
-        raise HTTPException(
-            status_code=403, detail="UUID not in valid format"
-        )
+        raise HTTPException(status_code=403, detail="UUID not in valid format")
 
     verordeningen = crud_verorderning.get_latest_by_uuid(uuid=object_uuid)
 
@@ -182,4 +179,3 @@ def read_latest_version_lineage(
         raise HTTPException(status_code=404, detail="Verorderning lineage not found")
 
     return verordeningen
-

@@ -163,9 +163,7 @@ def read_latest_version_lineage(
     try:
         UUID(object_uuid)
     except ValueError:
-        raise HTTPException(
-            status_code=403, detail="UUID not in valid format"
-        )
+        raise HTTPException(status_code=403, detail="UUID not in valid format")
 
     themas = crud_thema.get_latest_by_uuid(uuid=object_uuid)
 
@@ -173,4 +171,3 @@ def read_latest_version_lineage(
         raise HTTPException(status_code=404, detail="Thema lineage not found")
 
     return themas
-

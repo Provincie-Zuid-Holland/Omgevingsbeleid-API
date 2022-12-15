@@ -38,10 +38,8 @@ class SearchService:
         ).all()
 
         ranked_items = [
-            RankedSearchObject(
-                object=item[0], 
-                rank=getattr(item, "Search_Rank")
-            ) for item in query_results
+            RankedSearchObject(object=item[0], rank=getattr(item, "Search_Rank"))
+            for item in query_results
         ]
         return ranked_items
 
@@ -81,20 +79,15 @@ class SearchService:
         valid_model_query, valid_model_alias = crud._build_valid_view_query()
 
         sub_q = valid_model_query.subquery("valid")
-        model_alias = aliased(
-            element=crud.model, alias=sub_q, name="valid"
-        )
+        model_alias = aliased(element=crud.model, alias=sub_q, name="valid")
 
         # Search clauses
         title_column_search, description_column_search = self._build_search_clauses(
-            model=crud.model, 
-            search_criteria=search_criteria, 
-            aliased_model=model_alias
+            model=crud.model, search_criteria=search_criteria, aliased_model=model_alias
         )
 
         # Rank criteria
-        modified_date_col = getattr(model_alias,
-                                    crud.model.Modified_Date.key)
+        modified_date_col = getattr(model_alias, crud.model.Modified_Date.key)
 
         rank = func.row_number().over(order_by=modified_date_col.desc())
 
