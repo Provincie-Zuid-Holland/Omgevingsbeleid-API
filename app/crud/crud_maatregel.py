@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Union
+from typing import Any, List, Union
 
 from sqlalchemy.orm import Query, joinedload
 from sqlalchemy.sql import Alias
@@ -7,6 +7,7 @@ from sqlalchemy.sql import Alias
 from app.crud.base import GeoCRUDBase
 from app.db.base_class import NULL_UUID
 from app import models, schemas
+from app.models.base import find_mtm_map
 from app.schemas.filters import Filter, FilterCombiner, Filters
 
 
@@ -22,6 +23,69 @@ class CRUDMaatregel(
             .filter(self.model.UUID == uuid)
             .one()
         )
+
+    # Overwritten from base to ensure correct mapping of
+    # Beleidsmodule relations when updating
+    def update_association_objects(
+        self, current_bk: models.Maatregel, new_bk: models.Maatregel, update_data: dict
+    ) -> List[Any]:
+        """
+        "Update" relations by creating new association objects as specified in the request data,
+        or re-create existing relationships with the updated object UUID.
+
+        Returns a list of association objects.
+        """
+        relationships = models.Maatregel.get_relationships()
+        fork = models.Maatregel.get_foreign_column_keys()
+        assoc_relations = [i for i in relationships.keys() if i not in fork]
+
+        result = list()
+
+        for relation_key in assoc_relations:
+            assoc_class = relationships[relation_key].entity.class_
+            mtm_class = find_mtm_map(assoc_class)
+
+            if relation_key in update_data:
+                # Build newly added relations in update request
+                for update_item in update_data[relation_key]:
+                    assoc_obj = assoc_class()  # Beleidskeuze_* Instance
+                    setattr(assoc_obj, mtm_class.left.key, new_bk.UUID)
+                    setattr(assoc_obj, mtm_class.right.key, update_item["UUID"])
+                    setattr(
+                        assoc_obj,
+                        mtm_class.description,
+                        update_item[mtm_class.description],
+                    )
+                    result.append(assoc_obj)
+            else:
+                # Copy any existing relationships
+                for rel in getattr(current_bk, relation_key):
+                    assoc_obj = assoc_class()  # Beleidskeuze_* Instance
+                    # create relation row with new object UUID
+                    setattr(assoc_obj, mtm_class.left.key, new_bk.UUID)
+                    setattr(
+                        assoc_obj,
+                        mtm_class.right.key,
+                        getattr(rel, mtm_class.right.key),
+                    )
+
+                    if relation_key == "Beleidsmodules":
+                        # Switched column order for beleidsmodules
+                        setattr(
+                            assoc_obj,
+                            mtm_class.left.key,
+                            getattr(rel, mtm_class.left.key),
+                        )
+                        setattr(assoc_obj, mtm_class.right.key, new_bk.UUID)
+
+                    setattr(
+                        assoc_obj,
+                        mtm_class.description,
+                        getattr(rel, mtm_class.description),
+                    )
+                    result.append(assoc_obj)
+
+        return result
 
     def valid_uuids(self, as_query: bool = False) -> Union[List[str], Query]:
         """

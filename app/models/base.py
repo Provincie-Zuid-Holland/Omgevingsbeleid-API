@@ -1,6 +1,7 @@
 from typing import Any, List, NamedTuple
 
 from sqlalchemy import Column
+from app.core.exceptions import RelationsCopyError
 
 from app.models import (
     Beleidskeuze_Ambities,
@@ -15,6 +16,7 @@ from app.models import (
     Beleidsmodule_Maatregelen,
 )
 from app.models.beleidsrelatie import Beleidsrelatie
+from app.models.maatregel import Beleidskeuze_Maatregelen
 
 
 class MTMRelation(NamedTuple):
@@ -56,6 +58,11 @@ MANY_TO_MANY_RELATIONS: List[MTMRelation] = [
         right=Beleidskeuze_Beleidsregels.Beleidsregel_UUID,
     ),
     MTMRelation(
+        model=Beleidskeuze_Maatregelen,
+        left=Beleidskeuze_Maatregelen.Beleidskeuze_UUID,
+        right=Beleidskeuze_Maatregelen.Maatregel_UUID,
+    ),
+    MTMRelation(
         model=Beleidskeuze_Themas,
         left=Beleidskeuze_Themas.Beleidskeuze_UUID,
         right=Beleidskeuze_Themas.Thema_UUID,
@@ -87,6 +94,25 @@ MANY_TO_MANY_RELATIONS: List[MTMRelation] = [
     ),
 ]
 
+
+def find_mtm_map(model) -> MTMRelation:
+    """
+    Helper method to select the mtm mapping based on class or classname
+    """
+    mtm_class = None
+    for mtm in MANY_TO_MANY_RELATIONS:
+        if model == mtm.model:
+            mtm_class = mtm
+            break
+        elif model == mtm.model.__tablename__:
+            mtm_class = mtm
+            break
+
+    if mtm_class is None:
+        raise RelationsCopyError("Relation to copy not defined in MTM map")
+
+    return mtm_class
+
+
 # TODO: Base model ABC SQLALCHEMY
 # https://sqlalchemy-utils.readthedocs.io/en/latest/generic_relationship.html#abstract-base-classes
-

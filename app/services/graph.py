@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session

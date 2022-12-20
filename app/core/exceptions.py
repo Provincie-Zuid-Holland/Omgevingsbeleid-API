@@ -23,6 +23,10 @@ class EmptySearchCriteria(Exception):
     pass
 
 
+class RelationsCopyError(Exception):
+    pass
+
+
 # Handlers
 def filter_validation_handler(request: Request, exc: FilterNotAllowed):
     return JSONResponse(

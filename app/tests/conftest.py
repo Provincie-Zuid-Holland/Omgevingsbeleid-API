@@ -3,7 +3,6 @@ from typing import Dict
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
-from pydantic import BaseSettings
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -11,7 +10,7 @@ from sqlalchemy.orm.session import sessionmaker
 
 from app import models, schemas
 from app.api.deps import get_db
-from app.core.config import Settings, settings
+from app.core.config import settings
 from app.db.base_class import NULL_UUID, metadata
 from app.tests.utils.data_loader import FixtureLoader
 from app.tests.utils.exceptions import SetupMethodException

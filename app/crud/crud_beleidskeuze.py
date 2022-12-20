@@ -1,20 +1,18 @@
 from datetime import datetime
-from devtools import debug
 from typing import Any, Dict, List, Optional, Tuple, Union
 from uuid import uuid4
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Query, aliased
-from sqlalchemy.orm.mapper import Mapper
-from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql import Subquery
-from sqlalchemy.sql.expression import Alias, join, or_
+from sqlalchemy.sql.expression import Alias, or_
 from sqlalchemy_utils import get_mapper
 
 from app.core.exceptions import DatabaseError
 from app.crud.base import GeoCRUDBase
 from app.db.base_class import NULL_UUID
+from app.models.base import find_mtm_map
 from app.models.beleidskeuze import Beleidskeuze
 from app.models.werkingsgebied import Beleidskeuze_Werkingsgebieden
 from app.schemas.beleidskeuze import BeleidskeuzeCreate, BeleidskeuzeUpdate
@@ -83,6 +81,10 @@ class CRUDBeleidskeuze(
         new_bk_data["UUID"] = uuid4()
         new_bk_data["Modified_Date"] = datetime.now()
         new_bk_data["Modified_By_UUID"] = by_uuid
+
+        # if not "Aanpassing_Op" in update_data:
+        #     new_bk_data.pop("Aanpassing_Op")
+
         new_bk = Beleidskeuze(**new_bk_data)
 
         # Create relationship assoc rows
@@ -102,6 +104,8 @@ class CRUDBeleidskeuze(
         self.db.refresh(new_bk)
         return new_bk
 
+    # Overwritten from base to ensure correct mapping of
+    # Beleidsmodule relations when updating
     def update_association_objects(
         self, current_bk: Beleidskeuze, new_bk: Beleidskeuze, update_data: dict
     ) -> List[Any]:
@@ -118,28 +122,47 @@ class CRUDBeleidskeuze(
         result = list()
 
         for relation_key in assoc_relations:
-            mapper: Mapper = get_mapper(relationships[relation_key].entity.class_)
-            assoc_table_keys = mapper.relationships.keys()
-
-            LINK_DESCRIPTION = "Koppeling_Omschrijving"
-            ASSOC_UUID_KEY = "Beleidskeuze_UUID"
-            REL_UUID_KEY = f"{assoc_table_keys[1]}_UUID"  # Get name of relationship foreign key to update
+            assoc_class = relationships[relation_key].entity.class_
+            mtm_class = find_mtm_map(assoc_class)
 
             if relation_key in update_data:
+                # Build newly added relations in update request
                 for update_item in update_data[relation_key]:
-                    # Build new association object
-                    assoc_obj = mapper.class_()  # Beleidskeuze_* Instance
-                    setattr(assoc_obj, ASSOC_UUID_KEY, new_bk.UUID)
-                    setattr(assoc_obj, REL_UUID_KEY, update_item["UUID"])
-                    setattr(assoc_obj, LINK_DESCRIPTION, update_item[LINK_DESCRIPTION])
+                    assoc_obj = assoc_class()  # Beleidskeuze_* Instance
+                    setattr(assoc_obj, mtm_class.left.key, new_bk.UUID)
+                    setattr(assoc_obj, mtm_class.right.key, update_item["UUID"])
+                    setattr(
+                        assoc_obj,
+                        mtm_class.description,
+                        update_item[mtm_class.description],
+                    )
                     result.append(assoc_obj)
             else:
-                # copy existing relationships
+                # Copy any existing relationships
                 for rel in getattr(current_bk, relation_key):
-                    assoc_obj = mapper.class_()  # Beleidskeuze_* Instance
-                    setattr(assoc_obj, ASSOC_UUID_KEY, new_bk.UUID)
-                    setattr(assoc_obj, REL_UUID_KEY, getattr(rel, REL_UUID_KEY))
-                    setattr(assoc_obj, LINK_DESCRIPTION, getattr(rel, LINK_DESCRIPTION))
+                    assoc_obj = assoc_class()  # Beleidskeuze_* Instance
+                    # create relation row with new object UUID
+                    setattr(assoc_obj, mtm_class.left.key, new_bk.UUID)
+                    setattr(
+                        assoc_obj,
+                        mtm_class.right.key,
+                        getattr(rel, mtm_class.right.key),
+                    )
+
+                    if relation_key == "Beleidsmodules":
+                        # Switched column order for beleidsmodules
+                        setattr(
+                            assoc_obj,
+                            mtm_class.left.key,
+                            getattr(rel, mtm_class.left.key),
+                        )
+                        setattr(assoc_obj, mtm_class.right.key, new_bk.UUID)
+
+                    setattr(
+                        assoc_obj,
+                        mtm_class.description,
+                        getattr(rel, mtm_class.description),
+                    )
                     result.append(assoc_obj)
 
         return result

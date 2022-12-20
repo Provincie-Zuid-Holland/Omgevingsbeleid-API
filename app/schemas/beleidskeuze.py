@@ -67,6 +67,8 @@ class BeleidskeuzeUpdate(BeleidskeuzeCreate):
     Werkingsgebieden: Optional[List[GenericReferenceUpdate]]
     Beleidsdoelen: Optional[List[GenericReferenceUpdate]]
 
+    Aanpassing_Op: Optional[str]
+
 
 class BeleidskeuzeInDBBase(BeleidskeuzeBase):
     """

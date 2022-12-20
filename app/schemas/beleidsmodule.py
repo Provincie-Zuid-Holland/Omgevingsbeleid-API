@@ -1,52 +1,16 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
+
+from app.schemas.common import (
+    GebruikerInline,
+    GenericReferenceUpdate,
+    RelatedBeleidskeuze,
+    RelatedMaatregel,
+)
 
 
-from .beleidskeuze import Beleidskeuze
-from app.schemas.common import GebruikerInline
-from .maatregel import Maatregel, MaatregelInDB
-
-# Many to many schema's
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = Beleidskeuze.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
-
-
-class RelatedBeleidskeuze(Beleidskeuze):
-    Koppeling_Omschrijving: str
-
-    class Config:
-        orm_mode = True
-        getter_dict = RelatedBeleidskeuzeGetter
-
-
-class RelatedMaatregelGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = Maatregel.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Maatregel, key)
-        else:
-            return super(RelatedMaatregelGetter, self).get(key, default)
-
-
-class RelatedMaatregel(MaatregelInDB):
-    Created_By: GebruikerInline
-    Modified_By: GebruikerInline
-    Koppeling_Omschrijving: str
-
-    class Config:
-        orm_mode = True
-        getter_dict = RelatedMaatregelGetter
-
-
-# Shared properties
 class BeleidsmoduleBase(BaseModel):
     Titel: Optional[str] = None
     Besluit_Datum: Optional[str] = None
@@ -58,7 +22,11 @@ class BeleidsmoduleCreate(BeleidsmoduleBase):
 
 
 class BeleidsmoduleUpdate(BeleidsmoduleBase):
-    pass
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
+
+    Beleidskeuzes: Optional[List[GenericReferenceUpdate]]
+    Maatregelen: Optional[List[GenericReferenceUpdate]]
 
 
 class BeleidsmoduleInDBBase(BeleidsmoduleBase):
@@ -80,8 +48,12 @@ class BeleidsmoduleInDBBase(BeleidsmoduleBase):
         arbitrary_types_allowed = True
 
 
-# Properties to return to client
 class Beleidsmodule(BeleidsmoduleInDBBase):
+    """
+    Full Beleidsmodule object schema with serialized
+    many to many relationships.
+    """
+
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
@@ -92,6 +64,5 @@ class Beleidsmodule(BeleidsmoduleInDBBase):
         allow_population_by_field_name = True
 
 
-# Properties properties stored in DB
 class BeleidsmoduleInDB(BeleidsmoduleInDBBase):
     pass

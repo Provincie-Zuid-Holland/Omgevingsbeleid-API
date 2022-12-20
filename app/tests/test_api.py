@@ -8,11 +8,13 @@ class TestApi:
     Test endpoint options/params
     """
 
+    def test_endpoint_not_found(self, client: TestClient):
+        response = client.get(url=f"v0.1/valid/nope")
+        assert response.status_code == 404, "This endpoint should return 404"
+
     def test_resource_not_found(self, client: TestClient):
-        filter = "ID:54312"
-        response = client.get(
-            url=f"v0.1/valid/beleidskeuzes?all_filters={filter}",
-        )
+        id = 54312  # assuming ID does not exist
+        response = client.get(url=f"v0.1/valid/beleidskeuzes/{id}")
         assert response.status_code == 404, "This endpoint should return 404"
 
     def test_limit(self, client: TestClient):

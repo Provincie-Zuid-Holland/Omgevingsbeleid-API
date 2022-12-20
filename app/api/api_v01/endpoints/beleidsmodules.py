@@ -50,7 +50,7 @@ def create_beleidsmodule(
     Creates a new beleidsmodules lineage
     """
     beleidsmodule = crud_beleidsmodule.create(
-        obj_in=beleidsmodule_in, by_uuid=current_gebruiker.UUID
+        obj_in=beleidsmodule_in, by_uuid=str(current_gebruiker.UUID)
     )
     return beleidsmodule
 

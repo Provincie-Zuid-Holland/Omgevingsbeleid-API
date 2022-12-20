@@ -82,6 +82,15 @@ class RelatedBelang(DefaultRelatedSchema):
         getter_dict = BelangGetter
 
 
+class BeleidskeuzeGetter(DefaultGetter):
+    REF_NAME = "Beleidskeuze"
+
+
+class RelatedBeleidskeuze(DefaultRelatedSchema):
+    class Config:
+        getter_dict = BeleidskeuzeGetter
+
+
 class BeleidsprestatieGetter(DefaultGetter):
     REF_NAME = "Beleidsprestatie"
 

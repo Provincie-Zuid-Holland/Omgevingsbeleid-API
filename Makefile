@@ -66,9 +66,6 @@ mssql-create-database-test:
 db-upgrade: ## Run database migrations
 	docker-compose exec api python -m alembic upgrade head
 
-flask-routes: ## Show flask routes
-	docker-compose exec api flask routes
-
 test: up mssql-create-database-test ## Run the tests	
 	docker-compose exec api pytest
 

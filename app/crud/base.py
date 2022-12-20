@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Mapper, Query, Session, aliased, load_only
+from sqlalchemy.orm import Query, Session, aliased, load_only
 from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql import Alias, Subquery, label
 from sqlalchemy.sql.elements import ColumnElement, Label
@@ -17,6 +17,7 @@ from sqlalchemy_utils import get_mapper
 from app.core.exceptions import DatabaseError, FilterNotAllowed
 from app.db.base_class import Base, NULL_UUID
 from app.db.session import SessionLocal
+from app.models.base import find_mtm_map
 from app.schemas.filters import FilterCombiner, Filters
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -32,7 +33,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         **Parameters**
 
         * `model`: A SQLAlchemy model class
-        * `schema`: A Pydantic model (schema) class
+        * `db`: A SQLAlchemy session preferably injected by fastapi
         """
         self.model: Type[ModelType] = model
         self.db: Session = db
@@ -91,7 +92,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             else:
                 new_data[field] = obj_data[field]
 
-        # New BK object (no relations)
+        # New object instance (no relations)
         new_data["UUID"] = uuid4()
         new_data["Modified_Date"] = datetime.now()
         new_data["Modified_By_UUID"] = by_uuid
@@ -135,30 +136,34 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         result = list()
 
         for relation_key in assoc_relations:
-            mapper: Mapper = get_mapper(relationships[relation_key].entity.class_)
-            assoc_table_keys = mapper.relationships.keys()
-
-            LINK_DESCRIPTION = "Koppeling_Omschrijving"
-            REL_UUID_KEY = f"{assoc_table_keys[0]}_UUID"  # Get name of relationship foreign key to update
-            ASSOC_UUID_KEY = (
-                f"{assoc_table_keys[1]}_UUID"  # Get name of current obj foreign key
-            )
+            assoc_class = relationships[relation_key].entity.class_
+            mtm_class = find_mtm_map(assoc_class)
 
             if relation_key in update_data:
+                # Build newly added relations in update request
                 for update_item in update_data[relation_key]:
-                    # Build new association object
-                    assoc_obj = mapper.class_()  # Beleidskeuze_* Instance
-                    setattr(assoc_obj, ASSOC_UUID_KEY, str(new_obj.UUID).upper())
-                    setattr(assoc_obj, REL_UUID_KEY, update_item["UUID"])
-                    setattr(assoc_obj, LINK_DESCRIPTION, update_item[LINK_DESCRIPTION])
+                    assoc_obj = assoc_class()  # Beleidskeuze_* Instance
+                    setattr(assoc_obj, mtm_class.right.key, new_obj.UUID)
+                    setattr(assoc_obj, mtm_class.left.key, update_item["UUID"])
+                    setattr(
+                        assoc_obj,
+                        mtm_class.description,
+                        update_item[mtm_class.description],
+                    )
                     result.append(assoc_obj)
             else:
-                # copy existing relationships
+                # Copy any existing relationships
                 for rel in getattr(current_obj, relation_key):
-                    assoc_obj = mapper.class_()  # Beleidskeuze_* Instance
-                    setattr(assoc_obj, ASSOC_UUID_KEY, str(new_obj.UUID))
-                    setattr(assoc_obj, REL_UUID_KEY, getattr(rel, REL_UUID_KEY))
-                    setattr(assoc_obj, LINK_DESCRIPTION, getattr(rel, LINK_DESCRIPTION))
+                    assoc_obj = assoc_class()  # Beleidskeuze_* Instance
+                    setattr(assoc_obj, mtm_class.right.key, new_obj.UUID)
+                    setattr(
+                        assoc_obj, mtm_class.left.key, getattr(rel, mtm_class.left.key)
+                    )
+                    setattr(
+                        assoc_obj,
+                        mtm_class.description,
+                        getattr(rel, mtm_class.description),
+                    )
                     result.append(assoc_obj)
 
         return result
@@ -335,6 +340,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         query = self._build_filtered_query(filters=filters)
         query.offset(offset).limit(limit)
 
+        query.session = self.db
+
         return query.all()
 
     def all(
@@ -359,10 +366,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if select:
             query = query.options(load_only(*select))
 
+        query.session = self.db
+
         return query.all()
 
     def find_one(self, filters: Optional[Filters] = None) -> ModelType:
         query = self._build_filtered_query(filters=filters)
+
+        query.session = self.db
 
         return query.one()
 

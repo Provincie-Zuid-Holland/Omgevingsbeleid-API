@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 import pytest
-from app.schemas import AmbitieCreate, BelangCreate, BeleidskeuzeCreate
+from app.schemas import AmbitieCreate
 from app.tests.utils.mock_data import generate_data
 
 

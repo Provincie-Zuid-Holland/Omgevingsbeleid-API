@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app import models, schemas
+from app import schemas
 from app.api import deps
 from app.crud import CRUDGebruiker
 from app.core import security
