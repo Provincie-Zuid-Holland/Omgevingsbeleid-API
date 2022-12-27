@@ -11,8 +11,10 @@ from sqlalchemy import (
     text,
 )
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.session import object_session
 
 from app.db.base_class import Base
 from app.util.legacy_helpers import SearchFields
@@ -138,6 +140,19 @@ class Beleidskeuze(Base):
         "Beleidsrelatie",
         primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Naar_Beleidskeuze_UUID",
     )
+
+    @property
+    def Effective_Version(self):
+        query = """
+                SELECT UUID FROM Valid_beleidskeuzes
+                WHERE ID = :BKID
+                """
+        params = { "BKID": self.ID }
+        try:
+            result = object_session(self).execute( query, params=params).one()
+            return str(result.UUID)
+        except NoResultFound:
+            return None
 
     @classmethod
     def get_search_fields(cls):

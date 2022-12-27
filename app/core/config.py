@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     #     return v
 
     DB_DRIVER: str = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
-    DB_HOST: str = os.getenv("DB_DRIVER", "mssql")
+    DB_HOST: str = os.getenv("DB_HOST", "mssql")
     DB_NAME: str = os.getenv("DB_NAME", "development")
     DB_USER: str = os.getenv("DB_USER", "SA")
     DB_PASS: str = os.getenv("DB_PASS", "Passw0rd")

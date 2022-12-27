@@ -36,13 +36,33 @@ class CRUDBeleidskeuze(
 
         request_time = datetime.now()
 
-        obj_in_data["Created_By_UUID"] = by_uuid
-        obj_in_data["Modified_By_UUID"] = by_uuid
-        obj_in_data["Created_Date"] = request_time
-        obj_in_data["Modified_Date"] = request_time
+        # First handle base attrs 
+        base_attrs = Beleidskeuze.get_base_column_keys()
+        base_obj = {}
+        for key, value in obj_in_data.items():
+            if key in base_attrs:
+                base_obj[key] = value
 
-        db_obj = self.model(**obj_in_data)
-        self.db.add(db_obj)
+
+        base_obj["UUID"] = uuid4()
+        base_obj["Created_By_UUID"] = by_uuid
+        base_obj["Modified_By_UUID"] = by_uuid
+        base_obj["Created_Date"] = request_time
+        base_obj["Modified_Date"] = request_time
+
+        db_obj = Beleidskeuze(**base_obj)
+
+        # Create relationship assoc rows
+        assoc_objects = self.create_association_objects(db_obj, obj_in_data)
+
+        try:
+            self.db.add(db_obj)  # Base object
+            for assoc_obj in assoc_objects:  # Relations
+                self.db.add(assoc_obj)
+        except:
+            self.db.rollback()
+            raise DatabaseError()
+
         self.db.commit()
         self.db.refresh(db_obj)
         return db_obj
@@ -60,32 +80,38 @@ class CRUDBeleidskeuze(
         in our database, we require all relationships (existing and new)
         to be re-initialized instead of updated.
         """
-        obj_data = jsonable_encoder(current_bk)
+        obj_data = jsonable_encoder(
+            current_bk,
+            custom_encoder={
+                datetime: lambda dt: dt,
+            },
+        )
+
         bk_mapper = get_mapper(current_bk)
-        bk_base_attrs = bk_mapper.columns.keys()
+        base_attrs = bk_mapper.columns.keys()
 
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
 
-        # Build updated BK base data
-        new_bk_data = dict()
-        for field in bk_base_attrs:
+        # Build updated base data
+        new_data = dict()
+        for field in base_attrs:
             if field in update_data:
-                new_bk_data[field] = update_data[field]
+                new_data[field] = update_data[field]
             else:
-                new_bk_data[field] = obj_data[field]
+                new_data[field] = obj_data[field]
 
         # New BK object (no relations)
-        new_bk_data["UUID"] = uuid4()
-        new_bk_data["Modified_Date"] = datetime.now()
-        new_bk_data["Modified_By_UUID"] = by_uuid
+        new_data["UUID"] = uuid4()
+        new_data["Modified_Date"] = datetime.now()
+        new_data["Modified_By_UUID"] = by_uuid
 
         # if not "Aanpassing_Op" in update_data:
         #     new_bk_data.pop("Aanpassing_Op")
 
-        new_bk = Beleidskeuze(**new_bk_data)
+        new_bk = Beleidskeuze(**new_data)
 
         # Create relationship assoc rows
         updated_associations = self.update_association_objects(
@@ -164,6 +190,36 @@ class CRUDBeleidskeuze(
                         getattr(rel, mtm_class.description),
                     )
                     result.append(assoc_obj)
+
+        return result
+    
+    # TEST
+    def create_association_objects(self, new_bk: Beleidskeuze, obj_data: dict) -> List[Any]:
+        """
+        Returns a list of association objects to create relations 
+        """
+        relationships = Beleidskeuze.get_relationships()
+        fork = Beleidskeuze.get_foreign_column_keys()
+        assoc_relations = [i for i in relationships.keys() if i not in fork]
+
+        result = list()
+
+        for relation_key in assoc_relations:
+            assoc_class = relationships[relation_key].entity.class_
+            mtm_class = find_mtm_map(assoc_class)
+
+            if relation_key in obj_data:
+                if obj_data[relation_key]:
+                    for rel_item in obj_data[relation_key]:
+                        assoc_obj = assoc_class()  # Beleidskeuze_* Instance
+                        setattr(assoc_obj, mtm_class.left.key, new_bk.UUID)
+                        setattr(assoc_obj, mtm_class.right.key, rel_item["UUID"])
+                        setattr(
+                            assoc_obj,
+                            mtm_class.description,
+                            rel_item[mtm_class.description],
+                        )
+                        result.append(assoc_obj)
 
         return result
 
