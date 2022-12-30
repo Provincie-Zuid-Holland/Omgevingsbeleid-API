@@ -323,6 +323,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         )
         return label("RowNumber", partition)
 
+    def valid_view_as_subquery(self, alias_name="subq") -> ModelType:
+        """
+        Helper function to return the "Valid" filter as a subquery
+        to be added to other queries
+        """
+        valid_query, inner_alias = self._build_valid_view_query()
+        sub_query = valid_query.subquery()
+        return aliased(element=self.model, alias=sub_query, name=alias_name)
+
     def fetch_graph_nodes(self):
         """
         Return valid objects of entity to process
