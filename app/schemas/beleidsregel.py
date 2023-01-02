@@ -4,6 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from app.schemas.common import BeleidskeuzeReference, GebruikerInline
+from app.util.legacy_helpers import valid_ref_alias
 
 # Shared properties
 class BeleidsregelBase(BaseModel):
@@ -67,8 +68,8 @@ class Beleidsregel(BeleidsregelInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Beleidskeuzes: List[BeleidskeuzeReference]
+    Valid_Beleidskeuzes: List[BeleidskeuzeReference]
 
     class Config:
         allow_population_by_field_name = True
-        alias_generator = reference_alias_generator
+        alias_generator = valid_ref_alias

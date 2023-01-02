@@ -10,6 +10,7 @@ from sqlalchemy import (
     Unicode,
     Sequence,
 )
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -103,8 +104,22 @@ class Verordening(Base):
     )
 
     Beleidskeuzes = relationship(
-        "Beleidskeuze_Verordeningen", back_populates="Verordening"
+        Beleidskeuze_Verordeningen, back_populates="Verordening", lazy="dynamic"
     )
+
+    @hybrid_property
+    def All_Beleidskeuzes(self):
+        return self._Beleidskeuzes.all()
+
+    @hybrid_property
+    def Valid_Beleidskeuzes(self):
+        from app.crud.crud_beleidskeuze import CRUDBeleidskeuze
+
+        valid_beleidskeuzes = CRUDBeleidskeuze.valid_view_static()
+        return self.Beleidskeuzes.join(
+            valid_beleidskeuzes,
+            valid_beleidskeuzes.UUID == Beleidskeuze_Verordeningen.Beleidskeuze_UUID,
+        ).all()
 
     @classmethod
     def get_search_fields(cls):

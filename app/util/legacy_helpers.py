@@ -28,3 +28,17 @@ def to_ref_field(string: str) -> str:
         return string
 
     return "".join(["Ref_", string])
+
+
+def valid_ref_alias(field: str) -> str:
+    aliasses = {
+        "Beleidskeuzes": "Ref_Beleidskeuzes",
+        "Valid_Beleidskeuzes": "Ref_Beleidskeuzes",
+        "Beleidsmodules": "Ref_Beleidsmodules",
+        "Valid_Beleidsmodules": "Ref_Beleidsmodules",
+    }
+
+    if field in aliasses:
+        return aliasses[field]
+
+    return field

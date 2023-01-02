@@ -323,6 +323,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         )
         return label("RowNumber", partition)
 
+    @classmethod
     def valid_view_as_subquery(self, alias_name="subq") -> ModelType:
         """
         Helper function to return the "Valid" filter as a subquery

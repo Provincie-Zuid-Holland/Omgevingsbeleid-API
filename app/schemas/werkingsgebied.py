@@ -4,6 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from app.schemas.common import BeleidskeuzeReference, GebruikerInline
+from app.util.legacy_helpers import valid_ref_alias
 
 
 class WerkingsgebiedBase(BaseModel):
@@ -36,21 +37,6 @@ class WerkingsgebiedInDBBase(WerkingsgebiedBase):
         arbitrary_types_allowed = True
 
 
-def reference_alias_generator(field: str) -> str:
-    """
-    Hack to enable manual aliassing of schema output which
-    is not yet supported in FastApi
-    """
-    aliasses = {
-        "Beleidskeuzes": "Ref_Beleidskeuzes",
-    }
-
-    if field in aliasses:
-        return aliasses[field]
-
-    return field
-
-
 class Werkingsgebied(WerkingsgebiedInDBBase):
     """
     Full Werkingsgebied object schema with serialized
@@ -60,11 +46,11 @@ class Werkingsgebied(WerkingsgebiedInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Beleidskeuzes: List[BeleidskeuzeReference]
+    Valid_Beleidskeuzes: List[BeleidskeuzeReference]
 
     class Config:
         allow_population_by_field_name = True
-        alias_generator = reference_alias_generator
+        alias_generator = valid_ref_alias
 
 
 class WerkingsgebiedInDB(WerkingsgebiedInDBBase):

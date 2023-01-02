@@ -1,11 +1,14 @@
+from datetime import datetime
 from typing import TypeVar
 
-from sqlalchemy import text
-from sqlalchemy.orm import DeclarativeMeta, RelationshipProperty
+from sqlalchemy import func, text
+from sqlalchemy.orm import DeclarativeMeta, Query, RelationshipProperty, aliased
+from sqlalchemy.sql import label
 from sqlalchemy.types import UserDefinedType
 from sqlalchemy.util import ImmutableProperties
 
-from app.db.base_class import Base
+from app.db.base_class import NULL_UUID, Base
+from app.models.beleidskeuze import Beleidskeuze
 
 
 # Geo
@@ -32,3 +35,36 @@ def get_relationships(model: ModelType) -> ImmutableProperties:
 
 def get_relationship_class(relation: RelationshipProperty) -> DeclarativeMeta:
     return relation.entity.class_
+
+
+def get_valid_subq() -> Beleidskeuze:
+    from app.models.beleidskeuze import Beleidskeuze
+
+    # Inner query
+    partition = func.row_number().over(
+        partition_by=Beleidskeuze.ID, order_by=Beleidskeuze.Modified_Date.desc()
+    )
+
+    row_number = label("RowNumber", partition)
+
+    inner_subq = (
+        Query([Beleidskeuze, row_number])
+        .filter(Beleidskeuze.Status == "Vigerend")
+        .filter(Beleidskeuze.UUID != NULL_UUID)
+        .filter(Beleidskeuze.Begin_Geldigheid <= datetime.utcnow())
+    ).subquery("inner")
+
+    inner_alias: Beleidskeuze = aliased(
+        element=Beleidskeuze, alias=inner_subq, name="inner"
+    )
+
+    # Full valid query
+    sub_query = (
+        Query(inner_alias)
+        .filter(inner_subq.c.get("RowNumber") == 1)
+        .filter(inner_alias.Eind_Geldigheid > datetime.utcnow())
+    ).subquery()
+
+    # As BK alias
+    valid_alias = aliased(element=Beleidskeuze, alias=sub_query, name="subq")
+    return valid_alias

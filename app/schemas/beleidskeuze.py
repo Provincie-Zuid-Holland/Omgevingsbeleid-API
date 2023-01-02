@@ -61,7 +61,7 @@ class BeleidskeuzeCreate(BeleidskeuzeBase):
     Verordeningen: Optional[List[GenericReferenceUpdate]]
     Werkingsgebieden: Optional[List[GenericReferenceUpdate]]
     Beleidsdoelen: Optional[List[GenericReferenceUpdate]]
-    
+
     # Beleidsrelaties + Modules?
 
 

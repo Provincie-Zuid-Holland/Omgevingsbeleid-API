@@ -1,17 +1,16 @@
-from datetime import datetime
 import logging
 from typing import Any, List
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 
 from app import schemas
-from app.api.deps import get_crud_beleidskeuze, get_crud_maatregel, get_db
+from app.api.deps import get_crud_beleidskeuze, get_crud_maatregel
 from app.crud.crud_beleidskeuze import CRUDBeleidskeuze
 from app.crud.crud_maatregel import CRUDMaatregel
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
 
 @router.get(
     "/edits",
@@ -36,4 +35,3 @@ def edits(
         setattr(maat, "Type", "maatregel")
 
     return result_beleidskeuzes + result_maatregelen
-

@@ -4,10 +4,9 @@ from typing import Any, List, Optional
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
 
-from app.util.legacy_helpers import to_ref_field
 
 from .beleidskeuze import BeleidskeuzeInDB, BeleidskeuzeShortInline
-from app.schemas.common import GebruikerInline
+from app.schemas.common import BeleidskeuzeReference, GebruikerInline
 
 
 # Many to many schema's
@@ -60,15 +59,31 @@ class BelangInDBBase(BelangBase):
 
 
 # Properties to return to client
+def reference_alias_generator(field: str) -> str:
+    """
+    Hack to enable manual aliassing of schema output which
+    is not yet supported in FastApi
+    """
+    aliasses = {
+        "Beleidskeuzes": "Ref_Beleidskeuzes",
+        "Valid_Beleidskeuzes": "Ref_Beleidskeuzes",
+    }
+
+    if field in aliasses:
+        return aliasses[field]
+
+    return field
+
+
 class Belang(BelangInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Beleidskeuzes: List[RelatedBeleidskeuze]
+    Valid_Beleidskeuzes: List[BeleidskeuzeReference]
 
     class Config:
         allow_population_by_field_name = True
-        alias_generator = to_ref_field
+        alias_generator = reference_alias_generator
 
 
 # Properties properties stored in DB

@@ -12,6 +12,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
@@ -66,9 +67,24 @@ class Beleidsregel(Base):
     Modified_By = relationship(
         "Gebruiker", primaryjoin="Beleidsregel.Modified_By_UUID == Gebruiker.UUID"
     )
+
     Beleidskeuzes = relationship(
-        "Beleidskeuze_Beleidsregels", back_populates="Beleidsregel"
+        Beleidskeuze_Beleidsregels, back_populates="Beleidsregel", lazy="dynamic"
     )
+
+    @hybrid_property
+    def All_Beleidskeuzes(self):
+        return self._Beleidskeuzes.all()
+
+    @hybrid_property
+    def Valid_Beleidskeuzes(self):
+        from app.crud.crud_beleidskeuze import CRUDBeleidskeuze
+
+        valid_beleidskeuzes = CRUDBeleidskeuze.valid_view_static()
+        return self.Beleidskeuzes.join(
+            valid_beleidskeuzes,
+            valid_beleidskeuzes.UUID == Beleidskeuze_Beleidsregels.Beleidskeuze_UUID,
+        ).all()
 
     @classmethod
     def get_search_fields(cls):

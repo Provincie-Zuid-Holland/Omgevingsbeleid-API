@@ -10,6 +10,7 @@ from sqlalchemy import (
     Unicode,
     Sequence,
 )
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
@@ -66,9 +67,24 @@ class Werkingsgebied(Base):
     Modified_By = relationship(
         "Gebruiker", primaryjoin="Werkingsgebied.Modified_By_UUID == Gebruiker.UUID"
     )
+
     Beleidskeuzes = relationship(
-        "Beleidskeuze_Werkingsgebieden", back_populates="Werkingsgebied"
+        Beleidskeuze_Werkingsgebieden, back_populates="Werkingsgebied", lazy="dynamic"
     )
+
+    @hybrid_property
+    def All_Beleidskeuzes(self):
+        return self._Beleidskeuzes.all()
+
+    @hybrid_property
+    def Valid_Beleidskeuzes(self):
+        from app.crud.crud_beleidskeuze import CRUDBeleidskeuze
+
+        valid_beleidskeuzes = CRUDBeleidskeuze.valid_view_static()
+        return self.Beleidskeuzes.join(
+            valid_beleidskeuzes,
+            valid_beleidskeuzes.UUID == Beleidskeuze_Werkingsgebieden.Beleidskeuze_UUID,
+        ).all()
 
     @classmethod
     def get_allowed_filter_keys(cls) -> List[str]:

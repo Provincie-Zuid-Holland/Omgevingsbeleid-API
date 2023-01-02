@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from app.schemas.common import GebruikerInline, BeleidskeuzeReference
 from app.schemas.werkingsgebied import WerkingsgebiedShortInline
+from app.util.legacy_helpers import valid_ref_alias
 
 
 class MaatregelBase(BaseModel):
@@ -51,22 +52,6 @@ class MaatregelInDBBase(MaatregelBase):
         arbitrary_types_allowed = True
 
 
-def reference_alias_generator(field: str) -> str:
-    """
-    Hack to enable manual aliassing of schema output which
-    is not yet supported in FastApi
-    """
-    aliasses = {
-        "Beleidskeuzes": "Ref_Beleidskeuzes",
-        "Beleidsmodules": "Ref_Beleidsmodules",
-    }
-
-    if field in aliasses:
-        return aliasses[field]
-
-    return field
-
-
 class Maatregel(MaatregelInDBBase):
     """
     Full Maatregel object schema with serialized
@@ -76,7 +61,7 @@ class Maatregel(MaatregelInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Beleidskeuzes: List[BeleidskeuzeReference]
+    Valid_Beleidskeuzes: List[BeleidskeuzeReference]
     Beleidsmodules: List[BeleidskeuzeReference]
 
     Eigenaar_1: GebruikerInline
@@ -88,7 +73,7 @@ class Maatregel(MaatregelInDBBase):
 
     class Config:
         allow_population_by_field_name = True
-        alias_generator = reference_alias_generator
+        alias_generator = valid_ref_alias
 
 
 class MaatregelListable(BaseModel):

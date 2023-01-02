@@ -49,6 +49,7 @@ def reference_alias_generator(field: str) -> str:
     """
     aliasses = {
         "Beleidskeuzes": "Ref_Beleidskeuzes",
+        "Valid_Beleidskeuzes": "Ref_Beleidskeuzes",
     }
 
     if field in aliasses:
@@ -66,7 +67,7 @@ class Ambitie(AmbitieInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Beleidskeuzes: List[BeleidskeuzeReference]
+    Valid_Beleidskeuzes: List[BeleidskeuzeReference]
 
     class Config:
         allow_population_by_field_name = True

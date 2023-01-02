@@ -13,6 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import object_session
 
@@ -97,7 +98,10 @@ class Maatregel(Base):
         "Gebruiker", primaryjoin="Maatregel.Modified_By_UUID == Gebruiker.UUID"
     )
 
-    Beleidskeuzes = relationship("Beleidskeuze_Maatregelen", back_populates="Maatregel")
+    Beleidskeuzes = relationship(
+        Beleidskeuze_Maatregelen, back_populates="Maatregel", lazy="dynamic"
+    )
+
     Beleidsmodules = relationship(
         "Beleidsmodule_Maatregelen", back_populates="Maatregel"
     )
@@ -124,15 +128,29 @@ class Maatregel(Base):
         "Werkingsgebied", primaryjoin="Maatregel.Gebied_UUID == Werkingsgebied.UUID"
     )
 
+    @hybrid_property
+    def All_Beleidskeuzes(self):
+        return self._Beleidskeuzes.all()
+
+    @hybrid_property
+    def Valid_Beleidskeuzes(self):
+        from app.crud.crud_beleidskeuze import CRUDBeleidskeuze
+
+        valid_beleidskeuzes = CRUDBeleidskeuze.valid_view_static()
+        return self.Beleidskeuzes.join(
+            valid_beleidskeuzes,
+            valid_beleidskeuzes.UUID == Beleidskeuze_Maatregelen.Beleidskeuze_UUID,
+        ).all()
+
     @property
     def Effective_Version(self):
         query = """
                 SELECT UUID FROM Valid_maatregelen
                 WHERE ID = :BKID
                 """
-        params = { "BKID": self.ID }
+        params = {"BKID": self.ID}
         try:
-            result = object_session(self).execute( query, params=params).one()
+            result = object_session(self).execute(query, params=params).one()
             return str(result.UUID)
         except NoResultFound:
             return None

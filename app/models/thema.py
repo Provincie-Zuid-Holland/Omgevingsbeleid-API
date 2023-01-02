@@ -13,6 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
+from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.db.base_class import Base
 from app.util.legacy_helpers import SearchFields
@@ -65,7 +66,24 @@ class Thema(Base):
     Modified_By = relationship(
         "Gebruiker", primaryjoin="Thema.Modified_By_UUID == Gebruiker.UUID"
     )
-    Beleidskeuzes = relationship("Beleidskeuze_Themas", back_populates="Thema")
+
+    Beleidskeuzes = relationship(
+        Beleidskeuze_Themas, back_populates="Thema", lazy="dynamic"
+    )
+
+    @hybrid_property
+    def All_Beleidskeuzes(self):
+        return self._Beleidskeuzes.all()
+
+    @hybrid_property
+    def Valid_Beleidskeuzes(self):
+        from app.crud.crud_beleidskeuze import CRUDBeleidskeuze
+
+        valid_beleidskeuzes = CRUDBeleidskeuze.valid_view_static()
+        return self.Beleidskeuzes.join(
+            valid_beleidskeuzes,
+            valid_beleidskeuzes.UUID == Beleidskeuze_Themas.Beleidskeuze_UUID,
+        ).all()
 
     @classmethod
     def get_search_fields(cls):

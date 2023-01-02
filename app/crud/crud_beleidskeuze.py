@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql import Subquery
-from sqlalchemy.sql.expression import Alias, or_
+from sqlalchemy.sql.expression import Alias, func, label, or_
 from sqlalchemy_utils import get_mapper
 
 from app.core.exceptions import DatabaseError
@@ -26,7 +26,14 @@ ASSOC_UUID_KEY = "Beleidskeuze_UUID"
 class CRUDBeleidskeuze(
     GeoCRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUpdate]
 ):
+
+    # Overwritten from base
     def create(self, *, obj_in: BeleidskeuzeCreate, by_uuid: str) -> Beleidskeuze:
+        """
+        Create new Beleidskeuze.
+        Beleidskeuze entity allows creation to include new relationships
+        when listed in the request body.
+        """
         obj_in_data = jsonable_encoder(
             obj_in,
             custom_encoder={
@@ -36,13 +43,12 @@ class CRUDBeleidskeuze(
 
         request_time = datetime.now()
 
-        # First handle base attrs 
+        # First handle base attrs
         base_attrs = Beleidskeuze.get_base_column_keys()
         base_obj = {}
         for key, value in obj_in_data.items():
             if key in base_attrs:
                 base_obj[key] = value
-
 
         base_obj["UUID"] = uuid4()
         base_obj["Created_By_UUID"] = by_uuid
@@ -192,11 +198,12 @@ class CRUDBeleidskeuze(
                     result.append(assoc_obj)
 
         return result
-    
-    # TEST
-    def create_association_objects(self, new_bk: Beleidskeuze, obj_data: dict) -> List[Any]:
+
+    def create_association_objects(
+        self, new_bk: Beleidskeuze, obj_data: dict
+    ) -> List[Any]:
         """
-        Returns a list of association objects to create relations 
+        Returns a list of association objects to create relations
         """
         relationships = Beleidskeuze.get_relationships()
         fork = Beleidskeuze.get_foreign_column_keys()
@@ -278,6 +285,7 @@ class CRUDBeleidskeuze(
         return query.order_by(model_alias.ID.desc())
 
     def valid_uuids(self) -> List[str]:
+        # TODO Change to stackable is_valid subquery filter
         """
         Retrieve list of only valid UUIDs in beleidskeuzes
         """
@@ -365,3 +373,35 @@ class CRUDBeleidskeuze(
 
     def as_geo_schema(self, model: Beleidskeuze):
         return schema_beleidskeuze.from_orm(model)
+
+    @classmethod
+    def valid_view_static(cls, alias_name="subq") -> Beleidskeuze:
+        """
+        Helper function to return the "Valid" filter as a subquery
+        to be added to other queries
+        """
+        partition = func.row_number().over(
+            partition_by=Beleidskeuze.ID, order_by=Beleidskeuze.Modified_Date.desc()
+        )
+        row_number = label("RowNumber", partition)
+
+        subq = (
+            Query([Beleidskeuze, row_number])
+            .filter(Beleidskeuze.UUID != NULL_UUID)
+            .filter(Beleidskeuze.Begin_Geldigheid <= datetime.utcnow())
+            .filter(Beleidskeuze.Status == "Vigerend")
+            .subquery("inner")
+        )
+
+        inner_alias: Beleidskeuze = aliased(
+            element=Beleidskeuze, alias=subq, name="inner"
+        )
+
+        valid_query = (
+            Query(inner_alias.UUID)
+            .filter(subq.c.get("RowNumber") == 1)
+            .filter(subq.c.get("Eind_Geldigheid") > datetime.utcnow())
+        )
+
+        sub_query = valid_query.subquery()
+        return aliased(element=Beleidskeuze, alias=sub_query, name=alias_name)

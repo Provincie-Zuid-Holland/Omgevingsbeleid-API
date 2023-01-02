@@ -147,12 +147,30 @@ class Beleidskeuze(Base):
                 SELECT UUID FROM Valid_beleidskeuzes
                 WHERE ID = :BKID
                 """
-        params = { "BKID": self.ID }
+        params = {"BKID": self.ID}
         try:
-            result = object_session(self).execute( query, params=params).one()
+            result = object_session(self).execute(query, params=params).one()
             return str(result.UUID)
         except NoResultFound:
             return None
+
+    @property
+    def is_valid(self):
+        query = """
+                SELECT UUID FROM Valid_beleidskeuzes
+                WHERE ID = :BKID
+                """
+        params = {"BKID": self.ID}
+        try:
+            result = object_session(self).execute(query, params=params).one()
+            valid_uuid = result.UUID
+
+            if self.UUID == valid_uuid:
+                return True
+
+            return False
+        except NoResultFound:
+            return False
 
     @classmethod
     def get_search_fields(cls):

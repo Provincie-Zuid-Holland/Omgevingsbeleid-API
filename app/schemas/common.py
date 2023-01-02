@@ -165,6 +165,16 @@ class DefaultReferenceSchema(BaseModel):
         # getter_dict = <GETTER>
 
 
+class RelatedValidBeleidskeuzeGetter(GetterDict):
+    def get(self, key: str, default: Any = None) -> Any:
+        return getattr(self._obj.Valid_Beleidskeuze, key)
+
+
+class ValidBeleidskeuzeReference(DefaultReferenceSchema):
+    class Config:
+        getter_dict = RelatedValidBeleidskeuzeGetter
+
+
 class RelatedBeleidskeuzeGetter(GetterDict):
     def get(self, key: str, default: Any = None) -> Any:
         return getattr(self._obj.Beleidskeuze, key)

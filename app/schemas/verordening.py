@@ -4,8 +4,12 @@ from typing import Any, List, Optional
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
 
-from app.schemas.common import BeleidskeuzeShortInline, GebruikerInline
-from app.util.legacy_helpers import to_ref_field
+from app.schemas.common import (
+    BeleidskeuzeReference,
+    BeleidskeuzeShortInline,
+    GebruikerInline,
+)
+from app.util.legacy_helpers import valid_ref_alias
 
 from .beleidskeuze import BeleidskeuzeInDB
 from .werkingsgebied import WerkingsgebiedShortInline
@@ -73,11 +77,11 @@ class Verordening(VerordeningInDBBase):
     Opdrachtgever: GebruikerInline
     Gebied: WerkingsgebiedShortInline
 
-    Beleidskeuzes: List[RelatedBeleidskeuze]
+    Valid_Beleidskeuzes: List[BeleidskeuzeReference]
 
     class Config:
         allow_population_by_field_name = True
-        alias_generator = to_ref_field
+        alias_generator = valid_ref_alias
 
 
 # Properties properties stored in DB
