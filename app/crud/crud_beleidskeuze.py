@@ -375,10 +375,12 @@ class CRUDBeleidskeuze(
         return schema_beleidskeuze.from_orm(model)
 
     @classmethod
-    def valid_view_static(cls, alias_name="subq") -> Beleidskeuze:
+    def valid_view_static(
+        cls, alias_name="subq", alias_inner_query="inner"
+    ) -> Beleidskeuze:
         """
         Helper function to return the "Valid" filter as a subquery
-        to be added to other queries
+        to be added to other queries.
         """
         partition = func.row_number().over(
             partition_by=Beleidskeuze.ID, order_by=Beleidskeuze.Modified_Date.desc()
@@ -390,18 +392,53 @@ class CRUDBeleidskeuze(
             .filter(Beleidskeuze.UUID != NULL_UUID)
             .filter(Beleidskeuze.Begin_Geldigheid <= datetime.utcnow())
             .filter(Beleidskeuze.Status == "Vigerend")
-            .subquery("inner")
+            .subquery(alias_inner_query)
         )
 
         inner_alias: Beleidskeuze = aliased(
-            element=Beleidskeuze, alias=subq, name="inner"
+            element=Beleidskeuze, alias=subq, name=alias_inner_query
         )
 
         valid_query = (
-            Query(inner_alias.UUID)
+            Query(inner_alias)
             .filter(subq.c.get("RowNumber") == 1)
             .filter(subq.c.get("Eind_Geldigheid") > datetime.utcnow())
         )
 
         sub_query = valid_query.subquery()
         return aliased(element=Beleidskeuze, alias=sub_query, name=alias_name)
+
+
+    @classmethod
+    def valid_uuid_query_static(
+        cls, alias_inner_query="inner"
+    ) -> Query:
+        """
+        Retrieves only uuids, can be used to filter an existing query
+        using a subquery Column.in_.
+        """
+        partition = func.row_number().over(
+            partition_by=Beleidskeuze.ID, 
+            order_by=Beleidskeuze.Modified_Date.desc()
+        )
+        row_number = label("RowNumber", partition)
+
+        subq = (
+            Query([Beleidskeuze, row_number])
+            .filter(Beleidskeuze.UUID != NULL_UUID)
+            .filter(Beleidskeuze.Begin_Geldigheid <= datetime.utcnow())
+            .filter(Beleidskeuze.Status == "Vigerend")
+            .subquery(alias_inner_query)
+        )
+
+        beleidskeuze: Beleidskeuze = aliased(
+            element=Beleidskeuze, alias=subq, name=alias_inner_query
+        )
+
+        valid_query = (
+            Query(beleidskeuze.UUID)
+            .filter(subq.c.get("RowNumber") == 1)
+            .filter(beleidskeuze.Eind_Geldigheid > datetime.utcnow())
+        )
+
+        return valid_query

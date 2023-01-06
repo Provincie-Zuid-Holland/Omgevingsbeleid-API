@@ -25,12 +25,12 @@ def edits(
     active for 'Beleidskeuzes' & 'Maatregelen'
     """
     # Beleidskeuzes
-    result_beleidskeuzes = crud_beleidskeuze.latest(all=True, limit=50)
+    result_beleidskeuzes = crud_beleidskeuze.latest(all=True)
     for bk in result_beleidskeuzes:
         setattr(bk, "Type", "beleidskeuze")
 
     # Maatregelen
-    result_maatregelen = crud_maatregel.latest(all=True, offset=0, limit=50)
+    result_maatregelen = crud_maatregel.latest(all=True)
     for maat in result_maatregelen:
         setattr(maat, "Type", "maatregel")
 

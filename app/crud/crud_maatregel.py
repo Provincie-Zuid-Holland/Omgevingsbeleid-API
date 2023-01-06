@@ -1,14 +1,16 @@
 from datetime import datetime
 from typing import Any, List, Union
+from sqlalchemy import func
 
-from sqlalchemy.orm import Query, joinedload
-from sqlalchemy.sql import Alias
+from sqlalchemy.orm import Query, aliased, joinedload
+from sqlalchemy.sql import Alias, label
 
 from app.crud.base import GeoCRUDBase
 from app.db.base_class import NULL_UUID
 from app import models, schemas
 from app.models.base import find_mtm_map
 from app.schemas.filters import Filter, FilterCombiner, Filters
+from app.schemas.maatregel import Maatregel
 
 
 class CRUDMaatregel(
@@ -143,3 +145,38 @@ class CRUDMaatregel(
 
     def as_geo_schema(self, model: models.Maatregel):
         return schemas.Maatregel.from_orm(model)
+
+    @classmethod
+    def valid_view_static(cls, alias_name="subq") -> Maatregel:
+        """
+        Helper function to return the "Valid" filter as a subquery
+        to be added to other queries.
+
+        Retrieves only uuids, can be used to inner join to an existing query.
+        """
+        partition = func.row_number().over(
+            partition_by=models.Maatregel.ID,
+            order_by=models.Maatregel.Modified_Date.desc(),
+        )
+        row_number = label("RowNumber", partition)
+
+        subq = (
+            Query([models.Maatregel, row_number])
+            .filter(models.Maatregel.UUID != NULL_UUID)
+            .filter(models.Maatregel.Begin_Geldigheid <= datetime.utcnow())
+            .filter(models.Maatregel.Status == "Vigerend")
+            .subquery("inner")
+        )
+
+        inner_alias: models.Maatregel = aliased(
+            element=models.Maatregel, alias=subq, name="inner"
+        )
+
+        valid_query = (
+            Query(inner_alias)
+            .filter(subq.c.get("RowNumber") == 1)
+            .filter(subq.c.get("Eind_Geldigheid") > datetime.utcnow())
+        )
+
+        sub_query = valid_query.subquery()
+        return aliased(element=models.Maatregel, alias=sub_query, name=alias_name)

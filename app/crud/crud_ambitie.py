@@ -1,4 +1,4 @@
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import Query
 
 from app.crud.base import CRUDBase
 from app.models.ambitie import Ambitie
@@ -7,9 +7,11 @@ from app.schemas.ambitie import AmbitieCreate, AmbitieUpdate
 
 class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
     def get(self, uuid: str) -> Ambitie:
-        return (
-            self.db.query(self.model)
-            .options(joinedload(Ambitie.Beleidskeuzes))
+        query = (
+            Query(Ambitie)
+            # .options(joinedload(Ambitie.All_Beleidskeuzes))
             .filter(Ambitie.UUID == uuid)
-            .one()
         )
+
+        query.session = self.db
+        return query.one()

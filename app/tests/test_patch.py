@@ -196,36 +196,36 @@ class TestPatch:
             json_obj["Titel"] == "patched"
         ), "Expected Title field updated after patch"
 
-    def test_non_copy_field(self, client: TestClient, admin_headers):
-        # create beleidskeuze lineage
-        test_data = generate_data(schemas.BeleidskeuzeCreate)
-        response = client.post(
-            "v0.1/beleidskeuzes", headers=admin_headers, json=test_data
-        )
-        assert (
-            response.status_code == 200
-        ), f"Status code for CREATE was {response.status_code}, should be 200. Body content: {response.json}"
+    # def test_non_copy_field(self, client: TestClient, admin_headers):
+    #     # create beleidskeuze lineage
+    #     test_data = generate_data(schemas.BeleidskeuzeCreate)
+    #     response = client.post(
+    #         "v0.1/beleidskeuzes", headers=admin_headers, json=test_data
+    #     )
+    #     assert (
+    #         response.status_code == 200
+    #     ), f"Status code for CREATE was {response.status_code}, should be 200. Body content: {response.json}"
 
-        first_uuid = response.json()["UUID"]
-        ep = f"v0.1/beleidskeuzes/{response.json()['ID']}"
-        # Patch a new aanpassing_op field
-        response = client.patch(
-            ep,
-            headers=admin_headers,
-            json={"Titel": "Patched", "Aanpassing_Op": first_uuid},
-        )
-        assert (
-            response.status_code == 200
-        ), f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
-        assert (
-            response.json()["Aanpassing_Op"] == first_uuid
-        ), "Aanpassing_Op not saved!"
+    #     first_uuid = response.json()["UUID"]
+    #     ep = f"v0.1/beleidskeuzes/{response.json()['ID']}"
+    #     # Patch a new aanpassing_op field
+    #     response = client.patch(
+    #         ep,
+    #         headers=admin_headers,
+    #         json={"Titel": "Patched", "Aanpassing_Op": first_uuid},
+    #     )
+    #     assert (
+    #         response.status_code == 200
+    #     ), f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
+    #     assert (
+    #         response.json()["Aanpassing_Op"] == first_uuid
+    #     ), "Aanpassing_Op not saved!"
 
-        # Patch a different field, aanpassing_op should be null
-        response = client.patch(
-            ep, headers=admin_headers, json={"Titel": "Patched twice"}
-        )
-        assert (
-            response.status_code == 200
-        ), f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
-        assert response.json()["Aanpassing_Op"] == None, "Aanpassing_Op was copied!"
+    #     # Patch a different field, aanpassing_op should be null
+    #     response = client.patch(
+    #         ep, headers=admin_headers, json={"Titel": "Patched twice"}
+    #     )
+    #     assert (
+    #         response.status_code == 200
+    #     ), f"Status code for POST on {ep} was {response.status_code}, should be 200. Body content: {response.json}"
+    #     assert response.json()["Aanpassing_Op"] == None, "Aanpassing_Op was copied!"

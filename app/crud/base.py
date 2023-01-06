@@ -185,12 +185,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self,
         all: bool = False,
         offset: int = 0,
-        limit: int = 20,
+        limit: int = -1,
         filters: Optional[Filters] = None,
     ) -> List[ModelType]:
         # List current model with latest view filters applied
         query = self._build_latest_view_filter(all, filters)
-        query = query.offset(offset).limit(limit)
+        query = query.offset(offset)
+
+        if limit != -1:
+            query = query.limit(limit)
+
         query.session = self.db
         return query.all()
 
@@ -323,7 +327,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         )
         return label("RowNumber", partition)
 
-    @classmethod
     def valid_view_as_subquery(self, alias_name="subq") -> ModelType:
         """
         Helper function to return the "Valid" filter as a subquery

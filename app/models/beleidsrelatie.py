@@ -4,6 +4,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, Sequence, Unicode,
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
+from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.db.base_class import Base
 
@@ -60,11 +61,16 @@ class Beleidsrelatie(Base):
     Van_Beleidskeuze = relationship(
         "Beleidskeuze",
         primaryjoin="Beleidsrelatie.Van_Beleidskeuze_UUID == Beleidskeuze.UUID",
+        lazy="joined"
     )
     Naar_Beleidskeuze = relationship(
         "Beleidskeuze",
         primaryjoin="Beleidsrelatie.Naar_Beleidskeuze_UUID == Beleidskeuze.UUID",
+        lazy="joined"
     )
+
+    # hybrid valid_van_bk
+
 
     @classmethod
     def get_allowed_filter_keys(cls) -> List[str]:

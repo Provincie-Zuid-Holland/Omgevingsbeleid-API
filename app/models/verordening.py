@@ -109,7 +109,7 @@ class Verordening(Base):
 
     @hybrid_property
     def All_Beleidskeuzes(self):
-        return self._Beleidskeuzes.all()
+        return self.Beleidskeuzes.all()
 
     @hybrid_property
     def Valid_Beleidskeuzes(self):

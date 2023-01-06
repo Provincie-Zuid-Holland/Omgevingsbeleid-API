@@ -128,7 +128,6 @@ def get_crud_beleidsrelatie(db: Session = Depends(get_db)) -> CRUDBeleidsrelatie
     return CRUDBeleidsrelatie(
         model=Beleidsrelatie,
         db=db,
-        crud_beleidskeuze=Depends(get_crud_beleidskeuze),
     )
 
 

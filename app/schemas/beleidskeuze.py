@@ -131,7 +131,6 @@ class Beleidskeuze(BeleidskeuzeInDB):
     Werkingsgebieden: List[RelatedWerkingsgebied]
     Beleidsdoelen: List[RelatedBeleidsdoel]
     Maatregelen: List[RelatedMaatregel]
-    # Beleidsrelaties
 
     # Refs
     Beleidsmodules: List[BeleidsmoduleReference]

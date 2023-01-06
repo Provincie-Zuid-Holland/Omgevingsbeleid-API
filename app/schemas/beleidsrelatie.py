@@ -2,8 +2,9 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
+from app.schemas.beleidskeuze import Beleidskeuze
 
-from app.schemas.common import BeleidskeuzeShortInline, GebruikerInline
+from app.schemas.common import BeleidskeuzeShortInline, GebruikerInline, RelatedBeleidskeuze
 
 
 # Shared properties
@@ -53,8 +54,8 @@ class Beleidsrelatie(BeleidsrelatieInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Van_Beleidskeuze: BeleidskeuzeShortInline
-    Naar_Beleidskeuze: BeleidskeuzeShortInline
+    Van_Beleidskeuze: Beleidskeuze
+    Naar_Beleidskeuze: Beleidskeuze
 
 
 class BeleidsrelatieInDB(BeleidsrelatieInDBBase):

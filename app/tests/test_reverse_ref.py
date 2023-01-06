@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 import pytest
+from app.core.config import settings
 
 from app.schemas import AmbitieCreate, BeleidskeuzeCreate
 from app.tests.utils.mock_data import generate_data
@@ -7,16 +8,13 @@ from app.tests.utils.mock_data import generate_data
 
 @pytest.mark.usefixtures("fixture_data")
 class TestReverseReferences:
-    """ """
-
     def test_reverse_lookup(self, client: TestClient, admin_headers):
         """
-        Test wether reverse lookups work and show the correct inlined objects
+        Test reverse lookups work and show the correct inlined objects
         """
         # Create Ambitie
         ambitie_data = generate_data(AmbitieCreate)
-        ambitie_data["Eind_Geldigheid"] = "9999-12-12T23:59:59Z"
-        ambitie_data["Titel"] = "Harkymchark"
+        ambitie_data["Eind_Geldigheid"] = str(settings.MAX_DATETIME)
 
         response = client.post(
             "v0.1/ambities",
@@ -25,7 +23,7 @@ class TestReverseReferences:
         )
         assert (
             response.status_code == 200
-        ), f"Status code for POST was {response.status_code}, should be 201. Body content: {response.json}"
+        ), f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
         assert (
             response.json()["Ref_Beleidskeuzes"] == []
         ), f"Reverse lookup not empty on post. Body content: {response.json}"
@@ -36,13 +34,12 @@ class TestReverseReferences:
         # Create a new Beleidskeuze
         beleidskeuze_data = generate_data(BeleidskeuzeCreate)
         beleidskeuze_data["Status"] = "Vigerend"
-        beleidskeuze_data["Titel"] = "HarkymcHark"
-        beleidskeuze_data["Eind_Geldigheid"] = "9999-12-31T23:59:59Z"
+        beleidskeuze_data["Eind_Geldigheid"] = str(settings.MAX_DATETIME)
         # set relation with ambitie
         beleidskeuze_data["Ambities"] = [
             {
                 "UUID": ambitie_uuid,
-                "Koppeling_Omschrijving": "Automated test koppelingc",
+                "Koppeling_Omschrijving": "Automated test koppeling",
             }
         ]
 

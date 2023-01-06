@@ -11,10 +11,10 @@ from sqlalchemy import (
     text,
 )
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import object_session
+from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.db.base_class import Base
 from app.util.legacy_helpers import SearchFields
@@ -33,6 +33,12 @@ class Beleidsmodule_Beleidskeuzes(Base):
 
     Beleidsmodule = relationship("Beleidsmodule", back_populates="Beleidskeuzes")
     Beleidskeuze = relationship("Beleidskeuze", back_populates="Beleidsmodules")
+
+
+class ValidBeleidskeuze(Base):
+    __tablename__ = "Valid_Beleidskeuzes"
+    UUID = Column(UNIQUEIDENTIFIER, primary_key=True)
+    ID = Column(Integer)
 
 
 class Beleidskeuze(Base):
@@ -141,36 +147,50 @@ class Beleidskeuze(Base):
         primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Naar_Beleidskeuze_UUID",
     )
 
-    @property
+    @hybrid_property
     def Effective_Version(self):
-        query = """
-                SELECT UUID FROM Valid_beleidskeuzes
-                WHERE ID = :BKID
-                """
-        params = {"BKID": self.ID}
-        try:
-            result = object_session(self).execute(query, params=params).one()
-            return str(result.UUID)
-        except NoResultFound:
-            return None
+        from app.crud.crud_beleidskeuze import CRUDBeleidskeuze
 
-    @property
-    def is_valid(self):
-        query = """
-                SELECT UUID FROM Valid_beleidskeuzes
-                WHERE ID = :BKID
-                """
-        params = {"BKID": self.ID}
-        try:
-            result = object_session(self).execute(query, params=params).one()
-            valid_uuid = result.UUID
+        valid = CRUDBeleidskeuze.valid_view_static()
+        return (
+            object_session(self)
+            .query(Beleidskeuze)
+            .filter(Beleidskeuze.ID == self.ID)
+            .join(valid, valid.UUID == Beleidskeuze.UUID)
+            .first()
+            .UUID
+        )
 
-            if self.UUID == valid_uuid:
-                return True
+    # @property
+    # def Effective_Version(self):
+    #     query = """
+    #             SELECT UUID FROM Valid_beleidskeuzes
+    #             WHERE ID = :BKID
+    #             """
+    #     params = {"BKID": self.ID}
+    #     try:
+    #         result = object_session(self).execute(query, params=params).one()
+    #         return str(result.UUID)
+    #     except NoResultFound:
+    #         return None
 
-            return False
-        except NoResultFound:
-            return False
+    # @property
+    # def is_valid(self):
+    #     query = """
+    #             SELECT UUID FROM Valid_beleidskeuzes
+    #             WHERE ID = :BKID
+    #             """
+    #     params = {"BKID": self.ID}
+    #     try:
+    #         result = object_session(self).execute(query, params=params).one()
+    #         valid_uuid = result.UUID
+
+    #         if self.UUID == valid_uuid:
+    #             return True
+
+    #         return False
+    #     except NoResultFound:
+    #         return False
 
     @classmethod
     def get_search_fields(cls):

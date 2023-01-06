@@ -11,18 +11,19 @@ from sqlalchemy import (
     text,
 )
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import object_session
+
+# from app.crud.crud_maatregel import CRUDMaatregel
 
 from app.db.base_class import Base
 from app.util.legacy_helpers import SearchFields
 
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401
-    from .beleidskeuze import Beleidskeuze  # noqa: F401
+    from .beleidskeuze import Maatregel  # noqa: F401
     from .maatregel import Maatregel  # noqa: F401
 
 
@@ -130,7 +131,7 @@ class Maatregel(Base):
 
     @hybrid_property
     def All_Beleidskeuzes(self):
-        return self._Beleidskeuzes.all()
+        return self.Beleidskeuzes.all()
 
     @hybrid_property
     def Valid_Beleidskeuzes(self):
@@ -142,18 +143,32 @@ class Maatregel(Base):
             valid_beleidskeuzes.UUID == Beleidskeuze_Maatregelen.Beleidskeuze_UUID,
         ).all()
 
-    @property
+    @hybrid_property
     def Effective_Version(self):
-        query = """
-                SELECT UUID FROM Valid_maatregelen
-                WHERE ID = :BKID
-                """
-        params = {"BKID": self.ID}
-        try:
-            result = object_session(self).execute(query, params=params).one()
-            return str(result.UUID)
-        except NoResultFound:
-            return None
+        from app.crud.crud_maatregel import CRUDMaatregel
+
+        valid = CRUDMaatregel.valid_view_static()
+        return (
+            object_session(self)
+            .query(Maatregel)
+            .filter(Maatregel.ID == self.ID)
+            .join(valid, valid.UUID == Maatregel.UUID)
+            .first()
+            .UUID
+        )
+
+    # @property
+    # def Effective_Version(self):
+    #     query = """
+    #             SELECT UUID FROM Valid_maatregelen
+    #             WHERE ID = :BKID
+    #             """
+    #     params = {"BKID": self.ID}
+    #     try:
+    #         result = object_session(self).execute(query, params=params).one()
+    #         return str(result.UUID)
+    #     except NoResultFound:
+    #         return None
 
     @classmethod
     def get_search_fields(cls):
