@@ -1,4 +1,3 @@
-
 # Temp hack to query valid tables. Replace with sqlalchemy solution
 
 # class ValidAmbitie(Base):

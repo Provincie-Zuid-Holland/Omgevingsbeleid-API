@@ -20,6 +20,9 @@ class BeleidsmoduleCreate(BeleidsmoduleBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
+    Beleidskeuzes: Optional[List[GenericReferenceUpdate]]
+    Maatregelen: Optional[List[GenericReferenceUpdate]]
+
 
 class BeleidsmoduleUpdate(BeleidsmoduleBase):
     Begin_Geldigheid: Optional[datetime]

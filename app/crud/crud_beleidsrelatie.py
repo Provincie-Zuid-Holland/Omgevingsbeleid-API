@@ -1,14 +1,13 @@
 from datetime import datetime
 from typing import List, Optional, Tuple, Type
 
-from sqlalchemy.orm import Query, aliased, Session, joinedload
+from sqlalchemy.orm import Query, Session, aliased
 from sqlalchemy.sql import label
 from sqlalchemy.sql.expression import Alias, func
 
 from app.crud.base import CRUDBase, ModelType
 from app.crud.crud_beleidskeuze import CRUDBeleidskeuze
 from app.db.base_class import NULL_UUID
-from app.models.beleidskeuze import Beleidskeuze
 from app.models.beleidsrelatie import Beleidsrelatie
 from app.schemas.beleidsrelatie import BeleidsrelatieCreate, BeleidsrelatieUpdate
 from app.schemas.filters import Filters
@@ -76,10 +75,9 @@ class CRUDBeleidsrelatie(
 
     def _build_valid_inner_query(self) -> Query:
         """
-        Partition latest versions by ID 
+        Partition latest versions by ID
         """
         partition = func.row_number().over(
-            partition_by=Beleidsrelatie.ID, 
-            order_by=Beleidsrelatie.Modified_Date.desc()
+            partition_by=Beleidsrelatie.ID, order_by=Beleidsrelatie.Modified_Date.desc()
         )
         return Query([Beleidsrelatie, label("RowNumber", partition)])

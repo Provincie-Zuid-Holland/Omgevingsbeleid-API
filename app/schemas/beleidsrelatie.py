@@ -4,7 +4,9 @@ from typing import Optional
 from pydantic import BaseModel
 from app.schemas.beleidskeuze import Beleidskeuze
 
-from app.schemas.common import BeleidskeuzeShortInline, GebruikerInline, RelatedBeleidskeuze
+from app.schemas.common import (
+    GebruikerInline,
+)
 
 
 # Shared properties

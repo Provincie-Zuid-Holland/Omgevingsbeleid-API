@@ -408,18 +408,14 @@ class CRUDBeleidskeuze(
         sub_query = valid_query.subquery()
         return aliased(element=Beleidskeuze, alias=sub_query, name=alias_name)
 
-
     @classmethod
-    def valid_uuid_query_static(
-        cls, alias_inner_query="inner"
-    ) -> Query:
+    def valid_uuid_query_static(cls, alias_inner_query="inner") -> Query:
         """
         Retrieves only uuids, can be used to filter an existing query
         using a subquery Column.in_.
         """
         partition = func.row_number().over(
-            partition_by=Beleidskeuze.ID, 
-            order_by=Beleidskeuze.Modified_Date.desc()
+            partition_by=Beleidskeuze.ID, order_by=Beleidskeuze.Modified_Date.desc()
         )
         row_number = label("RowNumber", partition)
 
