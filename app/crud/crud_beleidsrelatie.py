@@ -34,9 +34,9 @@ class CRUDBeleidsrelatie(
         query, inner_query = self._build_valid_view_query(ID)
 
         # Apply additional filters or ordering
-        # filtered = self._build_filtered_query(query=query, filters=filters)
-        # ordered = filtered.order_by(inner_query.ID.desc())
-        # query = query.offset(offset)
+        filtered = self._build_filtered_query(query=query, filters=filters)
+        ordered = filtered.order_by(inner_query.ID.desc())
+        query = ordered.offset(offset)
 
         if limit != -1:
             query = query.limit(limit)

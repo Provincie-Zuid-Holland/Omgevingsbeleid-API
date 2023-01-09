@@ -1,9 +1,11 @@
 from datetime import datetime
+import pdb
 from typing import Dict
 from uuid import uuid4
 
 from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
+from sqlalchemy.exc import DBAPIError
 
 from app.db.base_class import NULL_UUID
 from app.tests.utils.exceptions import SetupMethodException
@@ -146,6 +148,6 @@ def add_modifiable_object(schema, model, db, data=None):
         db_obj = db.query(model).filter(model.UUID == uuid).one()
 
         return db_obj
-    except Exception:
+    except DBAPIError:
         db.rollback()
         raise SetupMethodException

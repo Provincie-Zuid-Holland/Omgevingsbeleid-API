@@ -53,14 +53,14 @@ class BeleidskeuzeCreate(BeleidskeuzeBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
-    Ambities: Optional[List[GenericReferenceUpdate]]
-    Belangen: Optional[List[GenericReferenceUpdate]]
-    Beleidsprestaties: Optional[List[GenericReferenceUpdate]]
-    Beleidsregels: Optional[List[GenericReferenceUpdate]]
-    Themas: Optional[List[GenericReferenceUpdate]]
-    Verordeningen: Optional[List[GenericReferenceUpdate]]
-    Werkingsgebieden: Optional[List[GenericReferenceUpdate]]
-    Beleidsdoelen: Optional[List[GenericReferenceUpdate]]
+    Ambities: Optional[List[GenericReferenceUpdate]] = []
+    Belangen: Optional[List[GenericReferenceUpdate]] = []
+    Beleidsprestaties: Optional[List[GenericReferenceUpdate]] = []
+    Beleidsregels: Optional[List[GenericReferenceUpdate]] = []
+    Themas: Optional[List[GenericReferenceUpdate]] = []
+    Verordeningen: Optional[List[GenericReferenceUpdate]] = []
+    Werkingsgebieden: Optional[List[GenericReferenceUpdate]] = []
+    Beleidsdoelen: Optional[List[GenericReferenceUpdate]] = []
 
     # Beleidsrelaties + Modules?
 
