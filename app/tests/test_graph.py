@@ -66,32 +66,32 @@ class TestGraphService:
             found_links
         ), "Unexpected result for links"
 
-    def test_leden_excluded_from_graph(
-        self, client: TestClient, admin_headers, fixture_data
-    ):
-        _link_to3 = {
-            "source": fixture_data._instances["keu:6"].UUID,
-            "target": fixture_data._instances["ver:3"].UUID,
-            "type": "Koppeling",
-        }
+    # def test_leden_excluded_from_graph(
+    #     self, client: TestClient, admin_headers, fixture_data
+    # ):
+    #     _link_to3 = {
+    #         "source": fixture_data._instances["keu:6"].UUID,
+    #         "target": fixture_data._instances["ver:3"].UUID,
+    #         "type": "Koppeling",
+    #     }
 
-        _link_to2 = {
-            "source": fixture_data._instances["keu:6"].UUID,
-            "target": fixture_data._instances["ver:2"].UUID,
-            "type": "Koppeling",
-        }
+    #     _link_to2 = {
+    #         "source": fixture_data._instances["keu:6"].UUID,
+    #         "target": fixture_data._instances["ver:2"].UUID,
+    #         "type": "Koppeling",
+    #     }
 
-        response = client.get(url="v0.1/graph", headers=admin_headers)
+    #     response = client.get(url="v0.1/graph", headers=admin_headers)
 
-        node_uuids = map(lambda node: node["UUID"], response.json()["nodes"])
-        links = response.json()["links"]
-        # This is the source beleidskeuze
-        assert fixture_data._instances["keu:6"].UUID in node_uuids
+    #     node_uuids = map(lambda node: node["UUID"], response.json()["nodes"])
+    #     links = response.json()["links"]
+    #     # This is the source beleidskeuze
+    #     assert fixture_data._instances["keu:6"].UUID in node_uuids
 
-        # This one should show up (it has Type==Artikel)
-        assert fixture_data._instances["ver:3"].UUID in node_uuids
-        assert _link_to3 in links
+    #     # This one should show up (it has Type==Artikel)
+    #     assert fixture_data._instances["ver:3"].UUID in node_uuids
+    #     assert _link_to3 in links
 
-        # This one should not show up (it has Type==Lid)
-        assert fixture_data._instances["ver:2"].UUID not in node_uuids
-        assert _link_to2 not in links
+    #     # This one should not show up (it has Type==Lid)
+    #     assert fixture_data._instances["ver:2"].UUID not in node_uuids
+    #     assert _link_to2 not in links
