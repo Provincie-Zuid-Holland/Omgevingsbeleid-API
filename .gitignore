@@ -13,6 +13,7 @@ search-date.json
 ._env_*
 .pytest_cache/
 .coverage
+pyrightconfig.json
 **/*.hidden*
 node_modules/*
 env/
