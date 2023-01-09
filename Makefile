@@ -99,3 +99,8 @@ fix:
 
 check-security:
 	docker-compose exec api python -m bandit --configfile bandit.yml -r app/
+
+run-server:
+	pip install -U pip pip-tools==6.8.0
+	pip-sync requirements.txt requirements-dev.txt
+	gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
