@@ -6,6 +6,7 @@ sqlalchemy
 pyodbc
 alembic
 SQLAlchemy-Utils
+bcrypt
 
 # JWT
 python-jose
