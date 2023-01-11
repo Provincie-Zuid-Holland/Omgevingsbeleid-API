@@ -9,7 +9,6 @@ class CRUDAmbitie(CRUDBase[Ambitie, AmbitieCreate, AmbitieUpdate]):
     def get(self, uuid: str) -> Ambitie:
         query = (
             Query(Ambitie)
-            # .options(joinedload(Ambitie.All_Beleidskeuzes))
             .filter(Ambitie.UUID == uuid)
         )
 

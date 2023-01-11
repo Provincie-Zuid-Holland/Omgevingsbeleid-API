@@ -15,3 +15,5 @@ class CRUDBeleidsdoel(CRUDBase[Beleidsdoel, BeleidsdoelCreate, BeleidsdoelUpdate
             .filter(self.model.UUID == uuid)
             .one()
         )
+
+crud_beleidsdoel = CRUDBeleidsdoel(model=Beleidsdoel)

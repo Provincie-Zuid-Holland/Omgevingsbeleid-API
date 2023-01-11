@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import BeleidskeuzeReference, GebruikerInline
+from app.schemas.common import BeleidsdoelReference, BeleidskeuzeReference, GebruikerInline
 
 
 class AmbitieBase(BaseModel):
@@ -67,7 +67,7 @@ class Ambitie(AmbitieInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Valid_Beleidskeuzes: List[BeleidskeuzeReference]
+    Valid_Beleidsdoelen: List[BeleidsdoelReference]
 
     class Config:
         allow_population_by_field_name = True

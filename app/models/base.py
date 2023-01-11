@@ -1,10 +1,11 @@
+from enum import Enum, unique
 from typing import Any, List, NamedTuple
 
 from sqlalchemy import Column
-from app.core.exceptions import RelationsCopyError
 
+from app.core.exceptions import RelationsCopyError
 from app.models import (
-    Beleidskeuze_Ambities,
+    Beleidsdoel_Ambities,
     Beleidskeuze_Belangen,
     Beleidskeuze_Beleidsdoelen,
     Beleidskeuze_Beleidsprestaties,
@@ -17,6 +18,25 @@ from app.models import (
 )
 from app.models.beleidsrelatie import Beleidsrelatie
 from app.models.maatregel import Beleidskeuze_Maatregelen
+
+@unique
+class Status(Enum):
+    """
+    Enum interface of acceptable Status values which are stored
+    as strings in the DB and not validated outside of the api.
+    """
+    DEFINITIEF_GS = "Definitief ontwerp GS"
+    DEFINITIEF_GS_CONCEPT = "Definitief ontwerp GS concept"
+    DEFINITIEF_PS = "Definitief ontwerp PS"
+    NIET_ACTIEF = "Niet-Actief"
+    ONTWERP_GS = "Ontwerp GS"
+    ONTWERP_GS_CONCEPT = "Ontwerp GS Concept"
+    ONTWERP_INSPRAAK = "Ontwerp in inspraak"
+    ONTWERP_PS = "Ontwerp PS"
+    UITGECHECKT = "Uitgecheckt"
+    VASTGESTELD = "Vastgesteld"
+    VIGEREND = "Vigerend"
+    VIGEREND_GEARCHIVEERD = "Vigerend gearchiveerd"
 
 
 class MTMRelation(NamedTuple):
@@ -33,9 +53,9 @@ class MTMRelation(NamedTuple):
 
 MANY_TO_MANY_RELATIONS: List[MTMRelation] = [
     MTMRelation(
-        model=Beleidskeuze_Ambities,
-        left=Beleidskeuze_Ambities.Beleidskeuze_UUID,
-        right=Beleidskeuze_Ambities.Ambitie_UUID,
+        model=Beleidsdoel_Ambities,
+        left=Beleidsdoel_Ambities.Beleidsdoel_UUID,
+        right=Beleidsdoel_Ambities.Ambitie_UUID,
     ),
     MTMRelation(
         model=Beleidskeuze_Belangen,

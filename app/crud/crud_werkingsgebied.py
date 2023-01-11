@@ -29,7 +29,7 @@ class CRUDWerkingsgebied(
 
     def get(self, uuid: str) -> Werkingsgebied:
         return (
-            self.db.query(self.model)
+            Query(Werkingsgebied)
             .options(
                 joinedload(Werkingsgebied.Beleidskeuzes),
             )
@@ -51,8 +51,8 @@ class CRUDWerkingsgebied(
 
         valid_uuid_filter = self._build_valid_uuid_filter(alias=inner_alias)
 
-        query: Query = (
-            self.db.query(inner_alias)
+        query = (
+            Query(inner_alias)
             .outerjoin(models.Beleidskeuze_Werkingsgebieden)
             .filter(sub_query.c.get("RowNumber") == 1)
             .filter(inner_alias.Begin_Geldigheid <= datetime.utcnow())
@@ -70,7 +70,7 @@ class CRUDWerkingsgebied(
         Base valid query usable as subquery
         """
         row_number = self._add_rownumber_latest_id()
-        query: Query = self.db.query(Werkingsgebied, row_number).filter(
+        query = Query(Werkingsgebied, row_number).filter(
             Werkingsgebied.UUID != NULL_UUID
         )
         return query

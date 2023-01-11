@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import GebruikerInline, BeleidskeuzeReference
+from app.schemas.common import GebruikerInline, BeleidskeuzeReference, RelatedAmbitie
 from app.util.legacy_helpers import valid_ref_alias
 
 
@@ -47,6 +47,10 @@ class Beleidsdoel(BeleidsdoelInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
+    # Relations
+    Ambities: List[RelatedAmbitie]
+
+    # Reverse refs
     Valid_Beleidskeuzes: List[BeleidskeuzeReference]
 
     class Config:

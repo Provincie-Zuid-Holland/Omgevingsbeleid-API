@@ -195,6 +195,15 @@ class BeleidsmoduleReference(DefaultReferenceSchema):
         getter_dict = RelatedBeleidsmoduleGetter
 
 
+class RelatedBeleidsdoelGetter(GetterDict):
+    def get(self, key: str, default: Any = None) -> Any:
+        return getattr(self._obj.Beleidsdoel, key)
+
+
+class BeleidsdoelReference(DefaultReferenceSchema):
+    class Config:
+        getter_dict = RelatedBeleidsdoelGetter
+
 # Other shared schemas
 
 

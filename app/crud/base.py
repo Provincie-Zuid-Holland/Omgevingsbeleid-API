@@ -336,6 +336,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         sub_query = valid_query.subquery()
         return aliased(element=self.model, alias=sub_query, name=alias_name)
 
+
     def fetch_graph_nodes(self):
         """
         Return valid objects of entity to process

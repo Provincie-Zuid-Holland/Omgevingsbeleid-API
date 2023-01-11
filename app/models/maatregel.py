@@ -128,6 +128,10 @@ class Maatregel(Base):
     Gebied = relationship(
         "Werkingsgebied", primaryjoin="Maatregel.Gebied_UUID == Werkingsgebied.UUID"
     )
+    Gebiedsprogrammas = relationship(
+        "Maatregel_Gebiedsprogrammas", 
+        back_populates="Maatregel"
+    )
 
     @hybrid_property
     def All_Beleidskeuzes(self):

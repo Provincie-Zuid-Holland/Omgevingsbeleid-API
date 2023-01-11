@@ -1,9 +1,10 @@
 from fastapi.testclient import TestClient
-import pytest
-from app.core.config import settings
 
+from app.core.config import settings
+from app.models.base import Status
 from app.schemas import AmbitieCreate, BeleidskeuzeCreate
 from app.tests.utils.mock_data import generate_data
+import pytest
 
 
 @pytest.mark.usefixtures("fixture_data")
@@ -33,7 +34,7 @@ class TestReverseReferences:
 
         # Create a new Beleidskeuze
         beleidskeuze_data = generate_data(BeleidskeuzeCreate)
-        beleidskeuze_data["Status"] = "Vigerend"
+        beleidskeuze_data["Status"] = Status.VIGEREND.value
         beleidskeuze_data["Eind_Geldigheid"] = str(settings.MAX_DATETIME)
         # set relation with ambitie
         beleidskeuze_data["Ambities"] = [

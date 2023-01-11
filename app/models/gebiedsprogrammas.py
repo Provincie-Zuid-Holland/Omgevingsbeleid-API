@@ -24,19 +24,20 @@ if TYPE_CHECKING:
     from .beleidskeuze import Beleidskeuze  # noqa: F401
 
 
-class Beleidsdoel_Ambities(Base):
-    __tablename__ = "Beleidsdoel_Ambities"
+class Maatregel_Gebiedsprogrammas(Base):
+    __tablename__ = "Maatregel_Gebiedsprogrammas"
 
-    Beleidsdoel_UUID = Column(ForeignKey("Beleidsdoelen.UUID"), primary_key=True)
-    Ambitie_UUID = Column(ForeignKey("Ambities.UUID"), primary_key=True)
+    Maatregel_UUID = Column(ForeignKey("Maatregelen.UUID"), primary_key=True)
+    Gebiedsprogramma_UUID = Column(ForeignKey("Gebiedsprogrammas.UUID"), primary_key=True)
     Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
-    Beleidsdoel = relationship("Beleidsdoel", back_populates="Ambities")
-    Ambitie = relationship("Ambitie", back_populates="Beleidsdoelen")
+    Maatregel = relationship("Maatregel", back_populates="Gebiedsprogrammas")
+    Gebiedsprogramma = relationship("Gebiedsprogramma",
+                                    back_populates="Maatregelen")
 
 
-class Ambitie(Base):
-    __tablename__ = "Ambities"
+class Gebiedsprogramma(Base):
+    __tablename__ = "Gebiedsprogrammas"
 
     @declared_attr
     def ID(cls):
@@ -57,9 +58,12 @@ class Ambitie(Base):
         "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
     )
 
+    Status = Column(Unicode)
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
     Weblink = Column(Unicode)
+    Besluitnummer = Column(Unicode)
+    Afbeelding = Column(Unicode)
 
     Created_By = relationship(
         "Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID"
@@ -68,21 +72,22 @@ class Ambitie(Base):
         "Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID"
     )
 
-    Beleidsdoelen = relationship(
-        "Beleidsdoel_Ambities", back_populates="Ambitie", lazy="dynamic"
-    )
+    Maatregelen = relationship(
+        "Maatregel_Gebiedsprogrammas", 
+        back_populates="Gebiedsprogramma", 
+        lazy="dynamic"
+    ) #Valid?
 
     @hybrid_property
-    def All_Beleidsdoelen(self):
-        return self.Beleidskeuzes.all()
+    def All_Maatregelen(self):
+        return self.Maatregelen.all() #TODO: check valid/nonvalid
 
     @hybrid_property
-    def Valid_Beleidsdoelen(self):
-        from app.crud.crud_beleidsdoel import crud_beleidsdoel
-        valid_beleidsdoelen = crud_beleidsdoel.valid_view_as_subquery()
-        return self.Beleidsdoelen.join(
-            valid_beleidsdoelen,
-            valid_beleidsdoelen.UUID == Beleidsdoel_Ambities.Beleidsdoel_UUID,
+    def Valid_Maatregelen(self):
+        from app.crud.crud_maatregel import CRUDMaatregel
+        valid = CRUDMaatregel.valid_view_static()
+        return self.Maatregelen.join(
+            valid, valid.UUID == Maatregel_Gebiedsprogrammas.Maatregel_UUID,
         ).all()
 
     @classmethod
@@ -98,9 +103,10 @@ class Ambitie(Base):
             "Eind_Geldigheid",
             "Created_Date",
             "Modified_Date",
+            "Status",
             "Titel",
             "Omschrijving",
-            "Weblink",
+            "Besluitnummer",
             "Created_By_UUID",
             "Modified_By_UUID",
         ]

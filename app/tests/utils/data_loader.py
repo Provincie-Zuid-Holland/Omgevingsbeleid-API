@@ -1,38 +1,41 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2022 Provincie Zuid-Holland
 
-from passlib.hash import bcrypt
-from faker.factory import Factory as FakerFactory
 import uuid
 
+from passlib.hash import bcrypt
+
+from app.core.config import settings
 from app.models import (
     Ambitie,
     Belang,
-    Beleidsprestatie,
+    Beleidsdoel_Ambities,
     Beleidskeuze,
+    Beleidskeuze_Belangen,
+    Beleidskeuze_Beleidsdoelen,
+    Beleidskeuze_Beleidsprestaties,
+    Beleidskeuze_Beleidsregels,
+    Beleidskeuze_Maatregelen,
+    Beleidskeuze_Themas,
+    Beleidskeuze_Verordeningen,
+    Beleidskeuze_Werkingsgebieden,
     Beleidsmodule,
+    Beleidsmodule_Beleidskeuzes,
+    Beleidsmodule_Maatregelen,
+    Beleidsprestatie,
     Beleidsprestatie,
     Beleidsregel,
     Beleidsrelatie,
+    Gebiedsprogramma,
     Gebruiker,
     Maatregel,
     Thema,
     Verordening,
     Werkingsgebied,
-    Beleidskeuze_Ambities,
-    Beleidskeuze_Belangen,
-    Beleidskeuze_Beleidsdoelen,
-    Beleidskeuze_Maatregelen,
-    Beleidskeuze_Werkingsgebieden,
-    Beleidskeuze_Beleidsprestaties,
-    Beleidsmodule_Maatregelen,
-    Beleidsmodule_Beleidskeuzes,
-    Beleidskeuze_Beleidsregels,
-    Beleidskeuze_Themas,
-    Beleidskeuze_Verordeningen,
 )
-from app.core.config import settings
 from app.models.beleidsdoel import Beleidsdoel
+from faker.factory import Factory as FakerFactory
+
 from .test_shapes import pzh_shape
 
 
@@ -581,7 +584,7 @@ class FixtureLoader:
         self._ambitie("amb:3", Created_By_UUID="geb:alex", Modified_By_UUID="geb:alex")
 
         self._beleidskeuze("keu:2", Created_By_UUID="geb:fred")
-        self._beleidskeuzes_ambities("keu:2", "amb:2", "Test omschrijving")
+        # self._beleidskeuzes_ambities("keu:2", "amb:2", "Test omschrijving")
 
         # "Water" related models mainly used in search tests
         self._ambitie(
@@ -600,7 +603,7 @@ class FixtureLoader:
         )
 
         self._beleidskeuze("keu:water", Created_By_UUID="geb:alex")
-        self._beleidskeuzes_ambities("keu:water", "amb:water")
+        # self._beleidskeuzes_ambities("keu:water", "amb:water")
         self._beleidskeuzes_beleidsdoelen("keu:water", "doe:water")
 
         self._maatregel(
@@ -999,15 +1002,15 @@ class FixtureLoader:
         model = Werkingsgebied(**kwargs)
         self._add(key, model)
 
-    def _beleidskeuzes_ambities(self, beleidskeuze_key, ambitie_key, omschrijving=""):
-        beleidskeuze = self._instances[beleidskeuze_key]
-        ambitie = self._instances[ambitie_key]
-        association = Beleidskeuze_Ambities(
-            Beleidskeuze_UUID=beleidskeuze.UUID,
-            Ambitie_UUID=ambitie.UUID,
-            Koppeling_Omschrijving=omschrijving,
-        )
-        self._s.add(association)
+    # def _beleidskeuzes_ambities(self, beleidskeuze_key, ambitie_key, omschrijving=""):
+    #     beleidskeuze = self._instances[beleidskeuze_key]
+    #     ambitie = self._instances[ambitie_key]
+    #     association = Beleidskeuze_Ambities(
+    #         Beleidskeuze_UUID=beleidskeuze.UUID,
+    #         Ambitie_UUID=ambitie.UUID,
+    #         Koppeling_Omschrijving=omschrijving,
+    #     )
+    #     self._s.add(association)
 
     def _beleidskeuzes_belangen(self, beleidskeuze_key, belang_key, omschrijving=""):
         beleidskeuze = self._instances[beleidskeuze_key]
