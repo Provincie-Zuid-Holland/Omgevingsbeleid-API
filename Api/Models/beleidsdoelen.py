@@ -63,7 +63,7 @@ class Beleidsdoelen_Schema(Base_Schema):
     Ref_Beleidskeuzes = MM.fields.Nested(
         UUID_Linker_Schema,
         many=True,
-        obprops=["referencelist"],
+        obprops=["referencelist", "excluded_patch", "excluded_post"],
     )
 
     class Meta(Base_Schema.Meta):
@@ -81,7 +81,7 @@ class Beleidsdoelen_Schema(Base_Schema):
                 "Koppeling_Omschrijving",
                 Api.Models.ambities.Ambities_Schema,
             ),
-            "Ref_Beleidskeuzes": UUID_List_Reference(
+            "Ref_Beleidskeuzes": Reverse_UUID_Reference(
                 "Beleidskeuze_Beleidsdoelen",
                 "Beleidskeuzes",
                 "Beleidsdoel_UUID",

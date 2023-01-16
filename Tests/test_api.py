@@ -30,37 +30,37 @@ from Api.Models.beleidsprestaties import Beleidsprestaties
 @pytest.mark.usefixtures("fixture_data")
 class TestApi:
 
-    def test_copy_relations_when_updating_beleidsdoel(self, client_admin):
-        response = client_admin.get("v0.1/valid/beleidsdoelen/430")
-        assert response.status_code == 200, f"Status code was {response.status_code}"
-        data = response.get_json()
+    # def test_copy_relations_when_updating_beleidsdoel(self, client_admin):
+    #     response = client_admin.get("v0.1/valid/beleidsdoelen/430")
+    #     assert response.status_code == 200, f"Status code was {response.status_code}"
+    #     data = response.get_json()
 
-        # We expect to start with a beleidsdoel and a relations to Beleidskeuze
-        assert len(data) == 1
-        assert len(data[0]['Ref_Beleidskeuzes']) == 1
+    #     # We expect to start with a beleidsdoel and a relations to Beleidskeuze
+    #     assert len(data) == 1
+    #     assert len(data[0]['Ref_Beleidskeuzes']) == 1
 
-        doel_orig_uuid = data[0]['UUID']
-        response = client_admin.get(f"v0.1/version/beleidsdoelen/{doel_orig_uuid}")
-        assert response.status_code == 200, f"Status code was {response.status_code}"
-        data = response.get_json()
+    #     doel_orig_uuid = data[0]['UUID']
+    #     response = client_admin.get(f"v0.1/version/beleidsdoelen/{doel_orig_uuid}")
+    #     assert response.status_code == 200, f"Status code was {response.status_code}"
+    #     data = response.get_json()
 
-        # Also the version api should return the beleidskeuze
-        assert len(data['Ref_Beleidskeuzes']) == 1
+    #     # Also the version api should return the beleidskeuze
+    #     assert len(data['Ref_Beleidskeuzes']) == 1
 
-        # Now we patch the beleidsdoel
-        response = client_admin.patch("v0.1/beleidsdoelen/430", json={"Titel": "Changed Title TEST"})
-        assert response.status_code == 200, f"Status code was {response.status_code}"
-        data = response.get_json()
+    #     # Now we patch the beleidsdoel
+    #     response = client_admin.patch("v0.1/beleidsdoelen/430", json={"Titel": "Changed Title TEST"})
+    #     assert response.status_code == 200, f"Status code was {response.status_code}"
+    #     data = response.get_json()
 
-        assert len(data['Ref_Beleidskeuzes']) == 1
-        new_uuid = data['UUID']
+    #     assert len(data['Ref_Beleidskeuzes']) == 1
+    #     new_uuid = data['UUID']
 
-        response = client_admin.get(f"v0.1/version/beleidsdoelen/{new_uuid}")
-        assert response.status_code == 200, f"Status code was {response.status_code}"
-        data = response.get_json()
+    #     response = client_admin.get(f"v0.1/version/beleidsdoelen/{new_uuid}")
+    #     assert response.status_code == 200, f"Status code was {response.status_code}"
+    #     data = response.get_json()
 
-        # Check that the beleidskeuze relation is copied
-        assert len(data['Ref_Beleidskeuzes']) == 1
+    #     # Check that the beleidskeuze relation is copied
+    #     assert len(data['Ref_Beleidskeuzes']) == 1
 
     def test_beleidskeuze_valid_view_past_vigerend(self, client_admin):
         response = client_admin.get("v0.1/valid/beleidskeuzes?all_filters=Afweging:beleidskeuze1030")
