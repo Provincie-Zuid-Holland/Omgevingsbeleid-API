@@ -14,10 +14,13 @@ from app.models import (
     Beleidskeuze_Verordeningen,
     Beleidskeuze_Werkingsgebieden,
     Beleidsmodule_Beleidskeuzes,
+    Beleidsmodule_Gebiedsprogrammas,
     Beleidsmodule_Maatregelen,
+    Maatregel_Gebiedsprogrammas,
 )
 from app.models.beleidsrelatie import Beleidsrelatie
 from app.models.maatregel import Beleidskeuze_Maatregelen
+
 
 @unique
 class Status(Enum):
@@ -45,7 +48,7 @@ class MTMRelation(NamedTuple):
     many-to-many relationships with their foreignkey columns
     """
 
-    model: Any
+    model: Any 
     left: Column
     right: Column
     description: str = "Koppeling_Omschrijving"
@@ -108,9 +111,19 @@ MANY_TO_MANY_RELATIONS: List[MTMRelation] = [
         right=Beleidsmodule_Maatregelen.Maatregel_UUID,
     ),
     MTMRelation(
+        model=Beleidsmodule_Gebiedsprogrammas,
+        left=Beleidsmodule_Gebiedsprogrammas.Beleidsmodule_UUID,
+        right=Beleidsmodule_Gebiedsprogrammas.Gebiedsprogramma_UUID,
+    ),
+    MTMRelation(
         model=Beleidsrelatie,
         left=Beleidsrelatie.Van_Beleidskeuze_UUID,
         right=Beleidsrelatie.Naar_Beleidskeuze_UUID,
+    ),
+    MTMRelation(
+        model=Maatregel_Gebiedsprogrammas,
+        left=Maatregel_Gebiedsprogrammas.Maatregel_UUID,
+        right=Maatregel_Gebiedsprogrammas.Gebiedsprogramma_UUID,
     ),
 ]
 
@@ -134,5 +147,3 @@ def find_mtm_map(model) -> MTMRelation:
     return mtm_class
 
 
-# TODO: Base model ABC SQLALCHEMY
-# https://sqlalchemy-utils.readthedocs.io/en/latest/generic_relationship.html#abstract-base-classes

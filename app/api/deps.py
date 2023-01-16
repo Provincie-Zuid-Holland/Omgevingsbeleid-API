@@ -25,6 +25,7 @@ from app.crud import (
     CRUDGebruiker,
     CRUDWerkingsgebied,
 )
+from app.crud.crud_gebiedsprogramma import CRUDGebiedsprogramma
 from app.db.session import SessionLocal
 from app.models import (
     Ambitie,
@@ -42,6 +43,7 @@ from app.models import (
     Gebruiker,
     Werkingsgebied,
 )
+from app.models.gebiedsprogrammas import Gebiedsprogramma
 from app.schemas import TokenPayload
 from app.schemas.filters import FilterCombiner, Filters
 from app.services import SearchService, GeoSearchService
@@ -164,6 +166,13 @@ def get_crud_verordeningstructuur(
 def get_crud_gebruiker(db: Session = Depends(get_db)) -> CRUDGebruiker:
     return CRUDGebruiker(
         model=Gebruiker,
+        db=db,
+    )
+
+
+def get_crud_gebiedsprogramma(db: Session = Depends(get_db)) -> CRUDGebiedsprogramma:
+    return CRUDGebiedsprogramma(
+        model=Gebiedsprogramma,
         db=db,
     )
 

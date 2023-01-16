@@ -53,7 +53,6 @@ class BeleidskeuzeCreate(BeleidskeuzeBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
-    Ambities: Optional[List[GenericReferenceUpdate]] = []
     Belangen: Optional[List[GenericReferenceUpdate]] = []
     Beleidsprestaties: Optional[List[GenericReferenceUpdate]] = []
     Beleidsregels: Optional[List[GenericReferenceUpdate]] = []
@@ -122,7 +121,6 @@ class Beleidskeuze(BeleidskeuzeInDB):
 
     # Relation serializers
     Aanpassing_Op: Optional[Any]
-    Ambities: List[RelatedAmbitie]
     Belangen: List[RelatedBelang]
     Beleidsprestaties: List[RelatedBeleidsprestatie]
     Beleidsregels: List[RelatedBeleidsregel]

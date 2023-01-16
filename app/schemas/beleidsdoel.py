@@ -3,8 +3,12 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import GebruikerInline, BeleidskeuzeReference, RelatedAmbitie
-from app.util.legacy_helpers import valid_ref_alias
+from app.schemas.common import (
+    BeleidskeuzeReference,
+    GebruikerInline,
+    RelatedAmbitie,
+    valid_ref_alias,
+)
 
 
 class BeleidsdoelBase(BaseModel):

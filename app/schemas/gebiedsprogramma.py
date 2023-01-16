@@ -3,25 +3,35 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import BeleidskeuzeReference, GebruikerInline, valid_ref_alias
+from app.schemas.common import (
+    BeleidsdoelReference,
+    BeleidskeuzeReference,
+    BeleidsmoduleReference,
+    GebruikerInline,
+    RelatedMaatregel,
+    valid_ref_alias,
+)
 
-class BeleidsprestatieBase(BaseModel):
+class GebiedsprogrammaBase(BaseModel):
+    Status: Optional[str] = None
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None
     Weblink: Optional[str] = None
+    Besluitnummer: Optional[str] = None
+    Afbeelding: Optional[str] = None
 
 
-class BeleidsprestatieCreate(BeleidsprestatieBase):
+class GebiedsprogrammaCreate(GebiedsprogrammaBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
 
-class BeleidsprestatieUpdate(BeleidsprestatieCreate):
+class GebiedsprogrammaUpdate(GebiedsprogrammaCreate):
     Begin_Geldigheid: Optional[datetime]
     Eind_Geldigheid: Optional[datetime]
 
 
-class BeleidsprestatieInDBBase(BeleidsprestatieBase):
+class GebiedsprogrammaInDBBase(GebiedsprogrammaBase):
     ID: int
     UUID: str
 
@@ -37,36 +47,24 @@ class BeleidsprestatieInDBBase(BeleidsprestatieBase):
         arbitrary_types_allowed = True
 
 
-def reference_alias_generator(field: str) -> str:
+class GebiedsprogrammaInDB(GebiedsprogrammaInDBBase):
+    pass
+
+
+class Gebiedsprogramma(GebiedsprogrammaInDBBase):
     """
-    Hack to enable manual aliassing of schema output which
-    is not yet supported in FastApi
-    """
-    aliasses = {
-        "Beleidskeuzes": "Ref_Beleidskeuzes",
-    }
-
-    if field in aliasses:
-        return aliasses[field]
-
-    return field
-
-
-class Beleidsprestatie(BeleidsprestatieInDBBase):
-    """
-    Full Beleidsprestatie object schema with serialized
+    Full Gebiedsprogramma object schema with serialized
     many to many relationships.
     """
 
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Valid_Beleidskeuzes: List[BeleidskeuzeReference]
+    Valid_Maatregelen: List[RelatedMaatregel]
+
+    # Refs
+    Beleidsmodules: List[BeleidsmoduleReference]
 
     class Config:
         allow_population_by_field_name = True
         alias_generator = valid_ref_alias
-
-
-class BeleidsprestatieInDB(BeleidsprestatieInDBBase):
-    pass

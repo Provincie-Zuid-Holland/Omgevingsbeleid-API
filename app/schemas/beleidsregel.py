@@ -3,8 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import BeleidskeuzeReference, GebruikerInline
-from app.util.legacy_helpers import valid_ref_alias
+from app.schemas.common import BeleidskeuzeReference, GebruikerInline, valid_ref_alias
 
 # Shared properties
 class BeleidsregelBase(BaseModel):

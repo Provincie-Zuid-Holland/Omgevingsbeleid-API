@@ -8,8 +8,8 @@ from app.schemas.common import (
     BeleidskeuzeReference,
     BeleidskeuzeShortInline,
     GebruikerInline,
+    valid_ref_alias,
 )
-from app.util.legacy_helpers import valid_ref_alias
 
 from .beleidskeuze import BeleidskeuzeInDB
 from .werkingsgebied import WerkingsgebiedShortInline

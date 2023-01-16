@@ -16,7 +16,7 @@ from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
 
 from app.db.base_class import Base
-from app.util.legacy_helpers import SearchFields
+from app.db.base_class import SearchFields
 
 
 if TYPE_CHECKING:

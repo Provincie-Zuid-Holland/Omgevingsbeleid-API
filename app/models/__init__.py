@@ -7,7 +7,7 @@ from .beleidsprestatie import Beleidsprestatie, Beleidskeuze_Beleidsprestaties
 from .beleidsregel import Beleidsregel, Beleidskeuze_Beleidsregels
 from .beleidsrelatie import Beleidsrelatie
 from .gebruiker import Gebruiker
-from .gebiedsprogrammas import Gebiedsprogramma, Maatregel_Gebiedsprogrammas
+from .gebiedsprogrammas import Beleidsmodule_Gebiedsprogrammas, Gebiedsprogramma, Maatregel_Gebiedsprogrammas, Beleidsmodule_Gebiedsprogrammas
 from .maatregel import Maatregel, Beleidskeuze_Maatregelen, Beleidsmodule_Maatregelen
 from .onderverdeling import Onderverdeling
 from .thema import Thema, Beleidskeuze_Themas

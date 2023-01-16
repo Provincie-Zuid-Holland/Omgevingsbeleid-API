@@ -204,9 +204,8 @@ class BeleidsdoelReference(DefaultReferenceSchema):
     class Config:
         getter_dict = RelatedBeleidsdoelGetter
 
+
 # Other shared schemas
-
-
 class LatestVersionInline(BaseModel):
     """
     Schema listing inline version of entity showing the latest
@@ -227,3 +226,43 @@ class LatestVersionInline(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+# Helper functions
+
+# Field aliassing
+def to_ref_field(string: str) -> str:
+    """
+    Custom alias for relationship objects in json output.
+    Used to match the legacy api format: "Ref_*" fields
+    """
+    to_alias = [
+        "Beleidsmodules",
+    ]
+
+    if string not in to_alias:
+        return string
+
+    return "".join(["Ref_", string])
+
+
+def valid_ref_alias(field: str) -> str:
+    aliasses = [
+        "Beleidskeuzes",
+        "Valid_Beleidskeuzes",
+
+        "Beleidsmodules",
+        "Valid_Beleidsmodules",
+
+        "Maatregelen",
+        "Valid_Maatregelen",
+    ]
+
+    if field in aliasses:
+        if field.startswith("Valid_"):
+            field = field[6:]
+
+        field = "".join(["Ref_", field])
+        return field
+
+    return field

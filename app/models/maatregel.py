@@ -19,7 +19,7 @@ from sqlalchemy.orm.session import object_session
 # from app.crud.crud_maatregel import CRUDMaatregel
 
 from app.db.base_class import Base
-from app.util.legacy_helpers import SearchFields
+from app.db.base_class import SearchFields
 
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401

@@ -5,7 +5,7 @@ from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql.expression import func, label, or_
 
 from app.crud.base import CRUDBase
-from app.util.legacy_helpers import RankedSearchObject, SearchFields
+from app.db.base_class import RankedSearchObject, SearchFields
 
 
 RANK_WEIGHT = 1

@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import List
 
 from sqlalchemy import Column, MetaData
@@ -7,8 +8,9 @@ from sqlalchemy_utils import get_mapper, get_columns
 
 from app.core.exceptions import SearchException
 
-
 NULL_UUID = "00000000-0000-0000-0000-000000000000"
+SearchFields = namedtuple("SearchFields", ["title", "description"])
+RankedSearchObject = namedtuple("RankedSearchObject", ["object", "rank"])
 
 metadata = MetaData(
     naming_convention={

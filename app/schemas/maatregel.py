@@ -3,10 +3,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import GebruikerInline, BeleidskeuzeReference
+from app.schemas.common import GebruikerInline, BeleidskeuzeReference, valid_ref_alias
 from app.schemas.werkingsgebied import WerkingsgebiedShortInline
-from app.util.legacy_helpers import valid_ref_alias
-
 
 class MaatregelBase(BaseModel):
     Titel: Optional[str] = None

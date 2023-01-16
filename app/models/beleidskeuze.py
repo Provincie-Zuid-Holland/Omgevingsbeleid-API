@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, List, TYPE_CHECKING
 
 from sqlalchemy import (
@@ -12,12 +13,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Query, relationship
 from sqlalchemy.orm.session import object_session
 from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.db.base_class import Base
-from app.util.legacy_helpers import SearchFields
+from app.db.base_class import SearchFields
 
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401
@@ -33,12 +34,6 @@ class Beleidsmodule_Beleidskeuzes(Base):
 
     Beleidsmodule = relationship("Beleidsmodule", back_populates="Beleidskeuzes")
     Beleidskeuze = relationship("Beleidskeuze", back_populates="Beleidsmodules")
-
-
-class ValidBeleidskeuze(Base):
-    __tablename__ = "Valid_Beleidskeuzes"
-    UUID = Column(UNIQUEIDENTIFIER, primary_key=True)
-    ID = Column(Integer)
 
 
 class Beleidskeuze(Base):
@@ -108,6 +103,7 @@ class Beleidskeuze(Base):
     Opdrachtgever = relationship(
         "Gebruiker", primaryjoin="Beleidskeuze.Opdrachtgever_UUID == Gebruiker.UUID"
     )
+
     Aanpassing_Op = relationship(
         "Beleidskeuze",
         primaryjoin="Beleidskeuze.Aanpassing_Op_UUID == Beleidskeuze.UUID",
@@ -160,37 +156,6 @@ class Beleidskeuze(Base):
             .UUID
         )
 
-    # @property
-    # def Effective_Version(self):
-    #     query = """
-    #             SELECT UUID FROM Valid_beleidskeuzes
-    #             WHERE ID = :BKID
-    #             """
-    #     params = {"BKID": self.ID}
-    #     try:
-    #         result = object_session(self).execute(query, params=params).one()
-    #         return str(result.UUID)
-    #     except NoResultFound:
-    #         return None
-
-    # @property
-    # def is_valid(self):
-    #     query = """
-    #             SELECT UUID FROM Valid_beleidskeuzes
-    #             WHERE ID = :BKID
-    #             """
-    #     params = {"BKID": self.ID}
-    #     try:
-    #         result = object_session(self).execute(query, params=params).one()
-    #         valid_uuid = result.UUID
-
-    #         if self.UUID == valid_uuid:
-    #             return True
-
-    #         return False
-    #     except NoResultFound:
-    #         return False
-
     @classmethod
     def get_search_fields(cls):
         return SearchFields(
@@ -226,3 +191,9 @@ class Beleidskeuze(Base):
             "Status",
             "Tags",
         ]
+
+
+# class ValidBeleidskeuze(Base):
+#     __tablename__ = "Valid_Beleidskeuzes"
+#     UUID = Column(UNIQUEIDENTIFIER, primary_key=True)
+#     ID = Column(Integer)

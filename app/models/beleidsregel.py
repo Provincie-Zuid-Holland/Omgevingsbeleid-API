@@ -16,7 +16,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
-from app.util.legacy_helpers import SearchFields
+from app.db.base_class import SearchFields
 
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401

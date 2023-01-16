@@ -58,6 +58,9 @@ class Beleidsmodule(Base):
     Beleidskeuzes = relationship(
         "Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule"
     )
+    Gebiedsprogrammas = relationship(
+        "Beleidsmodule_Gebiedsprogrammas", back_populates="Beleidsmodule"
+    )
 
     @classmethod
     def get_allowed_filter_keys(cls) -> List[str]:

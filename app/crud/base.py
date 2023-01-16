@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import and_, or_
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Query, Session, aliased, load_only
 from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql import Alias, Subquery, label
@@ -213,8 +213,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         Fetch the last version of a given Lineage
         """
-        item = self.get(uuid=uuid)
-        return self.get_latest_by_id(id=item.ID)
+        try:
+            item = self.get(uuid=uuid)
+            return self.get_latest_by_id(id=item.ID)
+        except NoResultFound:
+            return None
 
     def _build_latest_view_filter(
         self, all: bool, filters: Optional[Filters] = None

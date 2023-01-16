@@ -3,9 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from app.util.legacy_helpers import to_ref_field
-
-from app.schemas.common import GebruikerInline
+from app.schemas.common import GebruikerInline, to_ref_field
 
 
 # Shared properties

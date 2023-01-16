@@ -4,8 +4,7 @@ from typing import Any, List, Optional
 from pydantic import BaseModel
 from pydantic.utils import GetterDict
 
-from app.schemas.common import BeleidskeuzeShortInline, GebruikerInline
-from app.util.legacy_helpers import valid_ref_alias
+from app.schemas.common import BeleidskeuzeShortInline, GebruikerInline, valid_ref_alias
 
 from .beleidskeuze import BeleidskeuzeInDB
 

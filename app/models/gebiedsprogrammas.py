@@ -16,7 +16,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.db.base_class import Base
-from app.util.legacy_helpers import SearchFields
+from app.db.base_class import SearchFields
 
 
 if TYPE_CHECKING:
@@ -35,13 +35,29 @@ class Maatregel_Gebiedsprogrammas(Base):
     Gebiedsprogramma = relationship("Gebiedsprogramma",
                                     back_populates="Maatregelen")
 
+class Beleidsmodule_Gebiedsprogrammas(Base):
+    __tablename__ = "Beleidsmodule_Gebiedsprogrammas"
+
+    Beleidsmodule_UUID = Column(
+        "Beleidsmodule_UUID", ForeignKey("Beleidsmodules.UUID"), primary_key=True
+    )
+    Gebiedsprogramma_UUID = Column(
+        "Gebiedsprogramma_UUID", ForeignKey("Gebiedsprogrammas.UUID"), primary_key=True
+    )
+    Koppeling_Omschrijving = Column(
+        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
+    )
+
+    Beleidsmodule = relationship("Beleidsmodule", back_populates="Gebiedsprogrammas")
+    Gebiedsprogramma = relationship("Gebiedsprogramma", back_populates="Beleidsmodules")
+
 
 class Gebiedsprogramma(Base):
     __tablename__ = "Gebiedsprogrammas"
 
     @declared_attr
     def ID(cls):
-        seq_name = "seq_Ambities"
+        seq_name = "seq_Gebiedsprogrammas"
         seq = Sequence(seq_name)
         return Column(Integer, seq, nullable=False, server_default=seq.next_value())
 
@@ -66,17 +82,23 @@ class Gebiedsprogramma(Base):
     Afbeelding = Column(Unicode)
 
     Created_By = relationship(
-        "Gebruiker", primaryjoin="Ambitie.Created_By_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Gebiedsprogramma.Created_By_UUID == Gebruiker.UUID"
     )
     Modified_By = relationship(
-        "Gebruiker", primaryjoin="Ambitie.Modified_By_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Gebiedsprogramma.Modified_By_UUID == Gebruiker.UUID"
     )
 
     Maatregelen = relationship(
         "Maatregel_Gebiedsprogrammas", 
         back_populates="Gebiedsprogramma", 
         lazy="dynamic"
-    ) #Valid?
+    ) 
+
+    Beleidsmodules = relationship(
+        "Beleidsmodule_Gebiedsprogrammas", 
+        back_populates="Gebiedsprogramma", 
+        # lazy="dynamic"
+    ) 
 
     @hybrid_property
     def All_Maatregelen(self):

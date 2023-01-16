@@ -12,6 +12,7 @@ from app.api.api_v01.endpoints import (
     edits,
     graph,
     gebruikers,
+    gebiedsprogrammas,
     login,
     maatregelen,
     search,
@@ -33,6 +34,7 @@ api_router.include_router(beleidsregels.router, tags=["beleidsregels"])
 api_router.include_router(edits.router, tags=["edits"])
 api_router.include_router(graph.router, tags=["graph"])
 api_router.include_router(gebruikers.router, tags=["gebruikers"])
+api_router.include_router(gebiedsprogrammas.router, tags=["gebiedsprogrammas"])
 api_router.include_router(search.router, tags=["search"])
 api_router.include_router(themas.router, tags=["themas"])
 api_router.include_router(verordeningen.router, tags=["verordeningen"])

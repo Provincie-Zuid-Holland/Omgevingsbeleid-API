@@ -12,7 +12,7 @@ from sqlalchemy_utils import get_mapper
 from app.core.exceptions import DatabaseError
 from app.crud.base import GeoCRUDBase
 from app.db.base_class import NULL_UUID
-from app.models.base import find_mtm_map
+from app.models.base import Status, find_mtm_map
 from app.models.beleidskeuze import Beleidskeuze
 from app.models.werkingsgebied import Beleidskeuze_Werkingsgebieden
 from app.schemas.beleidskeuze import BeleidskeuzeCreate, BeleidskeuzeUpdate
@@ -262,7 +262,6 @@ class CRUDBeleidskeuze(
         )
 
         eager_load_relations = [
-            joinedload(model_alias.Ambities),
             joinedload(model_alias.Belangen),
             joinedload(model_alias.Beleidsdoelen),
             joinedload(model_alias.Beleidsprestaties),
@@ -332,9 +331,9 @@ class CRUDBeleidskeuze(
         Base valid query usable as subquery
         """
         row_number = self._add_rownumber_latest_id()
-        query: Query = (
-            self.db.query(Beleidskeuze, row_number)
-            .filter(Beleidskeuze.Status == "Vigerend")
+        query = (
+            Query([Beleidskeuze, row_number])
+            .filter(Beleidskeuze.Status == Status.VIGEREND.value)
             .filter(Beleidskeuze.UUID != NULL_UUID)
             .filter(Beleidskeuze.Begin_Geldigheid <= datetime.utcnow())
         )

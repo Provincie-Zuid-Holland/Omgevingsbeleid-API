@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.crud.crud_beleidskeuze import LINK_DESCRIPTION
 from app.models.base import MANY_TO_MANY_RELATIONS
-from app.util.legacy_helpers import SearchFields
+from app.db.base_class import SearchFields
 
 
 class GraphService:
