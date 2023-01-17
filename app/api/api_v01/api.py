@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.utils import re
 
 from app.api.api_v01.endpoints import (
     ambities,
@@ -21,7 +22,15 @@ from app.api.api_v01.endpoints import (
     werkingsgebieden,
 )
 
-api_router = APIRouter()
+def generate_unique_id(route: "APIRouter") -> str:
+    route_name = route.name
+    operation_id = route_name
+    operation_id = re.sub("[^0-9a-zA-Z_]", "_", operation_id)
+    # assert route.methods
+    # operation_id = operation_id + "_" + list(route.methods)[0].lower()
+    return operation_id
+
+api_router = APIRouter(generate_unique_id_function=generate_unique_id)
 api_router.include_router(login.router, tags=["login"])
 api_router.include_router(ambities.router, tags=["ambities"])
 api_router.include_router(belangen.router, tags=["belangen"])
