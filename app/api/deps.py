@@ -12,17 +12,17 @@ from app.core.config import settings
 from app.crud import (
     CRUDAmbitie,
     CRUDBelang,
+    CRUDBeleidsdoel,
     CRUDBeleidskeuze,
     CRUDBeleidsmodule,
-    CRUDBeleidsdoel,
     CRUDBeleidsprestatie,
-    CRUDBeleidsrelatie,
     CRUDBeleidsregel,
+    CRUDBeleidsrelatie,
+    CRUDGebruiker,
     CRUDMaatregel,
     CRUDThema,
     CRUDVerordening,
     CRUDVerordeningstructuur,
-    CRUDGebruiker,
     CRUDWerkingsgebied,
 )
 from app.crud.crud_gebiedsprogramma import CRUDGebiedsprogramma
@@ -30,23 +30,23 @@ from app.db.session import SessionLocal
 from app.models import (
     Ambitie,
     Belang,
+    Beleidsdoel,
     Beleidskeuze,
     Beleidsmodule,
-    Beleidsdoel,
     Beleidsprestatie,
-    Beleidsrelatie,
     Beleidsregel,
+    Beleidsrelatie,
+    Gebruiker,
     Maatregel,
     Thema,
     Verordening,
     Verordeningstructuur,
-    Gebruiker,
     Werkingsgebied,
 )
 from app.models.gebiedsprogrammas import Gebiedsprogramma
 from app.schemas import TokenPayload
 from app.schemas.filters import FilterCombiner, Filters
-from app.services import SearchService, GeoSearchService
+from app.services import GeoSearchService, SearchService
 from app.services.graph import GraphService
 
 
