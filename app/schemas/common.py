@@ -248,6 +248,9 @@ def to_ref_field(string: str) -> str:
 
 def valid_ref_alias(field: str) -> str:
     aliasses = [
+        "Beleidsdoelen",
+        "Valid_Beleidsdoelen",
+
         "Beleidskeuzes",
         "Valid_Beleidskeuzes",
 

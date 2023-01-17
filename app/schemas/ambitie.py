@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import BeleidsdoelReference, BeleidskeuzeReference, GebruikerInline
+from app.schemas.common import BeleidsdoelReference, GebruikerInline, valid_ref_alias
 
 
 class AmbitieBase(BaseModel):
@@ -42,22 +42,6 @@ class AmbitieInDB(AmbitieInDBBase):
     pass
 
 
-def reference_alias_generator(field: str) -> str:
-    """
-    Hack to enable manual aliassing of schema output which
-    is not yet supported in FastApi
-    """
-    aliasses = {
-        "Beleidskeuzes": "Ref_Beleidskeuzes",
-        "Valid_Beleidskeuzes": "Ref_Beleidskeuzes",
-    }
-
-    if field in aliasses:
-        return aliasses[field]
-
-    return field
-
-
 class Ambitie(AmbitieInDBBase):
     """
     Full Ambitie object schema with serialized
@@ -71,4 +55,4 @@ class Ambitie(AmbitieInDBBase):
 
     class Config:
         allow_population_by_field_name = True
-        alias_generator = reference_alias_generator
+        alias_generator = valid_ref_alias

@@ -9,7 +9,7 @@ from app import models, schemas
 from app.api import deps
 from app.crud import CRUDBeleidskeuze
 from app.models.gebruiker import GebruikersRol
-from app.schemas.filters import Filters
+from app.schemas.filters import FilterCombiner, Filters
 from app.util.compare import Comparator
 
 router = APIRouter()
@@ -64,11 +64,17 @@ def read_beleidskeuze_lineage(
     lineage_id: int,
     crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
+    filters: Filters = Depends(deps.string_filters),
+    offset: int = 0,
+    limit: int = 20,
 ) -> Any:
     """
     Gets all the beleidskeuzes versions by lineage
     """
-    beleidskeuzes = crud_beleidskeuze.all(filters=Filters({"ID": lineage_id}))
+    filters.add_from_dict(FilterCombiner.AND, {"ID": lineage_id})
+    beleidskeuzes = crud_beleidskeuze.all(
+        filters=filters, offset=offset, limit=limit,
+    )
     if not beleidskeuzes:
         raise HTTPException(status_code=404, detail="Beleidskeuzes not found")
     return beleidskeuzes

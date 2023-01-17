@@ -9,7 +9,7 @@ from app import models, schemas
 from app.api import deps
 from app.crud import CRUDAmbitie
 from app.models.gebruiker import GebruikersRol
-from app.schemas.filters import Filters
+from app.schemas.filters import FilterCombiner, Filters
 from app.util.compare import Comparator
 
 router = APIRouter()
@@ -68,11 +68,17 @@ def read_ambitie_lineage(
     lineage_id: int,
     crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
+    filters: Filters = Depends(deps.string_filters),
+    offset: int = 0,
+    limit: int = 20,
 ) -> Any:
     """
     Gets all the ambities versions by lineage
     """
-    ambities = crud_ambitie.all(filters=Filters({"ID": lineage_id}))
+    filters.add_from_dict(FilterCombiner.AND, {"ID": lineage_id})
+    ambities = crud_ambitie.all(
+        filters=filters, offset=offset, limit=limit,
+    )
     if not ambities:
         raise HTTPException(status_code=404, detail="Ambities not found")
     return ambities

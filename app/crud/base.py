@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from datetime import datetime
+from os import wait
 from typing import Any, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
 from uuid import UUID, uuid4
 
@@ -362,7 +363,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return query.all()
 
     def all(
-        self, select: Optional[List] = None, filters: Optional[Filters] = None
+        self, 
+        select: Optional[List] = None, 
+        filters: Optional[Filters] = None,
+        offset: Optional[int] = 0, 
+        limit: Optional[int] = None,
     ) -> List[ModelType]:
         """
         Fetch all available objects of this model matching
@@ -383,15 +388,16 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if select:
             query = query.options(load_only(*select))
 
-        query.session = self.db
+        if limit:
+            query = query.limit(limit)
 
+        query = query.offset(offset)
+        query.session = self.db
         return query.all()
 
     def find_one(self, filters: Optional[Filters] = None) -> ModelType:
         query = self._build_filtered_query(filters=filters)
-
         query.session = self.db
-
         return query.one()
 
     def search(self, **criteria) -> Query:
