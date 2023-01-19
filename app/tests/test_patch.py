@@ -77,14 +77,10 @@ class TestPatch:
     def test_endpoint_patch_beleidsrelatie(self, client: TestClient, admin_headers, db):
         # Arrange
         bk1 = add_modifiable_object(
-            schema=schemas.BeleidskeuzeCreate, 
-            model=models.Beleidskeuze, 
-            db=db
+            schema=schemas.BeleidskeuzeCreate, model=models.Beleidskeuze, db=db
         )
         bk2 = add_modifiable_object(
-            schema=schemas.BeleidskeuzeCreate,
-            model=models.Beleidskeuze,
-            db=db
+            schema=schemas.BeleidskeuzeCreate, model=models.Beleidskeuze, db=db
         )
 
         br_data = generate_data(

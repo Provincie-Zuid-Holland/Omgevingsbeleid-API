@@ -77,7 +77,9 @@ def read_ambitie_lineage(
     """
     filters.add_from_dict(FilterCombiner.AND, {"ID": lineage_id})
     ambities = crud_ambitie.all(
-        filters=filters, offset=offset, limit=limit,
+        filters=filters,
+        offset=offset,
+        limit=limit,
     )
     if not ambities:
         raise HTTPException(status_code=404, detail="Ambities not found")
@@ -172,7 +174,11 @@ def read_valid_ambitie_lineage(
     return ambities
 
 
-@router.get("/version/ambities/{object_uuid}", response_model=schemas.Ambitie)
+@router.get(
+    path="/version/ambities/{object_uuid}",
+    response_model=schemas.Ambitie,
+    operation_id="read_ambitie_version",
+)
 def read_latest_version_lineage(
     object_uuid: str,
     crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),

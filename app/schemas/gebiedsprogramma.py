@@ -4,13 +4,12 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from app.schemas.common import (
-    BeleidsdoelReference,
-    BeleidskeuzeReference,
     BeleidsmoduleReference,
     GebruikerInline,
     RelatedMaatregel,
     valid_ref_alias,
 )
+
 
 class GebiedsprogrammaBase(BaseModel):
     Status: Optional[str] = None

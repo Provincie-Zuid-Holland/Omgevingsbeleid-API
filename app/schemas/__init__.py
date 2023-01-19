@@ -34,7 +34,11 @@ from .common import (
     LatestVersionInline,
 )
 from .graph import GraphView, LinkItem, NodeItem
-from .gebiedsprogramma import Gebiedsprogramma, GebiedsprogrammaCreate, GebiedsprogrammaUpdate
+from .gebiedsprogramma import (
+    Gebiedsprogramma,
+    GebiedsprogrammaCreate,
+    GebiedsprogrammaUpdate,
+)
 from .maatregel import Maatregel, MaatregelCreate, MaatregelUpdate
 from .msg import Msg
 from .onderverdeling import Onderverdeling, OnderverdelingCreate, OnderverdelingUpdate

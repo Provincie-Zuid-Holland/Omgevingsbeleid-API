@@ -150,7 +150,11 @@ def read_valid_belang_lineage(
     return belangen
 
 
-@router.get("/version/belangen/{object_uuid}", response_model=schemas.Belang)
+@router.get(
+    "/version/belangen/{object_uuid}",
+    response_model=schemas.Belang,
+    operation_id="read_belang_version",
+)
 def read_latest_version_lineage(
     object_uuid: str,
     crud_belang: CRUDBelang = Depends(deps.get_crud_belang),

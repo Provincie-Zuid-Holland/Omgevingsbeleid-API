@@ -163,7 +163,11 @@ def read_valid_maatregel_lineage(
     return maatregelen
 
 
-@router.get("/version/maatregelen/{object_uuid}", response_model=schemas.Maatregel)
+@router.get(
+    "/version/maatregelen/{object_uuid}",
+    response_model=schemas.Maatregel,
+    operation_id="read_maatregel_version",
+)
 def read_latest_version_lineage(
     object_uuid: str,
     crud_maatregel: CRUDMaatregel = Depends(deps.get_crud_maatregel),

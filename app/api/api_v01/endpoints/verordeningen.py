@@ -159,7 +159,11 @@ def read_valid_verordening_lineage(
     return verordeningen
 
 
-@router.get("/version/verordeningen/{object_uuid}", response_model=schemas.Verordening)
+@router.get(
+    "/version/verordeningen/{object_uuid}",
+    response_model=schemas.Verordening,
+    operation_id="read_verordening_version",
+)
 def read_latest_version_lineage(
     object_uuid: str,
     crud_verorderning: CRUDVerordening = Depends(deps.get_crud_verordening),

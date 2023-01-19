@@ -69,10 +69,6 @@ class SearchService:
         """
         Search model for a given search query.
 
-        Args:
-            model (Base): SQLalchemy model entity
-            query (str): the search query
-
         Returns:
             Query: The query object for search execution
         """

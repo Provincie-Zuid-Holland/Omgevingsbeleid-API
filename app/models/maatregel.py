@@ -129,8 +129,7 @@ class Maatregel(Base):
         "Werkingsgebied", primaryjoin="Maatregel.Gebied_UUID == Werkingsgebied.UUID"
     )
     Gebiedsprogrammas = relationship(
-        "Maatregel_Gebiedsprogrammas", 
-        back_populates="Maatregel"
+        "Maatregel_Gebiedsprogrammas", back_populates="Maatregel"
     )
 
     @hybrid_property

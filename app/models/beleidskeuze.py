@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List, List, TYPE_CHECKING
 
 from sqlalchemy import (
@@ -13,7 +12,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import Query, relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import object_session
 from sqlalchemy_utils.functions.orm import hybrid_property
 

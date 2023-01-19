@@ -1,6 +1,5 @@
 from abc import abstractmethod
 from datetime import datetime
-from os import wait
 from typing import Any, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
 from uuid import UUID, uuid4
 
@@ -340,7 +339,6 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         sub_query = valid_query.subquery()
         return aliased(element=self.model, alias=sub_query, name=alias_name)
 
-
     def fetch_graph_nodes(self):
         """
         Return valid objects of entity to process
@@ -363,10 +361,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return query.all()
 
     def all(
-        self, 
-        select: Optional[List] = None, 
+        self,
+        select: Optional[List] = None,
         filters: Optional[Filters] = None,
-        offset: Optional[int] = 0, 
+        offset: Optional[int] = 0,
         limit: Optional[int] = None,
     ) -> List[ModelType]:
         """

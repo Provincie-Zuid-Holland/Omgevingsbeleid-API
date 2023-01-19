@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from app.schemas.common import BeleidskeuzeReference, GebruikerInline, valid_ref_alias
 
+
 class BeleidsprestatieBase(BaseModel):
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None

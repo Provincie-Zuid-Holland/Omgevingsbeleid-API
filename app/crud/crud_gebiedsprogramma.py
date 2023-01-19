@@ -6,9 +6,12 @@ from app.models.base import Status
 from app.models.gebiedsprogrammas import Gebiedsprogramma
 from app.schemas.gebiedsprogramma import GebiedsprogrammaCreate, GebiedsprogrammaUpdate
 
-class CRUDGebiedsprogramma(CRUDBase[Gebiedsprogramma, GebiedsprogrammaCreate, GebiedsprogrammaUpdate]):
 
-    # Extra status vigerend check 
+class CRUDGebiedsprogramma(
+    CRUDBase[Gebiedsprogramma, GebiedsprogrammaCreate, GebiedsprogrammaUpdate]
+):
+
+    # Extra status vigerend check
     def _build_valid_inner_query(self) -> Query:
         """
         Base valid query usable as subquery

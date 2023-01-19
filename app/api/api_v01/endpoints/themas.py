@@ -151,7 +151,11 @@ def read_valid_thema_lineage(
     return themas
 
 
-@router.get("/version/themas/{object_uuid}", response_model=schemas.Thema)
+@router.get(
+    "/version/themas/{object_uuid}",
+    response_model=schemas.Thema,
+    operation_id="read_thema_version",
+)
 def read_latest_version_lineage(
     object_uuid: str,
     crud_thema: CRUDThema = Depends(deps.get_crud_thema),

@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from app.schemas.common import GebruikerInline, BeleidskeuzeReference, valid_ref_alias
 from app.schemas.werkingsgebied import WerkingsgebiedShortInline
 
+
 class MaatregelBase(BaseModel):
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None

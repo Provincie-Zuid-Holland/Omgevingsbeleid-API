@@ -165,7 +165,9 @@ def read_valid_werkingsgebied_lineage(
 
 
 @router.get(
-    "/version/werkingsgebieden/{object_uuid}", response_model=schemas.Werkingsgebied
+    "/version/werkingsgebieden/{object_uuid}",
+    response_model=schemas.Werkingsgebied,
+    operation_id="read_werkingsgebied_version",
 )
 def read_latest_version_lineage(
     object_uuid: str,

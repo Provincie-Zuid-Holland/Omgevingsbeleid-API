@@ -73,7 +73,9 @@ def read_beleidskeuze_lineage(
     """
     filters.add_from_dict(FilterCombiner.AND, {"ID": lineage_id})
     beleidskeuzes = crud_beleidskeuze.all(
-        filters=filters, offset=offset, limit=limit,
+        filters=filters,
+        offset=offset,
+        limit=limit,
     )
     if not beleidskeuzes:
         raise HTTPException(status_code=404, detail="Beleidskeuzes not found")
@@ -171,7 +173,11 @@ def read_valid_beleidskeuze_lineage(
     return beleidskeuzes
 
 
-@router.get("/version/beleidskeuzes/{object_uuid}", response_model=schemas.Beleidskeuze)
+@router.get(
+    "/version/beleidskeuzes/{object_uuid}",
+    response_model=schemas.Beleidskeuze,
+    operation_id="read_beleidskeuze_version",
+)
 def read_latest_version_lineage(
     object_uuid: str,
     crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),

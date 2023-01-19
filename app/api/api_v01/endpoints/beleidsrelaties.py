@@ -166,7 +166,9 @@ def read_valid_beleidsrelatie_lineage(
 
 
 @router.get(
-    "/version/beleidsrelaties/{object_uuid}", response_model=schemas.Beleidsrelatie
+    "/version/beleidsrelaties/{object_uuid}",
+    response_model=schemas.Beleidsrelatie,
+    operation_id="read_beleidsrelatie_version",
 )
 def read_latest_version_lineage(
     object_uuid: str,

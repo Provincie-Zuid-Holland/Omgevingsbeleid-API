@@ -28,6 +28,7 @@ class Status(Enum):
     Enum interface of acceptable Status values which are stored
     as strings in the DB and not validated outside of the api.
     """
+
     DEFINITIEF_GS = "Definitief ontwerp GS"
     DEFINITIEF_GS_CONCEPT = "Definitief ontwerp GS concept"
     DEFINITIEF_PS = "Definitief ontwerp PS"
@@ -48,7 +49,7 @@ class MTMRelation(NamedTuple):
     many-to-many relationships with their foreignkey columns
     """
 
-    model: Any 
+    model: Any
     left: Column
     right: Column
     description: str = "Koppeling_Omschrijving"
@@ -145,5 +146,3 @@ def find_mtm_map(model) -> MTMRelation:
         raise RelationsCopyError("Relation to copy not defined in MTM map")
 
     return mtm_class
-
-

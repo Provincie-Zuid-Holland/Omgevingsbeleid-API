@@ -162,7 +162,11 @@ def read_valid_beleidsregel_lineage(
     return beleidsregels
 
 
-@router.get("/version/beleidsregels/{object_uuid}", response_model=schemas.Beleidsregel)
+@router.get(
+    "/version/beleidsregels/{object_uuid}",
+    response_model=schemas.Beleidsregel,
+    operation_id="read_beleidsregel_version",
+)
 def read_latest_version_lineage(
     object_uuid: str,
     crud_beleidsregel: CRUDBeleidsregel = Depends(deps.get_crud_beleidsregel),

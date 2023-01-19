@@ -79,6 +79,7 @@ class Ambitie(Base):
     @hybrid_property
     def Valid_Beleidsdoelen(self):
         from app.crud.crud_beleidsdoel import crud_beleidsdoel
+
         valid_beleidsdoelen = crud_beleidsdoel.valid_view_as_subquery()
         return self.Beleidsdoelen.join(
             valid_beleidsdoelen,

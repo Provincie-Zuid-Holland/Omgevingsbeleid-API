@@ -28,12 +28,14 @@ class Maatregel_Gebiedsprogrammas(Base):
     __tablename__ = "Maatregel_Gebiedsprogrammas"
 
     Maatregel_UUID = Column(ForeignKey("Maatregelen.UUID"), primary_key=True)
-    Gebiedsprogramma_UUID = Column(ForeignKey("Gebiedsprogrammas.UUID"), primary_key=True)
+    Gebiedsprogramma_UUID = Column(
+        ForeignKey("Gebiedsprogrammas.UUID"), primary_key=True
+    )
     Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
     Maatregel = relationship("Maatregel", back_populates="Gebiedsprogrammas")
-    Gebiedsprogramma = relationship("Gebiedsprogramma",
-                                    back_populates="Maatregelen")
+    Gebiedsprogramma = relationship("Gebiedsprogramma", back_populates="Maatregelen")
+
 
 class Beleidsmodule_Gebiedsprogrammas(Base):
     __tablename__ = "Beleidsmodule_Gebiedsprogrammas"
@@ -89,27 +91,27 @@ class Gebiedsprogramma(Base):
     )
 
     Maatregelen = relationship(
-        "Maatregel_Gebiedsprogrammas", 
-        back_populates="Gebiedsprogramma", 
-        lazy="dynamic"
-    ) 
+        "Maatregel_Gebiedsprogrammas", back_populates="Gebiedsprogramma", lazy="dynamic"
+    )
 
     Beleidsmodules = relationship(
-        "Beleidsmodule_Gebiedsprogrammas", 
-        back_populates="Gebiedsprogramma", 
+        "Beleidsmodule_Gebiedsprogrammas",
+        back_populates="Gebiedsprogramma",
         # lazy="dynamic"
-    ) 
+    )
 
     @hybrid_property
     def All_Maatregelen(self):
-        return self.Maatregelen.all() #TODO: check valid/nonvalid
+        return self.Maatregelen.all()  # TODO: check valid/nonvalid
 
     @hybrid_property
     def Valid_Maatregelen(self):
         from app.crud.crud_maatregel import CRUDMaatregel
+
         valid = CRUDMaatregel.valid_view_static()
         return self.Maatregelen.join(
-            valid, valid.UUID == Maatregel_Gebiedsprogrammas.Maatregel_UUID,
+            valid,
+            valid.UUID == Maatregel_Gebiedsprogrammas.Maatregel_UUID,
         ).all()
 
     @classmethod

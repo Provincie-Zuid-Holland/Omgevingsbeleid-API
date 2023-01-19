@@ -26,7 +26,9 @@ defer_attributes = {
     response_model_exclude=defer_attributes,
 )
 def read_gebiedsprogrammas(
-    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(deps.get_crud_gebiedsprogramma),
+    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(
+        deps.get_crud_gebiedsprogramma
+    ),
     current_gebruiker: Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
@@ -49,7 +51,9 @@ def read_gebiedsprogrammas(
 def create_gebiedsprogramma(
     *,
     gebiedsprogramma_in: schemas.GebiedsprogrammaCreate,
-    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(deps.get_crud_gebiedsprogramma),
+    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(
+        deps.get_crud_gebiedsprogramma
+    ),
     current_gebruiker: Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
@@ -61,11 +65,15 @@ def create_gebiedsprogramma(
     return gebiedsprogramma
 
 
-@router.get("/gebiedsprogrammas/{lineage_id}", response_model=List[schemas.Gebiedsprogramma])
+@router.get(
+    "/gebiedsprogrammas/{lineage_id}", response_model=List[schemas.Gebiedsprogramma]
+)
 def read_gebiedsprogramma_lineage(
     *,
     lineage_id: int,
-    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(deps.get_crud_gebiedsprogramma),
+    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(
+        deps.get_crud_gebiedsprogramma
+    ),
     current_gebruiker: Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
@@ -77,12 +85,16 @@ def read_gebiedsprogramma_lineage(
     return gebiedsprogrammas
 
 
-@router.patch("/gebiedsprogrammas/{lineage_id}", response_model=schemas.Gebiedsprogramma)
+@router.patch(
+    "/gebiedsprogrammas/{lineage_id}", response_model=schemas.Gebiedsprogramma
+)
 def update_gebiedsprogramma(
     *,
     lineage_id: int,
     gebiedsprogramma_in: schemas.GebiedsprogrammaUpdate,
-    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(deps.get_crud_gebiedsprogramma),
+    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(
+        deps.get_crud_gebiedsprogramma
+    ),
     current_gebruiker: Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
@@ -97,7 +109,9 @@ def update_gebiedsprogramma(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
     gebiedsprogramma = crud_gebiedsprogramma.update(
-        db_obj=gebiedsprogramma, obj_in=gebiedsprogramma_in, by_uuid=str(current_gebruiker.UUID)
+        db_obj=gebiedsprogramma,
+        obj_in=gebiedsprogramma_in,
+        by_uuid=str(current_gebruiker.UUID),
     )
     return gebiedsprogramma
 
@@ -106,7 +120,9 @@ def update_gebiedsprogramma(
 def changes_gebiedsprogrammas(
     old_uuid: str,
     new_uuid: str,
-    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(deps.get_crud_gebiedsprogramma),
+    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(
+        deps.get_crud_gebiedsprogramma
+    ),
     current_gebruiker: Gebruiker = Depends(deps.get_current_active_gebruiker),
 ) -> Any:
     """
@@ -120,7 +136,9 @@ def changes_gebiedsprogrammas(
             status_code=404,
             detail=f"Object with UUID {old_uuid} or {new_uuid} does not exist.",
         )
-    json_data = Comparator(schema=schemas.Gebiedsprogramma, old=old, new=new).get_json_result()
+    json_data = Comparator(
+        schema=schemas.Gebiedsprogramma, old=old, new=new
+    ).get_json_result()
     return JSONResponse(content=json_data)
 
 
@@ -130,7 +148,9 @@ def changes_gebiedsprogrammas(
     response_model_exclude=defer_attributes,
 )
 def read_valid_gebiedsprogrammas(
-    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(deps.get_crud_gebiedsprogramma),
+    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(
+        deps.get_crud_gebiedsprogramma
+    ),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
@@ -146,10 +166,15 @@ def read_valid_gebiedsprogrammas(
     return gebiedsprogrammas
 
 
-@router.get("/valid/gebiedsprogrammas/{lineage_id}", response_model=List[schemas.Gebiedsprogramma])
+@router.get(
+    "/valid/gebiedsprogrammas/{lineage_id}",
+    response_model=List[schemas.Gebiedsprogramma],
+)
 def read_valid_gebiedsprogramma_lineage(
     lineage_id: int,
-    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(deps.get_crud_gebiedsprogramma),
+    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(
+        deps.get_crud_gebiedsprogramma
+    ),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
     limit: int = 20,
@@ -161,14 +186,22 @@ def read_valid_gebiedsprogramma_lineage(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
     if not gebiedsprogrammas:
-        raise HTTPException(status_code=404, detail="Gebiedsprogramma lineage not found")
+        raise HTTPException(
+            status_code=404, detail="Gebiedsprogramma lineage not found"
+        )
     return gebiedsprogrammas
 
 
-@router.get("/version/gebiedsprogrammas/{object_uuid}", response_model=schemas.Gebiedsprogramma)
+@router.get(
+    "/version/gebiedsprogrammas/{object_uuid}",
+    response_model=schemas.Gebiedsprogramma,
+    operation_id="read_gebiedsprogramma_version",
+)
 def read_latest_version_lineage(
     object_uuid: str,
-    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(deps.get_crud_gebiedsprogramma),
+    crud_gebiedsprogramma: CRUDGebiedsprogramma = Depends(
+        deps.get_crud_gebiedsprogramma
+    ),
 ) -> Any:
     """
     Finds the lineage of the resource and retrieves the latest
@@ -182,6 +215,8 @@ def read_latest_version_lineage(
     gebiedsprogrammas = crud_gebiedsprogramma.get_latest_by_uuid(uuid=object_uuid)
 
     if not gebiedsprogrammas:
-        raise HTTPException(status_code=404, detail="Gebiedsprogramma lineage not found")
+        raise HTTPException(
+            status_code=404, detail="Gebiedsprogramma lineage not found"
+        )
 
     return gebiedsprogrammas

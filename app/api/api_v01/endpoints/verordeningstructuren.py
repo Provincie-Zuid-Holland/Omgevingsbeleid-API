@@ -189,6 +189,7 @@ def read_valid_verordeningstructuur_lineage(
 @router.get(
     "/version/verordeningstructuren/{object_uuid}",
     response_model=schemas.Verordeningstructuur,
+    operation_id="read_verordeningstructuur_version",
 )
 def read_latest_version_lineage(
     object_uuid: str,

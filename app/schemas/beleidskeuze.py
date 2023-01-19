@@ -8,7 +8,6 @@ from app.schemas.common import (
     BeleidskeuzeShortInline,
     GebruikerInline,
     GenericReferenceUpdate,
-    RelatedAmbitie,
     RelatedBelang,
     RelatedBeleidsdoel,
     RelatedBeleidsprestatie,

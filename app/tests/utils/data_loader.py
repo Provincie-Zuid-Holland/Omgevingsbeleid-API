@@ -9,7 +9,6 @@ from app.core.config import settings
 from app.models import (
     Ambitie,
     Belang,
-    Beleidsdoel_Ambities,
     Beleidskeuze,
     Beleidskeuze_Belangen,
     Beleidskeuze_Beleidsdoelen,
@@ -26,7 +25,6 @@ from app.models import (
     Beleidsprestatie,
     Beleidsregel,
     Beleidsrelatie,
-    Gebiedsprogramma,
     Gebruiker,
     Maatregel,
     Thema,

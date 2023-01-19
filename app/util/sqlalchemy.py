@@ -32,4 +32,3 @@ def get_relationships(model: ModelType) -> ImmutableProperties:
 
 def get_relationship_class(relation: RelationshipProperty) -> DeclarativeMeta:
     return relation.entity.class_
-

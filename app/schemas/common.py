@@ -250,13 +250,10 @@ def valid_ref_alias(field: str) -> str:
     aliasses = [
         "Beleidsdoelen",
         "Valid_Beleidsdoelen",
-
         "Beleidskeuzes",
         "Valid_Beleidskeuzes",
-
         "Beleidsmodules",
         "Valid_Beleidsmodules",
-
         "Maatregelen",
         "Valid_Maatregelen",
     ]
