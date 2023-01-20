@@ -47,7 +47,6 @@ class BeleidskeuzeBase(BaseModel):
     Status: Optional[str] = None
     Weblink: Optional[str] = None
 
-
 class BeleidskeuzeCreate(BeleidskeuzeBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
@@ -119,7 +118,6 @@ class Beleidskeuze(BeleidskeuzeInDB):
     Portefeuillehouder_2: Optional[GebruikerInline]
 
     # Relation serializers
-    Aanpassing_Op: Optional[Any]
     Belangen: List[RelatedBelang]
     Beleidsprestaties: List[RelatedBeleidsprestatie]
     Beleidsregels: List[RelatedBeleidsregel]

@@ -65,7 +65,6 @@ class Beleidskeuze(Base):
         "Portefeuillehouder_2", ForeignKey("Gebruikers.UUID")
     )
     Opdrachtgever_UUID = Column("Opdrachtgever", ForeignKey("Gebruikers.UUID"))
-    Aanpassing_Op_UUID = Column("Aanpassing_Op", ForeignKey("Beleidskeuzes.UUID"))
 
     Titel = Column(Unicode, nullable=False)
     Omschrijving_Keuze = Column(Unicode)
@@ -77,6 +76,8 @@ class Beleidskeuze(Base):
     Tags = Column(Unicode)
     Status = Column(Unicode(50), nullable=False)
     Weblink = Column(Unicode(200))
+
+    Aanpassing_Op = Column("Aanpassing_Op", ForeignKey("Beleidskeuzes.UUID"))
 
     Created_By = relationship(
         "Gebruiker", primaryjoin="Beleidskeuze.Created_By_UUID == Gebruiker.UUID"
@@ -102,12 +103,6 @@ class Beleidskeuze(Base):
     Opdrachtgever = relationship(
         "Gebruiker", primaryjoin="Beleidskeuze.Opdrachtgever_UUID == Gebruiker.UUID"
     )
-
-    Aanpassing_Op = relationship(
-        "Beleidskeuze",
-        primaryjoin="Beleidskeuze.Aanpassing_Op_UUID == Beleidskeuze.UUID",
-    )
-
     Belangen = relationship("Beleidskeuze_Belangen", back_populates="Beleidskeuze")
     Beleidsdoelen = relationship(
         "Beleidskeuze_Beleidsdoelen", back_populates="Beleidskeuze"
@@ -183,7 +178,7 @@ class Beleidskeuze(Base):
             "Opdrachtgever_UUID",
             "Provinciaal_Belang",
             "Aanleiding",
-            "Aanpassing_Op_UUID",
+            "Aanpassing_Op",
             "Afweging",
             "Besluitnummer",
             "Weblink",

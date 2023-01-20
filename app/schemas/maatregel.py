@@ -34,6 +34,8 @@ class MaatregelUpdate(MaatregelCreate):
     Begin_Geldigheid: Optional[datetime]
     Eind_Geldigheid: Optional[datetime]
 
+    Aanpassing_Op: Optional[str]
+
 
 class MaatregelInDBBase(MaatregelBase):
     ID: int
@@ -45,6 +47,7 @@ class MaatregelInDBBase(MaatregelBase):
     Modified_Date: datetime
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
+    Aanpassing_Op: Optional[str]
 
     class Config:
         orm_mode = True

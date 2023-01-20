@@ -81,7 +81,7 @@ class Maatregel(Base):
     Gebied_Duiding = Column(Unicode)
     Tags = Column(Unicode)
 
-    Aanpassing_Op_UUID = Column("Aanpassing_Op", ForeignKey("Maatregelen.UUID"))
+    Aanpassing_Op = Column("Aanpassing_Op", ForeignKey("Maatregelen.UUID"))
     Eigenaar_1_UUID = Column("Eigenaar_1", ForeignKey("Gebruikers.UUID"))
     Eigenaar_2_UUID = Column("Eigenaar_2", ForeignKey("Gebruikers.UUID"))
     Portefeuillehouder_1_UUID = Column(
@@ -107,9 +107,6 @@ class Maatregel(Base):
         "Beleidsmodule_Maatregelen", back_populates="Maatregel"
     )
 
-    Aanpassing_Op = relationship(
-        "Maatregel", primaryjoin="Maatregel.Aanpassing_Op_UUID == Maatregel.UUID"
-    )
     Eigenaar_1 = relationship(
         "Gebruiker", primaryjoin="Maatregel.Eigenaar_1_UUID == Gebruiker.UUID"
     )
@@ -197,7 +194,7 @@ class Maatregel(Base):
             "Gebied_Duiding",
             "Status",
             "Tags",
-            "Aanpassing_Op_UUID",
+            "Aanpassing_Op",
             "Eigenaar_1_UUID",
             "Eigenaar_2_UUID",
             "Portefeuillehouder_1_UUID",

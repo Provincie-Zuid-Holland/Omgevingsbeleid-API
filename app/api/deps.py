@@ -179,14 +179,10 @@ def get_crud_gebiedsprogramma(db: Session = Depends(get_db)) -> CRUDGebiedsprogr
 
 def get_crud_werkingsgebied(
     db: Session = Depends(get_db),
-    crud_beleidskeuze: CRUDBeleidskeuze = Depends(get_crud_beleidskeuze),
-    crud_maatregel: CRUDMaatregel = Depends(get_crud_maatregel),
 ) -> CRUDWerkingsgebied:
     return CRUDWerkingsgebied(
         model=Werkingsgebied,
         db=db,
-        crud_beleidskeuze=crud_beleidskeuze,
-        crud_maatregel=crud_maatregel,
     )
 
 

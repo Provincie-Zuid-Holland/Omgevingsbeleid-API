@@ -8,7 +8,9 @@ from sqlalchemy.sql.expression import Alias, or_
 from app.crud.base import CRUDBase, ModelType
 from app import models
 from app.db.base_class import NULL_UUID
+from app.models.beleidskeuze import Beleidskeuze
 from app.models.werkingsgebied import Werkingsgebied
+from app.models.maatregel import Maatregel
 from app.schemas.werkingsgebied import WerkingsgebiedCreate, WerkingsgebiedUpdate
 from app.crud import CRUDBeleidskeuze, CRUDMaatregel
 
@@ -16,16 +18,11 @@ from app.crud import CRUDBeleidskeuze, CRUDMaatregel
 class CRUDWerkingsgebied(
     CRUDBase[Werkingsgebied, WerkingsgebiedCreate, WerkingsgebiedUpdate]
 ):
-    def __init__(
-        self,
-        model: Type[ModelType],
-        db: Session,
-        crud_beleidskeuze: CRUDBeleidskeuze,
-        crud_maatregel: CRUDMaatregel,
-    ):
-        super(CRUDBase, self).__init__(model, db)
-        self.crud_beleidskeuze = crud_beleidskeuze
-        self.crud_maatregel = crud_maatregel
+    def __init__(self, model: Type[ModelType], db: Session):
+        self.model = model
+        self.db = db
+        self.crud_beleidskeuze = CRUDBeleidskeuze(model=Beleidskeuze, db=db)
+        self.crud_maatregel = CRUDMaatregel(model=Maatregel, db=db)
 
     def get(self, uuid: str) -> Werkingsgebied:
         return (
@@ -70,7 +67,7 @@ class CRUDWerkingsgebied(
         Base valid query usable as subquery
         """
         row_number = self._add_rownumber_latest_id()
-        query = Query(Werkingsgebied, row_number).filter(
+        query = Query([Werkingsgebied, row_number]).filter(
             Werkingsgebied.UUID != NULL_UUID
         )
         return query

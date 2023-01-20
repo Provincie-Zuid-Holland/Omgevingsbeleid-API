@@ -12,10 +12,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get(
-    "/graph",
-    response_model=schemas.GraphView,
-)
+@router.get("/graph", response_model=schemas.GraphView)
 def graph(
     graph_service: GraphService = Depends(get_graph_service),
     current_gebruiker: Gebruiker = Depends(get_current_active_gebruiker),

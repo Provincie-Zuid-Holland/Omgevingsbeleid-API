@@ -880,12 +880,12 @@ class FixtureLoader:
         if not "Tags" in kwargs:
             kwargs["Tags"] = ""
 
-        if "Aanpassing_Op_UUID" in kwargs:
-            kwargs["Aanpassing_Op_UUID"] = self._instances[
-                kwargs["Aanpassing_Op_UUID"]
+        if "Aanpassing_Op" in kwargs:
+            kwargs["Aanpassing_Op"] = self._instances[
+                kwargs["Aanpassing_Op"]
             ].UUID
         else:
-            kwargs["Aanpassing_Op_UUID"] = settings.NULL_UUID
+            kwargs["Aanpassing_Op"] = settings.NULL_UUID
 
         if "Eigenaar_1_UUID" in kwargs:
             kwargs["Eigenaar_1_UUID"] = self._instances[kwargs["Eigenaar_1_UUID"]].UUID
