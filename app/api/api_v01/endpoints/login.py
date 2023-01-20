@@ -9,6 +9,8 @@ from app.api import deps
 from app.crud import CRUDGebruiker
 from app.core import security
 from app.core.config import settings
+from app.models.gebruiker import Gebruiker
+from app.schemas.gebruiker import PasswordUpdate
 
 
 router = APIRouter()
@@ -40,4 +42,26 @@ def login_access_token(
         ),
         "token_type": "bearer",
         "identifier": gebruiker,
+    }
+
+
+@router.post("/password-reset")
+def password_reset(
+    password_in: PasswordUpdate,
+    gebruiker: Gebruiker = Depends(deps.get_current_active_gebruiker),
+    crud_gebruiker: CRUDGebruiker = Depends(deps.get_crud_gebruiker),
+) -> Any:
+    current_hashed: str = gebruiker.Wachtwoord
+    valid = security.verify_password(password_in.password, current_hashed)
+
+    if not valid:
+        raise HTTPException(status_code=401, detail="Incorrect password")
+
+    crud_gebruiker.password_change(
+        user=gebruiker,
+        new_password=password_in.new_password
+    )
+    
+    return {
+        "message": "success"
     }

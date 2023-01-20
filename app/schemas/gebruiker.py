@@ -3,7 +3,6 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 
-# Shared properties
 class GebruikerBase(BaseModel):
     Gebruikersnaam: Optional[str] = None
     Rol: Optional[str] = None
@@ -18,6 +17,11 @@ class GebruikerCreate(GebruikerBase):
 
 class GebruikerUpdate(GebruikerBase):
     Wachtwoord: Optional[str] = None
+
+
+class PasswordUpdate(BaseModel):
+    password: str
+    new_password: str
 
 
 class GebruikerInDBBase(GebruikerBase):

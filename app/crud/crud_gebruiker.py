@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional, Union
 
 from sqlalchemy.exc import NoResultFound
+from app.core.exceptions import DatabaseError
 
 from app.core.security import get_password_hash, verify_password
 from app.crud.base import CRUDBase
@@ -41,6 +42,18 @@ class CRUDGebruiker(CRUDBase[Gebruiker, GebruikerCreate, GebruikerUpdate]):
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
         return super().update(db_obj=db_obj, obj_in=update_data)
+
+    def password_change(self, user: Gebruiker, new_password: str) -> Gebruiker:
+        hashed_passwd = get_password_hash(new_password)
+        setattr(user, "Wachtwoord", hashed_passwd)
+
+        try:
+            self.db.commit()
+            self.db.refresh(user)
+            return user
+        except:
+            self.db.rollback()
+            raise DatabaseError()
 
     def authenticate(self, username: str, password: str) -> Optional[Gebruiker]:
         try:
