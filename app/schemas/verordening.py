@@ -31,22 +31,35 @@ class RelatedBeleidskeuze(BeleidskeuzeShortInline):
 
 # Shared properties
 class VerordeningBase(BaseModel):
+    Type: str
+    Status: str
+    Volgnummer: str 
+
     Titel: Optional[str] = None
     Inhoud: Optional[str] = None
     Weblink: Optional[str] = None
-    Status: Optional[str] = None
-    Type: Optional[str] = None
-    Gebied_UUID: Optional[str] = None
-    Volgnummer: Optional[str] = None
 
 
 class VerordeningCreate(VerordeningBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
+    Portefeuillehouder_1_UUID: Optional[str]
+    Portefeuillehouder_2_UUID: Optional[str]
+    Eigenaar_1_UUID: Optional[str]
+    Eigenaar_2_UUID: Optional[str]
+
+    Opdrachtgever_UUID: Optional[str] = None
+    Gebied_UUID: Optional[str] = None
+
 
 class VerordeningUpdate(VerordeningCreate):
-    pass
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
+
+    Type: Optional[str] = None
+    Volgnummer: Optional[str] = None
+    Status: Optional[str] = None
 
 
 class VerordeningInDBBase(VerordeningBase):
@@ -84,6 +97,5 @@ class Verordening(VerordeningInDBBase):
         alias_generator = valid_ref_alias
 
 
-# Properties properties stored in DB
 class VerordeningInDB(VerordeningInDBBase):
     pass
