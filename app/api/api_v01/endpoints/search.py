@@ -72,6 +72,7 @@ def search(
         try:
             description = getattr(item.object, search_description[0].key)
             search_result = schemas.SearchResult(
+                Titel=item.object.Titel,
                 Omschrijving=description,
                 Type=item.object.__tablename__,
                 RANK=item.rank,

@@ -3,7 +3,8 @@ from pydantic import BaseModel
 
 
 class SearchResult(BaseModel):
-    Omschrijving: Optional[str]
+    Titel: Optional[str] = ""
+    Omschrijving: Optional[str] = ""
     Type: str
     RANK: int
     UUID: str
