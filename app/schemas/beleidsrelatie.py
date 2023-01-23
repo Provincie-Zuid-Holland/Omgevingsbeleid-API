@@ -14,8 +14,8 @@ class BeleidsrelatieBase(BaseModel):
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None
     Status: Optional[str] = None
-    Aanvraag_Datum = datetime
-    Datum_Akkoord = datetime
+    Aanvraag_Datum: Optional[datetime]
+    Datum_Akkoord: Optional[datetime]
 
 
 class BeleidsrelatieCreate(BeleidsrelatieBase):

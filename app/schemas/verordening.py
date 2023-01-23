@@ -2,34 +2,16 @@ from datetime import datetime
 from typing import Any, List, Optional
 
 from pydantic import BaseModel
-from pydantic.utils import GetterDict
 
 from app.schemas.common import (
     BeleidskeuzeReference,
-    BeleidskeuzeShortInline,
     GebruikerInline,
     valid_ref_alias,
 )
 
-from .beleidskeuze import BeleidskeuzeInDB
 from .werkingsgebied import WerkingsgebiedShortInline
 
-# Many to many schema's
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        keys = BeleidskeuzeInDB.__fields__.keys()
-        if key in keys:
-            return getattr(self._obj.Beleidskeuze, key)
-        else:
-            return super(RelatedBeleidskeuzeGetter, self).get(key, default)
 
-
-class RelatedBeleidskeuze(BeleidskeuzeShortInline):
-    class Config:
-        getter_dict = RelatedBeleidskeuzeGetter
-
-
-# Shared properties
 class VerordeningBase(BaseModel):
     Type: str
     Status: str
