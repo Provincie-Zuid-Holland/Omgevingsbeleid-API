@@ -90,17 +90,43 @@ def search(
     return SearchResultWrapper(results=results, total=total)
 
 
-@router.get(
-    "/geo-search",
-    response_model=SearchResultWrapper,
-)
+@router.get("/geo-search", response_model=SearchResultWrapper)
 def geo_search(
     query: str,
-    geo_search_service: GeoSearchService = Depends(deps.get_geo_search_service),
+    only: Optional[str] = None,
+    exclude: Optional[str] = None,
+    offset: int = 0,
+    limit: int = 20,
+    search_service: GeoSearchService = Depends(deps.get_geo_search_service),
 ) -> Any:
     """
     Lookup geo-searchable entities related to a 'Werkingsgebied'
     """
+    # Validate filters
+    if only and exclude:
+        raise HTTPException(
+            status_code=403, detail="cannot use both exclude and only parameters"
+        )
+
+    # Filter searchables
+    searchables_to_exclude = list()
+
+    if only is not None:
+        only_list = [item.strip().lower() for item in only.split(",")]
+        for crud in search_service.search_entities:
+            if crud.model.__name__.lower() not in only_list:
+                searchables_to_exclude.append(crud)
+
+    if exclude is not None:
+        exclude_list = [item.strip().lower() for item in exclude.split(",")]
+        for crud in search_service.search_entities:
+            if crud.model.__name__.lower() in exclude_list:
+                searchables_to_exclude.append(crud)
+
+    # exclude from search
+    for crud in searchables_to_exclude:
+        search_service.search_entities.remove(crud)
+
     try:
         query_list = [uuid for uuid in query.split(",")]
     except Exception:
@@ -108,6 +134,7 @@ def geo_search(
             status_code=403, detail="Invalid list of Werkingsgebied UUIDs"
         )
 
-    search_results = geo_search_service.geo_search(query_list)
+    search_results = search_service.geo_search(query_list)
+    results = get_limited_list(search_results, limit=limit, offset=offset)
 
-    return SearchResultWrapper(results=search_results, total=len(search_results))
+    return SearchResultWrapper(results=results, total=len(search_results))

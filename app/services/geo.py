@@ -12,7 +12,7 @@ RANK_WEIGHT_HEAVY = 100
 
 class GeoSearchService:
     def __init__(self, geo_cruds: List[GeoCRUDBase]):
-        self.geo_cruds = geo_cruds
+        self.search_entities = geo_cruds
 
     def geo_search(
         self, uuid_list: List[str], limit: int = 10
@@ -26,8 +26,7 @@ class GeoSearchService:
         """
         search_results = []
 
-        # for model, service, schema in GEO_SEARCHABLES:
-        for crud in self.geo_cruds:
+        for crud in self.search_entities:
             if len(search_results) >= limit:
                 return search_results
 
