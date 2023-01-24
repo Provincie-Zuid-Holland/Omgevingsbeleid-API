@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -15,7 +15,7 @@ from .werkingsgebied import WerkingsgebiedShortInline
 class VerordeningBase(BaseModel):
     Type: str
     Status: str
-    Volgnummer: str 
+    Volgnummer: str
 
     Titel: Optional[str] = None
     Inhoud: Optional[str] = None

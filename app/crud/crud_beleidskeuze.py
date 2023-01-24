@@ -114,9 +114,6 @@ class CRUDBeleidskeuze(
         new_data["Modified_Date"] = datetime.now()
         new_data["Modified_By_UUID"] = by_uuid
 
-        # if not "Aanpassing_Op" in update_data:
-        #     new_bk_data.pop("Aanpassing_Op")
-
         new_bk = Beleidskeuze(**new_data)
 
         # Create relationship assoc rows

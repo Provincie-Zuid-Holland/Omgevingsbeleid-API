@@ -58,10 +58,7 @@ def password_reset(
         raise HTTPException(status_code=401, detail="Incorrect password")
 
     crud_gebruiker.password_change(
-        user=gebruiker,
-        new_password=password_in.new_password
+        user=gebruiker, new_password=password_in.new_password
     )
-    
-    return {
-        "message": "success"
-    }
+
+    return {"message": "success"}

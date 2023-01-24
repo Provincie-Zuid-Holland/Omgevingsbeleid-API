@@ -23,7 +23,7 @@ from app.models.maatregel import Beleidskeuze_Maatregelen
 
 
 @unique
-class Status(Enum):
+class Status(str, Enum):
     """
     Enum interface of acceptable Status values which are stored
     as strings in the DB and not validated outside of the api.

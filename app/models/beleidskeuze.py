@@ -185,9 +185,3 @@ class Beleidskeuze(Base):
             "Status",
             "Tags",
         ]
-
-
-# class ValidBeleidskeuze(Base):
-#     __tablename__ = "Valid_Beleidskeuzes"
-#     UUID = Column(UNIQUEIDENTIFIER, primary_key=True)
-#     ID = Column(Integer)

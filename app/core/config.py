@@ -11,18 +11,12 @@ class Settings(BaseSettings):
 
     DEBUG_MODE: bool = bool(os.getenv("DEBUG_MODE", 0))
 
-    SECRET_KEY: str = os.getenv(
-        "JWT_SECRET", "secret"
-    )  # @todo: secrets.token_urlsafe(32)
+    SECRET_KEY: str = os.getenv("JWT_SECRET", "secret")
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 4
 
     # SERVER_NAME: str
     # SERVER_HOST: AnyHttpUrl
-
-    # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
-    # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
-    # "http://localhost:8080", "http://local.dockertoolbox.tiangolo.com"]'
 
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
@@ -35,6 +29,11 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     PROJECT_NAME: str = "Omgevingsbeleid API"
+    PROJECT_DESC: str = """
+        This API serves all the object that make up the policies 
+        of a provincial government. 
+        """
+    OPENAPI_LOGO: str = "https://avatars.githubusercontent.com/u/60095455?s=200&v=4"
 
     # SENTRY_DSN: Optional[HttpUrl] = None
     # @validator("SENTRY_DSN", pre=True)

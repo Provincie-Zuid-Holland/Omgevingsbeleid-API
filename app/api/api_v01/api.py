@@ -24,9 +24,12 @@ from app.api.api_v01.endpoints import (
 
 
 def custom_operation_id(route: "APIRouter") -> str:
-    route_name = route.name
-    operation_id = route_name
-    operation_id = re.sub("[^0-9a-zA-Z_]", "_", operation_id)
+    """
+    For openapi spec, this overwrites the long generated operation IDs
+    to only route name. if you need custom operationid op a specific
+    endpoints, set it on the route using operation_id=X param.
+    """
+    operation_id = re.sub("[^0-9a-zA-Z_]", "_", route.name)
     return operation_id
 
 

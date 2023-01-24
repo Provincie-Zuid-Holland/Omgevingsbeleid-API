@@ -3,6 +3,7 @@ import sys
 
 import debugpy
 from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
 from starlette.middleware.cors import CORSMiddleware
 import uvicorn
 
@@ -11,9 +12,7 @@ from app.api.api_v01.api import api_router as api_router_v01
 from app.core import exceptions
 from app.core.config import get_settings
 
-
 settings = get_settings()
-
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -43,8 +42,24 @@ def create_app() -> FastAPI:
 
     return app
 
-
+# Main app instance
 app = create_app()
+
+# OpenAPI extending
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title=settings.PROJECT_NAME,
+        version="1.1.5",
+        description=settings.PROJECT_DESC,
+        routes=app.routes,
+    )
+    openapi_schema["info"]["x-logo"] = { "url": settings.OPENAPI_LOGO }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 # Logging
 logger = logging.getLogger(__name__)

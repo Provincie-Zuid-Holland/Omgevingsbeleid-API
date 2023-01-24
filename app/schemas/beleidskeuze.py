@@ -1,7 +1,9 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
+
+from app.models.base import Status as StatusEnum
 
 from app.schemas.common import (
     BeleidsmoduleReference,
@@ -34,9 +36,9 @@ def reference_alias_generator(field: str) -> str:
     return field
 
 
-# Shared properties
 class BeleidskeuzeBase(BaseModel):
-    Titel: Optional[str] = None
+    Status: StatusEnum
+    Titel: str
     Omschrijving_Keuze: Optional[str] = None
     Omschrijving_Werking: Optional[str] = None
     Provinciaal_Belang: Optional[str] = None
@@ -44,8 +46,8 @@ class BeleidskeuzeBase(BaseModel):
     Afweging: Optional[str] = None
     Besluitnummer: Optional[str] = None
     Tags: Optional[str] = None
-    Status: Optional[str] = None
     Weblink: Optional[str] = None
+
 
 class BeleidskeuzeCreate(BeleidskeuzeBase):
     Begin_Geldigheid: datetime
@@ -65,6 +67,9 @@ class BeleidskeuzeCreate(BeleidskeuzeBase):
 class BeleidskeuzeUpdate(BeleidskeuzeCreate):
     Begin_Geldigheid: Optional[datetime]
     Eind_Geldigheid: Optional[datetime]
+
+    Status: Optional[StatusEnum]
+    Titel: Optional[str]
 
     Aanpassing_Op: Optional[str]
 
@@ -104,11 +109,8 @@ class Beleidskeuze(BeleidskeuzeInDB):
     """
     Full beleidskeuze object schema with serialized
     many to many relationships.
-
-    TODO: cannot alias aanpassing_op, self reference conflict orm model
     """
 
-    # User serializers
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
