@@ -3,7 +3,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import BeleidskeuzeReference, GebruikerInline, valid_ref_alias
+from app.schemas.common import GebruikerInline, strip_UUID, valid_ref_alias
+from app.schemas.reference import BeleidskeuzeReference
 
 
 class WerkingsgebiedBase(BaseModel):
@@ -16,17 +17,16 @@ class WerkingsgebiedCreate(WerkingsgebiedBase):
     Eind_Geldigheid: datetime
 
 
-class WerkingsgebiedUpdate(WerkingsgebiedBase):
-    pass
+class WerkingsgebiedUpdate(WerkingsgebiedCreate):
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
 
 
 class WerkingsgebiedInDBBase(WerkingsgebiedBase):
     ID: int
     UUID: str
 
-    Created_By: str
     Created_Date: datetime
-    Modified_By: str
     Modified_Date: datetime
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
@@ -34,6 +34,20 @@ class WerkingsgebiedInDBBase(WerkingsgebiedBase):
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True
+
+
+class WerkingsgebiedInDB(WerkingsgebiedInDBBase):
+    Created_By: str
+    Modified_By: str
+
+
+class WerkingsgebiedInline(WerkingsgebiedInDBBase):
+    Created_By_UUID: str
+    Modified_By_UUID: str
+
+    class Config:
+        allow_population_by_field_name = True
+        alias_generator = strip_UUID
 
 
 class Werkingsgebied(WerkingsgebiedInDBBase):
@@ -50,10 +64,6 @@ class Werkingsgebied(WerkingsgebiedInDBBase):
     class Config:
         allow_population_by_field_name = True
         alias_generator = valid_ref_alias
-
-
-class WerkingsgebiedInDB(WerkingsgebiedInDBBase):
-    pass
 
 
 class WerkingsgebiedShortInline(BaseModel):

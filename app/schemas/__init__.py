@@ -5,8 +5,8 @@ from .beleidskeuze import (
     Beleidskeuze,
     BeleidskeuzeCreate,
     BeleidskeuzeInDB,
-    BeleidskeuzeUpdate,
     BeleidskeuzeListable,
+    BeleidskeuzeUpdate,
 )
 from .beleidsmodule import Beleidsmodule, BeleidsmoduleCreate, BeleidsmoduleUpdate
 from .beleidsprestatie import (
@@ -16,12 +16,23 @@ from .beleidsprestatie import (
 )
 from .beleidsregel import Beleidsregel, BeleidsregelCreate, BeleidsregelUpdate
 from .beleidsrelatie import Beleidsrelatie, BeleidsrelatieCreate, BeleidsrelatieUpdate
+from .common import BeleidskeuzeShortInline, GebruikerInline, LatestVersionInline
+from .gebiedsprogramma import (
+    Gebiedsprogramma,
+    GebiedsprogrammaCreate,
+    GebiedsprogrammaUpdate,
+)
 from .gebruiker import Gebruiker, GebruikerCreate, GebruikerInDB, GebruikerUpdate
-from .common import (
+from .graph import GraphView, LinkItem, NodeItem
+from .maatregel import Maatregel, MaatregelCreate, MaatregelUpdate
+from .msg import Msg
+from .onderverdeling import Onderverdeling, OnderverdelingCreate, OnderverdelingUpdate
+from .reference import (
+    BeleidsdoelReference,
     BeleidskeuzeReference,
     BeleidsmoduleReference,
-    BeleidskeuzeShortInline,
-    GebruikerInline,
+)
+from .related import (
     RelatedAmbitie,
     RelatedBelang,
     RelatedBeleidsdoel,
@@ -31,17 +42,7 @@ from .common import (
     RelatedThema,
     RelatedVerordeningen,
     RelatedWerkingsgebied,
-    LatestVersionInline,
 )
-from .graph import GraphView, LinkItem, NodeItem
-from .gebiedsprogramma import (
-    Gebiedsprogramma,
-    GebiedsprogrammaCreate,
-    GebiedsprogrammaUpdate,
-)
-from .maatregel import Maatregel, MaatregelCreate, MaatregelUpdate
-from .msg import Msg
-from .onderverdeling import Onderverdeling, OnderverdelingCreate, OnderverdelingUpdate
 from .search import GeoSearchResult, SearchResult, SearchResultWrapper
 from .thema import Thema, ThemaCreate, ThemaUpdate
 from .token import Token, TokenPayload

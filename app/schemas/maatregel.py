@@ -3,7 +3,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import GebruikerInline, BeleidskeuzeReference, valid_ref_alias
+from app.schemas.common import GebruikerInline, strip_UUID, valid_ref_alias
+from app.schemas.reference import BeleidskeuzeReference
 from app.schemas.werkingsgebied import WerkingsgebiedShortInline
 
 
@@ -41,9 +42,7 @@ class MaatregelInDBBase(MaatregelBase):
     ID: int
     UUID: str
 
-    Created_By: str
     Created_Date: datetime
-    Modified_By: str
     Modified_Date: datetime
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
@@ -52,6 +51,20 @@ class MaatregelInDBBase(MaatregelBase):
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True
+
+
+class MaatregelInDB(MaatregelInDBBase):
+    Created_By: str
+    Modified_By: str
+
+
+class MaatregelInline(MaatregelInDBBase):
+    Created_By_UUID: str
+    Modified_By_UUID: str
+
+    class Config:
+        allow_population_by_field_name = True
+        alias_generator = strip_UUID
 
 
 class Maatregel(MaatregelInDBBase):
@@ -101,7 +114,3 @@ class MaatregelListable(BaseModel):
     class Config:
         orm_mode = True
         allow_population_by_field_name = True
-
-
-class MaatregelInDB(MaatregelInDBBase):
-    pass

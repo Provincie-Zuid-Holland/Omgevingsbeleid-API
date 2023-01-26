@@ -4,12 +4,9 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from app.models.base import Status as StatusEnum
-
-from app.schemas.common import (
-    BeleidsmoduleReference,
-    BeleidskeuzeShortInline,
-    GebruikerInline,
-    GenericReferenceUpdate,
+from app.schemas.common import GebruikerInline, to_ref_field
+from app.schemas.reference import BeleidsmoduleReference, GenericReferenceUpdate
+from app.schemas.related import (
     RelatedBelang,
     RelatedBeleidsdoel,
     RelatedBeleidsprestatie,
@@ -20,20 +17,7 @@ from app.schemas.common import (
     RelatedWerkingsgebied,
 )
 
-
-def reference_alias_generator(field: str) -> str:
-    """
-    Hack to enable manual aliassing of schema output which
-    is not yet supported in FastApi
-    """
-    aliasses = {
-        "Beleidsmodules": "Ref_Beleidsmodules",
-    }
-
-    if field in aliasses:
-        return aliasses[field]
-
-    return field
+### Beleidskeuze Schemas ###
 
 
 class BeleidskeuzeBase(BaseModel):
@@ -134,10 +118,10 @@ class Beleidskeuze(BeleidskeuzeInDB):
 
     class Config:
         allow_population_by_field_name = True
-        alias_generator = reference_alias_generator
+        alias_generator = to_ref_field
 
 
-class BeleidskeuzeListable(BeleidskeuzeShortInline):
+class BeleidskeuzeListable(BaseModel):
     """
     Schema containing bare crud details and descriptions
     for usage in list views.
@@ -162,4 +146,4 @@ class BeleidskeuzeListable(BeleidskeuzeShortInline):
     class Config:
         orm_mode = True
         allow_population_by_field_name = True
-        alias_generator = reference_alias_generator
+        alias_generator = to_ref_field

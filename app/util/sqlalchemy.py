@@ -32,3 +32,11 @@ def get_relationships(model: ModelType) -> ImmutableProperties:
 
 def get_relationship_class(relation: RelationshipProperty) -> DeclarativeMeta:
     return relation.entity.class_
+
+
+def get_column_info(model_class):
+    column_types = get_column_types(model_class)
+    columns = []
+    for column in class_mapper(model_class).columns:
+        columns.append((column.name, column_types[column.name]))
+    return columns

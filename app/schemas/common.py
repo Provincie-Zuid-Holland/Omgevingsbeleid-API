@@ -1,16 +1,14 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
+from pydantic import create_model
+from pydantic.config import BaseConfig
 from pydantic.main import BaseModel
-from pydantic.utils import GetterDict
-
-# Relations
-class GenericReferenceUpdate(BaseModel):
-    UUID: str
-    Koppeling_Omschrijving: str
+from sqlalchemy.inspection import inspect
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, String
 
 
-# Inline
+# Common inline schemas
 class BeleidskeuzeShortInline(BaseModel):
     ID: int
     UUID: str
@@ -31,180 +29,6 @@ class GebruikerInline(BaseModel):
         arbitrary_types_allowed = True
 
 
-# Default getter schemas used for many<->many relations having additional fields
-# By overwriting pydantics GetterDict we ensure the joined object in the
-# associasion table can be returned using standard schemas.
-#
-# Inherit from or overwrite RelatedSchema to change per case if needed.
-# REF_NAME is the ORM attribute name of the joined object in associason.
-#
-# Fields from both the assoc and joinec object can be added to the RelatedSchema
-# to be serialized.
-#
-
-# Generic
-class DefaultGetter(GetterDict):
-    REF_NAME: Optional[str] = None
-
-    def get(self, key: str, default: Any = None) -> Any:
-        if (key == "Object") and (self.REF_NAME is not None):
-            return getattr(self._obj, self.REF_NAME).__dict__
-        else:
-            return getattr(self._obj, key, default)
-
-
-class DefaultRelatedSchema(BaseModel):
-    Koppeling_Omschrijving: Optional[str]
-    Object: Optional[Any]
-
-    class Config:
-        orm_mode = True
-        getter_dict = DefaultGetter
-
-
-# Entity getters
-class AmbitieGetter(DefaultGetter):
-    REF_NAME = "Ambitie"
-
-
-class RelatedAmbitie(DefaultRelatedSchema):
-    class Config:
-        getter_dict = AmbitieGetter
-
-
-class BelangGetter(DefaultGetter):
-    REF_NAME = "Belang"
-
-
-class RelatedBelang(DefaultRelatedSchema):
-    class Config:
-        getter_dict = BelangGetter
-
-
-class BeleidskeuzeGetter(DefaultGetter):
-    REF_NAME = "Beleidskeuze"
-
-
-class RelatedBeleidskeuze(DefaultRelatedSchema):
-    class Config:
-        getter_dict = BeleidskeuzeGetter
-
-
-class BeleidsprestatieGetter(DefaultGetter):
-    REF_NAME = "Beleidsprestatie"
-
-
-class RelatedBeleidsprestatie(DefaultRelatedSchema):
-    class Config:
-        getter_dict = BeleidsprestatieGetter
-
-
-class BeleidsregelGetter(DefaultGetter):
-    REF_NAME = "Beleidsregel"
-
-
-class RelatedBeleidsregel(DefaultRelatedSchema):
-    class Config:
-        getter_dict = BeleidsregelGetter
-
-
-class ThemaGetter(DefaultGetter):
-    REF_NAME = "Thema"
-
-
-class RelatedThema(DefaultRelatedSchema):
-    class Config:
-        getter_dict = ThemaGetter
-
-
-class VerordeningenGetter(DefaultGetter):
-    REF_NAME = "Verordeningen"
-
-
-class RelatedVerordeningen(DefaultRelatedSchema):
-    class Config:
-        getter_dict = VerordeningenGetter
-
-
-class WerkingsgebiedGetter(DefaultGetter):
-    REF_NAME = "Werkingsgebied"
-
-
-class RelatedWerkingsgebied(DefaultRelatedSchema):
-    class Config:
-        getter_dict = WerkingsgebiedGetter
-
-
-class BeleidsdoelGetter(DefaultGetter):
-    REF_NAME = "Beleidsdoel"
-
-
-class RelatedBeleidsdoel(DefaultRelatedSchema):
-    class Config:
-        getter_dict = BeleidsdoelGetter
-
-
-class MaatregelGetter(DefaultGetter):
-    REF_NAME = "Maatregel"
-
-
-class RelatedMaatregel(DefaultRelatedSchema):
-    class Config:
-        getter_dict = MaatregelGetter
-
-
-# Other Refs
-class DefaultReferenceSchema(BaseModel):
-    ID: int
-    UUID: str
-    Titel: Optional[str]
-
-    class Config:
-        orm_mode = True
-        # getter_dict = <GETTER>
-
-
-class RelatedValidBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        return getattr(self._obj.Valid_Beleidskeuze, key)
-
-
-class ValidBeleidskeuzeReference(DefaultReferenceSchema):
-    class Config:
-        getter_dict = RelatedValidBeleidskeuzeGetter
-
-
-class RelatedBeleidskeuzeGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        return getattr(self._obj.Beleidskeuze, key)
-
-
-class BeleidskeuzeReference(DefaultReferenceSchema):
-    class Config:
-        getter_dict = RelatedBeleidskeuzeGetter
-
-
-class RelatedBeleidsmoduleGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        return getattr(self._obj.Beleidsmodule, key)
-
-
-class BeleidsmoduleReference(DefaultReferenceSchema):
-    class Config:
-        getter_dict = RelatedBeleidsmoduleGetter
-
-
-class RelatedBeleidsdoelGetter(GetterDict):
-    def get(self, key: str, default: Any = None) -> Any:
-        return getattr(self._obj.Beleidsdoel, key)
-
-
-class BeleidsdoelReference(DefaultReferenceSchema):
-    class Config:
-        getter_dict = RelatedBeleidsdoelGetter
-
-
-# Other shared schemas
 class LatestVersionInline(BaseModel):
     """
     Schema listing inline version of entity showing the latest
@@ -227,15 +51,24 @@ class LatestVersionInline(BaseModel):
         orm_mode = True
 
 
-# Helper functions
-
 # Field aliassing
+def strip_UUID(string: str) -> str:
+    """
+    Hack to strip _UUID off the json output since pydantic aliasses
+    are broken with fastapi.
+    """
+    if string.endswith("_UUID"):
+        return string[:-5]
+    return string
+
+
 def to_ref_field(string: str) -> str:
     """
     Custom alias for relationship objects in json output.
     Used to match the legacy api format: "Ref_*" fields
     """
     to_alias = [
+        "Beleidskeuzes",
         "Beleidsmodules",
     ]
 
@@ -246,6 +79,10 @@ def to_ref_field(string: str) -> str:
 
 
 def valid_ref_alias(field: str) -> str:
+    """
+    Custom alias for relationship objects in json output.
+    Used to match the legacy api format: "Ref_*" fields
+    """
     aliasses = [
         "Beleidsdoelen",
         "Valid_Beleidsdoelen",
@@ -265,3 +102,41 @@ def valid_ref_alias(field: str) -> str:
         return field
 
     return field
+
+
+# Pydantic common methods
+
+
+def create_pydantic_model(sqlalchemy_model):
+    """
+    Convert a sqlalchemy model to a simple pydantic schema
+    base on defined column attributes.
+
+    Used to DRY for Inline schemas in schemas.related
+    """
+    # Use the inspect module to extract column names and types
+    inspector = inspect(sqlalchemy_model)
+    fields = {}
+    for cname, column in inspector.columns.items():
+        # Map SQLAlchemy column types to Python data types
+        python_type = (str, None)
+        if isinstance(column.type, String):
+            python_type = (str, None)
+        elif isinstance(column.type, Integer):
+            python_type = (int, None)
+        elif isinstance(column.type, Boolean):
+            python_type = (bool, None)
+        elif isinstance(column.type, DateTime):
+            python_type = (datetime, None)
+
+        # Add the column name and type to the fields dictionary
+        fields[str(cname)] = python_type
+
+    # Pydantic config
+    class InlineConfig(BaseConfig):
+        orm_mode = True
+
+    # Create the Pydantic model
+    name = f"{sqlalchemy_model.__name__}Inline"
+    pydantic_model = create_model(name, __config__=InlineConfig, **fields)
+    return pydantic_model

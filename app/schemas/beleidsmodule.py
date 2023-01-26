@@ -3,12 +3,9 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import (
-    GebruikerInline,
-    GenericReferenceUpdate,
-    RelatedBeleidskeuze,
-    RelatedMaatregel,
-)
+from app.schemas.common import GebruikerInline
+from app.schemas.reference import GenericReferenceUpdate
+from app.schemas.related import RelatedBeleidskeuze, RelatedMaatregel
 
 
 class BeleidsmoduleBase(BaseModel):

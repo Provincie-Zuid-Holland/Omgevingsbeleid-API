@@ -3,12 +3,9 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.common import (
-    BeleidsmoduleReference,
-    GebruikerInline,
-    RelatedMaatregel,
-    valid_ref_alias,
-)
+from app.schemas.common import GebruikerInline, valid_ref_alias
+from app.schemas.related import RelatedMaatregel
+from app.schemas.reference import BeleidsmoduleReference
 
 
 class GebiedsprogrammaBase(BaseModel):
