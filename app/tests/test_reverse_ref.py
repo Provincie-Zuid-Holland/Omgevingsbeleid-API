@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 
 from app.core.config import settings
 from app.models.base import Status
-from app.schemas import AmbitieCreate, BeleidskeuzeCreate
+from app.schemas import BelangCreate, BeleidskeuzeCreate
 from app.tests.utils.mock_data import generate_data
 import pytest
 
@@ -14,13 +14,13 @@ class TestReverseReferences:
         Test reverse lookups work and show the correct inlined objects
         """
         # Create Ambitie
-        ambitie_data = generate_data(AmbitieCreate)
-        ambitie_data["Eind_Geldigheid"] = str(settings.MAX_DATETIME)
+        belang_data = generate_data(BelangCreate)
+        belang_data["Eind_Geldigheid"] = str(settings.MAX_DATETIME)
 
         response = client.post(
-            "v0.1/ambities",
+            "v0.1/belangen",
             headers=admin_headers,
-            json=ambitie_data,
+            json=belang_data,
         )
         assert (
             response.status_code == 200
@@ -29,17 +29,17 @@ class TestReverseReferences:
             response.json()["Ref_Beleidskeuzes"] == []
         ), f"Reverse lookup not empty on post. Body content: {response.json}"
 
-        ambitie_id = response.json()["ID"]
-        ambitie_uuid = response.json()["UUID"]
+        belang_id = response.json()["ID"]
+        belang_uuid = response.json()["UUID"]
 
         # Create a new Beleidskeuze
         beleidskeuze_data = generate_data(BeleidskeuzeCreate)
         beleidskeuze_data["Status"] = Status.VIGEREND.value
         beleidskeuze_data["Eind_Geldigheid"] = str(settings.MAX_DATETIME)
         # set relation with ambitie
-        beleidskeuze_data["Ambities"] = [
+        beleidskeuze_data["Belangen"] = [
             {
-                "UUID": ambitie_uuid,
+                "UUID": belang_uuid,
                 "Koppeling_Omschrijving": "Automated test koppeling",
             }
         ]
@@ -51,7 +51,7 @@ class TestReverseReferences:
             response.status_code == 200
         ), f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
         assert (
-            response.json()["Ambities"][0]["Object"]["UUID"] == ambitie_uuid
+            response.json()["Belangen"][0]["Object"]["UUID"] == belang_uuid
         ), f"Nested objects are not on object. Body content: {response.json}"
 
         beleidskeuze_id = response.json()["ID"]
@@ -59,7 +59,7 @@ class TestReverseReferences:
 
         # Get the ambitie
         response = client.get(
-            f"v0.1/ambities/{ambitie_id}",
+            f"v0.1/belangen/{belang_id}",
             headers=admin_headers,
         )
         assert (
@@ -82,13 +82,13 @@ class TestReverseReferences:
             response.status_code == 200
         ), f"Status code for POST was {response.status_code}, should be 200. Body content: {response.json}"
         assert (
-            response.json()["Ambities"][0]["Object"]["UUID"] == ambitie_uuid
+            response.json()["Belangen"][0]["Object"]["UUID"] == belang_uuid
         ), f"Nested objects are not on object. Body content: {response.json}"
         beleidskeuze_latest_id = response.json()["ID"]
         beleidskeuze_latest_uuid = response.json()["UUID"]
 
         # Get the ambitie
-        response = client.get(f"v0.1/ambities/{ambitie_id}", headers=admin_headers)
+        response = client.get(f"v0.1/belangen/{belang_id}", headers=admin_headers)
         assert (
             response.status_code == 200
         ), f"Status code for GET was {response.status_code}, should be 200. Body content: {response.json}"
