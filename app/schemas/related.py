@@ -14,6 +14,8 @@ from app.models import (
     Verordening,
     Werkingsgebied,
 )
+from app.models.beleidskeuze import Beleidskeuze
+from app.models.gebiedsprogrammas import Gebiedsprogramma
 from app.schemas.common import create_pydantic_model
 
 
@@ -76,6 +78,7 @@ class BeleidskeuzeGetter(DefaultGetter):
 
 
 class RelatedBeleidskeuze(DefaultRelatedSchema):
+    Object: NewType("BeleidskeuzeInline", create_pydantic_model(Beleidskeuze))
     class Config:
         getter_dict = BeleidskeuzeGetter
 
@@ -100,6 +103,17 @@ class RelatedBeleidsregel(DefaultRelatedSchema):
 
     class Config:
         getter_dict = BeleidsregelGetter
+
+
+class GebiedsprogrammaGetter(DefaultGetter):
+    REF_NAME = "Gebiedsprogramma"
+
+
+class RelatedGebiedsprogramma(DefaultRelatedSchema):
+    Object: NewType("GebiedsprogrammaInline",
+                    create_pydantic_model(Gebiedsprogramma))
+    class Config:
+        getter_dict = GebiedsprogrammaGetter
 
 
 class ThemaGetter(DefaultGetter):

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.schemas.common import GebruikerInline
 from app.schemas.reference import GenericReferenceUpdate
-from app.schemas.related import RelatedBeleidskeuze, RelatedMaatregel
+from app.schemas.related import RelatedBeleidskeuze, RelatedGebiedsprogramma, RelatedMaatregel
 
 
 class BeleidsmoduleBase(BaseModel):
@@ -19,6 +19,7 @@ class BeleidsmoduleCreate(BeleidsmoduleBase):
 
     Beleidskeuzes: Optional[List[GenericReferenceUpdate]]
     Maatregelen: Optional[List[GenericReferenceUpdate]]
+    Gebiedsprogrammas: Optional[List[GenericReferenceUpdate]]
 
 
 class BeleidsmoduleUpdate(BeleidsmoduleBase):
@@ -27,6 +28,7 @@ class BeleidsmoduleUpdate(BeleidsmoduleBase):
 
     Beleidskeuzes: Optional[List[GenericReferenceUpdate]]
     Maatregelen: Optional[List[GenericReferenceUpdate]]
+    Gebiedsprogrammas: Optional[List[GenericReferenceUpdate]]
 
 
 class BeleidsmoduleInDBBase(BeleidsmoduleBase):
@@ -59,6 +61,7 @@ class Beleidsmodule(BeleidsmoduleInDBBase):
 
     Beleidskeuzes: List[RelatedBeleidskeuze]
     Maatregelen: List[RelatedMaatregel]
+    Gebiedsprogrammas: List[RelatedGebiedsprogramma]
 
     class Config:
         allow_population_by_field_name = True
