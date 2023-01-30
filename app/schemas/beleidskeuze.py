@@ -50,8 +50,7 @@ class BeleidskeuzeCreate(BeleidskeuzeBase):
     Verordeningen: Optional[List[GenericReferenceUpdate]] = []
     Werkingsgebieden: Optional[List[GenericReferenceUpdate]] = []
     Beleidsdoelen: Optional[List[GenericReferenceUpdate]] = []
-
-    # Beleidsrelaties + Modules?
+    Maatregelen: Optional[List[GenericReferenceUpdate]] = []
 
 
 class BeleidskeuzeUpdate(BeleidskeuzeCreate):
@@ -144,7 +143,7 @@ class BeleidskeuzeListable(BaseModel):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
-    Status: str
+    Status: StatusEnum
     Titel: str
 
     Beleidsmodules: List[BeleidsmoduleReference]
