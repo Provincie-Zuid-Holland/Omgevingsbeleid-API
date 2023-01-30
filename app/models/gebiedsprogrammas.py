@@ -101,21 +101,21 @@ class Gebiedsprogramma(Base):
     )
 
     Eigenaar_1 = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuze.Eigenaar_1_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Gebiedsprogramma.Eigenaar_1_UUID == Gebruiker.UUID"
     )
     Eigenaar_2 = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuze.Eigenaar_2_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Gebiedsprogramma.Eigenaar_2_UUID == Gebruiker.UUID"
     )
     Portefeuillehouder_1 = relationship(
         "Gebruiker",
-        primaryjoin="Beleidskeuze.Portefeuillehouder_1_UUID == Gebruiker.UUID",
+        primaryjoin="Gebiedsprogramma.Portefeuillehouder_1_UUID == Gebruiker.UUID",
     )
     Portefeuillehouder_2 = relationship(
         "Gebruiker",
-        primaryjoin="Beleidskeuze.Portefeuillehouder_2_UUID == Gebruiker.UUID",
+        primaryjoin="Gebiedsprogramma.Portefeuillehouder_2_UUID == Gebruiker.UUID",
     )
     Opdrachtgever = relationship(
-        "Gebruiker", primaryjoin="Beleidskeuze.Opdrachtgever_UUID == Gebruiker.UUID"
+        "Gebruiker", primaryjoin="Gebiedsprogramma.Opdrachtgever_UUID == Gebruiker.UUID"
     )
 
     Maatregelen = relationship(
