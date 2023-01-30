@@ -9,6 +9,7 @@ from app.schemas.reference import BeleidskeuzeReference
 
 from .werkingsgebied import WerkingsgebiedShortInline
 
+
 class VerordeningBase(BaseModel):
     Type: str
     Status: StatusEnum

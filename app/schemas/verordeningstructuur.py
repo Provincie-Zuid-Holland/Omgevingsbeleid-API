@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from app.models.base import Status as StatusEnum
 from app.schemas.common import GebruikerInline, to_ref_field
 
+
 class VerordeningstructuurBase(BaseModel):
     Titel: str
     Structuur: str
@@ -53,5 +54,3 @@ class Verordeningstructuur(VerordeningstructuurInDBBase):
     class Config:
         allow_population_by_field_name = True
         alias_generator = to_ref_field
-
-

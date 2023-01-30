@@ -79,6 +79,7 @@ class BeleidskeuzeGetter(DefaultGetter):
 
 class RelatedBeleidskeuze(DefaultRelatedSchema):
     Object: NewType("BeleidskeuzeInline", create_pydantic_model(Beleidskeuze))
+
     class Config:
         getter_dict = BeleidskeuzeGetter
 
@@ -110,8 +111,8 @@ class GebiedsprogrammaGetter(DefaultGetter):
 
 
 class RelatedGebiedsprogramma(DefaultRelatedSchema):
-    Object: NewType("GebiedsprogrammaInline",
-                    create_pydantic_model(Gebiedsprogramma))
+    Object: NewType("GebiedsprogrammaInline", create_pydantic_model(Gebiedsprogramma))
+
     class Config:
         getter_dict = GebiedsprogrammaGetter
 

@@ -200,6 +200,40 @@ class TestPatch:
             json_obj["Titel"] == "patched"
         ), "Expected Title field updated after patch"
 
+    def test_endpoint_patch_gebiedsprogrammas(
+        self, client: TestClient, admin_headers, db
+    ):
+        # Arrange
+        maatregel: Maatregel = add_modifiable_object(
+            schema=schemas.MaatregelCreate, model=models.Maatregel, db=db
+        )
+
+        gebiedsprog_data = generate_data(obj_schema=schemas.GebiedsprogrammaCreate)
+
+        base_obj = add_modifiable_object(
+            schema=schemas.GebiedsprogrammaCreate,
+            model=models.Gebiedsprogramma,
+            db=db,
+            data=gebiedsprog_data,
+        )
+
+        # Act
+        patch_data = {"Titel": "patched"}
+        response = client.patch(
+            url=f"v0.1/gebiedsprogrammas/{base_obj.ID}",
+            headers=admin_headers,
+            json=patch_data,
+        )
+        assert response.status_code == 200, f"Status code was {response.status_code}"
+
+        # Assert
+        json_obj = response.json()
+        assert json_obj["UUID"] != base_obj.UUID, "Excepted new UUID after patch"
+        assert json_obj["ID"] == base_obj.ID
+        assert (
+            json_obj["Titel"] == "patched"
+        ), "Expected Title field updated after patch"
+
     # def test_non_copy_field(self, client: TestClient, admin_headers):
     #     # create beleidskeuze lineage
     #     test_data = generate_data(schemas.BeleidskeuzeCreate)

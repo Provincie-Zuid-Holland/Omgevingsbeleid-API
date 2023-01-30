@@ -5,7 +5,11 @@ from pydantic import BaseModel
 
 from app.schemas.common import GebruikerInline
 from app.schemas.reference import GenericReferenceUpdate
-from app.schemas.related import RelatedBeleidskeuze, RelatedGebiedsprogramma, RelatedMaatregel
+from app.schemas.related import (
+    RelatedBeleidskeuze,
+    RelatedGebiedsprogramma,
+    RelatedMaatregel,
+)
 
 
 class BeleidsmoduleBase(BaseModel):

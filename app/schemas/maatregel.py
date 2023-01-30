@@ -8,6 +8,7 @@ from app.schemas.common import GebruikerInline, strip_UUID, valid_ref_alias
 from app.schemas.reference import BeleidskeuzeReference
 from app.schemas.werkingsgebied import WerkingsgebiedShortInline
 
+
 class MaatregelBase(BaseModel):
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None
