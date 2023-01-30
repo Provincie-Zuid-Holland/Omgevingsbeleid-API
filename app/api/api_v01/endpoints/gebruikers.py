@@ -5,16 +5,13 @@ from fastapi import APIRouter, Depends
 
 from app.api.deps import get_crud_gebruiker, get_current_active_gebruiker
 from app.crud.crud_gebruiker import CRUDGebruiker
-from app.schemas import Gebruiker
+from app.schemas import Gebruiker, GebruikerInline
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get(
-    "/gebruikers",
-    response_model=List[Gebruiker],
-)
+@router.get("/gebruikers", response_model=List[GebruikerInline])
 def gebruikers(
     current_gebruiker: Gebruiker = Depends(get_current_active_gebruiker),
     crud_gebruiker: CRUDGebruiker = Depends(get_crud_gebruiker),
