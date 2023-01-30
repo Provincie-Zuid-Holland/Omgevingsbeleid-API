@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.schemas.common import GebruikerInline, valid_ref_alias
 from app.schemas.related import RelatedMaatregel
-from app.schemas.reference import BeleidsmoduleReference
+from app.schemas.reference import BeleidsmoduleReference, GenericReferenceUpdate
 
 
 class GebiedsprogrammaBase(BaseModel):
@@ -21,10 +21,20 @@ class GebiedsprogrammaCreate(GebiedsprogrammaBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
+    Eigenaar_1_UUID: Optional[str]
+    Eigenaar_2_UUID: Optional[str]
+    Portefeuillehouder_1_UUID: Optional[str]
+    Portefeuillehouder_2_UUID: Optional[str]
+    Opdrachtgever_UUID: Optional[str]
+
+    Maatregelen: Optional[List[GenericReferenceUpdate]] = []
+
 
 class GebiedsprogrammaUpdate(GebiedsprogrammaCreate):
     Begin_Geldigheid: Optional[datetime]
     Eind_Geldigheid: Optional[datetime]
+
+    Maatregelen: Optional[List[GenericReferenceUpdate]]
 
 
 class GebiedsprogrammaInDBBase(GebiedsprogrammaBase):

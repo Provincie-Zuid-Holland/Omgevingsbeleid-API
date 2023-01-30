@@ -76,6 +76,16 @@ class Gebiedsprogramma(Base):
         "Modified_By", ForeignKey("Gebruikers.UUID"), nullable=False
     )
 
+    Eigenaar_1_UUID = Column("Eigenaar_1", ForeignKey("Gebruikers.UUID"))
+    Eigenaar_2_UUID = Column("Eigenaar_2", ForeignKey("Gebruikers.UUID"))
+    Portefeuillehouder_1_UUID = Column(
+        "Portefeuillehouder_1", ForeignKey("Gebruikers.UUID")
+    )
+    Portefeuillehouder_2_UUID = Column(
+        "Portefeuillehouder_2", ForeignKey("Gebruikers.UUID")
+    )
+    Opdrachtgever_UUID = Column("Opdrachtgever", ForeignKey("Gebruikers.UUID"))
+
     Status = Column(Unicode)
     Titel = Column(Unicode(150), nullable=False)
     Omschrijving = Column(Unicode)
@@ -88,6 +98,24 @@ class Gebiedsprogramma(Base):
     )
     Modified_By = relationship(
         "Gebruiker", primaryjoin="Gebiedsprogramma.Modified_By_UUID == Gebruiker.UUID"
+    )
+
+    Eigenaar_1 = relationship(
+        "Gebruiker", primaryjoin="Beleidskeuze.Eigenaar_1_UUID == Gebruiker.UUID"
+    )
+    Eigenaar_2 = relationship(
+        "Gebruiker", primaryjoin="Beleidskeuze.Eigenaar_2_UUID == Gebruiker.UUID"
+    )
+    Portefeuillehouder_1 = relationship(
+        "Gebruiker",
+        primaryjoin="Beleidskeuze.Portefeuillehouder_1_UUID == Gebruiker.UUID",
+    )
+    Portefeuillehouder_2 = relationship(
+        "Gebruiker",
+        primaryjoin="Beleidskeuze.Portefeuillehouder_2_UUID == Gebruiker.UUID",
+    )
+    Opdrachtgever = relationship(
+        "Gebruiker", primaryjoin="Beleidskeuze.Opdrachtgever_UUID == Gebruiker.UUID"
     )
 
     Maatregelen = relationship(
