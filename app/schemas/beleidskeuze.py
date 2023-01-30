@@ -37,6 +37,12 @@ class BeleidskeuzeCreate(BeleidskeuzeBase):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
+    Eigenaar_1_UUID: Optional[str]
+    Eigenaar_2_UUID: Optional[str]
+    Portefeuillehouder_1_UUID: Optional[str]
+    Portefeuillehouder_2_UUID: Optional[str]
+    Opdrachtgever_UUID: Optional[str]
+
     Belangen: Optional[List[GenericReferenceUpdate]] = []
     Beleidsprestaties: Optional[List[GenericReferenceUpdate]] = []
     Beleidsregels: Optional[List[GenericReferenceUpdate]] = []
