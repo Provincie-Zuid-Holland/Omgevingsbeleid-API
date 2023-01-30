@@ -7,6 +7,8 @@ from pydantic.main import BaseModel
 from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, String
 
+from app.models.base import Status as StatusEnum
+
 
 # Common inline schemas
 class BeleidskeuzeShortInline(BaseModel):
@@ -41,7 +43,7 @@ class LatestVersionInline(BaseModel):
     UUID: str
 
     Modified_Date: datetime
-    Status: str
+    Status: StatusEnum
     Titel: str
 
     Effective_Version: Optional[str]

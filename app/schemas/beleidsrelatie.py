@@ -2,18 +2,17 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
-from app.schemas.beleidskeuze import Beleidskeuze
 
-from app.schemas.common import (
-    GebruikerInline,
-)
+from app.models.base import Status as StatusEnum
+from app.schemas.beleidskeuze import Beleidskeuze
+from app.schemas.common import GebruikerInline
 
 
 # Shared properties
 class BeleidsrelatieBase(BaseModel):
-    Titel: Optional[str] = None
-    Omschrijving: Optional[str] = None
-    Status: Optional[str] = None
+    Titel: str
+    Status: StatusEnum
+    Omschrijving: Optional[str]
     Aanvraag_Datum: Optional[datetime]
     Datum_Akkoord: Optional[datetime]
 
@@ -29,6 +28,9 @@ class BeleidsrelatieCreate(BeleidsrelatieBase):
 class BeleidsrelatieUpdate(BeleidsrelatieCreate):
     Begin_Geldigheid: Optional[datetime]
     Eind_Geldigheid: Optional[datetime]
+
+    Titel: Optional[str]
+    Status: Optional[StatusEnum]
 
     Van_Beleidskeuze_UUID: Optional[str]
     Naar_Beleidskeuze_UUID: Optional[str]

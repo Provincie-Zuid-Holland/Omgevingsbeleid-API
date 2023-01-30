@@ -3,10 +3,10 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
+from app.models.base import Status as StatusEnum
 from app.schemas.common import GebruikerInline, strip_UUID, valid_ref_alias
 from app.schemas.reference import BeleidskeuzeReference
 from app.schemas.werkingsgebied import WerkingsgebiedShortInline
-
 
 class MaatregelBase(BaseModel):
     Titel: Optional[str] = None
@@ -14,7 +14,7 @@ class MaatregelBase(BaseModel):
     Toelichting: Optional[str] = None
     Toelichting_Raw: Optional[str] = None
     Weblink: Optional[str] = None
-    Status: Optional[str] = None
+    Status: Optional[StatusEnum] = None
     Gebied_Duiding: Optional[str] = None
     Tags: Optional[str] = None
 
@@ -108,7 +108,7 @@ class MaatregelListable(BaseModel):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
-    Status: str
+    Status: StatusEnum
     Titel: str
 
     class Config:

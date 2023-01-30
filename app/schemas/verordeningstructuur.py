@@ -3,14 +3,13 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from app.models.base import Status as StatusEnum
 from app.schemas.common import GebruikerInline, to_ref_field
 
-
-# Shared properties
 class VerordeningstructuurBase(BaseModel):
-    Titel: Optional[str] = None
-    Structuur: Optional[str] = None
-    Status: Optional[str] = None
+    Titel: str
+    Structuur: str
+    Status: StatusEnum
 
 
 class VerordeningstructuurCreate(VerordeningstructuurBase):
@@ -19,7 +18,12 @@ class VerordeningstructuurCreate(VerordeningstructuurBase):
 
 
 class VerordeningstructuurUpdate(VerordeningstructuurCreate):
-    pass
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
+
+    Titel: Optional[str]
+    Status: Optional[StatusEnum]
+    Structuur: Optional[str]
 
 
 class VerordeningstructuurInDBBase(VerordeningstructuurBase):
@@ -38,7 +42,10 @@ class VerordeningstructuurInDBBase(VerordeningstructuurBase):
         arbitrary_types_allowed = True
 
 
-# Properties to return to client
+class VerordeningstructuurInDB(VerordeningstructuurInDBBase):
+    pass
+
+
 class Verordeningstructuur(VerordeningstructuurInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
@@ -48,6 +55,3 @@ class Verordeningstructuur(VerordeningstructuurInDBBase):
         alias_generator = to_ref_field
 
 
-# Properties properties stored in DB
-class VerordeningstructuurInDB(VerordeningstructuurInDBBase):
-    pass

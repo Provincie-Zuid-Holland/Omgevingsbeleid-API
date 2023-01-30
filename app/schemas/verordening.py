@@ -3,15 +3,15 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
+from app.models.base import Status as StatusEnum
 from app.schemas.common import GebruikerInline, strip_UUID, valid_ref_alias
 from app.schemas.reference import BeleidskeuzeReference
 
 from .werkingsgebied import WerkingsgebiedShortInline
 
-
 class VerordeningBase(BaseModel):
     Type: str
-    Status: str
+    Status: StatusEnum
     Volgnummer: str
 
     Titel: Optional[str] = None
@@ -36,9 +36,9 @@ class VerordeningUpdate(VerordeningCreate):
     Begin_Geldigheid: Optional[datetime]
     Eind_Geldigheid: Optional[datetime]
 
-    Type: Optional[str] = None
-    Volgnummer: Optional[str] = None
-    Status: Optional[str] = None
+    Type: Optional[str]
+    Volgnummer: Optional[str]
+    Status: Optional[StatusEnum]
 
 
 class VerordeningInDBBase(VerordeningBase):
