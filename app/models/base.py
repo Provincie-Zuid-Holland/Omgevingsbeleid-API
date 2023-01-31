@@ -43,6 +43,40 @@ class Status(str, Enum):
     VIGEREND_GEARCHIVEERD = "Vigerend gearchiveerd"
 
 
+@unique
+class RelatieStatus(str, Enum):
+    """
+    Enum interface of acceptable Beleidsrelatie Status values which are stored
+    as strings in the DB and not validated outside of the api.
+    """
+
+    OPEN = "Open"
+    AKKOORD = "Akkoord"
+    NIETAKKOORD = "NietAkkoord"
+    VERBROKEN = "Verbroken"
+
+
+@unique
+class BeleidsrelatieType(str, Enum):
+    """
+    Enum interface of acceptable Beleidsrelatie Status values which are stored
+    as strings in the DB and not validated outside of the api.
+    """
+
+    Beleidskeuze = "beleidskeuzes"
+    Beleidsrelatie = "beleidsrelaties"
+    Beleidsmodule = "beleidsmodules"
+    Ambitie = "ambities"
+    Belang = "belangen"
+    Beleidsdoel = "beleidsdoelen"
+    Beleidsprestatie = "beleidsprestaties"
+    Maatregel = "maatregelen"
+    Thema = "themas"
+    Werkingsgebied = "werkingsgebieden"
+    Verordening = "verordeningen"
+    Gebiedsprogramma = "gebiedsprogrammas"
+
+
 class MTMRelation(NamedTuple):
     """
     Typed NamedTuple helper to generically map

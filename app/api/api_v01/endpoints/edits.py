@@ -7,6 +7,7 @@ from app import schemas
 from app.api.deps import get_crud_beleidskeuze, get_crud_maatregel
 from app.crud.crud_beleidskeuze import CRUDBeleidskeuze
 from app.crud.crud_maatregel import CRUDMaatregel
+from app.models.base import BeleidsrelatieType
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -27,11 +28,11 @@ def edits(
     # Beleidskeuzes
     result_beleidskeuzes = crud_beleidskeuze.latest(all=True)
     for bk in result_beleidskeuzes:
-        setattr(bk, "Type", "beleidskeuze")
+        setattr(bk, "Type", BeleidsrelatieType.Beleidskeuze.value)
 
     # Maatregelen
     result_maatregelen = crud_maatregel.latest(all=True)
     for maat in result_maatregelen:
-        setattr(maat, "Type", "maatregel")
+        setattr(maat, "Type", BeleidsrelatieType.Maatregel.value)
 
     return result_beleidskeuzes + result_maatregelen

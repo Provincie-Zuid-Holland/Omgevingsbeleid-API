@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from app.models.base import Status as StatusEnum
+from app.models.base import RelatieStatus as StatusEnum
 from app.schemas.beleidskeuze import Beleidskeuze
 from app.schemas.common import GebruikerInline
 

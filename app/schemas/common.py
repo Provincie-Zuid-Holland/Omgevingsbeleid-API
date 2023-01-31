@@ -8,6 +8,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, String
 
 from app.models.base import Status as StatusEnum
+from app.models.base import BeleidsrelatieType as TypeEnum
 
 
 # Common inline schemas
@@ -47,7 +48,7 @@ class LatestVersionInline(BaseModel):
     Titel: str
 
     Effective_Version: Optional[str]
-    Type: str
+    Type: TypeEnum
 
     class Config:
         orm_mode = True
