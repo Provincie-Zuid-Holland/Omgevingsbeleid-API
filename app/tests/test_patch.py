@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from app.models.base import RelatieStatus
 import pytest
 
 from app import models, schemas
@@ -83,12 +84,14 @@ class TestPatch:
             schema=schemas.BeleidskeuzeCreate, model=models.Beleidskeuze, db=db
         )
 
-        br_data = generate_data(
-            obj_schema=schemas.BeleidsrelatieCreate,
-            default_str="automated test",
-        )
-        br_data["Van_Beleidskeuze_UUID"] = str(bk1.UUID)
-        br_data["Naar_Beleidskeuze_UUID"] = str(bk2.UUID)
+        br_data = schemas.BeleidsrelatieCreate(
+            Titel="test beleidsrelatie",
+            Status=RelatieStatus.AKKOORD.value,
+            Begin_Geldigheid="1992-11-23T10:00:00",
+            Eind_Geldigheid="2033-11-23T10:00:00",
+            Van_Beleidskeuze_UUID=str(bk1.UUID),
+            Naar_Beleidskeuze_UUID=str(bk2.UUID),
+        ).dict()
 
         base_obj = add_modifiable_object(
             schema=schemas.BeleidsrelatieCreate,

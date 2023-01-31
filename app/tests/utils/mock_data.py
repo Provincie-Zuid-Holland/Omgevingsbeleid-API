@@ -7,6 +7,7 @@ from pydantic.main import ModelMetaclass
 from sqlalchemy.exc import DBAPIError
 
 from app.db.base_class import NULL_UUID
+from app.models.base import Status
 from app.tests.utils.exceptions import SetupMethodException
 
 
@@ -90,7 +91,7 @@ def generate_data(
             result[field] = NULL_UUID
 
         elif field == "Status":
-            result[field] = "Niet-Actief"
+            result[field] = Status.NIET_ACTIEF.value
 
         elif field == "Begin_Geldigheid":
             result[field] = "1992-11-23T10:00:00"

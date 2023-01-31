@@ -107,6 +107,7 @@ class Beleidskeuze(BeleidskeuzeInDB):
     Eigenaar_2: Optional[GebruikerInline]
     Portefeuillehouder_1: Optional[GebruikerInline]
     Portefeuillehouder_2: Optional[GebruikerInline]
+    Opdrachtgever: Optional[GebruikerInline]
 
     # Relation serializers
     Belangen: List[RelatedBelang]
