@@ -16,10 +16,9 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import object_session
 
-# from app.crud.crud_maatregel import CRUDMaatregel
-
 from app.db.base_class import Base
 from app.db.base_class import SearchFields
+from app.models.gebiedsprogrammas import Maatregel_Gebiedsprogrammas
 
 if TYPE_CHECKING:
     from .gebruiker import Gebruiker  # noqa: F401
@@ -126,7 +125,7 @@ class Maatregel(Base):
         "Werkingsgebied", primaryjoin="Maatregel.Gebied_UUID == Werkingsgebied.UUID"
     )
     Gebiedsprogrammas = relationship(
-        "Maatregel_Gebiedsprogrammas", back_populates="Maatregel"
+        "Maatregel_Gebiedsprogrammas", back_populates="Maatregel", lazy="dynamic"
     )
 
     @hybrid_property
@@ -144,6 +143,20 @@ class Maatregel(Base):
         ).all()
 
     @hybrid_property
+    def All_Gebiedsprogrammas(self):
+        return self.Gebiedsprogrammas.all()
+
+    @hybrid_property
+    def Valid_Gebiedsprogrammas(self):
+        from app.crud.crud_gebiedsprogramma import CRUDGebiedsprogramma
+
+        valid = CRUDGebiedsprogramma().valid_view_as_subquery()
+        return self.Gebiedsprogrammas.join(
+            valid,
+            valid.UUID == Maatregel_Gebiedsprogrammas.Gebiedsprogramma_UUID,
+        ).all()
+
+    @hybrid_property
     def Effective_Version(self):
         from app.crud.crud_maatregel import CRUDMaatregel
 
@@ -156,19 +169,6 @@ class Maatregel(Base):
             .first()
             .UUID
         )
-
-    # @property
-    # def Effective_Version(self):
-    #     query = """
-    #             SELECT UUID FROM Valid_maatregelen
-    #             WHERE ID = :BKID
-    #             """
-    #     params = {"BKID": self.ID}
-    #     try:
-    #         result = object_session(self).execute(query, params=params).one()
-    #         return str(result.UUID)
-    #     except NoResultFound:
-    #         return None
 
     @classmethod
     def get_search_fields(cls):

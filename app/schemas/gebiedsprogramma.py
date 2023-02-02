@@ -3,13 +3,14 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
+from app.models.base import Status as StatusEnum
 from app.schemas.common import GebruikerInline, valid_ref_alias
-from app.schemas.related import RelatedMaatregel
 from app.schemas.reference import BeleidsmoduleReference, GenericReferenceUpdate
+from app.schemas.related import RelatedMaatregel
 
 
 class GebiedsprogrammaBase(BaseModel):
-    Status: Optional[str] = None
+    Status: Optional[StatusEnum] = None
     Titel: Optional[str] = None
     Omschrijving: Optional[str] = None
     Weblink: Optional[str] = None

@@ -1,10 +1,11 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 from uuid import uuid4
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Query, aliased
+from sqlalchemy.orm.session import Session
 from sqlalchemy.sql import Subquery
 from sqlalchemy.sql.expression import Alias, func, label, or_
 from sqlalchemy_utils import get_mapper
@@ -12,6 +13,7 @@ from sqlalchemy_utils import get_mapper
 from app.core.exceptions import DatabaseError
 from app.crud.base import GeoCRUDBase
 from app.db.base_class import NULL_UUID
+from app.db.session import SessionLocal
 from app.models.base import Status, find_mtm_map
 from app.models.beleidskeuze import Beleidskeuze
 from app.models.werkingsgebied import Beleidskeuze_Werkingsgebieden
@@ -26,6 +28,10 @@ ASSOC_UUID_KEY = "Beleidskeuze_UUID"
 class CRUDBeleidskeuze(
     GeoCRUDBase[Beleidskeuze, BeleidskeuzeCreate, BeleidskeuzeUpdate]
 ):
+    def __init__(
+        self, db: Session = SessionLocal(), model: Type[Beleidskeuze] = Beleidskeuze
+    ):
+        super().__init__(model=model, db=db)
 
     # Overwritten from base
     def create(self, *, obj_in: BeleidskeuzeCreate, by_uuid: str) -> Beleidskeuze:

@@ -95,6 +95,8 @@ def valid_ref_alias(field: str) -> str:
         "Valid_Beleidsmodules",
         "Maatregelen",
         "Valid_Maatregelen",
+        "Gebiedsprogrammas",
+        "Valid_Gebiedsprogrammas",
     ]
 
     if field in aliasses:

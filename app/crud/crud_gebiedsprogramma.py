@@ -1,7 +1,12 @@
 from datetime import datetime
+from typing import Type
+
 from sqlalchemy.orm import Query
+from sqlalchemy.orm.session import Session
+
 from app.crud.base import CRUDBase
 from app.db.base_class import NULL_UUID
+from app.db.session import SessionLocal
 from app.models.base import Status
 from app.models.gebiedsprogrammas import Gebiedsprogramma
 from app.schemas.gebiedsprogramma import GebiedsprogrammaCreate, GebiedsprogrammaUpdate
@@ -10,6 +15,12 @@ from app.schemas.gebiedsprogramma import GebiedsprogrammaCreate, Gebiedsprogramm
 class CRUDGebiedsprogramma(
     CRUDBase[Gebiedsprogramma, GebiedsprogrammaCreate, GebiedsprogrammaUpdate]
 ):
+    def __init__(
+        self,
+        db: Session = SessionLocal(),
+        model: Type[Gebiedsprogramma] = Gebiedsprogramma,
+    ):
+        super().__init__(model=model, db=db)
 
     # Extra status vigerend check
     def _build_valid_inner_query(self) -> Query:

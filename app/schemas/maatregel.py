@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.models.base import Status as StatusEnum
 from app.schemas.common import GebruikerInline, strip_UUID, valid_ref_alias
-from app.schemas.reference import BeleidskeuzeReference
+from app.schemas.reference import BeleidskeuzeReference, GebiedsprogrammaReference
 from app.schemas.werkingsgebied import WerkingsgebiedShortInline
 
 
@@ -77,15 +77,16 @@ class Maatregel(MaatregelInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Valid_Beleidskeuzes: List[BeleidskeuzeReference]
-    Beleidsmodules: List[BeleidskeuzeReference]
-
     Eigenaar_1: GebruikerInline
     Eigenaar_2: GebruikerInline
     Portefeuillehouder_1: GebruikerInline
     Portefeuillehouder_2: GebruikerInline
     Opdrachtgever: GebruikerInline
     Gebied: WerkingsgebiedShortInline
+
+    Valid_Beleidskeuzes: List[BeleidskeuzeReference]
+    Beleidsmodules: List[BeleidskeuzeReference]
+    Valid_Gebiedsprogrammas: List[GebiedsprogrammaReference]
 
     class Config:
         allow_population_by_field_name = True

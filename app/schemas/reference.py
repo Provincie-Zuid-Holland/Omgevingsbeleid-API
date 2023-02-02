@@ -60,3 +60,13 @@ class RelatedBeleidsdoelGetter(GetterDict):
 class BeleidsdoelReference(DefaultReferenceSchema):
     class Config:
         getter_dict = RelatedBeleidsdoelGetter
+
+
+class RelatedGebiedsprogrammaGetter(GetterDict):
+    def get(self, key: str, default: Any = None) -> Any:
+        return getattr(self._obj.Gebiedsprogramma, key)
+
+
+class GebiedsprogrammaReference(DefaultReferenceSchema):
+    class Config:
+        getter_dict = RelatedGebiedsprogrammaGetter
