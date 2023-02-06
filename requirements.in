@@ -2,7 +2,7 @@
 fastapi
 uvicorn[standard]
 pydantic[email]
-sqlalchemy
+sqlalchemy==1.4.39
 pyodbc
 alembic
 SQLAlchemy-Utils
