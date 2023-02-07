@@ -105,17 +105,17 @@ class Short_Base_Schema(MM.Schema):
                     pass
         return dumped
 
-    @MM.post_load()
-    def replace_nill(self, in_data, **kwargs):
-        """
-        Change nill UUIDs to null
-        """
-        for field in in_data:
-            if isinstance(in_data[field], uuid.UUID) and in_data[field] == uuid.UUID(
-                null_uuid
-            ):
-                in_data[field] = None
-        return in_data
+    # @MM.post_load()
+    # def replace_nill(self, in_data, **kwargs):
+    #     """
+    #     Change nill UUIDs to null
+    #     """
+    #     for field in in_data:
+    #         if isinstance(in_data[field], uuid.UUID) and in_data[field] == uuid.UUID(
+    #             null_uuid
+    #         ):
+    #             in_data[field] = None
+    #     return in_data
 
     @MM.post_load()
     def stringify_datetimes(self, in_data, **kwargs):
