@@ -10,7 +10,7 @@ from app.schemas.common import GebruikerInline, to_ref_field
 class VerordeningstructuurBase(BaseModel):
     Titel: str
     Structuur: str
-    Status: StatusEnum
+    Status: Optional[StatusEnum]
 
 
 class VerordeningstructuurCreate(VerordeningstructuurBase):

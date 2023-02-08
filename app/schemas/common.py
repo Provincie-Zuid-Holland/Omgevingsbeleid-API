@@ -44,7 +44,7 @@ class LatestVersionInline(BaseModel):
     UUID: str
 
     Modified_Date: datetime
-    Status: StatusEnum
+    Status: Optional[StatusEnum]
     Titel: str
 
     Effective_Version: Optional[str]

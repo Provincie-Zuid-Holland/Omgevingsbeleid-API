@@ -110,7 +110,7 @@ class MaatregelListable(BaseModel):
     Begin_Geldigheid: datetime
     Eind_Geldigheid: datetime
 
-    Status: StatusEnum
+    Status: Optional[StatusEnum]
     Titel: str
 
     class Config:
