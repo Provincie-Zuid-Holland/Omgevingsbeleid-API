@@ -7,8 +7,11 @@ from pydantic.main import BaseModel
 from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, String
 
-from app.models.base import Status as StatusEnum
-from app.models.base import BeleidsrelatieType as TypeEnum
+from app.models.base import (
+    Status as StatusEnum,
+    BeleidsrelatieType as TypeEnum,
+    UserStatus as UserStatusEnum
+)
 
 
 # Common inline schemas
@@ -24,7 +27,7 @@ class BeleidskeuzeShortInline(BaseModel):
 class GebruikerInline(BaseModel):
     Gebruikersnaam: str
     Rol: str
-    Status: str
+    Status: Optional[UserStatusEnum]
     UUID: str
 
     class Config:
@@ -44,7 +47,7 @@ class LatestVersionInline(BaseModel):
     UUID: str
 
     Modified_Date: datetime
-    Status: Optional[StatusEnum]
+    Status: StatusEnum
     Titel: str
 
     Effective_Version: Optional[str]

@@ -57,6 +57,12 @@ class RelatieStatus(str, Enum):
 
 
 @unique
+class UserStatus(str, Enum):
+    ACTIEF = "Actief"
+    INACTIEF = "Inactief"
+
+
+@unique
 class BeleidsrelatieType(str, Enum):
     """
     Enum interface of acceptable Beleidsrelatie Status values which are stored

@@ -2,12 +2,14 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
+from app.models.base import UserStatus
+
 
 class GebruikerBase(BaseModel):
     Gebruikersnaam: Optional[str] = None
     Rol: Optional[str] = None
     Email: Optional[EmailStr] = None
-    Status: Optional[str] = None
+    Status: Optional[UserStatus] = None
 
 
 class GebruikerCreate(GebruikerBase):
