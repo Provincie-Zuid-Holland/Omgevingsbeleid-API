@@ -10,8 +10,7 @@ from app.schemas.common import GebruikerInline
 
 # Shared properties
 class BeleidsrelatieBase(BaseModel):
-    Titel: str
-    Status: StatusEnum
+    Status: Optional[StatusEnum]
     Omschrijving: Optional[str]
     Aanvraag_Datum: Optional[datetime]
     Datum_Akkoord: Optional[datetime]
@@ -29,7 +28,6 @@ class BeleidsrelatieUpdate(BeleidsrelatieCreate):
     Begin_Geldigheid: Optional[datetime]
     Eind_Geldigheid: Optional[datetime]
 
-    Titel: Optional[str]
     Status: Optional[StatusEnum]
 
     Van_Beleidskeuze_UUID: Optional[str]
@@ -54,6 +52,10 @@ class BeleidsrelatieInDBBase(BeleidsrelatieBase):
         arbitrary_types_allowed = True
 
 
+class BeleidsrelatieInDB(BeleidsrelatieInDBBase):
+    pass
+
+
 class Beleidsrelatie(BeleidsrelatieInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
@@ -62,5 +64,3 @@ class Beleidsrelatie(BeleidsrelatieInDBBase):
     Naar_Beleidskeuze: Beleidskeuze
 
 
-class BeleidsrelatieInDB(BeleidsrelatieInDBBase):
-    pass

@@ -41,7 +41,6 @@ class Beleidsrelatie(Base):
     Status = Column(Unicode(50))
     Aanvraag_Datum = Column(DateTime)
     Datum_Akkoord = Column(DateTime)
-    Titel = Column(Unicode(50), nullable=False, server_default=text("('Titel')"))
 
     Van_Beleidskeuze_UUID = Column(
         "Van_Beleidskeuze", ForeignKey("Beleidskeuzes.UUID"), nullable=False
