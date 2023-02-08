@@ -15,9 +15,6 @@ class CRUDVerordening(
     def get(self, uuid: str) -> models.Verordening:
         return (
             self.db.query(models.Verordening)
-            .options(
-                joinedload(models.Verordening.Beleidskeuzes),
-            )
             .filter(models.Verordening.UUID == uuid)
             .one()
         )

@@ -9,9 +9,6 @@ class CRUDThema(CRUDBase[Thema, ThemaCreate, ThemaUpdate]):
     def get(self, uuid: str) -> Thema:
         return (
             self.db.query(self.model)
-            .options(
-                joinedload(Thema.Beleidskeuzes),
-            )
             .filter(self.model.UUID == uuid)
             .one()
         )

@@ -9,9 +9,6 @@ class CRUDBeleidsregel(CRUDBase[Beleidsregel, BeleidsregelCreate, BeleidsregelUp
     def get(self, uuid: str) -> Beleidsregel:
         return (
             self.db.query(self.model)
-            .options(
-                joinedload(Beleidsregel.Beleidskeuzes),
-            )
             .filter(self.model.UUID == uuid)
             .one()
         )

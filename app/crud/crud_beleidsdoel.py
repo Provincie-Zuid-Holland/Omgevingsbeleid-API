@@ -9,9 +9,6 @@ class CRUDBeleidsdoel(CRUDBase[Beleidsdoel, BeleidsdoelCreate, BeleidsdoelUpdate
     def get(self, uuid: str) -> Beleidsdoel:
         return (
             self.db.query(self.model)
-            .options(
-                joinedload(Beleidsdoel.Beleidskeuzes),
-            )
             .filter(self.model.UUID == uuid)
             .one()
         )

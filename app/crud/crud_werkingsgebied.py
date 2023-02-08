@@ -27,9 +27,6 @@ class CRUDWerkingsgebied(
     def get(self, uuid: str) -> Werkingsgebied:
         return (
             Query(Werkingsgebied)
-            .options(
-                joinedload(Werkingsgebied.Beleidskeuzes),
-            )
             .filter(Werkingsgebied.UUID == uuid)
             .one()
         )

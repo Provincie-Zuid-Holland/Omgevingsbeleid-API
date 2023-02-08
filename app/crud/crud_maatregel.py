@@ -19,9 +19,6 @@ class CRUDMaatregel(
     def get(self, uuid: str) -> models.Maatregel:
         return (
             self.db.query(self.model)
-            .options(
-                joinedload(models.Maatregel.Beleidskeuzes),
-            )
             .filter(self.model.UUID == uuid)
             .one()
         )
