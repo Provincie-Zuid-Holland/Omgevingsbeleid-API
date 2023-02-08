@@ -33,7 +33,7 @@ class Settings(BaseSettings):
         This API serves all the object that make up the policies 
         of a provincial government. 
         """
-    PROJECT_VERSION: str = "1.1.11"
+    PROJECT_VERSION: str = "1.1.15"
     OPENAPI_LOGO: str = "https://avatars.githubusercontent.com/u/60095455?s=200&v=4"
 
     # SENTRY_DSN: Optional[HttpUrl] = None
