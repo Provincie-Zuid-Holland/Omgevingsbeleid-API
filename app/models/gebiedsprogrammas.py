@@ -161,4 +161,8 @@ class Gebiedsprogramma(Base):
             "Besluitnummer",
             "Created_By_UUID",
             "Modified_By_UUID",
+            "Eigenaar_1_UUID",
+            "Eigenaar_2_UUID",
+            "Portefeuillehouder_1_UUID",
+            "Portefeuillehouder_2_UUID",
         ]
