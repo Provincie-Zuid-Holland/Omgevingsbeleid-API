@@ -2,11 +2,11 @@ from uuid import UUID, uuid4
 
 from fastapi.testclient import TestClient
 from freezegun import freeze_time
-import pytest
 from sqlalchemy.orm.session import Session
 
 from app.db.base_class import NULL_UUID
 from app.tests.utils.data_loader import FixtureLoader
+import pytest
 
 
 @pytest.mark.usefixtures("fixture_data")
@@ -107,3 +107,4 @@ class TestValidSelection:
         )
         intersect = found_uuids & forbidden_uuids
         assert len(intersect) == 0, f"Some forbidden uuid where found"
+

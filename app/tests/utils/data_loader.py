@@ -74,7 +74,7 @@ class FixtureLoader:
             Omschrijving_Werking="",
             Provinciaal_Belang="",
             Aanleiding="",
-            Status="",
+            Status="Niet-Actief",
             Weblink="",
         )
         self._beleidsrelatie("rla:null", UUID=null_uuid, Omschrijving="")
@@ -87,7 +87,7 @@ class FixtureLoader:
             Toelichting="",
             Toelichting_Raw="",
             Weblink="",
-            Status="",
+            Status="Niet-Actief",
             Tags="",
         )
         self._beleidsmodule("mod:null", UUID=null_uuid, Titel="")
@@ -109,7 +109,7 @@ class FixtureLoader:
             Titel="",
             Inhoud="",
             Weblink="",
-            Status="",
+            Status="Niet-Actief",
             Type="",
             Volgnummer="",
         )
@@ -298,7 +298,7 @@ class FixtureLoader:
         )
         self._maatregel(
             "maa:3",
-            Status="Test",
+            Status="Niet-Actief",
             Gebied_UUID="wgb:4",
             Created_By_UUID="geb:fred",
             Modified_By_UUID="geb:fred",
@@ -311,7 +311,7 @@ class FixtureLoader:
         )
         self._maatregel(
             "maa:4",
-            Status="Test",
+            Status="Niet-Actief",
             Gebied_UUID="wgb:5",
             Created_By_UUID="geb:fred",
             Modified_By_UUID="geb:fred",
@@ -711,6 +711,7 @@ class FixtureLoader:
 
         if not "Aanleiding" in kwargs:
             kwargs["Aanleiding"] = self._fake.paragraph(nb_sentences=4)
+
         if not "Status" in kwargs:
             kwargs["Status"] = "Vigerend"
 
@@ -760,7 +761,7 @@ class FixtureLoader:
             )
 
         if not "Status" in kwargs:
-            kwargs["Status"] = "Vigerend"
+            kwargs["Status"] = "Akkoord"
 
         if not "Aanvraag_Datum" in kwargs:
             kwargs["Aanvraag_Datum"] = self._fake.date_time_between(
