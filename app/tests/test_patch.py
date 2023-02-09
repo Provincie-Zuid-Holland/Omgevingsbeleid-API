@@ -85,7 +85,7 @@ class TestPatch:
         )
 
         br_data = schemas.BeleidsrelatieCreate(
-            Titel="test beleidsrelatie",
+            Omschrijving="test beleidsrelatie",
             Status=RelatieStatus.AKKOORD.value,
             Begin_Geldigheid="1992-11-23T10:00:00",
             Eind_Geldigheid="2033-11-23T10:00:00",
@@ -101,7 +101,7 @@ class TestPatch:
         )
 
         # Act
-        patch_data = {"Titel": "patched"}
+        patch_data = {"Omschrijving": "patched"}
         response = client.patch(
             url=f"v0.1/beleidsrelaties/{base_obj.ID}",
             headers=admin_headers,
@@ -114,7 +114,7 @@ class TestPatch:
         assert json_obj["UUID"] != base_obj.UUID, "Excepted new UUID after patch"
         assert json_obj["ID"] == base_obj.ID
         assert (
-            json_obj["Titel"] == "patched"
+            json_obj["Omschrijving"] == "patched"
         ), "Expected Title field updated after patch"
 
     def test_endpoint_patch_beleidsregel(self, client: TestClient, admin_headers, db):

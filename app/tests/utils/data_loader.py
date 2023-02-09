@@ -77,7 +77,7 @@ class FixtureLoader:
             Status="",
             Weblink="",
         )
-        self._beleidsrelatie("rla:null", UUID=null_uuid, Titel="", Omschrijving="")
+        self._beleidsrelatie("rla:null", UUID=null_uuid, Omschrijving="")
         self._werkingsgebied("wgb:null", UUID=null_uuid, Werkingsgebied="", symbol="")
         self._maatregel(
             "maa:null",
@@ -753,9 +753,6 @@ class FixtureLoader:
 
     def _beleidsrelatie(self, key, **kwargs):
         kwargs = self._resolve_base_fields(**kwargs)
-
-        if not "Titel" in kwargs:
-            kwargs["Titel"] = self._fake.sentence(nb_words=3)[:45]
 
         if not "Omschrijving" in kwargs:
             kwargs["Omschrijving"] = "\n\n".join(
