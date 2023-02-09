@@ -148,7 +148,6 @@ def read_valid_beleidsprestaties(
         deps.get_crud_beleidsprestatie
     ),
     filters: Filters = Depends(deps.string_filters),
-    current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     offset: int = 0,
     limit: int = 20,
 ) -> Any:
@@ -180,6 +179,7 @@ def read_valid_beleidsprestatie_lineage(
     beleidsprestaties = crud_beleidsprestatie.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
+
     if not beleidsprestaties:
         raise HTTPException(status_code=404, detail="Beleidsregels lineage not found")
 
