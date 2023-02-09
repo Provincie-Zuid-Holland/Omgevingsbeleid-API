@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from app.models.base import Status as StatusEnum
-from app.schemas.common import GebruikerInline, to_ref_field
+from app.schemas.common import GebruikerInline
 
 
 class VerordeningstructuurBase(BaseModel):
@@ -51,6 +51,3 @@ class Verordeningstructuur(VerordeningstructuurInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    class Config:
-        allow_population_by_field_name = True
-        alias_generator = to_ref_field

@@ -19,6 +19,7 @@ from app.api.api_v01.endpoints import (
     search,
     themas,
     verordeningen,
+    verordeningstructuren,
     werkingsgebieden,
 )
 
@@ -50,5 +51,7 @@ api_router.include_router(gebiedsprogrammas.router, tags=["gebiedsprogrammas"])
 api_router.include_router(search.router, tags=["search"])
 api_router.include_router(themas.router, tags=["themas"])
 api_router.include_router(verordeningen.router, tags=["verordeningen"])
+api_router.include_router(verordeningstructuren.router,
+                          tags=["verordeningstructuren"])
 api_router.include_router(maatregelen.router, tags=["maatregelen"])
 api_router.include_router(werkingsgebieden.router, tags=["werkingsgebieden"])
