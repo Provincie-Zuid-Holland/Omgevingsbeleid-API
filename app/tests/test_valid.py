@@ -107,4 +107,3 @@ class TestValidSelection:
         )
         intersect = found_uuids & forbidden_uuids
         assert len(intersect) == 0, f"Some forbidden uuid where found"
-

@@ -1,9 +1,8 @@
 from enum import Enum, unique
-from typing import Any, List, NamedTuple
+from typing import Any, List, NamedTuple, Optional
 
 from sqlalchemy import Column
 
-from app.core.exceptions import RelationsCopyError
 from app.models import (
     Beleidsdoel_Ambities,
     Beleidskeuze_Belangen,
@@ -18,7 +17,6 @@ from app.models import (
     Beleidsmodule_Maatregelen,
     Maatregel_Gebiedsprogrammas,
 )
-from app.models.beleidsrelatie import Beleidsrelatie
 from app.models.maatregel import Beleidskeuze_Maatregelen
 
 
@@ -157,19 +155,21 @@ MANY_TO_MANY_RELATIONS: List[MTMRelation] = [
         right=Beleidsmodule_Gebiedsprogrammas.Gebiedsprogramma_UUID,
     ),
     MTMRelation(
-        model=Beleidsrelatie,
-        left=Beleidsrelatie.Van_Beleidskeuze_UUID,
-        right=Beleidsrelatie.Naar_Beleidskeuze_UUID,
-    ),
-    MTMRelation(
         model=Maatregel_Gebiedsprogrammas,
         left=Maatregel_Gebiedsprogrammas.Maatregel_UUID,
         right=Maatregel_Gebiedsprogrammas.Gebiedsprogramma_UUID,
     ),
+    # Beleidsrelatie should me manual
+    # MTMRelation(
+    #     model=Beleidsrelatie,
+    #     left=Beleidsrelatie.Van_Beleidskeuze_UUID,
+    #     right=Beleidsrelatie.Naar_Beleidskeuze_UUID,
+    #     description="Omschrijving"
+    # ),
 ]
 
 
-def find_mtm_map(model) -> MTMRelation:
+def find_mtm_map(model) -> Optional[MTMRelation]:
     """
     Helper method to select the mtm mapping based on class or classname
     """
@@ -181,8 +181,5 @@ def find_mtm_map(model) -> MTMRelation:
         elif model == mtm.model.__tablename__:
             mtm_class = mtm
             break
-
-    if mtm_class is None:
-        raise RelationsCopyError("Relation to copy not defined in MTM map")
 
     return mtm_class

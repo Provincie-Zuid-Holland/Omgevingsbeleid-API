@@ -10,7 +10,7 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer, String
 from app.models.base import (
     Status as StatusEnum,
     BeleidsrelatieType as TypeEnum,
-    UserStatus as UserStatusEnum
+    UserStatus as UserStatusEnum,
 )
 
 

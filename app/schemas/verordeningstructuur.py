@@ -50,4 +50,3 @@ class VerordeningstructuurInDB(VerordeningstructuurInDBBase):
 class Verordeningstructuur(VerordeningstructuurInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
-

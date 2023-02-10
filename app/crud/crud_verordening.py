@@ -1,6 +1,5 @@
 from typing import List
 
-from sqlalchemy.orm import joinedload
 
 from app.crud.base import GeoCRUDBase
 from app.schemas.filters import Filter, FilterCombiner, Filters

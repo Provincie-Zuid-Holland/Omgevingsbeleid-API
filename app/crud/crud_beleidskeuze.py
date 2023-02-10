@@ -160,6 +160,9 @@ class CRUDBeleidskeuze(
             assoc_class = relationships[relation_key].entity.class_
             mtm_class = find_mtm_map(assoc_class)
 
+            if not mtm_class:
+                continue
+
             if relation_key in update_data:
                 # Build newly added relations in update request
                 for update_item in update_data[relation_key]:

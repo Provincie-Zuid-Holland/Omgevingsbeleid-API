@@ -14,6 +14,7 @@ from app.util.compare import Comparator
 
 router = APIRouter()
 
+
 @router.get(
     "/verordeningstructuren",
     response_model=List[schemas.Verordeningstructuur],
@@ -150,7 +151,7 @@ def read_valid_verordeningstructuren(
     """
     Gets all the verordeningstructuren lineages and shows the latests valid object for each.
     """
-    verordeningstructuren  = crud_verordeningstructuur.valid(
+    verordeningstructuren = crud_verordeningstructuur.valid(
         offset=offset, limit=limit, filters=filters
     )
     return verordeningstructuren
@@ -172,7 +173,7 @@ def read_valid_verordeningstructuur_lineage(
     """
     Gets all the verordeningstructuren in this lineage that are valid
     """
-    verordeningstructuren  = crud_verordeningstructuur.valid(
+    verordeningstructuren = crud_verordeningstructuur.valid(
         ID=lineage_id, offset=offset, limit=limit, filters=filters
     )
 

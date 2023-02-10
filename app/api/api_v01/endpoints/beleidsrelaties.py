@@ -16,6 +16,7 @@ router = APIRouter()
 
 defer_attributes = {"Omschrijving"}
 
+
 @router.get("/beleidsrelaties", response_model=List[schemas.Beleidsrelatie])
 def read_beleidsrelaties(
     crud_beleidsrelatie: CRUDBeleidsrelatie = Depends(deps.get_crud_beleidsrelatie),

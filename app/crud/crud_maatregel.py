@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, List, Union
 from sqlalchemy import func
 
-from sqlalchemy.orm import Query, aliased, joinedload
+from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql import Alias, label
 
 from app.crud.base import GeoCRUDBase
@@ -17,11 +17,7 @@ class CRUDMaatregel(
     GeoCRUDBase[models.Maatregel, schemas.MaatregelCreate, schemas.MaatregelUpdate]
 ):
     def get(self, uuid: str) -> models.Maatregel:
-        return (
-            self.db.query(self.model)
-            .filter(self.model.UUID == uuid)
-            .one()
-        )
+        return self.db.query(self.model).filter(self.model.UUID == uuid).one()
 
     # Overwritten from base to ensure correct mapping of
     # Beleidsmodule relations when updating

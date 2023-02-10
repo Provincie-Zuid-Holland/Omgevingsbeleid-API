@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 from sqlalchemy.exc import DBAPIError
 
-from app.db.base_class import NULL_UUID
+from app.db.base_class import MAX_DATETIME, MIN_DATETIME, NULL_UUID
 from app.models.base import Status
 from app.tests.utils.exceptions import SetupMethodException
 
@@ -28,11 +28,11 @@ test_belang = {
     "Type": "Nationaal Belang",
 }
 
-reference_rich_beleidskeuze = {
-    "Status": "Vigerend",
+beleidskeuze_request = {
+    "Status": Status.VIGEREND.value,
     "Titel": "Beleidsbeslissing test Swen Initial",
-    "Begin_Geldigheid": "2020-10-28T12:00:00",
-    "Eind_Geldigheid": "2020-10-30T12:00:00",
+    "Begin_Geldigheid": str(MIN_DATETIME),
+    "Eind_Geldigheid": str(MAX_DATETIME),
     "Aanleiding": "Om te testen",
     "Afweging": "Zonder aanleiding",
     "Omschrijving_Keuze": "Nam libero leo, tempus in pretium vel, rhoncus in mi.",
@@ -41,16 +41,6 @@ reference_rich_beleidskeuze = {
     "Weblink": "www.beleid.beslissing.nl",
     "Besluitnummer": "42",
     "Tags": "Wetenschap, Test",
-    "Ambities": [
-        {
-            "UUID": "B786487C-3E65-4DD8-B360-D2C56BF83172",
-            "Koppeling_Omschrijving": "TEST",
-        },
-        {
-            "UUID": "0254A475-08A6-4B2A-A455-96BA6BE70A19",
-            "Koppeling_Omschrijving": "TEST",
-        },
-    ],
 }
 
 

@@ -17,8 +17,8 @@ class BeleidsrelatieBase(BaseModel):
 
 
 class BeleidsrelatieCreate(BeleidsrelatieBase):
-    Begin_Geldigheid: datetime
-    Eind_Geldigheid: datetime
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
 
     Van_Beleidskeuze_UUID: str
     Naar_Beleidskeuze_UUID: str
@@ -60,7 +60,8 @@ class Beleidsrelatie(BeleidsrelatieInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
+    Begin_Geldigheid: Optional[datetime]
+    Eind_Geldigheid: Optional[datetime]
+
     Van_Beleidskeuze: Beleidskeuze
     Naar_Beleidskeuze: Beleidskeuze
-
-

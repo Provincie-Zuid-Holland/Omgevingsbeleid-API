@@ -130,10 +130,12 @@ class Beleidskeuze(Base):
     Van_Beleidsrelaties = relationship(
         "Beleidsrelatie",
         primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Van_Beleidskeuze_UUID",
+        lazy="select",
     )
     Naar_Beleidsrelaties = relationship(
         "Beleidsrelatie",
         primaryjoin="Beleidskeuze.UUID == Beleidsrelatie.Naar_Beleidskeuze_UUID",
+        lazy="select",
     )
 
     @hybrid_property

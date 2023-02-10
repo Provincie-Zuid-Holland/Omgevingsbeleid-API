@@ -23,14 +23,14 @@ from app.schemas.related import (
 class BeleidskeuzeBase(BaseModel):
     Status: StatusEnum
     Titel: str
-    Omschrijving_Keuze: Optional[str] = None
-    Omschrijving_Werking: Optional[str] = None
-    Provinciaal_Belang: Optional[str] = None
-    Aanleiding: Optional[str] = None
-    Afweging: Optional[str] = None
-    Besluitnummer: Optional[str] = None
-    Tags: Optional[str] = None
-    Weblink: Optional[str] = None
+    Omschrijving_Keuze: Optional[str]
+    Omschrijving_Werking: Optional[str]
+    Provinciaal_Belang: Optional[str]
+    Aanleiding: Optional[str]
+    Afweging: Optional[str]
+    Besluitnummer: Optional[str]
+    Tags: Optional[str]
+    Weblink: Optional[str]
 
 
 class BeleidskeuzeCreate(BeleidskeuzeBase):
@@ -92,6 +92,9 @@ class BeleidskeuzeInDBBase(BeleidskeuzeBase):
 
 class BeleidskeuzeInDB(BeleidskeuzeInDBBase):
     pass
+
+
+# TODO: Inline?
 
 
 class Beleidskeuze(BeleidskeuzeInDB):

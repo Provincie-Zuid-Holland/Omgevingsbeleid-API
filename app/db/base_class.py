@@ -1,14 +1,18 @@
 from collections import namedtuple
+from datetime import datetime
 from typing import List
 
 from sqlalchemy import Column, MetaData
 from sqlalchemy.ext.declarative import as_declarative
 from sqlalchemy.util import ImmutableProperties
-from sqlalchemy_utils import get_mapper, get_columns
+from sqlalchemy_utils import get_columns, get_mapper
 
 from app.core.exceptions import SearchException
 
 NULL_UUID = "00000000-0000-0000-0000-000000000000"
+MIN_DATETIME: datetime = datetime(1753, 1, 1, 0, 0, 0)
+MAX_DATETIME: datetime = datetime(9999, 12, 31, 23, 59, 59)
+
 SearchFields = namedtuple("SearchFields", ["title", "description"])
 RankedSearchObject = namedtuple("RankedSearchObject", ["object", "rank"])
 

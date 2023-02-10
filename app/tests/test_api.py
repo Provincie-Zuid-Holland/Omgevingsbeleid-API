@@ -7,6 +7,7 @@ class TestApi:
     """
     Test endpoint options/params
     """
+
     ENDPOINT_LIST = [
         "ambities",
         "belangen",
@@ -21,7 +22,7 @@ class TestApi:
         "themas",
         "verordeningen",
         "verordeningstructuren",
-        "werkingsgebieden"
+        "werkingsgebieden",
     ]
 
     def test_endpoint_not_found(self, client: TestClient):
@@ -102,14 +103,17 @@ class TestApi:
     def test_read_endpoint_health(self, client: TestClient, admin_headers):
         for endpoint in self.ENDPOINT_LIST:
             response = client.get(f"v0.1/valid/{endpoint}")
-            assert response.status_code == 200, f"Status code was {response.status_code}"
+            assert (
+                response.status_code == 200
+            ), f"Status code was {response.status_code}"
 
             response = client.get(f"v0.1/valid/{endpoint}/1")
             assert response.status_code != 500
 
             response = client.get(f"v0.1/{endpoint}", headers=admin_headers)
-            assert response.status_code == 200, f"Status code was {response.status_code}"
+            assert (
+                response.status_code == 200
+            ), f"Status code was {response.status_code}"
 
             response = client.get(f"v0.1/{endpoint}/1")
             assert response.status_code != 500
-

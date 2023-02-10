@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional, Tuple, Type
 
-from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Query, aliased, Session
 from sqlalchemy.sql.expression import Alias, or_
 
@@ -25,11 +24,7 @@ class CRUDWerkingsgebied(
         self.crud_maatregel = CRUDMaatregel(model=Maatregel, db=db)
 
     def get(self, uuid: str) -> Werkingsgebied:
-        return (
-            Query(Werkingsgebied)
-            .filter(Werkingsgebied.UUID == uuid)
-            .one()
-        )
+        return Query(Werkingsgebied).filter(Werkingsgebied.UUID == uuid).one()
 
     def _build_valid_view_query(
         self, ID: Optional[int] = None
