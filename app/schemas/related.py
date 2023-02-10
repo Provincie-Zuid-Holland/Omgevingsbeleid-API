@@ -129,7 +129,7 @@ class RelatedThema(DefaultRelatedSchema):
 
 
 class VerordeningenGetter(DefaultGetter):
-    REF_NAME = "Verordeningen"
+    REF_NAME = "Verordening"
 
 
 class RelatedVerordeningen(DefaultRelatedSchema):
