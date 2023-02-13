@@ -3,14 +3,13 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from app.models.base import Status as StatusEnum
 from app.schemas.common import GebruikerInline
 
 
 class VerordeningstructuurBase(BaseModel):
     Titel: str
     Structuur: str
-    Status: Optional[StatusEnum]
+    Status: Optional[str]
 
 
 class VerordeningstructuurCreate(VerordeningstructuurBase):
@@ -23,7 +22,7 @@ class VerordeningstructuurUpdate(VerordeningstructuurCreate):
     Eind_Geldigheid: Optional[datetime]
 
     Titel: Optional[str]
-    Status: Optional[StatusEnum]
+    Status: Optional[str]
     Structuur: Optional[str]
 
 
