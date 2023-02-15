@@ -77,12 +77,12 @@ class Maatregel(MaatregelInDBBase):
     Created_By: GebruikerInline
     Modified_By: GebruikerInline
 
-    Eigenaar_1: GebruikerInline
-    Eigenaar_2: GebruikerInline
-    Portefeuillehouder_1: GebruikerInline
-    Portefeuillehouder_2: GebruikerInline
-    Opdrachtgever: GebruikerInline
-    Gebied: WerkingsgebiedShortInline
+    Eigenaar_1: Optional[GebruikerInline]
+    Eigenaar_2: Optional[GebruikerInline]
+    Portefeuillehouder_1: Optional[GebruikerInline]
+    Portefeuillehouder_2: Optional[GebruikerInline]
+    Opdrachtgever: Optional[GebruikerInline]
+    Gebied: Optional[WerkingsgebiedShortInline]
 
     Valid_Beleidskeuzes: List[BeleidskeuzeReference]
     Beleidsmodules: List[BeleidskeuzeReference]

@@ -57,8 +57,11 @@ class BeleidsrelatieInDB(BeleidsrelatieInDBBase):
 
 
 class Beleidsrelatie(BeleidsrelatieInDBBase):
-    Created_By: GebruikerInline
-    Modified_By: GebruikerInline
+    Created_Date: Optional[datetime]
+    Created_By: Optional[GebruikerInline]
+
+    Modified_Date: Optional[datetime]
+    Modified_By: Optional[GebruikerInline]
 
     Begin_Geldigheid: Optional[datetime]
     Eind_Geldigheid: Optional[datetime]
