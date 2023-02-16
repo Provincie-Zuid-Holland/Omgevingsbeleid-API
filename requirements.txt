@@ -89,6 +89,6 @@ tomli==1.2.1
 update==0.0.1
 urllib3==1.26.5
 webencodings==0.5.1
-Werkzeug==1.0.1
+Werkzeug==2.2.3
 wrapt==1.11.2
 zipp==3.7.0
