@@ -86,7 +86,7 @@ def update_werkingsgebied(
     werkingsgebied = crud_werkingsgebied.get_latest_by_id(id=lineage_id)
     if not werkingsgebied:
         raise HTTPException(status_code=404, detail="Werkingsgebied not found")
-    if werkingsgebied.Created_By != current_gebruiker.UUID:
+    if werkingsgebied.Created_By.UUID != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"

@@ -93,8 +93,8 @@ def update_maatregel(
     maatregel = crud_maatregel.get_latest_by_id(id=lineage_id)
     if not maatregel:
         raise HTTPException(status_code=404, detail="Maatregel not found")
-    if maatregel.Created_By != current_gebruiker.UUID:
-        if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
+    if maatregel.Created_By.UUID != current_gebruiker.UUID:
+        if current_gebruiker.Rol.UUID != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )

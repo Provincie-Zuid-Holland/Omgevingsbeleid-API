@@ -99,7 +99,7 @@ def update_beleidsprestatie(
     beleidsprestatie = crud_beleidsprestatie.get_latest_by_id(id=lineage_id)
     if not beleidsprestatie:
         raise HTTPException(status_code=404, detail="Beleidsprestatie not found")
-    if beleidsprestatie.Created_By != current_gebruiker.UUID:
+    if beleidsprestatie.Created_By.UUID != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"

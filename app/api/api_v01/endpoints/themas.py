@@ -81,7 +81,7 @@ def update_thema(
     thema = crud_thema.get_latest_by_id(id=lineage_id)
     if not thema:
         raise HTTPException(status_code=404, detail="Thema not found")
-    if thema.Created_By != current_gebruiker.UUID:
+    if thema.Created_By.UUID != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"

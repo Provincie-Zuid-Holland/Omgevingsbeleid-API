@@ -81,7 +81,7 @@ def update_belang(
     belang = crud_belang.get_latest_by_id(id=lineage_id)
     if not belang:
         raise HTTPException(status_code=404, detail="Belang not found")
-    if belang.Created_By != current_gebruiker.UUID:
+    if belang.Created_By.UUID != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"

@@ -85,7 +85,7 @@ def update_verordening(
     verordening = crud_verordening.get_latest_by_id(id=lineage_id)
     if not verordening:
         raise HTTPException(status_code=404, detail="Verordening not found")
-    if verordening.Created_By != current_gebruiker.UUID:
+    if verordening.Created_By.UUID != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"

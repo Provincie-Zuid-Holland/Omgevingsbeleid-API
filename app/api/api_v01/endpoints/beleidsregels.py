@@ -88,7 +88,7 @@ def update_beleidsregel(
     beleidsregel = crud_beleidsregel.get_latest_by_id(id=lineage_id)
     if not beleidsregel:
         raise HTTPException(status_code=404, detail="Beleidsregel not found")
-    if beleidsregel.Created_By != current_gebruiker.UUID:
+    if beleidsregel.Created_By.UUID != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"

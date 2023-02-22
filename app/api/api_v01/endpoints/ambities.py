@@ -100,7 +100,7 @@ def update_ambitie(
     ambitie = crud_ambitie.get_latest_by_id(id=lineage_id)
     if not ambitie:
         raise HTTPException(status_code=404, detail="Ambitie not found")
-    if ambitie.Created_By != current_gebruiker.UUID:
+    if ambitie.Created_By.UUID != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"

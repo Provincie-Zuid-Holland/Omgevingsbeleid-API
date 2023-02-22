@@ -103,7 +103,7 @@ def update_gebiedsprogramma(
     gebiedsprogramma = crud_gebiedsprogramma.get_latest_by_id(id=lineage_id)
     if not gebiedsprogramma:
         raise HTTPException(status_code=404, detail="Gebiedsprogramma not found")
-    if gebiedsprogramma.Created_By != current_gebruiker.UUID:
+    if gebiedsprogramma.Created_By.UUID != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"

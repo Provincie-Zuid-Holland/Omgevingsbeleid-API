@@ -83,7 +83,7 @@ def update_beleidsrelatie(
     beleidsrelatie = crud_beleidsrelatie.get_latest_by_id(id=lineage_id)
     if not beleidsrelatie:
         raise HTTPException(status_code=404, detail="Beleidsrelatie not found")
-    if beleidsrelatie.Created_By != current_gebruiker.UUID:
+    if beleidsrelatie.Created_By.UUID != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"

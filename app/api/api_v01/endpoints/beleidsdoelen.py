@@ -85,7 +85,7 @@ def update_beleidsdoel(
     beleidsdoel = crud_beleidsdoel.get_latest_by_id(id=lineage_id)
     if not beleidsdoel:
         raise HTTPException(status_code=404, detail="Beleidsdoel not found")
-    if beleidsdoel.Created_By != current_gebruiker.UUID:
+    if beleidsdoel.Created_By.UUID != current_gebruiker.UUID:
         if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
