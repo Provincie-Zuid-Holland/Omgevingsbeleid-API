@@ -192,7 +192,7 @@ class FixtureLoader:
             UUID="82448A0A-989B-11EC-B909-0242AC120002",
             Created_By_UUID="geb:fred",
             Modified_By_UUID="geb:fred",
-            Status="UsedForFiltering",
+            Status="Ontwerp PS",
             Titel="Title Used For Filtering",
         )
         self._beleidskeuze(

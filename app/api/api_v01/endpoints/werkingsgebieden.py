@@ -27,7 +27,7 @@ def read_werkingsgebied(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the werkingsgebied lineages and shows the latests object for each
@@ -132,7 +132,7 @@ def read_valid_werkingsgebied(
     crud_werkingsgebied: CRUDWerkingsgebied = Depends(deps.get_crud_werkingsgebied),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the werkingsgebied lineages and shows the latests valid object for each.
@@ -151,7 +151,7 @@ def read_valid_werkingsgebied_lineage(
     crud_werkingsgebied: CRUDWerkingsgebied = Depends(deps.get_crud_werkingsgebied),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the werkingsgebied in this lineage that are valid

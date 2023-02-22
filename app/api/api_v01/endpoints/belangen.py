@@ -27,7 +27,7 @@ def read_belangen(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the belangen lineages and shows the latests object for each
@@ -122,7 +122,7 @@ def read_valid_belangen(
     crud_belang: CRUDBelang = Depends(deps.get_crud_belang),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the belangen lineages and shows the latests valid object for each.
@@ -137,7 +137,7 @@ def read_valid_belang_lineage(
     filters: Filters = Depends(deps.string_filters),
     crud_belang: CRUDBelang = Depends(deps.get_crud_belang),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the belangen in this lineage that are valid

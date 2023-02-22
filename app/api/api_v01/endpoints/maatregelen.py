@@ -35,7 +35,7 @@ def read_maatregelen(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the maatregelen lineages and shows the latests object for each
@@ -94,7 +94,7 @@ def update_maatregel(
     if not maatregel:
         raise HTTPException(status_code=404, detail="Maatregel not found")
     if maatregel.Created_By.UUID != current_gebruiker.UUID:
-        if current_gebruiker.Rol.UUID != GebruikersRol.SUPERUSER:
+        if current_gebruiker.Rol != GebruikersRol.SUPERUSER:
             raise HTTPException(
                 status_code=403, detail="Forbidden: Not the owner of this resource"
             )
@@ -135,7 +135,7 @@ def read_valid_maatregelen(
     crud_maatregel: CRUDMaatregel = Depends(deps.get_crud_maatregel),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the maatregelen lineages and shows the latests valid object for each.
@@ -150,7 +150,7 @@ def read_valid_maatregel_lineage(
     crud_maatregel: CRUDMaatregel = Depends(deps.get_crud_maatregel),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the maatregelen in this lineage that are valid

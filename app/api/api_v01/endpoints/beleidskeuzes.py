@@ -30,7 +30,7 @@ def read_beleidskeuzes(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidskeuzes lineages and shows the latests object for each
@@ -66,7 +66,7 @@ def read_beleidskeuze_lineage(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidskeuzes versions by lineage
@@ -142,7 +142,7 @@ def read_valid_beleidskeuzes(
     crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidskeuzes lineages and shows the latests valid object for each.
@@ -159,7 +159,7 @@ def read_valid_beleidskeuze_lineage(
     crud_beleidskeuze: CRUDBeleidskeuze = Depends(deps.get_crud_beleidskeuze),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidskeuzes in this lineage that are valid

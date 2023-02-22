@@ -31,7 +31,7 @@ def read_ambities(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the ambities lineages and shows the latests object for each
@@ -70,7 +70,7 @@ def read_ambitie_lineage(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the ambities versions by lineage
@@ -142,7 +142,7 @@ def read_valid_ambities(
     crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the ambities lineages and shows the latests valid object for each.
@@ -161,7 +161,7 @@ def read_valid_ambitie_lineage(
     crud_ambitie: CRUDAmbitie = Depends(deps.get_crud_ambitie),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the ambities in this lineage that are valid

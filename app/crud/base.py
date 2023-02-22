@@ -386,7 +386,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if select:
             query = query.options(load_only(*select))
 
-        if limit:
+        if limit and limit != -1:
             query = query.limit(limit)
 
         query = query.offset(offset)

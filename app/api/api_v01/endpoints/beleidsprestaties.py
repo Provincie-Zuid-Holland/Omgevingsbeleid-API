@@ -32,7 +32,7 @@ def read_beleidsprestaties(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidsprestaties lineages and shows the latests object for each
@@ -149,7 +149,7 @@ def read_valid_beleidsprestaties(
     ),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidsprestaties lineages and shows the latests valid object for each.
@@ -171,7 +171,7 @@ def read_valid_beleidsprestatie_lineage(
     ),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidsprestaties in this lineage that are valid

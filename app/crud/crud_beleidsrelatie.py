@@ -23,7 +23,7 @@ class CRUDBeleidsrelatie(
         self,
         ID: Optional[int] = None,
         offset: int = 0,
-        limit: int = 20,
+        limit: int = -1,
         filters: Optional[Filters] = None,
     ) -> List[Beleidsrelatie]:
         """

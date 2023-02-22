@@ -20,7 +20,7 @@ def search(
     only: Optional[str] = None,
     exclude: Optional[str] = None,
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
     search_service: SearchService = Depends(deps.get_search_service),
 ) -> Any:
     """
@@ -96,7 +96,7 @@ def geo_search(
     only: Optional[str] = None,
     exclude: Optional[str] = None,
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
     search_service: GeoSearchService = Depends(deps.get_geo_search_service),
 ) -> Any:
     """

@@ -31,7 +31,7 @@ def read_beleidsregels(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidsregels lineages and shows the latests object for each
@@ -132,7 +132,7 @@ def read_valid_beleidsregels(
     crud_beleidsregel: CRUDBeleidsregel = Depends(deps.get_crud_beleidsregel),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidsregels lineages and shows the latests valid object for each.
@@ -149,7 +149,7 @@ def read_valid_beleidsregel_lineage(
     crud_beleidsregel: CRUDBeleidsregel = Depends(deps.get_crud_beleidsregel),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidsregels in this lineage that are valid

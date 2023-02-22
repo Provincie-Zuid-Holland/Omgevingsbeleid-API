@@ -27,7 +27,7 @@ def read_beleidsdoelen(
     current_gebruiker: models.Gebruiker = Depends(deps.get_current_active_gebruiker),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidsdoelen lineages and shows the latests object for each
@@ -129,7 +129,7 @@ def read_valid_beleidsdoelen(
     crud_beleidsdoel: CRUDBeleidsdoel = Depends(deps.get_crud_beleidsdoel),
     filters: Filters = Depends(deps.string_filters),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidsdoelen lineages and shows the latests valid object for each.
@@ -146,7 +146,7 @@ def read_valid_beleidsdoel_lineage(
     filters: Filters = Depends(deps.string_filters),
     crud_beleidsdoel: CRUDBeleidsdoel = Depends(deps.get_crud_beleidsdoel),
     offset: int = 0,
-    limit: int = 20,
+    limit: int = -1,
 ) -> Any:
     """
     Gets all the beleidsdoelen in this lineage that are valid

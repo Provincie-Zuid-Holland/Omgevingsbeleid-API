@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Optional
+from typing import Generic, List, Optional, TypeVar
 
-from pydantic import create_model
+from pydantic import create_model, validator
 from pydantic.config import BaseConfig
 from pydantic.main import BaseModel
 from sqlalchemy.inspection import inspect
@@ -13,6 +13,16 @@ from app.models.base import (
     UserStatus as UserStatusEnum,
 )
 
+#TODO: Shared response schema for lists
+T = TypeVar('T')
+class GenericResponse(Generic[T]):
+    data: List[T]
+    count: int = 0
+
+    @validator('data', pre=True)
+    def set_count(cls, v):
+        cls.count = len(v)
+        return v
 
 # Common inline schemas
 class BeleidskeuzeShortInline(BaseModel):
