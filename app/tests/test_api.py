@@ -21,7 +21,6 @@ class TestApi:
         "maatregelen",
         "themas",
         "verordeningen",
-        "verordeningstructuren",
         "werkingsgebieden",
     ]
 

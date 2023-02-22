@@ -1,4 +1,3 @@
-
 from app.crud.base import CRUDBase
 from app.models.beleidsregel import Beleidsregel
 from app.schemas.beleidsregel import BeleidsregelCreate, BeleidsregelUpdate

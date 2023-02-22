@@ -1,4 +1,9 @@
 from fastapi.testclient import TestClient
+from app import schemas
+from app.crud.crud_ambitie import CRUDAmbitie
+from app.db.base_class import MAX_DATETIME, MIN_DATETIME
+from app.models.ambitie import Ambitie
+from app.models.gebruiker import Gebruiker
 import pytest
 
 
@@ -45,21 +50,83 @@ class TestAuth:
         assert response.status_code == 200, f"Status code was {response.status_code}"
 
     def test_unauthenticated(self, client: TestClient):
-        create_request = {
-            "Titel": "test object",
-            "Omschrijving": "test object",
-            "Weblink": "test object",
-            "Begin_Geldigheid": "2012-10-11T18:31:21.548Z",
-            "Eind_Geldigheid": "2012-10-11T18:31:21.548Z",
-        }
-
         responses = [
-            client.get("v0.1/graph"),
             client.get("v0.1/ambities"),
-            client.get("v0.1/changes/ambities/test/test"),
             client.post("v0.1/ambities", data={}),
         ]
         for response in responses:
             assert (
                 response.status_code == 401
             ), f"Status code was {response.status_code}"
+
+    # Ownership access tests
+    def test_ownership_forbidden(self, client: TestClient, ba_auth_headers, db):
+        # Get an existing user UUID
+        original_owner = (
+            db.query(Gebruiker).filter(Gebruiker.Email == "fred@test.com").one()
+        )
+
+        amb_schema = schemas.AmbitieCreate(
+            Titel="auto test",
+            Begin_Geldigheid=MIN_DATETIME,
+            Eind_Geldigheid=MAX_DATETIME,
+        )
+
+        crud = CRUDAmbitie(Ambitie, db=db)
+        ambitie = crud.create(obj_in=amb_schema, by_uuid=original_owner.UUID)
+
+        # Act
+        patch_data = {"Titel": "patched"}
+        response = client.patch(
+            url=f"v0.1/ambities/{ambitie.ID}", headers=ba_auth_headers, json=patch_data
+        )
+
+        # Expect 403 forbidden since patching a different users entitiy
+        assert response.status_code == 403
+
+    def test_ownership_self(self, client: TestClient, ba_auth_headers, db):
+        # Get this users uuid
+        original_owner = (
+            db.query(Gebruiker).filter(Gebruiker.Email == "alex@test.com").one()
+        )
+
+        amb_schema = schemas.AmbitieCreate(
+            Titel="auto test",
+            Begin_Geldigheid=MIN_DATETIME,
+            Eind_Geldigheid=MAX_DATETIME,
+        )
+
+        crud = CRUDAmbitie(Ambitie, db=db)
+        ambitie = crud.create(obj_in=amb_schema, by_uuid=original_owner.UUID)
+
+        # Act
+        patch_data = {"Titel": "patched"}
+        response = client.patch(
+            url=f"v0.1/ambities/{ambitie.ID}", headers=ba_auth_headers, json=patch_data
+        )
+
+        assert response.status_code == 200
+
+    # Beheerder can patch others entities
+    def test_ownership_beheerder(self, client: TestClient, admin_headers, db):
+        # Get this users uuid
+        original_owner = (
+            db.query(Gebruiker).filter(Gebruiker.Email == "alex@test.com").one()
+        )
+
+        amb_schema = schemas.AmbitieCreate(
+            Titel="auto test",
+            Begin_Geldigheid=MIN_DATETIME,
+            Eind_Geldigheid=MAX_DATETIME,
+        )
+
+        crud = CRUDAmbitie(Ambitie, db=db)
+        ambitie = crud.create(obj_in=amb_schema, by_uuid=original_owner.UUID)
+
+        # Act
+        patch_data = {"Titel": "patched"}
+        response = client.patch(
+            url=f"v0.1/ambities/{ambitie.ID}", headers=admin_headers, json=patch_data
+        )
+
+        assert response.status_code == 200

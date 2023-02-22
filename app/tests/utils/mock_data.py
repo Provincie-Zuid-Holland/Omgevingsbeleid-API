@@ -124,11 +124,11 @@ def add_modifiable_object(schema, model, db, data=None):
     request_time = datetime.now()
     uuid = uuid4()
 
-    obj_data["UUID"] = uuid
-    obj_data["Created_By_UUID"] = NULL_UUID
-    obj_data["Modified_By_UUID"] = NULL_UUID
-    obj_data["Created_Date"] = request_time
-    obj_data["Modified_Date"] = request_time
+    obj_data.setdefault("UUID", uuid)
+    obj_data.setdefault("Created_By_UUID", NULL_UUID)
+    obj_data.setdefault("Modified_By_UUID", NULL_UUID)
+    obj_data.setdefault("Created_Date", request_time)
+    obj_data.setdefault("Modified_Date", request_time)
 
     try:
         instance = model(**obj_data)

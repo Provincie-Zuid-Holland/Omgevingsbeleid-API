@@ -14,7 +14,7 @@ from app.core.config import settings
 from app.db.base_class import NULL_UUID, metadata
 from app.tests.utils.data_loader import FixtureLoader
 from app.tests.utils.exceptions import SetupMethodException
-from app.tests.utils.headers import get_admin_headers, get_fred_headers
+from app.tests.utils.headers import get_admin_headers, get_ba_headers, get_fred_headers
 from app.tests.utils.mock_data import generate_data
 from main import create_app
 
@@ -56,6 +56,11 @@ def client() -> TestClient:
 @pytest.fixture(scope="function")
 def admin_headers(client: TestClient) -> Dict[str, str]:
     return get_admin_headers(client)
+
+
+@pytest.fixture(scope="function")
+def ba_auth_headers(client: TestClient) -> Dict[str, str]:
+    return get_ba_headers(client)
 
 
 @pytest.fixture(scope="module")
