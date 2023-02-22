@@ -81,6 +81,13 @@ class BeleidsrelatieType(str, Enum):
     Gebiedsprogramma = "gebiedsprogrammas"
 
 
+@unique
+class VerordeningstructuurStatus(str, Enum):
+    VIGEREND = "Vigerend"
+    CONCEPT = "Concept"
+    VERVALLEN = "Vervallen"
+
+
 class MTMRelation(NamedTuple):
     """
     Typed NamedTuple helper to generically map

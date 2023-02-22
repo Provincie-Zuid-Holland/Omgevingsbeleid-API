@@ -1,15 +1,44 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
 from app.schemas.common import GebruikerInline
+from app.models.base import VerordeningstructuurStatus as StatusEnum
+
+# TODO: structuur XML parse
+class TreeNode(BaseModel):
+    """
+    Recursief schema voor boomstructuur
+    """
+
+    UUID: str
+    Children: Optional[List["TreeNode"]] = None
+    Titel: Optional[str] = ""
+    Volgnummer: Optional[str] = None
+    Type: str
+    Inhoud: str
+    Gebied: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class TreeRoot(BaseModel):
+    """
+    Startpunt voor boomstructuur
+    """
+
+    Children: Optional[List[TreeNode]] = None
+
+    class Config:
+        orm_mode = True
 
 
 class VerordeningstructuurBase(BaseModel):
     Titel: str
     Structuur: str
-    Status: Optional[str]
+    Status: Optional[StatusEnum]
 
 
 class VerordeningstructuurCreate(VerordeningstructuurBase):
@@ -22,7 +51,6 @@ class VerordeningstructuurUpdate(VerordeningstructuurCreate):
     Eind_Geldigheid: Optional[datetime]
 
     Titel: Optional[str]
-    Status: Optional[str]
     Structuur: Optional[str]
 
 
