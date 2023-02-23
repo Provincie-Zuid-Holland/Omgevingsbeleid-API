@@ -87,8 +87,10 @@ def HTML_Validate(s):
                             f'Non whitelisted url schema "{val}" in text "{el}"'
                         )
 
-            if el.name == "img":
-                validate_image(el)
+            # @note: older objects fail this check as they already have bigger images
+            # this is ran on the old object before patching it, therefor old objects with images can not be patched
+            # if el.name == "img":
+            #     validate_image(el)
 
         else:
             # Only need to check tags
