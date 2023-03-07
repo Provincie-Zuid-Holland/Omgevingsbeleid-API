@@ -10,9 +10,9 @@ from app.dynamic.config.models import Column as DynamicColumn
 class ObjectStaticsTable(Base):
     __tablename__ = "object_statics"
 
-    Object_Type: Mapped[str]
+    Object_Type: Mapped[str] = mapped_column(String(25))
     Object_ID: Mapped[int]
-    Code: Mapped[str] = mapped_column(primary_key=True)
+    Code: Mapped[str] = mapped_column(String(35), primary_key=True)
 
     def __repr__(self) -> str:
         return f"ObjectStatics(Code={self.Code!r}"
@@ -22,6 +22,8 @@ class ObjectStaticsTable(Base):
 column_type_map: Dict[str, Any] = {
     "int": Integer,
     "str": String,
+    "str_25": String(25),
+    "str_35": String(35),
     "datetime": DateTime,
     "object_uuid": Uuid,
     "user_uuid": Uuid,

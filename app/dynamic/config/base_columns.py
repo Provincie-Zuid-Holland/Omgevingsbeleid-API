@@ -23,12 +23,12 @@ base_columns = [
     Column(
         id="object_type",
         name="Object_Type",
-        type="str",
+        type="str_25",
     ),
     Column(
         id="code",
         name="Code",
-        type="str",
+        type="str_35",
     ),
     Column(
         id="created_date",

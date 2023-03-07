@@ -4,6 +4,8 @@
 #
 #    pip-compile requirements-dev.in
 #
+alembic==1.10.1
+    # via -r requirements-dev.in
 astroid==2.14.2
     # via pylint
 asttokens==2.2.1
@@ -69,6 +71,10 @@ jedi==0.18.2
     # via ipython
 lazy-object-proxy==1.9.0
     # via astroid
+mako==1.2.4
+    # via alembic
+markupsafe==2.1.2
+    # via mako
 matplotlib-inline==0.1.6
     # via ipython
 mccabe==0.7.0
@@ -140,7 +146,9 @@ six==1.16.0
 smmap==5.0.0
     # via gitdb
 sqlalchemy[mypy]==2.0.3
-    # via -r requirements-dev.in
+    # via
+    #   -r requirements-dev.in
+    #   alembic
 stack-data==0.6.2
     # via ipython
 stevedore==5.0.0
@@ -161,6 +169,7 @@ traitlets==5.9.0
     #   matplotlib-inline
 typing-extensions==4.5.0
     # via
+    #   alembic
     #   astroid
     #   black
     #   mypy
