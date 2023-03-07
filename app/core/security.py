@@ -1,17 +1,16 @@
 from datetime import datetime, timedelta
-import logging
 from typing import Any, Optional, Union
 
 from jose import jwt
 from passlib.context import CryptContext
 
-from app.core.config import settings
+from app.core.settings import settings
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 ALGORITHM = "HS256"
-logger = logging.getLogger(__name__)
 
 
 def create_access_token(
@@ -27,17 +26,16 @@ def create_access_token(
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
 
-    if settings.DEBUG_MODE:
-        logger.debug("\n\n")
-        logger.debug(to_encode)
-        logger.debug("\n\n")
-        logger.debug(encoded_jwt)
-        logger.debug("\n\n")
-
     return encoded_jwt
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+def verify_password(
+    plain_password: Optional[str], hashed_password: Optional[str]
+) -> bool:
+    if plain_password is None:
+        return False
+    if hashed_password is None:
+        return False
     return pwd_context.verify(plain_password, hashed_password)
 
 

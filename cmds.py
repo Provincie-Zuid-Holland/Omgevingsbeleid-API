@@ -1,8 +1,11 @@
 import click
 
-from app.tests.utils.data_loader import FixtureLoader
-from app.db import base  # noqa: F401
-from app.db.session import SessionLocal, engine
+from sqlalchemy.orm import Session
+
+from app.core.db import table_metadata, engine
+from app.core.db.session import SessionLocal
+from app.main import app # noqa We need this to load all sqlalchemy tables
+from app.tests.database_fixtures import DatabaseFixtures
 
 
 @click.group()
@@ -13,46 +16,31 @@ def cli():
 @click.command()
 def initdb():
     click.echo("Initialized the database")
-    with SessionLocal() as session:
-        loader = FixtureLoader(session)
-        loader.load_fixtures()
-
+    table_metadata.create_all(engine)
     click.echo("Done")
-
-
-# @click.command()
-# def initview():
-#     click.echo('Initialized the views')
-#     # base.Base.metadata.create_all(
-#     #     bind=engine,
-#     #     checkfirst=True,
-#     #     tables=[
-#     #         base.valid_ambitie_view,
-#     #     ]
-#     # )
-#     # print(base.Base.metadata.tables.keys())
-#     # print("\n\n")
-#     # print(base.valid_ambitie_view.create(bind=engine))
-
-#     base.Base.metadata.create_all(
-#         bind=engine,
-#         checkfirst=True,
-#         tables=[
-#             base.valid_ambitie_view,
-#         ]
-#     )
-
-#     click.echo('Done')
 
 
 @click.command()
 def dropdb():
+    click.echo("Dropping database")
+    table_metadata.drop_all(engine)
     click.echo("Dropped the database")
 
 
-cli.add_command(initdb)
-# cli.add_command(initview)
-cli.add_command(dropdb)
+@click.command()
+def load_fixtures():
+    click.echo("Start loading fixtures")
+    with SessionLocal() as db:
+        loader: DatabaseFixtures = DatabaseFixtures(db)
+        loader.create_all()
+        db.flush()
+        db.commit()
+    click.echo("Done")
+
+
+cli.add_command(initdb, "init-db")
+cli.add_command(dropdb, "drop-db")
+cli.add_command(load_fixtures, "load-fixtures")
 
 
 if __name__ == "__main__":

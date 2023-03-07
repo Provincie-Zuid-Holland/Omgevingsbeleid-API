@@ -2,6 +2,8 @@
 Faker
 pytest
 black
+mypy
+sqlalchemy[mypy]
 pylint
 devtools
 autoflake

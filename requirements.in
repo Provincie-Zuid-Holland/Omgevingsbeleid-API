@@ -1,13 +1,10 @@
 # Core libraries
 fastapi
 uvicorn[standard]
-pydantic[email]
-sqlalchemy==1.4.39
+pydantic[email,dotenv]
 pyodbc
-alembic
-SQLAlchemy-Utils
-bcrypt
-gunicorn==20.0.4
+SQLAlchemy
+pyyaml
 
 # JWT
 python-jose
@@ -22,3 +19,15 @@ Click
 
 # Async requests
 httpx
+
+# Validators
+beautifulsoup4
+
+# Image information
+Pillow
+
+# Exporting xml and pdf
+fs
+pdfkit
+jinja2
+dicttoxml

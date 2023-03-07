@@ -1,0 +1,209 @@
+api:
+  routers:
+    - prefix: /search
+      endpoints:
+        - resolver: search
+    - prefix: /modules
+      endpoints:
+        - resolver: create_module
+          resolver_data:
+            user_role: Beheerder
+        - resolver: list_modules
+    - prefix: /modules/{module_id}
+      endpoints:
+        - resolver: module_overview
+        - resolver: edit_module
+        - resolver: activate_module
+          resolver_data:
+            path: /activate
+        - resolver: complete_module
+          resolver_data:
+            path: /complete
+        - resolver: close_module
+          resolver_data:
+            path: /close
+        - resolver: module_list_statuses
+          resolver_data:
+            path: /status
+        - resolver: module_patch_status
+          resolver_data:
+            path: /status
+        - resolver: module_add_new_object
+          resolver_data:
+            path: /add-new-object
+            user_role: "Behandelend Ambtenaar"
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+        - resolver: module_add_existing_object
+          resolver_data:
+            path: /add-existing-object
+            user_role: "Behandelend Ambtenaar"
+        - resolver: module_get_object_context
+          resolver_data:
+            path: /object-context/{object_type}/{lineage_id}
+        - resolver: module_edit_object_context
+          resolver_data:
+            user_role: "Behandelend Ambtenaar"
+            path: /object-context/{object_type}/{lineage_id}
+        - resolver: module_remove_object
+          resolver_data:
+            user_role: "Behandelend Ambtenaar"
+            path: /remove/{object_type}/{lineage_id}
+        - resolver: module_snapshot
+          resolver_data:
+            path: /snapshot/{status_id}
+
+columns:
+  # Titel
+  title:
+    name: Title
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Omschrijving
+  description:
+    name: Description
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Omschrijving Keuze
+  description_choice:
+    name: Description_Choice
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Omschrijving Werking
+  description_operation:
+    name: Description_Operation
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Provinciaal Belang
+  provincial_interest:
+    name: Provincial_Interest
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Aanleiding
+  cause:
+    name: Cause
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Afweging
+  consideration:
+    name: Consideration
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Besluitnummer
+  decision_number:
+    name: Decision_Number
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Toelichting
+  explanation:
+    name: Explanation
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Toelichting Raw
+  explanation_raw:
+    name: Explanation_Raw
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Weblink
+  weblink:
+    name: Weblink
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Tags
+  tags:
+    name: Tags
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Gebied UUID
+  gebied_uuid:
+    name: Gebied_UUID
+    type: werkingsgebied_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+  # Gebied Duiding
+  gebied_duiding:
+    name: Gebied_Duiding
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Eigenaar 1
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: user_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  # Eigenaar 2
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: user_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  # Portefeuillehouder 1
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: user_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  # Portefeuillehouder 2
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: user_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  # Opdrachtgever
+  client_1_uuid:
+    name: Client_1_UUID
+    type: user_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+
+modules_pdf_export:
+  # prefixed by /config/
+  template_path: /extensions/module_pdf_export/templates
+  templates:
+    ambitie: ambitie.j2
+    beleidsdoel: beleidsdoel.j2
+    beleidskeuze: beleidskeuze.j2
+    maatregel: maatregel.j2
+  # prefixed by /output/
+  destination_path: /extensions/module_pdf_export
+
+modules_xml_export:
+  destination_path: /extensions/module_xml_export

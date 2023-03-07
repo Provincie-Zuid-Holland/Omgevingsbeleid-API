@@ -1,0 +1,39 @@
+from collections import OrderedDict
+from dataclasses import dataclass
+
+from .types import Event
+from ..config.models import IntermediateModel
+from app.dynamic.models_resolver import ModelsResolver
+
+
+@dataclass
+class CreateModelEventPayload:
+    pydantic_fields: OrderedDict
+
+
+@dataclass
+class CreateModelEventContext:
+    intermediate_model: IntermediateModel
+    models_resolver: ModelsResolver
+
+
+class CreateModelEvent(Event):
+    def __init__(
+        self,
+        payload: CreateModelEventPayload,
+        context: CreateModelEventContext,
+    ):
+        super().__init__()
+        self.payload = payload
+        self.context = context
+
+    @staticmethod
+    def create(
+        pydantic_fields: OrderedDict,
+        intermediate_model: IntermediateModel,
+        models_resolver: ModelsResolver,
+    ):
+        return CreateModelEvent(
+            payload=CreateModelEventPayload(pydantic_fields),
+            context=CreateModelEventContext(intermediate_model, models_resolver),
+        )

@@ -1,0 +1,277 @@
+id: maatregel
+object_type: maatregel
+
+api:
+  routers:
+    - prefix: /maatregelen
+      endpoints:
+        - resolver: valid_list_lineages
+          resolver_data:
+            path: /valid
+            response_model: maatregel_get
+            allowed_filter_columns:
+              - Title
+              - Weblink
+        - resolver: valid_list_lineage_tree
+          resolver_data:
+            path: /valid/{lineage_id}
+            response_model: maatregel_basic
+            allowed_filter_columns:
+              - Title
+              - Weblink
+        - resolver: object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: maatregel_get
+        - resolver: object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: maatregel_get
+        - resolver: list_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+        - resolver: overwrite_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+            allowed_object_types_relations:
+              - beleidskeuze
+    - prefix: /maatregel/static/{lineage_id}
+      endpoints:
+        - resolver: edit_object_static
+          resolver_data:
+            request_model: maatregel_static_patch
+    - prefix: /modules/{module_id}/object/maatregel
+      endpoints:
+        - resolver: module_patch_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: maatregel_patch
+            response_model: maatregel_uuid
+        - resolver: module_list_lineage_tree
+          resolver_data:
+            path: /{lineage_id}
+            response_model: maatregel_basic
+            allowed_filter_columns:
+              - Title
+              - Weblink
+        - resolver: module_object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: maatregel_get
+        - resolver: module_object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: maatregel_get
+
+fields:
+  title:
+    name: Title
+    type: str
+    column: title
+  description:
+    name: Description
+    type: str
+    column: description
+  explanation:
+    name: Explanation
+    type: str
+    column: explanation
+  explanation_raw:
+    name: Explanation_Raw
+    type: str
+    column: explanation_raw
+  weblink:
+    name: Weblink
+    type: str
+    column: weblink
+  gebied_uuid:
+    name: Gebied_UUID
+    type: uuid
+    column: gebied_uuid
+  gebied_duiding:
+    name: Gebied_Duiding
+    type: str
+    column: gebied_duiding
+  tags:
+    name: Tags
+    type: str
+    column: tags
+  # Statics
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    column: owner_1_uuid
+    optional: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    column: owner_2_uuid
+    optional: true
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  client_1_uuid:
+    name: Client_1_UUID
+    type: uuid
+    column: client_1_uuid
+    optional: true
+
+models:
+  maatregel_short:
+    name: MaatregelShort
+    fields:
+      object_id:
+      uuid:
+      title:
+  maatregel_basic:
+    name: MaatregelBasic
+    fields:
+      object_id:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      start_validity:
+      end_validity:
+      title:
+      description:
+      explanation:
+      explanation_raw:
+      weblink:
+      gebied_duiding:
+      tags:
+    services:
+      extended_user:
+        fields_map:
+          - from_field: Created_By_UUID
+            to_field: Created_By
+            model_id: gebruikers_short
+          - from_field: Modified_By_UUID
+            to_field: Modified_By
+            model_id: gebruikers_short
+          # - from_field: Owner_1_UUID
+          #   to_field: Owner_1
+          #   model_id: gebruikers_short
+          # - from_field: Owner_2_UUID
+          #   to_field: Owner_2
+          #   model_id: gebruikers_short
+          # - from_field: Portfolio_Holder_1_UUID
+          #   to_field: Portfolio_Holder_1
+          #   model_id: gebruikers_short
+          # - from_field: Portfolio_Holder_2_UUID
+          #   to_field: Portfolio_Holder_2
+          #   model_id: gebruikers_short
+          # - from_field: Client_1_UUID
+          #   to_field: Client_1
+          #   model_id: gebruikers_short
+  maatregel_get:
+    name: MaatregelGet
+    fields:
+      object_id:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      start_validity:
+      end_validity:
+      title:
+      description:
+      explanation:
+      explanation_raw:
+      weblink:
+      gebied_duiding:
+      tags:
+      owner_1_uuid:
+    services:
+      werkingsgebied:
+        fields_map:
+          - from_field: Gebied_UUID
+            to_field: Gebied
+            model_id: werkingsgebied
+      relations:
+        objects:
+          - object_type: beleidsdoel
+            object_id: beleidsdoel
+            to_field: "Beleidsdoelen"
+            model_id: beleidsdoel_short
+            wrapped_with_relation_data: false
+      extended_user:
+        fields_map:
+          - from_field: Created_By_UUID
+            to_field: Created_By
+            model_id: gebruikers_short
+          - from_field: Modified_By_UUID
+            to_field: Modified_By
+            model_id: gebruikers_short
+          # - from_field: Owner_1_UUID
+          #   to_field: Owner_1
+          #   model_id: gebruikers_short
+          # - from_field: Owner_2_UUID
+          #   to_field: Owner_2
+          #   model_id: gebruikers_short
+          # - from_field: Portfolio_Holder_1_UUID
+          #   to_field: Portfolio_Holder_1
+          #   model_id: gebruikers_short
+          # - from_field: Portfolio_Holder_2_UUID
+          #   to_field: Portfolio_Holder_2
+          #   model_id: gebruikers_short
+          # - from_field: Client_1_UUID
+          #   to_field: Client_1
+          #   model_id: gebruikers_short
+  maatregel_patch:
+    name: MaatregelPatch
+    fields:
+      title:
+        default: none
+        optional: True
+      description:
+        default: none
+        optional: True
+      explanation:
+        default: none
+        optional: True
+      explanation_raw:
+        default: none
+        optional: True
+      weblink:
+        default: none
+        optional: True
+      gebied_duiding:
+        default: none
+        optional: True
+      gebied_uuid:
+        default: none
+        optional: True
+      tags:
+        default: none
+        optional: True
+  maatregel_static_patch:
+    name: MaatregelStaticPatch
+    fields:
+      owner_1_uuid:
+        default: none
+        optional: True
+      owner_2_uuid:
+        default: none
+        optional: True
+      portfolio_holder_1_uuid:
+        default: none
+        optional: True
+      portfolio_holder_2_uuid:
+        default: none
+        optional: True
+      client_1_uuid:
+        default: none
+        optional: True
+  maatregel_uuid:
+    name: MaatregelUUID
+    fields:
+      object_id:
+      uuid:

@@ -1,0 +1,29 @@
+
+Extended users loading for object-statics
+Flag object as action verwijderen -> + set eind geldigheid?
+Add data validators, like for enums, and text limitations
+Add status field with enums validators and openapi hinting
+Only fetch columns that are needed
+Validate all html rules
+Permissions
+ - Moduletrekker is always allowed to manage the module (even when locked)
+ - Only Owners can edit objects, they can not if the module is locked
+Extract images from text and store those as assets
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" alt="Red dot" />
+Set user password as Defered, so it is not loaded by default
+
+
+
+{
+  "Title": "string",
+  "Description": "Hier heb je een mooi stipje: <img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==\" alt=\"Red dot\" />. Dat was mooi he?"
+}
+
+
+Rollen:
+Ambtelijk opdrachtgever
+Behandelend Ambtenaar
+Beheerder
+Geen
+Portefeuillehouder
+Technisch beheerder

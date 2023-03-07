@@ -1,3 +1,23 @@
+
+### Example `.env`
+
+```
+SQLALCHEMY_DATABASE_URI="sqlite+pysqlite:///api.db"
+```
+
+
+
+
+
+
+
+
+# @TODO: Fix below this
+
+
+
+
+
 <img src="https://omgevingsbeleid.zuid-holland.nl/static/media/PZH_Basislogo.36627253.svg" alt="Provincie Zuid-Holland logo" width="500px">
 
 # Omgevingsbeleid API · ![License](https://img.shields.io/github/license/Provincie-Zuid-Holland/Omgevingsbeleid-API)
