@@ -1,7 +1,7 @@
 from typing import List
 import uuid
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
@@ -17,11 +17,11 @@ from app.dynamic.converter import Converter
 
 
 class SearchObject(BaseModel):
-    Object_Type: str
-    Object_ID: int
+    Object_Type: str = Field(default="")
+    Object_ID: int = Field(default="")
     UUID: uuid.UUID
-    Title: str
-    Description: str
+    Title: str = Field(default="")
+    Description: str = Field(default="")
 
 
 class SearchResponse(BaseModel):

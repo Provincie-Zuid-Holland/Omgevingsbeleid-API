@@ -20,6 +20,9 @@ class Extension(ABC):
     def __init__(self):
         self._service_container: Optional[ServiceContainer]
 
+    def initialize(self, main_config: dict):
+        pass
+
     def register_base_columns(self) -> List[Column]:
         return []
 

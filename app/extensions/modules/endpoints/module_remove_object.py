@@ -19,17 +19,23 @@ from app.extensions.modules.dependencies import (
     depends_active_module_object_context,
     depends_module_object_repository,
 )
+from app.extensions.modules.permissions import ModulesPermissions
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
 from app.extensions.users.db.tables import GebruikersTable
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.users.dependencies import (
+    depends_current_active_user,
+    depends_permission_service,
+)
+from app.extensions.users.permission_service import PermissionService
 
 
 class EndpointHandler:
     def __init__(
         self,
         db: Session,
+        permission_service: PermissionService,
         module_object_repository: ModuleObjectRepository,
         user: GebruikersTable,
         module: ModuleTable,
@@ -40,6 +46,7 @@ class EndpointHandler:
         self._module_object_repository: ModuleObjectRepository = (
             module_object_repository
         )
+        self._permission_service: PermissionService = permission_service
         self._user: GebruikersTable = user
         self._module: ModuleTable = module
         self._object_context: ModuleObjectContextTable = object_context
@@ -81,15 +88,18 @@ class EndpointHandler:
         self._db.add(new_record)
 
     def _guard_valid_user(self):
-        if not any(
+        if any(
             [
                 self._user_is_owner(),
                 self._module.is_manager(self._user.UUID),
             ]
         ):
-            raise HTTPException(
-                401, "You are not allowed to remove an object from this module"
-            )
+            return
+
+        if not self._permission_service.has_permission(
+            ModulesPermissions.can_add_new_object_to_module, self._user
+        ):
+            raise HTTPException(status_code=401, detail="Invalid user role")
 
     def _user_is_owner(self):
         return self._user.UUID in [
@@ -116,9 +126,11 @@ class ModuleRemoveObjectEndpoint(Endpoint):
             module_object_repository: ModuleObjectRepository = Depends(
                 depends_module_object_repository
             ),
+            permission_service: PermissionService = Depends(depends_permission_service),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
                 db,
+                permission_service,
                 module_object_repository,
                 user,
                 module,

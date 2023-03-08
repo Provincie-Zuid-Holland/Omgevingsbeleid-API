@@ -36,8 +36,14 @@ class ModuleTable(Base):
     End_Validity: Mapped[Optional[datetime]]
 
     status_history: Mapped[List["ModuleStatusHistoryTable"]] = relationship(
-        back_populates="Module"
+        back_populates="Module", order_by="asc(ModuleStatusHistoryTable.Created_Date)"
     )
+
+    @property
+    def Status(self) -> Optional["ModuleStatusHistoryTable"]:
+        if not self.status_history:
+            return None
+        return self.status_history[-1]
 
     def is_manager(self, user_uuid: uuid.UUID) -> bool:
         return user_uuid in [self.Module_Manager_1_UUID, self.Module_Manager_2_UUID]

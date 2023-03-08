@@ -9,8 +9,6 @@ api:
     - prefix: /modules
       endpoints:
         - resolver: create_module
-          resolver_data:
-            user_role: Beheerder
         - resolver: list_modules
     - prefix: /modules/{module_id}
       endpoints:
@@ -34,24 +32,22 @@ api:
         - resolver: module_add_new_object
           resolver_data:
             path: /add-new-object
-            user_role: "Behandelend Ambtenaar"
             allowed_object_types:
               - ambitie
               - beleidsdoel
+              - beleidskeuze
+              - maatregel
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
-            user_role: "Behandelend Ambtenaar"
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
         - resolver: module_edit_object_context
           resolver_data:
-            user_role: "Behandelend Ambtenaar"
             path: /object-context/{object_type}/{lineage_id}
         - resolver: module_remove_object
           resolver_data:
-            user_role: "Behandelend Ambtenaar"
             path: /remove/{object_type}/{lineage_id}
         - resolver: module_snapshot
           resolver_data:
@@ -196,6 +192,40 @@ columns:
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
+
+users_permissions:
+  "Ambtelijk opdrachtgever": []
+  "Behandelend Ambtenaar": []
+  "Beheerder":
+    - can_create_module
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
+  "Portefeuillehouder": []
+  "Technisch beheerder": []
+  "Superuser":
+    - can_create_module
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
+  "Test runner":
+    - can_create_module
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
+  "Tester":
+    - can_create_module
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
 
 modules_pdf_export:
   # prefixed by /config/

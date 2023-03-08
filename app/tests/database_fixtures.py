@@ -34,7 +34,7 @@ class DatabaseFixtures:
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Gebruikersnaam="Anton",
                 Email="test@example.com",
-                Rol="Beheerder",
+                Rol="Superuser",
                 Status="Actief",
                 Wachtwoord=get_password_hash("password"),
             )
@@ -44,7 +44,7 @@ class DatabaseFixtures:
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
                 Gebruikersnaam="Bert",
                 Email="b@example.com",
-                Rol="",
+                Rol="Ambtelijk opdrachtgever",
                 Status="Actief",
                 Wachtwoord=get_password_hash("password"),
             )
@@ -54,7 +54,7 @@ class DatabaseFixtures:
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000003"),
                 Gebruikersnaam="Cees",
                 Email="c@example.com",
-                Rol="",
+                Rol="Behandelend Ambtenaar",
                 Status="Actief",
                 Wachtwoord=get_password_hash("password"),
             )
@@ -64,7 +64,7 @@ class DatabaseFixtures:
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000004"),
                 Gebruikersnaam="Daniel",
                 Email="d@example.com",
-                Rol="",
+                Rol="Beheerder",
                 Status="Actief",
                 Wachtwoord=get_password_hash("password"),
             )
@@ -74,7 +74,27 @@ class DatabaseFixtures:
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000005"),
                 Gebruikersnaam="Emma",
                 Email="e@example.com",
-                Rol="",
+                Rol="Portefeuillehouder",
+                Status="Actief",
+                Wachtwoord=get_password_hash("password"),
+            )
+        )
+        self._db.add(
+            GebruikersTable(
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000005"),
+                Gebruikersnaam="Fred",
+                Email="f@example.com",
+                Rol="Test runner",
+                Status="Actief",
+                Wachtwoord=get_password_hash("password"),
+            )
+        )
+        self._db.add(
+            GebruikersTable(
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000005"),
+                Gebruikersnaam="Gerald",
+                Email="g@example.com",
+                Rol="Tester",
                 Status="Actief",
                 Wachtwoord=get_password_hash("password"),
             )

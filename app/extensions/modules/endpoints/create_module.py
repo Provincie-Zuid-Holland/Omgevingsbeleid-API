@@ -14,9 +14,10 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.models.models import ModuleStatusCode
+from app.extensions.modules.permissions import ModulesPermissions
 from app.extensions.users.db.tables import GebruikersTable
 from app.extensions.users.dependencies import (
-    depends_current_active_user_with_role_curried,
+    depends_current_active_user_with_permission_curried,
 )
 
 
@@ -88,21 +89,16 @@ class EndpointHandler:
 
 
 class CreateModuleEndpoint(Endpoint):
-    def __init__(
-        self,
-        event_dispatcher: EventDispatcher,
-        path: str,
-        user_role: Optional[str],
-    ):
-        self._event_dispatcher: EventDispatcher = event_dispatcher
+    def __init__(self, path: str):
         self._path: str = path
-        self._user_role: Optional[str] = user_role
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: ModuleCreate,
             user: GebruikersTable = Depends(
-                depends_current_active_user_with_role_curried(self._user_role)
+                depends_current_active_user_with_permission_curried(
+                    ModulesPermissions.can_create_module
+                ),
             ),
             db: Session = Depends(depends_db),
         ) -> ModuleCreatedResponse:
@@ -140,10 +136,5 @@ class CreateModuleEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
-        user_role: Optional[str] = resolver_config.get("user_role", None)
 
-        return CreateModuleEndpoint(
-            event_dispatcher=event_dispatcher,
-            path=path,
-            user_role=user_role,
-        )
+        return CreateModuleEndpoint(path=path)

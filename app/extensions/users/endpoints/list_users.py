@@ -8,7 +8,10 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.users.db.tables import GebruikersTable
-from app.extensions.users.dependencies import depends_current_active_user, depends_user_repository
+from app.extensions.users.dependencies import (
+    depends_current_active_user,
+    depends_user_repository,
+)
 from app.extensions.users.model import UserShort
 from app.extensions.users.repository.user_repository import UserRepository
 
