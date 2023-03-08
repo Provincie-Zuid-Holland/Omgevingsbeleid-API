@@ -1,5 +1,8 @@
 api:
   routers:
+    - prefix: /users
+      endpoints:
+        - resolver: list_users
     - prefix: /search
       endpoints:
         - resolver: search
