@@ -6,9 +6,15 @@ from pydantic import BaseSettings, validator
 
 
 class Settings(BaseSettings):
-    API_V01_STR: str = "/v0.1"
+    PROJECT_VERSION: str = "3.0-alpha"
     DEBUG_MODE: bool = True
+
     PROJECT_NAME: str = "Omgevingsbeleid API"
+    PROJECT_DESC: str = """
+        This API serves all the object that make up the policies 
+        of a provincial government. 
+        """
+    OPENAPI_LOGO: str = "https://avatars.githubusercontent.com/u/60095455?s=200&v=4"
 
     SECRET_KEY: str = "secret-key"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 4

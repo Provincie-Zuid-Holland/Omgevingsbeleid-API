@@ -4,6 +4,7 @@ import sys
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from fastapi.responses import JSONResponse
+from fastapi.openapi.utils import get_openapi
 import sqlalchemy.exc
 import uvicorn
 
@@ -58,6 +59,13 @@ dynamic_app = app_builder.build()
 app: FastAPI = dynamic_app.run()
 
 
+"""
+
+    @TODO: all fastapi functions below should be moved to extensions etc
+
+"""
+
+
 @app.exception_handler(sqlalchemy.exc.IntegrityError)
 async def http_exception_handler(request, exc):
     return JSONResponse(
@@ -84,7 +92,22 @@ def set_operator_id_from_unique_id(app: FastAPI) -> None:
             route.operation_id = route.unique_id.replace("fastapi_handler_", "", 1)
 
 
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title=settings.PROJECT_NAME,
+        version=settings.PROJECT_VERSION,
+        description=settings.PROJECT_DESC,
+        routes=app.routes,
+    )
+    openapi_schema["info"]["x-logo"] = {"url": settings.OPENAPI_LOGO}
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
 set_operator_id_from_unique_id(app)
+app.openapi = custom_openapi
 
 
 # Logging
