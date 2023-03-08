@@ -35,7 +35,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Anton",
                 Email="test@example.com",
                 Rol="Beheerder",
-                IsActief=True,
+                Status="Actief",
                 Wachtwoord=get_password_hash("password"),
             )
         )
@@ -45,7 +45,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Bert",
                 Email="b@example.com",
                 Rol="",
-                IsActief=True,
+                Status="Actief",
                 Wachtwoord=get_password_hash("password"),
             )
         )
@@ -55,7 +55,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Cees",
                 Email="c@example.com",
                 Rol="",
-                IsActief=True,
+                Status="Actief",
                 Wachtwoord=get_password_hash("password"),
             )
         )
@@ -65,7 +65,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Daniel",
                 Email="d@example.com",
                 Rol="",
-                IsActief=True,
+                Status="Actief",
                 Wachtwoord=get_password_hash("password"),
             )
         )
@@ -75,7 +75,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Emma",
                 Email="e@example.com",
                 Rol="",
-                IsActief=True,
+                Status="Actief",
                 Wachtwoord=get_password_hash("password"),
             )
         )

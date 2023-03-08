@@ -29,7 +29,7 @@ def upgrade() -> None:
         sa.Column("Gebruikersnaam", sa.String(), nullable=True),
         sa.Column("Email", sa.String(), nullable=False),
         sa.Column("Rol", sa.String(), nullable=True),
-        sa.Column("IsActief", sa.Boolean(), nullable=False),
+        sa.Column("Status", sa.String(), nullable=True),
         sa.Column("Wachtwoord", sa.String(), nullable=True),
         sa.PrimaryKeyConstraint("UUID"),
     )
