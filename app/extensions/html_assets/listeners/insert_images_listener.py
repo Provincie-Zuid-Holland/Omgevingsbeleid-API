@@ -37,7 +37,11 @@ class Inserter:
         for index, row in enumerate(self._rows):
             for field_name in self._config.fields:
                 content: str = row[field_name]
-                soup = BeautifulSoup(content, "html.parser")
+                try:
+                    soup = BeautifulSoup(content, "html.parser")
+                except:
+                    continue
+
                 for img in soup.find_all("img", src=re.compile("^\[ASSET")):
                     try:
                         asset_uuid = UUID(img["src"].split(":")[1][:-1])

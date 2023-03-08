@@ -40,7 +40,7 @@ class EndpointHandler:
         self._query: str = query
 
     def handle(self) -> SearchResponse:
-        if self._db.bind.name == "sqlite":
+        if self._db.bind.name in ["sqlite", "mssql"]:
             stmt = self._like_search_stmt()
         else:
             stmt = self._match_search_stmt()
@@ -69,6 +69,7 @@ class EndpointHandler:
                 ObjectsTable.Title.like(like_query)
                 | ObjectsTable.Description.like(like_query)
             )
+            .order_by(desc(ObjectsTable.Modified_Date))
             .limit(self._pagination.get_limit())
             .offset(self._pagination.get_offset())
         )
@@ -94,6 +95,7 @@ class EndpointHandler:
                     + ObjectsTable.Description.match(self._query)
                 )
             )
+            .order_by(desc(ObjectsTable.Modified_Date))
             .limit(self._pagination.get_limit())
             .offset(self._pagination.get_offset())
         )

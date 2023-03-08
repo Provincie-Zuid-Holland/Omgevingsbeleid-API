@@ -79,6 +79,7 @@ class DatabaseFixtures:
                 Wachtwoord=get_password_hash("password"),
             )
         )
+        self._db.commit()
 
     def create_object_statics(self):
         self._db.add(
@@ -148,6 +149,7 @@ class DatabaseFixtures:
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
             )
         )
+        self._db.commit()
 
     def create_modules(self):
         module: ModuleTable = ModuleTable(
@@ -179,6 +181,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(module)
+        self._db.commit()
 
         # Ambitie
         self._db.add(
@@ -197,6 +200,7 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
@@ -211,6 +215,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
@@ -227,6 +232,7 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
@@ -241,6 +247,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
+        self._db.commit()
 
         # Beleidsdoel
         self._db.add(
@@ -259,6 +266,7 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
@@ -273,6 +281,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
@@ -289,6 +298,7 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
@@ -303,6 +313,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
+        self._db.commit()
 
         # Beleidskeuze
         self._db.add(
@@ -321,6 +332,7 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
@@ -337,6 +349,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
@@ -353,6 +366,7 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
@@ -369,6 +383,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
+        self._db.commit()
 
         # Maatregel
         self._db.add(
@@ -387,6 +402,7 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
@@ -401,6 +417,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
@@ -417,6 +434,7 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
+        self._db.commit()
         self._db.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
@@ -431,6 +449,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
+        self._db.commit()
 
     def create_relations(self):
         # Ambitie <-> Beleidsdoel
@@ -456,6 +475,7 @@ class DatabaseFixtures:
         d = RelationsTable(Description="Beleidskeuze 2 <-> Maatregel 2")
         d.set_codes("beleidskeuze-2", "maatregel-2")
         self._db.add(d)
+        self._db.commit()
 
     def create_acknowledged_relations(self):
         ack_table: AcknowledgedRelationsTable = AcknowledgedRelationsTable(
@@ -486,3 +506,4 @@ class DatabaseFixtures:
             ),
         )
         self._db.add(ack_table)
+        self._db.commit()

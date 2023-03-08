@@ -7,7 +7,7 @@ RUN set -ex; \
     curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list; \
     apt-get update; \
     apt-get upgrade -y && \
-    apt-get install -y build-essential unixodbc-dev; \
+    apt-get install -y build-essential unixodbc-dev wkhtmltopdf; \
     ACCEPT_EULA=Y apt install -y msodbcsql17 mssql-tools; \
     rm -rf /var/lib/apt/lists/*rm -rf /var/lib/apt/lists/*;
 
