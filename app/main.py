@@ -2,6 +2,7 @@ import logging
 import sys
 
 from fastapi import FastAPI
+from fastapi.routing import APIRoute
 from fastapi.responses import JSONResponse
 import sqlalchemy.exc
 import uvicorn
@@ -66,6 +67,24 @@ async def http_exception_handler(request, exc):
         },
         status_code=400,
     )
+
+
+def set_operator_id_from_unique_id(app: FastAPI) -> None:
+    """
+    The prefix of the operator_id is currently the function name of the route,
+    which is undesirable for the Frontend as it results in cluttered auto-generated names.
+    As a temporary solution, we are generating the operation_id from the unique_id and
+    eliminating the function name. However, this approach is not sustainable if
+    we transition to an open-source platform.
+
+    @todo: we should use the generate_unique_id_function in adding the endpoint instead
+    """
+    for route in app.routes:
+        if isinstance(route, APIRoute):
+            route.operation_id = route.unique_id.replace("fastapi_handler_", "", 1)
+
+
+set_operator_id_from_unique_id(app)
 
 
 # Logging

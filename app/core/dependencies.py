@@ -1,6 +1,5 @@
 from typing import Generator
 
-from sqlalchemy import text
 
 from app.core.db.session import SessionLocal
 

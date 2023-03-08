@@ -72,7 +72,7 @@ class DynamicAppBuilder:
             title="Dynamic APP",
             openapi_url="/openapi.json",
         )
-        main_router: APIRouter = APIRouter()
+        main_router: APIRouter = APIRouter(prefix="/v3")
 
         self._register_base_serializers()
         self._register_base_validators()
@@ -201,7 +201,7 @@ class DynamicAppBuilder:
     def _build_object_api(
         self, fastapi_app: FastAPI, object_intermediate: IntermediateObject
     ) -> FastAPI:
-        sub_router: APIRouter = APIRouter()
+        sub_router: APIRouter = APIRouter(prefix="/v3")
         for endpoint_config in object_intermediate.api.endpoint_configs:
             if not endpoint_config.resolver_id in self._endpoint_resolvers:
                 continue
@@ -223,7 +223,7 @@ class DynamicAppBuilder:
         return fastapi_app
 
     def _build_main_api(self, fastapi_app: FastAPI) -> FastAPI:
-        sub_router: APIRouter = APIRouter()
+        sub_router: APIRouter = APIRouter(prefix="/v3")
         main_api_config = api_loader(
             "",
             "",

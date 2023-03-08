@@ -87,7 +87,9 @@ class EndpointHandler:
                 self._module.is_manager(self._user.UUID),
             ]
         ):
-            raise HTTPException(401, "You are not allowed to remove an object from this module")
+            raise HTTPException(
+                401, "You are not allowed to remove an object from this module"
+            )
 
     def _user_is_owner(self):
         return self._user.UUID in [
