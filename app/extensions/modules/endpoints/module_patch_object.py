@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Type
+from typing import Type
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -22,31 +22,34 @@ from app.extensions.modules.dependencies import (
 from app.extensions.modules.event.module_object_patched_event import (
     ModuleObjectPatchedEvent,
 )
+from app.extensions.modules.permissions import ModulesPermissions
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
 from app.extensions.users.db.tables import GebruikersTable
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.users.dependencies import (
+    depends_current_active_user,
+    depends_permission_service,
+)
+from app.extensions.users.permission_service import PermissionService
 
 
 class EndpointHandler:
     def __init__(
         self,
-        converter: Converter,
         object_config_id: str,
         object_type: str,
         request_model: Model,
         response_type: Type[pydantic.BaseModel],
         event_dispatcher: EventDispatcher,
         db: Session,
+        permission_service: PermissionService,
         module_object_repository: ModuleObjectRepository,
-        user_role: Optional[str],
         user: GebruikersTable,
         module: ModuleTable,
         changes: dict,
         lineage_id: int,
     ):
-        self._converter: Converter = converter
         self._object_config_id: str = object_config_id
         self._object_type: str = object_type
         self._request_model: Model = request_model
@@ -54,11 +57,11 @@ class EndpointHandler:
 
         self._event_dispatcher: EventDispatcher = event_dispatcher
         self._db: Session = db
+        self._permission_service: PermissionService = permission_service
         self._module_object_repository: ModuleObjectRepository = (
             module_object_repository
         )
 
-        self._user_role: Optional[str] = user_role
         self._user: GebruikersTable = user
         self._module: ModuleTable = module
         self._changes: dict = changes
@@ -104,11 +107,10 @@ class EndpointHandler:
     def _guard_valid_user(self):
         if self._module.is_manager(self._user.UUID):
             return
-        if self._user_role is None:
-            raise HTTPException(
-                401, "Only module managers are allowed to patch the object"
-            )
-        if self._user_role != self._user.Rol:
+
+        if not self._permission_service.has_permission(
+            ModulesPermissions.can_patch_object_in_module, self._user
+        ):
             raise HTTPException(status_code=401, detail="Invalid user role")
 
     def _guard_module_not_locked(self):
@@ -119,22 +121,18 @@ class EndpointHandler:
 class ModulePatchObjectEndpoint(Endpoint):
     def __init__(
         self,
-        converter: Converter,
         path: str,
         object_config_id: str,
         object_type: str,
         request_model: Model,
         response_type: Type[pydantic.BaseModel],
-        user_role: Optional[str],
     ):
-        self._converter: Converter = converter
         self._path: str = path
         self._object_config_id: str = object_config_id
         self._object_type: str = object_type
         self._request_model: Model = request_model
         self._request_type: Type[pydantic.BaseModel] = request_model.pydantic_model
         self._response_type: Type[pydantic.BaseModel] = response_type
-        self._user_role: Optional[str] = user_role
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
@@ -146,21 +144,21 @@ class ModulePatchObjectEndpoint(Endpoint):
                 depends_active_module_object_context_curried(self._object_type)
             ),
             db: Session = Depends(depends_db),
+            permission_service: PermissionService = Depends(depends_permission_service),
             module_object_repository: ModuleObjectRepository = Depends(
                 depends_module_object_repository
             ),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
         ) -> self._response_type:
             handler: EndpointHandler = EndpointHandler(
-                self._converter,
                 self._object_config_id,
                 self._object_type,
                 self._request_model,
                 self._response_type,
                 event_dispatcher,
                 db,
+                permission_service,
                 module_object_repository,
-                self._user_role,
                 user,
                 module,
                 object_in.dict(exclude_none=True),
@@ -200,17 +198,14 @@ class ModulePatchObjectEndpointResolver(EndpointResolver):
         if not "{lineage_id}" in path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
-        user_role: Optional[str] = resolver_config.get("user_role", None)
         request_model = models_resolver.get(resolver_config.get("request_model"))
         response_model = models_resolver.get(resolver_config.get("response_model"))
         response_type: Type[pydantic.BaseModel] = response_model.pydantic_model
 
         return ModulePatchObjectEndpoint(
-            converter=converter,
             path=path,
             object_config_id=api.id,
             object_type=api.object_type,
             request_model=request_model,
             response_type=response_type,
-            user_role=user_role,
         )

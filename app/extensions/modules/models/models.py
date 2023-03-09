@@ -6,6 +6,17 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 
+class ModuleStatus(BaseModel):
+    ID: int
+    Module_ID: int
+    Status: str
+    Created_Date: datetime
+    Created_By_UUID: uuid.UUID
+
+    class Config:
+        orm_mode = True
+
+
 class Module(BaseModel):
     Module_ID: int
     Created_Date: datetime
@@ -22,6 +33,7 @@ class Module(BaseModel):
     Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
     Start_Validity: Optional[datetime] = Field(None, nullable=True)
     End_Validity: Optional[datetime] = Field(None, nullable=True)
+    Status: Optional[ModuleStatus]
 
     class Config:
         orm_mode = True
@@ -71,17 +83,6 @@ class ModuleObjectContext(ModuleObjectContextShort):
 class ModuleObjectAction(str, Enum):
     Edit = "Edit"
     Terminate = "Terminate"
-
-
-class ModuleStatus(BaseModel):
-    ID: int
-    Module_ID: int
-    Status: str
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
-
-    class Config:
-        orm_mode = True
 
 
 class ModuleObjectShort(BaseModel):

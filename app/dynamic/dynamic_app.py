@@ -84,6 +84,7 @@ class DynamicAppBuilder:
         # Pre hook for extensions
         for extension in self._extensions:
             # extension.supply_service_container(self._service_container)
+            extension.initialize(self._main_config)
             extension.register_listeners(
                 self._main_config,
                 self._service_container.event_dispatcher,

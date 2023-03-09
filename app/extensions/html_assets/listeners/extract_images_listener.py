@@ -87,6 +87,7 @@ class Extractor:
             UUID=uuid4(),
             Created_Date=self._module_object.Created_Date,
             Created_By_UUID=self._module_object.Created_By_UUID,
+            Lookup=image_hash[0:10],
             Hash=image_hash,
             Meta=json.dumps(meta.to_dict()),
             Content=image_data,

@@ -1,10 +1,10 @@
 from typing import Optional
 from uuid import UUID
 
-import pydantic
+from pydantic import BaseModel
 
 
-class User(pydantic.BaseModel):
+class User(BaseModel):
     UUID: UUID
     Gebruikersnaam: str
     Email: str
@@ -15,11 +15,14 @@ class User(pydantic.BaseModel):
         orm_mode = True
 
 
-# class Token(BaseModel):
-#     access_token: str
-#     token_type: str
-#     identifier: User
+class UserShort(BaseModel):
+    UUID: UUID
+    Rol: str
+    Gebruikersnaam: str
+
+    class Config:
+        orm_mode = True
 
 
-class TokenPayload(pydantic.BaseModel):
+class TokenPayload(BaseModel):
     sub: Optional[str] = None

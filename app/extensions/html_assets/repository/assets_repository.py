@@ -19,6 +19,7 @@ class AssetRepository:
     def get_by_hash_and_content(self, hash: str, content: str) -> Optional[AssetsTable]:
         stmt = (
             select(AssetsTable)
+            .filter(AssetsTable.Lookup == hash[0:10])
             .filter(AssetsTable.Hash == hash)
             .filter(AssetsTable.Content == content)
         )

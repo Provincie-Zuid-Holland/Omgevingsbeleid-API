@@ -1,7 +1,7 @@
 from typing import List
 import uuid
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
@@ -17,11 +17,11 @@ from app.dynamic.converter import Converter
 
 
 class SearchObject(BaseModel):
-    Object_Type: str
-    Object_ID: int
+    Object_Type: str = Field(default="")
+    Object_ID: int = Field(default="")
     UUID: uuid.UUID
-    Title: str
-    Description: str
+    Title: str = Field(default="")
+    Description: str = Field(default="")
 
 
 class SearchResponse(BaseModel):
@@ -40,7 +40,7 @@ class EndpointHandler:
         self._query: str = query
 
     def handle(self) -> SearchResponse:
-        if self._db.bind.name == "sqlite":
+        if self._db.bind.name in ["sqlite", "mssql"]:
             stmt = self._like_search_stmt()
         else:
             stmt = self._match_search_stmt()
@@ -69,6 +69,7 @@ class EndpointHandler:
                 ObjectsTable.Title.like(like_query)
                 | ObjectsTable.Description.like(like_query)
             )
+            .order_by(desc(ObjectsTable.Modified_Date))
             .limit(self._pagination.get_limit())
             .offset(self._pagination.get_offset())
         )
@@ -94,6 +95,7 @@ class EndpointHandler:
                     + ObjectsTable.Description.match(self._query)
                 )
             )
+            .order_by(desc(ObjectsTable.Modified_Date))
             .limit(self._pagination.get_limit())
             .offset(self._pagination.get_offset())
         )

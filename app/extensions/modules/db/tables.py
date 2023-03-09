@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 from datetime import datetime
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, String
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -36,8 +36,14 @@ class ModuleTable(Base):
     End_Validity: Mapped[Optional[datetime]]
 
     status_history: Mapped[List["ModuleStatusHistoryTable"]] = relationship(
-        back_populates="Module"
+        back_populates="Module", order_by="asc(ModuleStatusHistoryTable.Created_Date)"
     )
+
+    @property
+    def Status(self) -> Optional["ModuleStatusHistoryTable"]:
+        if not self.status_history:
+            return None
+        return self.status_history[-1]
 
     def is_manager(self, user_uuid: uuid.UUID) -> bool:
         return user_uuid in [self.Module_Manager_1_UUID, self.Module_Manager_2_UUID]
@@ -68,9 +74,9 @@ class ModuleObjectContextTable(Base):
 
     Module_ID = mapped_column(ForeignKey("modules.Module_ID"), primary_key=True)
 
-    Object_Type: Mapped[str]
+    Object_Type: Mapped[str] = mapped_column(String(25))
     Object_ID: Mapped[int]
-    Code: Mapped[str] = mapped_column(primary_key=True)
+    Code: Mapped[str] = mapped_column(String(35), primary_key=True)
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]

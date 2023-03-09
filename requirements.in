@@ -10,6 +10,7 @@ pyyaml
 python-jose
 passlib
 python-multipart
+bcrypt
 
 # Util
 diff-match-patch

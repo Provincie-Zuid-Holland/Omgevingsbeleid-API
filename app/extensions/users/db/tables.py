@@ -13,9 +13,13 @@ class GebruikersTable(Base):
     Gebruikersnaam: Mapped[Optional[str]]
     Email: Mapped[str]
     Rol: Mapped[Optional[str]]
-    IsActief: Mapped[bool] = mapped_column(default=False)
+    Status: Mapped[Optional[str]]
     # @todo; do not fetch when not needed
     Wachtwoord: Mapped[Optional[str]]  # = mapped_column(deferred=True)
+
+    @property
+    def IsActief(self) -> bool:
+        return self.Status == "Actief"
 
     def __repr__(self) -> str:
         return f"Gebruikers(UUID={self.UUID!r}, Gebruikersnaam={self.Gebruikersnaam!r})"
