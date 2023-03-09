@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
+from app.dynamic.dependencies import FilterObjectCode, depends_filter_object_code
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
@@ -29,18 +30,18 @@ class ListModulesEndpoint(Endpoint):
         def fastapi_handler(
             only_mine: bool = True,
             only_active: bool = True,
-            object_type: Optional[str] = None,
-            object_lineage_id: Optional[int] = None,
             user: GebruikersTable = Depends(depends_current_active_user),
             module_repository: ModuleRepository = Depends(depends_module_repository),
+            maybe_filter_code: Optional[FilterObjectCode] = Depends(
+                depends_filter_object_code
+            ),
         ) -> List[Module]:
             return self._handler(
-                module_repository, 
-                user, 
-                only_mine, 
+                module_repository,
+                user,
+                only_mine,
                 only_active,
-                object_type,
-                object_lineage_id
+                maybe_filter_code,
             )
 
         router.add_api_route(
@@ -61,27 +62,17 @@ class ListModulesEndpoint(Endpoint):
         user: GebruikersTable,
         only_mine: bool,
         only_active: bool,
-        object_type: Optional[str] = None,
-        object_lineage_id: Optional[int] = None,
+        maybe_filter_code: Optional[FilterObjectCode],
     ) -> List[Module]:
         filter_on_me: Optional[UUID] = None
         if only_mine:
             filter_on_me = user.UUID
 
-        if object_type is not None and object_lineage_id is not None:
-            modules: List[ModuleTable] = module_repository.get_modules_containing_object(
-                only_active=only_active,
-                object_type=object_type,
-                object_lineage_id=object_lineage_id,
-                mine=filter_on_me
-            )
-        elif object_type is None and object_lineage_id is None:
-            modules: List[ModuleTable] = module_repository.get_with_filters(
-                only_active=only_active,
-                mine=filter_on_me
-            )
-        else:
-            raise ValueError("object_type and object_lineage_id should be supplied together.")
+        modules: List[ModuleTable] = module_repository.get_with_filters(
+            only_active=only_active,
+            mine=filter_on_me,
+            maybe_filter_code=maybe_filter_code,
+        )
 
         return modules
 

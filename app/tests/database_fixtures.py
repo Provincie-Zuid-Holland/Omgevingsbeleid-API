@@ -81,7 +81,7 @@ class DatabaseFixtures:
         )
         self._db.add(
             GebruikersTable(
-                UUID=uuid.UUID("11111111-0000-0000-0000-000000000005"),
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000006"),
                 Gebruikersnaam="Fred",
                 Email="f@example.com",
                 Rol="Test runner",
@@ -91,7 +91,7 @@ class DatabaseFixtures:
         )
         self._db.add(
             GebruikersTable(
-                UUID=uuid.UUID("11111111-0000-0000-0000-000000000005"),
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000007"),
                 Gebruikersnaam="Gerald",
                 Email="g@example.com",
                 Rol="Tester",
