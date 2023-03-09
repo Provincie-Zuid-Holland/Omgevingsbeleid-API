@@ -12,13 +12,15 @@ class ObjectsTable(Base):
     __tablename__ = "objects"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"))
+    Code: Mapped[str] = mapped_column(String(35), ForeignKey("object_statics.Code"))
 
 
 # @todo: this should be filled by extension registers and provided by dynamic_app
 column_type_map: Dict[str, Any] = {
     "int": Integer,
     "str": String,
+    "str_25": String(25),
+    "str_35": String(35),
     "datetime": DateTime,
     "object_uuid": Uuid,
     "user_uuid": Uuid,

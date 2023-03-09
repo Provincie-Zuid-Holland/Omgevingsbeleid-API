@@ -106,6 +106,7 @@ class ValidListLineagesEndpoint(Endpoint):
                     subq.c.End_Validity == None,
                 )
             )
+            .order_by(desc(subq.c.Modified_Date))
             .limit(pagination.get_limit())
             .offset(pagination.get_offset())
         )

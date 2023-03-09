@@ -47,7 +47,6 @@ api:
             path: /{lineage_id}
             request_model: ambitie_patch
             response_model: ambitie_uuid
-            user_role: "Behandelend Ambtenaar"
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}

@@ -12,7 +12,9 @@ from app.core.settings import settings
 from app.core.security import ALGORITHM
 from app.extensions.users.db.tables import GebruikersTable
 from app.extensions.users.model import TokenPayload
+from app.extensions.users.permission_service import PermissionService
 from app.extensions.users.repository.user_repository import UserRepository
+from app.extensions.users.permission_service import main_permission_service
 
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"/login/access-token")
@@ -20,6 +22,10 @@ reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"/login/access-token")
 
 def require_auth(_: str = Depends(reusable_oauth2)):
     pass
+
+
+def depends_permission_service() -> PermissionService:
+    return main_permission_service
 
 
 def depends_user_repository(db: Session = Depends(depends_db)) -> UserRepository:
@@ -69,3 +75,17 @@ def depends_current_active_user_with_role_curried(
         return current_user
 
     return depends_current_active_user_with_role
+
+
+def depends_current_active_user_with_permission_curried(
+    required_permission: str,
+) -> Callable:
+    def depends_current_active_user_with_permission(
+        current_user: GebruikersTable = Depends(depends_current_active_user),
+        permission: PermissionService = Depends(depends_permission_service),
+    ):
+        if not permission.has_permission(required_permission, current_user):
+            raise HTTPException(status_code=401, detail="Invalid user role")
+        return current_user
+
+    return depends_current_active_user_with_permission

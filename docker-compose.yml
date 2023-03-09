@@ -1,8 +1,65 @@
 version: '3.3'
 
 services:
+
+  api:
+    build:
+      context: ./
+      dockerfile: ./docker/api/Dockerfile
+    ports:
+      - "8000:80"
+      - "5678:5678" # Debug app port
+      - "5679:5679" # Debug DAP adapter port
+    volumes:
+      - ./:/code
+    environment:
+      DB_USER: SA
+      DB_PASS: Passw0rd
+      DB_HOST: mssql
+      DB_PORT: 1433
+      DB_NAME: db_dev
+      DB_DRIVER: ODBC Driver 17 for SQL Server
+      JWT_SECRET: secret
+      DEBUG_MODE: True
+    # healthcheck:
+    #   test: wget --no-verbose --tries=1 --spider http://localhost/health/ || exit 1
+    #   interval: 1m
+    #   timeout: 3s
+    #   retries: 30
+    #   start_period: 1s
+    depends_on:
+      mssql:
+        condition: service_healthy
+    restart: "no"
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
+
+  mssql:
+    image: reynier3mil/centos-mssql-full
+    ports:
+      - "11433:1433"
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: 'Passw0rd'
+    volumes:
+      - mssql:/var/opt/mssql
+      - ./docker/mssql/:/opt/sql/:ro
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT 1" -b -o /dev/null
+      interval: 1s
+      timeout: 3s
+      retries: 10
+      start_period: 1s
+    restart: "no"
+
   mailhog:
     image: mailhog/mailhog
     ports:
       - "8025:8025"
       - "1025:1025"
+    restart: "no"
+
+volumes:
+  mssql:

@@ -18,8 +18,13 @@ from app.extensions.modules.dependencies import (
     depends_active_module_object_context,
 )
 from app.extensions.modules.models.models import ModuleObjectAction
+from app.extensions.modules.permissions import ModulesPermissions
 from app.extensions.users.db.tables import GebruikersTable
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.users.dependencies import (
+    depends_current_active_user,
+    depends_permission_service,
+)
+from app.extensions.users.permission_service import PermissionService
 
 
 class ModuleEditObjectContext(BaseModel):
@@ -35,14 +40,14 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
+        permission_service: PermissionService,
         user: GebruikersTable,
         module: ModuleTable,
         object_context: ModuleObjectContextTable,
-        user_role: Optional[str],
         object_in: ModuleEditObjectContext,
     ):
         self._db: Session = db
-        self._user_role: Optional[str] = user_role
+        self._permission_service: PermissionService = permission_service
         self._user: GebruikersTable = user
         self._module: ModuleTable = module
         self._object_context: ModuleObjectContextTable = object_context
@@ -72,18 +77,16 @@ class EndpointHandler:
     def _guard_valid_user(self):
         if self._module.is_manager(self._user.UUID):
             return
-        if self._user_role is None:
-            raise HTTPException(
-                401, "Only module managers are allowed to patch the object"
-            )
-        if self._user_role != self._user.Rol:
+
+        if not self._permission_service.has_permission(
+            ModulesPermissions.can_edit_module_object_context, self._user
+        ):
             raise HTTPException(status_code=401, detail="Invalid user role")
 
 
 class ModuleEditObjectContextEndpoint(Endpoint):
-    def __init__(self, path: str, user_role: Optional[str]):
+    def __init__(self, path: str):
         self._path: str = path
-        self._user_role: Optional[str] = user_role
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
@@ -94,13 +97,14 @@ class ModuleEditObjectContextEndpoint(Endpoint):
                 depends_active_module_object_context
             ),
             db: Session = Depends(depends_db),
+            permission_service: PermissionService = Depends(depends_permission_service),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
                 db,
+                permission_service,
                 user,
                 module,
                 object_context,
-                self._user_role,
                 object_in,
             )
             return handler.handle()
@@ -132,7 +136,6 @@ class ModuleEditObjectContextEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
 
-        user_role: Optional[str] = resolver_config.get("user_role", None)
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
         if not "{module_id}" in path:
             raise RuntimeError("Missing {module_id} argument in path")
@@ -141,7 +144,4 @@ class ModuleEditObjectContextEndpointResolver(EndpointResolver):
         if not "{lineage_id}" in path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
-        return ModuleEditObjectContextEndpoint(
-            path=path,
-            user_role=user_role,
-        )
+        return ModuleEditObjectContextEndpoint(path=path)

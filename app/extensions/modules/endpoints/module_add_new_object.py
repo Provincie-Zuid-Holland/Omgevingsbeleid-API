@@ -17,8 +17,13 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable, ModuleObjectContextTable
 from app.extensions.modules.dependencies import depends_active_module
+from app.extensions.modules.permissions import ModulesPermissions
 from app.extensions.users.db.tables import GebruikersTable
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.users.dependencies import (
+    depends_current_active_user,
+    depends_permission_service,
+)
+from app.extensions.users.permission_service import PermissionService
 
 
 class ModuleAddNewObject(BaseModel):
@@ -56,14 +61,14 @@ class EndpointHandler:
         self,
         db: Session,
         allowed_object_types: List[str],
-        user_role: Optional[str],
+        permission_service: PermissionService,
         user: GebruikersTable,
         module: ModuleTable,
         object_in: ModuleAddNewObject,
     ):
         self._db: Session = db
         self._allowed_object_types: List[str] = allowed_object_types
-        self._user_role: Optional[str] = user_role
+        self._permission_service: PermissionService = permission_service
         self._user: GebruikersTable = user
         self._module: ModuleTable = module
         self._object_in: ModuleAddNewObject = object_in
@@ -73,7 +78,10 @@ class EndpointHandler:
         self._guard_valid_user()
 
         if self._object_in.Object_Type not in self._allowed_object_types:
-            raise HTTPException(400, "Invalid Object_Type")
+            raise HTTPException(
+                400,
+                f"Invalid Object_Type, accepted object_type are: {self._allowed_object_types}",
+            )
 
         try:
             object_static: ObjectStaticsTable = self._create_new_object_static()
@@ -131,7 +139,7 @@ class EndpointHandler:
             Created_By_UUID=self._user.UUID,
             Modified_By_UUID=self._user.UUID,
             Original_Adjust_On=None,
-            Action="Toevoegen",
+            Action="Create",
             Explanation=self._object_in.Explanation,
             Conclusion=self._object_in.Conclusion,
         )
@@ -155,11 +163,10 @@ class EndpointHandler:
     def _guard_valid_user(self):
         if self._module.is_manager(self._user.UUID):
             return
-        if self._user_role is None:
-            raise HTTPException(
-                401, "Only module managers are allowed to patch the object"
-            )
-        if self._user_role != self._user.Rol:
+
+        if not self._permission_service.has_permission(
+            ModulesPermissions.can_add_new_object_to_module, self._user
+        ):
             raise HTTPException(status_code=401, detail="Invalid user role")
 
 
@@ -168,11 +175,9 @@ class ModuleAddNewObjectEndpoint(Endpoint):
         self,
         allowed_object_types: List[str],
         path: str,
-        user_role: Optional[str],
     ):
         self._allowed_object_types: List[str] = allowed_object_types
         self._path: str = path
-        self._user_role: Optional[str] = user_role
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
@@ -180,11 +185,12 @@ class ModuleAddNewObjectEndpoint(Endpoint):
             user: GebruikersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
+            permission_service: PermissionService = Depends(depends_permission_service),
         ) -> NewObjectStaticResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 self._allowed_object_types,
-                self._user_role,
+                permission_service,
                 user,
                 module,
                 object_in,
@@ -218,7 +224,6 @@ class ModuleAddNewObjectEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
 
-        user_role: Optional[str] = resolver_config.get("user_role", None)
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
         if not "{module_id}" in path:
             raise RuntimeError("Missing {module_id} argument in path")
@@ -232,5 +237,4 @@ class ModuleAddNewObjectEndpointResolver(EndpointResolver):
         return ModuleAddNewObjectEndpoint(
             allowed_object_types=allowed_object_types,
             path=path,
-            user_role=user_role,
         )

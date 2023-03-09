@@ -18,3 +18,4 @@ requests-mock
 freezegun
 debugpy
 ipython
+alembic

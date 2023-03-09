@@ -20,11 +20,16 @@ from app.extensions.modules.dependencies import (
     depends_object_provider,
 )
 from app.extensions.modules.models.models import ModuleObjectAction
+from app.extensions.modules.permissions import ModulesPermissions
 from app.extensions.modules.repository import ModuleObjectContextRepository
 from app.extensions.modules.repository.object_provider import ObjectProvider
 from app.extensions.users.db.tables import GebruikersTable
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.users.dependencies import (
+    depends_current_active_user,
+    depends_permission_service,
+)
 from app.dynamic.utils.response import ResponseOK
+from app.extensions.users.permission_service import PermissionService
 
 
 class ModuleAddExistingObject(BaseModel):
@@ -41,22 +46,20 @@ class ModuleAddExistingObject(BaseModel):
 class EndpointHandler:
     def __init__(
         self,
-        converter: Converter,
         db: Session,
         object_provider: ObjectProvider,
         object_context_repository: ModuleObjectContextRepository,
-        user_role: Optional[str],
+        permission_service: PermissionService,
         user: GebruikersTable,
         module: ModuleTable,
         object_in: ModuleAddExistingObject,
     ):
-        self._converter: Converter = converter
         self._db: Session = db
         self._object_provider = object_provider
         self._object_context_repository: ModuleObjectContextRepository = (
             object_context_repository
         )
-        self._user_role: Optional[str] = user_role
+        self._permission_service: PermissionService = permission_service
         self._user: GebruikersTable = user
         self._module: ModuleTable = module
         self._object_in: ModuleAddExistingObject = object_in
@@ -154,26 +157,16 @@ class EndpointHandler:
     def _guard_valid_user(self):
         if self._module.is_manager(self._user.UUID):
             return
-        if self._user_role is None:
-            raise HTTPException(
-                401, "Only module managers are allowed to patch the object"
-            )
-        if self._user_role != self._user.Rol:
+
+        if not self._permission_service.has_permission(
+            ModulesPermissions.can_add_existing_object_to_module, self._user
+        ):
             raise HTTPException(status_code=401, detail="Invalid user role")
 
 
 class ModuleAddExistingObjectEndpoint(Endpoint):
-    def __init__(
-        self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
-        path: str,
-        user_role: Optional[str],
-    ):
-        self._event_dispatcher: EventDispatcher = event_dispatcher
-        self._converter: Converter = converter
+    def __init__(self, path: str):
         self._path: str = path
-        self._user_role: Optional[str] = user_role
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
@@ -185,13 +178,13 @@ class ModuleAddExistingObjectEndpoint(Endpoint):
             object_context_repository: ModuleObjectContextRepository = Depends(
                 depends_module_object_context_repository
             ),
+            permission_service: PermissionService = Depends(depends_permission_service),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
-                self._converter,
                 db,
                 object_provider,
                 object_context_repository,
-                self._user_role,
+                permission_service,
                 user,
                 module,
                 object_in,
@@ -225,14 +218,8 @@ class ModuleAddExistingObjectEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
 
-        user_role: Optional[str] = resolver_config.get("user_role", None)
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
         if not "{module_id}" in path:
             raise RuntimeError("Missing {module_id} argument in path")
 
-        return ModuleAddExistingObjectEndpoint(
-            event_dispatcher=event_dispatcher,
-            converter=converter,
-            path=path,
-            user_role=user_role,
-        )
+        return ModuleAddExistingObjectEndpoint(path=path)
