@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
+from app.dynamic.dependencies import FilterObjectCode, depends_filter_object_code
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
@@ -31,8 +32,17 @@ class ListModulesEndpoint(Endpoint):
             only_active: bool = True,
             user: GebruikersTable = Depends(depends_current_active_user),
             module_repository: ModuleRepository = Depends(depends_module_repository),
+            maybe_filter_code: Optional[FilterObjectCode] = Depends(
+                depends_filter_object_code
+            ),
         ) -> List[Module]:
-            return self._handler(module_repository, user, only_mine, only_active)
+            return self._handler(
+                module_repository,
+                user,
+                only_mine,
+                only_active,
+                maybe_filter_code,
+            )
 
         router.add_api_route(
             self._path,
@@ -52,13 +62,16 @@ class ListModulesEndpoint(Endpoint):
         user: GebruikersTable,
         only_mine: bool,
         only_active: bool,
+        maybe_filter_code: Optional[FilterObjectCode],
     ) -> List[Module]:
         filter_on_me: Optional[UUID] = None
         if only_mine:
             filter_on_me = user.UUID
 
         modules: List[ModuleTable] = module_repository.get_with_filters(
-            only_active, filter_on_me
+            only_active=only_active,
+            mine=filter_on_me,
+            maybe_filter_code=maybe_filter_code,
         )
 
         return modules

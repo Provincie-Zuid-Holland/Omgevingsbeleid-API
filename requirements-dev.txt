@@ -4,9 +4,9 @@
 #
 #    pip-compile requirements-dev.in
 #
-alembic==1.10.1
+alembic==1.10.2
     # via -r requirements-dev.in
-astroid==2.14.2
+astroid==2.15.0
     # via pylint
 asttokens==2.2.1
     # via
@@ -24,11 +24,11 @@ black==23.1.0
     # via -r requirements-dev.in
 certifi==2022.12.7
     # via requests
-charset-normalizer==3.0.1
+charset-normalizer==3.1.0
     # via requests
 click==8.1.3
     # via black
-coverage[toml]==7.1.0
+coverage[toml]==7.2.1
     # via
     #   -r requirements-dev.in
     #   coverage-badge
@@ -49,13 +49,13 @@ executing==1.2.0
     # via
     #   devtools
     #   stack-data
-faker==17.0.0
+faker==17.6.0
     # via -r requirements-dev.in
 freezegun==1.2.2
     # via -r requirements-dev.in
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.30
+gitpython==3.1.31
     # via bandit
 greenlet==2.0.2
     # via sqlalchemy
@@ -63,7 +63,7 @@ idna==3.4
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==8.10.0
+ipython==8.11.0
     # via -r requirements-dev.in
 isort==5.12.0
     # via pylint
@@ -79,7 +79,7 @@ matplotlib-inline==0.1.6
     # via ipython
 mccabe==0.7.0
     # via pylint
-mypy==1.0.0
+mypy==1.1.1
     # via
     #   -r requirements-dev.in
     #   sqlalchemy
@@ -101,13 +101,13 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-platformdirs==3.0.0
+platformdirs==3.1.0
     # via
     #   black
     #   pylint
 pluggy==1.0.0
     # via pytest
-prompt-toolkit==3.0.36
+prompt-toolkit==3.0.38
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
@@ -117,9 +117,9 @@ pyflakes==3.0.1
     # via autoflake
 pygments==2.14.0
     # via ipython
-pylint==2.16.2
+pylint==2.17.0
     # via -r requirements-dev.in
-pytest==7.2.1
+pytest==7.2.2
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -145,7 +145,7 @@ six==1.16.0
     #   requests-mock
 smmap==5.0.0
     # via gitdb
-sqlalchemy[mypy]==2.0.3
+sqlalchemy[mypy]==2.0.5.post1
     # via
     #   -r requirements-dev.in
     #   alembic
@@ -179,5 +179,5 @@ urllib3==1.26.14
     # via requests
 wcwidth==0.2.6
     # via prompt-toolkit
-wrapt==1.14.1
+wrapt==1.15.0
     # via astroid

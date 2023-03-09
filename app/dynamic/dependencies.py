@@ -1,6 +1,7 @@
 from typing import Optional
 
 from fastapi import BackgroundTasks, Depends, HTTPException
+from pydantic import BaseModel
 from app.core.dependencies import depends_db
 from sqlalchemy.orm import Session
 from app.dynamic.db import ObjectStaticsTable
@@ -69,4 +70,30 @@ def depends_pagination(
     return Pagination(
         offset=offset,
         limit=limit,
+    )
+
+
+class FilterObjectCode(BaseModel):
+    object_type: str
+    lineage_id: int
+
+    def get_code(self) -> str:
+        return f"{self.object_type}-{self.lineage_id}"
+
+
+def depends_filter_object_code(
+    object_type: Optional[str] = None,
+    lineage_id: Optional[int] = None,
+) -> Optional[FilterObjectCode]:
+    if object_type is None and lineage_id is None:
+        return None
+
+    if object_type is None or lineage_id is None:
+        raise ValueError(
+            "object_type and object_lineage_id should be supplied together."
+        )
+
+    return FilterObjectCode(
+        object_type=object_type,
+        lineage_id=lineage_id,
     )

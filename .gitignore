@@ -1,5 +1,6 @@
 *.db
 .venv/
+venv/
 __pycache__/
 web.config
 .vscode/settings.json
@@ -17,3 +18,4 @@ search-date.json
 output/*
 !output/.gitkeep
 .vscode
+notes.md

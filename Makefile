@@ -52,7 +52,7 @@ testx:
 
 
 # Ment to test MSSQL
-docker-init: docker-up docker-mssql-create-database-dev
+docker-init: docker-up docker-mssql-create-database-dev docker-alembic-do-upgrade
 
 docker-up: ## Starts the docker services
 	docker compose up -d --build --wait
