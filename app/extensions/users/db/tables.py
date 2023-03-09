@@ -11,7 +11,7 @@ class GebruikersTable(Base):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Gebruikersnaam: Mapped[Optional[str]]
-    Email: Mapped[str]
+    Email: Mapped[str] = mapped_column(unique=True)
     Rol: Mapped[Optional[str]]
     Status: Mapped[Optional[str]]
     # @todo; do not fetch when not needed

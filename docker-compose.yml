@@ -21,6 +21,7 @@ services:
       DB_DRIVER: ODBC Driver 17 for SQL Server
       JWT_SECRET: secret
       DEBUG_MODE: True
+      SQLALCHEMY_DATABASE_URI: ""
     # healthcheck:
     #   test: wget --no-verbose --tries=1 --spider http://localhost/health/ || exit 1
     #   interval: 1m
