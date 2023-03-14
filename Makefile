@@ -10,7 +10,7 @@ run:
 	uvicorn app.main:app --reload
 
 debug:
-	python main.py localhost 8000 8001
+	python app/main.py localhost 8000 8001
 
 local-env:
 	pip install -U pip pip-tools==6.8.0
@@ -25,9 +25,6 @@ local-pip-upgrade:
 	pip install -U pip pip-tools==6.8.0
 	pip-compile --upgrade requirements.in
 	pip-compile --upgrade requirements-dev.in
-
-old-load-database:
-	cat scripts/database.sql | sqlite3 api.db
 
 drop-database:
 	python cmds.py drop-db

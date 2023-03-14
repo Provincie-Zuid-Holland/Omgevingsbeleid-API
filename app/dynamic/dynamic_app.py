@@ -2,6 +2,7 @@ from typing import Dict, List
 from os import listdir
 from os.path import isfile, join
 from copy import deepcopy
+import click
 
 import yaml
 from fastapi import FastAPI, APIRouter, Request
@@ -29,16 +30,19 @@ import app.dynamic.serializers as serializers
 
 
 class DynamicApp:
-    def __init__(self, fastapi_app: FastAPI):
+    def __init__(self, fastapi_app: FastAPI, commands: click.Group):
         self._fastapi_app: FastAPI = fastapi_app
+        self._commands: click.Group = commands
 
     def run(self):
         print()
         print("in run")
         return self._fastapi_app
 
-    def commands(self):
-        pass
+    def run_commands(self):
+        print()
+        print("in run commands")
+        self._commands()
 
 
 class DynamicAppBuilder:
@@ -94,6 +98,8 @@ class DynamicAppBuilder:
                 self._service_container.converter,
                 self._service_container.models_resolver,
             )
+            extension.register_commands(self._service_container.main_command_group)
+
             for column in extension.register_base_columns():
                 self._columns[column.id] = column
             for base_field in extension.register_base_fields():
@@ -180,6 +186,7 @@ class DynamicAppBuilder:
 
         return DynamicApp(
             fastapi_app=fastapi_app,
+            commands=self._service_container.main_command_group,
         )
 
     def _build_config_intermediate(self, config: dict):
