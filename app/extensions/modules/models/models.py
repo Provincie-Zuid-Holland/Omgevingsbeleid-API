@@ -47,8 +47,17 @@ class ModuleStatusCode(str, Enum):
     Ontwerp_PS_Concept = "Ontwerp PS Concept"
     Ontwerp_PS = "Ontwerp PS"
     Definitief_Ontwerp_PS = "Definitief ontwerp PS"
+
+
+class AllModuleStatusCode(str, Enum):
+    Niet_Actief = "Niet-Actief"
+    Ontwerp_GS_Concept = "Ontwerp GS Concept"
+    Ontwerp_GS = "Ontwerp GS"
+    Definitief_Ontwerp_GS = "Definitief ontwerp GS"
+    Ontwerp_PS_Concept = "Ontwerp PS Concept"
+    Ontwerp_PS = "Ontwerp PS"
+    Definitief_Ontwerp_PS = "Definitief ontwerp PS"
     Vigerend = "Vigerend"
-    # Vigerend_gearchiveerd = "Vigerend gearchiveerd"
 
 
 class ModulePatchStatus(BaseModel):

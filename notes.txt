@@ -27,3 +27,38 @@ Beheerder
 Geen
 Portefeuillehouder
 Technisch beheerder
+
+
+
+
+title_field = self.schema.fields_with_props(["search_title"])[0]
+description_fields = self.schema.fields_with_props(["search_description"])
+
+# if there is only one value the CONCAT_WS will fail so we just add an empty string
+if len(description_fields) == 1:
+    description_fields.append("''")
+
+args = " OR ".join([f'"{word}"' for word in query.split(" ")])
+
+_title_fields = f"""({self.schema.fields_with_props(["search_title"])[0]})"""
+_description_fields = f"""({', '.join((self.schema.fields_with_props(["search_description"])))})"""
+
+search_query = f"""
+                SELECT
+                    v.UUID as UUID, 
+                    {title_field} as Titel,
+                    CONCAT_WS(' ', {', '.join(description_fields)}) as Omschrijving,
+                    CAST(FLOOR(f.WeightedRank) as int) as RANK,
+                    '{self.schema.Meta.slug}' as Type
+                    FROM {self.valid_view} v INNER JOIN 
+                    ( 
+                        SELECT [KEY], SUM(Rank) as WeightedRank FROM
+                        (
+                        SELECT Rank * 1 as Rank, [KEY] from CONTAINSTABLE({self.schema.Meta.table}, {_title_fields}, ?)
+                            UNION
+                        SELECT Rank * 0.5 as Rank, [KEY] from CONTAINSTABLE({self.schema.Meta.table}, {_description_fields}, ?)
+                        ) as x GROUP BY [KEY]) as f
+                    ON f.[KEY] = v.UUID
+                    ORDER BY f.WeightedRank DESC"""
+result_rows = self._run_query_fetch(search_query, [args, args])
+

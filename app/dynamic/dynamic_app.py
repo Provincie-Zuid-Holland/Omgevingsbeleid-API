@@ -37,6 +37,9 @@ class DynamicApp:
         print("in run")
         return self._fastapi_app
 
+    def commands(self):
+        pass
+
 
 class DynamicAppBuilder:
     def __init__(self, main_config_file: str):

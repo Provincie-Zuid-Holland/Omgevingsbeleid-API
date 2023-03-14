@@ -1,5 +1,7 @@
 from typing import List
 
+import click
+
 from app.dynamic.config.models import IntermediateObject, IntermediateModel
 from app.dynamic.event_dispatcher import EventDispatcher, main_event_dispatcher
 from app.dynamic.models_resolver import ModelsResolver
@@ -17,3 +19,12 @@ class ServiceContainer:
         self.event_dispatcher: EventDispatcher = main_event_dispatcher
         self.converter: Converter = Converter()
         self.validator_provider: ValidatorProvider = ValidatorProvider()
+
+        self.main_command_group: click.Group = self._create_main_command_group()
+
+    def _create_main_command_group(self):
+        @click.group()
+        def cli():
+            pass
+
+        return cli

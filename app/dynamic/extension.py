@@ -2,6 +2,7 @@ from abc import ABC
 from typing import List, Dict, Callable, Optional
 
 from fastapi import APIRouter
+import click
 
 from app.dynamic.config.models import (
     Column,
@@ -30,6 +31,9 @@ class Extension(ABC):
         return []
 
     def register_models(self, models_resolver: ModelsResolver):
+        pass
+
+    def register_commands(self, main_command_group: click.Group):
         pass
 
     def migrate(self):

@@ -25,7 +25,7 @@ from app.extensions.modules.dependencies import (
 from app.extensions.modules.event.module_status_changed_event import (
     ModuleStatusChangedEvent,
 )
-from app.extensions.modules.models.models import ModuleStatusCode
+from app.extensions.modules.models.models import AllModuleStatusCode
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
@@ -130,29 +130,17 @@ class EndpointHandler:
             self._db.add(new_object)
 
     def _get_validities(
-        self,
-        object_type: str,
-        object_id: int,
+        self, object_type: str, object_id: int
     ) -> Tuple[datetime, Optional[datetime]]:
-        start_validity: datetime = copy(self._timepoint)
-        end_validity: Optional[datetime] = None
+        start_validity = self._module.Start_Validity or copy(self._timepoint)
+        end_validity = self._module.End_Validity
 
-        # Inherit from module
-        if self._module.Start_Validity is not None:
-            start_validity = self._module.Start_Validity
-        if self._module.End_Validity is not None:
-            end_validity = self._module.End_Validity
-
-        # Overwrite if specified
         for specifics in self._object_in.ObjectSpecifiekeGeldigheden:
-            if specifics.Object_ID != object_id or specifics.Object_Type != object_type:
-                continue
-            if specifics.Start_Validity is not None:
-                start_validity = specifics.Start_Validity
-            if specifics.End_Validity is not None:
-                end_validity = specifics.End_Validity
+            if (specifics.Object_ID, specifics.Object_Type) == (object_id, object_type):
+                start_validity = specifics.Start_Validity or start_validity
+                end_validity = specifics.End_Validity or end_validity
 
-        return (start_validity, end_validity)
+        return start_validity, end_validity
 
     def _patch_status(self) -> ModuleStatusHistoryTable:
         status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
@@ -177,7 +165,7 @@ class EndpointHandler:
         ] = self._module_status_repository.get_latest_for_module(self._module.Module_ID)
         if status is None:
             raise HTTPException(400, "Deze module heeft geen status")
-        if status.Status != ModuleStatusCode.Vigerend:
+        if status.Status != AllModuleStatusCode.Vigerend:
             raise HTTPException(
                 400, "Alleen modules met status Vigerend kunnen worden afgesloten"
             )
