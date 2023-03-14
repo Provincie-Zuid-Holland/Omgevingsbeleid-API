@@ -83,6 +83,9 @@ docker-alembic-show-upgrade:
 docker-alembic-do-upgrade:
 	docker compose exec api python -m alembic upgrade head
 
+docker-mssql-setup-search:
+	docker compose exec api python cmds.py mssql-setup-search-database
+
 docker-load-fixtures:
 	docker compose exec api python cmds.py load-fixtures
 

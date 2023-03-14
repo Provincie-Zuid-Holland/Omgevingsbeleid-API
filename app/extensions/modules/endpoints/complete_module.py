@@ -72,7 +72,7 @@ class EndpointHandler:
         self._timepoint: datetime = datetime.now()
 
     def handle(self) -> ResponseOK:
-        self._guard_status_must_be_vigerend()
+        # self._guard_status_must_be_vigerend()
 
         try:
             new_status: ModuleStatusHistoryTable = self._patch_status()
