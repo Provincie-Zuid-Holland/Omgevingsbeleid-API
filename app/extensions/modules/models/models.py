@@ -47,6 +47,7 @@ class ModuleStatusCode(str, Enum):
     Ontwerp_PS_Concept = "Ontwerp PS Concept"
     Ontwerp_PS = "Ontwerp PS"
     Definitief_Ontwerp_PS = "Definitief ontwerp PS"
+    Vigerend = "Vigerend"
 
 
 class AllModuleStatusCode(str, Enum):

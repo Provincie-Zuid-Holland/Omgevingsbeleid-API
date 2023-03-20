@@ -1,5 +1,6 @@
 from typing import Optional
 from uuid import UUID
+from app.core.utils.utils import table_to_dict
 from app.dynamic.db.objects_table import ObjectsTable
 
 from app.dynamic.repository.object_repository import ObjectRepository
@@ -22,15 +23,10 @@ class ObjectProvider:
     def get_by_uuid(self, uuid: UUID) -> Optional[dict]:
         maybe_object: Optional[ObjectsTable] = self._object_repository.get_by_uuid(uuid)
         if maybe_object:
-            return self._as_dict(maybe_object)
+            return table_to_dict(maybe_object)
 
         maybe_module_object = self._module_object_repository.get_by_uuid(uuid)
         if maybe_module_object:
-            return self._as_dict(maybe_module_object)
+            return table_to_dict(maybe_module_object)
 
         return None
-
-    def _as_dict(self, object_table) -> dict:
-        object_dict = dict(object_table.__dict__)
-        object_dict.pop("_sa_instance_state", None)
-        return object_dict

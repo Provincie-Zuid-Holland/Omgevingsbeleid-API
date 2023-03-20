@@ -1,12 +1,14 @@
 from typing import List
 
 from fastapi import APIRouter, Depends
+from app.core.utils.utils import table_to_dict
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
+from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.dependencies import (
     depends_module,
@@ -37,13 +39,16 @@ class EndpointHandler:
         self._status: ModuleStatusHistoryTable = status
 
     def handle(self) -> ModuleSnapshot:
-        objects: List[dict] = self._module_object_repository.get_objects_in_time(
+        module_objects: List[
+            ModuleObjectsTable
+        ] = self._module_object_repository.get_objects_in_time(
             self._module.Module_ID,
             self._status.Created_Date,
         )
+        dict_objects: List[dict] = [table_to_dict(t) for t in module_objects]
 
         response: ModuleSnapshot = ModuleSnapshot(
-            Objects=objects,
+            Objects=dict_objects,
         )
         return response
 

@@ -1,4 +1,3 @@
-from pprint import pprint
 from typing import Set
 
 import click
@@ -12,7 +11,11 @@ from app.extensions.mssql_search.config.stopwords import stopwords
 
 def _reset_fulltext_index(db: Session, table_name: str):
     # Check is this table already has a search index set up
-    result = db.execute(text(f"SELECT * FROM sys.fulltext_indexes WHERE object_id = object_id('{table_name}');"))
+    result = db.execute(
+        text(
+            f"SELECT * FROM sys.fulltext_indexes WHERE object_id = object_id('{table_name}');"
+        )
+    )
     exists = bool(result.all())
     if exists:
         db.execute(DDL(f"DROP FULLTEXT INDEX ON {table_name}"))
@@ -58,7 +61,6 @@ def _reset_fulltext_index(db: Session, table_name: str):
     #                     WITH CHANGE_TRACKING = AUTO, STOPLIST = {stoplist_name}
     #         """
     #     )
-    pass
 
 
 @click.command()
@@ -67,17 +69,22 @@ def setup_search_database():
 
     with SessionLocalWithAutoCommit() as db:
         # Create stoplist
-        result = db.execute(text(f"SELECT name FROM sys.fulltext_stoplists WHERE name = '{settings.MSSQL_SEARCH_STOPLIST_NAME}';"))
+        result = db.execute(
+            text(
+                f"SELECT name FROM sys.fulltext_stoplists WHERE name = '{settings.MSSQL_SEARCH_STOPLIST_NAME}';"
+            )
+        )
         exists = bool(result.all())
         if not exists:
             print("Create fulltext stoplist")
             db.execute(
                 DDL(f"CREATE FULLTEXT STOPLIST {settings.MSSQL_SEARCH_STOPLIST_NAME};")
             )
-        
+
         # Populate stoplist
-        result = db.execute(text(
-            f"""
+        result = db.execute(
+            text(
+                f"""
                 SELECT
                     stopword
                 FROM
@@ -86,23 +93,34 @@ def setup_search_database():
                     sys.fulltext_stoplists l
                         ON w.stoplist_id = l.stoplist_id WHERE name = '{settings.MSSQL_SEARCH_STOPLIST_NAME}'
             """
-        ))
-        words_in_stoplist = set([
-            r[0] for r in result.all()
-        ])
+            )
+        )
+        words_in_stoplist = set([r[0] for r in result.all()])
 
         # Add new words to stoplist
         words_to_add: Set[str] = set.difference(stopwords, words_in_stoplist)
         for word in words_to_add:
-            db.execute(DDL(f"ALTER FULLTEXT STOPLIST {settings.MSSQL_SEARCH_STOPLIST_NAME} ADD '{word}' LANGUAGE 1043;"))
+            db.execute(
+                DDL(
+                    f"ALTER FULLTEXT STOPLIST {settings.MSSQL_SEARCH_STOPLIST_NAME} ADD '{word}' LANGUAGE 1043;"
+                )
+            )
 
         # Remove words that no longer exist
         words_to_remove: Set[str] = set.difference(words_in_stoplist, stopwords)
         for word in words_to_remove:
-            db.execute(DDL(f"ALTER FULLTEXT STOPLIST {settings.MSSQL_SEARCH_STOPLIST_NAME} DROP '{word}' LANGUAGE 1043;"))
+            db.execute(
+                DDL(
+                    f"ALTER FULLTEXT STOPLIST {settings.MSSQL_SEARCH_STOPLIST_NAME} DROP '{word}' LANGUAGE 1043;"
+                )
+            )
 
         # Create the catalog
-        result = db.execute(text(f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{settings.MSSQL_SEARCH_FTC_NAME}';"))
+        result = db.execute(
+            text(
+                f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{settings.MSSQL_SEARCH_FTC_NAME}';"
+            )
+        )
         exists = bool(result.all())
         if not exists:
             print("Create fulltext catalog")

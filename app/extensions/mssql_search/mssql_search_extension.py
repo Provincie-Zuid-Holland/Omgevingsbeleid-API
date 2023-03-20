@@ -13,7 +13,9 @@ import app.extensions.mssql_search.endpoints as endpoints
 
 class MssqlSearchExtension(Extension):
     def register_commands(self, main_command_group: click.Group):
-        main_command_group.add_command(setup_search_database, "mssql-setup-search-database")
+        main_command_group.add_command(
+            setup_search_database, "mssql-setup-search-database"
+        )
 
     def register_endpoint_resolvers(
         self,

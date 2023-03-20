@@ -138,6 +138,13 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # IDMS Link
+  idms_link:
+    name: IDMS_Link
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
   # Gebied UUID
   gebied_uuid:
     name: Gebied_UUID

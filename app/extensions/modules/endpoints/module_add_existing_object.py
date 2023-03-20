@@ -67,6 +67,7 @@ class EndpointHandler:
 
     def handle(self):
         self._guard_valid_user()
+        self._guard_module_not_locked()
 
         object_data: Optional[dict] = self._object_provider.get_by_uuid(
             self._object_in.Object_UUID
@@ -162,6 +163,10 @@ class EndpointHandler:
             ModulesPermissions.can_add_existing_object_to_module, self._user
         ):
             raise HTTPException(status_code=401, detail="Invalid user role")
+
+    def _guard_module_not_locked(self):
+        if self._module.Temporary_Locked:
+            raise HTTPException(status_code=400, detail="The module is locked")
 
 
 class ModuleAddExistingObjectEndpoint(Endpoint):

@@ -64,7 +64,6 @@ def run_migrations_online() -> None:
 
     """
     uri = settings.SQLALCHEMY_DATABASE_URI
-    print(f"CONNECTION STRING: {uri}") 
     # overwrite alembic.ini
     conn = config.get_section(config.config_ini_section)
     conn["sqlalchemy.url"] = uri

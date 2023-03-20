@@ -76,6 +76,7 @@ class EndpointHandler:
 
     def handle(self) -> NewObjectStaticResponse:
         self._guard_valid_user()
+        self._guard_module_not_locked()
 
         if self._object_in.Object_Type not in self._allowed_object_types:
             raise HTTPException(
@@ -168,6 +169,10 @@ class EndpointHandler:
             ModulesPermissions.can_add_new_object_to_module, self._user
         ):
             raise HTTPException(status_code=401, detail="Invalid user role")
+
+    def _guard_module_not_locked(self):
+        if self._module.Temporary_Locked:
+            raise HTTPException(status_code=400, detail="The module is locked")
 
 
 class ModuleAddNewObjectEndpoint(Endpoint):

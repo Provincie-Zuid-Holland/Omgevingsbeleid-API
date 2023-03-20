@@ -7,9 +7,6 @@ from app.extensions.html_assets.html_assets_extension import HtmlAssetsExtension
 from app.extensions.lineage_resolvers.lineageresolvers_extension import (
     LineageResolversExtension,
 )
-from app.extensions.modules_pdf_export.modules_pdf_export_extension import ModulesPdfExportExtension
-from app.extensions.modules_xml_export.modules_xml_export_extension import ModulesXMLExportExtension
-from app.extensions.mssql_search.mssql_search_extension import MssqlSearchExtension
 from app.extensions.search.search_extension import SearchExtension
 from app.extensions.users.users_extension import UsersExtension
 from app.extensions.users.users_extension import UsersExtension
@@ -38,8 +35,8 @@ app_builder.register_extension(SearchExtension())
 app_builder.register_extension(ModulesExtension())
 app_builder.register_extension(AcknowledgedRelationsExtension())
 app_builder.register_extension(HtmlAssetsExtension())
-app_builder.register_extension(ModulesPdfExportExtension())
-app_builder.register_extension(ModulesXMLExportExtension())
+# app_builder.register_extension(ModulesPdfExportExtension())
+# app_builder.register_extension(ModulesXMLExportExtension())
 app_builder.register_extension(DatabaseMigrationExtension())
 
 # Register the dynamic objects

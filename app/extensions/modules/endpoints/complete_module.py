@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
+from app.core.utils.utils import table_to_dict
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
@@ -16,6 +17,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.dynamic.db.objects_table import ObjectsTable
+from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_module,
@@ -25,7 +27,11 @@ from app.extensions.modules.dependencies import (
 from app.extensions.modules.event.module_status_changed_event import (
     ModuleStatusChangedEvent,
 )
-from app.extensions.modules.models.models import AllModuleStatusCode
+from app.extensions.modules.models.models import (
+    AllModuleStatusCode,
+    ModuleObjectAction,
+    ModuleObjectContext,
+)
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
@@ -44,6 +50,7 @@ class ObjectSpecifiekeGeldigheid(BaseModel):
 
 
 class CompleteModule(BaseModel):
+    IDMS_Link: str = Field(..., min_length=10)
     ObjectSpecifiekeGeldigheden: List[ObjectSpecifiekeGeldigheid] = []
 
 
@@ -72,7 +79,8 @@ class EndpointHandler:
         self._timepoint: datetime = datetime.now()
 
     def handle(self) -> ResponseOK:
-        # self._guard_status_must_be_vigerend()
+        self._guard_module_is_locked()
+        self._guard_status_must_be_vigerend()
 
         try:
             new_status: ModuleStatusHistoryTable = self._patch_status()
@@ -101,28 +109,34 @@ class EndpointHandler:
         )
 
     def _create_objects(self):
-        module_objects: List[dict] = self._module_object_repository.get_objects_in_time(
+        module_objects: List[
+            ModuleObjectsTable
+        ] = self._module_object_repository.get_objects_in_time(
             self._module.Module_ID,
             self._timepoint,
         )
 
-        for module_object in module_objects:
+        for module_object_table in module_objects:
+            module_object_dict = table_to_dict(module_object_table)
             new_object: ObjectsTable = ObjectsTable()
+
             # Copy module object into the new object
-            for key, value in module_object.items():
+            for key, value in module_object_dict.items():
                 if key in ["Module_ID"]:
                     continue
                 setattr(new_object, key, copy(value))
 
-            new_object.Adjust_On = module_object.get("UUID")
+            new_object.Adjust_On = module_object_dict.get("UUID")
             new_object.UUID = uuid4()
+            new_object.IDMS_Link = self._object_in.IDMS_Link
 
             new_object.Modified_By_UUID = self._user.UUID
             new_object.Modified_Date = self._timepoint
 
             start_validity, end_validity = self._get_validities(
-                module_object.get("Object_Type"),
-                module_object.get("Object_ID"),
+                module_object_dict.get("Object_Type"),
+                module_object_dict.get("Object_ID"),
+                module_object_table.ModuleObjectContext,
             )
             new_object.Start_Validity = start_validity
             new_object.End_Validity = end_validity
@@ -130,7 +144,10 @@ class EndpointHandler:
             self._db.add(new_object)
 
     def _get_validities(
-        self, object_type: str, object_id: int
+        self,
+        object_type: str,
+        object_id: int,
+        module_object_context: Optional[ModuleObjectContext],
     ) -> Tuple[datetime, Optional[datetime]]:
         start_validity = self._module.Start_Validity or copy(self._timepoint)
         end_validity = self._module.End_Validity
@@ -139,6 +156,13 @@ class EndpointHandler:
             if (specifics.Object_ID, specifics.Object_Type) == (object_id, object_type):
                 start_validity = specifics.Start_Validity or start_validity
                 end_validity = specifics.End_Validity or end_validity
+
+        # If the object action is "Terminate" then we force the end_validity
+        if (
+            module_object_context
+            and module_object_context.Action == ModuleObjectAction.Terminate
+        ):
+            end_validity = copy(self._timepoint)
 
         return start_validity, end_validity
 
@@ -168,6 +192,12 @@ class EndpointHandler:
         if status.Status != AllModuleStatusCode.Vigerend:
             raise HTTPException(
                 400, "Alleen modules met status Vigerend kunnen worden afgesloten"
+            )
+
+    def _guard_module_is_locked(self):
+        if not self._module.Temporary_Locked:
+            raise HTTPException(
+                400, "The module can only be completed when it is locked"
             )
 
 

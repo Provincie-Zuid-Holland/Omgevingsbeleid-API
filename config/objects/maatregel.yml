@@ -96,6 +96,11 @@ fields:
     name: Tags
     type: str
     column: tags
+  idms_link:
+    name: IDMS_Link
+    type: str
+    column: idms_link
+
   # Statics
   owner_1_uuid:
     name: Owner_1_UUID
