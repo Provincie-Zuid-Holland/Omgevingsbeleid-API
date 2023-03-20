@@ -7,7 +7,7 @@ from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user,
     depends_user_repository,
@@ -22,7 +22,7 @@ class ListUsersEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             user_repository: UserRepository = Depends(depends_user_repository),
         ) -> List[UserShort]:
             return self._handler(user_repository)
@@ -43,7 +43,7 @@ class ListUsersEndpoint(Endpoint):
         self,
         repostiory: UserRepository,
     ) -> List[UserShort]:
-        users: List[GebruikersTable] = repostiory.get_active()
+        users: List[UsersTable] = repostiory.get_active()
         response: List[UserShort] = [UserShort.from_orm(u) for u in users]
 
         return response

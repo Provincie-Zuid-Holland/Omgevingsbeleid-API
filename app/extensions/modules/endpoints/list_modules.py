@@ -13,7 +13,7 @@ from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import depends_module_repository
 from app.extensions.modules.models import Module
 from app.extensions.modules.repository.module_repository import ModuleRepository
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -30,7 +30,7 @@ class ListModulesEndpoint(Endpoint):
         def fastapi_handler(
             only_mine: bool = True,
             only_active: bool = True,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module_repository: ModuleRepository = Depends(depends_module_repository),
             maybe_filter_code: Optional[FilterObjectCode] = Depends(
                 depends_filter_object_code
@@ -59,7 +59,7 @@ class ListModulesEndpoint(Endpoint):
     def _handler(
         self,
         module_repository: ModuleRepository,
-        user: GebruikersTable,
+        user: UsersTable,
         only_mine: bool,
         only_active: bool,
         maybe_filter_code: Optional[FilterObjectCode],

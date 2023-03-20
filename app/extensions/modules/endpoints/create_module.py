@@ -15,7 +15,7 @@ from app.dynamic.converter import Converter
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.modules.permissions import ModulesPermissions
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user_with_permission_curried,
 )
@@ -46,11 +46,11 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
-        user: GebruikersTable,
+        user: UsersTable,
         object_in: ModuleCreate,
     ):
         self._db: Session = db
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._object_in: ModuleCreate = object_in
         self._timepoint: datetime = datetime.now()
 
@@ -95,7 +95,7 @@ class CreateModuleEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: ModuleCreate,
-            user: GebruikersTable = Depends(
+            user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
                     ModulesPermissions.can_create_module
                 ),

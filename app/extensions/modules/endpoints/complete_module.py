@@ -28,9 +28,12 @@ from app.extensions.modules.event.module_status_changed_event import (
     ModuleStatusChangedEvent,
 )
 from app.extensions.modules.models.models import (
-    AllModuleStatusCode,
     ModuleObjectAction,
     ModuleObjectContext,
+)
+from app.extensions.modules.permissions import (
+    guard_module_is_locked,
+    guard_status_must_be_vigerend,
 )
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
@@ -38,7 +41,7 @@ from app.extensions.modules.repository.module_object_repository import (
 from app.extensions.modules.repository.module_status_repository import (
     ModuleStatusRepository,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -61,7 +64,7 @@ class EndpointHandler:
         module_status_repository: ModuleStatusRepository,
         module_object_repository: ModuleObjectRepository,
         event_dispatcher: EventDispatcher,
-        user: GebruikersTable,
+        user: UsersTable,
         module: ModuleTable,
         object_in: CompleteModule,
     ):
@@ -73,14 +76,14 @@ class EndpointHandler:
             module_object_repository
         )
         self._event_dispatcher: EventDispatcher = event_dispatcher
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_in: CompleteModule = object_in
         self._timepoint: datetime = datetime.now()
 
     def handle(self) -> ResponseOK:
-        self._guard_module_is_locked()
-        self._guard_status_must_be_vigerend()
+        guard_module_is_locked(self._module)
+        guard_status_must_be_vigerend(self._module_status_repository, self._module)
 
         try:
             new_status: ModuleStatusHistoryTable = self._patch_status()
@@ -183,23 +186,6 @@ class EndpointHandler:
         self._module.Modified_Date = self._timepoint
         self._db.add(self._module)
 
-    def _guard_status_must_be_vigerend(self):
-        status: Optional[
-            ModuleStatusHistoryTable
-        ] = self._module_status_repository.get_latest_for_module(self._module.Module_ID)
-        if status is None:
-            raise HTTPException(400, "Deze module heeft geen status")
-        if status.Status != AllModuleStatusCode.Vigerend:
-            raise HTTPException(
-                400, "Alleen modules met status Vigerend kunnen worden afgesloten"
-            )
-
-    def _guard_module_is_locked(self):
-        if not self._module.Temporary_Locked:
-            raise HTTPException(
-                400, "The module can only be completed when it is locked"
-            )
-
 
 class CompleteModuleEndpoint(Endpoint):
     def __init__(
@@ -213,7 +199,7 @@ class CompleteModuleEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: CompleteModule,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
             module_status_repository: ModuleStatusRepository = Depends(

@@ -9,7 +9,7 @@ from app.extensions.modules.dependencies import (
     depends_active_module_object_context,
 )
 from app.extensions.modules.models.models import ModuleObjectContext
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -24,7 +24,7 @@ class ModuleGetObjectContextEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             object_context: ModuleObjectContext = Depends(
                 depends_active_module_object_context
             ),

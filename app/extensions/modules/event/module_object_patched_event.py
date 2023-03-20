@@ -6,12 +6,12 @@ from app.dynamic.config.models import Model
 
 from app.dynamic.event.types import Event
 from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 
 
 @dataclass
 class ModuleObjectPatchedEventContext:
-    user: GebruikersTable
+    user: UsersTable
     changes: Dict[str, str]
     timepoint: datetime
     request_model: Model
@@ -34,7 +34,7 @@ class ModuleObjectPatchedEvent(Event):
 
     @staticmethod
     def create(
-        user: GebruikersTable,
+        user: UsersTable,
         changes: Dict[str, str],
         timepoint: datetime,
         request_model: Model,

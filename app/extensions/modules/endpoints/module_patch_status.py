@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -19,8 +19,17 @@ from app.extensions.modules.event.module_status_changed_event import (
     ModuleStatusChangedEvent,
 )
 from app.extensions.modules.models.models import ModulePatchStatus
-from app.extensions.users.db.tables import GebruikersTable
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.modules.permissions import (
+    ModulesPermissions,
+    guard_module_is_locked,
+    guard_valid_user,
+)
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import (
+    depends_current_active_user,
+    depends_permission_service,
+)
+from app.extensions.users.permission_service import PermissionService
 
 
 class EndpointHandler:
@@ -28,19 +37,26 @@ class EndpointHandler:
         self,
         db: Session,
         event_dispatcher: EventDispatcher,
-        user: GebruikersTable,
+        permission_service: PermissionService,
+        user: UsersTable,
         module: ModuleTable,
         object_in: ModulePatchStatus,
     ):
         self._event_dispatcher: EventDispatcher = event_dispatcher
+        self._permission_service: PermissionService = permission_service
         self._db: Session = db
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_in: ModulePatchStatus = object_in
 
     def handle(self) -> ResponseOK:
-        self._guard_user_is_module_manager()
-        self._guard_module_is_locked()
+        guard_valid_user(
+            self._permission_service,
+            ModulesPermissions.can_patch_module_status,
+            self._user,
+            self._module,
+        )
+        guard_module_is_locked(self._module)
 
         status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
             Module_ID=self._module.Module_ID,
@@ -66,16 +82,6 @@ class EndpointHandler:
             )
         )
 
-    def _guard_user_is_module_manager(self):
-        if not self._module.is_manager(self._user.UUID):
-            raise HTTPException(401, "You are not allowed to modify this module")
-
-    def _guard_module_is_locked(self):
-        if not self._module.Temporary_Locked:
-            raise HTTPException(
-                400, "The module's status can only be changed when it is locked"
-            )
-
 
 class ModulePatchStatusEndpoint(Endpoint):
     def __init__(self, path: str):
@@ -84,14 +90,16 @@ class ModulePatchStatusEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: ModulePatchStatus,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_and_activated_module),
             db: Session = Depends(depends_db),
+            permission_service: PermissionService = Depends(depends_permission_service),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 event_dispatcher,
+                permission_service,
                 user,
                 module,
                 object_in,

@@ -202,9 +202,14 @@ columns:
 
 users_permissions:
   "Ambtelijk opdrachtgever": []
-  "Behandelend Ambtenaar": []
+  "Behandelend Ambtenaar":
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
   "Beheerder":
     - can_create_module
+    - can_edit_module
+    - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
@@ -214,6 +219,8 @@ users_permissions:
   "Technisch beheerder": []
   "Superuser":
     - can_create_module
+    - can_edit_module
+    - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
@@ -221,6 +228,8 @@ users_permissions:
     - can_patch_object_in_module
   "Test runner":
     - can_create_module
+    - can_edit_module
+    - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
@@ -228,6 +237,8 @@ users_permissions:
     - can_patch_object_in_module
   "Tester":
     - can_create_module
+    - can_edit_module
+    - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context

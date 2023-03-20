@@ -23,7 +23,7 @@ from app.extensions.modules.event.retrieved_module_objects_event import (
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -48,7 +48,7 @@ class ModuleObjectLatestEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             lineage_id: int,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             module_object_context=Depends(
                 depends_active_module_object_context_curried(self._object_type)

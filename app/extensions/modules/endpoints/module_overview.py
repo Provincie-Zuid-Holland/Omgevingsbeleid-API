@@ -17,7 +17,7 @@ from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
 from app.extensions.modules.dependencies import depends_active_module
 from app.extensions.modules.models import Module
 from app.extensions.modules.models.models import ModuleObjectShort, ModuleStatus
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -31,11 +31,11 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
-        user: GebruikersTable,
+        user: UsersTable,
         module: ModuleTable,
     ):
         self._db: Session = db
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
 
     def handle(self) -> ModuleOverview:
@@ -104,7 +104,7 @@ class ModuleOverviewEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
         ) -> ModuleOverview:

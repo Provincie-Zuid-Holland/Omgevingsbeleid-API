@@ -20,10 +20,14 @@ from app.extensions.modules.dependencies import (
     depends_object_provider,
 )
 from app.extensions.modules.models.models import ModuleObjectAction
-from app.extensions.modules.permissions import ModulesPermissions
+from app.extensions.modules.permissions import (
+    ModulesPermissions,
+    guard_module_not_locked,
+    guard_valid_user,
+)
 from app.extensions.modules.repository import ModuleObjectContextRepository
 from app.extensions.modules.repository.object_provider import ObjectProvider
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user,
     depends_permission_service,
@@ -50,7 +54,7 @@ class EndpointHandler:
         object_provider: ObjectProvider,
         object_context_repository: ModuleObjectContextRepository,
         permission_service: PermissionService,
-        user: GebruikersTable,
+        user: UsersTable,
         module: ModuleTable,
         object_in: ModuleAddExistingObject,
     ):
@@ -60,14 +64,19 @@ class EndpointHandler:
             object_context_repository
         )
         self._permission_service: PermissionService = permission_service
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_in: ModuleAddExistingObject = object_in
         self._timepoint: datetime = datetime.now()
 
     def handle(self):
-        self._guard_valid_user()
-        self._guard_module_not_locked()
+        guard_valid_user(
+            self._permission_service,
+            ModulesPermissions.can_add_existing_object_to_module,
+            self._user,
+            self._module,
+        )
+        guard_module_not_locked(self._module)
 
         object_data: Optional[dict] = self._object_provider.get_by_uuid(
             self._object_in.Object_UUID
@@ -155,19 +164,6 @@ class EndpointHandler:
 
         self._db.add(module_object)
 
-    def _guard_valid_user(self):
-        if self._module.is_manager(self._user.UUID):
-            return
-
-        if not self._permission_service.has_permission(
-            ModulesPermissions.can_add_existing_object_to_module, self._user
-        ):
-            raise HTTPException(status_code=401, detail="Invalid user role")
-
-    def _guard_module_not_locked(self):
-        if self._module.Temporary_Locked:
-            raise HTTPException(status_code=400, detail="The module is locked")
-
 
 class ModuleAddExistingObjectEndpoint(Endpoint):
     def __init__(self, path: str):
@@ -176,7 +172,7 @@ class ModuleAddExistingObjectEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: ModuleAddExistingObject,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
             object_provider: ObjectProvider = Depends(depends_object_provider),

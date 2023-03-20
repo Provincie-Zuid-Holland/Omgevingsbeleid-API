@@ -32,7 +32,7 @@ from app.extensions.modules.dependencies import (
 from app.extensions.modules.event.retrieved_module_objects_event import (
     RetrievedModuleObjectsEvent,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -59,7 +59,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             lineage_id: int,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             filters: Filters = Depends(depends_string_filters),
             pagination: Pagination = Depends(depends_pagination),
             module: ModuleTable = Depends(depends_active_module),

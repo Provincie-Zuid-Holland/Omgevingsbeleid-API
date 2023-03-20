@@ -11,7 +11,7 @@ from app.dynamic.utils.response import ResponseOK
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 from app.extensions.werkingsgebieden.db.tables import ObjectWerkingsgebiedenTable
 from app.extensions.werkingsgebieden.models.models import WerkingsgebiedShort
@@ -82,7 +82,7 @@ class OverwriteWerkingsgebiedenEndpoint(Endpoint):
         def fastapi_handler(
             lineage_id: int,
             overwrite_list: List[WerkingsgebiedShort],
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             db: Session = Depends(depends_db),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(

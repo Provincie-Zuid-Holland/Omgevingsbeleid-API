@@ -1,1 +1,1 @@
-from .tables import GebruikersTable
+from .tables import UsersTable

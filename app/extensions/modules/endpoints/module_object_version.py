@@ -19,7 +19,7 @@ from app.extensions.modules.dependencies import (
 from app.extensions.modules.event.retrieved_module_objects_event import (
     RetrievedModuleObjectsEvent,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -43,7 +43,7 @@ class ModuleObjectVersionEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             module_object: ModuleObjectsTable = Depends(
                 depends_module_object_by_uuid_curried(self._object_type)

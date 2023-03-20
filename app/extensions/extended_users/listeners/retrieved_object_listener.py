@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.dynamic.event.types import Listener
 from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 from app.dynamic.config.models import Model, DynamicObjectModel
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 
 
 @dataclass
@@ -50,7 +50,7 @@ class RetrievedObjectsListener(Listener[RetrievedObjectsEvent]):
         if not uuids:
             return {}
 
-        stmt = select(GebruikersTable).filter(GebruikersTable.UUID.in_(uuids))
+        stmt = select(UsersTable).filter(UsersTable.UUID.in_(uuids))
 
         user_map = {}
         for user in db.scalars(stmt).all():

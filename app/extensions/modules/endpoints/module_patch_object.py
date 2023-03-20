@@ -8,7 +8,11 @@ from app.core.dependencies import depends_db
 
 from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
-from app.dynamic.dependencies import depends_event_dispatcher
+from app.dynamic.db.object_static_table import ObjectStaticsTable
+from app.dynamic.dependencies import (
+    depends_event_dispatcher,
+    depends_object_static_by_object_type_and_id,
+)
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
@@ -22,11 +26,15 @@ from app.extensions.modules.dependencies import (
 from app.extensions.modules.event.module_object_patched_event import (
     ModuleObjectPatchedEvent,
 )
-from app.extensions.modules.permissions import ModulesPermissions
+from app.extensions.modules.permissions import (
+    ModulesPermissions,
+    guard_module_not_locked,
+    guard_valid_user,
+)
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user,
     depends_permission_service,
@@ -45,8 +53,9 @@ class EndpointHandler:
         db: Session,
         permission_service: PermissionService,
         module_object_repository: ModuleObjectRepository,
-        user: GebruikersTable,
+        user: UsersTable,
         module: ModuleTable,
+        object_static: ObjectStaticsTable,
         changes: dict,
         lineage_id: int,
     ):
@@ -62,15 +71,22 @@ class EndpointHandler:
             module_object_repository
         )
 
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
+        self._object_static: ObjectStaticsTable = object_static
         self._changes: dict = changes
         self._lineage_id: int = lineage_id
         self._timepoint: datetime = datetime.now()
 
     def handle(self):
-        self._guard_valid_user()
-        self._guard_module_not_locked()
+        guard_valid_user(
+            self._permission_service,
+            ModulesPermissions.can_patch_object_in_module,
+            self._user,
+            self._module,
+            [self._object_static.Owner_1_UUID, self._object_static.Owner_2_UUID],
+        )
+        guard_module_not_locked(self._module)
 
         if not self._changes:
             raise HTTPException(400, "Nothing to update")
@@ -104,19 +120,6 @@ class EndpointHandler:
         response = self._response_type.from_orm(new_record)
         return response
 
-    def _guard_valid_user(self):
-        if self._module.is_manager(self._user.UUID):
-            return
-
-        if not self._permission_service.has_permission(
-            ModulesPermissions.can_patch_object_in_module, self._user
-        ):
-            raise HTTPException(status_code=401, detail="Invalid user role")
-
-    def _guard_module_not_locked(self):
-        if self._module.Temporary_Locked:
-            raise HTTPException(status_code=400, detail="The module is locked")
-
 
 class ModulePatchObjectEndpoint(Endpoint):
     def __init__(
@@ -138,10 +141,13 @@ class ModulePatchObjectEndpoint(Endpoint):
         def fastapi_handler(
             lineage_id: int,
             object_in: self._request_type,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_and_activated_module),
             module_object_context=Depends(
                 depends_active_module_object_context_curried(self._object_type)
+            ),
+            object_static: ObjectStaticsTable = Depends(
+                depends_object_static_by_object_type_and_id
             ),
             db: Session = Depends(depends_db),
             permission_service: PermissionService = Depends(depends_permission_service),
@@ -161,6 +167,7 @@ class ModulePatchObjectEndpoint(Endpoint):
                 module_object_repository,
                 user,
                 module,
+                object_static,
                 object_in.dict(exclude_none=True),
                 lineage_id,
             )

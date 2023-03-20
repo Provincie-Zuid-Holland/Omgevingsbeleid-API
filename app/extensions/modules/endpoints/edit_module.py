@@ -15,8 +15,16 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import depends_active_module
-from app.extensions.users.db.tables import GebruikersTable
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.modules.permissions import (
+    ModulesPermissions,
+    guard_valid_user,
+)
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import (
+    depends_current_active_user,
+    depends_permission_service,
+)
+from app.extensions.users.permission_service import PermissionService
 
 
 class ModuleEdit(BaseModel):
@@ -42,17 +50,24 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
-        user: GebruikersTable,
+        permission_service: PermissionService,
+        user: UsersTable,
         module: ModuleTable,
         object_in: ModuleEdit,
     ):
         self._db: Session = db
-        self._user: GebruikersTable = user
+        self._permission_service: PermissionService = permission_service
+        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_in: ModuleEdit = object_in
 
     def handle(self) -> ResponseOK:
-        self._guard_user_is_module_manager()
+        guard_valid_user(
+            self._permission_service,
+            ModulesPermissions.can_edit_module,
+            self._user,
+            self._module,
+        )
 
         changes: dict = self._object_in.dict(exclude_none=True)
         if not changes:
@@ -72,10 +87,6 @@ class EndpointHandler:
             message="OK",
         )
 
-    def _guard_user_is_module_manager(self):
-        if not self._module.is_manager(self._user.UUID):
-            raise HTTPException(401, "You are not allowed to modify this module")
-
 
 class EditModuleEndpoint(Endpoint):
     def __init__(
@@ -89,12 +100,14 @@ class EditModuleEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: ModuleEdit,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
+            permission_service: PermissionService = Depends(depends_permission_service),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
                 db,
+                permission_service,
                 user,
                 module,
                 object_in,

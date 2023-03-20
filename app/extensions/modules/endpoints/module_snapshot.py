@@ -19,7 +19,7 @@ from app.extensions.modules.models.models import ModuleSnapshot
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -27,14 +27,14 @@ class EndpointHandler:
     def __init__(
         self,
         module_object_repository: ModuleObjectRepository,
-        user: GebruikersTable,
+        user: UsersTable,
         module: ModuleTable,
         status: ModuleStatusHistoryTable,
     ):
         self._module_object_repository: ModuleObjectRepository = (
             module_object_repository
         )
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._status: ModuleStatusHistoryTable = status
 
@@ -62,7 +62,7 @@ class ModuleSnapshotEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_module),
             status: ModuleStatusHistoryTable = Depends(depends_module_status_by_id),
             module_object_repository: ModuleObjectRepository = Depends(

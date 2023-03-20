@@ -13,7 +13,7 @@ from app.extensions.modules.db.tables import (
 from app.extensions.modules.models.models import AllModuleStatusCode
 from app.extensions.relations.db.tables import RelationsTable
 
-from app.extensions.users.db import GebruikersTable
+from app.extensions.users.db import UsersTable
 from app.core.security import get_password_hash
 
 
@@ -30,7 +30,7 @@ class DatabaseFixtures:
 
     def create_users(self):
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Gebruikersnaam="Anton",
                 Email="test@example.com",
@@ -40,7 +40,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
                 Gebruikersnaam="Bert",
                 Email="b@example.com",
@@ -50,7 +50,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000003"),
                 Gebruikersnaam="Cees",
                 Email="c@example.com",
@@ -60,7 +60,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000004"),
                 Gebruikersnaam="Daniel",
                 Email="d@example.com",
@@ -70,7 +70,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000005"),
                 Gebruikersnaam="Emma",
                 Email="e@example.com",
@@ -80,7 +80,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000006"),
                 Gebruikersnaam="Fred",
                 Email="f@example.com",
@@ -90,7 +90,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000007"),
                 Gebruikersnaam="Gerald",
                 Email="g@example.com",

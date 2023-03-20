@@ -1,6 +1,6 @@
 from typing import Dict, List, Set
 
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 
 
 class PermissionService:
@@ -10,7 +10,7 @@ class PermissionService:
     def overwrite_role(self, role: str, permissions: List[str]):
         self._permissions_per_role[role] = set(permissions)
 
-    def has_permission(self, permission: str, user: GebruikersTable) -> bool:
+    def has_permission(self, permission: str, user: UsersTable) -> bool:
         permissions: Set[str] = self._permissions_per_role.get(user.Rol, set([]))
         return permission in permissions
 
