@@ -5,7 +5,7 @@ api:
         - resolver: list_users
     - prefix: /search
       endpoints:
-        - resolver: search
+        - resolver: mssql_search
     - prefix: /modules
       endpoints:
         - resolver: create_module
@@ -258,3 +258,13 @@ modules_pdf_export:
 
 modules_xml_export:
   destination_path: /extensions/module_xml_export
+
+mssql_search:
+  - table_name: objects
+    searchable_fields:
+      - Title
+      - Description
+  - table_name: module_objects
+    searchable_fields:
+      - Title
+      - Description

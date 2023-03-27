@@ -20,15 +20,6 @@ Set user password as Defered, so it is not loaded by default
 }
 
 
-Rollen:
-Ambtelijk opdrachtgever
-Behandelend Ambtenaar
-Beheerder
-Geen
-Portefeuillehouder
-Technisch beheerder
-
-
 
 
 title_field = self.schema.fields_with_props(["search_title"])[0]

@@ -33,7 +33,7 @@ class Extension(ABC):
     def register_models(self, models_resolver: ModelsResolver):
         pass
 
-    def register_commands(self, main_command_group: click.Group):
+    def register_commands(self, main_command_group: click.Group, main_config: dict):
         pass
 
     def migrate(self):

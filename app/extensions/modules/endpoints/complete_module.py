@@ -155,17 +155,17 @@ class EndpointHandler:
         start_validity = self._module.Start_Validity or copy(self._timepoint)
         end_validity = self._module.End_Validity
 
-        for specifics in self._object_in.ObjectSpecifiekeGeldigheden:
-            if (specifics.Object_ID, specifics.Object_Type) == (object_id, object_type):
-                start_validity = specifics.Start_Validity or start_validity
-                end_validity = specifics.End_Validity or end_validity
-
-        # If the object action is "Terminate" then we force the end_validity
+        # If the object action is "Terminate" then we set the default end_validity to now
         if (
             module_object_context
             and module_object_context.Action == ModuleObjectAction.Terminate
         ):
             end_validity = copy(self._timepoint)
+
+        for specifics in self._object_in.ObjectSpecifiekeGeldigheden:
+            if (specifics.Object_ID, specifics.Object_Type) == (object_id, object_type):
+                start_validity = specifics.Start_Validity or start_validity
+                end_validity = specifics.End_Validity or end_validity
 
         return start_validity, end_validity
 

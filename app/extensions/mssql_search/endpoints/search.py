@@ -47,11 +47,7 @@ class EndpointHandler:
         self._query: str = query
 
     def handle(self) -> SearchResponse:
-        if self._db.bind.name in ["sqlite", "mssql"]:
-            stmt = self._like_search_stmt()
-        else:
-            stmt = self._match_search_stmt()
-
+        stmt = self._search_stmt()
         table_rows = self._db.execute(stmt).all()
         search_objects: List[SearchObject] = [
             SearchObject.parse_obj(r._asdict()) for r in table_rows
@@ -61,7 +57,7 @@ class EndpointHandler:
             Objects=search_objects,
         )
 
-    def _like_search_stmt(self):
+    def _search_stmt(self):
         like_query = f"%{self._query}%"
         stmt = (
             select(
@@ -75,32 +71,6 @@ class EndpointHandler:
             .filter(
                 ObjectsTable.Title.like(like_query)
                 | ObjectsTable.Description.like(like_query)
-            )
-            .order_by(desc(ObjectsTable.Modified_Date))
-            .limit(self._pagination.get_limit())
-            .offset(self._pagination.get_offset())
-        )
-        return stmt
-
-    def _match_search_stmt(self):
-        stmt = (
-            select(
-                ObjectsTable.Object_Type,
-                ObjectsTable.Object_ID,
-                ObjectsTable.UUID,
-                ObjectsTable.Title,
-                ObjectsTable.Description,
-            )
-            .select_from(ObjectsTable)
-            .filter(
-                ObjectsTable.Title.match(self._query)
-                | ObjectsTable.Description.match(self._query)
-            )
-            .order_by(
-                desc(
-                    ObjectsTable.Title.match(self._query)
-                    + ObjectsTable.Description.match(self._query)
-                )
             )
             .order_by(desc(ObjectsTable.Modified_Date))
             .limit(self._pagination.get_limit())

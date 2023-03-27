@@ -7,14 +7,14 @@ from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.converter import Converter
-from app.extensions.mssql_search.commands.commands import setup_search_database
+from app.extensions.mssql_search.commands.commands import setup_search_database_curried
 import app.extensions.mssql_search.endpoints as endpoints
 
 
 class MssqlSearchExtension(Extension):
-    def register_commands(self, main_command_group: click.Group):
+    def register_commands(self, main_command_group: click.Group, main_config: dict):
         main_command_group.add_command(
-            setup_search_database, "mssql-setup-search-database"
+            setup_search_database_curried(main_config), "mssql-setup-search-database"
         )
 
     def register_endpoint_resolvers(

@@ -98,7 +98,7 @@ class DynamicAppBuilder:
                 self._service_container.converter,
                 self._service_container.models_resolver,
             )
-            extension.register_commands(self._service_container.main_command_group)
+            extension.register_commands(self._service_container.main_command_group, self._main_config)
 
             for column in extension.register_base_columns():
                 self._columns[column.id] = column
