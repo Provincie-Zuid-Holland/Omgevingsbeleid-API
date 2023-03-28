@@ -78,7 +78,7 @@ class RetrievedObjectsListener(Listener[RetrievedObjectsEvent]):
                 field_value = {
                     "Relation": {
                         "Object_Type": relation_row.get("Object_Type"),
-                        "ID": relation_row.get("ID"),
+                        "Object_ID": relation_row.get("Object_ID"),
                         "Description": relation_row.get("_Relation_Description"),
                     },
                     "Object": deserialized_relation_row,

@@ -102,10 +102,10 @@ models:
   beleidsdoel_short:
     name: BeleidsdoelShort
     fields:
+      object_type:
       object_id:
       uuid:
       title:
-      description:
   beleidsdoel_basic:
     name: BeleidsdoelBasic
     fields:
@@ -146,12 +146,12 @@ models:
             object_id: ambitie
             to_field: "Ambities"
             model_id: ambitie_short
-            wrapped_with_relation_data: false
+            wrapped_with_relation_data: true
           - object_type: beleidskeuze
             object_id: beleidskeuze
             to_field: "Beleidskeuzes"
             model_id: beleidskeuze_short
-            wrapped_with_relation_data: false
+            wrapped_with_relation_data: true
       extended_user:
         fields_map:
           - from_field: Created_By_UUID

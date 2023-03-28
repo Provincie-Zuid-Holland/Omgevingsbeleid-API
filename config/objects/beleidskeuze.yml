@@ -142,6 +142,7 @@ models:
   beleidskeuze_short:
     name: BeleidskeuzeShort
     fields:
+      object_type:
       object_id:
       uuid:
       title:
@@ -212,7 +213,7 @@ models:
             object_id: beleidsdoel
             to_field: "Beleidsdoelen"
             model_id: beleidsdoel_short
-            wrapped_with_relation_data: false
+            wrapped_with_relation_data: true
       extended_user:
         fields_map:
           - from_field: Created_By_UUID
