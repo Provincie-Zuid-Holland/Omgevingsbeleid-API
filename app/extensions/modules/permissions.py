@@ -51,7 +51,7 @@ def guard_valid_user(
     permission: str,
     user: UsersTable,
     module: ModuleTable,
-    whitelisted_uuids: List[uuid.UUID],
+    whitelisted_uuids: List[uuid.UUID] = [],
 ):
     if module.is_manager(user.UUID):
         return
