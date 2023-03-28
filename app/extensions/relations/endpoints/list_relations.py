@@ -47,7 +47,7 @@ class EndpointHandler:
             relation_object_type, relation_id = relation_code.split("-", 1)
 
             response_model: RelationShort = RelationShort(
-                ID=relation_id,
+                Object_ID=relation_id,
                 Object_Type=relation_object_type,
                 Description=row.Description,
             )
