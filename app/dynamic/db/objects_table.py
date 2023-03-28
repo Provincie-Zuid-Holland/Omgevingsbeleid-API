@@ -2,7 +2,7 @@ from typing import Any, Dict
 import uuid
 
 from sqlalchemy import ForeignKey, Integer, String, DateTime, Uuid
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
 from app.dynamic.config.models import Column as DynamicColumn
@@ -13,6 +13,9 @@ class ObjectsTable(Base):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Code: Mapped[str] = mapped_column(String(35), ForeignKey("object_statics.Code"))
+
+    object_statics: Mapped["ObjectStaticsTable"] = relationship()
+
 
 
 # @todo: this should be filled by extension registers and provided by dynamic_app

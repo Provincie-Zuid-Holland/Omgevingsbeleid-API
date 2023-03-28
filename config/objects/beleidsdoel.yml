@@ -81,6 +81,10 @@ fields:
     name: IDMS_Link
     type: str
     column: idms_link
+  decision_number:
+    name: Decision_Number
+    type: str
+    column: decision_number
 
   # Statics
   owner_1_uuid:
