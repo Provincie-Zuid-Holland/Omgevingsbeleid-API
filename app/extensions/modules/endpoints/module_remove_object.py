@@ -110,7 +110,7 @@ class ModuleRemoveObjectEndpoint(Endpoint):
                 depends_active_module_object_context
             ),
             object_static: ObjectStaticsTable = Depends(
-                depends_object_static_by_object_type_and_id
+                depends_object_static_by_object_type_and_id,
             ),
             db: Session = Depends(depends_db),
             module_object_repository: ModuleObjectRepository = Depends(

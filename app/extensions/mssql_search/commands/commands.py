@@ -23,9 +23,7 @@ def _reset_fulltext_index(db: Session, table_name: str, fields: Set[str]):
     if not fields:
         return
 
-    languages_fields: Set[str] = {
-        f"{field} Language 1043" for field in fields
-    }
+    languages_fields: Set[str] = {f"{field} Language 1043" for field in fields}
 
     inspector = inspect(db.bind)
     primary_key_columns = inspector.get_pk_constraint(table_name)
@@ -58,7 +56,9 @@ def setup_search_database_curried(main_config: dict):
             if not exists:
                 print("Create fulltext stoplist")
                 db.execute(
-                    DDL(f"CREATE FULLTEXT STOPLIST {settings.MSSQL_SEARCH_STOPLIST_NAME};")
+                    DDL(
+                        f"CREATE FULLTEXT STOPLIST {settings.MSSQL_SEARCH_STOPLIST_NAME};"
+                    )
                 )
 
             # Populate stoplist

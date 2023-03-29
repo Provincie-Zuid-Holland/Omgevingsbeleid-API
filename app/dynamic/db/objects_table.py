@@ -17,7 +17,6 @@ class ObjectsTable(Base):
     object_statics: Mapped["ObjectStaticsTable"] = relationship()
 
 
-
 # @todo: this should be filled by extension registers and provided by dynamic_app
 column_type_map: Dict[str, Any] = {
     "int": Integer,

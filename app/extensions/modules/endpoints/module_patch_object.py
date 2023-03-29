@@ -11,7 +11,7 @@ from app.dynamic.converter import Converter
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.dependencies import (
     depends_event_dispatcher,
-    depends_object_static_by_object_type_and_id,
+    depends_object_static_by_object_type_and_id_curried,
 )
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
@@ -147,7 +147,7 @@ class ModulePatchObjectEndpoint(Endpoint):
                 depends_active_module_object_context_curried(self._object_type)
             ),
             object_static: ObjectStaticsTable = Depends(
-                depends_object_static_by_object_type_and_id
+                depends_object_static_by_object_type_and_id_curried(self._object_type)
             ),
             db: Session = Depends(depends_db),
             permission_service: PermissionService = Depends(depends_permission_service),
