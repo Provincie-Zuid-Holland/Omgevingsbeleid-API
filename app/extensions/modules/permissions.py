@@ -25,7 +25,7 @@ class ModulesPermissions(str, Enum):
 
 
 def guard_user_is_module_manager(user: UsersTable, module: ModuleTable):
-    if module.is_manager(user.UUID):
+    if not module.is_manager(user.UUID):
         raise HTTPException(401, "You are not allowed to modify this module")
 
 
