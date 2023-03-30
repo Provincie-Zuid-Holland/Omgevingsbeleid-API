@@ -7,6 +7,8 @@ from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 from app.extensions.werkingsgebieden.dependencies import (
     depends_werkingsgebieden_repository,
@@ -23,7 +25,7 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            # user: UsersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             repository: WerkingsgebiedenRepository = Depends(
                 depends_werkingsgebieden_repository
             ),
