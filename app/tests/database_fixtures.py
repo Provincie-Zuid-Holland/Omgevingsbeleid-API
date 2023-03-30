@@ -15,6 +15,7 @@ from app.extensions.relations.db.tables import RelationsTable
 
 from app.extensions.users.db import UsersTable
 from app.core.security import get_password_hash
+from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 
 
 class DatabaseFixtures:
@@ -23,6 +24,7 @@ class DatabaseFixtures:
 
     def create_all(self):
         self.create_users()
+        self.create_werkingsgebieden()
         self.create_object_statics()
         self.create_modules()
         self.create_relations()
@@ -97,6 +99,36 @@ class DatabaseFixtures:
                 Rol="Tester",
                 Status="Actief",
                 Wachtwoord=get_password_hash("password"),
+            )
+        )
+        self._db.commit()
+
+    def create_werkingsgebieden(self):
+        self._db.add(
+            WerkingsgebiedenTable(
+                UUID=uuid.UUID("00000000-0009-0000-0000-000000000001"),
+                Title="Eerste gebied - V1",
+                ID=1,
+                Created_Date=datetime(2023, 2, 2, 2, 2, 2),
+                Modified_Date=datetime(2023, 2, 2, 2, 2, 2),
+            )
+        )
+        self._db.add(
+            WerkingsgebiedenTable(
+                UUID=uuid.UUID("00000000-0009-0000-0000-000000000002"),
+                Title="Eerste gebied - V2",
+                ID=1,
+                Created_Date=datetime(2023, 2, 3, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 3, 3, 3, 3),
+            )
+        )
+        self._db.add(
+            WerkingsgebiedenTable(
+                UUID=uuid.UUID("00000000-0009-0000-0000-000000000003"),
+                Title="Tweede gebied",
+                ID=1,
+                Created_Date=datetime(2023, 2, 4, 4, 4, 4),
+                Modified_Date=datetime(2023, 2, 4, 4, 4, 4),
             )
         )
         self._db.commit()

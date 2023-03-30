@@ -3,6 +3,9 @@ api:
     - prefix: /users
       endpoints:
         - resolver: list_users
+    - prefix: /werkingsgebieden
+      endpoints:
+        - resolver: list_werkingsgebieden
     - prefix: /search
       endpoints:
         - resolver: mssql_search

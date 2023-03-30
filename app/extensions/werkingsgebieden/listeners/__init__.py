@@ -1,4 +1,2 @@
 from .single_create_model_listener import SingleCreateModelListener
 from .single_retrieved_object_listener import SingleRetrievedObjectsListener
-from .multiple_create_model_listener import MultipleCreateModelListener
-from .multiple_retrieved_object_listener import MultipleRetrievedObjectsListener
