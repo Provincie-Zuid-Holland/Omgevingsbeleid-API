@@ -6,7 +6,6 @@ import pydantic
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, select
 from app.core.dependencies import depends_db
-from app.core.utils.utils import table_to_dict
 from app.dynamic.db.objects_table import ObjectsTable
 
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
@@ -89,13 +88,12 @@ class ValidListLineageTreeEndpoint(Endpoint):
             .limit(pagination.get_limit())
             .offset(pagination.get_offset())
         )
-        table_rows = db.scalars(stmt).all()
-        rows: List[dict] = [table_to_dict(r) for r in table_rows]
+        object_rows: List[ObjectsTable] = db.scalars(stmt).all()
 
         # Ask extensions for more information
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
-            RetrievedObjectsEvent.create(
-                rows,
+            RetrievedObjectsEvent.create_from_object_tables(
+                object_rows,
                 self._endpoint_id,
                 self._response_model,
             )

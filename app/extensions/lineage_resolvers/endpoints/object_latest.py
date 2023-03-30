@@ -1,8 +1,7 @@
-from typing import List, Optional, Type
+from typing import Optional, Type
 
 from fastapi import APIRouter, Depends
 import pydantic
-from app.core.utils.utils import table_to_dict
 from app.dynamic.db.objects_table import ObjectsTable
 
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
@@ -62,20 +61,17 @@ class ObjectLatestEndpoint(Endpoint):
         event_dispatcher: EventDispatcher,
         lineage_id: int,
     ):
-        module_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
+        maybe_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
             self._object_type,
             lineage_id,
         )
-        if not module_object:
+        if not maybe_object:
             raise ValueError("lineage_id does not exist")
-
-        object_dict: dict = table_to_dict(module_object)
-        rows: List[dict] = [object_dict]
 
         # Ask extensions for more information
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
-            RetrievedObjectsEvent.create(
-                rows,
+            RetrievedObjectsEvent.create_from_object_tables(
+                [maybe_object],
                 self._endpoint_id,
                 self._response_model,
             )

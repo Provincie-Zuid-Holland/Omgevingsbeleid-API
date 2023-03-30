@@ -103,6 +103,9 @@ class ExtractImagesListener(Listener[ModuleObjectPatchedEvent]):
         config: Optional[ExtractImagesConfig] = self._collect_config(
             event.context.request_model
         )
+        if not config:
+            return event
+
         changed_fields: Set[str] = set(event.context.changes.keys())
         interested_fields: Set[str] = set.intersection(config.fields, changed_fields)
         if not interested_fields:

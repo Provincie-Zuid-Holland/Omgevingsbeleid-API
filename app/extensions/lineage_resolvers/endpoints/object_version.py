@@ -1,9 +1,8 @@
-from typing import List, Optional, Type
+from typing import Optional, Type
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
 import pydantic
-from app.core.utils.utils import table_to_dict
 from app.dynamic.db.objects_table import ObjectsTable
 
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
@@ -63,22 +62,19 @@ class ObjectVersionEndpoint(Endpoint):
         event_dispatcher: EventDispatcher,
         object_uuid: UUID,
     ):
-        object_table: Optional[
+        maybe_object: Optional[
             ObjectsTable
         ] = object_repository.get_by_object_type_and_uuid(
             self._object_type,
             object_uuid,
         )
-        if not object_table:
+        if not maybe_object:
             raise ValueError("object_uuid does not exist")
-
-        object_dict: dict = table_to_dict(object_table)
-        rows: List[dict] = [object_dict]
 
         # Ask extensions for more information
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
-            RetrievedObjectsEvent.create(
-                rows,
+            RetrievedObjectsEvent.create_from_object_tables(
+                [maybe_object],
                 self._endpoint_id,
                 self._response_model,
             )
