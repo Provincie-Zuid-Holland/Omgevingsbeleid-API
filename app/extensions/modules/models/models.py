@@ -3,7 +3,9 @@ import uuid
 from typing import List, Optional
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
+
+from app.extensions.users.model import UserShort
 
 
 class ModuleStatus(BaseModel):
@@ -34,6 +36,11 @@ class Module(BaseModel):
     Start_Validity: Optional[datetime] = Field(None, nullable=True)
     End_Validity: Optional[datetime] = Field(None, nullable=True)
     Status: Optional[ModuleStatus]
+
+    Created_By: Optional[UserShort]
+    Modified_By: Optional[UserShort]
+    Module_Manager_1: Optional[UserShort]
+    Module_Manager_2: Optional[UserShort]
 
     class Config:
         orm_mode = True
