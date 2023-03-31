@@ -173,6 +173,7 @@ models:
       tags:
       weblink:
       gebied_duiding:
+      gebied_uuid:
     services:
       extended_user:
         fields_map:
@@ -216,6 +217,7 @@ models:
       tags:
       weblink:
       gebied_duiding:
+      gebied_uuid:
     services:
       werkingsgebied:
         fields_map:
