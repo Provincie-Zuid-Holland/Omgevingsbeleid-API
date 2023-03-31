@@ -110,6 +110,14 @@ fields:
     name: Decision_Number
     type: str
     column: decision_number
+  gebied_uuid:
+    name: Gebied_UUID
+    type: uuid
+    column: gebied_uuid
+  gebied_duiding:
+    name: Gebied_Duiding
+    type: str
+    column: gebied_duiding
   
   # Statics
   owner_1_uuid:
@@ -164,6 +172,7 @@ models:
       decision_number:
       tags:
       weblink:
+      gebied_duiding:
     services:
       extended_user:
         fields_map:
@@ -206,7 +215,13 @@ models:
       decision_number:
       tags:
       weblink:
+      gebied_duiding:
     services:
+      werkingsgebied:
+        fields_map:
+          - from_field: Gebied_UUID
+            to_field: Gebied
+            model_id: werkingsgebied
       relations:
         objects:
           - object_type: beleidsdoel
@@ -262,6 +277,12 @@ models:
         default: none
         optional: True
       weblink:
+        default: none
+        optional: True
+      gebied_duiding:
+        default: none
+        optional: True
+      gebied_uuid:
         default: none
         optional: True
   beleidskeuze_static_patch:

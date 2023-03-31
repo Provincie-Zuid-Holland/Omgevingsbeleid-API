@@ -3,7 +3,7 @@ import uuid
 from typing import List, Optional
 from datetime import datetime
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 from app.extensions.users.model import UserShort
 
