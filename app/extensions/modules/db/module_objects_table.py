@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
 from app.dynamic.config.models import Column as DynamicColumn
+from app.dynamic.db.object_static_table import ObjectStaticsTable
 from .tables import ModuleObjectContextTable
 
 
@@ -18,6 +19,7 @@ class ModuleObjectsTable(Base):
     Deleted: Mapped[bool] = mapped_column(default=False)
 
     ModuleObjectContext: Mapped["ModuleObjectContextTable"] = relationship()
+    ObjectStatics: Mapped["ObjectStaticsTable"] = relationship()
 
     __table_args__ = (
         ForeignKeyConstraint(
