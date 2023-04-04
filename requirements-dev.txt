@@ -49,7 +49,7 @@ executing==1.2.0
     # via
     #   devtools
     #   stack-data
-faker==18.3.2
+faker==18.3.4
     # via -r requirements-dev.in
 freezegun==1.2.2
     # via -r requirements-dev.in
