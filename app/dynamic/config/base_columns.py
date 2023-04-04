@@ -56,6 +56,9 @@ base_columns = [
         id="created_by_uuid",
         name="Created_By_UUID",
         type="user_uuid",
+        type_data={
+            "relation_field": "Created_By",
+        },
         serializers=[
             "str",
         ],
@@ -67,6 +70,9 @@ base_columns = [
         id="modified_by_uuid",
         name="Modified_By_UUID",
         type="user_uuid",
+        type_data={
+            "relation_field": "Modified_By",
+        },
         serializers=[
             "str",
         ],

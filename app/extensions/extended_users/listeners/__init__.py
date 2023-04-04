@@ -1,2 +1,1 @@
-from .create_model_listener import CreateModelListener
-from .retrieved_object_listener import RetrievedObjectsListener
+from .add_user_relationship import AddUserRelationshipListener

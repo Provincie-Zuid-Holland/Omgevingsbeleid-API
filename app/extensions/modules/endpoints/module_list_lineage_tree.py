@@ -23,7 +23,7 @@ from app.dynamic.db.filters_converter import (
     FiltersConverterResult,
     convert_filters,
 )
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_module,

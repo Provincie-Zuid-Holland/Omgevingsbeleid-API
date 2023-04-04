@@ -41,5 +41,4 @@ class WerkingsgebiedenExtension(Extension):
         converter: Converter,
         models_resolver: ModelsResolver,
     ):
-        event_dispatcher.register(listeners.SingleCreateModelListener())
-        event_dispatcher.register(listeners.SingleRetrievedObjectsListener())
+        event_dispatcher.register(listeners.AddWerkingsgebiedenRelationshipListener())

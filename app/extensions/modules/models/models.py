@@ -54,7 +54,7 @@ class ModuleStatusCode(str, Enum):
     Ontwerp_PS_Concept = "Ontwerp PS Concept"
     Ontwerp_PS = "Ontwerp PS"
     Definitief_Ontwerp_PS = "Definitief ontwerp PS"
-    Vigerend = "Vigerend"
+    Vastgesteld = "Vastgesteld"
 
 
 class AllModuleStatusCode(str, Enum):
@@ -65,7 +65,7 @@ class AllModuleStatusCode(str, Enum):
     Ontwerp_PS_Concept = "Ontwerp PS Concept"
     Ontwerp_PS = "Ontwerp PS"
     Definitief_Ontwerp_PS = "Definitief ontwerp PS"
-    Vigerend = "Vigerend"
+    Vastgesteld = "Vastgesteld"
 
 
 class ModulePatchStatus(BaseModel):
@@ -100,24 +100,6 @@ class ModuleObjectContext(ModuleObjectContextShort):
 class ModuleObjectAction(str, Enum):
     Edit = "Edit"
     Terminate = "Terminate"
-
-
-class ModuleObjectShort(BaseModel):
-    Module_ID: int
-    Object_Type: str
-    Object_ID: int
-    Code: str
-    UUID: uuid.UUID
-
-    Modified_Date: datetime
-
-    Title: str
-    Owner_1_UUID: Optional[uuid.UUID]
-    Owner_2_UUID: Optional[uuid.UUID]
-
-    # From Context
-    Action: str
-    Original_Adjust_On: Optional[uuid.UUID]
 
 
 class ModuleSnapshot(BaseModel):

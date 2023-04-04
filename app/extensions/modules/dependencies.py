@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.dynamic.repository.object_repository import ObjectRepository
 
 from app.dynamic.dependencies import depends_object_repository
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import (
     ModuleObjectContextTable,
     ModuleStatusHistoryTable,

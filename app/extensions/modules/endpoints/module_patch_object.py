@@ -16,7 +16,7 @@ from app.dynamic.dependencies import (
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_and_activated_module,

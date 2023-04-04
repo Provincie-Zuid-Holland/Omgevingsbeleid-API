@@ -8,6 +8,7 @@ class Column(BaseModel):
     id: str
     name: str
     type: str
+    type_data: dict = {}
     nullable: bool = False
     static: bool = False
     serializers: List[str] = []
@@ -46,6 +47,9 @@ class IntermediateModel(BaseModel):
 
     # Used to generate the pydantic model
     fields: List[Field]
+
+    # Fields from the static table
+    static_fields: List[Field]
 
     # Services can add data to fields and columns
     service_config: dict

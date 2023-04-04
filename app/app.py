@@ -3,6 +3,9 @@ from app.dynamic.dynamic_app import DynamicAppBuilder
 from app.extensions.database_migration.database_migration_extension import (
     DatabaseMigrationExtension,
 )
+from app.extensions.extended_foreign_keys.extended_foreign_keys_extension import (
+    ExtendedForeignKeysExtension,
+)
 from app.extensions.html_assets.html_assets_extension import HtmlAssetsExtension
 from app.extensions.lineage_resolvers.lineageresolvers_extension import (
     LineageResolversExtension,
@@ -26,6 +29,7 @@ app_builder = DynamicAppBuilder(settings.MAIN_CONFIG_FILE)
 app_builder.register_extension(LineageResolversExtension())
 app_builder.register_extension(UsersExtension())
 app_builder.register_extension(AuthExtension())
+app_builder.register_extension(ExtendedForeignKeysExtension())
 app_builder.register_extension(ExtendedUserExtension())
 app_builder.register_extension(RelationsExtension())
 app_builder.register_extension(WerkingsgebiedenExtension())

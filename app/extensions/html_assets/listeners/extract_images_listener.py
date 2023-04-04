@@ -17,7 +17,7 @@ from app.dynamic.event.types import Listener
 from app.extensions.html_assets.db.tables import AssetsTable
 from app.extensions.html_assets.models.meta import ImageMeta
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.event.module_object_patched_event import (
     ModuleObjectPatchedEvent,
 )

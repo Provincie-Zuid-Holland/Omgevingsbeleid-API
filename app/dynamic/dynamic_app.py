@@ -7,9 +7,12 @@ import click
 import yaml
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.responses import JSONResponse
+from app.dynamic.generate_table import generate_table
 
-from app.dynamic.db.objects_table import generate_dynamic_objects
-from app.dynamic.db.object_static_table import generate_dynamic_object_statics
+from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db.object_static_table import (
+    ObjectStaticsTable,
+)
 from app.dynamic.validators.validator import (
     HtmlValidator,
     LengthValidator,
@@ -115,10 +118,25 @@ class DynamicAppBuilder:
             )
             self._merge_endpoint_resolvers(endpoint_resolvers)
 
-        generate_dynamic_objects(self._columns)
-        generate_dynamic_object_statics(self._columns)
+        generate_table(
+            self._service_container.event_dispatcher,
+            ObjectStaticsTable,
+            "ObjectStaticsTable",
+            self._columns,
+            static=True,
+        )
+        generate_table(
+            self._service_container.event_dispatcher,
+            ObjectsTable,
+            "ObjectsTable",
+            self._columns,
+            static=False,
+        )
         for extension in self._extensions:
-            extension.register_tables(self._columns)
+            extension.register_tables(
+                self._service_container.event_dispatcher,
+                self._columns,
+            )
 
         # table_metadata.drop_all(engine)
         # table_metadata.create_all(engine)

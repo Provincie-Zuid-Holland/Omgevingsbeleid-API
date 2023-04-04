@@ -10,7 +10,7 @@ from app.dynamic.dependencies import depends_event_dispatcher
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_module,

@@ -1,24 +1,58 @@
-from typing import List
+from typing import List, Optional
+import uuid
+from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only, aliased, joinedload
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.modules.db.tables import ModuleTable, ModuleObjectContextTable
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.tables import ModuleTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.dependencies import depends_active_module
 from app.extensions.modules.models import Module
-from app.extensions.modules.models.models import ModuleObjectShort, ModuleStatus
+from app.extensions.modules.models.models import ModuleStatus
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
+
+
+class ObjectStaticShort(BaseModel):
+    Owner_1_UUID: Optional[uuid.UUID]
+    Owner_2_UUID: Optional[uuid.UUID]
+
+    class Config:
+        orm_mode = True
+
+
+class ModuleObjectContextShort(BaseModel):
+    Action: str
+    Original_Adjust_On: Optional[uuid.UUID]
+
+    class Config:
+        orm_mode = True
+
+
+class ModuleObjectShort(BaseModel):
+    Module_ID: int
+    Object_Type: str
+    Object_ID: int
+    Code: str
+    UUID: uuid.UUID
+
+    Modified_Date: datetime
+    Title: str
+
+    ObjectStatics: Optional[ObjectStaticShort]
+    ModuleObjectContext: Optional[ModuleObjectContextShort]
+
+    class Config:
+        orm_mode = True
 
 
 class ModuleOverview(BaseModel):
@@ -49,19 +83,9 @@ class EndpointHandler:
         return response
 
     def _get_objects(self) -> List[ModuleObjectShort]:
-        # Get the newest version of each Code
         subq = (
             select(
-                ModuleObjectsTable.Module_ID,
-                ModuleObjectsTable.Object_Type,
-                ModuleObjectsTable.Object_ID,
-                ModuleObjectsTable.Code,
-                ModuleObjectsTable.UUID,
-                ModuleObjectsTable.Modified_Date,
-                ModuleObjectsTable.Title,
-                ModuleObjectsTable.Deleted,
-                ObjectStaticsTable.Owner_1_UUID,
-                ObjectStaticsTable.Owner_2_UUID,
+                ModuleObjectsTable,
                 func.row_number()
                 .over(
                     partition_by=ModuleObjectsTable.Code,
@@ -69,27 +93,33 @@ class EndpointHandler:
                 )
                 .label("_RowNumber"),
             )
-            .select_from(ModuleObjectsTable)
-            .join(ObjectStaticsTable)
             .filter(ModuleObjectsTable.Module_ID == self._module.Module_ID)
             .subquery()
         )
 
+        aliased_subq = aliased(ModuleObjectsTable, subq)
         stmt = (
-            select(
-                subq,
-                ModuleObjectContextTable.Action,
-                ModuleObjectContextTable.Original_Adjust_On,
-            )
+            select(aliased_subq)
             .filter(subq.c._RowNumber == 1)
             .filter(subq.c.Deleted == False)
-            .join(ModuleObjectContextTable)
+            .options(
+                load_only(
+                    aliased_subq.Module_ID,
+                    aliased_subq.Object_Type,
+                    aliased_subq.Object_ID,
+                    aliased_subq.Code,
+                    aliased_subq.UUID,
+                    aliased_subq.Modified_Date,
+                    aliased_subq.Title,
+                    aliased_subq.Deleted,
+                ),
+                joinedload(aliased_subq.ModuleObjectContext),
+                joinedload(aliased_subq.ObjectStatics),
+            )
         )
 
-        rows = self._db.execute(stmt).all()
-        objects: List[ModuleObjectShort] = [
-            ModuleObjectShort.parse_obj(r._asdict()) for r in rows
-        ]
+        rows: List[ModuleObjectsTable] = self._db.execute(stmt).scalars().all()
+        objects: List[ModuleObjectShort] = [ModuleObjectShort.from_orm(r) for r in rows]
         return objects
 
 

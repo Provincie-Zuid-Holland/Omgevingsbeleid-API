@@ -9,6 +9,7 @@ from app.dynamic.models_resolver import ModelsResolver
 @dataclass
 class CreateModelEventPayload:
     pydantic_fields: OrderedDict
+    static_pydantic_fields: OrderedDict
 
 
 @dataclass
@@ -30,10 +31,11 @@ class CreateModelEvent(Event):
     @staticmethod
     def create(
         pydantic_fields: OrderedDict,
+        static_pydantic_fields: OrderedDict,
         intermediate_model: IntermediateModel,
         models_resolver: ModelsResolver,
     ):
         return CreateModelEvent(
-            payload=CreateModelEventPayload(pydantic_fields),
+            payload=CreateModelEventPayload(pydantic_fields, static_pydantic_fields),
             context=CreateModelEventContext(intermediate_model, models_resolver),
         )

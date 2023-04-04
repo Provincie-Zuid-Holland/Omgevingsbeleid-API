@@ -63,7 +63,7 @@ def guard_valid_user(
         raise HTTPException(status_code=401, detail="Invalid user role")
 
 
-def guard_status_must_be_vigerend(
+def guard_status_must_be_vastgesteld(
     module_status_repository: ModuleStatusRepository, module: ModuleTable
 ):
     status: Optional[
@@ -71,7 +71,7 @@ def guard_status_must_be_vigerend(
     ] = module_status_repository.get_latest_for_module(module.Module_ID)
     if status is None:
         raise HTTPException(400, "Deze module heeft geen status")
-    if status.Status != AllModuleStatusCode.Vigerend:
+    if status.Status != AllModuleStatusCode.Vastgesteld:
         raise HTTPException(
-            400, "Alleen modules met status Vigerend kunnen worden afgesloten"
+            400, "Alleen modules met status Vastgesteld kunnen worden afgesloten"
         )

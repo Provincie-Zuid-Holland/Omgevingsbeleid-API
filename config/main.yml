@@ -152,6 +152,8 @@ columns:
   gebied_uuid:
     name: Gebied_UUID
     type: werkingsgebied_uuid
+    type_data:
+      relation_field: Gebied
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -166,6 +168,8 @@ columns:
   owner_1_uuid:
     name: Owner_1_UUID
     type: user_uuid
+    type_data:
+      relation_field: Owner_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -174,6 +178,8 @@ columns:
   owner_2_uuid:
     name: Owner_2_UUID
     type: user_uuid
+    type_data:
+      relation_field: Owner_2
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -182,6 +188,8 @@ columns:
   portfolio_holder_1_uuid:
     name: Portfolio_Holder_1_UUID
     type: user_uuid
+    type_data:
+      relation_field: Portfolio_Holder_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -190,6 +198,8 @@ columns:
   portfolio_holder_2_uuid:
     name: Portfolio_Holder_2_UUID
     type: user_uuid
+    type_data:
+      relation_field: Portfolio_Holder_2
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -198,6 +208,8 @@ columns:
   client_1_uuid:
     name: Client_1_UUID
     type: user_uuid
+    type_data:
+      relation_field: Client_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true

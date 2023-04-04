@@ -30,8 +30,10 @@ class EventDispatcher(Generic[EventType]):
         if not event_type in self._listeners:
             return event
 
-        event.provide_db(self._db)
-        event.provide_task_runner(self._task_runner)
+        if self._db:
+            event.provide_db(self._db)
+        if self._task_runner:
+            event.provide_task_runner(self._task_runner)
 
         for listener in self._listeners[event_type]:
             response = listener.handle_event(event)

@@ -46,7 +46,9 @@ class Extension(ABC):
     # def supply_service_container(self, service_container: ServiceContainer):
     #     self.service_container = service_container
 
-    def register_tables(self, columns: Dict[str, Column]):
+    def register_tables(
+        self, event_dispatcher: EventDispatcher, columns: Dict[str, Column]
+    ):
         # A place for extensions to load database tables before we generate the database
         pass
 

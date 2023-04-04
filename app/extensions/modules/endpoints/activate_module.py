@@ -64,7 +64,7 @@ class EndpointHandler:
     def _patch_status(self) -> ModuleStatusHistoryTable:
         status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
             Module_ID=self._module.Module_ID,
-            Status=AllModuleStatusCode.Ontwerp_GS,
+            Status=AllModuleStatusCode.Ontwerp_GS_Concept,
             Created_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
         )

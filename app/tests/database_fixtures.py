@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.dynamic.db import ObjectStaticsTable
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import (
     ModuleObjectContextTable,
     ModuleStatusHistoryTable,
@@ -227,7 +227,7 @@ class DatabaseFixtures:
         )
         module.status_history.append(
             ModuleStatusHistoryTable(
-                Status=AllModuleStatusCode.Vigerend,
+                Status=AllModuleStatusCode.Vastgesteld,
                 Created_Date=datetime(2023, 2, 3, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )

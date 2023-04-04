@@ -17,7 +17,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.dynamic.db.objects_table import ObjectsTable
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_module,
@@ -33,7 +33,7 @@ from app.extensions.modules.models.models import (
 )
 from app.extensions.modules.permissions import (
     guard_module_is_locked,
-    guard_status_must_be_vigerend,
+    guard_status_must_be_vastgesteld,
 )
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
@@ -84,7 +84,7 @@ class EndpointHandler:
 
     def handle(self) -> ResponseOK:
         guard_module_is_locked(self._module)
-        guard_status_must_be_vigerend(self._module_status_repository, self._module)
+        guard_status_must_be_vastgesteld(self._module_status_repository, self._module)
 
         try:
             new_status: ModuleStatusHistoryTable = self._patch_status()
