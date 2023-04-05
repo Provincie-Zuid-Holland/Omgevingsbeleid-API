@@ -165,8 +165,6 @@ models:
       start_validity:
       end_validity:
       title:
-      description_choice:
-      description_operation:
       provincial_interest:
       cause:
       decision_number:
@@ -187,6 +185,7 @@ models:
     name: BeleidskeuzeGet
     fields:
       object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -202,9 +201,10 @@ models:
       tags:
       weblink:
       gebied_duiding:
-      # statics
-      owner_1_uuid:
     services:
+      insert_assets:
+        fields:
+          - Description_Choice
       foreign_keys_extender:
         fields_map:
           - to_field: Gebied
@@ -265,6 +265,10 @@ models:
       gebied_uuid:
         default: none
         optional: True
+    services:
+      extract_assets:
+        fields:
+          - Description_Choice
   beleidskeuze_static_patch:
     name: BeleidskeuzeStaticPatch
     fields:

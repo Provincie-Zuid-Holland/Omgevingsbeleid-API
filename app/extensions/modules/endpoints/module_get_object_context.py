@@ -1,16 +1,44 @@
+from datetime import datetime
+from typing import Optional
+import uuid
+
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
+from app.extensions.modules.db.tables import ModuleObjectContextTable
 from app.extensions.modules.dependencies import (
     depends_active_module_object_context,
 )
-from app.extensions.modules.models.models import ModuleObjectContext
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.users.model import UserShort
+
+
+class ModuleObjectContext(BaseModel):
+    Module_ID: int
+    Object_Type: str
+    Object_ID: int
+    Code: str
+
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    Action: str
+    Explanation: str
+    Conclusion: str
+
+    Original_Adjust_On: Optional[uuid.UUID]
+
+    Created_By: Optional[UserShort]
+    Modified_By: Optional[UserShort]
+
+    class Config:
+        orm_mode = True
 
 
 class ModuleGetObjectContextEndpoint(Endpoint):
@@ -25,11 +53,11 @@ class ModuleGetObjectContextEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             user: UsersTable = Depends(depends_current_active_user),
-            object_context: ModuleObjectContext = Depends(
+            object_context_table: ModuleObjectContextTable = Depends(
                 depends_active_module_object_context
             ),
         ) -> ModuleObjectContext:
-            response: ModuleObjectContext = ModuleObjectContext.from_orm(object_context)
+            response: ModuleObjectContext = ModuleObjectContext.from_orm(object_context_table)
             return response
 
         router.add_api_route(

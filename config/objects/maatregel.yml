@@ -158,33 +158,19 @@ models:
       gebied_duiding:
       tags:
     services:
-      extended_user:
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Gebied
+            model_id: werkingsgebied
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
-          # - from_field: Owner_1_UUID
-          #   to_field: Owner_1
-          #   model_id: gebruikers_short
-          # - from_field: Owner_2_UUID
-          #   to_field: Owner_2
-          #   model_id: gebruikers_short
-          # - from_field: Portfolio_Holder_1_UUID
-          #   to_field: Portfolio_Holder_1
-          #   model_id: gebruikers_short
-          # - from_field: Portfolio_Holder_2_UUID
-          #   to_field: Portfolio_Holder_2
-          #   model_id: gebruikers_short
-          # - from_field: Client_1_UUID
-          #   to_field: Client_1
-          #   model_id: gebruikers_short
   maatregel_get:
     name: MaatregelGet
     fields:
       object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -198,13 +184,7 @@ models:
       weblink:
       gebied_duiding:
       tags:
-      owner_1_uuid:
     services:
-      werkingsgebied:
-        fields_map:
-          - from_field: Gebied_UUID
-            to_field: Gebied
-            model_id: werkingsgebied
       relations:
         objects:
           - object_type: beleidsdoel
@@ -212,29 +192,26 @@ models:
             to_field: "Beleidsdoelen"
             model_id: beleidsdoel_short
             wrapped_with_relation_data: true
-      extended_user:
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Gebied
+            model_id: werkingsgebied
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
-          # - from_field: Owner_1_UUID
-          #   to_field: Owner_1
-          #   model_id: gebruikers_short
-          # - from_field: Owner_2_UUID
-          #   to_field: Owner_2
-          #   model_id: gebruikers_short
-          # - from_field: Portfolio_Holder_1_UUID
-          #   to_field: Portfolio_Holder_1
-          #   model_id: gebruikers_short
-          # - from_field: Portfolio_Holder_2_UUID
-          #   to_field: Portfolio_Holder_2
-          #   model_id: gebruikers_short
-          # - from_field: Client_1_UUID
-          #   to_field: Client_1
-          #   model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
   maatregel_patch:
     name: MaatregelPatch
     fields:

@@ -113,20 +113,21 @@ class ValidListLineagesEndpoint(Endpoint):
         if not table_rows:
             return []
 
+        rows: List[self._response_type] = [
+            self._response_type.from_orm(r) for r in table_rows
+        ]
+
         # Ask extensions for more information
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
-            RetrievedObjectsEvent.create_from_object_tables(
-                table_rows,
+            RetrievedObjectsEvent.create(
+                rows,
                 self._endpoint_id,
                 self._response_model,
             )
         )
         rows = event.payload.rows
 
-        deserialized_rows = self._converter.deserialize_list(self._object_id, rows)
-        response = [self._response_type.parse_obj(row) for row in deserialized_rows]
-
-        return response
+        return rows
 
 
 class ValidListLineagesEndpointResolver(EndpointResolver):

@@ -75,28 +75,6 @@ class ModulePatchStatus(BaseModel):
         use_enum_values = True
 
 
-class ModuleObjectContextShort(BaseModel):
-    Module_ID: int
-    Object_Type: str
-    Object_ID: int
-    Code: str
-
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
-
-    Action: str
-
-    class Config:
-        orm_mode = True
-
-
-class ModuleObjectContext(ModuleObjectContextShort):
-    Explanation: str
-    Conclusion: str
-
-
 class ModuleObjectAction(str, Enum):
     Edit = "Edit"
     Terminate = "Terminate"

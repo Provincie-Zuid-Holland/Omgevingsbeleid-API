@@ -1,5 +1,7 @@
 from typing import List
 from dataclasses import dataclass
+
+from pydantic import BaseModel
 from app.core.utils.utils import table_to_dict
 
 from app.dynamic.db.objects_table import ObjectsTable
@@ -11,7 +13,7 @@ from app.dynamic.config.models import Model
 
 @dataclass
 class RetrievedObjectsEventPayload:
-    rows: List[dict]
+    rows: List[BaseModel]
 
 
 @dataclass
@@ -32,7 +34,7 @@ class RetrievedObjectsEvent(Event):
 
     @staticmethod
     def create(
-        rows: List[dict],
+        rows: List[BaseModel],
         endpoint_id: str,
         response_model: Model,
     ):
@@ -44,18 +46,3 @@ class RetrievedObjectsEvent(Event):
             ),
         )
 
-    @staticmethod
-    def create_from_object_tables(
-        objects: List[ObjectsTable],
-        endpoint_id: str,
-        response_model: Model,
-    ):
-        rows: List[dict] = [table_to_dict(o) for o in objects]
-
-        return RetrievedObjectsEvent(
-            payload=RetrievedObjectsEventPayload(rows),
-            context=RetrievedObjectsEventContext(
-                endpoint_id,
-                response_model,
-            ),
-        )

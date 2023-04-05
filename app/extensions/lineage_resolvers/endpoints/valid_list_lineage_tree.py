@@ -88,22 +88,23 @@ class ValidListLineageTreeEndpoint(Endpoint):
             .limit(pagination.get_limit())
             .offset(pagination.get_offset())
         )
-        object_rows: List[ObjectsTable] = db.scalars(stmt).all()
+        table_rows: List[ObjectsTable] = db.scalars(stmt).all()
+
+        rows: List[self._response_type] = [
+            self._response_type.from_orm(r) for r in table_rows
+        ]
 
         # Ask extensions for more information
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
-            RetrievedObjectsEvent.create_from_object_tables(
-                object_rows,
+            RetrievedObjectsEvent.create(
+                rows,
                 self._endpoint_id,
                 self._response_model,
             )
         )
         rows = event.payload.rows
 
-        deserialized_rows = self._converter.deserialize_list(self._object_id, rows)
-        response = [self._response_type.parse_obj(row) for row in deserialized_rows]
-
-        return response
+        return rows
 
 
 class ValidListLineageTreeEndpointResolver(EndpointResolver):

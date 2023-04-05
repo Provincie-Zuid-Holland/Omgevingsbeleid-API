@@ -1,7 +1,7 @@
 from copy import copy
 from datetime import datetime
 from typing import List, Optional, Tuple
-from uuid import uuid4
+import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -29,7 +29,6 @@ from app.extensions.modules.event.module_status_changed_event import (
 )
 from app.extensions.modules.models.models import (
     ModuleObjectAction,
-    ModuleObjectContext,
 )
 from app.extensions.modules.permissions import (
     guard_module_is_locked,
@@ -43,6 +42,30 @@ from app.extensions.modules.repository.module_status_repository import (
 )
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
+
+
+
+
+class ModuleObjectContextShort(BaseModel):
+    Module_ID: int
+    Object_Type: str
+    Object_ID: int
+    Code: str
+
+    Created_Date: datetime
+    Modified_Date: datetime
+    Created_By_UUID: uuid.UUID
+    Modified_By_UUID: uuid.UUID
+
+    Action: str
+
+    class Config:
+        orm_mode = True
+
+
+class ModuleObjectContext(ModuleObjectContextShort):
+    Explanation: str
+    Conclusion: str
 
 
 class ObjectSpecifiekeGeldigheid(BaseModel):
@@ -131,7 +154,7 @@ class EndpointHandler:
                 setattr(new_object, key, copy(value))
 
             new_object.Adjust_On = module_object_dict.get("UUID")
-            new_object.UUID = uuid4()
+            new_object.UUID = uuid.uuid4()
             new_object.IDMS_Link = self._object_in.IDMS_Link
             new_object.Decision_Number = self._object_in.Decision_Number
 

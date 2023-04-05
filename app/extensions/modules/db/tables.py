@@ -102,3 +102,10 @@ class ModuleObjectContextTable(Base):
     Action: Mapped[str]
     Explanation: Mapped[str]
     Conclusion: Mapped[str]
+
+    Created_By: Mapped[List["UsersTable"]] = relationship(
+        primaryjoin="ModuleObjectContextTable.Created_By_UUID == UsersTable.UUID"
+    )
+    Modified_By: Mapped[List["UsersTable"]] = relationship(
+        primaryjoin="ModuleObjectContextTable.Modified_By_UUID == UsersTable.UUID"
+    )

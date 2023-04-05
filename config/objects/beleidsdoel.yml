@@ -118,18 +118,17 @@ models:
       description:
       weblink:
     services:
-      extended_user:
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
   beleidsdoel_get:
     name: BeleidsdoelGet
     fields:
       object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -152,20 +151,18 @@ models:
             to_field: "Beleidskeuzes"
             model_id: beleidskeuze_short
             wrapped_with_relation_data: true
-      extended_user:
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
-          # - from_field: Owner_1_UUID
-          #   to_field: Owner_1
-          #   model_id: gebruikers_short
-          # - from_field: Owner_2_UUID
-          #   to_field: Owner_2
-          #   model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
   beleidsdoel_patch:
     name: BeleidsdoelPatch
     fields:

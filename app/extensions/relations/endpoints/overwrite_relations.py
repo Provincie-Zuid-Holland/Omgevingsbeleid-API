@@ -48,7 +48,7 @@ class EndpointHandler:
         for relation in self._overwrite_list:
             if relation.Object_Type not in self._allowed_object_types_relations:
                 raise ValueError(
-                    f"Invalid object_type for relation with '{self._object_id}'"
+                    f"Invalid object_type for relation with '@TODO object-id'"
                 )
 
     def _remove_current_relations(self):

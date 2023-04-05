@@ -4,6 +4,7 @@ from uuid import UUID
 from bs4 import BeautifulSoup
 import re
 import json
+from pydantic import BaseModel
 
 from sqlalchemy.orm import Session
 
@@ -29,14 +30,17 @@ class Inserter:
         config: InsertImagesConfig,
     ):
         self._config: InsertImagesConfig = config
-        self._rows: List[dict] = event.payload.rows
+        self._rows: List[BaseModel] = event.payload.rows
         self._db: Session = event.get_db()
         self._asset_repository: AssetRepository = AssetRepository(self._db)
 
-    def process(self) -> List[dict]:
+    def process(self) -> List[BaseModel]:
         for index, row in enumerate(self._rows):
             for field_name in self._config.fields:
-                content: str = row[field_name]
+                if not hasattr(row, field_name):
+                    continue
+
+                content: str = getattr(row, field_name)
                 try:
                     soup = BeautifulSoup(content, "html.parser")
                 except:
@@ -61,7 +65,7 @@ class Inserter:
                         continue
                     img["src"] = f"data:image/{meta.ext};base64,{asset.Content}"
 
-                row[field_name] = str(soup)
+                setattr(row, field_name, str(soup))
 
         return self._rows
 
