@@ -41,6 +41,7 @@ class ModelsLoader:
         model_configs: dict = object_intermediate.config.get("models", {})
         for model_id, model_config in model_configs.items():
             name: str = model_config.get("name")
+            static_only: bool = model_config.get("static_only", False)
             columns: List[str] = []
             fields: List[Field] = []
             static_fields: List[Field] = []
@@ -67,6 +68,7 @@ class ModelsLoader:
                 IntermediateModel(
                     id=model_id,
                     name=name,
+                    static_only=static_only,
                     columns=columns,
                     fields=fields,
                     static_fields=static_fields,
@@ -77,6 +79,12 @@ class ModelsLoader:
         return models
 
     def load_model(self, intermediate_model: IntermediateModel) -> DynamicObjectModel:
+        # If we requested a static object and we have lineage fields then we have a configuration error
+        if intermediate_model.static_only and intermediate_model.fields:
+            raise RuntimeError(f"Can not configure lineage fields for static only model '{intermediate_model.name}")
+        if intermediate_model.static_only and not intermediate_model.static_fields:
+            raise RuntimeError(f"Must configure static fields for static only model '{intermediate_model.name}")
+
         pydantic_fields, pydantic_validators = self._get_pydantic_fields(
             intermediate_model.fields,
             f"{intermediate_model.name}-dynamic",
@@ -121,12 +129,16 @@ class ModelsLoader:
                 ),
             )
 
-        pydantic_model = pydantic.create_model(
-            intermediate_model.name,
-            __config__=DynamicModelPydanticConfig,
-            __validators__=pydantic_validators,
-            **pydantic_fields,
-        )
+        # If we have a static_only model then we use the "ObjectStatics" as the main model
+        if intermediate_model.static_only:
+            pydantic_model = pydantic_static_model
+        else:
+            pydantic_model = pydantic.create_model(
+                intermediate_model.name,
+                __config__=DynamicModelPydanticConfig,
+                __validators__=pydantic_validators,
+                **pydantic_fields,
+            )
 
         return DynamicObjectModel(
             id=intermediate_model.id,

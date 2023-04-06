@@ -217,46 +217,46 @@ models:
     fields:
       title:
         default: none
-        optional: True
+        optional: true
       description:
         default: none
-        optional: True
+        optional: true
       explanation:
         default: none
-        optional: True
+        optional: true
       explanation_raw:
         default: none
-        optional: True
+        optional: true
       weblink:
         default: none
-        optional: True
+        optional: true
       gebied_duiding:
         default: none
-        optional: True
+        optional: true
       gebied_uuid:
         default: none
-        optional: True
+        optional: true
       tags:
         default: none
-        optional: True
+        optional: true
   maatregel_static_patch:
     name: MaatregelStaticPatch
     fields:
       owner_1_uuid:
         default: none
-        optional: True
+        optional: true
       owner_2_uuid:
         default: none
-        optional: True
+        optional: true
       portfolio_holder_1_uuid:
         default: none
-        optional: True
+        optional: true
       portfolio_holder_2_uuid:
         default: none
-        optional: True
+        optional: true
       client_1_uuid:
         default: none
-        optional: True
+        optional: true
   maatregel_uuid:
     name: MaatregelUUID
     fields:

@@ -164,7 +164,7 @@ models:
     fields:
       title:
         default: none
-        optional: True
+        optional: true
         validators:
           - id: length
             data:
@@ -173,12 +173,12 @@ models:
           - id: plain_text
       description:
         default: none
-        optional: True
+        optional: true
         validators:
           - id: html
       weblink:
         default: none
-        optional: True
+        optional: true
         validators:
           - id: plain_text
     services:
@@ -190,10 +190,10 @@ models:
     fields:
       owner_1_uuid:
         default: none
-        optional: True
+        optional: true
       owner_2_uuid:
         default: none
-        optional: True
+        optional: true
   ambitie_uuid:
     name: AmbitieUUID
     fields:

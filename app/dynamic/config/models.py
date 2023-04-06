@@ -41,6 +41,7 @@ class Field(BaseModel):
 class IntermediateModel(BaseModel):
     id: str
     name: str
+    static_only: bool
 
     # Determines the columns to fetch from the database
     columns: List[str]

@@ -168,22 +168,22 @@ models:
     fields:
       title:
         default: none
-        optional: True
+        optional: true
       description:
         default: none
-        optional: True
+        optional: true
       weblink:
         default: none
-        optional: True
+        optional: true
   beleidsdoel_static_patch:
     name: BeleidsdoelStaticPatch
     fields:
       owner_1_uuid:
         default: none
-        optional: True
+        optional: true
       owner_2_uuid:
         default: none
-        optional: True
+        optional: true
   beleidsdoel_uuid:
     name: BeleidsdoelUUID
     fields:
