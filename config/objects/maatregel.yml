@@ -241,6 +241,7 @@ models:
         optional: true
   maatregel_static_patch:
     name: MaatregelStaticPatch
+    static_only: true
     fields:
       owner_1_uuid:
         default: none

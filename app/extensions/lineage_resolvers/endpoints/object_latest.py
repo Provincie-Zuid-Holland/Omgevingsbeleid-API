@@ -71,7 +71,7 @@ class ObjectLatestEndpoint(Endpoint):
 
         row: self._response_type = self._response_type.from_orm(maybe_object)
         rows: List[self._response_type] = [row]
-        
+
         # Ask extensions for more information
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
             RetrievedObjectsEvent.create(

@@ -44,8 +44,6 @@ from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
-
-
 class ModuleObjectContextShort(BaseModel):
     Module_ID: int
     Object_Type: str
@@ -78,6 +76,7 @@ class ObjectSpecifiekeGeldigheid(BaseModel):
 class CompleteModule(BaseModel):
     IDMS_Link: str = Field(..., min_length=10)
     Decision_Number: str = Field(..., min_length=1)
+    Link_To_Decision_Document: str = Field(..., min_length=1)
     ObjectSpecifiekeGeldigheden: List[ObjectSpecifiekeGeldigheid] = []
 
 

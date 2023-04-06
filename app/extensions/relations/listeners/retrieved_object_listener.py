@@ -1,17 +1,10 @@
-from typing import List, Set, Dict, Optional
-from dataclasses import dataclass
-from collections import defaultdict
+from typing import List
 from pydantic import BaseModel
 
-from sqlalchemy import desc, func, select, or_
-from sqlalchemy.orm import Session
-from app.dynamic.db.objects_table import ObjectsTable
 
 from app.dynamic.event.types import Listener
 from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
-from app.dynamic.config.models import DynamicObjectModel
 from app.dynamic.converter import Converter
-from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.relations.service.add_relations import AddRelationsService
 
 

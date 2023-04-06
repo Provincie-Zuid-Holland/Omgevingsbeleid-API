@@ -177,6 +177,7 @@ models:
         optional: true
   beleidsdoel_static_patch:
     name: BeleidsdoelStaticPatch
+    static_only: true
     fields:
       owner_1_uuid:
         default: none

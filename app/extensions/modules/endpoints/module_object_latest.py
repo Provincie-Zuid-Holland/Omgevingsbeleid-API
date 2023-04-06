@@ -16,7 +16,9 @@ from app.extensions.modules.dependencies import (
     depends_active_module_object_context_curried,
     depends_module_object_repository,
 )
-from app.extensions.modules.event.retrieved_module_objects_event import RetrievedModuleObjectsEvent
+from app.extensions.modules.event.retrieved_module_objects_event import (
+    RetrievedModuleObjectsEvent,
+)
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
@@ -90,7 +92,7 @@ class ModuleObjectLatestEndpoint(Endpoint):
 
         row: self._response_type = self._response_type.from_orm(module_object)
         rows: List[self._response_type] = [row]
-        
+
         # Ask extensions for more information
         event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(
             RetrievedModuleObjectsEvent.create(

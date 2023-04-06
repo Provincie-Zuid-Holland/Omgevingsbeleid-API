@@ -2,9 +2,7 @@ from typing import List
 from dataclasses import dataclass
 
 from pydantic import BaseModel
-from app.core.utils.utils import table_to_dict
 
-from app.dynamic.db.objects_table import ObjectsTable
 
 
 from .types import Event
@@ -45,4 +43,3 @@ class RetrievedObjectsEvent(Event):
                 response_model,
             ),
         )
-

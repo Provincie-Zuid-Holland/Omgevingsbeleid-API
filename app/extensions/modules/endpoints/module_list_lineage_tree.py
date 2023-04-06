@@ -5,7 +5,6 @@ import pydantic
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
-from app.core.utils.utils import table_to_dict
 
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, Model, EndpointConfig
@@ -109,7 +108,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
 
         # @todo: honor filters
         module_objects_tables: List[ModuleObjectsTable] = db.scalars(stmt).all()
-        
+
         rows: List[self._response_type] = [
             self._response_type.from_orm(r) for r in module_objects_tables
         ]

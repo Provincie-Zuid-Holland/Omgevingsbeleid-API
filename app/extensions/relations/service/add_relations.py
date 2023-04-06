@@ -7,8 +7,6 @@ from sqlalchemy import desc, func, select, or_
 from sqlalchemy.orm import Session
 from app.dynamic.db.objects_table import ObjectsTable
 
-from app.dynamic.event.types import Listener
-from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 from app.dynamic.config.models import DynamicObjectModel, Model
 from app.dynamic.converter import Converter
 from app.extensions.relations.db.tables import RelationsTable
@@ -30,12 +28,12 @@ class Config:
 
 class AddRelationsService:
     def __init__(
-            self,
-            converter: Converter,
-            db: Session,
-            rows: List[BaseModel],
-            response_model: Model,
-        ):
+        self,
+        converter: Converter,
+        db: Session,
+        rows: List[BaseModel],
+        response_model: Model,
+    ):
         self._converter: Converter = converter
         self._db: Session = db
         self._rows: List[BaseModel] = rows
@@ -112,13 +110,9 @@ class AddRelationsService:
         if not "relations" in self._response_model.service_config:
             return None
 
-        object_codes: List[str] = list(set([
-            getattr(r, "Code") for r in self._rows
-        ]))
+        object_codes: List[str] = list(set([getattr(r, "Code") for r in self._rows]))
 
-        relations_config: dict = self._response_model.service_config.get(
-            "relations"
-        )
+        relations_config: dict = self._response_model.service_config.get("relations")
         objects_config: List[dict] = relations_config.get("objects")
 
         to_field_map: Dict[str, ObjectTypeDetails] = {}

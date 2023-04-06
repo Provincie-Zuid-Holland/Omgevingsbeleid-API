@@ -57,7 +57,9 @@ class ModuleGetObjectContextEndpoint(Endpoint):
                 depends_active_module_object_context
             ),
         ) -> ModuleObjectContext:
-            response: ModuleObjectContext = ModuleObjectContext.from_orm(object_context_table)
+            response: ModuleObjectContext = ModuleObjectContext.from_orm(
+                object_context_table
+            )
             return response
 
         router.add_api_route(

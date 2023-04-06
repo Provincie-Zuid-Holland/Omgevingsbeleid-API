@@ -187,6 +187,7 @@ models:
           - Description
   ambitie_static_post:
     name: AmbitieStaticPost
+    static_only: true
     fields:
       owner_1_uuid:
         default: none
