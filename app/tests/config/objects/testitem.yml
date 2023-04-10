@@ -1,0 +1,33 @@
+id: testitem
+object_type: testitem
+
+api:
+  routers:
+    - prefix: /testitem
+      endpoints:
+        - resolver: valid_list_lineages
+          resolver_data:
+            path: /valid
+            response_model: testitem_get
+
+fields:
+  title:
+    name: Title
+    type: str
+    column: title
+  description:
+    name: Description
+    type: str
+    column: description
+  additional:
+    name: Additional
+    type: str
+    column: additional
+models:
+  testitem_get:
+    name: TestItemGet
+    fields:
+      uuid:
+      title:
+      description:
+
