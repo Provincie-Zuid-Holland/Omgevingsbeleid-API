@@ -1,5 +1,5 @@
 from ast import List
-from typing import Optional, Type
+from typing import Optional, Type, List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -76,16 +76,24 @@ class ObjectVersionEndpoint(Endpoint):
         rows: List[self._response_type] = [row]
 
         # Ask extensions for more information
+        rows = self._run_events([maybe_object], event_dispatcher)
+
+        return rows[0]
+
+    def _run_events(
+        self, table_rows: List[ObjectsTable], event_dispatcher: EventDispatcher
+    ):
+        """
+        Ask extensions for more information.
+        """
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
-            RetrievedObjectsEvent.create(
-                rows,
+            RetrievedObjectsEvent.create_from_object_tables(
+                table_rows,
                 self._endpoint_id,
                 self._response_model,
             )
         )
-        rows = event.payload.rows
-
-        return rows[0]
+        return event.payload.rows
 
 
 class ObjectVersionEndpointResolver(EndpointResolver):

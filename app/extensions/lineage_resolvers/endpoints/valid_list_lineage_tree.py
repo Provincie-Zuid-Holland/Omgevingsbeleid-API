@@ -95,16 +95,24 @@ class ValidListLineageTreeEndpoint(Endpoint):
         ]
 
         # Ask extensions for more information
+        rows = self._run_events(rows, event_dispatcher)
+
+        return rows
+
+    def _run_events(
+        self, table_rows: List[ObjectsTable], event_dispatcher: EventDispatcher
+    ):
+        """
+        Ask extensions for more information.
+        """
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
-            RetrievedObjectsEvent.create(
-                rows,
+            RetrievedObjectsEvent.create_from_object_tables(
+                table_rows,
                 self._endpoint_id,
                 self._response_model,
             )
         )
-        rows = event.payload.rows
-
-        return rows
+        return event.payload.rows
 
 
 class ValidListLineageTreeEndpointResolver(EndpointResolver):
