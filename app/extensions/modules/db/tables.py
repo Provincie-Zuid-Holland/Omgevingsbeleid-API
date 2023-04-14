@@ -97,7 +97,7 @@ class ModuleObjectContextColumns:
     Conclusion: Mapped[str]
 
 
-class ModuleObjectContextTable(Base, ModuleObjectContextColumns):
+class ModuleObjectContextTable(Base, ModuleObjectContextColumns, TimeStamped, UserMetaData):
     __tablename__ = "module_object_context"
 
     Created_By: Mapped[List["UsersTable"]] = relationship(
