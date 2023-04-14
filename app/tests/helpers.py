@@ -1,25 +1,4 @@
 from contextlib import contextmanager, ExitStack
-from pydantic import BaseModel
-
-from app.dynamic.dynamic_app import DynamicApp
-
-
-class LocalTables(BaseModel):
-    Base: type
-    ObjectsTable: type
-    ObjectStaticsTable: type
-    UsersTabel: type
-
-    class Config:
-        arbitrary_types_allowed = True
-
-
-class TestDynamicApp(BaseModel):
-    dynamic_app: DynamicApp
-    local_tables: LocalTables
-
-    class Config:
-        arbitrary_types_allowed = True
 
 
 @contextmanager

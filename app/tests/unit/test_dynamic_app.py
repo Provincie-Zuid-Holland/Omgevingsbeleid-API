@@ -1,13 +1,14 @@
-import pytest
+from unittest.mock import MagicMock, call, patch
 
+import pytest
 from fastapi import FastAPI
 
-from app.dynamic.dynamic_app import DynamicAppBuilder, DynamicApp
-
+from app.dynamic.config.models import Column
+from app.dynamic.dynamic_app import DynamicApp, DynamicAppBuilder
+from app.dynamic.generate_table import generate_table
 from app.tests.conftest import TestSettings
-from app.tests.mock_classes import FakeExtension
-from app.tests.helpers import TestDynamicApp, patch_multiple
-from unittest.mock import MagicMock, call, patch
+from app.tests.helpers import patch_multiple
+from app.tests.fixtures import FakeExtension, LocalTables
 
 
 class TestDynamicAppBuilder:
@@ -17,8 +18,7 @@ class TestDynamicAppBuilder:
         builder._load_yml = MagicMock(return_value={})
         return builder
 
-    def test_register_extension(self, local_tables):
-        # Setup mocks
+    def test_register_extension(self, local_tables):  # noqa
         with patch_multiple(
             patch(
                 "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
@@ -37,6 +37,7 @@ class TestDynamicAppBuilder:
             extension = FakeExtension()
             builder.register_extension(extension)
             builder.build()
+
             # Assert all extensions registers are called when building
             expected_calls = [
                 "initialize",
@@ -66,7 +67,6 @@ class TestDynamicAppBuilder:
         mocker.patch("os.listdir", return_value=["file1.py", "_file2.py", "file_3.py"])
         mocker.patch("os.path.isfile", lambda path: path in file_paths)
 
-        # Set up mocks and call register_objects
         builder.register_object = MagicMock()
         builder.register_objects(dir_path)
 
@@ -81,111 +81,117 @@ class TestDynamicAppBuilder:
         builder.register_object("test.yml")
         builder._load_yml.assert_called_once_with("test.yml")
 
-    # def test_generates_columns(self, local_tables: LocalTables):
-    #     with patch_multiple(
-    #         patch("app.core.db.base.Base", local_tables.Base),
-    #         patch(
-    #             "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
-    #         ),
-    #     ):
-    #         int_col = Column(
-    #             id="col1", name="intcolumn", type="int", nullable=False, static=False
-    #         )
-    #         varc_col = Column(
-    #             id="col1", name="varcolumn", type="int", nullable=False, static=False
-    #         )
-    #         columns = {"col1": int_col, "col2": varc_col}
-    #         generate_dynamic_objects(columns)
-    #         assert hasattr(local_tables.ObjectsTable, "intcolumn")
-    #         assert hasattr(local_tables.ObjectsTable, "varcolumn")
+    def test_generate_tables_base_col(self, local_tables: LocalTables, mock_dispatcher):
+        int_col = Column(
+            id="col1", name="intcolumn", type="int", nullable=False, static=False
+        )
+        varc_col = Column(
+            id="col2", name="varcolumn", type="str", nullable=False, static=False
+        )
+        date_col = Column(
+            id="col3",
+            name="datecolumn",
+            type="datetime",
+            nullable=False,
+            static=False,
+        )
+        static_col = Column(
+            id="col4", name="imstatic", type="str", nullable=False, static=True
+        )
 
-    # def test_ignores_uuid_and_code(self, local_tables: LocalTables):
-    #     with patch_multiple(
-    #         patch("app.core.db.base.Base", local_tables.Base),
-    #         patch(
-    #             "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
-    #         ),
-    #     ):
-    #         columns = {
-    #             "uuid": Column(
-    #                 id="uuid",
-    #                 name="uuid_columns",
-    #                 type="int",
-    #                 nullable=False,
-    #                 static=False,
-    #             ),
-    #             "code": Column(
-    #                 id="code",
-    #                 name="code_column",
-    #                 type="str",
-    #                 nullable=True,
-    #                 static=True,
-    #             ),
-    #             "testcol": Column(
-    #                 id="testcol",
-    #                 name="test_column",
-    #                 type="str",
-    #                 nullable=False,
-    #                 static=False,
-    #             ),
-    #         }
-    #         generate_dynamic_objects(columns)
-    #         assert not hasattr(local_tables.ObjectsTable, "uuid_column")
-    #         assert not hasattr(local_tables.ObjectsTable, "code_column")
-    #         assert hasattr(local_tables.ObjectsTable, "test_column")
+        columns = {
+            "col1": int_col,
+            "col2": varc_col,
+            "col3": date_col,
+            "col4": static_col,
+        }
 
-    # def test_ignores_static_columns(self, local_tables: LocalTables):
-    #     with patch_multiple(
-    #         patch("app.core.db.base.Base", local_tables.Base),
-    #         patch(
-    #             "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
-    #         ),
-    #     ):
-    #         columns = {
-    #             "validcol": Column(
-    #                 id="varchar_col",
-    #                 name="varchar_col",
-    #                 type="str",
-    #                 nullable=False,
-    #                 static=False,
-    #             ),
-    #             "testcol": Column(
-    #                 id="static_col",
-    #                 name="static_col",
-    #                 type="int",
-    #                 nullable=False,
-    #                 static=True,
-    #             ),
-    #         }
-    #         generate_dynamic_objects(columns)
-    #         assert hasattr(local_tables.ObjectsTable, "varchar_col")
-    #         assert not hasattr(local_tables.ObjectsTable, "static_col")
+        with patch(
+            "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
+        ):
+            generate_table(
+                event_dispatcher=mock_dispatcher,
+                table_type=local_tables.ObjectsTable,
+                table_name="ObjectsTable",
+                columns=columns,
+                static=False,
+            )
 
-    # def test_raises_error_for_invalid_type(self, local_tables: LocalTables):
-    #     with patch_multiple(
-    #         patch("app.core.db.base.Base", local_tables.Base),
-    #         patch(
-    #             "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
-    #         ),
-    #     ):
-    #         varc_col = Column(
-    #             id="col1", name="valid_type", type="str", nullable=False, static=False
-    #         )
-    #         invalid_col = Column(
-    #             id="col2",
-    #             name="intcolumn",
-    #             type="invalid_type",
-    #             nullable=False,
-    #             static=False,
-    #         )
+        assert hasattr(local_tables.ObjectsTable, "intcolumn")
+        assert hasattr(local_tables.ObjectsTable, "varcolumn")
+        assert hasattr(local_tables.ObjectsTable, "datecolumn")
+        # Should not have static columns as it was called with static=False
+        assert not hasattr(local_tables.ObjectsTable, "imstatic")
+        # Assert no events fired as all columns are handled
+        assert mock_dispatcher.dispatch.call_count == 0
 
-    #         columns = {
-    #             "validcol": varc_col,
-    #             "testcol": invalid_col,
-    #         }
+    def test_generate_tables_unknown_type(
+        self, local_tables: LocalTables, mock_dispatcher
+    ):
+        int_col = Column(
+            id="col1", name="intcolumn", type="int", nullable=False, static=False
+        )
+        unknown_type = Column(
+            id="col2",
+            name="unknowncolumn",
+            type="user_uuid",
+            nullable=False,
+            static=False,
+        )
+        columns = {"col1": int_col, "col2": unknown_type}
 
-    #         with pytest.raises(RuntimeError):
-    #             generate_dynamic_objects(columns)
+        with patch(
+            "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
+        ):
+            generate_table(
+                event_dispatcher=mock_dispatcher,
+                table_type=local_tables.ObjectsTable,
+                table_name="ObjectsTable",
+                columns=columns,
+                static=False,
+            )
+
+        assert hasattr(local_tables.ObjectsTable, "intcolumn")
+        assert not hasattr(local_tables.ObjectsTable, "unknowncolumn")
+
+        # Assert event is fired as 1 column type was unknown
+        assert mock_dispatcher.dispatch.call_count == 1
+
+    def test_generate_tables_static_col(
+        self, local_tables: LocalTables, mock_dispatcher
+    ):
+        int_col = Column(
+            id="col1", name="intcolumn", type="int", nullable=False, static=False
+        )
+        static_col = Column(
+            id="col2", name="imstatic", type="str", nullable=False, static=True
+        )
+        columns = {"col1": int_col, "col2": static_col}
+
+        with patch_multiple(
+            patch(
+                "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
+            ),
+            patch(
+                "app.dynamic.db.object_static_table.ObjectStaticsTable",
+                local_tables.ObjectStaticsTable,
+            ),
+        ):
+            generate_table(
+                event_dispatcher=mock_dispatcher,
+                table_type=local_tables.ObjectStaticsTable,
+                table_name="ObjectStaticsTable",
+                columns=columns,
+                static=True,
+            )
+
+        assert hasattr(local_tables.ObjectStaticsTable, "imstatic")
+        assert not hasattr(local_tables.ObjectStaticsTable, "intcolumn")
+
+        assert not hasattr(local_tables.ObjectsTable, "intcolumn")
+        assert not hasattr(local_tables.ObjectsTable, "imstatic")
+
+        assert mock_dispatcher.dispatch.call_count == 0
 
 
 class TestDynamicApp:

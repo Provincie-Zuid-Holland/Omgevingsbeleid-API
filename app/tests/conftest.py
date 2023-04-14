@@ -1,29 +1,28 @@
-from unittest.mock import patch
-import uuid
-from typing import Generator, List, Optional
+from typing import Generator, List
+from unittest.mock import MagicMock, patch
 
 import pytest
-from sqlalchemy import ForeignKey, String
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.engine import Engine, create_engine
 from sqlalchemy.orm import (
-    Mapped,
-    declarative_base,
-    mapped_column,
-    relationship,
+    Session,
     sessionmaker,
 )
 
 from app.core.settings import settings
+from app.dynamic.converter import Converter, ObjectConverterData
 from app.dynamic.dynamic_app import DynamicAppBuilder
-from app.dynamic.db import ObjectStaticsTable
+from app.dynamic.event_dispatcher import EventDispatcher
+from app.dynamic.repository.object_repository import ObjectRepository
+from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 from app.extensions.auth.auth_extension import AuthExtension
 from app.extensions.database_migration.database_migration_extension import (
     DatabaseMigrationExtension,
 )
 from app.extensions.extended_users.extended_user_extension import ExtendedUserExtension
 from app.extensions.users.users_extension import UsersExtension
-from app.tests.helpers import LocalTables, TestDynamicApp, patch_multiple
+from app.tests.helpers import patch_multiple
+from app.tests.fixtures import TestDynamicApp, LocalTableFactory
+from app.tests.fixture_data import FixtureDataFactory
 
 
 class TestSettings:
@@ -55,61 +54,58 @@ def db(engine) -> Generator:
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     yield SessionLocal()
     print("Teardown Session")
-    # db.rollback()
-    # db.close()
 
 
 @pytest.fixture
-def local_tables() -> LocalTables:
-    TestBase = declarative_base()
+def db_factory(db):
+    yield FixtureDataFactory(db)
 
-    # Find a way to auto-generate?
-    class LocalObjectsTable(TestBase):
-        __tablename__ = "objects"
 
-        UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-        Code: Mapped[str] = mapped_column(String(35), ForeignKey("object_statics.Code"))
+@pytest.fixture
+def local_tables(engine):
+    factory = LocalTableFactory()
+    local_tables = factory.local_tables
 
-        object_statics: Mapped["ObjectStaticsTable"] = relationship()
+    # Setup db
+    local_tables.Base.metadata.drop_all(engine)
+    local_tables.Base.metadata.create_all(engine)
 
-    class LocalObjectStaticsTable(TestBase):
-        __tablename__ = "object_statics"
+    yield local_tables
 
-        Object_Type: Mapped[str] = mapped_column(String(25))
-        Object_ID: Mapped[int]
-        Code: Mapped[str] = mapped_column(String(35), primary_key=True)
+    # Teardown
+    local_tables.Base.metadata.drop_all(engine)
 
-        def __repr__(self) -> str:
-            return f"ObjectStatics(Code={self.Code!r}"
 
-    class LocalUsersTable(TestBase):
-        __tablename__ = "Gebruikers"
-
-        UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-        Gebruikersnaam: Mapped[Optional[str]]
-        Email: Mapped[str] = mapped_column(unique=True)
-        Rol: Mapped[Optional[str]]
-        Status: Mapped[Optional[str]]
-        # @todo; do not fetch when not needed
-        Wachtwoord: Mapped[Optional[str]]  # = mapped_column(deferred=True)
-
-        @property
-        def IsActief(self) -> bool:
-            return self.Status == "Actief"
-
-        def __repr__(self) -> str:
-            return f"Gebruikers(UUID={self.UUID!r}, Gebruikersnaam={self.Gebruikersnaam!r})"
-
-    return LocalTables(
-        Base=TestBase,
-        ObjectsTable=LocalObjectsTable,
-        ObjectStaticsTable=LocalObjectStaticsTable,
-        UsersTabel=LocalUsersTable,
+@pytest.fixture
+def mock_converter():
+    basic_converter = ObjectConverterData(
+        column_deserializers=dict(),
+        field_serializers=dict(),
     )
+
+    converter = Converter()
+    converter._per_object_id["ambitie"] = basic_converter
+    return converter
+
+
+@pytest.fixture
+def mock_dispatcher():
+    event_dispatcher_mock = MagicMock(spec=EventDispatcher)
+    return event_dispatcher_mock
+
+
+@pytest.fixture
+def test_object_repository(db: Session):
+    return ObjectRepository(db=db)
+
+
+@pytest.fixture
+def test_object_static_repository(db: Session):
+    return ObjectStaticRepository(db=db)
 
 
 @pytest.fixture(scope="function")
-def base_dynamic_app(local_tables) -> TestDynamicApp:
+def base_dynamic_app(local_tables) -> TestDynamicApp:  # noqa
     with patch_multiple(
         patch("app.core.db.base.Base", local_tables.Base),
         patch("app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable),
