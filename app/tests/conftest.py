@@ -22,7 +22,7 @@ from app.extensions.extended_users.extended_user_extension import ExtendedUserEx
 from app.extensions.users.users_extension import UsersExtension
 from app.tests.helpers import patch_multiple
 from app.tests.fixtures import TestDynamicApp, LocalTableFactory
-from app.tests.fixture_data import FixtureDataFactory
+from app.tests.fixture_factories import MasterFixtureFactory
 
 
 class TestSettings:
@@ -57,11 +57,6 @@ def db(engine) -> Generator:
 
 
 @pytest.fixture
-def db_factory(db):
-    yield FixtureDataFactory(db)
-
-
-@pytest.fixture
 def local_tables(engine):
     factory = LocalTableFactory()
     local_tables = factory.local_tables
@@ -73,7 +68,21 @@ def local_tables(engine):
     yield local_tables
 
     # Teardown
-    local_tables.Base.metadata.drop_all(engine)
+    # local_tables.Base.metadata.drop_all(engine)
+
+
+@pytest.fixture
+def master_factory(db):
+    # TODO
+    yield MasterFixtureFactory(db)
+
+
+@pytest.fixture
+def populate_db(master_factory):
+    raise Exception("Not implemented")
+    # factory.create_all_objects()
+    # factory.populate_db()
+    # yield factory
 
 
 @pytest.fixture

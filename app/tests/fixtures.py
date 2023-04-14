@@ -24,9 +24,14 @@ class LocalTables(BaseModel):
 
 
 class LocalTableFactory:
-    # Important to generate new declarative base,
-    # or table state will persist in the test session.
-    # TODO: find more scalable way to setup DeclarativeBase+Table
+    """
+    Base factory used to build Tables with
+    a fresh sqlalchemy declarative base / metadata.
+
+    Important to generate new declarative base for
+    any tests that involve dynamic columns:
+    otherwise table state will persist during the test session.
+    """
 
     def __init__(self):
         self.base = declarative_base()
@@ -56,7 +61,6 @@ class LocalTableFactory:
             __tablename__ = "objects"
             Start_Validity: Mapped[datetime]
             End_Validity: Mapped[Optional[datetime]]
-
             ObjectStatics: Mapped["LocalObjectStaticsTable"] = relationship()
 
         return LocalObjectsTable
