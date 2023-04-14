@@ -5,15 +5,14 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import Base
+from app.core.db.mixins import TimeStamped, UserMetaData
 from app.extensions.acknowledged_relations.models.models import (
     AcknowledgedRelation,
     AcknowledgedRelationSide,
 )
 
 
-class AcknowledgedRelationsTable(Base):
-    __tablename__ = "acknowledged_relations"
-
+class AcknowledgedRelationBaseColumns(TimeStamped, UserMetaData):
     Requested_By_Code: Mapped[str] = mapped_column(
         ForeignKey("object_statics.Code"), primary_key=True
     )
@@ -40,12 +39,8 @@ class AcknowledgedRelationsTable(Base):
     To_Title: Mapped[str] = mapped_column(default="")
     To_Explanation: Mapped[str] = mapped_column(default="")
 
-    # General information
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
-    Modified_Date: Mapped[datetime]
-    Modified_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
+class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
     def with_sides(
         self, side_a: AcknowledgedRelationSide, side_b: AcknowledgedRelationSide
     ):
@@ -128,6 +123,10 @@ class AcknowledgedRelationsTable(Base):
             Modified_Date=self.Modified_Date,
             Modified_By_UUID=self.Modified_By_UUID,
         )
+
+
+class AcknowledgedRelationsTable(Base, AcknowledgedRelationColumns):
+    __tablename__ = "acknowledged_relations"
 
     @staticmethod
     def _raise_invalid_code():

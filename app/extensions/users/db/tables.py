@@ -1,15 +1,12 @@
-import uuid
 from typing import Optional
 
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import Base
+from app.core.db.mixins import HasUUID
 
 
-class UsersTable(Base):
-    __tablename__ = "Gebruikers"
-
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+class UserBaseColumns(HasUUID):
     Gebruikersnaam: Mapped[Optional[str]]
     Email: Mapped[str] = mapped_column(unique=True)
     Rol: Mapped[Optional[str]]
@@ -20,6 +17,10 @@ class UsersTable(Base):
     @property
     def IsActief(self) -> bool:
         return self.Status == "Actief"
+
+
+class UsersTable(Base, UserBaseColumns):
+    __tablename__ = "Gebruikers"
 
     def __repr__(self) -> str:
         return f"Gebruikers(UUID={self.UUID!r}, Gebruikersnaam={self.Gebruikersnaam!r})"

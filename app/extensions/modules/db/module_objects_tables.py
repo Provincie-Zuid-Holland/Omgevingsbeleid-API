@@ -8,13 +8,15 @@ from app.dynamic.db.object_static_table import ObjectStaticsTable
 from .tables import ModuleObjectContextTable
 
 
-class ModuleObjectsTable(Base):
-    __tablename__ = "module_objects"
-
+class ModuleObjectsColumns:
     Module_ID: Mapped[int] = mapped_column(ForeignKey("modules.Module_ID"))
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Code: Mapped[str] = mapped_column(String(35), ForeignKey("object_statics.Code"))
     Deleted: Mapped[bool] = mapped_column(default=False)
+
+
+class ModuleObjectsTable(Base, ModuleObjectsColumns):
+    __tablename__ = "module_objects"
 
     ModuleObjectContext: Mapped["ModuleObjectContextTable"] = relationship()
     ObjectStatics: Mapped["ObjectStaticsTable"] = relationship(viewonly=True)
