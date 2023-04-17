@@ -14,11 +14,15 @@ from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable, ModuleObjectContextTable
 from app.extensions.modules.dependencies import depends_active_module
-from app.extensions.modules.permissions import ModulesPermissions
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.modules.permissions import (
+    ModulesPermissions,
+    guard_module_not_locked,
+    guard_valid_user,
+)
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user,
     depends_permission_service,
@@ -62,20 +66,26 @@ class EndpointHandler:
         db: Session,
         allowed_object_types: List[str],
         permission_service: PermissionService,
-        user: GebruikersTable,
+        user: UsersTable,
         module: ModuleTable,
         object_in: ModuleAddNewObject,
     ):
         self._db: Session = db
         self._allowed_object_types: List[str] = allowed_object_types
         self._permission_service: PermissionService = permission_service
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_in: ModuleAddNewObject = object_in
         self._timepoint: datetime = datetime.now()
 
     def handle(self) -> NewObjectStaticResponse:
-        self._guard_valid_user()
+        guard_valid_user(
+            self._permission_service,
+            ModulesPermissions.can_add_new_object_to_module,
+            self._user,
+            self._module,
+        )
+        guard_module_not_locked(self._module)
 
         if self._object_in.Object_Type not in self._allowed_object_types:
             raise HTTPException(
@@ -160,15 +170,6 @@ class EndpointHandler:
         )
         self._db.add(module_object)
 
-    def _guard_valid_user(self):
-        if self._module.is_manager(self._user.UUID):
-            return
-
-        if not self._permission_service.has_permission(
-            ModulesPermissions.can_add_new_object_to_module, self._user
-        ):
-            raise HTTPException(status_code=401, detail="Invalid user role")
-
 
 class ModuleAddNewObjectEndpoint(Endpoint):
     def __init__(
@@ -182,7 +183,7 @@ class ModuleAddNewObjectEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: ModuleAddNewObject,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
             permission_service: PermissionService = Depends(depends_permission_service),

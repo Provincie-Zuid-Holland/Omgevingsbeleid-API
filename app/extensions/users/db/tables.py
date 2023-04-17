@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.core.db.base import Base
 
 
-class GebruikersTable(Base):
+class UsersTable(Base):
     __tablename__ = "Gebruikers"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)

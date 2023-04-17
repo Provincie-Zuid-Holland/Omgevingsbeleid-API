@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.dependencies import FilterObjectCode
 
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 
 

@@ -15,6 +15,7 @@ def columns_loader(base_columns: Dict[str, Column], config: dict) -> Dict[str, C
             id=column_id,
             name=data.get("name"),
             type=data.get("type"),
+            type_data=data.get("type_data", {}),
             nullable=data.get("nullable", False),
             static=data.get("static", False),
             serializers=data.get("serializers", []),

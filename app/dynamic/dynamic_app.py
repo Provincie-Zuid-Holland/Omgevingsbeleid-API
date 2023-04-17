@@ -2,13 +2,17 @@ from typing import Dict, List
 from os import listdir
 from os.path import isfile, join
 from copy import deepcopy
+import click
 
 import yaml
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.responses import JSONResponse
+from app.dynamic.generate_table import generate_table
 
-from app.dynamic.db.objects_table import generate_dynamic_objects
-from app.dynamic.db.object_static_table import generate_dynamic_object_statics
+from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db.object_static_table import (
+    ObjectStaticsTable,
+)
 from app.dynamic.validators.validator import (
     HtmlValidator,
     LengthValidator,
@@ -29,13 +33,19 @@ import app.dynamic.serializers as serializers
 
 
 class DynamicApp:
-    def __init__(self, fastapi_app: FastAPI):
+    def __init__(self, fastapi_app: FastAPI, commands: click.Group):
         self._fastapi_app: FastAPI = fastapi_app
+        self._commands: click.Group = commands
 
     def run(self):
         print()
         print("in run")
         return self._fastapi_app
+
+    def run_commands(self):
+        print()
+        print("in run commands")
+        self._commands()
 
 
 class DynamicAppBuilder:
@@ -91,6 +101,10 @@ class DynamicAppBuilder:
                 self._service_container.converter,
                 self._service_container.models_resolver,
             )
+            extension.register_commands(
+                self._service_container.main_command_group, self._main_config
+            )
+
             for column in extension.register_base_columns():
                 self._columns[column.id] = column
             for base_field in extension.register_base_fields():
@@ -104,10 +118,25 @@ class DynamicAppBuilder:
             )
             self._merge_endpoint_resolvers(endpoint_resolvers)
 
-        generate_dynamic_objects(self._columns)
-        generate_dynamic_object_statics(self._columns)
+        generate_table(
+            self._service_container.event_dispatcher,
+            ObjectStaticsTable,
+            "ObjectStaticsTable",
+            self._columns,
+            static=True,
+        )
+        generate_table(
+            self._service_container.event_dispatcher,
+            ObjectsTable,
+            "ObjectsTable",
+            self._columns,
+            static=False,
+        )
         for extension in self._extensions:
-            extension.register_tables(self._columns)
+            extension.register_tables(
+                self._service_container.event_dispatcher,
+                self._columns,
+            )
 
         # table_metadata.drop_all(engine)
         # table_metadata.create_all(engine)
@@ -177,6 +206,7 @@ class DynamicAppBuilder:
 
         return DynamicApp(
             fastapi_app=fastapi_app,
+            commands=self._service_container.main_command_group,
         )
 
     def _build_config_intermediate(self, config: dict):

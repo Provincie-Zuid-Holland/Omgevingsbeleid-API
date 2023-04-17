@@ -3,6 +3,7 @@ from typing import List, Optional
 from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
+from app.core.utils.utils import table_to_dict
 
 from app.dynamic.event.types import Event, NoPayload
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
@@ -38,12 +39,13 @@ class ModuleStatusChangedEvent(Event):
             raise RuntimeError("Missing db connection")
 
         repository: ModuleObjectRepository = ModuleObjectRepository(db)
-        objects: List[dict] = repository.get_objects_in_time(
+        module_objects: List[dict] = repository.get_objects_in_time(
             self.context.module.Module_ID,
             self.context.new_status.Created_Date,
         )
+        dict_objects: List[dict] = [table_to_dict(t) for t in module_objects]
         self._snapshot = ModuleSnapshot(
-            Objects=objects,
+            Objects=dict_objects,
         )
         return self._snapshot
 

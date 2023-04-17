@@ -1,2 +1,3 @@
 from .create_model_listener import CreateModelListener
 from .retrieved_object_listener import RetrievedObjectsListener
+from .retrieved_module_object_listener import RetrievedModuleObjectsListener

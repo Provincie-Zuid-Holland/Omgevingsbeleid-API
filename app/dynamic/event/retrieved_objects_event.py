@@ -1,6 +1,9 @@
 from typing import List
 from dataclasses import dataclass
 
+from pydantic import BaseModel
+
+
 
 from .types import Event
 from app.dynamic.config.models import Model
@@ -8,7 +11,7 @@ from app.dynamic.config.models import Model
 
 @dataclass
 class RetrievedObjectsEventPayload:
-    rows: List[dict]
+    rows: List[BaseModel]
 
 
 @dataclass
@@ -29,7 +32,7 @@ class RetrievedObjectsEvent(Event):
 
     @staticmethod
     def create(
-        rows: List[dict],
+        rows: List[BaseModel],
         endpoint_id: str,
         response_model: Model,
     ):

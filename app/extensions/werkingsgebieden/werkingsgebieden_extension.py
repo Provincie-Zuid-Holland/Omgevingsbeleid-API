@@ -10,8 +10,7 @@ from app.dynamic.converter import Converter
 import app.extensions.werkingsgebieden.endpoints as endpoints
 import app.extensions.werkingsgebieden.listeners as listeners
 from app.extensions.werkingsgebieden.models.models import (
-    WerkingsgebiedShort,
-    werkingsgebied,
+    Werkingsgebied,
 )
 
 
@@ -19,16 +18,9 @@ class WerkingsgebiedenExtension(Extension):
     def register_models(self, models_resolver: ModelsResolver):
         models_resolver.add(
             ExtensionModel(
-                id="werkingsgebied_short",
-                name="WerkingsgebiedShort",
-                pydantic_model=WerkingsgebiedShort,
-            ),
-        )
-        models_resolver.add(
-            ExtensionModel(
                 id="werkingsgebied",
                 name="Werkingsgebied",
-                pydantic_model=werkingsgebied,
+                pydantic_model=Werkingsgebied,
             ),
         )
 
@@ -40,7 +32,6 @@ class WerkingsgebiedenExtension(Extension):
     ) -> List[EndpointResolver]:
         return [
             endpoints.ListWerkingsgebiedenEndpointResolver(),
-            endpoints.OverwriteWerkingsgebiedenEndpointResolver(),
         ]
 
     def register_listeners(
@@ -50,7 +41,4 @@ class WerkingsgebiedenExtension(Extension):
         converter: Converter,
         models_resolver: ModelsResolver,
     ):
-        event_dispatcher.register(listeners.SingleCreateModelListener())
-        event_dispatcher.register(listeners.SingleRetrievedObjectsListener())
-        event_dispatcher.register(listeners.MultipleCreateModelListener())
-        event_dispatcher.register(listeners.MultipleRetrievedObjectsListener())
+        event_dispatcher.register(listeners.AddWerkingsgebiedenRelationshipListener())

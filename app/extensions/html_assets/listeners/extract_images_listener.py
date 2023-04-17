@@ -17,7 +17,7 @@ from app.dynamic.event.types import Listener
 from app.extensions.html_assets.db.tables import AssetsTable
 from app.extensions.html_assets.models.meta import ImageMeta
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.event.module_object_patched_event import (
     ModuleObjectPatchedEvent,
 )
@@ -103,6 +103,9 @@ class ExtractImagesListener(Listener[ModuleObjectPatchedEvent]):
         config: Optional[ExtractImagesConfig] = self._collect_config(
             event.context.request_model
         )
+        if not config:
+            return event
+
         changed_fields: Set[str] = set(event.context.changes.keys())
         interested_fields: Set[str] = set.intersection(config.fields, changed_fields)
         if not interested_fields:

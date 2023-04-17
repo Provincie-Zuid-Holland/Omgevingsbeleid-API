@@ -4,10 +4,9 @@ from typing import List, Type
 from fastapi import APIRouter, Depends
 import pydantic
 from sqlalchemy import desc, func, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from app.core.dependencies import depends_db
 from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.db import ObjectStaticsTable
 
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, Model, EndpointConfig
@@ -82,7 +81,6 @@ class ValidListLineagesEndpoint(Endpoint):
         subq = (
             select(
                 ObjectsTable,
-                ObjectStaticsTable,
                 func.row_number()
                 .over(
                     partition_by=ObjectsTable.Code,
@@ -91,14 +89,14 @@ class ValidListLineagesEndpoint(Endpoint):
                 .label("_RowNumber"),
             )
             .select_from(ObjectsTable)
-            .join(ObjectStaticsTable)
             .filter(ObjectsTable.Object_Type == self._object_type)
             .filter(ObjectsTable.Start_Validity <= datetime.now())
             .subquery()
         )
 
+        aliased_objects = aliased(ObjectsTable, subq)
         stmt = (
-            select(subq)
+            select(aliased_objects)
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
@@ -111,10 +109,13 @@ class ValidListLineagesEndpoint(Endpoint):
             .offset(pagination.get_offset())
         )
 
-        table_rows = db.execute(stmt).all()
-        rows = [r._asdict() for r in table_rows]
-        if not rows:
+        table_rows: List[ObjectsTable] = db.execute(stmt).scalars().all()
+        if not table_rows:
             return []
+
+        rows: List[self._response_type] = [
+            self._response_type.from_orm(r) for r in table_rows
+        ]
 
         # Ask extensions for more information
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
@@ -126,10 +127,7 @@ class ValidListLineagesEndpoint(Endpoint):
         )
         rows = event.payload.rows
 
-        deserialized_rows = self._converter.deserialize_list(self._object_id, rows)
-        response = [self._response_type.parse_obj(row) for row in deserialized_rows]
-
-        return response
+        return rows
 
 
 class ValidListLineagesEndpointResolver(EndpointResolver):

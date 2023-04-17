@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Callable, Optional
 
 from fastapi import BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
@@ -47,6 +47,18 @@ def depends_object_static_by_object_type_and_id(
     if not maybe_static:
         raise HTTPException(status_code=404, detail="Object static niet gevonden")
     return maybe_static
+
+
+def depends_object_static_by_object_type_and_id_curried(object_type: str) -> Callable:
+    def depends_object_static_by_object_type_and_id_inner(
+        lineage_id: int,
+        repository: ObjectStaticRepository = Depends(depends_object_static_repository),
+    ):
+        return depends_object_static_by_object_type_and_id(
+            object_type, lineage_id, repository
+        )
+
+    return depends_object_static_by_object_type_and_id_inner
 
 
 def depends_string_filters(

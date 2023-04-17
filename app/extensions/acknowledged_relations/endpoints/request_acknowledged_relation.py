@@ -14,7 +14,7 @@ from app.dynamic.converter import Converter
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -33,14 +33,14 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
-        user: GebruikersTable,
+        user: UsersTable,
         object_type: str,
         lineage_id: int,
         allowed_object_types: List[str],
         object_in: RequestAcknowledgedRelation,
     ):
         self._db: Session = db
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._object_type: str = object_type
         self._lineage_id: int = lineage_id
         self._allowed_object_types: List[str] = allowed_object_types
@@ -98,7 +98,7 @@ class RequestAcknowledgedRelationEndpoint(Endpoint):
         def fastapi_handler(
             lineage_id: int,
             object_in: RequestAcknowledgedRelation,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             db: Session = Depends(depends_db),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(

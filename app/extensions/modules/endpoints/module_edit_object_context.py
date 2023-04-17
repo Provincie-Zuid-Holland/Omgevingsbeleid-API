@@ -18,8 +18,8 @@ from app.extensions.modules.dependencies import (
     depends_active_module_object_context,
 )
 from app.extensions.modules.models.models import ModuleObjectAction
-from app.extensions.modules.permissions import ModulesPermissions
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.modules.permissions import ModulesPermissions, guard_valid_user
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user,
     depends_permission_service,
@@ -41,20 +41,25 @@ class EndpointHandler:
         self,
         db: Session,
         permission_service: PermissionService,
-        user: GebruikersTable,
+        user: UsersTable,
         module: ModuleTable,
         object_context: ModuleObjectContextTable,
         object_in: ModuleEditObjectContext,
     ):
         self._db: Session = db
         self._permission_service: PermissionService = permission_service
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_context: ModuleObjectContextTable = object_context
         self._object_in: ModuleEditObjectContext = object_in
 
     def handle(self) -> ResponseOK:
-        self._guard_valid_user()
+        guard_valid_user(
+            self._permission_service,
+            ModulesPermissions.can_edit_module_object_context,
+            self._user,
+            self._module,
+        )
 
         changes: dict = self._object_in.dict(exclude_none=True)
         if not changes:
@@ -74,15 +79,6 @@ class EndpointHandler:
             message="OK",
         )
 
-    def _guard_valid_user(self):
-        if self._module.is_manager(self._user.UUID):
-            return
-
-        if not self._permission_service.has_permission(
-            ModulesPermissions.can_edit_module_object_context, self._user
-        ):
-            raise HTTPException(status_code=401, detail="Invalid user role")
-
 
 class ModuleEditObjectContextEndpoint(Endpoint):
     def __init__(self, path: str):
@@ -91,7 +87,7 @@ class ModuleEditObjectContextEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: ModuleEditObjectContext,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             object_context: ModuleObjectContextTable = Depends(
                 depends_active_module_object_context

@@ -4,7 +4,7 @@ import pydantic
 from app.core.security import verify_password
 from app.dynamic.utils.response import ResponseOK
 from app.dynamic.endpoints.endpoint import Endpoint
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.repository.user_repository import UserRepository
 from app.extensions.users.dependencies import (
     depends_current_active_user,
@@ -21,7 +21,7 @@ class PasswordResetEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             password_in: PasswordUpdate = Depends(),
-            current_user: GebruikersTable = Depends(depends_current_active_user),
+            current_user: UsersTable = Depends(depends_current_active_user),
             user_repository: UserRepository = Depends(depends_user_repository),
         ) -> ResponseOK:
             return self._handler(user_repository, current_user, password_in)
@@ -41,7 +41,7 @@ class PasswordResetEndpoint(Endpoint):
     def _handler(
         self,
         user_repository: UserRepository,
-        current_user: GebruikersTable,
+        current_user: UsersTable,
         password_in: PasswordUpdate,
     ):
         valid: bool = verify_password(password_in.password, current_user.Wachtwoord)

@@ -41,3 +41,4 @@ class RelationsExtension(Extension):
     ):
         event_dispatcher.register(listeners.CreateModelListener(models_resolver))
         event_dispatcher.register(listeners.RetrievedObjectsListener(converter))
+        event_dispatcher.register(listeners.RetrievedModuleObjectsListener(converter))

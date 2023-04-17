@@ -15,7 +15,7 @@ from app.extensions.acknowledged_relations.models.models import AcknowledgedRela
 from app.extensions.acknowledged_relations.repository.acknowledged_relations_repository import (
     AcknowledgedRelationsRepository,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_user
 
 
@@ -66,7 +66,7 @@ class ListAcknowledgedRelationsEndpoint(Endpoint):
             lineage_id: int,
             requested_by_us: bool = False,
             acknowledged: Optional[bool] = None,
-            user: GebruikersTable = Depends(depends_current_user),
+            user: UsersTable = Depends(depends_current_user),
             repository: AcknowledgedRelationsRepository = Depends(
                 depends_acknowledged_relations_repository
             ),

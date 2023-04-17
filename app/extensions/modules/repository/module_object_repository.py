@@ -7,7 +7,7 @@ from sqlalchemy import select, func, desc
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.orm.session import make_transient
 
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 
 
 class ModuleObjectRepository:
@@ -55,7 +55,9 @@ class ModuleObjectRepository:
         maybe_object = self._db.scalars(stmt).first()
         return maybe_object
 
-    def get_objects_in_time(self, module_id: int, before: datetime) -> List[dict]:
+    def get_objects_in_time(
+        self, module_id: int, before: datetime
+    ) -> List[ModuleObjectsTable]:
         subq = (
             select(
                 ModuleObjectsTable,
@@ -79,13 +81,8 @@ class ModuleObjectRepository:
             .filter(subq.c.Deleted == False)
         )
 
-        rows: List[dict] = []
-        for row in self._db.execute(stmt).scalars():
-            dictrow = dict(row.__dict__)
-            dictrow.pop("_sa_instance_state", None)
-            rows.append(dictrow)
-
-        return rows
+        objects: List[ModuleObjectsTable] = self._db.execute(stmt).scalars()
+        return objects
 
     def patch_latest_module_object(
         self,

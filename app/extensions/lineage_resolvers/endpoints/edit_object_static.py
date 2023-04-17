@@ -14,7 +14,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 from app.dynamic.utils.response import ResponseOK
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -26,7 +26,7 @@ class EndpointHandler:
         object_type: str,
         db: Session,
         repository: ObjectStaticRepository,
-        user: GebruikersTable,
+        user: UsersTable,
         changes: dict,
         lineage_id: int,
     ):
@@ -37,7 +37,7 @@ class EndpointHandler:
         self._db: Session = db
         self._repository: ObjectStaticRepository = repository
 
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._changes: dict = changes
         self._lineage_id: int = lineage_id
 
@@ -82,7 +82,7 @@ class EditObjectStaticEndpoint(Endpoint):
         def fastapi_handler(
             lineage_id: int,
             object_in: self._request_type,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             db: Session = Depends(depends_db),
             repository: ObjectStaticRepository = Depends(
                 depends_object_static_repository

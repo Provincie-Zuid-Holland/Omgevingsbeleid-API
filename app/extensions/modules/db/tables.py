@@ -39,6 +39,19 @@ class ModuleTable(Base):
         back_populates="Module", order_by="asc(ModuleStatusHistoryTable.Created_Date)"
     )
 
+    Created_By: Mapped[List["UsersTable"]] = relationship(
+        primaryjoin="ModuleTable.Created_By_UUID == UsersTable.UUID"
+    )
+    Modified_By: Mapped[List["UsersTable"]] = relationship(
+        primaryjoin="ModuleTable.Modified_By_UUID == UsersTable.UUID"
+    )
+    Module_Manager_1: Mapped[List["UsersTable"]] = relationship(
+        primaryjoin="ModuleTable.Module_Manager_1_UUID == UsersTable.UUID"
+    )
+    Module_Manager_2: Mapped[List["UsersTable"]] = relationship(
+        primaryjoin="ModuleTable.Module_Manager_2_UUID == UsersTable.UUID"
+    )
+
     @property
     def Status(self) -> Optional["ModuleStatusHistoryTable"]:
         if not self.status_history:
@@ -89,3 +102,10 @@ class ModuleObjectContextTable(Base):
     Action: Mapped[str]
     Explanation: Mapped[str]
     Conclusion: Mapped[str]
+
+    Created_By: Mapped[List["UsersTable"]] = relationship(
+        primaryjoin="ModuleObjectContextTable.Created_By_UUID == UsersTable.UUID"
+    )
+    Modified_By: Mapped[List["UsersTable"]] = relationship(
+        primaryjoin="ModuleObjectContextTable.Modified_By_UUID == UsersTable.UUID"
+    )

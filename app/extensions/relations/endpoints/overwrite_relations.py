@@ -13,7 +13,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.relations.models.models import RelationShort
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -48,7 +48,7 @@ class EndpointHandler:
         for relation in self._overwrite_list:
             if relation.Object_Type not in self._allowed_object_types_relations:
                 raise ValueError(
-                    f"Invalid object_type for relation with '{self._object_id}'"
+                    f"Invalid object_type for relation with '@TODO object-id'"
                 )
 
     def _remove_current_relations(self):
@@ -92,7 +92,7 @@ class OverwriteRelationsEndpoint(Endpoint):
         def fastapi_handler(
             lineage_id: int,
             overwrite_list: List[RelationShort],
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             db: Session = Depends(depends_db),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(

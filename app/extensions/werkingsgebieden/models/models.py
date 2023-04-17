@@ -1,23 +1,14 @@
 from datetime import datetime
 import uuid
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
-class WerkingsgebiedShort(BaseModel):
-    UUID: uuid.UUID = Field(..., alias="Werkingsgebied_UUID")
-    Description: str = Field(default="")
-
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
-
-
-class werkingsgebied(BaseModel):
+class Werkingsgebied(BaseModel):
     ID: int
-    UUID: uuid.UUID = Field(..., alias="Werkingsgebied_UUID")
+    UUID: uuid.UUID
     Created_Date: datetime
     Modified_Date: datetime
-    Werkingsgebied: str
+    Title: str
 
     class Config:
         orm_mode = True

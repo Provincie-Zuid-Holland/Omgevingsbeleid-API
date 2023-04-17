@@ -20,7 +20,7 @@ from app.extensions.acknowledged_relations.models.models import AcknowledgedRela
 from app.extensions.acknowledged_relations.repository.acknowledged_relations_repository import (
     AcknowledgedRelationsRepository,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -41,14 +41,14 @@ class EndpointHandler:
         self,
         db: Session,
         repository: AcknowledgedRelationsRepository,
-        user: GebruikersTable,
+        user: UsersTable,
         object_type: str,
         lineage_id: int,
         object_in: EditAcknowledgedRelation,
     ):
         self._db: Session = db
         self._repository: AcknowledgedRelationsRepository = repository
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._object_type: str = object_type
         self._lineage_id: int = lineage_id
         self._code: str = f"{self._object_type}-{self._lineage_id}"
@@ -99,7 +99,7 @@ class EditAcknowledgedRelationEndpoint(Endpoint):
         def fastapi_handler(
             lineage_id: int,
             object_in: EditAcknowledgedRelation,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             repository: AcknowledgedRelationsRepository = Depends(
                 depends_acknowledged_relations_repository
             ),

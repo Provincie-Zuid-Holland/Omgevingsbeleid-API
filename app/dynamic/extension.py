@@ -2,6 +2,7 @@ from abc import ABC
 from typing import List, Dict, Callable, Optional
 
 from fastapi import APIRouter
+import click
 
 from app.dynamic.config.models import (
     Column,
@@ -32,6 +33,9 @@ class Extension(ABC):
     def register_models(self, models_resolver: ModelsResolver):
         pass
 
+    def register_commands(self, main_command_group: click.Group, main_config: dict):
+        pass
+
     def migrate(self):
         # A place to create own database tables
         # Should not be used to touch the main objects table
@@ -42,7 +46,9 @@ class Extension(ABC):
     # def supply_service_container(self, service_container: ServiceContainer):
     #     self.service_container = service_container
 
-    def register_tables(self, columns: Dict[str, Column]):
+    def register_tables(
+        self, event_dispatcher: EventDispatcher, columns: Dict[str, Column]
+    ):
         # A place for extensions to load database tables before we generate the database
         pass
 

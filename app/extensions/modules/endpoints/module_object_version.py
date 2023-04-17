@@ -2,7 +2,6 @@ from typing import List, Type
 
 from fastapi import APIRouter, Depends, HTTPException
 import pydantic
-from app.core.utils.utils import table_to_dict
 
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, Model, EndpointConfig
@@ -10,7 +9,7 @@ from app.dynamic.dependencies import depends_event_dispatcher
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_module,
@@ -19,7 +18,7 @@ from app.extensions.modules.dependencies import (
 from app.extensions.modules.event.retrieved_module_objects_event import (
     RetrievedModuleObjectsEvent,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -43,7 +42,7 @@ class ModuleObjectVersionEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             module_object: ModuleObjectsTable = Depends(
                 depends_module_object_by_uuid_curried(self._object_type)
@@ -75,8 +74,8 @@ class ModuleObjectVersionEndpoint(Endpoint):
                 status_code=404, detail="Module Object Context is verwijderd"
             )
 
-        object_dict: dict = table_to_dict(module_object)
-        rows: List[dict] = [object_dict]
+        row: self._response_type = self._response_type.from_orm(module_object)
+        rows: List[self._response_type] = [row]
 
         # Ask extensions for more information
         event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(
@@ -88,12 +87,7 @@ class ModuleObjectVersionEndpoint(Endpoint):
         )
         rows = event.payload.rows
 
-        deserialized_rows = self._converter.deserialize_list(
-            self._config_object_id, rows
-        )
-        response = [self._response_type.parse_obj(row) for row in deserialized_rows]
-
-        return response[0]
+        return rows[0]
 
 
 class ModuleObjectVersionEndpointResolver(EndpointResolver):

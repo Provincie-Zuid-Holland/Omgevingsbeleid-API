@@ -1,8 +1,8 @@
-from typing import List, Optional, Type
+from ast import List
+from typing import Optional, Type
 
 from fastapi import APIRouter, Depends
 import pydantic
-from app.core.utils.utils import table_to_dict
 from app.dynamic.db.objects_table import ObjectsTable
 
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
@@ -62,15 +62,15 @@ class ObjectLatestEndpoint(Endpoint):
         event_dispatcher: EventDispatcher,
         lineage_id: int,
     ):
-        module_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
+        maybe_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
             self._object_type,
             lineage_id,
         )
-        if not module_object:
+        if not maybe_object:
             raise ValueError("lineage_id does not exist")
 
-        object_dict: dict = table_to_dict(module_object)
-        rows: List[dict] = [object_dict]
+        row: self._response_type = self._response_type.from_orm(maybe_object)
+        rows: List[self._response_type] = [row]
 
         # Ask extensions for more information
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
@@ -82,10 +82,7 @@ class ObjectLatestEndpoint(Endpoint):
         )
         rows = event.payload.rows
 
-        deserialized_rows = self._converter.deserialize_list(self._object_id, rows)
-        response = [self._response_type.parse_obj(row) for row in deserialized_rows]
-
-        return response[0]
+        return rows[0]
 
 
 class ObjectLatestEndpointResolver(EndpointResolver):

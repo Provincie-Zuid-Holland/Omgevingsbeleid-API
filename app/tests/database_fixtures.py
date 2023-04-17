@@ -4,17 +4,18 @@ from sqlalchemy.orm import Session
 from app.dynamic.db import ObjectStaticsTable
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import (
     ModuleObjectContextTable,
     ModuleStatusHistoryTable,
     ModuleTable,
 )
-from app.extensions.modules.models.models import ModuleStatusCode
+from app.extensions.modules.models.models import AllModuleStatusCode
 from app.extensions.relations.db.tables import RelationsTable
 
-from app.extensions.users.db import GebruikersTable
+from app.extensions.users.db import UsersTable
 from app.core.security import get_password_hash
+from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 
 
 class DatabaseFixtures:
@@ -23,6 +24,7 @@ class DatabaseFixtures:
 
     def create_all(self):
         self.create_users()
+        self.create_werkingsgebieden()
         self.create_object_statics()
         self.create_modules()
         self.create_relations()
@@ -30,7 +32,7 @@ class DatabaseFixtures:
 
     def create_users(self):
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Gebruikersnaam="Anton",
                 Email="test@example.com",
@@ -40,7 +42,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
                 Gebruikersnaam="Bert",
                 Email="b@example.com",
@@ -50,7 +52,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000003"),
                 Gebruikersnaam="Cees",
                 Email="c@example.com",
@@ -60,7 +62,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000004"),
                 Gebruikersnaam="Daniel",
                 Email="d@example.com",
@@ -70,7 +72,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000005"),
                 Gebruikersnaam="Emma",
                 Email="e@example.com",
@@ -80,7 +82,7 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000006"),
                 Gebruikersnaam="Fred",
                 Email="f@example.com",
@@ -90,13 +92,43 @@ class DatabaseFixtures:
             )
         )
         self._db.add(
-            GebruikersTable(
+            UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000007"),
                 Gebruikersnaam="Gerald",
                 Email="g@example.com",
                 Rol="Tester",
                 Status="Actief",
                 Wachtwoord=get_password_hash("password"),
+            )
+        )
+        self._db.commit()
+
+    def create_werkingsgebieden(self):
+        self._db.add(
+            WerkingsgebiedenTable(
+                UUID=uuid.UUID("00000000-0009-0000-0000-000000000001"),
+                Title="Eerste gebied - V1",
+                ID=1,
+                Created_Date=datetime(2023, 2, 2, 2, 2, 2),
+                Modified_Date=datetime(2023, 2, 2, 2, 2, 2),
+            )
+        )
+        self._db.add(
+            WerkingsgebiedenTable(
+                UUID=uuid.UUID("00000000-0009-0000-0000-000000000002"),
+                Title="Eerste gebied - V2",
+                ID=1,
+                Created_Date=datetime(2023, 2, 3, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 3, 3, 3, 3),
+            )
+        )
+        self._db.add(
+            WerkingsgebiedenTable(
+                UUID=uuid.UUID("00000000-0009-0000-0000-000000000003"),
+                Title="Tweede gebied",
+                ID=1,
+                Created_Date=datetime(2023, 2, 4, 4, 4, 4),
+                Modified_Date=datetime(2023, 2, 4, 4, 4, 4),
             )
         )
         self._db.commit()
@@ -188,14 +220,14 @@ class DatabaseFixtures:
         )
         module.status_history.append(
             ModuleStatusHistoryTable(
-                Status=ModuleStatusCode.Niet_Actief,
+                Status=AllModuleStatusCode.Niet_Actief,
                 Created_Date=datetime(2023, 2, 2, 2, 2, 2),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
         module.status_history.append(
             ModuleStatusHistoryTable(
-                Status=ModuleStatusCode.Vigerend,
+                Status=AllModuleStatusCode.Vastgesteld,
                 Created_Date=datetime(2023, 2, 3, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )

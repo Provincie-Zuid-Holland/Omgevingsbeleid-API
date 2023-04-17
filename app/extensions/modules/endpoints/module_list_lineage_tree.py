@@ -5,7 +5,6 @@ import pydantic
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
-from app.core.utils.utils import table_to_dict
 
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, Model, EndpointConfig
@@ -23,7 +22,7 @@ from app.dynamic.db.filters_converter import (
     FiltersConverterResult,
     convert_filters,
 )
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_module,
@@ -32,7 +31,7 @@ from app.extensions.modules.dependencies import (
 from app.extensions.modules.event.retrieved_module_objects_event import (
     RetrievedModuleObjectsEvent,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -59,7 +58,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             lineage_id: int,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             filters: Filters = Depends(depends_string_filters),
             pagination: Pagination = Depends(depends_pagination),
             module: ModuleTable = Depends(depends_active_module),
@@ -109,22 +108,22 @@ class ModuleListLineageTreeEndpoint(Endpoint):
 
         # @todo: honor filters
         module_objects_tables: List[ModuleObjectsTable] = db.scalars(stmt).all()
-        module_objects: List[dict] = [table_to_dict(t) for t in module_objects_tables]
+
+        rows: List[self._response_type] = [
+            self._response_type.from_orm(r) for r in module_objects_tables
+        ]
 
         # Ask extensions for more information
         event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(
             RetrievedModuleObjectsEvent.create(
-                module_objects,
+                rows,
                 self._endpoint_id,
                 self._response_model,
             )
         )
         rows = event.payload.rows
 
-        deserialized_rows = self._converter.deserialize_list(self._object_id, rows)
-        response = [self._response_type.parse_obj(row) for row in deserialized_rows]
-
-        return response
+        return rows
 
 
 class ModuleListLineageTreeEndpointResolver(EndpointResolver):

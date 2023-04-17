@@ -1,12 +1,13 @@
 from copy import copy
 from datetime import datetime
 from typing import List, Optional, Tuple
-from uuid import uuid4
+import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
+from app.core.utils.utils import table_to_dict
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
@@ -16,6 +17,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.dynamic.db.objects_table import ObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_module,
@@ -25,15 +27,43 @@ from app.extensions.modules.dependencies import (
 from app.extensions.modules.event.module_status_changed_event import (
     ModuleStatusChangedEvent,
 )
-from app.extensions.modules.models.models import ModuleStatusCode
+from app.extensions.modules.models.models import (
+    ModuleObjectAction,
+)
+from app.extensions.modules.permissions import (
+    guard_module_is_locked,
+    guard_status_must_be_vastgesteld,
+)
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
 from app.extensions.modules.repository.module_status_repository import (
     ModuleStatusRepository,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
+
+
+class ModuleObjectContextShort(BaseModel):
+    Module_ID: int
+    Object_Type: str
+    Object_ID: int
+    Code: str
+
+    Created_Date: datetime
+    Modified_Date: datetime
+    Created_By_UUID: uuid.UUID
+    Modified_By_UUID: uuid.UUID
+
+    Action: str
+
+    class Config:
+        orm_mode = True
+
+
+class ModuleObjectContext(ModuleObjectContextShort):
+    Explanation: str
+    Conclusion: str
 
 
 class ObjectSpecifiekeGeldigheid(BaseModel):
@@ -44,6 +74,9 @@ class ObjectSpecifiekeGeldigheid(BaseModel):
 
 
 class CompleteModule(BaseModel):
+    IDMS_Link: str = Field(..., min_length=10)
+    Decision_Number: str = Field(..., min_length=1)
+    Link_To_Decision_Document: str = Field(..., min_length=1)
     ObjectSpecifiekeGeldigheden: List[ObjectSpecifiekeGeldigheid] = []
 
 
@@ -54,7 +87,7 @@ class EndpointHandler:
         module_status_repository: ModuleStatusRepository,
         module_object_repository: ModuleObjectRepository,
         event_dispatcher: EventDispatcher,
-        user: GebruikersTable,
+        user: UsersTable,
         module: ModuleTable,
         object_in: CompleteModule,
     ):
@@ -66,13 +99,14 @@ class EndpointHandler:
             module_object_repository
         )
         self._event_dispatcher: EventDispatcher = event_dispatcher
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_in: CompleteModule = object_in
         self._timepoint: datetime = datetime.now()
 
     def handle(self) -> ResponseOK:
-        self._guard_status_must_be_vigerend()
+        guard_module_is_locked(self._module)
+        guard_status_must_be_vastgesteld(self._module_status_repository, self._module)
 
         try:
             new_status: ModuleStatusHistoryTable = self._patch_status()
@@ -101,28 +135,35 @@ class EndpointHandler:
         )
 
     def _create_objects(self):
-        module_objects: List[dict] = self._module_object_repository.get_objects_in_time(
+        module_objects: List[
+            ModuleObjectsTable
+        ] = self._module_object_repository.get_objects_in_time(
             self._module.Module_ID,
             self._timepoint,
         )
 
-        for module_object in module_objects:
+        for module_object_table in module_objects:
+            module_object_dict = table_to_dict(module_object_table)
             new_object: ObjectsTable = ObjectsTable()
+
             # Copy module object into the new object
-            for key, value in module_object.items():
+            for key, value in module_object_dict.items():
                 if key in ["Module_ID"]:
                     continue
                 setattr(new_object, key, copy(value))
 
-            new_object.Adjust_On = module_object.get("UUID")
-            new_object.UUID = uuid4()
+            new_object.Adjust_On = module_object_dict.get("UUID")
+            new_object.UUID = uuid.uuid4()
+            new_object.IDMS_Link = self._object_in.IDMS_Link
+            new_object.Decision_Number = self._object_in.Decision_Number
 
             new_object.Modified_By_UUID = self._user.UUID
             new_object.Modified_Date = self._timepoint
 
             start_validity, end_validity = self._get_validities(
-                module_object.get("Object_Type"),
-                module_object.get("Object_ID"),
+                module_object_dict.get("Object_Type"),
+                module_object_dict.get("Object_ID"),
+                module_object_table.ModuleObjectContext,
             )
             new_object.Start_Validity = start_validity
             new_object.End_Validity = end_validity
@@ -133,26 +174,24 @@ class EndpointHandler:
         self,
         object_type: str,
         object_id: int,
+        module_object_context: Optional[ModuleObjectContext],
     ) -> Tuple[datetime, Optional[datetime]]:
-        start_validity: datetime = copy(self._timepoint)
-        end_validity: Optional[datetime] = None
+        start_validity = self._module.Start_Validity or copy(self._timepoint)
+        end_validity = self._module.End_Validity
 
-        # Inherit from module
-        if self._module.Start_Validity is not None:
-            start_validity = self._module.Start_Validity
-        if self._module.End_Validity is not None:
-            end_validity = self._module.End_Validity
+        # If the object action is "Terminate" then we set the default end_validity to now
+        if (
+            module_object_context
+            and module_object_context.Action == ModuleObjectAction.Terminate
+        ):
+            end_validity = copy(self._timepoint)
 
-        # Overwrite if specified
         for specifics in self._object_in.ObjectSpecifiekeGeldigheden:
-            if specifics.Object_ID != object_id or specifics.Object_Type != object_type:
-                continue
-            if specifics.Start_Validity is not None:
-                start_validity = specifics.Start_Validity
-            if specifics.End_Validity is not None:
-                end_validity = specifics.End_Validity
+            if (specifics.Object_ID, specifics.Object_Type) == (object_id, object_type):
+                start_validity = specifics.Start_Validity or start_validity
+                end_validity = specifics.End_Validity or end_validity
 
-        return (start_validity, end_validity)
+        return start_validity, end_validity
 
     def _patch_status(self) -> ModuleStatusHistoryTable:
         status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
@@ -171,17 +210,6 @@ class EndpointHandler:
         self._module.Modified_Date = self._timepoint
         self._db.add(self._module)
 
-    def _guard_status_must_be_vigerend(self):
-        status: Optional[
-            ModuleStatusHistoryTable
-        ] = self._module_status_repository.get_latest_for_module(self._module.Module_ID)
-        if status is None:
-            raise HTTPException(400, "Deze module heeft geen status")
-        if status.Status != ModuleStatusCode.Vigerend:
-            raise HTTPException(
-                400, "Alleen modules met status Vigerend kunnen worden afgesloten"
-            )
-
 
 class CompleteModuleEndpoint(Endpoint):
     def __init__(
@@ -195,7 +223,7 @@ class CompleteModuleEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: CompleteModule,
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
             module_status_repository: ModuleStatusRepository = Depends(

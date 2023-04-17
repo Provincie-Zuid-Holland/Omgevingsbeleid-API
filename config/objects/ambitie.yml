@@ -76,6 +76,16 @@ fields:
     name: Weblink
     type: str
     column: weblink
+  idms_link:
+    name: IDMS_Link
+    type: str
+    column: idms_link
+  decision_number:
+    name: Decision_Number
+    type: str
+    column: decision_number
+
+  # Statics
   owner_1_uuid:
     name: Owner_1_UUID
     type: uuid
@@ -91,6 +101,7 @@ models:
   ambitie_short:
     name: AmbitieShort
     fields:
+      object_type:
       object_id:
       uuid:
       title:
@@ -105,18 +116,17 @@ models:
       title:
       weblink:
     services:
-      extended_user:
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
   ambitie_get:
     name: AmbitieGet
     fields:
       object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -136,27 +146,25 @@ models:
             object_id: beleidsdoel
             to_field: "Beleidsdoelen"
             model_id: beleidsdoel_short
-            wrapped_with_relation_data: false
-      extended_user:
+            wrapped_with_relation_data: true
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
-          # - from_field: Owner_1_UUID
-          #   to_field: Owner_1
-          #   model_id: gebruikers_short
-          # - from_field: Owner_2_UUID
-          #   to_field: Owner_2
-          #   model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
   ambitie_patch:
     name: AmbitiePatch
     fields:
       title:
         default: none
-        optional: True
+        optional: true
         validators:
           - id: length
             data:
@@ -165,12 +173,12 @@ models:
           - id: plain_text
       description:
         default: none
-        optional: True
+        optional: true
         validators:
           - id: html
       weblink:
         default: none
-        optional: True
+        optional: true
         validators:
           - id: plain_text
     services:
@@ -179,13 +187,14 @@ models:
           - Description
   ambitie_static_post:
     name: AmbitieStaticPost
+    static_only: true
     fields:
       owner_1_uuid:
         default: none
-        optional: True
+        optional: true
       owner_2_uuid:
         default: none
-        optional: True
+        optional: true
   ambitie_uuid:
     name: AmbitieUUID
     fields:

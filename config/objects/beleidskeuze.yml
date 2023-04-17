@@ -94,10 +94,6 @@ fields:
     name: Cause
     type: str
     column: cause
-  decision_number:
-    name: Decision_Number
-    type: str
-    column: decision_number
   tags:
     name: Tags
     type: str
@@ -106,6 +102,22 @@ fields:
     name: Weblink
     type: str
     column: weblink
+  idms_link:
+    name: IDMS_Link
+    type: str
+    column: idms_link
+  decision_number:
+    name: Decision_Number
+    type: str
+    column: decision_number
+  gebied_uuid:
+    name: Gebied_UUID
+    type: uuid
+    column: gebied_uuid
+  gebied_duiding:
+    name: Gebied_Duiding
+    type: str
+    column: gebied_duiding
   
   # Statics
   owner_1_uuid:
@@ -138,6 +150,7 @@ models:
   beleidskeuze_short:
     name: BeleidskeuzeShort
     fields:
+      object_type:
       object_id:
       uuid:
       title:
@@ -152,41 +165,27 @@ models:
       start_validity:
       end_validity:
       title:
-      description_choice:
-      description_operation:
       provincial_interest:
       cause:
       decision_number:
       tags:
       weblink:
+      gebied_duiding:
+      gebied_uuid:
     services:
-      extended_user:
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Gebied
+            model_id: werkingsgebied
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
-          # - from_field: Owner_1_UUID
-          #   to_field: Owner_1
-          #   model_id: gebruikers_short
-          # - from_field: Owner_2_UUID
-          #   to_field: Owner_2
-          #   model_id: gebruikers_short
-          # - from_field: Portfolio_Holder_1_UUID
-          #   to_field: Portfolio_Holder_1
-          #   model_id: gebruikers_short
-          # - from_field: Portfolio_Holder_2_UUID
-          #   to_field: Portfolio_Holder_2
-          #   model_id: gebruikers_short
-          # - from_field: Client_1_UUID
-          #   to_field: Client_1
-          #   model_id: gebruikers_short
   beleidskeuze_get:
     name: BeleidskeuzeGet
     fields:
       object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -201,82 +200,94 @@ models:
       decision_number:
       tags:
       weblink:
+      gebied_duiding:
     services:
+      insert_assets:
+        fields:
+          - Description_Choice
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Gebied
+            model_id: werkingsgebied
+          - to_field: Created_By
+            model_id: gebruikers_short
+          - to_field: Modified_By
+            model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
       relations:
         objects:
           - object_type: beleidsdoel
             object_id: beleidsdoel
             to_field: "Beleidsdoelen"
             model_id: beleidsdoel_short
-            wrapped_with_relation_data: false
-      extended_user:
-        fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
-            model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
-            model_id: gebruikers_short
-          - from_field: Owner_1_UUID
-            to_field: Owner_1
-            model_id: gebruikers_short
-          - from_field: Owner_2_UUID
-            to_field: Owner_2
-            model_id: gebruikers_short
-          - from_field: Portfolio_Holder_1_UUID
-            to_field: Portfolio_Holder_1
-            model_id: gebruikers_short
-          - from_field: Portfolio_Holder_2_UUID
-            to_field: Portfolio_Holder_2
-            model_id: gebruikers_short
-          - from_field: Client_1_UUID
-            to_field: Client_1
-            model_id: gebruikers_short
+            wrapped_with_relation_data: true
   beleidskeuze_patch:
     name: BeleidskeuzePatch
     fields:
       title:
         default: none
-        optional: True
+        optional: true
       description_choice:
         default: none
-        optional: True
+        optional: true
       description_operation:
         default: none
-        optional: True
+        optional: true
       provincial_interest:
         default: none
-        optional: True
+        optional: true
       cause:
         default: none
-        optional: True
+        optional: true
       decision_number:
         default: none
-        optional: True
+        optional: true
       tags:
         default: none
-        optional: True
+        optional: true
       weblink:
         default: none
-        optional: True
+        optional: true
+      gebied_duiding:
+        default: none
+        optional: true
+      gebied_uuid:
+        default: none
+        optional: true
+    services:
+      extract_assets:
+        fields:
+          - Description_Choice
   beleidskeuze_static_patch:
     name: BeleidskeuzeStaticPatch
+    static_only: true
     fields:
       owner_1_uuid:
         default: none
-        optional: True
+        optional: true
       owner_2_uuid:
         default: none
-        optional: True
+        optional: true
       portfolio_holder_1_uuid:
         default: none
-        optional: True
+        optional: true
       portfolio_holder_2_uuid:
         default: none
-        optional: True
+        optional: true
       client_1_uuid:
         default: none
-        optional: True
+        optional: true
   beleidskeuze_uuid:
     name: BeleidskeuzeUUID
     fields:

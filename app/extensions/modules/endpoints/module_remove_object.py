@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -12,18 +12,22 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
-from app.extensions.modules.db.module_objects_table import ModuleObjectsTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_module,
     depends_active_module_object_context,
     depends_module_object_repository,
 )
-from app.extensions.modules.permissions import ModulesPermissions
+from app.extensions.modules.permissions import (
+    ModulesPermissions,
+    guard_module_not_locked,
+    guard_valid_user,
+)
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user,
     depends_permission_service,
@@ -37,7 +41,7 @@ class EndpointHandler:
         db: Session,
         permission_service: PermissionService,
         module_object_repository: ModuleObjectRepository,
-        user: GebruikersTable,
+        user: UsersTable,
         module: ModuleTable,
         object_context: ModuleObjectContextTable,
         object_static: ObjectStaticsTable,
@@ -47,14 +51,20 @@ class EndpointHandler:
             module_object_repository
         )
         self._permission_service: PermissionService = permission_service
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_context: ModuleObjectContextTable = object_context
         self._object_static: ObjectStaticsTable = object_static
         self._timepoint: datetime = datetime.now()
 
     def handle(self) -> ResponseOK:
-        self._guard_valid_user()
+        guard_valid_user(
+            self._permission_service,
+            ModulesPermissions.can_remove_object_from_module,
+            self._user,
+            self._module,
+        )
+        guard_module_not_locked(self._module)
 
         self._flag_context_as_hidden()
         self._patch_module_object_as_deleted()
@@ -87,26 +97,6 @@ class EndpointHandler:
         )
         self._db.add(new_record)
 
-    def _guard_valid_user(self):
-        if any(
-            [
-                self._user_is_owner(),
-                self._module.is_manager(self._user.UUID),
-            ]
-        ):
-            return
-
-        if not self._permission_service.has_permission(
-            ModulesPermissions.can_add_new_object_to_module, self._user
-        ):
-            raise HTTPException(status_code=401, detail="Invalid user role")
-
-    def _user_is_owner(self):
-        return self._user.UUID in [
-            self._object_static.Owner_1_UUID,
-            self._object_static.Owner_2_UUID,
-        ]
-
 
 class ModuleRemoveObjectEndpoint(Endpoint):
     def __init__(self, path: str):
@@ -114,13 +104,13 @@ class ModuleRemoveObjectEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             object_context: ModuleObjectContextTable = Depends(
                 depends_active_module_object_context
             ),
             object_static: ObjectStaticsTable = Depends(
-                depends_object_static_by_object_type_and_id
+                depends_object_static_by_object_type_and_id,
             ),
             db: Session = Depends(depends_db),
             module_object_repository: ModuleObjectRepository = Depends(

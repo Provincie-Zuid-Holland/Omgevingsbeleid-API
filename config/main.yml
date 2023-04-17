@@ -3,9 +3,12 @@ api:
     - prefix: /users
       endpoints:
         - resolver: list_users
+    - prefix: /werkingsgebieden
+      endpoints:
+        - resolver: list_werkingsgebieden
     - prefix: /search
       endpoints:
-        - resolver: search
+        - resolver: mssql_search
     - prefix: /modules
       endpoints:
         - resolver: create_module
@@ -138,10 +141,19 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # IDMS Link
+  idms_link:
+    name: IDMS_Link
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
   # Gebied UUID
   gebied_uuid:
     name: Gebied_UUID
     type: werkingsgebied_uuid
+    type_data:
+      relation_field: Gebied
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -156,6 +168,8 @@ columns:
   owner_1_uuid:
     name: Owner_1_UUID
     type: user_uuid
+    type_data:
+      relation_field: Owner_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -164,6 +178,8 @@ columns:
   owner_2_uuid:
     name: Owner_2_UUID
     type: user_uuid
+    type_data:
+      relation_field: Owner_2
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -172,6 +188,8 @@ columns:
   portfolio_holder_1_uuid:
     name: Portfolio_Holder_1_UUID
     type: user_uuid
+    type_data:
+      relation_field: Portfolio_Holder_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -180,6 +198,8 @@ columns:
   portfolio_holder_2_uuid:
     name: Portfolio_Holder_2_UUID
     type: user_uuid
+    type_data:
+      relation_field: Portfolio_Holder_2
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -188,6 +208,8 @@ columns:
   client_1_uuid:
     name: Client_1_UUID
     type: user_uuid
+    type_data:
+      relation_field: Client_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -195,9 +217,14 @@ columns:
 
 users_permissions:
   "Ambtelijk opdrachtgever": []
-  "Behandelend Ambtenaar": []
+  "Behandelend Ambtenaar":
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
   "Beheerder":
     - can_create_module
+    - can_edit_module
+    - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
@@ -207,6 +234,8 @@ users_permissions:
   "Technisch beheerder": []
   "Superuser":
     - can_create_module
+    - can_edit_module
+    - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
@@ -214,6 +243,8 @@ users_permissions:
     - can_patch_object_in_module
   "Test runner":
     - can_create_module
+    - can_edit_module
+    - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
@@ -221,6 +252,8 @@ users_permissions:
     - can_patch_object_in_module
   "Tester":
     - can_create_module
+    - can_edit_module
+    - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
@@ -240,3 +273,13 @@ modules_pdf_export:
 
 modules_xml_export:
   destination_path: /extensions/module_xml_export
+
+mssql_search:
+  - table_name: objects
+    searchable_fields:
+      - Title
+      - Description
+  - table_name: module_objects
+    searchable_fields:
+      - Title
+      - Description

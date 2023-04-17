@@ -13,5 +13,4 @@ class ExtendedUserExtension(Extension):
         converter: Converter,
         models_resolver: ModelsResolver,
     ):
-        event_dispatcher.register(listeners.CreateModelListener())
-        event_dispatcher.register(listeners.RetrievedObjectsListener())
+        event_dispatcher.register(listeners.AddUserRelationshipListener())

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -17,7 +17,8 @@ from app.extensions.modules.event.module_status_changed_event import (
     ModuleStatusChangedEvent,
 )
 from app.extensions.modules.models import Module
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.modules.permissions import guard_user_is_module_manager
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -26,17 +27,17 @@ class EndpointHandler:
         self,
         db: Session,
         event_dispatcher: EventDispatcher,
-        user: GebruikersTable,
+        user: UsersTable,
         module: Module,
     ):
         self._db: Session = db
         self._event_dispatcher: EventDispatcher = event_dispatcher
-        self._user: GebruikersTable = user
+        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._timepoint: datetime = datetime.now()
 
     def handle(self) -> ResponseOK:
-        self._guard_user_is_module_manager()
+        guard_user_is_module_manager(self._user, self._module)
 
         self._close_module()
         self._patch_status()
@@ -73,10 +74,6 @@ class EndpointHandler:
             )
         )
 
-    def _guard_user_is_module_manager(self):
-        if not self._module.is_manager(self._user.UUID):
-            raise HTTPException(401, "You are not allowed to modify this module")
-
 
 class CloseModuleEndpoint(Endpoint):
     def __init__(
@@ -89,7 +86,7 @@ class CloseModuleEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),

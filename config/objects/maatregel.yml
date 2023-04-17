@@ -96,6 +96,15 @@ fields:
     name: Tags
     type: str
     column: tags
+  idms_link:
+    name: IDMS_Link
+    type: str
+    column: idms_link
+  decision_number:
+    name: Decision_Number
+    type: str
+    column: decision_number
+
   # Statics
   owner_1_uuid:
     name: Owner_1_UUID
@@ -127,6 +136,7 @@ models:
   maatregel_short:
     name: MaatregelShort
     fields:
+      object_type:
       object_id:
       uuid:
       title:
@@ -148,33 +158,19 @@ models:
       gebied_duiding:
       tags:
     services:
-      extended_user:
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Gebied
+            model_id: werkingsgebied
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
-          # - from_field: Owner_1_UUID
-          #   to_field: Owner_1
-          #   model_id: gebruikers_short
-          # - from_field: Owner_2_UUID
-          #   to_field: Owner_2
-          #   model_id: gebruikers_short
-          # - from_field: Portfolio_Holder_1_UUID
-          #   to_field: Portfolio_Holder_1
-          #   model_id: gebruikers_short
-          # - from_field: Portfolio_Holder_2_UUID
-          #   to_field: Portfolio_Holder_2
-          #   model_id: gebruikers_short
-          # - from_field: Client_1_UUID
-          #   to_field: Client_1
-          #   model_id: gebruikers_short
   maatregel_get:
     name: MaatregelGet
     fields:
       object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -188,88 +184,80 @@ models:
       weblink:
       gebied_duiding:
       tags:
-      owner_1_uuid:
     services:
-      werkingsgebied:
-        fields_map:
-          - from_field: Gebied_UUID
-            to_field: Gebied
-            model_id: werkingsgebied
       relations:
         objects:
           - object_type: beleidsdoel
             object_id: beleidsdoel
             to_field: "Beleidsdoelen"
             model_id: beleidsdoel_short
-            wrapped_with_relation_data: false
-      extended_user:
+            wrapped_with_relation_data: true
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Gebied
+            model_id: werkingsgebied
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
-          # - from_field: Owner_1_UUID
-          #   to_field: Owner_1
-          #   model_id: gebruikers_short
-          # - from_field: Owner_2_UUID
-          #   to_field: Owner_2
-          #   model_id: gebruikers_short
-          # - from_field: Portfolio_Holder_1_UUID
-          #   to_field: Portfolio_Holder_1
-          #   model_id: gebruikers_short
-          # - from_field: Portfolio_Holder_2_UUID
-          #   to_field: Portfolio_Holder_2
-          #   model_id: gebruikers_short
-          # - from_field: Client_1_UUID
-          #   to_field: Client_1
-          #   model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
   maatregel_patch:
     name: MaatregelPatch
     fields:
       title:
         default: none
-        optional: True
+        optional: true
       description:
         default: none
-        optional: True
+        optional: true
       explanation:
         default: none
-        optional: True
+        optional: true
       explanation_raw:
         default: none
-        optional: True
+        optional: true
       weblink:
         default: none
-        optional: True
+        optional: true
       gebied_duiding:
         default: none
-        optional: True
+        optional: true
       gebied_uuid:
         default: none
-        optional: True
+        optional: true
       tags:
         default: none
-        optional: True
+        optional: true
   maatregel_static_patch:
     name: MaatregelStaticPatch
+    static_only: true
     fields:
       owner_1_uuid:
         default: none
-        optional: True
+        optional: true
       owner_2_uuid:
         default: none
-        optional: True
+        optional: true
       portfolio_holder_1_uuid:
         default: none
-        optional: True
+        optional: true
       portfolio_holder_2_uuid:
         default: none
-        optional: True
+        optional: true
       client_1_uuid:
         default: none
-        optional: True
+        optional: true
   maatregel_uuid:
     name: MaatregelUUID
     fields:

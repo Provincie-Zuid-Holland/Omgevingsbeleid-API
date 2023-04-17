@@ -1,2 +1,1 @@
 from .list_werkingsgebieden import ListWerkingsgebiedenEndpointResolver
-from .overwrite_werkingsgebieden import OverwriteWerkingsgebiedenEndpointResolver

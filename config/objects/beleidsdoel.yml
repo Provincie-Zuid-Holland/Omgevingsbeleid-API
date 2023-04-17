@@ -77,6 +77,16 @@ fields:
     name: Weblink
     type: str
     column: weblink
+  idms_link:
+    name: IDMS_Link
+    type: str
+    column: idms_link
+  decision_number:
+    name: Decision_Number
+    type: str
+    column: decision_number
+
+  # Statics
   owner_1_uuid:
     name: Owner_1_UUID
     type: uuid
@@ -92,10 +102,10 @@ models:
   beleidsdoel_short:
     name: BeleidsdoelShort
     fields:
+      object_type:
       object_id:
       uuid:
       title:
-      description:
   beleidsdoel_basic:
     name: BeleidsdoelBasic
     fields:
@@ -108,18 +118,17 @@ models:
       description:
       weblink:
     services:
-      extended_user:
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
   beleidsdoel_get:
     name: BeleidsdoelGet
     fields:
       object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -136,47 +145,46 @@ models:
             object_id: ambitie
             to_field: "Ambities"
             model_id: ambitie_short
-            wrapped_with_relation_data: false
+            wrapped_with_relation_data: true
           - object_type: beleidskeuze
             object_id: beleidskeuze
             to_field: "Beleidskeuzes"
             model_id: beleidskeuze_short
-            wrapped_with_relation_data: false
-      extended_user:
+            wrapped_with_relation_data: true
+      foreign_keys_extender:
         fields_map:
-          - from_field: Created_By_UUID
-            to_field: Created_By
+          - to_field: Created_By
             model_id: gebruikers_short
-          - from_field: Modified_By_UUID
-            to_field: Modified_By
+          - to_field: Modified_By
             model_id: gebruikers_short
-          # - from_field: Owner_1_UUID
-          #   to_field: Owner_1
-          #   model_id: gebruikers_short
-          # - from_field: Owner_2_UUID
-          #   to_field: Owner_2
-          #   model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
   beleidsdoel_patch:
     name: BeleidsdoelPatch
     fields:
       title:
         default: none
-        optional: True
+        optional: true
       description:
         default: none
-        optional: True
+        optional: true
       weblink:
         default: none
-        optional: True
+        optional: true
   beleidsdoel_static_patch:
     name: BeleidsdoelStaticPatch
+    static_only: true
     fields:
       owner_1_uuid:
         default: none
-        optional: True
+        optional: true
       owner_2_uuid:
         default: none
-        optional: True
+        optional: true
   beleidsdoel_uuid:
     name: BeleidsdoelUUID
     fields:

@@ -1,4 +1,3 @@
-from datetime import datetime
 import os
 from typing import Any, Dict, Optional
 
@@ -42,8 +41,9 @@ class Settings(BaseSettings):
     MAIN_CONFIG_FILE: str = "./config/main.yml"
     OBJECT_CONFIG_PATH: str = "./config/objects/"
 
-    # Constants
-    MAX_DATETIME: datetime = datetime(9999, 12, 31, 23, 59, 59)
+    # Mssql Search
+    MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
+    MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
 
     class Config:
         case_sensitive = True

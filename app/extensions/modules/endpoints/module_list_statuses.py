@@ -16,7 +16,7 @@ from app.extensions.modules.models.models import ModuleStatus
 from app.extensions.modules.repository.module_status_repository import (
     ModuleStatusRepository,
 )
-from app.extensions.users.db.tables import GebruikersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
@@ -31,7 +31,7 @@ class ModuleListStatusesEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: GebruikersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_module),
             status_repository: ModuleStatusRepository = Depends(
                 depends_module_status_repository
