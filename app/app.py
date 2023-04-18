@@ -6,6 +6,7 @@ from app.extensions.database_migration.database_migration_extension import (
 from app.extensions.extended_foreign_keys.extended_foreign_keys_extension import (
     ExtendedForeignKeysExtension,
 )
+from app.extensions.graph.graph_extension import GraphExtension
 from app.extensions.html_assets.html_assets_extension import HtmlAssetsExtension
 from app.extensions.lineage_resolvers.lineageresolvers_extension import (
     LineageResolversExtension,
@@ -35,6 +36,7 @@ app_builder.register_extension(RelationsExtension())
 app_builder.register_extension(WerkingsgebiedenExtension())
 # app_builder.register_extension(SearchExtension())
 app_builder.register_extension(MssqlSearchExtension())
+app_builder.register_extension(GraphExtension())
 # app_builder.register_extension(GeoSearchExtension())
 app_builder.register_extension(ModulesExtension())
 app_builder.register_extension(AcknowledgedRelationsExtension())

@@ -87,7 +87,7 @@ class AcknowledgedRelationsTable(Base):
         object_type, object_id = code.split("-", 1)
         if code == self.From_Code:
             return AcknowledgedRelationSide(
-                ID=int(object_id),
+                Object_ID=int(object_id),
                 Object_Type=object_type,
                 Acknowledged=self.From_Acknowledged,
                 Acknowledged_Date=self.From_Acknowledged_Date,
@@ -97,7 +97,7 @@ class AcknowledgedRelationsTable(Base):
             )
         elif code == self.To_Code:
             return AcknowledgedRelationSide(
-                ID=int(object_id),
+                Object_ID=int(object_id),
                 Object_Type=object_type,
                 Acknowledged=self.To_Acknowledged,
                 Acknowledged_Date=self.To_Acknowledged_Date,

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class AcknowledgedRelationSide(BaseModel):
-    ID: int
+    Object_ID: int
     Object_Type: str
     Acknowledged: bool = False
     Acknowledged_Date: Optional[datetime] = None

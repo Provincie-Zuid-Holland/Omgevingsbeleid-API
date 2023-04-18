@@ -9,6 +9,12 @@ api:
     - prefix: /search
       endpoints:
         - resolver: mssql_search
+    - prefix: /full-graph
+      endpoints:
+        - resolver: full_graph
+    - prefix: /object-graph
+      endpoints:
+        - resolver: object_graph
     - prefix: /modules
       endpoints:
         - resolver: create_module

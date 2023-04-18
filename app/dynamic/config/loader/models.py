@@ -128,7 +128,6 @@ class ModelsLoader:
                     **{
                         "default": None,
                         "nullable": True,
-                        "description": "description is not yet inherited",
                     }
                 ),
             )
@@ -203,7 +202,6 @@ class ModelsLoader:
                     **{
                         "default": default_value,
                         "nullable": field.optional,
-                        "description": "description is not yet inherited",
                     }
                 ),
             )
