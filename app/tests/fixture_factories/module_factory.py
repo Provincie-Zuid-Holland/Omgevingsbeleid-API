@@ -1,4 +1,4 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 from datetime import datetime
 from sqlalchemy.orm import Session
 
@@ -13,35 +13,45 @@ from .fixture_factory import FixtureDataFactory
 
 
 class ModuleFixtureFactory(FixtureDataFactory):
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, local_tables=None):
         super().__init__(db)
+        self.local_tables = local_tables
+
         self.modules = []
         self.module_histories = []
         self.module_objects = []
         self.module_object_contexts = []
 
     def populate_db(self):
-        for module in self.objects:
+        for module in self.modules:
             self._db.add(module)
-            # self._db.commit()
 
         for module_object_context in self.module_object_contexts:
             self._db.add(module_object_context)
-            # self._db.commit()
 
         for module_object in self.module_objects:
             self._db.add(module_object)
-            # self._db.commit()
 
         self._db.commit()
 
     def create_all_objects(self):
-        for module_data in self._data():
-            self._create_object(module_data)
+        self.create_all_modules()
 
     def _create_object(self, data):
-        module_obj = ModuleTable(**data)
-        self.objects.append(module_obj)
+        self._create_module(data)
+
+    # Modules
+    def create_all_modules(self):
+        for module_data in self._data():
+            self._create_module(module_data)
+
+    def _create_module(self, data):
+        if self.local_tables:
+            module_obj = self.local_tables.ModuleTable(**data)
+        else:
+            module_obj = ModuleTable(**data)
+
+        self.modules.append(module_obj)
         return module_obj
 
     def _data(self):
@@ -60,18 +70,51 @@ class ModuleFixtureFactory(FixtureDataFactory):
                 "Successful": 0,
                 "Temporary_Locked": 0,
             },
+            {
+                "Module_ID": 2,
+                "Title": "Fixture module B, locked",
+                "Description": "Fixture is locked, manager is BA user",
+                "Module_Manager_1_UUID": UUID("11111111-0000-0000-0000-000000000002"),
+                "Created_Date": datetime(2023, 2, 2, 2, 2, 2),
+                "Modified_Date": datetime(2023, 2, 2, 2, 2, 2),
+                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
+                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
+                "Activated": 1,
+                "Closed": 0,
+                "Successful": 0,
+                "Temporary_Locked": 1,
+            },
+            {
+                "Module_ID": 3,
+                "Title": "Fixture module c",
+                "Description": "Manager Beheerder user. ",
+                "Module_Manager_1_UUID": UUID("11111111-0000-0000-0000-000000000004"),
+                "Created_Date": datetime(2023, 2, 2, 2, 2, 2),
+                "Modified_Date": datetime(2023, 2, 2, 2, 2, 2),
+                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000004"),
+                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000004"),
+                "Activated": 1,
+                "Closed": 0,
+                "Successful": 0,
+                "Temporary_Locked": 0
+            },
             # Add more module data here as needed
         ]
 
+    # Status History
     def create_all_module_status_history(self):
-        for module in self.objects:
+        for module in self.modules:
             for status_history_data in self._module_status_history_data(
                 module.Module_ID
             ):
                 self._create_module_status_history(module, status_history_data)
 
     def _create_module_status_history(self, module, data):
-        status_history_obj = ModuleStatusHistoryTable(**data)
+        if self.local_tables:
+            status_history_obj = self.local_tables.ModuleStatusHistoryTable(**data)
+        else:
+            status_history_obj = ModuleStatusHistoryTable(**data)
+
         module.status_history.append(status_history_obj)
 
     def _module_status_history_data(self, module_id):
@@ -91,22 +134,17 @@ class ModuleFixtureFactory(FixtureDataFactory):
             # Add more module status history data here as needed
         ]
 
+    # Module objects
     def create_all_module_objects(self):
-        for module in self.objects:
+        for module in self.modules:
             for module_object_data in self._module_objects_data(module.Module_ID):
                 self._create_module_object(module, module_object_data)
 
     def _create_module_object(self, module, data):
-        dynamic_attributes = {
-            key: data.pop(key)
-            for key in list(data)
-            if key not in ModuleObjectsTable.__table__.columns.keys()
-        }
-        module_object_obj = ModuleObjectsTable(**data)
-
-        # Set the dynamically added attributes on the instance
-        for key, value in dynamic_attributes.items():
-            setattr(module_object_obj, key, value)
+        if self.local_tables:
+            module_object_obj = self.local_tables.ModuleObjectsTable(**data)
+        else:
+            module_object_obj = ModuleObjectsTable(**data)
 
         self.module_objects.append(module_object_obj)
         return module_object_obj
@@ -118,7 +156,7 @@ class ModuleFixtureFactory(FixtureDataFactory):
                 "Object_Type": "ambitie",
                 "Object_ID": 1,
                 "Code": "ambitie-1",
-                "UUID": UUID("00000000-0000-0001-0000-000000000001"),
+                "UUID": uuid4(),
                 "Title": "Titel van de eerste ambitie",
                 "Created_Date": datetime(2023, 2, 2, 3, 3, 3),
                 "Modified_Date": datetime(2023, 2, 2, 3, 3, 3),
@@ -130,7 +168,7 @@ class ModuleFixtureFactory(FixtureDataFactory):
                 "Object_Type": "ambitie",
                 "Object_ID": 2,
                 "Code": "ambitie-2",
-                "UUID": UUID("00000000-0000-0001-0000-000000000002"),
+                "UUID": uuid4(),
                 "Title": "Titel van de tweede ambitie",
                 "Created_Date": datetime(2023, 2, 2, 3, 3, 3),
                 "Modified_Date": datetime(2023, 2, 2, 3, 3, 3),
@@ -140,26 +178,19 @@ class ModuleFixtureFactory(FixtureDataFactory):
             # Add more module objects data here as needed
         ]
 
+    # Context objects
     def create_all_module_object_context(self):
-        for module in self.objects:
+        for module in self.modules:
             for module_object_context_data in self._module_object_context_data(
                 module.Module_ID
             ):
                 self._create_module_object_context(module_object_context_data)
 
     def _create_module_object_context(self, data):
-        # module_object_context_obj = ModuleObjectContextTable(**data)
-
-        dynamic_attributes = {
-            key: data.pop(key)
-            for key in list(data)
-            if key not in ModuleObjectContextTable.__table__.columns.keys()
-        }
-        module_object_context_obj = ModuleObjectContextTable(**data)
-
-        # Set the dynamically added attributes on the instance
-        for key, value in dynamic_attributes.items():
-            setattr(module_object_context_obj, key, value)
+        if self.local_tables:
+            module_object_context_obj = self.local_tables.ModuleObjectContextTable(**data)
+        else:
+            module_object_context_obj = ModuleObjectContextTable(**data)
 
         self.module_object_contexts.append(module_object_context_obj)
 

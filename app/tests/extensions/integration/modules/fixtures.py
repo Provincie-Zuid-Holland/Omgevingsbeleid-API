@@ -1,6 +1,6 @@
 import pytest
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, List
 
 from sqlalchemy import ForeignKeyConstraint, ForeignKey
@@ -9,6 +9,7 @@ from sqlalchemy.engine import Engine, create_engine
 
 from app.core.db.mixins import HasIDType, TimeStamped, UserMetaData
 from app.core.settings import settings
+from app.dynamic.db.objects_table import ObjectBaseColumns
 from app.dynamic.db.object_static_table import StaticBaseColumns
 from app.extensions.modules.db.tables import (
     ModuleBaseColumns,
@@ -17,10 +18,19 @@ from app.extensions.modules.db.tables import (
 )
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsColumns
 
+from app.extensions.modules.repository import (
+    ModuleObjectRepository,
+    ModuleObjectContextRepository,
+    ModuleRepository,
+    ObjectProvider,
+    ModuleStatusRepository
+)
+
 from app.tests.fixtures import LocalTables, LocalTableFactory
 from app.tests.fixture_factories import (
     UserFixtureFactory,
     ObjectStaticsFixtureFactory,
+    ObjectFixtureFactory,
     ModuleFixtureFactory,
 )
 
@@ -49,6 +59,17 @@ class ExtendedTableFactory(LocalTableFactory):
             ModuleObjectsTable=self._generate_module_objects_table(),
         )
 
+    def _generate_objects_table(self):
+        class LocalObjectsTable(self.base, ObjectBaseColumns, TimeStamped, HasIDType, UserMetaData):
+            __tablename__ = "objects"
+
+            Title: Mapped[Optional[str]]
+            Start_Validity: Mapped[datetime]
+            End_Validity: Mapped[Optional[datetime]]
+            ObjectStatics: Mapped["LocalObjectStaticsTable"] = relationship()
+
+        return LocalObjectsTable
+
     def _generate_statics_table(self):
         # user_map = mapped_column(ForeignKey("Gebruikers.UUID"))
         class LocalObjectStaticsTable(self.base, StaticBaseColumns):
@@ -72,7 +93,7 @@ class ExtendedTableFactory(LocalTableFactory):
             ModuleObjectContext: Mapped[
                 "LocalModuleObjectContextTable" # noqa
             ] = relationship()
-            ObjectStatics: Mapped["LocalObjectStaticsTable"] = relationship() # noqa
+            ObjectStatics: Mapped["LocalObjectStaticsTable"] = relationship(overlaps="ModuleObjectContext") # noqa
 
             __table_args__ = (
                 ForeignKeyConstraint(
@@ -152,13 +173,23 @@ def db(engine):
 
 
 @pytest.fixture(scope="class")
-def setup_db(local_tables, engine):
+def setup_db_once(local_tables, engine):
     # setup db
     local_tables.Base.metadata.drop_all(engine)
     local_tables.Base.metadata.create_all(engine)
     yield local_tables
     # teardown
     local_tables.Base.metadata.drop_all(engine)
+
+
+@pytest.fixture
+def setup_db(local_tables, engine):
+    # setup db
+    local_tables.Base.metadata.drop_all(engine)
+    local_tables.Base.metadata.create_all(engine)
+    yield local_tables
+    # teardown
+    # local_tables.Base.metadata.drop_all(engine)
 
 
 @pytest.fixture(scope="class")
@@ -178,6 +209,21 @@ def populate_statics(db: Session):
 
 
 @pytest.fixture(scope="class")
+def populate_objects(db: Session, local_tables):
+    now = datetime.now()
+    five_days_ago = now - timedelta(days=5)
+    five_days_later = now + timedelta(days=5)
+    object_factory = ObjectFixtureFactory(db, local_tables)
+    object_factory.create_all_objects()
+    for obj in object_factory.objects:
+        obj.Title = "monty"
+        obj.Start_Validity = five_days_ago
+        obj.End_Validity = five_days_later
+    object_factory.populate_db()
+    yield object_factory.objects
+
+
+@pytest.fixture
 def populate_modules(db: Session):
     uf = ModuleFixtureFactory(db)
     uf.create_all_objects()
@@ -186,3 +232,26 @@ def populate_modules(db: Session):
     uf.create_all_module_objects()
     uf.populate_db()
     yield uf.objects
+
+
+@pytest.fixture
+def module_repo(db: Session):
+    return ModuleRepository(db=db)
+
+
+@pytest.fixture
+def module_context_repo(db: Session):
+    return ModuleObjectContextRepository(db=db)
+
+
+@pytest.fixture
+def module_object_repo(db: Session):
+    return ModuleObjectRepository(db=db)
+
+
+@pytest.fixture
+def object_provider(test_object_repository, module_object_repo):
+    return ObjectProvider(
+        object_repository=test_object_repository,
+        module_object_repository=module_object_repo
+    )

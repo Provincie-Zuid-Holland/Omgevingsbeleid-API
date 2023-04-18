@@ -3,6 +3,14 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from pydantic import ValidationError
 
+from app.extensions.modules.models.models import (
+    ModuleObjectAction,
+    ModuleObjectContext,
+    ModuleSnapshot,
+    ModulePatchStatus,
+    ModuleStatus,
+    ModuleStatusCode,
+)
 from app.extensions.modules.endpoints.create_module import (
     EndpointHandler as CreateEndpoint,
     ModuleCreate,
@@ -12,6 +20,11 @@ from app.extensions.modules.endpoints.module_add_new_object import (
     EndpointHandler as NewObjectEndpoint,
     ModuleAddNewObject,
     NewObjectStaticResponse,
+)
+
+from app.extensions.modules.endpoints.module_add_existing_object import (
+    EndpointHandler as NewExistingObjectEndpoint,
+    ModuleAddExistingObject,
 )
 from app.tests.fixture_factories import (
     UserFixtureFactory,
@@ -23,13 +36,17 @@ from unittest.mock import patch
 from app.tests.helpers import patch_multiple
 from .fixtures import (  # noqa
     local_tables,
-    setup_db,
+    setup_db_once,
     db,
     engine,
     populate_users,
     populate_statics,
+    populate_objects,
     populate_modules,
     ExtendedLocalTables,
+    module_context_repo,
+    module_object_repo,
+    object_provider,
 )
 
 
@@ -40,7 +57,7 @@ class TestModulesEndpoints:
     """
 
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, setup_db, populate_users, populate_statics):  # noqa
+    def setup(self, request, setup_db_once, populate_users, populate_statics, populate_objects):  # noqa
         # timestamps
         request.cls.now = datetime.now()
         request.cls.five_days_ago = request.cls.now - timedelta(days=5)
@@ -50,19 +67,19 @@ class TestModulesEndpoints:
         request.cls.super_user = populate_users[0]
         request.cls.ba_user = populate_users[2]
 
+        request.cls.object_statics = populate_statics
+        request.cls.objects = populate_objects
+
         request.cls.module_request = ModuleCreate(
             Title="monty",
             Description="python",
             Module_Manager_1_UUID=request.cls.ba_user.UUID,
         )
+
         yield
 
-    def test_module_create(
-        self, db: Session, local_tables: ExtendedLocalTables
-    ):  # noqa
-        endpoint = CreateEndpoint(
-            db=db, user=self.ba_user, object_in=self.module_request
-        )
+    def test_module_create(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
+        endpoint = CreateEndpoint(db=db, user=self.ba_user, object_in=self.module_request)
         # Create module
         response = endpoint.handle()
 
@@ -152,8 +169,71 @@ class TestModulesEndpoints:
         assert new_module_obj_context is not None
 
     def test_module_add_existing_object(
-        self, db, mock_permission_service, local_tables: ExtendedLocalTables
-    ):  # noqa
+        self,
+        db: Session,
+        mock_permission_service,
+        object_provider,
+        module_context_repo,
+        local_tables: ExtendedLocalTables,
+    ):
+        # Precondition state: existing module + objects
+        existing_module = db.query(local_tables.ModuleTable).one()
+        existing_object = next(obj for obj in self.objects if obj.Code == "beleidskeuze-3")
+
+        # Build request
+        request_obj = ModuleAddExistingObject(
+            Object_UUID=existing_object.UUID,
+            Action=ModuleObjectAction.Edit,
+            Explanation="monty",
+            Conclusion="python",
+        )
+        base_path = "app.extensions.modules.endpoints.module_add_existing_object"
+        objects_repo_path = "app.dynamic.repository.object_repository"
+        with patch_multiple(
+            patch(f"{base_path}.ModuleObjectContextTable", local_tables.ModuleObjectContextTable),
+            patch(f"{base_path}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
+            patch(f"{base_path}.ModuleTable", local_tables.ModuleTable),
+            patch(f"{objects_repo_path}.ObjectsTable", local_tables.ObjectsTable),
+        ):
+            endpoint = NewExistingObjectEndpoint(
+                db=db,
+                object_provider=object_provider,
+                object_context_repository=module_context_repo,
+                permission_service=mock_permission_service,
+                user=self.ba_user,
+                module=existing_module,
+                object_in=request_obj,
+            )
+            response = endpoint.handle()
+
+        # Response spec
+        assert response.message == "OK"
+
+        # Expect new module context object created
+        new_module_obj = (
+            db.query(local_tables.ModuleObjectsTable)
+            .filter(local_tables.ModuleObjectsTable.Code == "beleidskeuze-3")
+            .one()
+        )
+        assert new_module_obj is not None
+
+        new_module_obj_context = (
+            db.query(local_tables.ModuleObjectContextTable)
+            .filter(local_tables.ModuleObjectContextTable.Code == "beleidskeuze-3")
+            .one()
+        )
+        assert new_module_obj_context is not None
+        assert new_module_obj_context.Action == ModuleObjectAction.Edit
+        assert new_module_obj_context.Module_ID == existing_module.Module_ID
+
+    def test_module_add_existing_object_update_context(
+        self,
+        db: Session,
+        mock_permission_service,
+        object_provider,
+        module_context_repo,
+        local_tables: ExtendedLocalTables,
+    ):
         pass
 
     def test_module_edit(
