@@ -19,14 +19,14 @@ from app.extensions.users.dependencies import depends_current_active_user
 
 
 class RequestAcknowledgedRelation(BaseModel):
-    ID: int
+    Object_ID: int
     Object_Type: str
     Title: str
     Explanation: str
 
     @property
     def Code(self) -> str:
-        return f"{self.Object_Type}-{self.ID}"
+        return f"{self.Object_Type}-{self.Object_ID}"
 
 
 class EndpointHandler:
@@ -52,7 +52,7 @@ class EndpointHandler:
             raise HTTPException(400, "Invalid Object_Type")
 
         my_side = AcknowledgedRelationSide(
-            ID=self._lineage_id,
+            Object_ID=self._lineage_id,
             Object_Type=self._object_type,
             Acknowledged=True,
             Acknowledged_Date=self._now,
@@ -61,7 +61,7 @@ class EndpointHandler:
             Explanation=self._object_in.Explanation,
         )
         their_side = AcknowledgedRelationSide(
-            ID=self._object_in.ID,
+            Object_ID=self._object_in.Object_ID,
             Object_Type=self._object_in.Object_Type,
         )
 

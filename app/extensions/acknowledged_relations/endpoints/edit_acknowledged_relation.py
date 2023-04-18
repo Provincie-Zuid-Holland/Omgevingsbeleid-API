@@ -25,7 +25,7 @@ from app.extensions.users.dependencies import depends_current_active_user
 
 
 class EditAcknowledgedRelation(BaseModel):
-    ID: int
+    Object_ID: int
     Object_Type: str
     Title: Optional[str] = Field(None, nullable=True)
     Explanation: Optional[str] = Field(None, nullable=True)
@@ -33,7 +33,7 @@ class EditAcknowledgedRelation(BaseModel):
 
     @property
     def Code(self) -> str:
-        return f"{self.Object_Type}-{self.ID}"
+        return f"{self.Object_Type}-{self.Object_ID}"
 
 
 class EndpointHandler:

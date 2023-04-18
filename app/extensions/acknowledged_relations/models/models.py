@@ -15,7 +15,7 @@ class AcknowledgedRelationSide(BaseModel):
 
     @property
     def Code(self) -> str:
-        return f"{self.Object_Type}-{self.ID}"
+        return f"{self.Object_Type}-{self.Object_ID}"
 
     def disapprove(self):
         self.Acknowledged = False
