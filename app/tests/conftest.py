@@ -21,7 +21,7 @@ from app.extensions.database_migration.database_migration_extension import (
 from app.extensions.extended_users.extended_user_extension import ExtendedUserExtension
 from app.extensions.users.users_extension import UsersExtension
 from app.tests.helpers import patch_multiple
-from app.tests.fixtures import TestDynamicApp, LocalTableFactory
+from app.tests.fixtures import TestDynamicApp, LocalTableFactory, MockPermissionService
 from app.tests.fixture_factories import MasterFixtureFactory
 
 
@@ -83,6 +83,12 @@ def populate_db(master_factory):
     # factory.create_all_objects()
     # factory.populate_db()
     # yield factory
+
+
+@pytest.fixture(scope="function")
+def mock_permission_service():
+    service = MockPermissionService(give_permission=True)
+    yield service
 
 
 @pytest.fixture

@@ -12,6 +12,8 @@ class UserFixtureFactory(FixtureDataFactory):
         super().__init__(db)
 
     def populate_db(self):
+        if len(self.objects) == 0:
+            self.create_all_objects()
         for user in self.objects:
             self._db.add(user)
 

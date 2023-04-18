@@ -1,16 +1,31 @@
 import pytest
 import uuid
+from fastapi.exceptions import HTTPException
 from datetime import datetime, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.extensions.acknowledged_relations.endpoints.request_acknowledged_relation import (
     EndpointHandler as RequestEndpoint,
-)
-from app.extensions.acknowledged_relations.endpoints.request_acknowledged_relation import (
     RequestAcknowledgedRelation,
 )
-from .fixtures import local_tables, ExtendedLocalTables  # noqa
+
+from app.extensions.acknowledged_relations.endpoints.edit_acknowledged_relation import (
+    EndpointHandler as EditEndpoint,
+    EditAcknowledgedRelation,
+)
+
+from .fixtures import (
+    local_tables,
+    ExtendedLocalTables,
+    relation_repository, 
+)  # noqa
+
+from app.tests.fixture_factories import (
+    UserFixtureFactory,
+    ObjectStaticsFixtureFactory,
+    ObjectFixtureFactory,
+)
 
 
 class TestAcknowledgedRelationsEndpoint:
@@ -18,80 +33,59 @@ class TestAcknowledgedRelationsEndpoint:
     Test handling the endpoint and building AcknowledgedRelation models
     """
 
-    @pytest.fixture
-    def populate_db(self, local_tables: ExtendedLocalTables, db: Session):
+    @pytest.fixture(autouse=True)
+    def setup(self, db, local_tables, relation_repository):  # noqa
+        # timestamps
         self.now = datetime.now()
         self.five_days_ago = self.now - timedelta(days=5)
         self.five_days_later = self.now + timedelta(days=5)
-        self.user_1 = local_tables.UsersTabel(
-            UUID=uuid.uuid4(),
-            Gebruikersnaam="monty",
-            Email="monty@pzh.nl",
-            Wachtwoord="monty",
-        )
-        self.user_2 = local_tables.UsersTabel(
-            UUID=uuid.uuid4(),
-            Gebruikersnaam="python",
-            Email="python@pzh.nl",
-            Wachtwoord="monty",
-        )
-        self.statics = [
-            local_tables.ObjectStaticsTable(
-                Object_Type="beleidskeuze", Object_ID=1, Code="beleidskeuze-1"
-            ),
-            local_tables.ObjectStaticsTable(
-                Object_Type="beleidskeuze", Object_ID=2, Code="beleidskeuze-2"
-            ),
-            local_tables.ObjectStaticsTable(
-                Object_Type="beleidskeuze", Object_ID=3, Code="beleidskeuze-3"
-            ),
-        ]
-        self.objects = [
-            local_tables.ObjectsTable(
-                UUID=uuid.uuid4(),
-                Modified_Date=self.now,
-                Code="beleidskeuze-1",
-                Object_ID=1,
-                Object_Type="beleidskeuze",
-                Start_Validity=self.five_days_ago,
-                End_Validity=self.five_days_later,
-            ),
-            local_tables.ObjectsTable(
-                UUID=uuid.uuid4(),
-                Modified_Date=self.now,
-                Code="beleidskeuze-2",
-                Object_ID=2,
-                Object_Type="beleidskeuze",
-                Start_Validity=self.five_days_ago,
-                End_Validity=self.five_days_later,
-            ),
-            local_tables.ObjectsTable(
-                UUID=uuid.uuid4(),
-                Modified_Date=self.now,
-                Code="beleidskeuze-3",
-                Object_ID=3,
-                Object_Type="beleidskeuze",
-                Start_Validity=self.five_days_ago,
-                End_Validity=self.five_days_later,
-            ),
-        ]
-        try:
-            db.add_all(self.statics)
-            db.add_all(self.objects)
-            db.commit()
-            yield
-        except Exception:
-            raise Exception("Invalid fixture data")
 
-    def test_request_endpoint_initial_state(
-        self, db: Session, local_tables: ExtendedLocalTables, populate_db
+        # Factory data
+        self.user_factory = UserFixtureFactory(db)
+        self.user_factory.populate_db()
+        self.statics_factory = ObjectStaticsFixtureFactory(db)
+        self.statics_factory.populate_db()
+
+        self.object_factory = ObjectFixtureFactory(db, local_tables)
+        self.object_factory.create_all_objects()
+        for obj in self.object_factory.objects:
+            obj.Start_Validity = self.five_days_ago
+            obj.End_Validity = self.five_days_later
+        self.object_factory.populate_db()
+
+        self.super_user = self.user_factory.objects[0]
+        self.ba_user = self.user_factory.objects[2]
+
+        self.repository = relation_repository
+        self.relation_request = local_tables.AcknowledgedRelationsTable(
+            Created_Date=self.now,
+            Created_By_UUID=self.super_user.UUID,
+            Modified_By_UUID=self.super_user.UUID,
+            Requested_By_Code="beleidskeuze-1",
+            From_Code="beleidskeuze-1",
+            From_Acknowledged=1,
+            From_Acknowledged_Date=self.now,
+            From_Acknowledged_By_UUID=self.super_user.UUID,
+            From_Title="monty",
+            From_Explanation="python",
+            To_Code="beleidskeuze-2",
+            To_Acknowledged=0,
+        )
+
+    def test_request_new_relation(
+        self, db: Session, local_tables: ExtendedLocalTables  # noqa
     ):
+        """
+        Create new request for acknowledged relation, ensure db state is as expected.
+        - from bk1 -> to bk2
+        """
+        requesting_user = self.super_user
         request_obj = RequestAcknowledgedRelation(
             ID=2, Object_Type="beleidskeuze", Title="monty", Explanation="python"
         )
         endpoint = RequestEndpoint(
             db=db,
-            user=self.user_1,
+            user=requesting_user,
             object_type="beleidskeuze",
             lineage_id=1,
             allowed_object_types=["beleidskeuze"],
@@ -102,115 +96,101 @@ class TestAcknowledgedRelationsEndpoint:
 
         assert response.message == "OK"
 
-        stmt = (
-            select(local_tables.AcknowledgedRelationsTable)
-            .filter(
-                local_tables.AcknowledgedRelationsTable.Requested_By_Code
-                == "beleidskeuze-1"
-            )
-            .filter(
-                local_tables.AcknowledgedRelationsTable.From_Code == "beleidskeuze-1"
-            )
-            .filter(local_tables.AcknowledgedRelationsTable.To_Code == "beleidskeuze-2")
-            .filter(local_tables.AcknowledgedRelationsTable.From_Title == "monty")
+        # Fetch result to verify state
+        relation = self.repository.get_by_codes("beleidskeuze-2", "beleidskeuze-1")
+        assert relation is not None
+
+        # assert From side is acknowledged, to side is empty
+        assert relation.From_Acknowledged == 1
+        assert relation.To_Acknowledged == 0
+        assert relation.To_Acknowledged_Date is None
+        assert relation.To_Acknowledged_By_UUID is None
+        assert relation.To_Title == ""
+        assert relation.To_Explanation == ""
+
+    def test_request_invalid_object(
+        self, db: Session, local_tables: ExtendedLocalTables  # noqa
+    ):
+        """
+        Create new request for acknowledged relation, ensure db state is as expected.
+        - from bk1 -> to bk2
+        """
+        requesting_user = self.super_user
+        request_obj = RequestAcknowledgedRelation(
+            ID=1, Object_Type="beleidskeuze", Title="monty", Explanation="python"
+        )
+        endpoint = RequestEndpoint(
+            db=db,
+            user=requesting_user,
+            object_type="beleidskeuze",
+            lineage_id=1,
+            allowed_object_types=["wrong-type"],
+            object_in=request_obj,
         )
 
-        db_item = db.scalars(stmt).first()
-        # assert From side is acknowledged, to side is empty
-        assert db_item is not None
-        assert db_item.From_Acknowledged == 1
-        assert db_item.To_Acknowledged == 0
-        assert db_item.To_Acknowledged_Date is None
-        assert db_item.To_Acknowledged_By_UUID is None
-        assert db_item.To_Title == ""
-        assert db_item.To_Explanation == ""
+        with pytest.raises(HTTPException, match="Invalid Object_Type"):
+            endpoint.handle()
 
-    # def test_request_endpoint_acknowledged_state(
-    #     self,
-    #     db: Session,
-    #     table_setup: LocalTables,
-    # ):
-    #     request_obj = RequestAcknowledgedRelation(
-    #         ID=2, Object_Type="beleidskeuze", Title="monty", Explanation="python"
-    #     )
-    #     endpoint = RequestEndpoint(
-    #         db=db,
-    #         user=self.user_1,
-    #         object_type="beleidskeuze",
-    #         lineage_id=1,
-    #         allowed_object_types=["beleidskeuze"],
-    #         object_in=request_obj,
-    #     )
+    def test_acknowledge_relation(
+        self, db: Session, local_tables: ExtendedLocalTables  # noqa
+    ):
+        """
+        Test that opened request can be acknowledged by another user:
+        - From bk1 -> To bk2
+        """
+        # Create new relation request
+        db.add(self.relation_request)
+        db.commit()
 
-    #     response = endpoint.handle()
+        # Build request
+        request_obj = EditAcknowledgedRelation(
+            ID=1,
+            Object_Type="beleidskeuze",
+            Title="monty",
+            Explanation="python",
+            Acknowledged=True,
+        )
+        endpoint = EditEndpoint(
+            db=db,
+            repository=self.repository,
+            user=self.ba_user,
+            object_type="beleidskeuze",
+            lineage_id=2,
+            object_in=request_obj,
+        )
 
-    #     assert response.message == "OK"
+        response = endpoint.handle()
 
-    #     stmt = (
-    #         select(table_setup.AcknowledgedRelationsTable)
-    #         .filter(table_setup.AcknowledgedRelationsTable.Requested_By_Code == "beleidskeuze-1")
-    #         .filter(table_setup.AcknowledgedRelationsTable.From_Code == "beleidskeuze-1")
-    #         .filter(table_setup.AcknowledgedRelationsTable.To_Code == "beleidskeuze-2")
-    #         .filter(table_setup.AcknowledgedRelationsTable.From_Title == "monty")
-    #     )
+        assert response.message == "OK"
 
-    #     db_item = db.scalars(stmt).first()
-    #     # assert From side is acknowledged, to side is empty
-    #     assert db_item is not None
-    #     assert db_item.From_Acknowledged == 1
-    #     assert db_item.To_Acknowledged == 0
-    #     assert db_item.To_Acknowledged_Date is None
-    #     assert db_item.To_Acknowledged_By_UUID is None
-    #     assert db_item.To_Title == ""
-    #     assert db_item.To_Explanation == ""
+        # Fetch result to verify state
+        relation = self.repository.get_by_codes("beleidskeuze-2", "beleidskeuze-1")
+        assert relation is not None
 
+        # assert both sides acknowledged
+        assert relation.From_Acknowledged == 1
+        assert relation.From_Acknowledged_By_UUID == self.super_user.UUID
+        assert relation.To_Acknowledged == 1
+        assert relation.To_Acknowledged_By_UUID == self.ba_user.UUID
+        assert relation.To_Title == "monty"
+        assert relation.To_Explanation == "python"
 
-# class TestAcknowledgedRelationsRepository:
-#     """
-#     Test query logic and from/to side mapping.
-#     """
+    def test_edit_relation_not_found(
+        self, db: Session, local_tables: ExtendedLocalTables  # noqa
+    ):
+        request_obj = EditAcknowledgedRelation(
+            ID=999,
+            Object_Type="beleidskeuze",
+            Acknowledged=True,
+        )
+        endpoint = EditEndpoint(
+            db=db,
+            repository=self.repository,
+            user=self.ba_user,
+            object_type="beleidskeuze",
+            lineage_id=998,
+            object_in=request_obj,
+        )
 
-#     @pytest.fixture
-#     def table_setup(db: Session, engine: Engine, local_tables: LocalTables):
-#         # setup db
-#         local_tables.Base.metadata.drop_all(engine)
-#         local_tables.Base.metadata.create_all(engine)
-#         yield local_tables
-#         # teardown db
-#         # local_tables.Base.metadata.drop_all(engine)
-
-#     @pytest.fixture
-#     def populate_db(self, table_setup, db: Session):
-#         self.now = datetime.now()
-#         self.five_days_ago = self.now - timedelta(days=5)
-#         self.five_days_later = self.now + timedelta(days=5)
-#         self.statics = [
-#             table_setup.ObjectStaticsTable(
-#                 Object_Type="ambitie", Object_ID=1, Code="ambitie-1"
-#             ),
-#             table_setup.ObjectStaticsTable(
-#                 Object_Type="ambitie", Object_ID=2, Code="ambitie-2"
-#             ),
-#             table_setup.ObjectStaticsTable(
-#                 Object_Type="beleidskeuze", Object_ID=1, Code="beleidskeuze-1"
-#             ),
-#         ]
-#         try:
-#             db.add_all(self.statics)
-#             db.commit()
-#             yield
-#         except Exception:
-#             raise Exception("Invalid fixture data")
-
-#     @pytest.fixture
-#     def repository(self, db):
-#         return AcknowledgedRelationsRepository(db=db)
-
-#     def test_get_by_codes(
-#         self,
-#         db: Session,
-#         table_setup: LocalTables,
-#         repository: AcknowledgedRelationsRepository,
-#         populate_db,
-#     ):
-#         pass
+        with pytest.raises(HTTPException, match="Acknowledged relation not found"):
+            endpoint.handle()

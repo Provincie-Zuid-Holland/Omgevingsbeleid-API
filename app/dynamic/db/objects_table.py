@@ -7,7 +7,7 @@ from app.core.db import Base
 
 
 class ObjectBaseColumns:
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=lambda: uuid.uuid4())
     Code: Mapped[str] = mapped_column(String(35), ForeignKey("object_statics.Code"))
 
 

@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from sqlalchemy.orm import Session
 
 
-
 class FixtureDataFactory(ABC):
     def __init__(self, db: Session):
         self._db = db
@@ -29,5 +28,5 @@ class FixtureDataFactory(ABC):
     @abstractmethod
     def _data(self):
         """
-        Flat fict data of fixture objects, useful in unit tests
+        Flat dict data of fixture objects, useful in unit tests
         """

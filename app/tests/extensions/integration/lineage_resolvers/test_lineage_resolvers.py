@@ -37,6 +37,12 @@ from app.tests.fixtures import LocalTables
 from app.tests.helpers import patch_multiple
 from app.core.utils import table_to_dict
 
+from .fixtures import (  # noqa
+    endpoint_lineage_tree,
+    endpoint_object_latest,
+    endpoint_object_version,
+    endpoint_valid_lineage,
+)
 
 
 class TestLineageResolvers:

@@ -1,12 +1,12 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, List, Set
 from uuid import UUID
 
 from pydantic import BaseModel
 
 from sqlalchemy.orm import Mapped, declarative_base, relationship
 
-from app.core.db.mixins import HasIDType, TimeStamped
+from app.core.db.mixins import HasIDType, TimeStamped, UserMetaData
 from app.dynamic.db.object_static_table import StaticBaseColumns
 from app.dynamic.db.objects_table import ObjectBaseColumns
 from app.dynamic.dynamic_app import DynamicApp
@@ -52,13 +52,14 @@ class LocalTableFactory:
     def _generate_statics_table(self):
         class LocalObjectStaticsTable(self.base, StaticBaseColumns):
             __tablename__ = "object_statics"
-            Test_Field: Mapped[Optional[str]]
 
         return LocalObjectStaticsTable
 
     def _generate_objects_table(self):
         class LocalObjectsTable(self.base, ObjectBaseColumns, TimeStamped, HasIDType):
             __tablename__ = "objects"
+
+            Title: Mapped[Optional[str]]
             Start_Validity: Mapped[datetime]
             End_Validity: Mapped[Optional[datetime]]
             ObjectStatics: Mapped["LocalObjectStaticsTable"] = relationship()
@@ -70,6 +71,20 @@ class LocalTableFactory:
             __tablename__ = "Gebruikers"
 
         return LocalUsersTable
+
+
+class MockPermissionService:
+    def __init__(self, give_permission: bool = True):
+        self._permissions_per_role: Dict[str, Set[str]] = {}
+        self.calls = []
+        self.give_permission =  give_permission
+
+    def overwrite_role(self, role: str, permissions: List[str]):
+        self._permissions_per_role[role] = set(permissions)
+
+    def has_permission(self, permission: str, user) -> bool:
+        self.calls.append(("has_permission", permission, user))
+        return self.give_permission
 
 
 class FakeExtension:
