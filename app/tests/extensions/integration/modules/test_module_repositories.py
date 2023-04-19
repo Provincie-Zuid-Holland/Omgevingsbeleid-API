@@ -161,3 +161,35 @@ class TestModuleRepository:
             )
 
         assert len(result) == 3
+
+
+class TestModuleObjectRepository:
+    @pytest.fixture(autouse=True)
+    def setup(self, db, local_tables, setup_db):  # noqa
+        # timestamps
+        self.now = datetime.now()
+        self.five_days_ago = self.now - timedelta(days=5)
+        self.five_days_later = self.now + timedelta(days=5)
+
+        # Factory data
+        self.user_factory = UserFixtureFactory(db)
+        self.user_factory.populate_db()
+
+        self.super_user = self.user_factory.objects[0]
+        self.ba_user = self.user_factory.objects[2]
+        self.pf_user = self.user_factory.objects[4]
+
+        mf = ModuleFixtureFactory(db, local_tables)
+        mf.create_all_modules()
+        mf.create_all_module_status_history()
+        mf.create_all_module_object_context()
+        mf.create_all_module_objects()
+        mf.populate_db()
+
+        self.module_factory = mf
+
+    def test_module_get_objects_in_time(
+        self, module_repo: ModuleRepository, db: Session, local_tables: ExtendedLocalTables
+    ):
+        # TODO: test
+        pass

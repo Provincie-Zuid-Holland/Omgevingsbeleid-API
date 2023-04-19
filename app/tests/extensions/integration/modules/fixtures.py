@@ -189,7 +189,7 @@ def setup_db(local_tables, engine):
     local_tables.Base.metadata.create_all(engine)
     yield local_tables
     # teardown
-    # local_tables.Base.metadata.drop_all(engine)
+    local_tables.Base.metadata.drop_all(engine)
 
 
 @pytest.fixture(scope="class")
@@ -247,6 +247,11 @@ def module_context_repo(db: Session):
 @pytest.fixture
 def module_object_repo(db: Session):
     return ModuleObjectRepository(db=db)
+
+
+@pytest.fixture
+def module_status_repo(db: Session):
+    return ModuleStatusRepository(db=db)
 
 
 @pytest.fixture
