@@ -2,7 +2,8 @@ from typing import List, Set
 from datetime import datetime
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import desc, select, func, or_
+from pydantic import BaseModel
+from sqlalchemy import desc, select, func, or_, and_
 from sqlalchemy.orm import Session, aliased, load_only
 
 from app.core.dependencies import depends_db
@@ -25,14 +26,23 @@ from app.extensions.graph.models.graph import (
 from app.extensions.relations.db.tables import RelationsTable
 
 
+class GraphIteration(BaseModel):
+    allowed_object_types: List[str]
+
+
+class GraphIterationsConfig(BaseModel):
+    relations: List[GraphIteration]
+    acknowledged_relations: List[GraphIteration]
+
+
 class EndpointHandler:
     def __init__(
         self,
-        depth: int,
+        iterations_config: GraphIterationsConfig,
         db: Session,
         object_table: ObjectsTable,
     ):
-        self._depth: int = depth
+        self._iterations_config: GraphIterationsConfig = iterations_config
         self._db: Session = db
         self._object = object_table
 
@@ -113,7 +123,7 @@ class EndpointHandler:
         ignore_codes: Set[str] = set()
         edges: Set[GraphEdge] = set()
 
-        for _ in range(self._depth):
+        for iteration_config in self._iterations_config.relations:
             if not search_codes:
                 break
 
@@ -121,8 +131,24 @@ class EndpointHandler:
                 select(RelationsTable)
                 .filter(
                     or_(
-                        RelationsTable.From_Code.in_(search_codes),
-                        RelationsTable.To_Code.in_(search_codes),
+                        and_(
+                            RelationsTable.From_Code.in_(search_codes),
+                            or_(
+                                *[
+                                    RelationsTable.To_Code.like(f"{object_type}-%")
+                                    for object_type in iteration_config.allowed_object_types
+                                ],
+                            ).self_group(),
+                        ).self_group(),
+                        and_(
+                            RelationsTable.To_Code.in_(search_codes),
+                            or_(
+                                *[
+                                    RelationsTable.From_Code.like(f"{object_type}-%")
+                                    for object_type in iteration_config.allowed_object_types
+                                ],
+                            ).self_group(),
+                        ).self_group(),
                     )
                 )
                 .filter(RelationsTable.From_Code.not_in(ignore_codes))
@@ -162,7 +188,7 @@ class EndpointHandler:
         ignore_codes: Set[str] = set()
         edges: Set[GraphEdge] = set()
 
-        for _ in range(self._depth):
+        for iteration_config in self._iterations_config.acknowledged_relations:
             if not search_codes:
                 break
 
@@ -170,8 +196,28 @@ class EndpointHandler:
                 select(AcknowledgedRelationsTable)
                 .filter(
                     or_(
-                        AcknowledgedRelationsTable.From_Code.in_(search_codes),
-                        AcknowledgedRelationsTable.To_Code.in_(search_codes),
+                        and_(
+                            AcknowledgedRelationsTable.From_Code.in_(search_codes),
+                            or_(
+                                *[
+                                    AcknowledgedRelationsTable.To_Code.like(
+                                        f"{object_type}-%"
+                                    )
+                                    for object_type in iteration_config.allowed_object_types
+                                ],
+                            ).self_group(),
+                        ).self_group(),
+                        and_(
+                            AcknowledgedRelationsTable.To_Code.in_(search_codes),
+                            or_(
+                                *[
+                                    AcknowledgedRelationsTable.From_Code.like(
+                                        f"{object_type}-%"
+                                    )
+                                    for object_type in iteration_config.allowed_object_types
+                                ],
+                            ).self_group(),
+                        ).self_group(),
                     )
                 )
                 .filter(AcknowledgedRelationsTable.From_Code.not_in(ignore_codes))
@@ -185,6 +231,7 @@ class EndpointHandler:
                     )
                 )
             )
+
             rows: List[AcknowledgedRelationsTable] = (
                 self._db.execute(stmt).scalars().all()
             )
@@ -214,16 +261,18 @@ class EndpointHandler:
 
 
 class ObjectGraphEndpoint(Endpoint):
-    def __init__(self, path: str, depth: int):
+    def __init__(self, path: str, iterations_config: GraphIterationsConfig):
         self._path: str = path
-        self._depth: int = depth
+        self._iterations_config: GraphIterationsConfig = iterations_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             db: Session = Depends(depends_db),
             object_table: ObjectsTable = Depends(depends_object_by_uuid),
         ) -> GraphResponse:
-            handler: EndpointHandler = EndpointHandler(self._depth, db, object_table)
+            handler: EndpointHandler = EndpointHandler(
+                self._iterations_config, db, object_table
+            )
             return handler.handle()
 
         router.add_api_route(
@@ -254,7 +303,11 @@ class ObjectGraphEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
+        iterations_config = GraphIterationsConfig.parse_obj(
+            resolver_config.get("graph_iterations")
+        )
+
         return ObjectGraphEndpoint(
             path=path,
-            depth=2,
+            iterations_config=iterations_config,
         )

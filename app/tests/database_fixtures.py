@@ -539,7 +539,7 @@ class DatabaseFixtures:
         )
         ack_table.with_sides(
             AcknowledgedRelationSide(
-                ID=1,
+                Object_ID=1,
                 Object_Type="beleidskeuze",
                 Acknowledged=True,
                 Acknowledged_Date=datetime(2023, 2, 2, 3, 3, 3),
@@ -548,7 +548,7 @@ class DatabaseFixtures:
                 Explanation="",
             ),
             AcknowledgedRelationSide(
-                ID=2,
+                Object_ID=2,
                 Object_Type="beleidskeuze",
                 Acknowledged=True,
                 Acknowledged_Date=datetime(2023, 2, 3, 3, 3, 3),

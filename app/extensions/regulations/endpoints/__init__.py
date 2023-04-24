@@ -1,0 +1,3 @@
+from .create_regulation import CreateRegulationEndpointResolver
+from .edit_regulation import EditRegulationEndpointResolver
+from .list_regulations import ListRegulationsEndpointResolver
