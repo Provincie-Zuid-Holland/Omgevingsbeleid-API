@@ -216,6 +216,8 @@ models:
             model_id: gebruikers_short
           - to_field: Client_1
             model_id: gebruikers_short
+      regulations:
+        to_field: "Regulations"
   maatregel_patch:
     name: MaatregelPatch
     fields:
