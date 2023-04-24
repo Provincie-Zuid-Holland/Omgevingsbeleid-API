@@ -79,12 +79,10 @@ class OverwriteRelationsEndpoint(Endpoint):
     def __init__(
         self,
         path: str,
-        object_id: str,
         object_type: str,
         allowed_object_types_relations: List[str],
     ):
         self._path: str = path
-        self._object_id: str = object_id
         self._object_type: str = object_type
         self._allowed_object_types_relations: List[str] = allowed_object_types_relations
 
@@ -144,7 +142,6 @@ class OverwriteRelationsEndpointResolver(EndpointResolver):
 
         return OverwriteRelationsEndpoint(
             path=path,
-            object_id=api.id,
             object_type=api.object_type,
             allowed_object_types_relations=allowed_object_types_relations,
         )

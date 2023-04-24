@@ -247,9 +247,11 @@ users_permissions:
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
+    - can_overwrite_object_regulations
   "Beheerder":
     - can_create_regulation
     - can_edit_regulation
+    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -263,6 +265,7 @@ users_permissions:
   "Superuser":
     - can_create_regulation
     - can_edit_regulation
+    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -274,6 +277,7 @@ users_permissions:
   "Test runner":
     - can_create_regulation
     - can_edit_regulation
+    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -285,6 +289,7 @@ users_permissions:
   "Tester":
     - can_create_regulation
     - can_edit_regulation
+    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status

@@ -7,6 +7,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.converter import Converter
 import app.extensions.regulations.endpoints as endpoints
+import app.extensions.regulations.listeners as listeners
 
 
 class RegulationsExtension(Extension):
@@ -20,6 +21,8 @@ class RegulationsExtension(Extension):
             endpoints.CreateRegulationEndpointResolver(),
             endpoints.EditRegulationEndpointResolver(),
             endpoints.ListRegulationsEndpointResolver(),
+            endpoints.OverwriteObjectRegulationsEndpointResolver(),
+            endpoints.ListObjectRegulationsEndpointResolver(),
         ]
 
     def register_listeners(
@@ -29,5 +32,5 @@ class RegulationsExtension(Extension):
         converter: Converter,
         models_resolver: ModelsResolver,
     ):
-        # event_dispatcher.register(listeners.AddWerkingsgebiedenRelationshipListener())
-        pass
+        event_dispatcher.register(listeners.RegulationsCreateModelListener())
+        event_dispatcher.register(listeners.RegulationsRetrievedObjectsListener())
