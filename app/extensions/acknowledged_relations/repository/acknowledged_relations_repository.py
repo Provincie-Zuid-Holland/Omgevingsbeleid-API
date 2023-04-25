@@ -40,18 +40,18 @@ class AcknowledgedRelationsRepository:
             )
 
         if acknowledged is not None:
-            if acknowledged == True:
+            if acknowledged is True:
                 filters.append(
                     and_(
-                        AcknowledgedRelationsTable.From_Acknowledged == True,
-                        AcknowledgedRelationsTable.To_Acknowledged == True,
+                        AcknowledgedRelationsTable.From_Acknowledged is True,
+                        AcknowledgedRelationsTable.To_Acknowledged is True,
                     )
                 )
             else:
                 filters.append(
                     or_(
-                        AcknowledgedRelationsTable.From_Acknowledged == False,
-                        AcknowledgedRelationsTable.To_Acknowledged == False,
+                        AcknowledgedRelationsTable.From_Acknowledged is False,
+                        AcknowledgedRelationsTable.To_Acknowledged is False,
                     )
                 )
 

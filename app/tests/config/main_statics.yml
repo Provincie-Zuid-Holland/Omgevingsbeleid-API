@@ -1,0 +1,61 @@
+api:
+  routers:
+    - prefix: /users
+      endpoints:
+        - resolver: list_users
+
+columns:
+  title:
+    name: Title
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  description:
+    name: Description
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  additional:
+    name: Additional
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: user_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: user_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: user_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: user_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  client_1_uuid:
+    name: Client_1_UUID
+    type: user_uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+
