@@ -40,6 +40,10 @@ api:
         - resolver: edit_object_static
           resolver_data:
             request_model: maatregel_static_patch
+    - prefix: /maatregel/regulations/{lineage_id}
+      endpoints:
+        - resolver: list_object_regulations
+        - resolver: overwrite_object_regulations
     - prefix: /modules/{module_id}/object/maatregel
       endpoints:
         - resolver: module_patch_object
@@ -212,6 +216,8 @@ models:
             model_id: gebruikers_short
           - to_field: Client_1
             model_id: gebruikers_short
+      regulations:
+        to_field: "Regulations"
   maatregel_patch:
     name: MaatregelPatch
     fields:

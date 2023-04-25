@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class AcknowledgedRelationSide(BaseModel):
-    ID: int
+    Object_ID: int
     Object_Type: str
     Acknowledged: bool = False
     Acknowledged_Date: Optional[datetime] = None
@@ -15,7 +15,7 @@ class AcknowledgedRelationSide(BaseModel):
 
     @property
     def Code(self) -> str:
-        return f"{self.Object_Type}-{self.ID}"
+        return f"{self.Object_Type}-{self.Object_ID}"
 
     def disapprove(self):
         self.Acknowledged = False

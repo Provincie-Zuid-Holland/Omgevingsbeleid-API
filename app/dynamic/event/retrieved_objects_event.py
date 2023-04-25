@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from pydantic import BaseModel
 
 
-
 from .types import Event
 from app.dynamic.config.models import Model
 

@@ -9,6 +9,32 @@ api:
     - prefix: /search
       endpoints:
         - resolver: mssql_search
+    - prefix: /full-graph
+      endpoints:
+        - resolver: full_graph
+    - prefix: /regulations
+      endpoints:
+        - resolver: list_regulations
+        - resolver: create_regulation
+        - resolver: edit_regulation
+          resolver_data:
+            path: /{regulation_uuid}
+    - prefix: /object-graph
+      endpoints:
+        - resolver: object_graph
+          resolver_data:
+            graph_iterations:
+              relations:
+                - allowed_object_types:
+                  - ambitie
+                  - beleidsdoel
+                  - beleidskeuze
+                  - maatregel
+                - allowed_object_types:
+                  - ambitie
+              acknowledged_relations:
+                - allowed_object_types:
+                  - beleidskeuze
     - prefix: /modules
       endpoints:
         - resolver: create_module
@@ -221,7 +247,11 @@ users_permissions:
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
+    - can_overwrite_object_regulations
   "Beheerder":
+    - can_create_regulation
+    - can_edit_regulation
+    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -233,6 +263,9 @@ users_permissions:
   "Portefeuillehouder": []
   "Technisch beheerder": []
   "Superuser":
+    - can_create_regulation
+    - can_edit_regulation
+    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -242,6 +275,9 @@ users_permissions:
     - can_remove_object_from_module
     - can_patch_object_in_module
   "Test runner":
+    - can_create_regulation
+    - can_edit_regulation
+    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -251,6 +287,9 @@ users_permissions:
     - can_remove_object_from_module
     - can_patch_object_in_module
   "Tester":
+    - can_create_regulation
+    - can_edit_regulation
+    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status

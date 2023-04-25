@@ -50,6 +50,10 @@ api:
         - resolver: edit_acknowledged_relation
           resolver_data:
             path: /edit
+    - prefix: /beleidskeuze/regulations/{lineage_id}
+      endpoints:
+        - resolver: list_object_regulations
+        - resolver: overwrite_object_regulations
     - prefix: /modules/{module_id}/object/beleidskeuze
       endpoints:
         - resolver: module_patch_object
@@ -232,6 +236,8 @@ models:
             to_field: "Beleidsdoelen"
             model_id: beleidsdoel_short
             wrapped_with_relation_data: true
+      regulations:
+        to_field: "Regulations"
   beleidskeuze_patch:
     name: BeleidskeuzePatch
     fields:

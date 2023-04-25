@@ -1,10 +1,12 @@
 from typing import Callable, Optional
+import uuid
 
 from fastapi import BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 from app.core.dependencies import depends_db
 from sqlalchemy.orm import Session
 from app.dynamic.db import ObjectStaticsTable
+from app.dynamic.db.objects_table import ObjectsTable
 
 from app.dynamic.event_dispatcher import EventDispatcher, main_event_dispatcher
 from app.dynamic.repository.object_repository import ObjectRepository
@@ -33,6 +35,16 @@ def depends_object_static_repository(
     db: Session = Depends(depends_db),
 ) -> ObjectStaticRepository:
     return ObjectStaticRepository(db)
+
+
+def depends_object_by_uuid(
+    uuid: uuid.UUID,
+    repository: ObjectRepository = Depends(depends_object_repository),
+):
+    maybe_object: Optional[ObjectsTable] = repository.get_by_uuid(uuid)
+    if not maybe_object:
+        raise HTTPException(status_code=404, detail="Object niet gevonden")
+    return maybe_object
 
 
 def depends_object_static_by_object_type_and_id(
