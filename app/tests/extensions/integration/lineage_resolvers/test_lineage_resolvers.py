@@ -178,7 +178,7 @@ class TestLineageResolvers:
             )
 
         assert len(response) == 2
-        response_uuids = set([r.UUID for r in response])
+        response_uuids = set([r["UUID"] for r in response])
         expected_uuids = set([self.valid.UUID, self.valid_latest.UUID])
         assert response_uuids == expected_uuids
 
@@ -208,7 +208,7 @@ class TestLineageResolvers:
                 lineage_id=TEST_LINEAGE,
             )
 
-        assert response.UUID == self.valid_latest.UUID
+        assert response["UUID"] == self.valid_latest.UUID
 
     def test_latest_objects_no_lineage(
         self,
@@ -264,7 +264,7 @@ class TestLineageResolvers:
                 object_uuid=TEST_UUID,
             )
 
-        assert response.UUID == TEST_UUID
+        assert response["UUID"] == TEST_UUID
 
     def test_object_version_wrong_uuid(
         self,
@@ -319,7 +319,7 @@ class TestLineageResolvers:
                 lineage_id=TEST_ID,
             )
 
-        assert response.UUID == self.valid_latest.UUID
+        assert response["UUID"] == self.valid_latest.UUID
 
     def test_object_latest_wrong_uuid(
         self,

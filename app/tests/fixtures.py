@@ -130,6 +130,9 @@ class MockResponseModel(BaseModel):
     Start_Validity: datetime
     End_Validity: Optional[datetime]
 
+    class Config:
+        orm_mode = True
+
 
 class TestDynamicApp(BaseModel):
     dynamic_app: DynamicApp

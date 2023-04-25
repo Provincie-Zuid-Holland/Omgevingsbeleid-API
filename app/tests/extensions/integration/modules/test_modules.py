@@ -8,7 +8,6 @@ from fastapi import HTTPException
 from app.extensions.modules.models.models import (
     AllModuleStatusCode,
     ModuleObjectAction,
-    ModuleObjectContext,
     ModuleSnapshot,
     ModulePatchStatus,
     ModuleStatus,
@@ -370,6 +369,7 @@ class TestModulesEndpoints:
         request_obj = CompleteModule(
             IDMS_Link="https://mock-me-a-idms.link",
             Decision_Number="mock-me-a-string",
+            Link_To_Decision_Document="mock-me-a-link",
             ObjectSpecifiekeGeldigheden=osg
         )
 

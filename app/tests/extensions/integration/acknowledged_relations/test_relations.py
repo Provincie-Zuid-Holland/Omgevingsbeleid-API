@@ -18,7 +18,7 @@ from app.extensions.acknowledged_relations.endpoints.edit_acknowledged_relation 
 from .fixtures import (
     local_tables,
     ExtendedLocalTables,
-    relation_repository, 
+    relation_repository,
 )  # noqa
 
 from app.tests.fixture_factories import (
@@ -81,7 +81,7 @@ class TestAcknowledgedRelationsEndpoint:
         """
         requesting_user = self.super_user
         request_obj = RequestAcknowledgedRelation(
-            ID=2, Object_Type="beleidskeuze", Title="monty", Explanation="python"
+            Object_ID=2, Object_Type="beleidskeuze", Title="monty", Explanation="python"
         )
         endpoint = RequestEndpoint(
             db=db,
@@ -117,7 +117,7 @@ class TestAcknowledgedRelationsEndpoint:
         """
         requesting_user = self.super_user
         request_obj = RequestAcknowledgedRelation(
-            ID=1, Object_Type="beleidskeuze", Title="monty", Explanation="python"
+            Object_ID=1, Object_Type="beleidskeuze", Title="monty", Explanation="python"
         )
         endpoint = RequestEndpoint(
             db=db,
@@ -144,7 +144,7 @@ class TestAcknowledgedRelationsEndpoint:
 
         # Build request
         request_obj = EditAcknowledgedRelation(
-            ID=1,
+            Object_ID=1,
             Object_Type="beleidskeuze",
             Title="monty",
             Explanation="python",
@@ -179,7 +179,7 @@ class TestAcknowledgedRelationsEndpoint:
         self, db: Session, local_tables: ExtendedLocalTables  # noqa
     ):
         request_obj = EditAcknowledgedRelation(
-            ID=999,
+            Object_ID=999,
             Object_Type="beleidskeuze",
             Acknowledged=True,
         )
