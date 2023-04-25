@@ -1,16 +1,12 @@
 import pytest
-import uuid
-from datetime import datetime, timedelta
 
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
-from app.extensions.acknowledged_relations.repository.acknowledged_relations_repository import AcknowledgedRelationsRepository
-from app.tests.fixtures import LocalTables, LocalTableFactory
-from app.tests.fixture_factories import (
-    UserFixtureFactory,
-    ObjectStaticsFixtureFactory
+from app.extensions.acknowledged_relations.repository.acknowledged_relations_repository import (
+    AcknowledgedRelationsRepository,
 )
+from app.tests.fixtures import LocalTables, LocalTableFactory
 from app.extensions.acknowledged_relations.db.tables import (
     AcknowledgedRelationColumns,
 )

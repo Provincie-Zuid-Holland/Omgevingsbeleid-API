@@ -96,7 +96,7 @@ class ModuleFixtureFactory(FixtureDataFactory):
                 "Activated": 1,
                 "Closed": 0,
                 "Successful": 0,
-                "Temporary_Locked": 0
+                "Temporary_Locked": 0,
             },
             # Add more module data here as needed
         ]
@@ -188,7 +188,9 @@ class ModuleFixtureFactory(FixtureDataFactory):
 
     def _create_module_object_context(self, data):
         if self.local_tables:
-            module_object_context_obj = self.local_tables.ModuleObjectContextTable(**data)
+            module_object_context_obj = self.local_tables.ModuleObjectContextTable(
+                **data
+            )
         else:
             module_object_context_obj = ModuleObjectContextTable(**data)
 

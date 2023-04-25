@@ -1,11 +1,6 @@
 import pytest
-import uuid
-from copy import deepcopy
-from fastapi.exceptions import HTTPException
 from datetime import datetime, timedelta
-from sqlalchemy import select
 from sqlalchemy.orm import Session
-from unittest.mock import patch
 
 from .fixtures import (
     local_tables,
@@ -16,7 +11,6 @@ from .fixtures import (
 from app.tests.fixture_factories import (
     UserFixtureFactory,
     ObjectStaticsFixtureFactory,
-    ObjectFixtureFactory,
 )
 
 
@@ -93,11 +87,13 @@ class TestAcknowledgedRelationsRepository:
         for column in result.__table__.columns:
             assert getattr(result, column.name) == getattr(self.relation_1, column.name)
 
-    def test_get_by_codes_invalid(self, local_tables: ExtendedLocalTables): # noqa
+    def test_get_by_codes_invalid(self, local_tables: ExtendedLocalTables):  # noqa
         result = self.repository.get_by_codes(code_a="ambitie-1", code_b="ambitie-5")
         assert result is None
 
-    def test_get_with_filters_requested_by_me(self, local_tables: ExtendedLocalTables): # noqa
+    def test_get_with_filters_requested_by_me(
+        self, local_tables: ExtendedLocalTables
+    ):  # noqa
         result = self.repository.get_with_filters(
             code=self.relation_1.From_Code,
             requested_by_me=True,
@@ -137,6 +133,7 @@ class TestAcknowledgedRelationsRepository:
 
     Bug in test or bug in get_with_filters?
     """
+
     def test_get_with_filters_acknowledged(
         self, db: Session, local_tables: ExtendedLocalTables  # noqa
     ):
@@ -148,4 +145,3 @@ class TestAcknowledgedRelationsRepository:
 
         # should find only acknowledged records
         # assert len(result) == 1
-        pass

@@ -5,8 +5,22 @@
 SQLALCHEMY_DATABASE_URI="sqlite+pysqlite:///api.db"
 ```
 
+### Running tests
 
+Have .env with test database:
+```
+SQLALCHEMY_TEST_DATABASE_URI="sqlite+pysqlite:///api.db"
+```
 
+Go into pyenv and then install dependencies:
+```
+make local-env
+```
+
+Then run:
+```
+make test
+```
 
 
 

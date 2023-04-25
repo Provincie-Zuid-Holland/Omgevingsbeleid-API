@@ -1,8 +1,6 @@
 import pytest
-import uuid
 from fastapi.exceptions import HTTPException
 from datetime import datetime, timedelta
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.extensions.acknowledged_relations.endpoints.request_acknowledged_relation import (

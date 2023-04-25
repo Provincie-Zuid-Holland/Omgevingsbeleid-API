@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from sqlalchemy.orm import Mapped, declarative_base, relationship
 
-from app.core.db.mixins import HasIDType, TimeStamped, UserMetaData
+from app.core.db.mixins import HasIDType, TimeStamped
 from app.dynamic.db.object_static_table import StaticBaseColumns
 from app.dynamic.db.objects_table import ObjectBaseColumns
 from app.dynamic.dynamic_app import DynamicApp
@@ -77,7 +77,7 @@ class MockPermissionService:
     def __init__(self, give_permission: bool = True):
         self._permissions_per_role: Dict[str, Set[str]] = {}
         self.calls = []
-        self.give_permission =  give_permission
+        self.give_permission = give_permission
 
     def overwrite_role(self, role: str, permissions: List[str]):
         self._permissions_per_role[role] = set(permissions)

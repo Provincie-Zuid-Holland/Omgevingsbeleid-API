@@ -8,15 +8,10 @@ from fastapi import HTTPException
 from app.extensions.modules.models.models import (
     AllModuleStatusCode,
     ModuleObjectAction,
-    ModuleSnapshot,
-    ModulePatchStatus,
-    ModuleStatus,
-    ModuleStatusCode,
 )
 from app.extensions.modules.endpoints.create_module import (
     EndpointHandler as CreateEndpoint,
     ModuleCreate,
-    ModuleCreatedResponse,
 )
 from app.extensions.modules.endpoints.module_add_new_object import (
     EndpointHandler as NewObjectEndpoint,
@@ -34,18 +29,13 @@ from app.extensions.modules.endpoints.edit_module import (
     ModuleEdit,
 )
 
-from app.extensions.modules.endpoints.activate_module import EndpointHandler as ActivateEndpoint
+from app.extensions.modules.endpoints.activate_module import (
+    EndpointHandler as ActivateEndpoint,
+)
 
 from app.extensions.modules.endpoints.complete_module import (
     EndpointHandler as CompleteEndpoint,
-    ObjectSpecifiekeGeldigheid,
     CompleteModule,
-)
-from app.tests.fixture_factories import (
-    UserFixtureFactory,
-    ObjectStaticsFixtureFactory,
-    ObjectFixtureFactory,
-    ModuleFixtureFactory,
 )
 from unittest.mock import patch
 from app.tests.helpers import patch_multiple
@@ -97,8 +87,12 @@ class TestModulesEndpoints:
 
         yield
 
-    def test_module_create(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
-        endpoint = CreateEndpoint(db=db, user=self.ba_user, object_in=self.module_request)
+    def test_module_create(
+        self, db: Session, local_tables: ExtendedLocalTables
+    ):  # noqa
+        endpoint = CreateEndpoint(
+            db=db, user=self.ba_user, object_in=self.module_request
+        )
         # Create module
         response = endpoint.handle()
 
@@ -114,7 +108,9 @@ class TestModulesEndpoints:
         new_history = (
             db.query(local_tables.ModuleStatusHistoryTable)
             .filter(local_tables.ModuleStatusHistoryTable.ID == 1)
-            .filter(local_tables.ModuleStatusHistoryTable.Module_ID == response.Module_ID)
+            .filter(
+                local_tables.ModuleStatusHistoryTable.Module_ID == response.Module_ID
+            )
             .one()
         )
         assert new_history is not None
@@ -197,7 +193,9 @@ class TestModulesEndpoints:
     ):
         # Precondition state: existing module + objects
         existing_module = db.query(local_tables.ModuleTable).one()
-        existing_object = next(obj for obj in self.objects if obj.Code == "beleidskeuze-3")
+        existing_object = next(
+            obj for obj in self.objects if obj.Code == "beleidskeuze-3"
+        )
 
         # Build request
         request_obj = ModuleAddExistingObject(
@@ -220,7 +218,10 @@ class TestModulesEndpoints:
         base_path = "app.extensions.modules.endpoints.module_add_existing_object"
         objects_repo_path = "app.dynamic.repository.object_repository"
         with patch_multiple(
-            patch(f"{base_path}.ModuleObjectContextTable", local_tables.ModuleObjectContextTable),
+            patch(
+                f"{base_path}.ModuleObjectContextTable",
+                local_tables.ModuleObjectContextTable,
+            ),
             patch(f"{base_path}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
             patch(f"{base_path}.ModuleTable", local_tables.ModuleTable),
             patch(f"{objects_repo_path}.ObjectsTable", local_tables.ObjectsTable),
@@ -306,10 +307,14 @@ class TestModulesEndpoints:
             module=existing_module,
         )
         # Execute
-        with pytest.raises(HTTPException, match="You are not allowed to modify this module"):
+        with pytest.raises(
+            HTTPException, match="You are not allowed to modify this module"
+        ):
             endpoint.handle()
 
-    def test_module_activate(self, db, mock_dispatcher, local_tables: ExtendedLocalTables):  # noqa
+    def test_module_activate(
+        self, db, mock_dispatcher, local_tables: ExtendedLocalTables
+    ):  # noqa
         # Precondition state: existing module NOT activated
         existing_module = db.query(local_tables.ModuleTable).one()
         endpoint = ActivateEndpoint(
@@ -321,7 +326,10 @@ class TestModulesEndpoints:
 
         # Execute
         base_path = "app.extensions.modules.endpoints.activate_module"
-        with patch(f"{base_path}.ModuleStatusHistoryTable", local_tables.ModuleStatusHistoryTable):
+        with patch(
+            f"{base_path}.ModuleStatusHistoryTable",
+            local_tables.ModuleStatusHistoryTable,
+        ):
             response = endpoint.handle()
 
         # Response spec
@@ -358,7 +366,7 @@ class TestModulesEndpoints:
             Module_ID=existing_module.Module_ID,
             Status=AllModuleStatusCode.Vastgesteld.value,
             Created_Date=datetime.now(),
-            Created_By_UUID=self.super_user.UUID
+            Created_By_UUID=self.super_user.UUID,
         )
         existing_module.status_history.append(new_status)
         db.add(existing_module)
@@ -370,7 +378,7 @@ class TestModulesEndpoints:
             IDMS_Link="https://mock-me-a-idms.link",
             Decision_Number="mock-me-a-string",
             Link_To_Decision_Document="mock-me-a-link",
-            ObjectSpecifiekeGeldigheden=osg
+            ObjectSpecifiekeGeldigheden=osg,
         )
 
         endpoint = CompleteEndpoint(
@@ -385,11 +393,16 @@ class TestModulesEndpoints:
 
         # Execute
         base_path = "app.extensions.modules.endpoints.complete_module"
-        module_object_repo = "app.extensions.modules.repository.module_object_repository"
+        module_object_repo = (
+            "app.extensions.modules.repository.module_object_repository"
+        )
         with patch_multiple(
             patch(f"{base_path}.ObjectsTable", local_tables.ObjectsTable),
             patch(f"{base_path}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
-            patch(f"{module_object_repo}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
+            patch(
+                f"{module_object_repo}.ModuleObjectsTable",
+                local_tables.ModuleObjectsTable,
+            ),
         ):
             response = endpoint.handle()
 
@@ -411,4 +424,6 @@ class TestModulesEndpoints:
             )
             .all()
         )
-        assert len(objects_created) == 2, "Expected 2 objects to be created on completion"
+        assert (
+            len(objects_created) == 2
+        ), "Expected 2 objects to be created on completion"

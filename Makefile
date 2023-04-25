@@ -44,9 +44,14 @@ fix:
 check-security:
 	python -m bandit --configfile bandit.yml -r app/
 
+test:
+	python -m pytest
+
 testx:
 	python -m pytest -vv -x
 
+testcase:
+	python -m pytest -s -vvv -x -k ${case}
 
 # Ment to test MSSQL
 docker-init: docker-up docker-mssql-create-database-dev docker-alembic-do-upgrade

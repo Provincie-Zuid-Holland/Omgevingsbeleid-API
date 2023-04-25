@@ -6,16 +6,10 @@ from sqlalchemy.orm import Session
 
 from app.dynamic.dependencies import FilterObjectCode
 from app.extensions.modules.repository import (
-    ModuleObjectContextRepository,
-    ModuleObjectRepository,
     ModuleRepository,
-    ModuleStatusRepository,
-    ObjectProvider,
 )
 from app.tests.fixture_factories import (
     ModuleFixtureFactory,
-    ObjectFixtureFactory,
-    ObjectStaticsFixtureFactory,
     UserFixtureFactory,
 )
 from app.tests.helpers import patch_multiple
@@ -61,7 +55,10 @@ class TestModuleRepository:
         self.module_factory = mf
 
     def test_module_get_by_id(
-        self, module_repo: ModuleRepository, db: Session, local_tables: ExtendedLocalTables
+        self,
+        module_repo: ModuleRepository,
+        db: Session,
+        local_tables: ExtendedLocalTables,
     ):  # noqa
         mod = self.module_factory.modules[0]  # Module A in factory
         result = module_repo.get_by_id(mod.Module_ID)
@@ -70,14 +67,20 @@ class TestModuleRepository:
         assert result.Title == "Fixture module A"
 
     def test_module_get_by_id_invalid(
-        self, module_repo: ModuleRepository, db: Session, local_tables: ExtendedLocalTables
+        self,
+        module_repo: ModuleRepository,
+        db: Session,
+        local_tables: ExtendedLocalTables,
     ):  # noqa
         NON_EXISTING_ID = 999
         result = module_repo.get_by_id(NON_EXISTING_ID)
         assert result is None
 
     def test_module_get_with_filters_only_active(
-        self, module_repo: ModuleRepository, db: Session, local_tables: ExtendedLocalTables
+        self,
+        module_repo: ModuleRepository,
+        db: Session,
+        local_tables: ExtendedLocalTables,
     ):
         # setup closed module
         closed = {
@@ -96,13 +99,18 @@ class TestModuleRepository:
         db.add(mod)
         db.commit()
 
-        result = module_repo.get_with_filters(only_active=True, maybe_filter_code=None, mine=None)
+        result = module_repo.get_with_filters(
+            only_active=True, maybe_filter_code=None, mine=None
+        )
         assert result is not None
         for module in result:
             assert module.Closed != 1
 
     def test_module_get_with_filters_only_mine(
-        self, module_repo: ModuleRepository, db: Session, local_tables: ExtendedLocalTables
+        self,
+        module_repo: ModuleRepository,
+        db: Session,
+        local_tables: ExtendedLocalTables,
     ):
         pf_user_owned = {
             "Module_ID": 1005,
@@ -123,7 +131,10 @@ class TestModuleRepository:
         base_path = "app.extensions.modules.repository.module_repository"
         with patch_multiple(
             patch(f"{base_path}.ObjectStaticsTable", local_tables.ObjectStaticsTable),
-            patch(f"{base_path}.ModuleObjectContextTable", local_tables.ModuleObjectContextTable),
+            patch(
+                f"{base_path}.ModuleObjectContextTable",
+                local_tables.ModuleObjectContextTable,
+            ),
             patch(f"{base_path}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
             patch(f"{base_path}.ModuleTable", local_tables.ModuleTable),
         ):
@@ -142,7 +153,10 @@ class TestModuleRepository:
             )
 
     def test_module_get_with_filters_code(
-        self, module_repo: ModuleRepository, db: Session, local_tables: ExtendedLocalTables
+        self,
+        module_repo: ModuleRepository,
+        db: Session,
+        local_tables: ExtendedLocalTables,
     ):
         mod = self.module_factory.modules[0]  # Module A in factory
         code_filter = FilterObjectCode(
@@ -152,7 +166,10 @@ class TestModuleRepository:
         base_path = "app.extensions.modules.repository.module_repository"
         with patch_multiple(
             patch(f"{base_path}.ObjectStaticsTable", local_tables.ObjectStaticsTable),
-            patch(f"{base_path}.ModuleObjectContextTable", local_tables.ModuleObjectContextTable),
+            patch(
+                f"{base_path}.ModuleObjectContextTable",
+                local_tables.ModuleObjectContextTable,
+            ),
             patch(f"{base_path}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
             patch(f"{base_path}.ModuleTable", local_tables.ModuleTable),
         ):
@@ -189,7 +206,10 @@ class TestModuleObjectRepository:
         self.module_factory = mf
 
     def test_module_get_objects_in_time(
-        self, module_repo: ModuleRepository, db: Session, local_tables: ExtendedLocalTables
+        self,
+        module_repo: ModuleRepository,
+        db: Session,
+        local_tables: ExtendedLocalTables,
     ):
         # TODO: test
         pass

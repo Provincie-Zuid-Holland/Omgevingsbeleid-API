@@ -7,7 +7,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 class HasUUID:
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=lambda: uuid.uuid4())
+    UUID: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, default=lambda: uuid.uuid4()
+    )
 
 
 class TimeStamped:
