@@ -249,6 +249,9 @@ users_permissions:
     - can_edit_module_object_context
     - can_overwrite_object_regulations
   "Beheerder":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
     - can_create_regulation
     - can_edit_regulation
     - can_overwrite_object_regulations
@@ -263,6 +266,9 @@ users_permissions:
   "Portefeuillehouder": []
   "Technisch beheerder": []
   "Superuser":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
     - can_create_regulation
     - can_edit_regulation
     - can_overwrite_object_regulations
@@ -275,6 +281,9 @@ users_permissions:
     - can_remove_object_from_module
     - can_patch_object_in_module
   "Test runner":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
     - can_create_regulation
     - can_edit_regulation
     - can_overwrite_object_regulations
@@ -287,6 +296,9 @@ users_permissions:
     - can_remove_object_from_module
     - can_patch_object_in_module
   "Tester":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
     - can_create_regulation
     - can_edit_regulation
     - can_overwrite_object_regulations

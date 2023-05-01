@@ -1,5 +1,6 @@
 from app.core.settings import settings
 from app.dynamic.dynamic_app import DynamicAppBuilder
+from app.extensions.atemporal.atemporal_extension import AtemporalExtension
 from app.extensions.database_migration.database_migration_extension import (
     DatabaseMigrationExtension,
 )
@@ -28,6 +29,7 @@ from app.extensions.acknowledged_relations.acknowledged_relations_extension impo
 
 app_builder = DynamicAppBuilder(settings.MAIN_CONFIG_FILE)
 
+app_builder.register_extension(AtemporalExtension())
 app_builder.register_extension(LineageResolversExtension())
 app_builder.register_extension(UsersExtension())
 app_builder.register_extension(AuthExtension())
