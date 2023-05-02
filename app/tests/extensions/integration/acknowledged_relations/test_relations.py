@@ -15,11 +15,7 @@ from app.extensions.acknowledged_relations.endpoints.edit_acknowledged_relation 
     EndpointHandler as EditEndpoint,
 )
 
-from .fixtures import (
-    local_tables,
-    ExtendedLocalTables,
-    relation_repository,
-)  # noqa
+from .fixtures import (local_tables, ExtendedLocalTables, relation_repository)  # noqa
 
 from app.tests.fixture_factories import (
     UserFixtureFactory,
@@ -171,6 +167,71 @@ class TestAcknowledgedRelationsEndpoint:
         assert relation.To_Acknowledged_By_UUID == self.ba_user.UUID
         assert relation.To_Title == "monty"
         assert relation.To_Explanation == "python"
+
+    def test_deny_relation_request(
+        self, db: Session, local_tables: ExtendedLocalTables  # noqa
+    ):
+        """
+        Test that a requested relation can be denied
+        """
+        # Create new relation request
+        db.add(self.relation_request)
+        db.commit()
+
+        # Build request
+        request_obj = EditAcknowledgedRelation(
+            Object_ID=1,
+            Object_Type="beleidskeuze",
+            Denied=True,
+        )
+        endpoint = EditEndpoint(
+            db=db,
+            repository=self.repository,
+            user=self.ba_user,
+            object_type="beleidskeuze",
+            lineage_id=2,
+            object_in=request_obj,
+        )
+
+        response = endpoint.handle()
+
+        assert response.message == "OK"
+
+        relation = self.repository.get_by_codes("beleidskeuze-2", "beleidskeuze-1")
+        assert relation is not None
+        assert relation.Is_Acknowledged is False
+        assert relation.Denied is not None
+
+    def test_cancel_relation_request(
+        self, db: Session, local_tables: ExtendedLocalTables  # noqa
+    ):
+        """
+        Test that a requested relation can be canceled using as soft delete
+        """
+        db.add(self.relation_request)
+        db.commit()
+        request_obj = EditAcknowledgedRelation(
+            Object_ID=1,
+            Object_Type="beleidskeuze",
+            Deleted_At=True,
+        )
+        endpoint = EditEndpoint(
+            db=db,
+            repository=self.repository,
+            user=self.ba_user,
+            object_type="beleidskeuze",
+            lineage_id=2,
+            object_in=request_obj,
+        )
+
+        response = endpoint.handle()
+        assert response.message == "OK"
+
+        relation = self.repository.get_by_codes("beleidskeuze-2", "beleidskeuze-1")
+        assert relation is not None
+        assert relation.Deleted_At is not None
+        assert relation.Is_Acknowledged is False
+        assert relation.Denied is None
 
     def test_edit_relation_not_found(
         self, db: Session, local_tables: ExtendedLocalTables  # noqa

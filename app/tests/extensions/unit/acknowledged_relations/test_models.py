@@ -100,7 +100,7 @@ class TestAcknowledgedRelation:
         relation.Side_B.approve(user_uuid)
         assert relation.Is_Acknowledged is True
 
-        relation.deny()
+        relation.Denied = datetime.now()
+
         assert relation.Is_Acknowledged is False
         assert relation.Is_Denied is True
-        assert relation.Denied is not None

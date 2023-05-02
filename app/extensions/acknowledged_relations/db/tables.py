@@ -99,7 +99,7 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
             self._raise_invalid_code()
 
     def deny(self):
-        if self.Is_Denied:
+        if self.Denied is not None:
             return
         self.Denied = datetime.now()
 
@@ -111,7 +111,7 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
     # dynamic property for better ORM filtering.
     @hybrid_property
     def Is_Acknowledged(self) -> bool:
-        if self.Denied:
+        if self.Is_Denied:
             return False
         return self.From_Acknowledged is not None and self.To_Acknowledged is not None
 
@@ -124,12 +124,12 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
         )
 
     @hybrid_property
-    def Is_Deleted(self) -> bool:
-        return self.Deleted_At is not None
+    def Is_Denied(self) -> bool:
+        return self.Denied is not None
 
-    @Is_Deleted.expression
+    @Is_Denied.expression
     def Is_Deleted(cls):
-        return cls.Deleted_At.isnot(None)
+        return cls.Denied.isnot(None)
 
     @hybrid_property
     def From_Object_Type(self) -> str:
