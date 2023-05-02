@@ -3,14 +3,16 @@ from fastapi.exceptions import HTTPException
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
+from app.extensions.acknowledged_relations.models.models import (
+    EditAcknowledgedRelation,
+    RequestAcknowledgedRelation,
+)
 from app.extensions.acknowledged_relations.endpoints.request_acknowledged_relation import (
     EndpointHandler as RequestEndpoint,
-    RequestAcknowledgedRelation,
 )
 
 from app.extensions.acknowledged_relations.endpoints.edit_acknowledged_relation import (
     EndpointHandler as EditEndpoint,
-    EditAcknowledgedRelation,
 )
 
 from .fixtures import (
@@ -61,13 +63,12 @@ class TestAcknowledgedRelationsEndpoint:
             Modified_By_UUID=self.super_user.UUID,
             Requested_By_Code="beleidskeuze-1",
             From_Code="beleidskeuze-1",
-            From_Acknowledged=1,
-            From_Acknowledged_Date=self.now,
+            From_Acknowledged=self.now,
             From_Acknowledged_By_UUID=self.super_user.UUID,
             From_Title="monty",
             From_Explanation="python",
             To_Code="beleidskeuze-2",
-            To_Acknowledged=0,
+            To_Acknowledged=None,
         )
 
     def test_request_new_relation(
@@ -99,9 +100,8 @@ class TestAcknowledgedRelationsEndpoint:
         assert relation is not None
 
         # assert From side is acknowledged, to side is empty
-        assert relation.From_Acknowledged == 1
-        assert relation.To_Acknowledged == 0
-        assert relation.To_Acknowledged_Date is None
+        assert relation.From_Acknowledged != None
+        assert relation.To_Acknowledged == None
         assert relation.To_Acknowledged_By_UUID is None
         assert relation.To_Title == ""
         assert relation.To_Explanation == ""
@@ -166,9 +166,8 @@ class TestAcknowledgedRelationsEndpoint:
         assert relation is not None
 
         # assert both sides acknowledged
-        assert relation.From_Acknowledged == 1
+        assert relation.Is_Acknowledged
         assert relation.From_Acknowledged_By_UUID == self.super_user.UUID
-        assert relation.To_Acknowledged == 1
         assert relation.To_Acknowledged_By_UUID == self.ba_user.UUID
         assert relation.To_Title == "monty"
         assert relation.To_Explanation == "python"

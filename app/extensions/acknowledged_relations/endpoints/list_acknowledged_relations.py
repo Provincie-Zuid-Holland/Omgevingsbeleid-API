@@ -11,7 +11,10 @@ from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelation
 from app.extensions.acknowledged_relations.dependencies import (
     depends_acknowledged_relations_repository,
 )
-from app.extensions.acknowledged_relations.models.models import AcknowledgedRelation
+from app.extensions.acknowledged_relations.models.models import (
+    AcknowledgedRelation,
+    build_from_orm,
+)
 from app.extensions.acknowledged_relations.repository.acknowledged_relations_repository import (
     AcknowledgedRelationsRepository,
 )
@@ -41,7 +44,7 @@ class EndpointHandler:
             self._acknowledged,
         )
         response: List[AcknowledgedRelation] = [
-            r.as_model(self._object_code) for r in table_rows
+            build_from_orm(r, self._object_code) for r in table_rows
         ]
         return response
 
