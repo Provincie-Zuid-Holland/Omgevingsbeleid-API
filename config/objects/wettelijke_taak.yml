@@ -1,29 +1,29 @@
-id: nationaal_belang
-object_type: nationaal_belang
+id: wettelijke_taak
+object_type: wettelijke_taak
 
 api:
   routers:
-    - prefix: /nationaal-belang
+    - prefix: /wettelijke-taak
       endpoints:
         - resolver: atemporal_create_object
           resolver_data:
-            request_model: nationaal_belang_create
-            response_model: nationaal_belang_uuid
+            request_model: wettelijke_taak_create
+            response_model: wettelijke_taak_uuid
         - resolver: atemporal_edit_object
           resolver_data:
             path: /{lineage_id}
-            request_model: nationaal_belang_edit
+            request_model: wettelijke_taak_edit
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: nationaal_belang_basic
+            response_model: wettelijke_taak_basic
             allowed_filter_columns:
               - Title
               - Weblink
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: nationaal_belang_get
+            response_model: wettelijke_taak_get
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -32,11 +32,11 @@ api:
             path: /relations/{lineage_id}
             allowed_object_types_relations:
               - beleidskeuze
-    - prefix: /nationaal-belang/static/{lineage_id}
+    - prefix: /wettelijke-taak/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: nationaal_belang_static_edit
+            request_model: wettelijke_taak_static_edit
 
 fields:
   title:
@@ -61,8 +61,8 @@ fields:
     optional: true
 
 models:
-  nationaal_belang_basic:
-    name: NationaalBelangBasic
+  wettelijke_taak_basic:
+    name: WettelijkeTaakBasic
     fields:
       object_type:
       object_id:
@@ -78,8 +78,8 @@ models:
             model_id: gebruikers_short
           - to_field: Modified_By
             model_id: gebruikers_short
-  nationaal_belang_get:
-    name: NationaalBelangGet
+  wettelijke_taak_get:
+    name: WettelijkeTaakGet
     fields:
       object_type:
       object_id:
@@ -104,8 +104,8 @@ models:
             model_id: gebruikers_short
           - to_field: Owner_2
             model_id: gebruikers_short
-  nationaal_belang_create:
-    name: NationaalBelangCreate
+  wettelijke_taak_create:
+    name: WettelijkeTaakCreate
     fields:
       title:
         validators:
@@ -120,8 +120,8 @@ models:
           - id: plain_text
       owner_1_uuid:
       owner_2_uuid:
-  nationaal_belang_edit:
-    name: NationaalBelangEdit
+  wettelijke_taak_edit:
+    name: WettelijkeTaakEdit
     fields:
       title:
         default: none
@@ -137,8 +137,8 @@ models:
         optional: true
         validators:
           - id: plain_text
-  nationaal_belang_static_edit:
-    name: NationaalBelangStaticEdit
+  wettelijke_taak_static_edit:
+    name: WettelijkeTaakStaticEdit
     static_only: true
     fields:
       owner_1_uuid:
@@ -147,8 +147,8 @@ models:
       owner_2_uuid:
         default: none
         optional: true
-  nationaal_belang_uuid:
-    name: NationaalBelangUUID
+  wettelijke_taak_uuid:
+    name: WettelijkeTaakUUID
     fields:
       object_id:
       uuid:

@@ -11,14 +11,12 @@ api:
             response_model: beleidskeuze_get
             allowed_filter_columns:
               - Title
-              - Weblink
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: beleidskeuze_basic
             allowed_filter_columns:
               - Title
-              - Weblink
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
@@ -34,7 +32,11 @@ api:
           resolver_data:
             path: /relations/{lineage_id}
             allowed_object_types_relations:
+              - taak
+              - belang
               - beleidsdoel
+              - beleidsregel
+              - maatregel
     - prefix: /beleidskeuze/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
@@ -67,7 +69,6 @@ api:
             response_model: beleidskeuze_basic
             allowed_filter_columns:
               - Title
-              - Weblink
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
@@ -86,26 +87,18 @@ fields:
     name: Description_Choice
     type: str
     column: description_choice
-  description_operation:
-    name: Description_Operation
-    type: str
-    column: description_operation
-  provincial_interest:
-    name: Provincial_Interest
-    type: str
-    column: provincial_interest
   cause:
     name: Cause
     type: str
     column: cause
-  tags:
-    name: Tags
+  provincial_interest:
+    name: Provincial_Interest
     type: str
-    column: tags
-  weblink:
-    name: Weblink
+    column: provincial_interest
+  explanation:
+    name: Explanation
     type: str
-    column: weblink
+    column: explanation
   idms_link:
     name: IDMS_Link
     type: str
@@ -118,10 +111,6 @@ fields:
     name: Gebied_UUID
     type: uuid
     column: gebied_uuid
-  gebied_duiding:
-    name: Gebied_Duiding
-    type: str
-    column: gebied_duiding
   
   # Statics
   owner_1_uuid:
@@ -169,13 +158,6 @@ models:
       start_validity:
       end_validity:
       title:
-      provincial_interest:
-      cause:
-      decision_number:
-      tags:
-      weblink:
-      gebied_duiding:
-      gebied_uuid:
     services:
       foreign_keys_extender:
         fields_map:
@@ -198,17 +180,16 @@ models:
       end_validity:
       title:
       description_choice:
-      description_operation:
-      provincial_interest:
       cause:
-      decision_number:
-      tags:
-      weblink:
-      gebied_duiding:
+      provincial_interest:
+      explanation:
     services:
       insert_assets:
         fields:
           - Description_Choice
+          - Cause
+          - Provincial_Interest
+          - Explanation
       foreign_keys_extender:
         fields_map:
           - to_field: Gebied
@@ -244,30 +225,32 @@ models:
       title:
         default: none
         optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
       description_choice:
         default: none
         optional: true
-      description_operation:
-        default: none
-        optional: true
-      provincial_interest:
-        default: none
-        optional: true
+        validators:
+          - id: html
       cause:
         default: none
         optional: true
-      decision_number:
+        validators:
+          - id: html
+      provincial_interest:
         default: none
         optional: true
-      tags:
+        validators:
+          - id: html
+      explanation:
         default: none
         optional: true
-      weblink:
-        default: none
-        optional: true
-      gebied_duiding:
-        default: none
-        optional: true
+        validators:
+          - id: html
       gebied_uuid:
         default: none
         optional: true
@@ -275,6 +258,9 @@ models:
       extract_assets:
         fields:
           - Description_Choice
+          - Cause
+          - Provincial_Interest
+          - Explanation
   beleidskeuze_static_patch:
     name: BeleidskeuzeStaticPatch
     static_only: true

@@ -1,30 +1,32 @@
-id: beleidsdoel
-object_type: beleidsdoel
+id: beleidsregel
+object_type: beleidsregel
 
 api:
   routers:
-    - prefix: /beleidsdoelen
+    - prefix: /beleidsregels
       endpoints:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: beleidsdoel_get
+            response_model: beleidsregel_get
             allowed_filter_columns:
               - Title
+              - Weblink
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
-            response_model: beleidsdoel_basic
+            response_model: beleidsregel_basic
             allowed_filter_columns:
               - Title
+              - Weblink
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidsdoel_get
+            response_model: beleidsregel_get
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidsdoel_get
+            response_model: beleidsregel_get
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -32,40 +34,44 @@ api:
           resolver_data:
             path: /relations/{lineage_id}
             allowed_object_types_relations:
-              - ambitie
               - beleidskeuze
-    - prefix: /beleidsdoel/static/{lineage_id}
+    - prefix: /beleidsregel/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: beleidsdoel_static_patch
-    - prefix: /modules/{module_id}/object/beleidsdoel
+            request_model: beleidsregel_static_post
+    - prefix: /modules/{module_id}/object/beleidsregel
       endpoints:
         - resolver: module_patch_object
           resolver_data:
             path: /{lineage_id}
-            request_model: beleidsdoel_patch
-            response_model: beleidsdoel_uuid
+            request_model: beleidsregel_patch
+            response_model: beleidsregel_uuid
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: beleidsdoel_basic
+            response_model: beleidsregel_basic
             allowed_filter_columns:
               - Title
+              - Weblink
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidsdoel_get
+            response_model: beleidsregel_get
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidsdoel_get
+            response_model: beleidsregel_get
 
 fields:
   title:
     name: Title
     type: str
     column: title
+  weblink:
+    name: Weblink
+    type: str
+    column: weblink
   description:
     name: Description
     type: str
@@ -107,15 +113,15 @@ fields:
     optional: true
 
 models:
-  beleidsdoel_short:
-    name: BeleidsdoelShort
+  beleidsregel_short:
+    name: BeleidsregelShort
     fields:
       object_type:
       object_id:
       uuid:
       title:
-  beleidsdoel_basic:
-    name: BeleidsdoelBasic
+  beleidsregel_basic:
+    name: BeleidsregelBasic
     fields:
       object_id:
       uuid:
@@ -123,7 +129,7 @@ models:
       created_date:
       modified_date:
       title:
-      description:
+      weblink:
     services:
       foreign_keys_extender:
         fields_map:
@@ -131,8 +137,8 @@ models:
             model_id: gebruikers_short
           - to_field: Modified_By
             model_id: gebruikers_short
-  beleidsdoel_get:
-    name: BeleidsdoelGet
+  beleidsregel_get:
+    name: BeleidsregelGet
     fields:
       object_id:
       code:
@@ -141,21 +147,20 @@ models:
       created_date:
       modified_date:
       title:
+      weblink:
       description:
       start_validity:
       end_validity:
     services:
+      insert_assets:
+        fields:
+          - Description
       relations:
         objects:
-          - object_type: ambitie
-            object_id: ambitie
-            to_field: "Ambities"
-            model_id: ambitie_short
-            wrapped_with_relation_data: true
-          - object_type: beleidskeuze
-            object_id: beleidskeuze
-            to_field: "Beleidskeuzes"
-            model_id: beleidskeuze_short
+          - object_type: beleidsdoel
+            object_id: beleidsdoel
+            to_field: "Beleidsdoelen"
+            model_id: beleidsdoel_short
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
@@ -175,8 +180,8 @@ models:
             model_id: gebruikers_short
           - to_field: Client_1
             model_id: gebruikers_short
-  beleidsdoel_patch:
-    name: BeleidsdoelPatch
+  beleidsregel_patch:
+    name: BeleidsregelPatch
     fields:
       title:
         default: none
@@ -187,13 +192,22 @@ models:
               min: 3
               max: 200
           - id: plain_text
+      weblink:
+        default: none
+        optional: true
+        validators:
+          - id: plain_text
       description:
         default: none
         optional: true
         validators:
-          - id: html
-  beleidsdoel_static_patch:
-    name: BeleidsdoelStaticPatch
+          - id: plain_text
+    services:
+      extract_assets:
+        fields:
+          - Description
+  beleidsregel_static_post:
+    name: BeleidsregelStaticPost
     static_only: true
     fields:
       owner_1_uuid:
@@ -211,8 +225,8 @@ models:
       client_1_uuid:
         default: none
         optional: true
-  beleidsdoel_uuid:
-    name: BeleidsdoelUUID
+  beleidsregel_uuid:
+    name: BeleidsregelUUID
     fields:
       object_id:
       uuid:

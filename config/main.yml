@@ -66,6 +66,8 @@ api:
               - beleidsdoel
               - beleidskeuze
               - maatregel
+              - beleidsregel
+              - gebiedsprogramma
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -189,6 +191,13 @@ columns:
     type: str
     serializers: []
     deserializers: ["str"]
+    nullable: true
+  # Image
+  image:
+    name: Image
+    type: str
+    serializers: []
+    deserializers: []
     nullable: true
   # Eigenaar 1
   owner_1_uuid:

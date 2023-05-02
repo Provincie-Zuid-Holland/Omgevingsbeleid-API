@@ -1,30 +1,30 @@
-id: beleidsdoel
-object_type: beleidsdoel
+id: gebiedsprogramma
+object_type: gebiedsprogramma
 
 api:
   routers:
-    - prefix: /beleidsdoelen
+    - prefix: /gebiedsprogrammas
       endpoints:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: beleidsdoel_get
+            response_model: gebiedsprogramma_get
             allowed_filter_columns:
               - Title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
-            response_model: beleidsdoel_basic
+            response_model: gebiedsprogramma_basic
             allowed_filter_columns:
               - Title
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidsdoel_get
+            response_model: gebiedsprogramma_get
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidsdoel_get
+            response_model: gebiedsprogramma_get
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -32,34 +32,33 @@ api:
           resolver_data:
             path: /relations/{lineage_id}
             allowed_object_types_relations:
-              - ambitie
-              - beleidskeuze
-    - prefix: /beleidsdoel/static/{lineage_id}
+              - maatregel
+    - prefix: /gebiedsprogrammas/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: beleidsdoel_static_patch
-    - prefix: /modules/{module_id}/object/beleidsdoel
+            request_model: gebiedsprogramma_static_post
+    - prefix: /modules/{module_id}/object/gebiedsprogrammas
       endpoints:
         - resolver: module_patch_object
           resolver_data:
             path: /{lineage_id}
-            request_model: beleidsdoel_patch
-            response_model: beleidsdoel_uuid
+            request_model: gebiedsprogramma_patch
+            response_model: gebiedsprogramma_uuid
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: beleidsdoel_basic
+            response_model: gebiedsprogramma_basic
             allowed_filter_columns:
               - Title
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidsdoel_get
+            response_model: gebiedsprogramma_get
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidsdoel_get
+            response_model: gebiedsprogramma_get
 
 fields:
   title:
@@ -70,6 +69,10 @@ fields:
     name: Description
     type: str
     column: description
+  image:
+    name: Image
+    type: str
+    column: image
   idms_link:
     name: IDMS_Link
     type: str
@@ -107,15 +110,15 @@ fields:
     optional: true
 
 models:
-  beleidsdoel_short:
-    name: BeleidsdoelShort
+  gebiedsprogramma_short:
+    name: GebiedsprogrammaShort
     fields:
       object_type:
       object_id:
       uuid:
       title:
-  beleidsdoel_basic:
-    name: BeleidsdoelBasic
+  gebiedsprogramma_basic:
+    name: GebiedsprogrammaBasic
     fields:
       object_id:
       uuid:
@@ -123,7 +126,6 @@ models:
       created_date:
       modified_date:
       title:
-      description:
     services:
       foreign_keys_extender:
         fields_map:
@@ -131,8 +133,8 @@ models:
             model_id: gebruikers_short
           - to_field: Modified_By
             model_id: gebruikers_short
-  beleidsdoel_get:
-    name: BeleidsdoelGet
+  gebiedsprogramma_get:
+    name: GebiedsprogrammaGet
     fields:
       object_id:
       code:
@@ -144,18 +146,22 @@ models:
       description:
       start_validity:
       end_validity:
+      image:
+        default: none
+        optional: true
     services:
+      insert_assets:
+        fields:
+          - Description
+      get_image:
+        fields:
+          - Image
       relations:
         objects:
-          - object_type: ambitie
-            object_id: ambitie
-            to_field: "Ambities"
-            model_id: ambitie_short
-            wrapped_with_relation_data: true
-          - object_type: beleidskeuze
-            object_id: beleidskeuze
-            to_field: "Beleidskeuzes"
-            model_id: beleidskeuze_short
+          - object_type: beleidsdoel
+            object_id: beleidsdoel
+            to_field: "Beleidsdoelen"
+            model_id: beleidsdoel_short
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
@@ -175,8 +181,8 @@ models:
             model_id: gebruikers_short
           - to_field: Client_1
             model_id: gebruikers_short
-  beleidsdoel_patch:
-    name: BeleidsdoelPatch
+  gebiedsprogramma_patch:
+    name: GebiedsprogrammaPatch
     fields:
       title:
         default: none
@@ -191,9 +197,19 @@ models:
         default: none
         optional: true
         validators:
-          - id: html
-  beleidsdoel_static_patch:
-    name: BeleidsdoelStaticPatch
+          - id: plain_text
+      image:
+        default: none
+        optional: true
+    services:
+      extract_assets:
+        fields:
+          - Description
+      store_image:
+        fields:
+          - Image
+  gebiedsprogramma_static_post:
+    name: GebiedsprogrammaStaticPost
     static_only: true
     fields:
       owner_1_uuid:
@@ -211,8 +227,8 @@ models:
       client_1_uuid:
         default: none
         optional: true
-  beleidsdoel_uuid:
-    name: BeleidsdoelUUID
+  gebiedsprogramma_uuid:
+    name: GebiedsprogrammaUUID
     fields:
       object_id:
       uuid:

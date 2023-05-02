@@ -35,6 +35,8 @@ api:
             path: /relations/{lineage_id}
             allowed_object_types_relations:
               - beleidskeuze
+              - gebiedsprogramma
+              - verplicht_programma
     - prefix: /maatregel/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
