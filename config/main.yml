@@ -12,13 +12,6 @@ api:
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
-    - prefix: /regulations
-      endpoints:
-        - resolver: list_regulations
-        - resolver: create_regulation
-        - resolver: edit_regulation
-          resolver_data:
-            path: /{regulation_uuid}
     - prefix: /object-graph
       endpoints:
         - resolver: object_graph
@@ -109,6 +102,27 @@ columns:
   # Omschrijving Werking
   description_operation:
     name: Description_Operation
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Wat wil de provincie bereiken?
+  accomplish:
+    name: Accomplish
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Beschrijf de uitwerking van het object
+  effect:
+    name: Effect
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Rol
+  role:
+    name: Role
     type: str
     serializers: []
     deserializers: ["str"]
@@ -256,14 +270,10 @@ users_permissions:
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
-    - can_overwrite_object_regulations
   "Beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
     - atemporal_can_delete_object
-    - can_create_regulation
-    - can_edit_regulation
-    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -278,9 +288,6 @@ users_permissions:
     - atemporal_can_create_object
     - atemporal_can_edit_object
     - atemporal_can_delete_object
-    - can_create_regulation
-    - can_edit_regulation
-    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -293,9 +300,6 @@ users_permissions:
     - atemporal_can_create_object
     - atemporal_can_edit_object
     - atemporal_can_delete_object
-    - can_create_regulation
-    - can_edit_regulation
-    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -308,9 +312,6 @@ users_permissions:
     - atemporal_can_create_object
     - atemporal_can_edit_object
     - atemporal_can_delete_object
-    - can_create_regulation
-    - can_edit_regulation
-    - can_overwrite_object_regulations
     - can_create_module
     - can_edit_module
     - can_patch_module_status

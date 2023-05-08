@@ -68,14 +68,14 @@ fields:
     name: Title
     type: str
     column: title
-  weblink:
-    name: Weblink
-    type: str
-    column: weblink
   description:
     name: Description
     type: str
     column: description
+  weblink:
+    name: Weblink
+    type: str
+    column: weblink
   idms_link:
     name: IDMS_Link
     type: str

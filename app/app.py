@@ -13,7 +13,6 @@ from app.extensions.lineage_resolvers.lineageresolvers_extension import (
     LineageResolversExtension,
 )
 from app.extensions.mssql_search.mssql_search_extension import MssqlSearchExtension
-from app.extensions.regulations.regulations_extension import RegulationsExtension
 from app.extensions.users.users_extension import UsersExtension
 from app.extensions.users.users_extension import UsersExtension
 from app.extensions.auth.auth_extension import AuthExtension
@@ -37,7 +36,6 @@ app_builder.register_extension(ExtendedForeignKeysExtension())
 app_builder.register_extension(ExtendedUserExtension())
 app_builder.register_extension(RelationsExtension())
 app_builder.register_extension(WerkingsgebiedenExtension())
-app_builder.register_extension(RegulationsExtension())
 # app_builder.register_extension(SearchExtension())
 app_builder.register_extension(MssqlSearchExtension())
 app_builder.register_extension(GraphExtension())

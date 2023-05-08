@@ -1,1 +1,0 @@
-from .regulations_repository import RegulationsRepository

@@ -34,6 +34,7 @@ api:
             allowed_object_types_relations:
               - ambitie
               - beleidskeuze
+              - maatregel
     - prefix: /beleidsdoel/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static

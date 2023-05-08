@@ -1,5 +1,0 @@
-from .create_regulation import CreateRegulationEndpointResolver
-from .edit_regulation import EditRegulationEndpointResolver
-from .list_regulations import ListRegulationsEndpointResolver
-from .overwrite_object_regulations import OverwriteObjectRegulationsEndpointResolver
-from .list_object_regulations import ListObjectRegulationsEndpointResolver

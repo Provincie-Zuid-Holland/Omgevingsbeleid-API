@@ -52,10 +52,6 @@ api:
         - resolver: edit_acknowledged_relation
           resolver_data:
             path: /edit
-    - prefix: /beleidskeuze/regulations/{lineage_id}
-      endpoints:
-        - resolver: list_object_regulations
-        - resolver: overwrite_object_regulations
     - prefix: /modules/{module_id}/object/beleidskeuze
       endpoints:
         - resolver: module_patch_object
@@ -83,10 +79,10 @@ fields:
     name: Title
     type: str
     column: title
-  description_choice:
-    name: Description_Choice
+  accomplish:
+    name: Accomplish
     type: str
-    column: description_choice
+    column: accomplish
   cause:
     name: Cause
     type: str
@@ -179,14 +175,14 @@ models:
       start_validity:
       end_validity:
       title:
-      description_choice:
+      accomplish:
       cause:
       provincial_interest:
       explanation:
     services:
       insert_assets:
         fields:
-          - Description_Choice
+          - Accomplish
           - Cause
           - Provincial_Interest
           - Explanation
@@ -217,8 +213,6 @@ models:
             to_field: "Beleidsdoelen"
             model_id: beleidsdoel_short
             wrapped_with_relation_data: true
-      regulations:
-        to_field: "Regulations"
   beleidskeuze_patch:
     name: BeleidskeuzePatch
     fields:
@@ -231,7 +225,7 @@ models:
               min: 3
               max: 200
           - id: plain_text
-      description_choice:
+      accomplish:
         default: none
         optional: true
         validators:
@@ -257,7 +251,7 @@ models:
     services:
       extract_assets:
         fields:
-          - Description_Choice
+          - Accomplish
           - Cause
           - Provincial_Interest
           - Explanation

@@ -36,16 +36,12 @@ api:
             allowed_object_types_relations:
               - beleidskeuze
               - gebiedsprogramma
-              - verplicht_programma
+              - beleidsdoel
     - prefix: /maatregel/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
             request_model: maatregel_static_patch
-    - prefix: /maatregel/regulations/{lineage_id}
-      endpoints:
-        - resolver: list_object_regulations
-        - resolver: overwrite_object_regulations
     - prefix: /modules/{module_id}/object/maatregel
       endpoints:
         - resolver: module_patch_object
@@ -74,34 +70,22 @@ fields:
     name: Title
     type: str
     column: title
-  description:
-    name: Description
+  accomplish:
+    name: Accomplish
     type: str
-    column: description
-  explanation:
-    name: Explanation
+    column: accomplish
+  role:
+    name: Role
     type: str
-    column: explanation
-  explanation_raw:
-    name: Explanation_Raw
+    column: role
+  effect:
+    name: Effect
     type: str
-    column: explanation_raw
-  weblink:
-    name: Weblink
-    type: str
-    column: weblink
+    column: effect
   gebied_uuid:
     name: Gebied_UUID
     type: uuid
     column: gebied_uuid
-  gebied_duiding:
-    name: Gebied_Duiding
-    type: str
-    column: gebied_duiding
-  tags:
-    name: Tags
-    type: str
-    column: tags
   idms_link:
     name: IDMS_Link
     type: str
@@ -157,12 +141,7 @@ models:
       start_validity:
       end_validity:
       title:
-      description:
-      explanation:
-      explanation_raw:
-      weblink:
-      gebied_duiding:
-      tags:
+      role:
     services:
       foreign_keys_extender:
         fields_map:
@@ -184,13 +163,14 @@ models:
       start_validity:
       end_validity:
       title:
-      description:
-      explanation:
-      explanation_raw:
-      weblink:
-      gebied_duiding:
-      tags:
+      accomplish:
+      role:
+      effect:
     services:
+      insert_assets:
+        fields:
+          - Accomplish
+          - Effect
       relations:
         objects:
           - object_type: beleidsdoel
@@ -218,35 +198,29 @@ models:
             model_id: gebruikers_short
           - to_field: Client_1
             model_id: gebruikers_short
-      regulations:
-        to_field: "Regulations"
   maatregel_patch:
     name: MaatregelPatch
     fields:
       title:
         default: none
         optional: true
-      description:
+      accomplish:
         default: none
         optional: true
-      explanation:
+      role:
         default: none
         optional: true
-      explanation_raw:
-        default: none
-        optional: true
-      weblink:
-        default: none
-        optional: true
-      gebied_duiding:
+      effect:
         default: none
         optional: true
       gebied_uuid:
         default: none
         optional: true
-      tags:
-        default: none
-        optional: true
+    services:
+      extract_assets:
+        fields:
+          - Accomplish
+          - Effect
   maatregel_static_patch:
     name: MaatregelStaticPatch
     static_only: true
