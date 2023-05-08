@@ -158,10 +158,10 @@ models:
           - Image
       relations:
         objects:
-          - object_type: beleidsdoel
-            object_id: beleidsdoel
-            to_field: "Beleidsdoelen"
-            model_id: beleidsdoel_short
+          - object_type: maatregel
+            object_id: maatregel
+            to_field: "Maatregelen"
+            model_id: maatregel_short
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:

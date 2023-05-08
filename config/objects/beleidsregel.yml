@@ -157,10 +157,10 @@ models:
           - Description
       relations:
         objects:
-          - object_type: beleidsdoel
-            object_id: beleidsdoel
-            to_field: "Beleidsdoelen"
-            model_id: beleidsdoel_short
+          - object_type: beleidskeuze
+            object_id: beleidskeuze
+            to_field: "Beleidskeuzes"
+            model_id: beleidskeuze_short
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:

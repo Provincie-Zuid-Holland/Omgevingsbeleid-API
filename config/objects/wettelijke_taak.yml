@@ -62,6 +62,16 @@ fields:
     optional: true
 
 models:
+  wettelijke_taak_short:
+    name: WettelijkeTaakShort
+    fields:
+      object_type:
+      object_id:
+      uuid:
+      created_date:
+      modified_date:
+      title:
+      weblink:
   wettelijke_taak_basic:
     name: WettelijkeTaakBasic
     fields:
@@ -93,6 +103,17 @@ models:
       start_validity:
       end_validity:
     services:
+      relations:
+        objects:
+          - object_type: wettelijke_taak
+            object_id: wettelijke_taak
+            to_field: "WettelijkeTaken"
+            model_id: wettelijke_taak_short
+          - object_type: beleidskeuze
+            object_id: beleidskeuze
+            to_field: "Beleidskeuzes"
+            model_id: beleidskeuze_short
+            wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By

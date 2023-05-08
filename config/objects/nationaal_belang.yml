@@ -61,6 +61,16 @@ fields:
     optional: true
 
 models:
+  nationaal_belang_short:
+    name: NationaalBelangShort
+    fields:
+      object_type:
+      object_id:
+      uuid:
+      created_date:
+      modified_date:
+      title:
+      weblink:
   nationaal_belang_basic:
     name: NationaalBelangBasic
     fields:
@@ -92,6 +102,12 @@ models:
       start_validity:
       end_validity:
     services:
+      relations:
+        objects:
+          - object_type: beleidskeuze
+            object_id: beleidskeuze
+            to_field: "Beleidskeuzes"
+            model_id: beleidskeuze_short
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By

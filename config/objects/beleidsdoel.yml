@@ -158,6 +158,11 @@ models:
             to_field: "Beleidskeuzes"
             model_id: beleidskeuze_short
             wrapped_with_relation_data: true
+          - object_type: maatregel
+            object_id: maatregel
+            to_field: "Maatregels"
+            model_id: maatregel_short
+            wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By

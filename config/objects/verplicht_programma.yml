@@ -91,6 +91,17 @@ models:
       start_validity:
       end_validity:
     services:
+      relations:
+        objects:
+          - object_type: wettelijke_taak
+            object_id: wettelijke_taak
+            to_field: "WettelijkeTaken"
+            model_id: wettelijke_taak_short
+          - object_type: maatregel
+            object_id: maatregel
+            to_field: "Maatregelen"
+            model_id: maatregel_short
+            wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By

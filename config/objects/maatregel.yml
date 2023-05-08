@@ -173,6 +173,16 @@ models:
           - Effect
       relations:
         objects:
+          - object_type: beleidskeuze
+            object_id: beleidskeuze
+            to_field: "Beleidskeuzes"
+            model_id: beleidskeuze_short
+            wrapped_with_relation_data: true
+          - object_type: gebiedsprogramma
+            object_id: gebiedsprogramma
+            to_field: "Gebiedsprogrammas"
+            model_id: gebiedsprogramma_short
+            wrapped_with_relation_data: true
           - object_type: beleidsdoel
             object_id: beleidsdoel
             to_field: "Beleidsdoelen"

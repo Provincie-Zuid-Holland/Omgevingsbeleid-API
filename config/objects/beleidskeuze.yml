@@ -32,8 +32,8 @@ api:
           resolver_data:
             path: /relations/{lineage_id}
             allowed_object_types_relations:
-              - taak
-              - belang
+              - wettelijke_taak
+              - nationaal_belang
               - beleidsdoel
               - beleidsregel
               - maatregel
@@ -208,10 +208,30 @@ models:
             model_id: gebruikers_short
       relations:
         objects:
+          - object_type: wettelijke_taak
+            object_id: wettelijke_taak
+            to_field: "WettelijkeTaken"
+            model_id: wettelijke_taak_short
+            wrapped_with_relation_data: true
+          - object_type: nationaal_belang
+            object_id: nationaal_belang
+            to_field: "NationaleBelangen"
+            model_id: nationaal_belang_short
+            wrapped_with_relation_data: true
           - object_type: beleidsdoel
             object_id: beleidsdoel
             to_field: "Beleidsdoelen"
             model_id: beleidsdoel_short
+            wrapped_with_relation_data: true
+          - object_type: beleidsregel
+            object_id: beleidsregel
+            to_field: "Beleidsregels"
+            model_id: beleidsregel_short
+            wrapped_with_relation_data: true
+          - object_type: maatregel
+            object_id: maatregel
+            to_field: "Maatregelen"
+            model_id: maatregel_short
             wrapped_with_relation_data: true
   beleidskeuze_patch:
     name: BeleidskeuzePatch
