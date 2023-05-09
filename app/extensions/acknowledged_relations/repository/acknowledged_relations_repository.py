@@ -26,6 +26,7 @@ class AcknowledgedRelationsRepository:
         code: str,
         requested_by_me: bool,
         acknowledged: Optional[bool],
+        show_denied: bool = False,
     ) -> List[AcknowledgedRelationsTable]:
         filters = []
 
@@ -41,19 +42,12 @@ class AcknowledgedRelationsRepository:
 
         if acknowledged is not None:
             if acknowledged is True:
-                filters.append(
-                    and_(
-                        AcknowledgedRelationsTable.From_Acknowledged is True,
-                        AcknowledgedRelationsTable.To_Acknowledged is True,
-                    )
-                )
+                filters.append(AcknowledgedRelationsTable.Is_Acknowledged == True)
             else:
-                filters.append(
-                    or_(
-                        AcknowledgedRelationsTable.From_Acknowledged is False,
-                        AcknowledgedRelationsTable.To_Acknowledged is False,
-                    )
-                )
+                filters.append(AcknowledgedRelationsTable.Is_Acknowledged == False)
+
+        if show_denied:
+            filters.append(AcknowledgedRelationsTable.Is_Denied == True)
 
         stmt = select(AcknowledgedRelationsTable).filter(*filters)
         rows: List[AcknowledgedRelationsTable] = self._db.scalars(stmt).all()
