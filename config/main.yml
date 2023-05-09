@@ -12,13 +12,6 @@ api:
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
-    - prefix: /regulations
-      endpoints:
-        - resolver: list_regulations
-        - resolver: create_regulation
-        - resolver: edit_regulation
-          resolver_data:
-            path: /{regulation_uuid}
     - prefix: /object-graph
       endpoints:
         - resolver: object_graph
@@ -66,6 +59,8 @@ api:
               - beleidsdoel
               - beleidskeuze
               - maatregel
+              - beleidsregel
+              - gebiedsprogramma
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -107,6 +102,27 @@ columns:
   # Omschrijving Werking
   description_operation:
     name: Description_Operation
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Wat wil de provincie bereiken?
+  accomplish:
+    name: Accomplish
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Beschrijf de uitwerking van het object
+  effect:
+    name: Effect
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Rol
+  role:
+    name: Role
     type: str
     serializers: []
     deserializers: ["str"]
@@ -190,6 +206,13 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # Image
+  image:
+    name: Image
+    type: str
+    serializers: []
+    deserializers: []
+    nullable: true
   # Eigenaar 1
   owner_1_uuid:
     name: Owner_1_UUID
@@ -247,11 +270,10 @@ users_permissions:
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
     - can_edit_module_object_context
-    - can_overwrite_object_regulations
   "Beheerder":
-    - can_create_regulation
-    - can_edit_regulation
-    - can_overwrite_object_regulations
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -263,9 +285,9 @@ users_permissions:
   "Portefeuillehouder": []
   "Technisch beheerder": []
   "Superuser":
-    - can_create_regulation
-    - can_edit_regulation
-    - can_overwrite_object_regulations
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -275,9 +297,9 @@ users_permissions:
     - can_remove_object_from_module
     - can_patch_object_in_module
   "Test runner":
-    - can_create_regulation
-    - can_edit_regulation
-    - can_overwrite_object_regulations
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
     - can_create_module
     - can_edit_module
     - can_patch_module_status
@@ -287,9 +309,9 @@ users_permissions:
     - can_remove_object_from_module
     - can_patch_object_in_module
   "Tester":
-    - can_create_regulation
-    - can_edit_regulation
-    - can_overwrite_object_regulations
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
     - can_create_module
     - can_edit_module
     - can_patch_module_status

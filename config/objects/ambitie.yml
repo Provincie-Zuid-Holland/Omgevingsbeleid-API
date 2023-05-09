@@ -11,14 +11,12 @@ api:
             response_model: ambitie_get
             allowed_filter_columns:
               - Title
-              - Weblink
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: ambitie_basic
             allowed_filter_columns:
               - Title
-              - Weblink
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
@@ -53,7 +51,6 @@ api:
             response_model: ambitie_basic
             allowed_filter_columns:
               - Title
-              - Weblink
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
@@ -72,10 +69,6 @@ fields:
     name: Description
     type: str
     column: description
-  weblink:
-    name: Weblink
-    type: str
-    column: weblink
   idms_link:
     name: IDMS_Link
     type: str
@@ -96,6 +89,21 @@ fields:
     type: uuid
     column: owner_2_uuid
     optional: true
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  client_1_uuid:
+    name: Client_1_UUID
+    type: uuid
+    column: client_1_uuid
+    optional: true
 
 models:
   ambitie_short:
@@ -114,7 +122,6 @@ models:
       created_date:
       modified_date:
       title:
-      weblink:
     services:
       foreign_keys_extender:
         fields_map:
@@ -133,7 +140,6 @@ models:
       modified_date:
       title:
       description:
-      weblink:
       start_validity:
       end_validity:
     services:
@@ -159,6 +165,12 @@ models:
             model_id: gebruikers_short
           - to_field: Owner_2
             model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
   ambitie_patch:
     name: AmbitiePatch
     fields:
@@ -175,11 +187,6 @@ models:
         default: none
         optional: true
         validators:
-          - id: html
-      weblink:
-        default: none
-        optional: true
-        validators:
           - id: plain_text
     services:
       extract_assets:
@@ -193,6 +200,15 @@ models:
         default: none
         optional: true
       owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
         default: none
         optional: true
   ambitie_uuid:

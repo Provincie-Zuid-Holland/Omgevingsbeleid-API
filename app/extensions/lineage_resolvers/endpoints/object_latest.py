@@ -84,7 +84,7 @@ class ObjectLatestEndpoint(Endpoint):
         Ask extensions for more information.
         """
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
-            RetrievedObjectsEvent.create_from_object_tables(
+            RetrievedObjectsEvent.create(
                 table_rows,
                 self._endpoint_id,
                 self._response_model,

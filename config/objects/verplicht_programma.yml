@@ -1,0 +1,164 @@
+id: verplicht_programma
+object_type: verplicht_programma
+
+api:
+  routers:
+    - prefix: /verplicht-programma
+      endpoints:
+        - resolver: atemporal_create_object
+          resolver_data:
+            request_model: verplicht_programma_create
+            response_model: verplicht_programma_uuid
+        - resolver: atemporal_edit_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: verplicht_programma_edit
+        - resolver: valid_list_lineages
+          resolver_data:
+            path: /valid
+            response_model: verplicht_programma_basic
+            allowed_filter_columns:
+              - Title
+        - resolver: object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: verplicht_programma_get
+        - resolver: list_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+        - resolver: overwrite_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+            allowed_object_types_relations:
+              - maatregel
+              - wettelijke_taak
+    - prefix: /verplicht-programma/static/{lineage_id}
+      endpoints:
+        - resolver: edit_object_static
+          resolver_data:
+            request_model: verplicht_programma_static_edit
+
+fields:
+  title:
+    name: Title
+    type: str
+    column: title
+  description:
+    name: Description
+    type: str
+    column: description
+
+  # Statics
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    column: owner_1_uuid
+    optional: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    column: owner_2_uuid
+    optional: true
+
+models:
+  verplicht_programma_basic:
+    name: VerplichtProgrammaBasic
+    fields:
+      object_type:
+      object_id:
+      uuid:
+      created_date:
+      modified_date:
+      title:
+    services:
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: gebruikers_short
+          - to_field: Modified_By
+            model_id: gebruikers_short
+  verplicht_programma_get:
+    name: VerplichtProgrammaGet
+    fields:
+      object_type:
+      object_id:
+      code:
+      uuid:
+      created_date:
+      modified_date:
+      title:
+      description:
+      start_validity:
+      end_validity:
+    services:
+      relations:
+        objects:
+          - object_type: wettelijke_taak
+            object_id: wettelijke_taak
+            to_field: "WettelijkeTaken"
+            model_id: wettelijke_taak_short
+          - object_type: maatregel
+            object_id: maatregel
+            to_field: "Maatregelen"
+            model_id: maatregel_short
+            wrapped_with_relation_data: true
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: gebruikers_short
+          - to_field: Modified_By
+            model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+  verplicht_programma_create:
+    name: VerplichtProgrammaCreate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        optional: true
+        validators:
+          - id: plain_text
+      owner_1_uuid:
+      owner_2_uuid:
+  verplicht_programma_edit:
+    name: VerplichtProgrammaEdit
+    fields:
+      title:
+        default: none
+        optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        default: none
+        optional: true
+        validators:
+          - id: plain_text
+  verplicht_programma_static_edit:
+    name: VerplichtProgrammaStaticEdit
+    static_only: true
+    fields:
+      owner_1_uuid:
+        default: none
+        optional: true
+      owner_2_uuid:
+        default: none
+        optional: true
+  verplicht_programma_uuid:
+    name: VerplichtProgrammaUUID
+    fields:
+      object_id:
+      uuid:
