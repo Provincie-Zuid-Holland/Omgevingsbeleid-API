@@ -37,8 +37,8 @@ class EditAcknowledgedRelation(AcknowledgedRelationBase):
 class AcknowledgedRelationSide(AcknowledgedRelationBase):
     Acknowledged: Optional[datetime] = None
     Acknowledged_By_UUID: Optional[uuid.UUID] = None
-    Title: str = ""  # TODO: why? ""
-    Explanation: str = ""
+    Title: str = Field(default="")
+    Explanation: str = Field(default="")
 
     @property
     def Is_Acknowledged(self) -> bool:

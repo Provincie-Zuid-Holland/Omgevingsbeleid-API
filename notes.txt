@@ -53,3 +53,30 @@ search_query = f"""
                     ORDER BY f.WeightedRank DESC"""
 result_rows = self._run_query_fetch(search_query, [args, args])
 
+
+
+
+sp_rename 'objects.Start_Validity', 'Start_Validity_String', 'COLUMN'
+
+sp_rename 'module_objects.Start_Validity', 'Start_Validity_String', 'COLUMN'
+
+sp_rename 'objects.End_Validity', 'End_Validity_String', 'COLUMN'
+
+sp_rename 'module_objects.End_Validity', 'End_Validity_String', 'COLUMN'
+
+
+ALTER TABLE objects ADD Start_Validity datetime;
+ALTER TABLE objects ADD End_Validity datetime;
+
+ALTER TABLE module_objects ADD Start_Validity datetime;
+ALTER TABLE module_objects ADD End_Validity datetime;
+
+
+UPDATE objects
+SET Start_Validity = CONVERT(datetime, SUBSTRING(Start_Validity_String, 1, 23), 121);
+
+
+UPDATE module_objects
+SET Start_Validity = CONVERT(datetime, SUBSTRING(Start_Validity_String, 1, 23), 121);
+
+

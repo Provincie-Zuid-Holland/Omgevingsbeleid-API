@@ -1,6 +1,6 @@
-import uuid
 from typing import Optional
 from datetime import datetime
+import uuid
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -8,13 +8,13 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 class HasUUID:
     UUID: Mapped[uuid.UUID] = mapped_column(
-        primary_key=True, default=lambda: uuid.uuid4()
+        primary_key=True
     )
 
 
 class TimeStamped:
-    Created_Date: Mapped[Optional[datetime]] = mapped_column(default=datetime.now())
-    Modified_Date: Mapped[Optional[datetime]] = mapped_column(default=datetime.now())
+    Created_Date: Mapped[Optional[datetime]]
+    Modified_Date: Mapped[Optional[datetime]]
 
 
 class UserMetaData:

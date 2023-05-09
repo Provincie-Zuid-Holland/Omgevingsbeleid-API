@@ -30,15 +30,15 @@ class AcknowledgedRelationBaseColumns(TimeStamped, UserMetaData):
     To_Code: Mapped[int] = mapped_column(
         ForeignKey("object_statics.Code"), primary_key=True
     )
-    To_Acknowledged: Mapped[Optional[datetime]]
+    To_Acknowledged: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     To_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("Gebruikers.UUID")
     )
     To_Title: Mapped[str] = mapped_column(default="")
     To_Explanation: Mapped[str] = mapped_column(default="")
 
-    Denied: Mapped[Optional[datetime]] = mapped_column(default=None, nullable=True)
-    Deleted_At: Mapped[Optional[datetime]] = mapped_column(default=None, nullable=True)
+    Denied: Mapped[Optional[datetime]]
+    Deleted_At: Mapped[Optional[datetime]]
 
 
 class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):

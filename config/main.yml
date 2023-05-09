@@ -92,27 +92,6 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
-  # Omschrijving Keuze
-  description_choice:
-    name: Description_Choice
-    type: str
-    serializers: []
-    deserializers: ["str"]
-    nullable: true
-  # Omschrijving Werking
-  description_operation:
-    name: Description_Operation
-    type: str
-    serializers: []
-    deserializers: ["str"]
-    nullable: true
-  # Wat wil de provincie bereiken?
-  accomplish:
-    name: Accomplish
-    type: str
-    serializers: []
-    deserializers: ["str"]
-    nullable: true
   # Beschrijf de uitwerking van het object
   effect:
     name: Effect
@@ -141,13 +120,6 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
-  # Afweging
-  consideration:
-    name: Consideration
-    type: str
-    serializers: []
-    deserializers: ["str"]
-    nullable: true
   # Besluitnummer
   decision_number:
     name: Decision_Number
@@ -162,23 +134,9 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
-  # Toelichting Raw
-  explanation_raw:
-    name: Explanation_Raw
-    type: str
-    serializers: []
-    deserializers: ["str"]
-    nullable: true
   # Weblink
   weblink:
     name: Weblink
-    type: str
-    serializers: []
-    deserializers: ["str"]
-    nullable: true
-  # Tags
-  tags:
-    name: Tags
     type: str
     serializers: []
     deserializers: ["str"]
@@ -337,10 +295,18 @@ modules_xml_export:
 
 mssql_search:
   - table_name: objects
-    searchable_fields:
+    searchable_columns_high:
       - Title
+    searchable_columns_low:
       - Description
+      - Effect
+      - Provincial_Interest
+      - Cause
   - table_name: module_objects
-    searchable_fields:
+    searchable_columns_high:
       - Title
+    searchable_columns_low:
       - Description
+      - Effect
+      - Provincial_Interest
+      - Cause

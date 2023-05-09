@@ -1,10 +1,9 @@
-from typing import List, Optional
+from typing import List
 import uuid
-from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, validator
-from sqlalchemy import desc, select, func, text
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -16,24 +15,6 @@ from app.dynamic.utils.pagination import Pagination
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
-
-
-class SearchRequest(BaseModel):
-    UUIDS: List[uuid.UUID] = []
-    Object_Types: List[str] = []
-    Query: Optional[str] = None
-    Owner: Optional[uuid.UUID] = None
-
-    Offset: Optional[int] = None
-    Limit: Optional[int] = None
-
-    def is_empty(self) -> bool:
-        return not any([
-            self.UUIDS,
-            self.Object_Types,
-            self.Query,
-            self.Owner,
-        ])
 
 
 class SearchObject(BaseModel):
@@ -59,87 +40,91 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
-        object_in: SearchRequest,
+        pagination: Pagination,
+        query: str,
     ):
         self._db: Session = db
-        self._object_in: SearchRequest = object_in
+        self._pagination: Pagination = pagination
+        self._query: str = query
 
     def handle(self) -> SearchResponse:
-        if self._object_in.is_empty():
-            raise ValueError("Missing search filters")
+        if not len(self._query):
+            raise ValueError("Missing search query")
 
         stmt = text(
             f"""
-                SELECT
-                    UUID
-                FROM (
+                WITH valid_uuids (UUID, Object_Type, Object_ID, Title, Description)
+                AS
+                (
                     SELECT
                         UUID,
-                        End_Validity,
-                        ROW_NUMBER() OVER (
-                            PARTITION BY
-                                Code
-                            ORDER BY
-                                Modified_Date DESC
-                        ) AS _RowNumber
-                    FROM
-                        {ObjectsTable.__table__}
+                        Object_Type,
+                        Object_ID,
+                        Title,
+                        Description
+                    FROM (
+                        SELECT
+                            UUID,
+                            Object_Type,
+                            Object_ID,
+                            Title,
+                            Description,
+                            End_Validity,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY
+                                    Code
+                                ORDER BY
+                                    Modified_Date DESC
+                            ) AS _RowNumber
+                        FROM
+                            {ObjectsTable.__table__}
+                        WHERE
+                            Start_Validity <= GETDATE()
+                    ) AS valid_subquery
                     WHERE
-                        Start_Validity <= GETDATE()
-                ) AS valid_subquery
-                WHERE
-                    _RowNumber = 1
-                    AND End_Validity > GETDATE()
+                        _RowNumber = 1
+                        AND (End_Validity > GETDATE() OR End_Validity IS NULL)
+                )
+
+                SELECT
+                    v.UUID,
+                    v.Object_Type,
+                    v.Object_ID,
+                    v.Title,
+                    v.Description,
+                    CAST(FLOOR(s.WeightedRank) AS INT) AS _Rank
+                FROM valid_uuids AS v
+                INNER JOIN
+                (
+                    SELECT
+                        [KEY],
+                        SUM(Rank) as WeightedRank
+                    FROM
+                    (
+                        SELECT Rank * 1 as Rank, [KEY] from CONTAINSTABLE({ObjectsTable.__table__}, (Title), :query)
+                            UNION
+                        SELECT Rank * 0.5 as Rank, [KEY] from CONTAINSTABLE({ObjectsTable.__table__}, (Description), :query)
+                    ) AS x
+                    GROUP BY [KEY]
+                ) AS s ON s.[KEY] = v.UUID
+                ORDER BY
+                    s.WeightedRank DESC
+                OFFSET
+                    0 ROWS 
+                FETCH
+                    NEXT 10 ROWS ONLY
             """
         )
 
-        # Valid objects
-        subq = (
-            select(
-                ObjectsTable,
-                func.row_number()
-                .over(
-                    partition_by=ObjectsTable.Code,
-                    order_by=desc(ObjectsTable.Modified_Date),
-                )
-                .label("_RowNumber"),
-            )
-            .select_from(ObjectsTable)
-            .filter(ObjectsTable.Start_Validity <= datetime.now())
-            .subquery()
-        )
-
-
-        stmt = self._search_stmt()
-        table_rows = self._db.execute(stmt).all()
-        search_objects: List[SearchObject] = [
-            SearchObject.parse_obj(r._asdict()) for r in table_rows
-        ]
+        # stmt = self._search_stmt()
+        # table_rows = self._db.execute(stmt).all()
+        # search_objects: List[SearchObject] = [
+        #     SearchObject.parse_obj(r._asdict()) for r in table_rows
+        # ]
 
         return SearchResponse(
-            Objects=search_objects,
+            Objects=[],
         )
-
-    def _search_stmt(self):
-        like_query = f"%{self._query}%"
-        stmt = (
-            select(
-                ObjectsTable.Object_Type,
-                ObjectsTable.Object_ID,
-                ObjectsTable.UUID,
-                ObjectsTable.Title,
-                ObjectsTable.Description,
-            )   
-            .select_from(ObjectsTable)
-            .filter(
-                ObjectsTable.Title.like(like_query)
-                | ObjectsTable.Description.like(like_query)
-            )
-            .order_by(desc(ObjectsTable.Modified_Date))
-            .limit(self._pagination.get_limit())
-            .offset(self._pagination.get_offset())
-        )
-        return stmt
 
 
 class MssqlValidSearchEndpoint(Endpoint):
@@ -148,12 +133,14 @@ class MssqlValidSearchEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            object_in: SearchRequest,
+            query: str,
             db: Session = Depends(depends_db),
+            pagination: Pagination = Depends(depends_pagination),
         ) -> SearchResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
-                object_in,
+                pagination,
+                query,
             )
             return handler.handle()
 
