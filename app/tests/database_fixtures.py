@@ -541,8 +541,7 @@ class DatabaseFixtures:
             AcknowledgedRelationSide(
                 Object_ID=1,
                 Object_Type="beleidskeuze",
-                Acknowledged=True,
-                Acknowledged_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Acknowledged=datetime(2023, 2, 2, 3, 3, 3),
                 Acknowledged_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Title="Relatie naar beleidskeuze 2",
                 Explanation="",
@@ -550,8 +549,7 @@ class DatabaseFixtures:
             AcknowledgedRelationSide(
                 Object_ID=2,
                 Object_Type="beleidskeuze",
-                Acknowledged=True,
-                Acknowledged_Date=datetime(2023, 2, 3, 3, 3, 3),
+                Acknowledged=datetime(2023, 2, 3, 3, 3, 3),
                 Acknowledged_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Title="Relatie naar beleidskeuze 1",
                 Explanation="",

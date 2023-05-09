@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -13,20 +12,12 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
-from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
+from app.extensions.acknowledged_relations.models.models import (
+    AcknowledgedRelationSide,
+    RequestAcknowledgedRelation,
+)
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
-
-
-class RequestAcknowledgedRelation(BaseModel):
-    Object_ID: int
-    Object_Type: str
-    Title: str
-    Explanation: str
-
-    @property
-    def Code(self) -> str:
-        return f"{self.Object_Type}-{self.Object_ID}"
 
 
 class EndpointHandler:
@@ -54,8 +45,7 @@ class EndpointHandler:
         my_side = AcknowledgedRelationSide(
             Object_ID=self._lineage_id,
             Object_Type=self._object_type,
-            Acknowledged=True,
-            Acknowledged_Date=self._now,
+            Acknowledged=self._now,
             Acknowledged_By_UUID=self._user.UUID,
             Title=self._object_in.Title,
             Explanation=self._object_in.Explanation,

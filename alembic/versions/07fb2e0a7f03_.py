@@ -229,22 +229,6 @@ def upgrade() -> None:
     )
 
     op.create_table(
-        "object_werkingsgebieden",
-        sa.Column("Object_Code", sa.String(length=35), nullable=False),
-        sa.Column("Werkingsgebied_UUID", sa.Uuid(), nullable=False),
-        sa.Column("Description", sa.String(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["Object_Code"],
-            ["object_statics.Code"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["Werkingsgebied_UUID"],
-            ["Werkingsgebieden.UUID"],
-        ),
-        sa.PrimaryKeyConstraint("Object_Code", "Werkingsgebied_UUID"),
-    )
-
-    op.create_table(
         "objects",
         sa.Column("UUID", sa.Uuid(), nullable=False),
         sa.Column("Code", sa.String(length=35), nullable=False),
@@ -369,7 +353,6 @@ def downgrade() -> None:
     op.drop_table("module_objects")
     op.drop_table("relations")
     op.drop_table("objects")
-    op.drop_table("object_werkingsgebieden")
     op.drop_table("module_status_history")
     op.drop_table("module_object_context")
     op.drop_table("acknowledged_relations")

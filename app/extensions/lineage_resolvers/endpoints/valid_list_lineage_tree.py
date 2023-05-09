@@ -96,7 +96,6 @@ class ValidListLineageTreeEndpoint(Endpoint):
 
         # Ask extensions for more information
         rows = self._run_events(rows, event_dispatcher)
-
         return rows
 
     def _run_events(

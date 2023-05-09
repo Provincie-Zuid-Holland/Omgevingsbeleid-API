@@ -1,5 +1,6 @@
 from app.core.settings import settings
 from app.dynamic.dynamic_app import DynamicAppBuilder
+from app.extensions.atemporal.atemporal_extension import AtemporalExtension
 from app.extensions.database_migration.database_migration_extension import (
     DatabaseMigrationExtension,
 )
@@ -12,7 +13,6 @@ from app.extensions.lineage_resolvers.lineageresolvers_extension import (
     LineageResolversExtension,
 )
 from app.extensions.mssql_search.mssql_search_extension import MssqlSearchExtension
-from app.extensions.regulations.regulations_extension import RegulationsExtension
 from app.extensions.users.users_extension import UsersExtension
 from app.extensions.users.users_extension import UsersExtension
 from app.extensions.auth.auth_extension import AuthExtension
@@ -28,6 +28,7 @@ from app.extensions.acknowledged_relations.acknowledged_relations_extension impo
 
 app_builder = DynamicAppBuilder(settings.MAIN_CONFIG_FILE)
 
+app_builder.register_extension(AtemporalExtension())
 app_builder.register_extension(LineageResolversExtension())
 app_builder.register_extension(UsersExtension())
 app_builder.register_extension(AuthExtension())
@@ -35,7 +36,6 @@ app_builder.register_extension(ExtendedForeignKeysExtension())
 app_builder.register_extension(ExtendedUserExtension())
 app_builder.register_extension(RelationsExtension())
 app_builder.register_extension(WerkingsgebiedenExtension())
-app_builder.register_extension(RegulationsExtension())
 # app_builder.register_extension(SearchExtension())
 app_builder.register_extension(MssqlSearchExtension())
 app_builder.register_extension(GraphExtension())

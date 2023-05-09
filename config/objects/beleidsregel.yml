@@ -1,30 +1,32 @@
-id: beleidskeuze
-object_type: beleidskeuze
+id: beleidsregel
+object_type: beleidsregel
 
 api:
   routers:
-    - prefix: /beleidskeuzes
+    - prefix: /beleidsregels
       endpoints:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: beleidskeuze_get
+            response_model: beleidsregel_get
             allowed_filter_columns:
               - Title
+              - Weblink
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
-            response_model: beleidskeuze_basic
+            response_model: beleidsregel_basic
             allowed_filter_columns:
               - Title
+              - Weblink
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidskeuze_get
+            response_model: beleidsregel_get
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidskeuze_get
+            response_model: beleidsregel_get
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -32,69 +34,48 @@ api:
           resolver_data:
             path: /relations/{lineage_id}
             allowed_object_types_relations:
-              - wettelijke_taak
-              - nationaal_belang
-              - beleidsdoel
-              - beleidsregel
-              - maatregel
-    - prefix: /beleidskeuze/static/{lineage_id}
+              - beleidskeuze
+    - prefix: /beleidsregel/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: beleidskeuze_static_patch
-    - prefix: /beleidskeuze/acknowledged-relations/{lineage_id}
-      endpoints:
-        - resolver: list_acknowledged_relations
-        - resolver: request_acknowledged_relation
-          resolver_data:
-            allowed_object_types:
-              - beleidskeuze
-        - resolver: edit_acknowledged_relation
-          resolver_data:
-            path: /edit
-    - prefix: /modules/{module_id}/object/beleidskeuze
+            request_model: beleidsregel_static_post
+    - prefix: /modules/{module_id}/object/beleidsregel
       endpoints:
         - resolver: module_patch_object
           resolver_data:
             path: /{lineage_id}
-            request_model: beleidskeuze_patch
-            response_model: beleidskeuze_uuid
+            request_model: beleidsregel_patch
+            response_model: beleidsregel_uuid
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: beleidskeuze_basic
+            response_model: beleidsregel_basic
             allowed_filter_columns:
               - Title
+              - Weblink
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidskeuze_get
+            response_model: beleidsregel_get
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidskeuze_get
+            response_model: beleidsregel_get
 
 fields:
   title:
     name: Title
     type: str
     column: title
-  accomplish:
-    name: Accomplish
+  description:
+    name: Description
     type: str
-    column: accomplish
-  cause:
-    name: Cause
+    column: description
+  weblink:
+    name: Weblink
     type: str
-    column: cause
-  provincial_interest:
-    name: Provincial_Interest
-    type: str
-    column: provincial_interest
-  explanation:
-    name: Explanation
-    type: str
-    column: explanation
+    column: weblink
   idms_link:
     name: IDMS_Link
     type: str
@@ -103,11 +84,7 @@ fields:
     name: Decision_Number
     type: str
     column: decision_number
-  gebied_uuid:
-    name: Gebied_UUID
-    type: uuid
-    column: gebied_uuid
-  
+
   # Statics
   owner_1_uuid:
     name: Owner_1_UUID
@@ -136,35 +113,32 @@ fields:
     optional: true
 
 models:
-  beleidskeuze_short:
-    name: BeleidskeuzeShort
+  beleidsregel_short:
+    name: BeleidsregelShort
     fields:
       object_type:
       object_id:
       uuid:
       title:
-  beleidskeuze_basic:
-    name: BeleidskeuzeBasic
+  beleidsregel_basic:
+    name: BeleidsregelBasic
     fields:
       object_id:
       uuid:
       adjust_on:
       created_date:
       modified_date:
-      start_validity:
-      end_validity:
       title:
+      weblink:
     services:
       foreign_keys_extender:
         fields_map:
-          - to_field: Gebied
-            model_id: werkingsgebied
           - to_field: Created_By
             model_id: gebruikers_short
           - to_field: Modified_By
             model_id: gebruikers_short
-  beleidskeuze_get:
-    name: BeleidskeuzeGet
+  beleidsregel_get:
+    name: BeleidsregelGet
     fields:
       object_id:
       code:
@@ -172,24 +146,24 @@ models:
       adjust_on:
       created_date:
       modified_date:
+      title:
+      weblink:
+      description:
       start_validity:
       end_validity:
-      title:
-      accomplish:
-      cause:
-      provincial_interest:
-      explanation:
     services:
       insert_assets:
         fields:
-          - Accomplish
-          - Cause
-          - Provincial_Interest
-          - Explanation
+          - Description
+      relations:
+        objects:
+          - object_type: beleidskeuze
+            object_id: beleidskeuze
+            to_field: "Beleidskeuzes"
+            model_id: beleidskeuze_short
+            wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
-          - to_field: Gebied
-            model_id: werkingsgebied
           - to_field: Created_By
             model_id: gebruikers_short
           - to_field: Modified_By
@@ -206,35 +180,8 @@ models:
             model_id: gebruikers_short
           - to_field: Client_1
             model_id: gebruikers_short
-      relations:
-        objects:
-          - object_type: wettelijke_taak
-            object_id: wettelijke_taak
-            to_field: "WettelijkeTaken"
-            model_id: wettelijke_taak_short
-            wrapped_with_relation_data: true
-          - object_type: nationaal_belang
-            object_id: nationaal_belang
-            to_field: "NationaleBelangen"
-            model_id: nationaal_belang_short
-            wrapped_with_relation_data: true
-          - object_type: beleidsdoel
-            object_id: beleidsdoel
-            to_field: "Beleidsdoelen"
-            model_id: beleidsdoel_short
-            wrapped_with_relation_data: true
-          - object_type: beleidsregel
-            object_id: beleidsregel
-            to_field: "Beleidsregels"
-            model_id: beleidsregel_short
-            wrapped_with_relation_data: true
-          - object_type: maatregel
-            object_id: maatregel
-            to_field: "Maatregelen"
-            model_id: maatregel_short
-            wrapped_with_relation_data: true
-  beleidskeuze_patch:
-    name: BeleidskeuzePatch
+  beleidsregel_patch:
+    name: BeleidsregelPatch
     fields:
       title:
         default: none
@@ -245,38 +192,22 @@ models:
               min: 3
               max: 200
           - id: plain_text
-      accomplish:
+      weblink:
         default: none
         optional: true
         validators:
-          - id: html
-      cause:
+          - id: plain_text
+      description:
         default: none
         optional: true
         validators:
-          - id: html
-      provincial_interest:
-        default: none
-        optional: true
-        validators:
-          - id: html
-      explanation:
-        default: none
-        optional: true
-        validators:
-          - id: html
-      gebied_uuid:
-        default: none
-        optional: true
+          - id: plain_text
     services:
       extract_assets:
         fields:
-          - Accomplish
-          - Cause
-          - Provincial_Interest
-          - Explanation
-  beleidskeuze_static_patch:
-    name: BeleidskeuzeStaticPatch
+          - Description
+  beleidsregel_static_post:
+    name: BeleidsregelStaticPost
     static_only: true
     fields:
       owner_1_uuid:
@@ -294,8 +225,8 @@ models:
       client_1_uuid:
         default: none
         optional: true
-  beleidskeuze_uuid:
-    name: BeleidskeuzeUUID
+  beleidsregel_uuid:
+    name: BeleidsregelUUID
     fields:
       object_id:
       uuid:

@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -16,24 +15,15 @@ from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelation
 from app.extensions.acknowledged_relations.dependencies import (
     depends_acknowledged_relations_repository,
 )
-from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
+from app.extensions.acknowledged_relations.models.models import (
+    AcknowledgedRelationSide,
+    EditAcknowledgedRelation,
+)
 from app.extensions.acknowledged_relations.repository.acknowledged_relations_repository import (
     AcknowledgedRelationsRepository,
 )
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
-
-
-class EditAcknowledgedRelation(BaseModel):
-    Object_ID: int
-    Object_Type: str
-    Title: Optional[str] = Field(None, nullable=True)
-    Explanation: Optional[str] = Field(None, nullable=True)
-    Acknowledged: Optional[bool] = Field(None, nullable=True)
-
-    @property
-    def Code(self) -> str:
-        return f"{self.Object_Type}-{self.Object_ID}"
 
 
 class EndpointHandler:
@@ -73,11 +63,17 @@ class EndpointHandler:
         if self._object_in.Acknowledged == False:
             side.disapprove()
         if self._object_in.Acknowledged == True:
-            side.approve(self._timepoint, self._user.UUID)
+            side.approve(self._user.UUID)
 
         relation.apply_side(side)
         relation.Modified_Date = self._timepoint
         relation.Modified_By_UUID = self._user.UUID
+
+        if self._object_in.Denied == True:
+            relation.deny()
+
+        if self._object_in.Deleted_At == True:
+            relation.delete()
 
         self._db.add(relation)
         self._db.flush()

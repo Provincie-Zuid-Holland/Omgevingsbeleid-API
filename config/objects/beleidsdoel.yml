@@ -11,14 +11,12 @@ api:
             response_model: beleidsdoel_get
             allowed_filter_columns:
               - Title
-              - Weblink
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: beleidsdoel_basic
             allowed_filter_columns:
               - Title
-              - Weblink
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
@@ -36,6 +34,7 @@ api:
             allowed_object_types_relations:
               - ambitie
               - beleidskeuze
+              - maatregel
     - prefix: /beleidsdoel/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
@@ -54,7 +53,6 @@ api:
             response_model: beleidsdoel_basic
             allowed_filter_columns:
               - Title
-              - Weblink
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
@@ -73,10 +71,6 @@ fields:
     name: Description
     type: str
     column: description
-  weblink:
-    name: Weblink
-    type: str
-    column: weblink
   idms_link:
     name: IDMS_Link
     type: str
@@ -97,6 +91,21 @@ fields:
     type: uuid
     column: owner_2_uuid
     optional: true
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  client_1_uuid:
+    name: Client_1_UUID
+    type: uuid
+    column: client_1_uuid
+    optional: true
 
 models:
   beleidsdoel_short:
@@ -116,7 +125,6 @@ models:
       modified_date:
       title:
       description:
-      weblink:
     services:
       foreign_keys_extender:
         fields_map:
@@ -135,7 +143,6 @@ models:
       modified_date:
       title:
       description:
-      weblink:
       start_validity:
       end_validity:
     services:
@@ -151,6 +158,11 @@ models:
             to_field: "Beleidskeuzes"
             model_id: beleidskeuze_short
             wrapped_with_relation_data: true
+          - object_type: maatregel
+            object_id: maatregel
+            to_field: "Maatregels"
+            model_id: maatregel_short
+            wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
@@ -163,18 +175,29 @@ models:
             model_id: gebruikers_short
           - to_field: Owner_2
             model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
   beleidsdoel_patch:
     name: BeleidsdoelPatch
     fields:
       title:
         default: none
         optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
       description:
         default: none
         optional: true
-      weblink:
-        default: none
-        optional: true
+        validators:
+          - id: html
   beleidsdoel_static_patch:
     name: BeleidsdoelStaticPatch
     static_only: true
@@ -183,6 +206,15 @@ models:
         default: none
         optional: true
       owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
         default: none
         optional: true
   beleidsdoel_uuid:

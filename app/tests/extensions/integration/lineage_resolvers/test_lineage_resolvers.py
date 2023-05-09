@@ -146,7 +146,7 @@ class TestLineageResolvers:
             )
 
         assert len(response) == 1
-        assert response[0].UUID == self.valid_latest.UUID
+        assert response[0]["UUID"] == self.valid_latest.UUID
 
     def test_valid_lineage_tree(
         self,
