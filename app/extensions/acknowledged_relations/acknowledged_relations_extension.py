@@ -7,7 +7,6 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
 import app.extensions.acknowledged_relations.endpoints as endpoints
-import app.extensions.acknowledged_relations.listeners as listeners
 from app.extensions.acknowledged_relations.models import AcknowledgedRelation
 
 
@@ -32,12 +31,3 @@ class AcknowledgedRelationsExtension(Extension):
             endpoints.RequestAcknowledgedRelationEndpointResolver(),
             endpoints.EditAcknowledgedRelationEndpointResolver(),
         ]
-
-    def register_listeners(
-        self,
-        main_config: dict,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
-        models_resolver: ModelsResolver,
-    ):
-        event_dispatcher.register(listeners.DisapproveAcknowledgedRelationsListener())
