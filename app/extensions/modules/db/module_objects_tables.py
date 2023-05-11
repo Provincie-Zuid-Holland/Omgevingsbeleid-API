@@ -4,7 +4,6 @@ from sqlalchemy import ForeignKey, ForeignKeyConstraint, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
-from app.dynamic.db.object_static_table import ObjectStaticsTable
 from .tables import ModuleObjectContextTable
 
 
