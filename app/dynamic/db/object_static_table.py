@@ -1,7 +1,10 @@
+from typing import List
+
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
+from app.dynamic.db.objects_table import ObjectsTable
 
 
 class StaticBaseColumns:
@@ -13,5 +16,9 @@ class StaticBaseColumns:
 class ObjectStaticsTable(Base, StaticBaseColumns):
     __tablename__ = "object_statics"
 
+    Objects: Mapped[List[ObjectsTable]] = relationship(
+        "ObjectsTable", back_populates="ObjectStatics", lazy="select"
+    )
+
     def __repr__(self) -> str:
-        return f"ObjectStatics(Code={self.Code!r}"
+        return f"ObjectStatics(Code={self.Code!r})"

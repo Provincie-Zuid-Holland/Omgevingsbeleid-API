@@ -16,4 +16,6 @@ class ObjectBaseColumns:
 class ObjectsTable(Base, ObjectBaseColumns):
     __tablename__ = "objects"
 
-    ObjectStatics: Mapped["ObjectStaticsTable"] = relationship()
+    ObjectStatics: Mapped["ObjectStaticsTable"] = relationship(
+        "ObjectStaticsTable", back_populates="Objects", lazy="select"
+    )
