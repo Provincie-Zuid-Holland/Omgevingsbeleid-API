@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 import uuid
 from sqlalchemy import ForeignKey, and_
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from app.core.db.base import Base
@@ -24,7 +24,6 @@ class AcknowledgedRelationBaseColumns(TimeStamped, UserMetaData):
     From_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("Gebruikers.UUID")
     )
-    From_Title: Mapped[str] = mapped_column(default="")
     From_Explanation: Mapped[str] = mapped_column(default="")
 
     To_Code: Mapped[int] = mapped_column(
@@ -34,7 +33,6 @@ class AcknowledgedRelationBaseColumns(TimeStamped, UserMetaData):
     To_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("Gebruikers.UUID")
     )
-    To_Title: Mapped[str] = mapped_column(default="")
     To_Explanation: Mapped[str] = mapped_column(default="")
 
     Denied: Mapped[Optional[datetime]] = mapped_column(default=None, nullable=True)
@@ -80,7 +78,6 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
         setattr(self, f"{prefix}_Code", side.Code)
         setattr(self, f"{prefix}_Acknowledged", side.Acknowledged_Date)
         setattr(self, f"{prefix}_Acknowledged_By_UUID", side.Acknowledged_By_UUID)
-        setattr(self, f"{prefix}_Title", side.Title)
         setattr(self, f"{prefix}_Explanation", side.Explanation)
 
     def with_sides(
@@ -151,9 +148,40 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
         object_type, object_id = self.To_Code.split("-", 1)
         return object_id
 
+    @hybrid_property
+    def From_Title(self):
+        if getattr(self.From_Object, "Effective_Object", None):
+            return self.From_Object.Effective_Object.Title
+
+        if getattr(self.To_Object, "Latest_Module_Version", 0) != 0:
+            return self.From_Object.Latest_Module_Version[0].Titel
+
+        return None
+
+    @hybrid_property
+    def To_Title(self):
+        if getattr(self.To_Object, "Effective_Object", None):
+            return self.To_Object.Effective_Object.Title
+
+        if getattr(self.To_Object, "Latest_Module_Version", 0) != 0:
+            return self.To_Object.Latest_Module_Version[0].Titel
+
+        return None
+
 
 class AcknowledgedRelationsTable(Base, AcknowledgedRelationColumns):
     __tablename__ = "acknowledged_relations"
+
+    From_Object = relationship(
+        "ObjectStaticsTable",
+        primaryjoin="AcknowledgedRelationsTable.From_Code == ObjectStaticsTable.Code",
+        lazy="select",
+    )
+    To_Object = relationship(
+        "ObjectStaticsTable",
+        primaryjoin="AcknowledgedRelationsTable.To_Code == ObjectStaticsTable.Code",
+        lazy="select",
+    )
 
     @staticmethod
     def _raise_invalid_code():

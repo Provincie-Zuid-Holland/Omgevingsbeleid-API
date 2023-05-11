@@ -10,8 +10,6 @@ from typing import Any, Dict
 from sqlalchemy import Integer, String, DateTime, Uuid
 from sqlalchemy.orm import mapped_column
 
-from app.core.db import Base
-
 
 column_type_map: Dict[str, Any] = {
     "int": Integer,

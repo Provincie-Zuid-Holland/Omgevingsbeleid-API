@@ -7,8 +7,7 @@ from pydantic import BaseModel, Field, validator
 class AcknowledgedRelationBase(BaseModel):
     Object_ID: int
     Object_Type: str
-    Title: str
-    Explanation: str
+    Explanation: Optional[str]
 
     @property
     def Code(self) -> str:
@@ -20,7 +19,6 @@ class RequestAcknowledgedRelation(AcknowledgedRelationBase):
 
 
 class EditAcknowledgedRelation(AcknowledgedRelationBase):
-    Title: Optional[str] = Field(None, nullable=True)
     Explanation: Optional[str] = Field(None, nullable=True)
     Acknowledged: Optional[bool] = Field(None, nullable=True)
     Denied: Optional[bool] = Field(None, nullable=True)
@@ -37,8 +35,8 @@ class EditAcknowledgedRelation(AcknowledgedRelationBase):
 class AcknowledgedRelationSide(AcknowledgedRelationBase):
     Acknowledged: Optional[datetime] = None
     Acknowledged_By_UUID: Optional[uuid.UUID] = None
-    Title: str = ""  # TODO: why? ""
-    Explanation: str = ""
+    Title: Optional[str]
+    Explanation: Optional[str]
 
     @property
     def Is_Acknowledged(self) -> bool:

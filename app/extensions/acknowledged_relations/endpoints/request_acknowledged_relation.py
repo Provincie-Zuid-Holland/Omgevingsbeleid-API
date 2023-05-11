@@ -47,7 +47,6 @@ class EndpointHandler:
             Object_Type=self._object_type,
             Acknowledged=self._now,
             Acknowledged_By_UUID=self._user.UUID,
-            Title=self._object_in.Title,
             Explanation=self._object_in.Explanation,
         )
         their_side = AcknowledgedRelationSide(

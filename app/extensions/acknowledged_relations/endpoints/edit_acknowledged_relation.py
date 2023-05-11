@@ -56,8 +56,6 @@ class EndpointHandler:
         # We just edit a side and then push it back in to the table
         side: AcknowledgedRelationSide = relation.get_side(self._code)
 
-        if self._object_in.Title is not None:
-            side.Title = self._object_in.Title
         if self._object_in.Explanation is not None:
             side.Explanation = self._object_in.Explanation
         if self._object_in.Acknowledged == False:
