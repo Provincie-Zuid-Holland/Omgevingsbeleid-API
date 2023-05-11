@@ -35,23 +35,23 @@ class LocalTableFactory:
 
     def __init__(self):
         self.base = declarative_base()
-        self.statics_table = self._generate_statics_table()
-        self.objects_table = self._generate_objects_table()
-        self.users_table = self._generate_users_table()
-
         self.local_tables = self._build_table()
 
     def _build_table(self) -> LocalTables:
         return LocalTables(
             Base=self.base,
-            ObjectsTable=self.objects_table,
-            ObjectStaticsTable=self.statics_table,
-            UsersTabel=self.users_table,
+            ObjectsTable=self._generate_objects_table(),
+            ObjectStaticsTable=self._generate_statics_table(),
+            UsersTabel=self._generate_users_table(),
         )
 
     def _generate_statics_table(self):
         class LocalObjectStaticsTable(self.base, StaticBaseColumns):
             __tablename__ = "object_statics"
+
+            Objects: Mapped[List["LocalObjectsTable"]] = relationship(
+                "LocalObjectsTable", back_populates="ObjectStatics", lazy="select"
+            )
 
         return LocalObjectStaticsTable
 

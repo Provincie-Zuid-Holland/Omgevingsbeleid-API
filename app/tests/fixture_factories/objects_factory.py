@@ -1,5 +1,7 @@
+from datetime import datetime, timedelta
 from uuid import UUID
 from sqlalchemy.orm import Session
+from collections import defaultdict
 
 from app.dynamic.db.objects_table import ObjectsTable
 
@@ -43,68 +45,76 @@ class ObjectFixtureFactory(FixtureDataFactory):
         return obj
 
     def _data(self):
-        return [
+        base_data = [
             {
                 "Object_Type": "ambitie",
                 "Object_ID": 1,
                 "Code": "ambitie-1",
-                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
-                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "ambitie",
                 "Object_ID": 2,
-                "Code": "ambitie-2",
-                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
-                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
+                "Code": "ambitie-1",
             },
             {
                 "Object_Type": "beleidsdoel",
                 "Object_ID": 1,
                 "Code": "beleidsdoel-1",
-                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
-                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "beleidsdoel",
                 "Object_ID": 2,
                 "Code": "beleidsdoel-2",
-                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
-                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "beleidskeuze",
                 "Object_ID": 1,
                 "Code": "beleidskeuze-1",
-                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
-                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "beleidskeuze",
                 "Object_ID": 2,
                 "Code": "beleidskeuze-2",
-                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
-                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "beleidskeuze",
                 "Object_ID": 3,
                 "Code": "beleidskeuze-3",
-                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
-                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "maatregel",
                 "Object_ID": 1,
                 "Code": "maatregel-1",
-                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
-                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "maatregel",
                 "Object_ID": 2,
                 "Code": "maatregel-2",
-                "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
-                "Modified_By_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
         ]
+
+        updated_base_data = [
+            self.generate_sample_data(custom_values=item) for item in base_data
+        ]
+        return updated_base_data
+
+    def generate_sample_data(self, custom_values=None):
+        five_days_ago = datetime.now() - timedelta(days=5)
+        five_days_later = datetime.now() + timedelta(days=5)
+        # Default values
+        default_values = defaultdict(None)
+        default_values["Object_ID"] = 1
+        default_values["Object_Type"] = "beleidskeuze"
+        default_values["Start_Validity"] = five_days_ago
+        default_values["End_Validity"] = five_days_later
+        default_values["Created_By_UUID"] = UUID("11111111-0000-0000-0000-000000000002")
+        default_values["Modified_By_UUID"] = UUID(
+            "11111111-0000-0000-0000-000000000002"
+        )
+        default_values["Title"] = "Monty"
+        default_values["Description"] = "Python"
+
+        if custom_values:
+            default_values.update(custom_values)
+
+        return dict(default_values)

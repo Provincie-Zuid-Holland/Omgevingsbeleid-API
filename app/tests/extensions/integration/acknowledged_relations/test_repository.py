@@ -45,7 +45,6 @@ class TestAcknowledgedRelationsRepository:
             From_Code="beleidskeuze-1",
             From_Acknowledged=self.now,
             From_Acknowledged_By_UUID=self.super_user.UUID,
-            From_Title="monty",
             From_Explanation="python",
             To_Code="beleidskeuze-2",
             To_Acknowledged=None,
@@ -59,12 +58,10 @@ class TestAcknowledgedRelationsRepository:
             From_Code="beleidskeuze-3",
             From_Acknowledged=self.five_days_ago,
             From_Acknowledged_By_UUID=self.ba_user.UUID,
-            From_Title="monty",
             From_Explanation="python",
             To_Code="beleidskeuze-2",
             To_Acknowledged=self.now,
             To_Acknowledged_By_UUID=self.super_user.UUID,
-            To_Title="Acknowledged",
             To_Explanation="nice",
         )
 
@@ -88,7 +85,9 @@ class TestAcknowledgedRelationsRepository:
         result = self.repository.get_by_codes(code_a="ambitie-1", code_b="ambitie-5")
         assert result is None
 
-    def test_get_with_filters_requested_by_me(self, local_tables: ExtendedLocalTables):  # noqa
+    def test_get_with_filters_requested_by_me(
+        self, local_tables: ExtendedLocalTables
+    ):  # noqa
         result = self.repository.get_with_filters(
             code=self.relation_1.From_Code,
             requested_by_me=True,
@@ -119,7 +118,9 @@ class TestAcknowledgedRelationsRepository:
         # Requested_By_Code is different
         assert len(result) == 2
 
-    def test_get_filters_acknowledged(self, db: Session, local_tables: ExtendedLocalTables): # noqa
+    def test_get_filters_acknowledged(
+        self, db: Session, local_tables: ExtendedLocalTables
+    ):  # noqa
         result = self.repository.get_with_filters(
             code=self.relation_acknowledged.Requested_By_Code,
             requested_by_me=True,
@@ -129,7 +130,9 @@ class TestAcknowledgedRelationsRepository:
         # should find only acknowledged records
         assert len(result) == 1
 
-    def test_get_filters_show_denied(self, db: Session, local_tables: ExtendedLocalTables): # noqa
+    def test_get_filters_show_denied(
+        self, db: Session, local_tables: ExtendedLocalTables
+    ):  # noqa
         relation_denied = local_tables.AcknowledgedRelationsTable(
             Created_Date=self.five_days_ago,
             Created_By_UUID=self.ba_user.UUID,
@@ -138,7 +141,6 @@ class TestAcknowledgedRelationsRepository:
             From_Code="beleidskeuze-3",
             From_Acknowledged=self.five_days_ago,
             From_Acknowledged_By_UUID=self.ba_user.UUID,
-            From_Title="deny",
             From_Explanation="me",
             To_Code="beleidskeuze-1",
             To_Acknowledged=None,
