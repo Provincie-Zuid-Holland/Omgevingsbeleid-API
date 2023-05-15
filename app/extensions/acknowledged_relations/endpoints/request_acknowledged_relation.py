@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func, and_, or_
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -62,6 +63,37 @@ class EndpointHandler:
             Modified_By_UUID=self._user.UUID,
         )
         ack_table.with_sides(my_side, their_side)
+
+        active_relation = (
+            self._db.query(AcknowledgedRelationsTable)
+            .filter(
+                and_(
+                    AcknowledgedRelationsTable.Requested_By_Code == ack_table.Requested_By_Code,
+                    AcknowledgedRelationsTable.From_Code == ack_table.From_Code,
+                    AcknowledgedRelationsTable.To_Code == ack_table.To_Code,
+                    AcknowledgedRelationsTable.Denied.is_(None),
+                    AcknowledgedRelationsTable.Deleted_At.is_(None),
+                )
+            )
+            .first()
+        )
+
+        if active_relation:
+            raise HTTPException(
+                status_code=409, detail="Existing relation(request), either edit or delete first"
+            )
+
+        # Query for max version so we can increment by 1
+        max_version = self._db.query(func.max(AcknowledgedRelationsTable.Version)).filter(
+            and_(
+                AcknowledgedRelationsTable.Requested_By_Code == ack_table.Requested_By_Code,
+                AcknowledgedRelationsTable.From_Code == ack_table.From_Code,
+                AcknowledgedRelationsTable.To_Code == ack_table.To_Code,
+            )
+        ).scalar()
+
+        if max_version is not None:
+            ack_table.Version = max_version + 1
 
         self._db.add(ack_table)
         self._db.flush()
@@ -128,9 +160,7 @@ class RequestAcknowledgedRelationEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        allowed_object_types: List[str] = resolver_config.get(
-            "allowed_object_types", []
-        )
+        allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
         if not allowed_object_types:
             raise RuntimeError("Missing required config allowed_object_types")
 

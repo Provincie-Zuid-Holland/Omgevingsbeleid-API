@@ -29,11 +29,13 @@ class EndpointHandler:
         object_code: str,
         requested_by_us: bool,
         acknowledged: Optional[bool],
+        only_inactive: Optional[bool],
     ):
         self._repository: AcknowledgedRelationsRepository = repository
         self._object_code: str = object_code
         self._requested_by_us: bool = requested_by_us
         self._acknowledged: Optional[bool] = acknowledged
+        self._only_inactive: Optional[bool] = only_inactive
 
     def handle(self) -> List[AcknowledgedRelation]:
         table_rows: List[
@@ -42,6 +44,7 @@ class EndpointHandler:
             self._object_code,
             self._requested_by_us,
             self._acknowledged,
+            self._only_inactive,
         )
         response: List[AcknowledgedRelation] = [
             build_from_orm(r, self._object_code) for r in table_rows
@@ -69,6 +72,7 @@ class ListAcknowledgedRelationsEndpoint(Endpoint):
             lineage_id: int,
             requested_by_us: bool = False,
             acknowledged: Optional[bool] = None,
+            only_inactive: Optional[bool] = None,
             user: UsersTable = Depends(depends_current_user),
             repository: AcknowledgedRelationsRepository = Depends(
                 depends_acknowledged_relations_repository
@@ -79,6 +83,7 @@ class ListAcknowledgedRelationsEndpoint(Endpoint):
                 f"{self._object_type}-{lineage_id}",
                 requested_by_us,
                 acknowledged,
+                only_inactive,
             )
             return handler.handle()
 

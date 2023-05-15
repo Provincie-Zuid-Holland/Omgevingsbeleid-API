@@ -70,7 +70,7 @@ class EndpointHandler:
         if self._object_in.Denied == True:
             relation.deny()
 
-        if self._object_in.Deleted_At == True:
+        if self._object_in.Deleted == True:
             relation.delete()
 
         self._db.add(relation)
