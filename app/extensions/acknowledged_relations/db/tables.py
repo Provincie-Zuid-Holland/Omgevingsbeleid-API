@@ -132,14 +132,6 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
         return cls.Deleted_At.isnot(None)
 
     @hybrid_property
-    def Is_Inactive(self) -> bool:
-        return self.Is_Deleted or self.Is_Denied
-
-    @Is_Inactive.expression
-    def Is_Inactive(cls):
-        return or_(cls.Deleted_At.isnot(None), cls.Denied.isnot(None))
-
-    @hybrid_property
     def From_Object_Type(self) -> str:
         object_type, object_id = self.From_Code.split("-", 1)
         return object_type

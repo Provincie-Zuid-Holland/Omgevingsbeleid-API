@@ -20,12 +20,11 @@ class AcknowledgedRelationsRepository:
                 and_(
                     AcknowledgedRelationsTable.From_Code == from_code,
                     AcknowledgedRelationsTable.To_Code == to_code,
-                    AcknowledgedRelationsTable.Denied.is_(None),
-                    AcknowledgedRelationsTable.Deleted_At.is_(None),
+                    AcknowledgedRelationsTable.Deleted_At == None,
+                    AcknowledgedRelationsTable.Denied == None,
                 )
             )
         )
-
         return self._db.scalars(stmt).first()
 
     def get_with_filters(
@@ -33,7 +32,7 @@ class AcknowledgedRelationsRepository:
         code: str,
         requested_by_me: bool,
         acknowledged: Optional[bool],
-        only_inactive: bool = False,
+        only_inactive: Optional[bool],
     ) -> List[AcknowledgedRelationsTable]:
         filters = []
 
@@ -53,7 +52,19 @@ class AcknowledgedRelationsRepository:
             else:
                 filters.append(AcknowledgedRelationsTable.Is_Acknowledged == False)
 
-        filters.append(AcknowledgedRelationsTable.Is_Inactive == only_inactive)
+        inactive_filter = and_(
+            AcknowledgedRelationsTable.Deleted_At == None,
+            AcknowledgedRelationsTable.Denied == None,
+        )
+
+        if only_inactive is not None:
+            if only_inactive is True:
+                inactive_filter = or_(
+                    AcknowledgedRelationsTable.Deleted_At != None,
+                    AcknowledgedRelationsTable.Denied != None,
+                )
+
+        filters.append(inactive_filter)
 
         stmt = select(AcknowledgedRelationsTable).filter(*filters)
         rows: List[AcknowledgedRelationsTable] = self._db.scalars(stmt).all()
