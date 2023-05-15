@@ -48,9 +48,14 @@ class AcknowledgedRelationsRepository:
 
         if acknowledged is not None:
             if acknowledged is True:
-                filters.append(AcknowledgedRelationsTable.Is_Acknowledged == True)
+                filters.append(AcknowledgedRelationsTable.Is_Acknowledged)
             else:
-                filters.append(AcknowledgedRelationsTable.Is_Acknowledged == False)
+                filters.append(
+                    or_(
+                        AcknowledgedRelationsTable.From_Acknowledged == None,
+                        AcknowledgedRelationsTable.To_Acknowledged == None,
+                    )
+                )
 
         inactive_filter = and_(
             AcknowledgedRelationsTable.Deleted_At == None,
