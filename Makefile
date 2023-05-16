@@ -13,16 +13,16 @@ debug:
 	python app/main.py localhost 8000 8001
 
 local-env:
-	pip install -U pip pip-tools==6.8.0
+	pip install -U pip pip-tools
 	pip-sync requirements.txt requirements-dev.txt
 
 local-pip-compile:
-	pip install -U pip pip-tools==6.8.0
+	pip install -U pip pip-tools
 	pip-compile requirements.in
 	pip-compile requirements-dev.in
 
 local-pip-upgrade:
-	pip install -U pip pip-tools==6.8.0
+	pip install -U pip pip-tools
 	pip-compile --upgrade requirements.in
 	pip-compile --upgrade requirements-dev.in
 
