@@ -14,7 +14,7 @@ class HtmlAssetsExtension(Extension):
         converter: Converter,
         models_resolver: ModelsResolver,
     ):
-        event_dispatcher.register(listeners.ExtractImagesListener())
-        event_dispatcher.register(listeners.InsertImagesListener())
+        event_dispatcher.register(listeners.ExtractHtmlImagesListener())
+        event_dispatcher.register(listeners.InsertHtmlImagesListener())
         event_dispatcher.register(listeners.StoreImagesListener())
         event_dispatcher.register(listeners.GetImagesListener())

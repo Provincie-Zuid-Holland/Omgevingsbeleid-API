@@ -26,9 +26,6 @@ class ModuleBaseColumns(TimeStamped, UserMetaData):
         ForeignKey("Gebruikers.UUID")
     )
 
-    Start_Validity: Mapped[Optional[datetime]]
-    End_Validity: Mapped[Optional[datetime]]
-
     @property
     def Status(self) -> Optional["ModuleStatusHistoryTable"]:
         if not self.status_history:

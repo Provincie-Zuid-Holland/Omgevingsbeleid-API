@@ -7,9 +7,7 @@ import base64
 import sys
 import io
 from uuid import uuid4
-import uuid
 
-from bs4 import BeautifulSoup
 from PIL import Image, UnidentifiedImageError
 from sqlalchemy.orm import Session
 
@@ -29,7 +27,7 @@ class StoreImagesConfig:
     fields: Set[str]
 
 
-class ImageExtractor:
+class StoreImagesExtractor:
     def __init__(
         self,
         event: ModuleObjectPatchedEvent,
@@ -51,6 +49,17 @@ class ImageExtractor:
         return self._module_object
 
     def _get_or_create_image(self, image_data) -> AssetsTable:
+        # Check if the data URL is valid
+        match = re.match(r'data:image/(.*?);base64,(.*)', image_data)
+        if not match:
+            raise ValueError("Invalid data URL")
+
+        # Extract the MIME type and data from the data URL
+        mime_type, base64_data = match.groups()
+
+        if mime_type not in ["png", "jpg", "jpeg"]:
+            raise ValueError("Invalid mime type for image")
+
         # First check if the image already exists
         # if so; then we do not need to parse the image to gain the meta
         image_hash: str = sha256(image_data.encode("utf-8")).hexdigest()
@@ -60,7 +69,7 @@ class ImageExtractor:
         if image_table is not None:
             return image_table
 
-        picture_data = base64.b64decode(image_data)
+        picture_data = base64.b64decode(base64_data)
         size = sys.getsizeof(picture_data)
         try:
             image = Image.open(io.BytesIO(picture_data))
@@ -102,7 +111,7 @@ class StoreImagesListener(Listener[ModuleObjectPatchedEvent]):
         if not interested_fields:
             return event
 
-        extractor: ImageExtractor = ImageExtractor(event, config, interested_fields)
+        extractor: StoreImagesExtractor = StoreImagesExtractor(event, config, interested_fields)
         result_object = extractor.process()
 
         event.payload.new_record = result_object
