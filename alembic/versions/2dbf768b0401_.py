@@ -27,13 +27,15 @@ def upgrade() -> None:
     op.add_column('acknowledged_relations', sa.Column('Denied', sa.DateTime(), nullable=True))
     op.add_column('acknowledged_relations', sa.Column('Deleted_At', sa.DateTime(), nullable=True))
     op.alter_column('acknowledged_relations', 'From_Acknowledged',
-               existing_type=mssql.BIT(),
+               existing_type=sa.DATETIME(),
                nullable=True)
     op.alter_column('acknowledged_relations', 'To_Acknowledged',
-               existing_type=mssql.BIT(),
+               existing_type=sa.DATETIME(),
                nullable=True)
     op.drop_column('acknowledged_relations', 'To_Acknowledged_Date')
     op.drop_column('acknowledged_relations', 'From_Acknowledged_Date')
+    op.drop_column('acknowledged_relations', 'From_Title')
+    op.drop_column('acknowledged_relations', 'To_Title')
     # ### end Alembic commands ###
 
 
@@ -49,4 +51,6 @@ def downgrade() -> None:
                nullable=False)
     op.drop_column('acknowledged_relations', 'Deleted_At')
     op.drop_column('acknowledged_relations', 'Denied')
+    op.add_column('acknowledged_relations', sa.Column('To_Title', sa.VARCHAR(collation='SQL_Latin1_General_CP1_CI_AS'), autoincrement=False, nullable=False))
+    op.add_column('acknowledged_relations', sa.Column('From_Title', sa.VARCHAR(collation='SQL_Latin1_General_CP1_CI_AS'), autoincrement=False, nullable=False))
     # ### end Alembic commands ###

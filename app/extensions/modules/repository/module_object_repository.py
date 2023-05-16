@@ -3,10 +3,10 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import select, func, desc
-from sqlalchemy.orm import Session, aliased
 from sqlalchemy.orm.session import make_transient
 
+from sqlalchemy import select, func, desc
+from sqlalchemy.orm import aliased, Session
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 
 

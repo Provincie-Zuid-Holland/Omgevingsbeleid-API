@@ -5,9 +5,7 @@ import pytest
 from sqlalchemy.orm import Session
 
 from app.dynamic.dependencies import FilterObjectCode
-from app.extensions.modules.repository import (
-    ModuleRepository,
-)
+from app.extensions.modules.repository import ModuleRepository
 from app.tests.fixture_factories import (
     ModuleFixtureFactory,
     UserFixtureFactory,
@@ -204,12 +202,3 @@ class TestModuleObjectRepository:
         mf.populate_db()
 
         self.module_factory = mf
-
-    def test_module_get_objects_in_time(
-        self,
-        module_repo: ModuleRepository,
-        db: Session,
-        local_tables: ExtendedLocalTables,
-    ):
-        # TODO: test
-        pass

@@ -56,8 +56,6 @@ class EndpointHandler:
         # We just edit a side and then push it back in to the table
         side: AcknowledgedRelationSide = relation.get_side(self._code)
 
-        if self._object_in.Title is not None:
-            side.Title = self._object_in.Title
         if self._object_in.Explanation is not None:
             side.Explanation = self._object_in.Explanation
         if self._object_in.Acknowledged == False:
@@ -72,7 +70,7 @@ class EndpointHandler:
         if self._object_in.Denied == True:
             relation.deny()
 
-        if self._object_in.Deleted_At == True:
+        if self._object_in.Deleted == True:
             relation.delete()
 
         self._db.add(relation)

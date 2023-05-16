@@ -6,11 +6,11 @@ from app.extensions.acknowledged_relations.models.models import (
     AcknowledgedRelationSide,
 )
 
-from .fixtures import local_tables # noqa
+from .fixtures import local_tables  # noqa
 
 
 class TestModelIntegration:
-    def test_relation_with_sides(self, local_tables, db): # noqa
+    def test_relation_with_sides(self, local_tables, db):  # noqa
         my_user = UUID("11111111-0000-0000-0000-000000000001")
         my_side = AcknowledgedRelationSide(
             Object_ID=1,
