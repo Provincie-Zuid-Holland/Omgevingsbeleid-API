@@ -24,18 +24,18 @@ from app.extensions.modules.event.module_object_patched_event import (
 
 
 @dataclass
-class ExtractImagesConfig:
+class ExtractHtmlImagesConfig:
     fields: Set[str]
 
 
-class Extractor:
+class HtmlImagesExtractor:
     def __init__(
         self,
         event: ModuleObjectPatchedEvent,
-        config: ExtractImagesConfig,
+        config: ExtractHtmlImagesConfig,
         interested_fields: Set[str],
     ):
-        self._config: ExtractImagesConfig = config
+        self._config: ExtractHtmlImagesConfig = config
         self._interested_fields: Set[str] = interested_fields
         self._module_object: ModuleObjectsTable = event.payload.new_record
         self._db: Session = event.get_db()
@@ -96,11 +96,11 @@ class Extractor:
         return image_table
 
 
-class ExtractImagesListener(Listener[ModuleObjectPatchedEvent]):
+class ExtractHtmlImagesListener(Listener[ModuleObjectPatchedEvent]):
     def handle_event(
         self, event: ModuleObjectPatchedEvent
     ) -> Optional[ModuleObjectPatchedEvent]:
-        config: Optional[ExtractImagesConfig] = self._collect_config(
+        config: Optional[ExtractHtmlImagesConfig] = self._collect_config(
             event.context.request_model
         )
         if not config:
@@ -111,13 +111,13 @@ class ExtractImagesListener(Listener[ModuleObjectPatchedEvent]):
         if not interested_fields:
             return event
 
-        extractor: Extractor = Extractor(event, config, interested_fields)
+        extractor: HtmlImagesExtractor = HtmlImagesExtractor(event, config, interested_fields)
         result_object = extractor.process()
 
         event.payload.new_record = result_object
         return event
 
-    def _collect_config(self, request_model: Model) -> Optional[ExtractImagesConfig]:
+    def _collect_config(self, request_model: Model) -> Optional[ExtractHtmlImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
         if not "extract_assets" in request_model.service_config:
@@ -134,5 +134,5 @@ class ExtractImagesListener(Listener[ModuleObjectPatchedEvent]):
         if not fields:
             return None
 
-        config: ExtractImagesConfig = ExtractImagesConfig(fields=set(fields))
+        config: ExtractHtmlImagesConfig = ExtractHtmlImagesConfig(fields=set(fields))
         return config

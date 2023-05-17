@@ -33,8 +33,6 @@ class Module(BaseModel):
     Description: str
     Module_Manager_1_UUID: uuid.UUID
     Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
-    Start_Validity: Optional[datetime] = Field(None, nullable=True)
-    End_Validity: Optional[datetime] = Field(None, nullable=True)
     Status: Optional[ModuleStatus]
 
     Created_By: Optional[UserShort]

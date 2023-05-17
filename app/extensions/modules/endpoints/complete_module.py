@@ -70,10 +70,10 @@ class ObjectSpecifiekeGeldigheid(BaseModel):
     Object_Type: str
     Object_ID: int
     Start_Validity: Optional[datetime] = Field(None, nullable=True)
-    End_Validity: Optional[datetime] = Field(None, nullable=True)
 
 
 class CompleteModule(BaseModel):
+    Default_Start_Validity: Optional[datetime] = Field(None, nullable=True)
     IDMS_Link: str = Field(..., min_length=10)
     Decision_Number: str = Field(..., min_length=1)
     Link_To_Decision_Document: str = Field(..., min_length=1)
@@ -176,20 +176,19 @@ class EndpointHandler:
         object_id: int,
         module_object_context: Optional[ModuleObjectContext],
     ) -> Tuple[datetime, Optional[datetime]]:
-        start_validity = self._module.Start_Validity or copy(self._timepoint)
-        end_validity = self._module.End_Validity
+        start_validity: datetime = self._object_in.Default_Start_Validity or copy(self._timepoint)
+        end_validity: Optional[datetime] = None
+
+        for specifics in self._object_in.ObjectSpecifiekeGeldigheden:
+            if (specifics.Object_ID, specifics.Object_Type) == (object_id, object_type):
+                start_validity = specifics.Start_Validity or start_validity
 
         # If the object action is "Terminate" then we set the default end_validity to now
         if (
             module_object_context
             and module_object_context.Action == ModuleObjectAction.Terminate
         ):
-            end_validity = copy(self._timepoint)
-
-        for specifics in self._object_in.ObjectSpecifiekeGeldigheden:
-            if (specifics.Object_ID, specifics.Object_Type) == (object_id, object_type):
-                start_validity = specifics.Start_Validity or start_validity
-                end_validity = specifics.End_Validity or end_validity
+            end_validity = start_validity
 
         return start_validity, end_validity
 
