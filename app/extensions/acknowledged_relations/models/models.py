@@ -73,6 +73,10 @@ class AcknowledgedRelation(BaseModel):
     Denied: Optional[datetime]
     Deleted_At: Optional[datetime]
 
+    @property
+    def Is_Acknowledged(self) -> bool:
+        return self.Side_A.Is_Acknowledged and self.Side_B.Is_Acknowledged
+
 
 def build_from_orm(orm_model, perspective_code: str) -> AcknowledgedRelation:
     """

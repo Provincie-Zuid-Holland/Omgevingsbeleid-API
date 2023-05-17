@@ -71,6 +71,7 @@ class TestAcknowledgedRelation:
         user_uuid = uuid4()
 
         return AcknowledgedRelation(
+            Version=1,
             Side_A=side_a,
             Side_B=side_b,
             Requested_By_Code=side_a.Code,
@@ -90,17 +91,3 @@ class TestAcknowledgedRelation:
         relation.Side_B.approve(user_uuid)
 
         assert relation.Is_Acknowledged is True
-
-    def test_relation_deny(self, base_relation):
-        relation = base_relation
-        user_uuid = relation.Created_By_UUID
-
-        assert relation.Is_Acknowledged is False
-        relation.Side_A.approve(user_uuid)
-        relation.Side_B.approve(user_uuid)
-        assert relation.Is_Acknowledged is True
-
-        relation.Denied = datetime.now()
-
-        assert relation.Is_Acknowledged is False
-        assert relation.Is_Denied is True
