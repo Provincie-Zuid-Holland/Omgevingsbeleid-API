@@ -10,19 +10,14 @@ class AcknowledgedRelationsRepository:
     def __init__(self, db: Session):
         self._db: Session = db
 
-    def get_by_codes(
-        self, code_a: str, code_b: str
-    ) -> Optional[AcknowledgedRelationsTable]:
+    def get_by_codes(self, code_a: str, code_b: str) -> Optional[AcknowledgedRelationsTable]:
         from_code, to_code = sorted([code_a, code_b])
-        stmt = (
-            select(AcknowledgedRelationsTable)
-            .filter(
-                and_(
-                    AcknowledgedRelationsTable.From_Code == from_code,
-                    AcknowledgedRelationsTable.To_Code == to_code,
-                    AcknowledgedRelationsTable.Deleted_At == None,
-                    AcknowledgedRelationsTable.Denied == None,
-                )
+        stmt = select(AcknowledgedRelationsTable).filter(
+            and_(
+                AcknowledgedRelationsTable.From_Code == from_code,
+                AcknowledgedRelationsTable.To_Code == to_code,
+                AcknowledgedRelationsTable.Deleted_At == None,
+                AcknowledgedRelationsTable.Denied == None,
             )
         )
         return self._db.scalars(stmt).first()
@@ -32,7 +27,7 @@ class AcknowledgedRelationsRepository:
         code: str,
         requested_by_me: bool,
         acknowledged: Optional[bool],
-        only_inactive: Optional[bool],
+        show_inactive: bool = True,
     ) -> List[AcknowledgedRelationsTable]:
         filters = []
 
@@ -57,19 +52,13 @@ class AcknowledgedRelationsRepository:
                     )
                 )
 
-        inactive_filter = and_(
-            AcknowledgedRelationsTable.Deleted_At == None,
-            AcknowledgedRelationsTable.Denied == None,
-        )
-
-        if only_inactive is not None:
-            if only_inactive is True:
-                inactive_filter = or_(
-                    AcknowledgedRelationsTable.Deleted_At != None,
-                    AcknowledgedRelationsTable.Denied != None,
+        if show_inactive is False:
+            filters.append(
+                and_(
+                    AcknowledgedRelationsTable.Deleted_At == None,
+                    AcknowledgedRelationsTable.Denied == None,
                 )
-
-        filters.append(inactive_filter)
+            )
 
         stmt = select(AcknowledgedRelationsTable).filter(*filters)
         rows: List[AcknowledgedRelationsTable] = self._db.scalars(stmt).all()

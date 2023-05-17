@@ -136,35 +136,3 @@ def base_dynamic_app(local_tables) -> TestDynamicApp:  # noqa
         builder.register_objects(TestSettings.TEST_OBJECT_CONFIG_PATH)
         dynamic_app = builder.build()
         return TestDynamicApp(dynamic_app=dynamic_app, local_tables=local_tables)
-
-
-# @pytest.fixture(scope="module")
-# def client() -> Generator:
-#     # Dynamic app?
-#     app.dependency_overrides[depends_db] = get_test_db
-#     # Dep override get_db
-#     with TestClient(app) as c:
-#         yield c
-
-
-# @pytest.fixture(scope="class")
-# def fixture_data(db: Session):
-#     engine = db.get_bind()
-#     table_metadata.drop_all(bind=engine)
-#     table_metadata.create_all(bind=engine)
-
-#     loader = DatabaseFixtures(db)
-#     loader.create_all()
-#     yield loader
-
-
-# @pytest.fixture(scope="module")
-# def superuser_token_headers(client: TestClient) -> Dict[str, str]:
-#     return get_superuser_token_headers(client)
-
-
-# @pytest.fixture(scope="module")
-# def normal_user_token_headers(client: TestClient, db: Session) -> Dict[str, str]:
-#     return authentication_token_from_email(
-#         client=client, email=settings.EMAIL_TEST_USER, db=db
-#     )

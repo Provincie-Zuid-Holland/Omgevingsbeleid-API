@@ -17,8 +17,7 @@ class TestModelIntegration:
             Object_Type="beleidskeuze",
             Acknowledged=datetime.now(),
             Acknowledged_By_UUID=my_user,
-            Title="Relatie naar beleidskeuze 1",
-            Explanation="",
+            Explanation="Relatie naar beleidskeuze 1",
         )
         their_side = AcknowledgedRelationSide(
             Object_ID=2,

@@ -191,7 +191,12 @@ class TestAcknowledgedRelationsEndpoint:
 
         assert response.message == "OK"
 
-        relation = self.repository.get_by_codes("beleidskeuze-2", "beleidskeuze-1")
+        query = (
+            db.query(local_tables.AcknowledgedRelationsTable)
+            .filter(local_tables.AcknowledgedRelationsTable.From_Code == "beleidskeuze-1")
+            .filter(local_tables.AcknowledgedRelationsTable.To_Code == "beleidskeuze-2")
+        )
+        relation = query.one()
         assert relation is not None
         assert relation.Is_Acknowledged is False
         assert relation.Denied is not None
@@ -207,7 +212,7 @@ class TestAcknowledgedRelationsEndpoint:
         request_obj = EditAcknowledgedRelation(
             Object_ID=1,
             Object_Type="beleidskeuze",
-            Deleted_At=True,
+            Deleted=True,
         )
         endpoint = EditEndpoint(
             db=db,
@@ -221,15 +226,18 @@ class TestAcknowledgedRelationsEndpoint:
         response = endpoint.handle()
         assert response.message == "OK"
 
-        relation = self.repository.get_by_codes("beleidskeuze-2", "beleidskeuze-1")
+        query = (
+            db.query(local_tables.AcknowledgedRelationsTable)
+            .filter(local_tables.AcknowledgedRelationsTable.From_Code == "beleidskeuze-1")
+            .filter(local_tables.AcknowledgedRelationsTable.To_Code == "beleidskeuze-2")
+        )
+        relation = query.one()
         assert relation is not None
         assert relation.Deleted_At is not None
         assert relation.Is_Acknowledged is False
         assert relation.Denied is None
 
-    def test_edit_relation_not_found(
-        self, db: Session, local_tables: ExtendedLocalTables
-    ):  # noqa
+    def test_edit_relation_not_found(self, db: Session, local_tables: ExtendedLocalTables): # noqa
         request_obj = EditAcknowledgedRelation(
             Object_ID=999,
             Object_Type="beleidskeuze",
@@ -247,9 +255,7 @@ class TestAcknowledgedRelationsEndpoint:
         with pytest.raises(HTTPException, match="Acknowledged relation not found"):
             endpoint.handle()
 
-    def test_list_relations(
-        self, db: Session, local_tables: ExtendedLocalTables
-    ):  # noqa
+    def test_list_relations(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
         # Create new relation request
         acknowledged = deepcopy(self.relation_request)
         acknowledged.Requested_By_Code = "beleidskeuze-3"
@@ -267,7 +273,8 @@ class TestAcknowledgedRelationsEndpoint:
             object_code="beleidskeuze-1",
             requested_by_us=False,
             acknowledged=None,
+            show_inactive=True
         )
 
         response = endpoint.handle()
-        assert len(response) == 2
+        assert len(response) == 2 # show all
