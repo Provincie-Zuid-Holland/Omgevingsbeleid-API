@@ -16,7 +16,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.dependencies import (
@@ -120,7 +120,7 @@ class EndpointHandler:
 
         except Exception as e:
             self._db.rollback()
-            raise HTTPException(500, "Could not complete the module")
+            raise
 
         return ResponseOK(
             message="OK",
@@ -168,7 +168,14 @@ class EndpointHandler:
             new_object.Start_Validity = start_validity
             new_object.End_Validity = end_validity
 
+            statics = (
+                self._db.query(ObjectStaticsTable)
+                .filter(ObjectStaticsTable.Code == new_object.Code)
+                .one()
+            )
+            statics.Cached_Title = new_object.Title
             self._db.add(new_object)
+            self._db.add(statics)
 
     def _get_validities(
         self,

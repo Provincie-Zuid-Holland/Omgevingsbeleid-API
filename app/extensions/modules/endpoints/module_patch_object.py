@@ -8,7 +8,7 @@ from app.core.dependencies import depends_db
 
 from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
-from app.dynamic.db.object_static_table import ObjectStaticsTable
+from app.dynamic.db import ObjectStaticsTable, ObjectsTable
 from app.dynamic.dependencies import (
     depends_event_dispatcher,
     depends_object_static_by_object_type_and_id_curried,
@@ -112,6 +112,16 @@ class EndpointHandler:
             )
         )
         new_record = event.payload.new_record
+
+        # cache statics title if needed
+        if "Title" in self._changes:
+            valid_version = (
+                self._db.query(ObjectsTable).filter(ObjectsTable.Code == new_record.Code)
+                .first()
+            )
+            if valid_version is None:
+                self._object_static.Cached_Title = self._changes["Title"]
+                self._db.add(self._object_static)
 
         self._db.add(new_record)
         self._db.flush()

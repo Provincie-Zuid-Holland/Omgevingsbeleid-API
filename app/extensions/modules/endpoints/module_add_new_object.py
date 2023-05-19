@@ -131,6 +131,7 @@ class EndpointHandler:
                 Owner_1_UUID=self._object_in.Owner_1_UUID,
                 Owner_2_UUID=self._object_in.Owner_2_UUID,
                 Client_1_UUID=self._object_in.Client_1_UUID,
+                Cached_Title=self._object_in.Title
             )
             .returning(ObjectStaticsTable)
         )
