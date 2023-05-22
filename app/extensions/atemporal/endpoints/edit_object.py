@@ -3,28 +3,24 @@ from typing import Optional, Type
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.dependencies import depends_object_repository, depends_object_static_by_object_type_and_id_curried
+from app.dynamic.dependencies import (
+    depends_object_repository,
+    depends_object_static_by_object_type_and_id_curried,
+)
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.atemporal.permissions import AtemporalPermissions
-from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
-from app.extensions.modules.dependencies import (
-    depends_active_module,
-    depends_active_module_object_context,
-    depends_active_module_object_context_curried,
-)
-from app.extensions.modules.models.models import ModuleObjectAction
-from app.extensions.modules.permissions import ModulesPermissions, guard_valid_user
+from app.extensions.modules.db.tables import ModuleObjectContextTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user,

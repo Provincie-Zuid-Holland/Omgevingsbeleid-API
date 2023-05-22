@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func, and_
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -177,7 +177,9 @@ class RequestAcknowledgedRelationEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
+        allowed_object_types: List[str] = resolver_config.get(
+            "allowed_object_types", []
+        )
         if not allowed_object_types:
             raise RuntimeError("Missing required config allowed_object_types")
 

@@ -21,14 +21,13 @@ class ModuleObjectAttributes(ModuleObjectsColumns):
     """
     All ORM column fields including dynamic / hybrid properties
     """
+
     @hybrid_property
     def has_valid_version(self) -> bool:
         # True if a matching code exists in Objects table
         session = object_session(self)
         return (
-            session.query(ObjectsTable)
-            .filter(ObjectsTable.Code == self.Code)
-            .exists()
+            session.query(ObjectsTable).filter(ObjectsTable.Code == self.Code).exists()
         )
 
 

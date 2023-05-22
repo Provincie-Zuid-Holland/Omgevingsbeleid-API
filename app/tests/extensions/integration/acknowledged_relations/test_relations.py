@@ -71,7 +71,9 @@ class TestAcknowledgedRelationsEndpoint:
             To_Acknowledged=None,
         )
 
-    def test_request_new_relation(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
+    def test_request_new_relation(
+        self, db: Session, local_tables: ExtendedLocalTables
+    ):  # noqa
         """
         Create new request for acknowledged relation, ensure db state is as expected.
         - from bk1 -> to bk2
@@ -103,7 +105,9 @@ class TestAcknowledgedRelationsEndpoint:
         assert relation.To_Acknowledged_By_UUID is None
         assert relation.To_Explanation == ""
 
-    def test_request_invalid_object(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
+    def test_request_invalid_object(
+        self, db: Session, local_tables: ExtendedLocalTables
+    ):  # noqa
         requesting_user = self.super_user
         request_obj = RequestAcknowledgedRelation(
             Object_ID=1, Object_Type="beleidskeuze", Explanation="monty"
@@ -124,7 +128,7 @@ class TestAcknowledgedRelationsEndpoint:
         self, db: Session, local_tables: ExtendedLocalTables
     ):  # noqa
         """
-        Test scenario: 
+        Test scenario:
         - Relation request exists request by bk1, relation bk1 -> bk2
         - same requested by bk1 tried to create relation bk1 -> bk2
         expect error as this already exists.
@@ -156,7 +160,7 @@ class TestAcknowledgedRelationsEndpoint:
         self, db: Session, local_tables: ExtendedLocalTables
     ):  # noqa
         """
-        Test scenario: 
+        Test scenario:
         - Relation request exists request by bk1, relation bk1 -> bk2
         - new request made by bk2 for relation bk1 -> bk2
         except instead of erroring, to auto acknowledge instead
@@ -183,7 +187,9 @@ class TestAcknowledgedRelationsEndpoint:
         response = endpoint.handle()
         assert response.message == "Updated existing request"
 
-    def test_acknowledge_relation(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
+    def test_acknowledge_relation(
+        self, db: Session, local_tables: ExtendedLocalTables
+    ):  # noqa
         """
         Test that opened request can be acknowledged by another user:
         - From bk1 -> To bk2
@@ -222,7 +228,9 @@ class TestAcknowledgedRelationsEndpoint:
         assert relation.To_Acknowledged_By_UUID == self.ba_user.UUID
         assert relation.To_Explanation == "monty"
 
-    def test_deny_relation_request(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
+    def test_deny_relation_request(
+        self, db: Session, local_tables: ExtendedLocalTables
+    ):  # noqa
         # Create new relation request
         db.add(self.relation_request)
         db.commit()
@@ -248,7 +256,9 @@ class TestAcknowledgedRelationsEndpoint:
 
         query = (
             db.query(local_tables.AcknowledgedRelationsTable)
-            .filter(local_tables.AcknowledgedRelationsTable.From_Code == "beleidskeuze-1")
+            .filter(
+                local_tables.AcknowledgedRelationsTable.From_Code == "beleidskeuze-1"
+            )
             .filter(local_tables.AcknowledgedRelationsTable.To_Code == "beleidskeuze-2")
         )
         relation = query.one()
@@ -256,7 +266,9 @@ class TestAcknowledgedRelationsEndpoint:
         assert relation.Is_Acknowledged is False
         assert relation.Denied is not None
 
-    def test_cancel_relation_request(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
+    def test_cancel_relation_request(
+        self, db: Session, local_tables: ExtendedLocalTables
+    ):  # noqa
         """
         Test that a requested relation can be canceled using as soft delete
         """
@@ -281,7 +293,9 @@ class TestAcknowledgedRelationsEndpoint:
 
         query = (
             db.query(local_tables.AcknowledgedRelationsTable)
-            .filter(local_tables.AcknowledgedRelationsTable.From_Code == "beleidskeuze-1")
+            .filter(
+                local_tables.AcknowledgedRelationsTable.From_Code == "beleidskeuze-1"
+            )
             .filter(local_tables.AcknowledgedRelationsTable.To_Code == "beleidskeuze-2")
         )
         relation = query.one()
@@ -290,7 +304,9 @@ class TestAcknowledgedRelationsEndpoint:
         assert relation.Is_Acknowledged is False
         assert relation.Denied is None
 
-    def test_edit_relation_not_found(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
+    def test_edit_relation_not_found(
+        self, db: Session, local_tables: ExtendedLocalTables
+    ):  # noqa
         request_obj = EditAcknowledgedRelation(
             Object_ID=999,
             Object_Type="beleidskeuze",
@@ -308,7 +324,9 @@ class TestAcknowledgedRelationsEndpoint:
         with pytest.raises(HTTPException, match="Acknowledged relation not found"):
             endpoint.handle()
 
-    def test_list_relations(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
+    def test_list_relations(
+        self, db: Session, local_tables: ExtendedLocalTables
+    ):  # noqa
         # Create new relation request
         acknowledged = deepcopy(self.relation_request)
         acknowledged.Requested_By_Code = "beleidskeuze-3"

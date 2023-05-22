@@ -116,7 +116,8 @@ class EndpointHandler:
         # cache statics title if needed
         if "Title" in self._changes:
             valid_version = (
-                self._db.query(ObjectsTable).filter(ObjectsTable.Code == new_record.Code)
+                self._db.query(ObjectsTable)
+                .filter(ObjectsTable.Code == new_record.Code)
                 .first()
             )
             if valid_version is None:

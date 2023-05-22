@@ -1,8 +1,6 @@
 from typing import List, Optional, Set
 from dataclasses import dataclass
 from uuid import UUID
-from bs4 import BeautifulSoup
-import re
 import json
 from pydantic import BaseModel
 

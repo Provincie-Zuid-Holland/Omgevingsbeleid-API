@@ -10,7 +10,9 @@ class AcknowledgedRelationsRepository:
     def __init__(self, db: Session):
         self._db: Session = db
 
-    def get_by_codes(self, code_a: str, code_b: str) -> Optional[AcknowledgedRelationsTable]:
+    def get_by_codes(
+        self, code_a: str, code_b: str
+    ) -> Optional[AcknowledgedRelationsTable]:
         from_code, to_code = sorted([code_a, code_b])
         stmt = select(AcknowledgedRelationsTable).filter(
             and_(

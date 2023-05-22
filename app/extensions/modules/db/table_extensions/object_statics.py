@@ -34,4 +34,6 @@ def get_last_module_version(self):
 
 def extend_with_attributes(table):
     setattr(table, "Latest_Module_Version", hybrid_property(get_last_module_version))
-    setattr(table, "Cached_Title", mapped_column("Cached_Title", String(255), nullable=True))
+    setattr(
+        table, "Cached_Title", mapped_column("Cached_Title", String(255), nullable=True)
+    )

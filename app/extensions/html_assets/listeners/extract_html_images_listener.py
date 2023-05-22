@@ -111,13 +111,17 @@ class ExtractHtmlImagesListener(Listener[ModuleObjectPatchedEvent]):
         if not interested_fields:
             return event
 
-        extractor: HtmlImagesExtractor = HtmlImagesExtractor(event, config, interested_fields)
+        extractor: HtmlImagesExtractor = HtmlImagesExtractor(
+            event, config, interested_fields
+        )
         result_object = extractor.process()
 
         event.payload.new_record = result_object
         return event
 
-    def _collect_config(self, request_model: Model) -> Optional[ExtractHtmlImagesConfig]:
+    def _collect_config(
+        self, request_model: Model
+    ) -> Optional[ExtractHtmlImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
         if not "extract_assets" in request_model.service_config:

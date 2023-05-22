@@ -50,7 +50,7 @@ class StoreImagesExtractor:
 
     def _get_or_create_image(self, image_data) -> AssetsTable:
         # Check if the data URL is valid
-        match = re.match(r'data:image/(.*?);base64,(.*)', image_data)
+        match = re.match(r"data:image/(.*?);base64,(.*)", image_data)
         if not match:
             raise ValueError("Invalid data URL")
 
@@ -111,7 +111,9 @@ class StoreImagesListener(Listener[ModuleObjectPatchedEvent]):
         if not interested_fields:
             return event
 
-        extractor: StoreImagesExtractor = StoreImagesExtractor(event, config, interested_fields)
+        extractor: StoreImagesExtractor = StoreImagesExtractor(
+            event, config, interested_fields
+        )
         result_object = extractor.process()
 
         event.payload.new_record = result_object

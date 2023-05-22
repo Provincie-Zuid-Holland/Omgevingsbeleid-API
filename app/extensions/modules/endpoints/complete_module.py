@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional, Tuple
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
@@ -183,7 +183,9 @@ class EndpointHandler:
         object_id: int,
         module_object_context: Optional[ModuleObjectContext],
     ) -> Tuple[datetime, Optional[datetime]]:
-        start_validity: datetime = self._object_in.Default_Start_Validity or copy(self._timepoint)
+        start_validity: datetime = self._object_in.Default_Start_Validity or copy(
+            self._timepoint
+        )
         end_validity: Optional[datetime] = None
 
         for specifics in self._object_in.ObjectSpecifiekeGeldigheden:
