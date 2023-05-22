@@ -101,13 +101,15 @@ class TestAcknowledgedRelationsRepository:
             column.name: getattr(self.relation_1, column.name)
             for column in self.relation_1.__table__.columns
         }
-        extra_relation_dict["Requested_By_Code"] = "beleidskeuze-3"
+        extra_relation_dict["Requested_By_Code"] = "beleidskeuze-1"
+        extra_relation_dict["From_Code"] = "beleidskeuze-1"
+        extra_relation_dict["To_Code"] = "beleidskeuze-3"
         extra_relation = local_tables.AcknowledgedRelationsTable(**extra_relation_dict)
         db.add(extra_relation)
         db.commit()
 
         result = self.repository.get_with_filters(
-            code=self.relation_1.From_Code,
+            code=extra_relation.From_Code,
             requested_by_me=False,
             acknowledged=None,
         )
