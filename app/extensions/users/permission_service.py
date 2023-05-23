@@ -20,7 +20,7 @@ class PermissionService:
     def guard_valid_user(
         self,
         permission: str,
-        user: UsersTable, 
+        user: UsersTable,
         whitelisted_uuids: List[uuid.UUID] = [],
     ):
         if user.UUID in whitelisted_uuids:

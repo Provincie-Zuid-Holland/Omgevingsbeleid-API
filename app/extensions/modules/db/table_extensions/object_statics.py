@@ -1,5 +1,5 @@
-from sqlalchemy import select, func, desc
-from sqlalchemy.orm import aliased
+from sqlalchemy import select, func, desc, String
+from sqlalchemy.orm import aliased, mapped_column
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -34,3 +34,6 @@ def get_last_module_version(self):
 
 def extend_with_attributes(table):
     setattr(table, "Latest_Module_Version", hybrid_property(get_last_module_version))
+    setattr(
+        table, "Cached_Title", mapped_column("Cached_Title", String(255), nullable=True)
+    )

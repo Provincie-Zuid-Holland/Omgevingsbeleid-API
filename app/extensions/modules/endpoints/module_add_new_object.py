@@ -107,7 +107,7 @@ class EndpointHandler:
             return response
         except Exception as e:
             self._db.rollback
-            raise HTTPException(500, "Could not add object to the module")
+            raise
 
     def _create_new_object_static(self) -> ObjectStaticsTable:
         generate_id_subq = (
@@ -131,6 +131,7 @@ class EndpointHandler:
                 Owner_1_UUID=self._object_in.Owner_1_UUID,
                 Owner_2_UUID=self._object_in.Owner_2_UUID,
                 Client_1_UUID=self._object_in.Client_1_UUID,
+                Cached_Title=self._object_in.Title,
             )
             .returning(ObjectStaticsTable)
         )

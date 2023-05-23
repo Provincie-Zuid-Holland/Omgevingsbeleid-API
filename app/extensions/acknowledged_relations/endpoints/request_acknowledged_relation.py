@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func, and_
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -64,11 +64,10 @@ class EndpointHandler:
         )
         ack_table.with_sides(my_side, their_side)
 
-        active_relation = (
+        existing_request: Optional[AcknowledgedRelationsTable] = (
             self._db.query(AcknowledgedRelationsTable)
             .filter(
                 and_(
-                    AcknowledgedRelationsTable.Requested_By_Code == ack_table.Requested_By_Code,
                     AcknowledgedRelationsTable.From_Code == ack_table.From_Code,
                     AcknowledgedRelationsTable.To_Code == ack_table.To_Code,
                     AcknowledgedRelationsTable.Denied.is_(None),
@@ -78,19 +77,37 @@ class EndpointHandler:
             .first()
         )
 
-        if active_relation:
-            raise HTTPException(
-                status_code=409, detail="Existing relation(request), either edit or delete first"
-            )
+        if existing_request:
+            if (
+                existing_request.Is_Acknowledged
+                or existing_request.Requested_By_Code == my_side.Code
+            ):
+                raise HTTPException(
+                    status_code=409,
+                    detail="Existing relation(request), either edit or delete first",
+                )
+
+            # assume we can approve the existing request as both sides have acted
+            existing_request.apply_side(my_side)
+            existing_request.Modified_Date = self._now
+            existing_request.Modified_By_UUID = self._user.UUID
+
+            self._db.add(existing_request)
+            self._db.flush()
+            self._db.commit()
+            return ResponseOK(message="Updated existing request")
 
         # Query for max version so we can increment by 1
-        max_version = self._db.query(func.max(AcknowledgedRelationsTable.Version)).filter(
-            and_(
-                AcknowledgedRelationsTable.Requested_By_Code == ack_table.Requested_By_Code,
-                AcknowledgedRelationsTable.From_Code == ack_table.From_Code,
-                AcknowledgedRelationsTable.To_Code == ack_table.To_Code,
+        max_version = (
+            self._db.query(func.max(AcknowledgedRelationsTable.Version))
+            .filter(
+                and_(
+                    AcknowledgedRelationsTable.From_Code == ack_table.From_Code,
+                    AcknowledgedRelationsTable.To_Code == ack_table.To_Code,
+                )
             )
-        ).scalar()
+            .scalar()
+        )
 
         if max_version is not None:
             ack_table.Version = max_version + 1
@@ -160,7 +177,9 @@ class RequestAcknowledgedRelationEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
+        allowed_object_types: List[str] = resolver_config.get(
+            "allowed_object_types", []
+        )
         if not allowed_object_types:
             raise RuntimeError("Missing required config allowed_object_types")
 

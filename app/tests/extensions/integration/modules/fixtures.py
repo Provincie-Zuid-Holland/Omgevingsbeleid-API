@@ -75,6 +75,8 @@ class ExtendedTableFactory(LocalTableFactory):
     def _generate_statics_table(self):
         class LocalObjectStaticsTable(self.base, StaticBaseColumns):
             __tablename__ = "object_statics"
+
+            Cached_Title: Mapped[Optional[str]]
             Owner_1_UUID: Mapped[Optional[UUID]] = mapped_column(
                 ForeignKey("Gebruikers.UUID")
             )
@@ -190,7 +192,7 @@ def setup_db_once(local_tables, engine):
     local_tables.Base.metadata.create_all(engine)
     yield local_tables
     # teardown
-    local_tables.Base.metadata.drop_all(engine)
+    # local_tables.Base.metadata.drop_all(engine)
 
 
 @pytest.fixture

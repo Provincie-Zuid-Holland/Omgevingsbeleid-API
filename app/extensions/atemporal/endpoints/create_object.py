@@ -47,7 +47,9 @@ class EndpointHandler:
             del self._object_in["ObjectStatics"]
 
         try:
-            object_static: ObjectStaticsTable = self._create_new_object_static(static_fields)
+            object_static: ObjectStaticsTable = self._create_new_object_static(
+                static_fields
+            )
             created_object: Type[BaseModel] = self._create_object(object_static)
 
             self._db.flush()
@@ -71,13 +73,9 @@ class EndpointHandler:
             .values(
                 Object_Type=self._object_type,
                 Object_ID=generate_id_subq,
-                Code=(
-                    self._object_type
-                    + "-"
-                    + func.cast(generate_id_subq, String)
-                ),
+                Code=(self._object_type + "-" + func.cast(generate_id_subq, String)),
                 # Unpack object_in static fields
-                **(static_fields)
+                **(static_fields),
             )
             .returning(ObjectStaticsTable)
         )

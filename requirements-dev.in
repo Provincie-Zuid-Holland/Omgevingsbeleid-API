@@ -5,6 +5,7 @@ black
 mypy
 sqlalchemy[mypy]
 pylint
+flake8
 devtools
 autoflake
 freezegun

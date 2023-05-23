@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 import uuid
-from sqlalchemy import ForeignKey, and_, func, or_
+from sqlalchemy import ForeignKey, and_
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -14,18 +14,19 @@ from app.extensions.acknowledged_relations.models.models import (
 
 class AcknowledgedRelationBaseColumns(TimeStamped, UserMetaData):
     Version: Mapped[int] = mapped_column(default=1, nullable=False, primary_key=True)
-    Requested_By_Code: Mapped[str] = mapped_column(
+    Requested_By_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"))
+    From_Code: Mapped[str] = mapped_column(
         ForeignKey("object_statics.Code"), primary_key=True
     )
-
-    From_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
     From_Acknowledged: Mapped[Optional[datetime]]
     From_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("Gebruikers.UUID")
     )
     From_Explanation: Mapped[str] = mapped_column(default="")
 
-    To_Code: Mapped[int] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
+    To_Code: Mapped[int] = mapped_column(
+        ForeignKey("object_statics.Code"), primary_key=True
+    )
     To_Acknowledged: Mapped[Optional[datetime]]
     To_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("Gebruikers.UUID")
@@ -77,7 +78,9 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
         setattr(self, f"{prefix}_Acknowledged_By_UUID", side.Acknowledged_By_UUID)
         setattr(self, f"{prefix}_Explanation", side.Explanation)
 
-    def with_sides(self, side_a: AcknowledgedRelationSide, side_b: AcknowledgedRelationSide):
+    def with_sides(
+        self, side_a: AcknowledgedRelationSide, side_b: AcknowledgedRelationSide
+    ):
         from_side, to_side = sorted([side_a, side_b], key=lambda x: x.Code)
         self._assign_side(from_side, "From")
         self._assign_side(to_side, "To")
@@ -153,42 +156,22 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
 
     @hybrid_property
     def From_Title(self):
-        if getattr(self.From_Object, "Effective_Object", None):
-            return self.From_Object.Effective_Object.Title
-
-        if getattr(self.To_Object, "Latest_Module_Version", 0) != 0:
-            return self.From_Object.Latest_Module_Version[0].Title
-
-        return None
+        return getattr(self.From_ObjectStatics, "Cached_Title", None)
 
     @hybrid_property
     def To_Title(self):
-        if getattr(self.To_Object, "Effective_Object", None):
-            return self.To_Object.Effective_Object.Title
-
-        if getattr(self.To_Object, "Latest_Module_Version", 0) != 0:
-            return self.To_Object.Latest_Module_Version[0].Title
-
-        return None
-
-    # @hybrid_property
-    # def Max_Version(self):
-    #     return self.session.query(func.max(self.Version)).filter(
-    #         self.Requested_By_Code == self.Requested_By_Code,
-    #         self.From_Code == self.From_Code,
-    #         self.To_Code == self.To_Code,
-    #     ).scalar()
+        return getattr(self.To_ObjectStatics, "Cached_Title", None)
 
 
 class AcknowledgedRelationsTable(Base, AcknowledgedRelationColumns):
     __tablename__ = "acknowledged_relations"
 
-    From_Object = relationship(
+    From_ObjectStatics = relationship(
         "ObjectStaticsTable",
         primaryjoin="AcknowledgedRelationsTable.From_Code == ObjectStaticsTable.Code",
         lazy="select",
     )
-    To_Object = relationship(
+    To_ObjectStatics = relationship(
         "ObjectStaticsTable",
         primaryjoin="AcknowledgedRelationsTable.To_Code == ObjectStaticsTable.Code",
         lazy="select",

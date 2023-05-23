@@ -85,7 +85,9 @@ class TestAcknowledgedRelationsRepository:
         result = self.repository.get_by_codes(code_a="ambitie-1", code_b="ambitie-5")
         assert result is None
 
-    def test_get_with_filters_requested_by_me(self, local_tables: ExtendedLocalTables):  # noqa
+    def test_get_with_filters_requested_by_me(
+        self, local_tables: ExtendedLocalTables
+    ):  # noqa
         result = self.repository.get_with_filters(
             code=self.relation_1.From_Code,
             requested_by_me=True,
@@ -101,13 +103,15 @@ class TestAcknowledgedRelationsRepository:
             column.name: getattr(self.relation_1, column.name)
             for column in self.relation_1.__table__.columns
         }
-        extra_relation_dict["Requested_By_Code"] = "beleidskeuze-3"
+        extra_relation_dict["Requested_By_Code"] = "beleidskeuze-1"
+        extra_relation_dict["From_Code"] = "beleidskeuze-1"
+        extra_relation_dict["To_Code"] = "beleidskeuze-3"
         extra_relation = local_tables.AcknowledgedRelationsTable(**extra_relation_dict)
         db.add(extra_relation)
         db.commit()
 
         result = self.repository.get_with_filters(
-            code=self.relation_1.From_Code,
+            code=extra_relation.From_Code,
             requested_by_me=False,
             acknowledged=None,
         )
@@ -129,7 +133,7 @@ class TestAcknowledgedRelationsRepository:
         assert len(result) == 1
 
     def test_get_filters_hide_denied(
-        self, db: Session, local_tables: ExtendedLocalTables # noqa
+        self, db: Session, local_tables: ExtendedLocalTables  # noqa
     ):
         relation_denied = local_tables.AcknowledgedRelationsTable(
             Created_Date=self.five_days_ago,
@@ -156,7 +160,7 @@ class TestAcknowledgedRelationsRepository:
         assert len(result) == 1
 
     def test_get_filters_hide_deleted(
-        self, db: Session, local_tables: ExtendedLocalTables # noqa
+        self, db: Session, local_tables: ExtendedLocalTables  # noqa
     ):
         relation_deleted = local_tables.AcknowledgedRelationsTable(
             Created_Date=self.five_days_ago,
