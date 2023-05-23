@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 import uuid
 
@@ -53,6 +53,7 @@ class EndpointHandler:
         db: Session,
         object_provider: ObjectProvider,
         object_context_repository: ModuleObjectContextRepository,
+        allowed_object_types: List[str],
         permission_service: PermissionService,
         user: UsersTable,
         module: ModuleTable,
@@ -63,6 +64,7 @@ class EndpointHandler:
         self._object_context_repository: ModuleObjectContextRepository = (
             object_context_repository
         )
+        self._allowed_object_types: List[str] = allowed_object_types
         self._permission_service: PermissionService = permission_service
         self._user: UsersTable = user
         self._module: ModuleTable = module
@@ -86,6 +88,13 @@ class EndpointHandler:
 
         object_type: str = object_data.get("Object_Type")
         object_id: int = object_data.get("Object_ID")
+
+        if object_type not in self._allowed_object_types:
+            raise HTTPException(
+                400,
+                f"Invalid Object_Type, accepted object_type are: {self._allowed_object_types}",
+            )
+
         maybe_object_context: Optional[
             ModuleObjectContextTable
         ] = self._object_context_repository.get_by_ids(
@@ -111,12 +120,9 @@ class EndpointHandler:
 
             self._db.flush()
             self._db.commit()
-        except HTTPException as e:
+        except Exception:
             self._db.rollback()
-            raise e
-        except Exception as e:
-            self._db.rollback()
-            raise HTTPException(500, "Could not add object to the module")
+            raise
 
         return ResponseOK(
             message="OK",
@@ -166,7 +172,8 @@ class EndpointHandler:
 
 
 class ModuleAddExistingObjectEndpoint(Endpoint):
-    def __init__(self, path: str):
+    def __init__(self, allowed_object_types: List[str], path: str):
+        self._allowed_object_types: List[str] = allowed_object_types
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
@@ -185,6 +192,7 @@ class ModuleAddExistingObjectEndpoint(Endpoint):
                 db,
                 object_provider,
                 object_context_repository,
+                self._allowed_object_types,
                 permission_service,
                 user,
                 module,
@@ -223,4 +231,10 @@ class ModuleAddExistingObjectEndpointResolver(EndpointResolver):
         if not "{module_id}" in path:
             raise RuntimeError("Missing {module_id} argument in path")
 
-        return ModuleAddExistingObjectEndpoint(path=path)
+        allowed_object_types: List[str] = resolver_config.get(
+            "allowed_object_types", []
+        )
+        if not allowed_object_types:
+            raise RuntimeError("Missing allowed_object_types")
+
+        return ModuleAddExistingObjectEndpoint(allowed_object_types=allowed_object_types, path=path)

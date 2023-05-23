@@ -105,7 +105,7 @@ class EndpointHandler:
                 object_static
             )
             return response
-        except Exception as e:
+        except Exception:
             self._db.rollback
             raise
 

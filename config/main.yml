@@ -64,6 +64,13 @@ api:
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - maatregel
+              - beleidsregel
+              - gebiedsprogramma
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
