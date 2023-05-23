@@ -56,9 +56,9 @@ class EndpointHandler:
             self._db.commit()
 
             return created_object
-        except Exception as e:
+        except Exception:
             self._db.rollback
-            raise HTTPException(500, "Could not create object")
+            raise
 
     def _create_new_object_static(self, static_fields: dict) -> ObjectStaticsTable:
         generate_id_subq = (
@@ -74,6 +74,7 @@ class EndpointHandler:
                 Object_Type=self._object_type,
                 Object_ID=generate_id_subq,
                 Code=(self._object_type + "-" + func.cast(generate_id_subq, String)),
+                Cached_Title=self._object_in["Title"],
                 # Unpack object_in static fields
                 **(static_fields),
             )

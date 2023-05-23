@@ -33,6 +33,10 @@ def get_last_module_version(self):
 
 
 def extend_with_attributes(table):
+    """
+    used for declaring dynamic orm properties to a given table on app init
+    without placing this logic outside of the extension.
+    """
     setattr(table, "Latest_Module_Version", hybrid_property(get_last_module_version))
     setattr(
         table, "Cached_Title", mapped_column("Cached_Title", String(255), nullable=True)

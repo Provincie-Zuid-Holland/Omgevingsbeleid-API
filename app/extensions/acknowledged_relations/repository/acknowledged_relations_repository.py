@@ -34,7 +34,7 @@ class AcknowledgedRelationsRepository:
         filters = []
 
         if requested_by_me:
-            filters.append(and_(AcknowledgedRelationsTable.Requested_By_Code == code))
+            filters.append(AcknowledgedRelationsTable.Requested_By_Code == code)
         else:
             filters.append(
                 or_(

@@ -69,6 +69,10 @@ class EndpointHandler:
         maybe_object.Modified_By_UUID = self._user.UUID
         maybe_object.Modified_Date = datetime.now()
 
+        if "Title" in changes:
+            self._object_static.Cached_Title = changes["Title"]
+            self._db.add(self._object_static)
+
         self._db.add(maybe_object)
         self._db.flush()
         self._db.commit()
