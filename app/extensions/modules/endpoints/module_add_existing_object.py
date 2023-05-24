@@ -237,4 +237,6 @@ class ModuleAddExistingObjectEndpointResolver(EndpointResolver):
         if not allowed_object_types:
             raise RuntimeError("Missing allowed_object_types")
 
-        return ModuleAddExistingObjectEndpoint(allowed_object_types=allowed_object_types, path=path)
+        return ModuleAddExistingObjectEndpoint(
+            allowed_object_types=allowed_object_types, path=path
+        )

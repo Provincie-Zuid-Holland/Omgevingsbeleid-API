@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from uuid import UUID
-from sqlalchemy.orm import Session
 from collections import defaultdict
 
 from app.dynamic.db.objects_table import ObjectsTable
@@ -9,7 +8,7 @@ from .fixture_factory import FixtureDataFactory
 
 
 class ObjectFixtureFactory(FixtureDataFactory):
-    def __init__(self, db: Session, local_tables=None):
+    def __init__(self, db=None, local_tables=None):
         super().__init__(db)
         self.local_tables = local_tables
 
