@@ -57,8 +57,16 @@ class HtmlImagesExtractor:
 
     def _get_or_create_asset(self, img) -> AssetsTable:
         # Extract the image data and file extension
-        image_data = img["src"].split(",")[1]
-        ext = img["src"].split(";")[0].split("/")[1]
+        image_data = img["src"]
+
+        match = re.match(r"data:image/(.*?);base64,(.*)", image_data)
+        if not match:
+            raise ValueError("Invalid data URL")
+
+        # Extract the MIME type and data from the data URL
+        mime_type, base64_data = match.groups()
+        if mime_type not in ["png", "jpg", "jpeg"]:
+            raise ValueError("Invalid mime type for image")
 
         # First check if the image already exists
         # if so; then we do not need to parse the image to gain the meta
@@ -69,7 +77,7 @@ class HtmlImagesExtractor:
         if image_table is not None:
             return image_table
 
-        picture_data = base64.b64decode(image_data)
+        picture_data = base64.b64decode(base64_data)
         size = sys.getsizeof(picture_data)
         try:
             image = Image.open(io.BytesIO(picture_data))
@@ -78,7 +86,7 @@ class HtmlImagesExtractor:
         width, height = image.size
 
         meta: ImageMeta = ImageMeta(
-            ext=ext,
+            ext=f"{image.format}".lower(),
             width=width,
             height=height,
             size=size,

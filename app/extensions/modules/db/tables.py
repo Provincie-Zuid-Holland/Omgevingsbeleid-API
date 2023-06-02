@@ -1,12 +1,13 @@
 import uuid
 from typing import List, Optional
 from datetime import datetime
-from sqlalchemy import ForeignKey, String
 
+from sqlalchemy import ForeignKey, Unicode
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db.base import Base
-from app.core.db.mixins import TimeStamped, UserMetaData
+from app.core.db.mixins import SerializerMixin, TimeStamped, UserMetaData
+from app.extensions.users.db.tables import UsersTable
 
 
 class ModuleBaseColumns(TimeStamped, UserMetaData):
@@ -82,9 +83,9 @@ class ModuleStatusHistoryTable(Base, ModuleStatusHistoryColumns):
 class ModuleObjectContextColumns:
     Module_ID = mapped_column(ForeignKey("modules.Module_ID"), primary_key=True)
 
-    Object_Type: Mapped[str] = mapped_column(String(25))
+    Object_Type: Mapped[str] = mapped_column(Unicode(25))
     Object_ID: Mapped[int]
-    Code: Mapped[str] = mapped_column(String(35), primary_key=True)
+    Code: Mapped[str] = mapped_column(Unicode(35), primary_key=True)
 
     Original_Adjust_On: Mapped[Optional[uuid.UUID]]
 
@@ -95,7 +96,7 @@ class ModuleObjectContextColumns:
 
 
 class ModuleObjectContextTable(
-    Base, ModuleObjectContextColumns, TimeStamped, UserMetaData
+    Base, ModuleObjectContextColumns, TimeStamped, UserMetaData, SerializerMixin
 ):
     __tablename__ = "module_object_context"
 

@@ -125,6 +125,8 @@ models:
       modified_date:
       title:
       description:
+      start_validity:
+      end_validity:
     services:
       foreign_keys_extender:
         fields_map:
@@ -160,7 +162,7 @@ models:
             wrapped_with_relation_data: true
           - object_type: maatregel
             object_id: maatregel
-            to_field: "Maatregels"
+            to_field: "Maatregelen"
             model_id: maatregel_short
             wrapped_with_relation_data: true
       foreign_keys_extender:

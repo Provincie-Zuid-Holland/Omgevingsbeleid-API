@@ -130,6 +130,8 @@ models:
       modified_date:
       title:
       weblink:
+      start_validity:
+      end_validity:
     services:
       foreign_keys_extender:
         fields_map:

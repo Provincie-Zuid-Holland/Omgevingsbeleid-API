@@ -3,7 +3,7 @@ from datetime import datetime
 import uuid
 
 from pydantic import BaseModel
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select, func, insert, String
 from sqlalchemy.orm import Session
 
@@ -133,7 +133,7 @@ class CreateObjectEndpoint(Endpoint):
                 self._object_type,
                 self._response_type,
                 user,
-                object_in.dict(exclude_none=True),
+                object_in.dict(exclude_unset=True),
             )
             return handler.handle()
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -12,6 +13,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
+from app.extensions.change_logger.db.tables import ChangeLogTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_module,
@@ -52,6 +54,7 @@ class EndpointHandler:
         self._module: ModuleTable = module
         self._object_context: ModuleObjectContextTable = object_context
         self._object_in: ModuleEditObjectContext = object_in
+        self._timepoint: datetime = datetime.now()
 
     def handle(self) -> ResponseOK:
         guard_valid_user(
@@ -61,17 +64,32 @@ class EndpointHandler:
             self._module,
         )
 
-        changes: dict = self._object_in.dict(exclude_none=True)
+        changes: dict = self._object_in.dict(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
+
+        log_before: str = json.dumps(self._object_context.to_dict())
 
         for key, value in changes.items():
             setattr(self._object_context, key, value)
 
         self._object_context.Modified_By_UUID = self._user.UUID
-        self._object_context.Modified_Date = datetime.now()
+        self._object_context.Modified_Date = self._timepoint
 
         self._db.add(self._object_context)
+
+        change_log: ChangeLogTable = ChangeLogTable(
+            Object_Type=self._object_context.Object_Type,
+            Object_ID=self._object_context.Object_ID,
+            Created_Date=self._timepoint,
+            Created_By_UUID=self._user.UUID,
+            Action_Type="module_edit_object_context",
+            Action_Data=self._object_in.json(),
+            Before=log_before,
+            After=json.dumps(self._object_context.to_dict()),
+        )
+        self._db.add(change_log)
+
         self._db.flush()
         self._db.commit()
 

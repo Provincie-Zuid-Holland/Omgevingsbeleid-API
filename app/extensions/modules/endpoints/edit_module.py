@@ -69,7 +69,7 @@ class EndpointHandler:
             self._module,
         )
 
-        changes: dict = self._object_in.dict(exclude_none=True)
+        changes: dict = self._object_in.dict(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
 

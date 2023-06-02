@@ -15,7 +15,9 @@ from app.extensions.users.permission_service import PermissionService
 
 class ModulesPermissions(str, Enum):
     can_create_module = "can_create_module"
+    can_close_module = "can_close_module"
     can_edit_module = "can_edit_module"
+    can_activate_module = "can_activate_module"
     can_patch_module_status = "can_patch_module_status"
     can_add_new_object_to_module = "can_add_new_object_to_module"
     can_add_existing_object_to_module = "can_add_existing_object_to_module"

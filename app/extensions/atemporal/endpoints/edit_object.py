@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from typing import Optional, Type
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -20,6 +21,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.atemporal.permissions import AtemporalPermissions
+from app.extensions.change_logger.db.tables import ChangeLogTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
@@ -44,7 +46,7 @@ class EndpointHandler:
         self._permission_service: PermissionService = permission_service
         self._user: UsersTable = user
         self._object_static: ModuleObjectContextTable = object_static
-        self._object_in: dict = object_in
+        self._object_in: Type[BaseModel] = object_in
 
     def handle(self) -> ResponseOK:
         self._permission_service.guard_valid_user(
@@ -59,9 +61,11 @@ class EndpointHandler:
         if not maybe_object:
             raise HTTPException(404, "Object not found")
 
-        changes: dict = self._object_in.dict(exclude_none=True)
+        changes: dict = self._object_in.dict(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
+
+        log_before: str = json.dumps(maybe_object.to_dict())
 
         for key, value in changes.items():
             setattr(maybe_object, key, value)
@@ -74,6 +78,19 @@ class EndpointHandler:
             self._db.add(self._object_static)
 
         self._db.add(maybe_object)
+
+        change_log: ChangeLogTable = ChangeLogTable(
+            Object_Type=self._object_static.Object_Type,
+            Object_ID=self._object_static.Object_ID,
+            Created_Date=datetime.now(),
+            Created_By_UUID=self._user.UUID,
+            Action_Type="atemporal_edit_object",
+            Action_Data=self._object_in.json(),
+            Before=log_before,
+            After=json.dumps(maybe_object.to_dict()),
+        )
+        self._db.add(change_log)
+
         self._db.flush()
         self._db.commit()
 

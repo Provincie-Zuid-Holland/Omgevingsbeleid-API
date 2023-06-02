@@ -204,7 +204,7 @@ class EndpointHandler:
     def _patch_status(self) -> ModuleStatusHistoryTable:
         status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
             Module_ID=self._module.Module_ID,
-            Status="Vigerend gearchiveerd",
+            Status="Module afgerond",
             Created_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
         )

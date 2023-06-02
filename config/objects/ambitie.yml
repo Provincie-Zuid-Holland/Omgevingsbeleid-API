@@ -122,6 +122,8 @@ models:
       created_date:
       modified_date:
       title:
+      start_validity:
+      end_validity:
     services:
       foreign_keys_extender:
         fields_map:

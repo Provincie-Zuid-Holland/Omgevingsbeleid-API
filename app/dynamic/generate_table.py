@@ -7,15 +7,15 @@ from app.core.db import Base
 
 from typing import Any, Dict
 
-from sqlalchemy import Integer, String, DateTime, Uuid
+from sqlalchemy import Integer, Unicode, DateTime, Uuid
 from sqlalchemy.orm import mapped_column
 
 
 column_type_map: Dict[str, Any] = {
     "int": Integer,
-    "str": String,
-    "str_25": String(25),
-    "str_35": String(35),
+    "str": Unicode,
+    "str_25": Unicode(25),
+    "str_35": Unicode(35),
     "datetime": DateTime,
     "object_uuid": Uuid,
 }

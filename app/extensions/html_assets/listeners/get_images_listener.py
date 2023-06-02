@@ -5,6 +5,7 @@ import json
 from pydantic import BaseModel
 
 from sqlalchemy.orm import Session
+from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 
 from app.dynamic.event.types import Listener
 from app.dynamic.config.models import Model, DynamicObjectModel
@@ -64,10 +65,47 @@ class ImageInserter:
         return self._rows
 
 
-class GetImagesListener(Listener[RetrievedModuleObjectsEvent]):
+class GetImagesForModuleListener(Listener[RetrievedModuleObjectsEvent]):
     def handle_event(
         self, event: RetrievedModuleObjectsEvent
     ) -> RetrievedModuleObjectsEvent:
+        config: Optional[GetImagesConfig] = self._collect_config(
+            event.context.response_model
+        )
+        if not config:
+            return event
+        if not config.fields:
+            return event
+
+        inserter: ImageInserter = ImageInserter(event, config)
+        result_rows = inserter.process()
+
+        event.payload.rows = result_rows
+        return event
+
+    def _collect_config(self, request_model: Model) -> Optional[GetImagesConfig]:
+        if not isinstance(request_model, DynamicObjectModel):
+            return None
+        if not "get_image" in request_model.service_config:
+            return None
+
+        config_dict: dict = request_model.service_config.get("get_image", {})
+        fields: List[str] = []
+        for field in config_dict.get("fields", []):
+            if not isinstance(field, str):
+                raise RuntimeError(
+                    "Invalid get_image config, expect `fields` to be a list of strings"
+                )
+            fields.append(field)
+        if not fields:
+            return None
+
+        config: GetImagesConfig = GetImagesConfig(fields=set(fields))
+        return config
+
+
+class GetImagesForObjectListener(Listener[RetrievedObjectsEvent]):
+    def handle_event(self, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent:
         config: Optional[GetImagesConfig] = self._collect_config(
             event.context.response_model
         )

@@ -79,10 +79,10 @@ fields:
     name: Title
     type: str
     column: title
-  accomplish:
-    name: Accomplish
+  description:
+    name: Description
     type: str
-    column: accomplish
+    column: description
   cause:
     name: Cause
     type: str
@@ -95,6 +95,10 @@ fields:
     name: Explanation
     type: str
     column: explanation
+  gebied_uuid:
+    name: Gebied_UUID
+    type: uuid
+    column: gebied_uuid
   idms_link:
     name: IDMS_Link
     type: str
@@ -103,10 +107,6 @@ fields:
     name: Decision_Number
     type: str
     column: decision_number
-  gebied_uuid:
-    name: Gebied_UUID
-    type: uuid
-    column: gebied_uuid
   
   # Statics
   owner_1_uuid:
@@ -175,14 +175,14 @@ models:
       start_validity:
       end_validity:
       title:
-      accomplish:
+      description:
       cause:
       provincial_interest:
       explanation:
     services:
       insert_assets:
         fields:
-          - Accomplish
+          - Description
           - Cause
           - Provincial_Interest
           - Explanation
@@ -245,7 +245,7 @@ models:
               min: 3
               max: 200
           - id: plain_text
-      accomplish:
+      description:
         default: none
         optional: true
         validators:
@@ -271,7 +271,7 @@ models:
     services:
       extract_assets:
         fields:
-          - Accomplish
+          - Description
           - Cause
           - Provincial_Interest
           - Explanation

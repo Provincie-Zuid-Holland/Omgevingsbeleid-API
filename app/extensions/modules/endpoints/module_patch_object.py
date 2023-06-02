@@ -179,7 +179,7 @@ class ModulePatchObjectEndpoint(Endpoint):
                 user,
                 module,
                 object_static,
-                object_in.dict(exclude_none=True),
+                object_in.dict(exclude_unset=True),
                 lineage_id,
             )
             return handler.handle()
