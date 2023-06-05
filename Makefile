@@ -54,7 +54,7 @@ testcase:
 	python -m pytest -s -vvv -x -k ${case}
 
 # Ment to test MSSQL
-docker-init: docker-up docker-mssql-create-database-dev #docker-alembic-do-upgrade
+docker-init: docker-up docker-mssql-create-database-dev docker-alembic-do-upgrade
 
 docker-up: ## Starts the docker services
 	docker compose up -d --build --wait
