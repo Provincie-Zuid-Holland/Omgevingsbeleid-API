@@ -95,10 +95,6 @@ module_histories = [
 
 
 user_uuids = {u.UUID: u.UUID for u in UserRepository(db).get_all()}
-# print()
-# pprint(len(user_uuids))
-# print()
-# exit()
 
 
 def _get_or_create_asset(img, created_date: datetime, created_by: UUID) -> AssetsTable:
@@ -450,48 +446,48 @@ def create_module_object(row: ObjectsTable) -> ModuleObjectsTable:
 
 
 mappings = {
-    # "ambitie": {
-    #     "object_type": "ambitie",
-    #     "file": "Valid_ambities_202305301039.json",
-    #     "json_data_key": "Valid_ambities",
-    #     "object_constructor": create_ambitie,
-    #     "module": True,
-    # },
-    # "nationaal_belang": {
-    #     "object_type": "nationaal_belang",
-    #     "file": "Valid_belangen_202305301039.json",
-    #     "json_data_key": "Valid_belangen",
-    #     "object_constructor": create_belang,
-    #     "module": False,
-    # },
-    # "beleidsdoel": {
-    #     "object_type": "beleidsdoel",
-    #     "file": "Valid_beleidsdoelen_202305301039.json",
-    #     "json_data_key": "Valid_beleidsdoelen",
-    #     "object_constructor": create_beleidsdoel,
-    #     "module": True,
-    # },
-    # "beleidskeuze": {
-    #     "object_type": "beleidskeuze",
-    #     "file": "Valid_beleidskeuzes_202305301039.json",
-    #     "json_data_key": "Valid_beleidskeuzes",
-    #     "object_constructor": create_beleidskeuze,
-    #     "module": True,
-    # },
+    "ambitie": {
+        "object_type": "ambitie",
+        "file": "Valid_ambities_202306051553.json",
+        "json_data_key": "Valid_ambities",
+        "object_constructor": create_ambitie,
+        "module": True,
+    },
+    "nationaal_belang": {
+        "object_type": "nationaal_belang",
+        "file": "Valid_belangen_202306051553.json",
+        "json_data_key": "Valid_belangen",
+        "object_constructor": create_belang,
+        "module": False,
+    },
+    "beleidsdoel": {
+        "object_type": "beleidsdoel",
+        "file": "Valid_beleidsdoelen_202306051553.json",
+        "json_data_key": "Valid_beleidsdoelen",
+        "object_constructor": create_beleidsdoel,
+        "module": True,
+    },
+    "beleidskeuze": {
+        "object_type": "beleidskeuze",
+        "file": "Valid_beleidskeuzes_202306051553.json",
+        "json_data_key": "Valid_beleidskeuzes",
+        "object_constructor": create_beleidskeuze,
+        "module": True,
+    },
     "beleidsregel": {
         "object_type": "beleidsregel",
-        "file": "Valid_beleidsregels_202305301039.json",
+        "file": "Valid_beleidsregels_202306051553.json",
         "json_data_key": "Valid_beleidsregels",
         "object_constructor": create_beleidsregel,
         "module": True,
     },
-    # "maatregel": {
-    #     "object_type": "maatregel",
-    #     "file": "Valid_maatregelen_202305301039.json",
-    #     "json_data_key": "Valid_maatregelen",
-    #     "object_constructor": create_maatregel,
-    #     "module": True,
-    # },
+    "maatregel": {
+        "object_type": "maatregel",
+        "file": "Valid_maatregelen_202306051553.json",
+        "json_data_key": "Valid_maatregelen",
+        "object_constructor": create_maatregel,
+        "module": True,
+    },
 }
 
 
@@ -548,10 +544,10 @@ def unpack_data(data: dict, mapping: dict):
 
 
 
-# db.add(module)
-# db.add(module_histories[0])
-# db.add(module_histories[1])
-# db.commit()
+db.add(module)
+db.add(module_histories[0])
+db.add(module_histories[1])
+db.commit()
 
 for mapping_key, mapping in mappings.items():
     file_path = f"./scripts/import/data/{mapping['file']}"
