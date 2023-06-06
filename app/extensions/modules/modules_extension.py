@@ -7,10 +7,14 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
+from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.extensions.modules.db.module_objects_tables import (
     ModuleObjectsTable,
 )
 import app.extensions.modules.endpoints as endpoints
+from app.extensions.modules.db.table_extensions.object_statics import (
+    extend_with_attributes,
+)
 
 
 class ModulesExtension(Extension):
@@ -24,6 +28,8 @@ class ModulesExtension(Extension):
             columns,
             static=False,
         )
+        # Additional orm properties for sqlalchemy
+        extend_with_attributes(ObjectStaticsTable)
 
     def register_endpoint_resolvers(
         self,

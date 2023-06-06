@@ -38,13 +38,9 @@ class DynamicApp:
         self._commands: click.Group = commands
 
     def run(self):
-        print()
-        print("in run")
         return self._fastapi_app
 
     def run_commands(self):
-        print()
-        print("in run commands")
         self._commands()
 
 

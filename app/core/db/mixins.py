@@ -2,14 +2,13 @@ from typing import Optional
 from datetime import datetime
 import uuid
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, Unicode
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.inspection import inspect
 
 
 class HasUUID:
-    UUID: Mapped[uuid.UUID] = mapped_column(
-        primary_key=True
-    )
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
 
 
 class TimeStamped:
@@ -23,5 +22,21 @@ class UserMetaData:
 
 
 class HasIDType:
-    Object_Type: Mapped[str] = mapped_column(String(25))
+    Object_Type: Mapped[str] = mapped_column(Unicode(25))
     Object_ID: Mapped[int]
+
+
+class SerializerMixin:
+    @staticmethod
+    def serialize(value):
+        if isinstance(value, datetime):
+            return value.isoformat()
+        if isinstance(value, uuid.UUID):
+            return str(value)
+        return value
+
+    def to_dict(self):
+        return {
+            c.key: self.serialize(getattr(self, c.key))
+            for c in inspect(self).mapper.column_attrs
+        }

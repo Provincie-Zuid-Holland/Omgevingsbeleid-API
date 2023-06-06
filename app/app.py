@@ -1,6 +1,7 @@
 from app.core.settings import settings
 from app.dynamic.dynamic_app import DynamicAppBuilder
 from app.extensions.atemporal.atemporal_extension import AtemporalExtension
+from app.extensions.change_logger.change_logger_extension import ChangeLoggerExtension
 from app.extensions.database_migration.database_migration_extension import (
     DatabaseMigrationExtension,
 )
@@ -43,6 +44,7 @@ app_builder.register_extension(GraphExtension())
 app_builder.register_extension(ModulesExtension())
 app_builder.register_extension(AcknowledgedRelationsExtension())
 app_builder.register_extension(HtmlAssetsExtension())
+app_builder.register_extension(ChangeLoggerExtension())
 # app_builder.register_extension(ModulesPdfExportExtension())
 # app_builder.register_extension(ModulesXMLExportExtension())
 app_builder.register_extension(DatabaseMigrationExtension())

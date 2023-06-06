@@ -222,8 +222,8 @@ class EndpointHandler:
                 )
                 .filter(AcknowledgedRelationsTable.From_Code.not_in(ignore_codes))
                 .filter(AcknowledgedRelationsTable.To_Code.not_in(ignore_codes))
-                .filter(AcknowledgedRelationsTable.From_Acknowledged == True)
-                .filter(AcknowledgedRelationsTable.To_Acknowledged == True)
+                .filter(AcknowledgedRelationsTable.From_Acknowledged != None)
+                .filter(AcknowledgedRelationsTable.To_Acknowledged != None)
                 .options(
                     load_only(
                         AcknowledgedRelationsTable.From_Code,

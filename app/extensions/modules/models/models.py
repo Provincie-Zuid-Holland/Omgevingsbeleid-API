@@ -33,8 +33,6 @@ class Module(BaseModel):
     Description: str
     Module_Manager_1_UUID: uuid.UUID
     Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
-    Start_Validity: Optional[datetime] = Field(None, nullable=True)
-    End_Validity: Optional[datetime] = Field(None, nullable=True)
     Status: Optional[ModuleStatus]
 
     Created_By: Optional[UserShort]
@@ -82,3 +80,38 @@ class ModuleObjectAction(str, Enum):
 
 class ModuleSnapshot(BaseModel):
     Objects: List[dict]
+
+
+class Statics(BaseModel):
+    # TODO: Make compatitble with dynamic config
+    Owner_1_UUID: Optional[uuid.UUID]
+    Owner_2_UUID: Optional[uuid.UUID]
+    Portfolio_Holder_1_UUID: Optional[uuid.UUID]
+    Portfolio_Holder_2_UUID: Optional[uuid.UUID]
+    Client_1_UUID: Optional[uuid.UUID]
+
+    class Config:
+        orm_mode = True
+
+
+class SearchObject(BaseModel):
+    Object_Type: str
+    Object_ID: int
+    UUID: uuid.UUID
+    Title: str
+    Description: str
+
+
+class ModuleSearchObject(SearchObject):
+    Module_ID: Optional[int]
+
+
+class SearchResult(BaseModel):
+    Statics: Optional[Statics]
+    Valid: Optional[SearchObject]
+    Modules: List[ModuleSearchObject] = []
+
+
+class AllObjectsResponse(BaseModel):
+    Total: int = 0
+    Results: List[SearchResult] = []

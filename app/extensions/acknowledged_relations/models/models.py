@@ -1,14 +1,13 @@
 from datetime import datetime
 from typing import Optional
 import uuid
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, root_validator
 
 
 class AcknowledgedRelationBase(BaseModel):
     Object_ID: int
     Object_Type: str
-    Title: str
-    Explanation: str
+    Explanation: Optional[str]
 
     @property
     def Code(self) -> str:
@@ -20,25 +19,28 @@ class RequestAcknowledgedRelation(AcknowledgedRelationBase):
 
 
 class EditAcknowledgedRelation(AcknowledgedRelationBase):
-    Title: Optional[str] = Field(None, nullable=True)
     Explanation: Optional[str] = Field(None, nullable=True)
     Acknowledged: Optional[bool] = Field(None, nullable=True)
     Denied: Optional[bool] = Field(None, nullable=True)
-    Deleted_At: Optional[bool] = Field(None, nullable=True)
+    Deleted: Optional[bool] = Field(None, nullable=True)
 
-    @validator("Denied", always=True)
-    def validate_denied_and_acknowledged(cls, denied, values):
+    @root_validator
+    def validate_denied_acknowledged_deleted(cls, values):
+        denied = values.get("Denied")
         acknowledged = values.get("Acknowledged")
-        if denied is True and acknowledged is True:
-            raise ValueError("Denied and Acknowledged cannot both be set to True")
-        return denied
+        deleted = values.get("Deleted")
+        if sum([bool(val) for val in [denied, acknowledged, deleted]]) > 1:
+            raise ValueError(
+                "Only one of Denied, Acknowledged, and Deleted can be set to True"
+            )
+        return values
 
 
 class AcknowledgedRelationSide(AcknowledgedRelationBase):
     Acknowledged: Optional[datetime] = None
     Acknowledged_By_UUID: Optional[uuid.UUID] = None
-    Title: str = Field(default="")
-    Explanation: str = Field(default="")
+    Title: Optional[str]
+    Explanation: Optional[str]
 
     @property
     def Is_Acknowledged(self) -> bool:
@@ -63,6 +65,7 @@ class AcknowledgedRelation(BaseModel):
     Side_A: AcknowledgedRelationSide
     Side_B: AcknowledgedRelationSide
 
+    Version: int
     Requested_By_Code: str
     Created_Date: datetime
     Created_By_UUID: uuid.UUID
@@ -74,18 +77,7 @@ class AcknowledgedRelation(BaseModel):
 
     @property
     def Is_Acknowledged(self) -> bool:
-        if self.Denied:
-            return False
-
         return self.Side_A.Is_Acknowledged and self.Side_B.Is_Acknowledged
-
-    @property
-    def Is_Denied(self) -> bool:
-        return self.Denied is not None
-
-    @property
-    def Is_Deleted(self) -> bool:
-        return self.Deleted_At is not None
 
 
 def build_from_orm(orm_model, perspective_code: str) -> AcknowledgedRelation:
@@ -103,10 +95,12 @@ def build_from_orm(orm_model, perspective_code: str) -> AcknowledgedRelation:
     return AcknowledgedRelation(
         Side_A=side_a,
         Side_B=side_b,
+        Version=orm_model.Version,
         Requested_By_Code=orm_model.Requested_By_Code,
         Created_Date=orm_model.Created_Date,
         Created_By_UUID=orm_model.Created_By_UUID,
         Modified_Date=orm_model.Modified_Date,
         Modified_By_UUID=orm_model.Modified_By_UUID,
         Denied=orm_model.Denied,
+        Deleted_At=orm_model.Deleted_At,
     )

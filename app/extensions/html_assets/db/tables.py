@@ -1,7 +1,7 @@
 from datetime import datetime
 import uuid
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, Unicode
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import Base
@@ -15,10 +15,10 @@ class AssetsTable(Base):
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     # Lookup for faster access
-    Lookup: Mapped[str] = mapped_column(String(10), index=True)
+    Lookup: Mapped[str] = mapped_column(Unicode(10), index=True)
 
     # Hash to confirm uniqueness
-    Hash: Mapped[str] = mapped_column(String(64))
+    Hash: Mapped[str] = mapped_column(Unicode(64))
 
     # Meta information about the asset, like it is an image
     Meta: Mapped[str]

@@ -95,6 +95,10 @@ fields:
     name: Explanation
     type: str
     column: explanation
+  gebied_uuid:
+    name: Gebied_UUID
+    type: uuid
+    column: gebied_uuid
   idms_link:
     name: IDMS_Link
     type: str
@@ -103,10 +107,6 @@ fields:
     name: Decision_Number
     type: str
     column: decision_number
-  gebied_uuid:
-    name: Gebied_UUID
-    type: uuid
-    column: gebied_uuid
   
   # Statics
   owner_1_uuid:

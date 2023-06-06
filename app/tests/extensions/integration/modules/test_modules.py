@@ -209,6 +209,7 @@ class TestModulesEndpoints:
             object_provider=object_provider,
             object_context_repository=module_context_repo,
             permission_service=mock_permission_service,
+            allowed_object_types=["beleidskeuze"],
             user=self.ba_user,
             module=existing_module,
             object_in=request_obj,
@@ -297,11 +298,16 @@ class TestModulesEndpoints:
         ), "One or more attributes of changed module do not match the request"
 
     def test_module_activate_permission(
-        self, db, mock_dispatcher, local_tables: ExtendedLocalTables
+        self,
+        db,
+        mock_permission_service,
+        mock_dispatcher,
+        local_tables: ExtendedLocalTables,
     ):  # noqa
         existing_module = db.query(local_tables.ModuleTable).one()
         endpoint = ActivateEndpoint(
             db=db,
+            permission_service=mock_permission_service,
             event_dispatcher=mock_dispatcher,
             user=self.ba_user,  # should fail for non-managers for module
             module=existing_module,
@@ -313,12 +319,17 @@ class TestModulesEndpoints:
             endpoint.handle()
 
     def test_module_activate(
-        self, db, mock_dispatcher, local_tables: ExtendedLocalTables
+        self,
+        db,
+        mock_permission_service,
+        mock_dispatcher,
+        local_tables: ExtendedLocalTables,
     ):  # noqa
         # Precondition state: existing module NOT activated
         existing_module = db.query(local_tables.ModuleTable).one()
         endpoint = ActivateEndpoint(
             db=db,
+            permission_service=mock_permission_service,
             event_dispatcher=mock_dispatcher,
             user=self.super_user,
             module=existing_module,
@@ -412,7 +423,7 @@ class TestModulesEndpoints:
         # ensure db state as expected
         db.refresh(existing_module)
         assert existing_module.Closed is True
-        assert existing_module.Status.Status == "Vigerend gearchiveerd"
+        assert existing_module.Status.Status == "Module afgerond"
 
         objects_created = (
             db.query(local_tables.ObjectsTable)

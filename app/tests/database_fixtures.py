@@ -541,16 +541,14 @@ class DatabaseFixtures:
                 Object_Type="beleidskeuze",
                 Acknowledged=datetime(2023, 2, 2, 3, 3, 3),
                 Acknowledged_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-                Title="Relatie naar beleidskeuze 2",
-                Explanation="",
+                Explanation="Relatie naar beleidskeuze 2",
             ),
             AcknowledgedRelationSide(
                 Object_ID=2,
                 Object_Type="beleidskeuze",
                 Acknowledged=datetime(2023, 2, 3, 3, 3, 3),
                 Acknowledged_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-                Title="Relatie naar beleidskeuze 1",
-                Explanation="",
+                Explanation="Relatie naar beleidskeuze 1",
             ),
         )
         self._db.add(ack_table)

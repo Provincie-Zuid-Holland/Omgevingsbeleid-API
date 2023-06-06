@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 import uuid
 from sqlalchemy import ForeignKey, and_
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from app.core.db.base import Base
@@ -13,10 +13,8 @@ from app.extensions.acknowledged_relations.models.models import (
 
 
 class AcknowledgedRelationBaseColumns(TimeStamped, UserMetaData):
-    Requested_By_Code: Mapped[str] = mapped_column(
-        ForeignKey("object_statics.Code"), primary_key=True
-    )
-
+    Version: Mapped[int] = mapped_column(default=1, nullable=False, primary_key=True)
+    Requested_By_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"))
     From_Code: Mapped[str] = mapped_column(
         ForeignKey("object_statics.Code"), primary_key=True
     )
@@ -24,7 +22,6 @@ class AcknowledgedRelationBaseColumns(TimeStamped, UserMetaData):
     From_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("Gebruikers.UUID")
     )
-    From_Title: Mapped[str] = mapped_column(default="")
     From_Explanation: Mapped[str] = mapped_column(default="")
 
     To_Code: Mapped[int] = mapped_column(
@@ -34,7 +31,6 @@ class AcknowledgedRelationBaseColumns(TimeStamped, UserMetaData):
     To_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("Gebruikers.UUID")
     )
-    To_Title: Mapped[str] = mapped_column(default="")
     To_Explanation: Mapped[str] = mapped_column(default="")
 
     Denied: Mapped[Optional[datetime]]
@@ -80,7 +76,6 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
         setattr(self, f"{prefix}_Code", side.Code)
         setattr(self, f"{prefix}_Acknowledged", side.Acknowledged_Date)
         setattr(self, f"{prefix}_Acknowledged_By_UUID", side.Acknowledged_By_UUID)
-        setattr(self, f"{prefix}_Title", side.Title)
         setattr(self, f"{prefix}_Explanation", side.Explanation)
 
     def with_sides(
@@ -128,8 +123,16 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
         return self.Denied is not None
 
     @Is_Denied.expression
-    def Is_Deleted(cls):
+    def Is_Denied(cls):
         return cls.Denied.isnot(None)
+
+    @hybrid_property
+    def Is_Deleted(self) -> bool:
+        return self.Deleted_At is not None
+
+    @Is_Deleted.expression
+    def Is_Deleted(cls):
+        return cls.Deleted_At.isnot(None)
 
     @hybrid_property
     def From_Object_Type(self) -> str:
@@ -151,9 +154,28 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
         object_type, object_id = self.To_Code.split("-", 1)
         return object_id
 
+    @hybrid_property
+    def From_Title(self):
+        return getattr(self.From_ObjectStatics, "Cached_Title", None)
+
+    @hybrid_property
+    def To_Title(self):
+        return getattr(self.To_ObjectStatics, "Cached_Title", None)
+
 
 class AcknowledgedRelationsTable(Base, AcknowledgedRelationColumns):
     __tablename__ = "acknowledged_relations"
+
+    From_ObjectStatics = relationship(
+        "ObjectStaticsTable",
+        primaryjoin="AcknowledgedRelationsTable.From_Code == ObjectStaticsTable.Code",
+        lazy="select",
+    )
+    To_ObjectStatics = relationship(
+        "ObjectStaticsTable",
+        primaryjoin="AcknowledgedRelationsTable.To_Code == ObjectStaticsTable.Code",
+        lazy="select",
+    )
 
     @staticmethod
     def _raise_invalid_code():

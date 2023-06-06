@@ -13,16 +13,16 @@ debug:
 	python app/main.py localhost 8000 8001
 
 local-env:
-	pip install -U pip pip-tools==6.8.0
+	pip install -U pip pip-tools
 	pip-sync requirements.txt requirements-dev.txt
 
 local-pip-compile:
-	pip install -U pip pip-tools==6.8.0
+	pip install -U pip pip-tools
 	pip-compile requirements.in
 	pip-compile requirements-dev.in
 
 local-pip-upgrade:
-	pip install -U pip pip-tools==6.8.0
+	pip install -U pip pip-tools
 	pip-compile --upgrade requirements.in
 	pip-compile --upgrade requirements-dev.in
 
@@ -94,9 +94,13 @@ docker-mssql-setup-search:
 docker-load-fixtures:
 	docker compose exec api python cmds.py load-fixtures
 
-# load-fixtures:
-# 	python cmds.py load-fixtures
+docker-import:
+	docker compose exec api python -m scripts.import.main
 
+# @todo: these docker-test are not finished yet
+docker-test:
+	docker compose exec api python -m pytest
 
-# docker-reset-test-database:
-
+docker-testx:
+	docker compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-test.sql
+	docker compose exec api python -m pytest -vv -x

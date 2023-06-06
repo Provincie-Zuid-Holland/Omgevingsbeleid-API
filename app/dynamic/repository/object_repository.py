@@ -36,5 +36,4 @@ class ObjectRepository:
             .filter(ObjectsTable.Object_ID == object_id)
             .order_by(desc(ObjectsTable.Modified_Date))
         )
-        maybe_object = self._db.scalars(stmt).first()
-        return maybe_object
+        return self._db.scalars(stmt).first()

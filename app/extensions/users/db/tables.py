@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import String
+from sqlalchemy import Unicode
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import Base
@@ -9,7 +9,7 @@ from app.core.db.mixins import HasUUID
 
 class UserBaseColumns(HasUUID):
     Gebruikersnaam: Mapped[Optional[str]]
-    Email: Mapped[str] = mapped_column(String(265), unique=True)
+    Email: Mapped[str] = mapped_column(Unicode(256), unique=True)
     Rol: Mapped[Optional[str]]
     Status: Mapped[Optional[str]]
     # @todo; do not fetch when not needed

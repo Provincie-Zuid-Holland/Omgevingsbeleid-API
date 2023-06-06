@@ -3,7 +3,7 @@ from datetime import datetime
 import uuid
 
 from pydantic import BaseModel
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select, func, insert, String
 from sqlalchemy.orm import Session
 
@@ -47,16 +47,18 @@ class EndpointHandler:
             del self._object_in["ObjectStatics"]
 
         try:
-            object_static: ObjectStaticsTable = self._create_new_object_static(static_fields)
+            object_static: ObjectStaticsTable = self._create_new_object_static(
+                static_fields
+            )
             created_object: Type[BaseModel] = self._create_object(object_static)
 
             self._db.flush()
             self._db.commit()
 
             return created_object
-        except Exception as e:
+        except Exception:
             self._db.rollback
-            raise HTTPException(500, "Could not create object")
+            raise
 
     def _create_new_object_static(self, static_fields: dict) -> ObjectStaticsTable:
         generate_id_subq = (
@@ -71,13 +73,10 @@ class EndpointHandler:
             .values(
                 Object_Type=self._object_type,
                 Object_ID=generate_id_subq,
-                Code=(
-                    self._object_type
-                    + "-"
-                    + func.cast(generate_id_subq, String)
-                ),
+                Code=(self._object_type + "-" + func.cast(generate_id_subq, String)),
+                Cached_Title=self._object_in["Title"],
                 # Unpack object_in static fields
-                **(static_fields)
+                **(static_fields),
             )
             .returning(ObjectStaticsTable)
         )
@@ -134,7 +133,7 @@ class CreateObjectEndpoint(Endpoint):
                 self._object_type,
                 self._response_type,
                 user,
-                object_in.dict(exclude_none=True),
+                object_in.dict(exclude_unset=True),
             )
             return handler.handle()
 

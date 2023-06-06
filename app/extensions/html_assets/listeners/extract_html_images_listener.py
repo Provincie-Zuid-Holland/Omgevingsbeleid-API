@@ -24,18 +24,18 @@ from app.extensions.modules.event.module_object_patched_event import (
 
 
 @dataclass
-class ExtractImagesConfig:
+class ExtractHtmlImagesConfig:
     fields: Set[str]
 
 
-class Extractor:
+class HtmlImagesExtractor:
     def __init__(
         self,
         event: ModuleObjectPatchedEvent,
-        config: ExtractImagesConfig,
+        config: ExtractHtmlImagesConfig,
         interested_fields: Set[str],
     ):
-        self._config: ExtractImagesConfig = config
+        self._config: ExtractHtmlImagesConfig = config
         self._interested_fields: Set[str] = interested_fields
         self._module_object: ModuleObjectsTable = event.payload.new_record
         self._db: Session = event.get_db()
@@ -57,8 +57,16 @@ class Extractor:
 
     def _get_or_create_asset(self, img) -> AssetsTable:
         # Extract the image data and file extension
-        image_data = img["src"].split(",")[1]
-        ext = img["src"].split(";")[0].split("/")[1]
+        image_data = img["src"]
+
+        match = re.match(r"data:image/(.*?);base64,(.*)", image_data)
+        if not match:
+            raise ValueError("Invalid data URL")
+
+        # Extract the MIME type and data from the data URL
+        mime_type, base64_data = match.groups()
+        if mime_type not in ["png", "jpg", "jpeg"]:
+            raise ValueError("Invalid mime type for image")
 
         # First check if the image already exists
         # if so; then we do not need to parse the image to gain the meta
@@ -69,7 +77,7 @@ class Extractor:
         if image_table is not None:
             return image_table
 
-        picture_data = base64.b64decode(image_data)
+        picture_data = base64.b64decode(base64_data)
         size = sys.getsizeof(picture_data)
         try:
             image = Image.open(io.BytesIO(picture_data))
@@ -78,7 +86,7 @@ class Extractor:
         width, height = image.size
 
         meta: ImageMeta = ImageMeta(
-            ext=ext,
+            ext=f"{image.format}".lower(),
             width=width,
             height=height,
             size=size,
@@ -96,11 +104,11 @@ class Extractor:
         return image_table
 
 
-class ExtractImagesListener(Listener[ModuleObjectPatchedEvent]):
+class ExtractHtmlImagesListener(Listener[ModuleObjectPatchedEvent]):
     def handle_event(
         self, event: ModuleObjectPatchedEvent
     ) -> Optional[ModuleObjectPatchedEvent]:
-        config: Optional[ExtractImagesConfig] = self._collect_config(
+        config: Optional[ExtractHtmlImagesConfig] = self._collect_config(
             event.context.request_model
         )
         if not config:
@@ -111,13 +119,17 @@ class ExtractImagesListener(Listener[ModuleObjectPatchedEvent]):
         if not interested_fields:
             return event
 
-        extractor: Extractor = Extractor(event, config, interested_fields)
+        extractor: HtmlImagesExtractor = HtmlImagesExtractor(
+            event, config, interested_fields
+        )
         result_object = extractor.process()
 
         event.payload.new_record = result_object
         return event
 
-    def _collect_config(self, request_model: Model) -> Optional[ExtractImagesConfig]:
+    def _collect_config(
+        self, request_model: Model
+    ) -> Optional[ExtractHtmlImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
         if not "extract_assets" in request_model.service_config:
@@ -134,5 +146,5 @@ class ExtractImagesListener(Listener[ModuleObjectPatchedEvent]):
         if not fields:
             return None
 
-        config: ExtractImagesConfig = ExtractImagesConfig(fields=set(fields))
+        config: ExtractHtmlImagesConfig = ExtractHtmlImagesConfig(fields=set(fields))
         return config

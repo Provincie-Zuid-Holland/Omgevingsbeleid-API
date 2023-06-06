@@ -1,5 +1,5 @@
 import pytest
-import uuid
+from uuid import UUID
 from datetime import datetime, timedelta
 from typing import Optional, List
 
@@ -50,9 +50,9 @@ class ExtendedTableFactory(LocalTableFactory):
     def _build_table(self) -> ExtendedLocalTables:
         return ExtendedLocalTables(
             Base=self.base,
-            ObjectStaticsTable=self.statics_table,
-            ObjectsTable=self.objects_table,
-            UsersTabel=self.users_table,
+            ObjectsTable=self._generate_objects_table(),
+            ObjectStaticsTable=self._generate_statics_table(),
+            UsersTabel=self._generate_users_table(),
             ModuleTable=self._generate_module_table(),
             ModuleStatusHistoryTable=self._generate_status_history_table(),
             ModuleObjectContextTable=self._generate_object_context_table(),
@@ -73,16 +73,17 @@ class ExtendedTableFactory(LocalTableFactory):
         return LocalObjectsTable
 
     def _generate_statics_table(self):
-        # user_map = mapped_column(ForeignKey("Gebruikers.UUID"))
         class LocalObjectStaticsTable(self.base, StaticBaseColumns):
             __tablename__ = "object_statics"
-            Owner_1_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+
+            Cached_Title: Mapped[Optional[str]]
+            Owner_1_UUID: Mapped[Optional[UUID]] = mapped_column(
                 ForeignKey("Gebruikers.UUID")
             )
-            Owner_2_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+            Owner_2_UUID: Mapped[Optional[UUID]] = mapped_column(
                 ForeignKey("Gebruikers.UUID")
             )
-            Client_1_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+            Client_1_UUID: Mapped[Optional[UUID]] = mapped_column(
                 ForeignKey("Gebruikers.UUID")
             )
 
@@ -99,8 +100,8 @@ class ExtendedTableFactory(LocalTableFactory):
             End_Validity: Mapped[Optional[datetime]]
 
             ModuleObjectContext: Mapped[
-                "LocalModuleObjectContextTable"  # noqa
-            ] = relationship()
+                "LocalModuleObjectContextTable"
+            ] = relationship()  # noqa
             ObjectStatics: Mapped["LocalObjectStaticsTable"] = relationship(
                 overlaps="ModuleObjectContext"
             )  # noqa
@@ -119,8 +120,8 @@ class ExtendedTableFactory(LocalTableFactory):
             __tablename__ = "modules"
 
             status_history: Mapped[
-                List["LocalModuleStatusHistoryTable"]  # noqa
-            ] = relationship(
+                List["LocalModuleStatusHistoryTable"]
+            ] = relationship(  # noqa
                 back_populates="Module",
                 order_by="asc(LocalModuleStatusHistoryTable.Created_Date)",
             )
@@ -191,7 +192,7 @@ def setup_db_once(local_tables, engine):
     local_tables.Base.metadata.create_all(engine)
     yield local_tables
     # teardown
-    local_tables.Base.metadata.drop_all(engine)
+    # local_tables.Base.metadata.drop_all(engine)
 
 
 @pytest.fixture
@@ -201,7 +202,7 @@ def setup_db(local_tables, engine):
     local_tables.Base.metadata.create_all(engine)
     yield local_tables
     # teardown
-    local_tables.Base.metadata.drop_all(engine)
+    # local_tables.Base.metadata.drop_all(engine)
 
 
 @pytest.fixture(scope="class")

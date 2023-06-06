@@ -1,4 +1,4 @@
-from typing import List, Optional, Set
+from typing import Generic, List, Optional, Set, TypeVar
 from dataclasses import dataclass
 from uuid import UUID
 from bs4 import BeautifulSoup
@@ -7,6 +7,7 @@ import json
 from pydantic import BaseModel
 
 from sqlalchemy.orm import Session
+from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 
 from app.dynamic.event.types import Listener
 from app.dynamic.config.models import Model, DynamicObjectModel
@@ -19,17 +20,17 @@ from app.extensions.modules.event.retrieved_module_objects_event import (
 
 
 @dataclass
-class InsertImagesConfig:
+class InsertHtmlImagesConfig:
     fields: Set[str]
 
 
-class Inserter:
+class HtmlImagesInserter:
     def __init__(
         self,
         event: RetrievedModuleObjectsEvent,
-        config: InsertImagesConfig,
+        config: InsertHtmlImagesConfig,
     ):
-        self._config: InsertImagesConfig = config
+        self._config: InsertHtmlImagesConfig = config
         self._rows: List[BaseModel] = event.payload.rows
         self._db: Session = event.get_db()
         self._asset_repository: AssetRepository = AssetRepository(self._db)
@@ -63,32 +64,31 @@ class Inserter:
                         meta: ImageMeta = ImageMeta.parse_obj(meta_dict)
                     except:
                         continue
-                    img["src"] = f"data:image/{meta.ext};base64,{asset.Content}"
+                    img["src"] = asset.Content
 
                 setattr(row, field_name, str(soup))
 
         return self._rows
 
 
-class InsertImagesListener(Listener[RetrievedModuleObjectsEvent]):
-    def handle_event(
-        self, event: RetrievedModuleObjectsEvent
-    ) -> RetrievedModuleObjectsEvent:
-        config: Optional[InsertImagesConfig] = self._collect_config(
+EventT = TypeVar("EventT")
+
+
+class InsertHtmlImagesListenerBase(Listener[EventT], Generic[EventT]):
+    def handle_event(self, event: EventT) -> EventT:
+        config: Optional[InsertHtmlImagesConfig] = self._collect_config(
             event.context.response_model
         )
-        if not config:
-            return event
-        if not config.fields:
+        if not config or not config.fields:
             return event
 
-        inserter: Inserter = Inserter(event, config)
+        inserter: HtmlImagesInserter = HtmlImagesInserter(event, config)
         result_rows = inserter.process()
 
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, request_model: Model) -> Optional[InsertImagesConfig]:
+    def _collect_config(self, request_model: Model) -> Optional[InsertHtmlImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
         if not "insert_assets" in request_model.service_config:
@@ -105,5 +105,17 @@ class InsertImagesListener(Listener[RetrievedModuleObjectsEvent]):
         if not fields:
             return None
 
-        config: InsertImagesConfig = InsertImagesConfig(fields=set(fields))
+        config: InsertHtmlImagesConfig = InsertHtmlImagesConfig(fields=set(fields))
         return config
+
+
+class InsertHtmlImagesForModuleListener(
+    InsertHtmlImagesListenerBase[RetrievedModuleObjectsEvent]
+):
+    pass
+
+
+class InsertHtmlImagesForObjectListener(
+    InsertHtmlImagesListenerBase[RetrievedObjectsEvent]
+):
+    pass

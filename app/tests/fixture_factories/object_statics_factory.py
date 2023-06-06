@@ -1,5 +1,6 @@
 from uuid import UUID
 from sqlalchemy.orm import Session
+from collections import defaultdict
 
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 
@@ -7,8 +8,9 @@ from .fixture_factory import FixtureDataFactory
 
 
 class ObjectStaticsFixtureFactory(FixtureDataFactory):
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, local_tables=None):
         super().__init__(db)
+        self.local_tables = local_tables
 
     def populate_db(self):
         if len(self.objects) == 0:
@@ -28,7 +30,11 @@ class ObjectStaticsFixtureFactory(FixtureDataFactory):
             for key in list(data)
             if key not in ObjectStaticsTable.__table__.columns.keys()
         }
-        static_obj = ObjectStaticsTable(**data)
+
+        if self.local_tables:
+            static_obj = self.local_tables.ObjectStaticsTable(**data)
+        else:
+            static_obj = ObjectStaticsTable(**data)
 
         # Set the dynamically added attributes on the instance
         for key, value in dynamic_attributes.items():
@@ -38,7 +44,7 @@ class ObjectStaticsFixtureFactory(FixtureDataFactory):
         return static_obj
 
     def _data(self):
-        return [
+        base_data = [
             {
                 "Object_Type": "ambitie",
                 "Object_ID": 1,
@@ -49,7 +55,6 @@ class ObjectStaticsFixtureFactory(FixtureDataFactory):
                 "Object_Type": "ambitie",
                 "Object_ID": 2,
                 "Code": "ambitie-2",
-                "Owner_1_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "beleidsdoel",
@@ -61,7 +66,6 @@ class ObjectStaticsFixtureFactory(FixtureDataFactory):
                 "Object_Type": "beleidsdoel",
                 "Object_ID": 2,
                 "Code": "beleidsdoel-2",
-                "Owner_1_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "beleidskeuze",
@@ -73,13 +77,11 @@ class ObjectStaticsFixtureFactory(FixtureDataFactory):
                 "Object_Type": "beleidskeuze",
                 "Object_ID": 2,
                 "Code": "beleidskeuze-2",
-                "Owner_1_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "beleidskeuze",
                 "Object_ID": 3,
                 "Code": "beleidskeuze-3",
-                "Owner_1_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
             {
                 "Object_Type": "maatregel",
@@ -91,6 +93,24 @@ class ObjectStaticsFixtureFactory(FixtureDataFactory):
                 "Object_Type": "maatregel",
                 "Object_ID": 2,
                 "Code": "maatregel-2",
-                "Owner_1_UUID": UUID("11111111-0000-0000-0000-000000000002"),
             },
         ]
+
+        updated_base_data = [
+            self.generate_sample_data(custom_values=item) for item in base_data
+        ]
+        return updated_base_data
+
+    def generate_sample_data(self, custom_values=None):
+        # Default values
+        default_values = defaultdict(None)
+        default_values["Object_ID"] = 1
+        default_values["Object_Type"] = "beleidskeuze"
+        default_values["Owner_1_UUID"] = UUID("11111111-0000-0000-0000-000000000002")
+        default_values["Owner_2_UUID"] = None
+        default_values["Client_1_UUID"] = UUID("11111111-0000-0000-0000-000000000005")
+
+        if custom_values:
+            default_values.update(custom_values)
+
+        return dict(default_values)
