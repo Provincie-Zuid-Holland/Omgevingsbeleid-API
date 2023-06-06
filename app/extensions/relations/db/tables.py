@@ -2,9 +2,10 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import Base
+from app.core.db.mixins import SerializerMixin
 
 
-class RelationsTable(Base):
+class RelationsTable(Base, SerializerMixin):
     __tablename__ = "relations"
 
     From_Code: Mapped[str] = mapped_column(
@@ -22,3 +23,11 @@ class RelationsTable(Base):
         from_code, to_code = sorted([code_a, code_b])
         self.From_Code = from_code
         self.To_Code = to_code
+
+    @staticmethod
+    def create(description: str, code_a: str, code_b: str) -> "RelationsTable":
+        relation: RelationsTable = RelationsTable(
+            Description=description,
+        )
+        relation.set_codes(code_a, code_b)
+        return relation

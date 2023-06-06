@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, ForeignKeyConstraint, String
+from sqlalchemy import ForeignKey, ForeignKeyConstraint, Unicode
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.session import object_session
@@ -13,7 +13,7 @@ from .tables import ModuleObjectContextTable
 class ModuleObjectsColumns:
     Module_ID: Mapped[int] = mapped_column(ForeignKey("modules.Module_ID"))
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Code: Mapped[str] = mapped_column(String(35), ForeignKey("object_statics.Code"))
+    Code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.Code"))
     Deleted: Mapped[bool] = mapped_column(default=False)
 
 

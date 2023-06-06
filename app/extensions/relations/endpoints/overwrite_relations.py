@@ -1,7 +1,9 @@
+from datetime import datetime
+import json
 from typing import List
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import delete, or_
+from sqlalchemy import delete, or_, select
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -11,6 +13,7 @@ from app.dynamic.utils.response import ResponseOK
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
+from app.extensions.change_logger.db.tables import ChangeLogTable
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.relations.models.models import RelationShort
 from app.extensions.users.db.tables import UsersTable
@@ -21,18 +24,25 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
+        user: UsersTable,
         allowed_object_types_relations: List[str],
-        object_code: str,
+        object_type: str,
+        object_id: str,
         overwrite_list: List[RelationShort],
     ):
         self._db: Session = db
-        self._object_code: str = object_code
+        self._user: UsersTable = user
+        self._object_type: str = object_type
+        self._object_id: int = object_id
+        self._object_code: str = f"{object_type}-{object_id}"
         self._overwrite_list: List[RelationShort] = overwrite_list
         self._allowed_object_types_relations: List[str] = allowed_object_types_relations
 
     def handle(self) -> ResponseOK:
         self._guard_invalid_relations()
         try:
+            self._log_action()
+
             self._remove_current_relations()
             self._create_relations()
             self._db.commit()
@@ -51,6 +61,44 @@ class EndpointHandler:
                     f"Invalid object_type for relation with '@TODO object-id'"
                 )
 
+    def _log_action(self):
+        action_data: str = json.dumps([l.dict() for l in self._overwrite_list])
+        current_relations: List[dict] = self._fetch_current_relations()
+        before_data: str = json.dumps(current_relations)
+
+        after: List[RelationsTable] = [
+            RelationsTable.create(
+                data.Description,
+                self._object_code,
+                data.Code,
+            ).to_dict()
+            for data in self._overwrite_list
+        ]
+        after_data: str = json.dumps(after)
+
+        change_log: ChangeLogTable = ChangeLogTable(
+            Object_Type=self._object_type,
+            Object_ID=self._object_id,
+            Created_Date=datetime.now(),
+            Created_By_UUID=self._user.UUID,
+            Action_Type="overwrite_relations",
+            Action_Data=action_data,
+            Before=before_data,
+            After=after_data,
+        )
+        self._db.add(change_log)
+
+    def _fetch_current_relations(self):
+        stmt = select(RelationsTable).filter(
+            or_(
+                RelationsTable.From_Code == self._object_code,
+                RelationsTable.To_Code == self._object_code,
+            )
+        )
+        rows: List[RelationsTable] = self._db.scalars(stmt).all()
+        dict_rows: List[dict] = [r.to_dict() for r in rows]
+        return dict_rows
+
     def _remove_current_relations(self):
         stmt = delete(RelationsTable).filter(
             or_(
@@ -65,10 +113,8 @@ class EndpointHandler:
             return
 
         for data in self._overwrite_list:
-            relation: RelationsTable = RelationsTable(
-                Description=data.Description,
-            )
-            relation.set_codes(
+            relation: RelationsTable = RelationsTable.create(
+                data.Description,
                 self._object_code,
                 data.Code,
             )
@@ -95,8 +141,10 @@ class OverwriteRelationsEndpoint(Endpoint):
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
                 db,
+                user,
                 self._allowed_object_types_relations,
-                f"{self._object_type}-{lineage_id}",
+                self._object_type,
+                lineage_id,
                 overwrite_list,
             )
             return handler.handle()

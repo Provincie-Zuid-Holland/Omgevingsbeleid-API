@@ -53,3 +53,26 @@ search_query = f"""
                     ORDER BY f.WeightedRank DESC"""
 result_rows = self._run_query_fetch(search_query, [args, args])
 
+
+high:
+- overwrite_relations
+- atemporal_edit_object
+- edit_object_static
+
+
+low:
+edit_module
+module_edit_object_context
+atemporal_create_object
+edit_acknowledged_relation
+request_acknowledged_relation
+
+
+
+
+
+
+
+
+
+

@@ -1,25 +1,40 @@
 import logging
 import sys
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.routing import APIRoute
 from fastapi.responses import JSONResponse
 from fastapi.openapi.utils import get_openapi
 import sqlalchemy.exc
+from sqlalchemy.orm import Session
 import uvicorn
 
 from app.app import dynamic_app
+from app.core.db.session import SessionLocal
 from app.core.settings import settings
 
 
 app: FastAPI = dynamic_app.run()
 
 
-"""
+@app.get("/health")
+async def health_check():
+    health_info = {
+        "status": "healthy",
+        "database": "ok",
+    }
 
-    @TODO: all fastapi functions below should be moved to extensions etc
+    try:
+        session: Session = SessionLocal()
+        session.close()
+    except sqlalchemy.exc.SQLAlchemyError:
+        health_info["status"] = "unhealthy"
+        health_info["database"] = "not connected"
 
-"""
+    if health_info["status"] == "unhealthy":
+        raise HTTPException(status_code=503, detail=health_info)
+
+    return health_info
 
 
 @app.exception_handler(sqlalchemy.exc.IntegrityError)

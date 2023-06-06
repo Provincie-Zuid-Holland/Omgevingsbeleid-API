@@ -282,7 +282,9 @@ users_permissions:
     - atemporal_can_edit_object
     - atemporal_can_delete_object
     - can_create_module
+    - can_close_module
     - can_edit_module
+    - can_activate_module
     - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
@@ -290,13 +292,42 @@ users_permissions:
     - can_remove_object_from_module
     - can_patch_object_in_module
   "Portefeuillehouder": []
-  "Technisch beheerder": []
+  "Functioneel beheerder":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - can_create_module
+    - can_close_module
+    - can_edit_module
+    - can_activate_module
+    - can_patch_module_status
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
+  "Technisch beheerder":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - can_create_module
+    - can_close_module
+    - can_edit_module
+    - can_activate_module
+    - can_patch_module_status
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
     - atemporal_can_delete_object
     - can_create_module
+    - can_close_module
     - can_edit_module
+    - can_activate_module
     - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
@@ -308,7 +339,9 @@ users_permissions:
     - atemporal_can_edit_object
     - atemporal_can_delete_object
     - can_create_module
+    - can_close_module
     - can_edit_module
+    - can_activate_module
     - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module
@@ -320,7 +353,9 @@ users_permissions:
     - atemporal_can_edit_object
     - atemporal_can_delete_object
     - can_create_module
+    - can_close_module
     - can_edit_module
+    - can_activate_module
     - can_patch_module_status
     - can_add_new_object_to_module
     - can_add_existing_object_to_module

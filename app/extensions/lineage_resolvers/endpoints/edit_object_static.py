@@ -1,7 +1,9 @@
+from datetime import datetime
+import json
 from typing import Optional, Type
 
 from fastapi import APIRouter, Depends, HTTPException
-import pydantic
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -14,6 +16,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 from app.dynamic.utils.response import ResponseOK
+from app.extensions.change_logger.db.tables import ChangeLogTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
@@ -27,7 +30,7 @@ class EndpointHandler:
         db: Session,
         repository: ObjectStaticRepository,
         user: UsersTable,
-        changes: dict,
+        object_in: Type[BaseModel],
         lineage_id: int,
     ):
         self._converter: Converter = converter
@@ -38,7 +41,8 @@ class EndpointHandler:
         self._repository: ObjectStaticRepository = repository
 
         self._user: UsersTable = user
-        self._changes: dict = changes
+        self._object_in: Type[BaseModel] = object_in
+        self._changes: dict = object_in.dict(exclude_unset=True)
         self._lineage_id: int = lineage_id
 
     def handle(self):
@@ -54,8 +58,22 @@ class EndpointHandler:
         if not object_static:
             raise ValueError(f"lineage_id does not exist")
 
+        log_before: str = json.dumps(object_static.to_dict())
+
         for key, value in self._changes.items():
             setattr(object_static, key, value)
+
+        change_log: ChangeLogTable = ChangeLogTable(
+            Object_Type=self._object_type,
+            Object_ID=self._lineage_id,
+            Created_Date=datetime.now(),
+            Created_By_UUID=self._user.UUID,
+            Action_Type="edit_object_static",
+            Action_Data=self._object_in.json(),
+            Before=log_before,
+            After=json.dumps(object_static.to_dict()),
+        )
+        self._db.add(change_log)
 
         self._db.flush()
         self._db.commit()
@@ -70,13 +88,13 @@ class EditObjectStaticEndpoint(Endpoint):
         object_config_id: str,
         object_type: str,
         path: str,
-        request_type: Type[pydantic.BaseModel],
+        request_type: Type[BaseModel],
     ):
         self._converter: Converter = converter
         self._object_config_id: str = object_config_id
         self._object_type: str = object_type
         self._path: str = path
-        self._request_type: Type[pydantic.BaseModel] = request_type
+        self._request_type: Type[BaseModel] = request_type
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
@@ -95,7 +113,7 @@ class EditObjectStaticEndpoint(Endpoint):
                 db,
                 repository,
                 user,
-                object_in.dict(exclude_none=True),
+                object_in,
                 lineage_id,
             )
             return handler.handle()
@@ -128,7 +146,7 @@ class EditObjectStaticEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
 
         request_model = models_resolver.get(resolver_config.get("request_model"))
-        request_type: Type[pydantic.BaseModel] = request_model.pydantic_model
+        request_type: Type[BaseModel] = request_model.pydantic_model
 
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
         if not "{lineage_id}" in path:

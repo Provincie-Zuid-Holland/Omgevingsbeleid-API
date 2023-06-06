@@ -1,4 +1,4 @@
-from typing import List, Optional, Set
+from typing import Generic, List, Optional, Set, TypeVar
 from dataclasses import dataclass
 from uuid import UUID
 from bs4 import BeautifulSoup
@@ -7,6 +7,7 @@ import json
 from pydantic import BaseModel
 
 from sqlalchemy.orm import Session
+from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 
 from app.dynamic.event.types import Listener
 from app.dynamic.config.models import Model, DynamicObjectModel
@@ -70,16 +71,15 @@ class HtmlImagesInserter:
         return self._rows
 
 
-class InsertHtmlImagesListener(Listener[RetrievedModuleObjectsEvent]):
-    def handle_event(
-        self, event: RetrievedModuleObjectsEvent
-    ) -> RetrievedModuleObjectsEvent:
+EventT = TypeVar("EventT")
+
+
+class InsertHtmlImagesListenerBase(Listener[EventT], Generic[EventT]):
+    def handle_event(self, event: EventT) -> EventT:
         config: Optional[InsertHtmlImagesConfig] = self._collect_config(
             event.context.response_model
         )
-        if not config:
-            return event
-        if not config.fields:
+        if not config or not config.fields:
             return event
 
         inserter: HtmlImagesInserter = HtmlImagesInserter(event, config)
@@ -107,3 +107,15 @@ class InsertHtmlImagesListener(Listener[RetrievedModuleObjectsEvent]):
 
         config: InsertHtmlImagesConfig = InsertHtmlImagesConfig(fields=set(fields))
         return config
+
+
+class InsertHtmlImagesForModuleListener(
+    InsertHtmlImagesListenerBase[RetrievedModuleObjectsEvent]
+):
+    pass
+
+
+class InsertHtmlImagesForObjectListener(
+    InsertHtmlImagesListenerBase[RetrievedObjectsEvent]
+):
+    pass

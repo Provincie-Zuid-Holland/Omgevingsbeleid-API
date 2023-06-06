@@ -17,27 +17,41 @@ from app.extensions.modules.event.module_status_changed_event import (
     ModuleStatusChangedEvent,
 )
 from app.extensions.modules.models import Module
-from app.extensions.modules.permissions import guard_user_is_module_manager
+from app.extensions.modules.permissions import (
+    ModulesPermissions,
+    guard_valid_user,
+)
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.users.dependencies import (
+    depends_current_active_user,
+    depends_permission_service,
+)
+from app.extensions.users.permission_service import PermissionService
 
 
 class EndpointHandler:
     def __init__(
         self,
         db: Session,
+        permission_service: PermissionService,
         event_dispatcher: EventDispatcher,
         user: UsersTable,
         module: Module,
     ):
         self._db: Session = db
+        self._permission_service: PermissionService = permission_service
         self._event_dispatcher: EventDispatcher = event_dispatcher
         self._user: UsersTable = user
         self._module: ModuleTable = module
         self._timepoint: datetime = datetime.now()
 
     def handle(self) -> ResponseOK:
-        guard_user_is_module_manager(self._user, self._module)
+        guard_valid_user(
+            self._permission_service,
+            ModulesPermissions.can_close_module,
+            self._user,
+            self._module,
+        )
 
         self._close_module()
         self._patch_status()
@@ -90,9 +104,11 @@ class CloseModuleEndpoint(Endpoint):
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
+            permission_service: PermissionService = Depends(depends_permission_service),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
                 db,
+                permission_service,
                 event_dispatcher,
                 user,
                 module,

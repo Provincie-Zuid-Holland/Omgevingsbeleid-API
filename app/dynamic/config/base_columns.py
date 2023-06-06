@@ -84,12 +84,12 @@ base_columns = [
         id="start_validity",
         name="Start_Validity",
         nullable=True,
-        type="str",
+        type="datetime",
     ),
     Column(
         id="end_validity",
         name="End_Validity",
         nullable=True,
-        type="str",
+        type="datetime",
     ),
 ]
