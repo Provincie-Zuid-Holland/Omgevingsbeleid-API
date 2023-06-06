@@ -110,7 +110,9 @@ def setup_search_database_curried(main_config: dict):
 
             for search_config in main_config.get("mssql_search", []):
                 table_name = search_config.get("table_name")
-                columns = search_config.get("searchable_columns_low", []) + search_config.get("searchable_columns_high", [])
+                columns = search_config.get(
+                    "searchable_columns_low", []
+                ) + search_config.get("searchable_columns_high", [])
                 _reset_fulltext_index(db, table_name, set(columns))
 
         click.echo("Done")
