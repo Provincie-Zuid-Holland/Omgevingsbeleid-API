@@ -29,28 +29,23 @@ class ModuleBaseColumns(TimeStamped, UserMetaData):
         ForeignKey("Gebruikers.UUID")
     )
 
-    # @property
-    # def Status(self) -> Optional["ModuleStatusHistoryTable"]:
-    #     if not self.status_history:
-    #         return None
-    #     return self.status_history[-1]
+    @property
+    def Status(self) -> Optional["ModuleStatusHistoryTable"]:
+        return None if not self.status_history else self.status_history[-1]
 
     @hybrid_property
-    def Status(self):
-        if not self.status_history:
-            return None
-        return self.status_history[-1].Status  # TODO: back to full statustable
+    def Current_Status(self) -> Optional[str]:
+        return None if not self.status_history else self.status_history[-1].Status
 
-    @Status.expression
-    def Status(cls):
-        status_subquery = (
+    @Current_Status.expression
+    def Current_Status(cls):
+        return (
             select(ModuleStatusHistoryTable.Status)
             .filter(cls.Module_ID == ModuleStatusHistoryTable.Module_ID)
             .order_by(ModuleStatusHistoryTable.ID.desc())
             .limit(1)
             .scalar_subquery()
         )
-        return status_subquery
 
     def is_manager(self, user_uuid: uuid.UUID) -> bool:
         return user_uuid in [self.Module_Manager_1_UUID, self.Module_Manager_2_UUID]
@@ -85,7 +80,7 @@ class ModuleTable(Base, ModuleBaseColumns):
     )
 
     def __repr__(self) -> str:
-        return f"Module(Module_ID={self.Module_ID!r}, Title={self.Title!r}"
+        return f"Module(Module_ID={self.Module_ID!r}, Title={self.Title!r})"
 
 
 class ModuleStatusHistoryColumns:

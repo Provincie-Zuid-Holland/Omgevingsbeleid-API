@@ -213,6 +213,7 @@ class TestModulesEndpoints:
             user=self.ba_user,
             module=existing_module,
             object_in=request_obj,
+            allowed_object_types=["beleidskeuze"],
         )
 
         # Execute

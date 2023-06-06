@@ -115,7 +115,7 @@ class ModuleObjectRepository:
         if is_active:
             filters.append(ModuleTable.is_active)  # Closed false + Activated true
         if status_filter is not None:
-            filters.append(ModuleTable.Status.in_(status_filter))
+            filters.append(ModuleTable.Current_Status.in_(status_filter))
         if len(filters) > 0:
             subq = subq.filter(and_(*filters))
 
