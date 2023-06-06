@@ -16,6 +16,7 @@ from Api.Models.werkingsgebieden import Werkingsgebieden_Schema
 from Api.Models.short_schemas import (
     Short_Beleidskeuze_Schema,
     Short_Beleidsmodule_Schema,
+    Short_Gebiedsprogramma_Schema,
 )
 from Api.Models.gebruikers import Gebruikers_Schema
 from Api.Endpoints.status_data_manager import StatusDataManager
@@ -106,6 +107,7 @@ class Maatregelen(CommonMixin, db.Model):
     Beleidsmodules = relationship(
         "Beleidsmodule_Maatregelen", back_populates="Maatregel"
     )
+    Gebiedsprogrammas = relationship("Maatregel_Gebiedsprogrammas", back_populates="Maatregel")
 
 
 status_options = [
@@ -201,6 +203,11 @@ class Maatregelen_Schema(Base_Schema):
         missing=None,
         obprops=["excluded_post", "excluded_patch", "calculated"],
     )
+    Ref_Gebiedsprogrammas = MM.fields.Nested(
+        UUID_Linker_Schema,
+        many=True,
+        obprops=["referencelist", "excluded_patch", "excluded_post"],
+    )
 
     class Meta(Base_Schema.Meta):
         slug = "maatregelen"
@@ -232,6 +239,14 @@ class Maatregelen_Schema(Base_Schema):
                 "Beleidsmodule_UUID",
                 "Koppeling_Omschrijving",
                 Short_Beleidsmodule_Schema,
+            ),
+            "Ref_Gebiedsprogrammas": Reverse_UUID_Reference(
+                "Maatregel_Gebiedsprogrammas",
+                "Gebiedsprogrammas",
+                "Maatregel_UUID",
+                "Gebiedsprogramma_UUID",
+                "Koppeling_Omschrijving",
+                Short_Gebiedsprogramma_Schema,
             ),
         }
         graph_conf = "Titel"

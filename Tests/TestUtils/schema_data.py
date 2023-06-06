@@ -55,19 +55,12 @@ def generate_data(schema, user_UUID=null_uuid, excluded_prop=None):
     return result
 
 
-reference_rich_beleidskeuze = {
-    "Status": "Vigerend",
+reference_rich_beleidsdoel = {
     "Titel": "Beleidsbeslissing test Swen Initial",
     "Begin_Geldigheid": "2020-10-28T12:00:00",
     "Eind_Geldigheid": "2020-10-30T12:00:00",
-    "Aanleiding": "Om te testen",
-    "Afweging": "Zonder aanleiding",
-    "Omschrijving_Keuze": "Nam libero leo, tempus in pretium vel, rhoncus in mi.",
-    "Omschrijving_Werking": "Duis neque nulla, egestas aliquet nisi ut, dapibus pellentesque neque.",
-    "Provinciaal_Belang": "In het belang van de wetenschap",
-    "Weblink": "www.beleid.beslissing.nl",
-    "Besluitnummer": "42",
-    "Tags": "Wetenschap, Test",
+    "Omschrijving": "Nam libero leo, tempus in pretium vel, rhoncus in mi.",
+    "Weblink": "www.beleidsdoel.beslissing.nl",
     "Ambities": [
         {
             "UUID": "B786487C-3E65-4DD8-B360-D2C56BF83172",

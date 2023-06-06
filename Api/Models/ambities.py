@@ -3,28 +3,24 @@
 
 import marshmallow as MM
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey, Integer, String, Unicode
+from sqlalchemy import Column, ForeignKey, String, Unicode
 
 from Api.Endpoints.base_schema import Base_Schema
 from Api.Endpoints.references import Reverse_UUID_Reference, UUID_Linker_Schema
 from Api.Endpoints.validators import HTML_Validate
-from Api.Models.short_schemas import Short_Beleidskeuze_Schema
+from Api.Models.short_schemas import Short_Beleidsdoel_Schema
 from Api.database import CommonMixin, db
 
 
-class Beleidskeuze_Ambities(db.Model):
-    __tablename__ = "Beleidskeuze_Ambities"
+class Beleidsdoel_Ambities(db.Model):
+    __tablename__ = "Beleidsdoel_Ambities"
 
-    Beleidskeuze_UUID = Column(
-        "Beleidskeuze_UUID", ForeignKey("Beleidskeuzes.UUID"), primary_key=True
-    )
-    Ambitie_UUID = Column("Ambitie_UUID", ForeignKey("Ambities.UUID"), primary_key=True)
-    Koppeling_Omschrijving = Column(
-        "Koppeling_Omschrijving", String(collation="SQL_Latin1_General_CP1_CI_AS")
-    )
+    Beleidsdoel_UUID = Column(ForeignKey("Beleidsdoelen.UUID"), primary_key=True)
+    Ambitie_UUID = Column(ForeignKey("Ambities.UUID"), primary_key=True)
+    Koppeling_Omschrijving = Column(String(collation="SQL_Latin1_General_CP1_CI_AS"))
 
-    Beleidskeuze = relationship("Beleidskeuzes", back_populates="Ambities")
-    Ambitie = relationship("Ambities", back_populates="Beleidskeuzes")
+    Beleidsdoel = relationship("Beleidsdoelen", back_populates="Ambities")
+    Ambitie = relationship("Ambities", back_populates="Beleidsdoelen")
 
 
 class Ambities(CommonMixin, db.Model):
@@ -41,7 +37,7 @@ class Ambities(CommonMixin, db.Model):
         "Gebruikers", primaryjoin="Ambities.Modified_By == Gebruikers.UUID"
     )
 
-    Beleidskeuzes = relationship("Beleidskeuze_Ambities", back_populates="Ambitie")
+    Beleidsdoelen = relationship("Beleidsdoel_Ambities", back_populates="Ambitie")
 
 
 class Ambities_Schema(Base_Schema):
@@ -54,7 +50,7 @@ class Ambities_Schema(Base_Schema):
         obprops=["search_description", "large_data"],
     )
     Weblink = MM.fields.Str(missing=None, obprops=[])
-    Ref_Beleidskeuzes = MM.fields.Nested(
+    Ref_Beleidsdoelen = MM.fields.Nested(
         UUID_Linker_Schema,
         many=True,
         obprops=["referencelist", "excluded_patch", "excluded_post"],
@@ -67,13 +63,13 @@ class Ambities_Schema(Base_Schema):
         ordered = True
         searchable = True
         references = {
-            "Ref_Beleidskeuzes": Reverse_UUID_Reference(
-                "Beleidskeuze_Ambities",
-                "Beleidskeuzes",
+            "Ref_Beleidsdoelen": Reverse_UUID_Reference(
+                "Beleidsdoel_Ambities",
+                "Beleidsdoelen",
                 "Ambitie_UUID",
-                "Beleidskeuze_UUID",
+                "Beleidsdoel_UUID",
                 "Koppeling_Omschrijving",
-                Short_Beleidskeuze_Schema,
+                Short_Beleidsdoel_Schema,
             )
         }
         graph_conf = "Titel"

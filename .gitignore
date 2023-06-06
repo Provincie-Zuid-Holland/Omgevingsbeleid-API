@@ -4,6 +4,7 @@ __pycache__/
 web.config
 .vscode/settings.json
 .idea/
+.vscode/
 cgi.log
 search-index.log
 search-date.json

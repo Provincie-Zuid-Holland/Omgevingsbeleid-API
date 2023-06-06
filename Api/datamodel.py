@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 # Copyright (C) 2018 - 2020 Provincie Zuid-Holland
 
+from Api.Models.gebiedsprogrammas import Gebiedsprogrammas_Schema
 import marshmallow.fields as MMF
 
 from Api.Models.gebruikers import Gebruikers_Schema
@@ -17,12 +18,19 @@ from Api.Models.verordeningen import Verordeningen_Schema
 from Api.Models.beleidsrelaties import Beleidsrelaties_Schema
 from Api.Models.beleidsmodule import Beleidsmodule_Schema
 from Api.Models.short_schemas import (
+    Short_Beleidsdoel_Schema,
     Short_Beleidsmodule_Schema,
     Short_Beleidskeuze_Schema,
+    Short_Gebiedsprogramma_Schema,
 )
 import Api.Endpoints.references as references
 
-short_schemas = [Short_Beleidskeuze_Schema, Short_Beleidsmodule_Schema]
+short_schemas = [
+    Short_Beleidsdoel_Schema,
+    Short_Beleidskeuze_Schema,
+    Short_Beleidsmodule_Schema,
+    Short_Gebiedsprogramma_Schema,
+]
 
 endpoints = [
     Beleidskeuzes_Schema,
@@ -37,6 +45,7 @@ endpoints = [
     Themas_Schema,
     Werkingsgebieden_Schema,
     Verordeningen_Schema,
+    Gebiedsprogrammas_Schema,
 ]
 
 linker_tables = [

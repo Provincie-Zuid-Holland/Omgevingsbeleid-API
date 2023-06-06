@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import datetime
 import marshmallow as MM
 from flask import request, jsonify, abort, current_app
@@ -151,6 +152,16 @@ class Verordening_Structuur_Schema(MM.Schema):
         return dumped
 
 
+@dataclass
+class VerordeningLookup:
+    UUID: str
+    Titel: str
+    Volgnummer: str
+    Type: str
+    Inhoud: str
+    Gebied: str
+
+
 def serialize_schema_to_xml(schema):
     """
     Turn a Verordening_Scructuur_Schema into a xml string
@@ -200,12 +211,20 @@ def _parse_child_to_schema(xmlelement, vo_mappings):
     result = {"UUID": None, "Titel": None, "Children": []}
     for child in xmlelement:
         if remove_namespace(child.tag) == "uuid":
-            result["UUID"] = child.text.upper()
-            result["Titel"] = vo_mappings[child.text.lower()][0]
-            result["Volgnummer"] = vo_mappings[child.text.lower()][1]
-            result["Type"] = vo_mappings[child.text.lower()][2]
-            result["Inhoud"] = vo_mappings[child.text.lower()][3].replace("\r", "\n")
-            result["Gebied"] = vo_mappings[child.text.lower()][4]
+            uuid = child.text.lower()
+            if not uuid in vo_mappings:
+                message = f"UUID '{uuid}' not found while in _parse_child_to_schema"
+                current_app.logger.info(message)
+                print(message)
+                continue
+
+            node: VerordeningLookup = vo_mappings[uuid]
+            result["UUID"] = node.UUID.upper()
+            result["Titel"] = node.Titel
+            result["Volgnummer"] = node.Volgnummer
+            result["Type"] = node.Type
+            result["Inhoud"] = node.Inhoud.replace("\r", "\n")
+            result["Gebied"] = node.Gebied
         if remove_namespace(child.tag) == "child":
             result["Children"].append(_parse_child_to_schema(child, vo_mappings))
     return result
@@ -235,13 +254,21 @@ def ob_auto_filter(field):
 
 
 def linked_objects(uuid):
-    query = """SELECT b.UUID, b.Titel, b.Volgnummer, b.Type, b.Inhoud, b.Gebied FROM 
-        (SELECT UUID, T2.Loc.value('.','uniqueidentifier') as fk_Verordeningen
-            FROM [dbo].[VerordeningStructuur] as T1	CROSS APPLY Structuur.nodes('declare namespace VT="Verordening_Tree";//VT:uuid') as T2(Loc)
-            WHERE T2.Loc.value('.','uniqueidentifier') IN (SELECT UUID FROM Verordeningen) AND UUID = ?) AS a
-    LEFT JOIN 
-        (SELECT UUID, Titel, Volgnummer, Type, Inhoud, Gebied FROM Verordeningen) AS b
-    On a.fk_Verordeningen = b.UUID
+    query = """
+        SELECT 
+            b.UUID, 
+            b.Titel,
+            b.Volgnummer,
+            b.Type,
+            b.Inhoud,
+            b.Gebied
+        FROM 
+            (SELECT UUID, T2.Loc.value('.','uniqueidentifier') as fk_Verordeningen
+                FROM [dbo].[VerordeningStructuur] as T1	CROSS APPLY Structuur.nodes('declare namespace VT="Verordening_Tree";//VT:uuid') as T2(Loc)
+                WHERE T2.Loc.value('.','uniqueidentifier') IN (SELECT UUID FROM Verordeningen) AND UUID = ?) AS a
+        LEFT JOIN 
+            (SELECT UUID, Titel, Volgnummer, Type, Inhoud, Gebied FROM Verordeningen) AS b
+        On a.fk_Verordeningen = b.UUID
     """
     results = {}
     with pyodbc.connect(current_app.config["DB_CONNECTION_SETTINGS"]) as connection:
@@ -251,7 +278,17 @@ def linked_objects(uuid):
         except pyodbc.Error as err:
             handle_odbc_exception(err)
         for row in cursor:
-            results[row[0].lower()] = (row[1], row[2], row[3], row[4], row[5])
+            # results[row[0].lower()] = (row[1], row[2], row[3], row[4], row[5])
+
+            uuid = row[0].lower()
+            results[uuid] = VerordeningLookup(
+                UUID=uuid,
+                Titel=row[1] or "",
+                Volgnummer=row[2] or "",
+                Type=row[3] or "",
+                Inhoud=row[4] or "",
+                Gebied=row[5] or null_uuid,
+            )
     return results
 
 

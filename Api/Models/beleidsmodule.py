@@ -15,6 +15,7 @@ from Api.Endpoints.validators import HTML_Validate
 from Api.settings import default_user_uuid, min_datetime
 import Api.Models.maatregelen
 import Api.Models.beleidskeuzes
+import Api.Models.gebiedsprogrammas
 from Api.database import CommonMixin, db
 
 
@@ -37,6 +38,9 @@ class Beleidsmodules(CommonMixin, db.Model):
     Beleidskeuzes = relationship(
         "Beleidsmodule_Beleidskeuzes", back_populates="Beleidsmodule"
     )
+    Gebiedsprogrammas = relationship(
+        "Beleidsmodule_Gebiedsprogrammas", back_populates="Beleidsmodule"
+    )
 
 
 class Beleidsmodule_Schema(Base_Schema):
@@ -48,6 +52,9 @@ class Beleidsmodule_Schema(Base_Schema):
         UUID_Linker_Schema, many=True, obprops=["referencelist", "short"]
     )
     Beleidskeuzes = MM.fields.Nested(
+        UUID_Linker_Schema, many=True, obprops=["referencelist", "short"]
+    )
+    Gebiedsprogrammas = MM.fields.Nested(
         UUID_Linker_Schema, many=True, obprops=["referencelist", "short"]
     )
 
@@ -73,5 +80,13 @@ class Beleidsmodule_Schema(Base_Schema):
                 "Beleidskeuze_UUID",
                 "Koppeling_Omschrijving",
                 Api.Models.beleidskeuzes.Beleidskeuzes_Schema,
+            ),
+            "Gebiedsprogrammas": UUID_List_Reference(
+                "Beleidsmodule_Gebiedsprogrammas",
+                "Gebiedsprogrammas",
+                "Beleidsmodule_UUID",
+                "Gebiedsprogramma_UUID",
+                "Koppeling_Omschrijving",
+                Api.Models.gebiedsprogrammas.Gebiedsprogrammas_Schema,
             ),
         }
