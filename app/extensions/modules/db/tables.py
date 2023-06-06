@@ -4,6 +4,8 @@ from datetime import datetime
 
 from sqlalchemy import ForeignKey, Unicode
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.sql.expression import select
 
 from app.core.db.base import Base
 from app.core.db.mixins import SerializerMixin, TimeStamped, UserMetaData
@@ -27,21 +29,46 @@ class ModuleBaseColumns(TimeStamped, UserMetaData):
         ForeignKey("Gebruikers.UUID")
     )
 
-    @property
-    def Status(self) -> Optional["ModuleStatusHistoryTable"]:
+    # @property
+    # def Status(self) -> Optional["ModuleStatusHistoryTable"]:
+    #     if not self.status_history:
+    #         return None
+    #     return self.status_history[-1]
+
+    @hybrid_property
+    def Status(self):
         if not self.status_history:
             return None
-        return self.status_history[-1]
+        return self.status_history[-1].Status  # TODO: back to full statustable
+
+    @Status.expression
+    def Status(cls):
+        status_subquery = (
+            select(ModuleStatusHistoryTable.Status)
+            .filter(cls.Module_ID == ModuleStatusHistoryTable.Module_ID)
+            .order_by(ModuleStatusHistoryTable.ID.desc())
+            .limit(1)
+            .scalar_subquery()
+        )
+        return status_subquery
 
     def is_manager(self, user_uuid: uuid.UUID) -> bool:
         return user_uuid in [self.Module_Manager_1_UUID, self.Module_Manager_2_UUID]
+
+    @hybrid_property
+    def is_active(self) -> bool:
+        return not self.Closed and self.Activated
+
+    @is_active.expression
+    def is_active(cls):
+        return ~cls.Closed & cls.Activated
 
 
 class ModuleTable(Base, ModuleBaseColumns):
     __tablename__ = "modules"
 
     status_history: Mapped[List["ModuleStatusHistoryTable"]] = relationship(
-        back_populates="Module", order_by="asc(ModuleStatusHistoryTable.Created_Date)"
+        back_populates="Module", order_by="asc(ModuleStatusHistoryTable.ID)"
     )
 
     Created_By: Mapped[List["UsersTable"]] = relationship(

@@ -17,3 +17,4 @@ from .complete_module import CompleteModuleEndpointResolver
 from .module_list_lineage_tree import ModuleListLineageTreeEndpointResolver
 from .module_object_latest import ModuleObjectLatestEndpointResolver
 from .module_object_version import ModuleObjectVersionEndpointResolver
+from .list_active_module_objects import ListActiveModuleObjectsEndpointResolver
