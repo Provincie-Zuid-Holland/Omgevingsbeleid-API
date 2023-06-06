@@ -9,6 +9,25 @@ api:
     - prefix: /search
       endpoints:
         - resolver: mssql_search
+          resolver_data:
+            searchable_columns_high:
+              - Title
+            searchable_columns_low:
+              - Description
+              - Effect
+              - Provincial_Interest
+              - Cause
+    - prefix: /search/valid
+      endpoints:
+        - resolver: mssql_valid_search
+          resolver_data:
+            searchable_columns_high:
+              - Title
+            searchable_columns_low:
+              - Description
+              - Effect
+              - Provincial_Interest
+              - Cause
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
