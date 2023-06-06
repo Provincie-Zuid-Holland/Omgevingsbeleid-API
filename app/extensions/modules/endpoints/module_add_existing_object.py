@@ -4,7 +4,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.core.dependencies import depends_db
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
@@ -40,8 +40,8 @@ class ModuleAddExistingObject(BaseModel):
     Object_UUID: uuid.UUID
 
     Action: ModuleObjectAction
-    Explanation: str
-    Conclusion: str
+    Explanation: Optional[str] = Field(None, nullable=True)
+    Conclusion: Optional[str] = Field(None, nullable=True)
 
     class Config:
         use_enum_values = True
