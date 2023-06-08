@@ -83,6 +83,9 @@ api:
         - resolver: module_snapshot
           resolver_data:
             path: /snapshot/{status_id}
+    - prefix: /modules/objects/latest
+      endpoints:
+        - resolver: list_module_objects
 
 columns:
   # Titel

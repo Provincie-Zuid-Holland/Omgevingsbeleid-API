@@ -1,8 +1,9 @@
-from typing import List
+from typing import List, Type, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
+import pydantic
 
 from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
@@ -12,6 +13,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_static_repository import ObjectStaticRepository
+from app.extensions.modules.endpoints.module_overview import ModuleObjectShort
 from app.extensions.modules.event.retrieved_module_objects_event import (
     RetrievedModuleObjectsEvent,
 )
@@ -27,76 +29,77 @@ from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
-class ListActiveModuleObjectsEndpoint(Endpoint):
+class ListModuleObjectsEndpoint(Endpoint):
     def __init__(
         self,
         converter: Converter,
         endpoint_id: str,
         path: str,
         event_dispatcher: EventDispatcher,
-        object_type: str,
-        response_model: Model,
     ):
         self._event_dispatcher: EventDispatcher = event_dispatcher
-        self._path: str = path
+        self._path = path
+        self._endpoint_id = endpoint_id
         self._converter: Converter = converter
-        self._endpoint_id: str = endpoint_id
-        self._object_type: str = object_type
-        self._response_model: Model = response_model
-        self._response_type: Type[pydantic.BaseModel] = response_model.pydantic_model
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            lineage_id: int,
-            minimum_status: ModuleStatusCode = ModuleStatusCode.Ontwerp_PS,
+            object_type: Optional[str] = None,
+            owner_uuid: Optional[UUID] = None,
+            minimum_status: Optional[ModuleStatusCode] = None,
+            only_active_modules: bool = True,
             module_object_repository: ModuleObjectRepository = Depends(
                 depends_module_object_repository
             ),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
-            user: UsersTable = Depends(depends_current_active_user),
-        ) -> List[ActiveModuleObject]:
+            # user: UsersTable = Depends(depends_current_active_user),
+        ) -> List[ModuleObjectShort]:
             return self._handler(
-                lineage_id, minimum_status, module_object_repository, event_dispatcher
+                module_object_repository=module_object_repository,
+                event_dispatcher=event_dispatcher,
+                minimum_status=minimum_status,
+                owner_uuid=owner_uuid,
+                object_type=object_type,
+                only_active_modules=only_active_modules,
             )
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=List[ActiveModuleObject],
-            summary=f"List the last modified module object grouped per module ID",
+            response_model=List[ModuleObjectShort],
+            summary="List latest module objects filtered by e.g. owner uuid, object type or minimum status",
             description=None,
-            tags=[self._object_type],
+            tags=["Modules"],
         )
 
         return router
 
     def _handler(
         self,
-        lineage_id: int,
-        minimum_status: ModuleStatusCode,
         module_object_repository: ModuleObjectRepository,
         event_dispatcher: EventDispatcher,
+        minimum_status: Optional[ModuleStatusCode],
+        owner_uuid: Optional[UUID],
+        object_type: Optional[str],
+        only_active_modules: bool,
     ):
-        code = f"{self._object_type}-{lineage_id}"
-        module_objects = module_object_repository.get_latest_filtered(
-            code=code, minimum_status=minimum_status, is_active=True
+        module_objects = module_object_repository.get_all_latest(
+            only_active_modules=only_active_modules,
+            minimum_status=minimum_status,
+            owner_uuid=owner_uuid,
         )
-        if len(module_objects) == 0:
-            raise HTTPException(
-                status_code=404,
-                detail=f"No active revisions found for lineage {lineage_id}",
-            )
 
-        rows: List[ActiveModuleObject] = [
-            ActiveModuleObject.from_orm(r) for r in module_objects
+        rows: List[ModuleObjectShort] = [
+            ModuleObjectShort.from_orm(r) for r in module_objects
         ]
+
         # Ask extensions for more information
         event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(
             RetrievedModuleObjectsEvent.create(
                 rows,
                 self._endpoint_id,
-                self._response_model,
+                ModuleObjectShort,
             )
         )
         rows = event.payload.rows
@@ -104,9 +107,9 @@ class ListActiveModuleObjectsEndpoint(Endpoint):
         return rows
 
 
-class ListActiveModuleObjectsEndpointResolver(EndpointResolver):
+class ListModuleObjectsEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "list_active_module_objects"
+        return "list_module_objects"
 
     def generate_endpoint(
         self,
@@ -114,20 +117,14 @@ class ListActiveModuleObjectsEndpointResolver(EndpointResolver):
         converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
-        api: Api,
+        api,
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
-        response_model = models_resolver.get(resolver_config.get("response_model"))
-
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
-        if not "{lineage_id}" in path:
-            raise RuntimeError("Missing {lineage_id} argument in path")
 
-        return ListActiveModuleObjectsEndpoint(
+        return ListModuleObjectsEndpoint(
             converter=converter,
             endpoint_id=self.get_id(),
             event_dispatcher=event_dispatcher,
             path=path,
-            object_type=api.object_type,
-            response_model=response_model,
         )
