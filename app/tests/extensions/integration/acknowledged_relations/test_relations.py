@@ -60,6 +60,7 @@ class TestAcknowledgedRelationsEndpoint:
         self.repository = relation_repository
         self.relation_request = local_tables.AcknowledgedRelationsTable(
             Created_Date=self.now,
+            Modified_Date=self.now,
             Created_By_UUID=self.super_user.UUID,
             Modified_By_UUID=self.super_user.UUID,
             Requested_By_Code="beleidskeuze-1",

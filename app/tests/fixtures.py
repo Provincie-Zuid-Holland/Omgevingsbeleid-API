@@ -5,11 +5,13 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from sqlalchemy.orm import Mapped, declarative_base, relationship
+from sqlalchemy import Index, Unicode
 
-from app.core.db.mixins import HasIDType, TimeStamped
+from app.core.db.mixins import HasIDType, SerializerMixin, TimeStamped
 from app.dynamic.db.object_static_table import StaticBaseColumns
 from app.dynamic.db.objects_table import ObjectBaseColumns
 from app.dynamic.dynamic_app import DynamicApp
+from app.extensions.change_logger.db.tables import ChangeLogBaseColumns
 from app.extensions.users.db.tables import UserBaseColumns
 
 
@@ -18,6 +20,7 @@ class LocalTables(BaseModel):
     ObjectsTable: type
     ObjectStaticsTable: type
     UsersTabel: type
+    ChangeLogTable: Optional[type]
 
     class Config:
         arbitrary_types_allowed = True
@@ -43,12 +46,14 @@ class LocalTableFactory:
             ObjectsTable=self._generate_objects_table(),
             ObjectStaticsTable=self._generate_statics_table(),
             UsersTabel=self._generate_users_table(),
+            ChangeLogTable=self._generate_changelog_table(),
         )
 
     def _generate_statics_table(self):
-        class LocalObjectStaticsTable(self.base, StaticBaseColumns):
+        class LocalObjectStaticsTable(self.base, StaticBaseColumns, SerializerMixin):
             __tablename__ = "object_statics"
 
+            Test_Field: Mapped[Optional[str]]
             Objects: Mapped[List["LocalObjectsTable"]] = relationship(
                 "LocalObjectsTable", back_populates="ObjectStatics", lazy="select"
             )
@@ -56,7 +61,9 @@ class LocalTableFactory:
         return LocalObjectStaticsTable
 
     def _generate_objects_table(self):
-        class LocalObjectsTable(self.base, ObjectBaseColumns, TimeStamped, HasIDType):
+        class LocalObjectsTable(
+            self.base, ObjectBaseColumns, TimeStamped, HasIDType, SerializerMixin
+        ):
             __tablename__ = "objects"
 
             Title: Mapped[Optional[str]]
@@ -71,6 +78,16 @@ class LocalTableFactory:
             __tablename__ = "Gebruikers"
 
         return LocalUsersTable
+
+    def _generate_changelog_table(self):
+        class LocalChangeLogTable(self.base, ChangeLogBaseColumns):
+            __tablename__ = "change_log"
+
+        change_log_object_type_id = Index(
+            "change_log_action_type_id", "Action_Type", "Object_Type", "Object_ID"
+        )
+
+        return LocalChangeLogTable
 
 
 class MockPermissionService:

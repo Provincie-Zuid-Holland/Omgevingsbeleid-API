@@ -1,9 +1,10 @@
+from pydantic import BaseModel
 import pytest
 import uuid
 from unittest.mock import patch
 
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Optional
 
 from fastapi.exceptions import HTTPException
 from sqlalchemy import select
@@ -42,7 +43,12 @@ from .fixtures import (  # noqa
     endpoint_object_latest,
     endpoint_object_version,
     endpoint_valid_lineage,
+    populate_users,
 )
+
+
+class TestEditStaticRequest(BaseModel):
+    Test_Field: Optional[str]
 
 
 class TestLineageResolvers:
@@ -52,7 +58,7 @@ class TestLineageResolvers:
     """
 
     @pytest.fixture
-    def populate_db(self, local_tables: LocalTables, db: Session):
+    def populate_db(self, local_tables: LocalTables, db: Session, populate_users):
         self.now = datetime.now()
         self.five_days_ago = self.now - timedelta(days=5)
         self.five_days_later = self.now + timedelta(days=5)
@@ -107,6 +113,8 @@ class TestLineageResolvers:
                 Object_Type="beleidskeuze", Object_ID=1, Code="beleidskeuze-1"
             ),
         ]
+
+        self.super_user = populate_users[0]
         try:
             db.add_all(self.statics)
             db.add_all([self.non_valid, self.valid, self.valid_latest, self.other_type])
@@ -357,16 +365,17 @@ class TestLineageResolvers:
         db: Session,
     ):
         TEST_LINEAGE = 2
-        CHANGES = {"Test_Field": "New value"}
+        object_in = TestEditStaticRequest(Test_Field="New value")
+
         endpoint = EditStaticEndpoint(
             converter=mock_converter,
             object_config_id="ambitie",
             object_type="ambitie",
             repository=test_object_static_repository,
             db=db,
-            user=local_tables.UsersTabel,
-            changes=CHANGES,
+            user=self.super_user,
             lineage_id=TEST_LINEAGE,
+            object_in=object_in,
         )
 
         with patch(
@@ -394,7 +403,7 @@ class TestLineageResolvers:
         db,
     ):
         TEST_LINEAGE = 2
-        CHANGES = {}
+        object_in = TestEditStaticRequest()
         endpoint = EditStaticEndpoint(
             converter=mock_converter,
             object_config_id="ambitie",
@@ -402,8 +411,8 @@ class TestLineageResolvers:
             repository=test_object_repository,
             db=db,
             user=local_tables.UsersTabel,
-            changes=CHANGES,
             lineage_id=TEST_LINEAGE,
+            object_in=object_in,
         )
 
         with pytest.raises(HTTPException, match="Nothing to update"):
