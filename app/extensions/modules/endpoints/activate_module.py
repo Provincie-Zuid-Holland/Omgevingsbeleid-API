@@ -48,6 +48,7 @@ class EndpointHandler:
         self._timepoint: datetime = datetime.now()
 
     def handle(self) -> ResponseOK:
+        # raise Exception()
         guard_valid_user(
             self._permission_service,
             ModulesPermissions.can_activate_module,

@@ -1,4 +1,5 @@
 import pytest
+from typing import List
 
 
 from app.extensions.lineage_resolvers.endpoints.valid_list_lineages import (
@@ -22,6 +23,8 @@ from app.extensions.lineage_resolvers.endpoints.object_latest import (
 
 
 from app.dynamic.config.models import Model
+from app.extensions.users.db.tables import UsersTable
+from app.tests.fixture_factories.user_factory import UserFixtureFactory
 from app.tests.fixtures import MockResponseModel
 
 
@@ -87,3 +90,11 @@ def endpoint_object_version(mock_converter):
         object_type="ambitie",
         response_model=response_model,
     )
+
+
+@pytest.fixture
+def populate_users(db) -> List[UsersTable]:
+    uf = UserFixtureFactory(db)
+    uf.create_all_objects()
+    uf.populate_db()
+    yield uf.objects
