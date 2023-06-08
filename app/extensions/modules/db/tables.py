@@ -4,8 +4,8 @@ from datetime import datetime
 
 from sqlalchemy import ForeignKey, Unicode
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.sql.expression import select
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+from sqlalchemy.sql.expression import select, or_
 
 from app.core.db.base import Base
 from app.core.db.mixins import SerializerMixin, TimeStamped, UserMetaData
@@ -47,8 +47,16 @@ class ModuleBaseColumns(TimeStamped, UserMetaData):
             .scalar_subquery()
         )
 
-    def is_manager(self, user_uuid: uuid.UUID) -> bool:
+    @hybrid_method
+    def is_manager(self, user_uuid):
         return user_uuid in [self.Module_Manager_1_UUID, self.Module_Manager_2_UUID]
+
+    @is_manager.expression
+    def is_manager(cls, user_uuid):
+        return or_(
+            cls.Module_Manager_1_UUID == user_uuid,
+            cls.Module_Manager_2_UUID == user_uuid,
+        )
 
     @hybrid_property
     def is_active(self) -> bool:
