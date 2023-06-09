@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from fastapi import HTTPException
 
 from app.extensions.modules.models.models import (
-    AllModuleStatusCode,
+    ModuleStatusCode,
     ModuleObjectAction,
 )
 from app.extensions.modules.endpoints.create_module import (
@@ -355,7 +355,7 @@ class TestModulesEndpoints:
         db.refresh(existing_module)
         assert existing_module.Activated is True
         assert existing_module.status_history is not None
-        assert existing_module.Status.Status == AllModuleStatusCode.Ontwerp_GS_Concept
+        assert existing_module.Status.Status == ModuleStatusCode.Ontwerp_GS_Concept
 
     def test_module_complete(
         self,
@@ -380,7 +380,7 @@ class TestModulesEndpoints:
         existing_module = db.query(local_tables.ModuleTable).one()
         new_status = local_tables.ModuleStatusHistoryTable(
             Module_ID=existing_module.Module_ID,
-            Status=AllModuleStatusCode.Vastgesteld.value,
+            Status=ModuleStatusCode.Vastgesteld.value,
             Created_Date=datetime.now(),
             Created_By_UUID=self.super_user.UUID,
         )

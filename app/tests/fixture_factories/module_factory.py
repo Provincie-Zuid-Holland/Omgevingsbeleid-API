@@ -8,7 +8,7 @@ from app.extensions.modules.db import (
     ModuleObjectContextTable,
 )
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.models.models import AllModuleStatusCode
+from app.extensions.modules.models.models import ModuleStatusCode
 from .fixture_factory import FixtureDataFactory
 
 
@@ -121,13 +121,13 @@ class ModuleFixtureFactory(FixtureDataFactory):
         return [
             {
                 "Module_ID": module_id,
-                "Status": AllModuleStatusCode.Niet_Actief,
+                "Status": ModuleStatusCode.Niet_Actief,
                 "Created_Date": datetime(2023, 2, 2, 2, 2, 2),
                 "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000001"),
             },
             {
                 "Module_ID": module_id,
-                "Status": AllModuleStatusCode.Vastgesteld,
+                "Status": ModuleStatusCode.Vastgesteld,
                 "Created_Date": datetime(2023, 2, 3, 3, 3, 3),
                 "Created_By_UUID": UUID("11111111-0000-0000-0000-000000000001"),
             },
