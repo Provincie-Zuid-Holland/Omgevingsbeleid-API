@@ -81,17 +81,6 @@ class ModuleStatusCode(str, Enum):
         return [status.value for status in ModuleStatusCode]
 
 
-class AllModuleStatusCode(str, Enum):
-    Niet_Actief = "Niet-Actief"
-    Ontwerp_GS_Concept = "Ontwerp GS Concept"
-    Ontwerp_GS = "Ontwerp GS"
-    Definitief_Ontwerp_GS = "Definitief ontwerp GS"
-    Ontwerp_PS_Concept = "Ontwerp PS Concept"
-    Ontwerp_PS = "Ontwerp PS"
-    Definitief_Ontwerp_PS = "Definitief ontwerp PS"
-    Vastgesteld = "Vastgesteld"
-
-
 class ModulePatchStatus(BaseModel):
     Status: ModuleStatusCode
 

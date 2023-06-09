@@ -92,9 +92,6 @@ class EndpointHandler:
         object_in: CompleteModule,
     ):
         self._db: Session = db
-        self._module_status_repository: ModuleStatusRepository = (
-            module_status_repository
-        )
         self._module_object_repository: ModuleObjectRepository = (
             module_object_repository
         )
@@ -106,7 +103,7 @@ class EndpointHandler:
 
     def handle(self) -> ResponseOK:
         guard_module_is_locked(self._module)
-        guard_status_must_be_vastgesteld(self._module_status_repository, self._module)
+        guard_status_must_be_vastgesteld(self._module)
 
         try:
             new_status: ModuleStatusHistoryTable = self._patch_status()
