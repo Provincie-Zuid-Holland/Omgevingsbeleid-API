@@ -64,6 +64,13 @@ api:
           resolver_data:
             path: /version/{object_uuid}
             response_model: maatregel_get
+    - prefix: /modules/objects/maatregel
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: maatregel_short
+
 
 fields:
   title:

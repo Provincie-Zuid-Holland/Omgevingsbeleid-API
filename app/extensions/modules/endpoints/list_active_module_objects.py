@@ -79,7 +79,7 @@ class ListActiveModuleObjectsEndpoint(Endpoint):
         event_dispatcher: EventDispatcher,
     ):
         code = f"{self._object_type}-{lineage_id}"
-        module_objects = module_object_repository.get_latest_filtered(
+        module_objects = module_object_repository.get_latest_per_module(
             code=code, minimum_status=minimum_status, is_active=True
         )
         if len(module_objects) == 0:
