@@ -61,6 +61,12 @@ api:
           resolver_data:
             path: /version/{object_uuid}
             response_model: beleidsdoel_get
+    - prefix: /modules/object/beleidsdoel
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: beleidsdoel_short
 
 fields:
   title:
