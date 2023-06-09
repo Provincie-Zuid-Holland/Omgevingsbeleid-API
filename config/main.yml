@@ -9,25 +9,9 @@ api:
     - prefix: /search
       endpoints:
         - resolver: mssql_search
-          resolver_data:
-            searchable_columns_high:
-              - Title
-            searchable_columns_low:
-              - Description
-              - Effect
-              - Provincial_Interest
-              - Cause
-    - prefix: /search/valid
+    - prefix: /search/geo
       endpoints:
-        - resolver: mssql_valid_search
-          resolver_data:
-            searchable_columns_high:
-              - Title
-            searchable_columns_low:
-              - Description
-              - Effect
-              - Provincial_Interest
-              - Cause
+        - resolver: list_objects_in_werkingsgebieden
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph

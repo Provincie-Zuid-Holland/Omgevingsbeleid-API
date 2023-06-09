@@ -1,1 +1,2 @@
 from .list_werkingsgebieden import ListWerkingsgebiedenEndpointResolver
+from .list_objects import ListObjectsInGeoEndpointResolver
