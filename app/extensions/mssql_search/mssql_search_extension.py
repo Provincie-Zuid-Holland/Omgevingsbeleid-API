@@ -25,4 +25,5 @@ class MssqlSearchExtension(Extension):
     ) -> List[EndpointResolver]:
         return [
             endpoints.MssqlSearchEndpointResolver(),
+            endpoints.MssqlValidSearchEndpointResolver(),
         ]

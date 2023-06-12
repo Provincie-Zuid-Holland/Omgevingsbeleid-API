@@ -16,12 +16,7 @@
 
         <h3>Keuze</h3>
         <div>
-            {{ object["Description_Choice"] | replace('\n', '<br>') | safe }}
-        </div>
-
-        <h3>Werking</h3>
-        <div>
-            {{ object["Description_Operation"] | replace('\n', '<br>') | safe }}
+            {{ object["Description"] | replace('\n', '<br>') | safe }}
         </div>
 
         <hr />
