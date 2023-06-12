@@ -4,6 +4,8 @@ from datetime import datetime
 
 from sqlalchemy import ForeignKey, Unicode
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+from sqlalchemy.sql.expression import select, or_
 
 from app.core.db.base import Base
 from app.core.db.mixins import SerializerMixin, TimeStamped, UserMetaData
@@ -29,19 +31,47 @@ class ModuleBaseColumns(TimeStamped, UserMetaData):
 
     @property
     def Status(self) -> Optional["ModuleStatusHistoryTable"]:
-        if not self.status_history:
-            return None
-        return self.status_history[-1]
+        return None if not self.status_history else self.status_history[-1]
 
-    def is_manager(self, user_uuid: uuid.UUID) -> bool:
+    @hybrid_property
+    def Current_Status(self) -> Optional[str]:
+        return None if not self.status_history else self.status_history[-1].Status
+
+    @Current_Status.expression
+    def Current_Status(cls):
+        return (
+            select(ModuleStatusHistoryTable.Status)
+            .filter(cls.Module_ID == ModuleStatusHistoryTable.Module_ID)
+            .order_by(ModuleStatusHistoryTable.ID.desc())
+            .limit(1)
+            .scalar_subquery()
+        )
+
+    @hybrid_method
+    def is_manager(self, user_uuid):
         return user_uuid in [self.Module_Manager_1_UUID, self.Module_Manager_2_UUID]
+
+    @is_manager.expression
+    def is_manager(cls, user_uuid):
+        return or_(
+            cls.Module_Manager_1_UUID == user_uuid,
+            cls.Module_Manager_2_UUID == user_uuid,
+        )
+
+    @hybrid_property
+    def is_active(self) -> bool:
+        return not self.Closed and self.Activated
+
+    @is_active.expression
+    def is_active(cls):
+        return ~cls.Closed & cls.Activated
 
 
 class ModuleTable(Base, ModuleBaseColumns):
     __tablename__ = "modules"
 
     status_history: Mapped[List["ModuleStatusHistoryTable"]] = relationship(
-        back_populates="Module", order_by="asc(ModuleStatusHistoryTable.Created_Date)"
+        back_populates="Module", order_by="asc(ModuleStatusHistoryTable.ID)"
     )
 
     Created_By: Mapped[List["UsersTable"]] = relationship(
@@ -58,7 +88,7 @@ class ModuleTable(Base, ModuleBaseColumns):
     )
 
     def __repr__(self) -> str:
-        return f"Module(Module_ID={self.Module_ID!r}, Title={self.Title!r}"
+        return f"Module(Module_ID={self.Module_ID!r}, Title={self.Title!r})"
 
 
 class ModuleStatusHistoryColumns:

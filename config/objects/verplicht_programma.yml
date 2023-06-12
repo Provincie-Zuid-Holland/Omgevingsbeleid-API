@@ -37,6 +37,12 @@ api:
         - resolver: edit_object_static
           resolver_data:
             request_model: verplicht_programma_static_edit
+    - prefix: /modules/objects/verplicht-programma
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: verplicht_programma_basic
 
 fields:
   title:

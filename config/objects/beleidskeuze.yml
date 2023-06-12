@@ -73,6 +73,12 @@ api:
           resolver_data:
             path: /version/{object_uuid}
             response_model: beleidskeuze_get
+    - prefix: /modules/objects/beleidskeuze
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: beleidskeuze_short
 
 fields:
   title:

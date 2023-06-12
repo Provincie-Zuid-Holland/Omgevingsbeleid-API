@@ -59,6 +59,12 @@ api:
           resolver_data:
             path: /version/{object_uuid}
             response_model: ambitie_get
+    - prefix: /modules/object/ambitie
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: ambitie_short
 
 fields:
   title:
