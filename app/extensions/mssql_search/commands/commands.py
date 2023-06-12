@@ -9,7 +9,7 @@ from app.core.settings import settings
 from app.extensions.mssql_search.config.stopwords import stopwords
 
 
-def _reset_fulltext_index(db: Session, table_name: str, fields: Set[str]):
+def _reset_fulltext_index(db: Session, table_name: str, columns: Set[str]):
     # Check is this table already has a search index set up
     result = db.execute(
         text(
@@ -20,10 +20,10 @@ def _reset_fulltext_index(db: Session, table_name: str, fields: Set[str]):
     if exists:
         db.execute(DDL(f"DROP FULLTEXT INDEX ON {table_name}"))
 
-    if not fields:
+    if not columns:
         return
 
-    languages_fields: Set[str] = {f"{field} Language 1043" for field in fields}
+    languages_columns: Set[str] = {f"{column} Language 1043" for column in columns}
 
     inspector = inspect(db.bind)
     primary_key_columns = inspector.get_pk_constraint(table_name)
@@ -31,7 +31,7 @@ def _reset_fulltext_index(db: Session, table_name: str, fields: Set[str]):
 
     query = f"""
         CREATE FULLTEXT INDEX ON {table_name} (
-            {', '.join(languages_fields)}
+            {', '.join(languages_columns)}
         )
         KEY INDEX {primary_key_name}
         ON {settings.MSSQL_SEARCH_FTC_NAME}
@@ -110,8 +110,10 @@ def setup_search_database_curried(main_config: dict):
 
             for search_config in main_config.get("mssql_search", []):
                 table_name = search_config.get("table_name")
-                fields = search_config.get("searchable_fields")
-                _reset_fulltext_index(db, table_name, set(fields))
+                columns = search_config.get(
+                    "searchable_columns_low", []
+                ) + search_config.get("searchable_columns_high", [])
+                _reset_fulltext_index(db, table_name, set(columns))
 
         click.echo("Done")
 

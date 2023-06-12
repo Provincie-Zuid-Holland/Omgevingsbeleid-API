@@ -60,6 +60,13 @@ api:
           resolver_data:
             path: /version/{object_uuid}
             response_model: gebiedsprogramma_get
+    - prefix: /modules/objects/gebiedsprogramma
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: gebiedsprogramma_short
+
 
 fields:
   title:

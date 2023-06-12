@@ -44,6 +44,16 @@ class Module(BaseModel):
         orm_mode = True
 
 
+class ActiveModuleObject(BaseModel):
+    Module_ID: int
+    UUID: uuid.UUID
+    Modified_Date: datetime
+    Title: str
+
+    class Config:
+        orm_mode = True
+
+
 class ModuleStatusCode(str, Enum):
     Niet_Actief = "Niet-Actief"
     Ontwerp_GS_Concept = "Ontwerp GS Concept"
@@ -53,6 +63,22 @@ class ModuleStatusCode(str, Enum):
     Ontwerp_PS = "Ontwerp PS"
     Definitief_Ontwerp_PS = "Definitief ontwerp PS"
     Vastgesteld = "Vastgesteld"
+
+    @staticmethod
+    def after(status):
+        # Return a list of statuses that are
+        # after the given status in the order of the enum
+        statuses = list(ModuleStatusCode)
+        index = next((i for i, s in enumerate(statuses) if s.value == status), None)
+        if index is not None:
+            result = [status.value for status in statuses[index:]]
+            return result
+        else:
+            raise ValueError(f"Invalid status: {status}")
+
+    @staticmethod
+    def values():
+        return [status.value for status in ModuleStatusCode]
 
 
 class AllModuleStatusCode(str, Enum):

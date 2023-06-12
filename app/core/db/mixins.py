@@ -1,6 +1,6 @@
-import uuid
 from typing import Optional
 from datetime import datetime
+import uuid
 
 from sqlalchemy import ForeignKey, Unicode
 from sqlalchemy.orm import Mapped, mapped_column

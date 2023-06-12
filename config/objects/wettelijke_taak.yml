@@ -39,6 +39,12 @@ api:
           resolver_data:
             request_model: wettelijke_taak_static_edit
             result_model: wettelijke_taak_static_edit
+    - prefix: /modules/objects/wettelijke-taak
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: wettelijke_taak_short
 
 fields:
   title:

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 import uuid
 
 from fastapi import APIRouter, Depends
@@ -16,19 +16,14 @@ from app.dynamic.utils.pagination import Pagination
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
-from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.db.tables import ModuleTable
-from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import depends_current_active_user
 
 
-class SearchConfig(BaseModel):
+class ValidSearchConfig(BaseModel):
     searchable_columns_high: List[str]
     searchable_columns_low: List[str]
 
 
-class SearchObject(BaseModel):
-    Module_ID: Optional[int]
+class ValidSearchObject(BaseModel):
     UUID: uuid.UUID
     Object_Type: str
     Object_ID: int
@@ -44,8 +39,8 @@ class SearchObject(BaseModel):
         validate_assignment = True
 
 
-class SearchResponse(BaseModel):
-    Objects: List[SearchObject]
+class ValidSearchResponse(BaseModel):
+    Objects: List[ValidSearchObject]
     Total: int
 
 
@@ -53,16 +48,16 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
-        search_config: SearchConfig,
+        search_config: ValidSearchConfig,
         pagination: Pagination,
         query: str,
     ):
         self._db: Session = db
-        self._search_config: SearchConfig = search_config
+        self._search_config: ValidSearchConfig = search_config
         self._pagination: Pagination = pagination
         self._query: str = query
 
-    def handle(self) -> SearchResponse:
+    def handle(self) -> ValidSearchResponse:
         if not len(self._query):
             raise ValueError("Missing search query")
         if self._pagination.get_limit() > 50:
@@ -70,11 +65,10 @@ class EndpointHandler:
 
         stmt = text(
             f"""
-                WITH valid_uuids (Module_ID, UUID, Object_Type, Object_ID, Title, Description)
+                WITH valid_uuids (UUID, Object_Type, Object_ID, Title, Description)
                 AS
                 (
                     SELECT
-                        0 AS Module_ID,
                         UUID,
                         Object_Type,
                         Object_ID,
@@ -102,42 +96,9 @@ class EndpointHandler:
                     WHERE
                         _RowNumber = 1
                         AND (End_Validity > GETDATE() OR End_Validity IS NULL)
-                    
-                    UNION
-
-                    SELECT
-                        Module_ID,
-                        UUID,
-                        Object_Type,
-                        Object_ID,
-                        Title,
-                        Description
-                    FROM (
-                        SELECT
-                            mo.Module_ID,
-                            mo.UUID,
-                            mo.Object_Type,
-                            mo.Object_ID,
-                            mo.Title,
-                            mo.Description,
-                            ROW_NUMBER() OVER (
-                                PARTITION BY
-                                    mo.Code
-                                ORDER BY
-                                    mo.Modified_Date DESC
-                            ) AS _RowNumber
-                        FROM
-                            {ModuleObjectsTable.__table__} AS mo
-                            INNER JOIN {ModuleTable.__table__} AS m ON mo.Module_ID = m.Module_ID
-                        WHERE
-                            m.Closed = 0
-                    ) AS module_subquery
-                    WHERE
-                        _RowNumber = 1
                 )
 
                 SELECT
-                    v.Module_ID,
                     v.UUID,
                     v.Object_Type,
                     v.Object_ID,
@@ -156,11 +117,6 @@ class EndpointHandler:
                         SELECT Rank * 1 as Rank, [KEY] from CONTAINSTABLE({ObjectsTable.__table__}, ({", ".join(self._search_config.searchable_columns_high)}), :query)
                             UNION
                         SELECT Rank * 0.5 as Rank, [KEY] from CONTAINSTABLE({ObjectsTable.__table__}, ({", ".join(self._search_config.searchable_columns_low)}), :query)
-                            UNION
-
-                        SELECT Rank * 1 as Rank, [KEY] from CONTAINSTABLE({ModuleObjectsTable.__table__}, ({", ".join(self._search_config.searchable_columns_high)}), :query)
-                            UNION
-                        SELECT Rank * 0.5 as Rank, [KEY] from CONTAINSTABLE({ModuleObjectsTable.__table__}, ({", ".join(self._search_config.searchable_columns_low)}), :query)
                     ) AS x
                     GROUP BY [KEY]
                 ) AS s ON s.[KEY] = v.UUID
@@ -180,7 +136,7 @@ class EndpointHandler:
         )
 
         results = self._db.execute(stmt)
-        search_objects: List[SearchObject] = []
+        search_objects: List[ValidSearchObject] = []
         total_count: int = 0
 
         for row in results:
@@ -194,8 +150,7 @@ class EndpointHandler:
                 except:
                     pass
 
-            search_object: SearchObject = SearchObject(
-                Module_ID=row["Module_ID"] if row["Module_ID"] else None,
+            search_object: ValidSearchObject = ValidSearchObject(
                 UUID=row["UUID"],
                 Object_Type=row["Object_Type"],
                 Object_ID=row["Object_ID"],
@@ -206,24 +161,23 @@ class EndpointHandler:
             search_objects.append(search_object)
             total_count = row["_Total_Count"]
 
-        return SearchResponse(
+        return ValidSearchResponse(
             Objects=search_objects,
             Total=total_count,
         )
 
 
-class MssqlSearchEndpoint(Endpoint):
-    def __init__(self, path: str, search_config: SearchConfig):
+class MssqlValidSearchEndpoint(Endpoint):
+    def __init__(self, path: str, search_config: ValidSearchConfig):
         self._path: str = path
-        self._search_config: SearchConfig = search_config
+        self._search_config: ValidSearchConfig = search_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             query: str,
             db: Session = Depends(depends_db),
             pagination: Pagination = Depends(depends_pagination),
-            user: UsersTable = Depends(depends_current_active_user),
-        ) -> SearchResponse:
+        ) -> ValidSearchResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 self._search_config,
@@ -236,8 +190,8 @@ class MssqlSearchEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["POST"],
-            response_model=SearchResponse,
-            summary=f"Search for objects",
+            response_model=ValidSearchResponse,
+            summary=f"Search for valid objects",
             description=None,
             tags=["Search"],
         )
@@ -245,9 +199,9 @@ class MssqlSearchEndpoint(Endpoint):
         return router
 
 
-class MssqlSearchEndpointResolver(EndpointResolver):
+class MssqlValidSearchEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "mssql_search"
+        return "mssql_valid_search"
 
     def generate_endpoint(
         self,
@@ -260,9 +214,9 @@ class MssqlSearchEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        search_config: SearchConfig = SearchConfig(**resolver_config)
+        search_config: ValidSearchConfig = ValidSearchConfig(**resolver_config)
 
-        return MssqlSearchEndpoint(
+        return MssqlValidSearchEndpoint(
             path=path,
             search_config=search_config,
         )
