@@ -1,7 +1,10 @@
-from typing import List
+from typing import List, Optional
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from app.dynamic.dependencies import depends_pagination
 
+from app.dynamic.utils.pagination import Pagination
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.db.objects_table import ObjectsTable
@@ -14,7 +17,10 @@ from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 from app.extensions.werkingsgebieden.dependencies import (
     depends_werkingsgebieden_repository,
 )
-from app.extensions.werkingsgebieden.models.models import Werkingsgebied
+from app.extensions.werkingsgebieden.models.models import (
+    SearchResultWrapper,
+    Werkingsgebied,
+)
 from app.extensions.werkingsgebieden.repository.werkingsgebieden_repository import (
     WerkingsgebiedenRepository,
 )
@@ -26,21 +32,26 @@ class ListObjectsInGeoEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
+            area_list: List[UUID],
+            pagination: Pagination = Depends(depends_pagination),
             user: UsersTable = Depends(depends_current_active_user),
             repository: WerkingsgebiedenRepository = Depends(
                 depends_werkingsgebieden_repository
             ),
-        ) -> List[Werkingsgebied]:
-            return self._handler(repository)
+        ) -> SearchResultWrapper:
+            return self._handler(
+                repository=repository,
+                area_list=area_list,
+            )
 
         router.add_api_route(
             self._path,
             fastapi_handler,
-            methods=["GET"],
-            response_model=List[Werkingsgebied],
+            methods=["POST"],
+            response_model=SearchResultWrapper,
             summary=f"List the objects active in werkingsgebieden",
             description=None,
-            tags=["Werkingsgebieden"],
+            tags=["Search"],
         )
 
         return router
@@ -48,9 +59,10 @@ class ListObjectsInGeoEndpoint(Endpoint):
     def _handler(
         self,
         repository: WerkingsgebiedenRepository,
-    ) -> List[Werkingsgebied]:
-        results: List[ObjectsTable] = repository.get_latest_in_area()
-        return werkingsgebieden
+        area_list: List[UUID],
+    ) -> SearchResultWrapper:
+        object_list = repository.get_latest_in_area(area_list)
+        return SearchResultWrapper(total=len(object_list), results=object_list)
 
 
 class ListObjectsInGeoEndpointResolver(EndpointResolver):
