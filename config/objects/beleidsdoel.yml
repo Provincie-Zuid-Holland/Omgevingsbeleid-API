@@ -40,6 +40,7 @@ api:
         - resolver: edit_object_static
           resolver_data:
             request_model: beleidsdoel_static_patch
+            result_model: beleidsdoel_static_patch
     - prefix: /modules/{module_id}/object/beleidsdoel
       endpoints:
         - resolver: module_patch_object

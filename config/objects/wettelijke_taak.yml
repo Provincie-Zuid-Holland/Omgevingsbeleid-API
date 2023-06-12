@@ -38,6 +38,7 @@ api:
         - resolver: edit_object_static
           resolver_data:
             request_model: wettelijke_taak_static_edit
+            result_model: wettelijke_taak_static_edit
 
 fields:
   title:

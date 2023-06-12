@@ -105,3 +105,16 @@ class HtmlValidator(Validator):
             return v
 
         return pydantic_plain_text_validator
+
+
+class NotEqualRootValidator(Validator):
+    def get_id(self) -> str:
+        return "not_equal"
+
+    def get_validator_func(self, config: dict) -> Callable:
+        other_field_key: str = config["other"]
+
+        def pydantic_neqaof_validator(cls, values):
+            return v
+
+        return pydantic_neqaof_validator

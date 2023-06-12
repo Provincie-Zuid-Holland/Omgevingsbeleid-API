@@ -42,6 +42,7 @@ api:
         - resolver: edit_object_static
           resolver_data:
             request_model: beleidskeuze_static_patch
+            result_model: beleidskeuze_static_patch_validated
     - prefix: /beleidskeuze/acknowledged-relations/{lineage_id}
       endpoints:
         - resolver: list_acknowledged_relations
@@ -282,6 +283,27 @@ models:
       owner_1_uuid:
         default: none
         optional: true
+      owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
+        default: none
+        optional: true
+  beleidskeuze_static_patch_validated:
+    name: BeleidskeuzeStaticPatchValidated
+    static_only: true
+    fields:
+      owner_1_uuid:
+        validators:
+          - id: not_equal_as_other_field
+            data:
+              other: owner_2_uuid
       owner_2_uuid:
         default: none
         optional: true

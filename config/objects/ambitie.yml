@@ -38,6 +38,7 @@ api:
         - resolver: edit_object_static
           resolver_data:
             request_model: ambitie_static_post
+            result_model: ambitie_static_post
     - prefix: /modules/{module_id}/object/ambitie
       endpoints:
         - resolver: module_patch_object

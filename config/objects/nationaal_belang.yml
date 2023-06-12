@@ -37,6 +37,7 @@ api:
         - resolver: edit_object_static
           resolver_data:
             request_model: nationaal_belang_static_edit
+            result_model: nationaal_belang_static_edit
 
 fields:
   title:

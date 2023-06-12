@@ -37,6 +37,7 @@ api:
         - resolver: edit_object_static
           resolver_data:
             request_model: verplicht_programma_static_edit
+            result_model: verplicht_programma_static_edit
 
 fields:
   title:

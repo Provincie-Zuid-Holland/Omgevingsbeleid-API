@@ -42,6 +42,7 @@ api:
         - resolver: edit_object_static
           resolver_data:
             request_model: maatregel_static_patch
+            result_model: maatregel_static_patch
     - prefix: /modules/{module_id}/object/maatregel
       endpoints:
         - resolver: module_patch_object
