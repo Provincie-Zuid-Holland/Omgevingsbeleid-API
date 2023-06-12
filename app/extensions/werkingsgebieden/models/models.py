@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Union
+from typing import List, Optional, Union
 import uuid
 from pydantic import BaseModel
 
@@ -17,14 +17,13 @@ class Werkingsgebied(BaseModel):
 
 
 class GeoSearchResult(BaseModel):
-    Gebied: str
-    Titel: str
-    Omschrijving: str
+    UUID: Union[str, uuid.UUID]
+    Gebied: Union[str, uuid.UUID]
     Type: str
-    UUID: str
-    RANK: int = 100
+    Titel: Optional[str]
+    Omschrijving: Optional[str]
 
 
 class SearchResultWrapper(BaseModel):
+    total: int = 0
     results: List[GeoSearchResult] = []
-    total: int = len(results)

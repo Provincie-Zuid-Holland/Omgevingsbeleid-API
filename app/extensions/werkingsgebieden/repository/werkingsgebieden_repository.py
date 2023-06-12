@@ -2,14 +2,13 @@ from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import func
 from app.dynamic.db.objects_table import ObjectsTable
 
 from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 from app.extensions.werkingsgebieden.models.models import (
     GeoSearchResult,
-    SearchResultWrapper,
 )
 
 
@@ -50,17 +49,17 @@ class WerkingsgebiedenRepository:
         )
         return stmt
 
-    def get_latest_in_area(self, in_area: List[UUID]) -> SearchResultWrapper:
+    def get_latest_in_area(self, in_area: List[UUID]) -> List[GeoSearchResult]:
         """
         Find all latest objects matching a list of Werkingsgebied UUIDs
         """
         query = self.latest_objects_query(in_area=in_area)
-        items = self._db.scalars(query).all()
-        if len(items) == 0:
+        db_results = self._db.scalars(query).all()
+        if len(db_results) == 0:
             return []
 
-        response = SearchResultWrapper()
-        for item in items:
+        object_list = []
+        for item in db_results:
             search_result = GeoSearchResult(
                 Gebied=str(item.Gebied_UUID),
                 Titel=item.Title,
@@ -68,8 +67,6 @@ class WerkingsgebiedenRepository:
                 Type=item.Object_Type,
                 UUID=item.UUID,
             )
-            response.results.append(search_result)
+            object_list.append(search_result)
 
-        response.total = len(response.results)
-
-        return response
+        return object_list
