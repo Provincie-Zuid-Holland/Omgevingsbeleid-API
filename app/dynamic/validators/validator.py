@@ -109,12 +109,21 @@ class HtmlValidator(Validator):
 
 class NotEqualRootValidator(Validator):
     def get_id(self) -> str:
-        return "not_equal"
+        return "not_equal_root"
 
     def get_validator_func(self, config: dict) -> Callable:
-        other_field_key: str = config["other"]
+        field_keys: str = config["fields"]
+        allow_none: bool = config.get("allow_none", False)
+        error_message: str = config["error_message"]
 
-        def pydantic_neqaof_validator(cls, values):
-            return v
+        def pydantic_neq_root_validator(cls, values):
+            field_values = [values[k] for k in field_keys]
+            if allow_none:
+                field_values = [v for v in field_values if v is not None]
 
-        return pydantic_neqaof_validator
+            if len(field_values) != len(set(field_values)):
+                raise ValueError(error_message)
+
+            return values
+
+        return pydantic_neq_root_validator

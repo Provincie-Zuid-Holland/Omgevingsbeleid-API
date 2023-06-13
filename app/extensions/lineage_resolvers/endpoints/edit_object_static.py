@@ -64,7 +64,7 @@ class EndpointHandler:
 
         for key, value in self._changes.items():
             setattr(object_static, key, value)
-        
+
         # This executes the validators on the result type
         # Making sure the final object meets all validation requirements
         result_model = self._result_type.from_orm(object_static)

@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
 from pydantic import ValidationError
-from fastapi import HTTPException
 
 from app.extensions.modules.models.models import (
     AllModuleStatusCode,

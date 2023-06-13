@@ -9,7 +9,7 @@ from sqlalchemy import select, func, desc
 from sqlalchemy.orm import aliased, Session
 from sqlalchemy.sql import and_
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
+from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.models.models import ModuleStatusCode
 
 

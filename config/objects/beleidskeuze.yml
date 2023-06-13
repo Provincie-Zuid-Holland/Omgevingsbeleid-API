@@ -41,8 +41,8 @@ api:
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: beleidskeuze_static_patch
-            result_model: beleidskeuze_static_patch_validated
+            request_model: beleidskeuze_static_post
+            result_model: beleidskeuze_static_post_validated
     - prefix: /beleidskeuze/acknowledged-relations/{lineage_id}
       endpoints:
         - resolver: list_acknowledged_relations
@@ -282,8 +282,8 @@ models:
           - Cause
           - Provincial_Interest
           - Explanation
-  beleidskeuze_static_patch:
-    name: BeleidskeuzeStaticPatch
+  beleidskeuze_static_post:
+    name: BeleidskeuzeStaticPost
     static_only: true
     fields:
       owner_1_uuid:
@@ -301,15 +301,26 @@ models:
       client_1_uuid:
         default: none
         optional: true
-  beleidskeuze_static_patch_validated:
-    name: BeleidskeuzeStaticPatchValidated
+  beleidskeuze_static_post_validated:
+    name: BeleidskeuzeStaticPostValidated
     static_only: true
+    root_validators:
+      - id: not_equal_root
+        data:
+          fields:
+            - Owner_1_UUID
+            - Owner_2_UUID
+          allow_none: True
+          error_message: Owners should vary
+      - id: not_equal_root
+        data:
+          fields:
+            - Portfolio_Holder_1_UUID
+            - Portfolio_Holder_2_UUID
+          allow_none: True
+          error_message: Portfolio Holders should vary
     fields:
       owner_1_uuid:
-        validators:
-          - id: not_equal_as_other_field
-            data:
-              other: owner_2_uuid
       owner_2_uuid:
         default: none
         optional: true

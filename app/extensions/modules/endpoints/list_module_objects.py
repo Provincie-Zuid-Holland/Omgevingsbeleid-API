@@ -1,23 +1,18 @@
-from typing import List, Type, Optional
+from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from fastapi.exceptions import HTTPException
-import pydantic
 
-from app.dynamic.config.models import Api, EndpointConfig, Model
+from app.dynamic.config.models import EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.dependencies import depends_event_dispatcher
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 from app.extensions.modules.endpoints.module_overview import ModuleObjectShort
 from app.extensions.modules.event.retrieved_module_objects_event import (
     RetrievedModuleObjectsEvent,
 )
-from app.extensions.modules.models import Module, ActiveModuleObject
 from app.extensions.modules.dependencies import (
     depends_module_object_repository,
 )
@@ -25,8 +20,6 @@ from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
-from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import depends_current_active_user
 
 
 class ListModuleObjectsEndpoint(Endpoint):
