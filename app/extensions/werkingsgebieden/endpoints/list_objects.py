@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -7,19 +7,16 @@ from app.dynamic.dependencies import depends_pagination
 from app.dynamic.utils.pagination import Pagination
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.db.objects_table import ObjectsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
-from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 from app.extensions.werkingsgebieden.dependencies import (
     depends_werkingsgebieden_repository,
 )
 from app.extensions.werkingsgebieden.models.models import (
     SearchResultWrapper,
-    Werkingsgebied,
 )
 from app.extensions.werkingsgebieden.repository.werkingsgebieden_repository import (
     WerkingsgebiedenRepository,

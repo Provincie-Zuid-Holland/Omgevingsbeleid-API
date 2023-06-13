@@ -3,11 +3,8 @@ from typing import List, Optional
 import uuid
 
 from fastapi import HTTPException
-from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
+from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.models.models import ModuleStatusCode, ModuleStatusCode
-from app.extensions.modules.repository.module_status_repository import (
-    ModuleStatusRepository,
-)
 
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.permission_service import PermissionService

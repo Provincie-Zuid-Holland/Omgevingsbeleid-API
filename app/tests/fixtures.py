@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from sqlalchemy.orm import Mapped, declarative_base, relationship
-from sqlalchemy import Index, Unicode
+from sqlalchemy import Index
 
 from app.core.db.mixins import HasIDType, SerializerMixin, TimeStamped
 from app.dynamic.db.object_static_table import StaticBaseColumns

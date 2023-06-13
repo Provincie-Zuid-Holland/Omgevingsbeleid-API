@@ -2,7 +2,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Query, Session, aliased
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import func
 
 from app.dynamic.db.objects_table import ObjectsTable

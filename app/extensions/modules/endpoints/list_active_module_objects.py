@@ -1,21 +1,18 @@
 from typing import List
-from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
 from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
-from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.dependencies import depends_event_dispatcher
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 from app.extensions.modules.event.retrieved_module_objects_event import (
     RetrievedModuleObjectsEvent,
 )
-from app.extensions.modules.models import Module, ActiveModuleObject
+from app.extensions.modules.models import ActiveModuleObject
 from app.extensions.modules.dependencies import (
     depends_module_object_repository,
 )
