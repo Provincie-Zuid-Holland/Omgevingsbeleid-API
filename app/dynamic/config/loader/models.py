@@ -96,9 +96,6 @@ class ModelsLoader:
                 f"Must configure static fields for static only model '{intermediate_model.name}"
             )
 
-        if intermediate_model.name == "BeleidskeuzeStaticPatchValidated":
-            a = True
-
         pydantic_fields, pydantic_validators = self._get_pydantic_fields(
             intermediate_model.fields,
             f"{intermediate_model.name}-dynamic",
