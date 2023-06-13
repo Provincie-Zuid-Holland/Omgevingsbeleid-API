@@ -3,11 +3,8 @@ from typing import List, Optional
 import uuid
 
 from fastapi import HTTPException
-from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
-from app.extensions.modules.models.models import AllModuleStatusCode
-from app.extensions.modules.repository.module_status_repository import (
-    ModuleStatusRepository,
-)
+from app.extensions.modules.db.tables import ModuleTable
+from app.extensions.modules.models.models import ModuleStatusCode, ModuleStatusCode
 
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.permission_service import PermissionService
@@ -65,15 +62,12 @@ def guard_valid_user(
         raise HTTPException(status_code=401, detail="Invalid user role")
 
 
-def guard_status_must_be_vastgesteld(
-    module_status_repository: ModuleStatusRepository, module: ModuleTable
-):
-    status: Optional[
-        ModuleStatusHistoryTable
-    ] = module_status_repository.get_latest_for_module(module.Module_ID)
+def guard_status_must_be_vastgesteld(module: ModuleTable):
+    status: Optional[ModuleStatusCode] = module.Current_Status
+
     if status is None:
         raise HTTPException(400, "Deze module heeft geen status")
-    if status.Status != AllModuleStatusCode.Vastgesteld:
+    if status != ModuleStatusCode.Vastgesteld:
         raise HTTPException(
             400, "Alleen modules met status Vastgesteld kunnen worden afgesloten"
         )

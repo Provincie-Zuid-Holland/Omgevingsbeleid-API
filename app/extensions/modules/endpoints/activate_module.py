@@ -17,7 +17,7 @@ from app.extensions.modules.event.module_status_changed_event import (
     ModuleStatusChangedEvent,
 )
 from app.extensions.modules.models import Module
-from app.extensions.modules.models.models import AllModuleStatusCode
+from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.modules.permissions import (
     ModulesPermissions,
     guard_module_not_activated,
@@ -77,7 +77,7 @@ class EndpointHandler:
     def _patch_status(self) -> ModuleStatusHistoryTable:
         status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
             Module_ID=self._module.Module_ID,
-            Status=AllModuleStatusCode.Ontwerp_GS_Concept,
+            Status=ModuleStatusCode.Ontwerp_GS_Concept,
             Created_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
         )

@@ -10,7 +10,7 @@ from app.extensions.modules.db.tables import (
     ModuleStatusHistoryTable,
     ModuleTable,
 )
-from app.extensions.modules.models.models import AllModuleStatusCode
+from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.relations.db.tables import RelationsTable
 
 from app.extensions.users.db import UsersTable
@@ -220,14 +220,14 @@ class DatabaseFixtures:
         )
         module.status_history.append(
             ModuleStatusHistoryTable(
-                Status=AllModuleStatusCode.Niet_Actief,
+                Status=ModuleStatusCode.Niet_Actief,
                 Created_Date=datetime(2023, 2, 2, 2, 2, 2),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
         module.status_history.append(
             ModuleStatusHistoryTable(
-                Status=AllModuleStatusCode.Vastgesteld,
+                Status=ModuleStatusCode.Vastgesteld,
                 Created_Date=datetime(2023, 2, 3, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )

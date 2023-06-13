@@ -6,6 +6,9 @@ api:
     - prefix: /werkingsgebieden
       endpoints:
         - resolver: list_werkingsgebieden
+    - prefix: /search/geo
+      endpoints:
+        - resolver: list_objects_in_werkingsgebieden
     - prefix: /search
       endpoints:
         - resolver: mssql_search

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List, Optional, Union
 import uuid
 from pydantic import BaseModel
 
@@ -13,3 +14,16 @@ class Werkingsgebied(BaseModel):
     class Config:
         orm_mode = True
         allow_population_by_field_name = True
+
+
+class GeoSearchResult(BaseModel):
+    UUID: Union[str, uuid.UUID]
+    Gebied: Union[str, uuid.UUID]
+    Type: str
+    Titel: Optional[str]
+    Omschrijving: Optional[str]
+
+
+class SearchResultWrapper(BaseModel):
+    total: int = 0
+    results: List[GeoSearchResult] = []
