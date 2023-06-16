@@ -41,7 +41,8 @@ api:
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: maatregel_static_patch
+            request_model: maatregel_static_post
+            result_model: maatregel_static_post_validated
     - prefix: /modules/{module_id}/object/maatregel
       endpoints:
         - resolver: module_patch_object
@@ -238,13 +239,45 @@ models:
         fields:
           - Description
           - Effect
-  maatregel_static_patch:
-    name: MaatregelStaticPatch
+  maatregel_static_post:
+    name: MaatregelStaticPost
     static_only: true
     fields:
       owner_1_uuid:
         default: none
         optional: true
+      owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
+        default: none
+        optional: true
+  maatregel_static_post_validated:
+    name: MaatregelStaticPostValidated
+    static_only: true
+    root_validators:
+      - id: not_equal_root
+        data:
+          fields:
+            - Owner_1_UUID
+            - Owner_2_UUID
+          allow_none: True
+          error_message: Owners should vary
+      - id: not_equal_root
+        data:
+          fields:
+            - Portfolio_Holder_1_UUID
+            - Portfolio_Holder_2_UUID
+          allow_none: True
+          error_message: Portfolio Holders should vary
+    fields:
+      owner_1_uuid:
       owner_2_uuid:
         default: none
         optional: true

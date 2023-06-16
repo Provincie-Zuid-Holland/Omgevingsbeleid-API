@@ -38,6 +38,7 @@ api:
         - resolver: edit_object_static
           resolver_data:
             request_model: ambitie_static_post
+            result_model: ambitie_static_post_validated
     - prefix: /modules/{module_id}/object/ambitie
       endpoints:
         - resolver: module_patch_object
@@ -207,6 +208,38 @@ models:
       owner_1_uuid:
         default: none
         optional: true
+      owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
+        default: none
+        optional: true
+  ambitie_static_post_validated:
+    name: AmbitieStaticPostValidated
+    static_only: true
+    root_validators:
+      - id: not_equal_root
+        data:
+          fields:
+            - Owner_1_UUID
+            - Owner_2_UUID
+          allow_none: True
+          error_message: Owners should vary
+      - id: not_equal_root
+        data:
+          fields:
+            - Portfolio_Holder_1_UUID
+            - Portfolio_Holder_2_UUID
+          allow_none: True
+          error_message: Portfolio Holders should vary
+    fields:
+      owner_1_uuid:
       owner_2_uuid:
         default: none
         optional: true

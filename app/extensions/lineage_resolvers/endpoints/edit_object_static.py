@@ -27,6 +27,7 @@ class EndpointHandler:
         converter: Converter,
         object_config_id: str,
         object_type: str,
+        result_type: Type[BaseModel],
         db: Session,
         repository: ObjectStaticRepository,
         user: UsersTable,
@@ -36,6 +37,7 @@ class EndpointHandler:
         self._converter: Converter = converter
         self._object_config_id: str = object_config_id
         self._object_type: str = object_type
+        self._result_type: Type[BaseModel] = result_type
 
         self._db: Session = db
         self._repository: ObjectStaticRepository = repository
@@ -63,6 +65,10 @@ class EndpointHandler:
         for key, value in self._changes.items():
             setattr(object_static, key, value)
 
+        # This executes the validators on the result type
+        # Making sure the final object meets all validation requirements
+        result_model = self._result_type.from_orm(object_static)
+
         change_log: ChangeLogTable = ChangeLogTable(
             Object_Type=self._object_type,
             Object_ID=self._lineage_id,
@@ -89,12 +95,14 @@ class EditObjectStaticEndpoint(Endpoint):
         object_type: str,
         path: str,
         request_type: Type[BaseModel],
+        result_type: Type[BaseModel],
     ):
         self._converter: Converter = converter
         self._object_config_id: str = object_config_id
         self._object_type: str = object_type
         self._path: str = path
         self._request_type: Type[BaseModel] = request_type
+        self._result_type: Type[BaseModel] = result_type
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
@@ -110,6 +118,7 @@ class EditObjectStaticEndpoint(Endpoint):
                 self._converter,
                 self._object_config_id,
                 self._object_type,
+                self._result_type,
                 db,
                 repository,
                 user,
@@ -148,6 +157,9 @@ class EditObjectStaticEndpointResolver(EndpointResolver):
         request_model = models_resolver.get(resolver_config.get("request_model"))
         request_type: Type[BaseModel] = request_model.pydantic_model
 
+        result_model = models_resolver.get(resolver_config.get("result_model"))
+        result_type: Type[BaseModel] = result_model.pydantic_model
+
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
         if not "{lineage_id}" in path:
             raise RuntimeError("Missing {lineage_id} argument in path")
@@ -158,4 +170,5 @@ class EditObjectStaticEndpointResolver(EndpointResolver):
             object_type=api.object_type,
             path=path,
             request_type=request_type,
+            result_type=result_type,
         )
