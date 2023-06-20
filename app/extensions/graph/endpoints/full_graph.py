@@ -62,8 +62,8 @@ class EndpointHandler:
     def _get_valid_acknowledged_relations(self) -> List[GraphEdge]:
         stmt = (
             select(AcknowledgedRelationsTable)
-            .filter(AcknowledgedRelationsTable.From_Acknowledged == True)
-            .filter(AcknowledgedRelationsTable.To_Acknowledged == True)
+            .filter(AcknowledgedRelationsTable.From_Acknowledged != None)
+            .filter(AcknowledgedRelationsTable.To_Acknowledged != None)
             .options(
                 load_only(
                     AcknowledgedRelationsTable.From_Code,
