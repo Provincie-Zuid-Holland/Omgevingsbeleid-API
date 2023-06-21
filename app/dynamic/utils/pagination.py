@@ -25,7 +25,7 @@ class Pagination:
         return self.limit
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound=BaseModel)
 
 
 class PagedResponse(GenericModel, Generic[T]):
@@ -34,12 +34,21 @@ class PagedResponse(GenericModel, Generic[T]):
     """
 
     total: int
-    offset: int
-    limit: int
+    offset: int = 0
+    limit: int = -1
     results: List[T]
 
 
-def paginate(query: Select, session: Session, limit=0, offset=0):
+@dataclass
+class PaginatedQueryResult:
+    page_result: Optional[Any] = None
+    total_count: int = 0
+
+    def count(self) -> int:
+        self.total_count = len(self.page_result)
+
+
+def query_paginated(query: Select, session: Session, limit=-1, offset=0):
     """
     Extend a query with pagination and wrap the query results
     in a generic response containing pagination meta data.

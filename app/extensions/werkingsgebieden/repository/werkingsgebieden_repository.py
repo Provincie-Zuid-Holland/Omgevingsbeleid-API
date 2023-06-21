@@ -5,6 +5,7 @@ from sqlalchemy import desc, select
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import func
 from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.utils.pagination import PagedResponse, query_paginated
 
 from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 from app.extensions.werkingsgebieden.models.models import (
@@ -24,7 +25,7 @@ class WerkingsgebiedenRepository:
         rows: List[WerkingsgebiedenTable] = self._db.scalars(stmt).all()
         return rows
 
-    # TODO: Copy from objects repo, make dynamic
+    # TODO: Object type filter
     @staticmethod
     def latest_objects_query(in_area: Optional[List[UUID]]):
         subq = select(
@@ -49,17 +50,20 @@ class WerkingsgebiedenRepository:
         )
         return stmt
 
-    def get_latest_in_area(self, in_area: List[UUID]) -> List[GeoSearchResult]:
+    def get_latest_in_area(
+        self, in_area: List[UUID], offset=0, limit=-1
+    ) -> PagedResponse[GeoSearchResult]:
         """
         Find all latest objects matching a list of Werkingsgebied UUIDs
         """
         query = self.latest_objects_query(in_area=in_area)
-        db_results = self._db.scalars(query).all()
-        if len(db_results) == 0:
-            return []
+
+        table_rows, total_count = query_paginated(
+            query=query, session=self._db, limit=limit, offset=offset
+        )
 
         object_list = []
-        for item in db_results:
+        for item in table_rows:
             search_result = GeoSearchResult(
                 Gebied=str(item.Gebied_UUID),
                 Titel=item.Title,
@@ -69,4 +73,6 @@ class WerkingsgebiedenRepository:
             )
             object_list.append(search_result)
 
-        return object_list
+        return PagedResponse(
+            total=total_count, limit=limit, offset=offset, results=object_list
+        )

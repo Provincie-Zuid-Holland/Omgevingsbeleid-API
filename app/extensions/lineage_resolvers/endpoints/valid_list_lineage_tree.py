@@ -20,7 +20,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
 from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import PagedResponse, Pagination, paginate
+from app.dynamic.utils.pagination import PagedResponse, Pagination, query_paginated
 from app.dynamic.db.filters_converter import (
     FiltersConverterResult,
     convert_filters,
@@ -61,7 +61,7 @@ class ValidListLineageTreeEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=List[self._response_type],
+            response_model=PagedResponse[self._response_type],
             summary=f"Get all the valid {self._object_type} of a single lineage",
             description=None,
             tags=[self._object_type],
@@ -87,7 +87,7 @@ class ValidListLineageTreeEndpoint(Endpoint):
             .order_by(desc(ObjectsTable.Modified_Date))
         )
 
-        table_rows, total_count = paginate(
+        table_rows, total_count = query_paginated(
             query=stmt,
             session=db,
             limit=pagination.get_limit(),
@@ -101,23 +101,20 @@ class ValidListLineageTreeEndpoint(Endpoint):
         # Ask extensions for more information
         rows = self._run_events(rows, event_dispatcher)
 
-        response = PagedResponse(
+        return PagedResponse[self._response_type](
             total=total_count,
             offset=pagination.get_offset(),
             limit=pagination.get_limit(),
             results=rows,
         )
-        return response
 
-    def _run_events(
-        self, table_rows: List[ObjectsTable], event_dispatcher: EventDispatcher
-    ):
+    def _run_events(self, items: List[ObjectsTable], event_dispatcher: EventDispatcher):
         """
         Ask extensions for more information.
         """
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
             RetrievedObjectsEvent.create(
-                table_rows,
+                items,
                 self._endpoint_id,
                 self._response_model,
             )

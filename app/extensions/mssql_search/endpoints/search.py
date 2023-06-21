@@ -12,7 +12,7 @@ from app.dynamic.db.objects_table import ObjectsTable
 from app.dynamic.dependencies import depends_pagination
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.utils.pagination import Pagination
+from app.dynamic.utils.pagination import Pagination, PagedResponse
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
@@ -44,11 +44,6 @@ class SearchObject(BaseModel):
         validate_assignment = True
 
 
-class SearchResponse(BaseModel):
-    Objects: List[SearchObject]
-    Total: int
-
-
 class EndpointHandler:
     def __init__(
         self,
@@ -62,7 +57,7 @@ class EndpointHandler:
         self._pagination: Pagination = pagination
         self._query: str = query
 
-    def handle(self) -> SearchResponse:
+    def handle(self) -> PagedResponse[SearchObject]:
         if not len(self._query):
             raise ValueError("Missing search query")
         if self._pagination.get_limit() > 50:
@@ -206,9 +201,11 @@ class EndpointHandler:
             search_objects.append(search_object)
             total_count = row["_Total_Count"]
 
-        return SearchResponse(
-            Objects=search_objects,
-            Total=total_count,
+        return PagedResponse[SearchObject](
+            total=total_count,
+            offset=self._pagination.get_offset(),
+            limit=self._pagination.get_limit(),
+            results=search_objects,
         )
 
 
@@ -223,7 +220,7 @@ class MssqlSearchEndpoint(Endpoint):
             db: Session = Depends(depends_db),
             pagination: Pagination = Depends(depends_pagination),
             user: UsersTable = Depends(depends_current_active_user),
-        ) -> SearchResponse:
+        ) -> PagedResponse[SearchObject]:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 self._search_config,
@@ -236,7 +233,7 @@ class MssqlSearchEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["POST"],
-            response_model=SearchResponse,
+            response_model=PagedResponse[SearchObject],
             summary=f"Search for objects",
             description=None,
             tags=["Search"],

@@ -1,13 +1,13 @@
 from pydantic import BaseModel
 import pytest
 import uuid
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from fastapi.exceptions import HTTPException
-from sqlalchemy import select
+from sqlalchemy import UUID, select
 from sqlalchemy.orm import Session
 
 from app.extensions.lineage_resolvers.endpoints.valid_list_lineages import (
@@ -33,8 +33,8 @@ from app.extensions.lineage_resolvers.endpoints.edit_object_static import (
     EndpointHandler as EditStaticEndpoint,
 )
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import Pagination
-from app.tests.fixtures import LocalTables
+from app.dynamic.utils.pagination import PagedResponse, Pagination
+from app.tests.fixtures import LocalTables, MockResponseModel
 from app.tests.helpers import patch_multiple
 from app.core.utils import table_to_dict
 
@@ -153,8 +153,8 @@ class TestLineageResolvers:
                 pagination=Pagination(),
             )
 
-        assert len(response) == 1
-        assert response[0]["UUID"] == self.valid_latest.UUID
+        assert response.total == 1
+        assert getattr(response.results[0], "UUID") == self.valid_latest.UUID
 
     def test_valid_lineage_tree(
         self,
@@ -185,8 +185,8 @@ class TestLineageResolvers:
                 pagination=Pagination(),
             )
 
-        assert len(response) == 2
-        response_uuids = set([r["UUID"] for r in response])
+        assert response.total == 2
+        response_uuids = set([r.UUID for r in response.results])
         expected_uuids = set([self.valid.UUID, self.valid_latest.UUID])
         assert response_uuids == expected_uuids
 
@@ -371,6 +371,7 @@ class TestLineageResolvers:
             converter=mock_converter,
             object_config_id="ambitie",
             object_type="ambitie",
+            result_type=MagicMock(),
             repository=test_object_static_repository,
             db=db,
             user=self.super_user,
@@ -408,6 +409,7 @@ class TestLineageResolvers:
             converter=mock_converter,
             object_config_id="ambitie",
             object_type="ambitie",
+            result_type=MagicMock(),
             repository=test_object_repository,
             db=db,
             user=local_tables.UsersTabel,
