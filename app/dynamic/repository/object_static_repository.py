@@ -2,15 +2,12 @@ from typing import Optional, List
 from uuid import UUID
 
 from sqlalchemy import select, or_
-from sqlalchemy.orm import Session, Query
 
 from app.dynamic.db import ObjectStaticsTable
+from app.dynamic.repository import BaseRepository
 
 
-class ObjectStaticRepository:
-    def __init__(self, db: Session):
-        self._db = db
-
+class ObjectStaticRepository(BaseRepository):
     def get_by_object_type_and_id(
         self, object_type: str, object_id: int
     ) -> Optional[ObjectStaticsTable]:
@@ -19,23 +16,21 @@ class ObjectStaticRepository:
             .filter(ObjectStaticsTable.Object_Type == object_type)
             .filter(ObjectStaticsTable.Object_ID == object_id)
         )
-        maybe_object = self._db.scalars(stmt).first()
-        return maybe_object
+        return self.fetch_first(stmt)
 
     def get_by_type_and_owner(
         self, object_type: str = None, owner_uuid: UUID = None
     ) -> List[ObjectStaticsTable]:
-        query = Query(ObjectStaticsTable)
+        stmt = select(ObjectStaticsTable)
 
         if owner_uuid:
             type_filter = or_(
                 ObjectStaticsTable.Owner_1_UUID == owner_uuid,
                 ObjectStaticsTable.Owner_2_UUID == owner_uuid,
             )
-            query = query.filter(type_filter)
+            stmt = stmt.filter(type_filter)
 
         if object_type:
-            query = query.filter(ObjectStaticsTable.Object_Type == object_type)
+            stmt = stmt.filter(ObjectStaticsTable.Object_Type == object_type)
 
-        query.session = self._db
-        return query.all()
+        return self.fetch_all(stmt)

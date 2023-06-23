@@ -4,10 +4,10 @@ import uuid
 from unittest.mock import MagicMock, patch
 
 from datetime import datetime, timedelta
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from fastapi.exceptions import HTTPException
-from sqlalchemy import UUID, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.extensions.lineage_resolvers.endpoints.valid_list_lineages import (
@@ -33,8 +33,8 @@ from app.extensions.lineage_resolvers.endpoints.edit_object_static import (
     EndpointHandler as EditStaticEndpoint,
 )
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import PagedResponse, Pagination
-from app.tests.fixtures import LocalTables, MockResponseModel
+from app.dynamic.utils.pagination import Pagination
+from app.tests.fixtures import LocalTables
 from app.tests.helpers import patch_multiple
 from app.core.utils import table_to_dict
 

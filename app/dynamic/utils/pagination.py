@@ -4,7 +4,7 @@ from typing import Generic, List, TypeVar, Optional, Any
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
 
-from sqlalchemy import func, desc, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Select
 
@@ -41,11 +41,8 @@ class PagedResponse(GenericModel, Generic[T]):
 
 @dataclass
 class PaginatedQueryResult:
-    page_result: Optional[Any] = None
+    items: Any
     total_count: int = 0
-
-    def count(self) -> int:
-        self.total_count = len(self.page_result)
 
 
 def query_paginated(query: Select, session: Session, limit=-1, offset=0):
@@ -62,4 +59,4 @@ def query_paginated(query: Select, session: Session, limit=-1, offset=0):
     results = session.execute(paginated).scalars().all()
     total_count = session.execute(count_stmt).scalar_one()
 
-    return results, total_count
+    return PaginatedQueryResult(results, total_count)

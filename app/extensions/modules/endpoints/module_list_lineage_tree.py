@@ -104,7 +104,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
             .order_by(desc(ModuleObjectsTable.Modified_Date))
         )
 
-        table_rows, total_count = query_paginated(
+        paginated_result = query_paginated(
             query=stmt,
             session=db,
             limit=pagination.get_limit(),
@@ -112,14 +112,14 @@ class ModuleListLineageTreeEndpoint(Endpoint):
         )
 
         rows: List[self._response_type] = [
-            self._response_type.from_orm(r) for r in table_rows
+            self._response_type.from_orm(r) for r in paginated_result.items
         ]
 
         # Ask extensions for more information
         rows = self._run_events(rows, event_dispatcher)
 
         return PagedResponse[self._response_type](
-            total=total_count,
+            total=paginated_result.total_count,
             offset=pagination.get_offset(),
             limit=pagination.get_limit(),
             results=rows,

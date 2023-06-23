@@ -107,7 +107,7 @@ class ValidListLineagesEndpoint(Endpoint):
             .order_by(desc(subq.c.Modified_Date))
         )
 
-        table_rows, total_count = query_paginated(
+        paginated_result = query_paginated(
             query=stmt,
             session=db,
             limit=pagination.get_limit(),
@@ -115,12 +115,12 @@ class ValidListLineagesEndpoint(Endpoint):
         )
 
         results: List[self._response_type] = []
-        if total_count > 0:
-            results = [self._response_type.from_orm(r) for r in table_rows]
+        if paginated_result.total_count > 0:
+            results = [self._response_type.from_orm(r) for r in paginated_result.items]
             results = self._run_events(results, event_dispatcher)
 
         return PagedResponse[self._response_type](
-            total=total_count,
+            total=paginated_result.total_count,
             offset=pagination.get_offset(),
             limit=pagination.get_limit(),
             results=results,
