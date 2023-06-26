@@ -8,7 +8,7 @@ api:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: maatregel_get
+            response_model: maatregel_basic
             allowed_filter_columns:
               - Title
               - Weblink
@@ -142,6 +142,7 @@ models:
     name: MaatregelBasic
     fields:
       object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -149,7 +150,6 @@ models:
       start_validity:
       end_validity:
       title:
-      role:
     services:
       foreign_keys_extender:
         fields_map:
@@ -158,6 +158,18 @@ models:
           - to_field: Created_By
             model_id: gebruikers_short
           - to_field: Modified_By
+            model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
             model_id: gebruikers_short
   maatregel_get:
     name: MaatregelGet
