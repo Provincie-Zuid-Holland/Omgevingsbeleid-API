@@ -20,7 +20,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
 from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import Pagination
+from app.dynamic.utils.pagination import PagedResponse, Pagination, query_paginated
 from app.dynamic.db.filters_converter import (
     FiltersConverterResult,
     convert_filters,
@@ -53,14 +53,14 @@ class ValidListLineagesEndpoint(Endpoint):
             pagination: Pagination = Depends(depends_pagination),
             db: Session = Depends(depends_db),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
-        ) -> List[self._response_type]:
+        ) -> PagedResponse[self._response_type]:
             return self._handler(db, event_dispatcher, filters, pagination)
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=List[self._response_type],
+            response_model=PagedResponse[self._response_type],
             summary=f"Get all the valid {self._object_type} lineages and shows the latest object of each",
             description=None,
             tags=[self._object_type],
@@ -105,29 +105,34 @@ class ValidListLineagesEndpoint(Endpoint):
                 )
             )
             .order_by(desc(subq.c.Modified_Date))
-            .limit(pagination.get_limit())
-            .offset(pagination.get_offset())
         )
 
-        table_rows: List[ObjectsTable] = db.execute(stmt).scalars().all()
-        if not table_rows:
-            return []
+        paginated_result = query_paginated(
+            query=stmt,
+            session=db,
+            limit=pagination.get_limit(),
+            offset=pagination.get_offset(),
+        )
 
-        rows: List[self._response_type] = [
-            self._response_type.from_orm(r) for r in table_rows
-        ]
-        rows = self._run_events(table_rows, event_dispatcher)
-        return rows
+        results: List[self._response_type] = []
+        if paginated_result.total_count > 0:
+            results = [self._response_type.from_orm(r) for r in paginated_result.items]
+            results = self._run_events(results, event_dispatcher)
 
-    def _run_events(
-        self, table_rows: List[ObjectsTable], event_dispatcher: EventDispatcher
-    ):
+        return PagedResponse[self._response_type](
+            total=paginated_result.total_count,
+            offset=pagination.get_offset(),
+            limit=pagination.get_limit(),
+            results=results,
+        )
+
+    def _run_events(self, items: List[ObjectsTable], event_dispatcher: EventDispatcher):
         """
         Ask extensions for more information.
         """
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
             RetrievedObjectsEvent.create(
-                table_rows,
+                items,
                 self._endpoint_id,
                 self._response_model,
             )

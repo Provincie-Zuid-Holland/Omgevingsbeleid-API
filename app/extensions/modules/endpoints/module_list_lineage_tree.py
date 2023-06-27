@@ -17,7 +17,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import Pagination
+from app.dynamic.utils.pagination import PagedResponse, Pagination, query_paginated
 from app.dynamic.db.filters_converter import (
     FiltersConverterResult,
     convert_filters,
@@ -67,7 +67,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
             ),
             db: Session = Depends(depends_db),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
-        ) -> List[self._response_type]:
+        ) -> PagedResponse[self._response_type]:
             return self._handler(
                 db, event_dispatcher, module, lineage_id, filters, pagination
             )
@@ -76,7 +76,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=List[self._response_type],
+            response_model=PagedResponse[self._response_type],
             summary=f"Get all the {self._object_type} of a single lineage in a module",
             description=None,
             tags=[self._object_type],
@@ -102,18 +102,33 @@ class ModuleListLineageTreeEndpoint(Endpoint):
             .filter(ModuleObjectsTable.Object_Type == self._object_type)
             .filter(ModuleObjectsTable.Object_ID == lineage_id)
             .order_by(desc(ModuleObjectsTable.Modified_Date))
-            .limit(pagination.get_limit())
-            .offset(pagination.get_offset())
         )
 
-        # @todo: honor filters
-        module_objects_tables: List[ModuleObjectsTable] = db.scalars(stmt).all()
+        paginated_result = query_paginated(
+            query=stmt,
+            session=db,
+            limit=pagination.get_limit(),
+            offset=pagination.get_offset(),
+        )
 
         rows: List[self._response_type] = [
-            self._response_type.from_orm(r) for r in module_objects_tables
+            self._response_type.from_orm(r) for r in paginated_result.items
         ]
 
         # Ask extensions for more information
+        rows = self._run_events(rows, event_dispatcher)
+
+        return PagedResponse[self._response_type](
+            total=paginated_result.total_count,
+            offset=pagination.get_offset(),
+            limit=pagination.get_limit(),
+            results=rows,
+        )
+
+    def _run_events(self, rows, event_dispatcher: EventDispatcher):
+        """
+        Ask extensions for more information.
+        """
         event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(
             RetrievedModuleObjectsEvent.create(
                 rows,
@@ -121,9 +136,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
                 self._response_model,
             )
         )
-        rows = event.payload.rows
-
-        return rows
+        return event.payload.rows
 
 
 class ModuleListLineageTreeEndpointResolver(EndpointResolver):

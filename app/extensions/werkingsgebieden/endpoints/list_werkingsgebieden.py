@@ -4,12 +4,13 @@ from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
+from app.dynamic.dependencies import depends_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
+from app.dynamic.utils.pagination import PagedResponse, Pagination
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
-from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 from app.extensions.werkingsgebieden.dependencies import (
     depends_werkingsgebieden_repository,
 )
@@ -26,17 +27,18 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             user: UsersTable = Depends(depends_current_active_user),
+            pagination: Pagination = Depends(depends_pagination),
             repository: WerkingsgebiedenRepository = Depends(
                 depends_werkingsgebieden_repository
             ),
-        ) -> List[Werkingsgebied]:
-            return self._handler(repository)
+        ) -> PagedResponse[Werkingsgebied]:
+            return self._handler(repository, pagination)
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=List[Werkingsgebied],
+            response_model=PagedResponse[Werkingsgebied],
             summary=f"List the werkingsgebieden",
             description=None,
             tags=["Werkingsgebieden"],
@@ -45,15 +47,21 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
         return router
 
     def _handler(
-        self,
-        repository: WerkingsgebiedenRepository,
-    ) -> List[Werkingsgebied]:
-        table_werkingsgebieden: List[WerkingsgebiedenTable] = repository.get_all()
-        werkingsgebieden: List[Werkingsgebied] = [
-            Werkingsgebied.from_orm(w) for w in table_werkingsgebieden
-        ]
+        self, repository: WerkingsgebiedenRepository, pagination: Pagination
+    ) -> PagedResponse[Werkingsgebied]:
+        paged_results = repository.get_all_paginated(
+            pagination.get_offset(), pagination.get_limit()
+        )
 
-        return werkingsgebieden
+        werkingsgebieden: List[Werkingsgebied] = [
+            Werkingsgebied.from_orm(w) for w in paged_results.items
+        ]
+        return PagedResponse[Werkingsgebied](
+            total=paged_results.total_count,
+            offset=pagination.get_offset(),
+            limit=pagination.get_limit(),
+            results=werkingsgebieden,
+        )
 
 
 class ListWerkingsgebiedenEndpointResolver(EndpointResolver):

@@ -2,39 +2,33 @@ from typing import List, Optional
 from uuid import UUID
 from sqlalchemy import asc, select
 
-from sqlalchemy.orm import Session
-
+from app.dynamic.repository import BaseRepository
 from app.core.security import verify_password, get_password_hash
+from app.dynamic.utils.pagination import PaginatedQueryResult
 from app.extensions.users.db.tables import UsersTable
 from ..model import User
 
 
-class UserRepository:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
+class UserRepository(BaseRepository):
     def get_by_uuid(self, uuid: UUID) -> Optional[UsersTable]:
         stmt = select(UsersTable).where(UsersTable.UUID == uuid)
-        maybe_user = self._db.scalars(stmt).first()
-        return maybe_user
+        return self.fetch_first(stmt)
 
-    def get_active(self) -> List[UsersTable]:
+    def get_active(self, limit: int = 20, offset: int = 0) -> PaginatedQueryResult:
         stmt = (
             select(UsersTable)
             .filter(UsersTable.Status == "Actief")
             .order_by(asc(UsersTable.Gebruikersnaam))
         )
-        users = self._db.scalars(stmt).all()
-        return users
+        return self.fetch_paginated(stmt, limit, offset)
 
     def get_all(self) -> List[UsersTable]:
         stmt = select(UsersTable).order_by(asc(UsersTable.Gebruikersnaam))
-        users = self._db.scalars(stmt).all()
-        return users
+        return self.fetch_all(stmt)
 
     def authenticate(self, username: str, password: str) -> Optional[User]:
         stmt = select(UsersTable).where(UsersTable.Email == username)
-        maybe_user: Optional[UsersTable] = self._db.scalars(stmt).first()
+        maybe_user: Optional[UsersTable] = self.fetch_first(stmt)
         if not maybe_user:
             return None
         if not verify_password(password, maybe_user.Wachtwoord):

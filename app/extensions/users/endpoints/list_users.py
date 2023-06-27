@@ -7,6 +7,8 @@ from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
+from app.dynamic.utils.pagination import PagedResponse, Pagination
+from app.dynamic.dependencies import depends_pagination
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user,
@@ -22,16 +24,17 @@ class ListUsersEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
+            pagination: Pagination = Depends(depends_pagination),
             user: UsersTable = Depends(depends_current_active_user),
             user_repository: UserRepository = Depends(depends_user_repository),
-        ) -> List[UserShort]:
-            return self._handler(user_repository)
+        ) -> PagedResponse[UserShort]:
+            return self._handler(user_repository, pagination)
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=List[UserShort],
+            response_model=PagedResponse[UserShort],
             summary=f"List the users",
             description=None,
             tags=["User"],
@@ -42,11 +45,19 @@ class ListUsersEndpoint(Endpoint):
     def _handler(
         self,
         repostiory: UserRepository,
-    ) -> List[UserShort]:
-        users: List[UsersTable] = repostiory.get_active()
-        response: List[UserShort] = [UserShort.from_orm(u) for u in users]
+        pagination: Pagination = Depends(depends_pagination),
+    ) -> PagedResponse[UserShort]:
+        paginated_result = repostiory.get_active(
+            limit=pagination.get_limit(), offset=pagination.get_offset()
+        )
+        users: List[UserShort] = [UserShort.from_orm(u) for u in paginated_result.items]
 
-        return response
+        return PagedResponse[UserShort](
+            total=paginated_result.total_count,
+            offset=pagination.get_offset(),
+            limit=pagination.get_limit(),
+            results=users,
+        )
 
 
 class ListUsersEndpointResolver(EndpointResolver):
