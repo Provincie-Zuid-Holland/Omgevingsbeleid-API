@@ -12,7 +12,7 @@ from app.dynamic.db.objects_table import ObjectsTable
 from app.dynamic.dependencies import depends_pagination
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.utils.pagination import Pagination
+from app.dynamic.utils.pagination import Pagination, PagedResponse
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
@@ -39,11 +39,6 @@ class ValidSearchObject(BaseModel):
         validate_assignment = True
 
 
-class ValidSearchResponse(BaseModel):
-    Objects: List[ValidSearchObject]
-    Total: int
-
-
 class EndpointHandler:
     def __init__(
         self,
@@ -57,11 +52,13 @@ class EndpointHandler:
         self._pagination: Pagination = pagination
         self._query: str = query
 
-    def handle(self) -> ValidSearchResponse:
+    def handle(self) -> PagedResponse[ValidSearchObject]:
         if not len(self._query):
             raise ValueError("Missing search query")
         if self._pagination.get_limit() > 50:
             raise ValueError("Pagination limit is too high")
+        if self._pagination.get_limit() < 1:
+            raise ValueError("Pagination limit is too low")
 
         stmt = text(
             f"""
@@ -134,7 +131,6 @@ class EndpointHandler:
             offset=self._pagination.get_offset(),
             limit=self._pagination.get_limit(),
         )
-
         results = self._db.execute(stmt)
         search_objects: List[ValidSearchObject] = []
         total_count: int = 0
@@ -161,9 +157,11 @@ class EndpointHandler:
             search_objects.append(search_object)
             total_count = row["_Total_Count"]
 
-        return ValidSearchResponse(
-            Objects=search_objects,
-            Total=total_count,
+        return PagedResponse[ValidSearchObject](
+            total=total_count,
+            offset=self._pagination.get_offset(),
+            limit=self._pagination.get_limit(),
+            results=search_objects,
         )
 
 
@@ -177,7 +175,7 @@ class MssqlValidSearchEndpoint(Endpoint):
             query: str,
             db: Session = Depends(depends_db),
             pagination: Pagination = Depends(depends_pagination),
-        ) -> ValidSearchResponse:
+        ) -> PagedResponse[ValidSearchObject]:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 self._search_config,
@@ -190,7 +188,7 @@ class MssqlValidSearchEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["POST"],
-            response_model=ValidSearchResponse,
+            response_model=PagedResponse[ValidSearchObject],
             summary=f"Search for valid objects",
             description=None,
             tags=["Search"],
