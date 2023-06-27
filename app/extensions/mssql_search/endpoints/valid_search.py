@@ -1,5 +1,6 @@
 from typing import List
 import uuid
+import json
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, validator
@@ -60,6 +61,8 @@ class EndpointHandler:
     def handle(self) -> ValidSearchResponse:
         if not len(self._query):
             raise ValueError("Missing search query")
+        if '\\' in json.dumps(self._query):
+            raise ValueError("Invalid search characters")
         if self._pagination.get_limit() > 50:
             raise ValueError("Pagination limit is too high")
 
@@ -130,7 +133,7 @@ class EndpointHandler:
         )
 
         stmt = stmt.bindparams(
-            query=self._query,
+            query=f'"{self._query}"',
             offset=self._pagination.get_offset(),
             limit=self._pagination.get_limit(),
         )
