@@ -10,10 +10,10 @@ from app.dynamic.dependencies import depends_pagination
 
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.utils.pagination import Pagination
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
+from app.dynamic.utils.pagination import Pagination, PagedResponse, query_paginated
 
 
 class SearchObject(BaseModel):
@@ -31,10 +31,6 @@ class SearchObject(BaseModel):
         validate_assignment = True
 
 
-class SearchResponse(BaseModel):
-    Objects: List[SearchObject]
-
-
 class EndpointHandler:
     def __init__(
         self,
@@ -46,19 +42,29 @@ class EndpointHandler:
         self._pagination: Pagination = pagination
         self._query: str = query
 
-    def handle(self) -> SearchResponse:
+    def handle(self) -> PagedResponse[SearchObject]:
         if self._db.bind.name in ["sqlite", "mssql"]:
             stmt = self._like_search_stmt()
         else:
             stmt = self._match_search_stmt()
 
-        table_rows = self._db.execute(stmt).all()
+        # table_rows = self._db.execute(stmt).all()
+        table_rows, total_count = query_paginated(
+            query=stmt,
+            session=self._db,
+            limit=self._pagination.get_limit(),
+            offset=self._pagination.get_offset(),
+        )
+
         search_objects: List[SearchObject] = [
             SearchObject.parse_obj(r._asdict()) for r in table_rows
         ]
 
-        return SearchResponse(
-            Objects=search_objects,
+        return PagedResponse[SearchObject](
+            total=total_count,
+            limit=self._pagination.get_limit(),
+            offset=self._pagination.get_offset(),
+            results=search_objects,
         )
 
     def _like_search_stmt(self):
@@ -77,8 +83,6 @@ class EndpointHandler:
                 | ObjectsTable.Description.like(like_query)
             )
             .order_by(desc(ObjectsTable.Modified_Date))
-            .limit(self._pagination.get_limit())
-            .offset(self._pagination.get_offset())
         )
         return stmt
 
@@ -103,8 +107,6 @@ class EndpointHandler:
                 )
             )
             .order_by(desc(ObjectsTable.Modified_Date))
-            .limit(self._pagination.get_limit())
-            .offset(self._pagination.get_offset())
         )
         return stmt
 
@@ -118,7 +120,7 @@ class SearchEndpoint(Endpoint):
             query: str,
             db: Session = Depends(depends_db),
             pagination: Pagination = Depends(depends_pagination),
-        ) -> SearchResponse:
+        ) -> PagedResponse[SearchObject]:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 pagination,
@@ -130,7 +132,7 @@ class SearchEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=SearchResponse,
+            response_model=PagedResponse[SearchObject],
             summary=f"Search for objects",
             description=None,
             tags=["Search"],

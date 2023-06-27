@@ -24,6 +24,7 @@ class GeoSearchResult(BaseModel):
     Omschrijving: Optional[str]
 
 
+# TODO: Remove, changed to PagedResponse
 class SearchResultWrapper(BaseModel):
     total: int = 0
     results: List[GeoSearchResult] = []
