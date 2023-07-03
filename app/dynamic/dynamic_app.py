@@ -15,6 +15,7 @@ from app.dynamic.db.object_static_table import (
 )
 from app.dynamic.validators.validator import (
     HtmlValidator,
+    ImageValidator,
     LengthValidator,
     NotEqualRootValidator,
     PlainTextValidator,
@@ -300,6 +301,7 @@ class DynamicAppBuilder:
         self._service_container.validator_provider.register(LengthValidator())
         self._service_container.validator_provider.register(PlainTextValidator())
         self._service_container.validator_provider.register(HtmlValidator())
+        self._service_container.validator_provider.register(ImageValidator())
         self._service_container.validator_provider.register(NotEqualRootValidator())
 
     def _merge_endpoint_resolvers(self, resolvers: List[EndpointResolver]):
