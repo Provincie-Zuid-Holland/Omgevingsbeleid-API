@@ -15,3 +15,4 @@ class ExtendedForeignKeysExtension(Extension):
     ):
         event_dispatcher.register(listeners.ObjectStaticsExtenderListener())
         event_dispatcher.register(listeners.ObjectsExtenderListener())
+        event_dispatcher.register(listeners.OptimizeSelectListener())

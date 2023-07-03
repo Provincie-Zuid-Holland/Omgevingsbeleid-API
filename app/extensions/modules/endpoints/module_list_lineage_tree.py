@@ -13,6 +13,7 @@ from app.dynamic.dependencies import (
     depends_string_filters,
     depends_pagination,
 )
+from app.dynamic.event.before_select_execution import BeforeSelectExecutionEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
@@ -103,6 +104,15 @@ class ModuleListLineageTreeEndpoint(Endpoint):
             .filter(ModuleObjectsTable.Object_ID == lineage_id)
             .order_by(desc(ModuleObjectsTable.Modified_Date))
         )
+
+        event: BeforeSelectExecutionEvent = event_dispatcher.dispatch(
+            BeforeSelectExecutionEvent.create(
+                query=stmt,
+                response_model=self._response_model,
+                objects_table_ref=ModuleObjectsTable,
+            )
+        )
+        stmt = event.payload.query
 
         paginated_result = query_paginated(
             query=stmt,

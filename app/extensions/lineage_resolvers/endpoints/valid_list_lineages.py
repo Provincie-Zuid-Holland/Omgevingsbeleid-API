@@ -9,12 +9,13 @@ from app.core.dependencies import depends_db
 from app.dynamic.db.objects_table import ObjectsTable
 
 from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
-from app.dynamic.config.models import Api, Model, EndpointConfig
+from app.dynamic.config.models import Api, DynamicObjectModel, Model, EndpointConfig
 from app.dynamic.dependencies import (
     depends_event_dispatcher,
     depends_string_filters,
     depends_pagination,
 )
+from app.dynamic.event import BeforeSelectExecutionEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.converter import Converter
@@ -107,6 +108,15 @@ class ValidListLineagesEndpoint(Endpoint):
             .order_by(desc(subq.c.Modified_Date))
         )
 
+        event: BeforeSelectExecutionEvent = event_dispatcher.dispatch(
+            BeforeSelectExecutionEvent.create(
+                query=stmt,
+                response_model=self._response_model,
+                objects_table_ref=aliased_objects,
+            )
+        )
+        stmt = event.payload.query
+
         paginated_result = query_paginated(
             query=stmt,
             session=db,
@@ -153,7 +163,7 @@ class ValidListLineagesEndpointResolver(EndpointResolver):
         api: Api,
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
-        response_model = models_resolver.get(
+        response_model: DynamicObjectModel = models_resolver.get(
             resolver_config.get("response_model"),
         )
         allowed_filter_columns: List[str] = resolver_config.get(
