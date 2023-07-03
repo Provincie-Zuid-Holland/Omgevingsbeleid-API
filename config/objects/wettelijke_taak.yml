@@ -132,10 +132,10 @@ models:
     services:
       relations:
         objects:
-          - object_type: wettelijke_taak
-            object_id: wettelijke_taak
-            to_field: "WettelijkeTaken"
-            model_id: wettelijke_taak_minimal
+          - object_type: verplicht_programma
+            object_id: verplicht_programma
+            to_field: "VerplichtProgrammas"
+            model_id: verplicht_programma_minimal
           - object_type: beleidskeuze
             object_id: beleidskeuze
             to_field: "Beleidskeuzes"
