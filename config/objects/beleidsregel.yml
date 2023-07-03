@@ -8,7 +8,7 @@ api:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: beleidsregel_get
+            response_model: beleidsregel_basic
             allowed_filter_columns:
               - Title
               - Weblink
@@ -22,11 +22,11 @@ api:
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidsregel_get
+            response_model: beleidsregel_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidsregel_get
+            response_model: beleidsregel_full
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -51,24 +51,24 @@ api:
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: beleidsregel_basic
+            response_model: beleidsregel_extended
             allowed_filter_columns:
               - Title
               - Weblink
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidsregel_get
+            response_model: beleidsregel_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidsregel_get
+            response_model: beleidsregel_full
     - prefix: /modules/objects/beleidsregel
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: beleidsregel_short
+            response_model: beleidsregel_minimal
 
 fields:
   title:
@@ -120,8 +120,8 @@ fields:
     optional: true
 
 models:
-  beleidsregel_short:
-    name: BeleidsregelShort
+  beleidsregel_minimal:
+    name: BeleidsregelMinimal
     fields:
       object_type:
       object_id:
@@ -131,6 +131,20 @@ models:
     name: BeleidsregelBasic
     fields:
       object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      weblink:
+      start_validity:
+      end_validity:
+  beleidsregel_extended:
+    name: BeleidsregelExtended
+    fields:
+      object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -146,8 +160,20 @@ models:
             model_id: gebruikers_short
           - to_field: Modified_By
             model_id: gebruikers_short
-  beleidsregel_get:
-    name: BeleidsregelGet
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
+  beleidsregel_full:
+    name: BeleidsregelFull
     fields:
       object_id:
       code:
@@ -169,7 +195,7 @@ models:
           - object_type: beleidskeuze
             object_id: beleidskeuze
             to_field: "Beleidskeuzes"
-            model_id: beleidskeuze_short
+            model_id: beleidskeuze_minimal
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:

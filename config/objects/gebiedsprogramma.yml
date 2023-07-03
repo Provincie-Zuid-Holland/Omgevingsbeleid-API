@@ -8,7 +8,7 @@ api:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: gebiedsprogramma_get
+            response_model: gebiedsprogramma_basic
             allowed_filter_columns:
               - Title
         - resolver: valid_list_lineage_tree
@@ -20,11 +20,11 @@ api:
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: gebiedsprogramma_get
+            response_model: gebiedsprogramma_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: gebiedsprogramma_get
+            response_model: gebiedsprogramma_full
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -49,23 +49,23 @@ api:
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: gebiedsprogramma_basic
+            response_model: gebiedsprogramma_extended
             allowed_filter_columns:
               - Title
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: gebiedsprogramma_get
+            response_model: gebiedsprogramma_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: gebiedsprogramma_get
+            response_model: gebiedsprogramma_full
     - prefix: /modules/objects/gebiedsprogramma
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: gebiedsprogramma_short
+            response_model: gebiedsprogramma_minimal
 
 
 fields:
@@ -118,8 +118,8 @@ fields:
     optional: true
 
 models:
-  gebiedsprogramma_short:
-    name: GebiedsprogrammaShort
+  gebiedsprogramma_minimal:
+    name: GebiedsprogrammaMinimal
     fields:
       object_type:
       object_id:
@@ -129,6 +129,7 @@ models:
     name: GebiedsprogrammaBasic
     fields:
       object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -136,15 +137,52 @@ models:
       title:
       start_validity:
       end_validity:
+      image:
+        default: none
+        optional: true
     services:
+      full_image:
+        fields:
+          - Image
+  gebiedsprogramma_extended:
+    name: GebiedsprogrammaExtended
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      start_validity:
+      end_validity:
+      image:
+        default: none
+        optional: true
+    services:
+      full_image:
+        fields:
+          - Image
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
             model_id: gebruikers_short
           - to_field: Modified_By
             model_id: gebruikers_short
-  gebiedsprogramma_get:
-    name: GebiedsprogrammaGet
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
+  gebiedsprogramma_full:
+    name: GebiedsprogrammaFull
     fields:
       object_id:
       code:
@@ -163,7 +201,7 @@ models:
       insert_assets:
         fields:
           - Description
-      get_image:
+      full_image:
         fields:
           - Image
       relations:
@@ -171,7 +209,7 @@ models:
           - object_type: maatregel
             object_id: maatregel
             to_field: "Maatregelen"
-            model_id: maatregel_short
+            model_id: maatregel_minimal
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:

@@ -37,8 +37,12 @@ class ModuleAddNewObject(BaseModel):
     Owner_2_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
     Client_1_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
 
-    Explanation: Optional[str] = Field(None, nullable=True)
-    Conclusion: Optional[str] = Field(None, nullable=True)
+    Explanation: str
+    Conclusion: str
+
+    @validator("Explanation", "Conclusion", pre=True)
+    def default_empty_string(cls, v):
+        return v or ""
 
     @validator("Owner_2_UUID")
     def duplicate_owner(cls, v, values):

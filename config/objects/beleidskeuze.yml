@@ -8,7 +8,7 @@ api:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: beleidskeuze_get
+            response_model: beleidskeuze_basic
             allowed_filter_columns:
               - Title
         - resolver: valid_list_lineage_tree
@@ -20,11 +20,11 @@ api:
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidskeuze_get
+            response_model: beleidskeuze_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidskeuze_get
+            response_model: beleidskeuze_full
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -63,23 +63,23 @@ api:
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: beleidskeuze_basic
+            response_model: beleidskeuze_extended
             allowed_filter_columns:
               - Title
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidskeuze_get
+            response_model: beleidskeuze_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidskeuze_get
+            response_model: beleidskeuze_full
     - prefix: /modules/objects/beleidskeuze
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: beleidskeuze_short
+            response_model: beleidskeuze_minimal
 
 fields:
   title:
@@ -143,17 +143,30 @@ fields:
     optional: true
 
 models:
-  beleidskeuze_short:
-    name: BeleidskeuzeShort
+  beleidskeuze_minimal:
+    name: BeleidskeuzeMinimal
     fields:
       object_type:
       object_id:
       uuid:
       title:
   beleidskeuze_basic:
-    name: BeleidskeuzeBasic
+    name: BeleidskeueBasic
     fields:
       object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      start_validity:
+      end_validity:
+      title:
+  beleidskeuze_extended:
+    name: BeleidskeuzeExtended
+    fields:
+      object_id:
+      code:
       uuid:
       adjust_on:
       created_date:
@@ -164,14 +177,24 @@ models:
     services:
       foreign_keys_extender:
         fields_map:
-          - to_field: Gebied
-            model_id: werkingsgebied
           - to_field: Created_By
             model_id: gebruikers_short
           - to_field: Modified_By
             model_id: gebruikers_short
-  beleidskeuze_get:
-    name: BeleidskeuzeGet
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
+  beleidskeuze_full:
+    name: BeleidskeuzeFull
     fields:
       object_id:
       code:
@@ -218,27 +241,27 @@ models:
           - object_type: wettelijke_taak
             object_id: wettelijke_taak
             to_field: "WettelijkeTaken"
-            model_id: wettelijke_taak_short
+            model_id: wettelijke_taak_minimal
             wrapped_with_relation_data: true
           - object_type: nationaal_belang
             object_id: nationaal_belang
             to_field: "NationaleBelangen"
-            model_id: nationaal_belang_short
+            model_id: nationaal_belang_minimal
             wrapped_with_relation_data: true
           - object_type: beleidsdoel
             object_id: beleidsdoel
             to_field: "Beleidsdoelen"
-            model_id: beleidsdoel_short
+            model_id: beleidsdoel_minimal
             wrapped_with_relation_data: true
           - object_type: beleidsregel
             object_id: beleidsregel
             to_field: "Beleidsregels"
-            model_id: beleidsregel_short
+            model_id: beleidsregel_minimal
             wrapped_with_relation_data: true
           - object_type: maatregel
             object_id: maatregel
             to_field: "Maatregelen"
-            model_id: maatregel_short
+            model_id: maatregel_minimal
             wrapped_with_relation_data: true
   beleidskeuze_patch:
     name: BeleidskeuzePatch
