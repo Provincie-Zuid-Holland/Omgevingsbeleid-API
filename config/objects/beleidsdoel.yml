@@ -20,11 +20,11 @@ api:
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidsdoel_get
+            response_model: beleidsdoel_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidsdoel_get
+            response_model: beleidsdoel_full
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -51,23 +51,23 @@ api:
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: beleidsdoel_basic
+            response_model: beleidsdoel_extended
             allowed_filter_columns:
               - Title
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidsdoel_get
+            response_model: beleidsdoel_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidsdoel_get
+            response_model: beleidsdoel_full
     - prefix: /modules/object/beleidsdoel
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: beleidsdoel_short
+            response_model: beleidsdoel_minimal
 
 fields:
   title:
@@ -115,8 +115,8 @@ fields:
     optional: true
 
 models:
-  beleidsdoel_short:
-    name: BeleidsdoelShort
+  beleidsdoel_minimal:
+    name: BeleidsdoelMinimal
     fields:
       object_type:
       object_id:
@@ -124,6 +124,19 @@ models:
       title:
   beleidsdoel_basic:
     name: BeleidsdoelBasic
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      description:
+      start_validity:
+      end_validity:
+  beleidsdoel_extended:
+    name: BeleidsdoelExtended
     fields:
       object_id:
       code:
@@ -154,8 +167,8 @@ models:
             model_id: gebruikers_short
           - to_field: Client_1
             model_id: gebruikers_short
-  beleidsdoel_get:
-    name: BeleidsdoelGet
+  beleidsdoel_full:
+    name: BeleidsdoelFull
     fields:
       object_id:
       code:
@@ -173,17 +186,17 @@ models:
           - object_type: ambitie
             object_id: ambitie
             to_field: "Ambities"
-            model_id: ambitie_short
+            model_id: ambitie_minimal
             wrapped_with_relation_data: true
           - object_type: beleidskeuze
             object_id: beleidskeuze
             to_field: "Beleidskeuzes"
-            model_id: beleidskeuze_short
+            model_id: beleidskeuze_minimal
             wrapped_with_relation_data: true
           - object_type: maatregel
             object_id: maatregel
             to_field: "Maatregelen"
-            model_id: maatregel_short
+            model_id: maatregel_minimal
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:

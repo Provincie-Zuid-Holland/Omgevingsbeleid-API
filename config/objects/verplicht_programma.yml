@@ -22,7 +22,7 @@ api:
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: verplicht_programma_get
+            response_model: verplicht_programma_full
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -68,8 +68,28 @@ fields:
     optional: true
 
 models:
+  verplicht_programma_minimal:
+    name: VerplichtProgrammaMinimal
+    fields:
+      object_type:
+      object_id:
+      code:
+      uuid:
+      created_date:
+      modified_date:
+      title:
   verplicht_programma_basic:
     name: VerplichtProgrammaBasic
+    fields:
+      object_type:
+      object_id:
+      code:
+      uuid:
+      created_date:
+      modified_date:
+      title:
+  verplicht_programma_extended:
+    name: VerplichtProgrammaExtended
     fields:
       object_type:
       object_id:
@@ -91,8 +111,8 @@ models:
             model_id: gebruikers_short
           - to_field: Owner_2
             model_id: gebruikers_short
-  verplicht_programma_get:
-    name: VerplichtProgrammaGet
+  verplicht_programma_full:
+    name: VerplichtProgrammaFull
     fields:
       object_type:
       object_id:
@@ -110,11 +130,11 @@ models:
           - object_type: wettelijke_taak
             object_id: wettelijke_taak
             to_field: "WettelijkeTaken"
-            model_id: wettelijke_taak_short
+            model_id: wettelijke_taak_minimal
           - object_type: maatregel
             object_id: maatregel
             to_field: "Maatregelen"
-            model_id: maatregel_short
+            model_id: maatregel_minimal
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:

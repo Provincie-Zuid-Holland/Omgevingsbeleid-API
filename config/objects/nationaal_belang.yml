@@ -23,7 +23,7 @@ api:
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: nationaal_belang_get
+            response_model: nationaal_belang_full
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -43,7 +43,7 @@ api:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: nationaal_belang_short
+            response_model: nationaal_belang_basic
 
 fields:
   title:
@@ -68,11 +68,12 @@ fields:
     optional: true
 
 models:
-  nationaal_belang_short:
-    name: NationaalBelangShort
+  nationaal_belang_minimal:
+    name: NationaalBelangMinimal
     fields:
       object_type:
       object_id:
+      code:
       uuid:
       created_date:
       modified_date:
@@ -80,6 +81,17 @@ models:
       weblink:
   nationaal_belang_basic:
     name: NationaalBelangBasic
+    fields:
+      object_type:
+      object_id:
+      code:
+      uuid:
+      created_date:
+      modified_date:
+      title:
+      weblink:
+  nationaal_belang_extended:
+    name: NationaalBelangExtended
     fields:
       object_type:
       object_id:
@@ -102,8 +114,8 @@ models:
             model_id: gebruikers_short
           - to_field: Owner_2
             model_id: gebruikers_short
-  nationaal_belang_get:
-    name: NationaalBelangGet
+  nationaal_belang_full:
+    name: NationaalBelangFull
     fields:
       object_type:
       object_id:
@@ -121,7 +133,7 @@ models:
           - object_type: beleidskeuze
             object_id: beleidskeuze
             to_field: "Beleidskeuzes"
-            model_id: beleidskeuze_short
+            model_id: beleidskeuze_minimal
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By

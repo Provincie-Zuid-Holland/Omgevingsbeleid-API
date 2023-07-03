@@ -23,7 +23,7 @@ api:
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: wettelijke_taak_get
+            response_model: wettelijke_taak_full
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -44,7 +44,7 @@ api:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: wettelijke_taak_short
+            response_model: wettelijke_taak_basic
 
 fields:
   title:
@@ -69,18 +69,29 @@ fields:
     optional: true
 
 models:
-  wettelijke_taak_short:
-    name: WettelijkeTaakShort
+  wettelijke_taak_minimal:
+    name: WettelijkeTaakMinimal
     fields:
       object_type:
       object_id:
+      code:
+      uuid:
+      created_date:
+      modified_date:
+      title:
+  wettelijke_taak_basic:
+    name: WettelijkeTaakBasic
+    fields:
+      object_type:
+      object_id:
+      code:
       uuid:
       created_date:
       modified_date:
       title:
       weblink:
-  wettelijke_taak_basic:
-    name: WettelijkeTaakBasic
+  wettelijke_taak_extended:
+    name: WettelijkeTaakExtended
     fields:
       object_type:
       object_id:
@@ -105,8 +116,8 @@ models:
             model_id: gebruikers_short
           - to_field: Owner_2
             model_id: gebruikers_short
-  wettelijke_taak_get:
-    name: WettelijkeTaakGet
+  wettelijke_taak_full:
+    name: WettelijkeTaakFull
     fields:
       object_type:
       object_id:
@@ -124,11 +135,11 @@ models:
           - object_type: wettelijke_taak
             object_id: wettelijke_taak
             to_field: "WettelijkeTaken"
-            model_id: wettelijke_taak_short
+            model_id: wettelijke_taak_minimal
           - object_type: beleidskeuze
             object_id: beleidskeuze
             to_field: "Beleidskeuzes"
-            model_id: beleidskeuze_short
+            model_id: beleidskeuze_minimal
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
