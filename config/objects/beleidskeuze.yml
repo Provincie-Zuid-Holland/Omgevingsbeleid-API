@@ -151,7 +151,7 @@ models:
       uuid:
       title:
   beleidskeuze_basic:
-    name: BeleidskeueBasic
+    name: BeleidskeuzeBasic
     fields:
       object_id:
       code:
