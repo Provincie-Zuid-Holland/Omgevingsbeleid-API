@@ -15,11 +15,6 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.extension import Extension
 from app.dynamic.generate_table import generate_table
 from app.dynamic.service_container import ServiceContainer
-from app.dynamic.validators.validator import HtmlValidator, LengthValidator, NotEqualRootValidator, PlainTextValidator
-from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.db.object_static_table import (
-    ObjectStaticsTable,
-)
 from app.dynamic.validators.validator import (
     HtmlValidator,
     ImageValidator,
@@ -27,6 +22,7 @@ from app.dynamic.validators.validator import (
     NotEqualRootValidator,
     PlainTextValidator,
 )
+
 from .config.base_columns import base_columns
 from .config.base_fields import base_fields
 from .config.loader.api import api_loader

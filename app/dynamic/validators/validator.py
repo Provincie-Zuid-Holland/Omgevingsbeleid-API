@@ -1,7 +1,7 @@
+import io
 from abc import ABC, abstractmethod
 from base64 import b64decode
 from typing import Callable, Optional
-import io
 
 from bs4 import BeautifulSoup
 from PIL import Image
