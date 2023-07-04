@@ -51,11 +51,7 @@ class LoginAccessTokenEndpoint(Endpoint):
         elif not user.IsActief:
             raise HTTPException(status_code=401, detail="Inactive user")
 
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            user.UUID,
-            expires_delta=access_token_expires,
-        )
+        access_token = create_access_token(user.UUID)
 
         pydantic_user: User = User.from_orm(user)
 
