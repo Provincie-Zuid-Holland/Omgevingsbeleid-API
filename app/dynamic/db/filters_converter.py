@@ -1,7 +1,7 @@
-from typing import List, Any
 from dataclasses import dataclass
+from typing import Any, List
 
-from app.dynamic.utils.filters import Filters, FilterCombiner
+from app.dynamic.utils.filters import FilterCombiner, Filters
 
 
 @dataclass

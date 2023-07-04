@@ -1,6 +1,7 @@
+import uuid
 from datetime import datetime
 from typing import Optional
-import uuid
+
 from pydantic import BaseModel, Field, root_validator
 
 
@@ -30,9 +31,7 @@ class EditAcknowledgedRelation(AcknowledgedRelationBase):
         acknowledged = values.get("Acknowledged")
         deleted = values.get("Deleted")
         if sum([bool(val) for val in [denied, acknowledged, deleted]]) > 1:
-            raise ValueError(
-                "Only one of Denied, Acknowledged, and Deleted can be set to True"
-            )
+            raise ValueError("Only one of Denied, Acknowledged, and Deleted can be set to True")
         return values
 
 

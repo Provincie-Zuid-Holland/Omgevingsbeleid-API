@@ -1,36 +1,27 @@
+import uuid
 from datetime import datetime
 from typing import Optional
-import uuid
+
 from sqlalchemy import ForeignKey, and_
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db.base import Base
 from app.core.db.mixins import TimeStamped, UserMetaData
-from app.extensions.acknowledged_relations.models.models import (
-    AcknowledgedRelationSide,
-)
+from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
 
 
 class AcknowledgedRelationBaseColumns(TimeStamped, UserMetaData):
     Version: Mapped[int] = mapped_column(default=1, nullable=False, primary_key=True)
     Requested_By_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"))
-    From_Code: Mapped[str] = mapped_column(
-        ForeignKey("object_statics.Code"), primary_key=True
-    )
+    From_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
     From_Acknowledged: Mapped[Optional[datetime]]
-    From_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey("Gebruikers.UUID")
-    )
+    From_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
     From_Explanation: Mapped[str] = mapped_column(default="")
 
-    To_Code: Mapped[int] = mapped_column(
-        ForeignKey("object_statics.Code"), primary_key=True
-    )
+    To_Code: Mapped[int] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
     To_Acknowledged: Mapped[Optional[datetime]] = mapped_column(nullable=True)
-    To_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey("Gebruikers.UUID")
-    )
+    To_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
     To_Explanation: Mapped[str] = mapped_column(default="")
 
     Denied: Mapped[Optional[datetime]]
@@ -78,9 +69,7 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
         setattr(self, f"{prefix}_Acknowledged_By_UUID", side.Acknowledged_By_UUID)
         setattr(self, f"{prefix}_Explanation", side.Explanation)
 
-    def with_sides(
-        self, side_a: AcknowledgedRelationSide, side_b: AcknowledgedRelationSide
-    ):
+    def with_sides(self, side_a: AcknowledgedRelationSide, side_b: AcknowledgedRelationSide):
         from_side, to_side = sorted([side_a, side_b], key=lambda x: x.Code)
         self._assign_side(from_side, "From")
         self._assign_side(to_side, "To")

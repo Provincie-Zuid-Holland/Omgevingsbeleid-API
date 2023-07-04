@@ -20,3 +20,5 @@ freezegun
 debugpy
 ipython
 alembic
+vulture
+isort

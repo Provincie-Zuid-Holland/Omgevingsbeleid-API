@@ -32,9 +32,7 @@ class ListModulesEndpoint(Endpoint):
             only_active: bool = True,
             user: UsersTable = Depends(depends_current_active_user),
             module_repository: ModuleRepository = Depends(depends_module_repository),
-            maybe_filter_code: Optional[FilterObjectCode] = Depends(
-                depends_filter_object_code
-            ),
+            maybe_filter_code: Optional[FilterObjectCode] = Depends(depends_filter_object_code),
         ) -> List[Module]:
             return self._handler(
                 module_repository,

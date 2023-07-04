@@ -1,10 +1,10 @@
-from typing import Optional
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import ForeignKey, Unicode
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class HasUUID:
@@ -36,7 +36,4 @@ class SerializerMixin:
         return value
 
     def to_dict(self):
-        return {
-            c.key: self.serialize(getattr(self, c.key))
-            for c in inspect(self).mapper.column_attrs
-        }
+        return {c.key: self.serialize(getattr(self, c.key)) for c in inspect(self).mapper.column_attrs}

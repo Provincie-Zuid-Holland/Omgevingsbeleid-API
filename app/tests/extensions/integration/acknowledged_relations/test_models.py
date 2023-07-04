@@ -2,9 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
-from app.extensions.acknowledged_relations.models.models import (
-    AcknowledgedRelationSide,
-)
+from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
 
 from .fixtures import local_tables  # noqa
 

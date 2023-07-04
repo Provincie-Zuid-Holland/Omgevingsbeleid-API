@@ -1,7 +1,7 @@
 from sqlalchemy import String
-from sqlalchemy.orm import mapped_column, Session
-from sqlalchemy.orm.session import object_session
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import Session, mapped_column
+from sqlalchemy.orm.session import object_session
 
 from app.extensions.modules.repository import ModuleObjectRepository
 
@@ -18,6 +18,4 @@ def extend_with_attributes(table):
     without placing this logic outside of the extension.
     """
     setattr(table, "Latest_Module_Version", hybrid_property(get_last_module_version))
-    setattr(
-        table, "Cached_Title", mapped_column("Cached_Title", String(255), nullable=True)
-    )
+    setattr(table, "Cached_Title", mapped_column("Cached_Title", String(255), nullable=True))

@@ -12,19 +12,11 @@ class ObjectRepository(BaseRepository):
         stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid)
         return self.fetch_first(stmt)
 
-    def get_by_object_type_and_uuid(
-        self, object_type: str, uuid: UUID
-    ) -> Optional[ObjectsTable]:
-        stmt = (
-            select(ObjectsTable)
-            .filter(ObjectsTable.UUID == uuid)
-            .filter(ObjectsTable.Object_Type == object_type)
-        )
+    def get_by_object_type_and_uuid(self, object_type: str, uuid: UUID) -> Optional[ObjectsTable]:
+        stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid).filter(ObjectsTable.Object_Type == object_type)
         return self.fetch_first(stmt)
 
-    def get_latest_by_id(
-        self, object_type: str, object_id: int
-    ) -> Optional[ObjectsTable]:
+    def get_latest_by_id(self, object_type: str, object_id: int) -> Optional[ObjectsTable]:
         stmt = (
             select(ObjectsTable)
             .filter(ObjectsTable.Object_Type == object_type)

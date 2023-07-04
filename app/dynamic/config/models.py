@@ -1,5 +1,5 @@
-from typing import List, Dict, Any, Type
 from abc import ABCMeta
+from typing import Any, Dict, List, Type
 
 from pydantic import BaseModel
 

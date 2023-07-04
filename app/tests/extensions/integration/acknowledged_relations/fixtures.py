@@ -1,12 +1,11 @@
-import pytest
 from typing import List
+
+import pytest
 from sqlalchemy import Engine
 from sqlalchemy.orm import Mapped, Session, relationship
 
 from app.dynamic.db.object_static_table import StaticBaseColumns
-from app.extensions.acknowledged_relations.db.table_extensions.object_statics import (
-    extend_with_attributes,
-)
+from app.extensions.acknowledged_relations.db.table_extensions.object_statics import extend_with_attributes
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationColumns
 from app.extensions.acknowledged_relations.repository.acknowledged_relations_repository import (
     AcknowledgedRelationsRepository,

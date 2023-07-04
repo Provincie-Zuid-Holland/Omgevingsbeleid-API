@@ -2,8 +2,8 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.core.dependencies import depends_db
 
+from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.dependencies import depends_event_dispatcher
@@ -12,23 +12,12 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
-from app.extensions.modules.dependencies import (
-    depends_active_and_activated_module,
-)
-from app.extensions.modules.event.module_status_changed_event import (
-    ModuleStatusChangedEvent,
-)
+from app.extensions.modules.dependencies import depends_active_and_activated_module
+from app.extensions.modules.event.module_status_changed_event import ModuleStatusChangedEvent
 from app.extensions.modules.models.models import ModulePatchStatus
-from app.extensions.modules.permissions import (
-    ModulesPermissions,
-    guard_module_is_locked,
-    guard_valid_user,
-)
+from app.extensions.modules.permissions import ModulesPermissions, guard_module_is_locked, guard_valid_user
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import (
-    depends_current_active_user,
-    depends_permission_service,
-)
+from app.extensions.users.dependencies import depends_current_active_user, depends_permission_service
 from app.extensions.users.permission_service import PermissionService
 
 

@@ -23,9 +23,7 @@ def fixture_factory_error_wrapper(cls):
                 try:
                     return attr(*args, **kwargs)
                 except Exception as e:
-                    raise FixtureFactoryError(
-                        wrapped_instance.__class__.__name__, e
-                    ) from e
+                    raise FixtureFactoryError(wrapped_instance.__class__.__name__, e) from e
 
             if name == "__name__":
                 return wrapped_instance.__name__

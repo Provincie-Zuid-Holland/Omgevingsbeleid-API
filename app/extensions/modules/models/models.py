@@ -1,7 +1,7 @@
-from enum import Enum
 import uuid
-from typing import List, Optional
 from datetime import datetime
+from enum import Enum
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 

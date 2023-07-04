@@ -4,24 +4,18 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, validator
 
-from app.dynamic.dependencies import depends_pagination
-
-from app.dynamic.utils.pagination import Pagination
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
+from app.dynamic.dependencies import depends_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import PagedResponse
+from app.dynamic.utils.pagination import PagedResponse, Pagination
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
-from app.extensions.werkingsgebieden.dependencies import (
-    depends_werkingsgebieden_repository,
-)
+from app.extensions.werkingsgebieden.dependencies import depends_werkingsgebieden_repository
 from app.extensions.werkingsgebieden.models.models import GeoSearchResult
-from app.extensions.werkingsgebieden.repository.werkingsgebieden_repository import (
-    WerkingsgebiedenRepository,
-)
+from app.extensions.werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
 
 
 class SearchGeoRequestData(BaseModel):
@@ -67,9 +61,7 @@ class ListObjectsInGeoEndpoint(Endpoint):
             object_in: SearchGeoRequestData,
             pagination: Pagination = Depends(depends_pagination),
             user: UsersTable = Depends(depends_current_active_user),
-            repository: WerkingsgebiedenRepository = Depends(
-                depends_werkingsgebieden_repository
-            ),
+            repository: WerkingsgebiedenRepository = Depends(depends_werkingsgebieden_repository),
         ) -> PagedResponse[GeoSearchResult]:
             return self._handler(
                 repository=repository,

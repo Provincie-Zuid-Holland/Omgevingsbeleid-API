@@ -1,12 +1,13 @@
 import uuid
 
 from sqlalchemy import ForeignKey, ForeignKeyConstraint, Unicode
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm.session import object_session
 
 from app.core.db import Base
 from app.dynamic.db import ObjectsTable
+
 from .tables import ModuleObjectContextTable
 
 
@@ -26,9 +27,7 @@ class ModuleObjectAttributes(ModuleObjectsColumns):
     def has_valid_version(self) -> bool:
         # True if a matching code exists in Objects table
         session = object_session(self)
-        return (
-            session.query(ObjectsTable).filter(ObjectsTable.Code == self.Code).exists()
-        )
+        return session.query(ObjectsTable).filter(ObjectsTable.Code == self.Code).exists()
 
 
 class ModuleObjectsTable(Base, ModuleObjectAttributes):

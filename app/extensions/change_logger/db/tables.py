@@ -1,6 +1,6 @@
+import uuid
 from datetime import datetime
 from typing import Optional
-import uuid
 
 from sqlalchemy import Index, Unicode
 from sqlalchemy.orm import Mapped, mapped_column
@@ -15,9 +15,7 @@ class ChangeLogBaseColumns:
     Object_ID: Mapped[Optional[int]]
 
     Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[
-        uuid.UUID
-    ]  # Explicit NO foreign key here, this is just a log
+    Created_By_UUID: Mapped[uuid.UUID]  # Explicit NO foreign key here, this is just a log
 
     Action_Type: Mapped[str] = mapped_column(Unicode)
     Action_Data: Mapped[Optional[str]] = mapped_column(Unicode)
@@ -28,9 +26,7 @@ class ChangeLogBaseColumns:
 class ChangeLogTable(Base, ChangeLogBaseColumns):
     __tablename__ = "change_log"
 
-    change_log_object_type_id = Index(
-        "change_log_action_type_id", "Action_Type", "Object_Type", "Object_ID"
-    )
+    change_log_object_type_id = Index("change_log_action_type_id", "Action_Type", "Object_Type", "Object_ID")
 
     def __repr__(self) -> str:
         return f"ChangeLog(ID={self.ID!r})"

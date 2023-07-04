@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict
+
 from app.dynamic.config.models import Model
-
-
 from app.dynamic.event.types import Event
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.users.db.tables import UsersTable

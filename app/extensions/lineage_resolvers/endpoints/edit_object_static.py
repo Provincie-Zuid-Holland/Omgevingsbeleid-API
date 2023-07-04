@@ -1,12 +1,12 @@
-from datetime import datetime
 import json
+from datetime import datetime
 from typing import Optional, Type
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from app.core.dependencies import depends_db
 
+from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.db import ObjectStaticsTable
@@ -51,9 +51,7 @@ class EndpointHandler:
         if not self._changes:
             raise HTTPException(400, "Nothing to update")
 
-        object_static: Optional[
-            ObjectStaticsTable
-        ] = self._repository.get_by_object_type_and_id(
+        object_static: Optional[ObjectStaticsTable] = self._repository.get_by_object_type_and_id(
             self._object_type,
             self._lineage_id,
         )
@@ -110,9 +108,7 @@ class EditObjectStaticEndpoint(Endpoint):
             object_in: self._request_type,
             user: UsersTable = Depends(depends_current_active_user),
             db: Session = Depends(depends_db),
-            repository: ObjectStaticRepository = Depends(
-                depends_object_static_repository
-            ),
+            repository: ObjectStaticRepository = Depends(depends_object_static_repository),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
                 self._converter,

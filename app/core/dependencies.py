@@ -1,6 +1,5 @@
 from typing import Generator
 
-
 from app.core.db.session import SessionLocal
 
 

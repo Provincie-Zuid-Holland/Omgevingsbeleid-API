@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from sqlalchemy import or_, select, func, desc
+from sqlalchemy import desc, func, or_, select
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.ext.hybrid import hybrid_property
 
-from app.dynamic.db.objects_table import ObjectsTable
 from app.dynamic.db.object_static_table import ObjectStaticsTable
+from app.dynamic.db.objects_table import ObjectsTable
 
 
 def get_effective_object(self):

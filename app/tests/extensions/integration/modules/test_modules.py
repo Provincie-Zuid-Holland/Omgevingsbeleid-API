@@ -1,58 +1,27 @@
-import pytest
 from datetime import datetime, timedelta
+from unittest.mock import patch
+
+import pytest
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
-from pydantic import ValidationError
 
-from app.extensions.modules.models.models import (
-    ModuleStatusCode,
-    ModuleObjectAction,
-)
-from app.extensions.modules.endpoints.create_module import (
-    EndpointHandler as CreateEndpoint,
-    ModuleCreate,
-)
-from app.extensions.modules.endpoints.module_add_new_object import (
-    EndpointHandler as NewObjectEndpoint,
-    ModuleAddNewObject,
-    NewObjectStaticResponse,
-)
-
-from app.extensions.modules.endpoints.module_add_existing_object import (
-    EndpointHandler as NewExistingObjectEndpoint,
-    ModuleAddExistingObject,
-)
-
-from app.extensions.modules.endpoints.edit_module import (
-    EndpointHandler as EditEndpoint,
-    ModuleEdit,
-)
-
-from app.extensions.modules.endpoints.activate_module import (
-    EndpointHandler as ActivateEndpoint,
-)
-
-from app.extensions.modules.endpoints.complete_module import (
-    EndpointHandler as CompleteEndpoint,
-    CompleteModule,
-)
-from unittest.mock import patch
+from app.extensions.modules.endpoints.activate_module import EndpointHandler as ActivateEndpoint
+from app.extensions.modules.endpoints.complete_module import CompleteModule
+from app.extensions.modules.endpoints.complete_module import EndpointHandler as CompleteEndpoint
+from app.extensions.modules.endpoints.create_module import EndpointHandler as CreateEndpoint
+from app.extensions.modules.endpoints.create_module import ModuleCreate
+from app.extensions.modules.endpoints.edit_module import EndpointHandler as EditEndpoint
+from app.extensions.modules.endpoints.edit_module import ModuleEdit
+from app.extensions.modules.endpoints.module_add_existing_object import EndpointHandler as NewExistingObjectEndpoint
+from app.extensions.modules.endpoints.module_add_existing_object import ModuleAddExistingObject
+from app.extensions.modules.endpoints.module_add_new_object import EndpointHandler as NewObjectEndpoint
+from app.extensions.modules.endpoints.module_add_new_object import ModuleAddNewObject, NewObjectStaticResponse
+from app.extensions.modules.models.models import ModuleObjectAction, ModuleStatusCode
 from app.tests.helpers import patch_multiple
-from .fixtures import (  # noqa
-    local_tables,
-    setup_db_once,
-    db,
-    engine,
-    populate_users,
-    populate_statics,
-    populate_objects,
-    populate_modules,
-    ExtendedLocalTables,
-    module_context_repo,
-    module_status_repo,
-    module_object_repo,
-    object_provider,
-)
+
+from .fixtures import local_tables  # noqa
+from .fixtures import ExtendedLocalTables
 
 
 class TestModulesEndpoints:
@@ -62,9 +31,7 @@ class TestModulesEndpoints:
     """
 
     @pytest.fixture(scope="class", autouse=True)
-    def setup(
-        self, request, setup_db_once, populate_users, populate_statics, populate_objects
-    ):  # noqa
+    def setup(self, request, setup_db_once, populate_users, populate_statics, populate_objects):  # noqa
         # timestamps
         request.cls.now = datetime.utcnow()
         request.cls.five_days_ago = request.cls.now - timedelta(days=5)
@@ -86,30 +53,22 @@ class TestModulesEndpoints:
 
         yield
 
-    def test_module_create(
-        self, db: Session, local_tables: ExtendedLocalTables
-    ):  # noqa
-        endpoint = CreateEndpoint(
-            db=db, user=self.ba_user, object_in=self.module_request
-        )
+    def test_module_create(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
+        endpoint = CreateEndpoint(db=db, user=self.ba_user, object_in=self.module_request)
         # Create module
         response = endpoint.handle()
 
         # Test Module and History created in DB
         assert response.Module_ID == 1
         new_module = (
-            db.query(local_tables.ModuleTable)
-            .filter(local_tables.ModuleTable.Module_ID == response.Module_ID)
-            .one()
+            db.query(local_tables.ModuleTable).filter(local_tables.ModuleTable.Module_ID == response.Module_ID).one()
         )
         assert new_module is not None
 
         new_history = (
             db.query(local_tables.ModuleStatusHistoryTable)
             .filter(local_tables.ModuleStatusHistoryTable.ID == 1)
-            .filter(
-                local_tables.ModuleStatusHistoryTable.Module_ID == response.Module_ID
-            )
+            .filter(local_tables.ModuleStatusHistoryTable.Module_ID == response.Module_ID)
             .one()
         )
         assert new_history is not None
@@ -123,9 +82,7 @@ class TestModulesEndpoints:
                 Module_Manager_2_UUID=self.ba_user.UUID,
             )
 
-    def test_module_new_object(
-        self, db, mock_permission_service, local_tables: ExtendedLocalTables
-    ):  # noqa
+    def test_module_new_object(self, db, mock_permission_service, local_tables: ExtendedLocalTables):  # noqa
         existing_module = db.query(local_tables.ModuleTable).one()
         request_obj = ModuleAddNewObject(
             Object_Type="beleidskeuze",
@@ -192,9 +149,7 @@ class TestModulesEndpoints:
     ):
         # Precondition state: existing module + objects
         existing_module = db.query(local_tables.ModuleTable).one()
-        existing_object = next(
-            obj for obj in self.objects if obj.Code == "beleidskeuze-3"
-        )
+        existing_object = next(obj for obj in self.objects if obj.Code == "beleidskeuze-3")
 
         # Build request
         request_obj = ModuleAddExistingObject(
@@ -408,9 +363,7 @@ class TestModulesEndpoints:
 
         # Execute
         base_path = "app.extensions.modules.endpoints.complete_module"
-        module_object_repo = (
-            "app.extensions.modules.repository.module_object_repository"
-        )
+        module_object_repo = "app.extensions.modules.repository.module_object_repository"
         with patch_multiple(
             patch(f"{base_path}.ObjectsTable", local_tables.ObjectsTable),
             patch(f"{base_path}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
@@ -439,6 +392,4 @@ class TestModulesEndpoints:
             )
             .all()
         )
-        assert (
-            len(objects_created) == 2
-        ), "Expected 2 objects to be created on completion"
+        assert len(objects_created) == 2, "Expected 2 objects to be created on completion"

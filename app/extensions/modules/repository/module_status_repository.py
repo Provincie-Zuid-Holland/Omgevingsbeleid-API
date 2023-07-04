@@ -1,7 +1,8 @@
 from typing import List, Optional
 
-from sqlalchemy import select, desc
+from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
+
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable
 
 
@@ -10,15 +11,11 @@ class ModuleStatusRepository:
         self._db: Session = db
 
     def get_all_by_module_id(self, module_id: int) -> List[ModuleStatusHistoryTable]:
-        stmt = select(ModuleStatusHistoryTable).filter(
-            ModuleStatusHistoryTable.Module_ID == module_id
-        )
+        stmt = select(ModuleStatusHistoryTable).filter(ModuleStatusHistoryTable.Module_ID == module_id)
         statuses: List[ModuleStatusHistoryTable] = self._db.scalars(stmt).all()
         return statuses
 
-    def get_by_id(
-        self, module_id: int, status_id: int
-    ) -> Optional[ModuleStatusHistoryTable]:
+    def get_by_id(self, module_id: int, status_id: int) -> Optional[ModuleStatusHistoryTable]:
         stmt = (
             select(ModuleStatusHistoryTable)
             .filter(ModuleStatusHistoryTable.ID == status_id)
@@ -27,9 +24,7 @@ class ModuleStatusRepository:
         maybe_status = self._db.scalars(stmt).first()
         return maybe_status
 
-    def get_latest_for_module(
-        self, module_id: int
-    ) -> Optional[ModuleStatusHistoryTable]:
+    def get_latest_for_module(self, module_id: int) -> Optional[ModuleStatusHistoryTable]:
         stmt = (
             select(ModuleStatusHistoryTable)
             .filter(ModuleStatusHistoryTable.Module_ID == module_id)

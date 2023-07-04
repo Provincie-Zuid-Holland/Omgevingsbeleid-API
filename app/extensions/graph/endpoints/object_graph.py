@@ -1,28 +1,21 @@
-from typing import List, Set
 from datetime import datetime
+from typing import List, Set
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from sqlalchemy import desc, select, func, or_, and_
+from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.orm import Session, aliased, load_only
 
 from app.core.dependencies import depends_db
-from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.dependencies import (
-    depends_object_by_uuid,
-)
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.converter import Converter
+from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.dependencies import depends_object_by_uuid
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
-from app.extensions.graph.models.graph import (
-    GraphEdge,
-    GraphEdgeType,
-    GraphResponse,
-    GraphVertice,
-)
+from app.extensions.graph.models.graph import GraphEdge, GraphEdgeType, GraphResponse, GraphVertice
 from app.extensions.relations.db.tables import RelationsTable
 
 
@@ -108,9 +101,7 @@ class EndpointHandler:
 
     def _get_edges(self) -> List[GraphEdge]:
         relations: Set[GraphEdge] = self._get_relations()
-        acknowledged_relations: Set[
-            GraphEdge
-        ] = self._get_valid_acknowledged_relations()
+        acknowledged_relations: Set[GraphEdge] = self._get_valid_acknowledged_relations()
 
         return list(set.union(relations, acknowledged_relations))
 
@@ -200,9 +191,7 @@ class EndpointHandler:
                             AcknowledgedRelationsTable.From_Code.in_(search_codes),
                             or_(
                                 *[
-                                    AcknowledgedRelationsTable.To_Code.like(
-                                        f"{object_type}-%"
-                                    )
+                                    AcknowledgedRelationsTable.To_Code.like(f"{object_type}-%")
                                     for object_type in iteration_config.allowed_object_types
                                 ],
                             ).self_group(),
@@ -211,9 +200,7 @@ class EndpointHandler:
                             AcknowledgedRelationsTable.To_Code.in_(search_codes),
                             or_(
                                 *[
-                                    AcknowledgedRelationsTable.From_Code.like(
-                                        f"{object_type}-%"
-                                    )
+                                    AcknowledgedRelationsTable.From_Code.like(f"{object_type}-%")
                                     for object_type in iteration_config.allowed_object_types
                                 ],
                             ).self_group(),
@@ -232,9 +219,7 @@ class EndpointHandler:
                 )
             )
 
-            rows: List[AcknowledgedRelationsTable] = (
-                self._db.execute(stmt).scalars().all()
-            )
+            rows: List[AcknowledgedRelationsTable] = self._db.execute(stmt).scalars().all()
 
             # Update the search and ignore codes for the next iteration
             ignore_codes = set.union(ignore_codes, search_codes)
@@ -270,9 +255,7 @@ class ObjectGraphEndpoint(Endpoint):
             db: Session = Depends(depends_db),
             object_table: ObjectsTable = Depends(depends_object_by_uuid),
         ) -> GraphResponse:
-            handler: EndpointHandler = EndpointHandler(
-                self._iterations_config, db, object_table
-            )
+            handler: EndpointHandler = EndpointHandler(self._iterations_config, db, object_table)
             return handler.handle()
 
         router.add_api_route(
@@ -303,9 +286,7 @@ class ObjectGraphEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        iterations_config = GraphIterationsConfig.parse_obj(
-            resolver_config.get("graph_iterations")
-        )
+        iterations_config = GraphIterationsConfig.parse_obj(resolver_config.get("graph_iterations"))
 
         return ObjectGraphEndpoint(
             path=path,

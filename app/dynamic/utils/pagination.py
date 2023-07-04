@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Generic, List, TypeVar, Optional, Any
+from typing import Any, Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
-
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Select

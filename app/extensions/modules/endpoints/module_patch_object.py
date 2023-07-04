@@ -1,18 +1,15 @@
 from datetime import datetime
 from typing import Type
 
+import pydantic
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import pydantic
-from app.core.dependencies import depends_db
 
+from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
-from app.dynamic.db import ObjectStaticsTable, ObjectsTable
-from app.dynamic.dependencies import (
-    depends_event_dispatcher,
-    depends_object_static_by_object_type_and_id_curried,
-)
+from app.dynamic.db import ObjectsTable, ObjectStaticsTable
+from app.dynamic.dependencies import depends_event_dispatcher, depends_object_static_by_object_type_and_id_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
@@ -23,22 +20,11 @@ from app.extensions.modules.dependencies import (
     depends_active_module_object_context_curried,
     depends_module_object_repository,
 )
-from app.extensions.modules.event.module_object_patched_event import (
-    ModuleObjectPatchedEvent,
-)
-from app.extensions.modules.permissions import (
-    ModulesPermissions,
-    guard_module_not_locked,
-    guard_valid_user,
-)
-from app.extensions.modules.repository.module_object_repository import (
-    ModuleObjectRepository,
-)
+from app.extensions.modules.event.module_object_patched_event import ModuleObjectPatchedEvent
+from app.extensions.modules.permissions import ModulesPermissions, guard_module_not_locked, guard_valid_user
+from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import (
-    depends_current_active_user,
-    depends_permission_service,
-)
+from app.extensions.users.dependencies import depends_current_active_user, depends_permission_service
 from app.extensions.users.permission_service import PermissionService
 
 
@@ -67,9 +53,7 @@ class EndpointHandler:
         self._event_dispatcher: EventDispatcher = event_dispatcher
         self._db: Session = db
         self._permission_service: PermissionService = permission_service
-        self._module_object_repository: ModuleObjectRepository = (
-            module_object_repository
-        )
+        self._module_object_repository: ModuleObjectRepository = module_object_repository
 
         self._user: UsersTable = user
         self._module: ModuleTable = module
@@ -91,15 +75,13 @@ class EndpointHandler:
         if not self._changes:
             raise HTTPException(400, "Nothing to update")
 
-        new_record: ModuleObjectsTable = (
-            self._module_object_repository.patch_latest_module_object(
-                self._module.Module_ID,
-                self._object_type,
-                self._lineage_id,
-                self._changes,
-                self._timepoint,
-                self._user.UUID,
-            )
+        new_record: ModuleObjectsTable = self._module_object_repository.patch_latest_module_object(
+            self._module.Module_ID,
+            self._object_type,
+            self._lineage_id,
+            self._changes,
+            self._timepoint,
+            self._user.UUID,
         )
 
         event: ModuleObjectPatchedEvent = self._event_dispatcher.dispatch(
@@ -115,11 +97,7 @@ class EndpointHandler:
 
         # cache statics title if needed
         if "Title" in self._changes:
-            valid_version = (
-                self._db.query(ObjectsTable)
-                .filter(ObjectsTable.Code == new_record.Code)
-                .first()
-            )
+            valid_version = self._db.query(ObjectsTable).filter(ObjectsTable.Code == new_record.Code).first()
             if valid_version is None:
                 self._object_static.Cached_Title = self._changes["Title"]
                 self._db.add(self._object_static)
@@ -154,17 +132,13 @@ class ModulePatchObjectEndpoint(Endpoint):
             object_in: self._request_type,
             user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_and_activated_module),
-            module_object_context=Depends(
-                depends_active_module_object_context_curried(self._object_type)
-            ),
+            module_object_context=Depends(depends_active_module_object_context_curried(self._object_type)),
             object_static: ObjectStaticsTable = Depends(
                 depends_object_static_by_object_type_and_id_curried(self._object_type)
             ),
             db: Session = Depends(depends_db),
             permission_service: PermissionService = Depends(depends_permission_service),
-            module_object_repository: ModuleObjectRepository = Depends(
-                depends_module_object_repository
-            ),
+            module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
         ) -> self._response_type:
             handler: EndpointHandler = EndpointHandler(

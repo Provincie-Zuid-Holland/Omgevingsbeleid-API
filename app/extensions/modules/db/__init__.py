@@ -1,1 +1,1 @@
-from .tables import ModuleTable, ModuleStatusHistoryTable, ModuleObjectContextTable
+from .tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable

@@ -1,10 +1,8 @@
 import pytest
 from fastapi import HTTPException
-from app.dynamic.utils.filters import Filter, FilterCombiner, FilterClause, Filters
-from app.dynamic.db.filters_converter import (
-    FiltersConverterResult,
-    convert_filters,
-)
+
+from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
+from app.dynamic.utils.filters import Filter, FilterClause, FilterCombiner, Filters
 
 
 class TestFiltering:
@@ -63,9 +61,7 @@ class TestFiltering:
 
         result = convert_filters(filters)
 
-        expected_query_part = (
-            "( Title = ? AND ID = ? ) AND ( Description = ? OR Gebied_UUID = ? )"
-        )
+        expected_query_part = "( Title = ? AND ID = ? ) AND ( Description = ? OR Gebied_UUID = ? )"
         assert result.query_part == expected_query_part
         assert result.parameters == [
             "The Title",
@@ -83,9 +79,7 @@ class TestFiltering:
         assert result.parameters == []
 
     def test_filters_converter_result_has_data(self):
-        result = FiltersConverterResult(
-            query_part="Title = ?", parameters=["The Title"]
-        )
+        result = FiltersConverterResult(query_part="Title = ?", parameters=["The Title"])
         assert result.has_data() == True
 
         empty_result = FiltersConverterResult(query_part="", parameters=[])

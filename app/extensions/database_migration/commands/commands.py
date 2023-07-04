@@ -1,6 +1,6 @@
 import click
 
-from app.core.db import table_metadata, engine
+from app.core.db import engine, table_metadata
 from app.core.db.session import SessionLocal
 from app.tests.database_fixtures import DatabaseFixtures
 

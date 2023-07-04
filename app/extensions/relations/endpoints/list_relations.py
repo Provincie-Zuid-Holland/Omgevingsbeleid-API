@@ -3,13 +3,13 @@ from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
-from app.core.dependencies import depends_db
 
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
+from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.converter import Converter
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.relations.models.models import RelationShort
 

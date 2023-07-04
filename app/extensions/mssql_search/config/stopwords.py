@@ -1,6 +1,5 @@
 from typing import Set
 
-
 stopwords: Set[str] = set(
     [
         "de",

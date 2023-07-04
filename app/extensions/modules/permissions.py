@@ -1,11 +1,11 @@
+import uuid
 from enum import Enum
 from typing import List, Optional
-import uuid
 
 from fastapi import HTTPException
-from app.extensions.modules.db.tables import ModuleTable
-from app.extensions.modules.models.models import ModuleStatusCode, ModuleStatusCode
 
+from app.extensions.modules.db.tables import ModuleTable
+from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.permission_service import PermissionService
 
@@ -30,9 +30,7 @@ def guard_user_is_module_manager(user: UsersTable, module: ModuleTable):
 
 def guard_module_is_locked(module: ModuleTable):
     if not module.Temporary_Locked:
-        raise HTTPException(
-            400, "The module's status can only be changed when it is locked"
-        )
+        raise HTTPException(400, "The module's status can only be changed when it is locked")
 
 
 def guard_module_not_locked(module: ModuleTable):
@@ -68,6 +66,4 @@ def guard_status_must_be_vastgesteld(module: ModuleTable):
     if status is None:
         raise HTTPException(400, "Deze module heeft geen status")
     if status != ModuleStatusCode.Vastgesteld:
-        raise HTTPException(
-            400, "Alleen modules met status Vastgesteld kunnen worden afgesloten"
-        )
+        raise HTTPException(400, "Alleen modules met status Vastgesteld kunnen worden afgesloten")

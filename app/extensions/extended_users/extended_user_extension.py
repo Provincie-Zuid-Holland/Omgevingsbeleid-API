@@ -1,8 +1,8 @@
-from app.dynamic.extension import Extension
-from app.dynamic.event_dispatcher import EventDispatcher
-from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
 import app.extensions.extended_users.listeners as listeners
+from app.dynamic.converter import Converter
+from app.dynamic.event_dispatcher import EventDispatcher
+from app.dynamic.extension import Extension
+from app.dynamic.models_resolver import ModelsResolver
 
 
 class ExtendedUserExtension(Extension):

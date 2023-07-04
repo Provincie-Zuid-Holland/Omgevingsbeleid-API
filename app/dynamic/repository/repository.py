@@ -1,7 +1,5 @@
-from sqlalchemy import Select
-
+from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session
-from sqlalchemy import func, select
 
 from app.dynamic.utils.pagination import PaginatedQueryResult
 
@@ -16,9 +14,7 @@ class BaseRepository:
     def fetch_all(self, statement: Select):
         return list(self._db.scalars(statement).all())
 
-    def fetch_paginated(
-        self, statement: Select, offset: int, limit: int
-    ) -> PaginatedQueryResult:
+    def fetch_paginated(self, statement: Select, offset: int, limit: int) -> PaginatedQueryResult:
         """
         Execute a query for paginated results with a seperate total count.
         """

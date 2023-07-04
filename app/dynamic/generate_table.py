@@ -1,15 +1,12 @@
-from typing import Type
+from typing import Any, Dict, Type
 
+from sqlalchemy import DateTime, Integer, Unicode, Uuid
+from sqlalchemy.orm import mapped_column
+
+from app.core.db import Base
 from app.dynamic.config.models import Column
 from app.dynamic.event.generate_table_event import GenerateTableEvent
 from app.dynamic.event_dispatcher import EventDispatcher
-from app.core.db import Base
-
-from typing import Any, Dict
-
-from sqlalchemy import Integer, Unicode, DateTime, Uuid
-from sqlalchemy.orm import mapped_column
-
 
 column_type_map: Dict[str, Any] = {
     "int": Integer,

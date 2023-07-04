@@ -7,8 +7,8 @@ from app.dynamic.config.models import Column
 from app.dynamic.dynamic_app import DynamicApp, DynamicAppBuilder
 from app.dynamic.generate_table import generate_table
 from app.tests.conftest import TestSettings
-from app.tests.helpers import patch_multiple
 from app.tests.fixtures import FakeExtension, LocalTables
+from app.tests.helpers import patch_multiple
 
 
 class TestDynamicAppBuilder:
@@ -20,9 +20,7 @@ class TestDynamicAppBuilder:
 
     def test_register_extension(self, local_tables):  # noqa
         with patch_multiple(
-            patch(
-                "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
-            ),
+            patch("app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable),
             patch(
                 "app.dynamic.db.object_static_table.ObjectStaticsTable",
                 local_tables.ObjectStaticsTable,
@@ -82,12 +80,8 @@ class TestDynamicAppBuilder:
         builder._load_yml.assert_called_once_with("test.yml")
 
     def test_generate_tables_base_col(self, local_tables: LocalTables, mock_dispatcher):
-        int_col = Column(
-            id="col1", name="intcolumn", type="int", nullable=False, static=False
-        )
-        varc_col = Column(
-            id="col2", name="varcolumn", type="str", nullable=False, static=False
-        )
+        int_col = Column(id="col1", name="intcolumn", type="int", nullable=False, static=False)
+        varc_col = Column(id="col2", name="varcolumn", type="str", nullable=False, static=False)
         date_col = Column(
             id="col3",
             name="datecolumn",
@@ -95,9 +89,7 @@ class TestDynamicAppBuilder:
             nullable=False,
             static=False,
         )
-        static_col = Column(
-            id="col4", name="imstatic", type="str", nullable=False, static=True
-        )
+        static_col = Column(id="col4", name="imstatic", type="str", nullable=False, static=True)
 
         columns = {
             "col1": int_col,
@@ -106,9 +98,7 @@ class TestDynamicAppBuilder:
             "col4": static_col,
         }
 
-        with patch(
-            "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
-        ):
+        with patch("app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable):
             generate_table(
                 event_dispatcher=mock_dispatcher,
                 table_type=local_tables.ObjectsTable,
@@ -125,12 +115,8 @@ class TestDynamicAppBuilder:
         # Assert no events fired as all columns are handled
         assert mock_dispatcher.dispatch.call_count == 0
 
-    def test_generate_tables_unknown_type(
-        self, local_tables: LocalTables, mock_dispatcher
-    ):
-        int_col = Column(
-            id="col1", name="intcolumn", type="int", nullable=False, static=False
-        )
+    def test_generate_tables_unknown_type(self, local_tables: LocalTables, mock_dispatcher):
+        int_col = Column(id="col1", name="intcolumn", type="int", nullable=False, static=False)
         unknown_type = Column(
             id="col2",
             name="unknowncolumn",
@@ -140,9 +126,7 @@ class TestDynamicAppBuilder:
         )
         columns = {"col1": int_col, "col2": unknown_type}
 
-        with patch(
-            "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
-        ):
+        with patch("app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable):
             generate_table(
                 event_dispatcher=mock_dispatcher,
                 table_type=local_tables.ObjectsTable,
@@ -157,21 +141,13 @@ class TestDynamicAppBuilder:
         # Assert event is fired as 1 column type was unknown
         assert mock_dispatcher.dispatch.call_count == 1
 
-    def test_generate_tables_static_col(
-        self, local_tables: LocalTables, mock_dispatcher
-    ):
-        int_col = Column(
-            id="col1", name="intcolumn", type="int", nullable=False, static=False
-        )
-        static_col = Column(
-            id="col2", name="imstatic", type="str", nullable=False, static=True
-        )
+    def test_generate_tables_static_col(self, local_tables: LocalTables, mock_dispatcher):
+        int_col = Column(id="col1", name="intcolumn", type="int", nullable=False, static=False)
+        static_col = Column(id="col2", name="imstatic", type="str", nullable=False, static=True)
         columns = {"col1": int_col, "col2": static_col}
 
         with patch_multiple(
-            patch(
-                "app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable
-            ),
+            patch("app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable),
             patch(
                 "app.dynamic.db.object_static_table.ObjectStaticsTable",
                 local_tables.ObjectStaticsTable,

@@ -1,14 +1,12 @@
-from uuid import UUID, uuid4
 from datetime import datetime
+from uuid import UUID, uuid4
+
 from sqlalchemy.orm import Session
 
-from app.extensions.modules.db import (
-    ModuleTable,
-    ModuleStatusHistoryTable,
-    ModuleObjectContextTable,
-)
+from app.extensions.modules.db import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.models.models import ModuleStatusCode
+
 from .fixture_factory import FixtureDataFactory
 
 
@@ -104,9 +102,7 @@ class ModuleFixtureFactory(FixtureDataFactory):
     # Status History
     def create_all_module_status_history(self):
         for module in self.modules:
-            for status_history_data in self._module_status_history_data(
-                module.Module_ID
-            ):
+            for status_history_data in self._module_status_history_data(module.Module_ID):
                 self._create_module_status_history(module, status_history_data)
 
     def _create_module_status_history(self, module, data):
@@ -181,16 +177,12 @@ class ModuleFixtureFactory(FixtureDataFactory):
     # Context objects
     def create_all_module_object_context(self):
         for module in self.modules:
-            for module_object_context_data in self._module_object_context_data(
-                module.Module_ID
-            ):
+            for module_object_context_data in self._module_object_context_data(module.Module_ID):
                 self._create_module_object_context(module_object_context_data)
 
     def _create_module_object_context(self, data):
         if self.local_tables:
-            module_object_context_obj = self.local_tables.ModuleObjectContextTable(
-                **data
-            )
+            module_object_context_obj = self.local_tables.ModuleObjectContextTable(**data)
         else:
             module_object_context_obj = ModuleObjectContextTable(**data)
 

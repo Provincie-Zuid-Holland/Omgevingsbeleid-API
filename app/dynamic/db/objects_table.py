@@ -8,9 +8,7 @@ from app.core.db.mixins import SerializerMixin
 
 
 class ObjectBaseColumns:
-    UUID: Mapped[uuid.UUID] = mapped_column(
-        primary_key=True, default=lambda: uuid.uuid4()
-    )
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=lambda: uuid.uuid4())
     Code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.Code"))
 
 

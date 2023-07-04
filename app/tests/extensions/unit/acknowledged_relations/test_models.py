@@ -1,10 +1,9 @@
-import pytest
 from datetime import datetime
 from uuid import uuid4
-from app.extensions.acknowledged_relations.models.models import (
-    AcknowledgedRelation,
-    AcknowledgedRelationSide,
-)
+
+import pytest
+
+from app.extensions.acknowledged_relations.models.models import AcknowledgedRelation, AcknowledgedRelationSide
 
 
 class TestAcknowledgedRelationsSide:

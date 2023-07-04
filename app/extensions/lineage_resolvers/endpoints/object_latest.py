@@ -1,20 +1,17 @@
 from ast import List
-from typing import Optional, Type, List
+from typing import List, Optional, Type
 
-from fastapi import APIRouter, Depends
 import pydantic
-from app.dynamic.db.objects_table import ObjectsTable
+from fastapi import APIRouter, Depends
 
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
-from app.dynamic.config.models import Api, Model, EndpointConfig
-from app.dynamic.dependencies import (
-    depends_event_dispatcher,
-    depends_object_repository,
-)
+from app.dynamic.config.models import Api, EndpointConfig, Model
+from app.dynamic.converter import Converter
+from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.dependencies import depends_event_dispatcher, depends_object_repository
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
+from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
-from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.repository.object_repository import ObjectRepository
 
 
@@ -77,9 +74,7 @@ class ObjectLatestEndpoint(Endpoint):
 
         return rows[0]
 
-    def _run_events(
-        self, table_rows: List[ObjectsTable], event_dispatcher: EventDispatcher
-    ):
+    def _run_events(self, table_rows: List[ObjectsTable], event_dispatcher: EventDispatcher):
         """
         Ask extensions for more information.
         """

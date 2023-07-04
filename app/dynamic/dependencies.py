@@ -1,18 +1,18 @@
-from typing import Callable, Optional
 import uuid
+from typing import Callable, Optional
 
 from fastapi import BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
-from app.core.dependencies import depends_db
 from sqlalchemy.orm import Session
+
+from app.core.dependencies import depends_db
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.db.objects_table import ObjectsTable
-
 from app.dynamic.event_dispatcher import EventDispatcher, main_event_dispatcher
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 
-from .utils.filters import Filters, FilterCombiner
+from .utils.filters import FilterCombiner, Filters
 from .utils.pagination import Pagination
 
 
@@ -66,9 +66,7 @@ def depends_object_static_by_object_type_and_id_curried(object_type: str) -> Cal
         lineage_id: int,
         repository: ObjectStaticRepository = Depends(depends_object_static_repository),
     ):
-        return depends_object_static_by_object_type_and_id(
-            object_type, lineage_id, repository
-        )
+        return depends_object_static_by_object_type_and_id(object_type, lineage_id, repository)
 
     return depends_object_static_by_object_type_and_id_inner
 
@@ -113,9 +111,7 @@ def depends_filter_object_code(
         return None
 
     if object_type is None or lineage_id is None:
-        raise ValueError(
-            "object_type and object_lineage_id should be supplied together."
-        )
+        raise ValueError("object_type and object_lineage_id should be supplied together.")
 
     return FilterObjectCode(
         object_type=object_type,

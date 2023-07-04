@@ -1,9 +1,10 @@
 from collections import OrderedDict
 from dataclasses import dataclass
 
-from .types import Event
-from ..config.models import IntermediateModel
 from app.dynamic.models_resolver import ModelsResolver
+
+from ..config.models import IntermediateModel
+from .types import Event
 
 
 @dataclass

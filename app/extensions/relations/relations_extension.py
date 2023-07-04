@@ -1,13 +1,13 @@
 from typing import List
 
-from app.dynamic.endpoints.endpoint import EndpointResolver
-from app.dynamic.extension import Extension
-from app.dynamic.config.models import ExtensionModel
-from app.dynamic.event_dispatcher import EventDispatcher
-from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
 import app.extensions.relations.endpoints as endpoints
 import app.extensions.relations.listeners as listeners
+from app.dynamic.config.models import ExtensionModel
+from app.dynamic.converter import Converter
+from app.dynamic.endpoints.endpoint import EndpointResolver
+from app.dynamic.event_dispatcher import EventDispatcher
+from app.dynamic.extension import Extension
+from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.relations.models.models import RelationShort
 
 

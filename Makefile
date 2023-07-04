@@ -12,6 +12,7 @@ run:
 debug:
 	python app/main.py localhost 8000 8001
 
+local-sync: local-env
 local-env:
 	pip install -U pip pip-tools
 	pip-sync requirements.txt requirements-dev.txt
@@ -38,11 +39,17 @@ load-fixtures:
 reset-test-database: drop-database init-database load-fixtures
 
 fix:
-	python -m black app/
-	python -m autoflake -ri --exclude=__init__.py --remove-all-unused-imports app/
+	python -m isort app/
+	python -m black app/ stubs/
+	python -m autoflake -ri --exclude=__init__.py --remove-all-unused-imports app/ stubs/
 
 check-security:
 	python -m bandit --configfile bandit.yml -r app/
+
+check-venture:
+	python -m vulture app/ --exclude app/tests/ --min-confidence 100
+
+check: check-venture check-security
 
 test:
 	python -m pytest

@@ -1,21 +1,19 @@
 from typing import Callable, Optional
 from uuid import UUID
 
-from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
-from app.core.dependencies import depends_db
 
-from app.core.settings import settings
+from app.core.dependencies import depends_db
 from app.core.security import ALGORITHM
+from app.core.settings import settings
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.model import TokenPayload
-from app.extensions.users.permission_service import PermissionService
+from app.extensions.users.permission_service import PermissionService, main_permission_service
 from app.extensions.users.repository.user_repository import UserRepository
-from app.extensions.users.permission_service import main_permission_service
-
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"/login/access-token")
 

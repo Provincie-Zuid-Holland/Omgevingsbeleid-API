@@ -1,17 +1,18 @@
-from typing import Optional, List
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.converter import Converter
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
+from app.dynamic.utils.response import ResponseOK
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.dependencies import (
@@ -20,19 +21,11 @@ from app.extensions.modules.dependencies import (
     depends_object_provider,
 )
 from app.extensions.modules.models.models import ModuleObjectAction
-from app.extensions.modules.permissions import (
-    ModulesPermissions,
-    guard_module_not_locked,
-    guard_valid_user,
-)
+from app.extensions.modules.permissions import ModulesPermissions, guard_module_not_locked, guard_valid_user
 from app.extensions.modules.repository import ModuleObjectContextRepository
 from app.extensions.modules.repository.object_provider import ObjectProvider
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import (
-    depends_current_active_user,
-    depends_permission_service,
-)
-from app.dynamic.utils.response import ResponseOK
+from app.extensions.users.dependencies import depends_current_active_user, depends_permission_service
 from app.extensions.users.permission_service import PermissionService
 
 
@@ -61,9 +54,7 @@ class EndpointHandler:
     ):
         self._db: Session = db
         self._object_provider = object_provider
-        self._object_context_repository: ModuleObjectContextRepository = (
-            object_context_repository
-        )
+        self._object_context_repository: ModuleObjectContextRepository = object_context_repository
         self._allowed_object_types: List[str] = allowed_object_types
         self._permission_service: PermissionService = permission_service
         self._user: UsersTable = user
@@ -80,9 +71,7 @@ class EndpointHandler:
         )
         guard_module_not_locked(self._module)
 
-        object_data: Optional[dict] = self._object_provider.get_by_uuid(
-            self._object_in.Object_UUID
-        )
+        object_data: Optional[dict] = self._object_provider.get_by_uuid(self._object_in.Object_UUID)
         if object_data is None:
             raise HTTPException(400, "Unknown object for uuid")
 
@@ -95,9 +84,7 @@ class EndpointHandler:
                 f"Invalid Object_Type, accepted object_type are: {self._allowed_object_types}",
             )
 
-        maybe_object_context: Optional[
-            ModuleObjectContextTable
-        ] = self._object_context_repository.get_by_ids(
+        maybe_object_context: Optional[ModuleObjectContextTable] = self._object_context_repository.get_by_ids(
             self._module.Module_ID,
             object_type,
             object_id,
@@ -145,9 +132,7 @@ class EndpointHandler:
         )
         self._db.add(object_context)
 
-    def _update_object_context(
-        self, object_context: ModuleObjectContextTable, object_data: dict
-    ):
+    def _update_object_context(self, object_context: ModuleObjectContextTable, object_data: dict):
         object_context.Hidden = False
         object_context.Modified_Date = self._timepoint
         object_context.Modified_By_UUID = self._user.UUID
@@ -231,12 +216,8 @@ class ModuleAddExistingObjectEndpointResolver(EndpointResolver):
         if not "{module_id}" in path:
             raise RuntimeError("Missing {module_id} argument in path")
 
-        allowed_object_types: List[str] = resolver_config.get(
-            "allowed_object_types", []
-        )
+        allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
         if not allowed_object_types:
             raise RuntimeError("Missing allowed_object_types")
 
-        return ModuleAddExistingObjectEndpoint(
-            allowed_object_types=allowed_object_types, path=path
-        )
+        return ModuleAddExistingObjectEndpoint(allowed_object_types=allowed_object_types, path=path)

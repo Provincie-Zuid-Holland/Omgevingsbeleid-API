@@ -1,11 +1,11 @@
+import base64
+import io
+import json
+import re
+import sys
 from dataclasses import dataclass
 from hashlib import sha256
-import json
 from typing import List, Optional, Set
-import re
-import base64
-import sys
-import io
 from uuid import uuid4
 
 from bs4 import BeautifulSoup
@@ -18,9 +18,7 @@ from app.extensions.html_assets.db.tables import AssetsTable
 from app.extensions.html_assets.models.meta import ImageMeta
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.event.module_object_patched_event import (
-    ModuleObjectPatchedEvent,
-)
+from app.extensions.modules.event.module_object_patched_event import ModuleObjectPatchedEvent
 
 
 @dataclass
@@ -71,9 +69,7 @@ class HtmlImagesExtractor:
         # First check if the image already exists
         # if so; then we do not need to parse the image to gain the meta
         image_hash: str = sha256(image_data.encode("utf-8")).hexdigest()
-        image_table: Optional[
-            AssetsTable
-        ] = self._asset_repository.get_by_hash_and_content(image_hash, image_data)
+        image_table: Optional[AssetsTable] = self._asset_repository.get_by_hash_and_content(image_hash, image_data)
         if image_table is not None:
             return image_table
 
@@ -105,12 +101,8 @@ class HtmlImagesExtractor:
 
 
 class ExtractHtmlImagesListener(Listener[ModuleObjectPatchedEvent]):
-    def handle_event(
-        self, event: ModuleObjectPatchedEvent
-    ) -> Optional[ModuleObjectPatchedEvent]:
-        config: Optional[ExtractHtmlImagesConfig] = self._collect_config(
-            event.context.request_model
-        )
+    def handle_event(self, event: ModuleObjectPatchedEvent) -> Optional[ModuleObjectPatchedEvent]:
+        config: Optional[ExtractHtmlImagesConfig] = self._collect_config(event.context.request_model)
         if not config:
             return event
 
@@ -119,17 +111,13 @@ class ExtractHtmlImagesListener(Listener[ModuleObjectPatchedEvent]):
         if not interested_fields:
             return event
 
-        extractor: HtmlImagesExtractor = HtmlImagesExtractor(
-            event, config, interested_fields
-        )
+        extractor: HtmlImagesExtractor = HtmlImagesExtractor(event, config, interested_fields)
         result_object = extractor.process()
 
         event.payload.new_record = result_object
         return event
 
-    def _collect_config(
-        self, request_model: Model
-    ) -> Optional[ExtractHtmlImagesConfig]:
+    def _collect_config(self, request_model: Model) -> Optional[ExtractHtmlImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
         if not "extract_assets" in request_model.service_config:
@@ -139,9 +127,7 @@ class ExtractHtmlImagesListener(Listener[ModuleObjectPatchedEvent]):
         fields: List[str] = []
         for field in config_dict.get("fields", []):
             if not isinstance(field, str):
-                raise RuntimeError(
-                    "Invalid extract_assets config, expect `fields` to be a list of strings"
-                )
+                raise RuntimeError("Invalid extract_assets config, expect `fields` to be a list of strings")
             fields.append(field)
         if not fields:
             return None

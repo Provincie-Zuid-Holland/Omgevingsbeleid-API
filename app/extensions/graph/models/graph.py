@@ -1,6 +1,6 @@
+import uuid
 from enum import Enum
 from typing import List
-import uuid
 
 from pydantic import BaseModel, validator
 
@@ -22,10 +22,7 @@ class GraphEdge(BaseModel):
         if not isinstance(other, GraphEdge):
             return False
 
-        return (
-            self.Vertice_A_Code == other.Vertice_A_Code
-            and self.Vertice_B_Code == other.Vertice_B_Code
-        )
+        return self.Vertice_A_Code == other.Vertice_A_Code and self.Vertice_B_Code == other.Vertice_B_Code
 
 
 class GraphVertice(BaseModel):

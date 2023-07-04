@@ -1,24 +1,19 @@
-from typing import List
 from datetime import datetime
+from typing import List
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import desc, select, func, or_
+from sqlalchemy import desc, func, or_, select
 from sqlalchemy.orm import Session, aliased, load_only
 
 from app.core.dependencies import depends_db
-from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.converter import Converter
+from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
-from app.extensions.graph.models.graph import (
-    GraphEdge,
-    GraphEdgeType,
-    GraphResponse,
-    GraphVertice,
-)
+from app.extensions.graph.models.graph import GraphEdge, GraphEdgeType, GraphResponse, GraphVertice
 from app.extensions.relations.db.tables import RelationsTable
 
 
@@ -40,9 +35,7 @@ class EndpointHandler:
 
     def _get_all_edges(self) -> List[GraphEdge]:
         relations: List[GraphEdge] = self._get_all_relations()
-        acknowledged_relations: List[
-            GraphEdge
-        ] = self._get_valid_acknowledged_relations()
+        acknowledged_relations: List[GraphEdge] = self._get_valid_acknowledged_relations()
 
         return relations + acknowledged_relations
 

@@ -1,16 +1,14 @@
-from typing import Optional, List
+from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy import select, or_
+from sqlalchemy import or_, select
 
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.repository import BaseRepository
 
 
 class ObjectStaticRepository(BaseRepository):
-    def get_by_object_type_and_id(
-        self, object_type: str, object_id: int
-    ) -> Optional[ObjectStaticsTable]:
+    def get_by_object_type_and_id(self, object_type: str, object_id: int) -> Optional[ObjectStaticsTable]:
         stmt = (
             select(ObjectStaticsTable)
             .filter(ObjectStaticsTable.Object_Type == object_type)
@@ -18,9 +16,7 @@ class ObjectStaticRepository(BaseRepository):
         )
         return self.fetch_first(stmt)
 
-    def get_by_type_and_owner(
-        self, object_type: str = None, owner_uuid: UUID = None
-    ) -> List[ObjectStaticsTable]:
+    def get_by_type_and_owner(self, object_type: str = None, owner_uuid: UUID = None) -> List[ObjectStaticsTable]:
         stmt = select(ObjectStaticsTable)
 
         if owner_uuid:

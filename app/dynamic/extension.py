@@ -1,20 +1,15 @@
 from abc import ABC
-from typing import List, Dict, Callable, Optional
+from typing import Callable, Dict, List, Optional
 
-from fastapi import APIRouter
 import click
+from fastapi import APIRouter
 
-from app.dynamic.config.models import (
-    Column,
-    Field,
-    IntermediateObject,
-    IntermediateModel,
-)
-from app.dynamic.event_dispatcher import EventDispatcher
-from app.dynamic.service_container import ServiceContainer
-from app.dynamic.models_resolver import ModelsResolver
+from app.dynamic.config.models import Column, Field
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
+from app.dynamic.event_dispatcher import EventDispatcher
+from app.dynamic.models_resolver import ModelsResolver
+from app.dynamic.service_container import ServiceContainer
 
 
 class Extension(ABC):
@@ -46,9 +41,7 @@ class Extension(ABC):
     # def supply_service_container(self, service_container: ServiceContainer):
     #     self.service_container = service_container
 
-    def register_tables(
-        self, event_dispatcher: EventDispatcher, columns: Dict[str, Column]
-    ):
+    def register_tables(self, event_dispatcher: EventDispatcher, columns: Dict[str, Column]):
         # A place for extensions to load database tables before we generate the database
         pass
 
@@ -66,14 +59,6 @@ class Extension(ABC):
 
     def register_validators(self) -> Dict[str, Callable]:
         return {}
-
-    def post_build_intermediate(
-        self,
-        event_dispatcher: EventDispatcher,
-        intermediate_object: IntermediateObject,
-        intermediate_models: List[IntermediateModel],
-    ):
-        pass
 
     def register_endpoints(
         self,

@@ -1,32 +1,25 @@
-from typing import List, Optional
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, validator
-from sqlalchemy import select, func, insert, String
+from sqlalchemy import String, func, insert, select
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
+from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.db.object_static_table import ObjectStaticsTable
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
-from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.db.tables import ModuleTable, ModuleObjectContextTable
+from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.dependencies import depends_active_module
-from app.extensions.modules.permissions import (
-    ModulesPermissions,
-    guard_module_not_locked,
-    guard_valid_user,
-)
+from app.extensions.modules.permissions import ModulesPermissions, guard_module_not_locked, guard_valid_user
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import (
-    depends_current_active_user,
-    depends_permission_service,
-)
+from app.extensions.users.dependencies import depends_current_active_user, depends_permission_service
 from app.extensions.users.permission_service import PermissionService
 
 
@@ -105,9 +98,7 @@ class EndpointHandler:
             self._db.flush()
             self._db.commit()
 
-            response: NewObjectStaticResponse = NewObjectStaticResponse.from_orm(
-                object_static
-            )
+            response: NewObjectStaticResponse = NewObjectStaticResponse.from_orm(object_static)
             return response
         except Exception:
             self._db.rollback
@@ -126,11 +117,7 @@ class EndpointHandler:
             .values(
                 Object_Type=self._object_in.Object_Type,
                 Object_ID=generate_id_subq,
-                Code=(
-                    self._object_in.Object_Type
-                    + "-"
-                    + func.cast(generate_id_subq, String)
-                ),
+                Code=(self._object_in.Object_Type + "-" + func.cast(generate_id_subq, String)),
                 # @todo: should be generated based on columns.statics
                 Owner_1_UUID=self._object_in.Owner_1_UUID,
                 Owner_2_UUID=self._object_in.Owner_2_UUID,
@@ -234,9 +221,7 @@ class ModuleAddNewObjectEndpointResolver(EndpointResolver):
         if not "{module_id}" in path:
             raise RuntimeError("Missing {module_id} argument in path")
 
-        allowed_object_types: List[str] = resolver_config.get(
-            "allowed_object_types", []
-        )
+        allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
         if not allowed_object_types:
             raise RuntimeError("Missing allowed_object_types")
 

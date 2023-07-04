@@ -1,12 +1,11 @@
 from typing import List
 
-
-from app.dynamic.extension import Extension
-from app.dynamic.endpoints.endpoint import EndpointResolver
-from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.event_dispatcher import EventDispatcher
-from app.dynamic.converter import Converter
 import app.extensions.search.endpoints as endpoints
+from app.dynamic.converter import Converter
+from app.dynamic.endpoints.endpoint import EndpointResolver
+from app.dynamic.event_dispatcher import EventDispatcher
+from app.dynamic.extension import Extension
+from app.dynamic.models_resolver import ModelsResolver
 
 
 class SearchExtension(Extension):

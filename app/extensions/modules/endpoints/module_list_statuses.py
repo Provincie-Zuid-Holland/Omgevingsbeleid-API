@@ -8,14 +8,9 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
-from app.extensions.modules.dependencies import (
-    depends_module,
-    depends_module_status_repository,
-)
+from app.extensions.modules.dependencies import depends_module, depends_module_status_repository
 from app.extensions.modules.models.models import ModuleStatus
-from app.extensions.modules.repository.module_status_repository import (
-    ModuleStatusRepository,
-)
+from app.extensions.modules.repository.module_status_repository import ModuleStatusRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
@@ -33,9 +28,7 @@ class ModuleListStatusesEndpoint(Endpoint):
         def fastapi_handler(
             user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_module),
-            status_repository: ModuleStatusRepository = Depends(
-                depends_module_status_repository
-            ),
+            status_repository: ModuleStatusRepository = Depends(depends_module_status_repository),
         ) -> List[ModuleStatus]:
             return self._handler(status_repository, module)
 
@@ -51,12 +44,8 @@ class ModuleListStatusesEndpoint(Endpoint):
 
         return router
 
-    def _handler(
-        self, status_repository: ModuleStatusRepository, module: ModuleTable
-    ) -> List[ModuleStatus]:
-        statuses: List[
-            ModuleStatusHistoryTable
-        ] = status_repository.get_all_by_module_id(module.Module_ID)
+    def _handler(self, status_repository: ModuleStatusRepository, module: ModuleTable) -> List[ModuleStatus]:
+        statuses: List[ModuleStatusHistoryTable] = status_repository.get_all_by_module_id(module.Module_ID)
 
         response: List[ModuleStatus] = [ModuleStatus.from_orm(r) for r in statuses]
         return response

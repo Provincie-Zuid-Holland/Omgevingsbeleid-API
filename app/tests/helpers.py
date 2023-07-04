@@ -1,4 +1,4 @@
-from contextlib import contextmanager, ExitStack
+from contextlib import ExitStack, contextmanager
 
 
 @contextmanager

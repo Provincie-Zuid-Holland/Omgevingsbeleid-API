@@ -1,19 +1,20 @@
-from typing import List
 import uuid
+from typing import List
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, validator
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
+
 from app.core.dependencies import depends_db
+from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.converter import Converter
 from app.dynamic.db.objects_table import ObjectsTable
 from app.dynamic.dependencies import depends_pagination
-
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
-from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
-from app.dynamic.utils.pagination import Pagination, PagedResponse, query_paginated
+from app.dynamic.utils.pagination import PagedResponse, Pagination, query_paginated
 
 
 class SearchObject(BaseModel):
@@ -56,9 +57,7 @@ class EndpointHandler:
             offset=self._pagination.get_offset(),
         )
 
-        search_objects: List[SearchObject] = [
-            SearchObject.parse_obj(r._asdict()) for r in table_rows
-        ]
+        search_objects: List[SearchObject] = [SearchObject.parse_obj(r._asdict()) for r in table_rows]
 
         return PagedResponse[SearchObject](
             total=total_count,
@@ -78,10 +77,7 @@ class EndpointHandler:
                 ObjectsTable.Description,
             )
             .select_from(ObjectsTable)
-            .filter(
-                ObjectsTable.Title.like(like_query)
-                | ObjectsTable.Description.like(like_query)
-            )
+            .filter(ObjectsTable.Title.like(like_query) | ObjectsTable.Description.like(like_query))
             .order_by(desc(ObjectsTable.Modified_Date))
         )
         return stmt
@@ -96,16 +92,8 @@ class EndpointHandler:
                 ObjectsTable.Description,
             )
             .select_from(ObjectsTable)
-            .filter(
-                ObjectsTable.Title.match(self._query)
-                | ObjectsTable.Description.match(self._query)
-            )
-            .order_by(
-                desc(
-                    ObjectsTable.Title.match(self._query)
-                    + ObjectsTable.Description.match(self._query)
-                )
-            )
+            .filter(ObjectsTable.Title.match(self._query) | ObjectsTable.Description.match(self._query))
+            .order_by(desc(ObjectsTable.Title.match(self._query) + ObjectsTable.Description.match(self._query)))
             .order_by(desc(ObjectsTable.Modified_Date))
         )
         return stmt

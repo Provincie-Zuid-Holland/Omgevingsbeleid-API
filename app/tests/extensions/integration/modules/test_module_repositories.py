@@ -6,20 +6,11 @@ from sqlalchemy.orm import Session
 
 from app.dynamic.dependencies import FilterObjectCode
 from app.extensions.modules.repository import ModuleRepository
-from app.tests.fixture_factories import (
-    ModuleFixtureFactory,
-    UserFixtureFactory,
-)
+from app.tests.fixture_factories import ModuleFixtureFactory, UserFixtureFactory
 from app.tests.helpers import patch_multiple
 
-from .fixtures import (
-    ExtendedLocalTables,
-    local_tables,  # noqa
-    module_context_repo,
-    module_object_repo,
-    module_repo,
-    setup_db,
-)
+from .fixtures import local_tables  # noqa
+from .fixtures import ExtendedLocalTables
 
 
 class TestModuleRepository:
@@ -97,9 +88,7 @@ class TestModuleRepository:
         db.add(mod)
         db.commit()
 
-        result = module_repo.get_with_filters(
-            only_active=True, maybe_filter_code=None, mine=None
-        )
+        result = module_repo.get_with_filters(only_active=True, maybe_filter_code=None, mine=None)
         assert result is not None
         for module in result:
             assert module.Closed != 1
@@ -136,9 +125,7 @@ class TestModuleRepository:
             patch(f"{base_path}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
             patch(f"{base_path}.ModuleTable", local_tables.ModuleTable),
         ):
-            result = module_repo.get_with_filters(
-                only_active=False, maybe_filter_code=None, mine=self.pf_user.UUID
-            )
+            result = module_repo.get_with_filters(only_active=False, maybe_filter_code=None, mine=self.pf_user.UUID)
 
         assert result is not None
         for module in result:
@@ -157,9 +144,7 @@ class TestModuleRepository:
         local_tables: ExtendedLocalTables,
     ):
         mod = self.module_factory.modules[0]  # Module A in factory
-        code_filter = FilterObjectCode(
-            object_type="ambitie", lineage_id=mod.Module_ID
-        )  # "ambitie-1"
+        code_filter = FilterObjectCode(object_type="ambitie", lineage_id=mod.Module_ID)  # "ambitie-1"
 
         base_path = "app.extensions.modules.repository.module_repository"
         with patch_multiple(
@@ -171,9 +156,7 @@ class TestModuleRepository:
             patch(f"{base_path}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
             patch(f"{base_path}.ModuleTable", local_tables.ModuleTable),
         ):
-            result = module_repo.get_with_filters(
-                only_active=False, maybe_filter_code=code_filter, mine=None
-            )
+            result = module_repo.get_with_filters(only_active=False, maybe_filter_code=code_filter, mine=None)
 
         assert len(result) == 3
 

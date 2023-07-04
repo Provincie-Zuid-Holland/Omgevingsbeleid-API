@@ -2,22 +2,18 @@ from typing import Callable, Optional
 from uuid import UUID
 
 from fastapi import Depends, HTTPException
-from app.core.dependencies import depends_db
 from sqlalchemy.orm import Session
-from app.dynamic.repository.object_repository import ObjectRepository
 
+from app.core.dependencies import depends_db
 from app.dynamic.dependencies import depends_object_repository
+from app.dynamic.repository.object_repository import ObjectRepository
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.db.tables import (
-    ModuleObjectContextTable,
-    ModuleStatusHistoryTable,
-    ModuleTable,
-)
+from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.models import Module
 from app.extensions.modules.repository import (
-    ModuleRepository,
     ModuleObjectContextRepository,
     ModuleObjectRepository,
+    ModuleRepository,
     ModuleStatusRepository,
 )
 from app.extensions.modules.repository.object_provider import ObjectProvider
@@ -75,13 +71,9 @@ def depends_module_object_by_uuid_curried(object_type: str) -> Callable:
     def curry_depends_module_object_by_uuid(
         module_id: int,
         object_uuid: UUID,
-        module_object_repository: ModuleObjectRepository = Depends(
-            depends_module_object_repository
-        ),
+        module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
     ):
-        maybe_object: Optional[
-            ModuleObjectsTable
-        ] = module_object_repository.get_by_module_id_object_type_and_uuid(
+        maybe_object: Optional[ModuleObjectsTable] = module_object_repository.get_by_module_id_object_type_and_uuid(
             module_id,
             object_type,
             object_uuid,
@@ -97,9 +89,7 @@ def depends_active_module_object_context_curried(object_type: str) -> Callable:
     def curry_depends_active_module_object_context(
         lineage_id: int,
         module: Module = Depends(depends_active_module),
-        repository: ModuleObjectContextRepository = Depends(
-            depends_module_object_context_repository
-        ),
+        repository: ModuleObjectContextRepository = Depends(depends_module_object_context_repository),
     ) -> ModuleObjectContextTable:
         maybe_context: Optional[ModuleObjectContextTable] = repository.get_by_ids(
             module.Module_ID,
@@ -107,13 +97,9 @@ def depends_active_module_object_context_curried(object_type: str) -> Callable:
             lineage_id,
         )
         if not maybe_context:
-            raise HTTPException(
-                status_code=404, detail="Module Object Context niet gevonden"
-            )
+            raise HTTPException(status_code=404, detail="Module Object Context niet gevonden")
         if maybe_context.Hidden:
-            raise HTTPException(
-                status_code=404, detail="Module Object Context is verwijderd"
-            )
+            raise HTTPException(status_code=404, detail="Module Object Context is verwijderd")
         return maybe_context
 
     return curry_depends_active_module_object_context
@@ -123,13 +109,9 @@ def depends_active_module_object_context(
     module_id: int,
     object_type: str,
     lineage_id: int,
-    repository: ModuleObjectContextRepository = Depends(
-        depends_module_object_context_repository
-    ),
+    repository: ModuleObjectContextRepository = Depends(depends_module_object_context_repository),
 ) -> ModuleObjectContextTable:
-    maybe_context: Optional[ModuleObjectContextTable] = repository.get_by_ids(
-        module_id, object_type, lineage_id
-    )
+    maybe_context: Optional[ModuleObjectContextTable] = repository.get_by_ids(module_id, object_type, lineage_id)
     if not maybe_context:
         raise HTTPException(status_code=404, detail="Object context niet gevonden")
     if maybe_context.Hidden:
@@ -142,9 +124,7 @@ def depends_module_status_by_id(
     module: ModuleTable = Depends(depends_module),
     repository: ModuleStatusRepository = Depends(depends_module_status_repository),
 ) -> ModuleStatusHistoryTable:
-    maybe_status: Optional[ModuleStatusHistoryTable] = repository.get_by_id(
-        module.Module_ID, status_id
-    )
+    maybe_status: Optional[ModuleStatusHistoryTable] = repository.get_by_id(module.Module_ID, status_id)
     if not maybe_status:
         raise HTTPException(status_code=404, detail="Module status niet gevonden")
     return maybe_status
@@ -152,9 +132,7 @@ def depends_module_status_by_id(
 
 def depends_object_provider(
     object_repository: ObjectRepository = Depends(depends_object_repository),
-    module_object_repository: ModuleObjectRepository = Depends(
-        depends_module_object_repository
-    ),
+    module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
 ) -> ObjectProvider:
     object_provider: ObjectProvider = ObjectProvider(
         object_repository,

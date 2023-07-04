@@ -1,16 +1,14 @@
+from dataclasses import dataclass
 from tracemalloc import Snapshot
 from typing import List, Optional
-from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
-from app.core.utils.utils import table_to_dict
 
+from app.core.utils.utils import table_to_dict
 from app.dynamic.event.types import Event, NoPayload
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.models.models import ModuleSnapshot
-from app.extensions.modules.repository.module_object_repository import (
-    ModuleObjectRepository,
-)
+from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 
 
 @dataclass

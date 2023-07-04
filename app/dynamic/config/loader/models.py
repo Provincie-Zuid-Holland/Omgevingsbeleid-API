@@ -1,16 +1,16 @@
-from typing import Callable, List, Dict, Any, Optional, Tuple
-from copy import deepcopy
 from collections import OrderedDict
+from copy import deepcopy
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pydantic
 
-from app.dynamic.validators.validator_provider import ValidatorProvider
-
-from ..models import IntermediateModel, IntermediateObject, Field, DynamicObjectModel
-from .fields import field_types
+from app.dynamic.event.create_model_event import CreateModelEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.event.create_model_event import CreateModelEvent
+from app.dynamic.validators.validator_provider import ValidatorProvider
+
+from ..models import DynamicObjectModel, Field, IntermediateModel, IntermediateObject
+from .fields import field_types
 
 
 class DynamicModelPydanticConfig:
@@ -34,9 +34,7 @@ class ModelsLoader:
             "none": None,
         }
 
-    def load_intermediates(
-        self, object_intermediate: IntermediateObject
-    ) -> List[IntermediateModel]:
+    def load_intermediates(self, object_intermediate: IntermediateObject) -> List[IntermediateModel]:
         models: List[IntermediateModel] = []
 
         model_configs: dict = object_intermediate.config.get("models", {})
@@ -66,9 +64,7 @@ class ModelsLoader:
                 columns.append(field.column)
 
             root_validators_config: List[dict] = model_config.get("root_validators", [])
-            root_validators: Dict[str, Callable] = self._get_root_validators(
-                root_validators_config
-            )
+            root_validators: Dict[str, Callable] = self._get_root_validators(root_validators_config)
 
             models.append(
                 IntermediateModel(
@@ -88,13 +84,9 @@ class ModelsLoader:
     def load_model(self, intermediate_model: IntermediateModel) -> DynamicObjectModel:
         # If we requested a static object and we have lineage fields then we have a configuration error
         if intermediate_model.static_only and intermediate_model.fields:
-            raise RuntimeError(
-                f"Can not configure lineage fields for static only model '{intermediate_model.name}"
-            )
+            raise RuntimeError(f"Can not configure lineage fields for static only model '{intermediate_model.name}")
         if intermediate_model.static_only and not intermediate_model.static_fields:
-            raise RuntimeError(
-                f"Must configure static fields for static only model '{intermediate_model.name}"
-            )
+            raise RuntimeError(f"Must configure static fields for static only model '{intermediate_model.name}")
 
         pydantic_fields, pydantic_validators = self._get_pydantic_fields(
             intermediate_model.fields,
@@ -121,9 +113,7 @@ class ModelsLoader:
         if static_pydantic_fields:
             # If this will be the outer model than we need to merge the root validators
             if intermediate_model.static_only:
-                static_pydantic_validators = (
-                    static_pydantic_validators | intermediate_model.root_validators
-                )
+                static_pydantic_validators = static_pydantic_validators | intermediate_model.root_validators
 
             static_object_name = f"{intermediate_model.name}Statics"
             pydantic_static_model = pydantic.create_model(
@@ -152,9 +142,7 @@ class ModelsLoader:
             pydantic_model = pydantic.create_model(
                 intermediate_model.name,
                 __config__=DynamicModelPydanticConfig,
-                __validators__=(
-                    pydantic_validators | intermediate_model.root_validators
-                ),
+                __validators__=(pydantic_validators | intermediate_model.root_validators),
                 **pydantic_fields,
             )
 
@@ -166,9 +154,7 @@ class ModelsLoader:
             columns=[],
         )
 
-    def _get_pydantic_fields(
-        self, fields: List[Field], validator_prefix: str
-    ) -> Tuple[OrderedDict, dict]:
+    def _get_pydantic_fields(self, fields: List[Field], validator_prefix: str) -> Tuple[OrderedDict, dict]:
         pydantic_fields = OrderedDict()
         pydantic_validators = {}
 
@@ -187,13 +173,9 @@ class ModelsLoader:
             for validator_config in field.validators:
                 validator_id: str = validator_config.get("id", "")
                 validator_data: dict = validator_config.get("data", {})
-                validator_func = self._validator_provider.get_validator(
-                    validator_id, validator_data
-                )
+                validator_func = self._validator_provider.get_validator(validator_id, validator_data)
 
-                pydantic_validator_unique_name: str = (
-                    f"{validator_prefix}-{len(pydantic_validators) + 1}"
-                )
+                pydantic_validator_unique_name: str = f"{validator_prefix}-{len(pydantic_validators) + 1}"
                 # fmt: off
                 pydantic_validator_func = pydantic.validator(field.name, allow_reuse=True)(validator_func)
                 pydantic_validators[pydantic_validator_unique_name] = pydantic_validator_func
@@ -231,9 +213,7 @@ class ModelsLoader:
         for validator_config in config:
             validator_id: str = validator_config.get("id", "")
             validator_data: dict = validator_config.get("data", {})
-            validator_func = self._validator_provider.get_validator(
-                validator_id, validator_data
-            )
+            validator_func = self._validator_provider.get_validator(validator_id, validator_data)
 
             self._root_validator_counter += 1
             unique_name: str = f"root_validator_{self._root_validator_counter}"

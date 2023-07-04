@@ -1,18 +1,17 @@
 import logging
 import sys
 
-from fastapi import FastAPI, HTTPException
-from fastapi.routing import APIRoute
-from fastapi.responses import JSONResponse
-from fastapi.openapi.utils import get_openapi
 import sqlalchemy.exc
-from sqlalchemy.orm import Session
 import uvicorn
+from fastapi import FastAPI, HTTPException
+from fastapi.openapi.utils import get_openapi
+from fastapi.responses import JSONResponse
+from fastapi.routing import APIRoute
+from sqlalchemy.orm import Session
 
 from app.app import dynamic_app
 from app.core.db.session import SessionLocal
 from app.core.settings import settings
-
 
 app: FastAPI = dynamic_app.run()
 
@@ -38,7 +37,7 @@ async def health_check():
 
 
 @app.exception_handler(sqlalchemy.exc.IntegrityError)
-async def http_exception_handler(request, exc):
+async def http_exception_handler(request, exc):  # noqa
     return JSONResponse(
         {
             "msg": "Foreign key error",

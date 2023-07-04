@@ -1,15 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
 import pydantic
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.security import verify_password
-from app.dynamic.utils.response import ResponseOK
 from app.dynamic.endpoints.endpoint import Endpoint
+from app.dynamic.utils.response import ResponseOK
 from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user, depends_user_repository
 from app.extensions.users.repository.user_repository import UserRepository
-from app.extensions.users.dependencies import (
-    depends_current_active_user,
-    depends_user_repository,
-)
 
 
 class PasswordUpdate(pydantic.BaseModel):

@@ -1,7 +1,7 @@
 import click
 
-from app.dynamic.extension import Extension
 import app.extensions.database_migration.commands.commands as commands
+from app.dynamic.extension import Extension
 
 
 class DatabaseMigrationExtension(Extension):

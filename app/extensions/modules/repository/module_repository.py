@@ -1,11 +1,11 @@
-from typing import Optional, List
+from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
+
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.dependencies import FilterObjectCode
-
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 
@@ -43,9 +43,7 @@ class ModuleRepository:
             )
 
         if maybe_filter_code is not None:
-            filters.append(
-                and_(ModuleObjectContextTable.Code == maybe_filter_code.get_code())
-            )
+            filters.append(and_(ModuleObjectContextTable.Code == maybe_filter_code.get_code()))
 
         stmt = (
             select(ModuleTable)

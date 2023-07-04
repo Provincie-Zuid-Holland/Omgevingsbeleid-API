@@ -1,26 +1,23 @@
-from typing import Type
-from datetime import datetime
 import uuid
-from zoneinfo import ZoneInfo
+from datetime import datetime
+from typing import Type
 
-from pydantic import BaseModel
 from fastapi import APIRouter, Depends
-from sqlalchemy import select, func, insert, String
+from pydantic import BaseModel
+from sqlalchemy import String, func, insert, select
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
+from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
-from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.atemporal.permissions import AtemporalPermissions
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import (
-    depends_current_active_user_with_permission_curried,
-)
+from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
 
 class EndpointHandler:
@@ -48,9 +45,7 @@ class EndpointHandler:
             del self._object_in["ObjectStatics"]
 
         try:
-            object_static: ObjectStaticsTable = self._create_new_object_static(
-                static_fields
-            )
+            object_static: ObjectStaticsTable = self._create_new_object_static(static_fields)
             created_object: Type[BaseModel] = self._create_object(object_static)
 
             self._db.flush()

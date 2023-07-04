@@ -39,9 +39,7 @@ class Settings(BaseSettings):
         return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
 
     @validator("SQLALCHEMY_TEST_DATABASE_URI", pre=True)
-    def assemble_test_db_connection(
-        cls, v: Optional[str], values: Dict[str, Any]
-    ) -> Any:
+    def assemble_test_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str) and len(v):
             return v
 
