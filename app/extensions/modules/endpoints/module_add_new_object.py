@@ -37,8 +37,8 @@ class ModuleAddNewObject(BaseModel):
     Owner_2_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
     Client_1_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
 
-    Explanation: str
-    Conclusion: str
+    Explanation: str = Field("", nullable=True)
+    Conclusion: str = Field("", nullable=True)
 
     @validator("Explanation", "Conclusion", pre=True)
     def default_empty_string(cls, v):
