@@ -16,7 +16,17 @@ from app.dynamic.extension import Extension
 from app.dynamic.generate_table import generate_table
 from app.dynamic.service_container import ServiceContainer
 from app.dynamic.validators.validator import HtmlValidator, LengthValidator, NotEqualRootValidator, PlainTextValidator
-
+from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db.object_static_table import (
+    ObjectStaticsTable,
+)
+from app.dynamic.validators.validator import (
+    HtmlValidator,
+    ImageValidator,
+    LengthValidator,
+    NotEqualRootValidator,
+    PlainTextValidator,
+)
 from .config.base_columns import base_columns
 from .config.base_fields import base_fields
 from .config.loader.api import api_loader
@@ -264,6 +274,7 @@ class DynamicAppBuilder:
         self._service_container.validator_provider.register(LengthValidator())
         self._service_container.validator_provider.register(PlainTextValidator())
         self._service_container.validator_provider.register(HtmlValidator())
+        self._service_container.validator_provider.register(ImageValidator())
         self._service_container.validator_provider.register(NotEqualRootValidator())
 
     def _merge_endpoint_resolvers(self, resolvers: List[EndpointResolver]):
