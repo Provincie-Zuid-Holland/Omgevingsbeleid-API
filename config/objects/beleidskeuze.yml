@@ -280,21 +280,41 @@ models:
         optional: true
         validators:
           - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
       cause:
         default: none
         optional: true
         validators:
           - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
       provincial_interest:
         default: none
         optional: true
         validators:
           - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
       explanation:
         default: none
         optional: true
         validators:
           - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
       gebied_uuid:
         default: none
         optional: true
