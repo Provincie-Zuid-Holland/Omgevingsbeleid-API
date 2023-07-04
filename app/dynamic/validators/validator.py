@@ -124,27 +124,27 @@ class ImageValidator(Validator):
                 return v
 
             soup: BeautifulSoup = BeautifulSoup(v, "html.parser")
-            img_tags = soup.find_all('img')
+            img_tags = soup.find_all("img")
 
             for tag in img_tags:
-                img_data = tag['src']
+                img_data = tag["src"]
 
                 # Check if image data is base64
-                if not img_data.startswith('data:image'):
-                    raise ValueError('Image data is not base64 encoded')
+                if not img_data.startswith("data:image"):
+                    raise ValueError("Image data is not base64 encoded")
 
                 # Get base64 data
-                base64_data = img_data.split(',', 1)[1]
+                base64_data = img_data.split(",", 1)[1]
                 img_bytes = b64decode(base64_data)
 
                 # Check image size
                 if len(img_bytes) / 1024 > max_kb:
-                    raise ValueError('Image size is greater than max allowed')
+                    raise ValueError("Image size is greater than max allowed")
 
                 # Open image and check dimensions
                 img = Image.open(io.BytesIO(img_bytes))
                 if img.width > max_width or img.height > max_height:
-                    raise ValueError('Image dimensions are greater than max allowed')
+                    raise ValueError("Image dimensions are greater than max allowed")
 
             return v
 

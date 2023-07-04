@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Optional, Type
 
 import pydantic
@@ -6,7 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.security import create_access_token
-from app.core.settings import settings
 from app.dynamic.config.models import Model
 from app.dynamic.endpoints.endpoint import Endpoint
 from app.dynamic.models_resolver import ModelsResolver
