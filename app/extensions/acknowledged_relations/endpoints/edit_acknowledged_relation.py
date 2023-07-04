@@ -43,7 +43,7 @@ class EndpointHandler:
         self._lineage_id: int = lineage_id
         self._code: str = f"{self._object_type}-{self._lineage_id}"
         self._object_in: EditAcknowledgedRelation = object_in
-        self._timepoint: datetime = datetime.now()
+        self._timepoint: datetime = datetime.utcnow()
 
     def handle(self) -> ResponseOK:
         relation: Optional[AcknowledgedRelationsTable] = self._repository.get_by_codes(

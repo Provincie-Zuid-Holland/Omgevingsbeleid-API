@@ -43,7 +43,7 @@ class EndpointHandler:
         self._event_dispatcher: EventDispatcher = event_dispatcher
         self._user: UsersTable = user
         self._module: ModuleTable = module
-        self._timepoint: datetime = datetime.now()
+        self._timepoint: datetime = datetime.utcnow()
 
     def handle(self) -> ResponseOK:
         guard_valid_user(

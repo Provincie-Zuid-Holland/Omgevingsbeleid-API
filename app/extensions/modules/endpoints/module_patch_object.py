@@ -76,7 +76,7 @@ class EndpointHandler:
         self._object_static: ObjectStaticsTable = object_static
         self._changes: dict = changes
         self._lineage_id: int = lineage_id
-        self._timepoint: datetime = datetime.now()
+        self._timepoint: datetime = datetime.utcnow()
 
     def handle(self):
         guard_valid_user(

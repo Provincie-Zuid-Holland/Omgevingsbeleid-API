@@ -21,7 +21,7 @@ def get_effective_object(self):
             .label("_RowNumber"),
         )
         .select_from(ObjectsTable)
-        .filter(ObjectsTable.Start_Validity <= datetime.now())
+        .filter(ObjectsTable.Start_Validity <= datetime.utcnow())
         .filter(ObjectsTable.Code == self.Code)
     )
 
@@ -33,7 +33,7 @@ def get_effective_object(self):
         .filter(subq.c._RowNumber == 1)
         .filter(
             or_(
-                subq.c.End_Validity > datetime.now(),
+                subq.c.End_Validity > datetime.utcnow(),
                 subq.c.End_Validity == None,
             )
         )

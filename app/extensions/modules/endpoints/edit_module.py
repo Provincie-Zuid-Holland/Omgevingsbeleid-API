@@ -77,7 +77,7 @@ class EndpointHandler:
             setattr(self._module, key, value)
 
         self._module.Modified_By_UUID = self._user.UUID
-        self._module.Modified_Date = datetime.now()
+        self._module.Modified_Date = datetime.utcnow()
 
         self._db.add(self._module)
         self._db.flush()

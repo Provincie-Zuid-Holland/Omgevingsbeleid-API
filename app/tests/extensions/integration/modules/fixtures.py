@@ -223,7 +223,7 @@ def populate_statics(db: Session):
 
 @pytest.fixture(scope="class")
 def populate_objects(db: Session, local_tables):
-    now = datetime.now()
+    now = datetime.utcnow()
     five_days_ago = now - timedelta(days=5)
     five_days_later = now + timedelta(days=5)
     object_factory = ObjectFixtureFactory(db, local_tables)

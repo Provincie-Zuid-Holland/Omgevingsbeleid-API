@@ -99,7 +99,7 @@ class EndpointHandler:
         self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_in: CompleteModule = object_in
-        self._timepoint: datetime = datetime.now()
+        self._timepoint: datetime = datetime.utcnow()
 
     def handle(self) -> ResponseOK:
         guard_module_is_locked(self._module)

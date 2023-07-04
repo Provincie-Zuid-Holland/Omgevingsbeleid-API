@@ -55,7 +55,7 @@ class EndpointHandler:
         self._module: ModuleTable = module
         self._object_context: ModuleObjectContextTable = object_context
         self._object_static: ObjectStaticsTable = object_static
-        self._timepoint: datetime = datetime.now()
+        self._timepoint: datetime = datetime.utcnow()
 
     def handle(self) -> ResponseOK:
         guard_valid_user(

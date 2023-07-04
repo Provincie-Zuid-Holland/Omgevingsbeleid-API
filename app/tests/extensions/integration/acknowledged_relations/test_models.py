@@ -15,7 +15,7 @@ class TestModelIntegration:
         my_side = AcknowledgedRelationSide(
             Object_ID=1,
             Object_Type="beleidskeuze",
-            Acknowledged=datetime.now(),
+            Acknowledged=datetime.utcnow(),
             Acknowledged_By_UUID=my_user,
             Explanation="Relatie naar beleidskeuze 1",
         )
@@ -26,9 +26,9 @@ class TestModelIntegration:
 
         ack_table: AcknowledgedRelationsTable = local_tables.AcknowledgedRelationsTable(
             Requested_By_Code=my_side.Code,
-            Created_Date=datetime.now(),
+            Created_Date=datetime.utcnow(),
             Created_By_UUID=my_user,
-            Modified_Date=datetime.now(),
+            Modified_Date=datetime.utcnow(),
             Modified_By_UUID=my_user,
         )
         ack_table.with_sides(my_side, their_side)
