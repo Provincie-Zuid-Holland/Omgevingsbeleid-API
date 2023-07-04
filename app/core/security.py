@@ -17,10 +17,10 @@ def create_access_token(
     subject: Union[str, Any], expires_delta: Optional[timedelta] = None
 ) -> str:
     if expires_delta is None:
-        expires_delta = timedelta(60 * 4)
+        expires_delta = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     if settings.DEBUG_MODE:
-        expires_delta = timedelta(60 * 99)  # longer for dev
+        expires_delta = timedelta(days=5)  # longer for dev
 
     expire = datetime.utcnow() + expires_delta
     to_encode = {"exp": expire, "sub": str(subject)}
