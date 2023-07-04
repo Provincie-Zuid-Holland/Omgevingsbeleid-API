@@ -1,6 +1,7 @@
 from typing import Type
 from datetime import datetime
 import uuid
+from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends
@@ -38,7 +39,7 @@ class EndpointHandler:
         self._response_type: Type[BaseModel] = response_type
         self._user: UsersTable = user
         self._object_in: dict = object_in
-        self._timepoint: datetime = datetime.now()
+        self._timepoint: datetime = datetime.utcnow()
 
     def handle(self) -> Type[BaseModel]:
         static_fields: dict = {}

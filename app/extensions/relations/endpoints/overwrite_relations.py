@@ -79,7 +79,7 @@ class EndpointHandler:
         change_log: ChangeLogTable = ChangeLogTable(
             Object_Type=self._object_type,
             Object_ID=self._object_id,
-            Created_Date=datetime.now(),
+            Created_Date=datetime.utcnow(),
             Created_By_UUID=self._user.UUID,
             Action_Type="overwrite_relations",
             Action_Data=action_data,

@@ -31,7 +31,7 @@ class TestModuleRepository:
     @pytest.fixture(autouse=True)
     def setup(self, db, local_tables, setup_db):  # noqa
         # timestamps
-        self.now = datetime.now()
+        self.now = datetime.utcnow()
         self.five_days_ago = self.now - timedelta(days=5)
         self.five_days_later = self.now + timedelta(days=5)
 
@@ -182,7 +182,7 @@ class TestModuleObjectRepository:
     @pytest.fixture(autouse=True)
     def setup(self, db, local_tables, setup_db):  # noqa
         # timestamps
-        self.now = datetime.now()
+        self.now = datetime.utcnow()
         self.five_days_ago = self.now - timedelta(days=5)
         self.five_days_later = self.now + timedelta(days=5)
 

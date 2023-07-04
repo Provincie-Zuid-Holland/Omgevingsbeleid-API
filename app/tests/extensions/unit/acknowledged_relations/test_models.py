@@ -23,7 +23,7 @@ class TestAcknowledgedRelationsSide:
         side_a = AcknowledgedRelationSide(
             Object_ID=1,
             Object_Type="beleidskeuze",
-            Acknowledged=datetime.now(),
+            Acknowledged=datetime.utcnow(),
             Title="side_a title",
             Explanation="side_a expl",
         )
@@ -43,7 +43,7 @@ class TestAcknowledgedRelationsSide:
         assert side_a.Acknowledged_Date is None
 
         user_uuid = uuid4()
-        now = datetime.now()
+        now = datetime.utcnow()
         side_a.approve(user_uuid, now)
 
         assert side_a.Is_Acknowledged is True
@@ -76,9 +76,9 @@ class TestAcknowledgedRelation:
             Side_B=side_b,
             Requested_By_Code=side_a.Code,
             Created_By_UUID=user_uuid,
-            Created_Date=datetime.now(),
+            Created_Date=datetime.utcnow(),
             Modified_By_UUID=user_uuid,
-            Modified_Date=datetime.now(),
+            Modified_Date=datetime.utcnow(),
         )
 
     def test_relation_approved(self, base_relation):

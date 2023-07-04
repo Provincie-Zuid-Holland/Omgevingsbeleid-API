@@ -53,7 +53,7 @@ class AcknowledgedRelationSide(AcknowledgedRelationBase):
     def disapprove(self):
         self.Acknowledged = None
 
-    def approve(self, user_uuid: uuid.UUID, timepoint: datetime = datetime.now()):
+    def approve(self, user_uuid: uuid.UUID, timepoint: datetime = datetime.utcnow()):
         if self.Is_Acknowledged:
             return
 

@@ -59,7 +59,7 @@ class TestLineageResolvers:
 
     @pytest.fixture
     def populate_db(self, local_tables: LocalTables, db: Session, populate_users):
-        self.now = datetime.now()
+        self.now = datetime.utcnow()
         self.five_days_ago = self.now - timedelta(days=5)
         self.five_days_later = self.now + timedelta(days=5)
         self.non_valid = local_tables.ObjectsTable(

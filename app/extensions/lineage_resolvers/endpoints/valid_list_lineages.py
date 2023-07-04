@@ -91,7 +91,7 @@ class ValidListLineagesEndpoint(Endpoint):
             )
             .select_from(ObjectsTable)
             .filter(ObjectsTable.Object_Type == self._object_type)
-            .filter(ObjectsTable.Start_Validity <= datetime.now())
+            .filter(ObjectsTable.Start_Validity <= datetime.utcnow())
             .subquery()
         )
 
@@ -101,7 +101,7 @@ class ValidListLineagesEndpoint(Endpoint):
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(),
+                    subq.c.End_Validity > datetime.utcnow(),
                     subq.c.End_Validity == None,
                 )
             )

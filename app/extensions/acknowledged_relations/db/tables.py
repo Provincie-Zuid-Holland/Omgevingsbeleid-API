@@ -96,12 +96,12 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
     def deny(self):
         if self.Denied is not None:
             return
-        self.Denied = datetime.now()
+        self.Denied = datetime.utcnow()
 
     def delete(self):
         if self.Is_Deleted:
             return
-        self.Deleted_At = datetime.now()
+        self.Deleted_At = datetime.utcnow()
 
     # dynamic property for better ORM filtering.
     @hybrid_property

@@ -52,7 +52,7 @@ class EndpointHandler:
         self._db: Session = db
         self._user: UsersTable = user
         self._object_in: ModuleCreate = object_in
-        self._timepoint: datetime = datetime.now()
+        self._timepoint: datetime = datetime.utcnow()
 
     def handle(self) -> ModuleCreatedResponse:
         module: ModuleTable = ModuleTable(

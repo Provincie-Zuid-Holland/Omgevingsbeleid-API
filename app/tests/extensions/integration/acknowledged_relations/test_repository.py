@@ -22,7 +22,7 @@ class TestAcknowledgedRelationsRepository:
     @pytest.fixture(autouse=True)
     def setup(self, db, local_tables, relation_repository):  # noqa
         # timestamps
-        self.now = datetime.now()
+        self.now = datetime.utcnow()
         self.five_days_ago = self.now - timedelta(days=5)
         self.five_days_later = self.now + timedelta(days=5)
 
@@ -146,7 +146,7 @@ class TestAcknowledgedRelationsRepository:
             From_Explanation="me",
             To_Code="beleidskeuze-1",
             To_Acknowledged=None,
-            Denied=datetime.now(),
+            Denied=datetime.utcnow(),
         )
         db.add(relation_denied)
         db.commit()
@@ -173,7 +173,7 @@ class TestAcknowledgedRelationsRepository:
             From_Explanation="me",
             To_Code="beleidskeuze-1",
             To_Acknowledged=None,
-            Deleted_At=datetime.now(),
+            Deleted_At=datetime.utcnow(),
         )
         db.add(relation_deleted)
         db.commit()

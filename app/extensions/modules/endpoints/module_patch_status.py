@@ -61,7 +61,7 @@ class EndpointHandler:
         status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
             Module_ID=self._module.Module_ID,
             Status=self._object_in.Status,
-            Created_Date=datetime.now(),
+            Created_Date=datetime.utcnow(),
             Created_By_UUID=self._user.UUID,
         )
         self._db.add(status)

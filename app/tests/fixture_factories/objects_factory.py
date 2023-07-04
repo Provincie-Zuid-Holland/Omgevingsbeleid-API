@@ -98,8 +98,8 @@ class ObjectFixtureFactory(FixtureDataFactory):
         return updated_base_data
 
     def generate_sample_data(self, custom_values=None):
-        five_days_ago = datetime.now() - timedelta(days=5)
-        five_days_later = datetime.now() + timedelta(days=5)
+        five_days_ago = datetime.utcnow() - timedelta(days=5)
+        five_days_later = datetime.utcnow() + timedelta(days=5)
         # Default values
         default_values = defaultdict(None)
         default_values["Object_ID"] = 1

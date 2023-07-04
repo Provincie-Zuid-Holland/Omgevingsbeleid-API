@@ -66,7 +66,7 @@ class TestModulesEndpoints:
         self, request, setup_db_once, populate_users, populate_statics, populate_objects
     ):  # noqa
         # timestamps
-        request.cls.now = datetime.now()
+        request.cls.now = datetime.utcnow()
         request.cls.five_days_ago = request.cls.now - timedelta(days=5)
         request.cls.five_days_later = request.cls.now + timedelta(days=5)
 
@@ -380,7 +380,7 @@ class TestModulesEndpoints:
         new_status = local_tables.ModuleStatusHistoryTable(
             Module_ID=existing_module.Module_ID,
             Status=ModuleStatusCode.Vastgesteld.value,
-            Created_Date=datetime.now(),
+            Created_Date=datetime.utcnow(),
             Created_By_UUID=self.super_user.UUID,
         )
         existing_module.status_history.append(new_status)
