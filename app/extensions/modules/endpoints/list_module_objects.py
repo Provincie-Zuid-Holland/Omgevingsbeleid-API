@@ -20,6 +20,8 @@ from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class ListModuleObjectsEndpoint(Endpoint):
@@ -45,7 +47,7 @@ class ListModuleObjectsEndpoint(Endpoint):
                 depends_module_object_repository
             ),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
-            # user: UsersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> List[ModuleObjectShort]:
             return self._handler(
                 module_object_repository=module_object_repository,
