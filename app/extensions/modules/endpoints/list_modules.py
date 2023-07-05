@@ -74,16 +74,16 @@ class ListModulesEndpoint(Endpoint):
             only_active=only_active,
             mine=filter_on_me,
             object_code=object_code,
-            offset=pagination.get_offset,
-            limit=pagination.get_limit,
+            offset=pagination.offset,
+            limit=pagination.limit,
         )
 
         modules = [Module.from_orm(r) for r in paginated_result.items]
 
         return PagedResponse[Module](
             total=paginated_result.total_count,
-            offset=pagination.get_offset,
-            limit=pagination.get_limit,
+            offset=pagination.offset,
+            limit=pagination.limit,
             results=modules,
         )
 

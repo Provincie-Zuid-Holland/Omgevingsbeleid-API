@@ -62,8 +62,8 @@ class ListAllLatestObjectsEndpoint(Endpoint):
         paged_result = object_repo.get_latest_filtered(
             owner_uuid=owner_uuid,
             object_type=object_type,
-            offset=pagination.get_offset,
-            limit=pagination.get_limit,
+            offset=pagination.offset,
+            limit=pagination.limit,
             sort=pagination.sort,
         )
 
@@ -74,8 +74,8 @@ class ListAllLatestObjectsEndpoint(Endpoint):
 
         return PagedResponse[GenericObjectShort](
             total=paged_result.total_count,
-            limit=pagination.get_limit,
-            offset=pagination.get_offset,
+            limit=pagination.limit,
+            offset=pagination.offset,
             results=rows,
         )
 

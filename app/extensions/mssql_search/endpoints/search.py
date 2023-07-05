@@ -63,7 +63,7 @@ class EndpointHandler:
             raise ValueError("Missing search query")
         if '\\' in json.dumps(self._query):
             raise ValueError("Invalid search characters")
-        if self._pagination.get_limit() > 50:
+        if self._pagination.limit() > 50:
             raise ValueError("Pagination limit is too high")
 
         stmt = text(
@@ -173,8 +173,8 @@ class EndpointHandler:
 
         stmt = stmt.bindparams(
             query=f'"{self._query}"',
-            offset=self._pagination.get_offset,
-            limit=self._pagination.get_limit,
+            offset=self._pagination.offset,
+            limit=self._pagination.limit,
         )
 
         results = self._db.execute(stmt)
@@ -206,8 +206,8 @@ class EndpointHandler:
 
         return PagedResponse[SearchObject](
             total=total_count,
-            offset=self._pagination.get_offset,
-            limit=self._pagination.get_limit,
+            offset=self._pagination.offset,
+            limit=self._pagination.limit,
             results=search_objects,
         )
 

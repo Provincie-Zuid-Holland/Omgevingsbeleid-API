@@ -107,8 +107,8 @@ class ModuleListLineageTreeEndpoint(Endpoint):
         paginated_result = query_paginated(
             query=stmt,
             session=db,
-            limit=pagination.get_limit,
-            offset=pagination.get_offset,
+            limit=pagination.limit,
+            offset=pagination.offset,
             sort=(ModuleObjectsTable.Modified_Date, pagination.sort),
         )
 
@@ -121,8 +121,8 @@ class ModuleListLineageTreeEndpoint(Endpoint):
 
         return PagedResponse[self._response_type](
             total=paginated_result.total_count,
-            offset=pagination.get_offset,
-            limit=pagination.get_limit,
+            offset=pagination.offset,
+            limit=pagination.limit,
             results=rows,
         )
 

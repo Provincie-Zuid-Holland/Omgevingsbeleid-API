@@ -90,8 +90,8 @@ class ValidListLineageTreeEndpoint(Endpoint):
         paginated_result = query_paginated(
             query=stmt,
             session=db,
-            limit=pagination.get_limit,
-            offset=pagination.get_offset,
+            limit=pagination.limit,
+            offset=pagination.offset,
             sort=(ObjectsTable.Modified_Date, pagination.sort),
         )
 
@@ -104,8 +104,8 @@ class ValidListLineageTreeEndpoint(Endpoint):
 
         return PagedResponse[self._response_type](
             total=paginated_result.total_count,
-            offset=pagination.get_offset,
-            limit=pagination.get_limit,
+            offset=pagination.offset,
+            limit=pagination.limit,
             results=rows,
         )
 

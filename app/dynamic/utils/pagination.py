@@ -9,21 +9,17 @@ from sqlalchemy.sql import Select
 
 
 class Pagination(BaseModel):
-    offset: Optional[int] = Field(default=None)
-    limit: Optional[int] = Field(default=None)
+    offset: int = Field(default=None)
+    limit: int = Field(default=None)
     sort: str = Field(default="asc")
 
-    @property
-    def get_offset(self) -> int:
-        if self.offset is None:
-            return 0
-        return self.offset
+    @validator("offset", pre=True, always=True)
+    def default_offset(cls, v):
+        return v if v is not None else 0
 
-    @property
-    def get_limit(self) -> int:
-        if self.limit is None:
-            return 20
-        return self.limit
+    @validator("limit", pre=True, always=True)
+    def default_limit(cls, v):
+        return v if v is not None else 20
 
     @validator("sort", pre=True)
     def validate_sort(cls, v):
