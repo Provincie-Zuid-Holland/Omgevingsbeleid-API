@@ -69,8 +69,8 @@ class EndpointHandler:
         stmt = self._get_query()
         stmt = stmt.bindparams(
             query=f'"{self._query}"',
-            offset=self._pagination.get_offset(),
-            limit=self._pagination.get_limit(),
+            offset=self._pagination.offset,
+            limit=self._pagination.limit,
         )
 
         results = self._db.execute(stmt)
@@ -99,8 +99,8 @@ class EndpointHandler:
 
         return PagedResponse[SearchObject](
             total=total_count,
-            offset=self._pagination.get_offset(),
-            limit=self._pagination.get_limit(),
+            offset=self._pagination.offset,
+            limit=self._pagination.limit,
             results=search_objects,
         )
 
