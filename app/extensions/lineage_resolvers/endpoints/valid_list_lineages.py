@@ -107,6 +107,15 @@ class ValidListLineagesEndpoint(Endpoint):
             )
         )
 
+        event: BeforeSelectExecutionEvent = event_dispatcher.dispatch(
+            BeforeSelectExecutionEvent.create(
+                query=stmt,
+                response_model=self._response_model,
+                objects_table_ref=aliased_objects,
+            )
+        )
+        stmt = event.payload.query
+
         paginated_result = query_paginated(
             query=stmt,
             session=db,

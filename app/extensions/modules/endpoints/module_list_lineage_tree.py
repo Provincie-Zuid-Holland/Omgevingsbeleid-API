@@ -104,6 +104,15 @@ class ModuleListLineageTreeEndpoint(Endpoint):
             .filter(ModuleObjectsTable.Object_ID == lineage_id)
         )
 
+        event: BeforeSelectExecutionEvent = event_dispatcher.dispatch(
+            BeforeSelectExecutionEvent.create(
+                query=stmt,
+                response_model=self._response_model,
+                objects_table_ref=ModuleObjectsTable,
+            )
+        )
+        stmt = event.payload.query
+
         paginated_result = query_paginated(
             query=stmt,
             session=db,
