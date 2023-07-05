@@ -1,28 +1,33 @@
-from dataclasses import dataclass
-from typing import Generic, List, TypeVar, Optional, Any
+from typing import Generic, List, Tuple, TypeVar, Optional, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, validator
 from pydantic.generics import GenericModel
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, desc, asc
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Select
 
 
-@dataclass
-class Pagination:
-    offset: Optional[int] = None
-    limit: Optional[int] = None
+class Pagination(BaseModel):
+    offset: int = Field(default=None)
+    limit: int = Field(default=None)
+    sort: str = Field(default="asc")
 
-    def get_offset(self) -> int:
-        if self.offset is None:
-            return 0
-        return self.offset
+    @validator("offset", pre=True, always=True)
+    def default_offset(cls, v):
+        return v if v is not None else 0
 
-    def get_limit(self) -> int:
-        if self.limit is None:
-            return 20
-        return self.limit
+    @validator("limit", pre=True, always=True)
+    def default_limit(cls, v):
+        return v if v is not None else 20
+
+    @validator("sort", pre=True)
+    def validate_sort(cls, v):
+        if isinstance(v, str):
+            v = v.lower()
+            if v not in ("asc", "desc"):
+                raise ValueError('sort must be "asc" or "desc"')
+        return v
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -39,24 +44,42 @@ class PagedResponse(GenericModel, Generic[T]):
     results: List[T]
 
 
-@dataclass
-class PaginatedQueryResult:
-    items: Any
-    total_count: int = 0
+class PaginatedQueryResult(BaseModel):
+    items: List[Any] = Field(...)
+    total_count: int = Field(0)
 
 
-def query_paginated(query: Select, session: Session, limit=-1, offset=0):
+def query_paginated(
+    query: Select,
+    session: Session,
+    limit: int = -1,
+    offset: int = 0,
+    sort: Optional[Tuple] = None,
+):
     """
     Extend a query with pagination and wrap the query results
     in a generic response containing pagination meta data.
+
+    if `sort` arg is not provided, make sure the query given
+    already has a order_by clause.
+
+    `sort` should be a tuple like (column, sort_direction)
+    where `sort_direction` is either 'asc' or 'desc'
+    and `column` is the sqlalch column object.
     """
-    # build paginated query
+    if sort is not None:
+        column, sort_direction = sort
+        if sort_direction.lower() == "desc":
+            query = query.order_by(desc(column))
+        else:
+            query = query.order_by(asc(column))
+
     paginated = query.limit(limit).offset(offset)
-    # query for getting the total count
+
+    # seperate query for getting the total count
     count_stmt = select(func.count()).select_from(query.alias())
 
-    # fetch results
+    # fetch both query results and combine
     results = session.execute(paginated).scalars().all()
     total_count = session.execute(count_stmt).scalar_one()
-
-    return PaginatedQueryResult(results, total_count)
+    return PaginatedQueryResult(items=list(results), total_count=total_count)

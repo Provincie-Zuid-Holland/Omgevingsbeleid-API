@@ -108,6 +108,9 @@ api:
     - prefix: /modules/objects/latest
       endpoints:
         - resolver: list_module_objects
+    - prefix: /objects/valid
+      endpoints:
+        - resolver: list_all_latest_objects
 
 columns:
   # Titel

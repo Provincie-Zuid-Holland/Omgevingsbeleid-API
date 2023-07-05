@@ -48,14 +48,16 @@ class ListUsersEndpoint(Endpoint):
         pagination: Pagination = Depends(depends_pagination),
     ) -> PagedResponse[UserShort]:
         paginated_result = repostiory.get_active(
-            limit=pagination.get_limit(), offset=pagination.get_offset()
+            limit=pagination.limit,
+            offset=pagination.offset,
+            sort=pagination.sort,
         )
         users: List[UserShort] = [UserShort.from_orm(u) for u in paginated_result.items]
 
         return PagedResponse[UserShort](
             total=paginated_result.total_count,
-            offset=pagination.get_offset(),
-            limit=pagination.get_limit(),
+            offset=pagination.offset,
+            limit=pagination.limit,
             results=users,
         )
 

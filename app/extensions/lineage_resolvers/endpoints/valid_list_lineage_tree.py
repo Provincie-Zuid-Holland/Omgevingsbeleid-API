@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 import pydantic
 
 from sqlalchemy.orm import Session
-from sqlalchemy import desc, select
+from sqlalchemy import select
 from app.core.dependencies import depends_db
 from app.dynamic.db.objects_table import ObjectsTable
 
@@ -85,7 +85,6 @@ class ValidListLineageTreeEndpoint(Endpoint):
             select(ObjectsTable)
             .filter(ObjectsTable.Object_Type == self._object_type)
             .filter(ObjectsTable.Object_ID == lineage_id)
-            .order_by(desc(ObjectsTable.Modified_Date))
         )
 
         event: BeforeSelectExecutionEvent = event_dispatcher.dispatch(
@@ -100,8 +99,9 @@ class ValidListLineageTreeEndpoint(Endpoint):
         paginated_result = query_paginated(
             query=stmt,
             session=db,
-            limit=pagination.get_limit(),
-            offset=pagination.get_offset(),
+            limit=pagination.limit,
+            offset=pagination.offset,
+            sort=(ObjectsTable.Modified_Date, pagination.sort),
         )
 
         rows: List[self._response_type] = [
@@ -113,8 +113,8 @@ class ValidListLineageTreeEndpoint(Endpoint):
 
         return PagedResponse[self._response_type](
             total=paginated_result.total_count,
-            offset=pagination.get_offset(),
-            limit=pagination.get_limit(),
+            offset=pagination.offset,
+            limit=pagination.limit,
             results=rows,
         )
 
