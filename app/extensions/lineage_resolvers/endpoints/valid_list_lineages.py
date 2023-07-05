@@ -104,14 +104,14 @@ class ValidListLineagesEndpoint(Endpoint):
                     subq.c.End_Validity == None,
                 )
             )
-            .order_by(desc(subq.c.Modified_Date))
         )
 
         paginated_result = query_paginated(
             query=stmt,
             session=db,
-            limit=pagination.get_limit(),
-            offset=pagination.get_offset(),
+            limit=pagination.get_limit,
+            offset=pagination.get_offset,
+            sort=(subq.c.Modified_Date, pagination.sort),
         )
 
         results: List[self._response_type] = []
@@ -121,8 +121,8 @@ class ValidListLineagesEndpoint(Endpoint):
 
         return PagedResponse[self._response_type](
             total=paginated_result.total_count,
-            offset=pagination.get_offset(),
-            limit=pagination.get_limit(),
+            offset=pagination.get_offset,
+            limit=pagination.get_limit,
             results=results,
         )
 

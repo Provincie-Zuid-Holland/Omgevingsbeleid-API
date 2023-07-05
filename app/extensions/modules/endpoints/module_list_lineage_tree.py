@@ -2,7 +2,7 @@ from typing import List, Type
 
 from fastapi import APIRouter, Depends
 import pydantic
-from sqlalchemy import desc, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 
@@ -101,14 +101,14 @@ class ModuleListLineageTreeEndpoint(Endpoint):
             .filter(ModuleObjectsTable.Module_ID == module.Module_ID)
             .filter(ModuleObjectsTable.Object_Type == self._object_type)
             .filter(ModuleObjectsTable.Object_ID == lineage_id)
-            .order_by(desc(ModuleObjectsTable.Modified_Date))
         )
 
         paginated_result = query_paginated(
             query=stmt,
             session=db,
-            limit=pagination.get_limit(),
-            offset=pagination.get_offset(),
+            limit=pagination.get_limit,
+            offset=pagination.get_offset,
+            sort=(ModuleObjectsTable.Modified_Date, pagination.sort),
         )
 
         rows: List[self._response_type] = [
@@ -120,8 +120,8 @@ class ModuleListLineageTreeEndpoint(Endpoint):
 
         return PagedResponse[self._response_type](
             total=paginated_result.total_count,
-            offset=pagination.get_offset(),
-            limit=pagination.get_limit(),
+            offset=pagination.get_offset,
+            limit=pagination.get_limit,
             results=rows,
         )
 

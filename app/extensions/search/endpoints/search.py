@@ -52,8 +52,8 @@ class EndpointHandler:
         table_rows, total_count = query_paginated(
             query=stmt,
             session=self._db,
-            limit=self._pagination.get_limit(),
-            offset=self._pagination.get_offset(),
+            limit=self._pagination.get_limit,
+            offset=self._pagination.get_offset,
         )
 
         search_objects: List[SearchObject] = [
@@ -62,8 +62,8 @@ class EndpointHandler:
 
         return PagedResponse[SearchObject](
             total=total_count,
-            limit=self._pagination.get_limit(),
-            offset=self._pagination.get_offset(),
+            limit=self._pagination.get_limit,
+            offset=self._pagination.get_offset,
             results=search_objects,
         )
 

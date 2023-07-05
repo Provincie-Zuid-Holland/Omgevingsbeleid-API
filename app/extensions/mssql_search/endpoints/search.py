@@ -60,7 +60,7 @@ class EndpointHandler:
     def handle(self) -> PagedResponse[SearchObject]:
         if not len(self._query):
             raise ValueError("Missing search query")
-        if self._pagination.get_limit() > 50:
+        if self._pagination.get_limit > 50:
             raise ValueError("Pagination limit is too high")
 
         stmt = text(
@@ -170,8 +170,8 @@ class EndpointHandler:
 
         stmt = stmt.bindparams(
             query=self._query,
-            offset=self._pagination.get_offset(),
-            limit=self._pagination.get_limit(),
+            offset=self._pagination.get_offset,
+            limit=self._pagination.get_limit,
         )
 
         results = self._db.execute(stmt)
@@ -203,8 +203,8 @@ class EndpointHandler:
 
         return PagedResponse[SearchObject](
             total=total_count,
-            offset=self._pagination.get_offset(),
-            limit=self._pagination.get_limit(),
+            offset=self._pagination.get_offset,
+            limit=self._pagination.get_limit,
             results=search_objects,
         )
 
