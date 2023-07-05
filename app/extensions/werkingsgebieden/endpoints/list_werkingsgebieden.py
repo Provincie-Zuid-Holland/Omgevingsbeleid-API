@@ -50,7 +50,7 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
         self, repository: WerkingsgebiedenRepository, pagination: Pagination
     ) -> PagedResponse[Werkingsgebied]:
         paged_results = repository.get_all_paginated(
-            pagination.get_offset(), pagination.get_limit()
+            pagination.get_offset, pagination.get_limit
         )
 
         werkingsgebieden: List[Werkingsgebied] = [
@@ -58,8 +58,8 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
         ]
         return PagedResponse[Werkingsgebied](
             total=paged_results.total_count,
-            offset=pagination.get_offset(),
-            limit=pagination.get_limit(),
+            offset=pagination.get_offset,
+            limit=pagination.get_limit,
             results=werkingsgebieden,
         )
 

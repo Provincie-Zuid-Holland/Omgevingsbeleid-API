@@ -1,15 +1,19 @@
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.dependencies import FilterObjectCode, depends_filter_object_code
+from app.dynamic.dependencies import (
+    FilterObjectCode,
+    depends_filter_object_code,
+    depends_pagination,
+)
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.modules.db.tables import ModuleTable
+from app.dynamic.utils.pagination import PagedResponse, Pagination
 from app.extensions.modules.dependencies import depends_module_repository
 from app.extensions.modules.models import Module
 from app.extensions.modules.repository.module_repository import ModuleRepository
@@ -30,25 +34,22 @@ class ListModulesEndpoint(Endpoint):
         def fastapi_handler(
             only_mine: bool = True,
             only_active: bool = True,
+            pagination: Pagination = Depends(depends_pagination),
             user: UsersTable = Depends(depends_current_active_user),
             module_repository: ModuleRepository = Depends(depends_module_repository),
-            maybe_filter_code: Optional[FilterObjectCode] = Depends(
+            object_code: Optional[FilterObjectCode] = Depends(
                 depends_filter_object_code
             ),
-        ) -> List[Module]:
+        ) -> PagedResponse[Module]:
             return self._handler(
-                module_repository,
-                user,
-                only_mine,
-                only_active,
-                maybe_filter_code,
+                module_repository, user, only_mine, only_active, object_code, pagination
             )
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=List[Module],
+            response_model=PagedResponse[Module],
             summary=f"List the modules",
             description=None,
             tags=["Modules"],
@@ -62,19 +63,29 @@ class ListModulesEndpoint(Endpoint):
         user: UsersTable,
         only_mine: bool,
         only_active: bool,
-        maybe_filter_code: Optional[FilterObjectCode],
-    ) -> List[Module]:
+        object_code: Optional[FilterObjectCode],
+        pagination: Pagination,
+    ):
         filter_on_me: Optional[UUID] = None
         if only_mine:
             filter_on_me = user.UUID
 
-        modules: List[ModuleTable] = module_repository.get_with_filters(
+        paginated_result = module_repository.get_with_filters(
             only_active=only_active,
             mine=filter_on_me,
-            maybe_filter_code=maybe_filter_code,
+            object_code=object_code,
+            offset=pagination.get_offset,
+            limit=pagination.get_limit,
         )
 
-        return modules
+        modules = [Module.from_orm(r) for r in paginated_result.items]
+
+        return PagedResponse[Module](
+            total=paginated_result.total_count,
+            offset=pagination.get_offset,
+            limit=pagination.get_limit,
+            results=modules,
+        )
 
 
 class ListModulesEndpointResolver(EndpointResolver):

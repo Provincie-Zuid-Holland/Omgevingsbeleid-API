@@ -1,31 +1,27 @@
-from typing import Optional, List
+from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, or_, select
-from sqlalchemy.orm import Session
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.dependencies import FilterObjectCode
+from app.dynamic.repository.repository import BaseRepository
+from app.dynamic.utils.pagination import PaginatedQueryResult
 
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 
 
-class ModuleRepository:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
+class ModuleRepository(BaseRepository):
     def get_by_id(self, id: int) -> Optional[ModuleTable]:
         stmt = select(ModuleTable).where(ModuleTable.Module_ID == id)
-        maybe_module = self._db.scalars(stmt).first()
+        return self.fetch_first(stmt)
 
-        return maybe_module
-
-    def get_with_filters(
+    def get_filtered_query(
         self,
         only_active: bool,
         mine: Optional[UUID],
-        maybe_filter_code: Optional[FilterObjectCode],
-    ) -> List[ModuleTable]:
+        object_code: Optional[FilterObjectCode],
+    ):
         filters = []
         if only_active:
             filters.append(and_(ModuleTable.Closed == False))
@@ -42,9 +38,9 @@ class ModuleRepository:
                 )
             )
 
-        if maybe_filter_code is not None:
+        if object_code is not None:
             filters.append(
-                and_(ModuleObjectContextTable.Code == maybe_filter_code.get_code())
+                and_(ModuleObjectContextTable.Code == object_code.get_code())
             )
 
         stmt = (
@@ -61,5 +57,16 @@ class ModuleRepository:
             .filter(*filters)
         )
 
-        rows: List[ModuleTable] = [r for r, in self._db.execute(stmt).all()]
-        return rows
+        return stmt
+
+    def get_with_filters(
+        self,
+        only_active: bool,
+        mine: Optional[UUID],
+        object_code: Optional[FilterObjectCode],
+        offset: int = 0,
+        limit: int = 20,
+    ) -> PaginatedQueryResult:
+        stmt = self.get_filtered_query(only_active, mine, object_code)
+        paged_result = self.fetch_paginated(statement=stmt, offset=offset, limit=limit)
+        return paged_result
