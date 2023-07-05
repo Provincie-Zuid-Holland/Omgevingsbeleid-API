@@ -66,5 +66,7 @@ class ModuleRepository(BaseRepository):
         limit: int = 20,
     ) -> PaginatedQueryResult:
         stmt = self.get_filtered_query(only_active, mine, object_code)
-        paged_result = self.fetch_paginated(statement=stmt, offset=offset, limit=limit, sort=(ModuleTable.Modified_Date, "desc"))
+        paged_result = self.fetch_paginated(
+            statement=stmt, offset=offset, limit=limit, sort=(ModuleTable.Modified_Date, "desc")
+        )
         return paged_result
