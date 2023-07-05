@@ -88,11 +88,9 @@ def depends_string_filters(
 def depends_pagination(
     offset: Optional[int] = None,
     limit: Optional[int] = None,
+    sort: Optional[str] = "asc",
 ) -> Pagination:
-    return Pagination(
-        offset=offset,
-        limit=limit,
-    )
+    return Pagination(offset=offset, limit=limit, sort=sort)
 
 
 class FilterObjectCode(BaseModel):

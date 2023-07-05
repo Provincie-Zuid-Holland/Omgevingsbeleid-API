@@ -41,13 +41,13 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
         return router
 
     def _handler(self, repository: WerkingsgebiedenRepository, pagination: Pagination) -> PagedResponse[Werkingsgebied]:
-        paged_results = repository.get_all_paginated(pagination.get_offset(), pagination.get_limit())
+        paged_results = repository.get_all_paginated(pagination.offset, pagination.limit)
 
         werkingsgebieden: List[Werkingsgebied] = [Werkingsgebied.from_orm(w) for w in paged_results.items]
         return PagedResponse[Werkingsgebied](
             total=paged_results.total_count,
-            offset=pagination.get_offset(),
-            limit=pagination.get_limit(),
+            offset=pagination.offset,
+            limit=pagination.limit,
             results=werkingsgebieden,
         )
 

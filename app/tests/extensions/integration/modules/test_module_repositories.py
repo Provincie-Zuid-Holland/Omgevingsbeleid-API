@@ -88,7 +88,7 @@ class TestModuleRepository:
         db.add(mod)
         db.commit()
 
-        result = module_repo.get_with_filters(only_active=True, maybe_filter_code=None, mine=None)
+        result = module_repo.get_with_filters(only_active=True, object_code=None, mine=None)
         assert result is not None
         for module in result:
             assert module.Closed != 1
@@ -125,7 +125,7 @@ class TestModuleRepository:
             patch(f"{base_path}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
             patch(f"{base_path}.ModuleTable", local_tables.ModuleTable),
         ):
-            result = module_repo.get_with_filters(only_active=False, maybe_filter_code=None, mine=self.pf_user.UUID)
+            result = module_repo.get_with_filters(only_active=False, object_code=None, mine=self.pf_user.UUID)
 
         assert result is not None
         for module in result:
@@ -156,7 +156,7 @@ class TestModuleRepository:
             patch(f"{base_path}.ModuleObjectsTable", local_tables.ModuleObjectsTable),
             patch(f"{base_path}.ModuleTable", local_tables.ModuleTable),
         ):
-            result = module_repo.get_with_filters(only_active=False, maybe_filter_code=code_filter, mine=None)
+            result = module_repo.get_with_filters(only_active=False, object_code=code_filter, mine=None)
 
         assert len(result) == 3
 

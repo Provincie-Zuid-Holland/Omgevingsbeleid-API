@@ -7,7 +7,7 @@ from app.extensions.modules.repository import ModuleObjectRepository
 
 
 def get_last_module_version(self):
-    query = ModuleObjectRepository.lastest_versions_query(code=self.Code)
+    query = ModuleObjectRepository.latest_versions_query(code=self.Code)
     db: Session = object_session(self)
     return db.scalars(query).first()
 

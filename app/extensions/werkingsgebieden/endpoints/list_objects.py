@@ -67,8 +67,8 @@ class ListObjectsInGeoEndpoint(Endpoint):
                 repository=repository,
                 area_list=object_in.Area_List,
                 object_types=object_in.Object_Types,
-                offset=pagination.get_offset(),
-                limit=pagination.get_limit(),
+                offset=pagination.offset,
+                limit=pagination.limit,
             )
 
         router.add_api_route(

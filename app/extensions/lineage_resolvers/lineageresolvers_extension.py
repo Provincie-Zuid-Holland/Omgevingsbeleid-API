@@ -21,4 +21,5 @@ class LineageResolversExtension(Extension):
             endpoints.ValidListLineageTreeEndpointResolver(),
             endpoints.ObjectVersionEndpointResolver(),
             endpoints.ObjectLatestEndpointResolver(),
+            endpoints.ListAllLatestObjectsResolver(),
         ]

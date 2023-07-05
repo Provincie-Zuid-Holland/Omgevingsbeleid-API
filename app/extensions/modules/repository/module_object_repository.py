@@ -4,23 +4,20 @@ from typing import List, Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import and_
 
+from app.dynamic.repository.repository import BaseRepository
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.models.models import ModuleStatusCode
 
 
-class ModuleObjectRepository:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
+class ModuleObjectRepository(BaseRepository):
     def get_by_uuid(self, uuid: UUID) -> Optional[ModuleObjectsTable]:
         stmt = select(ModuleObjectsTable).filter(ModuleObjectsTable.UUID == uuid)
-        maybe_object = self._db.scalars(stmt).first()
-        return maybe_object
+        return self.fetch_first(stmt)
 
     def get_by_object_type_and_uuid(self, object_type: str, uuid: UUID) -> Optional[ModuleObjectsTable]:
         stmt = (
@@ -28,8 +25,7 @@ class ModuleObjectRepository:
             .filter(ModuleObjectsTable.UUID == uuid)
             .filter(ModuleObjectsTable.Object_Type == object_type)
         )
-        maybe_object = self._db.scalars(stmt).first()
-        return maybe_object
+        return self.fetch_first(stmt)
 
     def get_by_module_id_object_type_and_uuid(
         self, module_id: int, object_type: str, uuid: UUID
@@ -40,8 +36,7 @@ class ModuleObjectRepository:
             .filter(ModuleObjectsTable.Module_ID == module_id)
             .filter(ModuleObjectsTable.Object_Type == object_type)
         )
-        maybe_object = self._db.scalars(stmt).first()
-        return maybe_object
+        return self.fetch_first(stmt)
 
     def get_latest_by_id(self, module_id: int, object_type: str, object_id: int) -> Optional[ModuleObjectsTable]:
         stmt = (
@@ -51,8 +46,7 @@ class ModuleObjectRepository:
             .filter(ModuleObjectsTable.Object_ID == object_id)
             .order_by(desc(ModuleObjectsTable.Modified_Date))
         )
-        maybe_object = self._db.scalars(stmt).first()
-        return maybe_object
+        return self.fetch_first(stmt)
 
     def get_objects_in_time(self, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
         subq = (
@@ -126,9 +120,7 @@ class ModuleObjectRepository:
             status_list = ModuleStatusCode.after(minimum_status)
 
         query = self.latest_versions_query(code=code, status_filter=status_list, is_active=is_active)
-
-        module_objects: List[ModuleObjectsTable] = self._db.scalars(query).all()
-        return module_objects
+        return self.fetch_all(query)
 
     @staticmethod
     def all_latest_query(
@@ -186,8 +178,7 @@ class ModuleObjectRepository:
             status_filter=status_list,
             owner_uuid=owner_uuid,
         )
-        module_objects: List[ModuleObjectsTable] = self._db.scalars(query).all()
-        return module_objects
+        return self.fetch_all(query)
 
     def patch_latest_module_object(
         self,
