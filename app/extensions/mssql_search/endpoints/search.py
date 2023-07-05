@@ -17,6 +17,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, Pagination
+from app.dynamic.utils.queries import get_unique_object_types
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.users.db.tables import UsersTable
@@ -52,11 +53,13 @@ class EndpointHandler:
         search_config: SearchConfig,
         pagination: Pagination,
         query: str,
+        object_type: Optional[str] = None,
     ):
         self._db: Session = db
         self._search_config: SearchConfig = search_config
         self._pagination: Pagination = pagination
         self._query: str = query
+        self._object_type: Optional[str] = object_type
 
     def handle(self) -> PagedResponse[SearchObject]:
         if not len(self._query):
@@ -65,8 +68,16 @@ class EndpointHandler:
             raise ValueError("Invalid search characters")
         if self._pagination.limit > 50:
             raise ValueError("Pagination limit is too high")
+        if self._object_type:
+            available_types = get_unique_object_types(self._db)
+            if self._object_type not in available_types:
+                raise ValueError(f"Provided Object_Type not found. Available in DB: {available_types}")
 
-        stmt = self._get_query()
+            object_type_filter = f" AND v.Object_Type = '{self._object_type}' "
+        else:
+            object_type_filter = ""
+
+        stmt = self._get_query(object_type_filter)
         stmt = stmt.bindparams(
             query=f'"{self._query}"',
             offset=self._pagination.offset,
@@ -104,7 +115,7 @@ class EndpointHandler:
             results=search_objects,
         )
 
-    def _get_query(self) -> TextClause:
+    def _get_query(self, object_type_filter) -> TextClause:
         stmt = text(
             f"""
                 WITH valid_uuids (Module_ID, UUID, Object_Type, Object_ID, Title, Description)
@@ -201,10 +212,11 @@ class EndpointHandler:
                     ) AS x
                     GROUP BY [KEY]
                 ) AS s ON s.[KEY] = v.UUID
+                WHERE 1=1 {object_type_filter}
                 ORDER BY
                     s.WeightedRank DESC
                 OFFSET
-                    :offset ROWS 
+                    :offset ROWS
                 FETCH
                     NEXT :limit ROWS ONLY
             """
@@ -220,16 +232,12 @@ class MssqlSearchEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             query: str,
+            object_type: Optional[str] = None,
             db: Session = Depends(depends_db),
             pagination: Pagination = Depends(depends_pagination),
-            user: UsersTable = Depends(depends_current_active_user),
+            # user: UsersTable = Depends(depends_current_active_user),
         ) -> PagedResponse[SearchObject]:
-            handler: EndpointHandler = EndpointHandler(
-                db,
-                self._search_config,
-                pagination,
-                query,
-            )
+            handler: EndpointHandler = EndpointHandler(db, self._search_config, pagination, query, object_type)
             return handler.handle()
 
         router.add_api_route(
