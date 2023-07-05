@@ -5,3 +5,5 @@ from .valid_list_lineages import ValidListLineagesEndpointResolver
 
 from .object_latest import ObjectLatestEndpointResolver
 from .object_version import ObjectVersionEndpointResolver
+
+from .all_latest_objects import ListAllLatestObjectsResolver
