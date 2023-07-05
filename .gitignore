@@ -20,3 +20,4 @@ output/*
 .vscode
 notes.md
 scripts/import/data
+.python-version
