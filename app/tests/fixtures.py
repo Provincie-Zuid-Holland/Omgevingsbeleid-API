@@ -1,11 +1,10 @@
 from datetime import datetime
-from typing import Optional, Dict, List, Set
+from typing import Dict, List, Optional, Set
 from uuid import UUID
 
 from pydantic import BaseModel
-
-from sqlalchemy.orm import Mapped, declarative_base, relationship
 from sqlalchemy import Index
+from sqlalchemy.orm import Mapped, declarative_base, relationship
 
 from app.core.db.mixins import HasIDType, SerializerMixin, TimeStamped
 from app.dynamic.db.object_static_table import StaticBaseColumns
@@ -61,9 +60,7 @@ class LocalTableFactory:
         return LocalObjectStaticsTable
 
     def _generate_objects_table(self):
-        class LocalObjectsTable(
-            self.base, ObjectBaseColumns, TimeStamped, HasIDType, SerializerMixin
-        ):
+        class LocalObjectsTable(self.base, ObjectBaseColumns, TimeStamped, HasIDType, SerializerMixin):
             __tablename__ = "objects"
 
             Title: Mapped[Optional[str]]
@@ -83,9 +80,7 @@ class LocalTableFactory:
         class LocalChangeLogTable(self.base, ChangeLogBaseColumns):
             __tablename__ = "change_log"
 
-        change_log_object_type_id = Index(
-            "change_log_action_type_id", "Action_Type", "Object_Type", "Object_ID"
-        )
+        change_log_object_type_id = Index("change_log_action_type_id", "Action_Type", "Object_Type", "Object_ID")
 
         return LocalChangeLogTable
 

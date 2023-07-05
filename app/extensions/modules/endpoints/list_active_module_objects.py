@@ -9,17 +9,11 @@ from app.dynamic.dependencies import depends_event_dispatcher
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.modules.event.retrieved_module_objects_event import (
-    RetrievedModuleObjectsEvent,
-)
+from app.extensions.modules.dependencies import depends_module_object_repository
+from app.extensions.modules.event.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.extensions.modules.models import ActiveModuleObject
-from app.extensions.modules.dependencies import (
-    depends_module_object_repository,
-)
 from app.extensions.modules.models.models import ModuleStatusCode
-from app.extensions.modules.repository.module_object_repository import (
-    ModuleObjectRepository,
-)
+from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
@@ -46,15 +40,11 @@ class ListActiveModuleObjectsEndpoint(Endpoint):
         def fastapi_handler(
             lineage_id: int,
             minimum_status: ModuleStatusCode = ModuleStatusCode.Ontwerp_PS,
-            module_object_repository: ModuleObjectRepository = Depends(
-                depends_module_object_repository
-            ),
+            module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> List[ActiveModuleObject]:
-            return self._handler(
-                lineage_id, minimum_status, module_object_repository, event_dispatcher
-            )
+            return self._handler(lineage_id, minimum_status, module_object_repository, event_dispatcher)
 
         router.add_api_route(
             self._path,
@@ -85,9 +75,7 @@ class ListActiveModuleObjectsEndpoint(Endpoint):
                 detail=f"No active revisions found for lineage {lineage_id}",
             )
 
-        rows: List[ActiveModuleObject] = [
-            ActiveModuleObject.from_orm(r) for r in module_objects
-        ]
+        rows: List[ActiveModuleObject] = [ActiveModuleObject.from_orm(r) for r in module_objects]
         # Ask extensions for more information
         event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(
             RetrievedModuleObjectsEvent.create(

@@ -1,14 +1,14 @@
-from typing import List, Set, Dict, Optional
-from dataclasses import dataclass
 from collections import defaultdict
-from pydantic import BaseModel
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Set
 
-from sqlalchemy import desc, func, select, or_
+from pydantic import BaseModel
+from sqlalchemy import desc, func, or_, select
 from sqlalchemy.orm import Session
-from app.dynamic.db.objects_table import ObjectsTable
 
 from app.dynamic.config.models import DynamicObjectModel, Model
 from app.dynamic.converter import Converter
+from app.dynamic.db.objects_table import ObjectsTable
 from app.extensions.relations.db.tables import RelationsTable
 
 
@@ -72,13 +72,9 @@ class AddRelationsService:
                 target_code = relation_row["_Relation_To_Code"]
 
             relation_object_type: str = relation_row.get("Object_Type")
-            object_config: ObjectTypeDetails = config.object_type_details[
-                relation_object_type
-            ]
+            object_config: ObjectTypeDetails = config.object_type_details[relation_object_type]
 
-            deserialized_relation_row: dict = self._converter.deserialize(
-                object_config.object_id, relation_row
-            )
+            deserialized_relation_row: dict = self._converter.deserialize(object_config.object_id, relation_row)
 
             # Created wrapped relation model if configures with wrapped_with_relation_data
             field_value: dict = deserialized_relation_row
@@ -121,9 +117,7 @@ class AddRelationsService:
             object_id: str = object_config.get("object_id")
             object_type: str = object_config.get("object_type")
             to_field: str = object_config.get("to_field")
-            wrapped_with_relation_data: bool = object_config.get(
-                "wrapped_with_relation_data", False
-            )
+            wrapped_with_relation_data: bool = object_config.get("wrapped_with_relation_data", False)
 
             object_types.add(object_type)
             to_field_map[object_type] = ObjectTypeDetails(
@@ -155,9 +149,7 @@ class AddRelationsService:
             .select_from(RelationsTable)
             .join(
                 ObjectsTable,
-                ObjectsTable.Code.in_(
-                    [RelationsTable.From_Code, RelationsTable.To_Code]
-                ),
+                ObjectsTable.Code.in_([RelationsTable.From_Code, RelationsTable.To_Code]),
             )
             .filter(
                 or_(

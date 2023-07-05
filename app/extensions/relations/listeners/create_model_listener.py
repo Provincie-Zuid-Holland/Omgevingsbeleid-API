@@ -2,11 +2,10 @@ from typing import List
 
 import pydantic
 
-from app.dynamic.event.types import Listener
+from app.dynamic.config.models import ExtensionModel, Model
 from app.dynamic.event.create_model_event import CreateModelEvent
-from app.dynamic.config.models import Model
+from app.dynamic.event.types import Listener
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.config.models import ExtensionModel
 
 
 class CreateModelListener(Listener[CreateModelEvent]):

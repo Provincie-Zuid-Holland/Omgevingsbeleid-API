@@ -1,31 +1,23 @@
 from datetime import datetime
 from typing import List, Type
 
-from fastapi import APIRouter, Depends
 import pydantic
+from fastapi import APIRouter, Depends
 from sqlalchemy import desc, func, or_, select
 from sqlalchemy.orm import Session, aliased
-from app.core.dependencies import depends_db
-from app.dynamic.db.objects_table import ObjectsTable
 
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
-from app.dynamic.config.models import Api, DynamicObjectModel, Model, EndpointConfig
-from app.dynamic.dependencies import (
-    depends_event_dispatcher,
-    depends_string_filters,
-    depends_pagination,
-)
-from app.dynamic.event import BeforeSelectExecutionEvent
+from app.core.dependencies import depends_db
+from app.dynamic.config.models import Api, DynamicObjectModel, EndpointConfig, Model
+from app.dynamic.converter import Converter
+from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
+from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.dependencies import depends_event_dispatcher, depends_pagination, depends_string_filters
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
+from app.dynamic.event import BeforeSelectExecutionEvent, RetrievedObjectsEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
-from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.utils.filters import Filters
 from app.dynamic.utils.pagination import PagedResponse, Pagination, query_paginated
-from app.dynamic.db.filters_converter import (
-    FiltersConverterResult,
-    convert_filters,
-)
 
 
 class ValidListLineagesEndpoint(Endpoint):
@@ -166,9 +158,7 @@ class ValidListLineagesEndpointResolver(EndpointResolver):
         response_model: DynamicObjectModel = models_resolver.get(
             resolver_config.get("response_model"),
         )
-        allowed_filter_columns: List[str] = resolver_config.get(
-            "allowed_filter_columns", []
-        )
+        allowed_filter_columns: List[str] = resolver_config.get("allowed_filter_columns", [])
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
         return ValidListLineagesEndpoint(

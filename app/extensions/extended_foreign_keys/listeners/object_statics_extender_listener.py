@@ -1,8 +1,8 @@
 from typing import List, Optional
 
-from app.dynamic.event.types import Listener
-from app.dynamic.event.create_model_event import CreateModelEvent
 from app.dynamic.config.models import Model
+from app.dynamic.event.create_model_event import CreateModelEvent
+from app.dynamic.event.types import Listener
 
 
 class ObjectStaticsExtenderListener(Listener[CreateModelEvent]):

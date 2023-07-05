@@ -5,11 +5,7 @@ from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.dependencies import (
-    FilterObjectCode,
-    depends_filter_object_code,
-    depends_pagination,
-)
+from app.dynamic.dependencies import FilterObjectCode, depends_filter_object_code, depends_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
@@ -37,13 +33,9 @@ class ListModulesEndpoint(Endpoint):
             pagination: Pagination = Depends(depends_pagination),
             user: UsersTable = Depends(depends_current_active_user),
             module_repository: ModuleRepository = Depends(depends_module_repository),
-            object_code: Optional[FilterObjectCode] = Depends(
-                depends_filter_object_code
-            ),
+            object_code: Optional[FilterObjectCode] = Depends(depends_filter_object_code),
         ) -> PagedResponse[Module]:
-            return self._handler(
-                module_repository, user, only_mine, only_active, object_code, pagination
-            )
+            return self._handler(module_repository, user, only_mine, only_active, object_code, pagination)
 
         router.add_api_route(
             self._path,

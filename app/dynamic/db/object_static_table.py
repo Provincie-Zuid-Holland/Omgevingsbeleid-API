@@ -17,9 +17,7 @@ class StaticBaseColumns:
 class ObjectStaticsTable(Base, StaticBaseColumns, SerializerMixin):
     __tablename__ = "object_statics"
 
-    Objects: Mapped[List[ObjectsTable]] = relationship(
-        "ObjectsTable", back_populates="ObjectStatics", lazy="select"
-    )
+    Objects: Mapped[List[ObjectsTable]] = relationship("ObjectsTable", back_populates="ObjectStatics", lazy="select")
 
     def __repr__(self) -> str:
         return f"ObjectStatics(Code={self.Code!r})"

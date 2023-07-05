@@ -1,9 +1,9 @@
 import pytest
-from sqlalchemy.orm import Session
 from fastapi import BackgroundTasks
+from sqlalchemy.orm import Session
 
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.event.types import Event, Listener
+from app.dynamic.event_dispatcher import EventDispatcher
 
 
 class MockEvent(Event):

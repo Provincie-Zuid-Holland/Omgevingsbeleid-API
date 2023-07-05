@@ -1,6 +1,5 @@
 from typing import Dict
 
-
 from app.dynamic.validators.validator import Validator
 
 

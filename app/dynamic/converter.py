@@ -1,5 +1,5 @@
-from typing import Callable, Dict, List
 from dataclasses import dataclass
+from typing import Callable, Dict, List
 
 from app.dynamic.config.models import IntermediateObject
 
@@ -119,9 +119,7 @@ class Converter:
             deserializer_functions: List[Callable] = []
             for deserializer_id in column.deserializers:
                 if not deserializer_id in self._serializers:
-                    raise RuntimeError(
-                        f"Missing deserializer with id: '{deserializer_id}'"
-                    )
+                    raise RuntimeError(f"Missing deserializer with id: '{deserializer_id}'")
                 deserializer_functions.append(self._serializers[deserializer_id])
             column_deserializers[column.name] = ColumnDeserialize(
                 field_name=field.name,

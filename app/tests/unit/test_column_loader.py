@@ -1,6 +1,7 @@
 import pytest
-from app.dynamic.config.models import Column
+
 from app.dynamic.config.loader.columns import columns_loader
+from app.dynamic.config.models import Column
 
 
 class TestColumnLoader:

@@ -1,8 +1,8 @@
 from typing import List
 
 from fastapi import APIRouter, Depends
-from app.core.utils.utils import table_to_dict
 
+from app.core.utils.utils import table_to_dict
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -16,9 +16,7 @@ from app.extensions.modules.dependencies import (
     depends_module_status_by_id,
 )
 from app.extensions.modules.models.models import ModuleSnapshot
-from app.extensions.modules.repository.module_object_repository import (
-    ModuleObjectRepository,
-)
+from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
@@ -31,17 +29,13 @@ class EndpointHandler:
         module: ModuleTable,
         status: ModuleStatusHistoryTable,
     ):
-        self._module_object_repository: ModuleObjectRepository = (
-            module_object_repository
-        )
+        self._module_object_repository: ModuleObjectRepository = module_object_repository
         self._user: UsersTable = user
         self._module: ModuleTable = module
         self._status: ModuleStatusHistoryTable = status
 
     def handle(self) -> ModuleSnapshot:
-        module_objects: List[
-            ModuleObjectsTable
-        ] = self._module_object_repository.get_objects_in_time(
+        module_objects: List[ModuleObjectsTable] = self._module_object_repository.get_objects_in_time(
             self._module.Module_ID,
             self._status.Created_Date,
         )
@@ -65,9 +59,7 @@ class ModuleSnapshotEndpoint(Endpoint):
             user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_module),
             status: ModuleStatusHistoryTable = Depends(depends_module_status_by_id),
-            module_object_repository: ModuleObjectRepository = Depends(
-                depends_module_object_repository
-            ),
+            module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
         ) -> ModuleSnapshot:
             handler: EndpointHandler = EndpointHandler(
                 module_object_repository,

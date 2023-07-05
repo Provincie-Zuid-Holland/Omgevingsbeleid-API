@@ -1,9 +1,6 @@
+from .all_latest_objects import ListAllLatestObjectsResolver
 from .edit_object_static import EditObjectStaticEndpointResolver
-
-from .valid_list_lineage_tree import ValidListLineageTreeEndpointResolver
-from .valid_list_lineages import ValidListLineagesEndpointResolver
-
 from .object_latest import ObjectLatestEndpointResolver
 from .object_version import ObjectVersionEndpointResolver
-
-from .all_latest_objects import ListAllLatestObjectsResolver
+from .valid_list_lineage_tree import ValidListLineageTreeEndpointResolver
+from .valid_list_lineages import ValidListLineagesEndpointResolver

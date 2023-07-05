@@ -1,10 +1,10 @@
 from typing import List
+
 from pydantic import BaseModel
 
-
-from app.dynamic.event.types import Listener
-from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 from app.dynamic.converter import Converter
+from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
+from app.dynamic.event.types import Listener
 from app.extensions.relations.service.add_relations import AddRelationsService
 
 

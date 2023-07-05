@@ -1,13 +1,11 @@
 from typing import Optional
 from uuid import UUID
+
 from app.core.utils.utils import table_to_dict
 from app.dynamic.db.objects_table import ObjectsTable
-
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.extensions.modules.models.models import ModuleStatusCode
-from app.extensions.modules.repository.module_object_repository import (
-    ModuleObjectRepository,
-)
+from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 
 
 class ObjectProvider:
@@ -17,9 +15,7 @@ class ObjectProvider:
         module_object_repository: ModuleObjectRepository,
     ):
         self._object_repository: ObjectRepository = object_repository
-        self._module_object_repository: ModuleObjectRepository = (
-            module_object_repository
-        )
+        self._module_object_repository: ModuleObjectRepository = module_object_repository
 
     def get_by_uuid(self, uuid: UUID) -> Optional[dict]:
         maybe_object: Optional[ObjectsTable] = self._object_repository.get_by_uuid(uuid)

@@ -1,18 +1,18 @@
-from datetime import datetime
 import json
+from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import delete, or_, select
 from sqlalchemy.orm import Session
-from app.core.dependencies import depends_db
 
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
+from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.utils.response import ResponseOK
+from app.dynamic.converter import Converter
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
+from app.dynamic.utils.response import ResponseOK
 from app.extensions.change_logger.db.tables import ChangeLogTable
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.relations.models.models import RelationShort
@@ -57,9 +57,7 @@ class EndpointHandler:
     def _guard_invalid_relations(self):
         for relation in self._overwrite_list:
             if relation.Object_Type not in self._allowed_object_types_relations:
-                raise ValueError(
-                    f"Invalid object_type for relation with '@TODO object-id'"
-                )
+                raise ValueError(f"Invalid object_type for relation with '@TODO object-id'")
 
     def _log_action(self):
         action_data: str = json.dumps([l.dict() for l in self._overwrite_list])
@@ -182,9 +180,7 @@ class OverwriteRelationsEndpointResolver(EndpointResolver):
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         # You can not use this endpoint if you do not specify relations
-        allowed_object_types_relations: List[str] = resolver_config.get(
-            "allowed_object_types_relations", []
-        )
+        allowed_object_types_relations: List[str] = resolver_config.get("allowed_object_types_relations", [])
         if not allowed_object_types_relations:
             raise RuntimeError("Missing required config allowed_object_types_relations")
 

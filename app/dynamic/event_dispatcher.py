@@ -1,6 +1,6 @@
-from typing import List, Generic, Any, Dict, Optional
-from fastapi import BackgroundTasks
+from typing import Any, Dict, Generic, List, Optional
 
+from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
 from .event.types import EventType, Listener

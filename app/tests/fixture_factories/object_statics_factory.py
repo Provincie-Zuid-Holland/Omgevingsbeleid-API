@@ -1,6 +1,7 @@
-from uuid import UUID
-from sqlalchemy.orm import Session
 from collections import defaultdict
+from uuid import UUID
+
+from sqlalchemy.orm import Session
 
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 
@@ -26,9 +27,7 @@ class ObjectStaticsFixtureFactory(FixtureDataFactory):
 
     def _create_object(self, data):
         dynamic_attributes = {
-            key: data.pop(key)
-            for key in list(data)
-            if key not in ObjectStaticsTable.__table__.columns.keys()
+            key: data.pop(key) for key in list(data) if key not in ObjectStaticsTable.__table__.columns.keys()
         }
 
         if self.local_tables:
@@ -96,9 +95,7 @@ class ObjectStaticsFixtureFactory(FixtureDataFactory):
             },
         ]
 
-        updated_base_data = [
-            self.generate_sample_data(custom_values=item) for item in base_data
-        ]
+        updated_base_data = [self.generate_sample_data(custom_values=item) for item in base_data]
         return updated_base_data
 
     def generate_sample_data(self, custom_values=None):

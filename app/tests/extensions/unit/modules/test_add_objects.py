@@ -1,22 +1,16 @@
-import pytest
-from uuid import uuid4
 from unittest.mock import MagicMock, patch
+from uuid import uuid4
+
+import pytest
 from fastapi import HTTPException
 
+from app.extensions.modules.endpoints.module_add_existing_object import EndpointHandler as NewExistingObjectEndpoint
+from app.extensions.modules.endpoints.module_add_existing_object import ModuleAddExistingObject
+from app.extensions.modules.endpoints.module_add_new_object import EndpointHandler as NewObjectEndpoint
+from app.extensions.modules.endpoints.module_add_new_object import ModuleAddNewObject
+from app.extensions.modules.models.models import ModuleObjectAction
 from app.tests.extensions.integration.modules.fixtures import ExtendedTableFactory
 from app.tests.fixture_factories.objects_factory import ObjectFixtureFactory
-from app.extensions.modules.models.models import (
-    ModuleObjectAction,
-)
-
-from app.extensions.modules.endpoints.module_add_new_object import (
-    EndpointHandler as NewObjectEndpoint,
-    ModuleAddNewObject,
-)
-from app.extensions.modules.endpoints.module_add_existing_object import (
-    EndpointHandler as NewExistingObjectEndpoint,
-    ModuleAddExistingObject,
-)
 
 
 # local mock permissions
@@ -29,9 +23,7 @@ def mock_guard_module_not_locked(result=True):
 
 
 class TestModuleAddExistingObject:
-    @patch(
-        "app.extensions.modules.permissions.guard_valid_user", new=mock_guard_valid_user
-    )
+    @patch("app.extensions.modules.permissions.guard_valid_user", new=mock_guard_valid_user)
     @patch(
         "app.extensions.modules.permissions.guard_module_not_locked",
         new=mock_guard_module_not_locked,
@@ -73,9 +65,7 @@ class TestModuleAddExistingObject:
 
 
 class TestModuleAddNewObject:
-    @patch(
-        "app.extensions.modules.permissions.guard_valid_user", new=mock_guard_valid_user
-    )
+    @patch("app.extensions.modules.permissions.guard_valid_user", new=mock_guard_valid_user)
     @patch(
         "app.extensions.modules.permissions.guard_module_not_locked",
         new=mock_guard_module_not_locked,

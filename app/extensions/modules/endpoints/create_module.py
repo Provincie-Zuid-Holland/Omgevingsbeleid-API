@@ -1,24 +1,22 @@
+import uuid
 from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field, validator
-import uuid
+from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.converter import Converter
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.modules.permissions import ModulesPermissions
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import (
-    depends_current_active_user_with_permission_curried,
-)
+from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
 
 class ModuleCreate(BaseModel):
@@ -96,9 +94,7 @@ class CreateModuleEndpoint(Endpoint):
         def fastapi_handler(
             object_in: ModuleCreate,
             user: UsersTable = Depends(
-                depends_current_active_user_with_permission_curried(
-                    ModulesPermissions.can_create_module
-                ),
+                depends_current_active_user_with_permission_curried(ModulesPermissions.can_create_module),
             ),
             db: Session = Depends(depends_db),
         ) -> ModuleCreatedResponse:

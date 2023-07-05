@@ -2,11 +2,11 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, or_, select
+
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.dependencies import FilterObjectCode
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult
-
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 
@@ -39,9 +39,7 @@ class ModuleRepository(BaseRepository):
             )
 
         if object_code is not None:
-            filters.append(
-                and_(ModuleObjectContextTable.Code == object_code.get_code())
-            )
+            filters.append(and_(ModuleObjectContextTable.Code == object_code.get_code()))
 
         stmt = (
             select(ModuleTable)

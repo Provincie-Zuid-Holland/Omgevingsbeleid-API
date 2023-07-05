@@ -1,8 +1,8 @@
-from app.dynamic.extension import Extension
-from app.dynamic.event_dispatcher import EventDispatcher
-from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
 import app.extensions.html_assets.listeners as listeners
+from app.dynamic.converter import Converter
+from app.dynamic.event_dispatcher import EventDispatcher
+from app.dynamic.extension import Extension
+from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.html_assets.db.tables import AssetsTable  # noqa
 
 

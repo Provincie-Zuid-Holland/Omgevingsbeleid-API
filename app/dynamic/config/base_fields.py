@@ -1,6 +1,5 @@
 from .models import Field
 
-
 base_fields = [
     Field(
         id="object_id",

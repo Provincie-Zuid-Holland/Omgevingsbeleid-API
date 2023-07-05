@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
-from sqlalchemy import select
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.extensions.html_assets.db.tables import AssetsTable

@@ -1,17 +1,11 @@
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
 from sqlalchemy.orm import Session
 
-from .fixtures import (
-    local_tables,
-    ExtendedLocalTables,
-    relation_repository,
-)  # noqa
+from app.tests.fixture_factories import ObjectStaticsFixtureFactory, UserFixtureFactory
 
-from app.tests.fixture_factories import (
-    UserFixtureFactory,
-    ObjectStaticsFixtureFactory,
-)
+from .fixtures import ExtendedLocalTables, local_tables, relation_repository  # noqa
 
 
 class TestAcknowledgedRelationsRepository:
@@ -85,9 +79,7 @@ class TestAcknowledgedRelationsRepository:
         result = self.repository.get_by_codes(code_a="ambitie-1", code_b="ambitie-5")
         assert result is None
 
-    def test_get_with_filters_requested_by_me(
-        self, local_tables: ExtendedLocalTables
-    ):  # noqa
+    def test_get_with_filters_requested_by_me(self, local_tables: ExtendedLocalTables):  # noqa
         result = self.repository.get_with_filters(
             code=self.relation_1.From_Code,
             requested_by_me=True,
@@ -95,13 +87,10 @@ class TestAcknowledgedRelationsRepository:
         )
         assert len(result) == 1
 
-    def test_get_with_filters_requested_by_anyone(
-        self, db, local_tables: ExtendedLocalTables  # noqa
-    ):
+    def test_get_with_filters_requested_by_anyone(self, db, local_tables: ExtendedLocalTables):  # noqa
         # Add another relation with different requested_by_code
         extra_relation_dict = {
-            column.name: getattr(self.relation_1, column.name)
-            for column in self.relation_1.__table__.columns
+            column.name: getattr(self.relation_1, column.name) for column in self.relation_1.__table__.columns
         }
         extra_relation_dict["Requested_By_Code"] = "beleidskeuze-1"
         extra_relation_dict["From_Code"] = "beleidskeuze-1"
@@ -120,9 +109,7 @@ class TestAcknowledgedRelationsRepository:
         # Requested_By_Code is different
         assert len(result) == 2
 
-    def test_get_filters_acknowledged(
-        self, db: Session, local_tables: ExtendedLocalTables
-    ):  # noqa
+    def test_get_filters_acknowledged(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
         result = self.repository.get_with_filters(
             code=self.relation_acknowledged.Requested_By_Code,
             requested_by_me=True,
@@ -132,9 +119,7 @@ class TestAcknowledgedRelationsRepository:
         # should find only acknowledged records
         assert len(result) == 1
 
-    def test_get_filters_hide_denied(
-        self, db: Session, local_tables: ExtendedLocalTables  # noqa
-    ):
+    def test_get_filters_hide_denied(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
         relation_denied = local_tables.AcknowledgedRelationsTable(
             Created_Date=self.five_days_ago,
             Created_By_UUID=self.ba_user.UUID,
@@ -159,9 +144,7 @@ class TestAcknowledgedRelationsRepository:
         )
         assert len(result) == 1
 
-    def test_get_filters_hide_deleted(
-        self, db: Session, local_tables: ExtendedLocalTables  # noqa
-    ):
+    def test_get_filters_hide_deleted(self, db: Session, local_tables: ExtendedLocalTables):  # noqa
         relation_deleted = local_tables.AcknowledgedRelationsTable(
             Created_Date=self.five_days_ago,
             Created_By_UUID=self.ba_user.UUID,

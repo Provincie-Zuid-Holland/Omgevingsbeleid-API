@@ -4,16 +4,14 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from app.dynamic.dependencies import depends_object_repository, depends_pagination
-from app.dynamic.repository.object_repository import ObjectRepository
-
-from app.dynamic.utils.pagination import Pagination
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
+from app.dynamic.dependencies import depends_object_repository, depends_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import PagedResponse
+from app.dynamic.repository.object_repository import ObjectRepository
+from app.dynamic.utils.pagination import PagedResponse, Pagination
 
 
 class GenericObjectShort(BaseModel):
@@ -68,9 +66,7 @@ class ListAllLatestObjectsEndpoint(Endpoint):
         )
 
         # Cast to pyd model
-        rows: List[GenericObjectShort] = [
-            GenericObjectShort.from_orm(r) for r in paged_result.items
-        ]
+        rows: List[GenericObjectShort] = [GenericObjectShort.from_orm(r) for r in paged_result.items]
 
         return PagedResponse[GenericObjectShort](
             total=paged_result.total_count,

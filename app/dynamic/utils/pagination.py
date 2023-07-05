@@ -1,9 +1,8 @@
-from typing import Generic, List, Tuple, TypeVar, Optional, Any
+from typing import Any, Generic, List, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, Field, validator
 from pydantic.generics import GenericModel
-
-from sqlalchemy import func, select, desc, asc
+from sqlalchemy import asc, desc, func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Select
 
@@ -15,11 +14,19 @@ class Pagination(BaseModel):
 
     @validator("offset", pre=True, always=True)
     def default_offset(cls, v):
-        return v if v is not None else 0
+        if v is None:
+            return 0
+        if v < 0:
+            return 0
+        return v
 
     @validator("limit", pre=True, always=True)
     def default_limit(cls, v):
-        return v if v is not None else 20
+        if v is None:
+            return 20
+        if v > 100:
+            return 20
+        return v
 
     @validator("sort", pre=True)
     def validate_sort(cls, v):

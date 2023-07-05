@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 
-
 from .fixture_factory import FixtureDataFactory
 
 

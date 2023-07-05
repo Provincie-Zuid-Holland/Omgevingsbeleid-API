@@ -1,11 +1,13 @@
 from typing import List, Optional
 from uuid import UUID
+
 from sqlalchemy import asc, select
 
+from app.core.security import get_password_hash, verify_password
 from app.dynamic.repository import BaseRepository
-from app.core.security import verify_password, get_password_hash
 from app.dynamic.utils.pagination import PaginatedQueryResult
 from app.extensions.users.db.tables import UsersTable
+
 from ..model import User
 
 
@@ -14,9 +16,7 @@ class UserRepository(BaseRepository):
         stmt = select(UsersTable).where(UsersTable.UUID == uuid)
         return self.fetch_first(stmt)
 
-    def get_active(
-        self, limit: int = 20, offset: int = 0, sort=None
-    ) -> PaginatedQueryResult:
+    def get_active(self, limit: int = 20, offset: int = 0, sort=None) -> PaginatedQueryResult:
         stmt = select(UsersTable).filter(UsersTable.Status == "Actief")
         return self.fetch_paginated(
             statement=stmt,

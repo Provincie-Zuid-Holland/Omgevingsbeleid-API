@@ -1,31 +1,23 @@
 from typing import List, Type
 
-from fastapi import APIRouter, Depends
 import pydantic
-
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
-from app.core.dependencies import depends_db
-from app.dynamic.db.objects_table import ObjectsTable
+from sqlalchemy.orm import Session
 
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
-from app.dynamic.config.models import Api, Model, EndpointConfig
-from app.dynamic.dependencies import (
-    depends_event_dispatcher,
-    depends_string_filters,
-    depends_pagination,
-)
+from app.core.dependencies import depends_db
+from app.dynamic.config.models import Api, EndpointConfig, Model
+from app.dynamic.converter import Converter
+from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
+from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.dependencies import depends_event_dispatcher, depends_pagination, depends_string_filters
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
+from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.event.before_select_execution import BeforeSelectExecutionEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
-from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.utils.filters import Filters
 from app.dynamic.utils.pagination import PagedResponse, Pagination, query_paginated
-from app.dynamic.db.filters_converter import (
-    FiltersConverterResult,
-    convert_filters,
-)
 
 
 class ValidListLineageTreeEndpoint(Endpoint):
@@ -104,9 +96,7 @@ class ValidListLineageTreeEndpoint(Endpoint):
             sort=(ObjectsTable.Modified_Date, pagination.sort),
         )
 
-        rows: List[self._response_type] = [
-            self._response_type.from_orm(r) for r in paginated_result.items
-        ]
+        rows: List[self._response_type] = [self._response_type.from_orm(r) for r in paginated_result.items]
 
         # Ask extensions for more information
         rows = self._run_events(rows, event_dispatcher)
@@ -148,9 +138,7 @@ class ValidListLineageTreeEndpointResolver(EndpointResolver):
         response_model = models_resolver.get(
             resolver_config.get("response_model"),
         )
-        allowed_filter_columns: List[str] = resolver_config.get(
-            "allowed_filter_columns", []
-        )
+        allowed_filter_columns: List[str] = resolver_config.get("allowed_filter_columns", [])
 
         # Confirm that path arguments are present
         path: str = endpoint_config.prefix + resolver_config.get("path", "")

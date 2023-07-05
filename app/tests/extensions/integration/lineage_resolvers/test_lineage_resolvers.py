@@ -1,50 +1,26 @@
-from pydantic import BaseModel
-import pytest
 import uuid
-from unittest.mock import MagicMock, patch
-
 from datetime import datetime, timedelta
 from typing import List, Optional
+from unittest.mock import MagicMock, patch
 
+import pytest
 from fastapi.exceptions import HTTPException
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.extensions.lineage_resolvers.endpoints.valid_list_lineages import (
-    ValidListLineagesEndpoint,
-)
-from app.extensions.lineage_resolvers.endpoints.valid_list_lineage_tree import (
-    ValidListLineageTreeEndpoint,
-)
-
-from app.extensions.lineage_resolvers.endpoints.object_latest import (
-    ObjectLatestEndpoint,
-)
-
-from app.extensions.lineage_resolvers.endpoints.object_version import (
-    ObjectVersionEndpoint,
-)
-
-from app.extensions.lineage_resolvers.endpoints.object_latest import (
-    ObjectLatestEndpoint,
-)
-
-from app.extensions.lineage_resolvers.endpoints.edit_object_static import (
-    EndpointHandler as EditStaticEndpoint,
-)
+from app.core.utils import table_to_dict
 from app.dynamic.utils.filters import Filters
 from app.dynamic.utils.pagination import Pagination
+from app.extensions.lineage_resolvers.endpoints.edit_object_static import EndpointHandler as EditStaticEndpoint
+from app.extensions.lineage_resolvers.endpoints.object_latest import ObjectLatestEndpoint
+from app.extensions.lineage_resolvers.endpoints.object_version import ObjectVersionEndpoint
+from app.extensions.lineage_resolvers.endpoints.valid_list_lineage_tree import ValidListLineageTreeEndpoint
+from app.extensions.lineage_resolvers.endpoints.valid_list_lineages import ValidListLineagesEndpoint
 from app.tests.fixtures import LocalTables
 from app.tests.helpers import patch_multiple
-from app.core.utils import table_to_dict
 
-from .fixtures import (  # noqa
-    endpoint_lineage_tree,
-    endpoint_object_latest,
-    endpoint_object_version,
-    endpoint_valid_lineage,
-    populate_users,
-)
+from .fixtures import endpoint_object_latest  # noqa
 
 
 class TestEditStaticRequest(BaseModel):
@@ -103,15 +79,9 @@ class TestLineageResolvers:
         )
 
         self.statics = [
-            local_tables.ObjectStaticsTable(
-                Object_Type="ambitie", Object_ID=1, Code="ambitie-1"
-            ),
-            local_tables.ObjectStaticsTable(
-                Object_Type="ambitie", Object_ID=2, Code="ambitie-2"
-            ),
-            local_tables.ObjectStaticsTable(
-                Object_Type="beleidskeuze", Object_ID=1, Code="beleidskeuze-1"
-            ),
+            local_tables.ObjectStaticsTable(Object_Type="ambitie", Object_ID=1, Code="ambitie-1"),
+            local_tables.ObjectStaticsTable(Object_Type="ambitie", Object_ID=2, Code="ambitie-2"),
+            local_tables.ObjectStaticsTable(Object_Type="beleidskeuze", Object_ID=1, Code="beleidskeuze-1"),
         ]
 
         self.super_user = populate_users[0]

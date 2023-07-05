@@ -3,11 +3,11 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy.orm.session import make_transient
-
-from sqlalchemy import select, func, desc
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import aliased
+from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import and_
+
 from app.dynamic.repository.repository import BaseRepository
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
@@ -19,9 +19,7 @@ class ModuleObjectRepository(BaseRepository):
         stmt = select(ModuleObjectsTable).filter(ModuleObjectsTable.UUID == uuid)
         return self.fetch_first(stmt)
 
-    def get_by_object_type_and_uuid(
-        self, object_type: str, uuid: UUID
-    ) -> Optional[ModuleObjectsTable]:
+    def get_by_object_type_and_uuid(self, object_type: str, uuid: UUID) -> Optional[ModuleObjectsTable]:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.UUID == uuid)
@@ -40,9 +38,7 @@ class ModuleObjectRepository(BaseRepository):
         )
         return self.fetch_first(stmt)
 
-    def get_latest_by_id(
-        self, module_id: int, object_type: str, object_id: int
-    ) -> Optional[ModuleObjectsTable]:
+    def get_latest_by_id(self, module_id: int, object_type: str, object_id: int) -> Optional[ModuleObjectsTable]:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.Module_ID == module_id)
@@ -52,9 +48,7 @@ class ModuleObjectRepository(BaseRepository):
         )
         return self.fetch_first(stmt)
 
-    def get_objects_in_time(
-        self, module_id: int, before: datetime
-    ) -> List[ModuleObjectsTable]:
+    def get_objects_in_time(self, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
         subq = (
             select(
                 ModuleObjectsTable,
@@ -72,11 +66,7 @@ class ModuleObjectRepository(BaseRepository):
         )
 
         aliased_objects = aliased(ModuleObjectsTable, subq)
-        stmt = (
-            select(aliased_objects)
-            .filter(subq.c._RowNumber == 1)
-            .filter(subq.c.Deleted == False)
-        )
+        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).filter(subq.c.Deleted == False)
 
         objects: List[ModuleObjectsTable] = self._db.execute(stmt).scalars()
         return objects
@@ -115,11 +105,7 @@ class ModuleObjectRepository(BaseRepository):
 
         subq = subq.subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
-        stmt = (
-            select(aliased_objects)
-            .filter(subq.c._RowNumber == 1)
-            .order_by(desc(subq.c.Modified_Date))
-        )
+        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).order_by(desc(subq.c.Modified_Date))
         return stmt
 
     def get_latest_per_module(
@@ -133,9 +119,7 @@ class ModuleObjectRepository(BaseRepository):
         if minimum_status is not None:
             status_list = ModuleStatusCode.after(minimum_status)
 
-        query = self.latest_versions_query(
-            code=code, status_filter=status_list, is_active=is_active
-        )
+        query = self.latest_versions_query(code=code, status_filter=status_list, is_active=is_active)
         return self.fetch_all(query)
 
     @staticmethod
@@ -175,11 +159,7 @@ class ModuleObjectRepository(BaseRepository):
 
         subq = subq.subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
-        stmt = (
-            select(aliased_objects)
-            .filter(subq.c._RowNumber == 1)
-            .order_by(desc(subq.c.Modified_Date))
-        )
+        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).order_by(desc(subq.c.Modified_Date))
         return stmt
 
     def get_all_latest(

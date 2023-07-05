@@ -3,10 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from sqlalchemy.engine import Engine, create_engine
-from sqlalchemy.orm import (
-    Session,
-    sessionmaker,
-)
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.settings import settings
 from app.dynamic.converter import Converter, ObjectConverterData
@@ -15,14 +12,12 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 from app.extensions.auth.auth_extension import AuthExtension
-from app.extensions.database_migration.database_migration_extension import (
-    DatabaseMigrationExtension,
-)
+from app.extensions.database_migration.database_migration_extension import DatabaseMigrationExtension
 from app.extensions.extended_users.extended_user_extension import ExtendedUserExtension
 from app.extensions.users.users_extension import UsersExtension
-from app.tests.helpers import patch_multiple
-from app.tests.fixtures import TestDynamicApp, LocalTableFactory, MockPermissionService
 from app.tests.fixture_factories import MasterFixtureFactory
+from app.tests.fixtures import LocalTableFactory, MockPermissionService, TestDynamicApp
+from app.tests.helpers import patch_multiple
 
 
 class TestSettings:

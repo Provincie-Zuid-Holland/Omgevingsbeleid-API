@@ -16,9 +16,7 @@ class AddWerkingsgebiedenRelationshipListener(Listener[GenerateTableEvent]):
         setattr(
             event.table_type,
             column.name,
-            mapped_column(
-                column.name, Uuid, nullable=column.nullable, *additional_args
-            ),
+            mapped_column(column.name, Uuid, nullable=column.nullable, *additional_args),
         )
 
         # Add a viewonly relationship for easy access

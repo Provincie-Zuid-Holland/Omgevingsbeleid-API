@@ -1,38 +1,32 @@
-import pytest
-from uuid import UUID
 from datetime import datetime, timedelta
-from typing import Optional, List
+from typing import List, Optional
+from uuid import UUID
 
-from sqlalchemy import ForeignKeyConstraint, ForeignKey
-from sqlalchemy.orm import Mapped, Session, relationship, sessionmaker, mapped_column
+import pytest
+from sqlalchemy import ForeignKey, ForeignKeyConstraint
 from sqlalchemy.engine import Engine, create_engine
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship, sessionmaker
 
 from app.core.db.mixins import HasIDType, TimeStamped, UserMetaData
 from app.core.settings import settings
-from app.dynamic.db.objects_table import ObjectBaseColumns
 from app.dynamic.db.object_static_table import StaticBaseColumns
-from app.extensions.modules.db.tables import (
-    ModuleBaseColumns,
-    ModuleObjectContextColumns,
-    ModuleStatusHistoryColumns,
-)
+from app.dynamic.db.objects_table import ObjectBaseColumns
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsColumns
-
+from app.extensions.modules.db.tables import ModuleBaseColumns, ModuleObjectContextColumns, ModuleStatusHistoryColumns
 from app.extensions.modules.repository import (
-    ModuleObjectRepository,
     ModuleObjectContextRepository,
+    ModuleObjectRepository,
     ModuleRepository,
-    ObjectProvider,
     ModuleStatusRepository,
+    ObjectProvider,
 )
-
-from app.tests.fixtures import LocalTables, LocalTableFactory
 from app.tests.fixture_factories import (
-    UserFixtureFactory,
-    ObjectStaticsFixtureFactory,
-    ObjectFixtureFactory,
     ModuleFixtureFactory,
+    ObjectFixtureFactory,
+    ObjectStaticsFixtureFactory,
+    UserFixtureFactory,
 )
+from app.tests.fixtures import LocalTableFactory, LocalTables
 
 
 ## Add Child classes to probide tables for this extension
@@ -60,9 +54,7 @@ class ExtendedTableFactory(LocalTableFactory):
         )
 
     def _generate_objects_table(self):
-        class LocalObjectsTable(
-            self.base, ObjectBaseColumns, TimeStamped, HasIDType, UserMetaData
-        ):
+        class LocalObjectsTable(self.base, ObjectBaseColumns, TimeStamped, HasIDType, UserMetaData):
             __tablename__ = "objects"
 
             Title: Mapped[Optional[str]]
@@ -77,34 +69,22 @@ class ExtendedTableFactory(LocalTableFactory):
             __tablename__ = "object_statics"
 
             Cached_Title: Mapped[Optional[str]]
-            Owner_1_UUID: Mapped[Optional[UUID]] = mapped_column(
-                ForeignKey("Gebruikers.UUID")
-            )
-            Owner_2_UUID: Mapped[Optional[UUID]] = mapped_column(
-                ForeignKey("Gebruikers.UUID")
-            )
-            Client_1_UUID: Mapped[Optional[UUID]] = mapped_column(
-                ForeignKey("Gebruikers.UUID")
-            )
+            Owner_1_UUID: Mapped[Optional[UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
+            Owner_2_UUID: Mapped[Optional[UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
+            Client_1_UUID: Mapped[Optional[UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
         return LocalObjectStaticsTable
 
     def _generate_module_objects_table(self):
-        class LocalModuleObjectsTable(
-            self.base, ModuleObjectsColumns, TimeStamped, HasIDType, UserMetaData
-        ):
+        class LocalModuleObjectsTable(self.base, ModuleObjectsColumns, TimeStamped, HasIDType, UserMetaData):
             __tablename__ = "module_objects"
 
             Title: Mapped[Optional[str]]
             Start_Validity: Mapped[Optional[datetime]]
             End_Validity: Mapped[Optional[datetime]]
 
-            ModuleObjectContext: Mapped[
-                "LocalModuleObjectContextTable"
-            ] = relationship()  # noqa
-            ObjectStatics: Mapped["LocalObjectStaticsTable"] = relationship(
-                overlaps="ModuleObjectContext"
-            )  # noqa
+            ModuleObjectContext: Mapped["LocalModuleObjectContextTable"] = relationship()  # noqa
+            ObjectStatics: Mapped["LocalObjectStaticsTable"] = relationship(overlaps="ModuleObjectContext")  # noqa
 
             __table_args__ = (
                 ForeignKeyConstraint(
@@ -119,9 +99,7 @@ class ExtendedTableFactory(LocalTableFactory):
         class LocalModuleTable(self.base, ModuleBaseColumns):
             __tablename__ = "modules"
 
-            status_history: Mapped[
-                List["LocalModuleStatusHistoryTable"]
-            ] = relationship(  # noqa
+            status_history: Mapped[List["LocalModuleStatusHistoryTable"]] = relationship(  # noqa
                 back_populates="Module",
                 order_by="asc(LocalModuleStatusHistoryTable.Created_Date)",
             )
@@ -144,16 +122,12 @@ class ExtendedTableFactory(LocalTableFactory):
     def _generate_status_history_table(self):
         class LocalModuleStatusHistoryTable(self.base, ModuleStatusHistoryColumns):
             __tablename__ = "module_status_history"
-            Module: Mapped["LocalModuleTable"] = relationship(
-                back_populates="status_history"
-            )
+            Module: Mapped["LocalModuleTable"] = relationship(back_populates="status_history")
 
         return LocalModuleStatusHistoryTable
 
     def _generate_object_context_table(self):
-        class LocalModuleObjectContextTable(
-            self.base, ModuleObjectContextColumns, TimeStamped, UserMetaData
-        ):
+        class LocalModuleObjectContextTable(self.base, ModuleObjectContextColumns, TimeStamped, UserMetaData):
             __tablename__ = "module_object_context"
 
         return LocalModuleObjectContextTable

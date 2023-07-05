@@ -1,11 +1,11 @@
 import uuid
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
 
 from sqlalchemy import ForeignKey, Unicode
+from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
-from sqlalchemy.sql.expression import select, or_
+from sqlalchemy.sql.expression import or_, select
 
 from app.core.db.base import Base
 from app.core.db.mixins import SerializerMixin, TimeStamped, UserMetaData
@@ -23,12 +23,8 @@ class ModuleBaseColumns(TimeStamped, UserMetaData):
 
     Title: Mapped[str] = mapped_column(default="")
     Description: Mapped[str] = mapped_column(default="")
-    Module_Manager_1_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey("Gebruikers.UUID")
-    )
-    Module_Manager_2_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey("Gebruikers.UUID")
-    )
+    Module_Manager_1_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    Module_Manager_2_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     @property
     def Status(self) -> Optional["ModuleStatusHistoryTable"]:
@@ -77,9 +73,7 @@ class ModuleTable(Base, ModuleBaseColumns):
         back_populates="Module", order_by="asc(ModuleStatusHistoryTable.ID)"
     )
 
-    Created_By: Mapped[List["UsersTable"]] = relationship(
-        primaryjoin="ModuleTable.Created_By_UUID == UsersTable.UUID"
-    )
+    Created_By: Mapped[List["UsersTable"]] = relationship(primaryjoin="ModuleTable.Created_By_UUID == UsersTable.UUID")
     Modified_By: Mapped[List["UsersTable"]] = relationship(
         primaryjoin="ModuleTable.Modified_By_UUID == UsersTable.UUID"
     )
@@ -128,9 +122,7 @@ class ModuleObjectContextColumns:
     Conclusion: Mapped[str]
 
 
-class ModuleObjectContextTable(
-    Base, ModuleObjectContextColumns, TimeStamped, UserMetaData, SerializerMixin
-):
+class ModuleObjectContextTable(Base, ModuleObjectContextColumns, TimeStamped, UserMetaData, SerializerMixin):
     __tablename__ = "module_object_context"
 
     Created_By: Mapped[List["UsersTable"]] = relationship(

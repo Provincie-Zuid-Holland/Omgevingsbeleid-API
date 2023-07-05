@@ -1,8 +1,9 @@
 from typing import Type
 
-from .types import Event
-from ..config.models import Column
 from app.core.db import Base
+
+from ..config.models import Column
+from .types import Event
 
 
 class GenerateTableEvent(Event):

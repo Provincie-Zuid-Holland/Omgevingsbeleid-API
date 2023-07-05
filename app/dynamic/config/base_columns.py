@@ -1,6 +1,5 @@
 from .models import Column
 
-
 base_columns = [
     Column(
         id="object_id",

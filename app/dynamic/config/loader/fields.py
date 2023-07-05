@@ -1,10 +1,9 @@
+from copy import deepcopy
+from datetime import datetime
 from typing import Dict
 from uuid import UUID
-from datetime import datetime
-from copy import deepcopy
 
 from ..models import Field
-
 
 field_types = {
     "int": int,

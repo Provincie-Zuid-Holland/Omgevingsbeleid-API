@@ -1,1 +1,1 @@
-from .models import Module, ModuleStatus, ActiveModuleObject
+from .models import ActiveModuleObject, Module, ModuleStatus

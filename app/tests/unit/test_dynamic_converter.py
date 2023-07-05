@@ -1,14 +1,9 @@
-import pytest
 from typing import Callable
 
+import pytest
+
+from app.dynamic.config.models import Api, Column, EndpointConfig, Field, IntermediateObject
 from app.dynamic.converter import Converter, ObjectConverterData
-from app.dynamic.config.models import (
-    IntermediateObject,
-    Column,
-    Field,
-    Api,
-    EndpointConfig,
-)
 
 
 class TestDynamicConverter:
@@ -44,9 +39,7 @@ class TestDynamicConverter:
             ),
         }
         fields = {
-            "Title": Field(
-                id="Title", column="Title", name="Title", type="str", optional=True
-            ),
+            "Title": Field(id="Title", column="Title", name="Title", type="str", optional=True),
             "Description": Field(
                 id="Description",
                 column="Description",
@@ -68,15 +61,11 @@ class TestDynamicConverter:
         )
 
     @pytest.fixture
-    def object_converter_data(
-        self, converter: Converter, intermediate_object: IntermediateObject
-    ):
+    def object_converter_data(self, converter: Converter, intermediate_object: IntermediateObject):
         converter.build_for_object(intermediate_object)
         return converter._per_object_id[intermediate_object.id]
 
-    def test_build_for_object(
-        self, converter: Converter, intermediate_object: IntermediateObject
-    ):
+    def test_build_for_object(self, converter: Converter, intermediate_object: IntermediateObject):
         assert intermediate_object.id not in converter._per_object_id
 
         converter.build_for_object(intermediate_object)
@@ -93,9 +82,7 @@ class TestDynamicConverter:
         assert column_deserializer1.field_name == "Title"
         assert isinstance(column_deserializer1.deserializers[0], Callable)
 
-        column_deserializer2 = object_converter_data._column_deserializers[
-            "Description"
-        ]
+        column_deserializer2 = object_converter_data._column_deserializers["Description"]
         assert column_deserializer2.field_name == "Description"
         assert isinstance(column_deserializer2.deserializers[0], Callable)
 
@@ -107,9 +94,7 @@ class TestDynamicConverter:
         assert field_serializer2.column_name == "Description"
         assert len(field_serializer2.serializers) == 1
 
-    def test_object_converter_data_deserialize(
-        self, object_converter_data: ObjectConverterData
-    ):
+    def test_object_converter_data_deserialize(self, object_converter_data: ObjectConverterData):
         database_data = {
             "Title": "hello world",
             "Description": "THIS IS A TEST",
@@ -121,9 +106,7 @@ class TestDynamicConverter:
         deserialized_data = object_converter_data.deserialize(database_data)
         assert deserialized_data == expected_result
 
-    def test_object_converter_data_serialize(
-        self, object_converter_data: ObjectConverterData
-    ):
+    def test_object_converter_data_serialize(self, object_converter_data: ObjectConverterData):
         field_data = {
             "Title": "HELLO WORLD",
             "Description": "this is a test",

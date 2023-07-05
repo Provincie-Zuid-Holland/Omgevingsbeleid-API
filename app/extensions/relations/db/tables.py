@@ -8,12 +8,8 @@ from app.core.db.mixins import SerializerMixin
 class RelationsTable(Base, SerializerMixin):
     __tablename__ = "relations"
 
-    From_Code: Mapped[str] = mapped_column(
-        ForeignKey("object_statics.Code"), primary_key=True
-    )
-    To_Code: Mapped[int] = mapped_column(
-        ForeignKey("object_statics.Code"), primary_key=True
-    )
+    From_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
+    To_Code: Mapped[int] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
     Description: Mapped[str]
 
     def __repr__(self) -> str:

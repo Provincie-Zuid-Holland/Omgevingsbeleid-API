@@ -2,19 +2,14 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends
 
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
 from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.converter import Converter
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
-from app.extensions.acknowledged_relations.dependencies import (
-    depends_acknowledged_relations_repository,
-)
-from app.extensions.acknowledged_relations.models.models import (
-    AcknowledgedRelation,
-    build_from_orm,
-)
+from app.extensions.acknowledged_relations.dependencies import depends_acknowledged_relations_repository
+from app.extensions.acknowledged_relations.models.models import AcknowledgedRelation, build_from_orm
 from app.extensions.acknowledged_relations.repository.acknowledged_relations_repository import (
     AcknowledgedRelationsRepository,
 )
@@ -38,17 +33,13 @@ class EndpointHandler:
         self._show_inactive: Optional[bool] = show_inactive
 
     def handle(self) -> List[AcknowledgedRelation]:
-        table_rows: List[
-            AcknowledgedRelationsTable
-        ] = self._repository.get_with_filters(
+        table_rows: List[AcknowledgedRelationsTable] = self._repository.get_with_filters(
             code=self._object_code,
             requested_by_me=self._requested_by_us,
             acknowledged=self._acknowledged,
             show_inactive=self._show_inactive,
         )
-        response: List[AcknowledgedRelation] = [
-            build_from_orm(r, self._object_code) for r in table_rows
-        ]
+        response: List[AcknowledgedRelation] = [build_from_orm(r, self._object_code) for r in table_rows]
         return response
 
 
@@ -74,9 +65,7 @@ class ListAcknowledgedRelationsEndpoint(Endpoint):
             acknowledged: Optional[bool] = None,
             show_inactive: Optional[bool] = None,
             user: UsersTable = Depends(depends_current_user),
-            repository: AcknowledgedRelationsRepository = Depends(
-                depends_acknowledged_relations_repository
-            ),
+            repository: AcknowledgedRelationsRepository = Depends(depends_acknowledged_relations_repository),
         ) -> List[AcknowledgedRelation]:
             handler: EndpointHandler = EndpointHandler(
                 repository,

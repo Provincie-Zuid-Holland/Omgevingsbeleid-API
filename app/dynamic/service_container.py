@@ -2,10 +2,10 @@ from typing import List
 
 import click
 
-from app.dynamic.config.models import IntermediateObject, IntermediateModel
+from app.dynamic.config.models import IntermediateModel, IntermediateObject
+from app.dynamic.converter import Converter
 from app.dynamic.event_dispatcher import EventDispatcher, main_event_dispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
 from app.dynamic.validators.validator_provider import ValidatorProvider
 
 

@@ -4,29 +4,20 @@ from uuid import UUID
 from sqlalchemy import desc, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
-from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.utils.pagination import (
-    PaginatedQueryResult,
-    query_paginated,
-)
-from app.dynamic.repository import BaseRepository
 
+from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.repository import BaseRepository
+from app.dynamic.utils.pagination import PaginatedQueryResult, query_paginated
 from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 
 
 class WerkingsgebiedenRepository(BaseRepository):
     def get_all(self) -> List[WerkingsgebiedenTable]:
-        stmt = select(WerkingsgebiedenTable).order_by(
-            desc(WerkingsgebiedenTable.Modified_Date)
-        )
+        stmt = select(WerkingsgebiedenTable).order_by(desc(WerkingsgebiedenTable.Modified_Date))
         return self.fetch_all(stmt)
 
-    def get_all_paginated(
-        self, offset: int = 0, limit: int = 20
-    ) -> PaginatedQueryResult:
-        stmt = select(WerkingsgebiedenTable).order_by(
-            desc(WerkingsgebiedenTable.Modified_Date)
-        )
+    def get_all_paginated(self, offset: int = 0, limit: int = 20) -> PaginatedQueryResult:
+        stmt = select(WerkingsgebiedenTable).order_by(desc(WerkingsgebiedenTable.Modified_Date))
         return self.fetch_paginated(stmt, offset, limit)
 
     # TODO: Object type filter
@@ -50,11 +41,7 @@ class WerkingsgebiedenRepository(BaseRepository):
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
-        stmt = (
-            select(aliased_objects)
-            .filter(subq.c.get("_RowNumber") == 1)
-            .order_by(desc(subq.c.Modified_Date))
-        )
+        stmt = select(aliased_objects).filter(subq.c.get("_RowNumber") == 1).order_by(desc(subq.c.Modified_Date))
         return stmt
 
     def get_latest_in_area(
@@ -65,8 +52,6 @@ class WerkingsgebiedenRepository(BaseRepository):
         """
         query = self.latest_objects_query(in_area=in_area, object_types=object_types)
 
-        paginated_result = query_paginated(
-            query=query, session=self._db, limit=limit, offset=offset
-        )
+        paginated_result = query_paginated(query=query, session=self._db, limit=limit, offset=offset)
 
         return paginated_result

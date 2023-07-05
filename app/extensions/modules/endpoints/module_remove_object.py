@@ -2,8 +2,8 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.core.dependencies import depends_db
 
+from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.db.object_static_table import ObjectStaticsTable
@@ -19,19 +19,10 @@ from app.extensions.modules.dependencies import (
     depends_active_module_object_context,
     depends_module_object_repository,
 )
-from app.extensions.modules.permissions import (
-    ModulesPermissions,
-    guard_module_not_locked,
-    guard_valid_user,
-)
-from app.extensions.modules.repository.module_object_repository import (
-    ModuleObjectRepository,
-)
+from app.extensions.modules.permissions import ModulesPermissions, guard_module_not_locked, guard_valid_user
+from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import (
-    depends_current_active_user,
-    depends_permission_service,
-)
+from app.extensions.users.dependencies import depends_current_active_user, depends_permission_service
 from app.extensions.users.permission_service import PermissionService
 
 
@@ -47,9 +38,7 @@ class EndpointHandler:
         object_static: ObjectStaticsTable,
     ):
         self._db: Session = db
-        self._module_object_repository: ModuleObjectRepository = (
-            module_object_repository
-        )
+        self._module_object_repository: ModuleObjectRepository = module_object_repository
         self._permission_service: PermissionService = permission_service
         self._user: UsersTable = user
         self._module: ModuleTable = module
@@ -83,17 +72,15 @@ class EndpointHandler:
         self._db.add(self._object_context)
 
     def _patch_module_object_as_deleted(self):
-        new_record: ModuleObjectsTable = (
-            self._module_object_repository.patch_latest_module_object(
-                self._object_context.Module_ID,
-                self._object_context.Object_Type,
-                self._object_context.Object_ID,
-                {
-                    "Deleted": True,
-                },
-                self._timepoint,
-                self._user.UUID,
-            )
+        new_record: ModuleObjectsTable = self._module_object_repository.patch_latest_module_object(
+            self._object_context.Module_ID,
+            self._object_context.Object_Type,
+            self._object_context.Object_ID,
+            {
+                "Deleted": True,
+            },
+            self._timepoint,
+            self._user.UUID,
         )
         self._db.add(new_record)
 
@@ -106,16 +93,12 @@ class ModuleRemoveObjectEndpoint(Endpoint):
         def fastapi_handler(
             user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
-            object_context: ModuleObjectContextTable = Depends(
-                depends_active_module_object_context
-            ),
+            object_context: ModuleObjectContextTable = Depends(depends_active_module_object_context),
             object_static: ObjectStaticsTable = Depends(
                 depends_object_static_by_object_type_and_id,
             ),
             db: Session = Depends(depends_db),
-            module_object_repository: ModuleObjectRepository = Depends(
-                depends_module_object_repository
-            ),
+            module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             permission_service: PermissionService = Depends(depends_permission_service),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(

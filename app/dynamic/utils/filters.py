@@ -1,7 +1,7 @@
-from enum import Enum
-from typing import List, Dict, Optional, Tuple
-from dataclasses import dataclass
 import csv
+from dataclasses import dataclass
+from enum import Enum
+from typing import Dict, List, Optional, Tuple
 
 from fastapi import HTTPException
 

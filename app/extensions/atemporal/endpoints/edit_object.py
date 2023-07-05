@@ -1,20 +1,17 @@
-from datetime import datetime
 import json
+from datetime import datetime
 from typing import Optional, Type
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.dependencies import (
-    depends_object_repository,
-    depends_object_static_by_object_type_and_id_curried,
-)
+from app.dynamic.dependencies import depends_object_repository, depends_object_static_by_object_type_and_id_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
@@ -24,10 +21,7 @@ from app.extensions.atemporal.permissions import AtemporalPermissions
 from app.extensions.change_logger.db.tables import ChangeLogTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import (
-    depends_current_active_user,
-    depends_permission_service,
-)
+from app.extensions.users.dependencies import depends_current_active_user, depends_permission_service
 from app.extensions.users.permission_service import PermissionService
 
 

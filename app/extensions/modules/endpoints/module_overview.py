@@ -1,11 +1,11 @@
-from typing import List, Optional
 import uuid
 from datetime import datetime
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session, load_only, aliased, joinedload
+from sqlalchemy.orm import Session, aliased, joinedload, load_only
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
@@ -13,8 +13,8 @@ from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
+from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import depends_active_module
 from app.extensions.modules.models import Module
 from app.extensions.modules.models.models import ModuleStatus

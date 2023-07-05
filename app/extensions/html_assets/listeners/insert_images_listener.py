@@ -1,22 +1,18 @@
-from typing import Generic, List, Optional, Set, TypeVar
-from dataclasses import dataclass
-from uuid import UUID
-from bs4 import BeautifulSoup
 import re
-import json
+from dataclasses import dataclass
+from typing import Generic, List, Optional, Set, TypeVar
+from uuid import UUID
+
+from bs4 import BeautifulSoup
 from pydantic import BaseModel
-
 from sqlalchemy.orm import Session
-from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 
+from app.dynamic.config.models import DynamicObjectModel, Model
+from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 from app.dynamic.event.types import Listener
-from app.dynamic.config.models import Model, DynamicObjectModel
 from app.extensions.html_assets.db.tables import AssetsTable
-from app.extensions.html_assets.models.meta import ImageMeta
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
-from app.extensions.modules.event.retrieved_module_objects_event import (
-    RetrievedModuleObjectsEvent,
-)
+from app.extensions.modules.event.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 
 
 @dataclass
@@ -42,28 +38,21 @@ class HtmlImagesInserter:
                     continue
 
                 content: str = getattr(row, field_name)
-                try:
-                    soup = BeautifulSoup(content, "html.parser")
-                except:
+                if not isinstance(content, str):
                     continue
+
+                soup = BeautifulSoup(content, "html.parser")
 
                 for img in soup.find_all("img", src=re.compile("^\[ASSET")):
                     try:
                         asset_uuid = UUID(img["src"].split(":")[1][:-1])
-                    except:
+                    except ValueError:
                         continue
 
-                    asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(
-                        asset_uuid
-                    )
+                    asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(asset_uuid)
                     if not asset:
                         continue
 
-                    try:
-                        meta_dict: dict = json.loads(asset.Meta)
-                        meta: ImageMeta = ImageMeta.parse_obj(meta_dict)
-                    except:
-                        continue
                     img["src"] = asset.Content
 
                 setattr(row, field_name, str(soup))
@@ -76,9 +65,7 @@ EventT = TypeVar("EventT")
 
 class InsertHtmlImagesListenerBase(Listener[EventT], Generic[EventT]):
     def handle_event(self, event: EventT) -> EventT:
-        config: Optional[InsertHtmlImagesConfig] = self._collect_config(
-            event.context.response_model
-        )
+        config: Optional[InsertHtmlImagesConfig] = self._collect_config(event.context.response_model)
         if not config or not config.fields:
             return event
 
@@ -98,9 +85,7 @@ class InsertHtmlImagesListenerBase(Listener[EventT], Generic[EventT]):
         fields: List[str] = []
         for field in config_dict.get("fields", []):
             if not isinstance(field, str):
-                raise RuntimeError(
-                    "Invalid insert_assets config, expect `fields` to be a list of strings"
-                )
+                raise RuntimeError("Invalid insert_assets config, expect `fields` to be a list of strings")
             fields.append(field)
         if not fields:
             return None
@@ -109,13 +94,9 @@ class InsertHtmlImagesListenerBase(Listener[EventT], Generic[EventT]):
         return config
 
 
-class InsertHtmlImagesForModuleListener(
-    InsertHtmlImagesListenerBase[RetrievedModuleObjectsEvent]
-):
+class InsertHtmlImagesForModuleListener(InsertHtmlImagesListenerBase[RetrievedModuleObjectsEvent]):
     pass
 
 
-class InsertHtmlImagesForObjectListener(
-    InsertHtmlImagesListenerBase[RetrievedObjectsEvent]
-):
+class InsertHtmlImagesForObjectListener(InsertHtmlImagesListenerBase[RetrievedObjectsEvent]):
     pass

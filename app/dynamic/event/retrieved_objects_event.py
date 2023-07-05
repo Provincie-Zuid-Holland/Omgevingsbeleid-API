@@ -1,11 +1,11 @@
-from typing import List
 from dataclasses import dataclass
+from typing import List
 
 from pydantic import BaseModel
 
+from app.dynamic.config.models import Model
 
 from .types import Event
-from app.dynamic.config.models import Model
 
 
 @dataclass

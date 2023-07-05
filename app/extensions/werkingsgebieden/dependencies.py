@@ -1,7 +1,7 @@
 from fastapi import Depends
-from app.core.dependencies import depends_db
 from sqlalchemy.orm import Session
 
+from app.core.dependencies import depends_db
 from app.extensions.werkingsgebieden.repository import WerkingsgebiedenRepository
 
 

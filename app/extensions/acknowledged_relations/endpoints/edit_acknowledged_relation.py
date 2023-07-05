@@ -3,22 +3,17 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.core.dependencies import depends_db
 
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
+from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.converter import Converter
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
-from app.extensions.acknowledged_relations.dependencies import (
-    depends_acknowledged_relations_repository,
-)
-from app.extensions.acknowledged_relations.models.models import (
-    AcknowledgedRelationSide,
-    EditAcknowledgedRelation,
-)
+from app.extensions.acknowledged_relations.dependencies import depends_acknowledged_relations_repository
+from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide, EditAcknowledgedRelation
 from app.extensions.acknowledged_relations.repository.acknowledged_relations_repository import (
     AcknowledgedRelationsRepository,
 )
@@ -94,9 +89,7 @@ class EditAcknowledgedRelationEndpoint(Endpoint):
             lineage_id: int,
             object_in: EditAcknowledgedRelation,
             user: UsersTable = Depends(depends_current_active_user),
-            repository: AcknowledgedRelationsRepository = Depends(
-                depends_acknowledged_relations_repository
-            ),
+            repository: AcknowledgedRelationsRepository = Depends(depends_acknowledged_relations_repository),
             db: Session = Depends(depends_db),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(

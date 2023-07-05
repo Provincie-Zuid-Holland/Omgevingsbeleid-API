@@ -1,10 +1,11 @@
-from typing import Any, Optional
 from dataclasses import dataclass
+from typing import Any, Optional
 
 from sqlalchemy import Select
 
-from .types import Event
 from app.dynamic.config.models import Model
+
+from .types import Event
 
 
 @dataclass

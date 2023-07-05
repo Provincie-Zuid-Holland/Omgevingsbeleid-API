@@ -1,8 +1,8 @@
-from dataclasses import dataclass
-from typing import TypeVar, Generic, Optional
 from abc import ABC, ABCMeta, abstractmethod
-from fastapi import BackgroundTasks
+from dataclasses import dataclass
+from typing import Generic, Optional, TypeVar
 
+from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
 

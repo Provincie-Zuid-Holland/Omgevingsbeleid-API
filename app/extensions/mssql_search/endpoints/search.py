@@ -1,22 +1,22 @@
-from typing import List, Optional
-import uuid
 import json
+import uuid
+from typing import List, Optional
 
+from bs4 import BeautifulSoup
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, validator
-from sqlalchemy import text
+from sqlalchemy import TextClause, text
 from sqlalchemy.orm import Session
-from bs4 import BeautifulSoup
 
 from app.core.dependencies import depends_db
+from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.converter import Converter
 from app.dynamic.db.objects_table import ObjectsTable
 from app.dynamic.dependencies import depends_pagination
-from app.dynamic.endpoints.endpoint import EndpointResolver, Endpoint
-from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.utils.pagination import Pagination, PagedResponse
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.converter import Converter
+from app.dynamic.utils.pagination import PagedResponse, Pagination
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.users.db.tables import UsersTable
@@ -66,6 +66,45 @@ class EndpointHandler:
         if self._pagination.limit > 50:
             raise ValueError("Pagination limit is too high")
 
+        stmt = self._get_query()
+        stmt = stmt.bindparams(
+            query=f'"{self._query}"',
+            offset=self._pagination.get_offset(),
+            limit=self._pagination.get_limit(),
+        )
+
+        results = self._db.execute(stmt)
+        search_objects: List[SearchObject] = []
+        total_count: int = 0
+
+        for row in results:
+            row = row._asdict()
+
+            description: str = ""
+            if row["Description"] and isinstance(row["Description"], str):
+                soup = BeautifulSoup(row["Description"], "html.parser")
+                description = soup.get_text()
+
+            search_object: SearchObject = SearchObject(
+                Module_ID=row["Module_ID"] if row["Module_ID"] else None,
+                UUID=row["UUID"],
+                Object_Type=row["Object_Type"],
+                Object_ID=row["Object_ID"],
+                Title=row["Title"],
+                Description=description,
+                Score=row["_Rank"],
+            )
+            search_objects.append(search_object)
+            total_count = row["_Total_Count"]
+
+        return PagedResponse[SearchObject](
+            total=total_count,
+            offset=self._pagination.get_offset(),
+            limit=self._pagination.get_limit(),
+            results=search_objects,
+        )
+
+    def _get_query(self) -> TextClause:
         stmt = text(
             f"""
                 WITH valid_uuids (Module_ID, UUID, Object_Type, Object_ID, Title, Description)
@@ -170,46 +209,7 @@ class EndpointHandler:
                     NEXT :limit ROWS ONLY
             """
         )
-
-        stmt = stmt.bindparams(
-            query=f'"{self._query}"',
-            offset=self._pagination.offset,
-            limit=self._pagination.limit,
-        )
-
-        results = self._db.execute(stmt)
-        search_objects: List[SearchObject] = []
-        total_count: int = 0
-
-        for row in results:
-            row = row._asdict()
-
-            description: str = ""
-            if row["Description"]:
-                try:
-                    soup = BeautifulSoup(row["Description"], "html.parser")
-                    description = soup.get_text()
-                except:
-                    pass
-
-            search_object: SearchObject = SearchObject(
-                Module_ID=row["Module_ID"] if row["Module_ID"] else None,
-                UUID=row["UUID"],
-                Object_Type=row["Object_Type"],
-                Object_ID=row["Object_ID"],
-                Title=row["Title"],
-                Description=description,
-                Score=row["_Rank"],
-            )
-            search_objects.append(search_object)
-            total_count = row["_Total_Count"]
-
-        return PagedResponse[SearchObject](
-            total=total_count,
-            offset=self._pagination.offset,
-            limit=self._pagination.limit,
-            results=search_objects,
-        )
+        return stmt
 
 
 class MssqlSearchEndpoint(Endpoint):

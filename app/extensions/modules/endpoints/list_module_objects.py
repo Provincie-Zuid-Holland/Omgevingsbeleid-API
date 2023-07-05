@@ -9,17 +9,11 @@ from app.dynamic.dependencies import depends_event_dispatcher
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
+from app.extensions.modules.dependencies import depends_module_object_repository
 from app.extensions.modules.endpoints.module_overview import ModuleObjectShort
-from app.extensions.modules.event.retrieved_module_objects_event import (
-    RetrievedModuleObjectsEvent,
-)
-from app.extensions.modules.dependencies import (
-    depends_module_object_repository,
-)
+from app.extensions.modules.event.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.extensions.modules.models.models import ModuleStatusCode
-from app.extensions.modules.repository.module_object_repository import (
-    ModuleObjectRepository,
-)
+from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
@@ -43,9 +37,7 @@ class ListModuleObjectsEndpoint(Endpoint):
             owner_uuid: Optional[UUID] = None,
             minimum_status: Optional[ModuleStatusCode] = None,
             only_active_modules: bool = True,
-            module_object_repository: ModuleObjectRepository = Depends(
-                depends_module_object_repository
-            ),
+            module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> List[ModuleObjectShort]:
@@ -85,9 +77,7 @@ class ListModuleObjectsEndpoint(Endpoint):
             owner_uuid=owner_uuid,
         )
 
-        rows: List[ModuleObjectShort] = [
-            ModuleObjectShort.from_orm(r) for r in module_objects
-        ]
+        rows: List[ModuleObjectShort] = [ModuleObjectShort.from_orm(r) for r in module_objects]
 
         # Ask extensions for more information
         event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(

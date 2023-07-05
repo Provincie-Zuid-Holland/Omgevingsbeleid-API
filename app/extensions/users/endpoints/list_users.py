@@ -4,16 +4,13 @@ from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
+from app.dynamic.dependencies import depends_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, Pagination
-from app.dynamic.dependencies import depends_pagination
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import (
-    depends_current_active_user,
-    depends_user_repository,
-)
+from app.extensions.users.dependencies import depends_current_active_user, depends_user_repository
 from app.extensions.users.model import UserShort
 from app.extensions.users.repository.user_repository import UserRepository
 
