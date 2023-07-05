@@ -61,9 +61,9 @@ class EndpointHandler:
     def handle(self) -> PagedResponse[SearchObject]:
         if not len(self._query):
             raise ValueError("Missing search query")
-        if '\\' in json.dumps(self._query):
+        if "\\" in json.dumps(self._query):
             raise ValueError("Invalid search characters")
-        if self._pagination.limit() > 50:
+        if self._pagination.limit > 50:
             raise ValueError("Pagination limit is too high")
 
         stmt = text(

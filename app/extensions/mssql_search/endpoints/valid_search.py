@@ -58,9 +58,9 @@ class EndpointHandler:
             raise ValueError("Missing search query")
         if '\\' in json.dumps(self._query):
             raise ValueError("Invalid search characters")
-        if self._pagination.limit() > 50:
+        if self._pagination.limit > 50:
             raise ValueError("Pagination limit is too high")
-        if self._pagination.limit() < 1:
+        if self._pagination.limit < 1:
             raise ValueError("Pagination limit is too low")
 
         stmt = text(
