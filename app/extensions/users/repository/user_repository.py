@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import asc, select
 
 from app.core.security import get_password_hash, verify_password
-from app.dynamic.repository import BaseRepository
+from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult
 from app.extensions.users.db.tables import UsersTable
 

@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import or_, select
 
 from app.dynamic.db import ObjectStaticsTable
-from app.dynamic.repository import BaseRepository
+from app.dynamic.repository.repository import BaseRepository
 
 
 class ObjectStaticRepository(BaseRepository):

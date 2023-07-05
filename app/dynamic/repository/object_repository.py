@@ -7,7 +7,7 @@ from sqlalchemy.sql import and_, func, or_
 
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.repository import BaseRepository
+from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult
 
 
