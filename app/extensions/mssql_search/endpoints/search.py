@@ -20,6 +20,8 @@ from app.dynamic.utils.pagination import PagedResponse, Pagination
 from app.dynamic.utils.queries import get_unique_object_types
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class SearchConfig(BaseModel):
@@ -233,7 +235,7 @@ class MssqlSearchEndpoint(Endpoint):
             object_type: Optional[str] = None,
             db: Session = Depends(depends_db),
             pagination: Pagination = Depends(depends_pagination),
-            # user: UsersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> PagedResponse[SearchObject]:
             handler: EndpointHandler = EndpointHandler(db, self._search_config, pagination, query, object_type)
             return handler.handle()
