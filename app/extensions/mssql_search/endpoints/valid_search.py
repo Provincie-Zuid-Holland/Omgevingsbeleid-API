@@ -17,8 +17,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, Pagination
-from app.dynamic.utils.queries import get_unique_object_types
-from app.extensions.mssql_search.models import ValidSearchConfig, ValidSearchObject
+from app.extensions.mssql_search.models import SearchRequestData, ValidSearchConfig, ValidSearchObject
 
 
 class EndpointHandler:
@@ -28,13 +27,13 @@ class EndpointHandler:
         search_config: ValidSearchConfig,
         pagination: Pagination,
         query: str,
-        object_type: Optional[str] = None,
+        object_types: Optional[List[str]] = None,
     ):
         self._db: Session = db
         self._search_config: ValidSearchConfig = search_config
         self._pagination: Pagination = pagination
         self._query: str = query
-        self._object_type: Optional[str] = object_type
+        self._object_types: Optional[List[str]] = object_types
 
     def handle(self) -> PagedResponse[ValidSearchObject]:
         if not len(self._query):
@@ -45,20 +44,30 @@ class EndpointHandler:
             raise ValueError("Pagination limit is too high")
         if self._pagination.limit < 1:
             raise ValueError("Pagination limit is too low")
-        if self._object_type:
-            if self._object_type not in self._search_config.allowed_object_types:
-                raise ValueError(f"Allowed Object_Types are: {self._search_config.allowed_object_types}")
-
-            object_type_filter = f" AND v.Object_Type = '{self._object_type}' "
+        if self._object_types:
+            for object_type in self._object_types:
+                if object_type not in self._search_config.allowed_object_types:
+                    raise ValueError(f"Allowed Object_Types are: {self._search_config.allowed_object_types}")
         else:
-            object_type_filter = ""
+            # default to all
+            self._object_types = self._search_config.allowed_object_types
 
+        placeholders = ",".join([f":object_type{i}" for i in range(len(self._object_types))])
+        object_type_filter = f" AND v.Object_Type IN ( {placeholders})"
         stmt = self._get_query(object_type_filter)
-        stmt = stmt.bindparams(
-            query=f'"{self._query}"',
-            offset=self._pagination.offset,
-            limit=self._pagination.limit,
-        )
+
+        bindparams_dict = {
+            "query": f'"{self._query}"',
+            "offset": self._pagination.offset,
+            "limit": self._pagination.limit,
+        }
+        # fill object type placeholders
+        if self._object_types:
+            for i, ot in enumerate(self._object_types):
+                bindparams_dict[f"object_type{i}"] = ot
+
+        stmt = stmt.bindparams(**bindparams_dict)
+
         results = self._db.execute(stmt)
         search_objects: List[ValidSearchObject] = []
         total_count: int = 0
@@ -167,11 +176,13 @@ class MssqlValidSearchEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             query: str,
-            object_type: Optional[str] = None,
+            object_in: SearchRequestData,
             db: Session = Depends(depends_db),
             pagination: Pagination = Depends(depends_pagination),
         ) -> PagedResponse[ValidSearchObject]:
-            handler: EndpointHandler = EndpointHandler(db, self._search_config, pagination, query, object_type)
+            handler: EndpointHandler = EndpointHandler(
+                db, self._search_config, pagination, query, object_in.Object_Types
+            )
             return handler.handle()
 
         router.add_api_route(

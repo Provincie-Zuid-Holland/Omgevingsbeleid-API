@@ -32,3 +32,7 @@ class SearchConfig(ValidSearchConfig):
 
 class SearchObject(ValidSearchObject):
     Module_ID: Optional[int]
+
+
+class SearchRequestData(BaseModel):
+    Object_Types: Optional[List[str]]
