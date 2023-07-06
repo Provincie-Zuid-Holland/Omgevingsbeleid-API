@@ -18,27 +18,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, Pagination
 from app.dynamic.utils.queries import get_unique_object_types
-
-
-class ValidSearchConfig(BaseModel):
-    searchable_columns_high: List[str]
-    searchable_columns_low: List[str]
-
-
-class ValidSearchObject(BaseModel):
-    UUID: uuid.UUID
-    Object_Type: str
-    Object_ID: int
-    Title: str
-    Description: str
-    Score: float
-
-    @validator("Title", "Description", pre=True)
-    def default_empty_string(cls, v):
-        return v or ""
-
-    class Config:
-        validate_assignment = True
+from app.extensions.mssql_search.models import ValidSearchConfig, ValidSearchObject
 
 
 class EndpointHandler:
@@ -66,9 +46,8 @@ class EndpointHandler:
         if self._pagination.limit < 1:
             raise ValueError("Pagination limit is too low")
         if self._object_type:
-            available_types = get_unique_object_types(self._db)
-            if self._object_type not in available_types:
-                raise ValueError(f"Provided Object_Type not found. Available in DB: {available_types}")
+            if self._object_type not in self._search_config.allowed_object_types:
+                raise ValueError(f"Allowed Object_Types are: {self._search_config.allowed_object_types}")
 
             object_type_filter = f" AND v.Object_Type = '{self._object_type}' "
         else:

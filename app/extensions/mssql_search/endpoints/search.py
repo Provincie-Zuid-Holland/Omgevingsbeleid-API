@@ -4,7 +4,6 @@ from typing import List, Optional
 
 from bs4 import BeautifulSoup
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, validator
 from sqlalchemy import TextClause, text
 from sqlalchemy.orm import Session
 
@@ -17,33 +16,11 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, Pagination
-from app.dynamic.utils.queries import get_unique_object_types
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
+from app.extensions.mssql_search.models import SearchConfig, SearchObject
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
-
-
-class SearchConfig(BaseModel):
-    searchable_columns_high: List[str]
-    searchable_columns_low: List[str]
-
-
-class SearchObject(BaseModel):
-    Module_ID: Optional[int]
-    UUID: uuid.UUID
-    Object_Type: str
-    Object_ID: int
-    Title: str
-    Description: str
-    Score: float
-
-    @validator("Title", "Description", pre=True)
-    def default_empty_string(cls, v):
-        return v or ""
-
-    class Config:
-        validate_assignment = True
 
 
 class EndpointHandler:
@@ -69,9 +46,8 @@ class EndpointHandler:
         if self._pagination.limit > 50:
             raise ValueError("Pagination limit is too high")
         if self._object_type:
-            available_types = get_unique_object_types(self._db)
-            if self._object_type not in available_types:
-                raise ValueError(f"Provided Object_Type not found. Available in DB: {available_types}")
+            if self._object_type not in self._search_config.allowed_object_types:
+                raise ValueError(f"Allowed Object_Types are: {self._search_config.allowed_object_types}")
 
             object_type_filter = f" AND v.Object_Type = '{self._object_type}' "
         else:

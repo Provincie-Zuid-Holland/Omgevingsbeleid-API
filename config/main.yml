@@ -20,6 +20,16 @@ api:
               - Effect
               - Provincial_Interest
               - Cause
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - maatregel
+              - beleidsregel
+              - gebiedsprogramma
+              - wettelijke_taak
+              - nationaal_belang
+              - verplicht_programma
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
@@ -31,6 +41,16 @@ api:
               - Effect
               - Provincial_Interest
               - Cause
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - maatregel
+              - beleidsregel
+              - gebiedsprogramma
+              - wettelijke_taak
+              - nationaal_belang
+              - verplicht_programma
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
