@@ -4,7 +4,6 @@ from typing import List, Optional
 
 from bs4 import BeautifulSoup
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, validator
 from sqlalchemy import TextClause, text
 from sqlalchemy.orm import Session
 
@@ -19,30 +18,9 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, Pagination
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
+from app.extensions.mssql_search.models import SearchConfig, SearchObject, SearchRequestData
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
-
-
-class SearchConfig(BaseModel):
-    searchable_columns_high: List[str]
-    searchable_columns_low: List[str]
-
-
-class SearchObject(BaseModel):
-    Module_ID: Optional[int]
-    UUID: uuid.UUID
-    Object_Type: str
-    Object_ID: int
-    Title: str
-    Description: str
-    Score: float
-
-    @validator("Title", "Description", pre=True)
-    def default_empty_string(cls, v):
-        return v or ""
-
-    class Config:
-        validate_assignment = True
 
 
 class EndpointHandler:
@@ -52,11 +30,13 @@ class EndpointHandler:
         search_config: SearchConfig,
         pagination: Pagination,
         query: str,
+        object_types: Optional[List[str]] = None,
     ):
         self._db: Session = db
         self._search_config: SearchConfig = search_config
         self._pagination: Pagination = pagination
         self._query: str = query
+        self._object_types: Optional[List[str]] = object_types
 
     def handle(self) -> PagedResponse[SearchObject]:
         if not len(self._query):
@@ -65,13 +45,28 @@ class EndpointHandler:
             raise ValueError("Invalid search characters")
         if self._pagination.limit > 50:
             raise ValueError("Pagination limit is too high")
+        if self._object_types:
+            for object_type in self._object_types:
+                if object_type not in self._search_config.allowed_object_types:
+                    raise ValueError(f"Allowed Object_Types are: {self._search_config.allowed_object_types}")
+        else:
+            # default to all
+            self._object_types = self._search_config.allowed_object_types
 
-        stmt = self._get_query()
-        stmt = stmt.bindparams(
-            query=f'"{self._query}"',
-            offset=self._pagination.offset,
-            limit=self._pagination.limit,
-        )
+        placeholders = ",".join([f":object_type{i}" for i in range(len(self._object_types))])
+        object_type_filter = f" AND v.Object_Type IN ( {placeholders})"
+        stmt = self._get_query(object_type_filter)
+        bindparams_dict = {
+            "query": f'"{self._query}"',
+            "offset": self._pagination.offset,
+            "limit": self._pagination.limit,
+        }
+        # fill object type placeholders
+        if self._object_types:
+            for i, ot in enumerate(self._object_types):
+                bindparams_dict[f"object_type{i}"] = ot
+
+        stmt = stmt.bindparams(**bindparams_dict)
 
         results = self._db.execute(stmt)
         search_objects: List[SearchObject] = []
@@ -104,7 +99,7 @@ class EndpointHandler:
             results=search_objects,
         )
 
-    def _get_query(self) -> TextClause:
+    def _get_query(self, object_type_filter) -> TextClause:
         stmt = text(
             f"""
                 WITH valid_uuids (Module_ID, UUID, Object_Type, Object_ID, Title, Description)
@@ -201,10 +196,11 @@ class EndpointHandler:
                     ) AS x
                     GROUP BY [KEY]
                 ) AS s ON s.[KEY] = v.UUID
+                WHERE 1=1 {object_type_filter}
                 ORDER BY
                     s.WeightedRank DESC
                 OFFSET
-                    :offset ROWS 
+                    :offset ROWS
                 FETCH
                     NEXT :limit ROWS ONLY
             """
@@ -220,15 +216,13 @@ class MssqlSearchEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             query: str,
+            object_in: SearchRequestData,
             db: Session = Depends(depends_db),
             pagination: Pagination = Depends(depends_pagination),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> PagedResponse[SearchObject]:
             handler: EndpointHandler = EndpointHandler(
-                db,
-                self._search_config,
-                pagination,
-                query,
+                db, self._search_config, pagination, query, object_in.Object_Types
             )
             return handler.handle()
 
