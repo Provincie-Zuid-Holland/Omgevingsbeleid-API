@@ -22,7 +22,6 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: UsersTable = Depends(depends_current_active_user),
             pagination: Pagination = Depends(depends_pagination),
             repository: WerkingsgebiedenRepository = Depends(depends_werkingsgebieden_repository),
         ) -> PagedResponse[Werkingsgebied]:

@@ -24,7 +24,7 @@ class Pagination(BaseModel):
     def default_limit(cls, v):
         if v is None:
             return 20
-        if v > 100:
+        if v > 500:
             return 20
         return v
 
