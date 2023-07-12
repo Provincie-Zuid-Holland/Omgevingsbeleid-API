@@ -6,7 +6,8 @@ from uuid import UUID, uuid4
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import make_transient
-from sqlalchemy.sql import and_
+from sqlalchemy.sql import and_, or_
+from app.dynamic.db.object_static_table import ObjectStaticsTable
 
 from app.dynamic.repository.repository import BaseRepository
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
@@ -127,6 +128,7 @@ class ModuleObjectRepository(BaseRepository):
         only_active_modules: bool = True,
         status_filter: Optional[List[str]] = None,
         owner_uuid: Optional[UUID] = None,
+        object_type: Optional[str] = None,
     ):
         """
         Fetches a list of all latest module versions in progress
@@ -144,6 +146,7 @@ class ModuleObjectRepository(BaseRepository):
             )
             .select_from(ModuleObjectsTable)
             .join(ModuleTable)
+            .join(ModuleObjectsTable.ObjectStatics)
         )
 
         filters = []
@@ -152,8 +155,13 @@ class ModuleObjectRepository(BaseRepository):
         if status_filter is not None:
             filters.append(ModuleTable.Current_Status.in_(status_filter))
         if owner_uuid is not None:
-            filters.append(ModuleTable.is_manager(user_uuid=owner_uuid))
-
+            owner_filter = or_(
+                ObjectStaticsTable.Owner_1_UUID == owner_uuid,
+                ObjectStaticsTable.Owner_2_UUID == owner_uuid,
+            )
+            filters.append(owner_filter)
+        if object_type is not None:
+            filters.append(ModuleObjectsTable.Object_Type == object_type)
         if len(filters) > 0:
             subq = subq.filter(and_(*filters))
 
@@ -167,6 +175,7 @@ class ModuleObjectRepository(BaseRepository):
         only_active_modules: bool = True,
         minimum_status: Optional[ModuleStatusCode] = None,
         owner_uuid: Optional[UUID] = None,
+        object_type: Optional[str] = None,
     ) -> List[ModuleObjectsTable]:
         # TODO: move param logic to dependency
         status_list = None
@@ -177,6 +186,7 @@ class ModuleObjectRepository(BaseRepository):
             only_active_modules=only_active_modules,
             status_filter=status_list,
             owner_uuid=owner_uuid,
+            object_type=object_type,
         )
         return self.fetch_all(query)
 

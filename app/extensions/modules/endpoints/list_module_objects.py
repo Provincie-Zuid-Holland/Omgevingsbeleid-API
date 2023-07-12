@@ -75,6 +75,7 @@ class ListModuleObjectsEndpoint(Endpoint):
             only_active_modules=only_active_modules,
             minimum_status=minimum_status,
             owner_uuid=owner_uuid,
+            object_type=object_type,
         )
 
         rows: List[ModuleObjectShort] = [ModuleObjectShort.from_orm(r) for r in module_objects]
