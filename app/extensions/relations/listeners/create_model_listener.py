@@ -11,7 +11,7 @@ from app.dynamic.models_resolver import ModelsResolver
 class CreateModelListener(Listener[CreateModelEvent]):
     def __init__(self, models_resolver: ModelsResolver):
         self._models_resolver: ModelsResolver = models_resolver
-        self._relation_model_id: str = "relation_short"
+        self._relation_model_id: str = "read_relation_short"
 
     def handle_event(self, event: CreateModelEvent) -> CreateModelEvent:
         service_config: dict = event.context.intermediate_model.service_config

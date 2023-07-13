@@ -18,7 +18,9 @@ class RelationsExtension(Extension):
                 id="read_relation_short",
                 name="ReadRelationShort",
                 pydantic_model=ReadRelationShort,
-            ),
+            )
+        )
+        models_resolver.add(
             ExtensionModel(
                 id="write_relation_short",
                 name="WriteRelationShort",
