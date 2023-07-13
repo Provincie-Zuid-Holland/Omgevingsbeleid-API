@@ -12,7 +12,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.dependencies import depends_module_object_repository
 from app.extensions.modules.endpoints.module_overview import ModuleObjectShort
 from app.extensions.modules.event.retrieved_module_objects_event import RetrievedModuleObjectsEvent
-from app.extensions.modules.models.models import ModuleStatusCode
+from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
@@ -36,6 +36,7 @@ class ListModuleObjectsEndpoint(Endpoint):
             object_type: Optional[str] = None,
             owner_uuid: Optional[UUID] = None,
             minimum_status: Optional[ModuleStatusCode] = None,
+            action: Optional[ModuleObjectActionFilter] = None,
             only_active_modules: bool = True,
             module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
@@ -48,6 +49,7 @@ class ListModuleObjectsEndpoint(Endpoint):
                 owner_uuid=owner_uuid,
                 object_type=object_type,
                 only_active_modules=only_active_modules,
+                action=action,
             )
 
         router.add_api_route(
@@ -70,12 +72,14 @@ class ListModuleObjectsEndpoint(Endpoint):
         owner_uuid: Optional[UUID],
         object_type: Optional[str],
         only_active_modules: bool,
+        action: Optional[ModuleObjectActionFilter] = None,
     ):
         module_objects = module_object_repository.get_all_latest(
             only_active_modules=only_active_modules,
             minimum_status=minimum_status,
             owner_uuid=owner_uuid,
             object_type=object_type,
+            action=action,
         )
 
         rows: List[ModuleObjectShort] = [ModuleObjectShort.from_orm(r) for r in module_objects]

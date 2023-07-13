@@ -7,12 +7,12 @@ from sqlalchemy import desc, func, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import and_, or_
-from app.dynamic.db.object_static_table import ObjectStaticsTable
 
+from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.repository.repository import BaseRepository
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.db.tables import ModuleTable
-from app.extensions.modules.models.models import ModuleStatusCode
+from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
+from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode
 
 
 class ModuleObjectRepository(BaseRepository):
@@ -73,14 +73,15 @@ class ModuleObjectRepository(BaseRepository):
         return objects
 
     @staticmethod
-    def latest_versions_query(
+    def latest_per_module_query(
         code: str,
         status_filter: Optional[List[str]] = None,
         is_active: bool = True,
     ):
         """
-        Fetches a list of all latest module versions in progress
-        for a valid object. returns 1 module object per module.
+        Fetch the latest module object versions grouped by
+        every module containing it. used e.g. to list any
+        active draft versions of an existing valid object.
         """
         subq = (
             select(
@@ -115,24 +116,23 @@ class ModuleObjectRepository(BaseRepository):
         minimum_status: Optional[ModuleStatusCode] = None,
         is_active: bool = True,
     ) -> List[ModuleObjectsTable]:
-        # TODO: move param logic to dependency
-        status_list = None
-        if minimum_status is not None:
-            status_list = ModuleStatusCode.after(minimum_status)
-
-        query = self.latest_versions_query(code=code, status_filter=status_list, is_active=is_active)
+        # Build minimum status list starting at given status, if provided
+        status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
+        # Query latest module versions
+        query = self.latest_per_module_query(code=code, status_filter=status_filter, is_active=is_active)
         return self.fetch_all(query)
 
-    @staticmethod
-    def all_latest_query(
+    def get_all_latest(
+        self,
         only_active_modules: bool = True,
-        status_filter: Optional[List[str]] = None,
+        minimum_status: Optional[ModuleStatusCode] = None,
         owner_uuid: Optional[UUID] = None,
         object_type: Optional[str] = None,
-    ):
+        action: Optional[ModuleObjectActionFilter] = None,
+    ) -> List[ModuleObjectsTable]:
         """
-        Fetches a list of all latest module versions in progress
-        for a valid object. returns 1 module object per module.
+        Generic filterable listing of latest module-object versions
+        fetched grouped per object Code.
         """
         subq = (
             select(
@@ -147,48 +147,33 @@ class ModuleObjectRepository(BaseRepository):
             .select_from(ModuleObjectsTable)
             .join(ModuleTable)
             .join(ModuleObjectsTable.ObjectStatics)
+            .join(ModuleObjectsTable.ModuleObjectContext)
         )
 
-        filters = []
-        if only_active_modules:
-            filters.append(ModuleTable.is_active)  # Closed false + Activated true
-        if status_filter is not None:
-            filters.append(ModuleTable.Current_Status.in_(status_filter))
-        if owner_uuid is not None:
-            owner_filter = or_(
+        # Build minimum status list starting at given status, if provided
+        status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
+
+        # Build filter list
+        filters = [
+            ModuleTable.is_active if only_active_modules else None,
+            ModuleTable.Current_Status.in_(status_filter) if status_filter is not None else None,
+            or_(
                 ObjectStaticsTable.Owner_1_UUID == owner_uuid,
                 ObjectStaticsTable.Owner_2_UUID == owner_uuid,
             )
-            filters.append(owner_filter)
-        if object_type is not None:
-            filters.append(ModuleObjectsTable.Object_Type == object_type)
-        if len(filters) > 0:
-            subq = subq.filter(and_(*filters))
+            if owner_uuid is not None
+            else None,
+            ModuleObjectsTable.Object_Type == object_type if object_type is not None else None,
+            ModuleObjectContextTable.Action == action if action is not None else None,
+        ]
+        filters = [f for f in filters if f is not None]  # first remove None filters
+        subq = subq.filter(and_(*filters))  # apply remaining filters to the query
 
         subq = subq.subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
         stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).order_by(desc(subq.c.Modified_Date))
-        return stmt
 
-    def get_all_latest(
-        self,
-        only_active_modules: bool = True,
-        minimum_status: Optional[ModuleStatusCode] = None,
-        owner_uuid: Optional[UUID] = None,
-        object_type: Optional[str] = None,
-    ) -> List[ModuleObjectsTable]:
-        # TODO: move param logic to dependency
-        status_list = None
-        if minimum_status is not None:
-            status_list = ModuleStatusCode.after(minimum_status)
-
-        query = self.all_latest_query(
-            only_active_modules=only_active_modules,
-            status_filter=status_list,
-            owner_uuid=owner_uuid,
-            object_type=object_type,
-        )
-        return self.fetch_all(query)
+        return self.fetch_all(stmt)
 
     def patch_latest_module_object(
         self,
