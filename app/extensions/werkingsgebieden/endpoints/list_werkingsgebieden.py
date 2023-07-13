@@ -9,8 +9,6 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, Pagination
-from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import depends_current_active_user
 from app.extensions.werkingsgebieden.dependencies import depends_werkingsgebieden_repository
 from app.extensions.werkingsgebieden.models.models import Werkingsgebied
 from app.extensions.werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository

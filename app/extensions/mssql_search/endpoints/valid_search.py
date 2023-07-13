@@ -1,10 +1,8 @@
 import json
-import uuid
 from typing import List, Optional
 
 from bs4 import BeautifulSoup
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, validator
 from sqlalchemy import TextClause, text
 from sqlalchemy.orm import Session
 

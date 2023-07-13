@@ -137,6 +137,7 @@ class DatabaseFixtures:
                 Object_ID=1,
                 Code="ambitie-1",
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Cached_Title="Titel van ambitie 1",
             )
         )
         self._db.add(
@@ -154,6 +155,7 @@ class DatabaseFixtures:
                 Object_ID=1,
                 Code="beleidsdoel-1",
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Cached_Title="Titel van beleidsdoel 1",
             )
         )
         self._db.add(

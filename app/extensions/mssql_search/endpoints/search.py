@@ -1,5 +1,4 @@
 import json
-import uuid
 from typing import List, Optional
 
 from bs4 import BeautifulSoup

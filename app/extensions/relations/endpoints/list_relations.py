@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
@@ -24,10 +24,17 @@ class EndpointHandler:
         self._object_code: str = object_code
 
     def handle(self) -> List[RelationShort]:
-        stmt = select(RelationsTable).filter(
-            or_(
-                RelationsTable.From_Code == self._object_code,
-                RelationsTable.To_Code == self._object_code,
+        stmt = (
+            select(RelationsTable)
+            .filter(
+                or_(
+                    RelationsTable.From_Code == self._object_code,
+                    RelationsTable.To_Code == self._object_code,
+                )
+            )
+            .options(
+                selectinload(RelationsTable.FromObjectStatics),
+                selectinload(RelationsTable.ToObjectStatics),
             )
         )
         table_rows: List[RelationsTable] = self._db.scalars(stmt).all()
@@ -39,9 +46,11 @@ class EndpointHandler:
 
         for row in table_rows:
             # Need to determine which the relation is based on my_code
+            title: str = row.FromObjectStatics.Cached_Title
             relation_code: str = row.From_Code
             if relation_code == self._object_code:
                 relation_code = row.To_Code
+                title = row.ToObjectStatics.Cached_Title
 
             # Decode the code into object_type and ID, as that is easier to use for the client
             relation_object_type, relation_id = relation_code.split("-", 1)
@@ -50,6 +59,7 @@ class EndpointHandler:
                 Object_ID=relation_id,
                 Object_Type=relation_object_type,
                 Description=row.Description,
+                Title=title,
             )
             result.append(response_model)
 
