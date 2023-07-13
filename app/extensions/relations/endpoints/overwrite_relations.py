@@ -15,7 +15,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.change_logger.db.tables import ChangeLogTable
 from app.extensions.relations.db.tables import RelationsTable
-from app.extensions.relations.models.models import RelationShort
+from app.extensions.relations.models.models import WriteRelationShort
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
@@ -28,14 +28,14 @@ class EndpointHandler:
         allowed_object_types_relations: List[str],
         object_type: str,
         object_id: str,
-        overwrite_list: List[RelationShort],
+        overwrite_list: List[WriteRelationShort],
     ):
         self._db: Session = db
         self._user: UsersTable = user
         self._object_type: str = object_type
         self._object_id: int = object_id
         self._object_code: str = f"{object_type}-{object_id}"
-        self._overwrite_list: List[RelationShort] = overwrite_list
+        self._overwrite_list: List[WriteRelationShort] = overwrite_list
         self._allowed_object_types_relations: List[str] = allowed_object_types_relations
 
     def handle(self) -> ResponseOK:
@@ -133,7 +133,7 @@ class OverwriteRelationsEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             lineage_id: int,
-            overwrite_list: List[RelationShort],
+            overwrite_list: List[WriteRelationShort],
             user: UsersTable = Depends(depends_current_active_user),
             db: Session = Depends(depends_db),
         ) -> ResponseOK:

@@ -11,7 +11,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.relations.db.tables import RelationsTable
-from app.extensions.relations.models.models import RelationShort
+from app.extensions.relations.models.models import ReadRelationShort
 
 
 class EndpointHandler:
@@ -23,7 +23,7 @@ class EndpointHandler:
         self._db: Session = db
         self._object_code: str = object_code
 
-    def handle(self) -> List[RelationShort]:
+    def handle(self) -> List[ReadRelationShort]:
         stmt = (
             select(RelationsTable)
             .filter(
@@ -41,8 +41,8 @@ class EndpointHandler:
         response: List[RelationsTable] = self._format_rows(table_rows)
         return response
 
-    def _format_rows(self, table_rows: List[RelationsTable]) -> List[RelationShort]:
-        result: List[RelationShort] = []
+    def _format_rows(self, table_rows: List[RelationsTable]) -> List[ReadRelationShort]:
+        result: List[ReadRelationShort] = []
 
         for row in table_rows:
             # Need to determine which the relation is based on my_code
@@ -55,7 +55,7 @@ class EndpointHandler:
             # Decode the code into object_type and ID, as that is easier to use for the client
             relation_object_type, relation_id = relation_code.split("-", 1)
 
-            response_model: RelationShort = RelationShort(
+            response_model: ReadRelationShort = ReadRelationShort(
                 Object_ID=relation_id,
                 Object_Type=relation_object_type,
                 Description=row.Description,
@@ -85,7 +85,7 @@ class ListRelationsEndpoint(Endpoint):
         def fastapi_handler(
             lineage_id: int,
             db: Session = Depends(depends_db),
-        ) -> List[RelationShort]:
+        ) -> List[ReadRelationShort]:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 f"{self._object_type}-{lineage_id}",
@@ -96,7 +96,7 @@ class ListRelationsEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=List[RelationShort],
+            response_model=List[ReadRelationShort],
             summary=f"Get all relation codes of the given {self._object_type} lineage",
             description=None,
             tags=[self._object_type],

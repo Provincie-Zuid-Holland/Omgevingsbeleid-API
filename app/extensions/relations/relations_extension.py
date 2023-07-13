@@ -8,16 +8,21 @@ from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.relations.models.models import RelationShort
+from app.extensions.relations.models.models import ReadRelationShort, WriteRelationShort
 
 
 class RelationsExtension(Extension):
     def register_models(self, models_resolver: ModelsResolver):
         models_resolver.add(
             ExtensionModel(
-                id="relation_short",
-                name="RelationShort",
-                pydantic_model=RelationShort,
+                id="read_relation_short",
+                name="ReadRelationShort",
+                pydantic_model=ReadRelationShort,
+            ),
+            ExtensionModel(
+                id="write_relation_short",
+                name="WriteRelationShort",
+                pydantic_model=WriteRelationShort,
             ),
         )
 
