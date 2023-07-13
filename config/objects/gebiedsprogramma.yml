@@ -141,7 +141,7 @@ models:
         default: none
         optional: true
     services:
-      full_image:
+      get_image:
         fields:
           - Image
   gebiedsprogramma_extended:
@@ -160,7 +160,7 @@ models:
         default: none
         optional: true
     services:
-      full_image:
+      get_image:
         fields:
           - Image
       foreign_keys_extender:
@@ -201,7 +201,7 @@ models:
       insert_assets:
         fields:
           - Description
-      full_image:
+      get_image:
         fields:
           - Image
       relations:
