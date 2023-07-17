@@ -42,3 +42,6 @@ class ModuleObjectsTable(Base, ModuleObjectAttributes):
             ["module_object_context.Module_ID", "module_object_context.Code"],
         ),
     )
+
+    def __repr__(self) -> str:
+        return f"ModuleObjectsTable(Module_ID={self.Module_ID!r}, UUID={self.UUID!r}, Code={self.Code!r})"
