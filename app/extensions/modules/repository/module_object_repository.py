@@ -1,9 +1,9 @@
 from copy import deepcopy
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from uuid import UUID, uuid4
 
-from sqlalchemy import desc, func, select
+from sqlalchemy import Result, desc, func, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import and_, or_
@@ -86,6 +86,7 @@ class ModuleObjectRepository(BaseRepository):
         subq = (
             select(
                 ModuleObjectsTable,
+                ModuleTable,
                 func.row_number()
                 .over(
                     partition_by=ModuleObjectsTable.Module_ID,
@@ -107,7 +108,10 @@ class ModuleObjectRepository(BaseRepository):
 
         subq = subq.subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
-        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).order_by(desc(subq.c.Modified_Date))
+        aliased_module = aliased(ModuleTable, subq)
+        stmt = (
+            select(aliased_objects, aliased_module).filter(subq.c._RowNumber == 1).order_by(desc(subq.c.Modified_Date))
+        )
         return stmt
 
     def get_latest_per_module(
@@ -115,12 +119,11 @@ class ModuleObjectRepository(BaseRepository):
         code: str,
         minimum_status: Optional[ModuleStatusCode] = None,
         is_active: bool = True,
-    ) -> List[ModuleObjectsTable]:
+    ) -> Result[Tuple[ModuleObjectsTable, ModuleTable]]:
         # Build minimum status list starting at given status, if provided
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
-        # Query latest module versions
         query = self.latest_per_module_query(code=code, status_filter=status_filter, is_active=is_active)
-        return self.fetch_all(query)
+        return self._db.execute(query)  # execute raw to allow tuple return object + module
 
     def get_all_latest(
         self,

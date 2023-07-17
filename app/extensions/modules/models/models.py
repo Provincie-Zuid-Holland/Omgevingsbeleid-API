@@ -44,8 +44,21 @@ class Module(BaseModel):
         orm_mode = True
 
 
-class ActiveModuleObject(BaseModel):
+class ModuleShort(BaseModel):
     Module_ID: int
+    Closed: bool
+    Title: str
+    Description: str
+    Status: Optional[ModuleStatus]
+    Module_Manager_1: Optional[UserShort]
+    Module_Manager_2: Optional[UserShort]
+
+    class Config:
+        orm_mode = True
+
+
+class ActiveModuleObject(BaseModel):
+    Module_ID: Optional[int]
     UUID: uuid.UUID
     Modified_Date: datetime
     Title: str
