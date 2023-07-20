@@ -1,11 +1,12 @@
 from typing import List, Optional
 from uuid import UUID
+from app.dynamic.utils.pagination import PagedResponse, Pagination
 
 from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.dependencies import depends_event_dispatcher
+from app.dynamic.dependencies import depends_event_dispatcher, depends_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
@@ -33,6 +34,7 @@ class ListModuleObjectsEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
+            pagination: Pagination = Depends(depends_pagination),
             object_type: Optional[str] = None,
             owner_uuid: Optional[UUID] = None,
             minimum_status: Optional[ModuleStatusCode] = None,
@@ -41,8 +43,9 @@ class ListModuleObjectsEndpoint(Endpoint):
             module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
             user: UsersTable = Depends(depends_current_active_user),
-        ) -> List[ModuleObjectShort]:
+        ) -> PagedResponse[ModuleObjectShort]:
             return self._handler(
+                pagination=pagination,
                 module_object_repository=module_object_repository,
                 event_dispatcher=event_dispatcher,
                 minimum_status=minimum_status,
@@ -56,7 +59,7 @@ class ListModuleObjectsEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=List[ModuleObjectShort],
+            response_model=PagedResponse[ModuleObjectShort],
             summary="List latest module objects filtered by e.g. owner uuid, object type or minimum status",
             description=None,
             tags=["Modules"],
@@ -66,6 +69,7 @@ class ListModuleObjectsEndpoint(Endpoint):
 
     def _handler(
         self,
+        pagination: Pagination,
         module_object_repository: ModuleObjectRepository,
         event_dispatcher: EventDispatcher,
         minimum_status: Optional[ModuleStatusCode],
@@ -74,7 +78,8 @@ class ListModuleObjectsEndpoint(Endpoint):
         only_active_modules: bool,
         action: Optional[ModuleObjectActionFilter] = None,
     ):
-        module_objects = module_object_repository.get_all_latest(
+        paginated_result = module_object_repository.get_all_latest(
+            pagination=pagination,
             only_active_modules=only_active_modules,
             minimum_status=minimum_status,
             owner_uuid=owner_uuid,
@@ -82,7 +87,7 @@ class ListModuleObjectsEndpoint(Endpoint):
             action=action,
         )
 
-        rows: List[ModuleObjectShort] = [ModuleObjectShort.from_orm(r) for r in module_objects]
+        rows: List[ModuleObjectShort] = [ModuleObjectShort.from_orm(r) for r in paginated_result.items]
 
         # Ask extensions for more information
         event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(
@@ -94,7 +99,9 @@ class ListModuleObjectsEndpoint(Endpoint):
         )
         rows = event.payload.rows
 
-        return rows
+        return PagedResponse(
+            total=paginated_result.total_count, limit=pagination.limit, offset=pagination.offset, results=rows
+        )
 
 
 class ListModuleObjectsEndpointResolver(EndpointResolver):

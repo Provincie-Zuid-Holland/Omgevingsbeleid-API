@@ -10,6 +10,7 @@ from sqlalchemy.sql import and_, or_
 
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.repository.repository import BaseRepository
+from app.dynamic.utils.pagination import Pagination
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode
@@ -127,12 +128,13 @@ class ModuleObjectRepository(BaseRepository):
 
     def get_all_latest(
         self,
+        pagination: Pagination,
         only_active_modules: bool = True,
         minimum_status: Optional[ModuleStatusCode] = None,
         owner_uuid: Optional[UUID] = None,
         object_type: Optional[str] = None,
         action: Optional[ModuleObjectActionFilter] = None,
-    ) -> List[ModuleObjectsTable]:
+    ):
         """
         Generic filterable listing of latest module-object versions
         fetched grouped per object Code.
@@ -174,9 +176,14 @@ class ModuleObjectRepository(BaseRepository):
 
         subq = subq.subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
-        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).order_by(desc(subq.c.Modified_Date))
+        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1)
 
-        return self.fetch_all(stmt)
+        return self.fetch_paginated(
+            statement=stmt,
+            limit=pagination.limit,
+            offset=pagination.offset,
+            sort=(subq.c.Modified_Date, pagination.sort),
+        )
 
     def patch_latest_module_object(
         self,
