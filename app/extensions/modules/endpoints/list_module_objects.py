@@ -19,6 +19,10 @@ from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
+class ModuleObjectShortStatus(ModuleObjectShort):
+    Status: ModuleStatusCode
+
+
 class ListModuleObjectsEndpoint(Endpoint):
     def __init__(
         self,
@@ -43,11 +47,10 @@ class ListModuleObjectsEndpoint(Endpoint):
             module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
             user: UsersTable = Depends(depends_current_active_user),
-        ) -> PagedResponse[ModuleObjectShort]:
+        ) -> PagedResponse[ModuleObjectShortStatus]:
             return self._handler(
                 pagination=pagination,
                 module_object_repository=module_object_repository,
-                event_dispatcher=event_dispatcher,
                 minimum_status=minimum_status,
                 owner_uuid=owner_uuid,
                 object_type=object_type,
@@ -59,7 +62,7 @@ class ListModuleObjectsEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=PagedResponse[ModuleObjectShort],
+            response_model=PagedResponse[ModuleObjectShortStatus],
             summary="List latest module objects filtered by e.g. owner uuid, object type or minimum status",
             description=None,
             tags=["Modules"],
@@ -71,7 +74,6 @@ class ListModuleObjectsEndpoint(Endpoint):
         self,
         pagination: Pagination,
         module_object_repository: ModuleObjectRepository,
-        event_dispatcher: EventDispatcher,
         minimum_status: Optional[ModuleStatusCode],
         owner_uuid: Optional[UUID],
         object_type: Optional[str],
@@ -87,17 +89,22 @@ class ListModuleObjectsEndpoint(Endpoint):
             action=action,
         )
 
-        rows: List[ModuleObjectShort] = [ModuleObjectShort.from_orm(r) for r in paginated_result.items]
-
-        # Ask extensions for more information
-        event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(
-            RetrievedModuleObjectsEvent.create(
-                rows,
-                self._endpoint_id,
-                ModuleObjectShort,
+        rows: List[ModuleObjectShortStatus] = []
+        for mo, status in paginated_result.items:
+            rows.append(
+                ModuleObjectShortStatus(
+                    Module_ID=mo.Module_ID,
+                    Status=status,
+                    Object_Type=mo.Object_Type,
+                    Object_ID=mo.Object_ID,
+                    Code=mo.Code,
+                    UUID=mo.UUID,
+                    Modified_Date=mo.Modified_Date,
+                    Title=mo.Title,
+                    ObjectStatics=mo.ObjectStatics,
+                    ModuleObjectContext=mo.ModuleObjectContext,
+                )
             )
-        )
-        rows = event.payload.rows
 
         return PagedResponse(
             total=paginated_result.total_count, limit=pagination.limit, offset=pagination.offset, results=rows
