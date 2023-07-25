@@ -20,6 +20,14 @@ api:
             allowed_filter_columns:
               - Title
               - Weblink
+            sort:
+              default:
+                column: Title
+                order: asc
+              allowed_columns:
+                - Object_ID
+                - Title
+                - Modified_Date
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}

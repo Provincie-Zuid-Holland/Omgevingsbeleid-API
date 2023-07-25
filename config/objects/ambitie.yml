@@ -11,6 +11,14 @@ api:
             response_model: ambitie_basic
             allowed_filter_columns:
               - Title
+            sort:
+              default:
+                column: Title
+                order: asc
+              allowed_columns:
+                - Object_ID
+                - Title
+                - Modified_Date
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}

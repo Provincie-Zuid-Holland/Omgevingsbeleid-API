@@ -13,7 +13,7 @@ from app.dynamic.repository.object_repository import ObjectRepository
 from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 
 from .utils.filters import FilterCombiner, Filters
-from .utils.pagination import Pagination
+from .utils.pagination import OrderConfig, Pagination, Sort, SortOrder
 
 
 def depends_event_dispatcher(
@@ -91,6 +91,24 @@ def depends_pagination(
     sort: Optional[str] = "asc",
 ) -> Pagination:
     return Pagination(offset=offset, limit=limit, sort=sort)
+
+
+def depends_pagination_with_config_curried(config: OrderConfig) -> Callable:
+    def depends_pagination_with_config_inner(
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
+        sort_column: Optional[str] = None,
+        sort_order: Optional[SortOrder] = None,
+    ) -> Pagination:
+        sort_result: Sort = config.get_sort(sort_column, sort_order)
+        pagination: Pagination = Pagination(
+            offset=offset,
+            limit=limit,
+            sort=sort_result,
+        )
+        return pagination
+
+    return depends_pagination_with_config_inner
 
 
 class FilterObjectCode(BaseModel):
