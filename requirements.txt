@@ -10,7 +10,7 @@ autopep8==1.4.4
 bcrypt==3.2.0
 beautifulsoup4==4.9.3
 black==21.7b0
-certifi==2020.6.20
+certifi==2023.7.22
 cffi==1.14.3
 chardet==3.0.4
 click==7.1.2
