@@ -1,6 +1,23 @@
 id: verplicht_programma
 object_type: verplicht_programma
 
+sort_allowed_columns: &sort_allowed_columns
+  - Object_ID
+  - Title
+  - Modified_Date
+
+sort_default_title: &sort_default_title
+  default:
+    column: Title
+    order: asc
+  allowed_columns: *sort_allowed_columns
+
+sort_default_modified_date: &sort_default_modified_date
+  default:
+    column: Modified_Date
+    order: desc
+  allowed_columns: *sort_allowed_columns
+
 api:
   routers:
     - prefix: /verplicht-programma
@@ -19,14 +36,7 @@ api:
             response_model: verplicht_programma_basic
             allowed_filter_columns:
               - Title
-            sort:
-              default:
-                column: Title
-                order: asc
-              allowed_columns:
-                - Object_ID
-                - Title
-                - Modified_Date
+            sort: *sort_default_title
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}

@@ -9,13 +9,13 @@ from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
 from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
-from app.dynamic.dependencies import depends_event_dispatcher, depends_pagination, depends_string_filters
+from app.dynamic.dependencies import depends_event_dispatcher, depends_pagination, depends_pagination_with_config_curried, depends_string_filters
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event.before_select_execution import BeforeSelectExecutionEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import PagedResponse, Pagination, query_paginated
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, Pagination, query_paginated
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import depends_active_module, depends_active_module_object_context_curried
@@ -34,6 +34,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
         object_type: str,
         response_model: Model,
         allowed_filter_columns: List[str],
+        order_config: OrderConfig,
     ):
         self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
@@ -43,13 +44,14 @@ class ModuleListLineageTreeEndpoint(Endpoint):
         self._response_model: Model = response_model
         self._response_type: Type[pydantic.BaseModel] = response_model.pydantic_model
         self._allowed_filter_columns: List[str] = allowed_filter_columns
+        self._order_config: OrderConfig = order_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             lineage_id: int,
             user: UsersTable = Depends(depends_current_active_user),
             filters: Filters = Depends(depends_string_filters),
-            pagination: Pagination = Depends(depends_pagination),
+            pagination: Pagination = Depends(depends_pagination_with_config_curried(self._order_config)),
             module: ModuleTable = Depends(depends_active_module),
             module_object_context=Depends(depends_active_module_object_context_curried(self._object_type)),
             db: Session = Depends(depends_db),
@@ -102,7 +104,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
             session=db,
             limit=pagination.limit,
             offset=pagination.offset,
-            sort=(ModuleObjectsTable.Modified_Date, pagination.sort),
+            sort=(getattr(ModuleObjectsTable, pagination.sort.column), pagination.sort),
         )
 
         rows: List[self._response_type] = [self._response_type.from_orm(r) for r in paginated_result.items]
@@ -148,6 +150,7 @@ class ModuleListLineageTreeEndpointResolver(EndpointResolver):
             resolver_config.get("response_model"),
         )
         allowed_filter_columns: List[str] = resolver_config.get("allowed_filter_columns", [])
+        order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
         if not "{module_id}" in path:
@@ -163,4 +166,5 @@ class ModuleListLineageTreeEndpointResolver(EndpointResolver):
             object_type=api.object_type,
             response_model=response_model,
             allowed_filter_columns=allowed_filter_columns,
+            order_config=order_config,
         )

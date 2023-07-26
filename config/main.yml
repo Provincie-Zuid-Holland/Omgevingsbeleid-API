@@ -1,3 +1,35 @@
+searchable_config: &searchable_config
+  searchable_columns_high:
+    - Title
+  searchable_columns_low:
+    - Description
+    - Effect
+    - Provincial_Interest
+    - Cause
+
+sort_allowed_columns: &sort_allowed_columns
+  - Object_ID
+  - Title
+  - Modified_Date
+
+sort_default_title: &sort_default_title
+  default:
+    column: Title
+    order: asc
+  allowed_columns: *sort_allowed_columns
+
+sort_default_modified_date: &sort_default_modified_date
+  default:
+    column: Modified_Date
+    order: desc
+  allowed_columns: *sort_allowed_columns
+
+sort_default_object_id: &sort_default_object_id
+  default:
+    column: Object_ID
+    order: asc
+  allowed_columns: *sort_allowed_columns
+
 api:
   routers:
     - prefix: /users
@@ -13,13 +45,7 @@ api:
       endpoints:
         - resolver: mssql_search
           resolver_data:
-            searchable_columns_high:
-              - Title
-            searchable_columns_low:
-              - Description
-              - Effect
-              - Provincial_Interest
-              - Cause
+            <<: *searchable_config
             allowed_object_types:
               - ambitie
               - beleidsdoel
@@ -34,13 +60,7 @@ api:
       endpoints:
         - resolver: mssql_valid_search
           resolver_data:
-            searchable_columns_high:
-              - Title
-            searchable_columns_low:
-              - Description
-              - Effect
-              - Provincial_Interest
-              - Cause
+            <<: *searchable_config
             allowed_object_types:
               - ambitie
               - beleidsdoel
@@ -131,6 +151,8 @@ api:
     - prefix: /objects/valid
       endpoints:
         - resolver: list_all_latest_objects
+          resolver_data:
+            sort: *sort_default_object_id
 
 columns:
   # Titel
@@ -385,18 +407,6 @@ modules_xml_export:
 
 mssql_search:
   - table_name: objects
-    searchable_columns_high:
-      - Title
-    searchable_columns_low:
-      - Description
-      - Effect
-      - Provincial_Interest
-      - Cause
+    <<: *searchable_config
   - table_name: module_objects
-    searchable_columns_high:
-      - Title
-    searchable_columns_low:
-      - Description
-      - Effect
-      - Provincial_Interest
-      - Cause
+    <<: *searchable_config

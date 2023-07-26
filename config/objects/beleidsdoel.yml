@@ -1,6 +1,23 @@
 id: beleidsdoel
 object_type: beleidsdoel
 
+sort_allowed_columns: &sort_allowed_columns
+  - Object_ID
+  - Title
+  - Modified_Date
+
+sort_default_title: &sort_default_title
+  default:
+    column: Title
+    order: asc
+  allowed_columns: *sort_allowed_columns
+
+sort_default_modified_date: &sort_default_modified_date
+  default:
+    column: Modified_Date
+    order: desc
+  allowed_columns: *sort_allowed_columns
+
 api:
   routers:
     - prefix: /beleidsdoelen
@@ -11,20 +28,14 @@ api:
             response_model: beleidsdoel_basic
             allowed_filter_columns:
               - Title
-            sort:
-              default:
-                column: Title
-                order: asc
-              allowed_columns:
-                - Object_ID
-                - Title
-                - Modified_Date
+            sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: beleidsdoel_basic
             allowed_filter_columns:
               - Title
+            sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
@@ -62,6 +73,7 @@ api:
             response_model: beleidsdoel_extended
             allowed_filter_columns:
               - Title
+            sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}

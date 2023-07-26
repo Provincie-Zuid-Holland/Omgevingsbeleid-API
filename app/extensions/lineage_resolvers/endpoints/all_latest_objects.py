@@ -6,12 +6,12 @@ from pydantic import BaseModel
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.dependencies import depends_object_repository, depends_pagination
+from app.dynamic.dependencies import depends_object_repository, depends_pagination, depends_pagination_with_config_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_repository import ObjectRepository
-from app.dynamic.utils.pagination import PagedResponse, Pagination
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, Pagination
 
 
 class GenericObjectShort(BaseModel):
@@ -19,21 +19,21 @@ class GenericObjectShort(BaseModel):
     Object_ID: int
     UUID: UUID
     Title: Optional[str]
-    Description: Optional[str]
 
     class Config:
         orm_mode = True
 
 
 class ListAllLatestObjectsEndpoint(Endpoint):
-    def __init__(self, path: str):
+    def __init__(self, path: str, order_config: OrderConfig):
         self._path: str = path
+        self._order_config: OrderConfig = order_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             owner_uuid: Optional[UUID] = None,  # Depends user exists
             object_type: Optional[str] = None,  # Depends user exists
-            pagination: Pagination = Depends(depends_pagination),
+            pagination: Pagination = Depends(depends_pagination_with_config_curried(self._order_config)),
             object_repository: ObjectRepository = Depends(depends_object_repository),
         ):
             return self._handler(owner_uuid, object_type, pagination, object_repository)
@@ -58,11 +58,9 @@ class ListAllLatestObjectsEndpoint(Endpoint):
         object_repo: ObjectRepository,
     ):
         paged_result = object_repo.get_latest_filtered(
+            pagination=pagination,
             owner_uuid=owner_uuid,
             object_type=object_type,
-            offset=pagination.offset,
-            limit=pagination.limit,
-            sort=pagination.sort,
         )
 
         # Cast to pyd model
@@ -90,7 +88,9 @@ class ListAllLatestObjectsResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
+        order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
         return ListAllLatestObjectsEndpoint(
             path=path,
+            order_config=order_config,
         )
