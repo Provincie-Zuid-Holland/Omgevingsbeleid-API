@@ -7,7 +7,7 @@ searchable_config: &searchable_config
     - Provincial_Interest
     - Cause
 
-sort_allowed_columns: &sort_allowed_columns
+sort_allowed_object_columns: &sort_allowed_object_columns
   - Object_ID
   - Title
   - Modified_Date
@@ -16,28 +16,46 @@ sort_default_title: &sort_default_title
   default:
     column: Title
     order: asc
-  allowed_columns: *sort_allowed_columns
+  allowed_columns: *sort_allowed_object_columns
 
 sort_default_modified_date: &sort_default_modified_date
   default:
     column: Modified_Date
     order: desc
-  allowed_columns: *sort_allowed_columns
+  allowed_columns: *sort_allowed_object_columns
 
 sort_default_object_id: &sort_default_object_id
   default:
     column: Object_ID
     order: asc
-  allowed_columns: *sort_allowed_columns
+  allowed_columns: *sort_allowed_object_columns
 
 api:
   routers:
     - prefix: /users
       endpoints:
         - resolver: list_users
+          resolver_data:
+            sort:
+              default:
+                column: Gebruikersnaam
+                order: asc
+              allowed_columns:
+                - Gebruikersnaam
+                - Rol
     - prefix: /werkingsgebieden
       endpoints:
         - resolver: list_werkingsgebieden
+          resolver_data:
+            sort:
+              default:
+                column: Title
+                order: asc
+              allowed_columns:
+                - Title
+                - ID
+                - Created_Date
+                - Modified_Date
     - prefix: /search/geo
       endpoints:
         - resolver: list_objects_in_werkingsgebieden
