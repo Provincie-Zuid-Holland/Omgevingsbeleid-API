@@ -1,0 +1,314 @@
+id: gebiedsprogramma
+object_type: gebiedsprogramma
+
+api:
+  routers:
+    - prefix: /gebiedsprogrammas
+      endpoints:
+        - resolver: valid_list_lineages
+          resolver_data:
+            path: /valid
+            response_model: gebiedsprogramma_basic
+            allowed_filter_columns:
+              - Title
+        - resolver: valid_list_lineage_tree
+          resolver_data:
+            path: /valid/{lineage_id}
+            response_model: gebiedsprogramma_basic
+            allowed_filter_columns:
+              - Title
+        - resolver: object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: gebiedsprogramma_full
+        - resolver: object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: gebiedsprogramma_full
+        - resolver: list_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+        - resolver: overwrite_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+            allowed_object_types_relations:
+              - maatregel
+    - prefix: /gebiedsprogrammas/static/{lineage_id}
+      endpoints:
+        - resolver: edit_object_static
+          resolver_data:
+            request_model: gebiedsprogramma_static_post
+            result_model: gebiedsprogramma_static_post_validated
+    - prefix: /modules/{module_id}/object/gebiedsprogrammas
+      endpoints:
+        - resolver: module_patch_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: gebiedsprogramma_patch
+            response_model: gebiedsprogramma_uuid
+        - resolver: module_list_lineage_tree
+          resolver_data:
+            path: /{lineage_id}
+            response_model: gebiedsprogramma_extended
+            allowed_filter_columns:
+              - Title
+        - resolver: module_object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: gebiedsprogramma_full
+        - resolver: module_object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: gebiedsprogramma_full
+    - prefix: /modules/objects/gebiedsprogramma
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: gebiedsprogramma_minimal
+
+
+fields:
+  title:
+    name: Title
+    type: str
+    column: title
+  description:
+    name: Description
+    type: str
+    column: description
+  image:
+    name: Image
+    type: str
+    column: image
+  idms_link:
+    name: IDMS_Link
+    type: str
+    column: idms_link
+  decision_number:
+    name: Decision_Number
+    type: str
+    column: decision_number
+
+  # Statics
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    column: owner_1_uuid
+    optional: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    column: owner_2_uuid
+    optional: true
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  client_1_uuid:
+    name: Client_1_UUID
+    type: uuid
+    column: client_1_uuid
+    optional: true
+
+models:
+  gebiedsprogramma_minimal:
+    name: GebiedsprogrammaMinimal
+    fields:
+      object_type:
+      object_id:
+      uuid:
+      title:
+  gebiedsprogramma_basic:
+    name: GebiedsprogrammaBasic
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      start_validity:
+      end_validity:
+      image:
+        default: none
+        optional: true
+    services:
+      get_image:
+        fields:
+          - Image
+  gebiedsprogramma_extended:
+    name: GebiedsprogrammaExtended
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      start_validity:
+      end_validity:
+      image:
+        default: none
+        optional: true
+    services:
+      get_image:
+        fields:
+          - Image
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: gebruikers_short
+          - to_field: Modified_By
+            model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
+  gebiedsprogramma_full:
+    name: GebiedsprogrammaFull
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      description:
+      start_validity:
+      end_validity:
+      image:
+        default: none
+        optional: true
+    services:
+      insert_assets:
+        fields:
+          - Description
+      get_image:
+        fields:
+          - Image
+      relations:
+        objects:
+          - object_type: maatregel
+            object_id: maatregel
+            to_field: "Maatregelen"
+            model_id: maatregel_minimal
+            wrapped_with_relation_data: true
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: gebruikers_short
+          - to_field: Modified_By
+            model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
+  gebiedsprogramma_patch:
+    name: GebiedsprogrammaPatch
+    fields:
+      title:
+        default: none
+        optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        default: none
+        optional: true
+        validators:
+          - id: plain_text
+      image:
+        default: none
+        optional: true
+    services:
+      extract_assets:
+        fields:
+          - Description
+      store_image:
+        fields:
+          - Image
+  gebiedsprogramma_static_post:
+    name: GebiedsprogrammaStaticPost
+    static_only: true
+    fields:
+      owner_1_uuid:
+        default: none
+        optional: true
+      owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
+        default: none
+        optional: true
+  gebiedsprogramma_static_post_validated:
+    name: GebiedsprogrammaStaticPostValidated
+    static_only: true
+    root_validators:
+      - id: not_equal_root
+        data:
+          fields:
+            - Owner_1_UUID
+            - Owner_2_UUID
+          allow_none: True
+          error_message: Owners should vary
+      - id: not_equal_root
+        data:
+          fields:
+            - Portfolio_Holder_1_UUID
+            - Portfolio_Holder_2_UUID
+          allow_none: True
+          error_message: Portfolio Holders should vary
+    fields:
+      owner_1_uuid:
+      owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
+        default: none
+        optional: true
+  gebiedsprogramma_uuid:
+    name: GebiedsprogrammaUUID
+    fields:
+      object_id:
+      uuid:

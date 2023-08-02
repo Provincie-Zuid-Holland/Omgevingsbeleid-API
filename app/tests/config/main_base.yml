@@ -1,0 +1,25 @@
+api:
+  routers:
+    - prefix: /users
+      endpoints:
+        - resolver: list_users
+
+columns:
+  title:
+    name: Title
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  description:
+    name: Description
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  additional:
+    name: Additional
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true

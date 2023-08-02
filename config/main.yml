@@ -1,0 +1,402 @@
+api:
+  routers:
+    - prefix: /users
+      endpoints:
+        - resolver: list_users
+    - prefix: /werkingsgebieden
+      endpoints:
+        - resolver: list_werkingsgebieden
+    - prefix: /search/geo
+      endpoints:
+        - resolver: list_objects_in_werkingsgebieden
+    - prefix: /search
+      endpoints:
+        - resolver: mssql_search
+          resolver_data:
+            searchable_columns_high:
+              - Title
+            searchable_columns_low:
+              - Description
+              - Effect
+              - Provincial_Interest
+              - Cause
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - maatregel
+              - beleidsregel
+              - gebiedsprogramma
+              - wettelijke_taak
+              - nationaal_belang
+              - verplicht_programma
+    - prefix: /search/valid
+      endpoints:
+        - resolver: mssql_valid_search
+          resolver_data:
+            searchable_columns_high:
+              - Title
+            searchable_columns_low:
+              - Description
+              - Effect
+              - Provincial_Interest
+              - Cause
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - maatregel
+              - beleidsregel
+              - gebiedsprogramma
+              - wettelijke_taak
+              - nationaal_belang
+              - verplicht_programma
+    - prefix: /full-graph
+      endpoints:
+        - resolver: full_graph
+    - prefix: /object-graph
+      endpoints:
+        - resolver: object_graph
+          resolver_data:
+            graph_iterations:
+              relations:
+                - allowed_object_types:
+                  - ambitie
+                  - beleidsdoel
+                  - beleidskeuze
+                  - maatregel
+                - allowed_object_types:
+                  - ambitie
+              acknowledged_relations:
+                - allowed_object_types:
+                  - beleidskeuze
+    - prefix: /modules
+      endpoints:
+        - resolver: create_module
+        - resolver: list_modules
+    - prefix: /modules/{module_id}
+      endpoints:
+        - resolver: module_overview
+        - resolver: edit_module
+        - resolver: activate_module
+          resolver_data:
+            path: /activate
+        - resolver: complete_module
+          resolver_data:
+            path: /complete
+        - resolver: close_module
+          resolver_data:
+            path: /close
+        - resolver: module_list_statuses
+          resolver_data:
+            path: /status
+        - resolver: module_patch_status
+          resolver_data:
+            path: /status
+        - resolver: module_add_new_object
+          resolver_data:
+            path: /add-new-object
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - maatregel
+              - beleidsregel
+              - gebiedsprogramma
+        - resolver: module_add_existing_object
+          resolver_data:
+            path: /add-existing-object
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - maatregel
+              - beleidsregel
+              - gebiedsprogramma
+        - resolver: module_get_object_context
+          resolver_data:
+            path: /object-context/{object_type}/{lineage_id}
+        - resolver: module_edit_object_context
+          resolver_data:
+            path: /object-context/{object_type}/{lineage_id}
+        - resolver: module_remove_object
+          resolver_data:
+            path: /remove/{object_type}/{lineage_id}
+        - resolver: module_snapshot
+          resolver_data:
+            path: /snapshot/{status_id}
+    - prefix: /modules/objects/latest
+      endpoints:
+        - resolver: list_module_objects
+    - prefix: /objects/valid
+      endpoints:
+        - resolver: list_all_latest_objects
+
+columns:
+  # Titel
+  title:
+    name: Title
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Omschrijving
+  description:
+    name: Description
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Beschrijf de uitwerking van het object
+  effect:
+    name: Effect
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Rol
+  role:
+    name: Role
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Provinciaal Belang
+  provincial_interest:
+    name: Provincial_Interest
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Aanleiding
+  cause:
+    name: Cause
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Besluitnummer
+  decision_number:
+    name: Decision_Number
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Toelichting
+  explanation:
+    name: Explanation
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Weblink
+  weblink:
+    name: Weblink
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # IDMS Link
+  idms_link:
+    name: IDMS_Link
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Gebied UUID
+  gebied_uuid:
+    name: Gebied_UUID
+    type: werkingsgebied_uuid
+    type_data:
+      relation_field: Gebied
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+  # Gebied Duiding
+  gebied_duiding:
+    name: Gebied_Duiding
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Image
+  image:
+    name: Image
+    type: str
+    serializers: []
+    deserializers: []
+    nullable: true
+  # Eigenaar 1
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: user_uuid
+    type_data:
+      relation_field: Owner_1
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  # Eigenaar 2
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: user_uuid
+    type_data:
+      relation_field: Owner_2
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  # Portefeuillehouder 1
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: user_uuid
+    type_data:
+      relation_field: Portfolio_Holder_1
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  # Portefeuillehouder 2
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: user_uuid
+    type_data:
+      relation_field: Portfolio_Holder_2
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  # Opdrachtgever
+  client_1_uuid:
+    name: Client_1_UUID
+    type: user_uuid
+    type_data:
+      relation_field: Client_1
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+
+users_permissions:
+  "Ambtelijk opdrachtgever": []
+  "Behandelend Ambtenaar":
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+  "Beheerder":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - can_create_module
+    - can_close_module
+    - can_edit_module
+    - can_activate_module
+    - can_patch_module_status
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
+  "Portefeuillehouder": []
+  "Functioneel beheerder":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - can_create_module
+    - can_close_module
+    - can_edit_module
+    - can_activate_module
+    - can_patch_module_status
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
+  "Technisch beheerder":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - can_create_module
+    - can_close_module
+    - can_edit_module
+    - can_activate_module
+    - can_patch_module_status
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
+  "Superuser":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - can_create_module
+    - can_close_module
+    - can_edit_module
+    - can_activate_module
+    - can_patch_module_status
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
+  "Test runner":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - can_create_module
+    - can_close_module
+    - can_edit_module
+    - can_activate_module
+    - can_patch_module_status
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
+  "Tester":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - can_create_module
+    - can_close_module
+    - can_edit_module
+    - can_activate_module
+    - can_patch_module_status
+    - can_add_new_object_to_module
+    - can_add_existing_object_to_module
+    - can_edit_module_object_context
+    - can_remove_object_from_module
+    - can_patch_object_in_module
+
+modules_pdf_export:
+  # prefixed by /config/
+  template_path: /extensions/module_pdf_export/templates
+  templates:
+    ambitie: ambitie.j2
+    beleidsdoel: beleidsdoel.j2
+    beleidskeuze: beleidskeuze.j2
+    maatregel: maatregel.j2
+  # prefixed by /output/
+  destination_path: /extensions/module_pdf_export
+
+modules_xml_export:
+  destination_path: /extensions/module_xml_export
+
+mssql_search:
+  - table_name: objects
+    searchable_columns_high:
+      - Title
+    searchable_columns_low:
+      - Description
+      - Effect
+      - Provincial_Interest
+      - Cause
+  - table_name: module_objects
+    searchable_columns_high:
+      - Title
+    searchable_columns_low:
+      - Description
+      - Effect
+      - Provincial_Interest
+      - Cause

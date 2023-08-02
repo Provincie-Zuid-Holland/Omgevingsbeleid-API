@@ -1,0 +1,24 @@
+# Development Environment
+Faker
+pytest
+black
+mypy
+sqlalchemy[mypy]
+pylint
+flake8
+devtools
+autoflake
+freezegun
+bandit
+coverage
+coverage-badge
+pytest
+pytest-cov
+pytest-mock
+requests-mock
+freezegun
+debugpy
+ipython
+alembic
+vulture
+isort

@@ -1,0 +1,35 @@
+# Core libraries
+fastapi
+uvicorn[standard]
+pydantic[email,dotenv]
+pyodbc
+SQLAlchemy
+pyyaml
+
+# JWT
+python-jose
+passlib
+python-multipart
+bcrypt
+
+# Util
+diff-match-patch
+pytz
+
+# Command
+Click
+
+# Async requests
+httpx
+
+# Validators
+beautifulsoup4
+
+# Image information
+Pillow
+
+# Exporting xml and pdf
+fs
+pdfkit
+jinja2
+dicttoxml

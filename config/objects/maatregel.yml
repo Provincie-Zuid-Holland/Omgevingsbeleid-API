@@ -1,0 +1,335 @@
+id: maatregel
+object_type: maatregel
+
+api:
+  routers:
+    - prefix: /maatregelen
+      endpoints:
+        - resolver: valid_list_lineages
+          resolver_data:
+            path: /valid
+            response_model: maatregel_basic
+            allowed_filter_columns:
+              - Title
+              - Weblink
+        - resolver: valid_list_lineage_tree
+          resolver_data:
+            path: /valid/{lineage_id}
+            response_model: maatregel_basic
+            allowed_filter_columns:
+              - Title
+              - Weblink
+        - resolver: object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: maatregel_full
+        - resolver: object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: maatregel_full
+        - resolver: list_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+        - resolver: overwrite_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+            allowed_object_types_relations:
+              - beleidskeuze
+              - gebiedsprogramma
+              - beleidsdoel
+    - prefix: /maatregel/static/{lineage_id}
+      endpoints:
+        - resolver: edit_object_static
+          resolver_data:
+            request_model: maatregel_static_post
+            result_model: maatregel_static_post_validated
+    - prefix: /modules/{module_id}/object/maatregel
+      endpoints:
+        - resolver: module_patch_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: maatregel_patch
+            response_model: maatregel_uuid
+        - resolver: module_list_lineage_tree
+          resolver_data:
+            path: /{lineage_id}
+            response_model: maatregel_extended
+            allowed_filter_columns:
+              - Title
+              - Weblink
+        - resolver: module_object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: maatregel_full
+        - resolver: module_object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: maatregel_full
+    - prefix: /modules/objects/maatregel
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: maatregel_minimal
+
+
+fields:
+  title:
+    name: Title
+    type: str
+    column: title
+  description:
+    name: Description
+    type: str
+    column: description
+  role:
+    name: Role
+    type: str
+    column: role
+  effect:
+    name: Effect
+    type: str
+    column: effect
+  gebied_uuid:
+    name: Gebied_UUID
+    type: uuid
+    column: gebied_uuid
+  idms_link:
+    name: IDMS_Link
+    type: str
+    column: idms_link
+  decision_number:
+    name: Decision_Number
+    type: str
+    column: decision_number
+
+  # Statics
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    column: owner_1_uuid
+    optional: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    column: owner_2_uuid
+    optional: true
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  client_1_uuid:
+    name: Client_1_UUID
+    type: uuid
+    column: client_1_uuid
+    optional: true
+
+models:
+  maatregel_minimal:
+    name: MaatregelMinimal
+    fields:
+      object_type:
+      object_id:
+      uuid:
+      title:
+  maatregel_basic:
+    name: MaatregelBasic
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      start_validity:
+      end_validity:
+      title:
+  maatregel_extended:
+    name: MaatregelExtended
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      start_validity:
+      end_validity:
+      title:
+    services:
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Gebied
+            model_id: werkingsgebied
+          - to_field: Created_By
+            model_id: gebruikers_short
+          - to_field: Modified_By
+            model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
+  maatregel_full:
+    name: MaatregelFull
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      start_validity:
+      end_validity:
+      title:
+      description:
+      role:
+      effect:
+    services:
+      insert_assets:
+        fields:
+          - Description
+          - Effect
+      relations:
+        objects:
+          - object_type: beleidskeuze
+            object_id: beleidskeuze
+            to_field: "Beleidskeuzes"
+            model_id: beleidskeuze_minimal
+            wrapped_with_relation_data: true
+          - object_type: gebiedsprogramma
+            object_id: gebiedsprogramma
+            to_field: "Gebiedsprogrammas"
+            model_id: gebiedsprogramma_minimal
+            wrapped_with_relation_data: true
+          - object_type: beleidsdoel
+            object_id: beleidsdoel
+            to_field: "Beleidsdoelen"
+            model_id: beleidsdoel_minimal
+            wrapped_with_relation_data: true
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Gebied
+            model_id: werkingsgebied
+          - to_field: Created_By
+            model_id: gebruikers_short
+          - to_field: Modified_By
+            model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
+  maatregel_patch:
+    name: MaatregelPatch
+    fields:
+      title:
+        default: none
+        optional: true
+      description:
+        default: none
+        optional: true
+        validators:
+          - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
+      role:
+        default: none
+        optional: true
+      effect:
+        default: none
+        optional: true
+        validators:
+          - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
+      gebied_uuid:
+        default: none
+        optional: true
+    services:
+      extract_assets:
+        fields:
+          - Description
+          - Effect
+  maatregel_static_post:
+    name: MaatregelStaticPost
+    static_only: true
+    fields:
+      owner_1_uuid:
+        default: none
+        optional: true
+      owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
+        default: none
+        optional: true
+  maatregel_static_post_validated:
+    name: MaatregelStaticPostValidated
+    static_only: true
+    root_validators:
+      - id: not_equal_root
+        data:
+          fields:
+            - Owner_1_UUID
+            - Owner_2_UUID
+          allow_none: True
+          error_message: Owners should vary
+      - id: not_equal_root
+        data:
+          fields:
+            - Portfolio_Holder_1_UUID
+            - Portfolio_Holder_2_UUID
+          allow_none: True
+          error_message: Portfolio Holders should vary
+    fields:
+      owner_1_uuid:
+      owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
+        default: none
+        optional: true
+  maatregel_uuid:
+    name: MaatregelUUID
+    fields:
+      object_id:
+      uuid:

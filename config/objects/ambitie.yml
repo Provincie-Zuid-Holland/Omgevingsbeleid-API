@@ -1,0 +1,284 @@
+id: ambitie
+object_type: ambitie
+
+api:
+  routers:
+    - prefix: /ambities
+      endpoints:
+        - resolver: valid_list_lineages
+          resolver_data:
+            path: /valid
+            response_model: ambitie_basic
+            allowed_filter_columns:
+              - Title
+        - resolver: valid_list_lineage_tree
+          resolver_data:
+            path: /valid/{lineage_id}
+            response_model: ambitie_basic
+            allowed_filter_columns:
+              - Title
+        - resolver: object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: ambitie_full
+        - resolver: object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: ambitie_full
+        - resolver: list_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+        - resolver: overwrite_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+            allowed_object_types_relations:
+              - beleidsdoel
+    - prefix: /ambitie/static/{lineage_id}
+      endpoints:
+        - resolver: edit_object_static
+          resolver_data:
+            request_model: ambitie_static_post
+            result_model: ambitie_static_post_validated
+    - prefix: /modules/{module_id}/object/ambitie
+      endpoints:
+        - resolver: module_patch_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: ambitie_patch
+            response_model: ambitie_uuid
+        - resolver: module_list_lineage_tree
+          resolver_data:
+            path: /{lineage_id}
+            response_model: ambitie_extended
+            allowed_filter_columns:
+              - Title
+        - resolver: module_object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: ambitie_full
+        - resolver: module_object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: ambitie_full
+    - prefix: /modules/object/ambitie
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: ambitie_minimal
+
+fields:
+  title:
+    name: Title
+    type: str
+    column: title
+  description:
+    name: Description
+    type: str
+    column: description
+  idms_link:
+    name: IDMS_Link
+    type: str
+    column: idms_link
+  decision_number:
+    name: Decision_Number
+    type: str
+    column: decision_number
+
+  # Statics
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    column: owner_1_uuid
+    optional: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    column: owner_2_uuid
+    optional: true
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: uuid
+    column: portfolio_holder_1_uuid
+    optional: true
+  client_1_uuid:
+    name: Client_1_UUID
+    type: uuid
+    column: client_1_uuid
+    optional: true
+
+models:
+  ambitie_minimal:
+    name: AmbitieMinimal
+    fields:
+      object_type:
+      object_id:
+      uuid:
+      title:
+  ambitie_basic:
+    name: AmbitieBasic
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      start_validity:
+      end_validity:
+  ambitie_extended:
+    name: AmbitieExtended
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      start_validity:
+      end_validity:
+    services:
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: gebruikers_short
+          - to_field: Modified_By
+            model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
+  ambitie_full:
+    name: AmbitieFull
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      description:
+      start_validity:
+      end_validity:
+    services:
+      insert_assets:
+        fields:
+          - Description
+      relations:
+        objects:
+          - object_type: beleidsdoel
+            object_id: beleidsdoel
+            to_field: "Beleidsdoelen"
+            model_id: beleidsdoel_minimal
+            wrapped_with_relation_data: true
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: gebruikers_short
+          - to_field: Modified_By
+            model_id: gebruikers_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: gebruikers_short
+          - to_field: Owner_2
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_1
+            model_id: gebruikers_short
+          - to_field: Portfolio_Holder_2
+            model_id: gebruikers_short
+          - to_field: Client_1
+            model_id: gebruikers_short
+  ambitie_patch:
+    name: AmbitiePatch
+    fields:
+      title:
+        default: none
+        optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        default: none
+        optional: true
+        validators:
+          - id: plain_text
+    services:
+      extract_assets:
+        fields:
+          - Description
+  ambitie_static_post:
+    name: AmbitieStaticPost
+    static_only: true
+    fields:
+      owner_1_uuid:
+        default: none
+        optional: true
+      owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
+        default: none
+        optional: true
+  ambitie_static_post_validated:
+    name: AmbitieStaticPostValidated
+    static_only: true
+    root_validators:
+      - id: not_equal_root
+        data:
+          fields:
+            - Owner_1_UUID
+            - Owner_2_UUID
+          allow_none: True
+          error_message: Owners should vary
+      - id: not_equal_root
+        data:
+          fields:
+            - Portfolio_Holder_1_UUID
+            - Portfolio_Holder_2_UUID
+          allow_none: True
+          error_message: Portfolio Holders should vary
+    fields:
+      owner_1_uuid:
+      owner_2_uuid:
+        default: none
+        optional: true
+      portfolio_holder_1_uuid:
+        default: none
+        optional: true
+      portfolio_holder_2_uuid:
+        default: none
+        optional: true
+      client_1_uuid:
+        default: none
+        optional: true
+  ambitie_uuid:
+    name: AmbitieUUID
+    fields:
+      object_id:
+      uuid:
