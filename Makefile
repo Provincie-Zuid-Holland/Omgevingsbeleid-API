@@ -101,9 +101,6 @@ docker-mssql-setup-search:
 docker-load-fixtures:
 	docker compose exec api python cmds.py load-fixtures
 
-docker-import:
-	docker compose exec api python -m scripts.import.main
-
 # @todo: these docker-test are not finished yet
 docker-test:
 	docker compose exec api python -m pytest
