@@ -95,7 +95,7 @@ class ValidListLineageTreeEndpoint(Endpoint):
             session=db,
             limit=pagination.limit,
             offset=pagination.offset,
-            sort=(getattr(ObjectsTable, pagination.sort.column), pagination.sort),
+            sort=(getattr(ObjectsTable, pagination.sort.column), pagination.sort.order),
         )
 
         rows: List[self._response_type] = [self._response_type.from_orm(r) for r in paginated_result.items]

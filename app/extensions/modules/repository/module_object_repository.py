@@ -185,7 +185,7 @@ class ModuleObjectRepository(BaseRepository):
             statement=stmt,
             limit=pagination.limit,
             offset=pagination.offset,
-            sort=(subq.c.Modified_Date, pagination.sort),
+            sort=(subq.c.Modified_Date, pagination.sort.order),
         )
 
     def patch_latest_module_object(

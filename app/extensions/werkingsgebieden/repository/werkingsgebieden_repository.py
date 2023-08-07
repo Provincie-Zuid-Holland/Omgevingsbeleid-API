@@ -7,7 +7,7 @@ from sqlalchemy.sql import func
 
 from app.dynamic.db.objects_table import ObjectsTable
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import PaginatedQueryResult, query_paginated
+from app.dynamic.utils.pagination import PaginatedQueryResult, Pagination, query_paginated
 from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 
 
@@ -16,8 +16,11 @@ class WerkingsgebiedenRepository(BaseRepository):
         stmt = select(WerkingsgebiedenTable).order_by(desc(WerkingsgebiedenTable.Modified_Date))
         return self.fetch_all(stmt)
 
-    def get_all_paginated(self, offset: int = 0, limit: int = 20) -> PaginatedQueryResult:
-        stmt = select(WerkingsgebiedenTable).order_by(desc(WerkingsgebiedenTable.Modified_Date))
+    def get_all_paginated(self, pagination: Pagination) -> PaginatedQueryResult:
+        stmt = (
+            select(WerkingsgebiedenTable)
+            .order_by(desc(WerkingsgebiedenTable.Modified_Date))
+        )
         return self.fetch_paginated(stmt, offset, limit)
 
     # TODO: Object type filter
