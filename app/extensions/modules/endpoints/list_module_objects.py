@@ -1,6 +1,5 @@
 from typing import List, Optional
 from uuid import UUID
-from app.dynamic.utils.pagination import PagedResponse, Pagination
 
 from fastapi import APIRouter, Depends
 
@@ -10,9 +9,9 @@ from app.dynamic.dependencies import depends_event_dispatcher, depends_paginatio
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
+from app.dynamic.utils.pagination import PagedResponse, Pagination
 from app.extensions.modules.dependencies import depends_module_object_repository
 from app.extensions.modules.endpoints.module_overview import ModuleObjectShort
-from app.extensions.modules.event.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
