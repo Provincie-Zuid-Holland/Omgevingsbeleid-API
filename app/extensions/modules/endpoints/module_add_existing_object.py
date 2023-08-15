@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -33,8 +33,12 @@ class ModuleAddExistingObject(BaseModel):
     Object_UUID: uuid.UUID
 
     Action: ModuleObjectAction
-    Explanation: Optional[str] = Field(None, nullable=True)
-    Conclusion: Optional[str] = Field(None, nullable=True)
+    Explanation: str = Field("", nullable=True)
+    Conclusion: str = Field("", nullable=True)
+
+    @validator("Explanation", "Conclusion", pre=True)
+    def default_empty_string(cls, v):
+        return v or ""
 
     class Config:
         use_enum_values = True
