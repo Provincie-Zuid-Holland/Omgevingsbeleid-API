@@ -13,6 +13,9 @@ api:
           resolver_data:
             path: /{lineage_id}
             request_model: nationaal_belang_edit
+        - resolver: atemporal_delete_object
+          resolver_data:
+            path: /{lineage_id}
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
