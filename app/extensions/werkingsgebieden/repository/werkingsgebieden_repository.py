@@ -21,7 +21,12 @@ class WerkingsgebiedenRepository(BaseRepository):
             select(WerkingsgebiedenTable)
             .order_by(desc(WerkingsgebiedenTable.Modified_Date))
         )
-        return self.fetch_paginated(stmt, offset, limit)
+        return self.fetch_paginated(
+            statement=stmt,
+            offset=pagination.offset,
+            limit=pagination.limit,
+            sort=(getattr(WerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
+        )
 
     # TODO: Object type filter
     @staticmethod
