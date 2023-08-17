@@ -17,10 +17,7 @@ class WerkingsgebiedenRepository(BaseRepository):
         return self.fetch_all(stmt)
 
     def get_all_paginated(self, pagination: Pagination) -> PaginatedQueryResult:
-        stmt = (
-            select(WerkingsgebiedenTable)
-            .order_by(desc(WerkingsgebiedenTable.Modified_Date))
-        )
+        stmt = select(WerkingsgebiedenTable).order_by(desc(WerkingsgebiedenTable.Modified_Date))
         return self.fetch_paginated(
             statement=stmt,
             offset=pagination.offset,
@@ -28,7 +25,6 @@ class WerkingsgebiedenRepository(BaseRepository):
             sort=(getattr(WerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
         )
 
-    # TODO: Object type filter
     @staticmethod
     def latest_objects_query(in_area: Optional[List[UUID]], object_types: List[str]):
         subq = select(
@@ -53,13 +49,22 @@ class WerkingsgebiedenRepository(BaseRepository):
         return stmt
 
     def get_latest_in_area(
-        self, in_area: List[UUID], object_types: List[str], offset=0, limit=-1
+        self,
+        in_area: List[UUID],
+        object_types: List[str],
+        pagination: Pagination,
     ) -> PaginatedQueryResult:
         """
         Find all latest objects matching a list of Werkingsgebied UUIDs
         """
         query = self.latest_objects_query(in_area=in_area, object_types=object_types)
 
-        paginated_result = query_paginated(query=query, session=self._db, limit=limit, offset=offset)
+        paginated_result = query_paginated(
+            query=query,
+            session=self._db,
+            offset=pagination.offset,
+            limit=pagination.limit,
+            sort=(getattr(ObjectsTable, pagination.sort.column), pagination.sort.order),
+        )
 
         return paginated_result

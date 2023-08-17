@@ -6,11 +6,11 @@ from pydantic import BaseModel, validator
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.dependencies import depends_pagination
+from app.dynamic.dependencies import depends_pagination_with_config_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import PagedResponse, Pagination
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, PaginatedQueryResult, Pagination
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 from app.extensions.werkingsgebieden.dependencies import depends_werkingsgebieden_repository
@@ -53,13 +53,14 @@ class SearchGeoRequestData(BaseModel):
 
 
 class ListObjectsInGeoEndpoint(Endpoint):
-    def __init__(self, path: str):
+    def __init__(self, path: str, order_config: OrderConfig):
         self._path: str = path
+        self._order_config: OrderConfig = order_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: SearchGeoRequestData,
-            pagination: Pagination = Depends(depends_pagination),
+            pagination: Pagination = Depends(depends_pagination_with_config_curried(self._order_config)),
             user: UsersTable = Depends(depends_current_active_user),
             repository: WerkingsgebiedenRepository = Depends(depends_werkingsgebieden_repository),
         ) -> PagedResponse[GeoSearchResult]:
@@ -67,8 +68,7 @@ class ListObjectsInGeoEndpoint(Endpoint):
                 repository=repository,
                 area_list=object_in.Area_List,
                 object_types=object_in.Object_Types,
-                offset=pagination.offset,
-                limit=pagination.limit,
+                pagination=pagination,
             )
 
         router.add_api_route(
@@ -87,13 +87,14 @@ class ListObjectsInGeoEndpoint(Endpoint):
         self,
         repository: WerkingsgebiedenRepository,
         area_list: List[UUID],
-        offset: int,
-        limit: int,
+        pagination: Pagination,
         object_types: List[str] = None,
     ) -> PagedResponse[GeoSearchResult]:
         # TODO: add object_type validation
-        paginated_result = repository.get_latest_in_area(
-            in_area=area_list, object_types=object_types, limit=limit, offset=offset
+        paginated_result: PaginatedQueryResult = repository.get_latest_in_area(
+            in_area=area_list,
+            object_types=object_types,
+            pagination=pagination,
         )
         object_list = []
         for item in paginated_result.items:
@@ -108,8 +109,8 @@ class ListObjectsInGeoEndpoint(Endpoint):
 
         return PagedResponse(
             total=paginated_result.total_count,
-            limit=limit,
-            offset=offset,
+            limit=pagination.limit,
+            offset=pagination.offset,
             results=object_list,
         )
 
@@ -128,7 +129,9 @@ class ListObjectsInGeoEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
+        order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
         return ListObjectsInGeoEndpoint(
             path=path,
+            order_config=order_config,
         )

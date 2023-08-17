@@ -59,6 +59,8 @@ api:
     - prefix: /search/geo
       endpoints:
         - resolver: list_objects_in_werkingsgebieden
+          resolver_data:
+            sort: *sort_default_title
     - prefix: /search
       endpoints:
         - resolver: mssql_search

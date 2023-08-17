@@ -10,7 +10,11 @@ from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
 from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
 from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.dependencies import depends_event_dispatcher, depends_pagination, depends_pagination_with_config_curried, depends_string_filters
+from app.dynamic.dependencies import (
+    depends_event_dispatcher,
+    depends_pagination_with_config_curried,
+    depends_string_filters,
+)
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.event.before_select_execution import BeforeSelectExecutionEvent
