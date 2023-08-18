@@ -24,4 +24,4 @@ class UsersTable(Base, UserBaseColumns):
     __tablename__ = "Gebruikers"
 
     def __repr__(self) -> str:
-        return f"Gebruikers(UUID={self.UUID!r}, Gebruikersnaam={self.Gebruikersnaam!r})"
+        return f"UsersTable(UUID={self.UUID!r}, Gebruikersnaam={self.Gebruikersnaam!r})"
