@@ -51,10 +51,9 @@ class OrderConfig(BaseModel):
         )
 
 
-class Pagination(BaseModel):
+class SimplePagination(BaseModel):
     offset: int = Field(default=None)
     limit: int = Field(default=None)
-    sort: Sort
 
     @validator("offset", pre=True, always=True)
     def default_offset(cls, v):
@@ -71,6 +70,10 @@ class Pagination(BaseModel):
         if v > 500:
             return 20
         return v
+
+
+class SortedPagination(SimplePagination):
+    sort: Sort
 
 
 T = TypeVar("T", bound=BaseModel)
