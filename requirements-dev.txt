@@ -41,8 +41,6 @@ devtools==0.11.0
     # via -r requirements-dev.in
 dill==0.3.6
     # via pylint
-exceptiongroup==1.1.2
-    # via pytest
 executing==1.2.0
     # via
     #   devtools
@@ -55,7 +53,7 @@ freezegun==1.2.2
     # via -r requirements-dev.in
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.31
+gitpython==3.1.32
     # via bandit
 greenlet==2.0.2
     # via sqlalchemy
@@ -171,14 +169,6 @@ stevedore==5.1.0
     # via bandit
 toml==0.10.2
     # via vulture
-tomli==2.0.1
-    # via
-    #   autoflake
-    #   black
-    #   coverage
-    #   mypy
-    #   pylint
-    #   pytest
 tomlkit==0.11.8
     # via pylint
 traitlets==5.9.0
@@ -188,11 +178,7 @@ traitlets==5.9.0
 typing-extensions==4.7.1
     # via
     #   alembic
-    #   astroid
-    #   black
-    #   ipython
     #   mypy
-    #   pylint
     #   sqlalchemy
 urllib3==2.0.3
     # via requests

@@ -1,5 +1,8 @@
 from typing import List
 
+import click
+
+import app.extensions.users.commands as commands
 import app.extensions.users.endpoints as endpoints
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.converter import Converter
@@ -41,3 +44,7 @@ class UsersExtension(Extension):
         return [
             endpoints.ListUsersEndpointResolver(),
         ]
+
+    def register_commands(self, main_command_group: click.Group, main_config: dict):
+        main_command_group.add_command(commands.create_user, "user-create")
+        main_command_group.add_command(commands.reset_password, "user-reset-password")

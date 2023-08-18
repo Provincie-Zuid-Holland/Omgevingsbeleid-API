@@ -18,4 +18,5 @@ class AtemporalExtension(Extension):
         return [
             endpoints.CreateObjectEndpointResolver(),
             endpoints.EditObjectEndpointResolver(),
+            endpoints.DeleteObjectEndpointResolver(),
         ]

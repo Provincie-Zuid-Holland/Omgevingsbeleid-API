@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from typing import Generator
 
 from app.core.db.session import SessionLocal
@@ -14,3 +15,8 @@ def depends_db() -> Generator:
         raise e
     finally:
         db.close()
+
+
+@contextmanager
+def db_in_context_manager() -> Generator:
+    yield from depends_db()
