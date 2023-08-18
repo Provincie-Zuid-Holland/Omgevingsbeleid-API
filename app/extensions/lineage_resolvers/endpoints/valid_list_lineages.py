@@ -11,17 +11,13 @@ from app.dynamic.config.models import Api, DynamicObjectModel, EndpointConfig, M
 from app.dynamic.converter import Converter
 from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
 from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.dependencies import (
-    depends_event_dispatcher,
-    depends_pagination_with_config_curried,
-    depends_string_filters,
-)
+from app.dynamic.dependencies import depends_event_dispatcher, depends_sorted_pagination_curried, depends_string_filters
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event import BeforeSelectExecutionEvent, RetrievedObjectsEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import OrderConfig, PagedResponse, Pagination, query_paginated
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination, query_paginated
 
 
 class ValidListLineagesEndpoint(Endpoint):
@@ -49,7 +45,7 @@ class ValidListLineagesEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             filters: Filters = Depends(depends_string_filters),
-            pagination: Pagination = Depends(depends_pagination_with_config_curried(self._order_config)),
+            pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
             db: Session = Depends(depends_db),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
         ) -> PagedResponse[self._response_type]:
@@ -72,7 +68,7 @@ class ValidListLineagesEndpoint(Endpoint):
         db: Session,
         event_dispatcher: EventDispatcher,
         filters: Filters,
-        pagination: Pagination,
+        pagination: SortedPagination,
     ):
         filters.guard_keys(self._allowed_filter_columns)
         database_filter_result: FiltersConverterResult = convert_filters(filters)

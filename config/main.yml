@@ -168,6 +168,8 @@ api:
     - prefix: /modules/objects/latest
       endpoints:
         - resolver: list_module_objects
+          resolver_data:
+            sort: *sort_default_modified_date
     - prefix: /objects/valid
       endpoints:
         - resolver: list_all_latest_objects

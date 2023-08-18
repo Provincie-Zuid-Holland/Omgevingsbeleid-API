@@ -3,6 +3,14 @@ api:
     - prefix: /users
       endpoints:
         - resolver: list_users
+          resolver_data:
+            sort:
+              default:
+                column: Gebruikersnaam
+                order: asc
+              allowed_columns:
+                - Gebruikersnaam
+                - Rol
 
 columns:
   title:

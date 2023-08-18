@@ -5,11 +5,11 @@ from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.dependencies import FilterObjectCode, depends_filter_object_code, depends_pagination
+from app.dynamic.dependencies import FilterObjectCode, depends_filter_object_code, depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import PagedResponse, Pagination
+from app.dynamic.utils.pagination import PagedResponse, SimplePagination, SortedPagination
 from app.extensions.modules.dependencies import depends_module_repository
 from app.extensions.modules.models import Module
 from app.extensions.modules.repository.module_repository import ModuleRepository
@@ -18,19 +18,14 @@ from app.extensions.users.dependencies import depends_current_active_user
 
 
 class ListModulesEndpoint(Endpoint):
-    def __init__(
-        self,
-        event_dispatcher: EventDispatcher,
-        path: str,
-    ):
-        self._event_dispatcher: EventDispatcher = event_dispatcher
+    def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             only_mine: bool = True,
             only_active: bool = True,
-            pagination: Pagination = Depends(depends_pagination),
+            pagination: SimplePagination = Depends(depends_simple_pagination),
             user: UsersTable = Depends(depends_current_active_user),
             module_repository: ModuleRepository = Depends(depends_module_repository),
             object_code: Optional[FilterObjectCode] = Depends(depends_filter_object_code),
@@ -56,7 +51,7 @@ class ListModulesEndpoint(Endpoint):
         only_mine: bool,
         only_active: bool,
         object_code: Optional[FilterObjectCode],
-        pagination: Pagination,
+        pagination: SortedPagination,
     ):
         filter_on_me: Optional[UUID] = None
         if only_mine:
@@ -95,7 +90,4 @@ class ListModulesEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        return ListModulesEndpoint(
-            event_dispatcher=event_dispatcher,
-            path=path,
-        )
+        return ListModulesEndpoint(path)

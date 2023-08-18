@@ -86,6 +86,7 @@ api:
           resolver_data:
             path: /active/{lineage_id}
             response_model: gebiedsprogramma_minimal
+            sort: *sort_default_title
 
 
 fields:

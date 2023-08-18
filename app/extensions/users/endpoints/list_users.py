@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.dependencies import depends_pagination_with_config_curried
+from app.dynamic.dependencies import depends_sorted_pagination_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import OrderConfig, PagedResponse, Pagination
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user, depends_user_repository
 from app.extensions.users.model import UserShort
@@ -22,7 +22,7 @@ class ListUsersEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            pagination: Pagination = Depends(depends_pagination_with_config_curried(self._order_config)),
+            pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
             user: UsersTable = Depends(depends_current_active_user),
             user_repository: UserRepository = Depends(depends_user_repository),
         ) -> PagedResponse[UserShort]:
@@ -43,7 +43,7 @@ class ListUsersEndpoint(Endpoint):
     def _handler(
         self,
         repostiory: UserRepository,
-        pagination: Pagination,
+        pagination: SortedPagination,
     ) -> PagedResponse[UserShort]:
         paginated_result = repostiory.get_active(pagination)
         users: List[UserShort] = [UserShort.from_orm(u) for u in paginated_result.items]

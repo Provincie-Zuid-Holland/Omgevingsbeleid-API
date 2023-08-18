@@ -6,15 +6,12 @@ from pydantic import BaseModel
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.dependencies import (
-    depends_object_repository,
-    depends_pagination_with_config_curried,
-)
+from app.dynamic.dependencies import depends_object_repository, depends_sorted_pagination_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_repository import ObjectRepository
-from app.dynamic.utils.pagination import OrderConfig, PagedResponse, Pagination
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination
 
 
 class GenericObjectShort(BaseModel):
@@ -36,7 +33,7 @@ class ListAllLatestObjectsEndpoint(Endpoint):
         def fastapi_handler(
             owner_uuid: Optional[UUID] = None,  # Depends user exists
             object_type: Optional[str] = None,  # Depends user exists
-            pagination: Pagination = Depends(depends_pagination_with_config_curried(self._order_config)),
+            pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
             object_repository: ObjectRepository = Depends(depends_object_repository),
         ):
             return self._handler(owner_uuid, object_type, pagination, object_repository)
@@ -48,7 +45,7 @@ class ListAllLatestObjectsEndpoint(Endpoint):
             response_model=PagedResponse[GenericObjectShort],
             summary=f"List all objects filterable in short format",
             description=None,
-            tags=["Objects"],
+            tags=["Search"],
         )
 
         return router
@@ -57,7 +54,7 @@ class ListAllLatestObjectsEndpoint(Endpoint):
         self,
         owner_uuid: Optional[UUID],
         object_type: Optional[str],
-        pagination: Pagination,
+        pagination: SortedPagination,
         object_repo: ObjectRepository,
     ):
         paged_result = object_repo.get_latest_filtered(

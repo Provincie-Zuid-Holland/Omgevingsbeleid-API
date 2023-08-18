@@ -10,18 +10,14 @@ from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
 from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
 from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.dependencies import (
-    depends_event_dispatcher,
-    depends_pagination_with_config_curried,
-    depends_string_filters,
-)
+from app.dynamic.dependencies import depends_event_dispatcher, depends_sorted_pagination_curried, depends_string_filters
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.event.before_select_execution import BeforeSelectExecutionEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import OrderConfig, PagedResponse, Pagination, query_paginated
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination, query_paginated
 
 
 class ValidListLineageTreeEndpoint(Endpoint):
@@ -50,7 +46,7 @@ class ValidListLineageTreeEndpoint(Endpoint):
         def fastapi_handler(
             lineage_id: int,
             filters: Filters = Depends(depends_string_filters),
-            pagination: Pagination = Depends(depends_pagination_with_config_curried(self._order_config)),
+            pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
             db: Session = Depends(depends_db),
             event_dispatcher: Session = Depends(depends_event_dispatcher),
         ) -> PagedResponse[self._response_type]:
@@ -74,7 +70,7 @@ class ValidListLineageTreeEndpoint(Endpoint):
         event_dispatcher: EventDispatcher,
         lineage_id: int,
         filters: Filters,
-        pagination: Pagination,
+        pagination: SortedPagination,
     ):
         filters.guard_keys(self._allowed_filter_columns)
         database_filter_result: FiltersConverterResult = convert_filters(filters)

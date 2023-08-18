@@ -5,7 +5,7 @@ from sqlalchemy import asc, select
 
 from app.core.security import get_password_hash, verify_password
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import PaginatedQueryResult, Pagination
+from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination
 from app.extensions.users.db.tables import UsersTable
 
 from ..model import User
@@ -16,7 +16,7 @@ class UserRepository(BaseRepository):
         stmt = select(UsersTable).where(UsersTable.UUID == uuid)
         return self.fetch_first(stmt)
 
-    def get_active(self, pagination: Pagination) -> PaginatedQueryResult:
+    def get_active(self, pagination: SortedPagination) -> PaginatedQueryResult:
         stmt = select(UsersTable).filter(UsersTable.Status == "Actief")
         return self.fetch_paginated(
             statement=stmt,

@@ -9,17 +9,13 @@ from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
 from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
-from app.dynamic.dependencies import (
-    depends_event_dispatcher,
-    depends_pagination_with_config_curried,
-    depends_string_filters,
-)
+from app.dynamic.dependencies import depends_event_dispatcher, depends_sorted_pagination_curried, depends_string_filters
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event.before_select_execution import BeforeSelectExecutionEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import OrderConfig, PagedResponse, Pagination, query_paginated
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination, query_paginated
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import depends_active_module, depends_active_module_object_context_curried
@@ -31,7 +27,6 @@ from app.extensions.users.dependencies import depends_current_active_user
 class ModuleListLineageTreeEndpoint(Endpoint):
     def __init__(
         self,
-        converter: Converter,
         endpoint_id: str,
         path: str,
         object_id: str,
@@ -40,7 +35,6 @@ class ModuleListLineageTreeEndpoint(Endpoint):
         allowed_filter_columns: List[str],
         order_config: OrderConfig,
     ):
-        self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
         self._path: str = path
         self._object_id: str = object_id
@@ -55,7 +49,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
             lineage_id: int,
             user: UsersTable = Depends(depends_current_active_user),
             filters: Filters = Depends(depends_string_filters),
-            pagination: Pagination = Depends(depends_pagination_with_config_curried(self._order_config)),
+            pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
             module: ModuleTable = Depends(depends_active_module),
             module_object_context=Depends(depends_active_module_object_context_curried(self._object_type)),
             db: Session = Depends(depends_db),
@@ -82,7 +76,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
         module: ModuleTable,
         lineage_id: int,
         filters: Filters,
-        pagination: Pagination,
+        pagination: SortedPagination,
     ):
         filters.guard_keys(self._allowed_filter_columns)
         database_filter: FiltersConverterResult = convert_filters(filters)
@@ -163,7 +157,6 @@ class ModuleListLineageTreeEndpointResolver(EndpointResolver):
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         return ModuleListLineageTreeEndpoint(
-            converter=converter,
             endpoint_id=self.get_id(),
             path=path,
             object_id=api.id,

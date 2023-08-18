@@ -24,7 +24,7 @@ class OrderConfig(BaseModel):
     allowed_columns: List[str]
 
     def get_sort(self, given_column: Optional[str], given_order: Optional[SortOrder]) -> Sort:
-        sort_column: str = given_column if given_column in self.allowed_columns else self.default_column
+        sort_column: str = self._validate_column(given_column)
         sort_order: SortOrder = given_order or self.default_order
 
         result = Sort(
@@ -32,6 +32,15 @@ class OrderConfig(BaseModel):
             order=sort_order,
         )
         return result
+
+    def _validate_column(self, column: Optional[str]) -> str:
+        if column is None:
+            return self.default_column
+
+        if column in self.allowed_columns:
+            return column
+        else:
+            raise ValueError("invalid sort column")
 
     @staticmethod
     def from_dict(data: dict) -> "OrderConfig":
