@@ -1,6 +1,23 @@
 id: nationaal_belang
 object_type: nationaal_belang
 
+sort_allowed_columns: &sort_allowed_columns
+  - Object_ID
+  - Title
+  - Modified_Date
+
+sort_default_title: &sort_default_title
+  default:
+    column: Title
+    order: asc
+  allowed_columns: *sort_allowed_columns
+
+sort_default_modified_date: &sort_default_modified_date
+  default:
+    column: Modified_Date
+    order: desc
+  allowed_columns: *sort_allowed_columns
+
 api:
   routers:
     - prefix: /nationaal-belang
@@ -23,6 +40,7 @@ api:
             allowed_filter_columns:
               - Title
               - Weblink
+            sort: *sort_default_title
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}

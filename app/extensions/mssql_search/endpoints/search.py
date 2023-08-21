@@ -10,11 +10,11 @@ from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.dependencies import depends_pagination
+from app.dynamic.dependencies import depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import PagedResponse, Pagination
+from app.dynamic.utils.pagination import PagedResponse, SimplePagination
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.mssql_search.models import SearchConfig, SearchObject, SearchRequestData
@@ -27,13 +27,13 @@ class EndpointHandler:
         self,
         db: Session,
         search_config: SearchConfig,
-        pagination: Pagination,
+        pagination: SimplePagination,
         query: str,
         object_types: Optional[List[str]] = None,
     ):
         self._db: Session = db
         self._search_config: SearchConfig = search_config
-        self._pagination: Pagination = pagination
+        self._pagination: SimplePagination = pagination
         self._query: str = query
         self._object_types: Optional[List[str]] = object_types
 
@@ -217,7 +217,7 @@ class MssqlSearchEndpoint(Endpoint):
             query: str,
             object_in: SearchRequestData,
             db: Session = Depends(depends_db),
-            pagination: Pagination = Depends(depends_pagination),
+            pagination: SimplePagination = Depends(depends_simple_pagination),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> PagedResponse[SearchObject]:
             handler: EndpointHandler = EndpointHandler(

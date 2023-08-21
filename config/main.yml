@@ -1,25 +1,71 @@
+searchable_config: &searchable_config
+  searchable_columns_high:
+    - Title
+  searchable_columns_low:
+    - Description
+    - Effect
+    - Provincial_Interest
+    - Cause
+
+sort_allowed_object_columns: &sort_allowed_object_columns
+  - Object_ID
+  - Title
+  - Modified_Date
+
+sort_default_title: &sort_default_title
+  default:
+    column: Title
+    order: asc
+  allowed_columns: *sort_allowed_object_columns
+
+sort_default_modified_date: &sort_default_modified_date
+  default:
+    column: Modified_Date
+    order: desc
+  allowed_columns: *sort_allowed_object_columns
+
+sort_default_object_id: &sort_default_object_id
+  default:
+    column: Object_ID
+    order: asc
+  allowed_columns: *sort_allowed_object_columns
+
 api:
   routers:
     - prefix: /users
       endpoints:
         - resolver: list_users
+          resolver_data:
+            sort:
+              default:
+                column: Gebruikersnaam
+                order: asc
+              allowed_columns:
+                - Gebruikersnaam
+                - Rol
     - prefix: /werkingsgebieden
       endpoints:
         - resolver: list_werkingsgebieden
+          resolver_data:
+            sort:
+              default:
+                column: Title
+                order: asc
+              allowed_columns:
+                - Title
+                - ID
+                - Created_Date
+                - Modified_Date
     - prefix: /search/geo
       endpoints:
         - resolver: list_objects_in_werkingsgebieden
+          resolver_data:
+            sort: *sort_default_title
     - prefix: /search
       endpoints:
         - resolver: mssql_search
           resolver_data:
-            searchable_columns_high:
-              - Title
-            searchable_columns_low:
-              - Description
-              - Effect
-              - Provincial_Interest
-              - Cause
+            <<: *searchable_config
             allowed_object_types:
               - ambitie
               - beleidsdoel
@@ -34,13 +80,7 @@ api:
       endpoints:
         - resolver: mssql_valid_search
           resolver_data:
-            searchable_columns_high:
-              - Title
-            searchable_columns_low:
-              - Description
-              - Effect
-              - Provincial_Interest
-              - Cause
+            <<: *searchable_config
             allowed_object_types:
               - ambitie
               - beleidsdoel
@@ -128,9 +168,13 @@ api:
     - prefix: /modules/objects/latest
       endpoints:
         - resolver: list_module_objects
+          resolver_data:
+            sort: *sort_default_modified_date
     - prefix: /objects/valid
       endpoints:
         - resolver: list_all_latest_objects
+          resolver_data:
+            sort: *sort_default_object_id
 
 columns:
   # Titel
@@ -385,18 +429,6 @@ modules_xml_export:
 
 mssql_search:
   - table_name: objects
-    searchable_columns_high:
-      - Title
-    searchable_columns_low:
-      - Description
-      - Effect
-      - Provincial_Interest
-      - Cause
+    <<: *searchable_config
   - table_name: module_objects
-    searchable_columns_high:
-      - Title
-    searchable_columns_low:
-      - Description
-      - Effect
-      - Provincial_Interest
-      - Cause
+    <<: *searchable_config

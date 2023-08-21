@@ -11,13 +11,13 @@ from app.dynamic.config.models import Api, DynamicObjectModel, EndpointConfig, M
 from app.dynamic.converter import Converter
 from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
 from app.dynamic.db.objects_table import ObjectsTable
-from app.dynamic.dependencies import depends_event_dispatcher, depends_pagination, depends_string_filters
+from app.dynamic.dependencies import depends_event_dispatcher, depends_sorted_pagination_curried, depends_string_filters
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event import BeforeSelectExecutionEvent, RetrievedObjectsEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import PagedResponse, Pagination, query_paginated
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination, query_paginated
 
 
 class ValidListLineagesEndpoint(Endpoint):
@@ -30,6 +30,7 @@ class ValidListLineagesEndpoint(Endpoint):
         object_type: str,
         response_model: Model,
         allowed_filter_columns: List[str],
+        order_config: OrderConfig,
     ):
         self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
@@ -39,11 +40,12 @@ class ValidListLineagesEndpoint(Endpoint):
         self._response_model: Model = response_model
         self._response_type: Type[pydantic.BaseModel] = response_model.pydantic_model
         self._allowed_filter_columns: List[str] = allowed_filter_columns
+        self._order_config: OrderConfig = order_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             filters: Filters = Depends(depends_string_filters),
-            pagination: Pagination = Depends(depends_pagination),
+            pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
             db: Session = Depends(depends_db),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
         ) -> PagedResponse[self._response_type]:
@@ -66,7 +68,7 @@ class ValidListLineagesEndpoint(Endpoint):
         db: Session,
         event_dispatcher: EventDispatcher,
         filters: Filters,
-        pagination: Pagination,
+        pagination: SortedPagination,
     ):
         filters.guard_keys(self._allowed_filter_columns)
         database_filter_result: FiltersConverterResult = convert_filters(filters)
@@ -113,7 +115,7 @@ class ValidListLineagesEndpoint(Endpoint):
             session=db,
             limit=pagination.limit,
             offset=pagination.offset,
-            sort=(subq.c.Modified_Date, pagination.sort),
+            sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )
 
         results: List[self._response_type] = []
@@ -160,6 +162,7 @@ class ValidListLineagesEndpointResolver(EndpointResolver):
         )
         allowed_filter_columns: List[str] = resolver_config.get("allowed_filter_columns", [])
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
+        order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
         return ValidListLineagesEndpoint(
             converter=converter,
@@ -169,4 +172,5 @@ class ValidListLineagesEndpointResolver(EndpointResolver):
             object_type=api.object_type,
             response_model=response_model,
             allowed_filter_columns=allowed_filter_columns,
+            order_config=order_config,
         )

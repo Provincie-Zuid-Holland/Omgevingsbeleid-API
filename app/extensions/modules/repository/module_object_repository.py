@@ -10,7 +10,7 @@ from sqlalchemy.sql import and_, or_
 
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import Pagination
+from app.dynamic.utils.pagination import SortedPagination
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode
@@ -128,7 +128,7 @@ class ModuleObjectRepository(BaseRepository):
 
     def get_all_latest(
         self,
-        pagination: Pagination,
+        pagination: SortedPagination,
         only_active_modules: bool = True,
         minimum_status: Optional[ModuleStatusCode] = None,
         owner_uuid: Optional[UUID] = None,
@@ -185,7 +185,7 @@ class ModuleObjectRepository(BaseRepository):
             statement=stmt,
             limit=pagination.limit,
             offset=pagination.offset,
-            sort=(subq.c.Modified_Date, pagination.sort),
+            sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )
 
     def patch_latest_module_object(

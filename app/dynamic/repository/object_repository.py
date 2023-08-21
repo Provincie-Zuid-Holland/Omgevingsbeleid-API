@@ -9,7 +9,7 @@ from sqlalchemy.sql import and_, func, or_
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.db.objects_table import ObjectsTable
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import PaginatedQueryResult
+from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination
 
 
 class ObjectRepository(BaseRepository):
@@ -68,11 +68,9 @@ class ObjectRepository(BaseRepository):
 
     def get_latest_filtered(
         self,
+        pagination: SortedPagination,
         owner_uuid: Optional[UUID] = None,
         object_type: Optional[str] = None,
-        offset: int = 0,
-        limit: int = 20,
-        sort: str = "desc",
     ) -> PaginatedQueryResult:
         row_number = (
             func.row_number()
@@ -119,7 +117,7 @@ class ObjectRepository(BaseRepository):
 
         return self.fetch_paginated(
             statement=stmt,
-            offset=offset,
-            limit=limit,
-            sort=(subq.c.Object_ID, sort),
+            offset=pagination.offset,
+            limit=pagination.limit,
+            sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )

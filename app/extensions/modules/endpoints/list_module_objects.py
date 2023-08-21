@@ -5,11 +5,11 @@ from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.dependencies import depends_event_dispatcher, depends_pagination
+from app.dynamic.dependencies import depends_sorted_pagination_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import PagedResponse, Pagination
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination
 from app.extensions.modules.dependencies import depends_module_object_repository
 from app.extensions.modules.endpoints.module_overview import ModuleObjectShort
 from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode
@@ -23,28 +23,19 @@ class ModuleObjectShortStatus(ModuleObjectShort):
 
 
 class ListModuleObjectsEndpoint(Endpoint):
-    def __init__(
-        self,
-        converter: Converter,
-        endpoint_id: str,
-        path: str,
-        event_dispatcher: EventDispatcher,
-    ):
-        self._event_dispatcher: EventDispatcher = event_dispatcher
-        self._path = path
-        self._endpoint_id = endpoint_id
-        self._converter: Converter = converter
+    def __init__(self, path: str, order_config: OrderConfig):
+        self._path: str = path
+        self._order_config: OrderConfig = order_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            pagination: Pagination = Depends(depends_pagination),
+            pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
             object_type: Optional[str] = None,
             owner_uuid: Optional[UUID] = None,
             minimum_status: Optional[ModuleStatusCode] = None,
             action: Optional[ModuleObjectActionFilter] = None,
             only_active_modules: bool = True,
             module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
-            event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> PagedResponse[ModuleObjectShortStatus]:
             return self._handler(
@@ -71,7 +62,7 @@ class ListModuleObjectsEndpoint(Endpoint):
 
     def _handler(
         self,
-        pagination: Pagination,
+        pagination: SortedPagination,
         module_object_repository: ModuleObjectRepository,
         minimum_status: Optional[ModuleStatusCode],
         owner_uuid: Optional[UUID],
@@ -106,7 +97,10 @@ class ListModuleObjectsEndpoint(Endpoint):
             )
 
         return PagedResponse(
-            total=paginated_result.total_count, limit=pagination.limit, offset=pagination.offset, results=rows
+            total=paginated_result.total_count,
+            limit=pagination.limit,
+            offset=pagination.offset,
+            results=rows,
         )
 
 
@@ -124,10 +118,9 @@ class ListModuleObjectsEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
+        order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
         return ListModuleObjectsEndpoint(
-            converter=converter,
-            endpoint_id=self.get_id(),
-            event_dispatcher=event_dispatcher,
             path=path,
+            order_config=order_config,
         )
