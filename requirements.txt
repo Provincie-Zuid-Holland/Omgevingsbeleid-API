@@ -4,8 +4,6 @@
 #
 #    pip-compile requirements.in
 #
-annotated-types==0.5.0
-    # via pydantic
 anyio==3.7.1
     # via
     #   httpcore
@@ -72,16 +70,16 @@ pyasn1==0.5.0
     # via
     #   python-jose
     #   rsa
-pydantic[dotenv,email]==2.2.0
+pydantic[dotenv,email]==1.10.12
     # via
     #   -r requirements.in
     #   fastapi
-pydantic-core==2.6.0
-    # via pydantic
 pyodbc==4.0.39
     # via -r requirements.in
 python-dotenv==1.0.0
-    # via uvicorn
+    # via
+    #   pydantic
+    #   uvicorn
 python-jose==3.3.0
     # via -r requirements.in
 python-multipart==0.0.6
@@ -113,7 +111,6 @@ typing-extensions==4.7.1
     # via
     #   fastapi
     #   pydantic
-    #   pydantic-core
     #   sqlalchemy
     #   starlette
     #   uvicorn

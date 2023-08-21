@@ -1,7 +1,7 @@
 # Core libraries
 fastapi
 uvicorn[standard]
-pydantic[email,dotenv]
+pydantic[email,dotenv]>=1.0.0,<2.0.0
 pyodbc
 SQLAlchemy
 pyyaml
