@@ -1,4 +1,4 @@
-import random
+import secrets
 import string
 import uuid
 from typing import Optional
@@ -16,7 +16,7 @@ from app.extensions.users.db.tables import UsersTable
 @click.argument("email")
 @click.argument("rol")
 def create_user(gebruikersnaam, email, rol):
-    password = "change-me-" + get_random_password(8)
+    password = "change-me-" + get_random_password(16)
     password_hash = get_password_hash(password)
 
     user: UsersTable = UsersTable(
@@ -41,7 +41,7 @@ def create_user(gebruikersnaam, email, rol):
 @click.command()
 @click.argument("email")
 def reset_password(email):
-    password = "change-me-" + get_random_password(8)
+    password = "change-me-" + get_random_password(16)
     password_hash = get_password_hash(password)
 
     with db_in_context_manager() as db:
@@ -61,5 +61,6 @@ def reset_password(email):
 
 
 def get_random_password(length: int = 16):
-    password = "".join(random.choice(string.ascii_letters) for i in range(length))
+    alphabet = string.ascii_letters + string.digits
+    password = "".join(secrets.choice(alphabet) for i in range(length))
     return password

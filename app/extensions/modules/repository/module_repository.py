@@ -1,14 +1,17 @@
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, desc, or_, select
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql import and_, func, or_
 
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.dependencies import FilterObjectCode
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import PaginatedQueryResult
+from app.dynamic.utils.pagination import PaginatedQueryResult, SimplePagination
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
+from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
+from app.extensions.modules.models.models import PublicModuleStatusCode
 
 
 class ModuleRepository(BaseRepository):
@@ -68,5 +71,34 @@ class ModuleRepository(BaseRepository):
         stmt = self.get_filtered_query(only_active, mine, object_code)
         paged_result = self.fetch_paginated(
             statement=stmt, offset=offset, limit=limit, sort=(ModuleTable.Modified_Date, "desc")
+        )
+        return paged_result
+
+    def get_public_modules(self, pagination: SimplePagination):
+        subq = select(
+            ModuleStatusHistoryTable,
+            func.row_number()
+            .over(
+                partition_by=ModuleStatusHistoryTable.Module_ID,
+                order_by=desc(ModuleStatusHistoryTable.Created_Date),
+            )
+            .label("_RowNumber"),
+        )
+
+        subq = subq.subquery()
+        aliased_objects = aliased(ModuleStatusHistoryTable, subq)
+        stmt = (
+            select(aliased_objects, ModuleTable)
+            .join(ModuleTable)
+            .filter(subq.c._RowNumber == 1)
+            .filter(ModuleTable.Closed == False)
+            .filter(subq.c.Status.in_(PublicModuleStatusCode.values()))
+            .order_by(desc(ModuleTable.Module_ID))
+        )
+
+        paged_result = self.fetch_paginated_no_scalars(
+            statement=stmt,
+            offset=pagination.offset,
+            limit=pagination.limit,
         )
         return paged_result
