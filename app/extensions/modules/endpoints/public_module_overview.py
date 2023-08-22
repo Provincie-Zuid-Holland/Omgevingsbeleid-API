@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session, aliased, joinedload, load_only
@@ -16,7 +16,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import depends_active_module
-from app.extensions.modules.models.models import PublicModuleShort
+from app.extensions.modules.models.models import PublicModuleShort, PublicModuleStatusCode
 
 
 class PublicModuleObjectContextShort(BaseModel):
@@ -53,6 +53,9 @@ class EndpointHandler:
         self._module: ModuleTable = module
 
     def handle(self) -> PublicModuleOverview:
+        if not self._module.Current_Status in PublicModuleStatusCode.values():
+            raise HTTPException(400, "Invalid status for module")
+
         objects: List[PublicModuleObjectShort] = self._get_objects()
 
         response: PublicModuleOverview = PublicModuleOverview(
