@@ -53,4 +53,6 @@ class ModulesExtension(Extension):
             endpoints.ModuleObjectVersionEndpointResolver(),
             endpoints.ListActiveModuleObjectsEndpointResolver(),
             endpoints.ListModuleObjectsEndpointResolver(),
+            endpoints.PublicListModulesEndpointResolver(),
+            endpoints.PublicModuleOverviewEndpointResolver(),
         ]

@@ -19,3 +19,5 @@ from .module_patch_object import ModulePatchObjectEndpointResolver
 from .module_patch_status import ModulePatchStatusEndpointResolver
 from .module_remove_object import ModuleRemoveObjectEndpointResolver
 from .module_snapshot import ModuleSnapshotEndpointResolver
+from .public_list_modules import PublicListModulesEndpointResolver
+from .public_module_overview import PublicModuleOverviewEndpointResolver

@@ -110,6 +110,12 @@ api:
               acknowledged_relations:
                 - allowed_object_types:
                   - beleidskeuze
+    - prefix: /revisions
+      endpoints:
+        - resolver: public_list_modules
+        - resolver: public_module_overview
+          resolver_data:
+            path: /{module_id}
     - prefix: /modules
       endpoints:
         - resolver: create_module
