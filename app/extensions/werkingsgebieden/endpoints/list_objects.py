@@ -11,8 +11,6 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, PaginatedQueryResult, SortedPagination
-from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import depends_current_active_user
 from app.extensions.werkingsgebieden.dependencies import depends_werkingsgebieden_repository
 from app.extensions.werkingsgebieden.models.models import GeoSearchResult
 from app.extensions.werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
@@ -61,7 +59,6 @@ class ListObjectsInGeoEndpoint(Endpoint):
         def fastapi_handler(
             object_in: SearchGeoRequestData,
             pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
-            user: UsersTable = Depends(depends_current_active_user),
             repository: WerkingsgebiedenRepository = Depends(depends_werkingsgebieden_repository),
         ) -> PagedResponse[GeoSearchResult]:
             return self._handler(
