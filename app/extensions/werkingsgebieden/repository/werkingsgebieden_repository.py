@@ -17,7 +17,7 @@ class WerkingsgebiedenRepository(BaseRepository):
         return self.fetch_all(stmt)
 
     def get_all_paginated(self, pagination: SortedPagination) -> PaginatedQueryResult:
-        stmt = select(WerkingsgebiedenTable).order_by(desc(WerkingsgebiedenTable.Modified_Date))
+        stmt = select(WerkingsgebiedenTable)
         return self.fetch_paginated(
             statement=stmt,
             offset=pagination.offset,
