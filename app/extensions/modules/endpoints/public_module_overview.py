@@ -3,14 +3,16 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session, aliased, joinedload, load_only
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
+from app.dynamic.dependencies import depends_event_dispatcher
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
+from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
@@ -32,11 +34,16 @@ class PublicModuleObjectShort(BaseModel):
     Object_Type: str
     Object_ID: int
     Code: str
+    Description: str
 
     Modified_Date: datetime
     Title: str
 
     ModuleObjectContext: Optional[PublicModuleObjectContextShort]
+
+    @validator("Description", pre=True)
+    def default_empty_string(cls, v):
+        return v or ""
 
     class Config:
         orm_mode = True
@@ -48,8 +55,9 @@ class PublicModuleOverview(BaseModel):
 
 
 class EndpointHandler:
-    def __init__(self, db: Session, module: ModuleTable):
+    def __init__(self, db: Session, event_dispatcher: EventDispatcher, module: ModuleTable):
         self._db: Session = db
+        self._event_dispatcher: EventDispatcher = event_dispatcher
         self._module: ModuleTable = module
 
     def handle(self) -> PublicModuleOverview:
@@ -102,7 +110,20 @@ class EndpointHandler:
 
         rows: List[ModuleObjectsTable] = self._db.execute(stmt).scalars().all()
         objects: List[PublicModuleObjectShort] = [PublicModuleObjectShort.from_orm(r) for r in rows]
+
+        objects = self._run_events(objects)
+
         return objects
+
+    def _run_events(self, rows: List[PublicModuleObjectShort]):
+        event: RetrievedObjectsEvent = self._event_dispatcher.dispatch(
+            RetrievedObjectsEvent.create(
+                rows,
+                "deprecated",
+                PublicModuleObjectShort,
+            )
+        )
+        return event.payload.rows
 
 
 class PublicModuleOverviewEndpoint(Endpoint):
@@ -113,8 +134,9 @@ class PublicModuleOverviewEndpoint(Endpoint):
         def fastapi_handler(
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
+            event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
         ) -> PublicModuleOverview:
-            handler: EndpointHandler = EndpointHandler(db, module)
+            handler: EndpointHandler = EndpointHandler(db, event_dispatcher, module)
             return handler.handle()
 
         router.add_api_route(
