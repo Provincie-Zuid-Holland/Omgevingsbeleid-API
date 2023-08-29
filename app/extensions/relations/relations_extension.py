@@ -35,12 +35,7 @@ class RelationsExtension(Extension):
             ),
         )
 
-    def register_endpoint_resolvers(
-        self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
-        models_resolver: ModelsResolver,
-    ) -> List[EndpointResolver]:
+    def register_endpoint_resolvers(self) -> List[EndpointResolver]:
         return [
             endpoints.ListRelationsEndpointResolver(),
             endpoints.OverwriteRelationsEndpointResolver(),

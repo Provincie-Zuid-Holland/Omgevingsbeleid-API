@@ -2,10 +2,8 @@ from typing import List
 
 import app.extensions.acknowledged_relations.endpoints as endpoints
 from app.dynamic.config.models import ExtensionModel
-from app.dynamic.converter import Converter
 from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import EndpointResolver
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.acknowledged_relations.db.table_extensions.object_statics import extend_with_attributes
@@ -24,12 +22,7 @@ class AcknowledgedRelationsExtension(Extension):
         # Additional orm properties for sqlalchemy
         extend_with_attributes(ObjectStaticsTable)
 
-    def register_endpoint_resolvers(
-        self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
-        models_resolver: ModelsResolver,
-    ) -> List[EndpointResolver]:
+    def register_endpoint_resolvers(self) -> List[EndpointResolver]:
         return [
             endpoints.ListAcknowledgedRelationsEndpointResolver(),
             endpoints.RequestAcknowledgedRelationEndpointResolver(),

@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Set
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
 from app.dynamic.config.models import DynamicObjectModel, Model
 from app.dynamic.converter import Converter
@@ -136,9 +136,7 @@ class AddRelationsService:
         subq = (
             select(
                 ObjectsTable,
-                RelationsTable.From_Code.label("_Relation_From_Code"),
-                RelationsTable.To_Code.label("_Relation_To_Code"),
-                RelationsTable.Description.label("_Relation_Description"),
+                RelationsTable,
                 func.row_number()
                 .over(
                     partition_by=ObjectsTable.Code,
@@ -161,8 +159,9 @@ class AddRelationsService:
             .subquery()
         )
 
-        stmt = select(subq).filter(subq.c._RowNumber == 1)
+        objects_alias = aliased(ObjectsTable, subq)
+        relations_alias = aliased(RelationsTable, subq)
+        stmt = select(objects_alias, relations_alias).filter(subq.c._RowNumber == 1)
 
         rows = self._db.execute(stmt).all()
-        dict_rows = [r._asdict() for r in rows]
-        return dict_rows
+        return rows

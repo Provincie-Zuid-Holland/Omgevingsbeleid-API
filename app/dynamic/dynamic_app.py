@@ -98,11 +98,7 @@ class DynamicAppBuilder:
                 self._columns[column.id] = column
             for base_field in extension.register_base_fields():
                 self._base_fields[base_field.id] = base_field
-            endpoint_resolvers: List[EndpointResolver] = extension.register_endpoint_resolvers(
-                self._service_container.event_dispatcher,
-                self._service_container.converter,
-                self._service_container.models_resolver,
-            )
+            endpoint_resolvers: List[EndpointResolver] = extension.register_endpoint_resolvers()
             self._merge_endpoint_resolvers(endpoint_resolvers)
 
         generate_table(

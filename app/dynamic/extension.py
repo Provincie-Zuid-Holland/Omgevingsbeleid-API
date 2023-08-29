@@ -69,10 +69,5 @@ class Extension(ABC):
     ) -> APIRouter:
         return router
 
-    def register_endpoint_resolvers(
-        self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
-        models_resolver: ModelsResolver,
-    ) -> List[EndpointResolver]:
+    def register_endpoint_resolvers(self) -> List[EndpointResolver]:
         return []
