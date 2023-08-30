@@ -23,6 +23,7 @@ class ModuleObjectAttributes(ModuleObjectsColumns):
     All ORM column fields including dynamic / hybrid properties
     """
 
+    # TODO: Delete?
     @hybrid_property
     def has_valid_version(self) -> bool:
         # True if a matching code exists in Objects table
