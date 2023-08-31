@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 import app.extensions.modules.endpoints as endpoints
-from app.dynamic.config.models import Column
+from app.dynamic.config.models import Column, ExtensionModel
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
@@ -10,6 +10,8 @@ from app.dynamic.generate_table import generate_table
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.table_extensions import extend_with_attributes
+from app.extensions.modules.listeners.computed_fields_listener import InsertComputedFieldsListener
+from app.extensions.modules.models.models import PublicModuleObjectRevision
 
 
 class ModulesExtension(Extension):
@@ -54,4 +56,23 @@ class ModulesExtension(Extension):
             endpoints.ListModuleObjectsEndpointResolver(),
             endpoints.PublicListModulesEndpointResolver(),
             endpoints.PublicModuleOverviewEndpointResolver(),
+            endpoints.PublicModuleObjectVersionEndpointResolver(),
         ]
+
+    def register_models(self, models_resolver: ModelsResolver):
+        models_resolver.add(
+            ExtensionModel(
+                id="public_module_object_revision",
+                name="PublicModuleObjectRevision",
+                pydantic_model=PublicModuleObjectRevision,
+            )
+        )
+
+    def register_listeners(
+        self,
+        main_config: dict,
+        event_dispatcher: EventDispatcher,
+        converter: Converter,
+        models_resolver: ModelsResolver,
+    ):
+        event_dispatcher.register(InsertComputedFieldsListener())
