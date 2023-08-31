@@ -12,12 +12,14 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.dependencies import depends_active_module, depends_module_object_by_uuid_curried
+from app.extensions.modules.endpoints.module_object_version import ModuleObjectVersionEndpoint
 from app.extensions.modules.event.retrieved_module_objects_event import RetrievedModuleObjectsEvent
+from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
 
-class ModuleObjectVersionEndpoint(Endpoint):
+class PublicModuleObjectVersionEndpoint(Endpoint):
     def __init__(
         self,
         converter: Converter,
@@ -27,7 +29,6 @@ class ModuleObjectVersionEndpoint(Endpoint):
         object_type: str,
         response_model: Model,
     ):
-        self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
         self._path: str = path
         self._config_object_id: str = config_object_id
@@ -37,12 +38,15 @@ class ModuleObjectVersionEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             module_object: ModuleObjectsTable = Depends(depends_module_object_by_uuid_curried(self._object_type)),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
         ) -> self._response_type:
-            return self._handler(
+            if module.Current_Status not in ModuleStatusCode.after(ModuleStatusCode.Ontwerp_GS):
+                raise HTTPException(
+                    status_code=401, detail="module objects lacks the minimum status for unauthenticated view."
+                )
+            return ModuleObjectVersionEndpoint._handler(
                 event_dispatcher, module_object, self._response_type, self._response_model, self._endpoint_id
             )
 
@@ -51,44 +55,17 @@ class ModuleObjectVersionEndpoint(Endpoint):
             fastapi_handler,
             methods=["GET"],
             response_model=self._response_type,
-            summary=f"Get specific {self._object_type} by uuid in a module",
+            summary=f"Get public {self._object_type} revision by uuid from a module",
             description=None,
             tags=[self._object_type],
         )
 
         return router
 
-    @staticmethod
-    def _handler(
-        event_dispatcher: EventDispatcher,
-        module_object: ModuleObjectsTable,
-        response_type: Type[pydantic.BaseModel],
-        response_model,
-        endpoint_id,
-    ):
-        context: ModuleObjectContextTable = module_object.ModuleObjectContext
-        if context.Hidden:
-            raise HTTPException(status_code=404, detail="Module Object Context is verwijderd")
 
-        row: response_type = response_type.from_orm(module_object)
-        rows: List[response_type] = [row]
-
-        # Ask extensions for more information
-        event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(
-            RetrievedModuleObjectsEvent.create(
-                rows,
-                endpoint_id,
-                response_model,
-            )
-        )
-        rows = event.payload.rows
-
-        return rows[0]
-
-
-class ModuleObjectVersionEndpointResolver(EndpointResolver):
+class PublicModuleObjectVersionEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "module_object_version"
+        return "public_module_object_version"
 
     def generate_endpoint(
         self,
@@ -108,7 +85,7 @@ class ModuleObjectVersionEndpointResolver(EndpointResolver):
         if not "{object_uuid}" in path:
             raise RuntimeError("Missing {object_uuid} argument in path")
 
-        return ModuleObjectVersionEndpoint(
+        return PublicModuleObjectVersionEndpoint(
             converter=converter,
             endpoint_id=self.get_id(),
             path=path,
