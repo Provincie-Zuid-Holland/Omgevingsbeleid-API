@@ -87,6 +87,12 @@ api:
             path: /active/{lineage_id}
             response_model: gebiedsprogramma_minimal
             sort: *sort_default_title
+    - prefix: /revisions/{module_id}/gebiedsprogramma/version
+      endpoints:
+        - resolver: public_module_object_version
+          resolver_data:
+            path: /{object_uuid}
+            response_model: gebiedsprogramma_full
 
 
 fields:
@@ -219,6 +225,12 @@ models:
         default: none
         optional: true
     services:
+      insert_computed_fields:
+        fields: 
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
       insert_assets:
         fields:
           - Description

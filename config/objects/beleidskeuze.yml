@@ -101,6 +101,12 @@ api:
             path: /active/{lineage_id}
             response_model: beleidskeuze_minimal
             sort: *sort_default_title
+    - prefix: /revisions/{module_id}/beleidskeuze/version
+      endpoints:
+        - resolver: public_module_object_version
+          resolver_data:
+            path: /{object_uuid}
+            response_model: beleidskeuze_full
 
 fields:
   title:
@@ -237,6 +243,12 @@ models:
           - Cause
           - Provincial_Interest
           - Explanation
+      insert_computed_fields:
+        fields: 
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
       foreign_keys_extender:
         fields_map:
           - to_field: Gebied
