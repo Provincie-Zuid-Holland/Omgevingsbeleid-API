@@ -21,4 +21,3 @@ from .module_remove_object import ModuleRemoveObjectEndpointResolver
 from .module_snapshot import ModuleSnapshotEndpointResolver
 from .public_list_modules import PublicListModulesEndpointResolver
 from .public_module_overview import PublicModuleOverviewEndpointResolver
-from .public_module_object_version import PublicModuleObjectVersionEndpointResolver

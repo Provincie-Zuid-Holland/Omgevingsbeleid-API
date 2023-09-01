@@ -87,12 +87,13 @@ api:
             path: /active/{lineage_id}
             response_model: gebiedsprogramma_minimal
             sort: *sort_default_title
-    - prefix: /revisions/{module_id}/gebiedsprogramma/version
+    - prefix: /revisions/{module_id}/gebiedsprogramma/version/{object_uuid}
       endpoints:
-        - resolver: public_module_object_version
+        - resolver: module_object_version
           resolver_data:
-            path: /{object_uuid}
             response_model: gebiedsprogramma_full
+            atleast_status: 'Ontwerp GS'
+            require_auth: False
 
 
 fields:

@@ -101,12 +101,13 @@ api:
             path: /active/{lineage_id}
             response_model: beleidskeuze_minimal
             sort: *sort_default_title
-    - prefix: /revisions/{module_id}/beleidskeuze/version
+    - prefix: /revisions/{module_id}/beleidskeuze/version/{object_uuid}
       endpoints:
-        - resolver: public_module_object_version
+        - resolver: module_object_version
           resolver_data:
-            path: /{object_uuid}
             response_model: beleidskeuze_full
+            atleast_status: 'Ontwerp GS'
+            require_auth: False
 
 fields:
   title:

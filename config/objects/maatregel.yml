@@ -92,12 +92,13 @@ api:
             path: /active/{lineage_id}
             response_model: maatregel_minimal
             sort: *sort_default_title
-    - prefix: /revisions/{module_id}/maatregel/version
+    - prefix: /revisions/{module_id}/maatregel/version/{object_uuid}
       endpoints:
-        - resolver: public_module_object_version
+        - resolver: module_object_version
           resolver_data:
-            path: /{object_uuid}
             response_model: maatregel_full
+            atleast_status: 'Ontwerp GS'
+            require_auth: False
 
 
 fields:

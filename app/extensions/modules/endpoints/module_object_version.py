@@ -1,7 +1,8 @@
-from typing import List, Type
+from typing import List, Optional, Type
 
 import pydantic
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, params
+from git import Sequence
 
 from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
@@ -13,38 +14,44 @@ from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.dependencies import depends_active_module, depends_module_object_by_uuid_curried
 from app.extensions.modules.event.retrieved_module_objects_event import RetrievedModuleObjectsEvent
-from app.extensions.users.db.tables import UsersTable
+from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.users.dependencies import depends_current_active_user
 
 
 class ModuleObjectVersionEndpoint(Endpoint):
     def __init__(
         self,
-        converter: Converter,
         endpoint_id: str,
         path: str,
         config_object_id: str,
         object_type: str,
         response_model: Model,
+        require_auth: bool,
+        atleast_status: Optional[ModuleStatusCode],
     ):
-        self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
         self._path: str = path
         self._config_object_id: str = config_object_id
         self._object_type: str = object_type
         self._response_model: Model = response_model
         self._response_type: Type[pydantic.BaseModel] = response_model.pydantic_model
+        self._require_auth: bool = require_auth
+        self._atleast_status: Optional[ModuleStatusCode] = atleast_status
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
             module_object: ModuleObjectsTable = Depends(depends_module_object_by_uuid_curried(self._object_type)),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
         ) -> self._response_type:
-            return self._handler(
-                event_dispatcher, module_object, self._response_type, self._response_model, self._endpoint_id
-            )
+            if self._atleast_status:
+                if module.Current_Status not in ModuleStatusCode.after(self._atleast_status):
+                    raise HTTPException(status_code=401, detail="module objects lacks the minimum status for view.")
+            return self._handler(event_dispatcher, module_object)
+
+        dependencies: Sequence[params.Depends] = []
+        if self._require_auth:
+            dependencies.append(Depends(depends_current_active_user))
 
         router.add_api_route(
             self._path,
@@ -54,31 +61,29 @@ class ModuleObjectVersionEndpoint(Endpoint):
             summary=f"Get specific {self._object_type} by uuid in a module",
             description=None,
             tags=[self._object_type],
+            dependencies=dependencies,
         )
 
         return router
 
-    @staticmethod
     def _handler(
+        self,
         event_dispatcher: EventDispatcher,
         module_object: ModuleObjectsTable,
-        response_type: Type[pydantic.BaseModel],
-        response_model,
-        endpoint_id,
     ):
         context: ModuleObjectContextTable = module_object.ModuleObjectContext
         if context.Hidden:
             raise HTTPException(status_code=404, detail="Module Object Context is verwijderd")
 
-        row: response_type = response_type.from_orm(module_object)
-        rows: List[response_type] = [row]
+        row: self._response_type = self._response_type.from_orm(module_object)
+        rows: List[self._response_type] = [row]
 
         # Ask extensions for more information
         event: RetrievedModuleObjectsEvent = event_dispatcher.dispatch(
             RetrievedModuleObjectsEvent.create(
                 rows,
-                endpoint_id,
-                response_model,
+                self._endpoint_id,
+                self._response_model,
             )
         )
         rows = event.payload.rows
@@ -108,11 +113,22 @@ class ModuleObjectVersionEndpointResolver(EndpointResolver):
         if not "{object_uuid}" in path:
             raise RuntimeError("Missing {object_uuid} argument in path")
 
+        require_auth: bool = resolver_config.get("require_auth", True)
+
+        atleast_status: Optional[ModuleStatusCode] = None
+        requested_atleast_status: Optional[str] = resolver_config.get("atleast_status", None)
+        if requested_atleast_status:
+            try:
+                atleast_status = ModuleStatusCode(requested_atleast_status)
+            except ValueError:
+                raise RuntimeError("Invalid module status code: {requested_atleast_status}")
+
         return ModuleObjectVersionEndpoint(
-            converter=converter,
             endpoint_id=self.get_id(),
             path=path,
             config_object_id=api.id,
             object_type=api.object_type,
             response_model=response_model,
+            require_auth=require_auth,
+            atleast_status=atleast_status,
         )
