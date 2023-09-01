@@ -1,8 +1,7 @@
-from typing import List, Optional, Type
+from typing import List, Optional, Sequence, Type
 
 import pydantic
 from fastapi import APIRouter, Depends, HTTPException, params
-from git import Sequence
 
 from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.converter import Converter
