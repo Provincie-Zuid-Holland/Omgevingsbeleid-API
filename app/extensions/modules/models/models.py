@@ -114,3 +114,32 @@ class ModuleObjectActionFilter(str, Enum):
 
 class ModuleSnapshot(BaseModel):
     Objects: List[dict]
+
+
+class PublicModuleShort(BaseModel):
+    Module_ID: int
+    Title: str
+    Status: Optional[ModuleStatus]
+
+    class Config:
+        orm_mode = True
+
+
+class PublicModuleStatusCode(str, Enum):
+    Ontwerp_GS = "Ontwerp GS"
+    Definitief_Ontwerp_GS = "Definitief ontwerp GS"
+    Ontwerp_PS_Concept = "Ontwerp PS Concept"
+    Ontwerp_PS = "Ontwerp PS"
+    Definitief_Ontwerp_PS = "Definitief ontwerp PS"
+    Vastgesteld = "Vastgesteld"
+
+    @staticmethod
+    def values():
+        return [status.value for status in PublicModuleStatusCode]
+
+
+class PublicModuleObjectRevision(BaseModel):
+    Module_Object_UUID: uuid.UUID
+    Module_ID: int
+    Module_Title: str
+    Module_Status: str

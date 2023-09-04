@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.core.utils import table_to_dict
 from app.dynamic.utils.filters import Filters
-from app.dynamic.utils.pagination import Pagination
+from app.dynamic.utils.pagination import Sort, SortedPagination, SortOrder
 from app.extensions.lineage_resolvers.endpoints.edit_object_static import EndpointHandler as EditStaticEndpoint
 from app.extensions.lineage_resolvers.endpoints.object_latest import ObjectLatestEndpoint
 from app.extensions.lineage_resolvers.endpoints.object_version import ObjectVersionEndpoint
@@ -120,7 +120,7 @@ class TestLineageResolvers:
                 db=db,
                 event_dispatcher=mock_dispatcher,
                 filters=Filters(),
-                pagination=Pagination(),
+                pagination=SortedPagination(sort=Sort("Title", SortOrder.ASC)),
             )
 
         assert response.total == 1
@@ -152,7 +152,7 @@ class TestLineageResolvers:
                 event_dispatcher=mock_dispatcher,
                 lineage_id=TEST_LINEAGE,
                 filters=Filters(),
-                pagination=Pagination(),
+                pagination=SortedPagination(sort=Sort("Title", SortOrder.ASC)),
             )
 
         assert response.total == 2

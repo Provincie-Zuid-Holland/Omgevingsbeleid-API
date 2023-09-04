@@ -1,7 +1,7 @@
 from sqlalchemy import Select
 from sqlalchemy.orm import Session
 
-from app.dynamic.utils.pagination import PaginatedQueryResult, query_paginated, _query_total_count, _add_pagination
+from app.dynamic.utils.pagination import PaginatedQueryResult, _add_pagination, _query_total_count, query_paginated
 
 
 class BaseRepository:

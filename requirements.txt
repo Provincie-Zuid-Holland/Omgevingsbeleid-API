@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
-anyio==3.7.0
+anyio==3.7.1
     # via
     #   httpcore
     #   starlette
@@ -15,11 +15,11 @@ bcrypt==4.0.1
     # via -r requirements.in
 beautifulsoup4==4.12.2
     # via -r requirements.in
-certifi==2023.5.7
+certifi==2023.7.22
     # via
     #   httpcore
     #   httpx
-click==8.1.3
+click==8.1.7
     # via
     #   -r requirements.in
     #   uvicorn
@@ -27,15 +27,15 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20230430
     # via -r requirements.in
-dnspython==2.3.0
+dnspython==2.4.2
     # via email-validator
 ecdsa==0.18.0
     # via python-jose
 email-validator==2.0.0.post2
     # via pydantic
-exceptiongroup==1.1.2
+exceptiongroup==1.1.3
     # via anyio
-fastapi==0.99.1
+fastapi==0.101.1
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
@@ -45,9 +45,9 @@ h11==0.14.0
     # via
     #   httpcore
     #   uvicorn
-httpcore==0.17.2
+httpcore==0.17.3
     # via httpx
-httptools==0.5.0
+httptools==0.6.0
     # via uvicorn
 httpx==0.24.1
     # via -r requirements.in
@@ -70,7 +70,7 @@ pyasn1==0.5.0
     # via
     #   python-jose
     #   rsa
-pydantic[dotenv,email]==1.10.10
+pydantic[dotenv,email]==1.10.12
     # via
     #   -r requirements.in
     #   fastapi
@@ -86,7 +86,7 @@ python-multipart==0.0.6
     # via -r requirements.in
 pytz==2023.3
     # via -r requirements.in
-pyyaml==6.0
+pyyaml==6.0.1
     # via
     #   -r requirements.in
     #   uvicorn
@@ -103,7 +103,7 @@ sniffio==1.3.0
     #   httpx
 soupsieve==2.4.1
     # via beautifulsoup4
-sqlalchemy==2.0.17
+sqlalchemy==2.0.20
     # via -r requirements.in
 starlette==0.27.0
     # via fastapi
@@ -113,7 +113,8 @@ typing-extensions==4.7.1
     #   pydantic
     #   sqlalchemy
     #   starlette
-uvicorn[standard]==0.22.0
+    #   uvicorn
+uvicorn[standard]==0.23.2
     # via -r requirements.in
 uvloop==0.17.0
     # via uvicorn

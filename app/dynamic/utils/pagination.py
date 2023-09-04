@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Any, Generic, List, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, Field, validator
@@ -7,10 +8,61 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import Select
 
 
-class Pagination(BaseModel):
+class SortOrder(Enum):
+    ASC = "ASC"
+    DESC = "DESC"
+
+
+class Sort(BaseModel):
+    column: str
+    order: SortOrder
+
+
+class OrderConfig(BaseModel):
+    default_column: str
+    default_order: SortOrder
+    allowed_columns: List[str]
+
+    def get_sort(self, given_column: Optional[str], given_order: Optional[SortOrder]) -> Sort:
+        sort_column: str = self._validate_column(given_column)
+        sort_order: SortOrder = given_order or self.default_order
+
+        result = Sort(
+            column=sort_column,
+            order=sort_order,
+        )
+        return result
+
+    def _validate_column(self, column: Optional[str]) -> str:
+        if column is None:
+            return self.default_column
+
+        if column in self.allowed_columns:
+            return column
+        else:
+            raise ValueError("invalid sort column")
+
+    @staticmethod
+    def from_dict(data: dict) -> "OrderConfig":
+        default_data: dict = data["default"]
+        default_column: str = default_data["column"]
+
+        default_order: SortOrder = SortOrder.ASC
+        if "order" in default_data:
+            default_order = SortOrder[default_data["order"].upper()]
+
+        allowed_columns: List[str] = data.get("allowed_columns", [])
+
+        return OrderConfig(
+            default_column=default_column,
+            default_order=default_order,
+            allowed_columns=allowed_columns,
+        )
+
+
+class SimplePagination(BaseModel):
     offset: int = Field(default=None)
     limit: int = Field(default=None)
-    sort: str = Field(default="asc")
 
     @validator("offset", pre=True, always=True)
     def default_offset(cls, v):
@@ -28,13 +80,9 @@ class Pagination(BaseModel):
             return 20
         return v
 
-    @validator("sort", pre=True)
-    def validate_sort(cls, v):
-        if isinstance(v, str):
-            v = v.lower()
-            if v not in ("asc", "desc"):
-                raise ValueError('sort must be "asc" or "desc"')
-        return v
+
+class SortedPagination(SimplePagination):
+    sort: Sort
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -91,7 +139,7 @@ def _add_pagination(
     """
     if sort is not None:
         column, sort_direction = sort
-        if sort_direction.lower() == "desc":
+        if sort_direction == SortOrder.DESC:
             query = query.order_by(desc(column))
         else:
             query = query.order_by(asc(column))

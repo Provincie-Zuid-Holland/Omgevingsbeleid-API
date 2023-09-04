@@ -1,6 +1,23 @@
 id: gebiedsprogramma
 object_type: gebiedsprogramma
 
+sort_allowed_columns: &sort_allowed_columns
+  - Object_ID
+  - Title
+  - Modified_Date
+
+sort_default_title: &sort_default_title
+  default:
+    column: Title
+    order: asc
+  allowed_columns: *sort_allowed_columns
+
+sort_default_modified_date: &sort_default_modified_date
+  default:
+    column: Modified_Date
+    order: desc
+  allowed_columns: *sort_allowed_columns
+
 api:
   routers:
     - prefix: /gebiedsprogrammas
@@ -11,12 +28,14 @@ api:
             response_model: gebiedsprogramma_basic
             allowed_filter_columns:
               - Title
+            sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: gebiedsprogramma_basic
             allowed_filter_columns:
               - Title
+            sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
@@ -52,6 +71,7 @@ api:
             response_model: gebiedsprogramma_extended
             allowed_filter_columns:
               - Title
+            sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
@@ -66,6 +86,14 @@ api:
           resolver_data:
             path: /active/{lineage_id}
             response_model: gebiedsprogramma_minimal
+            sort: *sort_default_title
+    - prefix: /revisions/{module_id}/gebiedsprogramma/version/{object_uuid}
+      endpoints:
+        - resolver: module_object_version
+          resolver_data:
+            response_model: gebiedsprogramma_full
+            atleast_status: 'Ontwerp GS'
+            require_auth: False
 
 
 fields:
@@ -198,6 +226,12 @@ models:
         default: none
         optional: true
     services:
+      insert_computed_fields:
+        fields: 
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
       insert_assets:
         fields:
           - Description

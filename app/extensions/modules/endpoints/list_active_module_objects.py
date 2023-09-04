@@ -23,15 +23,11 @@ class ActiveModuleObjectWrapper(BaseModel):
 class ListActiveModuleObjectsEndpoint(Endpoint):
     def __init__(
         self,
-        converter: Converter,
-        endpoint_id: str,
         path: str,
         object_type: str,
         response_model: Model,
     ):
         self._path: str = path
-        self._converter: Converter = converter
-        self._endpoint_id: str = endpoint_id
         self._object_type: str = object_type
         self._response_model: Model = response_model
 
@@ -96,8 +92,6 @@ class ListActiveModuleObjectsEndpointResolver(EndpointResolver):
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         return ListActiveModuleObjectsEndpoint(
-            converter=converter,
-            endpoint_id=self.get_id(),
             path=path,
             object_type=api.object_type,
             response_model=response_model,

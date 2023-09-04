@@ -59,7 +59,7 @@ class ObjectLatestEndpoint(Endpoint):
         event_dispatcher: EventDispatcher,
         lineage_id: int,
     ):
-        maybe_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
+        maybe_object: Optional[ObjectsTable] = object_repository.get_latest_valid_by_id(
             self._object_type,
             lineage_id,
         )

@@ -19,5 +19,4 @@ output/*
 !output/.gitkeep
 .vscode
 notes.md
-scripts/import/data
 .python-version
