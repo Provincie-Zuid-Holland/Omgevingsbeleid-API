@@ -87,6 +87,13 @@ api:
             path: /active/{lineage_id}
             response_model: ambitie_minimal
             sort: *sort_default_title
+    - prefix: /revisions/{module_id}/ambitie/version/{object_uuid}
+      endpoints:
+        - resolver: module_object_version
+          resolver_data:
+            response_model: ambitie_full
+            atleast_status: 'Ontwerp GS'
+            require_auth: False
 
 fields:
   title:
@@ -201,6 +208,12 @@ models:
       insert_assets:
         fields:
           - Description
+      insert_computed_fields:
+        fields: 
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
       relations:
         objects:
           - object_type: beleidsdoel

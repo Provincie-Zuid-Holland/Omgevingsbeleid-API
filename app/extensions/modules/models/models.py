@@ -136,3 +136,10 @@ class PublicModuleStatusCode(str, Enum):
     @staticmethod
     def values():
         return [status.value for status in PublicModuleStatusCode]
+
+
+class PublicModuleObjectRevision(BaseModel):
+    Module_Object_UUID: uuid.UUID
+    Module_ID: int
+    Module_Title: str
+    Module_Status: str
