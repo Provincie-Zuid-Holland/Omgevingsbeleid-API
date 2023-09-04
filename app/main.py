@@ -68,6 +68,7 @@ def custom_openapi():
     openapi_schema = get_openapi(
         title=settings.PROJECT_NAME,
         version=settings.PROJECT_VERSION,
+        openapi_version="3.0.0",
         description=settings.PROJECT_DESC,
         routes=app.routes,
     )
