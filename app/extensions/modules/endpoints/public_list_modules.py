@@ -48,6 +48,7 @@ class PublicListModulesEndpoint(Endpoint):
             PublicModuleShort(
                 Module_ID=module.Module_ID,
                 Title=module.Title,
+                Description=module.Description,
                 Status=status,
             )
             for status, module in paginated_result.items
