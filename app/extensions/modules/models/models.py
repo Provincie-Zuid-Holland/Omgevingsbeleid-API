@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 from app.extensions.users.model import UserShort
 
@@ -121,6 +121,10 @@ class PublicModuleShort(BaseModel):
     Title: str
     Description: str
     Status: Optional[ModuleStatus]
+
+    @validator("Title", "Description", pre=True)
+    def default_empty_string(cls, v):
+        return v or ""
 
     class Config:
         orm_mode = True
