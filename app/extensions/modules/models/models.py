@@ -119,6 +119,7 @@ class ModuleSnapshot(BaseModel):
 class PublicModuleShort(BaseModel):
     Module_ID: int
     Title: str
+    Description: str
     Status: Optional[ModuleStatus]
 
     class Config:
