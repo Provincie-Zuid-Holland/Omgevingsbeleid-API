@@ -31,6 +31,7 @@ class PublicModuleObjectContextShort(BaseModel):
 
 class PublicModuleObjectShort(BaseModel):
     Module_ID: int
+    UUID: uuid.UUID
     Object_Type: str
     Object_ID: int
     Code: str
