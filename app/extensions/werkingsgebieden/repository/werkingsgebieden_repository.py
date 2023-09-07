@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
 from sqlalchemy import desc, select
@@ -25,8 +25,15 @@ class WerkingsgebiedenRepository(BaseRepository):
             sort=(getattr(WerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
         )
 
-    @staticmethod
-    def latest_objects_query(in_area: Optional[List[UUID]], object_types: List[str]):
+    def get_latest_in_area(
+        self,
+        in_area: List[UUID],
+        object_types: List[str],
+        pagination: SortedPagination,
+    ) -> PaginatedQueryResult:
+        """
+        Find all latest objects matching a list of Werkingsgebied UUIDs
+        """
         subq = select(
             ObjectsTable,
             func.row_number()
@@ -45,26 +52,14 @@ class WerkingsgebiedenRepository(BaseRepository):
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
-        stmt = select(aliased_objects).filter(subq.c.get("_RowNumber") == 1).order_by(desc(subq.c.Modified_Date))
-        return stmt
-
-    def get_latest_in_area(
-        self,
-        in_area: List[UUID],
-        object_types: List[str],
-        pagination: SortedPagination,
-    ) -> PaginatedQueryResult:
-        """
-        Find all latest objects matching a list of Werkingsgebied UUIDs
-        """
-        query = self.latest_objects_query(in_area=in_area, object_types=object_types)
+        stmt = select(aliased_objects).filter(subq.c.get("_RowNumber") == 1)
 
         paginated_result = query_paginated(
-            query=query,
+            query=stmt,
             session=self._db,
             offset=pagination.offset,
             limit=pagination.limit,
-            sort=(getattr(ObjectsTable, pagination.sort.column), pagination.sort.order),
+            sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )
 
         return paginated_result
