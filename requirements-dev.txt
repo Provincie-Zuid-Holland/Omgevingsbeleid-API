@@ -8,7 +8,7 @@ alembic==1.12.0
     # via -r requirements-dev.in
 astroid==2.15.6
     # via pylint
-asttokens==2.3.0
+asttokens==2.4.0
     # via
     #   devtools
     #   stack-data
@@ -26,14 +26,14 @@ charset-normalizer==3.2.0
     # via requests
 click==8.1.7
     # via black
-coverage[toml]==7.3.0
+coverage[toml]==7.3.1
     # via
     #   -r requirements-dev.in
     #   coverage-badge
     #   pytest-cov
 coverage-badge==1.1.0
     # via -r requirements-dev.in
-debugpy==1.6.7.post1
+debugpy==1.7.0
     # via -r requirements-dev.in
 decorator==5.1.1
     # via ipython
@@ -49,7 +49,7 @@ executing==1.2.0
     # via
     #   devtools
     #   stack-data
-faker==19.3.1
+faker==19.4.0
     # via -r requirements-dev.in
 flake8==6.1.0
     # via -r requirements-dev.in
@@ -57,7 +57,7 @@ freezegun==1.2.2
     # via -r requirements-dev.in
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.34
+gitpython==3.1.35
     # via bandit
 greenlet==2.0.2
     # via sqlalchemy
@@ -136,7 +136,7 @@ pygments==2.16.1
     #   rich
 pylint==2.17.5
     # via -r requirements-dev.in
-pytest==7.4.1
+pytest==7.4.2
     # via
     #   -r requirements-dev.in
     #   pytest-cov
