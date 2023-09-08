@@ -14,7 +14,10 @@ class WerkingsgebiedenTable(Base):
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
 
+    Start_Validity: Mapped[datetime] = mapped_column(name="Begin_Geldigheid")
+    End_Validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
+
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
 
     def __repr__(self) -> str:
-        return f"Werkingsgebieden(UUID={self.UUID!r}, ID={self.ID!r})"
+        return f"Werkingsgebieden(UUID={self.UUID!r}, Title={self.Title!r})"

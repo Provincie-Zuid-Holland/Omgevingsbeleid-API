@@ -108,6 +108,8 @@ class DatabaseFixtures:
                 ID=1,
                 Created_Date=datetime(2023, 2, 2, 2, 2, 2),
                 Modified_Date=datetime(2023, 2, 2, 2, 2, 2),
+                Start_Validity=datetime(2023, 2, 2, 2, 2, 2),
+                End_Validity=datetime(2023, 3, 3, 3, 3, 3),
             )
         )
         self._db.add(
@@ -117,6 +119,8 @@ class DatabaseFixtures:
                 ID=1,
                 Created_Date=datetime(2023, 2, 3, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 3, 3, 3, 3),
+                Start_Validity=datetime(2023, 3, 3, 3, 3, 3),
+                End_Validity=datetime(2030, 3, 3, 3, 3, 3),
             )
         )
         self._db.add(
@@ -126,6 +130,8 @@ class DatabaseFixtures:
                 ID=1,
                 Created_Date=datetime(2023, 2, 4, 4, 4, 4),
                 Modified_Date=datetime(2023, 2, 4, 4, 4, 4),
+                Start_Validity=datetime(2023, 2, 4, 4, 4, 4),
+                End_Validity=datetime(2030, 2, 4, 4, 4, 4),
             )
         )
         self._db.commit()
