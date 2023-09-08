@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 from uuid import UUID
 
@@ -12,12 +13,8 @@ from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 
 
 class WerkingsgebiedenRepository(BaseRepository):
-    def get_all(self) -> List[WerkingsgebiedenTable]:
-        stmt = select(WerkingsgebiedenTable).order_by(desc(WerkingsgebiedenTable.Modified_Date))
-        return self.fetch_all(stmt)
-
     def get_all_paginated(self, pagination: SortedPagination) -> PaginatedQueryResult:
-        stmt = select(WerkingsgebiedenTable)
+        stmt = select(WerkingsgebiedenTable).filter(WerkingsgebiedenTable.End_Validity > datetime.now())
         return self.fetch_paginated(
             statement=stmt,
             offset=pagination.offset,
