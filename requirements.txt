@@ -119,6 +119,8 @@ uvicorn[standard]==0.23.2
     # via -r requirements.in
 uvloop==0.17.0
     # via uvicorn
+validators==0.22.0
+    # via -r requirements.in
 watchfiles==0.20.0
     # via uvicorn
 websockets==11.0.3

@@ -185,21 +185,21 @@ models:
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Modified_By
-            model_id: gebruikers_short
+            model_id: user_short
       static_foreign_keys_extender:
         fields_map:
           - to_field: Owner_1
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Owner_2
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Portfolio_Holder_1
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Portfolio_Holder_2
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Client_1
-            model_id: gebruikers_short
+            model_id: user_short
   beleidsregel_full:
     name: BeleidsregelFull
     fields:
@@ -234,21 +234,21 @@ models:
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Modified_By
-            model_id: gebruikers_short
+            model_id: user_short
       static_foreign_keys_extender:
         fields_map:
           - to_field: Owner_1
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Owner_2
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Portfolio_Holder_1
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Portfolio_Holder_2
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Client_1
-            model_id: gebruikers_short
+            model_id: user_short
   beleidsregel_patch:
     name: BeleidsregelPatch
     fields:

@@ -15,6 +15,7 @@ bcrypt
 # Util
 diff-match-patch
 pytz
+validators
 
 # Command
 Click

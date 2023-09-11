@@ -122,15 +122,15 @@ models:
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Modified_By
-            model_id: gebruikers_short
+            model_id: user_short
       static_foreign_keys_extender:
         fields_map:
           - to_field: Owner_1
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Owner_2
-            model_id: gebruikers_short
+            model_id: user_short
   wettelijke_taak_full:
     name: WettelijkeTaakFull
     fields:
@@ -159,15 +159,15 @@ models:
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Modified_By
-            model_id: gebruikers_short
+            model_id: user_short
       static_foreign_keys_extender:
         fields_map:
           - to_field: Owner_1
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Owner_2
-            model_id: gebruikers_short
+            model_id: user_short
   wettelijke_taak_create:
     name: WettelijkeTaakCreate
     fields:

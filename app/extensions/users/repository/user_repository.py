@@ -16,6 +16,10 @@ class UserRepository(BaseRepository):
         stmt = select(UsersTable).where(UsersTable.UUID == uuid)
         return self.fetch_first(stmt)
 
+    def get_by_email(self, email: str) -> Optional[UsersTable]:
+        stmt = select(UsersTable).where(UsersTable.Email == email)
+        return self.fetch_first(stmt)
+
     def get_active(self, pagination: SortedPagination) -> PaginatedQueryResult:
         stmt = select(UsersTable).filter(UsersTable.Status == "Actief")
         return self.fetch_paginated(

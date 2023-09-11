@@ -22,13 +22,6 @@ class UsersExtension(Extension):
     def register_models(self, models_resolver: ModelsResolver):
         models_resolver.add(
             ExtensionModel(
-                id="gebruikers_short",
-                name="GebruikersShort",
-                pydantic_model=UserShort,
-            )
-        )
-        models_resolver.add(
-            ExtensionModel(
                 id="user_short",
                 name="UserShort",
                 pydantic_model=UserShort,
@@ -43,6 +36,10 @@ class UsersExtension(Extension):
     ) -> List[EndpointResolver]:
         return [
             endpoints.ListUsersEndpointResolver(),
+            endpoints.CreateUserEndpointResolver(),
+            endpoints.EditUserEndpointResolver(),
+            endpoints.DeleteUserEndpointResolver(),
+            endpoints.ResetUserPasswordEndpointResolver(),
         ]
 
     def register_commands(self, main_command_group: click.Group, main_config: dict):

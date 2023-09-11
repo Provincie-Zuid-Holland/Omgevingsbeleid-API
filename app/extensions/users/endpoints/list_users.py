@@ -11,7 +11,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user, depends_user_repository
-from app.extensions.users.model import UserShort
+from app.extensions.users.model import User
 from app.extensions.users.repository.user_repository import UserRepository
 
 
@@ -25,14 +25,14 @@ class ListUsersEndpoint(Endpoint):
             pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
             user: UsersTable = Depends(depends_current_active_user),
             user_repository: UserRepository = Depends(depends_user_repository),
-        ) -> PagedResponse[UserShort]:
+        ) -> PagedResponse[User]:
             return self._handler(user_repository, pagination)
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=PagedResponse[UserShort],
+            response_model=PagedResponse[User],
             summary=f"List the users",
             description=None,
             tags=["User"],
@@ -44,11 +44,11 @@ class ListUsersEndpoint(Endpoint):
         self,
         repostiory: UserRepository,
         pagination: SortedPagination,
-    ) -> PagedResponse[UserShort]:
+    ) -> PagedResponse[User]:
         paginated_result = repostiory.get_active(pagination)
-        users: List[UserShort] = [UserShort.from_orm(u) for u in paginated_result.items]
+        users: List[User] = [User.from_orm(u) for u in paginated_result.items]
 
-        return PagedResponse[UserShort](
+        return PagedResponse[User](
             total=paginated_result.total_count,
             offset=pagination.offset,
             limit=pagination.limit,
