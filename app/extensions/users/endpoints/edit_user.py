@@ -68,8 +68,6 @@ class EditUserEndpointHandler:
         for key, value in changes.items():
             setattr(user, key, value)
 
-        # This executes the validators on the result type
-        # Making sure the final object meets all validation requirements
         if not validators.email(user.Email):
             raise ValueError("Invalid email")
         if user.Rol not in self._allowed_roles:
