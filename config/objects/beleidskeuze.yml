@@ -206,21 +206,21 @@ models:
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Modified_By
-            model_id: gebruikers_short
+            model_id: user_short
       static_foreign_keys_extender:
         fields_map:
           - to_field: Owner_1
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Owner_2
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Portfolio_Holder_1
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Portfolio_Holder_2
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Client_1
-            model_id: gebruikers_short
+            model_id: user_short
   beleidskeuze_full:
     name: BeleidskeuzeFull
     fields:
@@ -255,21 +255,21 @@ models:
           - to_field: Gebied
             model_id: werkingsgebied
           - to_field: Created_By
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Modified_By
-            model_id: gebruikers_short
+            model_id: user_short
       static_foreign_keys_extender:
         fields_map:
           - to_field: Owner_1
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Owner_2
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Portfolio_Holder_1
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Portfolio_Holder_2
-            model_id: gebruikers_short
+            model_id: user_short
           - to_field: Client_1
-            model_id: gebruikers_short
+            model_id: user_short
       relations:
         objects:
           - object_type: wettelijke_taak

@@ -9,7 +9,8 @@ class User(BaseModel):
     Gebruikersnaam: str
     Email: str
     Rol: str
-    IsActief: bool
+    Status: str
+    IsActive: bool
 
     class Config:
         orm_mode = True

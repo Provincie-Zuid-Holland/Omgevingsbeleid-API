@@ -1,3 +1,5 @@
+import secrets
+import string
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
@@ -36,3 +38,9 @@ def verify_password(plain_password: Optional[str], hashed_password: Optional[str
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
+
+def get_random_password(length: int = 32):
+    alphabet = string.ascii_letters + string.digits
+    password = "".join(secrets.choice(alphabet) for i in range(length))
+    return password

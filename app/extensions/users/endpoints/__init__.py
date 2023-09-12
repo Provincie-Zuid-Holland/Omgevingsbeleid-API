@@ -1,1 +1,5 @@
+from .create_user import CreateUserEndpointResolver
+from .delete_user import DeleteUserEndpointResolver
+from .edit_user import EditUserEndpointResolver
 from .list_users import ListUsersEndpointResolver
+from .reset_user_password import ResetUserPasswordEndpointResolver

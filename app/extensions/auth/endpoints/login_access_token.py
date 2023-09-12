@@ -42,11 +42,10 @@ class LoginAccessTokenEndpoint(Endpoint):
         user: Optional[UsersTable] = user_repository.authenticate(form_data.username, form_data.password)
         if not user:
             raise HTTPException(status_code=401, detail="Incorrect email or password")
-        elif not user.IsActief:
+        elif not user.IsActive:
             raise HTTPException(status_code=401, detail="Inactive user")
 
         access_token = create_access_token(user.UUID)
-
         pydantic_user: User = User.from_orm(user)
 
         response = self._response_type.parse_obj(

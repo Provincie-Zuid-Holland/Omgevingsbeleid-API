@@ -4,7 +4,7 @@ from sqlalchemy import Unicode
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import Base
-from app.core.db.mixins import HasUUID
+from app.core.db.mixins import HasUUID, SerializerMixin
 
 
 class UserBaseColumns(HasUUID):
@@ -16,12 +16,17 @@ class UserBaseColumns(HasUUID):
     Wachtwoord: Mapped[Optional[str]]  # = mapped_column(deferred=True)
 
     @property
-    def IsActief(self) -> bool:
+    def IsActive(self) -> bool:
         return self.Status == "Actief"
 
 
-class UsersTable(Base, UserBaseColumns):
+class UsersTable(Base, UserBaseColumns, SerializerMixin):
     __tablename__ = "Gebruikers"
 
     def __repr__(self) -> str:
         return f"UsersTable(UUID={self.UUID!r}, Gebruikersnaam={self.Gebruikersnaam!r})"
+
+    def to_dict_safe(self):
+        data: dict = self.to_dict()
+        del data["Wachtwoord"]
+        return data
