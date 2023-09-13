@@ -1,7 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy import asc, select
+from sqlalchemy import asc, or_, select
 
 from app.core.security import get_password_hash, verify_password
 from app.dynamic.repository.repository import BaseRepository
@@ -19,6 +19,34 @@ class UserRepository(BaseRepository):
     def get_by_email(self, email: str) -> Optional[UsersTable]:
         stmt = select(UsersTable).where(UsersTable.Email == email)
         return self.fetch_first(stmt)
+
+    def get_filtered(
+        self,
+        pagination: SortedPagination,
+        role: Optional[str],
+        query: Optional[str],
+        active: Optional[bool],
+    ) -> PaginatedQueryResult:
+        stmt = select(UsersTable)
+
+        if role is not None:
+            stmt = stmt.filter(UsersTable.Rol == role)
+
+        if query is not None:
+            stmt = stmt.filter(or_(UsersTable.Gebruikersnaam.like(f"%{query}%"), UsersTable.Email.like(f"%{query}%")))
+
+        if active is not None:
+            if active:
+                stmt = stmt.filter(UsersTable.Status == "Actief")
+            else:
+                stmt = stmt.filter(UsersTable.Status != "Actief")
+
+        return self.fetch_paginated(
+            statement=stmt,
+            offset=pagination.offset,
+            limit=pagination.limit,
+            sort=(getattr(UsersTable, pagination.sort.column), pagination.sort.order),
+        )
 
     def get_active(self, pagination: SortedPagination) -> PaginatedQueryResult:
         stmt = select(UsersTable).filter(UsersTable.Status == "Actief")

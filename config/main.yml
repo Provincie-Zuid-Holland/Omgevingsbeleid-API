@@ -51,8 +51,21 @@ api:
               - "Behandelend Ambtenaar"
               - "Functioneel beheerder"
               - "Portefeuillehouder"
+    - prefix: /users/search
+      endpoints:
+        - resolver: search_users
+          resolver_data:
+            sort:
+              default:
+                column: Gebruikersnaam
+                order: asc
+              allowed_columns:
+                - Gebruikersnaam
+                - Rol
+                - Email
     - prefix: /users/{user_uuid}
       endpoints:
+        - resolver: get_user
         - resolver: edit_user
           resolver_data:
             allowed_roles:

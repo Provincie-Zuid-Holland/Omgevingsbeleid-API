@@ -36,10 +36,12 @@ class UsersExtension(Extension):
     ) -> List[EndpointResolver]:
         return [
             endpoints.ListUsersEndpointResolver(),
+            endpoints.SearchUsersEndpointResolver(),
             endpoints.CreateUserEndpointResolver(),
             endpoints.EditUserEndpointResolver(),
             endpoints.DeleteUserEndpointResolver(),
             endpoints.ResetUserPasswordEndpointResolver(),
+            endpoints.GetUserEndpointResolver(),
         ]
 
     def register_commands(self, main_command_group: click.Group, main_config: dict):
