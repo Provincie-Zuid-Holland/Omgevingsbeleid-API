@@ -62,6 +62,8 @@ class UserRepository(BaseRepository):
         return self.fetch_all(stmt)
 
     def authenticate(self, username: str, password: str) -> Optional[User]:
+        if not username:
+            return None
         stmt = select(UsersTable).where(UsersTable.Email == username)
         maybe_user: Optional[UsersTable] = self.fetch_first(stmt)
         if not maybe_user:
