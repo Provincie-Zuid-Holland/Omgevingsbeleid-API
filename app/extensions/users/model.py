@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 
 class User(BaseModel):
@@ -11,6 +11,10 @@ class User(BaseModel):
     Rol: str
     Status: str
     IsActive: bool
+
+    @validator("Email", pre=True)
+    def default_empty_string(cls, v):
+        return v or "<geen email>"
 
     class Config:
         orm_mode = True
