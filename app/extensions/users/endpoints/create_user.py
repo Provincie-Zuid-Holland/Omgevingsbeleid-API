@@ -16,7 +16,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.change_logger.db.tables import ChangeLogTable
-from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.db.tables import IS_ACTIVE, UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user_with_permission_curried,
     depends_user_repository,
@@ -75,7 +75,7 @@ class CreateUserEndpointHandler:
             Gebruikersnaam=self._object_in.Gebruikersnaam,
             Email=self._object_in.Email,
             Rol=self._object_in.Rol,
-            Status="Actief",
+            Status=IS_ACTIVE,
             Wachtwoord=password_hash,
         )
 
