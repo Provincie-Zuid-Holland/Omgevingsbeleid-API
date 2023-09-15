@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from app.core.dependencies import db_in_context_manager
 from app.core.security import get_password_hash, get_random_password
-from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.db.tables import IS_ACTIVE, UsersTable
 
 
 @click.command()
@@ -22,7 +22,7 @@ def create_user(gebruikersnaam, email, rol):
         Gebruikersnaam=gebruikersnaam,
         Email=email,
         Rol=rol,
-        Status="Actief",
+        Status=IS_ACTIVE,
         Wachtwoord=password_hash,
     )
 

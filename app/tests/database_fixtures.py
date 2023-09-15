@@ -12,6 +12,7 @@ from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleSta
 from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.users.db import UsersTable
+from app.extensions.users.db.tables import IS_ACTIVE
 from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 
 
@@ -34,7 +35,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Anton",
                 Email="test@example.com",
                 Rol="Superuser",
-                Status="Actief",
+                Status=IS_ACTIVE,
                 Wachtwoord=get_password_hash("password"),
             )
         )
@@ -44,7 +45,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Bert",
                 Email="b@example.com",
                 Rol="Ambtelijk opdrachtgever",
-                Status="Actief",
+                Status=IS_ACTIVE,
                 Wachtwoord=get_password_hash("password"),
             )
         )
@@ -54,7 +55,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Cees",
                 Email="c@example.com",
                 Rol="Behandelend Ambtenaar",
-                Status="Actief",
+                Status=IS_ACTIVE,
                 Wachtwoord=get_password_hash("password"),
             )
         )
@@ -64,7 +65,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Daniel",
                 Email="d@example.com",
                 Rol="Beheerder",
-                Status="Actief",
+                Status=IS_ACTIVE,
                 Wachtwoord=get_password_hash("password"),
             )
         )
@@ -74,7 +75,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Emma",
                 Email="e@example.com",
                 Rol="Portefeuillehouder",
-                Status="Actief",
+                Status=IS_ACTIVE,
                 Wachtwoord=get_password_hash("password"),
             )
         )
@@ -84,7 +85,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Fred",
                 Email="f@example.com",
                 Rol="Test runner",
-                Status="Actief",
+                Status=IS_ACTIVE,
                 Wachtwoord=get_password_hash("password"),
             )
         )
@@ -94,7 +95,7 @@ class DatabaseFixtures:
                 Gebruikersnaam="Gerald",
                 Email="g@example.com",
                 Rol="Tester",
-                Status="Actief",
+                Status=IS_ACTIVE,
                 Wachtwoord=get_password_hash("password"),
             )
         )

@@ -6,6 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.core.db.base import Base
 from app.core.db.mixins import HasUUID, SerializerMixin
 
+IS_ACTIVE = "Actief"
+
 
 class UserBaseColumns(HasUUID):
     Gebruikersnaam: Mapped[Optional[str]]
@@ -17,7 +19,7 @@ class UserBaseColumns(HasUUID):
 
     @property
     def IsActive(self) -> bool:
-        return self.Status == "Actief"
+        return self.Status == IS_ACTIVE
 
 
 class UsersTable(Base, UserBaseColumns, SerializerMixin):

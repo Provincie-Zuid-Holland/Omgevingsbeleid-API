@@ -39,7 +39,6 @@ class UsersExtension(Extension):
             endpoints.SearchUsersEndpointResolver(),
             endpoints.CreateUserEndpointResolver(),
             endpoints.EditUserEndpointResolver(),
-            endpoints.DeleteUserEndpointResolver(),
             endpoints.ResetUserPasswordEndpointResolver(),
             endpoints.GetUserEndpointResolver(),
         ]
