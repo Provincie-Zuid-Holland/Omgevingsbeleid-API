@@ -46,3 +46,4 @@ class UsersExtension(Extension):
     def register_commands(self, main_command_group: click.Group, main_config: dict):
         main_command_group.add_command(commands.create_user, "user-create")
         main_command_group.add_command(commands.reset_password, "user-reset-password")
+        main_command_group.add_command(commands.change_user_actions_to, "user-change-actions-to")
