@@ -59,6 +59,29 @@ def reset_password(email):
 
 
 @click.command()
+@click.argument("uuid")
+def reset_password_uuid(uuid):
+    password = "change-me-" + get_random_password()
+    password_hash = get_password_hash(password)
+
+    with db_in_context_manager() as db:
+        stmt = select(UsersTable).filter(UsersTable.UUID == uuid)
+        user: Optional[UsersTable] = db.scalars(stmt).first()
+        if not user:
+            click.echo("UUID not found")
+            raise Exception("UUID not found")
+
+        user.Wachtwoord = password_hash
+        db.flush()
+        db.commit()
+
+        click.echo("")
+        click.echo(f"User password changed: {password}")
+        click.echo(f"User email: {user.Email}")
+        click.echo("")
+
+
+@click.command()
 @click.argument("from_uuid")
 @click.argument("to_uuid")
 @click.option("--include-legacy", is_flag=True, help="Include legacy tables like Onderverdelingen.")
@@ -159,3 +182,5 @@ def change_user_actions_to(from_uuid, to_uuid, include_legacy):
         db.commit()
 
     click.echo("Done")
+
+
