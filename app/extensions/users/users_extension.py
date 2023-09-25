@@ -47,3 +47,5 @@ class UsersExtension(Extension):
         main_command_group.add_command(commands.create_user, "user-create")
         main_command_group.add_command(commands.reset_password, "user-reset-password")
         main_command_group.add_command(commands.reset_password_uuid, "user-reset-password-via-uuid")
+        main_command_group.add_command(commands.change_user_actions_to, "user-change-actions-to")
+        main_command_group.add_command(commands.delete_user_uuid, "user-delete-via-uuid")
