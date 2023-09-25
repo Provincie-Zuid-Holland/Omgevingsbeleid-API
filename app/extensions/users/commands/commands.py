@@ -2,7 +2,7 @@ import uuid
 from typing import Optional
 
 import click
-from sqlalchemy import select, text, delete
+from sqlalchemy import select, text
 
 from app.core.dependencies import db_in_context_manager
 from app.core.security import get_password_hash, get_random_password
@@ -176,9 +176,7 @@ def change_user_actions_to(from_uuid, to_uuid, include_legacy):
             ]
 
         for stmt in statements:
-            db.execute(text(stmt), {
-                "to_uuid": to_uuid,
-                "from_uuid": from_uuid})
+            db.execute(text(stmt), {"to_uuid": to_uuid, "from_uuid": from_uuid})
 
         db.flush()
         db.commit()
@@ -205,7 +203,7 @@ def delete_user_uuid(uuid, yes):
         click.echo(f"User uuid: {user.UUID}")
         click.echo(f"User email: {user.Email}")
         click.echo("\n")
-        
+
         db.delete(user)
         db.flush()
         db.commit()
