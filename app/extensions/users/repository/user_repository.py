@@ -6,7 +6,7 @@ from sqlalchemy import asc, or_, select
 from app.core.security import get_password_hash, verify_password
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination
-from app.extensions.users.db.tables import IS_ACTIVE, UsersTable
+from app.extensions.users.db.tables import UsersTable
 
 from ..model import User
 
@@ -37,9 +37,9 @@ class UserRepository(BaseRepository):
 
         if active is not None:
             if active:
-                stmt = stmt.filter(UsersTable.Status == IS_ACTIVE)
+                stmt = stmt.filter(UsersTable.Is_Active == True)
             else:
-                stmt = stmt.filter(UsersTable.Status != IS_ACTIVE)
+                stmt = stmt.filter(UsersTable.Is_Active == False)
 
         return self.fetch_paginated(
             statement=stmt,
@@ -49,7 +49,7 @@ class UserRepository(BaseRepository):
         )
 
     def get_active(self, pagination: SortedPagination) -> PaginatedQueryResult:
-        stmt = select(UsersTable).filter(UsersTable.Status == IS_ACTIVE)
+        stmt = select(UsersTable).filter(UsersTable.Is_Active == True)
         return self.fetch_paginated(
             statement=stmt,
             offset=pagination.offset,
@@ -64,7 +64,7 @@ class UserRepository(BaseRepository):
     def authenticate(self, username: str, password: str) -> Optional[User]:
         if not username:
             return None
-        stmt = select(UsersTable).filter(UsersTable.Email == username).filter(UsersTable.Status == IS_ACTIVE)
+        stmt = select(UsersTable).filter(UsersTable.Email == username).filter(UsersTable.Is_Active == True)
         maybe_user: Optional[UsersTable] = self.fetch_first(stmt)
         if not maybe_user:
             return None

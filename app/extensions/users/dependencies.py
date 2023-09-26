@@ -55,7 +55,7 @@ def depends_current_user(
 def depends_current_active_user(
     current_user: UsersTable = Depends(depends_current_user),
 ) -> UsersTable:
-    if not current_user.IsActive:
+    if not current_user.Is_Active:
         raise HTTPException(status_code=400, detail="Gebruiker is inactief")
     return current_user
 

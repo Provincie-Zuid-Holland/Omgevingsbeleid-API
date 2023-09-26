@@ -31,8 +31,7 @@ def upgrade() -> None:
     sa.Column('Status', sa.Unicode(), nullable=True),
     sa.Column('Wachtwoord', sa.Unicode(), nullable=True),
     sa.Column('UUID', sa.Uuid(), nullable=False),
-    sa.PrimaryKeyConstraint('UUID'),
-    sa.UniqueConstraint('Email')
+    sa.PrimaryKeyConstraint('UUID')
     )
     op.create_table('Werkingsgebieden',
     sa.Column('UUID', sa.Uuid(), nullable=False),

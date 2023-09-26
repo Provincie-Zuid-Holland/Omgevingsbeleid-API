@@ -16,7 +16,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.change_logger.db.tables import ChangeLogTable
-from app.extensions.users.db.tables import IS_ACTIVE, UsersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user_with_permission_curried,
     depends_user_repository,
@@ -58,6 +58,7 @@ class CreateUserEndpointHandler:
         self._allowed_roles: List[str] = allowed_roles
         self._logged_in_user: UsersTable = logged_in_user
         self._object_in: UserCreate = object_in
+        self._timepoint: datetime = datetime.utcnow()
 
     def handle(self) -> UserCreateResponse:
         if self._object_in.Rol not in self._allowed_roles:
@@ -75,12 +76,14 @@ class CreateUserEndpointHandler:
             Gebruikersnaam=self._object_in.Gebruikersnaam,
             Email=self._object_in.Email,
             Rol=self._object_in.Rol,
-            Status=IS_ACTIVE,
+            Is_Active=True,
             Wachtwoord=password_hash,
+            Created_Date=self._timepoint,
+            Modified_Date=self._timepoint,
         )
 
         change_log: ChangeLogTable = ChangeLogTable(
-            Created_Date=datetime.utcnow(),
+            Created_Date=self._timepoint,
             Created_By_UUID=self._logged_in_user.UUID,
             Action_Type="create_user",
             Action_Data=self._object_in.json(),
