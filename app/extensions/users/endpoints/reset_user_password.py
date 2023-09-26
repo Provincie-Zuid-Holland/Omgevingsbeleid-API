@@ -41,7 +41,7 @@ class ResetUserPasswordEndpointHandler:
         user: Optional[UsersTable] = self._repository.get_by_uuid(self._user_uuid)
         if not user:
             raise ValueError(f"User does not exist")
-        if not user.IsActive:
+        if not user.Is_Active:
             raise ValueError(f"User is inactive")
 
         password = "change-me-" + get_random_password()

@@ -10,7 +10,7 @@ class User(BaseModel):
     Email: str
     Rol: str
     Status: str
-    IsActive: bool
+    Is_Active: bool
 
     @validator("Email", pre=True)
     def default_empty_string(cls, v):

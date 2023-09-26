@@ -16,7 +16,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.change_logger.db.tables import ChangeLogTable
-from app.extensions.users.db.tables import IS_ACTIVE, UsersTable
+from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import (
     depends_current_active_user_with_permission_curried,
     depends_user_repository,
@@ -29,7 +29,7 @@ class EditUser(BaseModel):
     Gebruikersnaam: Optional[str] = Field(None, nullable=True)
     Email: Optional[str] = Field(None, nullable=True)
     Rol: Optional[str] = Field(None, nullable=True)
-    IsActive: Optional[bool] = Field(None, nullable=True)
+    Is_Active: Optional[bool] = Field(None, nullable=True)
 
 
 class EditUserEndpointHandler:
@@ -67,13 +67,6 @@ class EditUserEndpointHandler:
         user_before_dict: dict = user.to_dict_safe()
         log_before: str = json.dumps(user_before_dict)
 
-        # We handle IsActive separately as that is not really a column
-        handle_is_active: Optional[bool] = changes.pop("IsActive", None)
-        if handle_is_active == True:
-            user.Status = IS_ACTIVE
-        elif handle_is_active == False:
-            user.Status = ""
-
         for key, value in changes.items():
             setattr(user, key, value)
 
@@ -82,6 +75,7 @@ class EditUserEndpointHandler:
         if user.Rol not in self._allowed_roles:
             raise ValueError("Invalid Rol")
 
+        user.Modified_Date = (self._timepoint,)
         user_after_dict: dict = user.to_dict_safe()
 
         change_log: ChangeLogTable = ChangeLogTable(

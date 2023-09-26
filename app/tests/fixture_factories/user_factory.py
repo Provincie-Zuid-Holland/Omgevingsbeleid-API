@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash
 from app.extensions.users.db import UsersTable
-from app.extensions.users.db.tables import IS_ACTIVE
 
 from .fixture_factory import FixtureDataFactory
 
@@ -37,7 +36,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Gebruikersnaam": "Anton",
                 "Email": "test@example.com",
                 "Rol": "Superuser",
-                "Status": IS_ACTIVE,
+                "Is_Active": True,
                 "Wachtwoord": get_password_hash("password"),
             },
             {
@@ -45,7 +44,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Gebruikersnaam": "Bert",
                 "Email": "b@example.com",
                 "Rol": "Ambtelijk opdrachtgever",
-                "Status": IS_ACTIVE,
+                "Is_Active": True,
                 "Wachtwoord": get_password_hash("password"),
             },
             {
@@ -53,7 +52,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Gebruikersnaam": "Cees",
                 "Email": "c@example.com",
                 "Rol": "Behandelend Ambtenaar",
-                "Status": IS_ACTIVE,
+                "Is_Active": True,
                 "Wachtwoord": get_password_hash("password"),
             },
             {
@@ -61,7 +60,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Gebruikersnaam": "Daniel",
                 "Email": "d@example.com",
                 "Rol": "Beheerder",
-                "Status": IS_ACTIVE,
+                "Is_Active": True,
                 "Wachtwoord": get_password_hash("password"),
             },
             {
@@ -69,7 +68,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Gebruikersnaam": "Emma",
                 "Email": "e@example.com",
                 "Rol": "Portefeuillehouder",
-                "Status": IS_ACTIVE,
+                "Is_Active": True,
                 "Wachtwoord": get_password_hash("password"),
             },
             {
@@ -77,7 +76,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Gebruikersnaam": "Fred",
                 "Email": "f@example.com",
                 "Rol": "Test runner",
-                "Status": IS_ACTIVE,
+                "Is_Active": True,
                 "Wachtwoord": get_password_hash("password"),
             },
             {
@@ -85,7 +84,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Gebruikersnaam": "Gerald",
                 "Email": "g@example.com",
                 "Rol": "Tester",
-                "Status": IS_ACTIVE,
+                "Is_Active": True,
                 "Wachtwoord": get_password_hash("password"),
             },
         ]
