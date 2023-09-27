@@ -92,7 +92,7 @@ def thumbnail(base64_string):
     decoded_img = base64.b64decode(base64_data)
 
     img = Image.open(BytesIO(decoded_img))
-    img.thumbnail((800, 600))
+    img.thumbnail((800, 1200))
 
     buffered = BytesIO()
     img.save(buffered, format=file_format.upper())
