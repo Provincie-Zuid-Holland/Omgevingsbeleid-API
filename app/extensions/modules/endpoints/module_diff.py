@@ -1,15 +1,10 @@
-import uuid
 from datetime import datetime
 from typing import List, Optional
 
+import diff_match_patch
 from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
-from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session, aliased, joinedload, load_only
-import diff_match_patch
 
-from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.db.objects_table import ObjectsTable
@@ -20,12 +15,35 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
-from app.extensions.modules.dependencies import depends_active_module, depends_maybe_module_status_by_id, depends_module_object_repository
-from app.extensions.modules.models import Module
-from app.extensions.modules.models.models import ModuleStatus
+from app.extensions.modules.dependencies import (
+    depends_active_module,
+    depends_maybe_module_status_by_id,
+    depends_module_object_repository,
+)
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
+
+
+class html_diff(diff_match_patch.diff_match_patch):
+    def prettyHtml(self, diffs):
+        """Convert a diff array into a pretty HTML report.
+
+        Args:
+          diffs: Array of diff tuples.
+
+        Returns:
+          HTML representation.
+        """
+        html = []
+        for op, text in diffs:
+            if op == self.DIFF_INSERT:
+                html.append('<ins style="background:#e6ffe6;">%s</ins>' % text)
+            elif op == self.DIFF_DELETE:
+                html.append('<del style="background:#ffe6e6;">%s</del>' % text)
+            elif op == self.DIFF_EQUAL:
+                html.append("<span>%s</span>" % text)
+        return "".join(html)
 
 
 class EndpointHandler:
@@ -63,25 +81,25 @@ class EndpointHandler:
             module_object.Object_ID,
         )
 
-        response.append(f'<h2>{module_object.Title}</h2>')
-        response.append(f'<p>Object Type: {module_object.Object_Type}</p>')
-        response.append(f'<h3>Toelichting</h3>')
+        response.append(f"<h2>{module_object.Title}</h2>")
+        response.append(f"<p>Object Type: {module_object.Object_Type}</p>")
+        response.append(f"<h3>Toelichting</h3>")
         response.append(module_object.ModuleObjectContext.Explanation)
-        response.append(f'<h3>Conclusie</h3>')
+        response.append(f"<h3>Conclusie</h3>")
         response.append(module_object.ModuleObjectContext.Conclusion)
-        response.append(f'<h3>Inhoud</h3>')
+        response.append(f"<h3>Inhoud</h3>")
 
-        if module_object.ModuleObjectContext.Action == '':
+        if module_object.ModuleObjectContext.Action == "":
             response.append(f'<del style="background:#ffe6e6;">{valid_object.Description}</del>')
         elif valid_object is None:
             response.append(f'<ins style="background:#e6ffe6;">{module_object.Description}</ins>')
         else:
-            dmp = diff_match_patch.diff_match_patch()
-            diffs = dmp.diff_main(module_object.Description or '', valid_object.Description or '')
-            html_result = dmp.diff_prettyHtml(diffs)
+            dmp = html_diff()
+            diffs = dmp.diff_main(module_object.Description or "", valid_object.Description or "")
+            html_result = dmp.prettyHtml(diffs)
             response.append(html_result)
 
-        return ''.join(response)
+        return "".join(response)
 
     def _get_module_objects(self) -> List[ModuleObjectsTable]:
         before: datetime = self._status.Created_Date if self._status is not None else datetime.utcnow()

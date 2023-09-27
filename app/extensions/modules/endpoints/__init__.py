@@ -8,6 +8,7 @@ from .list_module_objects import ListModuleObjectsEndpointResolver
 from .list_modules import ListModulesEndpointResolver
 from .module_add_existing_object import ModuleAddExistingObjectEndpointResolver
 from .module_add_new_object import ModuleAddNewObjectEndpointResolver
+from .module_diff import ModuleDiffEndpointResolver
 from .module_edit_object_context import ModuleEditObjectContextEndpointResolver
 from .module_get_object_context import ModuleGetObjectContextEndpointResolver
 from .module_list_lineage_tree import ModuleListLineageTreeEndpointResolver
@@ -21,4 +22,3 @@ from .module_remove_object import ModuleRemoveObjectEndpointResolver
 from .module_snapshot import ModuleSnapshotEndpointResolver
 from .public_list_modules import PublicListModulesEndpointResolver
 from .public_module_overview import PublicModuleOverviewEndpointResolver
-from .module_diff import ModuleDiffEndpointResolver
