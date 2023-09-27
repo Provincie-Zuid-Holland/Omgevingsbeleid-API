@@ -1,3 +1,4 @@
+import difflib
 import re
 import subprocess
 from datetime import datetime
@@ -102,7 +103,6 @@ class html_diff(diff_match_patch.diff_match_patch):
         return "".join(html)
 
 
-
 class EndpointHandler:
     def __init__(
         self,
@@ -165,8 +165,38 @@ class EndpointHandler:
             response.append(f'<ins style="background:#e6ffe6;">{module_object.Description}</ins>')
         else:
             dmp = html_diff()
-            diffs = dmp.diff_main(module_object.Description or "", valid_object.Description or "")
-            html_result = dmp.prettyHtml(diffs)
+            old_html_content = valid_object.Description or ""
+            try:
+                soup = BeautifulSoup(old_html_content, "html.parser")
+                old_html_content = soup.prettify()
+            except:
+                pass
+
+            new_html_content = module_object.Description or ""
+            try:
+                soup = BeautifulSoup(new_html_content, "html.parser")
+                new_html_content = soup.prettify()
+            except:
+                pass
+            old_html_content = old_html_content.splitlines()
+            new_html_content = new_html_content.splitlines()
+            # diffs = dmp.diff_main(new_html_content, old_html_content)
+            # html_result = dmp.prettyHtml(diffs)
+            d = difflib.Differ()
+            diff = d.compare(new_html_content, old_html_content)
+            diff_list = list(diff)
+            result = []
+            for d in diff_list:
+                op, line = d[:2], d[2:]
+                if op == "  ":
+                    result.append(line)
+                elif op == "- ":
+                    result.append('<del style="background:#ffe6e6;">%s</del>' % line)
+                elif op == "+ ":
+                    result.append('<ins style="background:#e6ffe6;">%s</ins>' % line)
+            html_result = "".join(result)
+            soup = BeautifulSoup(html_result, "html.parser")
+            html_result = str(soup)
             response.append(html_result)
 
         html_content = "".join(response)

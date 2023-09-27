@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash
 from app.dynamic.db import ObjectStaticsTable
+from app.dynamic.db.objects_table import ObjectsTable
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
@@ -253,7 +254,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action="Toevoegen",
+                Action="Edit",
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -267,10 +268,31 @@ class DatabaseFixtures:
                 Code="ambitie-1",
                 UUID=uuid.UUID("00000000-0000-0001-0000-000000000001"),
                 Title="Titel van de eerste ambitie",
+                Description="""<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nisi dolor, eleifend vel rhoncus et, mattis eu lorem. Duis eu libero venenatis, porta eros sed, pretium nulla. Fusce turpis neque, dapibus in nisi ut, fringilla pellentesque sem. Praesent at sapien erat. Nam quis augue vitae elit tincidunt tristique. Nullam commodo venenatis ante nec pharetra. Aliquam tincidunt aliquam consectetur. Cras quis nunc dui. Nam erat velit, hendrerit id lectus et, accumsan mattis metus. Cras consequat, metus quis facilisis pharetra, nisl nisl blandit diam, quis dapibus dolor odio sit amet enim. Maecenas justo lacus, auctor vel mollis vitae, accumsan eu lacus. Nam cursus eleifend nulla, nec vehicula ligula porttitor non. Cras at risus diam. Integer a porttitor felis.</p>
+<img src="[ASSET:3bbbd8ae-fe56-4904-8992-d33a88096f63]"/>
+<p>Integer porta ultricies laoreet. Nulla cursus et mauris sit amet porta. Aenean pulvinar vehicula scelerisque. Integer viverra diam arcu, at maximus leo mattis at. Aenean luctus orci eu pellentesque commodo. Aliquam commodo vestibulum vehicula. Donec vitae sem in lectus venenatis lacinia. Duis interdum porttitor laoreet. Ut sed facilisis lectus. In pellentesque, mi quis blandit aliquam, odio lectus varius est, nec porta nisl libero et quam. Praesent eget velit purus. Suspendisse hendrerit, nulla sit amet bibendum dictum, nisl est sollicitudin diam, vel rhoncus mi sapien sed mi. Nam auctor pulvinar ex sit amet gravida. Cras rutrum sapien ante. Etiam massa dolor, tristique sed metus non, porta tristique lacus.</p>""",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ObjectsTable(
+                Object_Type="ambitie",
+                Object_ID=1,
+                Code="ambitie-1",
+                UUID=uuid.UUID("10000000-0000-0001-0000-000000000001"),
+                Title="Titel van de eerste ambitie",
+                Description="""<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nisi dolor, eleifend vel rhoncus et, mattis eu lorem. Duis eu libero venenatis, porta eros sed, pretium nulla. Fusce turpis neque, dapibus in nisi ut, fringilla pellentesque sem. Praesent at sapien erat. Nam quis augue vitae elit tincidunt tristique. Nullam commodo venenatis ante nec pharetra. Aliquam tincidunt aliquam consectetur. Cras quis nunc dui. Nam erat velit, hendrerit id lectus et, accumsan mattis metus. Cras consequat, metus quis facilisis pharetra, nisl nisl blandit diam, quis dapibus dolor odio sit amet enim. Maecenas justo lacus, auctor vel mollis vitae, accumsan eu lacus. Nam cursus eleifend nulla, nec vehicula ligula porttitor non. Cras at risus diam. Integer a porttitor felis.</p>
+<img src="[ASSET:3baad8ae-fe4f-4904-8975-d21a88096f63]"/>
+<p>Integer porta ultricies laoreet. Nulla cursus et mauris sit amet porta. Aenean pulvinar vehicula scelerisque. Integer viverra diam arcu, at maximus leo mattis at. Aenean luctus orci eu pellentesque commodo. Aliquam commodo vestibulum vehicula. Donec vitae sem in lectus venenatis lacinia. Duis interdum porttitor laoreet. Ut sed facilisis lectus. In pellentesque, mi quis blandit aliquam, odio lectus varius est, nec porta nisl libero et quam. Praesent eget velit purus. Suspendisse hendrerit, nulla sit amet bibendum dictum, nisl est sollicitudin diam, vel rhoncus mi sapien sed mi. Nam auctor pulvinar ex sit amet gravida. Cras rutrum sapien ante. Etiam massa dolor, tristique sed metus non, porta tristique lacus.</p>""",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Start_Validity=datetime(2023, 2, 2, 3, 3, 3),
             )
         )
         self._db.commit()
