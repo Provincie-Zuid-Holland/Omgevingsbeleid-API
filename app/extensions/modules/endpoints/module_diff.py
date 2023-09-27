@@ -216,7 +216,7 @@ class EndpointHandler:
                 continue
 
             img["src"] = asset.Content
-            img["style"] = "max-width: 900px; max-height: 1200px;"
+            img["style"] = "max-width: 500px; max-height: 500px; display: block;"
         html_content = str(soup)
 
         return html_content
