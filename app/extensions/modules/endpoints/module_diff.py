@@ -1,9 +1,13 @@
+import re
+import subprocess
 from datetime import datetime
 from enum import Enum
+from os import path
 from typing import List, Optional
-import subprocess
+from uuid import UUID
 
 import diff_match_patch
+from bs4 import BeautifulSoup
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 
@@ -15,6 +19,9 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_repository import ObjectRepository
+from app.extensions.html_assets.db.tables import AssetsTable
+from app.extensions.html_assets.dependencies import depends_asset_repository
+from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.dependencies import (
@@ -33,6 +40,45 @@ class Format(str, Enum):
     DOC = "doc"
     DOCX = "docx"
     PDF = "pdf"
+
+
+class Formatter:
+    def __init__(self, output_format: Format, module_id: int, timepoint: datetime):
+        self._output_format: Format = output_format
+        self._module_id: int = module_id
+        self._timepoint: datetime = timepoint
+        self._workdir: str = "/tmp"
+
+    def _generate_filepath(self, format: Format) -> str:
+        return f"/tmp/module-{self._module_id}-at-{self._timepoint.strftime('%Y-%m-%d-%H%M%S')}.{format.value}"
+
+    def _convert(self, input_path: str, target_format: Format):
+        cmd = ["libreoffice", "--headless", "--convert-to", target_format.value, input_path, "--outdir", self._workdir]
+        result = subprocess.run(cmd)
+        if result.returncode != 0:
+            raise HTTPException(500)
+        return self._generate_filepath(target_format)
+
+    def format_response(self, html_content: str) -> FileResponse:
+        html_path = self._generate_filepath(Format.HTML)
+        with open(html_path, "w") as file:
+            file.write(html_content)
+
+        format_conversion_paths = {
+            Format.ODT: [Format.ODT],
+            Format.DOC: [Format.ODT, Format.DOC],
+            Format.DOCX: [Format.ODT, Format.DOCX],
+            Format.PDF: [Format.PDF],
+            Format.HTML: [],
+        }
+
+        latest_path = html_path
+        for target_format in format_conversion_paths.get(self._output_format, []):
+            latest_path = self._convert(latest_path, target_format)
+
+        return FileResponse(
+            latest_path, headers={"Content-Disposition": f"attachment; filename={path.basename(latest_path)}"}
+        )
 
 
 class html_diff(diff_match_patch.diff_match_patch):
@@ -61,12 +107,14 @@ class EndpointHandler:
         self,
         module_object_repository: ModuleObjectRepository,
         object_repository: ObjectRepository,
+        asset_repository: AssetRepository,
         module: ModuleTable,
         status: Optional[ModuleStatusHistoryTable],
         output_format: Format,
     ):
         self._module_object_repository: ModuleObjectRepository = module_object_repository
         self._object_repository: ObjectRepository = object_repository
+        self._asset_repository: AssetRepository = asset_repository
         self._module: ModuleTable = module
         self._status: Optional[ModuleStatusHistoryTable] = status
         self._output_format: Format = output_format
@@ -74,7 +122,7 @@ class EndpointHandler:
 
     def handle(self) -> FileResponse:
         module_objects: List[ModuleObjectsTable] = self._get_module_objects()
-        # module_objects.sort(key=lambda mo: mo.Code)
+        module_objects.sort(key=lambda mo: mo.Code)
 
         contents = []
         for module_object in module_objects:
@@ -86,67 +134,13 @@ class EndpointHandler:
         as_response: FileResponse = self._format_response(html_content)
         return as_response
 
-    def _format_response(self, html_content: str) -> FileResponse:
-        html_path: str = self._generate_filename(Format.HTML)
-        with open(html_path, 'w') as file:
-            file.write(html_content)
+    def _get_module_objects(self) -> List[ModuleObjectsTable]:
+        module_objects: List[ModuleObjectsTable] = self._module_object_repository.get_objects_in_time(
+            self._module.Module_ID,
+            self._timepoint,
+        )
 
-        if self._output_format == Format.ODT:
-            cmd = ['libreoffice', '--headless', '--convert-to', Format.ODT, html_path, '--outdir', '/tmp']
-            result = subprocess.run(cmd)
-            if result.returncode != 0:
-                raise HTTPException(500)
-            odt_path: str = self._generate_filename(Format.ODT)
-            return FileResponse(odt_path)
-
-        elif self._output_format == Format.DOC:
-            # Cant transform from html to doc, needs ODT as inbetween format
-            cmd = ['libreoffice', '--headless', '--convert-to', Format.ODT, html_path, '--outdir', '/tmp']
-            result = subprocess.run(cmd)
-            if result.returncode != 0:
-                raise HTTPException(500)
-            odt_path: str = self._generate_filename(Format.ODT)
-
-            cmd = ['libreoffice', '--headless', '--convert-to', Format.DOC, odt_path, '--outdir', '/tmp']
-            result = subprocess.run(cmd)
-            if result.returncode != 0:
-                raise HTTPException(500)
-            doc_path: str = self._generate_filename(Format.DOC)
-            return FileResponse(doc_path)
-
-        elif self._output_format == Format.DOCX:
-            # Cant transform from html to doc, needs ODT as inbetween format
-            cmd = ['libreoffice', '--headless', '--convert-to', Format.ODT, html_path, '--outdir', '/tmp']
-            result = subprocess.run(cmd)
-            if result.returncode != 0:
-                raise HTTPException(500)
-            odt_path: str = self._generate_filename(Format.ODT)
-
-            cmd = ['libreoffice', '--headless', '--convert-to', Format.DOCX, odt_path, '--outdir', '/tmp']
-            result = subprocess.run(cmd)
-            if result.returncode != 0:
-                raise HTTPException(500)
-            docx_path: str = self._generate_filename(Format.DOCX)
-            return FileResponse(
-                docx_path,
-                headers={
-                    'Content-Disposition': 'attachment;',
-                },
-            )
-
-        elif self._output_format == Format.PDF:
-            cmd = ['libreoffice', '--headless', '--convert-to', Format.PDF, html_path, '--outdir', '/tmp']
-            result = subprocess.run(cmd)
-            if result.returncode != 0:
-                raise HTTPException(500)
-            pdf_path: str = self._generate_filename(Format.PDF)
-            return FileResponse(pdf_path)
-
-        else: # html
-            return FileResponse(html_path)
-
-    def _generate_filename(self, file_format: Format) -> str:
-        return f"/tmp/module-{self._module.Module_ID}-at-{self._timepoint.strftime('%Y-%m-%d-%H%M%S')}.{file_format.value}"
+        return module_objects.all()
 
     def _generate_for_module_object(self, module_object: ModuleObjectsTable) -> str:
         response = []
@@ -174,19 +168,35 @@ class EndpointHandler:
             html_result = dmp.prettyHtml(diffs)
             response.append(html_result)
 
+        html_content = "".join(response)
+
+        # @todo: resolve modified assets (the <img> tag will have <ins> and <del> which should be resolved)
+
         # @todo: fix assets here (via event)
+        soup = BeautifulSoup(html_content, "html.parser")
+        for img in soup.find_all("img", src=re.compile("^\[ASSET")):
+            try:
+                asset_uuid = UUID(img["src"].split(":")[1][:-1])
+            except ValueError:
+                continue
 
-        return "".join(response)
+            asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(asset_uuid)
+            if not asset:
+                continue
 
-    def _get_module_objects(self) -> List[ModuleObjectsTable]:
-        module_objects: List[ModuleObjectsTable] = self._module_object_repository.get_objects_in_time(
+            img["src"] = asset.Content
+        html_content = str(soup)
+
+        return html_content
+
+    def _format_response(self, html_content: str) -> FileResponse:
+        formatter: Formatter = Formatter(
+            self._output_format,
             self._module.Module_ID,
             self._timepoint,
         )
-
-        # It was actually a ScalarResult but we need a list for sorting
-        # return module_objects.all()
-        return module_objects
+        response: FileResponse = formatter.format_response(html_content)
+        return response
 
 
 class ModuleDiffEndpoint(Endpoint):
@@ -196,16 +206,17 @@ class ModuleDiffEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             output_format: Format = Format.HTML,
-            # @todo: This should be here, but its easier to test without logging in
-            # user: UsersTable = Depends(depends_current_active_user),
+            user: UsersTable = Depends(depends_current_active_user),
             status: Optional[ModuleStatusHistoryTable] = Depends(depends_maybe_module_status_by_id),
             module: ModuleTable = Depends(depends_active_module),
             module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             object_repository: ObjectRepository = Depends(depends_object_repository),
+            asset_repository: AssetRepository = Depends(depends_asset_repository),
         ) -> FileResponse:
             handler: EndpointHandler = EndpointHandler(
                 module_object_repository,
                 object_repository,
+                asset_repository,
                 module,
                 status,
                 output_format,
