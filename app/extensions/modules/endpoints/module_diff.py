@@ -77,7 +77,7 @@ class EndpointHandler:
             response.append(f'<ins style="background:#e6ffe6;">{module_object.Description}</ins>')
         else:
             dmp = diff_match_patch.diff_match_patch()
-            diffs = dmp.diff_lineMode(module_object.Description, valid_object.Description, deadline=None)
+            diffs = dmp.diff_main(module_object.Description or '', valid_object.Description or '')
             html_result = dmp.diff_prettyHtml(diffs)
             response.append(html_result)
 
