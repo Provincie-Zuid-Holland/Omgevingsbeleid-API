@@ -56,6 +56,7 @@ class ModulesExtension(Extension):
             endpoints.ListModuleObjectsEndpointResolver(),
             endpoints.PublicListModulesEndpointResolver(),
             endpoints.PublicModuleOverviewEndpointResolver(),
+            endpoints.ModuleDiffEndpointResolver(),
         ]
 
     def register_models(self, models_resolver: ModelsResolver):

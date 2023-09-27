@@ -172,6 +172,9 @@ api:
         - resolver: module_patch_status
           resolver_data:
             path: /status
+        - resolver: module_diff
+          resolver_data:
+            path: /diff
         - resolver: module_add_new_object
           resolver_data:
             path: /add-new-object

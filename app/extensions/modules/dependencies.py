@@ -119,6 +119,17 @@ def depends_active_module_object_context(
     return maybe_context
 
 
+def depends_maybe_module_status_by_id(
+    status_id: Optional[int] = None,
+    module: ModuleTable = Depends(depends_module),
+    repository: ModuleStatusRepository = Depends(depends_module_status_repository),
+) -> Optional[ModuleStatusHistoryTable]:
+    if status_id is None:
+        return None
+    maybe_status: Optional[ModuleStatusHistoryTable] = repository.get_by_id(module.Module_ID, status_id)
+    return maybe_status
+
+
 def depends_module_status_by_id(
     status_id: int,
     module: ModuleTable = Depends(depends_module),
