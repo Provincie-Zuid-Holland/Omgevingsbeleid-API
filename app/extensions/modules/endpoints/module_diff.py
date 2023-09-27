@@ -1,9 +1,11 @@
 from datetime import datetime
+from enum import Enum
 from typing import List, Optional
+import subprocess
 
 import diff_match_patch
-from fastapi import APIRouter, Depends
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import FileResponse
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
@@ -23,6 +25,14 @@ from app.extensions.modules.dependencies import (
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
+
+
+class Format(str, Enum):
+    HTML = "html"
+    ODT = "odt"
+    DOC = "doc"
+    DOCX = "docx"
+    PDF = "pdf"
 
 
 class html_diff(diff_match_patch.diff_match_patch):
@@ -51,28 +61,92 @@ class EndpointHandler:
         self,
         module_object_repository: ModuleObjectRepository,
         object_repository: ObjectRepository,
-        user: UsersTable,
         module: ModuleTable,
         status: Optional[ModuleStatusHistoryTable],
+        output_format: Format,
     ):
         self._module_object_repository: ModuleObjectRepository = module_object_repository
         self._object_repository: ObjectRepository = object_repository
-        self._user: UsersTable = user
         self._module: ModuleTable = module
         self._status: Optional[ModuleStatusHistoryTable] = status
+        self._output_format: Format = output_format
+        self._timepoint: datetime = self._status.Created_Date if self._status is not None else datetime.utcnow()
 
-    def handle(self) -> HTMLResponse:
+    def handle(self) -> FileResponse:
         module_objects: List[ModuleObjectsTable] = self._get_module_objects()
         # module_objects.sort(key=lambda mo: mo.Code)
 
-        all_responses = []
+        contents = []
         for module_object in module_objects:
             object_response = self._generate_for_module_object(module_object)
             if object_response:
-                all_responses.append(object_response)
+                contents.append(object_response)
 
-        joined_response = '<br style="page-break-before: always">'.join(all_responses)
-        return joined_response
+        html_content = '<br style="page-break-before: always">'.join(contents)
+        as_response: FileResponse = self._format_response(html_content)
+        return as_response
+
+    def _format_response(self, html_content: str) -> FileResponse:
+        html_path: str = self._generate_filename(Format.HTML)
+        with open(html_path, 'w') as file:
+            file.write(html_content)
+
+        if self._output_format == Format.ODT:
+            cmd = ['libreoffice', '--headless', '--convert-to', Format.ODT, html_path, '--outdir', '/tmp']
+            result = subprocess.run(cmd)
+            if result.returncode != 0:
+                raise HTTPException(500)
+            odt_path: str = self._generate_filename(Format.ODT)
+            return FileResponse(odt_path)
+
+        elif self._output_format == Format.DOC:
+            # Cant transform from html to doc, needs ODT as inbetween format
+            cmd = ['libreoffice', '--headless', '--convert-to', Format.ODT, html_path, '--outdir', '/tmp']
+            result = subprocess.run(cmd)
+            if result.returncode != 0:
+                raise HTTPException(500)
+            odt_path: str = self._generate_filename(Format.ODT)
+
+            cmd = ['libreoffice', '--headless', '--convert-to', Format.DOC, odt_path, '--outdir', '/tmp']
+            result = subprocess.run(cmd)
+            if result.returncode != 0:
+                raise HTTPException(500)
+            doc_path: str = self._generate_filename(Format.DOC)
+            return FileResponse(doc_path)
+
+        elif self._output_format == Format.DOCX:
+            # Cant transform from html to doc, needs ODT as inbetween format
+            cmd = ['libreoffice', '--headless', '--convert-to', Format.ODT, html_path, '--outdir', '/tmp']
+            result = subprocess.run(cmd)
+            if result.returncode != 0:
+                raise HTTPException(500)
+            odt_path: str = self._generate_filename(Format.ODT)
+
+            cmd = ['libreoffice', '--headless', '--convert-to', Format.DOCX, odt_path, '--outdir', '/tmp']
+            result = subprocess.run(cmd)
+            if result.returncode != 0:
+                raise HTTPException(500)
+            docx_path: str = self._generate_filename(Format.DOCX)
+            return FileResponse(
+                docx_path,
+                headers={
+                    'Content-Disposition': 'attachment;',
+                },
+            )
+
+        elif self._output_format == Format.PDF:
+            cmd = ['libreoffice', '--headless', '--convert-to', Format.PDF, html_path, '--outdir', '/tmp']
+            result = subprocess.run(cmd)
+            if result.returncode != 0:
+                raise HTTPException(500)
+            pdf_path: str = self._generate_filename(Format.PDF)
+            return FileResponse(pdf_path)
+
+        else: # html
+            return FileResponse(html_path)
+
+    def _generate_filename(self, file_format: Format) -> str:
+        return f"/tmp/module-{self._module.Module_ID}-at-{self._timepoint.strftime('%Y-%m-%d-%H%M%S')}.{file_format.value}"
 
     def _generate_for_module_object(self, module_object: ModuleObjectsTable) -> str:
         response = []
@@ -89,6 +163,7 @@ class EndpointHandler:
         response.append(module_object.ModuleObjectContext.Conclusion)
         response.append(f"<h3>Inhoud</h3>")
 
+        # @todo: object types, and there fields should be supplied via the .yml
         if module_object.ModuleObjectContext.Action == "":
             response.append(f'<del style="background:#ffe6e6;">{valid_object.Description}</del>')
         elif valid_object is None:
@@ -99,17 +174,18 @@ class EndpointHandler:
             html_result = dmp.prettyHtml(diffs)
             response.append(html_result)
 
+        # @todo: fix assets here (via event)
+
         return "".join(response)
 
     def _get_module_objects(self) -> List[ModuleObjectsTable]:
-        before: datetime = self._status.Created_Date if self._status is not None else datetime.utcnow()
         module_objects: List[ModuleObjectsTable] = self._module_object_repository.get_objects_in_time(
             self._module.Module_ID,
-            before,
+            self._timepoint,
         )
 
-        # @todo: need to handle assets
-
+        # It was actually a ScalarResult but we need a list for sorting
+        # return module_objects.all()
         return module_objects
 
 
@@ -119,18 +195,20 @@ class ModuleDiffEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            user: UsersTable = Depends(depends_current_active_user),
+            output_format: Format = Format.HTML,
+            # @todo: This should be here, but its easier to test without logging in
+            # user: UsersTable = Depends(depends_current_active_user),
             status: Optional[ModuleStatusHistoryTable] = Depends(depends_maybe_module_status_by_id),
             module: ModuleTable = Depends(depends_active_module),
             module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             object_repository: ObjectRepository = Depends(depends_object_repository),
-        ) -> HTMLResponse:
+        ) -> FileResponse:
             handler: EndpointHandler = EndpointHandler(
                 module_object_repository,
                 object_repository,
-                user,
                 module,
                 status,
+                output_format,
             )
             return handler.handle()
 
@@ -141,7 +219,7 @@ class ModuleDiffEndpoint(Endpoint):
             summary=f"Get difference of module to Vigerend",
             description=None,
             tags=["Modules"],
-            response_class=HTMLResponse,
+            response_class=FileResponse,
         )
 
         return router
