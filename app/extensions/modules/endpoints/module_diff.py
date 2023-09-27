@@ -6,6 +6,9 @@ from enum import Enum
 from os import path
 from typing import List, Optional
 from uuid import UUID
+import base64
+from io import BytesIO
+from PIL import Image
 
 import diff_match_patch
 from bs4 import BeautifulSoup
@@ -80,6 +83,22 @@ class Formatter:
         return FileResponse(
             latest_path, headers={"Content-Disposition": f"attachment; filename={path.basename(latest_path)}"}
         )
+
+
+def thumbnail(base64_string):
+    prefix, base64_data = base64_string.split(';base64,')
+    file_format = prefix.split('/')[-1]  # Extract format (e.g., "png" from "data:image/png")
+
+    decoded_img = base64.b64decode(base64_data)
+
+    img = Image.open(BytesIO(decoded_img))
+    img.thumbnail((800, 600))
+
+    buffered = BytesIO()
+    img.save(buffered, format=file_format.upper())
+    resized_base64_data = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+    return f"{prefix};base64,{resized_base64_data}"
 
 
 class html_diff(diff_match_patch.diff_match_patch):
@@ -178,8 +197,8 @@ class EndpointHandler:
                 new_html_content = soup.prettify()
             except:
                 pass
-            old_html_content = old_html_content.splitlines()
-            new_html_content = new_html_content.splitlines()
+            old_html_content = [l.strip() for l in old_html_content.splitlines()]
+            new_html_content = [l.strip() for l in new_html_content.splitlines()]
             # diffs = dmp.diff_main(new_html_content, old_html_content)
             # html_result = dmp.prettyHtml(diffs)
             d = difflib.Differ()
@@ -215,8 +234,9 @@ class EndpointHandler:
             if not asset:
                 continue
 
-            img["src"] = asset.Content
-            img["style"] = "max-width: 500px; max-height: 500px; display: block;"
+            thumb = thumbnail(asset.Content)
+            img["src"] = thumb
+            img["style"] = "display: block;"
         html_content = str(soup)
 
         return html_content
