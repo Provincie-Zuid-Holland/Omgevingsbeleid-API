@@ -102,6 +102,7 @@ class html_diff(diff_match_patch.diff_match_patch):
         return "".join(html)
 
 
+
 class EndpointHandler:
     def __init__(
         self,
