@@ -34,4 +34,3 @@ fs
 pdfkit
 jinja2
 dicttoxml
-diff_match_patch

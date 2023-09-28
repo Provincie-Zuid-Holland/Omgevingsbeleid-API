@@ -10,7 +10,6 @@ import base64
 from io import BytesIO
 from PIL import Image
 
-import diff_match_patch
 from bs4 import BeautifulSoup
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
@@ -101,27 +100,6 @@ def thumbnail(base64_string):
     return f"{prefix};base64,{resized_base64_data}"
 
 
-class html_diff(diff_match_patch.diff_match_patch):
-    def prettyHtml(self, diffs):
-        """Convert a diff array into a pretty HTML report.
-
-        Args:
-          diffs: Array of diff tuples.
-
-        Returns:
-          HTML representation.
-        """
-        html = []
-        for op, text in diffs:
-            if op == self.DIFF_INSERT:
-                html.append('<ins style="background:#e6ffe6;">%s</ins>' % text)
-            elif op == self.DIFF_DELETE:
-                html.append('<del style="background:#ffe6e6;">%s</del>' % text)
-            elif op == self.DIFF_EQUAL:
-                html.append("<span>%s</span>" % text)
-        return "".join(html)
-
-
 class EndpointHandler:
     def __init__(
         self,
@@ -184,7 +162,6 @@ class EndpointHandler:
         elif valid_object is None:
             response.append(f'<ins style="background:#e6ffe6;">{module_object.Description}</ins>')
         else:
-            dmp = html_diff()
             old_html_content = valid_object.Description or ""
             try:
                 soup = BeautifulSoup(old_html_content, "html.parser")
@@ -202,8 +179,6 @@ class EndpointHandler:
                 pass
             old_html_content = [l.strip() for l in old_html_content.splitlines()]
             new_html_content = [l.strip() for l in new_html_content.splitlines()]
-            # diffs = dmp.diff_main(new_html_content, old_html_content)
-            # html_result = dmp.prettyHtml(diffs)
             d = difflib.Differ()
             diff = d.compare(new_html_content, old_html_content)
             diff_list = list(diff)
@@ -223,9 +198,6 @@ class EndpointHandler:
 
         html_content = "".join(response)
 
-        # @todo: resolve modified assets (the <img> tag will have <ins> and <del> which should be resolved)
-
-        # @todo: fix assets here (via event)
         soup = BeautifulSoup(html_content, "html.parser")
         for img in soup.find_all("img", src=re.compile("^\[ASSET")):
             try:

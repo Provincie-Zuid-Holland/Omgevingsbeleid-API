@@ -175,6 +175,33 @@ api:
         - resolver: module_diff
           resolver_data:
             path: /diff
+            objects:
+              - object_type: ambitie
+                content:
+                  - column: Description
+                    label: Omschrijving
+              - object_type: beleidsdoel
+                content:
+                  - column: Description
+                    label: Omschrijving
+              - object_type: beleidskeuze
+                content:
+                  - column: Description
+                    label: Wat wil de provincie bereiken?
+                  - column: Cause
+                    label: Aanleiding
+                  - column: Provincial_Interest
+                    label: Provinciaal belang
+                  - column: Explaination
+                    label: Toelichting
+              - object_type: maatregel
+                content:
+                  - column: Description
+                    label: Wat wil de provincie bereiken?
+                  - column: Role
+                    label: Rol
+                  - column: Explaination
+                    label: Toelichting
         - resolver: module_add_new_object
           resolver_data:
             path: /add-new-object

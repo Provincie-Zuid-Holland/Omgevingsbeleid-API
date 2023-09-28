@@ -11,6 +11,7 @@ from app.extensions.graph.graph_extension import GraphExtension
 from app.extensions.html_assets.html_assets_extension import HtmlAssetsExtension
 from app.extensions.lineage_resolvers.lineageresolvers_extension import LineageResolversExtension
 from app.extensions.modules.modules_extension import ModulesExtension
+from app.extensions.modules_diff.modules_diff_extension import ModulesDiffExtension
 from app.extensions.mssql_search.mssql_search_extension import MssqlSearchExtension
 from app.extensions.relations.relations_extension import RelationsExtension
 from app.extensions.users.users_extension import UsersExtension
@@ -32,6 +33,7 @@ app_builder.register_extension(GraphExtension())
 app_builder.register_extension(ModulesExtension())
 app_builder.register_extension(AcknowledgedRelationsExtension())
 app_builder.register_extension(HtmlAssetsExtension())
+app_builder.register_extension(ModulesDiffExtension())
 app_builder.register_extension(ChangeLoggerExtension())
 app_builder.register_extension(DatabaseMigrationExtension())
 
