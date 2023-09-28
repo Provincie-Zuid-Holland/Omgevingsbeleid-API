@@ -100,44 +100,31 @@ def thumbnail(base64_string):
     return f"{prefix};base64,{resized_base64_data}"
 
 
-
-
 def tokenize_html(html_text):
     soup = BeautifulSoup(html_text, 'lxml')
 
     tokens = []
 
-    def split_and_add(content):
-        # Split the text by ., \n, and :
-        segments = re.split(r'[.:\n]', content)
-        tokens.extend([s.strip() + '.' if s.endswith('.') else s.strip() for s in segments if s.strip()])
+    def process_text(text):
+        # Split by the specified delimiters while keeping the delimiter
+        segments = re.split(r'([.:\n])', text)
+        tokens.extend([segment for segment in segments if segment.strip()])
 
-    def process_tag(tag):
-        # Check if the tag is 'html' or 'body'. If it is, skip it.
-        if tag.name in ['html', 'body']:
-            for child in tag.children:
-                if isinstance(child, Tag):
-                    process_tag(child)
-            return
-
-        # Add opening tag to tokens
-        tokens.append(f"<{tag.name}>")
-
-        for child in tag.children:
-            if isinstance(child, Tag):
-                process_tag(child)
-            elif isinstance(child, NavigableString) and child.string.strip():
-                # Split the text inside the tag by ., \n, and :
-                split_and_add(child.string)
-
-        # Add closing tag to tokens
-        tokens.append(f"</{tag.name}>")
+    def process_node(node):
+        if isinstance(node, Tag):
+            if node.name not in ["body", "html"]:
+                start_tag = str(node).split('>')[0] + '>'
+                tokens.append(start_tag)
+                # tokens.append(f"<{node.name}>")
+            for child in node.children:
+                process_node(child)
+            if node.name not in ["body", "html", "img", "br", "input", "hr", "meta", "link", 'source', 'track']:
+                tokens.append(f"</{node.name}>")
+        elif isinstance(node, NavigableString):
+            process_text(node.string)
 
     for content in soup.contents:
-        if isinstance(content, Tag):
-            process_tag(content)
-        elif isinstance(content, NavigableString) and content.string.strip():
-            split_and_add(content.string)
+        process_node(content)
 
     return tokens
 
