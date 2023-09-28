@@ -92,7 +92,7 @@ def thumbnail(base64_string):
     decoded_img = base64.b64decode(base64_data)
 
     img = Image.open(BytesIO(decoded_img))
-    img.thumbnail((800, 1200))
+    img.thumbnail((700, 1100))
 
     buffered = BytesIO()
     img.save(buffered, format=file_format.upper())
@@ -188,6 +188,7 @@ class EndpointHandler:
             try:
                 soup = BeautifulSoup(old_html_content, "html.parser")
                 old_html_content = soup.prettify()
+                old_html_content = re.sub(r'(?<!\n)<br />', '\n<br />', old_html_content)
             except:
                 pass
 
@@ -195,6 +196,7 @@ class EndpointHandler:
             try:
                 soup = BeautifulSoup(new_html_content, "html.parser")
                 new_html_content = soup.prettify()
+                new_html_content = re.sub(r'(?<!\n)<br />', '\n<br />', new_html_content)
             except:
                 pass
             old_html_content = [l.strip() for l in old_html_content.splitlines()]
