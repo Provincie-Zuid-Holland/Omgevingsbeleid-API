@@ -107,18 +107,18 @@ def tokenize_html(html_text):
 
     def process_text(text):
         # Split by the specified delimiters while keeping the delimiter
-        segments = re.split(r'([.:\n\t])', text)
-        tokens.extend([segment for segment in segments if segment.strip()])
+        segments = re.split(r'(?<=[.:\t\n ])', text)
+        tokens.extend([segment for segment in segments if segment.strip() or segment == ' '])
 
     def process_node(node):
         if isinstance(node, Tag):
-            if node.name not in ["body", "html"]:
-                start_tag = str(node).split('>')[0] + '>'
-                tokens.append(start_tag)
-                # tokens.append(f"<{node.name}>")
+            # Start tag with its attributes
+            start_tag = str(node).split('>')[0] + '>'
+            tokens.append(start_tag)
             for child in node.children:
                 process_node(child)
-            if node.name not in ["body", "html"] and not node.is_empty_element:
+            # End tag, but only for tags that are not self-closing
+            if not node.isSelfClosing:
                 tokens.append(f"</{node.name}>")
         elif isinstance(node, NavigableString):
             process_text(node.string)

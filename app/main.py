@@ -21,7 +21,7 @@ async def health_check():
     health_info = {
         "status": "healthy",
         "database": "ok",
-        "version": "1",
+        "version": "2",
     }
 
     try:
