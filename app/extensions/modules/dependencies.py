@@ -127,6 +127,9 @@ def depends_maybe_module_status_by_id(
     if status_id is None:
         return None
     maybe_status: Optional[ModuleStatusHistoryTable] = repository.get_by_id(module.Module_ID, status_id)
+    # Giving a status_id is optional, but if you give a status_id then it must exist
+    if not maybe_status:
+        raise HTTPException(status_code=404, detail="Module status niet gevonden")
     return maybe_status
 
 

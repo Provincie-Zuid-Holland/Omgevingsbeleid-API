@@ -171,6 +171,7 @@ class EndpointHandler:
 
         response.append(f"<h2>{module_object.Title}</h2>")
         response.append(f"<p>Object Type: {module_object.Object_Type}</p>")
+        response.append(f"<p>Object ID: {module_object.Object_ID}</p>")
         response.append(f"<h3>Toelichting</h3>")
         response.append(module_object.ModuleObjectContext.Explanation)
         response.append(f"<h3>Conclusie</h3>")
