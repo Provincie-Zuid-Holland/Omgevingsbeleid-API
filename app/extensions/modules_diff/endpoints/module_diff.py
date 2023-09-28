@@ -10,7 +10,7 @@ import base64
 from io import BytesIO
 from PIL import Image
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString, Tag
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 
@@ -100,6 +100,48 @@ def thumbnail(base64_string):
     return f"{prefix};base64,{resized_base64_data}"
 
 
+
+
+def tokenize_html(html_text):
+    soup = BeautifulSoup(html_text, 'lxml')
+
+    tokens = []
+
+    def split_and_add(content):
+        # Split the text by ., \n, and :
+        segments = re.split(r'[.:\n]', content)
+        tokens.extend([s.strip() + '.' if s.endswith('.') else s.strip() for s in segments if s.strip()])
+
+    def process_tag(tag):
+        # Check if the tag is 'html' or 'body'. If it is, skip it.
+        if tag.name in ['html', 'body']:
+            for child in tag.children:
+                if isinstance(child, Tag):
+                    process_tag(child)
+            return
+
+        # Add opening tag to tokens
+        tokens.append(f"<{tag.name}>")
+
+        for child in tag.children:
+            if isinstance(child, Tag):
+                process_tag(child)
+            elif isinstance(child, NavigableString) and child.string.strip():
+                # Split the text inside the tag by ., \n, and :
+                split_and_add(child.string)
+
+        # Add closing tag to tokens
+        tokens.append(f"</{tag.name}>")
+
+    for content in soup.contents:
+        if isinstance(content, Tag):
+            process_tag(content)
+        elif isinstance(content, NavigableString) and content.string.strip():
+            split_and_add(content.string)
+
+    return tokens
+
+
 class EndpointHandler:
     def __init__(
         self,
@@ -162,23 +204,32 @@ class EndpointHandler:
         elif valid_object is None:
             response.append(f'<ins style="background:#e6ffe6;">{module_object.Description}</ins>')
         else:
+            # old_html_content = valid_object.Description or ""
+            # try:
+            #     soup = BeautifulSoup(old_html_content, "html.parser")
+            #     old_html_content = soup.prettify()
+            #     old_html_content = re.sub(r'(?<!\n)<br />', '\n<br />', old_html_content)
+            #     old_html_content = old_html_content.replace("\t", "\n\t\n").replace("\n\n\t\n", "\n\t\n")
+            # except:
+            #     pass
+
+            # new_html_content = module_object.Description or ""
+            # try:
+            #     soup = BeautifulSoup(new_html_content, "html.parser")
+            #     new_html_content = soup.prettify()
+            #     new_html_content = re.sub(r'(?<!\n)<br />', '\n<br />', new_html_content)
+            #     new_html_content = new_html_content.replace("\t", "\n\t\n").replace("\n\n\t\n", "\n\t\n")
+            # except:
+            #     pass
+            # old_html_content = [l.strip() for l in old_html_content.splitlines()]
+            # new_html_content = [l.strip() for l in new_html_content.splitlines()]
+
             old_html_content = valid_object.Description or ""
-            try:
-                soup = BeautifulSoup(old_html_content, "html.parser")
-                old_html_content = soup.prettify()
-                old_html_content = re.sub(r'(?<!\n)<br />', '\n<br />', old_html_content)
-            except:
-                pass
+            old_html_content = tokenize_html(old_html_content)
 
             new_html_content = module_object.Description or ""
-            try:
-                soup = BeautifulSoup(new_html_content, "html.parser")
-                new_html_content = soup.prettify()
-                new_html_content = re.sub(r'(?<!\n)<br />', '\n<br />', new_html_content)
-            except:
-                pass
-            old_html_content = [l.strip() for l in old_html_content.splitlines()]
-            new_html_content = [l.strip() for l in new_html_content.splitlines()]
+            new_html_content = tokenize_html(new_html_content)
+
             d = difflib.Differ()
             diff = d.compare(new_html_content, old_html_content)
             diff_list = list(diff)
