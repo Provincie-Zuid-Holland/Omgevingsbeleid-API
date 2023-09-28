@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 import sys
 
@@ -14,6 +15,7 @@ from app.core.db.session import SessionLocal
 from app.core.settings import settings
 
 app: FastAPI = dynamic_app.run()
+build_datetime: datetime = datetime.utcnow()
 
 
 @app.get("/health")
@@ -21,7 +23,8 @@ async def health_check():
     health_info = {
         "status": "healthy",
         "database": "ok",
-        "version": "2",
+        "version": "3",
+        "build": str(build_datetime),
     }
 
     try:

@@ -218,7 +218,7 @@ class EndpointHandler:
             new_html_content = tokenize_html(new_html_content)
 
             d = difflib.Differ()
-            diff = d.compare(new_html_content, old_html_content)
+            diff = d.compare(old_html_content, new_html_content)
             diff_list = list(diff)
             result = []
             for d in diff_list:
