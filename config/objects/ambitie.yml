@@ -92,7 +92,7 @@ api:
         - resolver: module_object_version
           resolver_data:
             response_model: ambitie_full
-            atleast_status: 'Ontwerp GS'
+            minimum_status: 'Ontwerp GS'
             require_auth: False
 
 fields:
