@@ -14,7 +14,8 @@ from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTab
 from app.extensions.modules.dependencies import depends_active_module, depends_module_object_by_uuid_curried
 from app.extensions.modules.event.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.extensions.modules.models.models import ModuleStatusCode
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user, optional_user
 
 
 class ModuleObjectVersionEndpoint(Endpoint):
@@ -26,7 +27,7 @@ class ModuleObjectVersionEndpoint(Endpoint):
         object_type: str,
         response_model: Model,
         require_auth: bool,
-        atleast_status: Optional[ModuleStatusCode],
+        minimum: Optional[ModuleStatusCode],
     ):
         self._endpoint_id: str = endpoint_id
         self._path: str = path
@@ -35,17 +36,19 @@ class ModuleObjectVersionEndpoint(Endpoint):
         self._response_model: Model = response_model
         self._response_type: Type[pydantic.BaseModel] = response_model.pydantic_model
         self._require_auth: bool = require_auth
-        self._atleast_status: Optional[ModuleStatusCode] = atleast_status
+        self._minimum_status: Optional[ModuleStatusCode] = minimum
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
+            user: UsersTable = Depends(optional_user),
             module: ModuleTable = Depends(depends_active_module),
             module_object: ModuleObjectsTable = Depends(depends_module_object_by_uuid_curried(self._object_type)),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
         ) -> self._response_type:
-            if self._atleast_status:
-                if module.Current_Status not in ModuleStatusCode.after(self._atleast_status):
+            if not user and self._minimum_status:
+                if module.Current_Status not in ModuleStatusCode.after(self._minimum_status):
                     raise HTTPException(status_code=401, detail="module objects lacks the minimum status for view.")
+
             return self._handler(event_dispatcher, module_object)
 
         dependencies: Sequence[params.Depends] = []
@@ -114,13 +117,13 @@ class ModuleObjectVersionEndpointResolver(EndpointResolver):
 
         require_auth: bool = resolver_config.get("require_auth", True)
 
-        atleast_status: Optional[ModuleStatusCode] = None
-        requested_atleast_status: Optional[str] = resolver_config.get("atleast_status", None)
-        if requested_atleast_status:
+        minimum_status: Optional[ModuleStatusCode] = None
+        requested_minimum_status: Optional[str] = resolver_config.get("minimum_status", None)
+        if requested_minimum_status:
             try:
-                atleast_status = ModuleStatusCode(requested_atleast_status)
+                minimum_status = ModuleStatusCode(requested_minimum_status)
             except ValueError:
-                raise RuntimeError("Invalid module status code: {requested_atleast_status}")
+                raise RuntimeError("Invalid module status code: {requested_minimum_status}")
 
         return ModuleObjectVersionEndpoint(
             endpoint_id=self.get_id(),
@@ -129,5 +132,5 @@ class ModuleObjectVersionEndpointResolver(EndpointResolver):
             object_type=api.object_type,
             response_model=response_model,
             require_auth=require_auth,
-            atleast_status=atleast_status,
+            minimum=minimum_status,
         )

@@ -15,7 +15,7 @@ from app.extensions.users.model import TokenPayload
 from app.extensions.users.permission_service import PermissionService, main_permission_service
 from app.extensions.users.repository.user_repository import UserRepository
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"/login/access-token")
+reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login/access-token")
 
 
 def require_auth(_: str = Depends(reusable_oauth2)):
@@ -34,29 +34,59 @@ def depends_current_user(
     token: str = Depends(reusable_oauth2),
     user_repository: UserRepository = Depends(depends_user_repository),
 ) -> UsersTable:
+    """
+    Adds authentication to an endpoint, makes bearer token required and validates
+    the corresponding user.
+    """
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenPayload(**payload)
-    except (jwt.JWTError, ValidationError) as err:
+    except (jwt.JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Kan inloggegevens niet valideren",
+            detail="Could not validate authorization token",
         )
 
-    user_uuid: str = token_data.sub
-    as_uuid: UUID = UUID(user_uuid)
-    maybe_user: Optional[UsersTable] = user_repository.get_by_uuid(as_uuid)
-    if not maybe_user:
-        raise HTTPException(status_code=404, detail="Gebruiker niet gevonden")
+    user: Optional[UsersTable] = user_repository.get_by_uuid(UUID(token_data.sub))
+    if not user:
+        raise HTTPException(status_code=404, detail="Token valid, but no matching user found.")
 
-    return maybe_user
+    return user
+
+
+def optional_user(
+    token: str = Depends(OAuth2PasswordBearer(tokenUrl="/login/access-token", auto_error=False)),
+    user_repository: UserRepository = Depends(depends_user_repository),
+) -> Optional[UsersTable]:
+    """
+    Copy of depends_current_user, but allows logged in AND logged out users.
+    It uses same oauth method redefined but prevents throwing unauthorized exception in
+    middleware layer to allow handling here in dependency.
+    """
+    if not token:
+        return None
+
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        token_data = TokenPayload(**payload)
+    except (jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate authorization token",
+        )
+
+    user: Optional[UsersTable] = user_repository.get_by_uuid(UUID(token_data.sub))
+    if not user:
+        raise HTTPException(status_code=404, detail="Token valid, but no matching user found.")
+
+    return user
 
 
 def depends_current_active_user(
     current_user: UsersTable = Depends(depends_current_user),
 ) -> UsersTable:
     if not current_user.IsActive:
-        raise HTTPException(status_code=400, detail="Gebruiker is inactief")
+        raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
