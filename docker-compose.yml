@@ -1,0 +1,58 @@
+version: '3.3'
+
+services:
+
+  api:
+    build:
+      context: ./
+      dockerfile: ./docker/api/Dockerfile
+    ports:
+      - "8000:80"
+      - "5678:5678" # Debug app port
+      - "5679:5679" # Debug DAP adapter port
+    volumes:
+      - ./:/code
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_DRIVER: ODBC Driver 17 for SQL Server
+      JWT_SECRET: secret
+      DEBUG_MODE: True
+      SQLALCHEMY_DATABASE_URI: ""
+      PYTHONPATH: "/code"
+    restart: "no"
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
+
+  mssql:
+    image: reynier3mil/centos-mssql-full
+    ports:
+      - "11433:1433"
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: 'Passw0rd'
+    volumes:
+      - mssql:/var/opt/mssql
+      - ./docker/mssql/:/opt/sql/:ro
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT 1" -b -o /dev/null
+      interval: 1s
+      timeout: 3s
+      retries: 10
+      start_period: 1s
+    restart: "no"
+
+  # mailhog:
+  #   image: mailhog/mailhog
+  #   ports:
+  #     - "8025:8025"
+  #     - "1025:1025"
+  #   restart: "no"
+
+volumes:
+  mssql:
