@@ -19,7 +19,7 @@ from app.extensions.users.dependencies import depends_current_active_user
 
 
 class ModuleObjectShortStatus(ModuleObjectShort):
-    Status: ModuleStatusCode
+    Status: str
 
 
 class ListModuleObjectsEndpoint(Endpoint):

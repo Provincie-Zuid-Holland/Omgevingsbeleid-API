@@ -94,6 +94,7 @@ if __name__ == "__main__":
     logger.info("Socket serving debug Application: ", host, port)
     logger.info("DAP server listening on socket: ", host, dap_port)
     import debugpy
+
     debugpy.listen((host, dap_port))
 
     uvicorn.run(app, host=host, port=port)

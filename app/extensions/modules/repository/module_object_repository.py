@@ -165,7 +165,7 @@ class ModuleObjectRepository(BaseRepository):
             or_(
                 ObjectStaticsTable.Owner_1_UUID == owner_uuid,
                 ObjectStaticsTable.Owner_2_UUID == owner_uuid,
-            )
+            ).self_group()
             if owner_uuid is not None
             else None,
             ModuleObjectsTable.Object_Type == object_type if object_type is not None else None,

@@ -9,7 +9,6 @@ from sqlalchemy.sql.expression import or_, select
 
 from app.core.db.base import Base
 from app.core.db.mixins import SerializerMixin, TimeStamped, UserMetaData
-from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.users.db.tables import UsersTable
 
 
@@ -31,10 +30,10 @@ class ModuleBaseColumns(TimeStamped, UserMetaData):
         return None if not self.status_history else self.status_history[-1]
 
     @hybrid_property
-    def Current_Status(self) -> Optional[ModuleStatusCode]:
+    def Current_Status(self) -> Optional[str]:
         if not self.status_history:
             return None
-        return ModuleStatusCode(self.status_history[-1].Status)
+        return self.status_history[-1].Status
 
     @Current_Status.expression
     def Current_Status(cls):

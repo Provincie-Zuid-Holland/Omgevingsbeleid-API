@@ -25,7 +25,7 @@ from app.extensions.modules.dependencies import (
     depends_module_status_repository,
 )
 from app.extensions.modules.event.module_status_changed_event import ModuleStatusChangedEvent
-from app.extensions.modules.models.models import ModuleObjectAction
+from app.extensions.modules.models.models import ModuleObjectAction, ModuleStatusCodeInternal
 from app.extensions.modules.permissions import guard_module_is_locked, guard_status_must_be_vastgesteld
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.modules.repository.module_status_repository import ModuleStatusRepository
@@ -177,7 +177,7 @@ class EndpointHandler:
     def _patch_status(self) -> ModuleStatusHistoryTable:
         status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
             Module_ID=self._module.Module_ID,
-            Status="Module afgerond",
+            Status=ModuleStatusCodeInternal.Module_afgerond,
             Created_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
         )

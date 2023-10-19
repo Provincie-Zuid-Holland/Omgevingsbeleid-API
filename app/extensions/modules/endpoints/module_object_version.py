@@ -14,8 +14,8 @@ from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTab
 from app.extensions.modules.dependencies import depends_active_module, depends_module_object_by_uuid_curried
 from app.extensions.modules.event.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.extensions.modules.models.models import ModuleStatusCode
-from app.extensions.users.dependencies import depends_current_active_user, depends_current_user, optional_user
 from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user, optional_user
 
 
 class ModuleObjectVersionEndpoint(Endpoint):

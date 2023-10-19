@@ -13,7 +13,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
-from app.extensions.modules.models.models import ModuleStatusCode
+from app.extensions.modules.models.models import ModuleStatusCodeInternal
 from app.extensions.modules.permissions import ModulesPermissions
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
@@ -69,7 +69,7 @@ class EndpointHandler:
         )
 
         status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
-            Status=ModuleStatusCode.Niet_Actief,
+            Status=ModuleStatusCodeInternal.Niet_Actief,
             Created_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
         )

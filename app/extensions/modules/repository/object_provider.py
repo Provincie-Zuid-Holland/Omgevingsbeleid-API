@@ -29,7 +29,7 @@ class ObjectProvider:
         return None
 
     def list_object_versions_in_progress(self, object_uuid: UUID):
-        MINIMUM_STATUS = ModuleStatusCode.Ontwerp_PS
+        minimum_status = ModuleStatusCode.Ontwerp_PS
 
         valid_obj = self._object_repository.get_by_uuid(object_uuid)
 
@@ -37,5 +37,5 @@ class ObjectProvider:
             raise ValueError(f"No valid object found for UUID: {object_uuid}")
 
         return self._module_object_repository.get_latest_filtered(
-            code=valid_obj.Code, minimum_status=MINIMUM_STATUS, is_active=True
+            code=valid_obj.Code, minimum_status=minimum_status, is_active=True
         )
