@@ -61,7 +61,7 @@ def guard_valid_user(
 
 
 def guard_status_must_be_vastgesteld(module: ModuleTable):
-    status: Optional[ModuleStatusCode] = module.Current_Status
+    status: Optional[str] = module.Current_Status
 
     if status is None:
         raise HTTPException(400, "Deze module heeft geen status")
