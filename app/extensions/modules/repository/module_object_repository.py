@@ -50,8 +50,9 @@ class ModuleObjectRepository(BaseRepository):
         )
         return self.fetch_first(stmt)
 
-    def get_objects_in_time(self, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
-        subq = (
+    @staticmethod
+    def _build_snapshot_objects_query(module_id: int, before: datetime):
+        return (
             select(
                 ModuleObjectsTable,
                 func.row_number()
@@ -64,9 +65,10 @@ class ModuleObjectRepository(BaseRepository):
             .select_from(ModuleObjectsTable)
             .filter(ModuleObjectsTable.Module_ID == module_id)
             .filter(ModuleObjectsTable.Modified_Date < before)
-            .subquery()
         )
 
+    def get_objects_in_time(self, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
+        subq = self._build_snapshot_objects_query(module_id, before).subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
         stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).filter(subq.c.Deleted == False)
 
