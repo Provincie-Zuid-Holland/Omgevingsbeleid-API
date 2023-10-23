@@ -1,8 +1,8 @@
-from typing import List, Optional
-from uuid import UUID
+from typing import List
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
+from shapely import wkt
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
@@ -12,60 +12,46 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, PaginatedQueryResult, SortedPagination
 from app.extensions.werkingsgebieden.dependencies import depends_werkingsgebieden_repository
-from app.extensions.werkingsgebieden.models.models import GeoSearchResult
+from app.extensions.werkingsgebieden.models.models import GeometryFunctions, GeoSearchResult
 from app.extensions.werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
 
 
-class SearchGeoRequestData(BaseModel):
-    Object_Types: Optional[List[str]]
-    Area_List: List[UUID]
+class ListObjectsByGeometryRequestData(BaseModel):
+    Geometry: str
+    Function: GeometryFunctions = Field(GeometryFunctions.OVERLAPS)
+    Object_Types: List[str] = Field([])
 
-    class Config:
-        arbitrary_types_allowed = True
-
-    @validator("Area_List")
+    @validator("Geometry")
     def valid_area_list(cls, v):
-        if len(v) < 1:
-            raise ValueError("area_list requires at least 1 uuid")
-        if len(v) > 300:
-            raise ValueError("area_list is too large, max 300 items")
-        return v
+        try:
+            geom = wkt.loads(v)
+            # Ok
+            if geom.geom_type == "Polygon":
+                return v
 
-    @validator("Object_Types")
-    def allowed_object_type(cls, v):
-        # TODO: Config?
-        allowed = [
-            "ambitie",
-            "beleidsdoel",
-            "beleidskeuze",
-            "beleidsregel",
-            "maatregel",
-            "gebiedsprogramma",
-        ]
-
-        for obj_type in v:
-            if obj_type not in allowed:
-                raise ValueError(f"object types allowed: {str(allowed)}")
-
-        return v
+            raise ValueError("Geometry is not a valid shape")
+        except Exception as e:
+            raise ValueError("Geometry is not a valid shape")
 
 
-class ListObjectsInGeoEndpoint(Endpoint):
-    def __init__(self, path: str, order_config: OrderConfig):
+class ListObjectsByGeometryEndpoint(Endpoint):
+    def __init__(self, path: str, order_config: OrderConfig, allowed_object_types: List[str]):
         self._path: str = path
         self._order_config: OrderConfig = order_config
+        self._allowed_object_types: List[str] = allowed_object_types
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            object_in: SearchGeoRequestData,
+            object_in: ListObjectsByGeometryRequestData,
             pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
             repository: WerkingsgebiedenRepository = Depends(depends_werkingsgebieden_repository),
         ) -> PagedResponse[GeoSearchResult]:
             return self._handler(
                 repository=repository,
-                area_list=object_in.Area_List,
-                object_types=object_in.Object_Types,
                 pagination=pagination,
+                object_in=object_in,
+                order_config=self._order_config,
+                allowed_object_types=self._allowed_object_types,
             )
 
         router.add_api_route(
@@ -73,7 +59,7 @@ class ListObjectsInGeoEndpoint(Endpoint):
             fastapi_handler,
             methods=["POST"],
             response_model=PagedResponse[GeoSearchResult],
-            summary=f"List the objects active in werkingsgebieden",
+            summary=f"List the objects in werkingsgebieden by a geometry",
             description=None,
             tags=["Search"],
         )
@@ -83,13 +69,19 @@ class ListObjectsInGeoEndpoint(Endpoint):
     def _handler(
         self,
         repository: WerkingsgebiedenRepository,
-        area_list: List[UUID],
         pagination: SortedPagination,
-        object_types: List[str] = None,
+        object_in: ListObjectsByGeometryRequestData,
+        order_config: OrderConfig,
+        allowed_object_types: List[str],
     ) -> PagedResponse[GeoSearchResult]:
-        # TODO: add object_type validation
-        paginated_result: PaginatedQueryResult = repository.get_latest_in_area(
-            in_area=area_list,
+        object_types: List[str] = object_in.Object_Types or allowed_object_types
+        for object_type in object_types:
+            if object_type not in allowed_object_types:
+                raise ValueError(f"Allowed Object_Types are: {allowed_object_types}")
+
+        paginated_result: PaginatedQueryResult = repository.get_latest_by_geometry(
+            geometry=object_in.Geometry,
+            function=object_in.Function,
             object_types=object_types,
             pagination=pagination,
         )
@@ -112,9 +104,9 @@ class ListObjectsInGeoEndpoint(Endpoint):
         )
 
 
-class ListObjectsInGeoEndpointResolver(EndpointResolver):
+class ListObjectsByGeometryEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "list_objects_in_werkingsgebieden"
+        return "list_objects_by_geometry"
 
     def generate_endpoint(
         self,
@@ -128,7 +120,12 @@ class ListObjectsInGeoEndpointResolver(EndpointResolver):
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
-        return ListObjectsInGeoEndpoint(
+        allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
+        if not allowed_object_types:
+            raise RuntimeError("Missing required config allowed_object_types")
+
+        return ListObjectsByGeometryEndpoint(
             path=path,
             order_config=order_config,
+            allowed_object_types=allowed_object_types,
         )

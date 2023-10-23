@@ -30,6 +30,7 @@ class WerkingsgebiedenExtension(Extension):
         return [
             endpoints.ListWerkingsgebiedenEndpointResolver(),
             endpoints.ListObjectsInGeoEndpointResolver(),
+            endpoints.ListObjectsByGeometryEndpointResolver(),
         ]
 
     def register_listeners(

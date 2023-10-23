@@ -94,6 +94,18 @@ api:
         - resolver: list_objects_in_werkingsgebieden
           resolver_data:
             sort: *sort_default_title
+    - prefix: /search/geometry
+      endpoints:
+        - resolver: list_objects_by_geometry
+          resolver_data:
+            sort: *sort_default_title
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - beleidsregel
+              - maatregel
+              - gebiedsprogramma
     - prefix: /search
       endpoints:
         - resolver: mssql_search
