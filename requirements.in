@@ -16,6 +16,7 @@ bcrypt
 diff-match-patch
 pytz
 validators
+shapely
 
 # Command
 Click
