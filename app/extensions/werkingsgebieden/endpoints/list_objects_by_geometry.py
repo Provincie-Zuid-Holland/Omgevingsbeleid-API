@@ -12,7 +12,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, PaginatedQueryResult, SortedPagination
 from app.extensions.werkingsgebieden.dependencies import depends_werkingsgebieden_repository
-from app.extensions.werkingsgebieden.models.models import GeometryFunctions, GeoSearchResult
+from app.extensions.werkingsgebieden.models.models import VALID_GEOMETRIES, GeometryFunctions, GeoSearchResult
 from app.extensions.werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
 
 
@@ -25,8 +25,7 @@ class ListObjectsByGeometryRequestData(BaseModel):
     def valid_area_list(cls, v):
         try:
             geom = wkt.loads(v)
-            # Ok
-            if geom.geom_type == "Polygon":
+            if geom.geom_type in VALID_GEOMETRIES:
                 return v
 
             raise ValueError("Geometry is not a valid shape")
