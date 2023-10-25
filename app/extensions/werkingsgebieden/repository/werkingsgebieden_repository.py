@@ -11,7 +11,7 @@ from app.dynamic.db.objects_table import ObjectsTable
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination, query_paginated
 from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
-from app.extensions.werkingsgebieden.models.models import GeometryFunctions
+from app.extensions.werkingsgebieden.models.models import VALID_GEOMETRIES, GeometryFunctions
 
 SPATIAL_FUNCTION_MAP = {
     GeometryFunctions.CONTAINS: "STContains",
@@ -81,7 +81,7 @@ class WerkingsgebiedenRepository(BaseRepository):
         # Better be safe
         try:
             geom = wkt.loads(geometry)
-            if geom.geom_type != "Polygon":
+            if geom.geom_type not in VALID_GEOMETRIES:
                 raise RuntimeError("Geometry is not a valid shape")
         except Exception as e:
             raise RuntimeError("Geometry is not a valid shape")
