@@ -1,0 +1,251 @@
+id: visie_algemeen
+object_type: visie_algemeen
+
+sort_allowed_columns: &sort_allowed_columns
+  - Object_ID
+  - Title
+  - Modified_Date
+
+sort_default_title: &sort_default_title
+  default:
+    column: Title
+    order: asc
+  allowed_columns: *sort_allowed_columns
+
+sort_default_modified_date: &sort_default_modified_date
+  default:
+    column: Modified_Date
+    order: desc
+  allowed_columns: *sort_allowed_columns
+
+api:
+  routers:
+    - prefix: /visies-algemeen
+      endpoints:
+        - resolver: valid_list_lineages
+          resolver_data:
+            path: /valid
+            response_model: visie_algemeen_basic
+            allowed_filter_columns:
+              - Title
+            sort: *sort_default_title
+        - resolver: valid_list_lineage_tree
+          resolver_data:
+            path: /valid/{lineage_id}
+            response_model: visie_algemeen_basic
+            allowed_filter_columns:
+              - Title
+            sort: *sort_default_modified_date
+        - resolver: object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: visie_algemeen_full
+        - resolver: object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: visie_algemeen_full
+    - prefix: /visie-algemeen/static/{lineage_id}
+      endpoints:
+        - resolver: edit_object_static
+          resolver_data:
+            request_model: visie_algemeen_static_post
+            result_model: visie_algemeen_static_post_validated
+    - prefix: /modules/{module_id}/object/visie-algemeen
+      endpoints:
+        - resolver: module_patch_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: visie_algemeen_patch
+            response_model: visie_algemeen_uuid
+        - resolver: module_list_lineage_tree
+          resolver_data:
+            path: /{lineage_id}
+            response_model: visie_algemeen_extended
+            allowed_filter_columns:
+              - Title
+            sort: *sort_default_modified_date
+        - resolver: module_object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: visie_algemeen_full
+        - resolver: module_object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: visie_algemeen_full
+    - prefix: /modules/object/visie-algemeen
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+            response_model: visie_algemeen_minimal
+            sort: *sort_default_title
+    - prefix: /revisions/{module_id}/visie-algemeen/version/{object_uuid}
+      endpoints:
+        - resolver: module_object_version
+          resolver_data:
+            response_model: visie_algemeen_full
+            minimum_status: 'Ontwerp GS'
+            require_auth: False
+
+fields:
+  title:
+    name: Title
+    type: str
+    column: title
+  description:
+    name: Description
+    type: str
+    column: description
+  idms_link:
+    name: IDMS_Link
+    type: str
+    column: idms_link
+  decision_number:
+    name: Decision_Number
+    type: str
+    column: decision_number
+
+  # Statics
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    column: owner_1_uuid
+    optional: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    column: owner_2_uuid
+    optional: true
+
+models:
+  visie_algemeen_minimal:
+    name: VisieAlgemeenMinimal
+    fields:
+      object_type:
+      object_id:
+      uuid:
+      title:
+  visie_algemeen_basic:
+    name: VisieAlgemeenBasic
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      start_validity:
+      end_validity:
+  visie_algemeen_extended:
+    name: VisieAlgemeenExtended
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      start_validity:
+      end_validity:
+    services:
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: user_short
+          - to_field: Modified_By
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+  visie_algemeen_full:
+    name: VisieAlgemeenFull
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      description:
+      start_validity:
+      end_validity:
+    services:
+      insert_assets:
+        fields:
+          - Description
+      insert_computed_fields:
+        fields: 
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: user_short
+          - to_field: Modified_By
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+  visie_algemeen_patch:
+    name: VisieAlgemeenPatch
+    fields:
+      title:
+        default: none
+        optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        default: none
+        optional: true
+        validators:
+          - id: plain_text
+    services:
+      extract_assets:
+        fields:
+          - Description
+  visie_algemeen_static_post:
+    name: VisieAlgemeenStaticPost
+    static_only: true
+    fields:
+      owner_1_uuid:
+        default: none
+        optional: true
+      owner_2_uuid:
+        default: none
+        optional: true
+  visie_algemeen_static_post_validated:
+    name: VisieAlgemeenStaticPostValidated
+    static_only: true
+    root_validators:
+      - id: not_equal_root
+        data:
+          fields:
+            - Owner_1_UUID
+            - Owner_2_UUID
+          allow_none: True
+          error_message: Owners should vary
+    fields:
+      owner_1_uuid:
+      owner_2_uuid:
+        default: none
+        optional: true
+  visie_algemeen_uuid:
+    name: VisieAlgemeenUUID
+    fields:
+      object_id:
+      uuid:

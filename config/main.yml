@@ -194,6 +194,7 @@ api:
               - maatregel
               - beleidsregel
               - gebiedsprogramma
+              - visie_algemeen
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -204,6 +205,7 @@ api:
               - maatregel
               - beleidsregel
               - gebiedsprogramma
+              - visie_algemeen
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
