@@ -25,6 +25,9 @@ from app.extensions.users.dependencies import depends_current_active_user
 class ObjectStaticShort(BaseModel):
     Owner_1_UUID: Optional[uuid.UUID]
     Owner_2_UUID: Optional[uuid.UUID]
+    Portfolio_Holder_1_UUID: Optional[uuid.UUID]
+    Portfolio_Holder_2_UUID: Optional[uuid.UUID]
+    Client_1_UUID: Optional[uuid.UUID]
 
     class Config:
         orm_mode = True
