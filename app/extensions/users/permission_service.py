@@ -1,5 +1,5 @@
 import uuid
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 
 from fastapi import HTTPException
 
@@ -21,8 +21,11 @@ class PermissionService:
         self,
         permission: str,
         user: UsersTable,
-        whitelisted_uuids: List[uuid.UUID] = [],
+        whitelisted_uuids: List[Optional[uuid.UUID]] = [],
     ):
+        if user is None:
+            raise HTTPException(status_code=401, detail="Invalid user role")
+
         if user.UUID in whitelisted_uuids:
             return
 
