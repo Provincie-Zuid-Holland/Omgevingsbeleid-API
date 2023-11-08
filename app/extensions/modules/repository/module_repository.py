@@ -37,8 +37,11 @@ class ModuleRepository(BaseRepository):
                         ModuleTable.Module_Manager_2_UUID == mine,
                         ObjectStaticsTable.Owner_1_UUID == mine,
                         ObjectStaticsTable.Owner_2_UUID == mine,
-                    )
-                )
+                        ObjectStaticsTable.Portfolio_Holder_1_UUID == mine,
+                        ObjectStaticsTable.Portfolio_Holder_2_UUID == mine,
+                        ObjectStaticsTable.Client_1_UUID == mine,
+                    ).self_group()
+                ).self_group()
             )
 
         if object_code is not None:

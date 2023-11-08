@@ -121,6 +121,7 @@ api:
               - wettelijke_taak
               - nationaal_belang
               - verplicht_programma
+              - visie_algemeen
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
@@ -136,6 +137,7 @@ api:
               - wettelijke_taak
               - nationaal_belang
               - verplicht_programma
+              - visie_algemeen
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
@@ -397,6 +399,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -415,6 +418,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -432,6 +436,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -449,6 +454,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
   "Test runner":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -466,6 +472,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -483,6 +490,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
 
 modules_pdf_export:
   # prefixed by /config/
