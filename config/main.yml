@@ -121,6 +121,7 @@ api:
               - wettelijke_taak
               - nationaal_belang
               - verplicht_programma
+              - visie_algemeen
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
@@ -136,6 +137,7 @@ api:
               - wettelijke_taak
               - nationaal_belang
               - verplicht_programma
+              - visie_algemeen
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
