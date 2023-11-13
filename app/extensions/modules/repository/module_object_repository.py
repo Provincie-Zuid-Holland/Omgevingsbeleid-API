@@ -12,7 +12,7 @@ from app.dynamic.db.object_static_table import ObjectStaticsTable
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import SortedPagination
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
+from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode
 
 
@@ -105,7 +105,24 @@ class ModuleObjectRepository(BaseRepository):
         if is_active:
             filters.append(ModuleTable.is_active)  # Closed false + Activated true
         if status_filter is not None:
-            filters.append(ModuleTable.Current_Status.in_(status_filter))
+            # Subquery for the latest status per module
+            module_status_subq = select(
+                ModuleStatusHistoryTable.Module_ID,
+                ModuleStatusHistoryTable.Status,
+                func.row_number()
+                .over(partition_by=ModuleStatusHistoryTable.Module_ID, order_by=desc(ModuleStatusHistoryTable.ID))
+                .label("_StatusRowNumber"),
+            ).subquery()
+            # Update main query to include status subquery join
+            subq = subq.join(
+                module_status_subq,
+                and_(
+                    ModuleTable.Module_ID == module_status_subq.c.Module_ID, module_status_subq.c._StatusRowNumber == 1
+                ),
+            )
+            # Apply status filter
+            filters.append(module_status_subq.c.Status.in_(status_filter))
+
         if len(filters) > 0:
             subq = subq.filter(and_(*filters))
 
