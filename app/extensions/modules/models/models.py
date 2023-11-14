@@ -139,11 +139,11 @@ class PublicModuleShort(BaseModel):
 
 
 class PublicModuleStatusCode(str, Enum):
-    Ontwerp_GS = ModuleStatusCode.Ontwerp_GS
-    Definitief_Ontwerp_GS = ModuleStatusCode.Definitief_Ontwerp_GS
-    Ontwerp_PS = ModuleStatusCode.Ontwerp_PS
-    Definitief_Ontwerp_PS = ModuleStatusCode.Definitief_Ontwerp_PS
-    Vastgesteld = ModuleStatusCode.Vastgesteld
+    Ontwerp_GS = ModuleStatusCode.Ontwerp_GS.value
+    Definitief_Ontwerp_GS = ModuleStatusCode.Definitief_Ontwerp_GS.value
+    Ontwerp_PS = ModuleStatusCode.Ontwerp_PS.value
+    Definitief_Ontwerp_PS = ModuleStatusCode.Definitief_Ontwerp_PS.value
+    Vastgesteld = ModuleStatusCode.Vastgesteld.value
 
     @staticmethod
     def values():
