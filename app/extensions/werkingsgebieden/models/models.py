@@ -41,6 +41,8 @@ class GeometryFunctions(str, Enum):
     WITHIN = "WITHIN"
     # Determines in the geometry and Werkingsgebied overlap
     OVERLAPS = "OVERLAPS"
+    # If a geometry instance intersects another geometry instance
+    INTERSECTS = "INTERSECTS"
 
 
 VALID_GEOMETRIES = ["Polygon", "Point"]

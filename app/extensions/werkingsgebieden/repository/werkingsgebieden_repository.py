@@ -17,6 +17,7 @@ SPATIAL_FUNCTION_MAP = {
     GeometryFunctions.CONTAINS: "STContains",
     GeometryFunctions.WITHIN: "STWithin",
     GeometryFunctions.OVERLAPS: "STOverlaps",
+    GeometryFunctions.INTERSECTS: "STIntersects",
 }
 
 
