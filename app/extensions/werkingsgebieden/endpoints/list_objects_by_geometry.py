@@ -18,7 +18,7 @@ from app.extensions.werkingsgebieden.repository.werkingsgebieden_repository impo
 
 class ListObjectsByGeometryRequestData(BaseModel):
     Geometry: str
-    Function: GeometryFunctions = Field(GeometryFunctions.OVERLAPS)
+    Function: GeometryFunctions = Field(GeometryFunctions.INTERSECTS)
     Object_Types: List[str] = Field([])
 
     @validator("Geometry")
