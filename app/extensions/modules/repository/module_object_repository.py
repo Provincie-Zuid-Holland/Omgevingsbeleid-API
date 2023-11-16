@@ -101,6 +101,8 @@ class ModuleObjectRepository(BaseRepository):
             )
             .select_from(ModuleObjectsTable)
             .join(ModuleTable)
+            .join(ModuleObjectsTable.ModuleObjectContext)
+            .filter(ModuleObjectContextTable.Hidden == False)
         )
 
         filters = [ModuleObjectsTable.Code == code]
