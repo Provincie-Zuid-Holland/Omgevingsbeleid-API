@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import and_, desc, or_, select
+from sqlalchemy import and_, asc, desc, or_, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
 
@@ -96,7 +96,7 @@ class ModuleRepository(BaseRepository):
             .filter(subq.c._RowNumber == 1)
             .filter(ModuleTable.Closed == False)
             .filter(subq.c.Status.in_(PublicModuleStatusCode.values()))
-            .order_by(desc(ModuleTable.Module_ID))
+            .order_by(asc(ModuleTable.Closed), desc(ModuleTable.Modified_Date))
         )
 
         paged_result = self.fetch_paginated_no_scalars(
