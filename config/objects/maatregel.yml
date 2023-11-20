@@ -280,6 +280,12 @@ models:
       title:
         default: none
         optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
       description:
         default: none
         optional: true

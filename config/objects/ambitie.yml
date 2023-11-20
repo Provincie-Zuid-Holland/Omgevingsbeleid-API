@@ -255,7 +255,12 @@ models:
         default: none
         optional: true
         validators:
-          - id: plain_text
+          - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
     services:
       extract_assets:
         fields:
