@@ -63,8 +63,10 @@ class ModuleObjectRepository(BaseRepository):
                 .label("_RowNumber"),
             )
             .select_from(ModuleObjectsTable)
+            .join(ModuleObjectsTable.ModuleObjectContext)
             .filter(ModuleObjectsTable.Module_ID == module_id)
             .filter(ModuleObjectsTable.Modified_Date < before)
+            .filter(ModuleObjectContextTable.Hidden == False)
         )
 
     def get_objects_in_time(self, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
@@ -99,6 +101,8 @@ class ModuleObjectRepository(BaseRepository):
             )
             .select_from(ModuleObjectsTable)
             .join(ModuleTable)
+            .join(ModuleObjectsTable.ModuleObjectContext)
+            .filter(ModuleObjectContextTable.Hidden == False)
         )
 
         filters = [ModuleObjectsTable.Code == code]
@@ -172,6 +176,7 @@ class ModuleObjectRepository(BaseRepository):
             .join(ModuleTable)
             .join(ModuleObjectsTable.ObjectStatics)
             .join(ModuleObjectsTable.ModuleObjectContext)
+            .filter(ModuleObjectContextTable.Hidden == False)
         )
 
         # Build minimum status list starting at given status, if provided
