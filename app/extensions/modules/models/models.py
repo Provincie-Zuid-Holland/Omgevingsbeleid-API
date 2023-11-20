@@ -139,6 +139,7 @@ class PublicModuleShort(BaseModel):
 
 
 class PublicModuleStatusCode(str, Enum):
+    Ter_Inzage = ModuleStatusCode.Ter_Inzage.value
     Ontwerp_GS = ModuleStatusCode.Ontwerp_GS.value
     Definitief_Ontwerp_GS = ModuleStatusCode.Definitief_Ontwerp_GS.value
     Ontwerp_PS = ModuleStatusCode.Ontwerp_PS.value
