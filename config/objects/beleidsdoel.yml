@@ -209,6 +209,9 @@ models:
       start_validity:
       end_validity:
     services:
+      insert_assets:
+        fields:
+          - Description
       insert_computed_fields:
         fields: 
           - field_name: Public_Revisions
@@ -267,6 +270,15 @@ models:
         optional: true
         validators:
           - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
+    services:
+      extract_assets:
+        fields:
+          - Description
   beleidsdoel_static_post:
     name: BeleidsdoelStaticPost
     static_only: true

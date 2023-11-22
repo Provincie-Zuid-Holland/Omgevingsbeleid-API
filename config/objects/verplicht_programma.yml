@@ -163,6 +163,9 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
+      insert_assets:
+        fields:
+          - Description
   verplicht_programma_create:
     name: VerplichtProgrammaCreate
     fields:
@@ -176,9 +179,18 @@ models:
       description:
         optional: true
         validators:
-          - id: plain_text
+          - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
       owner_1_uuid:
       owner_2_uuid:
+    services:
+      extract_assets:
+        fields:
+          - Description
   verplicht_programma_edit:
     name: VerplichtProgrammaEdit
     fields:
@@ -195,7 +207,16 @@ models:
         default: none
         optional: true
         validators:
-          - id: plain_text
+          - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
+    services:
+      extract_assets:
+        fields:
+          - Description
   verplicht_programma_static_post:
     name: VerplichtProgrammaStaticPost
     static_only: true
