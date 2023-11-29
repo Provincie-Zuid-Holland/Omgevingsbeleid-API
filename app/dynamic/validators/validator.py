@@ -90,6 +90,11 @@ class HtmlValidator(Validator):
                 "span",
                 "sub",
                 "sup",
+                "table",
+                "tbody",
+                "tr",
+                "td",
+                "th",
             ]
         )
 
