@@ -130,6 +130,10 @@ fields:
     name: Decision_Number
     type: str
     column: decision_number
+  hierarchy_code:
+    name: Hierarchy_Code
+    type: str
+    column: hierarchy_code
 
   # Statics
   owner_1_uuid:
@@ -190,6 +194,7 @@ models:
       start_validity:
       end_validity:
       title:
+      hierarchy_code:
     services:
       foreign_keys_extender:
         fields_map:
@@ -226,6 +231,7 @@ models:
       description:
       role:
       effect:
+      hierarchy_code:
     services:
       insert_computed_fields:
         fields: 
@@ -312,6 +318,15 @@ models:
       gebied_uuid:
         default: none
         optional: true
+      hierarchy_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - beleidskeuze
+          - id: object_code_exists
     services:
       extract_assets:
         fields:

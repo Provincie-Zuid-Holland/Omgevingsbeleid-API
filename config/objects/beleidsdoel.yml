@@ -114,6 +114,10 @@ fields:
     name: Decision_Number
     type: str
     column: decision_number
+  hierarchy_code:
+    name: Hierarchy_Code
+    type: str
+    column: hierarchy_code
 
   # Statics
   owner_1_uuid:
@@ -176,6 +180,7 @@ models:
       description:
       start_validity:
       end_validity:
+      hierarchy_code:
     services:
       foreign_keys_extender:
         fields_map:
@@ -208,6 +213,7 @@ models:
       description:
       start_validity:
       end_validity:
+      hierarchy_code:
     services:
       insert_assets:
         fields:
@@ -275,6 +281,15 @@ models:
               max_width: 1500
               max_height: 2500
               max_kb: 800
+      hierarchy_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - ambitie
+          - id: object_code_exists
     services:
       extract_assets:
         fields:

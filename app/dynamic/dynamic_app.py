@@ -20,6 +20,8 @@ from app.dynamic.validators.validator import (
     ImageValidator,
     LengthValidator,
     NotEqualRootValidator,
+    ObjectCodeAllowedTypeValidator,
+    ObjectCodeExistsValidator,
     PlainTextValidator,
 )
 
@@ -272,6 +274,8 @@ class DynamicAppBuilder:
         self._service_container.validator_provider.register(HtmlValidator())
         self._service_container.validator_provider.register(ImageValidator())
         self._service_container.validator_provider.register(NotEqualRootValidator())
+        self._service_container.validator_provider.register(ObjectCodeExistsValidator())
+        self._service_container.validator_provider.register(ObjectCodeAllowedTypeValidator())
 
     def _merge_endpoint_resolvers(self, resolvers: List[EndpointResolver]):
         for resolver in resolvers:
