@@ -1,10 +1,13 @@
 import io
 from abc import ABC, abstractmethod
 from base64 import b64decode
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 from bs4 import BeautifulSoup
 from PIL import Image
+
+from app.core.dependencies import db_in_context_manager
+from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 
 
 class Validator(ABC):
@@ -180,3 +183,55 @@ class NotEqualRootValidator(Validator):
             return values
 
         return pydantic_neq_root_validator
+
+
+class ObjectCodeExistsValidator(Validator):
+    def get_id(self) -> str:
+        return "object_code_exists"
+
+    def get_validator_func(self, config: dict) -> Callable:
+        def pydantic_validator_object_code_exists(cls, v):
+            if not isinstance(v, str):
+                raise ValueError("Value must be a string")
+
+            try:
+                object_type, object_id = v.split("-", 1)
+            except ValueError:
+                raise ValueError("Value is not a valid Object_Code")
+
+            with db_in_context_manager() as db:
+                static_repository = ObjectStaticRepository(db)
+                object_static = static_repository.get_by_object_type_and_id(
+                    object_type,
+                    object_id,
+                )
+                if not object_static:
+                    raise ValueError("Object does not exist")
+
+            return v
+
+        return pydantic_validator_object_code_exists
+
+
+class ObjectCodeAllowedTypeValidator(Validator):
+    def get_id(self) -> str:
+        return "object_code_allowed_type"
+
+    def get_validator_func(self, config: dict) -> Callable:
+        allowed_object_types: List[str] = config.get("allowed_object_types", [])
+
+        def pydantic_validator_object_code_allowed_type(cls, v):
+            if not isinstance(v, str):
+                raise ValueError("Value must be a string")
+
+            try:
+                object_type, _ = v.split("-", 1)
+            except ValueError:
+                raise ValueError("Value is not a valid Object_Code")
+
+            if object_type not in allowed_object_types:
+                raise ValueError("Invalid object type")
+
+            return v
+
+        return pydantic_validator_object_code_allowed_type

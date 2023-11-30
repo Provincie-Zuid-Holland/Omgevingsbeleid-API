@@ -318,6 +318,13 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # Primaire koppeling
+  hierarchy_code:
+    name: Hierarchy_Code
+    type: str_35
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
   # Image
   image:
     name: Image
