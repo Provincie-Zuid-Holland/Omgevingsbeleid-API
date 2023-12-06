@@ -33,11 +33,16 @@ class ListModuleObjectsEndpoint(Endpoint):
             object_type: Optional[str] = None,
             owner_uuid: Optional[UUID] = None,
             minimum_status: Optional[ModuleStatusCode] = None,
-            action: Optional[ModuleObjectActionFilter] = None,
+            actions: List[ModuleObjectActionFilter] = [],
+            action: Optional[ModuleObjectActionFilter] = None,  # @deprecated @note: backwards compatible
             only_active_modules: bool = True,
             module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> PagedResponse[ModuleObjectShortStatus]:
+            # @deprecated @note: backwards compatible
+            if action is not None and len(actions) == 0:
+                actions = [action]
+
             return self._handler(
                 pagination=pagination,
                 module_object_repository=module_object_repository,
@@ -45,7 +50,7 @@ class ListModuleObjectsEndpoint(Endpoint):
                 owner_uuid=owner_uuid,
                 object_type=object_type,
                 only_active_modules=only_active_modules,
-                action=action,
+                actions=actions,
             )
 
         router.add_api_route(
@@ -68,7 +73,7 @@ class ListModuleObjectsEndpoint(Endpoint):
         owner_uuid: Optional[UUID],
         object_type: Optional[str],
         only_active_modules: bool,
-        action: Optional[ModuleObjectActionFilter] = None,
+        actions: List[ModuleObjectActionFilter],
     ):
         paginated_result = module_object_repository.get_all_latest(
             pagination=pagination,
@@ -76,7 +81,7 @@ class ListModuleObjectsEndpoint(Endpoint):
             minimum_status=minimum_status,
             owner_uuid=owner_uuid,
             object_type=object_type,
-            action=action,
+            actions=actions,
         )
 
         rows: List[ModuleObjectShortStatus] = []
