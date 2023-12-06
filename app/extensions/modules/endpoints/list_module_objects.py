@@ -1,7 +1,7 @@
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.dynamic.config.models import EndpointConfig
 from app.dynamic.converter import Converter
@@ -33,7 +33,7 @@ class ListModuleObjectsEndpoint(Endpoint):
             object_type: Optional[str] = None,
             owner_uuid: Optional[UUID] = None,
             minimum_status: Optional[ModuleStatusCode] = None,
-            actions: List[ModuleObjectActionFilter] = [],
+            actions: List[ModuleObjectActionFilter] = Query([]),
             action: Optional[ModuleObjectActionFilter] = None,  # @deprecated @note: backwards compatible
             only_active_modules: bool = True,
             module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
