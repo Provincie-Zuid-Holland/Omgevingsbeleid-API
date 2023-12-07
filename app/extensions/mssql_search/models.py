@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, root_validator, validator
 
 
 class ValidSearchConfig(BaseModel):
@@ -14,9 +14,15 @@ class ValidSearchObject(BaseModel):
     UUID: uuid.UUID
     Object_Type: str
     Object_ID: int
+    Object_Code: str
     Title: str
     Description: str
     Score: float
+
+    @root_validator(pre=True)
+    def generate_object_code(cls, values):
+        values["Object_Code"] = f"{values['Object_Type']}-{values['Object_ID']}"
+        return values
 
     @validator("Title", "Description", pre=True)
     def default_empty_string(cls, v):

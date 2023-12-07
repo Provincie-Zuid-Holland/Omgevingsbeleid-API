@@ -156,7 +156,7 @@ class ModuleObjectRepository(BaseRepository):
         minimum_status: Optional[ModuleStatusCode] = None,
         owner_uuid: Optional[UUID] = None,
         object_type: Optional[str] = None,
-        action: Optional[ModuleObjectActionFilter] = None,
+        actions: List[ModuleObjectActionFilter] = [],
     ):
         """
         Generic filterable listing of latest module-object versions
@@ -193,7 +193,7 @@ class ModuleObjectRepository(BaseRepository):
             if owner_uuid is not None
             else None,
             ModuleObjectsTable.Object_Type == object_type if object_type is not None else None,
-            ModuleObjectContextTable.Action == action if action is not None else None,
+            ModuleObjectContextTable.Action.in_(actions) if actions else None,
         ]
         filters = [f for f in filters if f is not None]  # first remove None filters
         subq = subq.filter(and_(*filters))  # apply remaining filters to the query
