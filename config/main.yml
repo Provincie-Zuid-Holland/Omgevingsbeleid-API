@@ -282,6 +282,18 @@ api:
         - resolver: list_all_latest_objects
           resolver_data:
             sort: *sort_default_object_id
+    - prefix: /publications/bills
+      endpoints:
+        - resolver: list_publication_bills
+          resolver_data:
+            sort: *sort_default_modified_date
+        - resolver: create_publication_bill
+    - prefix: /publications/packages
+      endpoints:
+        - resolver: create_publication_package
+        - resolver: list_publication_package
+          resolver_data:
+            sort: *sort_default_modified_date
 
 columns:
   # Titel

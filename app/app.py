@@ -16,6 +16,7 @@ from app.extensions.modules.modules_extension import ModulesExtension
 from app.extensions.modules_diff.modules_diff_extension import ModulesDiffExtension
 from app.extensions.mssql_search.mssql_search_extension import MssqlSearchExtension
 from app.extensions.playground.playground_extension import PlaygroundExtension
+from app.extensions.publications.publications_extension import PublicationsExtension
 from app.extensions.relations.relations_extension import RelationsExtension
 from app.extensions.users.users_extension import UsersExtension
 from app.extensions.werkingsgebieden.werkingsgebieden_extension import WerkingsgebiedenExtension
@@ -41,6 +42,7 @@ app_builder.register_extension(ModulesDiffExtension())
 app_builder.register_extension(ChangeLoggerExtension())
 app_builder.register_extension(DatabaseMigrationExtension())
 app_builder.register_extension(PlaygroundExtension())
+app_builder.register_extension(PublicationsExtension())
 
 # Register the dynamic objects
 app_builder.register_objects(settings.OBJECT_CONFIG_PATH)
