@@ -64,7 +64,11 @@ class EndpointHandler:
             self._user,
             self._module,
             whitelisted_uuids=[
-                u for u in [self._module_object.Owner_1_UUID, self._module_object.Owner_2_UUID] if u is not None
+                self._module_object.Owner_1_UUID,
+                self._module_object.Owner_2_UUID,
+                self._module_object.Portfolio_Holder_1_UUID,
+                self._module_object.Portfolio_Holder_2_UUID,
+                self._module_object.Client_1_UUID,
             ],
         )
 
