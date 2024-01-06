@@ -3,7 +3,7 @@ from typing import List
 import app.extensions.acknowledged_relations.endpoints as endpoints
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.converter import Converter
-from app.dynamic.db.object_static_table import ObjectStaticsTable
+from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension

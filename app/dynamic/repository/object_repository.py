@@ -6,8 +6,7 @@ from sqlalchemy import desc, select
 from sqlalchemy.orm import aliased, selectinload
 from sqlalchemy.sql import and_, func, or_
 
-from app.dynamic.db.object_static_table import ObjectStaticsTable
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination
 

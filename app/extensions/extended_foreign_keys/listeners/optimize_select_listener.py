@@ -3,7 +3,7 @@ from typing import List
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.base import ExecutableOption
 
-from app.dynamic.db.object_static_table import ObjectStaticsTable
+from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.event import BeforeSelectExecutionEvent
 from app.dynamic.event.types import Listener
 

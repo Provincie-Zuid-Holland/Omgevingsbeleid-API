@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from app.dynamic.db.object_static_table import ObjectStaticsTable
+from app.dynamic.db import ObjectStaticsTable
 
 from .fixture_factory import FixtureDataFactory
 
