@@ -7,8 +7,7 @@ from sqlalchemy import Index
 from sqlalchemy.orm import Mapped, declarative_base, relationship
 
 from app.core.db.mixins import HasIDType, SerializerMixin, TimeStamped
-from app.dynamic.db.object_static_table import StaticBaseColumns
-from app.dynamic.db.objects_table import ObjectBaseColumns
+from app.dynamic.db import StaticBaseColumns
 from app.dynamic.dynamic_app import DynamicApp
 from app.extensions.change_logger.db.tables import ChangeLogBaseColumns
 from app.extensions.users.db.tables import UserBaseColumns

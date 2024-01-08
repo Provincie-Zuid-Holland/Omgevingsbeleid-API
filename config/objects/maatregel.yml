@@ -264,6 +264,8 @@ models:
         fields_map:
           - to_field: Gebied
             model_id: werkingsgebied
+          - to_field: Hierarchy_Statics
+            model_id: hierarchy_statics
           - to_field: Created_By
             model_id: user_short
           - to_field: Modified_By

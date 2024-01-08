@@ -118,9 +118,9 @@ def test_object_static_repository(db: Session):
 def base_dynamic_app(local_tables) -> TestDynamicApp:  # noqa
     with patch_multiple(
         patch("app.core.db.base.Base", local_tables.Base),
-        patch("app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable),
+        patch("app.dynamic.db.ObjectsTable", local_tables.ObjectsTable),
         patch(
-            "app.dynamic.db.object_static_table.ObjectStaticsTable",
+            "app.dynamic.db.ObjectStaticsTable",
             local_tables.ObjectStaticsTable,
         ),
     ):

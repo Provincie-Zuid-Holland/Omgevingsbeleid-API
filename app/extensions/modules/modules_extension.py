@@ -10,7 +10,6 @@ from app.dynamic.generate_table import generate_table
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.table_extensions import extend_with_attributes
-from app.extensions.modules.listeners.computed_fields_listener import InsertComputedFieldsListener
 from app.extensions.modules.models.models import PublicModuleObjectRevision
 
 
@@ -66,12 +65,3 @@ class ModulesExtension(Extension):
                 pydantic_model=PublicModuleObjectRevision,
             )
         )
-
-    def register_listeners(
-        self,
-        main_config: dict,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
-        models_resolver: ModelsResolver,
-    ):
-        event_dispatcher.register(InsertComputedFieldsListener())

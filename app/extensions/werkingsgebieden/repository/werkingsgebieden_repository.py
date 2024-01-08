@@ -7,7 +7,7 @@ from sqlalchemy import desc, select, text
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
 
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination, query_paginated
 from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable

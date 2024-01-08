@@ -2,7 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from app.core.utils.utils import table_to_dict
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository

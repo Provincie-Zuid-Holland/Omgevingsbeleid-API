@@ -20,9 +20,9 @@ class TestDynamicAppBuilder:
 
     def test_register_extension(self, local_tables):  # noqa
         with patch_multiple(
-            patch("app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable),
+            patch("app.dynamic.db.ObjectsTable", local_tables.ObjectsTable),
             patch(
-                "app.dynamic.db.object_static_table.ObjectStaticsTable",
+                "app.dynamic.db.ObjectStaticsTable",
                 local_tables.ObjectStaticsTable,
             ),
         ):
@@ -98,7 +98,7 @@ class TestDynamicAppBuilder:
             "col4": static_col,
         }
 
-        with patch("app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable):
+        with patch("app.dynamic.db.ObjectsTable", local_tables.ObjectsTable):
             generate_table(
                 event_dispatcher=mock_dispatcher,
                 table_type=local_tables.ObjectsTable,
@@ -126,7 +126,7 @@ class TestDynamicAppBuilder:
         )
         columns = {"col1": int_col, "col2": unknown_type}
 
-        with patch("app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable):
+        with patch("app.dynamic.db.ObjectsTable", local_tables.ObjectsTable):
             generate_table(
                 event_dispatcher=mock_dispatcher,
                 table_type=local_tables.ObjectsTable,
@@ -147,9 +147,9 @@ class TestDynamicAppBuilder:
         columns = {"col1": int_col, "col2": static_col}
 
         with patch_multiple(
-            patch("app.dynamic.db.objects_table.ObjectsTable", local_tables.ObjectsTable),
+            patch("app.dynamic.db.ObjectsTable", local_tables.ObjectsTable),
             patch(
-                "app.dynamic.db.object_static_table.ObjectStaticsTable",
+                "app.dynamic.db.ObjectStaticsTable",
                 local_tables.ObjectStaticsTable,
             ),
         ):

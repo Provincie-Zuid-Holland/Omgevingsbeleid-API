@@ -5,8 +5,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import object_session
 
-from app.dynamic.db.object_static_table import ObjectStaticsTable
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 
 
 def get_effective_object(self):

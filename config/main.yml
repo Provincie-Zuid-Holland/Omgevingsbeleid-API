@@ -325,9 +325,11 @@ columns:
   # Primaire koppeling
   hierarchy_code:
     name: Hierarchy_Code
-    type: str_35
-    serializers: []
-    deserializers: ["str"]
+    type: object_code
+    type_data:
+      relation_field: Hierarchy_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
     nullable: true
   # Image
   image:

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.dynamic.config.models import DynamicObjectModel, Model
 from app.dynamic.converter import Converter
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable
 from app.extensions.relations.db.tables import RelationsTable
 
 
