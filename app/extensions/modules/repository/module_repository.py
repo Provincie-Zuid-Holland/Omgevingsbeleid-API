@@ -57,7 +57,7 @@ class ModuleRepository(BaseRepository):
                 ModuleObjectsTable.Module_ID == ModuleObjectContextTable.Module_ID
                 and ModuleObjectsTable.Code == ModuleObjectContextTable.Code,
             )
-            .outerjoin(ObjectStaticsTable)
+            .outerjoin(ObjectStaticsTable, ObjectStaticsTable.Code == ModuleObjectsTable.Code)
             .filter(*filters)
         )
 
