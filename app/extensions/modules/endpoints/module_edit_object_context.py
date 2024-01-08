@@ -14,8 +14,13 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.change_logger.db.tables import ChangeLogTable
+from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
-from app.extensions.modules.dependencies import depends_active_module, depends_active_module_object_context
+from app.extensions.modules.dependencies import (
+    depends_active_module,
+    depends_active_module_object_context,
+    depends_module_object_latest_by_id,
+)
 from app.extensions.modules.models.models import ModuleObjectAction
 from app.extensions.modules.permissions import ModulesPermissions, guard_valid_user
 from app.extensions.users.db.tables import UsersTable
@@ -39,6 +44,7 @@ class EndpointHandler:
         permission_service: PermissionService,
         user: UsersTable,
         module: ModuleTable,
+        module_object: ModuleObjectsTable,
         object_context: ModuleObjectContextTable,
         object_in: ModuleEditObjectContext,
     ):
@@ -46,6 +52,7 @@ class EndpointHandler:
         self._permission_service: PermissionService = permission_service
         self._user: UsersTable = user
         self._module: ModuleTable = module
+        self._module_object: ModuleObjectsTable = module_object
         self._object_context: ModuleObjectContextTable = object_context
         self._object_in: ModuleEditObjectContext = object_in
         self._timepoint: datetime = datetime.utcnow()
@@ -56,6 +63,13 @@ class EndpointHandler:
             ModulesPermissions.can_edit_module_object_context,
             self._user,
             self._module,
+            whitelisted_uuids=[
+                self._module_object.Owner_1_UUID,
+                self._module_object.Owner_2_UUID,
+                self._module_object.Portfolio_Holder_1_UUID,
+                self._module_object.Portfolio_Holder_2_UUID,
+                self._module_object.Client_1_UUID,
+            ],
         )
 
         changes: dict = self._object_in.dict(exclude_unset=True)
@@ -101,6 +115,7 @@ class ModuleEditObjectContextEndpoint(Endpoint):
             object_in: ModuleEditObjectContext,
             user: UsersTable = Depends(depends_current_active_user),
             module: ModuleTable = Depends(depends_active_module),
+            module_object: ModuleObjectsTable = Depends(depends_module_object_latest_by_id),
             object_context: ModuleObjectContextTable = Depends(depends_active_module_object_context),
             db: Session = Depends(depends_db),
             permission_service: PermissionService = Depends(depends_permission_service),
@@ -110,6 +125,7 @@ class ModuleEditObjectContextEndpoint(Endpoint):
                 permission_service,
                 user,
                 module,
+                module_object,
                 object_context,
                 object_in,
             )

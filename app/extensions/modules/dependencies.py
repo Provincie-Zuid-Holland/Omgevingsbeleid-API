@@ -119,6 +119,18 @@ def depends_active_module_object_context(
     return maybe_context
 
 
+def depends_module_object_latest_by_id(
+    module_id: int,
+    object_type: str,
+    lineage_id: int,
+    repository: ModuleObjectRepository = Depends(depends_module_object_repository),
+) -> ModuleObjectsTable:
+    maybe_object: Optional[ModuleObjectsTable] = repository.get_latest_by_id(module_id, object_type, lineage_id)
+    if not maybe_object:
+        raise HTTPException(status_code=404, detail="Module object niet gevonden")
+    return maybe_object
+
+
 def depends_module_status_by_id(
     status_id: int,
     module: ModuleTable = Depends(depends_module),
