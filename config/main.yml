@@ -122,6 +122,7 @@ api:
               - nationaal_belang
               - verplicht_programma
               - visie_algemeen
+              - programma_algemeen
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
@@ -138,6 +139,7 @@ api:
               - nationaal_belang
               - verplicht_programma
               - visie_algemeen
+              - programma_algemeen
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
@@ -197,6 +199,7 @@ api:
               - beleidsregel
               - gebiedsprogramma
               - visie_algemeen
+              - programma_algemeen
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -208,6 +211,7 @@ api:
               - beleidsregel
               - gebiedsprogramma
               - visie_algemeen
+              - programma_algemeen
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
