@@ -106,7 +106,7 @@ api:
         - resolver: module_object_version
           resolver_data:
             response_model: beleidskeuze_full
-            minimum_status: 'Ontwerp GS'
+            minimum_status: 'Ontwerp GS Concept'
             require_auth: False
 
 fields:
