@@ -61,7 +61,6 @@ class ObjectRepository(BaseRepository):
             .group_by(aliased_objects.Object_Type)
         )
 
-        # Execute the query and fetch results
         rows = self._db.execute(final_query).fetchall()
         result = [ObjectCount(Object_Type=r[0], Count=r[1]) for r in rows]
         return result
