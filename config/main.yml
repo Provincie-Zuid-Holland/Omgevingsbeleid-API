@@ -231,6 +231,9 @@ api:
             sort: *sort_default_modified_date
     - prefix: /objects/valid
       endpoints:
+        - resolver: object_counts
+          resolver_data:
+            path: /count
         - resolver: list_all_latest_objects
           resolver_data:
             sort: *sort_default_object_id
