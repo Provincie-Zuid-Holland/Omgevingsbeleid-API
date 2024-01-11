@@ -6,7 +6,11 @@ from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.publications.models import PublicationBill, PublicationPackage
+from app.extensions.publications.models import (
+    PublicationBill,
+    PublicationPackage,
+    PublicationConfig,
+)
 from app.extensions.publications import endpoints
 
 
@@ -26,6 +30,14 @@ class PublicationsExtension(Extension):
                 pydantic_model=PublicationPackage,
             ),
         )
+        models_resolver.add(
+            ExtensionModel(
+                id="publication_config",
+                name="publication_config",
+                pydantic_model=PublicationConfig,
+            ),
+        )
+        # TODO: Add OW
 
     def register_endpoint_resolvers(
         self,

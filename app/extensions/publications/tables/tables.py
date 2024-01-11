@@ -2,15 +2,15 @@ from typing import List, Optional
 import uuid
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Column, UniqueConstraint, func
-from sqlalchemy.dialects.mysql import MEDIUMBLOB, CHAR
+from sqlalchemy import ForeignKey, Column, String, UniqueConstraint, func, Enum as SQLAlchemyEnum
 from sqlalchemy.ext.hybrid import hybrid_method
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql.sqltypes import Integer, Enum, DateTime, Date, Text, JSON, UUID
+from sqlalchemy.sql.sqltypes import Integer, JSON
 
 
 from app.core.db.base import Base
 from app.core.db.mixins import HasUUID, TimeStamped
+from app.extensions.publications.enums import IMOWTYPE, Document_Type, Package_Event_Type, Bill_Type
 
 
 class PublicationConfigTable(Base):
@@ -31,19 +31,21 @@ class PublicationConfigTable(Base):
     dso_bhkv_version: Mapped[str]
 
 
-class PublicationBillTable(Base, HasUUID, TimeStamped):
+class PublicationBillTable(Base):
     __tablename__ = "publication_bill"
     __table_args__ = (UniqueConstraint("Module_ID", "Document_Type", "Version_ID"),)
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Created_Date: Mapped[Optional[datetime]]
+    Modified_Date: Mapped[Optional[datetime]]
 
     Version_ID: Mapped[int]
     Module_ID: Mapped[int] = mapped_column(Integer, ForeignKey("modules.Module_ID"), nullable=False)
     Module_Status_ID: Mapped[int] = mapped_column(
         Integer, ForeignKey("module_status_history.ID"), nullable=False
     )
-    Bill_Type: Mapped[str] = mapped_column(Enum("Ontwerp", "Definitief"), nullable=False)
-    Document_Type: Mapped[str] = mapped_column(
-        Enum("Omgevingsvisie", "Omgevingsprogramma", "Omgevingsverordening"), nullable=False
-    )
+    Bill_Type = Column(SQLAlchemyEnum(*[e.value for e in Bill_Type]))
+    Document_Type = Column(SQLAlchemyEnum(*[e.value for e in Document_Type]))
     Bill_Data = Column(JSON)  # Besluit
     Procedure_Data = Column(JSON)  # Procedureverloop
     Council_Proposal_File: Mapped[Optional[str]]  # Statenvoorstel_Bestand
@@ -76,22 +78,22 @@ class PublicationBillTable(Base, HasUUID, TimeStamped):
 class PublicationPackageTable(Base, HasUUID, TimeStamped):
     __tablename__ = "publication_package"
 
-    # LeveringId == PublicationPackageTable.UUID
+    # the leveringId == PublicationPackageTable.UUID
     Bill_UUID: Mapped[uuid.UUID] = mapped_column(
-        UUID, ForeignKey("publication_bill.UUID"), nullable=False
+        ForeignKey("publication_bill.UUID"), nullable=False
     )
-    Package_Event_Type: Mapped[str] = mapped_column(  # Type opdracht
-        Enum("Validatie", "Publicatie", "Afbreken"), nullable=False
-    )
+    Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in Package_Event_Type]))
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
     Announcement_Date: Mapped[Optional[datetime]]  # Datum_Bekendmaking
 
     # Stamped publication config at the time of packaging
-    Province_ID: Mapped[str]  # Provincie_ID
+    Province_ID: Mapped[str]   # Provincie_ID
     Submitter_ID: Mapped[int]  # Id_Aanleveraar
     Authority_ID: Mapped[int]  # Id_Bevoegdgezag
     Jurisdiction: Mapped[str]  # Rechtsgebied
-    Subjects: Mapped[str]  # Onderwerpen
+    Subjects: Mapped[str]      # Onderwerpen
     dso_stop_version: Mapped[str]
     dso_tpod_version: Mapped[str]
     dso_bhkv_version: Mapped[str]
+
+    ow_objects = relationship("OWObject", back_populates="Package")

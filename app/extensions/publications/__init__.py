@@ -1,4 +1,17 @@
-from .tables import PublicationBillTable, PublicationPackageTable, PublicationConfigTable
+from .tables import (
+    PublicationBillTable,
+    PublicationPackageTable,
+    PublicationConfigTable,
+    OWObject,
+    OWAmbtsgebied,
+    OWGebied,
+    OWGebiedenGroep,
+    OWDivisie,
+    OWDivisietekst,
+    OWLocation,
+    OWRegelingsgebied,
+    OWTekstdeel,
+)
 from .enums import Document_Type, Package_Event_Type
 from .exceptions import MissingPublicationConfigError
 from .helpers import serialize_datetime
@@ -10,5 +23,5 @@ from .models import (
     BillArticle,
     AmendmentArticle,
     Article,
-    PublicationPackage
+    PublicationPackage,
 )
