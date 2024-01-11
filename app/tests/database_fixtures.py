@@ -4,8 +4,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash
-from app.dynamic.db import ObjectStaticsTable
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
