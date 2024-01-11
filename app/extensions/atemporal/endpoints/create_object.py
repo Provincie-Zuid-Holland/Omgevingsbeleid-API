@@ -10,8 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.db.object_static_table import ObjectStaticsTable
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver

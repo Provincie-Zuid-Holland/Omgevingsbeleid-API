@@ -13,24 +13,16 @@ services:
     volumes:
       - ./:/code
     environment:
-      DB_USER: SA
-      DB_PASS: Passw0rd
-      DB_HOST: mssql
-      DB_PORT: 1433
-      DB_NAME: db_dev
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
       DB_DRIVER: ODBC Driver 17 for SQL Server
       JWT_SECRET: secret
       DEBUG_MODE: True
       SQLALCHEMY_DATABASE_URI: ""
-    # healthcheck:
-    #   test: wget --no-verbose --tries=1 --spider http://localhost/health/ || exit 1
-    #   interval: 1m
-    #   timeout: 3s
-    #   retries: 30
-    #   start_period: 1s
-    depends_on:
-      mssql:
-        condition: service_healthy
+      PYTHONPATH: "/code"
     restart: "no"
     security_opt:
       - seccomp:unconfined
@@ -55,12 +47,12 @@ services:
       start_period: 1s
     restart: "no"
 
-  mailhog:
-    image: mailhog/mailhog
-    ports:
-      - "8025:8025"
-      - "1025:1025"
-    restart: "no"
+  # mailhog:
+  #   image: mailhog/mailhog
+  #   ports:
+  #     - "8025:8025"
+  #     - "1025:1025"
+  #   restart: "no"
 
 volumes:
   mssql:

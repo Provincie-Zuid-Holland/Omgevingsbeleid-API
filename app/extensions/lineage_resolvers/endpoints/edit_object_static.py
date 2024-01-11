@@ -14,11 +14,13 @@ from app.dynamic.dependencies import depends_object_static_repository
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
+from app.dynamic.permissions import BasePermissions
 from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.change_logger.db.tables import ChangeLogTable
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.users.dependencies import depends_current_active_user, depends_permission_service
+from app.extensions.users.permission_service import PermissionService
 
 
 class EndpointHandler:
@@ -30,6 +32,7 @@ class EndpointHandler:
         result_type: Type[BaseModel],
         db: Session,
         repository: ObjectStaticRepository,
+        permission_service: PermissionService,
         user: UsersTable,
         object_in: Type[BaseModel],
         lineage_id: int,
@@ -41,6 +44,7 @@ class EndpointHandler:
 
         self._db: Session = db
         self._repository: ObjectStaticRepository = repository
+        self._permission_service: PermissionService = permission_service
 
         self._user: UsersTable = user
         self._object_in: Type[BaseModel] = object_in
@@ -57,6 +61,18 @@ class EndpointHandler:
         )
         if not object_static:
             raise ValueError(f"lineage_id does not exist")
+
+        self._permission_service.guard_valid_user(
+            BasePermissions.can_patch_object_static,
+            self._user,
+            [
+                object_static.Owner_1_UUID,
+                object_static.Owner_2_UUID,
+                object_static.Portfolio_Holder_1_UUID,
+                object_static.Portfolio_Holder_2_UUID,
+                object_static.Client_1_UUID,
+            ],
+        )
 
         log_before: str = json.dumps(object_static.to_dict())
 
@@ -109,6 +125,7 @@ class EditObjectStaticEndpoint(Endpoint):
             user: UsersTable = Depends(depends_current_active_user),
             db: Session = Depends(depends_db),
             repository: ObjectStaticRepository = Depends(depends_object_static_repository),
+            permission_service: PermissionService = Depends(depends_permission_service),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
                 self._converter,
@@ -117,6 +134,7 @@ class EditObjectStaticEndpoint(Endpoint):
                 self._result_type,
                 db,
                 repository,
+                permission_service,
                 user,
                 object_in,
                 lineage_id,

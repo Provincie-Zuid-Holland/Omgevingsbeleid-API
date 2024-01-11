@@ -9,17 +9,19 @@ from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import JSONResponse
 
 import app.dynamic.serializers as serializers
-from app.dynamic.db.object_static_table import ObjectStaticsTable
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.extension import Extension
 from app.dynamic.generate_table import generate_table
+from app.dynamic.listeners.add_object_code_relationship import AddObjectCodeRelationshipListener
 from app.dynamic.service_container import ServiceContainer
 from app.dynamic.validators.validator import (
     HtmlValidator,
     ImageValidator,
     LengthValidator,
     NotEqualRootValidator,
+    ObjectCodeAllowedTypeValidator,
+    ObjectCodeExistsValidator,
     PlainTextValidator,
 )
 
@@ -77,6 +79,7 @@ class DynamicAppBuilder:
         )
         main_router: APIRouter = APIRouter()
 
+        self._register_base_listeners()
         self._register_base_serializers()
         self._register_base_validators()
 
@@ -260,6 +263,9 @@ class DynamicAppBuilder:
         with open(file_path) as stream:
             return yaml.safe_load(stream)
 
+    def _register_base_listeners(self):
+        self._service_container.event_dispatcher.register(AddObjectCodeRelationshipListener())
+
     def _register_base_serializers(self):
         self._service_container.converter.register_serializer("str", serializers.serializer_str)
         self._service_container.converter.register_serializer("optional_str", serializers.serializer_optional_str)
@@ -272,6 +278,8 @@ class DynamicAppBuilder:
         self._service_container.validator_provider.register(HtmlValidator())
         self._service_container.validator_provider.register(ImageValidator())
         self._service_container.validator_provider.register(NotEqualRootValidator())
+        self._service_container.validator_provider.register(ObjectCodeExistsValidator())
+        self._service_container.validator_provider.register(ObjectCodeAllowedTypeValidator())
 
     def _merge_endpoint_resolvers(self, resolvers: List[EndpointResolver]):
         for resolver in resolvers:

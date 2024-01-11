@@ -26,7 +26,7 @@ class SearchGeoRequestData(BaseModel):
     @validator("Area_List")
     def valid_area_list(cls, v):
         if len(v) < 1:
-            raise ValueError("area_list requires more than 1 uuid")
+            raise ValueError("area_list requires at least 1 uuid")
         if len(v) > 300:
             raise ValueError("area_list is too large, max 300 items")
         return v

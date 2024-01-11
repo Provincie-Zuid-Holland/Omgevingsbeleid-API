@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session, aliased
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, DynamicObjectModel, EndpointConfig, Model
 from app.dynamic.converter import Converter
+from app.dynamic.db import ObjectsTable
 from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
-from app.dynamic.db.objects_table import ObjectsTable
 from app.dynamic.dependencies import depends_event_dispatcher, depends_sorted_pagination_curried, depends_string_filters
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event import BeforeSelectExecutionEvent, RetrievedObjectsEvent

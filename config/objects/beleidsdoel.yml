@@ -94,7 +94,7 @@ api:
         - resolver: module_object_version
           resolver_data:
             response_model: beleidsdoel_full
-            atleast_status: 'Ontwerp GS'
+            minimum_status: 'Ontwerp GS Concept'
             require_auth: False
 
 fields:
@@ -114,6 +114,10 @@ fields:
     name: Decision_Number
     type: str
     column: decision_number
+  hierarchy_code:
+    name: Hierarchy_Code
+    type: str
+    column: hierarchy_code
 
   # Statics
   owner_1_uuid:
@@ -176,6 +180,7 @@ models:
       description:
       start_validity:
       end_validity:
+      hierarchy_code:
     services:
       foreign_keys_extender:
         fields_map:
@@ -208,7 +213,11 @@ models:
       description:
       start_validity:
       end_validity:
+      hierarchy_code:
     services:
+      insert_assets:
+        fields:
+          - Description
       insert_computed_fields:
         fields: 
           - field_name: Public_Revisions
@@ -234,6 +243,8 @@ models:
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
+          - to_field: Hierarchy_Statics
+            model_id: hierarchy_statics
           - to_field: Created_By
             model_id: user_short
           - to_field: Modified_By
@@ -267,6 +278,24 @@ models:
         optional: true
         validators:
           - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
+      hierarchy_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - ambitie
+          - id: object_code_exists
+    services:
+      extract_assets:
+        fields:
+          - Description
   beleidsdoel_static_post:
     name: BeleidsdoelStaticPost
     static_only: true

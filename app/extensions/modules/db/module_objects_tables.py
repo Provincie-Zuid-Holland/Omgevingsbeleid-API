@@ -19,7 +19,10 @@ class ModuleObjectsTable(Base, ModuleObjectsColumns):
     __tablename__ = "module_objects"
 
     ModuleObjectContext: Mapped["ModuleObjectContextTable"] = relationship()
-    ObjectStatics: Mapped["ObjectStaticsTable"] = relationship(viewonly=True)
+    ObjectStatics: Mapped["ObjectStaticsTable"] = relationship(
+        primaryjoin="ModuleObjectsTable.Code == ObjectStaticsTable.Code",
+        viewonly=True,
+    )
 
     __table_args__ = (
         ForeignKeyConstraint(

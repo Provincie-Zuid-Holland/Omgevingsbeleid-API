@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, validator
-from sqlalchemy import desc, func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased, joinedload, load_only
 
 from app.core.dependencies import depends_db
@@ -17,8 +17,9 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
-from app.extensions.modules.dependencies import depends_active_module
+from app.extensions.modules.dependencies import depends_active_module, depends_module_object_repository
 from app.extensions.modules.models.models import PublicModuleShort, PublicModuleStatusCode
+from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 
 
 class PublicModuleObjectContextShort(BaseModel):
@@ -56,16 +57,19 @@ class PublicModuleOverview(BaseModel):
 
 
 class EndpointHandler:
-    def __init__(self, db: Session, event_dispatcher: EventDispatcher, module: ModuleTable):
+    def __init__(
+        self, db: Session, event_dispatcher: EventDispatcher, module: ModuleTable, object_repo: ModuleObjectRepository
+    ):
         self._db: Session = db
         self._event_dispatcher: EventDispatcher = event_dispatcher
         self._module: ModuleTable = module
+        self._module_object_repository = object_repo
 
     def handle(self) -> PublicModuleOverview:
         if not self._module.Current_Status in PublicModuleStatusCode.values():
             raise HTTPException(400, "Invalid status for module")
 
-        objects: List[PublicModuleObjectShort] = self._get_objects()
+        objects: List[PublicModuleObjectShort] = self._get_snapshot_objects()
 
         response: PublicModuleOverview = PublicModuleOverview(
             Module=PublicModuleShort.from_orm(self._module),
@@ -73,21 +77,11 @@ class EndpointHandler:
         )
         return response
 
-    def _get_objects(self) -> List[PublicModuleObjectShort]:
-        subq = (
-            select(
-                ModuleObjectsTable,
-                func.row_number()
-                .over(
-                    partition_by=ModuleObjectsTable.Code,
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
-                )
-                .label("_RowNumber"),
-            )
-            .filter(ModuleObjectsTable.Module_ID == self._module.Module_ID)
-            .subquery()
-        )
-
+    def _get_snapshot_objects(self) -> List[PublicModuleObjectShort]:
+        status_snapshot_date = self._module.Status.Created_Date
+        subq = self._module_object_repository._build_snapshot_objects_query(
+            self._module.Module_ID, status_snapshot_date
+        ).subquery()
         aliased_subq = aliased(ModuleObjectsTable, subq)
         stmt = (
             select(aliased_subq)
@@ -110,11 +104,10 @@ class EndpointHandler:
         )
 
         rows: List[ModuleObjectsTable] = self._db.execute(stmt).scalars().all()
-        objects: List[PublicModuleObjectShort] = [PublicModuleObjectShort.from_orm(r) for r in rows]
+        snapshot_objects: List[PublicModuleObjectShort] = [PublicModuleObjectShort.from_orm(r) for r in rows]
+        snapshot_objects = self._run_events(snapshot_objects)
 
-        objects = self._run_events(objects)
-
-        return objects
+        return snapshot_objects
 
     def _run_events(self, rows: List[PublicModuleObjectShort]):
         event: RetrievedObjectsEvent = self._event_dispatcher.dispatch(
@@ -136,8 +129,9 @@ class PublicModuleOverviewEndpoint(Endpoint):
             module: ModuleTable = Depends(depends_active_module),
             db: Session = Depends(depends_db),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
+            object_repo: ModuleObjectRepository = Depends(depends_module_object_repository),
         ) -> PublicModuleOverview:
-            handler: EndpointHandler = EndpointHandler(db, event_dispatcher, module)
+            handler: EndpointHandler = EndpointHandler(db, event_dispatcher, module, object_repo)
             return handler.handle()
 
         router.add_api_route(

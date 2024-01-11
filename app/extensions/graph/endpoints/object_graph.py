@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session, aliased, load_only
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable
 from app.dynamic.dependencies import depends_object_by_uuid
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher

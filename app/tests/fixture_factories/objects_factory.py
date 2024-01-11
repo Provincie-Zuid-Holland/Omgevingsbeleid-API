@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from uuid import UUID
 
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable
 
 from .fixture_factory import FixtureDataFactory
 

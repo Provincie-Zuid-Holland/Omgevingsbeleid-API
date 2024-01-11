@@ -94,6 +94,18 @@ api:
         - resolver: list_objects_in_werkingsgebieden
           resolver_data:
             sort: *sort_default_title
+    - prefix: /search/geometry
+      endpoints:
+        - resolver: list_objects_by_geometry
+          resolver_data:
+            sort: *sort_default_title
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - beleidsregel
+              - maatregel
+              - gebiedsprogramma
     - prefix: /search
       endpoints:
         - resolver: mssql_search
@@ -109,6 +121,8 @@ api:
               - wettelijke_taak
               - nationaal_belang
               - verplicht_programma
+              - visie_algemeen
+              - programma_algemeen
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
@@ -124,6 +138,8 @@ api:
               - wettelijke_taak
               - nationaal_belang
               - verplicht_programma
+              - visie_algemeen
+              - programma_algemeen
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
@@ -212,6 +228,8 @@ api:
               - maatregel
               - beleidsregel
               - gebiedsprogramma
+              - visie_algemeen
+              - programma_algemeen
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -222,6 +240,8 @@ api:
               - maatregel
               - beleidsregel
               - gebiedsprogramma
+              - visie_algemeen
+              - programma_algemeen
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
@@ -241,6 +261,9 @@ api:
             sort: *sort_default_modified_date
     - prefix: /objects/valid
       endpoints:
+        - resolver: object_counts
+          resolver_data:
+            path: /count
         - resolver: list_all_latest_objects
           resolver_data:
             sort: *sort_default_object_id
@@ -332,6 +355,15 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # Primaire koppeling
+  hierarchy_code:
+    name: Hierarchy_Code
+    type: object_code
+    type_data:
+      relation_field: Hierarchy_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
   # Image
   image:
     name: Image
@@ -413,6 +445,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -431,6 +464,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -448,6 +482,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -465,6 +500,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
   "Test runner":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -482,6 +518,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -499,6 +536,7 @@ users_permissions:
     - can_create_user
     - can_edit_user
     - can_reset_user_password
+    - can_patch_object_static
 
 modules_pdf_export:
   # prefixed by /config/

@@ -10,7 +10,7 @@ from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelation
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
-from app.extensions.modules.models.models import ModuleStatusCode
+from app.extensions.modules.models.models import ModuleStatusCode, ModuleStatusCodeInternal
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.users.db import UsersTable
 from app.extensions.users.db.tables import IS_ACTIVE
@@ -227,7 +227,7 @@ class DatabaseFixtures:
         )
         module.status_history.append(
             ModuleStatusHistoryTable(
-                Status=ModuleStatusCode.Niet_Actief,
+                Status=ModuleStatusCodeInternal.Niet_Actief,
                 Created_Date=datetime(2023, 2, 2, 2, 2, 2),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )

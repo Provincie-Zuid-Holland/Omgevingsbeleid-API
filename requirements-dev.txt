@@ -6,7 +6,7 @@
 #
 alembic==1.12.0
     # via -r requirements-dev.in
-astroid==2.15.6
+astroid==3.0.1
     # via pylint
 asttokens==2.4.0
     # via
@@ -18,22 +18,22 @@ backcall==0.2.0
     # via ipython
 bandit==1.7.5
     # via -r requirements-dev.in
-black==23.7.0
+black==23.10.0
     # via -r requirements-dev.in
 certifi==2023.7.22
     # via requests
-charset-normalizer==3.2.0
+charset-normalizer==3.3.0
     # via requests
 click==8.1.7
     # via black
-coverage[toml]==7.3.1
+coverage[toml]==7.3.2
     # via
     #   -r requirements-dev.in
     #   coverage-badge
     #   pytest-cov
 coverage-badge==1.1.0
     # via -r requirements-dev.in
-debugpy==1.7.0
+debugpy==1.8.0
     # via -r requirements-dev.in
 decorator==5.1.1
     # via ipython
@@ -45,11 +45,11 @@ exceptiongroup==1.1.3
     # via
     #   ipython
     #   pytest
-executing==1.2.0
+executing==2.0.0
     # via
     #   devtools
     #   stack-data
-faker==19.4.0
+faker==19.11.0
     # via -r requirements-dev.in
 flake8==6.1.0
     # via -r requirements-dev.in
@@ -57,24 +57,22 @@ freezegun==1.2.2
     # via -r requirements-dev.in
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.35
+gitpython==3.1.40
     # via bandit
-greenlet==2.0.2
+greenlet==3.0.0
     # via sqlalchemy
 idna==3.4
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==8.15.0
+ipython==8.16.1
     # via -r requirements-dev.in
 isort==5.12.0
     # via
     #   -r requirements-dev.in
     #   pylint
-jedi==0.19.0
+jedi==0.19.1
     # via ipython
-lazy-object-proxy==1.9.0
-    # via astroid
 mako==1.2.4
     # via alembic
 markdown-it-py==3.0.0
@@ -89,7 +87,7 @@ mccabe==0.7.0
     #   pylint
 mdurl==0.1.2
     # via markdown-it-py
-mypy==1.5.1
+mypy==1.6.1
     # via
     #   -r requirements-dev.in
     #   sqlalchemy
@@ -97,7 +95,7 @@ mypy-extensions==1.0.0
     # via
     #   black
     #   mypy
-packaging==23.1
+packaging==23.2
     # via
     #   black
     #   pytest
@@ -111,7 +109,7 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-platformdirs==3.10.0
+platformdirs==3.11.0
     # via
     #   black
     #   pylint
@@ -123,7 +121,7 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pycodestyle==2.11.0
+pycodestyle==2.11.1
     # via flake8
 pyflakes==3.1.0
     # via
@@ -134,7 +132,7 @@ pygments==2.16.1
     #   devtools
     #   ipython
     #   rich
-pylint==2.17.5
+pylint==3.0.1
     # via -r requirements-dev.in
 pytest==7.4.2
     # via
@@ -155,20 +153,20 @@ requests==2.31.0
     # via requests-mock
 requests-mock==1.11.0
     # via -r requirements-dev.in
-rich==13.5.2
+rich==13.6.0
     # via bandit
 six==1.16.0
     # via
     #   asttokens
     #   python-dateutil
     #   requests-mock
-smmap==5.0.0
+smmap==5.0.1
     # via gitdb
-sqlalchemy[mypy]==2.0.20
+sqlalchemy[mypy]==2.0.22
     # via
     #   -r requirements-dev.in
     #   alembic
-stack-data==0.6.2
+stack-data==0.6.3
     # via ipython
 stevedore==5.1.0
     # via bandit
@@ -184,11 +182,11 @@ tomli==2.0.1
     #   pytest
 tomlkit==0.12.1
     # via pylint
-traitlets==5.9.0
+traitlets==5.11.2
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via
     #   alembic
     #   astroid
@@ -197,11 +195,9 @@ typing-extensions==4.7.1
     #   mypy
     #   pylint
     #   sqlalchemy
-urllib3==2.0.4
+urllib3==2.0.7
     # via requests
-vulture==2.9.1
+vulture==2.10
     # via -r requirements-dev.in
-wcwidth==0.2.6
+wcwidth==0.2.8
     # via prompt-toolkit
-wrapt==1.15.0
-    # via astroid

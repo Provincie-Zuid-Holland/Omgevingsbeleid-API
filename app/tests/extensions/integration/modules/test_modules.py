@@ -17,7 +17,7 @@ from app.extensions.modules.endpoints.module_add_existing_object import Endpoint
 from app.extensions.modules.endpoints.module_add_existing_object import ModuleAddExistingObject
 from app.extensions.modules.endpoints.module_add_new_object import EndpointHandler as NewObjectEndpoint
 from app.extensions.modules.endpoints.module_add_new_object import ModuleAddNewObject, NewObjectStaticResponse
-from app.extensions.modules.models.models import ModuleObjectAction, ModuleStatusCode
+from app.extensions.modules.models.models import ModuleObjectAction, ModuleStatusCode, ModuleStatusCodeInternal
 from app.tests.helpers import patch_multiple
 
 from .fixtures import local_tables  # noqa
@@ -380,7 +380,7 @@ class TestModulesEndpoints:
         # ensure db state as expected
         db.refresh(existing_module)
         assert existing_module.Closed is True
-        assert existing_module.Status.Status == "Module afgerond"
+        assert existing_module.Status.Status == ModuleStatusCodeInternal.Module_afgerond
 
         objects_created = (
             db.query(local_tables.ObjectsTable)

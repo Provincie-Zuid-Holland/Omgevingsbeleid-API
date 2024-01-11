@@ -3,8 +3,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm.session import object_session
 
-from app.dynamic.db.object_static_table import ObjectStaticsTable
-from app.dynamic.db.objects_table import ObjectsTable
+from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.extensions.modules.models.models import ModuleStatusCode, PublicModuleObjectRevision
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 

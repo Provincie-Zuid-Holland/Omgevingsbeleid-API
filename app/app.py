@@ -4,10 +4,12 @@ from app.extensions.acknowledged_relations.acknowledged_relations_extension impo
 from app.extensions.atemporal.atemporal_extension import AtemporalExtension
 from app.extensions.auth.auth_extension import AuthExtension
 from app.extensions.change_logger.change_logger_extension import ChangeLoggerExtension
+from app.extensions.computed_fields.computed_fields_extension import ComputedFieldsExtension
 from app.extensions.database_migration.database_migration_extension import DatabaseMigrationExtension
 from app.extensions.extended_foreign_keys.extended_foreign_keys_extension import ExtendedForeignKeysExtension
 from app.extensions.extended_users.extended_user_extension import ExtendedUserExtension
 from app.extensions.graph.graph_extension import GraphExtension
+from app.extensions.hierarchy.hierarchy_extension import HierarchyExtension
 from app.extensions.html_assets.html_assets_extension import HtmlAssetsExtension
 from app.extensions.lineage_resolvers.lineageresolvers_extension import LineageResolversExtension
 from app.extensions.modules.modules_extension import ModulesExtension
@@ -19,6 +21,8 @@ from app.extensions.werkingsgebieden.werkingsgebieden_extension import Werkingsg
 
 app_builder = DynamicAppBuilder(settings.MAIN_CONFIG_FILE)
 
+app_builder.register_extension(ComputedFieldsExtension())
+app_builder.register_extension(HierarchyExtension())
 app_builder.register_extension(AtemporalExtension())
 app_builder.register_extension(LineageResolversExtension())
 app_builder.register_extension(UsersExtension())
@@ -27,7 +31,6 @@ app_builder.register_extension(ExtendedForeignKeysExtension())
 app_builder.register_extension(ExtendedUserExtension())
 app_builder.register_extension(RelationsExtension())
 app_builder.register_extension(WerkingsgebiedenExtension())
-# app_builder.register_extension(SearchExtension())
 app_builder.register_extension(MssqlSearchExtension())
 app_builder.register_extension(GraphExtension())
 app_builder.register_extension(ModulesExtension())

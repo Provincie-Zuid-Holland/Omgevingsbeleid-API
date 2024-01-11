@@ -93,11 +93,12 @@ if __name__ == "__main__":
     # primarily to setup extra DebugPy instance
     host = sys.argv[1]
     port = int(sys.argv[2])
+    dap_port = int(sys.argv[3])
+    logger.info("---Initializing Debug application and DAP server---")
+    logger.info("Socket serving debug Application: ", host, port)
+    logger.info("DAP server listening on socket: ", host, dap_port)
+    import debugpy
 
-    # dap_port = int(sys.argv[3])
-    # logger.info("---Initializing Debug application and DAP server---")
-    # logger.info("Socket serving debug Application: ", host, port)
-    # logger.info("DAP server listening on socket: ", host, dap_port)
-    # debugpy.listen((host, dap_port))
+    debugpy.listen((host, dap_port))
 
     uvicorn.run(app, host=host, port=port)
