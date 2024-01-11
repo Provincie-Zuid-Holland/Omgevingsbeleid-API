@@ -1,6 +1,6 @@
-from datetime import datetime
 import logging
 import sys
+from datetime import datetime
 
 import sqlalchemy.exc
 import uvicorn

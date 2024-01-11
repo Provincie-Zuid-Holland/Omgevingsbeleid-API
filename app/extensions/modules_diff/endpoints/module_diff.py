@@ -1,18 +1,18 @@
+import base64
 import difflib
 import re
 import subprocess
 from datetime import datetime
 from enum import Enum
+from io import BytesIO
 from os import path
 from typing import List, Optional
 from uuid import UUID
-import base64
-from io import BytesIO
-from PIL import Image
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
+from PIL import Image
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
@@ -85,8 +85,8 @@ class Formatter:
 
 
 def thumbnail(base64_string):
-    prefix, base64_data = base64_string.split(';base64,')
-    file_format = prefix.split('/')[-1]  # Extract format (e.g., "png" from "data:image/png")
+    prefix, base64_data = base64_string.split(";base64,")
+    file_format = prefix.split("/")[-1]  # Extract format (e.g., "png" from "data:image/png")
 
     decoded_img = base64.b64decode(base64_data)
 
@@ -95,25 +95,25 @@ def thumbnail(base64_string):
 
     buffered = BytesIO()
     img.save(buffered, format=file_format.upper())
-    resized_base64_data = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    resized_base64_data = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
     return f"{prefix};base64,{resized_base64_data}"
 
 
 def tokenize_html(html_text):
-    soup = BeautifulSoup(html_text, 'lxml')
+    soup = BeautifulSoup(html_text, "lxml")
 
     tokens = []
 
     def process_text(text):
         # Split by the specified delimiters while keeping the delimiter
-        segments = re.split(r'(?<=[.:\t\n ])', text)
-        tokens.extend([segment for segment in segments if segment.strip() or segment == ' '])
+        segments = re.split(r"(?<=[.:\t\n ])", text)
+        tokens.extend([segment for segment in segments if segment.strip() or segment == " "])
 
     def process_node(node):
         if isinstance(node, Tag):
             # Start tag with its attributes
-            start_tag = str(node).split('>')[0] + '>'
+            start_tag = str(node).split(">")[0] + ">"
             tokens.append(start_tag)
             for child in node.children:
                 process_node(child)
