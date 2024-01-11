@@ -22,4 +22,5 @@ class LineageResolversExtension(Extension):
             endpoints.ObjectVersionEndpointResolver(),
             endpoints.ObjectLatestEndpointResolver(),
             endpoints.ListAllLatestObjectsResolver(),
+            endpoints.ObjectCountsEndpointResolver(),
         ]

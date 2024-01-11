@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import desc, select
@@ -7,11 +7,64 @@ from sqlalchemy.orm import aliased, selectinload
 from sqlalchemy.sql import and_, func, or_
 
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
+from app.dynamic.models.models import ObjectCount
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination
 
 
 class ObjectRepository(BaseRepository):
+    def get_valid_counts(self, user_uuid: UUID) -> List[ObjectCount]:
+        row_number = (
+            func.row_number()
+            .over(
+                partition_by=ObjectsTable.Code,
+                order_by=desc(ObjectsTable.Modified_Date),
+            )
+            .label("_RowNumber")
+        )
+
+        subq = (
+            select(ObjectsTable, row_number)
+            .options(selectinload(ObjectsTable.ObjectStatics))
+            .join(ObjectsTable.ObjectStatics)
+            .filter(
+                or_(
+                    ObjectStaticsTable.Owner_1_UUID == user_uuid,
+                    ObjectStaticsTable.Owner_2_UUID == user_uuid,
+                    ObjectStaticsTable.Portfolio_Holder_1_UUID == user_uuid,
+                    ObjectStaticsTable.Portfolio_Holder_2_UUID == user_uuid,
+                    ObjectStaticsTable.Client_1_UUID == user_uuid,
+                ).self_group()
+            )
+            .filter(ObjectsTable.Start_Validity <= datetime.utcnow())
+        )
+
+        subq = subq.subquery()
+        aliased_objects = aliased(ObjectsTable, subq)
+        stmt = (
+            select(aliased_objects)
+            .filter(subq.c._RowNumber == 1)
+            .filter(
+                or_(
+                    subq.c.End_Validity > datetime.utcnow(),
+                    subq.c.End_Validity == None,
+                )
+            )
+            .order_by(desc(subq.c.Modified_Date))
+        )
+
+        main_query = stmt.subquery()
+
+        final_query = (
+            select(aliased_objects.Object_Type, func.count())
+            .select_from(main_query)
+            .group_by(aliased_objects.Object_Type)
+        )
+
+        rows = self._db.execute(final_query).fetchall()
+        result = [ObjectCount(Object_Type=r[0], Count=r[1]) for r in rows]
+        return result
+
     def get_by_uuid(self, uuid: UUID) -> Optional[ObjectsTable]:
         stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid)
         return self.fetch_first(stmt)
