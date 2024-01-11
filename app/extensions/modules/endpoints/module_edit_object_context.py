@@ -64,11 +64,11 @@ class EndpointHandler:
             self._user,
             self._module,
             whitelisted_uuids=[
-                self._module_object.Owner_1_UUID,
-                self._module_object.Owner_2_UUID,
-                self._module_object.Portfolio_Holder_1_UUID,
-                self._module_object.Portfolio_Holder_2_UUID,
-                self._module_object.Client_1_UUID,
+                self._module_object.ObjectStatics.Owner_1_UUID,
+                self._module_object.ObjectStatics.Owner_2_UUID,
+                self._module_object.ObjectStatics.Portfolio_Holder_1_UUID,
+                self._module_object.ObjectStatics.Portfolio_Holder_2_UUID,
+                self._module_object.ObjectStatics.Client_1_UUID,
             ],
         )
 
