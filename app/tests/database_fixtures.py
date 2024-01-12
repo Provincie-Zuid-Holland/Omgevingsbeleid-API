@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash
 from app.dynamic.db import ObjectStaticsTable
+from app.dynamic.db.tables import ObjectsTable
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
@@ -27,6 +28,8 @@ class DatabaseFixtures:
         self.create_modules()
         self.create_relations()
         self.create_acknowledged_relations()
+
+        self.create_visie()
 
     def create_users(self):
         self._db.add(
@@ -558,4 +561,143 @@ class DatabaseFixtures:
             ),
         )
         self._db.add(ack_table)
+        self._db.commit()
+
+    def create_visie(self):
+        self._db.add(
+            ObjectStaticsTable(
+                Object_Type="visie_algemeen",
+                Object_ID=1,
+                Code="visie_algemeen-1",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ObjectsTable(
+                Object_Type="visie_algemeen",
+                Object_ID=1,
+                Code="visie_algemeen-1",
+                UUID=uuid.UUID("00000000-0000-0003-0000-000000000002"),
+                Title="Inleiding",
+                Description="""
+<h3>Leeswijzer</h3>
+<p>De Zuid-Hollandse leefomgeving verbeteren, elke dag, dat is waar de provincie
+aan werkt. Zeven vernieuwingsambities laten zien waar Zuid-Holland naartoe wil.
+Noem het gerust uitdagingen. Met de zeven ambities maakt de provincie ruimte
+voor belangrijke ontwikkelingen rond participatie, bereikbaarheid, energie,
+economie, natuur, woningbouw en gezondheid en veiligheid. Wie vooral benieuwd
+is naar de vergezichten en kansen gaat direct naar hoofdstuk 4 waar de ambities
+op een rij staan. Dat hoofdstuk is de kern van dit document. Welke kaders en
+uitgangspunten bij het werken aan die ambities gelden, staat beschreven in
+hoofdstuk 5. Hoofdstuk 3 laat zien waar de provincie Zuid-Holland nu staat. De
+sturingsfilosofie die de provincie gebruikt om, samen met partners, te groeien van
+waar Zuid-Holland nu staat naar waar de provincie naartoe wil, is het onderwerp
+van hoofdstuk 2. De wijze waarop ons beleid tot stand komt staat beschreven in
+Hoofdstuk 6. De hoofdstukken 7 tot en met 8 ten slotte maken het beeld
+compleet met een integraal overzicht van alle beleidsdoelen, beleidskeuzes en de
+kaarten die op hoofdlijnen . Dit hoofdstuk is ook (actueel) te raadplegen via
+https://omgevingsbeleid.zuid-holland.nl</p>
+
+<h3>Doel en opzet</h3>
+<p>De Omgevingsvisie van Zuid-Holland biedt een strategische blik op de lange(re)
+termijn voor de gehele fysieke leefomgeving en bevat de hoofdzaken van het te
+voeren integrale beleid van de provincie Zuid-Holland. De Omgevingsvisie vormt
+samen met de Omgevingsverordening en het Omgevingsprogramma het
+provinciale Omgevingsbeleid van de provincie Zuid-Holland. Het Omgevingsbeleid
+beschrijft hoe de provincie werkt aan een goede leefomgeving, welke plannen
+daarvoor zijn, welke regels daarbij gelden en welke inspanningen de provincie
+daarvoor levert.</p>""",
+                Start_Validity=datetime(2023, 2, 2, 3, 3, 3),
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+
+
+
+        self._db.add(
+            ObjectStaticsTable(
+                Object_Type="visie_algemeen",
+                Object_ID=2,
+                Code="visie_algemeen-2",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ObjectsTable(
+                Object_Type="visie_algemeen",
+                Object_ID=2,
+                Code="visie_algemeen-2",
+                UUID=uuid.UUID("00000000-0000-0003-0000-000000000002"),
+                Title="Sturingsfilosofie",
+                Description="""
+<h3>Ruimte voor ontwikkeling, met waarborg voor kwaliteit: 8 sturingsprincipes voor de fysieke leefomgeving</h3>
+<p>De provincie Zuid-Holland heeft met haar uitgebreide instrumentarium grote
+meerwaarde bij het oplossen van de maatschappelijke opgaven van vandaag en
+morgen. En met inbreng van kennis en creativiteit vanuit de samenleving kan nog
+meer worden bereikt. De kunst is het oplossend vermogen van de maatschappij
+te stimuleren en te benutten. Alleen ga je sneller, samen kom je verder</p>
+
+<h3>Doel en opzet</h3>
+<p>Zuid-Holland biedt daarom ruimte en vertrouwen aan maatschappelijke
+initiatieven. Maar ruimte en vrijheid gedijen alleen binnen grenzen. Daarom werkt
+de provincie Zuid-Holland vanuit een aantal principes en kaders, voor haarzelf én
+haar partners, als waarborg voor de kwaliteit van de fysieke leefomgeving.</p>""",
+                Start_Validity=datetime(2023, 2, 2, 3, 3, 3),
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.commit()
+
+
+
+        self._db.add(
+            ObjectStaticsTable(
+                Object_Type="visie_algemeen",
+                Object_ID=3,
+                Code="visie_algemeen-3",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ObjectsTable(
+                Object_Type="visie_algemeen",
+                Object_ID=3,
+                Code="visie_algemeen-3",
+                UUID=uuid.UUID("00000000-0000-0003-0000-000000000002"),
+                Title="Hier staat Zuid-Holland nu",
+                Description="""
+<p>De huidige staat van de leefomgeving van Zuid-Holland beschrijven we aan de
+hand van twee onderdelen:</p>
+<ul><li><p>Een beschrijving van de KWALITEITEN VAN ZUID-HOLLAND: de drie
+deltalandschappen, de Zuid-Hollandse steden en de strategische ligging in
+internationale netwerken.</p></li>
+<li><p>Een beschrijving van de huidige staat van de LEEFOMGEVING op basis van de
+leefomgevingstoets.</p></li></ul>
+
+<h3>De kwaliteiten van Zuid-Holland</h3>
+<p>Zuid-Holland is een strategisch gelegen, vruchtbare delta, grotendeels onder
+zeeniveau. De wijze waarop de bewoners van deze delta door de eeuwen heen
+het water hebben weten te bedwingen en benutten, heeft een landschap
+opgeleverd waarvan de culturele waarde internationaal wordt erkend en dat
+cruciale leefgebieden bevat voor internationaal beschermde plant- en
+diersoorten. Zuid-Holland is uniek in de combinatie van het kust-, veen- en
+rivierdeltalandschap. Deze zijn allemaal verbonden met grote waterstructuren: de
+zee, rivieren en zeearmen. Ze hebben elk een eigen, kenmerkend samenspel
+opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>""",
+                Start_Validity=datetime(2023, 2, 2, 3, 3, 3),
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
         self._db.commit()

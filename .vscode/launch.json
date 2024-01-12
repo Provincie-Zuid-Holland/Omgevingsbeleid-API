@@ -25,7 +25,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Python: FastAPI",
@@ -36,7 +36,7 @@
                 "app.main:app"
             ],
             "jinja": true,
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Python: Import Script",

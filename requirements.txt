@@ -11,7 +11,7 @@ anyio==4.2.0
     #   watchfiles
 appdirs==1.4.4
     # via fs
-bcrypt==4.1.2
+bcrypt==4.0.1
     # via -r requirements.in
 beautifulsoup4==4.12.2
     # via

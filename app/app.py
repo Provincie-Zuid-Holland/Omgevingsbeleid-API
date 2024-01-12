@@ -14,6 +14,7 @@ from app.extensions.html_assets.html_assets_extension import HtmlAssetsExtension
 from app.extensions.lineage_resolvers.lineageresolvers_extension import LineageResolversExtension
 from app.extensions.modules.modules_extension import ModulesExtension
 from app.extensions.mssql_search.mssql_search_extension import MssqlSearchExtension
+from app.extensions.playground.playground_extension import PlaygroundExtension
 from app.extensions.relations.relations_extension import RelationsExtension
 from app.extensions.users.users_extension import UsersExtension
 from app.extensions.werkingsgebieden.werkingsgebieden_extension import WerkingsgebiedenExtension
@@ -37,6 +38,7 @@ app_builder.register_extension(AcknowledgedRelationsExtension())
 app_builder.register_extension(HtmlAssetsExtension())
 app_builder.register_extension(ChangeLoggerExtension())
 app_builder.register_extension(DatabaseMigrationExtension())
+app_builder.register_extension(PlaygroundExtension())
 
 # Register the dynamic objects
 app_builder.register_objects(settings.OBJECT_CONFIG_PATH)

@@ -32,6 +32,11 @@ sort_default_object_id: &sort_default_object_id
 
 api:
   routers:
+    - prefix: /playground
+      endpoints:
+        - resolver: playground_do_dso
+          resolver_data:
+            path: /do-dso
     - prefix: /users
       endpoints:
         - resolver: list_users
