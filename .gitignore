@@ -16,6 +16,7 @@ search-date.json
 .coverage
 **/*.hidden*
 output/*
+output-dso/*
 !output/.gitkeep
 .vscode
 notes.md
