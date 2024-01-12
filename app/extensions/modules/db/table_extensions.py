@@ -18,7 +18,7 @@ def get_object_public_revisions(self):
     """
     Find any module objects with a minimum status as active draft version of this current Object.
     """
-    min_status_list = ModuleStatusCode.after(ModuleStatusCode.Ontwerp_GS)
+    min_status_list = ModuleStatusCode.after(ModuleStatusCode.Ontwerp_GS_Concept)
     query = ModuleObjectRepository.latest_per_module_query(
         code=self.Code, status_filter=min_status_list, is_active=True
     )
