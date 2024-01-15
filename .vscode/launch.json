@@ -10,7 +10,7 @@
             "request": "attach",
             "connect": {
                 "host": "localhost",
-                "port": 5679
+                "port": 5678
             },
             "pathMappings": [
                 {
@@ -43,21 +43,6 @@
             "type": "python",
             "request": "launch",
             "module": "scripts.import.main"
-        },
-        {
-            "name": "Python: Remote Debug",
-            "type": "python",
-            "request": "attach",
-            "connect": {
-                "host": "localhost",
-                "port": 5679
-            },
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}",
-                    "remoteRoot": "/code"
-                }
-            ]
         },
     ]
 }

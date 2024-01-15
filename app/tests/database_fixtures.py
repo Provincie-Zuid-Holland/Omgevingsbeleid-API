@@ -10,7 +10,7 @@ from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelation
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
-from app.extensions.modules.models.models import ModuleStatusCode, ModuleStatusCodeInternal
+from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode, ModuleStatusCodeInternal
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.users.db import UsersTable
 from app.extensions.users.db.tables import IS_ACTIVE
@@ -25,6 +25,7 @@ class DatabaseFixtures:
         self.create_users()
         self.create_werkingsgebieden()
         self.create_object_statics()
+        self.existing_objects()
         self.create_modules()
         self.create_relations()
         self.create_acknowledged_relations()
@@ -158,6 +159,14 @@ class DatabaseFixtures:
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
             )
         )
+        self._db.add(
+            ObjectStaticsTable(
+                Object_Type="ambitie",
+                Object_ID=3,
+                Code="ambitie-3",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
+            )
+        )
 
         self._db.add(
             ObjectStaticsTable(
@@ -212,6 +221,39 @@ class DatabaseFixtures:
         )
         self._db.commit()
 
+    def existing_objects(self):
+        self._db.add(
+            ObjectsTable(
+                Object_Type="ambitie",
+                Object_ID=1,
+                Code="ambitie-1",
+                UUID=uuid.UUID("00000000-0000-0001-0000-A00000000001"),
+                Title="Titel van de eerste ambitie",
+                Description="<p>Description of Ambitie 1</p>",
+                Created_Date=datetime(2022, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2022, 2, 2, 3, 3, 3),
+                Start_Validity=datetime(2022, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.add(
+            ObjectsTable(
+                Object_Type="ambitie",
+                Object_ID=3,
+                Code="ambitie-3",
+                UUID=uuid.UUID("00000000-0000-0001-0000-A00000000003"),
+                Title="Titel van de derde ambitie",
+                Description="<p>Description of Ambitie 3</p>",
+                Created_Date=datetime(2022, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2022, 2, 2, 3, 3, 3),
+                Start_Validity=datetime(2022, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.commit()
+
     def create_modules(self):
         module: ModuleTable = ModuleTable(
             Module_ID=1,
@@ -256,7 +298,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action="Toevoegen",
+                Action=ModuleObjectActionFilter.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -269,7 +311,8 @@ class DatabaseFixtures:
                 Object_ID=1,
                 Code="ambitie-1",
                 UUID=uuid.UUID("00000000-0000-0001-0000-000000000001"),
-                Title="Titel van de eerste ambitie",
+                Title="Titel van de eerste ambitie - edited",
+                Description="<p>Description of Ambitie 1</p>",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
@@ -288,7 +331,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action="Toevoegen",
+                Action=ModuleObjectActionFilter.Edit,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -302,6 +345,7 @@ class DatabaseFixtures:
                 Code="ambitie-2",
                 UUID=uuid.UUID("00000000-0000-0001-0000-000000000002"),
                 Title="Titel van de tweede ambitie",
+                Description="<p>Description of Ambitie 2</p>",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
@@ -322,7 +366,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action="Toevoegen",
+                Action=ModuleObjectActionFilter.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -336,6 +380,7 @@ class DatabaseFixtures:
                 Code="beleidsdoel-1",
                 UUID=uuid.UUID("00000000-0000-0002-0000-000000000001"),
                 Title="Titel van het eerste beleidsdoel",
+                Description="<p>Description of Ambitie 3</p>",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
@@ -354,7 +399,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action="Toevoegen",
+                Action=ModuleObjectActionFilter.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -388,7 +433,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action="Toevoegen",
+                Action=ModuleObjectActionFilter.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -421,7 +466,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action="Toevoegen",
+                Action=ModuleObjectActionFilter.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -456,7 +501,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action="Toevoegen",
+                Action=ModuleObjectActionFilter.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -488,7 +533,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action="Toevoegen",
+                Action=ModuleObjectActionFilter.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -578,7 +623,7 @@ class DatabaseFixtures:
                 Object_Type="visie_algemeen",
                 Object_ID=1,
                 Code="visie_algemeen-1",
-                UUID=uuid.UUID("00000000-0000-0003-0000-000000000002"),
+                UUID=uuid.UUID("00000000-0000-0010-0000-000000000001"),
                 Title="Inleiding",
                 Description="""
 <h3>Leeswijzer</h3>
@@ -616,8 +661,6 @@ daarvoor levert.</p>""",
             )
         )
 
-
-
         self._db.add(
             ObjectStaticsTable(
                 Object_Type="visie_algemeen",
@@ -632,7 +675,7 @@ daarvoor levert.</p>""",
                 Object_Type="visie_algemeen",
                 Object_ID=2,
                 Code="visie_algemeen-2",
-                UUID=uuid.UUID("00000000-0000-0003-0000-000000000002"),
+                UUID=uuid.UUID("00000000-0000-0010-0000-000000000002"),
                 Title="Sturingsfilosofie",
                 Description="""
 <h3>Ruimte voor ontwikkeling, met waarborg voor kwaliteit: 8 sturingsprincipes voor de fysieke leefomgeving</h3>
@@ -656,8 +699,6 @@ haar partners, als waarborg voor de kwaliteit van de fysieke leefomgeving.</p>""
         )
         self._db.commit()
 
-
-
         self._db.add(
             ObjectStaticsTable(
                 Object_Type="visie_algemeen",
@@ -672,7 +713,7 @@ haar partners, als waarborg voor de kwaliteit van de fysieke leefomgeving.</p>""
                 Object_Type="visie_algemeen",
                 Object_ID=3,
                 Code="visie_algemeen-3",
-                UUID=uuid.UUID("00000000-0000-0003-0000-000000000002"),
+                UUID=uuid.UUID("00000000-0000-0010-0000-000000000003"),
                 Title="Hier staat Zuid-Holland nu",
                 Description="""
 <p>De huidige staat van de leefomgeving van Zuid-Holland beschrijven we aan de
