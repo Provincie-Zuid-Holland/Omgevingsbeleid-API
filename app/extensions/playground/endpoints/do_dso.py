@@ -41,7 +41,7 @@ jinja_template = """
     <div>
         <h1>Ambities van Zuid-Holland</h1>
         {%- for a in ambitie | sort(attribute='Title') %}
-            <div>
+            <div data-hint-element="divisietekst">
                 <object code="{{ a.Code }}" template="ambitie" />
             </div>
         {%- endfor %}
@@ -51,6 +51,17 @@ jinja_template = """
 <div>
     <h1>Beleidsdoelen en beleidskeuzes</h1>
 
+    {%- for d in beleidsdoel | sort(attribute='Title') %}
+        <div>
+            <object code="{{ d.Code }}" template="beleidsdoel" />
+
+            {%- for k in beleidskeuze | selectattr('Hierarchy_Code', 'equalto', d.Code) | sort(attribute='Title') %}
+            <div>
+                <object code="{{ k.Code }}" template="beleidskeuze" />
+            </div>
+            {%- endfor %}
+        </div>
+    {%- endfor %}
 </div>
 
 """
@@ -66,44 +77,6 @@ def get_policy_object_repository(aggregated_objects: Dict[str, List[dict]]):
     for objects in aggregated_objects.values():
         for o in objects:
             repository.add(o["Code"], o)
-
-    #     repository.add("visie_algemeen-1", {
-    #         "Object_Type": "visie_algemeen",
-    #         "Object_ID": 1,
-    #         "Code": "visie_algemeen-1",
-    #         "Title": "Inleiding",
-    #         "Description": """<h3>Leeswijzer</h3>
-    # <p>De Zuid-Hollandse leefomgeving verbeteren, elke dag, dat is waar de provincie
-    # aan werkt.<p>"""
-    #     })
-
-    #     repository.add("visie_algemeen-2", {
-    #         "Object_Type": "visie_algemeen",
-    #         "Object_ID": 2,
-    #         "Object_Code": "visie_algemeen-2",
-    #         "Title": "Sturingsfilosofie",
-    #         "Description": """<h3>Ruimte voor ontwikkeling</h3>
-    # <p>De provincie Zuid-Holland heeft met haar uitgebreide instrumentarium grote
-    # meerwaarde bij het oplossen van de maatschappelijke opgaven van vandaag en
-    # morgen. En met inbreng van kennis en creativiteit vanuit de samenleving kan nog
-    # meer worden bereikt. De kunst is het oplossend vermogen van de maatschappij
-    # te stimuleren en te benutten. Alleen ga je sneller, samen kom je verder</p>"""
-    #     })
-
-    #     repository.add("visie_algemeen-3", {
-    #         "Object_Type": "visie_algemeen",
-    #         "Object_ID": 3,
-    #         "Object_Code": "visie_algemeen-3",
-    #         "Title": "Hier staat Zuid-Holland nu",
-    #         "Description": """<h3>Leeswijzer</h3>
-    # <p>De huidige staat van de leefomgeving van Zuid-Holland beschrijven we aan de
-    # hand van twee onderdelen:</p>
-    # <ul><li><p>Een beschrijving van de KWALITEITEN VAN ZUID-HOLLAND: de drie
-    # deltalandschappen, de Zuid-Hollandse steden en de strategische ligging in
-    # internationale netwerken.</p></li>
-    # <li><p>Een beschrijving van de huidige staat van de LEEFOMGEVING op basis van de
-    # leefomgevingstoets.</p></li></ul>"""
-    #     })
 
     return repository
 
@@ -125,6 +98,16 @@ object_templates = {
 {{ o.Description }}
 """,
     "ambitie": """
+<h1>{{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{{ o.Description }}
+""",
+    "beleidsdoel": """
+<h1>{{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{{ o.Description }}
+""",
+    "beleidskeuze": """
 <h1>{{ o.Title }}</h1>
 <!--[OBJECT-CODE:{{o.Code}}]-->
 {{ o.Description }}
@@ -253,6 +236,7 @@ class EndpointHandler:
             object_types=[
                 "visie_algemeen",
                 "ambitie",
+                "beleidsdoel",
                 "beleidskeuze",
             ],
             field_map=[
@@ -263,6 +247,10 @@ class EndpointHandler:
                 "Title",
                 "Description",
                 "Hierarchy_Code",
+                "Cause",
+                "Provincial_Interest",
+                "Explanation",
+                "Gebied_UUID",
             ],
         )
 
