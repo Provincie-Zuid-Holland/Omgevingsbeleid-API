@@ -17,6 +17,8 @@ from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.publications import PublicationBill, Document_Type
 from app.extensions.publications.dependencies import depends_publication_repository
 from app.extensions.publications.repository import PublicationRepository
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class ListPublicationBillsEndpoint(Endpoint):

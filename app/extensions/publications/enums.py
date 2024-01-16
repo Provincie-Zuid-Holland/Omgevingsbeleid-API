@@ -2,20 +2,33 @@ from enum import Enum
 
 
 class Document_Type(str, Enum):
-    Vision = "Omgevingsvisie"
-    Program = "Omgevingsprogramma"
-    Ordinance = "Omgevingsverordening"
+    VISION = "Omgevingsvisie"
+    PROGRAM = "Omgevingsprogramma"
+    ORDINANCE = "Omgevingsverordening"
 
 
 class Bill_Type(str, Enum):
-    Concept = "Ontwerp"
-    Final = "Definitief"
+    CONCEPT = "Ontwerp"
+    FINAL = "Definitief"
 
 
 class Package_Event_Type(str, Enum):
-    Validation = "Validatie"
-    Publication = "Publicatie"
-    Terminate = "Afbreken"
+    VALIDATION = "Validatie"
+    PUBLICATION = "Publicatie"
+    TERMINATE = "Afbreken"
+
+
+class OWProcedureStatus(str, Enum):
+    CONCEPT = "Ontwerp"
+    FINAL = "Definitief"
+
+
+class OWAssociationType(str, Enum):
+    """
+    Every OWObject 1-to-many relationship is represented by an OWAssociation type
+    """
+    GEBIEDENGROEP_GEBIED = "Gebiedengroep_Gebied"
+    TEKSTDEEL_LOCATION = "Tekstdeel_Locatie"
 
 
 class IMOWTYPE(str, Enum):

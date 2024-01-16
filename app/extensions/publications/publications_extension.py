@@ -37,7 +37,6 @@ class PublicationsExtension(Extension):
                 pydantic_model=PublicationConfig,
             ),
         )
-        # TODO: Add OW
 
     def register_endpoint_resolvers(
         self,
