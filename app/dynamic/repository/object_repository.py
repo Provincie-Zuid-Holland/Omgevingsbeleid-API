@@ -50,15 +50,13 @@ class ObjectRepository(BaseRepository):
                     subq.c.End_Validity == None,
                 )
             )
-            .order_by(desc(subq.c.Modified_Date))
         )
 
         main_query = stmt.subquery()
 
         final_query = (
-            select(aliased_objects.Object_Type, func.count())
-            .select_from(main_query)
-            .group_by(aliased_objects.Object_Type)
+            select(main_query.c.Object_Type, func.count())
+            .group_by(main_query.c.Object_Type)
         )
 
         rows = self._db.execute(final_query).fetchall()
