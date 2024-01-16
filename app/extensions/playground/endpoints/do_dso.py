@@ -55,16 +55,64 @@ jinja_template = """
         <div>
             <object code="{{ d.Code }}" template="beleidsdoel" />
 
-            {%- for k in beleidskeuze | selectattr('Hierarchy_Code', 'equalto', d.Code) | sort(attribute='Title') %}
+            {% if beleidskeuze | selectattr('Hierarchy_Code', 'equalto', d.Code) %}
             <div>
-                <object code="{{ k.Code }}" template="beleidskeuze" />
+                <h1>Beleidskeuzes van {{ d.Title }}</h1>
+                {%- for k in beleidskeuze | selectattr('Hierarchy_Code', 'equalto', d.Code) | sort(attribute='Title') %}
+                <div>
+                    <object code="{{ k.Code }}" template="beleidskeuze" />
+                </div>
+                {%- endfor %}
             </div>
-            {%- endfor %}
+            {% endif %}
         </div>
     {%- endfor %}
 </div>
 
 """
+
+
+# <div>
+#     <h1>Beleidsdoelen en beleidskeuzes</h1>
+
+#     {%- for d in beleidsdoel | sort(attribute='Title') %}
+#         <div>
+#             <object code="{{ d.Code }}" template="beleidsdoel" />
+
+#             {%- for k in beleidskeuze | selectattr('Hierarchy_Code', 'equalto', d.Code) | sort(attribute='Title') %}
+#             <div>
+#                 <object code="{{ k.Code }}" template="beleidskeuze" />
+#             </div>
+#             {%- endfor %}
+#         </div>
+#     {%- endfor %}
+# </div>
+
+
+
+# <div>
+#     <h1>Beleidsdoelen en beleidskeuzes</h1>
+
+#     {%- for d in beleidsdoel | sort(attribute='Title') %}
+#         <div>
+#             <object code="{{ d.Code }}" template="beleidsdoel" />
+
+#             {% set filtered_beleidskeuze = beleidskeuze | selectattr('Hierarchy_Code', 'equalto', d.Code) | sort(attribute='Title') %}
+#             {% if filtered_beleidskeuze %}
+#             <div>
+#                 <h1>Beleidskeuzes van {{ d.Title }}</h2>
+#                 {%- for k in filtered_beleidskeuze %}
+#                 <div>
+#                     <object code="{{ k.Code }}" template="beleidskeuze" />
+#                 </div>
+#                 {%- endfor %}
+#             </div>
+#             {% endif %}
+#         </div>
+#     {%- endfor %}
+# </div>
+
+
 
 
 def create_vrijetekst_template():
@@ -95,22 +143,44 @@ object_templates = {
     "visie_algemeen": """
 <h1>{{ o.Title }}</h1>
 <!--[OBJECT-CODE:{{o.Code}}]-->
-{{ o.Description }}
+{{ o.Description | default('', true) }}
 """,
     "ambitie": """
 <h1>{{ o.Title }}</h1>
 <!--[OBJECT-CODE:{{o.Code}}]-->
-{{ o.Description }}
+{{ o.Description | default('', true) }}
 """,
     "beleidsdoel": """
 <h1>{{ o.Title }}</h1>
 <!--[OBJECT-CODE:{{o.Code}}]-->
-{{ o.Description }}
+{{ o.Description | default('', true) }}
 """,
     "beleidskeuze": """
 <h1>{{ o.Title }}</h1>
 <!--[OBJECT-CODE:{{o.Code}}]-->
+{% if o.Gebied_UUID is not none %}
+<!--[GEBIED-UUID:{{o.Gebied_UUID}}]-->
+{% endif %}
+
+{% if o.Description %}
+<h2>Wat wil de provincie bereiken?</h2>
 {{ o.Description }}
+{% endif %}
+
+{% if o.Cause %}
+<h2>Aanleiding</h2>
+{{ o.Cause }}
+{% endif %}
+
+{% if o.Provincial_Interest %}
+<h2>Motivering Provinciaal Belang</h2>
+{{ o.Provincial_Interest }}
+{% endif %}
+
+{% if o.Explanation %}
+<h2>Nadere uitwerking</h2>
+{{ o.Explanation }}
+{% endif %}
 """,
 }
 
