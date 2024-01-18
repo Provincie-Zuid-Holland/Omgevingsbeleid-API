@@ -123,8 +123,7 @@ def thumbnail(base64_string):
 
 
 def tokenize_html(html_text):
-    soup = BeautifulSoup(html_text, "lxml")
-
+    soup = BeautifulSoup(str(html_text), "lxml")
     tokens = []
 
     def process_text(text):
