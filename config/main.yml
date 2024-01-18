@@ -188,6 +188,46 @@ api:
         - resolver: module_patch_status
           resolver_data:
             path: /status
+        - resolver: module_diff
+          resolver_data:
+            path: /diff
+            objects:
+              - object_type: ambitie
+                content:
+                  - column: Description
+                    label: Omschrijving
+              - object_type: beleidsdoel
+                content:
+                  - column: Description
+                    label: Omschrijving
+                  - column: Hierarchy_Code
+                    label: Hierarchy_Code
+              - object_type: beleidskeuze
+                content:
+                  - column: Description
+                    label: Wat wil de provincie bereiken?
+                  - column: Cause
+                    label: Aanleiding
+                  - column: Provincial_Interest
+                    label: Provinciaal belang
+                  - column: Explanation
+                    label: Toelichting
+                  - column: Hierarchy_Code
+                    label: Hierarchy_Code
+                  - column: Gebied_UUID
+                    label: Gebied_UUID
+              - object_type: maatregel
+                content:
+                  - column: Description
+                    label: Wat wil de provincie bereiken?
+                  - column: Role
+                    label: Rol
+                  - column: Explanation
+                    label: Toelichting
+                  - column: Hierarchy_Code
+                    label: Hierarchy_Code
+                  - column: Gebied_UUID
+                    label: Gebied_UUID
         - resolver: module_add_new_object
           resolver_data:
             path: /add-new-object

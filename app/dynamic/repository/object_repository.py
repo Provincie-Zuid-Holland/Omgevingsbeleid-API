@@ -54,10 +54,7 @@ class ObjectRepository(BaseRepository):
 
         main_query = stmt.subquery()
 
-        final_query = (
-            select(main_query.c.Object_Type, func.count())
-            .group_by(main_query.c.Object_Type)
-        )
+        final_query = select(main_query.c.Object_Type, func.count()).group_by(main_query.c.Object_Type)
 
         rows = self._db.execute(final_query).fetchall()
         result = [ObjectCount(Object_Type=r[0], Count=r[1]) for r in rows]
