@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BLOB
+from sqlalchemy import BLOB, Unicode
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import Base
@@ -20,6 +20,7 @@ class WerkingsgebiedenTable(Base):
 
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
     SHAPE: Mapped[bytes] = mapped_column(BLOB)
+    symbol: Mapped[str] = mapped_column(Unicode(265))
 
     def __repr__(self) -> str:
         return f"Werkingsgebieden(UUID={self.UUID!r}, Title={self.Title!r})"
@@ -34,8 +35,8 @@ class OnderverdelingTable(Base):
     Title: Mapped[str] = mapped_column(name="Onderverdeling")
     SHAPE: Mapped[bytes] = mapped_column(BLOB)
     symbol: Mapped[str]
-    Werkingsgebied: Mapped[str]
-    UUID_Werkingsgebied: Mapped[str]
+    Werkingsgebied: Mapped[str] = mapped_column(Unicode(265))
+    UUID_Werkingsgebied: Mapped[uuid.UUID]
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]

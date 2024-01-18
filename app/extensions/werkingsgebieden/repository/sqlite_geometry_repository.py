@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy import text
 
@@ -38,7 +38,7 @@ class SqliteGeometryRepository(GeometryRepository):
             "start_validity": str(start_validity),
             "end_validity": str(end_validity),
         }
-        sql = f"""
+        sql = """
             INSERT INTO
                 Onderverdeling
                     (
@@ -59,6 +59,7 @@ class SqliteGeometryRepository(GeometryRepository):
         idx: int,
         title: str,
         text_shape: str,
+        symbol: str,
         created_date: datetime,
         modified_date: datetime,
         start_validity: datetime,
@@ -72,22 +73,61 @@ class SqliteGeometryRepository(GeometryRepository):
             "id": idx,
             "title": title,
             "shape": text_shape,
+            "symbol": symbol,
             "created_date": str(created_date),
             "modified_date": str(modified_date),
             "start_validity": str(start_validity),
             "end_validity": str(end_validity),
         }
-        sql = f"""
+        sql = """
             INSERT INTO
                 Werkingsgebieden
                     (
-                        UUID, ID, Werkingsgebied, SHAPE,
+                        UUID, ID, Werkingsgebied, SHAPE, symbol,
                         Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid
                     )
                 VALUES
                     (
-                        :uuid, :id, :title, GeomFromText(:shape, 28992),
+                        :uuid, :id, :title, GeomFromText(:shape, 28992), :symbol,
                         :created_date, :modified_date, :start_validity, :end_validity
                     )
             """
         self._db.execute(text(sql), params)
+
+    def get_werkingsgebied(self, uuidx: uuid.UUID) -> dict:
+        params = {
+            "uuid": str(uuidx),
+        }
+        sql = """
+            SELECT
+                UUID, Werkingsgebied AS Title, symbol AS Symbol,
+                Created_Date, Modified_Date, AsText(SHAPE) AS Geometry
+            FROM
+                Werkingsgebieden
+            WHERE
+                UUID = :uuid
+            """
+        row = self._db.execute(text(sql), params).fetchone()
+        if row is None:
+            raise RuntimeError(f"Werkingsgebied with UUID {uuidx} does not exist")
+
+        row_dict = row._asdict()
+        return row_dict
+
+    def get_onderverdelingen_for_werkingsgebied(self, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
+        params = {
+            "uuid": str(werkingsgebied_uuid),
+        }
+        sql = """
+            SELECT
+                UUID, Onderverdeling AS Title, symbol AS Symbol,
+                Created_Date, Modified_Date, AsText(SHAPE) AS Geometry
+            FROM
+                Onderverdeling
+            WHERE
+                UUID_Werkingsgebied = :uuid
+            """
+        rows = self._db.execute(text(sql), params).all()
+
+        dict_rows = [row._asdict() for row in rows]
+        return dict_rows

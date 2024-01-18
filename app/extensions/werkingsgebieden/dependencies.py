@@ -14,27 +14,13 @@ def depends_werkingsgebieden_repository(
     return WerkingsgebiedenRepository(db)
 
 
-def depends_mssql_geometry_repository(
-    db: Session = Depends(depends_db),
-) -> GeometryRepository:
-    return MssqlGeometryRepository(db)
-
-
-def depends_sqlite_geometry_repository(
-    db: Session = Depends(depends_db),
-) -> GeometryRepository:
-    return SqliteGeometryRepository(db)
-
-
 def depends_geometry_repository(
     db: Session = Depends(depends_db),
-    mssql: GeometryRepository = Depends(depends_mssql_geometry_repository),
-    sqlite: GeometryRepository = Depends(depends_sqlite_geometry_repository),
 ) -> GeometryRepository:
     match db.bind.dialect.name:
         case "mssql":
-            return mssql
+            return MssqlGeometryRepository(db)
         case "sqlite":
-            return sqlite
+            return SqliteGeometryRepository(db)
         case _:
             raise RuntimeError("Unknown database type connected")

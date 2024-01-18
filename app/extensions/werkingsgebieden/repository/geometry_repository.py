@@ -1,7 +1,7 @@
 import uuid
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from app.dynamic.repository.repository import BaseRepository
 
@@ -31,9 +31,18 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         idx: int,
         title: str,
         text_shape: str,
+        symbol: str,
         created_date: datetime,
         modified_date: datetime,
         start_validity: datetime,
         end_validity: Optional[datetime],
     ):
+        pass
+
+    @abstractmethod
+    def get_werkingsgebied(self, uuidx: uuid.UUID) -> dict:
+        pass
+
+    @abstractmethod
+    def get_onderverdelingen_for_werkingsgebied(self, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
         pass
