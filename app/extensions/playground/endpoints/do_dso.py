@@ -89,7 +89,6 @@ jinja_template = """
 # </div>
 
 
-
 # <div>
 #     <h1>Beleidsdoelen en beleidskeuzes</h1>
 
@@ -111,8 +110,6 @@ jinja_template = """
 #         </div>
 #     {%- endfor %}
 # </div>
-
-
 
 
 def create_vrijetekst_template():

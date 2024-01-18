@@ -1,14 +1,17 @@
 from contextlib import contextmanager
 from typing import Generator
 
+from sqlalchemy import text
+
 from app.core.db.session import SessionLocal
 
 
 def depends_db() -> Generator:
     db = SessionLocal()
     try:
-        # @todo: should be checking database type first
-        # db.execute(text("pragma foreign_keys=on"))
+        if db.bind.dialect.name == "sqlite":
+            # db.execute(text("pragma foreign_keys=on"))
+            db.execute(text("SELECT load_extension('mod_spatialite')"))
         yield db
     except Exception as e:
         # Gives me a place to inspect

@@ -22,8 +22,12 @@ Then run:
 make test
 ```
 
+### sqlite
 
 
+```
+CONFIGURE_OPTS="--enable-loadable-sqlite-extensions" pyenv install 3.10.13
+```
 
 
 # @TODO: Fix below this

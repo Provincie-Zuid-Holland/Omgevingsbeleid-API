@@ -19,8 +19,29 @@ class WerkingsgebiedenTable(Base):
     End_Validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
 
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
-
     SHAPE: Mapped[bytes] = mapped_column(BLOB)
 
     def __repr__(self) -> str:
         return f"Werkingsgebieden(UUID={self.UUID!r}, Title={self.Title!r})"
+
+
+class OnderverdelingTable(Base):
+    __tablename__ = "Onderverdeling"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    ID: Mapped[int]
+
+    Title: Mapped[str] = mapped_column(name="Onderverdeling")
+    SHAPE: Mapped[bytes] = mapped_column(BLOB)
+    symbol: Mapped[str]
+    Werkingsgebied: Mapped[str]
+    UUID_Werkingsgebied: Mapped[str]
+
+    Created_Date: Mapped[datetime]
+    Modified_Date: Mapped[datetime]
+
+    Start_Validity: Mapped[datetime] = mapped_column(name="Begin_Geldigheid")
+    End_Validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
+
+    def __repr__(self) -> str:
+        return f"Onderverdeling(UUID={self.UUID!r}, Title={self.Title!r})"
