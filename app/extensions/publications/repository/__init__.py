@@ -1,1 +1,2 @@
 from .publication_repository import PublicationRepository
+from .publication_object_repository import PublicationObjectRepository

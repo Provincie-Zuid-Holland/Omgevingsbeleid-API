@@ -1,5 +1,7 @@
 from typing import List, Dict
 
+import click
+
 from app.dynamic.config.models import ExtensionModel, Column
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
@@ -11,7 +13,7 @@ from app.extensions.publications.models import (
     PublicationPackage,
     PublicationConfig,
 )
-from app.extensions.publications import endpoints
+from app.extensions.publications import commands, endpoints
 
 
 class PublicationsExtension(Extension):
@@ -59,3 +61,6 @@ class PublicationsExtension(Extension):
         models_resolver: ModelsResolver,
     ):
         pass
+
+    def register_commands(self, main_command_group: click.Group, main_config: dict):
+        main_command_group.add_command(commands.test_dso_call, "test-dso-call")

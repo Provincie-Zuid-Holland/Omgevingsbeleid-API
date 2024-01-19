@@ -1,12 +1,10 @@
-from datetime import datetime
 import uuid
-from git import Optional
+from datetime import datetime
+from typing import Optional
 from sqlalchemy import Column, String, ForeignKey, Text, Enum as SQLAlchemyEnum
 from sqlalchemy.sql.expression import select
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Session
-
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy.orm import Session, mapped_column, Mapped, relationship
 from app.core.db.base import Base
 from app.core.db.mixins import HasUUID, TimeStamped
 
@@ -17,6 +15,7 @@ class OWAssociation(Base):
     """
     Generic association table for OWObject 1-to-many relationships
     """
+
     __tablename__ = "publication_ow_association"
     OW_ID_1 = Column(String, ForeignKey("publication_ow_objects.OW_ID"), primary_key=True)
     OW_ID_2 = Column(String, ForeignKey("publication_ow_objects.OW_ID"), primary_key=True)
