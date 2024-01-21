@@ -44,5 +44,15 @@
             "request": "launch",
             "module": "scripts.import.main"
         },
+        {
+            "name": "Python: Custom Command",
+            "type": "python",
+            "request": "launch",
+            "program": "cmds.py",
+            "args": [
+                "test-dso-call"
+            ],
+            "justMyCode": false
+        }
     ]
 }

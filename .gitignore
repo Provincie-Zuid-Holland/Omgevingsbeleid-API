@@ -21,3 +21,4 @@ output-dso/*
 .vscode
 notes.md
 .python-version
+temp/
