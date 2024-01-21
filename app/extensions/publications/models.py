@@ -121,8 +121,8 @@ class PublicationPackage(BaseModel):
     Publication_Bill: Optional[PublicationBill]
 
     Province_ID: str
-    Submitter_ID: int
-    Authority_ID: int
+    Submitter_ID: str
+    Authority_ID: str
     Jurisdiction: str
     Subjects: str
     dso_stop_version: str

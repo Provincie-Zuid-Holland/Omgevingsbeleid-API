@@ -115,6 +115,15 @@ class PublicationRepository(BaseRepository):
         self._db.commit()
         return new_package
 
+    def get_publication_package(self, uuid: UUID) -> Optional[PublicationPackageTable]:
+        """
+        Retrieves full publication package by its UUID.
+        #TODO add files/link
+        """
+        stmt = select(PublicationPackageTable).where(PublicationPackageTable.UUID == uuid)
+        return self.fetch_first(stmt)
+
+
     def get_publication_packages(
         self,
         document_type: Optional[Document_Type] = None,
@@ -139,7 +148,7 @@ class PublicationRepository(BaseRepository):
         )
         return paged_result
 
-    def fetch_latest_config(self) -> Optional[PublicationConfigTable]:
+    def get_latest_config(self) -> Optional[PublicationConfigTable]:
         """
         Fetches the latest publication configuration from the database.
 

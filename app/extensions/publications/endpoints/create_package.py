@@ -88,7 +88,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         Returns:
             PublicationPackage: The response containing the UUID of the created publication package.
         """
-        current_config: PublicationConfigTable = pub_repo.fetch_latest_config()
+        current_config: PublicationConfigTable = pub_repo.get_latest_config()
         if not current_config:
             raise MissingPublicationConfigError("No config found")
 
