@@ -209,8 +209,29 @@
             "Announcement_Date": "2023-12-28 09:16:28.427000",
             "Bill_Type": "Definitief",
             "Document_Type": "Omgevingsprogramma",
-            "Bill_Data": "{\"Bill_Title\": \"string\", \"Regulation_Title\": \"string\", \"Preamble\": \"string\", \"Amendment_Article\": {\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}, \"Articles\": [{\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}], \"Closing\": \"string\", \"Signature\": \"string\"}",
-            "Procedure_Data": "{\"Announcement_Date\": \"2023-12-28T09:16:28.427000+00:00\", \"Steps\": []}"
+            "Bill_Data": {
+                "Bill_Title": "string",
+                "Regulation_Title": "string",
+                "Preamble": "string",
+                "Amendment_Article": {
+                    "Label": "string",
+                    "Number": "string",
+                    "Content": "string"
+                },
+                "Articles": [
+                    {
+                        "Label": "string",
+                        "Number": "string",
+                        "Content": "string"
+                    }
+                ],
+                "Closing": "string",
+                "Signature": "string"
+            },
+            "Procedure_Data": {
+                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
+                "Steps": []
+            }
         },
         {
             "UUID": "8dc7133979544be9bd33aed92258d48c",
@@ -224,8 +245,29 @@
             "Announcement_Date": "2023-12-29 03:33:55.972000",
             "Bill_Type": "Definitief",
             "Document_Type": "Omgevingsvisie",
-            "Bill_Data": "{\"Bill_Title\": \"hark\", \"Regulation_Title\": \"string\", \"Preamble\": \"string\", \"Amendment_Article\": {\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}, \"Articles\": [{\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}], \"Closing\": \"string\", \"Signature\": \"string\"}",
-            "Procedure_Data": "{\"Announcement_Date\": \"2023-12-28T09:16:28.427000+00:00\", \"Steps\": []}"
+            "Bill_Data": {
+                "Bill_Title": "hark",
+                "Regulation_Title": "string",
+                "Preamble": "string",
+                "Amendment_Article": {
+                    "Label": "string",
+                    "Number": "string",
+                    "Content": "string"
+                },
+                "Articles": [
+                    {
+                        "Label": "string",
+                        "Number": "string",
+                        "Content": "string"
+                    }
+                ],
+                "Closing": "string",
+                "Signature": "string"
+            },
+            "Procedure_Data": {
+                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
+                "Steps": []
+            }
         },
         {
             "UUID": "8cb29c95f9b64f899a061d15ff2bc7be",
@@ -239,8 +281,29 @@
             "Announcement_Date": "2023-12-30 09:08:57.185000",
             "Bill_Type": "Definitief",
             "Document_Type": "Omgevingsvisie",
-            "Bill_Data": "{\"Bill_Title\": \"string\", \"Regulation_Title\": \"string\", \"Preamble\": \"string\", \"Amendment_Article\": {\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}, \"Articles\": [{\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}], \"Closing\": \"string\", \"Signature\": \"string\"}",
-            "Procedure_Data": "{\"Announcement_Date\": \"2023-12-28T09:16:28.427000+00:00\", \"Steps\": []}"
+            "Bill_Data": {
+                "Bill_Title": "string",
+                "Regulation_Title": "string",
+                "Preamble": "string",
+                "Amendment_Article": {
+                    "Label": "string",
+                    "Number": "string",
+                    "Content": "string"
+                },
+                "Articles": [
+                    {
+                        "Label": "string",
+                        "Number": "string",
+                        "Content": "string"
+                    }
+                ],
+                "Closing": "string",
+                "Signature": "string"
+            },
+            "Procedure_Data": {
+                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
+                "Steps": []
+            }
         },
         {
             "UUID": "c5196b5cbc984f7480195db5ce643fb7",
@@ -254,8 +317,29 @@
             "Announcement_Date": "2023-12-30 09:08:57.185000",
             "Bill_Type": "Definitief",
             "Document_Type": "Omgevingsvisie",
-            "Bill_Data": "{\"Bill_Title\": \"string\", \"Regulation_Title\": \"string\", \"Preamble\": \"string\", \"Amendment_Article\": {\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}, \"Articles\": [{\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}], \"Closing\": \"string\", \"Signature\": \"string\"}",
-            "Procedure_Data": "{\"Announcement_Date\": \"2023-12-28T09:16:28.427000+00:00\", \"Steps\": []}"
+            "Bill_Data": {
+                "Bill_Title": "string",
+                "Regulation_Title": "string",
+                "Preamble": "string",
+                "Amendment_Article": {
+                    "Label": "string",
+                    "Number": "string",
+                    "Content": "string"
+                },
+                "Articles": [
+                    {
+                        "Label": "string",
+                        "Number": "string",
+                        "Content": "string"
+                    }
+                ],
+                "Closing": "string",
+                "Signature": "string"
+            },
+            "Procedure_Data": {
+                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
+                "Steps": []
+            }
         },
         {
             "UUID": "ec2b3d94e5ad4800a5f13f74b7e801dc",
@@ -269,8 +353,29 @@
             "Announcement_Date": "2023-12-30 12:14:05.343000",
             "Bill_Type": "Definitief",
             "Document_Type": "Omgevingsvisie",
-            "Bill_Data": "{\"Bill_Title\": \"ontwerp PS bill\", \"Regulation_Title\": \"string\", \"Preamble\": \"string\", \"Amendment_Article\": {\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}, \"Articles\": [{\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}], \"Closing\": \"string\", \"Signature\": \"string\"}",
-            "Procedure_Data": "{\"Announcement_Date\": \"2023-12-28T09:16:28.427000+00:00\", \"Steps\": []}"
+            "Bill_Data": {
+                "Bill_Title": "ontwerp PS bill",
+                "Regulation_Title": "string",
+                "Preamble": "string",
+                "Amendment_Article": {
+                    "Label": "string",
+                    "Number": "string",
+                    "Content": "string"
+                },
+                "Articles": [
+                    {
+                        "Label": "string",
+                        "Number": "string",
+                        "Content": "string"
+                    }
+                ],
+                "Closing": "string",
+                "Signature": "string"
+            },
+            "Procedure_Data": {
+                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
+                "Steps": []
+            }
         },
         {
             "UUID": "913a8b4f0c384c99ad9bf8aec733db1d",
@@ -284,8 +389,29 @@
             "Announcement_Date": "2024-01-03 04:23:28.237000",
             "Bill_Type": "Ontwerp",
             "Document_Type": "Omgevingsprogramma",
-            "Bill_Data": "{\"Bill_Title\": \"string\", \"Regulation_Title\": \"string\", \"Preamble\": \"string\", \"Amendment_Article\": {\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}, \"Articles\": [{\"Label\": \"string\", \"Number\": \"string\", \"Content\": \"string\"}], \"Closing\": \"string\", \"Signature\": \"string\"}",
-            "Procedure_Data": "{\"Announcement_Date\": \"2024-01-02T04:23:28.237000+00:00\", \"Steps\": []}"
+            "Bill_Data": {
+                "Bill_Title": "string",
+                "Regulation_Title": "string",
+                "Preamble": "string",
+                "Amendment_Article": {
+                    "Label": "string",
+                    "Number": "string",
+                    "Content": "string"
+                },
+                "Articles": [
+                    {
+                        "Label": "string",
+                        "Number": "string",
+                        "Content": "string"
+                    }
+                ],
+                "Closing": "string",
+                "Signature": "string"
+            },
+            "Procedure_Data": {
+                "Announcement_Date": "2024-01-02T04:23:28.237000+00:00",
+                "Steps": []
+            }
         },
         {
             "UUID": "f6dd58c2ab7843fea3fed37e08634a04",
@@ -299,8 +425,29 @@
             "Announcement_Date": "2024-01-17 06:07:28.237000",
             "Bill_Type": "Definitief",
             "Document_Type": "Omgevingsvisie",
-            "Bill_Data": "{\"Bill_Title\": \"billie mcbill\", \"Regulation_Title\": \"titel\", \"Preamble\": \"preamble\", \"Amendment_Article\": {\"Label\": \"asd\", \"Number\": \"1\", \"Content\": \"asd\"}, \"Articles\": [{\"Label\": \"2\", \"Number\": \"2\", \"Content\": \"asd\"}], \"Closing\": \"string\", \"Signature\": \"handtekening\"}",
-            "Procedure_Data": "{\"Announcement_Date\": \"2024-01-16T06:07:28.237000+00:00\", \"Steps\": []}"
+            "Bill_Data": {
+                "Bill_Title": "billie mcbill",
+                "Regulation_Title": "titel",
+                "Preamble": "preamble",
+                "Amendment_Article": {
+                    "Label": "asd",
+                    "Number": "1",
+                    "Content": "asd"
+                },
+                "Articles": [
+                    {
+                        "Label": "2",
+                        "Number": "2",
+                        "Content": "asd"
+                    }
+                ],
+                "Closing": "string",
+                "Signature": "handtekening"
+            },
+            "Procedure_Data": {
+                "Announcement_Date": "2024-01-16T06:07:28.237000+00:00",
+                "Steps": []
+            }
         }
     ],
     "publication_config": [
