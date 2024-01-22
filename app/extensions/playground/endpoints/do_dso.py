@@ -1,3 +1,4 @@
+import io
 from datetime import datetime
 from typing import Dict, List
 
@@ -9,8 +10,7 @@ from dso.builder.state_manager.input_data.resource.asset.asset_repository import
 from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied_repository import (
     WerkingsgebiedRepository,
 )
-from fastapi import APIRouter, Depends
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -21,6 +21,8 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_repository import ObjectRepository
+from app.extensions.modules.db.tables import ModuleTable
+from app.extensions.modules.dependencies import depends_active_module
 from app.extensions.playground.dependencies import (
     depends_dso_assets_factory,
     depends_dso_werkingsgebieden_factory,
@@ -43,6 +45,7 @@ class EndpointHandler:
         assets_factory: DsoAssetsFactory,
         omgevingsvisie_template_parser: TemplateParser,
         input_data_service: InputDataService,
+        module: ModuleTable,
     ):
         self._db: Session = db
         self._object_repository: ObjectRepository = object_repository
@@ -50,11 +53,12 @@ class EndpointHandler:
         self._assets_factory: DsoAssetsFactory = assets_factory
         self._omgevingsvisie_template_parser: TemplateParser = omgevingsvisie_template_parser
         self._input_data_service: InputDataService = input_data_service
+        self._module: ModuleTable = module
 
-    def handle(self) -> FileResponse:
+    def handle(self) -> Response:
         repository = PublicationObjectRepository(self._db)
         objects = repository.fetch_objects(
-            module_id=1,
+            module_id=self._module.Module_ID,
             timepoint=datetime.utcnow(),
             object_types=[
                 "visie_algemeen",
@@ -100,9 +104,17 @@ class EndpointHandler:
 
         builder = Builder(input_data)
         builder.build_publication_files()
-        builder.save_files("./output-dso")
+        zip_buffer: io.BytesIO() = builder.zip_files()
 
-        a = True
+        zip_filename = (
+            f"download-dso-module-{self._module.Module_ID}-at-{datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S')}.zip"
+        )
+
+        return Response(
+            content=zip_buffer.read(),
+            media_type="application/x-zip-compressed",
+            headers={"Content-Disposition": f"attachment; filename={zip_filename}"},
+        )
 
     def _calculate_used_object_codes(self, free_text_template_str: str) -> Dict[str, bool]:
         soup = BeautifulSoup(free_text_template_str, "html.parser")
@@ -128,7 +140,8 @@ class DoDsoEndpoint(Endpoint):
             assets_factory: DsoAssetsFactory = Depends(depends_dso_assets_factory),
             omgevingsvisie_template_parser: TemplateParser = Depends(depends_omgevingsvisie_template_parser),
             input_data_service: InputDataService = Depends(depends_input_data_service),
-        ) -> FileResponse:
+            module: ModuleTable = Depends(depends_active_module),
+        ) -> Response:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 object_repository,
@@ -136,6 +149,7 @@ class DoDsoEndpoint(Endpoint):
                 assets_factory,
                 omgevingsvisie_template_parser,
                 input_data_service,
+                module,
             )
             return handler.handle()
 
@@ -165,5 +179,7 @@ class DoDsoEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
+        if not "{module_id}" in path:
+            raise RuntimeError("Missing {module_id} argument in path")
 
         return DoDsoEndpoint(path)
