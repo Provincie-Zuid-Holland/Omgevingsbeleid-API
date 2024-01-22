@@ -1,11 +1,12 @@
-from app.core.db.base import Base
-from app.extensions.publications.enums import IMOWTYPE, OWProcedureStatus, OWAssociationType
-from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import PaginatedQueryResult, SimplePagination
 from typing import Optional
 from uuid import UUID
+
 from sqlalchemy import select
-from .ow import OWObject
+
+from app.dynamic.repository.repository import BaseRepository
+from app.dynamic.utils.pagination import PaginatedQueryResult
+
+from .tables.ow import OWObject
 
 
 class OWObjectRepository(BaseRepository):
@@ -28,7 +29,7 @@ class OWObjectRepository(BaseRepository):
         self._db.commit()
         return new_ow_object
 
-    def get_ow_object(self, uuid: UUID) -> Optional[OWObject]:
+    def get_ow_object_by_uuid(self, uuid: UUID) -> Optional[OWObject]:
         """
         Retrieves an OWObject by its UUID.
 

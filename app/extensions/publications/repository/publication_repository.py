@@ -1,23 +1,19 @@
-from datetime import datetime
-import json
 from typing import Optional
-from uuid import UUID, uuid4
-import uuid
+from uuid import UUID
 
-from sqlalchemy import and_, desc, or_, select
-from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, or_
+from sqlalchemy import desc, select
 
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import PaginatedQueryResult, SimplePagination
+from app.dynamic.utils.pagination import PaginatedQueryResult
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable
 from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.publications import (
-    PublicationBillTable,
     Document_Type,
-    PublicationPackageTable,
+    PublicationBillTable,
     PublicationConfigTable,
+    PublicationPackageTable,
 )
+from app.extensions.publications.tables.tables import DSOStateExportTable
 
 
 class PublicationRepository(BaseRepository):
@@ -90,17 +86,13 @@ class PublicationRepository(BaseRepository):
             PublicationBillTable: The created publication bill.
         """
         # set version to last known + 1
-        new_bill.Version_ID = PublicationBillTable.next_version(
-            self._db, new_bill.Module_ID, new_bill.Document_Type
-        )
+        new_bill.Version_ID = PublicationBillTable.next_version(self._db, new_bill.Module_ID, new_bill.Document_Type)
         self._db.add(new_bill)
         self._db.flush()
         self._db.commit()
         return new_bill
 
-    def create_publication_package(
-        self, new_package: PublicationPackageTable
-    ) -> PublicationPackageTable:
+    def create_publication_package(self, new_package: PublicationPackageTable) -> PublicationPackageTable:
         """
         Creates a new publication package in the database.
 
@@ -122,7 +114,6 @@ class PublicationRepository(BaseRepository):
         """
         stmt = select(PublicationPackageTable).where(PublicationPackageTable.UUID == uuid)
         return self.fetch_first(stmt)
-
 
     def get_publication_packages(
         self,
@@ -155,9 +146,11 @@ class PublicationRepository(BaseRepository):
         Returns:
             Optional[PublicationConfigTable]: The latest publication configuration, or None if no configuration is found.
         """
-        config_query = (
-            select(PublicationConfigTable)
-            .order_by(desc(PublicationConfigTable.Created_Date))
-            .limit(1)
-        )
+        config_query = select(PublicationConfigTable).order_by(desc(PublicationConfigTable.Created_Date)).limit(1)
         return self.fetch_first(config_query)
+
+    def create_dso_state_export(self, export: DSOStateExportTable) -> DSOStateExportTable:
+        self._db.add(export)
+        self._db.flush()
+        self._db.commit()
+        return export

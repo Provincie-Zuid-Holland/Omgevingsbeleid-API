@@ -27,6 +27,7 @@ class OWAssociationType(str, Enum):
     """
     Every OWObject 1-to-many relationship is represented by an OWAssociation type
     """
+
     GEBIEDENGROEP_GEBIED = "Gebiedengroep_Gebied"
     TEKSTDEEL_LOCATION = "Tekstdeel_Locatie"
 
@@ -35,6 +36,7 @@ class IMOWTYPE(str, Enum):
     """
     IMOW 2.0.2
     """
+
     REGELTEKST = "regeltekst"
     GEBIED = "gebied"
     GEBIEDENGROEP = "gebiedengroep"

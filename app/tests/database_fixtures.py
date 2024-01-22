@@ -11,16 +11,8 @@ from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelation
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
 from app.extensions.html_assets.db.tables import AssetsTable
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.db.tables import (
-    ModuleObjectContextTable,
-    ModuleStatusHistoryTable,
-    ModuleTable,
-)
-from app.extensions.modules.models.models import (
-    ModuleObjectActionFilter,
-    ModuleStatusCode,
-    ModuleStatusCodeInternal,
-)
+from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
+from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode, ModuleStatusCodeInternal
 from app.extensions.publications.enums import IMOWTYPE
 from app.extensions.publications.tables.ow import (
     OWAmbtsgebied,
@@ -43,7 +35,6 @@ from app.extensions.users.db import UsersTable
 from app.extensions.users.db.tables import IS_ACTIVE
 from app.extensions.werkingsgebieden.repository.mssql_geometry_repository import MssqlGeometryRepository
 from app.extensions.werkingsgebieden.repository.sqlite_geometry_repository import SqliteGeometryRepository
-from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 from app.tests.json_fixtures import filter_valid_fields, parse_datetime, parse_uuid
 
 
@@ -74,7 +65,7 @@ class DatabaseFixtures:
 
         # Seed DSO publication states
         self.build_state_pre_publication_packaging()
-        # self.build_state_post_publication_packaging()
+        self.build_state_post_publication_packaging()
 
     def create_users(self):
         self._db.add(
@@ -843,41 +834,41 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
         # Process 'modules' data
         modules = []
         for item in data["modules"]:
-            item['Created_Date'] = parse_datetime(item.get("Created_Date"))
-            item['Modified_Date'] = parse_datetime(item.get("Modified_Date"))
-            item['Module_Manager_1_UUID'] = parse_uuid(item.get("Module_Manager_1_UUID"))
-            item['Created_By_UUID'] = parse_uuid(item.get("Created_By_UUID"))
-            item['Modified_By_UUID'] = parse_uuid(item.get("Modified_By_UUID"))
+            item["Created_Date"] = parse_datetime(item.get("Created_Date"))
+            item["Modified_Date"] = parse_datetime(item.get("Modified_Date"))
+            item["Module_Manager_1_UUID"] = parse_uuid(item.get("Module_Manager_1_UUID"))
+            item["Created_By_UUID"] = parse_uuid(item.get("Created_By_UUID"))
+            item["Modified_By_UUID"] = parse_uuid(item.get("Modified_By_UUID"))
             modules.append(ModuleTable(**item))
         self._db.bulk_save_objects(modules)
 
         # Process 'module_objects' data
         module_objects = []
         for item in data["module_objects"]:
-            item['Created_Date'] = parse_datetime(item.get("Created_Date"))
-            item['Modified_Date'] = parse_datetime(item.get("Modified_Date"))
-            item['UUID'] = parse_uuid(item.get("UUID"))
-            item['Created_By_UUID'] = parse_uuid(item.get("Created_By_UUID"))
-            item['Modified_By_UUID'] = parse_uuid(item.get("Modified_By_UUID"))
-            item['Adjust_On'] = parse_uuid(item.get("Adjust_On"))
+            item["Created_Date"] = parse_datetime(item.get("Created_Date"))
+            item["Modified_Date"] = parse_datetime(item.get("Modified_Date"))
+            item["UUID"] = parse_uuid(item.get("UUID"))
+            item["Created_By_UUID"] = parse_uuid(item.get("Created_By_UUID"))
+            item["Modified_By_UUID"] = parse_uuid(item.get("Modified_By_UUID"))
+            item["Adjust_On"] = parse_uuid(item.get("Adjust_On"))
             module_objects.append(ModuleObjectsTable(**item))
         self._db.bulk_save_objects(module_objects)
 
         # Process 'module_status_history' data
         module_status_history = []
         for item in data["module_status_history"]:
-            item['Created_Date'] = parse_datetime(item.get("Created_Date"))
-            item['Created_By_UUID'] = parse_uuid(item.get("Created_By_UUID"))
+            item["Created_Date"] = parse_datetime(item.get("Created_Date"))
+            item["Created_By_UUID"] = parse_uuid(item.get("Created_By_UUID"))
             module_status_history.append(ModuleStatusHistoryTable(**item))
         self._db.bulk_save_objects(module_status_history)
 
         # Process 'module_object_context' data
         module_object_context = []
         for item in data["module_object_context"]:
-            item['Created_Date'] = parse_datetime(item.get("Created_Date"))
-            item['Modified_Date'] = parse_datetime(item.get("Modified_Date"))
-            item['Created_By_UUID'] = parse_uuid(item.get("Created_By_UUID"))
-            item['Modified_By_UUID'] = parse_uuid(item.get("Modified_By_UUID"))
+            item["Created_Date"] = parse_datetime(item.get("Created_Date"))
+            item["Modified_Date"] = parse_datetime(item.get("Modified_Date"))
+            item["Created_By_UUID"] = parse_uuid(item.get("Created_By_UUID"))
+            item["Modified_By_UUID"] = parse_uuid(item.get("Modified_By_UUID"))
             module_object_context.append(ModuleObjectContextTable(**item))
         self._db.bulk_save_objects(module_object_context)
 
@@ -899,8 +890,6 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
             item["Announcement_Date"] = parse_datetime(item.get("Announcement_Date"))
             bills.append(PublicationBillTable(**item))
         self._db.bulk_save_objects(bills)
-
-
 
         self._db.commit()
 
@@ -993,9 +982,7 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
             "Bill_Data": json.loads(
                 '{"Bill_Title": "besluit1", "Regulation_Title": "string", "Preamble": "string", "Amendment_Article": {"Label": "string", "Number": "string", "Content": "string"}, "Articles": [{"Label": "string", "Number": "string", "Content": "string"}], "Closing": "string", "Signature": "string"}'
             ),
-            "Procedure_Data": json.loads(
-                '{"Announcement_Date": "2024-01-02T04:23:28.237000+00:00", "Steps": []}'
-            ),
+            "Procedure_Data": json.loads('{"Announcement_Date": "2024-01-02T04:23:28.237000+00:00", "Steps": []}'),
         }
 
         bill_2 = {
@@ -1013,9 +1000,7 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
             "Bill_Data": json.loads(
                 '{"Bill_Title": "besluit2", "Regulation_Title": "string", "Preamble": "string", "Amendment_Article": {"Label": "string", "Number": "string", "Content": "string"}, "Articles": [{"Label": "string", "Number": "string", "Content": "string"}], "Closing": "string", "Signature": "string"}'
             ),
-            "Procedure_Data": json.loads(
-                '{"Announcement_Date": "2023-12-28T09:16:28.427000+00:00", "Steps": []}'
-            ),
+            "Procedure_Data": json.loads('{"Announcement_Date": "2023-12-28T09:16:28.427000+00:00", "Steps": []}'),
         }
 
         # Creating an instance of PublicationBillTable
@@ -1098,4 +1083,3 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
         )
         self._db.add(annotation)
         self._db.commit()
-
