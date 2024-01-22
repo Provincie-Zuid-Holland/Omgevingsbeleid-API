@@ -1,8 +1,10 @@
 import uuid
-from typing import List, Optional
-from pydantic import BaseModel
 from datetime import datetime
-from app.extensions.publications.enums import Document_Type, Bill_Type, Package_Event_Type
+from typing import List, Optional
+
+from pydantic import BaseModel
+
+from app.extensions.publications.enums import Bill_Type, Document_Type, Package_Event_Type
 
 
 class PublicationConfig(BaseModel):
@@ -40,8 +42,6 @@ class AmendmentArticle(Article):
     STOP WijzigingArtikel
     """
 
-    pass
-
 
 class BillArticle(Article):
     pass
@@ -69,7 +69,7 @@ class Bill_Data(BaseModel):
     Bill_Title: str  # Officiele titel
     Regulation_Title: str  # Regeling opschrift
     Preamble: Optional[str]  # Aanhef
-    Amendment_Article: Optional[AmendmentArticle] # WijzigingArtikel
+    Amendment_Article: Optional[AmendmentArticle]  # WijzigingArtikel
     Articles: Optional[List[BillArticle]]  # Artikel
     Closing: str  # Sluiting
     Signature: str  # Ondertekening
@@ -79,6 +79,7 @@ class PublicationBill(BaseModel):
     """
     STOP Besluit
     """
+
     UUID: uuid.UUID
     Version_ID: Optional[int]
     Module_ID: int

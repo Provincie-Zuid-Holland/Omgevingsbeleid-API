@@ -1,9 +1,9 @@
+from datetime import datetime
+from typing import Optional
 from uuid import uuid4
 from zoneinfo import ZoneInfo
-from datetime import datetime
-from dateutil.parser import parse
-from typing import Optional
 
+from dateutil.parser import parse
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, validator
 
@@ -12,13 +12,12 @@ from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.publications.tables import PublicationBillTable
-from app.extensions.publications.enums import Document_Type
+from app.extensions.publications.dependencies import depends_publication_repository
+from app.extensions.publications.enums import Bill_Type, Document_Type
 from app.extensions.publications.helpers import serialize_datetime
 from app.extensions.publications.models import Bill_Data, Procedure_Data
-from app.extensions.publications.dependencies import depends_publication_repository
 from app.extensions.publications.repository import PublicationRepository
-from app.extensions.publications.enums import Bill_Type
+from app.extensions.publications.tables import PublicationBillTable
 
 
 class PublicationBillCreate(BaseModel):
@@ -85,9 +84,7 @@ class CreatePublicationBillEndpoint(Endpoint):
 
         return router
 
-    def _handler(
-        self, bill_repo: PublicationRepository, object_in: PublicationBillCreate
-    ) -> PublicationBillResponse:
+    def _handler(self, bill_repo: PublicationRepository, object_in: PublicationBillCreate) -> PublicationBillResponse:
         """
         Handles the creation of a publication bill.
 
@@ -101,9 +98,7 @@ class CreatePublicationBillEndpoint(Endpoint):
         data = object_in.dict()
         data["Bill_Data"] = serialize_datetime(data["Bill_Data"])
         data["Procedure_Data"] = serialize_datetime(data["Procedure_Data"])
-        new_bill = PublicationBillTable(
-            UUID=uuid4(), Created_Date=datetime.now(), Modified_Date=datetime.now(), **data
-        )
+        new_bill = PublicationBillTable(UUID=uuid4(), Created_Date=datetime.now(), Modified_Date=datetime.now(), **data)
         result = bill_repo.create_publication_bill(new_bill)
 
         return PublicationBillResponse(Version_ID=result.Version_ID)

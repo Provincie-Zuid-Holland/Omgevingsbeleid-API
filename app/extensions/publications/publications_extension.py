@@ -1,19 +1,15 @@
-from typing import List, Dict
+from typing import List
 
 import click
 
-from app.dynamic.config.models import ExtensionModel, Column
+from app.dynamic.config.models import ExtensionModel
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.publications.models import (
-    PublicationBill,
-    PublicationPackage,
-    PublicationConfig,
-)
 from app.extensions.publications import commands, endpoints
+from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
 
 
 class PublicationsExtension(Extension):

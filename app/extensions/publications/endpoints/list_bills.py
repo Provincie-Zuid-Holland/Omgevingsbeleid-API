@@ -8,17 +8,11 @@ from app.dynamic.dependencies import depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import (
-    OrderConfig,
-    PagedResponse,
-    SimplePagination
-)
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SimplePagination
 from app.extensions.modules.models.models import ModuleStatusCode
-from app.extensions.publications import PublicationBill, Document_Type
+from app.extensions.publications import Document_Type, PublicationBill
 from app.extensions.publications.dependencies import depends_publication_repository
 from app.extensions.publications.repository import PublicationRepository
-from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import depends_current_active_user
 
 
 class ListPublicationBillsEndpoint(Endpoint):
@@ -42,7 +36,7 @@ class ListPublicationBillsEndpoint(Endpoint):
                 module_id=module_id,
                 module_status=module_status,
                 offset=pagination.offset,
-                limit=pagination.limit
+                limit=pagination.limit,
             )
 
             bills = [PublicationBill.from_orm(r) for r in paginated_result.items]

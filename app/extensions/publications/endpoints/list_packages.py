@@ -1,5 +1,4 @@
-from typing import List, Optional
-from uuid import UUID
+from typing import Optional
 
 from fastapi import APIRouter, Depends
 
@@ -9,12 +8,7 @@ from app.dynamic.dependencies import depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import (
-    OrderConfig,
-    PagedResponse,
-    SortedPagination,
-    SimplePagination
-)
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SimplePagination
 from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.publications import Document_Type, PublicationPackage
 from app.extensions.publications.dependencies import depends_publication_repository
@@ -41,7 +35,7 @@ class ListPublicationPackagesEndpoint(Endpoint):
                 module_id=module_id,
                 module_status=module_status,
                 offset=pagination.offset,
-                limit=pagination.limit
+                limit=pagination.limit,
             )
 
             packages = [PublicationPackage.from_orm(r) for r in paginated_result.items]

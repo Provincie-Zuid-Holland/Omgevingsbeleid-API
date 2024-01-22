@@ -1,14 +1,17 @@
 import uuid
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import Column, String, ForeignKey, Text, Enum as SQLAlchemyEnum
-from sqlalchemy.sql.expression import select
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Session, mapped_column, Mapped, relationship
-from app.core.db.base import Base
-from app.core.db.mixins import HasUUID, TimeStamped
 
-from app.extensions.publications.enums import IMOWTYPE, OWProcedureStatus, OWAssociationType
+from sqlalchemy import Column
+from sqlalchemy import Enum as SQLAlchemyEnum
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+from sqlalchemy.sql.expression import select
+
+from app.core.db.base import Base
+from app.core.db.mixins import TimeStamped
+from app.extensions.publications.enums import IMOWTYPE, OWAssociationType, OWProcedureStatus
 
 
 class OWAssociation(Base):
@@ -36,9 +39,7 @@ class OWObject(Base, TimeStamped):
     Noemer: Mapped[Optional[str]]
 
     # Relationship to PublicationPackageTable
-    Package_UUID: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("publication_package.UUID"), nullable=False
-    )
+    Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package.UUID"), nullable=False)
     Package = relationship("PublicationPackageTable", back_populates="ow_objects")
 
     __mapper_args__ = {
@@ -98,9 +99,7 @@ class OWTekstdeel(OWObject):
     def divisie(self):
         if self.Divisie_ref:
             session = Session.object_session(self)
-            return (
-                session.query(OWDivisie).filter(OWDivisie.OW_ID == self.Divisie_ref).one_or_none()
-            )
+            return session.query(OWDivisie).filter(OWDivisie.OW_ID == self.Divisie_ref).one_or_none()
         return None
 
     @divisie.expression
