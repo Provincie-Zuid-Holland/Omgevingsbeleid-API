@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import BLOB, Unicode
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, deferred
 
 from app.core.db.base import Base
 
@@ -19,7 +19,7 @@ class WerkingsgebiedenTable(Base):
     End_Validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
 
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
-    SHAPE: Mapped[bytes] = mapped_column(BLOB)
+    SHAPE: Mapped[bytes] = deferred(mapped_column(BLOB))
     symbol: Mapped[str] = mapped_column(Unicode(265))
 
     def __repr__(self) -> str:
@@ -33,7 +33,7 @@ class OnderverdelingTable(Base):
     ID: Mapped[int]
 
     Title: Mapped[str] = mapped_column(name="Onderverdeling")
-    SHAPE: Mapped[bytes] = mapped_column(BLOB)
+    SHAPE: Mapped[bytes] = deferred(mapped_column(BLOB))
     symbol: Mapped[str]
     Werkingsgebied: Mapped[str] = mapped_column(Unicode(265))
     UUID_Werkingsgebied: Mapped[uuid.UUID]
