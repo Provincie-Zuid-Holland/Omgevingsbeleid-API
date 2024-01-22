@@ -83,7 +83,7 @@ class MssqlGeometryRepository(GeometryRepository):
             INSERT INTO
                 Werkingsgebieden
                     (
-                        UUID, ID, Werkingsgebied, SHAPE, symbol
+                        UUID, ID, Werkingsgebied, SHAPE, symbol,
                         Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid
                     )
                 VALUES
