@@ -37,8 +37,8 @@ class DsoWerkingsgebiedenFactory:
                     "Title": werkingsgebied["Title"],
                     "Symbol": werkingsgebied["Symbol"],
                     "Geometry": werkingsgebied["Geometry"],
-                    "Created_Date": werkingsgebied["Created_Date"],
-                    "Modified_Date": werkingsgebied["Modified_Date"],
+                    "Created_Date": str(werkingsgebied["Created_Date"]),
+                    "Modified_Date": str(werkingsgebied["Modified_Date"]),
                 }
             )
 
@@ -46,10 +46,10 @@ class DsoWerkingsgebiedenFactory:
             "UUID": werkingsgebied["UUID"],
             "Title": werkingsgebied["Title"],
             "Symbol": werkingsgebied["Symbol"],
-            "Created_Date": werkingsgebied["Created_Date"],
-            "Modified_Date": werkingsgebied["Modified_Date"],
+            "Created_Date": str(werkingsgebied["Created_Date"]),
+            "Modified_Date": str(werkingsgebied["Modified_Date"]),
             "Achtergrond_Verwijzing": "TOP10NL",
-            "Achtergrond_Actualiteit": werkingsgebied["Modified_Date"][:10],
+            "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
             "Onderverdelingen": onderverdelingen,
         }
         return result
