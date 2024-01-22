@@ -28,6 +28,9 @@ class DsoWerkingsgebiedenFactory:
         werkingsgebied = self._geometry_repository.get_werkingsgebied(werkingsgebied_uuid)
         onderverdelingen = self._geometry_repository.get_onderverdelingen_for_werkingsgebied(werkingsgebied_uuid)
 
+        # @note: hopefully temporary, but the onderverdelingen are not unique, so we cast them unique here
+        onderverdelingen = list({o.get("UUID"): o for o in onderverdelingen}.values())
+
         if len(onderverdelingen) == 0:
             # If we do not have an Onderverdeling
             # Then we transform the Werkingsgebied as its own Onderverdeling
