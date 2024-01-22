@@ -88,6 +88,7 @@ class EndpointHandler:
 
         used_object_codes = self._calculate_used_object_codes(free_text_template_str)
         used_objects = self._filter_to_used_objects(objects, used_object_codes)
+        self._debug_invalid_objects(used_objects)
 
         asset_repository: DSOAssetRepository = self._assets_factory.get_repository_for_objects(used_objects)
         werkingsgebieden_repository: WerkingsgebiedRepository = (
@@ -115,6 +116,13 @@ class EndpointHandler:
             media_type="application/x-zip-compressed",
             headers={"Content-Disposition": f"attachment; filename={zip_filename}"},
         )
+
+    def _debug_invalid_objects(self, used_objects: List[dict]):
+        print("\n\n\n")
+        for o in used_objects:
+            if o.get("Description") is not None and (not "<p>" in o.get("Description")):
+                print(o.get("Code"))
+        print("\n\n\n")
 
     def _calculate_used_object_codes(self, free_text_template_str: str) -> Dict[str, bool]:
         soup = BeautifulSoup(free_text_template_str, "html.parser")
