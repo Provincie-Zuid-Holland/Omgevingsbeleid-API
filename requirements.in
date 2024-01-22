@@ -35,3 +35,4 @@ fs
 pdfkit
 jinja2
 dicttoxml
+lxml
