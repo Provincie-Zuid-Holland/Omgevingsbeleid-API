@@ -35,6 +35,7 @@ fs
 pdfkit
 jinja2
 dicttoxml
+lxml
 
 # DSO
 git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@as-dependency

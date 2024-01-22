@@ -142,6 +142,20 @@ def depends_module_status_by_id(
     return maybe_status
 
 
+def depends_maybe_module_status_by_id(
+    status_id: Optional[int] = None,
+    module: ModuleTable = Depends(depends_module),
+    repository: ModuleStatusRepository = Depends(depends_module_status_repository),
+) -> Optional[ModuleStatusHistoryTable]:
+    if status_id is None:
+        return None
+    maybe_status: Optional[ModuleStatusHistoryTable] = repository.get_by_id(module.Module_ID, status_id)
+    # Giving a status_id is optional, but if you give a status_id then it must exist
+    if not maybe_status:
+        raise HTTPException(status_code=404, detail="Module status niet gevonden")
+    return maybe_status
+
+
 def depends_object_provider(
     object_repository: ObjectRepository = Depends(depends_object_repository),
     module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),

@@ -1,5 +1,6 @@
 import logging
 import sys
+from datetime import datetime
 
 import sqlalchemy.exc
 import uvicorn
@@ -14,6 +15,7 @@ from app.core.db.session import SessionLocal
 from app.core.settings import settings
 
 app: FastAPI = dynamic_app.run()
+build_datetime: datetime = datetime.utcnow()
 
 
 @app.get("/health")
@@ -21,6 +23,8 @@ async def health_check():
     health_info = {
         "status": "healthy",
         "database": "ok",
+        "version": "6",
+        "build": str(build_datetime),
     }
 
     try:
