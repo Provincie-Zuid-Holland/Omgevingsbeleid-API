@@ -23,7 +23,7 @@ async def health_check():
     health_info = {
         "status": "healthy",
         "database": "ok",
-        "version": "9",
+        "version": "10",
         "build": str(build_datetime),
     }
 
