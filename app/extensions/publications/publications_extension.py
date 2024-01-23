@@ -63,4 +63,4 @@ class PublicationsExtension(Extension):
         pass
 
     def register_commands(self, main_command_group: click.Group, main_config: dict):
-        main_command_group.add_command(commands.generate_dso_package, "generate_dso_package")
+        main_command_group.add_command(commands.generate_dso_package, "generate-dso-package")

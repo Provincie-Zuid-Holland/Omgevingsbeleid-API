@@ -42,7 +42,9 @@ class PublicationBillTable(Base):
 
     Version_ID: Mapped[int]
     Module_ID: Mapped[int] = mapped_column(Integer, ForeignKey("modules.Module_ID"), nullable=False)
-    Module_Status_ID: Mapped[int] = mapped_column(Integer, ForeignKey("module_status_history.ID"), nullable=False)
+    Module_Status_ID: Mapped[int] = mapped_column(
+        Integer, ForeignKey("module_status_history.ID"), nullable=False
+    )
     Bill_Type = Column(SQLAlchemyEnum(*[e.value for e in Bill_Type]))
     Document_Type = Column(SQLAlchemyEnum(*[e.value for e in Document_Type]))
     Bill_Data = Column(JSON)  # Besluit
@@ -60,7 +62,11 @@ class PublicationBillTable(Base):
 
     @hybrid_method
     def latest_version(cls, db, module_id, document_type):
-        return db.query(func.max(cls.Version_ID)).filter_by(Module_ID=module_id, Document_Type=document_type).scalar()
+        return (
+            db.query(func.max(cls.Version_ID))
+            .filter_by(Module_ID=module_id, Document_Type=document_type)
+            .scalar()
+        )
 
     @hybrid_method
     def next_version(cls, db, module_id, document_type) -> int:
@@ -74,7 +80,9 @@ class PublicationPackageTable(Base, HasUUID, TimeStamped):
     __tablename__ = "publication_packages"
 
     # the leveringId == PublicationPackageTable.UUID
-    Bill_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_bill.UUID"), nullable=False)
+    Bill_UUID: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("publication_bills.UUID"), nullable=False
+    )
     Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in Package_Event_Type]))
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
     Announcement_Date: Mapped[Optional[datetime]]  # Datum_Bekendmaking
@@ -89,11 +97,13 @@ class PublicationPackageTable(Base, HasUUID, TimeStamped):
     dso_tpod_version: Mapped[str]
     dso_bhkv_version: Mapped[str]
 
-    ow_objects = relationship("OWObject", back_populates="Package")
+    ow_objects = relationship("OWObjectTable", back_populates="Package")
 
 
 class DSOStateExportTable(Base, HasUUID, TimeStamped):
     __tablename__ = "publication_dso_state_exports"
 
-    Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package.UUID"), nullable=False)
+    Package_UUID: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("publication_packages.UUID"), nullable=False
+    )
     Export_Data = Column(JSON)

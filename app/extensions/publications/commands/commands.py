@@ -96,14 +96,14 @@ def generate_dso_package(package_arg: uuid.UUID, module_arg: int):
         click.echo(state_exported)
 
         # Step 4: Store results in database + OW Objects
-        new_export = DSOStateExportTable(
-            UUID=uuid.uuid4(),
-            Created_Date=datetime.now(),
-            Modified_Date=datetime.now(),
-            Package_UUID=package_arg,
-            Export_Data=state_exported,
-        )
-        pub_repo.create_dso_state_export(new_export)
+        # new_export = DSOStateExportTable(
+        #     UUID=uuid.uuid4(),
+        #     Created_Date=datetime.now(),
+        #     Modified_Date=datetime.now(),
+        #     Package_UUID=package_arg,
+        #     Export_Data=state_exported,
+        # )
+        # pub_repo.create_dso_state_export(new_export)
 
         # ow_repo = OWObjectRepository(db)
         # pub_repo.create_ow_object()
