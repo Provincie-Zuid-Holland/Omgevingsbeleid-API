@@ -15,15 +15,15 @@ from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleSta
 from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode, ModuleStatusCodeInternal
 from app.extensions.publications.enums import IMOWTYPE
 from app.extensions.publications.tables.ow import (
-    OWAmbtsgebied,
-    OWAssociation,
-    OWDivisie,
-    OWDivisietekst,
-    OWGebied,
-    OWGebiedenGroep,
-    OWObject,
-    OWRegelingsgebied,
-    OWTekstdeel,
+    OWAmbtsgebiedTable,
+    OWAssociationTable,
+    OWDivisieTable,
+    OWDivisietekstTable,
+    OWGebiedTable,
+    OWGebiedenGroepTable,
+    OWObjectTable,
+    OWRegelingsgebiedTable,
+    OWTekstdeelTable,
 )
 from app.extensions.publications.tables.tables import (
     PublicationBillTable,
@@ -916,13 +916,13 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
 
         # Process 'publication_ow_objects' data
         imow_type_to_class = {
-            IMOWTYPE.DIVISIE.value: OWDivisie,
-            IMOWTYPE.DIVISIETEKST.value: OWDivisietekst,
-            IMOWTYPE.GEBIED.value: OWGebied,
-            IMOWTYPE.GEBIEDENGROEP.value: OWGebiedenGroep,
-            IMOWTYPE.TEKSTDEEL.value: OWTekstdeel,
-            IMOWTYPE.AMBTSGEBIED.value: OWAmbtsgebied,
-            IMOWTYPE.REGELINGSGEBIED.value: OWRegelingsgebied,
+            IMOWTYPE.DIVISIE.value: OWDivisieTable,
+            IMOWTYPE.DIVISIETEKST.value: OWDivisietekstTable,
+            IMOWTYPE.GEBIED.value: OWGebiedTable,
+            IMOWTYPE.GEBIEDENGROEP.value: OWGebiedenGroepTable,
+            IMOWTYPE.TEKSTDEEL.value: OWTekstdeelTable,
+            IMOWTYPE.AMBTSGEBIED.value: OWAmbtsgebiedTable,
+            IMOWTYPE.REGELINGSGEBIED.value: OWRegelingsgebiedTable,
         }
         ow_objects = []
         for item in data["publication_ow_objects"]:
@@ -932,7 +932,7 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
             item["Created_Date"] = parse_datetime(item.get("Created_Date"))
             item["Modified_Date"] = parse_datetime(item.get("Modified_Date"))
 
-            class_to_instantiate = imow_type_to_class.get(item.get("IMOW_Type"), OWObject)
+            class_to_instantiate = imow_type_to_class.get(item.get("IMOW_Type"), OWObjectTable)
             # Filter item dictionary to only contain correct fields for the ow object
             filtered_item = filter_valid_fields(class_to_instantiate, item)
             ow_object = class_to_instantiate(**filtered_item)
@@ -943,7 +943,7 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
         # Process 'publication_ow_association' data
         associations = []
         for item in data["publication_ow_association"]:
-            associations.append(OWAssociation(**item))
+            associations.append(OWAssociationTable(**item))
         self._db.bulk_save_objects(associations)
 
     def create_config(self):
@@ -1034,21 +1034,21 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
         self._db.commit()
 
     def create_gebieden(self, package_uuid):
-        gebied1 = OWGebied(
+        gebied1 = OWGebiedTable(
             UUID=uuid.UUID("415ef2154a7f4f69b0adcfa5e95635db"),
             Package_UUID=package_uuid,
             OW_ID="nl.imow-pv28.gebied.troolo",
             Noemer="Maatwerkgebied glastuinbouw Greenport West-Holland",
             Geo_UUID=uuid.UUID("50685437-654f-475e-9068-3b90c70c69a2"),
         )
-        gebied2 = OWGebied(
+        gebied2 = OWGebiedTable(
             UUID=uuid.UUID("5807349942bc4a2fbfcdd5e9cb03ad0b"),
             Package_UUID=package_uuid,
             OW_ID="nl.imow-pv28.gebied.5807349942bc4a2fbfcdd5e9cb03ad0b",
             Noemer="Maatwerkgebied glastuinbouw Greenport Aalsmeer",
             Geo_UUID=uuid.UUID("3796ad6a-1729-42ab-b7e0-810c0c80a703"),
         )
-        gebied3 = OWGebied(
+        gebied3 = OWGebiedTable(
             UUID=uuid.UUID("f456fcd73dd0499494c040a960f72d09"),
             Package_UUID=package_uuid,
             OW_ID="nl.imow-pv28.gebied.f456fcd73dd0499494c040a960f72d09",
@@ -1064,7 +1064,7 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
 
     def create_gebiedengroep(self, package_uuid):
         new_ow_id = "nl.imow-pv28.gebiedengroep.4ead6628ffbb451984304daca08d66be"
-        groep = OWGebiedenGroep(
+        groep = OWGebiedenGroepTable(
             UUID=uuid.UUID("4ead6628ffbb451984304daca08d66be"),
             Package_UUID=package_uuid,
             Procedure_Status="Definitief",
@@ -1074,7 +1074,7 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
         self.db.add(groep)
         self.db.commit()
 
-        annotation = OWTekstdeel(
+        annotation = OWTekstdeelTable(
             UUID=uuid.UUID("a23ab4fdd0814262a50c603990618c6d"),
             Package_UUID=package_uuid,
             OW_ID="nl.imow-pv28.tekstdeel.a23ab4fdd0814262a50c603990618c6d",

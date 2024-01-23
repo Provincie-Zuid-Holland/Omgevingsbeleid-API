@@ -6,7 +6,7 @@ from sqlalchemy import select
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult
 
-from .tables.ow import OWObject
+from app.extensions.publications.tables.ow import OWObjectTable
 
 
 class OWObjectRepository(BaseRepository):
@@ -14,7 +14,7 @@ class OWObjectRepository(BaseRepository):
     Repository for handling OWObject-related database operations.
     """
 
-    def create_ow_object(self, new_ow_object: OWObject) -> OWObject:
+    def create_ow_object(self, new_ow_object: OWObjectTable) -> OWObjectTable:
         """
         Creates a new OWObject.
 
@@ -29,7 +29,7 @@ class OWObjectRepository(BaseRepository):
         self._db.commit()
         return new_ow_object
 
-    def get_ow_object_by_uuid(self, uuid: UUID) -> Optional[OWObject]:
+    def get_ow_object_by_uuid(self, uuid: UUID) -> Optional[OWObjectTable]:
         """
         Retrieves an OWObject by its UUID.
 
@@ -39,7 +39,7 @@ class OWObjectRepository(BaseRepository):
         Returns:
             Optional[OWObject]: The OWObject with the specified UUID, or None if not found.
         """
-        stmt = select(OWObject).where(OWObject.UUID == uuid)
+        stmt = select(OWObjectTable).where(OWObjectTable.UUID == uuid)
         return self.fetch_first(stmt)
 
     def get_ow_objects(self, offset: int = 0, limit: int = 20) -> PaginatedQueryResult:
@@ -53,11 +53,11 @@ class OWObjectRepository(BaseRepository):
         Returns:
             PaginatedQueryResult: The paginated query result containing the OWObjects.
         """
-        query = select(OWObject)
+        query = select(OWObjectTable)
         paged_result = self.fetch_paginated(
             statement=query,
             offset=offset,
             limit=limit,
-            sort=(OWObject.Modified_Date, "desc"),
+            sort=(OWObjectTable.Modified_Date, "desc"),
         )
         return paged_result

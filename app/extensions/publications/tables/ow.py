@@ -14,7 +14,7 @@ from app.core.db.mixins import TimeStamped
 from app.extensions.publications.enums import IMOWTYPE, OWAssociationType, OWProcedureStatus
 
 
-class OWAssociation(Base):
+class OWAssociationTable(Base):
     """
     Generic association table for OWObject 1-to-many relationships
     """
@@ -26,7 +26,7 @@ class OWAssociation(Base):
     # Type = Column(SQLAlchemyEnum(*[e.value for e in OWAssociationType]))
 
 
-class OWObject(Base, TimeStamped):
+class OWObjectTable(Base, TimeStamped):
     __tablename__ = "publication_ow_objects"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4())
@@ -48,7 +48,7 @@ class OWObject(Base, TimeStamped):
     }
 
 
-class OWDivisie(OWObject):
+class OWDivisieTable(OWObjectTable):
     WID = Column(String)
 
     __mapper_args__ = {
@@ -56,28 +56,28 @@ class OWDivisie(OWObject):
     }
 
 
-class OWDivisietekst(OWDivisie):
+class OWDivisietekstTable(OWDivisieTable):
     __mapper_args__ = {
         "polymorphic_identity": IMOWTYPE.DIVISIETEKST.value,
     }
 
 
-class OWLocation(OWObject):
+class OWLocationTable(OWObjectTable):
     Geo_UUID: Mapped[Optional[uuid.UUID]]  # TODO: foreignkey to werkingsgebied
 
 
-class OWGebied(OWLocation):
+class OWGebiedTable(OWLocationTable):
     __mapper_args__ = {
         "polymorphic_identity": IMOWTYPE.GEBIED.value,
     }
 
 
-class OWGebiedenGroep(OWLocation):
+class OWGebiedenGroepTable(OWLocationTable):
     Gebieden = relationship(
         "OWGebied",
         secondary="publication_ow_association",
         primaryjoin=f"and_(OWGebiedenGroep.OW_ID == OWAssociation.OW_ID_1, OWAssociation.Type == '{OWAssociationType.GEBIEDENGROEP_GEBIED.value}')",
-        secondaryjoin=(OWObject.OW_ID == OWAssociation.OW_ID_2),
+        secondaryjoin=(OWObjectTable.OW_ID == OWAssociationTable.OW_ID_2),
     )
 
     __mapper_args__ = {
@@ -85,33 +85,33 @@ class OWGebiedenGroep(OWLocation):
     }
 
 
-class OWTekstdeel(OWObject):
+class OWTekstdeelTable(OWObjectTable):
     Divisie_ref = Column(String, ForeignKey("publication_ow_objects.OW_ID"))
 
     Locations = relationship(
         "OWLocation",
         secondary="publication_ow_association",
         primaryjoin=f"and_(OWTekstdeel.OW_ID == OWAssociation.OW_ID_1, OWAssociation.Type == '{OWAssociationType.TEKSTDEEL_LOCATION.value}')",
-        secondaryjoin=(OWObject.OW_ID == OWAssociation.OW_ID_2),
+        secondaryjoin=(OWObjectTable.OW_ID == OWAssociationTable.OW_ID_2),
     )
 
     @hybrid_property
     def divisie(self):
         if self.Divisie_ref:
             session = Session.object_session(self)
-            return session.query(OWDivisie).filter(OWDivisie.OW_ID == self.Divisie_ref).one_or_none()
+            return session.query(OWDivisieTable).filter(OWDivisieTable.OW_ID == self.Divisie_ref).one_or_none()
         return None
 
     @divisie.expression
     def divisie(cls):
-        return select([OWDivisie]).where(OWDivisie.OW_ID == cls.Divisie_ref)
+        return select([OWDivisieTable]).where(OWDivisieTable.OW_ID == cls.Divisie_ref)
 
     __mapper_args__ = {
         "polymorphic_identity": IMOWTYPE.TEKSTDEEL.value,
     }
 
 
-class OWAmbtsgebied(OWObject):
+class OWAmbtsgebiedTable(OWObjectTable):
     Bestuurlijke_grenzen_id = Column(String)
     Domein = Column(String)
     Geldig_Op = Column(String)
@@ -120,7 +120,7 @@ class OWAmbtsgebied(OWObject):
     }
 
 
-class OWRegelingsgebied(OWObject):
+class OWRegelingsgebiedTable(OWObjectTable):
     Ambtsgebied = Column(String)
     __mapper_args__ = {
         "polymorphic_identity": IMOWTYPE.REGELINGSGEBIED.value,
