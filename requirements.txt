@@ -32,7 +32,7 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20230430
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.0.2
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.0.4
     # via -r requirements.in
 ecdsa==0.18.0
     # via python-jose
@@ -99,7 +99,7 @@ pyodbc==5.0.1
     # via -r requirements.in
 pyproj==3.6.1
     # via dso
-python-dotenv==1.0.0
+python-dotenv==1.0.1
     # via uvicorn
 python-jose==3.3.0
     # via -r requirements.in
@@ -145,7 +145,7 @@ typing-extensions==4.9.0
     #   pydantic
     #   sqlalchemy
     #   uvicorn
-uvicorn[standard]==0.26.0
+uvicorn[standard]==0.27.0
     # via -r requirements.in
 uvloop==0.19.0
     # via uvicorn

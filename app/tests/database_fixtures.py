@@ -495,7 +495,7 @@ class DatabaseFixtures:
                 Hierarchy_Code="beleidsdoel-1",
                 UUID=uuid.UUID("00000000-0000-0003-0000-000000000001"),
                 Title="Titel van het eerste beleidskeuze",
-                Description='<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eleifend lobortis libero, sit amet vestibulum lorem molestie sed.</p><img src="[ASSET:00000000-AAAA-0000-0000-000000000001]"/><p>Cras felis mi, finibus eget dignissim id, pretium egestas elit. Cras sodales eleifend velit vel aliquet. Nulla dapibus sem at velit suscipit, at varius augue porttitor. Morbi tempor vel est id dictum. Donec ante eros, rutrum eu quam non, interdum tristique turpis. Donec odio ipsum, tincidunt ut dignissim vel, scelerisque ut ex. Sed sit amet molestie tellus. Vestibulum porta condimentum molestie. Praesent non facilisis nisi, in egestas mi.<p>',
+                Description='<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eleifend lobortis libero, sit amet vestibulum lorem molestie sed.</p><img src="[ASSET:00000000-AAAA-0000-0000-000000000001]"/><p>Cras felis mi, finibus eget dignissim id, pretium egestas elit. Cras sodales eleifend velit vel aliquet. Nulla dapibus sem at velit suscipit, at varius augue porttitor. Morbi tempor vel est id dictum. Donec ante eros, rutrum eu quam non, interdum tristique turpis. Donec odio ipsum, tincidunt ut dignissim vel, scelerisque ut ex. Sed sit amet molestie tellus. Vestibulum porta condimentum molestie. Praesent non facilisis nisi, in egestas mi.</p>',
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
@@ -680,6 +680,9 @@ class DatabaseFixtures:
                 Title="Inleiding",
                 Description="""
 <h3>Leeswijzer</h3>
+<p><br/></p>
+<p></p>
+<p> </p>
 <p>De Zuid-Hollandse leefomgeving verbeteren, elke dag, dat is waar de provincie
 aan werkt. Zeven vernieuwingsambities laten zien waar Zuid-Holland naartoe wil.
 Noem het gerust uitdagingen. Met de zeven ambities maakt de provincie ruimte
