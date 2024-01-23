@@ -26,7 +26,12 @@ class DsoWerkingsgebiedenFactory:
 
     def _get_werkingsgebied(self, werkingsgebied_uuid: UUID) -> dict:
         werkingsgebied = self._geometry_repository.get_werkingsgebied(werkingsgebied_uuid)
-        onderverdelingen = self._geometry_repository.get_onderverdelingen_for_werkingsgebied(werkingsgebied_uuid)
+        onderverdelingen = self._geometry_repository.get_onderverdelingen_for_werkingsgebied(
+            werkingsgebied_uuid
+        )
+
+        # @note: hopefully temporary, but the onderverdelingen are not unique, so we cast them unique here
+        onderverdelingen = list({o.get("UUID"): o for o in onderverdelingen}.values())
 
         if len(onderverdelingen) == 0:
             # If we do not have an Onderverdeling
@@ -37,8 +42,8 @@ class DsoWerkingsgebiedenFactory:
                     "Title": werkingsgebied["Title"],
                     "Symbol": werkingsgebied["Symbol"],
                     "Geometry": werkingsgebied["Geometry"],
-                    "Created_Date": werkingsgebied["Created_Date"],
-                    "Modified_Date": werkingsgebied["Modified_Date"],
+                    "Created_Date": str(werkingsgebied["Created_Date"]),
+                    "Modified_Date": str(werkingsgebied["Modified_Date"]),
                 }
             )
 
@@ -46,14 +51,16 @@ class DsoWerkingsgebiedenFactory:
             "UUID": werkingsgebied["UUID"],
             "Title": werkingsgebied["Title"],
             "Symbol": werkingsgebied["Symbol"],
-            "Created_Date": werkingsgebied["Created_Date"],
-            "Modified_Date": werkingsgebied["Modified_Date"],
+            "Created_Date": str(werkingsgebied["Created_Date"]),
+            "Modified_Date": str(werkingsgebied["Modified_Date"]),
             "Achtergrond_Verwijzing": "TOP10NL",
-            "Achtergrond_Actualiteit": werkingsgebied["Modified_Date"][:10],
+            "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
             "Onderverdelingen": onderverdelingen,
         }
         return result
 
     def _calculate_werkingsgebieden_uuids(self, objects: List[dict]) -> List[UUID]:
-        uuids: Set[UUID] = set([o.get("Gebied_UUID") for o in objects if o.get("Gebied_UUID", None) is not None])
+        uuids: Set[UUID] = set(
+            [o.get("Gebied_UUID") for o in objects if o.get("Gebied_UUID", None) is not None]
+        )
         return list(uuids)
