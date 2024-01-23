@@ -35,16 +35,12 @@ def depends_dso_werkingsgebieden_factory(
     return DsoWerkingsgebiedenFactory(geometry_repository)
 
 
-# def depends_omgevingsvisie_template_parser() -> TemplateParser:
-#     return TemplateParser(
-#         template_style=OmgevingsvisieTextTemplate(),
-#     )
-
-
-# def depends_omgevingsprogramma_template_parser() -> TemplateParser:
-#     return TemplateParser(
-#         template_style=OmgevingsprogrammaTextTemplate(),
-#     )
+def depends_get_parsers() -> TemplateParser:
+    template_parsers = {
+        "Omgevingsvisie": TemplateParser(template_style=OmgevingsvisieTextTemplate()),
+        "Omgevingsprogramma": TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
+    },
+    return template_parsers
 
 
 def depends_dso_assets_factory(
@@ -54,10 +50,7 @@ def depends_dso_assets_factory(
 
 
 def depends_dso_service(
-    template_parsers={
-        "Omgevingsvisie": TemplateParser(template_style=OmgevingsvisieTextTemplate()),
-        "Omgevingsprogramma": TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
-    },
+    template_parsers=Depends(depends_get_parsers),
     dso_werkingsgebieden_factory=Depends(depends_dso_werkingsgebieden_factory),
     dso_assets_factory=Depends(depends_dso_assets_factory),
 ) -> DSOService:
