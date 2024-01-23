@@ -108,7 +108,7 @@ class EndpointHandler:
         zip_buffer: io.BytesIO() = builder.zip_files()
 
         zip_filename = (
-            f"download-dso-module-{self._module.Module_ID}-at-{datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S')}.zip"
+            f"download-dso-module-{self._module.Module_ID}-at-{datetime.utcnow().strftime('%Y-%m-%d_%H%M%S')}.zip"
         )
 
         return Response(
