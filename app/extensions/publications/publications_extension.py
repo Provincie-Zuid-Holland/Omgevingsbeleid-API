@@ -9,7 +9,11 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications import commands, endpoints
-from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.models import (
+    PublicationBill,
+    PublicationConfig,
+    PublicationPackage,
+)
 
 
 class PublicationsExtension(Extension):
@@ -59,4 +63,4 @@ class PublicationsExtension(Extension):
         pass
 
     def register_commands(self, main_command_group: click.Group, main_config: dict):
-        main_command_group.add_command(commands.test_dso_call, "test-dso-call")
+        main_command_group.add_command(commands.generate_dso_package, "generate_dso_package")

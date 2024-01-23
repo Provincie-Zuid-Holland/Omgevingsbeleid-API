@@ -9,13 +9,23 @@ from app.extensions.publications.dso.dso_assets_factory import DsoAssetsFactory
 from app.extensions.publications.dso.dso_service import DSOService
 from app.extensions.publications.dso.dso_werkingsgebieden_factory import DsoWerkingsgebiedenFactory
 from app.extensions.publications.dso.template_parser import TemplateParser
-from app.extensions.publications.dso.templates.omgevingsprogramma import OmgevingsprogrammaTextTemplate
+from app.extensions.publications.dso.templates.omgevingsprogramma import (
+    OmgevingsprogrammaTextTemplate,
+)
 from app.extensions.publications.dso.templates.omgevingsvisie import OmgevingsvisieTextTemplate
-from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
-from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
+from app.extensions.publications.models import (
+    PublicationBill,
+    PublicationConfig,
+    PublicationPackage,
+)
+from app.extensions.publications.repository.publication_object_repository import (
+    PublicationObjectRepository,
+)
 from app.extensions.publications.repository.publication_repository import PublicationRepository
 from app.extensions.publications.tables.tables import DSOStateExportTable
-from app.extensions.werkingsgebieden.repository.sqlite_geometry_repository import SqliteGeometryRepository
+from app.extensions.werkingsgebieden.repository.sqlite_geometry_repository import (
+    SqliteGeometryRepository,
+)
 
 
 @click.command()
@@ -69,7 +79,9 @@ def generate_dso_package(package_arg: uuid.UUID, module_arg: int):
         service = DSOService(
             {
                 "Omgevingsvisie": TemplateParser(template_style=OmgevingsvisieTextTemplate()),
-                "Omgevingsprogramma": TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
+                "Omgevingsprogramma": TemplateParser(
+                    template_style=OmgevingsprogrammaTextTemplate()
+                ),
             },
             DsoWerkingsgebiedenFactory(SqliteGeometryRepository(db)),
             DsoAssetsFactory(AssetRepository(db)),

@@ -1,12 +1,12 @@
 from .ow import (
-    OWAmbtsgebied,
-    OWDivisie,
-    OWDivisietekst,
-    OWGebied,
-    OWGebiedenGroep,
-    OWLocation,
-    OWObject,
-    OWRegelingsgebied,
-    OWTekstdeel,
+    OWAmbtsgebiedTable,
+    OWDivisieTable,
+    OWDivisietekstTable,
+    OWGebiedTable,
+    OWGebiedenGroepTable,
+    OWLocationTable,
+    OWObjectTable,
+    OWRegelingsgebiedTable,
+    OWTekstdeelTable,
 )
 from .tables import PublicationBillTable, PublicationConfigTable, PublicationPackageTable

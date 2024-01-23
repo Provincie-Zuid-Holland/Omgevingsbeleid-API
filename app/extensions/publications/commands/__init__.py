@@ -1,1 +1,1 @@
-from .commands import test_dso_call
+from .commands import generate_dso_package
