@@ -1,6 +1,7 @@
+import uuid
 from datetime import datetime
 from typing import List
-import uuid
+
 import dso.models as dso_models
 from dso.builder.state_manager.input_data.besluit import Artikel, Besluit
 from dso.builder.state_manager.input_data.input_data_loader import InputData

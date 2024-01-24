@@ -20,9 +20,33 @@ class DsoWerkingsgebiedenFactory:
     def _create_repository(self, uuids: List[UUID]) -> WerkingsgebiedRepository:
         repository = WerkingsgebiedRepository("pv28", "nld")
         for uuidx in uuids:
-            werkingsgebied = self._get_werkingsgebied(uuidx)
+            werkingsgebied = self._get_werkingsgebied_without_onderverdelingen(uuidx)
             repository.add(werkingsgebied)
         return repository
+
+    def _get_werkingsgebied_without_onderverdelingen(self, werkingsgebied_uuid: UUID) -> dict:
+        werkingsgebied = self._geometry_repository.get_werkingsgebied(werkingsgebied_uuid)
+
+        result = {
+            "UUID": werkingsgebied["UUID"],
+            "Title": werkingsgebied["Title"],
+            "Symbol": werkingsgebied["Symbol"],
+            "Created_Date": str(werkingsgebied["Created_Date"]),
+            "Modified_Date": str(werkingsgebied["Modified_Date"]),
+            "Achtergrond_Verwijzing": "TOP10NL",
+            "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
+            "Onderverdelingen": [
+                {
+                    "UUID": werkingsgebied["UUID"],
+                    "Title": werkingsgebied["Title"],
+                    "Symbol": werkingsgebied["Symbol"],
+                    "Geometry": werkingsgebied["Geometry"],
+                    "Created_Date": str(werkingsgebied["Created_Date"]),
+                    "Modified_Date": str(werkingsgebied["Modified_Date"]),
+                }
+            ],
+        }
+        return result
 
     def _get_werkingsgebied(self, werkingsgebied_uuid: UUID) -> dict:
         werkingsgebied = self._geometry_repository.get_werkingsgebied(werkingsgebied_uuid)
