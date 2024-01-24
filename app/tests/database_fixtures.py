@@ -65,7 +65,8 @@ class DatabaseFixtures:
 
         # Seed DSO publication states
         self.build_state_pre_publication_packaging()
-        self.build_state_post_publication_packaging()
+        self.build_state_pre_dso_generator_output()
+        # self.build_state_post_publication_packaging()
 
     def create_users(self):
         self._db.add(
@@ -842,6 +843,16 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
             modules.append(ModuleTable(**item))
         self._db.bulk_save_objects(modules)
 
+        # Process 'module_object_context' data
+        module_object_context = []
+        for item in data["module_object_context"]:
+            item["Created_Date"] = parse_datetime(item.get("Created_Date"))
+            item["Modified_Date"] = parse_datetime(item.get("Modified_Date"))
+            item["Created_By_UUID"] = parse_uuid(item.get("Created_By_UUID"))
+            item["Modified_By_UUID"] = parse_uuid(item.get("Modified_By_UUID"))
+            module_object_context.append(ModuleObjectContextTable(**item))
+        self._db.bulk_save_objects(module_object_context)
+
         # Process 'module_objects' data
         module_objects = []
         for item in data["module_objects"]:
@@ -861,16 +872,6 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
             item["Created_By_UUID"] = parse_uuid(item.get("Created_By_UUID"))
             module_status_history.append(ModuleStatusHistoryTable(**item))
         self._db.bulk_save_objects(module_status_history)
-
-        # Process 'module_object_context' data
-        module_object_context = []
-        for item in data["module_object_context"]:
-            item["Created_Date"] = parse_datetime(item.get("Created_Date"))
-            item["Modified_Date"] = parse_datetime(item.get("Modified_Date"))
-            item["Created_By_UUID"] = parse_uuid(item.get("Created_By_UUID"))
-            item["Modified_By_UUID"] = parse_uuid(item.get("Modified_By_UUID"))
-            module_object_context.append(ModuleObjectContextTable(**item))
-        self._db.bulk_save_objects(module_object_context)
 
         # Process 'publication_config' data
         configs = []
@@ -893,12 +894,12 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
 
         self._db.commit()
 
-    def build_state_post_publication_packaging(self):
+    def build_state_pre_dso_generator_output(self):
         """
-        Seed DB with object of the state of the database after the publication packaging process.
+        Seed DB with object of the state of the database pre DSO generator output.
+        - Bill and objects need to exists
         - Publication package created
-        - OW objects generated
-        - OW associations generated
+        - no zip/file output yet, no OW objects yet
         """
         with open("app/tests/json_fixtures/seed_pre_publication.json", "r") as file:
             data = json.load(file)
@@ -913,6 +914,17 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
             item["Announcement_Date"] = parse_datetime(item.get("Announcement_Date"))
             packages.append(PublicationPackageTable(**item))
         self._db.bulk_save_objects(packages)
+        self._db.commit()
+    
+    def build_state_post_publication_packaging(self):
+        """
+        Seed DB with object of the state of the database after the publication packaging process.
+        - Publication package created
+        - OW objects generated
+        - OW associations generated
+        """
+        with open("app/tests/json_fixtures/seed_pre_publication.json", "r") as file:
+            data = json.load(file)
 
         # Process 'publication_ow_objects' data
         imow_type_to_class = {

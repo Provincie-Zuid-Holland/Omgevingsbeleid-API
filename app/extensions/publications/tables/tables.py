@@ -89,8 +89,8 @@ class PublicationPackageTable(Base, HasUUID, TimeStamped):
 
     # Stamped publication config at the time of packaging
     Province_ID: Mapped[str]  # Provincie_ID
-    Submitter_ID: Mapped[int]  # Id_Aanleveraar
-    Authority_ID: Mapped[int]  # Id_Bevoegdgezag
+    Submitter_ID: Mapped[str]  # Id_Aanleveraar
+    Authority_ID: Mapped[str]  # Id_Bevoegdgezag
     Jurisdiction: Mapped[str]  # Rechtsgebied
     Subjects: Mapped[str]  # Onderwerpen
     dso_stop_version: Mapped[str]
