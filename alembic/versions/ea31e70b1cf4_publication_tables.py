@@ -160,7 +160,7 @@ def upgrade() -> None:
         sa.Column("Noemer", sa.String(), nullable=True),
         sa.Column("Package_UUID", sa.Uuid(), nullable=False),
         sa.Column("WID", sa.String(), nullable=True),
-        sa.Column("Geo_UUID", sa.Integer(), nullable=True),
+        sa.Column("Geo_UUID", sa.Uuid(), nullable=True),
         sa.Column("Divisie_ref", sa.String(length=255), nullable=True),
         sa.Column("Bestuurlijke_grenzen_id", sa.String(), nullable=False),
         sa.Column("Domein", sa.String(), nullable=False),
@@ -172,7 +172,7 @@ def upgrade() -> None:
         ),
         sa.ForeignKeyConstraint(
             ["Geo_UUID"],
-            ["modules.Module_ID"],
+            ["Werkingsgebieden.UUID"],
         ),
         sa.ForeignKeyConstraint(
             ["Package_UUID"],

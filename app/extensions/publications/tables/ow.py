@@ -67,7 +67,7 @@ class OWDivisietekstTable(OWDivisieTable):
 
 class OWLocationTable(OWObjectTable):
     Geo_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey("modules.Module_ID"), nullable=True
+        ForeignKey("Werkingsgebieden.UUID"), nullable=True
     )
 
 
