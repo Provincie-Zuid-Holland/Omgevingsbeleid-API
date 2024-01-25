@@ -205,247 +205,31 @@
             "Module_ID": 1,
             "Module_Status_ID": 1,
             "Council_Proposal_File": null,
-            "Effective_Date": "2023-12-28 09:16:28.427000",
-            "Announcement_Date": "2023-12-28 09:16:28.427000",
-            "Bill_Type": "Definitief",
-            "Document_Type": "Omgevingsprogramma",
-            "Bill_Data": {
-                "Bill_Title": "string",
-                "Regulation_Title": "string",
-                "Preamble": "string",
-                "Amendment_Article": {
-                    "Label": "string",
-                    "Number": "string",
-                    "Content": "string"
-                },
-                "Articles": [
-                    {
-                        "Label": "string",
-                        "Number": "string",
-                        "Content": "string"
-                    }
-                ],
-                "Closing": "string",
-                "Signature": "string"
-            },
-            "Procedure_Data": {
-                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
-                "Steps": []
-            }
-        },
-        {
-            "UUID": "8dc7133979544be9bd33aed92258d48c",
-            "Created_Date": "2023-12-29 11:34:25.227045",
-            "Modified_Date": "2023-12-29 11:34:25.227049",
-            "Version_ID": 1,
-            "Module_ID": 4,
-            "Module_Status_ID": 9,
-            "Council_Proposal_File": null,
-            "Effective_Date": "2023-12-29 03:33:55.972000",
-            "Announcement_Date": "2023-12-29 03:33:55.972000",
+            "Effective_Date": "2024-02-20 09:16:28.427000",
+            "Announcement_Date": "2024-02-18 09:16:28.427000",
             "Bill_Type": "Definitief",
             "Document_Type": "Omgevingsvisie",
             "Bill_Data": {
-                "Bill_Title": "hark",
-                "Regulation_Title": "string",
-                "Preamble": "string",
+                "Bill_Title": "Voorbeeld besluit module 1 visie",
+                "Regulation_Title": "Voorbeeld besluit module 1 visie",
+                "Preamble": "Voorbeeld besluit module 1 visie",
                 "Amendment_Article": {
-                    "Label": "string",
-                    "Number": "string",
-                    "Content": "string"
-                },
-                "Articles": [
-                    {
-                        "Label": "string",
-                        "Number": "string",
-                        "Content": "string"
-                    }
-                ],
-                "Closing": "string",
-                "Signature": "string"
-            },
-            "Procedure_Data": {
-                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
-                "Steps": []
-            }
-        },
-        {
-            "UUID": "8cb29c95f9b64f899a061d15ff2bc7be",
-            "Created_Date": "2023-12-29 17:16:42.116803",
-            "Modified_Date": "2023-12-29 17:16:42.116807",
-            "Version_ID": 2,
-            "Module_ID": 4,
-            "Module_Status_ID": 9,
-            "Council_Proposal_File": null,
-            "Effective_Date": "2023-12-31 09:08:57.185000",
-            "Announcement_Date": "2023-12-30 09:08:57.185000",
-            "Bill_Type": "Definitief",
-            "Document_Type": "Omgevingsvisie",
-            "Bill_Data": {
-                "Bill_Title": "string",
-                "Regulation_Title": "string",
-                "Preamble": "string",
-                "Amendment_Article": {
-                    "Label": "string",
-                    "Number": "string",
-                    "Content": "string"
-                },
-                "Articles": [
-                    {
-                        "Label": "string",
-                        "Number": "string",
-                        "Content": "string"
-                    }
-                ],
-                "Closing": "string",
-                "Signature": "string"
-            },
-            "Procedure_Data": {
-                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
-                "Steps": []
-            }
-        },
-        {
-            "UUID": "c5196b5cbc984f7480195db5ce643fb7",
-            "Created_Date": "2023-12-29 17:16:49.416324",
-            "Modified_Date": "2023-12-29 17:16:49.416327",
-            "Version_ID": 3,
-            "Module_ID": 4,
-            "Module_Status_ID": 9,
-            "Council_Proposal_File": null,
-            "Effective_Date": "2023-12-31 09:08:57.185000",
-            "Announcement_Date": "2023-12-30 09:08:57.185000",
-            "Bill_Type": "Definitief",
-            "Document_Type": "Omgevingsvisie",
-            "Bill_Data": {
-                "Bill_Title": "string",
-                "Regulation_Title": "string",
-                "Preamble": "string",
-                "Amendment_Article": {
-                    "Label": "string",
-                    "Number": "string",
-                    "Content": "string"
-                },
-                "Articles": [
-                    {
-                        "Label": "string",
-                        "Number": "string",
-                        "Content": "string"
-                    }
-                ],
-                "Closing": "string",
-                "Signature": "string"
-            },
-            "Procedure_Data": {
-                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
-                "Steps": []
-            }
-        },
-        {
-            "UUID": "ec2b3d94e5ad4800a5f13f74b7e801dc",
-            "Created_Date": "2023-12-29 20:15:29.285739",
-            "Modified_Date": "2023-12-29 20:15:29.285743",
-            "Version_ID": 4,
-            "Module_ID": 4,
-            "Module_Status_ID": 10,
-            "Council_Proposal_File": null,
-            "Effective_Date": "2023-12-31 12:14:05.343000",
-            "Announcement_Date": "2023-12-30 12:14:05.343000",
-            "Bill_Type": "Definitief",
-            "Document_Type": "Omgevingsvisie",
-            "Bill_Data": {
-                "Bill_Title": "ontwerp PS bill",
-                "Regulation_Title": "string",
-                "Preamble": "string",
-                "Amendment_Article": {
-                    "Label": "string",
-                    "Number": "string",
-                    "Content": "string"
-                },
-                "Articles": [
-                    {
-                        "Label": "string",
-                        "Number": "string",
-                        "Content": "string"
-                    }
-                ],
-                "Closing": "string",
-                "Signature": "string"
-            },
-            "Procedure_Data": {
-                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
-                "Steps": []
-            }
-        },
-        {
-            "UUID": "913a8b4f0c384c99ad9bf8aec733db1d",
-            "Created_Date": "2024-01-02 12:26:36.697143",
-            "Modified_Date": "2024-01-02 12:26:36.697146",
-            "Version_ID": 1,
-            "Module_ID": 4,
-            "Module_Status_ID": 9,
-            "Council_Proposal_File": null,
-            "Effective_Date": "2024-01-05 04:23:28.237000",
-            "Announcement_Date": "2024-01-03 04:23:28.237000",
-            "Bill_Type": "Ontwerp",
-            "Document_Type": "Omgevingsprogramma",
-            "Bill_Data": {
-                "Bill_Title": "string",
-                "Regulation_Title": "string",
-                "Preamble": "string",
-                "Amendment_Article": {
-                    "Label": "string",
-                    "Number": "string",
-                    "Content": "string"
-                },
-                "Articles": [
-                    {
-                        "Label": "string",
-                        "Number": "string",
-                        "Content": "string"
-                    }
-                ],
-                "Closing": "string",
-                "Signature": "string"
-            },
-            "Procedure_Data": {
-                "Announcement_Date": "2024-01-02T04:23:28.237000+00:00",
-                "Steps": []
-            }
-        },
-        {
-            "UUID": "f6dd58c2ab7843fea3fed37e08634a04",
-            "Created_Date": "2024-01-16 14:20:13.662818",
-            "Modified_Date": "2024-01-16 14:20:13.662821",
-            "Version_ID": 5,
-            "Module_ID": 4,
-            "Module_Status_ID": 9,
-            "Council_Proposal_File": null,
-            "Effective_Date": "2024-02-16 06:07:28.237000",
-            "Announcement_Date": "2024-01-17 06:07:28.237000",
-            "Bill_Type": "Definitief",
-            "Document_Type": "Omgevingsvisie",
-            "Bill_Data": {
-                "Bill_Title": "billie mcbill",
-                "Regulation_Title": "titel",
-                "Preamble": "preamble",
-                "Amendment_Article": {
-                    "Label": "asd",
+                    "Label": "Wijziging",
                     "Number": "1",
-                    "Content": "asd"
+                    "Content": "inhoud"
                 },
                 "Articles": [
                     {
-                        "Label": "2",
-                        "Number": "2",
-                        "Content": "asd"
+                        "Label": "Artikel",
+                        "Number": "c1",
+                        "Content": "inhoud"
                     }
                 ],
-                "Closing": "string",
-                "Signature": "handtekening"
+                "Closing": "sluiting tekst",
+                "Signature": "handtekening tekst"
             },
             "Procedure_Data": {
-                "Announcement_Date": "2024-01-16T06:07:28.237000+00:00",
+                "Announcement_Date": "2023-12-28T09:16:28.427000+00:00",
                 "Steps": []
             }
         }
@@ -470,7 +254,7 @@
             "UUID": "233161e076f54f7db8a9b026d386a300",
             "Created_Date": "2024-01-02 16:06:46.744669",
             "Modified_Date": "2024-01-02 16:06:46.744672",
-            "Bill_UUID": "913a8b4f0c384c99ad9bf8aec733db1d",
+            "Bill_UUID": "bfd97376ccea4a708fd928f39b14053b",
             "Package_Event_Type": "Validatie",
             "Publication_Filename": "akn_testfixture.xml",
             "Announcement_Date": "2024-01-10 07:12:39.864000",
@@ -487,7 +271,7 @@
             "UUID": "8b9c8c900ef245eca112d0fa75c850ef",
             "Created_Date": "2024-01-03 16:06:46.744669",
             "Modified_Date": "2024-01-03 16:06:46.744672",
-            "Bill_UUID": "913a8b4f0c384c99ad9bf8aec733db1d",
+            "Bill_UUID": "bfd97376ccea4a708fd928f39b14053b",
             "Package_Event_Type": "Publicatie",
             "Publication_Filename": "akn_testfixture.xml",
             "Announcement_Date": "2024-01-10 07:12:39.864000",
