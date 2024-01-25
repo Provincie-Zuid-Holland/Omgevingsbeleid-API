@@ -76,9 +76,9 @@ api:
         - resolver: reset_user_password
           resolver_data:
             path: /reset-password
-    - prefix: /werkingsgebieden
+    - prefix: /source-werkingsgebieden
       endpoints:
-        - resolver: list_werkingsgebieden
+        - resolver: source_list_werkingsgebieden
           resolver_data:
             sort:
               default:
@@ -89,14 +89,14 @@ api:
                 - ID
                 - Created_Date
                 - Modified_Date
-    - prefix: /search/geo
+    - prefix: /search/source-geo
       endpoints:
-        - resolver: list_objects_in_werkingsgebieden
+        - resolver: source_list_objects_in_werkingsgebieden
           resolver_data:
             sort: *sort_default_title
-    - prefix: /search/geometry
+    - prefix: /search/source-geometry
       endpoints:
-        - resolver: list_objects_by_geometry
+        - resolver: source_list_objects_by_geometry
           resolver_data:
             sort: *sort_default_title
             allowed_object_types:
@@ -240,6 +240,7 @@ api:
               - gebiedsprogramma
               - visie_algemeen
               - programma_algemeen
+              - werkingsgebied
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -252,6 +253,7 @@ api:
               - gebiedsprogramma
               - visie_algemeen
               - programma_algemeen
+              - werkingsgebied
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
@@ -292,6 +294,15 @@ columns:
     type: str
     serializers: []
     deserializers: ["str"]
+    nullable: true
+  # Area_UUID used to store reference to the shape
+  area_uuid:
+    name: Area_UUID
+    type: area_uuid
+    type_data:
+      relation_field: Area
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
     nullable: true
   # Beschrijf de uitwerking van het object
   effect:

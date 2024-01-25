@@ -7,18 +7,30 @@ from app.core.security import get_password_hash
 from app.dynamic.db import ObjectStaticsTable
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
+from app.extensions.areas.db.tables import AreasTable  # # noqa
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.models.models import ModuleStatusCode, ModuleStatusCodeInternal
 from app.extensions.relations.db.tables import RelationsTable
+from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import MssqlGeometryRepository
+from app.extensions.source_werkingsgebieden.repository.sqlite_geometry_repository import SqliteGeometryRepository
 from app.extensions.users.db import UsersTable
 from app.extensions.users.db.tables import IS_ACTIVE
-from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
 
 
 class DatabaseFixtures:
     def __init__(self, db: Session):
         self._db = db
+        self._geometry_repository = self._create_geometry_repository()
+
+    def _create_geometry_repository(self):
+        match self._db.bind.dialect.name:
+            case "mssql":
+                return MssqlGeometryRepository(self._db)
+            case "sqlite":
+                return SqliteGeometryRepository(self._db)
+            case _:
+                raise RuntimeError("Unknown database type connected")
 
     def create_all(self):
         self.create_users()
@@ -102,38 +114,16 @@ class DatabaseFixtures:
         self._db.commit()
 
     def create_werkingsgebieden(self):
-        self._db.add(
-            WerkingsgebiedenTable(
-                UUID=uuid.UUID("00000000-0009-0000-0000-000000000001"),
-                Title="Eerste gebied - V1",
-                ID=1,
-                Created_Date=datetime(2023, 2, 2, 2, 2, 2),
-                Modified_Date=datetime(2023, 2, 2, 2, 2, 2),
-                Start_Validity=datetime(2023, 2, 2, 2, 2, 2),
-                End_Validity=datetime(2023, 3, 3, 3, 3, 3),
-            )
-        )
-        self._db.add(
-            WerkingsgebiedenTable(
-                UUID=uuid.UUID("00000000-0009-0000-0000-000000000002"),
-                Title="Eerste gebied - V2",
-                ID=1,
-                Created_Date=datetime(2023, 2, 3, 3, 3, 3),
-                Modified_Date=datetime(2023, 2, 3, 3, 3, 3),
-                Start_Validity=datetime(2023, 3, 3, 3, 3, 3),
-                End_Validity=datetime(2030, 3, 3, 3, 3, 3),
-            )
-        )
-        self._db.add(
-            WerkingsgebiedenTable(
-                UUID=uuid.UUID("00000000-0009-0000-0000-000000000003"),
-                Title="Tweede gebied",
-                ID=1,
-                Created_Date=datetime(2023, 2, 4, 4, 4, 4),
-                Modified_Date=datetime(2023, 2, 4, 4, 4, 4),
-                Start_Validity=datetime(2023, 2, 4, 4, 4, 4),
-                End_Validity=datetime(2030, 2, 4, 4, 4, 4),
-            )
+        self._geometry_repository.add_werkingsgebied(
+            uuidx=uuid.UUID("00000000-0009-0000-0000-000000000001"),
+            idx=1,
+            title="Maatwerkgebied glastuinbouw",
+            text_shape="POLYGON ((74567.347600001842 443493.91890000325, 74608.622699998392 443619.86080000486, 74661.431899998352 443796.90439999942, 74657.325500000254 443794.78040000005, 74664.067999999956 443810.51300000178, 74729.171500001146 444013.33940000291, 74754.307000000073 444217.06900000118, 74766.111800000086 444287.24220000062, 74700.32570000003 444274.74290000094, 74617.775499999538 444246.9616000005, 74514.7938000001 444196.70150000026, 74448.482099998742 444165.69250000105, 74333.605200000064 444112.87550000072, 74204.86380000037 444067.32080000057, 74148.195700000957 444071.55770000169, 74232.0122999996 443919.14220000163, 74294.7186000012 443819.92320000188, 74402.363600000725 443672.54520000424, 74411.650600001187 443659.83020000259, 74518.027399998187 443515.38720000343, 74567.347600001842 443493.91890000325))",
+            symbol="ES227",
+            created_date=datetime(2023, 2, 2, 2, 2, 2),
+            modified_date=datetime(2023, 2, 2, 2, 2, 2),
+            start_validity=datetime(2023, 2, 2, 2, 2, 2),
+            end_validity=None,
         )
         self._db.commit()
 

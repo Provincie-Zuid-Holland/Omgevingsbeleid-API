@@ -1,14 +1,14 @@
 from typing import List
 
-import app.extensions.werkingsgebieden.endpoints as endpoints
-import app.extensions.werkingsgebieden.listeners as listeners
+import app.extensions.source_werkingsgebieden.endpoints as endpoints
+import app.extensions.source_werkingsgebieden.listeners as listeners
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.werkingsgebieden.models.models import Werkingsgebied
+from app.extensions.source_werkingsgebieden.models.models import Werkingsgebied
 
 
 class WerkingsgebiedenExtension(Extension):

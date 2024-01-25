@@ -1,3 +1,7 @@
+
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+
+
 def table_to_dict(object_table) -> dict:
     object_dict = dict(object_table.__dict__)
     object_dict.pop("_sa_instance_state", None)

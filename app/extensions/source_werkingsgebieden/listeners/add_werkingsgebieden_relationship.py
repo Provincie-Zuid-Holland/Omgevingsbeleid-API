@@ -26,8 +26,8 @@ class AddWerkingsgebiedenRelationshipListener(Listener[GenerateTableEvent]):
                 event.table_type,
                 relation_field,
                 relationship(
-                    "WerkingsgebiedenTable",
-                    primaryjoin=f"{event.table_name}.{column.name} == WerkingsgebiedenTable.UUID",
+                    "SourceWerkingsgebiedenTable",
+                    primaryjoin=f"{event.table_name}.{column.name} == SourceWerkingsgebiedenTable.UUID",
                     viewonly=True,
                 ),
             )
