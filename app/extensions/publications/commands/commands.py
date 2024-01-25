@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime
 
@@ -9,33 +10,21 @@ from app.extensions.publications.dso.dso_assets_factory import DsoAssetsFactory
 from app.extensions.publications.dso.dso_service import DSOService
 from app.extensions.publications.dso.dso_werkingsgebieden_factory import DsoWerkingsgebiedenFactory
 from app.extensions.publications.dso.template_parser import TemplateParser
-from app.extensions.publications.dso.templates.omgevingsprogramma import (
-    OmgevingsprogrammaTextTemplate,
-)
+from app.extensions.publications.dso.templates.omgevingsprogramma import OmgevingsprogrammaTextTemplate
 from app.extensions.publications.dso.templates.omgevingsvisie import OmgevingsvisieTextTemplate
-from app.extensions.publications.models import (
-    PublicationBill,
-    PublicationConfig,
-    PublicationPackage,
-)
-from app.extensions.publications.repository.publication_object_repository import (
-    PublicationObjectRepository,
-)
+from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.extensions.publications.repository.publication_repository import PublicationRepository
 from app.extensions.publications.tables.tables import DSOStateExportTable
-from app.extensions.werkingsgebieden.repository.sqlite_geometry_repository import (
-    SqliteGeometryRepository,
-)
+from app.extensions.werkingsgebieden.repository import MssqlGeometryRepository
 
 
 @click.command()
-@click.argument("package")
-@click.argument("module")
-def generate_dso_package(package_arg: uuid.UUID, module_arg: int):
+@click.argument("package_arg", type=click.UUID)
+def generate_dso_package(package_arg: uuid.UUID):
     """
     Command entrypoint to manually generate a DSO package.
     """
-    # package_uuid = uuid.UUID("233161e076f54f7db8a9b026d386a300")
     with SessionLocal() as db:
         click.echo("---STARTED MANUAL DSO PACKAGE GENERATION---")
         click.echo("package uuid: " + str(package_arg))
@@ -52,7 +41,7 @@ def generate_dso_package(package_arg: uuid.UUID, module_arg: int):
 
         pub_object_repository = PublicationObjectRepository(db)
         objects = pub_object_repository.fetch_objects(
-            module_id=module_arg,
+            module_id=bill.Module_ID,
             timepoint=datetime.utcnow(),
             object_types=[
                 "visie_algemeen",
@@ -75,15 +64,17 @@ def generate_dso_package(package_arg: uuid.UUID, module_arg: int):
             ],
         )
 
-        # Step 2: Call DSO service
+        click.echo("Building DSO package for objects:")
+        for obj in objects:
+            click.echo(obj["UUID"])
+
+        # Step 2: Call DSO service to prepare input data and build package
         service = DSOService(
             {
                 "Omgevingsvisie": TemplateParser(template_style=OmgevingsvisieTextTemplate()),
-                "Omgevingsprogramma": TemplateParser(
-                    template_style=OmgevingsprogrammaTextTemplate()
-                ),
+                "Omgevingsprogramma": TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
             },
-            DsoWerkingsgebiedenFactory(SqliteGeometryRepository(db)),
+            DsoWerkingsgebiedenFactory(MssqlGeometryRepository(db)),
             DsoAssetsFactory(AssetRepository(db)),
         )
 
@@ -91,19 +82,20 @@ def generate_dso_package(package_arg: uuid.UUID, module_arg: int):
         service.build_dso_package(input_data)
 
         # Step 3: TAKE STATE AND BUILD EXPORT FORMAT
-        state_exported = service.export_state()
-        click.echo("state exported: ")
-        click.echo(state_exported)
+        state_exported = service.get_exported_state()
 
         # Step 4: Store results in database + OW Objects
-        # new_export = DSOStateExportTable(
-        #     UUID=uuid.uuid4(),
-        #     Created_Date=datetime.now(),
-        #     Modified_Date=datetime.now(),
-        #     Package_UUID=package_arg,
-        #     Export_Data=state_exported,
-        # )
-        # pub_repo.create_dso_state_export(new_export)
+        new_export = DSOStateExportTable(
+            UUID=uuid.uuid4(),
+            Created_Date=datetime.now(),
+            Modified_Date=datetime.now(),
+            Package_UUID=package_arg,
+            Export_Data=json.loads(state_exported),
+        )
+        result = pub_repo.create_dso_state_export(new_export)
+
+        click.echo("Result:")
+        click.echo(result)
 
         # ow_repo = OWObjectRepository(db)
         # pub_repo.create_ow_object()

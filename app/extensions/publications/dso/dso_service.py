@@ -1,19 +1,18 @@
+import json
 from typing import Dict, List, Optional
 
 from bs4 import BeautifulSoup
 from dso.builder.builder import Builder
 from dso.builder.state_manager.input_data.input_data_loader import InputData
 from dso.builder.state_manager.input_data.object_template_repository import ObjectTemplateRepository
-from dso.builder.state_manager.input_data.resource.asset.asset_repository import AssetRepository
 from dso.builder.state_manager.input_data.resource.policy_object.policy_object_repository import PolicyObjectRepository
-from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied_repository import (
-    WerkingsgebiedRepository,
-)
 
 from app.extensions.publications.dso.dso_assets_factory import DsoAssetsFactory
 from app.extensions.publications.dso.dso_werkingsgebieden_factory import DsoWerkingsgebiedenFactory
 from app.extensions.publications.dso.input_data_mapper import map_dso_input_data
 from app.extensions.publications.dso.template_parser import TemplateParser
+from app.extensions.publications.exceptions import DSOStateExportError
+from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
 
 
 class DSOService:
@@ -34,6 +33,7 @@ class DSOService:
 
         self._input_data: Optional[InputData] = None
         self._state_exported: Optional[str] = None
+        self._builder: Optional[Builder] = None
 
     def get_object_template_repository(self, object_templates):
         repository = ObjectTemplateRepository(object_templates)
@@ -62,28 +62,24 @@ class DSOService:
         results: List[dict] = [o for o in objects if used_object_codes.get(o["Code"], False)]
         return results
 
-    def prepare_publication_input(self, bill, package, config, objects):
+    def prepare_publication_input(
+        self, bill: PublicationBill, package: PublicationPackage, config: PublicationConfig, objects
+    ):
         """
         Start point for converting our publication data to DSO input data.
         """
 
         # Build parsed object templates
-        free_text_template_str = self._template_parsers["Omgevingsvisie"].get_parsed_template(objects=objects)
+        parser = self._template_parsers["Omgevingsvisie"]  # TODO: Select parser based on bill type
+        free_text_template_str = parser.get_parsed_template(objects=objects)
         used_object_codes = self._calculate_used_object_codes(free_text_template_str)
         used_objects = self._filter_to_used_objects(objects, used_object_codes)
 
         # Initialize repositories
-        object_template_repository: ObjectTemplateRepository = self._template_parsers[
-            "Omgevingsvisie"
-        ].get_object_template_repository()
-
-        asset_repository: AssetRepository = self._dso_assets_factory.get_repository_for_objects(used_objects)
-
-        werkingsgebieden_repository: WerkingsgebiedRepository = (
-            self._dso_werkingsgebieden_factory.get_repository_for_objects(objects)
-        )
-
-        policy_object_repository: PolicyObjectRepository = self.get_policy_object_repository(used_objects)
+        object_template_repository = parser.get_object_template_repository()
+        asset_repository = self._dso_assets_factory.get_repository_for_objects(used_objects)
+        werkingsgebieden_repository = self._dso_werkingsgebieden_factory.get_repository_for_objects(objects)
+        policy_object_repository = self.get_policy_object_repository(used_objects)
 
         # Convert to INput data
         input_data: InputData = map_dso_input_data(
@@ -101,13 +97,36 @@ class DSOService:
         self._input_data = input_data
         return input_data
 
+    def state_filter(self, json_string):
+        """
+        Filter the exported state to strip redudant data such as
+        resources to only UUIDs
+        """
+        try:
+            data = json.loads(json_string)
+            policy_objects = data["input_data"]["resources"]["policy_object_repository"]
+            uuids = {k: v["UUID"] for k, v in policy_objects.items()}
+            data["input_data"]["resources"]["policy_object_repository"] = uuids
+            return json.dumps(data)
+        except KeyError as e:
+            raise DSOStateExportError(f"Trying to filter a non existing key in DSO state export. {e}")
+
+    def get_exported_state(self) -> str:
+        """
+        Exported state from DSO generator.
+        """
+        return self._builder.export_json_state()
+
+    def get_filtered_export_state(self) -> str:
+        """
+        Return DSO generator state filtered to smaller footprint for storage.
+        """
+        return self.state_filter(self.get_exported_state())
+
     def build_dso_package(self, input_data: Optional[InputData] = None, output_path: str = "./output-dso"):
         """
         Build DSO package from input data and export generator State.
         """
-        builder = Builder(input_data or self._input_data)
-        builder.build_publication_files()
-        builder.save_files(output_path)
-        # Return json output of state
-        exported_state = builder.export_json_state()
-        return exported_state
+        self._builder = Builder(input_data or self._input_data)
+        self._builder.build_publication_files()
+        self._builder.save_files(output_path)

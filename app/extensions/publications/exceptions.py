@@ -4,3 +4,7 @@ class MissingPublicationConfigError(Exception):
 
 class PublicationBillNotFound(Exception):
     pass
+
+
+class DSOStateExportError(Exception):
+    pass

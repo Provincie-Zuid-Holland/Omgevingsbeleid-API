@@ -16,7 +16,6 @@ from app.extensions.publications.models import PublicationBill, PublicationConfi
 
 
 def map_dso_input_data(
-    self,
     bill: PublicationBill,
     package: PublicationPackage,
     config: PublicationConfig,
@@ -72,7 +71,7 @@ def map_dso_input_data(
 
     resources = Resources(
         policy_object_repository=policy_object_repository,
-        asset_repository=self.get_asset_repository(),
+        asset_repository=asset_repository,
         werkingsgebied_repository=werkingsgebied_repository,
     )
 
@@ -93,7 +92,7 @@ def map_dso_input_data(
                 "id_levering": str(package.UUID),
                 "id_bevoegdgezag": str(package.Authority_ID),
                 "id_aanleveraar": str(package.Submitter_ID),
-                "publicatie_bestand": package.Publication_Filename,
+                "publicatie_bestand": package.Publication_Filename,  # TODO: Generate based on frbr
                 "datum_bekendmaking": bekendmakingsdatum,
             },
             doel=dso_models.Doel(jaar="2024", naam="InstellingOmgevingsvisie"),
