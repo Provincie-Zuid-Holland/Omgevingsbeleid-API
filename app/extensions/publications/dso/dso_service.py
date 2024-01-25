@@ -99,17 +99,36 @@ class DSOService:
 
     def state_filter(self, json_string):
         """
-        Filter the exported state to strip redudant data such as
-        resources to only UUIDs
+        Filter the exported state to strip redundant data such as
+        resources to only UUIDs and specific fields
         """
+        data = json.loads(json_string)
+
         try:
-            data = json.loads(json_string)
-            policy_objects = data["input_data"]["resources"]["policy_object_repository"]
-            uuids = {k: v["UUID"] for k, v in policy_objects.items()}
-            data["input_data"]["resources"]["policy_object_repository"] = uuids
+            resources = data["input_data"]["resources"]
+
+            # Filter policy_object_repository
+            policy_objects = resources["policy_object_repository"]
+            resources["policy_object_repository"] = {k: v["UUID"] for k, v in policy_objects.items()}
+
+            # Filter asset_repository
+            assets = resources["asset_repository"]
+            resources["asset_repository"] = {k: v["UUID"] for k, v in assets.items()}
+
+            # Filter werkingsgebied_repository
+            werkingsgebieden = resources["werkingsgebied_repository"]
+            for key, value in werkingsgebieden.items():
+                filtered_locaties = [{"UUID": loc["UUID"]} for loc in value["Locaties"]]
+                werkingsgebied = value.get("Title", None)
+                werkingsgebieden[key] = {"UUID": value["UUID"], "Locaties": filtered_locaties}
+                if werkingsgebied is not None:
+                    werkingsgebieden[key]["Title"] = werkingsgebied
+
             return json.dumps(data)
         except KeyError as e:
             raise DSOStateExportError(f"Trying to filter a non existing key in DSO state export. {e}")
+        except Exception as e:
+            raise DSOStateExportError(e)
 
     def get_exported_state(self) -> str:
         """

@@ -1,7 +1,8 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import LargeBinary, Unicode
+from sqlalchemy import Unicode
+from sqlalchemy import Unicode
 from sqlalchemy.orm import Mapped, deferred, mapped_column
 
 from app.core.db.base import Base
@@ -20,7 +21,7 @@ class SourceWerkingsgebiedenTable(Base):
     End_Validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
 
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
-    SHAPE: Mapped[bytes] = deferred(mapped_column(LargeBinary()))
+    SHAPE: Mapped[bytes] = deferred(mapped_column(Geometry()))
     symbol: Mapped[str] = mapped_column(Unicode(265))
 
     def __repr__(self) -> str:

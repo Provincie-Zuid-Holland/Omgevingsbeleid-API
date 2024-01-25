@@ -1,4 +1,5 @@
 import uuid
+from copy import deepcopy
 from datetime import datetime
 from typing import List, Optional
 
@@ -98,6 +99,7 @@ class PublicationBill(BaseModel):
     @classmethod
     def from_orm(cls, obj):
         # auto convert and validate db json to the Bill_Data schema
+        obj = deepcopy(obj)
         if isinstance(obj.Bill_Data, dict):
             obj.Bill_Data = Bill_Data(**obj.Bill_Data)
         if isinstance(obj.Procedure_Data, dict):
