@@ -3,8 +3,8 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
 from sqlalchemy import text
-from app.core.utils.utils import DATE_FORMAT
 
+from app.core.utils.utils import DATE_FORMAT
 from app.dynamic.repository.repository import BaseRepository
 from app.extensions.areas.db.tables import AreasTable
 

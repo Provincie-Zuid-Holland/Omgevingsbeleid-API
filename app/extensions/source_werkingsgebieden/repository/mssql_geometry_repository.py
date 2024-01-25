@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy import text
-from app.core.utils.utils import DATE_FORMAT
 
+from app.core.utils.utils import DATE_FORMAT
 from app.extensions.source_werkingsgebieden.repository.geometry_repository import GeometryRepository
 
 
