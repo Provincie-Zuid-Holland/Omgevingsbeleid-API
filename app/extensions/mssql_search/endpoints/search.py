@@ -30,12 +30,14 @@ class EndpointHandler:
         pagination: SimplePagination,
         query: str,
         object_types: Optional[List[str]] = None,
+        as_like: bool = False,
     ):
         self._db: Session = db
         self._search_config: SearchConfig = search_config
         self._pagination: SimplePagination = pagination
         self._query: str = query
         self._object_types: Optional[List[str]] = object_types
+        self._as_like: bool = as_like
 
     def handle(self) -> PagedResponse[SearchObject]:
         if not len(self._query):
@@ -54,7 +56,10 @@ class EndpointHandler:
 
         placeholders = ",".join([f":object_type{i}" for i in range(len(self._object_types))])
         object_type_filter = f" AND v.Object_Type IN ( {placeholders})"
-        stmt = self._get_query(object_type_filter)
+        if self._as_like:
+            stmt = self._get_like_query(object_type_filter)
+        else:
+            stmt = self._get_query(object_type_filter)
         bindparams_dict = {
             "query": f'"{self._query}"',
             "offset": self._pagination.offset,
@@ -198,6 +203,99 @@ class EndpointHandler:
                 WHERE 1=1 {object_type_filter}
                 ORDER BY
                     s.WeightedRank DESC
+                OFFSET
+                    :offset ROWS
+                FETCH
+                    NEXT :limit ROWS ONLY
+            """
+        )
+        return stmt
+
+    def _get_like_query(self, object_type_filter) -> TextClause:
+        stmt = text(
+            f"""
+                WITH valid_uuids (Module_ID, UUID, Object_Type, Object_ID, Title, Description)
+                AS
+                (
+                    SELECT
+                        0 AS Module_ID,
+                        UUID,
+                        Object_Type,
+                        Object_ID,
+                        Title,
+                        Description
+                    FROM (
+                        SELECT
+                            UUID,
+                            Object_Type,
+                            Object_ID,
+                            Title,
+                            Description,
+                            End_Validity,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY
+                                    Code
+                                ORDER BY
+                                    Modified_Date DESC
+                            ) AS _RowNumber
+                        FROM
+                            {ObjectsTable.__table__}
+                        WHERE
+                            Start_Validity <= GETDATE()
+                    ) AS valid_subquery
+                    WHERE
+                        _RowNumber = 1
+                        AND (End_Validity > GETDATE() OR End_Validity IS NULL)
+                    
+                    UNION
+
+                    SELECT
+                        Module_ID,
+                        UUID,
+                        Object_Type,
+                        Object_ID,
+                        Title,
+                        Description
+                    FROM (
+                        SELECT
+                            mo.Module_ID,
+                            mo.UUID,
+                            mo.Object_Type,
+                            mo.Object_ID,
+                            mo.Title,
+                            mo.Description,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY
+                                    mo.Code
+                                ORDER BY
+                                    mo.Modified_Date DESC
+                            ) AS _RowNumber
+                        FROM
+                            {ModuleObjectsTable.__table__} AS mo
+                            INNER JOIN {ModuleTable.__table__} AS m ON mo.Module_ID = m.Module_ID
+                        WHERE
+                            m.Closed = 0
+                    ) AS module_subquery
+                    WHERE
+                        _RowNumber = 1
+                )
+
+                SELECT
+                    v.Module_ID,
+                    v.UUID,
+                    v.Object_Type,
+                    v.Object_ID,
+                    v.Title,
+                    v.Description,
+                    1 AS _Rank,
+                    COUNT(*) OVER() AS _Total_Count
+                FROM valid_uuids AS v
+                WHERE
+                    (
+                            Title LIKE '%:query%'
+                        OR  Description LIKE '%:query%'
+                    )
+                    {object_type_filter}
                 OFFSET
                     :offset ROWS
                 FETCH

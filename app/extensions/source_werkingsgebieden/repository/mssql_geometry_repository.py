@@ -76,9 +76,9 @@ class MssqlGeometryRepository(GeometryRepository):
             "shape": text_shape,
             "symbol": symbol,
             "created_date": created_date.strftime(DATE_FORMAT),
-            "modified_date": str(modified_date).strftime(DATE_FORMAT),
-            "start_validity": str(start_validity).strftime(DATE_FORMAT),
-            "end_validity": str(end_validity).strftime(DATE_FORMAT),
+            "modified_date": modified_date.strftime(DATE_FORMAT),
+            "start_validity": start_validity.strftime(DATE_FORMAT),
+            "end_validity": end_validity.strftime(DATE_FORMAT),
         }
         sql = """
             INSERT INTO
