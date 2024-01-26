@@ -43,9 +43,9 @@ class AreaProcessor:
 
     def process(self):
         if self._new_field_value is None:
-            return None
+            return self._new_record
         if self._old_field_value == self._new_field_value:
-            return
+            return self._new_record
 
         # If the field value changes then it can either be the UUID of:
         # - The Source Werkingsgebieden
