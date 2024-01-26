@@ -216,6 +216,8 @@ api:
                     label: Hierarchy_Code
                   - column: Gebied_UUID
                     label: Gebied_UUID
+                  - column: Werkingsgebied_Code
+                    label: Werkingsgebied_Code
               - object_type: maatregel
                 content:
                   - column: Description
@@ -228,6 +230,8 @@ api:
                     label: Hierarchy_Code
                   - column: Gebied_UUID
                     label: Gebied_UUID
+                  - column: Werkingsgebied_Code
+                    label: Werkingsgebied_Code
         - resolver: module_add_new_object
           resolver_data:
             path: /add-new-object
@@ -382,6 +386,14 @@ columns:
     type: object_code
     type_data:
       relation_field: Hierarchy_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  werkingsgebied_code:
+    name: Werkingsgebied_Code
+    type: object_code
+    type_data:
+      relation_field: Werkingsgebied_Statics
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true

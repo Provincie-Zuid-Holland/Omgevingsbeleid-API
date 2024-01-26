@@ -12,3 +12,13 @@ class AreaBasic(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class WerkingsgebiedStatics(BaseModel):
+    Object_Type: str
+    Object_ID: int
+    Code: str
+    Cached_Title: str
+
+    class Config:
+        orm_mode = True

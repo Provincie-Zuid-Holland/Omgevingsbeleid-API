@@ -1,1 +1,1 @@
-from .models import AreaBasic
+from .models import AreaBasic, WerkingsgebiedStatics

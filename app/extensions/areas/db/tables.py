@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import BLOB, ForeignKey
+from sqlalchemy import ForeignKey, LargeBinary
 from sqlalchemy.orm import Mapped, deferred, mapped_column
 
 from app.core.db.base import Base
@@ -15,7 +15,7 @@ class AreasTable(Base):
     Created_Date: Mapped[datetime]
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    Shape: Mapped[bytes] = deferred(mapped_column(BLOB))
+    Shape: Mapped[bytes] = deferred(mapped_column(LargeBinary()))
 
     Source_UUID: Mapped[uuid.UUID] = mapped_column(unique=True)
     Source_ID: Mapped[Optional[int]]

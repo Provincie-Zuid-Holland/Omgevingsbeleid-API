@@ -9,7 +9,7 @@ from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.areas.db.tables import AreasTable  # # noqa
 
-from .models import AreaBasic
+from .models import AreaBasic, WerkingsgebiedStatics
 
 
 class AreasExtension(Extension):
@@ -20,6 +20,13 @@ class AreasExtension(Extension):
                 name="AreaBasic",
                 pydantic_model=AreaBasic,
             ),
+        )
+        models_resolver.add(
+            ExtensionModel(
+                id="werkingsgebied_statics",
+                name="WerkingsgebiedStatics",
+                pydantic_model=WerkingsgebiedStatics,
+            )
         )
 
     def register_endpoint_resolvers(
