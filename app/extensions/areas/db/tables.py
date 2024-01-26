@@ -15,7 +15,7 @@ class AreasTable(Base):
     Created_Date: Mapped[datetime]
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    Shape: Mapped[bytes] = deferred(mapped_column(LargeBinary()))
+    Shape: Mapped[Optional[bytes]] = deferred(mapped_column(LargeBinary(), nullable=True))
 
     Source_UUID: Mapped[uuid.UUID] = mapped_column(unique=True)
     Source_ID: Mapped[Optional[int]]
