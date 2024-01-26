@@ -4,7 +4,7 @@ from datetime import datetime
 
 from sqlalchemy import text
 
-from app.core.utils.utils import DATE_FORMAT
+from app.core.utils.utils import as_datetime
 from app.dynamic.repository.repository import BaseRepository
 from app.extensions.areas.db.tables import AreasTable
 
@@ -38,10 +38,10 @@ class AreaGeometryRepository(BaseRepository, metaclass=ABCMeta):
             Source_ID=werkingsgebied.get("ID"),
             Source_Title=werkingsgebied.get("Title"),
             Source_Symbol=werkingsgebied.get("Symbol"),
-            Source_Start_Validity=datetime.strptime(werkingsgebied.get("Start_Validity"), DATE_FORMAT),
-            Source_End_Validity=datetime.strptime(werkingsgebied.get("End_Validity"), DATE_FORMAT),
-            Source_Created_Date=datetime.strptime(werkingsgebied.get("Created_Date"), DATE_FORMAT),
-            Source_Modified_Date=datetime.strptime(werkingsgebied.get("Modified_Date"), DATE_FORMAT),
+            Source_Start_Validity=as_datetime(werkingsgebied.get("Start_Validity")),
+            Source_End_Validity=as_datetime(werkingsgebied.get("End_Validity")),
+            Source_Created_Date=as_datetime(werkingsgebied.get("Created_Date")),
+            Source_Modified_Date=as_datetime(werkingsgebied.get("Modified_Date")),
         )
         self._db.add(area)
         self._db.flush()

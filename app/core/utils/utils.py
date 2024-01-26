@@ -1,3 +1,5 @@
+from datetime import datetime
+
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 
@@ -21,3 +23,9 @@ def bytes_to(bytes, to, bsize=1024):
     """
     a = {"k": 1, "m": 2, "g": 3}
     return float(bytes) / (bsize ** a[to])
+
+
+def as_datetime(value) -> datetime:
+    if isinstance(value, datetime):
+        return value
+    return datetime.strptime(value, DATE_FORMAT)
