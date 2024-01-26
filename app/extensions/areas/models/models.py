@@ -10,6 +10,7 @@ class AreaBasic(BaseModel):
     Created_By_UUID: uuid.UUID
     Source_UUID: uuid.UUID
     Source_Title: str
+    Source_Modified_Date: datetime
 
     class Config:
         orm_mode = True
