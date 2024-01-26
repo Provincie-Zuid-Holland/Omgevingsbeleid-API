@@ -319,7 +319,7 @@ class MssqlSearchEndpoint(Endpoint):
             user: UsersTable = Depends(depends_current_active_user),
         ) -> PagedResponse[SearchObject]:
             handler: EndpointHandler = EndpointHandler(
-                db, self._search_config, pagination, query, object_in.Object_Types
+                db, self._search_config, pagination, query, object_in.Object_Types, object_in.Like
             )
             return handler.handle()
 
