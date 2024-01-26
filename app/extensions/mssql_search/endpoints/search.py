@@ -56,15 +56,19 @@ class EndpointHandler:
 
         placeholders = ",".join([f":object_type{i}" for i in range(len(self._object_types))])
         object_type_filter = f" AND v.Object_Type IN ( {placeholders})"
-        if self._as_like:
-            stmt = self._get_like_query(object_type_filter)
-        else:
-            stmt = self._get_query(object_type_filter)
+
         bindparams_dict = {
-            "query": f'"{self._query}"',
             "offset": self._pagination.offset,
             "limit": self._pagination.limit,
         }
+
+        if self._as_like:
+            stmt = self._get_like_query(object_type_filter)
+            bindparams_dict["query"] = f'"%{self._query}%"'
+        else:
+            stmt = self._get_query(object_type_filter)
+            bindparams_dict["query"] = f'"{self._query}"'
+
         # fill object type placeholders
         if self._object_types:
             for i, ot in enumerate(self._object_types):
@@ -292,8 +296,8 @@ class EndpointHandler:
                 FROM valid_uuids AS v
                 WHERE
                     (
-                            Title LIKE '%:query%'
-                        OR  Description LIKE '%:query%'
+                            Title LIKE :query
+                        OR  Description LIKE :query
                     )
                     {object_type_filter}
                 OFFSET
