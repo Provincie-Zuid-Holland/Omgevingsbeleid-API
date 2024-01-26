@@ -64,7 +64,7 @@ class EndpointHandler:
 
         if self._as_like:
             stmt = self._get_like_query(object_type_filter)
-            bindparams_dict["query"] = f'%{self._query}%'
+            bindparams_dict["query"] = f'%{self._query}%"'
         else:
             stmt = self._get_query(object_type_filter)
             bindparams_dict["query"] = f'"{self._query}"'
@@ -300,6 +300,7 @@ class EndpointHandler:
                         OR  Description LIKE :query
                     )
                     {object_type_filter}
+                ORDER BY v.Module_ID DESC
                 OFFSET
                     :offset ROWS
                 FETCH
