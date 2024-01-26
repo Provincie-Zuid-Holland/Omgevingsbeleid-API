@@ -123,6 +123,7 @@ api:
               - verplicht_programma
               - visie_algemeen
               - programma_algemeen
+              - werkingsgebied
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
@@ -140,6 +141,7 @@ api:
               - verplicht_programma
               - visie_algemeen
               - programma_algemeen
+              - werkingsgebied
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
