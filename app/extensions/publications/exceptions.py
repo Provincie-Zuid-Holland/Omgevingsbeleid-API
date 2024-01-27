@@ -8,3 +8,7 @@ class PublicationBillNotFound(Exception):
 
 class DSOStateExportError(Exception):
     pass
+
+
+class DSOExportOWError(Exception):
+    pass

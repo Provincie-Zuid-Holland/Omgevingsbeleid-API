@@ -5,6 +5,7 @@ from typing import Optional
 from sqlalchemy import Column
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, String
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 from sqlalchemy.sql.expression import select
@@ -82,11 +83,19 @@ class OWGebiedTable(OWLocationTable):
 
 
 class OWGebiedenGroepTable(OWLocationTable):
-    Gebieden = relationship(
-        "OWGebiedTable",
-        secondary="publication_ow_association",
+    # Relationship using OWAssociationTable
+    _gebieden = relationship(
+        "OWAssociationTable",
         primaryjoin=f"and_(OWGebiedenGroepTable.OW_ID == OWAssociationTable.OW_ID_1, OWAssociationTable.Type == '{OWAssociationType.GEBIEDENGROEP_GEBIED.value}')",
-        secondaryjoin=(OWObjectTable.OW_ID == OWAssociationTable.OW_ID_2),
+        cascade="all, delete-orphan",
+    )
+
+    Gebieden = association_proxy(
+        "_gebieden",
+        "ow_object2",
+        creator=lambda ow_object2: OWAssociationTable(
+            ow_object2=ow_object2, Type=OWAssociationType.GEBIEDENGROEP_GEBIED.value
+        ),
     )
 
     __mapper_args__ = {
@@ -95,13 +104,26 @@ class OWGebiedenGroepTable(OWLocationTable):
 
 
 class OWTekstdeelTable(OWObjectTable):
+    """
+    Tekstdeel maps the tekst divs to the locations, and it has a 1-to-many relationship with OWLocationTable.
+    the association proxy is used to auto insert the correct OWAssociation with matching type.
+    """
+
     Divisie_ref = Column(String(255), ForeignKey("publication_ow_objects.OW_ID"))
 
-    Locations = relationship(
-        "OWLocationTable",
-        secondary="publication_ow_association",
+    # New association_proxy
+    _locations = relationship(
+        "OWAssociationTable",
         primaryjoin=f"and_(OWTekstdeelTable.OW_ID == OWAssociationTable.OW_ID_1, OWAssociationTable.Type == '{OWAssociationType.TEKSTDEEL_LOCATION.value}')",
-        secondaryjoin=(OWObjectTable.OW_ID == OWAssociationTable.OW_ID_2),
+        cascade="all, delete-orphan",
+    )
+
+    Locations = association_proxy(
+        "_locations",
+        "ow_object2",
+        creator=lambda ow_object2: OWAssociationTable(
+            ow_object2=ow_object2, Type=OWAssociationType.TEKSTDEEL_LOCATION.value
+        ),
     )
 
     @hybrid_property

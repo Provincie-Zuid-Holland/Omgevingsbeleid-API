@@ -21,12 +21,15 @@ from app.extensions.publications import (
 )
 from app.extensions.publications.dependencies import (
     depends_dso_service,
+    depends_ow_object_repository,
     depends_publication_object_repository,
     depends_publication_repository,
 )
 from app.extensions.publications.dso.dso_service import DSOService
+from app.extensions.publications.dso.ow_export import create_ow_objects_from_json
 from app.extensions.publications.exceptions import PublicationBillNotFound
 from app.extensions.publications.models import PublicationBill, PublicationConfig
+from app.extensions.publications.repository.ow_object_repository import OWObjectRepository
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.extensions.publications.repository.publication_repository import PublicationRepository
 from app.extensions.publications.tables import PublicationConfigTable
@@ -64,7 +67,8 @@ class CreatePublicationPackageEndpoint(Endpoint):
         def fastapi_handler(
             object_in: PublicationPackageCreate,
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
-            pub_object_repository: PublicationObjectRepository = Depends(depends_publication_object_repository),
+            pub_object_repo: PublicationObjectRepository = Depends(depends_publication_object_repository),
+            ow_object_repo: OWObjectRepository = Depends(depends_ow_object_repository),
             dso_service: DSOService = Depends(depends_dso_service),
         ) -> PublicationPackage:
             try:
@@ -72,7 +76,8 @@ class CreatePublicationPackageEndpoint(Endpoint):
                     object_in=object_in,
                     pub_repo=publication_repo,
                     dso_service=dso_service,
-                    pub_object_repository=pub_object_repository,
+                    pub_object_repository=pub_object_repo,
+                    ow_object_repo=ow_object_repo,
                 )
             except MissingPublicationConfigError:
                 raise HTTPException(status_code=500, detail="No publication config found")
@@ -95,18 +100,21 @@ class CreatePublicationPackageEndpoint(Endpoint):
         pub_repo: PublicationRepository,
         object_in: PublicationPackageCreate,
         pub_object_repository: PublicationObjectRepository,
+        ow_object_repo: OWObjectRepository,
         dso_service: DSOService,
     ) -> PublicationPackage:
         """
         - Create new publication package using bill and config data
-        - Call DSO Service create publication package files
-        - Save state and new objects in DB
+        - Call DSO Service build publication package files
+        - Save filtered export state in DB
+        - Save new OW objects in DB
         - Return package UUID
 
         Args:
             pub_repo (PublicationRepository): The repository for publication data.
             object_in (PublicationPackageCreate): The input data for creating a publication package.
             pub_object_repository (PublicationObjectRepository): The repository for publication objects.
+            ow_object_repo (OWObjectRepository): The repository for OW objects.
             dso_service (DSOService): The DSO service.
 
         Returns:
@@ -177,16 +185,24 @@ class CreatePublicationPackageEndpoint(Endpoint):
         dso_service.build_dso_package(input_data)
 
         # Save state and new objects in DB
-        state = dso_service.get_filtered_export_state()
+        state_exported = json.loads(dso_service.get_filtered_export_state())
 
         new_export = DSOStateExportTable(
             UUID=uuid.uuid4(),
             Created_Date=datetime.now(),
             Modified_Date=datetime.now(),
             Package_UUID=package.UUID,
-            Export_Data=json.loads(state),
+            Export_Data=state_exported,
         )
         new_export = pub_repo.create_dso_state_export(new_export)
+
+        # Store new OW objects in DB
+        ow_objects = create_ow_objects_from_json(
+            exported_state=state_exported,
+            package_uuid=package.UUID,
+            bill_type=bill.Bill_Type,
+        )
+        ow_object_repo.create_ow_objects(ow_objects)
 
         return PublicationPackage.from_orm(new_package_db)
 
