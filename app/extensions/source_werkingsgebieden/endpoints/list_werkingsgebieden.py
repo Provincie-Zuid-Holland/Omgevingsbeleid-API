@@ -9,9 +9,9 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination
-from app.extensions.werkingsgebieden.dependencies import depends_werkingsgebieden_repository
-from app.extensions.werkingsgebieden.models.models import Werkingsgebied
-from app.extensions.werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
+from app.extensions.source_werkingsgebieden.dependencies import depends_werkingsgebieden_repository
+from app.extensions.source_werkingsgebieden.models.models import Werkingsgebied
+from app.extensions.source_werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
 
 
 class ListWerkingsgebiedenEndpoint(Endpoint):
@@ -33,7 +33,7 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
             response_model=PagedResponse[Werkingsgebied],
             summary=f"List the werkingsgebieden",
             description=None,
-            tags=["Werkingsgebieden"],
+            tags=["Source Werkingsgebieden"],
         )
 
         return router
@@ -54,7 +54,7 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
 
 class ListWerkingsgebiedenEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "list_werkingsgebieden"
+        return "source_list_werkingsgebieden"
 
     def generate_endpoint(
         self,
