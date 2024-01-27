@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import select
@@ -27,6 +27,21 @@ class OWObjectRepository(BaseRepository):
         self._db.flush()
         self._db.commit()
         return new_ow_object
+
+    def create_ow_objects(self, new_ow_objects: List[OWObjectTable]) -> List[OWObjectTable]:
+        """
+        Creates multiple new OWObjects.
+
+        Args:
+            new_ow_objects (List[OWObject]): The list of OWObjects to be created.
+
+        Returns:
+            List[OWObject]: The list of created OWObjects.
+        """
+        self._db.add_all(new_ow_objects)
+        self._db.flush()
+        self._db.commit()
+        return new_ow_objects
 
     def get_ow_object_by_uuid(self, uuid: UUID) -> Optional[OWObjectTable]:
         """

@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from app.main import app  ## noqa
 from app.core.db import table_metadata  ## noqa
 from app.core.settings import settings  ## noqa
-from app.extensions.source_werkingsgebieden.geometry import Geometry ## noqa
+from app.extensions.source_werkingsgebieden.geometry import Geometry  ## noqa
 
 # revision identifiers, used by Alembic.
 revision = "ea31e70b1cf4"
@@ -96,9 +96,7 @@ def upgrade() -> None:
         sa.Column("dso_stop_version", sa.String(), nullable=False),
         sa.Column("dso_tpod_version", sa.String(), nullable=False),
         sa.Column("dso_bhkv_version", sa.String(), nullable=False),
-        sa.Column(
-            "Package_Event_Type", sa.Enum("Validatie", "Publicatie", "Afbreken"), nullable=True
-        ),
+        sa.Column("Package_Event_Type", sa.Enum("Validatie", "Publicatie", "Afbreken"), nullable=True),
         sa.Column("UUID", sa.Uuid(), nullable=False),
         sa.Column("Created_Date", sa.DateTime(), nullable=True),
         sa.Column("Modified_Date", sa.DateTime(), nullable=True),
@@ -162,10 +160,10 @@ def upgrade() -> None:
         sa.Column("WID", sa.String(), nullable=True),
         sa.Column("Geo_UUID", sa.Uuid(), nullable=True),
         sa.Column("Divisie_ref", sa.String(length=255), nullable=True),
-        sa.Column("Bestuurlijke_grenzen_id", sa.String(), nullable=False),
-        sa.Column("Domein", sa.String(), nullable=False),
-        sa.Column("Geldig_Op", sa.String(), nullable=False),
-        sa.Column("Ambtsgebied", sa.String(), nullable=False),
+        sa.Column("Bestuurlijke_grenzen_id", sa.String(), nullable=True),
+        sa.Column("Domein", sa.String(), nullable=True),
+        sa.Column("Geldig_Op", sa.String(), nullable=True),
+        sa.Column("Ambtsgebied", sa.String(), nullable=True),
         sa.ForeignKeyConstraint(
             ["Divisie_ref"],
             ["publication_ow_objects.OW_ID"],

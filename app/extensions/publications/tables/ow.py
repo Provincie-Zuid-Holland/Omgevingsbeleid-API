@@ -25,6 +25,10 @@ class OWAssociationTable(Base):
     Type = Column(String)
     # Type = Column(SQLAlchemyEnum(*[e.value for e in OWAssociationType]))
 
+    # Relationships to ow objects
+    ow_object1 = relationship("OWObjectTable", foreign_keys=[OW_ID_1])
+    ow_object2 = relationship("OWObjectTable", foreign_keys=[OW_ID_2])
+
 
 class OWObjectTable(Base, TimeStamped):
     __tablename__ = "publication_ow_objects"
