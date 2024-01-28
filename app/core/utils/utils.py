@@ -1,3 +1,8 @@
+from datetime import datetime
+
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+
+
 def table_to_dict(object_table) -> dict:
     object_dict = dict(object_table.__dict__)
     object_dict.pop("_sa_instance_state", None)
@@ -18,3 +23,9 @@ def bytes_to(bytes, to, bsize=1024):
     """
     a = {"k": 1, "m": 2, "g": 3}
     return float(bytes) / (bsize ** a[to])
+
+
+def as_datetime(value) -> datetime:
+    if isinstance(value, datetime):
+        return value
+    return datetime.strptime(value, DATE_FORMAT)

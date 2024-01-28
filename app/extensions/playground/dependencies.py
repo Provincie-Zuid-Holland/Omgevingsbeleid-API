@@ -8,8 +8,8 @@ from app.extensions.playground.services.input_data_service import InputDataServi
 from app.extensions.playground.services.template_parser import TemplateParser
 from app.extensions.playground.templates.omgevingsprogramma import OmgevingsprogrammaTextTemplate
 from app.extensions.playground.templates.omgevingsvisie import OmgevingsvisieTextTemplate
-from app.extensions.werkingsgebieden.dependencies import depends_geometry_repository
-from app.extensions.werkingsgebieden.repository.geometry_repository import GeometryRepository
+from app.extensions.source_werkingsgebieden.dependencies import depends_geometry_repository
+from app.extensions.source_werkingsgebieden.repository.geometry_repository import GeometryRepository
 
 
 def depends_dso_werkingsgebieden_factory(

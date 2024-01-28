@@ -16,7 +16,7 @@ from app.extensions.publications.models import PublicationBill, PublicationConfi
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.extensions.publications.repository.publication_repository import PublicationRepository
 from app.extensions.publications.tables.tables import DSOStateExportTable
-from app.extensions.werkingsgebieden.repository import MssqlGeometryRepository
+from app.extensions.source_werkingsgebieden.repository import MssqlGeometryRepository
 
 
 @click.command()

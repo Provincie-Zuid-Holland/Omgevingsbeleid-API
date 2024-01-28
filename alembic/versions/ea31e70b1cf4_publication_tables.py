@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from app.main import app  ## noqa
 from app.core.db import table_metadata  ## noqa
 from app.core.settings import settings  ## noqa
-from app.extensions.werkingsgebieden.geometry import Geometry ## noqa
+from app.extensions.source_werkingsgebieden.geometry import Geometry ## noqa
 
 # revision identifiers, used by Alembic.
 revision = "ea31e70b1cf4"

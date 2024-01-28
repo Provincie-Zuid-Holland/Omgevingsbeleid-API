@@ -44,5 +44,9 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def get_werkingsgebied_optional(self, uuidx: uuid.UUID) -> Optional[dict]:
+        pass
+
+    @abstractmethod
     def get_onderverdelingen_for_werkingsgebied(self, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
         pass

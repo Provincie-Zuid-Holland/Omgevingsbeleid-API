@@ -12,7 +12,6 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
-from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_module,
@@ -72,7 +71,7 @@ class EndpointHandler:
         self._db.add(self._object_context)
 
     def _patch_module_object_as_deleted(self):
-        new_record: ModuleObjectsTable = self._module_object_repository.patch_latest_module_object(
+        _, new_record = self._module_object_repository.patch_latest_module_object(
             self._object_context.Module_ID,
             self._object_context.Object_Type,
             self._object_context.Object_ID,

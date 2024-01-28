@@ -5,7 +5,7 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
     WerkingsgebiedRepository,
 )
 
-from app.extensions.werkingsgebieden.repository.geometry_repository import GeometryRepository
+from app.extensions.source_werkingsgebieden.repository.geometry_repository import GeometryRepository
 
 
 class DsoWerkingsgebiedenFactory:

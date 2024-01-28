@@ -146,6 +146,10 @@ fields:
     name: Hierarchy_Code
     type: str
     column: hierarchy_code
+  werkingsgebied_code:
+    name: Werkingsgebied_Code
+    type: str
+    column: werkingsgebied_code
   
   # Statics
   owner_1_uuid:
@@ -207,6 +211,7 @@ models:
       end_validity:
       title:
       hierarchy_code:
+      werkingsgebied_code:
     services:
       foreign_keys_extender:
         fields_map:
@@ -243,6 +248,7 @@ models:
       provincial_interest:
       explanation:
       hierarchy_code:
+      werkingsgebied_code:
     services:
       insert_assets:
         fields:
@@ -262,6 +268,8 @@ models:
             model_id: werkingsgebied
           - to_field: Hierarchy_Statics
             model_id: hierarchy_statics
+          - to_field: Werkingsgebied_Statics
+            model_id: werkingsgebied_statics
           - to_field: Created_By
             model_id: user_short
           - to_field: Modified_By
@@ -368,6 +376,15 @@ models:
             data:
               allowed_object_types:
                 - beleidsdoel
+          - id: object_code_exists
+      werkingsgebied_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - werkingsgebied
           - id: object_code_exists
     services:
       extract_assets:

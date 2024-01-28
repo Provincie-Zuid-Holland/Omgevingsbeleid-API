@@ -4,10 +4,11 @@ from typing import List, Optional
 
 from sqlalchemy import text
 
-from app.extensions.werkingsgebieden.repository.geometry_repository import GeometryRepository
+from app.core.utils.utils import DATE_FORMAT
+from app.extensions.source_werkingsgebieden.repository.geometry_repository import GeometryRepository
 
 
-class SqliteGeometryRepository(GeometryRepository):
+class MssqlGeometryRepository(GeometryRepository):
     def add_onderverdeling(
         self,
         uuidx: uuid.UUID,
@@ -47,7 +48,7 @@ class SqliteGeometryRepository(GeometryRepository):
                     )
                 VALUES
                     (
-                        :uuid, :id, :title, GeomFromText(:shape, 28992), :symbol, :werkingsgebied, :uuid_werkingsgebied,
+                        :uuid, :id, :title, geometry::STGeomFromText(:shape, 28992), :symbol, :werkingsgebied, :uuid_werkingsgebied,
                         :created_date, :modified_date, :start_validity, :end_validity
                     )
             """
@@ -74,10 +75,10 @@ class SqliteGeometryRepository(GeometryRepository):
             "title": title,
             "shape": text_shape,
             "symbol": symbol,
-            "created_date": str(created_date),
-            "modified_date": str(modified_date),
-            "start_validity": str(start_validity),
-            "end_validity": str(end_validity),
+            "created_date": created_date.strftime(DATE_FORMAT),
+            "modified_date": modified_date.strftime(DATE_FORMAT),
+            "start_validity": start_validity.strftime(DATE_FORMAT),
+            "end_validity": end_validity.strftime(DATE_FORMAT),
         }
         sql = """
             INSERT INTO
@@ -88,20 +89,28 @@ class SqliteGeometryRepository(GeometryRepository):
                     )
                 VALUES
                     (
-                        :uuid, :id, :title, GeomFromText(:shape, 28992), :symbol,
+                        :uuid, :id, :title, geometry::STGeomFromText(:shape, 28992), :symbol,
                         :created_date, :modified_date, :start_validity, :end_validity
                     )
             """
         self._db.execute(text(sql), params)
 
     def get_werkingsgebied(self, uuidx: uuid.UUID) -> dict:
+        row = self.get_werkingsgebied_optional(uuidx)
+        if row is None:
+            raise RuntimeError(f"Werkingsgebied with UUID {uuidx} does not exist")
+        return row
+
+    def get_werkingsgebied_optional(self, uuidx: uuid.UUID) -> Optional[dict]:
         params = {
             "uuid": str(uuidx),
         }
         sql = """
             SELECT
                 UUID, Werkingsgebied AS Title, symbol AS Symbol,
-                Created_Date, Modified_Date, AsText(SHAPE) AS Geometry
+                Created_Date, Modified_Date, SHAPE.STAsText() AS Geometry,
+                Begin_Geldigheid AS Start_Validity,
+                Eind_Geldigheid AS End_Validity
             FROM
                 Werkingsgebieden
             WHERE
@@ -109,7 +118,7 @@ class SqliteGeometryRepository(GeometryRepository):
             """
         row = self._db.execute(text(sql), params).fetchone()
         if row is None:
-            raise RuntimeError(f"Werkingsgebied with UUID {uuidx} does not exist")
+            return None
 
         row_dict = row._asdict()
         return row_dict
@@ -121,7 +130,7 @@ class SqliteGeometryRepository(GeometryRepository):
         sql = """
             SELECT
                 UUID, Onderverdeling AS Title, symbol AS Symbol,
-                Created_Date, Modified_Date, AsText(SHAPE) AS Geometry
+                Created_Date, Modified_Date, SHAPE.STAsText() AS Geometry
             FROM
                 Onderverdeling
             WHERE

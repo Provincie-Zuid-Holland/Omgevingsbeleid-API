@@ -2,10 +2,12 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
-from app.extensions.source_werkingsgebieden.repository import WerkingsgebiedenRepository
-from app.extensions.source_werkingsgebieden.repository.geometry_repository import GeometryRepository
-from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import MssqlGeometryRepository
-from app.extensions.source_werkingsgebieden.repository.sqlite_geometry_repository import SqliteGeometryRepository
+from app.extensions.source_werkingsgebieden.repository import (
+    GeometryRepository,
+    MssqlGeometryRepository,
+    SqliteGeometryRepository,
+    WerkingsgebiedenRepository,
+)
 
 
 def depends_werkingsgebieden_repository(

@@ -1,14 +1,14 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BLOB, Unicode
-from sqlalchemy.orm import Mapped, mapped_column, deferred
+from sqlalchemy import LargeBinary, Unicode
+from sqlalchemy.orm import Mapped, deferred, mapped_column
 
 from app.core.db.base import Base
-from app.extensions.werkingsgebieden.geometry import Geometry
+from app.extensions.source_werkingsgebieden.geometry import Geometry
 
 
-class WerkingsgebiedenTable(Base):
+class SourceWerkingsgebiedenTable(Base):
     __tablename__ = "Werkingsgebieden"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
@@ -20,11 +20,11 @@ class WerkingsgebiedenTable(Base):
     End_Validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
 
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
-    SHAPE: Mapped[bytes] = deferred(mapped_column(Geometry()))
+    SHAPE: Mapped[bytes] = deferred(mapped_column(LargeBinary()))
     symbol: Mapped[str] = mapped_column(Unicode(265))
 
     def __repr__(self) -> str:
-        return f"Werkingsgebieden(UUID={self.UUID!r}, Title={self.Title!r})"
+        return f"SourceWerkingsgebiedenTable(UUID={self.UUID!r}, Title={self.Title!r})"
 
 
 class OnderverdelingTable(Base):

@@ -14,6 +14,7 @@ class ModuleObjectPatchedEventContext:
     changes: Dict[str, str]
     timepoint: datetime
     request_model: Model
+    old_record: ModuleObjectsTable
 
 
 @dataclass
@@ -37,6 +38,7 @@ class ModuleObjectPatchedEvent(Event):
         changes: Dict[str, str],
         timepoint: datetime,
         request_model: Model,
+        old_record: ModuleObjectsTable,
         new_record: ModuleObjectsTable,
     ):
         return ModuleObjectPatchedEvent(
@@ -48,5 +50,6 @@ class ModuleObjectPatchedEvent(Event):
                 changes=changes,
                 timepoint=timepoint,
                 request_model=request_model,
+                old_record=old_record,
             ),
         )

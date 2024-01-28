@@ -228,22 +228,22 @@ class ModuleObjectRepository(BaseRepository):
         changes: dict,
         timepoint: datetime,
         by_uuid: UUID,
-    ) -> ModuleObjectsTable:
-        record: Optional[ModuleObjectsTable] = self.get_latest_by_id(
+    ) -> Tuple[ModuleObjectsTable, ModuleObjectsTable]:
+        old_record: Optional[ModuleObjectsTable] = self.get_latest_by_id(
             module_id,
             object_type,
             object_id,
         )
-        if not record:
+        if not old_record:
             raise ValueError(f"lineage_id does not exist in this module")
 
         new_record: ModuleObjectsTable = self.patch_module_object(
-            record,
+            old_record,
             changes,
             timepoint,
             by_uuid,
         )
-        return new_record
+        return old_record, new_record
 
     def patch_module_object(
         self,
@@ -258,12 +258,13 @@ class ModuleObjectRepository(BaseRepository):
         self._db.expunge(record)
         make_transient(record)
 
+        new_record = deepcopy(record)
         for key, value in changes.items():
-            setattr(record, key, value)
+            setattr(new_record, key, value)
 
-        record.UUID = uuid4()
-        record.Adjust_On = previous_uuid
-        record.Modified_Date = timepoint
-        record.Modified_By_UUID = by_uuid
+        new_record.UUID = uuid4()
+        new_record.Adjust_On = previous_uuid
+        new_record.Modified_Date = timepoint
+        new_record.Modified_By_UUID = by_uuid
 
-        return record
+        return new_record
