@@ -26,9 +26,7 @@ class DsoWerkingsgebiedenFactory:
 
     def _get_werkingsgebied(self, werkingsgebied_uuid: UUID) -> dict:
         werkingsgebied = self._geometry_repository.get_werkingsgebied(werkingsgebied_uuid)
-        onderverdelingen = self._geometry_repository.get_onderverdelingen_for_werkingsgebied(
-            werkingsgebied_uuid
-        )
+        onderverdelingen = self._geometry_repository.get_onderverdelingen_for_werkingsgebied(werkingsgebied_uuid)
 
         # @note: hopefully temporary, but the onderverdelingen are not unique, so we cast them unique here
         onderverdelingen = list({o.get("UUID"): o for o in onderverdelingen}.values())
@@ -60,7 +58,5 @@ class DsoWerkingsgebiedenFactory:
         return result
 
     def _calculate_werkingsgebieden_uuids(self, objects: List[dict]) -> List[UUID]:
-        uuids: Set[UUID] = set(
-            [o.get("Gebied_UUID") for o in objects if o.get("Gebied_UUID", None) is not None]
-        )
+        uuids: Set[UUID] = set([o.get("Gebied_UUID") for o in objects if o.get("Gebied_UUID", None) is not None])
         return list(uuids)

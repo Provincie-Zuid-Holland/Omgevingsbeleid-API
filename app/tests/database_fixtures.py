@@ -20,8 +20,8 @@ from app.extensions.publications.tables.ow import (
     OWAssociationTable,
     OWDivisieTable,
     OWDivisietekstTable,
-    OWGebiedTable,
     OWGebiedenGroepTable,
+    OWGebiedTable,
     OWObjectTable,
     OWRegelingsgebiedTable,
     OWTekstdeelTable,
@@ -36,8 +36,6 @@ from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository
 from app.extensions.source_werkingsgebieden.repository.sqlite_geometry_repository import SqliteGeometryRepository
 from app.extensions.users.db import UsersTable
 from app.extensions.users.db.tables import IS_ACTIVE
-from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import MssqlGeometryRepository
-from app.extensions.source_werkingsgebieden.repository.sqlite_geometry_repository import SqliteGeometryRepository
 from app.tests.json_fixtures import filter_valid_fields, parse_datetime, parse_uuid
 
 

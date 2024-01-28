@@ -1,4 +1,3 @@
-
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -36,10 +35,12 @@ def depends_dso_werkingsgebieden_factory(
 
 
 def depends_get_parsers() -> TemplateParser:
-    template_parsers = {
-        "Omgevingsvisie": TemplateParser(template_style=OmgevingsvisieTextTemplate()),
-        "Omgevingsprogramma": TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
-    },
+    template_parsers = (
+        {
+            "Omgevingsvisie": TemplateParser(template_style=OmgevingsvisieTextTemplate()),
+            "Omgevingsprogramma": TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
+        },
+    )
     return template_parsers
 
 

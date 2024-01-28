@@ -40,9 +40,7 @@ class OWObjectTable(Base, TimeStamped):
     Noemer: Mapped[Optional[str]]
 
     # Relationship to PublicationPackageTable
-    Package_UUID: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("publication_packages.UUID"), nullable=False
-    )
+    Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_packages.UUID"), nullable=False)
     Package = relationship("PublicationPackageTable", back_populates="ow_objects")
 
     __mapper_args__ = {
@@ -66,9 +64,7 @@ class OWDivisietekstTable(OWDivisieTable):
 
 
 class OWLocationTable(OWObjectTable):
-    Geo_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey("Werkingsgebieden.UUID"), nullable=True
-    )
+    Geo_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Werkingsgebieden.UUID"), nullable=True)
 
     __mapper_args__ = {
         "polymorphic_abstract": True,
@@ -108,11 +104,7 @@ class OWTekstdeelTable(OWObjectTable):
     def divisie(self):
         if self.Divisie_ref:
             session = Session.object_session(self)
-            return (
-                session.query(OWDivisieTable)
-                .filter(OWDivisieTable.OW_ID == self.Divisie_ref)
-                .one_or_none()
-            )
+            return session.query(OWDivisieTable).filter(OWDivisieTable.OW_ID == self.Divisie_ref).one_or_none()
         return None
 
     @divisie.expression

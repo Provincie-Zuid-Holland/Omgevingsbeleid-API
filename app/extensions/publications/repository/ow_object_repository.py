@@ -5,7 +5,6 @@ from sqlalchemy import select
 
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult
-
 from app.extensions.publications.tables.ow import OWObjectTable
 
 

@@ -194,12 +194,14 @@ class ModuleObjectRepository(BaseRepository):
         filters = [
             ModuleTable.is_active if only_active_modules else None,
             ModuleTable.Current_Status.in_(status_filter) if status_filter is not None else None,
-            or_(
-                ObjectStaticsTable.Owner_1_UUID == owner_uuid,
-                ObjectStaticsTable.Owner_2_UUID == owner_uuid,
-            ).self_group()
-            if owner_uuid is not None
-            else None,
+            (
+                or_(
+                    ObjectStaticsTable.Owner_1_UUID == owner_uuid,
+                    ObjectStaticsTable.Owner_2_UUID == owner_uuid,
+                ).self_group()
+                if owner_uuid is not None
+                else None
+            ),
             ModuleObjectsTable.Object_Type == object_type if object_type is not None else None,
             ModuleObjectContextTable.Action.in_(actions) if actions else None,
         ]
