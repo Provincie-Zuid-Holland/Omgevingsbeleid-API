@@ -70,6 +70,10 @@ class OWLocationTable(OWObjectTable):
         ForeignKey("Werkingsgebieden.UUID"), nullable=True
     )
 
+    __mapper_args__ = {
+        "polymorphic_abstract": True,
+    }
+
 
 class OWGebiedTable(OWLocationTable):
     __mapper_args__ = {
