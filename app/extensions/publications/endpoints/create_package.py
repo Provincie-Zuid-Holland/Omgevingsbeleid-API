@@ -14,8 +14,10 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications import (
+    DSOStateExportTable,
     MissingPublicationConfigError,
     Package_Event_Type,
+    PublicationConfigTable,
     PublicationPackage,
     PublicationPackageTable,
 )
@@ -29,11 +31,11 @@ from app.extensions.publications.dso.dso_service import DSOService
 from app.extensions.publications.dso.ow_export import create_ow_objects_from_json
 from app.extensions.publications.exceptions import PublicationBillNotFound
 from app.extensions.publications.models import PublicationBill, PublicationConfig
-from app.extensions.publications.repository.ow_object_repository import OWObjectRepository
-from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
-from app.extensions.publications.repository.publication_repository import PublicationRepository
-from app.extensions.publications.tables import PublicationConfigTable
-from app.extensions.publications.tables.tables import DSOStateExportTable
+from app.extensions.publications.repository import (
+    OWObjectRepository,
+    PublicationObjectRepository,
+    PublicationRepository,
+)
 
 
 class PublicationPackageCreate(BaseModel):
@@ -148,6 +150,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         )
         new_package_db = pub_repo.create_publication_package(new_package_db)
         package = PublicationPackage.from_orm(new_package_db)
+        # package.FRBR_Info = new_package_db.FRBR_Info
 
         # Call DSO Service create package files
         objects = pub_object_repository.fetch_objects(

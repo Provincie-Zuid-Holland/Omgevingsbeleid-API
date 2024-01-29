@@ -12,8 +12,8 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
     WerkingsgebiedRepository,
 )
 
-from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
 from app.extensions.publications.enums import Bill_Type
+from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
 
 
 def map_dso_input_data(
@@ -87,9 +87,9 @@ def map_dso_input_data(
             datum_bekendmaking=bekendmakingsdatum,
             datum_juridisch_werkend_vanaf=bill.Effective_Date.strftime("%Y-%m-%d"),
             provincie_id=config.Province_ID,
-            wId_suffix="1",
+            wId_suffix=package.FRBR_Info.bill_expression_version,
             soort_bestuursorgaan="/tooi/def/thes/kern/c_411b4e4a",
-            expression_taal="nld",
+            expression_taal=package.FRBR_Info.bill_expression_lang,
             regeling_componentnaam="nieuweregeling",
             provincie_ref="/tooi/id/provincie/pv28",
             opdracht={
@@ -100,25 +100,9 @@ def map_dso_input_data(
                 "publicatie_bestand": package.Publication_Filename,  # TODO: Generate based on frbr
                 "datum_bekendmaking": bekendmakingsdatum,
             },
-            doel=dso_models.Doel(jaar="2024", naam="InstellingOmgevingsvisie"),
-            besluit_frbr={
-                "work_land": "nl",
-                "work_datum": "2024",
-                "work_overig": "2_2093",
-                "expression_taal": "nld",
-                "expression_datum": "2024-01-05",
-                "expression_versie": "2093",
-                "expression_overig": None,
-            },
-            regeling_frbr={
-                "work_land": "nl",
-                "work_datum": "2024",
-                "work_overig": "2_89",
-                "expression_taal": "nld",
-                "expression_datum": "2024-01-05",
-                "expression_versie": "89",
-                "expression_overig": None,
-            },
+            doel=dso_models.Doel(jaar="2024", naam="InstellingOmgevingsvisie"),  # TODO insert Doel from bill/package
+            besluit_frbr=package.FRBR_Info.get_besluit_frbr(),
+            regeling_frbr=package.FRBR_Info.get_regeling_frbr(),
         ),
         besluit=dso_bill,
         regeling=Regeling(

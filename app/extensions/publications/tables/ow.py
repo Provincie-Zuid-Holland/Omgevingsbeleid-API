@@ -46,7 +46,7 @@ class OWObjectTable(Base, TimeStamped):
 
     # Relationship to PublicationPackageTable
     Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_packages.UUID"), nullable=False)
-    Package = relationship("PublicationPackageTable", back_populates="ow_objects")
+    Package = relationship("PublicationPackageTable", back_populates="OW_Objects")
 
     __mapper_args__ = {
         "polymorphic_identity": "publication_ow_objects",

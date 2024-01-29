@@ -70,7 +70,11 @@ class DSOService:
         """
 
         # Build parsed object templates
-        parser = self._template_parsers["Omgevingsvisie"]  # TODO: Select parser based on bill type
+        try:
+            parser = self._template_parsers[bill.Document_Type.value]
+        except KeyError:
+            raise KeyError(f"No template parser found for document type {bill.Document_Type.value}")
+
         free_text_template_str = parser.get_parsed_template(objects=objects)
         used_object_codes = self._calculate_used_object_codes(free_text_template_str)
         used_objects = self._filter_to_used_objects(objects, used_object_codes)

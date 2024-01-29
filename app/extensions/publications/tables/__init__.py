@@ -9,4 +9,10 @@ from .ow import (
     OWRegelingsgebiedTable,
     OWTekstdeelTable,
 )
-from .tables import PublicationBillTable, PublicationConfigTable, PublicationPackageTable
+from .tables import (
+    DSOStateExportTable,
+    PublicationBillTable,
+    PublicationConfigTable,
+    PublicationFRBRTable,
+    PublicationPackageTable,
+)

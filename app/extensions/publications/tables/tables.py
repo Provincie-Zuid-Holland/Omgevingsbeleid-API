@@ -6,7 +6,7 @@ from sqlalchemy import Column
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, UniqueConstraint, func
 from sqlalchemy.ext.hybrid import hybrid_method
-from sqlalchemy.orm import Mapped, mapped_column, relationship, backref
+from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import JSON, Integer
 
 from app.core.db.base import Base
@@ -142,7 +142,8 @@ class PublicationPackageTable(Base, HasUUID, TimeStamped):
     Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in Package_Event_Type]))
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
     Announcement_Date: Mapped[Optional[datetime]]  # Datum_Bekendmaking
-    validated_at: Mapped[Optional[datetime]]  # Validated date
+    Validated_At: Mapped[Optional[datetime]]  # Validated date
+    FRBR_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_frbr.UUID"), nullable=False, unique=True)
 
     # Stamped publication config at the time of packaging
     Province_ID: Mapped[str]  # Provincie_ID
@@ -155,14 +156,13 @@ class PublicationPackageTable(Base, HasUUID, TimeStamped):
     dso_bhkv_version: Mapped[str]
 
     # Foreign key to PublicationFRBRTable
-    frbr_uuid: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_frbr.UUID"), nullable=False, unique=True)
 
     # Relationship to PublicationFRBRTable
-    frbr_info: Mapped["PublicationFRBRTable"] = relationship(
+    FRBR_Info: Mapped["PublicationFRBRTable"] = relationship(
         "PublicationFRBRTable", backref=backref("publication_package", uselist=False, cascade="all, delete-orphan")
     )
 
-    ow_objects = relationship("OWObjectTable", back_populates="Package")
+    OW_Objects: Mapped[List["OWObjectTable"]] = relationship("OWObjectTable", back_populates="Package")
 
 
 class DSOStateExportTable(Base, HasUUID, TimeStamped):

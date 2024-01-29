@@ -103,7 +103,7 @@ class PublicationRepository(BaseRepository):
         Returns:
             PublicationPackageTable: The newly created publication package.
         """
-        new_package.frbr_info = PublicationFRBRTable.create_default(self._db, "omgevingsvisie")
+        new_package.FRBR_Info = PublicationFRBRTable.create_default(self._db, "omgevingsvisie")
         self._db.add(new_package)
         self._db.flush()
         self._db.commit()

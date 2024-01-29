@@ -1,7 +1,7 @@
 import uuid
 from copy import deepcopy
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -110,17 +110,70 @@ class PublicationBill(BaseModel):
         orm_mode = True
 
 
+class PublicationFRBR(BaseModel):
+    UUID: uuid.UUID
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    # Fields for bill_frbr
+    bill_work_country: str  # work_land
+    bill_work_date: str  # work_datum
+    bill_work_misc: Optional[str]  # work_overig
+    bill_expression_lang: str  # expression_taal
+    bill_expression_date: datetime  # expression_datum
+    bill_expression_version: str  # expression_versie
+    bill_expression_misc: Optional[str]  # expression_overig
+
+    # Fields for act_frbr
+    act_work_country: str  # work_land
+    act_work_date: str  # work_datum
+    act_work_misc: Optional[str]  # work_overig
+    act_expression_lang: str  # expression_taal
+    act_expression_date: datetime  # expression_datum
+    act_expression_version: str  # expression_versie
+    act_expression_misc: Optional[str]  # expression_overig
+
+    def get_besluit_frbr(self) -> Dict[str, Optional[str]]:
+        # to export for dso input_data
+        return {
+            "work_land": self.bill_work_country,
+            "work_datum": self.bill_work_date,
+            "work_overig": self.bill_work_misc,
+            "expression_taal": self.bill_expression_lang,
+            "expression_datum": self.bill_expression_date.strftime("%Y-%m-%d") if self.bill_expression_date else None,
+            "expression_versie": self.bill_expression_version,
+            "expression_overig": self.bill_expression_misc,
+        }
+
+    def get_regeling_frbr(self) -> Dict[str, Optional[str]]:
+        # to export for dso input_data
+        return {
+            "work_land": self.act_work_country,
+            "work_datum": self.act_work_date,
+            "work_overig": self.act_work_misc,
+            "expression_taal": self.act_expression_lang,
+            "expression_datum": self.act_expression_date.strftime("%Y-%m-%d") if self.act_expression_date else None,
+            "expression_versie": self.act_expression_version,
+            "expression_overig": self.act_expression_misc,
+        }
+
+    class Config:
+        orm_mode = True
+
+
 class PublicationPackage(BaseModel):
     UUID: uuid.UUID
     Created_Date: datetime
     Modified_Date: datetime
 
     Bill_UUID: uuid.UUID
+    FRBR_UUID: uuid.UUID
 
     Package_Event_Type: Package_Event_Type
     Publication_Filename: Optional[str]
     Announcement_Date: datetime
 
+    FRBR_Info: Optional[PublicationFRBR]
     Publication_Bill: Optional[PublicationBill]
 
     Province_ID: str

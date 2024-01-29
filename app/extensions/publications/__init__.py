@@ -9,9 +9,11 @@ from .models import (
     Procedure_Data,
     ProcedureStep,
     PublicationBill,
+    PublicationFRBR,
     PublicationPackage,
 )
 from .tables import (
+    DSOStateExportTable,
     OWAmbtsgebiedTable,
     OWDivisieTable,
     OWDivisietekstTable,
@@ -23,5 +25,6 @@ from .tables import (
     OWTekstdeelTable,
     PublicationBillTable,
     PublicationConfigTable,
+    PublicationFRBRTable,
     PublicationPackageTable,
 )
