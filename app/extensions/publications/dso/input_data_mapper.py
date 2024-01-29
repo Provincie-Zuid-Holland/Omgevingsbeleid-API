@@ -13,6 +13,7 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
 )
 
 from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.enums import Bill_Type
 
 
 def map_dso_input_data(
@@ -28,6 +29,10 @@ def map_dso_input_data(
 ):
     bekendmakingsdatum = bill.Announcement_Date.strftime("%Y-%m-%d")
     opdracht_type = {"Validatie": "VALIDATIE", "Publicatie": "PUBLICATIE"}.get(package.Package_Event_Type, "PUBLICATIE")
+
+    soort_procedure = "Definitief_besluit"
+    if bill.Bill_Type == Bill_Type.CONCEPT:
+        soort_procedure = "Ontwerpbesluit"
 
     dso_bill = Besluit(
         officiele_titel=bill.Bill_Data.Bill_Title,
@@ -46,7 +51,7 @@ def map_dso_input_data(
         ondertekening=bill.Bill_Data.Signature,
         rechtsgebieden=[config.Jurisdiction],
         onderwerpen=[config.Subjects],
-        soort_procedure="Definitief_besluit",
+        soort_procedure=soort_procedure,
     )
     for article in bill.Bill_Data.Articles:
         dso_bill.tekst_artikelen.append(

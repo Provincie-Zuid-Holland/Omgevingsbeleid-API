@@ -13,6 +13,7 @@ from app.extensions.publications.dso import (
     TemplateParser,
 )
 from app.extensions.publications.repository import PublicationRepository
+from app.extensions.publications.repository.ow_object_repository import OWObjectRepository
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.extensions.source_werkingsgebieden.dependencies import depends_geometry_repository
 from app.extensions.source_werkingsgebieden.repository.geometry_repository import GeometryRepository
@@ -28,6 +29,12 @@ def depends_publication_object_repository(
     return PublicationObjectRepository(db)
 
 
+def depends_ow_object_repository(
+    db: Session = Depends(depends_db),
+) -> OWObjectRepository:
+    return OWObjectRepository(db)
+
+
 def depends_dso_werkingsgebieden_factory(
     geometry_repository: GeometryRepository = Depends(depends_geometry_repository),
 ) -> DsoWerkingsgebiedenFactory:
@@ -35,13 +42,10 @@ def depends_dso_werkingsgebieden_factory(
 
 
 def depends_get_parsers() -> TemplateParser:
-    template_parsers = (
-        {
-            "Omgevingsvisie": TemplateParser(template_style=OmgevingsvisieTextTemplate()),
-            "Omgevingsprogramma": TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
-        },
-    )
-    return template_parsers
+    return {
+        "Omgevingsvisie": TemplateParser(template_style=OmgevingsvisieTextTemplate()),
+        "Omgevingsprogramma": TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
+    }
 
 
 def depends_dso_assets_factory(

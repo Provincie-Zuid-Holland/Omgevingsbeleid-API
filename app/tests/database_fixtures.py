@@ -65,7 +65,7 @@ class DatabaseFixtures:
         self.create_visie()
 
         # Seed DSO publication states
-        self.build_state_pre_publication_packaging()
+        # self.build_state_pre_publication_packaging()
         self.build_state_pre_dso_generator_output()
         # self.build_state_post_publication_packaging()
 
@@ -785,8 +785,6 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
         JSON file contains a state of the database before the publication process.
         - module with last status Ontwerp PS
         - multiple module objects at different status
-        - 1 publication config
-        - 1 publication bill
         - no package or ow objects yet
         """
         with open("app/tests/json_fixtures/seed_pre_publication.json", "r") as file:
@@ -833,6 +831,19 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
             module_status_history.append(ModuleStatusHistoryTable(**item))
         self._db.bulk_save_objects(module_status_history)
 
+        self._db.commit()
+
+    def build_state_pre_dso_generator_output(self):
+        """
+        Seed DB with object of the state of the database pre DSO generator output.
+        - objects need to exists
+        - Creates config + bill
+        - Publication package created
+        - no zip/file output yet, no OW objects yet
+        """
+        with open("app/tests/json_fixtures/seed_pre_publication.json", "r") as file:
+            data = json.load(file)
+
         # Process 'publication_config' data
         configs = []
         for item in data["publication_config"]:
@@ -851,18 +862,6 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
             item["Announcement_Date"] = parse_datetime(item.get("Announcement_Date"))
             bills.append(PublicationBillTable(**item))
         self._db.bulk_save_objects(bills)
-
-        self._db.commit()
-
-    def build_state_pre_dso_generator_output(self):
-        """
-        Seed DB with object of the state of the database pre DSO generator output.
-        - Bill and objects need to exists
-        - Publication package created
-        - no zip/file output yet, no OW objects yet
-        """
-        with open("app/tests/json_fixtures/seed_pre_publication.json", "r") as file:
-            data = json.load(file)
 
         # Process 'publication_package' data
         packages = []
