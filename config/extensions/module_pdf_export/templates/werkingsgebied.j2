@@ -1,0 +1,10 @@
+<html>
+    <head></head>
+    <body style="background-color: white;">
+        <h1>{{ object["Title"] }}</h1>
+
+        <div>
+            {{ object["Description"] | replace('\n', '<br>') | safe }}
+        </div>
+    </body>
+</html>
