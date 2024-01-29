@@ -13,7 +13,7 @@ from app.extensions.publications import (
     PublicationConfigTable,
     PublicationPackageTable,
 )
-from app.extensions.publications.tables.tables import DSOStateExportTable
+from app.extensions.publications.tables.tables import DSOStateExportTable, PublicationFRBRTable
 
 
 class PublicationRepository(BaseRepository):
@@ -95,6 +95,7 @@ class PublicationRepository(BaseRepository):
     def create_publication_package(self, new_package: PublicationPackageTable) -> PublicationPackageTable:
         """
         Creates a new publication package in the database.
+        Automatically creates a new FRBR entry for the package as relation.
 
         Args:
             new_package (PublicationPackageTable): The new publication package to be created.
@@ -102,6 +103,7 @@ class PublicationRepository(BaseRepository):
         Returns:
             PublicationPackageTable: The newly created publication package.
         """
+        new_package.frbr_info = PublicationFRBRTable.create_default(self._db, "omgevingsvisie")
         self._db.add(new_package)
         self._db.flush()
         self._db.commit()

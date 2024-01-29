@@ -1,7 +1,7 @@
 """publication tables
 
 Revision ID: ea31e70b1cf4
-Revises: 58ad22156b8b
+Revises: 8bdf199b3b73
 Create Date: 2024-01-23 08:03:32.769512
 
 """
@@ -16,7 +16,7 @@ from app.extensions.source_werkingsgebieden.geometry import Geometry  ## noqa
 
 # revision identifiers, used by Alembic.
 revision = "ea31e70b1cf4"
-down_revision = "58ad22156b8b"
+down_revision = "8bdf199b3b73"
 branch_labels = None
 depends_on = None
 

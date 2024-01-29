@@ -6,7 +6,7 @@ from sqlalchemy import Column
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, UniqueConstraint, func
 from sqlalchemy.ext.hybrid import hybrid_method
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, backref
 from sqlalchemy.sql.sqltypes import JSON, Integer
 
 from app.core.db.base import Base
@@ -70,6 +70,70 @@ class PublicationBillTable(Base):
         return latest + 1
 
 
+class PublicationFRBRTable(Base, HasUUID, TimeStamped):
+    __tablename__ = "publication_frbr"
+
+    # Fields for bill_frbr
+    bill_work_country: Mapped[str]  # work_land
+    bill_work_date: Mapped[str]  # work_datum
+    bill_work_misc: Mapped[Optional[str]]  # work_overig
+    bill_expression_lang: Mapped[str]  # expression_taal
+    bill_expression_date: Mapped[datetime]  # expression_datum
+    bill_expression_version: Mapped[str]  # expression_versie
+    bill_expression_misc: Mapped[Optional[str]]  # expression_overig
+
+    # Fields for act_frbr
+    act_work_country: Mapped[str]  # work_land
+    act_work_date: Mapped[str]  # work_datum
+    act_work_misc: Mapped[Optional[str]]  # work_overig
+    act_expression_lang: Mapped[str]  # expression_taal
+    act_expression_date: Mapped[datetime]  # expression_datum
+    act_expression_version: Mapped[str]  # expression_versie
+    act_expression_misc: Mapped[Optional[str]]  # expression_overig
+
+    @classmethod
+    def create_default(cls, session, document_type: str):
+        current_year = datetime.now().year
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        next_bill_expression_version = cls.get_next_expression_version(session, "bill")
+        next_act_expression_version = cls.get_next_expression_version(session, "act")
+
+        return cls(
+            UUID=uuid.uuid4(),
+            Created_Date=current_date,
+            Modified_Date=current_date,
+            # Fields for bill_frbr
+            bill_work_country="nl",
+            bill_work_date=str(current_year),
+            bill_work_misc=f"{document_type}_{next_bill_expression_version}",
+            bill_expression_lang="nld",
+            bill_expression_date=current_date,
+            bill_expression_version=str(next_bill_expression_version),
+            bill_expression_misc=None,
+            # Fields for act_frbr
+            act_work_country="nl",
+            act_work_date=str(current_year),
+            act_work_misc=f"{document_type}_{next_act_expression_version}",
+            act_expression_lang="nld",
+            act_expression_date=current_date,
+            act_expression_version=str(next_act_expression_version),
+            act_expression_misc=None,
+        )
+
+    @classmethod
+    def get_next_expression_version(cls, session, type):
+        max_version_query = session.query(
+            func.max(
+                cls.bill_expression_version.cast(Integer)
+                if type == "bill"
+                else cls.act_expression_version.cast(Integer)
+            )
+        )
+        max_version = max_version_query.scalar() or 0
+        next_version = max_version + 1
+        return str(next_version)
+
+
 class PublicationPackageTable(Base, HasUUID, TimeStamped):
     __tablename__ = "publication_packages"
 
@@ -78,6 +142,7 @@ class PublicationPackageTable(Base, HasUUID, TimeStamped):
     Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in Package_Event_Type]))
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
     Announcement_Date: Mapped[Optional[datetime]]  # Datum_Bekendmaking
+    validated_at: Mapped[Optional[datetime]]  # Validated date
 
     # Stamped publication config at the time of packaging
     Province_ID: Mapped[str]  # Provincie_ID
@@ -88,6 +153,14 @@ class PublicationPackageTable(Base, HasUUID, TimeStamped):
     dso_stop_version: Mapped[str]
     dso_tpod_version: Mapped[str]
     dso_bhkv_version: Mapped[str]
+
+    # Foreign key to PublicationFRBRTable
+    frbr_uuid: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_frbr.UUID"), nullable=False, unique=True)
+
+    # Relationship to PublicationFRBRTable
+    frbr_info: Mapped["PublicationFRBRTable"] = relationship(
+        "PublicationFRBRTable", backref=backref("publication_package", uselist=False, cascade="all, delete-orphan")
+    )
 
     ow_objects = relationship("OWObjectTable", back_populates="Package")
 
