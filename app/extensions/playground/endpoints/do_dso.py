@@ -65,6 +65,7 @@ class EndpointHandler:
                 "ambitie",
                 "beleidsdoel",
                 "beleidskeuze",
+                "werkingsgebied",
             ],
             field_map=[
                 "UUID",
@@ -72,12 +73,16 @@ class EndpointHandler:
                 "Object_ID",
                 "Code",
                 "Hierarchy_Code",
-                "Gebied_UUID",
                 "Title",
                 "Description",
                 "Cause",
                 "Provincial_Interest",
                 "Explanation",
+                # Used for Werkingsgebied
+                "Werkingsgebied_Code",
+                "Area_UUID",
+                "Created_Date",
+                "Modified_Date",
             ],
         )
 
@@ -91,8 +96,10 @@ class EndpointHandler:
         self._debug_invalid_objects(used_objects)
 
         asset_repository: DSOAssetRepository = self._assets_factory.get_repository_for_objects(used_objects)
+
+        werkingsgebieden_objects: List[dict] = [o for o in objects if o["Object_Type"] == "werkingsgebied"]
         werkingsgebieden_repository: WerkingsgebiedRepository = (
-            self._werkingsgebieden_factory.get_repository_for_objects(objects)
+            self._werkingsgebieden_factory.get_repository_for_objects(werkingsgebieden_objects, used_objects)
         )
 
         input_data: InputData = self._input_data_service.create(

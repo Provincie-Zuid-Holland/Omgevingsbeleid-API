@@ -1,6 +1,7 @@
 import uuid
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import text
 
@@ -59,3 +60,30 @@ class AreaGeometryRepository(BaseRepository, metaclass=ABCMeta):
                 UUID = :uuid
             """
         self._db.execute(text(sql), params)
+
+    def get_area(self, uuidx: uuid.UUID) -> dict:
+        row = self.get_area_optional(uuidx)
+        if row is None:
+            raise RuntimeError(f"Area with UUID {uuidx} does not exist")
+        return row
+
+    def get_area_optional(self, uuidx: uuid.UUID) -> Optional[dict]:
+        params = {
+            "uuid": str(uuidx),
+        }
+        sql = f"""
+            SELECT
+                UUID, Created_Date, Created_By_UUID,
+                {self._shape_to_text("Shape")} AS Shape,
+                Source_Title, Source_Symbol
+            FROM
+                areas
+            WHERE
+                UUID = :uuid
+            """
+        row = self._db.execute(text(sql), params).fetchone()
+        if row is None:
+            return None
+
+        row_dict = row._asdict()
+        return row_dict

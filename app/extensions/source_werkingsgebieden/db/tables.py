@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Unicode
-from sqlalchemy import Unicode
 from sqlalchemy.orm import Mapped, deferred, mapped_column
 
 from app.core.db.base import Base

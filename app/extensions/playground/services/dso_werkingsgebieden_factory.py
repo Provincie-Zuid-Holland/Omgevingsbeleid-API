@@ -1,62 +1,73 @@
 from typing import List, Set
-from uuid import UUID
 
 from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied_repository import (
     WerkingsgebiedRepository,
 )
 
-from app.extensions.source_werkingsgebieden.repository.geometry_repository import GeometryRepository
+from app.extensions.areas.repository.area_geometry_repository import AreaGeometryRepository
 
 
 class DsoWerkingsgebiedenFactory:
-    def __init__(self, geometry_repository: GeometryRepository):
-        self._geometry_repository: GeometryRepository = geometry_repository
+    def __init__(self, geometry_repository: AreaGeometryRepository):
+        self._area_geometry_repository: AreaGeometryRepository = geometry_repository
 
-    def get_repository_for_objects(self, objects: List[dict]) -> WerkingsgebiedRepository:
-        uuidx: List[UUID] = self._calculate_werkingsgebieden_uuids(objects)
-        repository: WerkingsgebiedRepository = self._create_repository(uuidx)
+    def get_repository_for_objects(
+        self, werkingsgebieden_objects: List[dict], objects: List[dict]
+    ) -> WerkingsgebiedRepository:
+        werkingsgebied_codes: List[str] = self._calculate_werkingsgebied_codes(objects)
+        used_werkingsgebieden_objects: List[str] = [
+            w for w in werkingsgebieden_objects if w["Code"] in werkingsgebied_codes
+        ]
+
+        werkingsgebieden: List[dict] = self._get_werkingsgebieden_with_areas(used_werkingsgebieden_objects)
+        repository: WerkingsgebiedRepository = self._create_repository(werkingsgebieden)
         return repository
 
-    def _create_repository(self, uuids: List[UUID]) -> WerkingsgebiedRepository:
+    def _get_werkingsgebieden_with_areas(self, werkingsgebieden_objects: List[dict]) -> List[dict]:
+        result: List[dict] = []
+        for werkingsgebied in werkingsgebieden_objects:
+            code = werkingsgebied["Code"]
+            area_uuid = werkingsgebied["Area_UUID"]
+            if area_uuid is None:
+                print(f"\nMissing area for werkingsgebied {code}\n")
+                continue
+            area: dict = self._area_geometry_repository.get_area(area_uuid)
+
+            dso_werkingsgebied: dict = self._as_werkingsgebied(werkingsgebied, area)
+            result.append(dso_werkingsgebied)
+
+        return result
+
+    def _create_repository(self, werkingsgebieden: List[dict]) -> WerkingsgebiedRepository:
         repository = WerkingsgebiedRepository("pv28", "nld")
-        for uuidx in uuids:
-            werkingsgebied = self._get_werkingsgebied(uuidx)
+        for werkingsgebied in werkingsgebieden:
             repository.add(werkingsgebied)
         return repository
 
-    def _get_werkingsgebied(self, werkingsgebied_uuid: UUID) -> dict:
-        werkingsgebied = self._geometry_repository.get_werkingsgebied(werkingsgebied_uuid)
-        onderverdelingen = self._geometry_repository.get_onderverdelingen_for_werkingsgebied(werkingsgebied_uuid)
-
-        # @note: hopefully temporary, but the onderverdelingen are not unique, so we cast them unique here
-        onderverdelingen = list({o.get("UUID"): o for o in onderverdelingen}.values())
-
-        if len(onderverdelingen) == 0:
-            # If we do not have an Onderverdeling
-            # Then we transform the Werkingsgebied as its own Onderverdeling
-            onderverdelingen.append(
-                {
-                    "UUID": werkingsgebied["UUID"],
-                    "Title": werkingsgebied["Title"],
-                    "Symbol": werkingsgebied["Symbol"],
-                    "Geometry": werkingsgebied["Geometry"],
-                    "Created_Date": str(werkingsgebied["Created_Date"]),
-                    "Modified_Date": str(werkingsgebied["Modified_Date"]),
-                }
-            )
-
+    def _as_werkingsgebied(self, werkingsgebied: dict, area: dict) -> dict:
         result = {
             "UUID": werkingsgebied["UUID"],
-            "Title": werkingsgebied["Title"],
-            "Symbol": werkingsgebied["Symbol"],
+            "Title": area["Source_Title"],
+            "Symbol": area["Source_Symbol"],
             "Created_Date": str(werkingsgebied["Created_Date"]),
             "Modified_Date": str(werkingsgebied["Modified_Date"]),
             "Achtergrond_Verwijzing": "TOP10NL",
             "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
-            "Onderverdelingen": onderverdelingen,
+            "Onderverdelingen": [
+                {
+                    "UUID": werkingsgebied["UUID"],
+                    "Title": area["Source_Title"],
+                    "Symbol": area["Source_Symbol"],
+                    "Geometry": area["Shape"],
+                    "Created_Date": str(werkingsgebied["Created_Date"]),
+                    "Modified_Date": str(werkingsgebied["Modified_Date"]),
+                }
+            ],
         }
         return result
 
-    def _calculate_werkingsgebieden_uuids(self, objects: List[dict]) -> List[UUID]:
-        uuids: Set[UUID] = set([o.get("Gebied_UUID") for o in objects if o.get("Gebied_UUID", None) is not None])
-        return list(uuids)
+    def _calculate_werkingsgebied_codes(self, objects: List[dict]) -> List[str]:
+        werkingsgebied_codes: Set[str] = set(
+            [o.get("Werkingsgebied_Code") for o in objects if o.get("Werkingsgebied_Code", None) is not None]
+        )
+        return list(werkingsgebied_codes)

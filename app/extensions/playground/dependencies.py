@@ -1,5 +1,7 @@
 from fastapi import Depends
 
+from app.extensions.areas.dependencies import depends_area_geometry_repository
+from app.extensions.areas.repository.area_geometry_repository import AreaGeometryRepository
 from app.extensions.html_assets.dependencies import depends_asset_repository
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.playground.services.dso_assets_factory import DsoAssetsFactory
@@ -8,14 +10,12 @@ from app.extensions.playground.services.input_data_service import InputDataServi
 from app.extensions.playground.services.template_parser import TemplateParser
 from app.extensions.playground.templates.omgevingsprogramma import OmgevingsprogrammaTextTemplate
 from app.extensions.playground.templates.omgevingsvisie import OmgevingsvisieTextTemplate
-from app.extensions.source_werkingsgebieden.dependencies import depends_geometry_repository
-from app.extensions.source_werkingsgebieden.repository.geometry_repository import GeometryRepository
 
 
 def depends_dso_werkingsgebieden_factory(
-    geometry_repository: GeometryRepository = Depends(depends_geometry_repository),
+    area_geometry_repository: AreaGeometryRepository = Depends(depends_area_geometry_repository),
 ) -> DsoWerkingsgebiedenFactory:
-    return DsoWerkingsgebiedenFactory(geometry_repository)
+    return DsoWerkingsgebiedenFactory(area_geometry_repository)
 
 
 def depends_omgevingsvisie_template_parser() -> TemplateParser:
