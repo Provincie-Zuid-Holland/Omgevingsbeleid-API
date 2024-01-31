@@ -61,8 +61,8 @@ class OmgevingsvisieTextTemplate(TextTemplate):
             "beleidskeuze": """
 <h1>{{ o.Title }}</h1>
 <!--[OBJECT-CODE:{{o.Code}}]-->
-{% if o.Gebied_UUID is not none %}
-<!--[GEBIED-UUID:{{o.Gebied_UUID}}]-->
+{% if o.Werkingsgebied_Code is not none %}
+<!--[GEBIED-CODE:{{o.Werkingsgebied_Code}}]-->
 {% endif %}
 
 {% if o.Description %}
