@@ -7,7 +7,7 @@ class Document_Type(str, Enum):
     ORDINANCE = "Omgevingsverordening"
 
 
-class Bill_Type(str, Enum):
+class Procedure_Type(str, Enum):
     CONCEPT = "Ontwerp"
     FINAL = "Definitief"
 

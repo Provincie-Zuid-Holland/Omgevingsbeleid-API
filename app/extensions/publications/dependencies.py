@@ -12,6 +12,7 @@ from app.extensions.publications.dso import (
     OmgevingsvisieTextTemplate,
     TemplateParser,
 )
+from app.extensions.publications.enums import Document_Type
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.publications.repository.ow_object_repository import OWObjectRepository
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
@@ -43,8 +44,8 @@ def depends_dso_werkingsgebieden_factory(
 
 def depends_get_parsers() -> TemplateParser:
     return {
-        "Omgevingsvisie": TemplateParser(template_style=OmgevingsvisieTextTemplate()),
-        "Omgevingsprogramma": TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
+        Document_Type.VISION.value: TemplateParser(template_style=OmgevingsvisieTextTemplate()),
+        Document_Type.PROGRAM.value: TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
     }
 
 

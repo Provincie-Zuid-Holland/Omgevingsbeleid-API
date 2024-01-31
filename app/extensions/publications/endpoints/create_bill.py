@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from typing import Optional
 from uuid import uuid4
@@ -13,18 +14,18 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_publication_repository
-from app.extensions.publications.enums import Bill_Type, Document_Type
+from app.extensions.publications.enums import Procedure_Type
 from app.extensions.publications.helpers import serialize_datetime
-from app.extensions.publications.models import Bill_Data, Procedure_Data
+from app.extensions.publications.models import Bill_Data, Procedure_Data, PublicationBill
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.publications.tables import PublicationBillTable
 
 
 class PublicationBillCreate(BaseModel):
-    Module_ID: int
+    Publication_UUID: uuid.UUID
     Module_Status_ID: int
-    Document_Type: Document_Type
-    Bill_Type: Bill_Type
+    Procedure_Type: Procedure_Type
+    Is_Official: bool
     Effective_Date: Optional[datetime]
     Announcement_Date: Optional[datetime]
     Bill_Data: Optional[Bill_Data]
@@ -56,8 +57,8 @@ class PublicationBillCreate(BaseModel):
         return v
 
 
-class PublicationBillResponse(BaseModel):
-    Version_ID: int
+# class PublicationBill(BaseModel):
+#     Version_ID: int
 
 
 class CreatePublicationBillEndpoint(Endpoint):
@@ -68,23 +69,23 @@ class CreatePublicationBillEndpoint(Endpoint):
         def fastapi_handler(
             # user: UsersTable = Depends(depends_current_active_user),
             object_in: PublicationBillCreate,
-            bill_repository: PublicationRepository = Depends(depends_publication_repository),
-        ) -> PublicationBillResponse:
-            return self._handler(object_in=object_in, bill_repo=bill_repository)
+            publication_repo: PublicationRepository = Depends(depends_publication_repository),
+        ) -> PublicationBill:
+            return self._handler(object_in=object_in, repo=publication_repo)
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["POST"],
-            response_model=PublicationBillResponse,
-            summary="Create new publication Bills",
+            response_model=PublicationBill,
+            summary="Create new publication Bill or version",
             description=None,
             tags=["Publications"],
         )
 
         return router
 
-    def _handler(self, bill_repo: PublicationRepository, object_in: PublicationBillCreate) -> PublicationBillResponse:
+    def _handler(self, repo: PublicationRepository, object_in: PublicationBillCreate) -> PublicationBill:
         """
         Handles the creation of a publication bill.
 
@@ -93,15 +94,14 @@ class CreatePublicationBillEndpoint(Endpoint):
             object_in (PublicationBillCreate): The input data for creating a publication bill.
 
         Returns:
-            PublicationBillResponse: The response containing the version ID of the created publication bill.
+            PublicationBill: The response containing the version ID of the created publication bill.
         """
         data = object_in.dict()
         data["Bill_Data"] = serialize_datetime(data["Bill_Data"])
         data["Procedure_Data"] = serialize_datetime(data["Procedure_Data"])
         new_bill = PublicationBillTable(UUID=uuid4(), Created_Date=datetime.now(), Modified_Date=datetime.now(), **data)
-        result = bill_repo.create_publication_bill(new_bill)
-
-        return PublicationBillResponse(Version_ID=result.Version_ID)
+        result = repo.create_publication_bill(new_bill)
+        return PublicationBill.from_orm(result)
 
 
 class CreatePublicationBillEndpointResolver(EndpointResolver):

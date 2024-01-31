@@ -12,11 +12,12 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
     WerkingsgebiedRepository,
 )
 
-from app.extensions.publications.enums import Bill_Type
-from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.enums import Document_Type, Procedure_Type
+from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig, PublicationPackage
 
 
 def map_dso_input_data(
+    publication: Publication,
     bill: PublicationBill,
     package: PublicationPackage,
     config: PublicationConfig,
@@ -27,11 +28,12 @@ def map_dso_input_data(
     werkingsgebied_repository: WerkingsgebiedRepository,
     policy_object_repository: PolicyObjectRepository,
 ):
-    bekendmakingsdatum = bill.Announcement_Date.strftime("%Y-%m-%d")
+    bekendmakingsdatum = package.Announcement_Date.strftime("%Y-%m-%d")
     opdracht_type = {"Validatie": "VALIDATIE", "Publicatie": "PUBLICATIE"}.get(package.Package_Event_Type, "PUBLICATIE")
 
+    # TODO: change db column to use same values to skip this step
     soort_procedure = "Definitief_besluit"
-    if bill.Bill_Type == Bill_Type.CONCEPT:
+    if bill.Procedure_Type == Procedure_Type.CONCEPT:
         soort_procedure = "Ontwerpbesluit"
 
     dso_bill = Besluit(
@@ -80,10 +82,19 @@ def map_dso_input_data(
         werkingsgebied_repository=werkingsgebied_repository,
     )
 
+    document_type_mapping = {
+        Document_Type.VISION: "VISIE",
+        Document_Type.PROGRAM: "PROGRAMMA",
+        Document_Type.ORDINANCE: "VERORDENING",
+    }
+    document_type = document_type_mapping.get(publication.Document_Type, None)
+    if document_type == "VERORDENING":
+        raise NotImplementedError(f"Document type {publication.Document_Type} not supported")
+
     # Create inputdata
     input_data = InputData(
         publication_settings=dso_models.PublicationSettings(
-            document_type="VISIE" if bill.Document_Type == "Omgevingsvisie" else "PROGRAMMA",
+            document_type=document_type,
             datum_bekendmaking=bekendmakingsdatum,
             datum_juridisch_werkend_vanaf=bill.Effective_Date.strftime("%Y-%m-%d"),
             provincie_id=config.Province_ID,
@@ -91,13 +102,13 @@ def map_dso_input_data(
             soort_bestuursorgaan="/tooi/def/thes/kern/c_411b4e4a",
             expression_taal=package.FRBR_Info.bill_expression_lang,
             regeling_componentnaam="nieuweregeling",
-            provincie_ref="/tooi/id/provincie/pv28",
+            provincie_ref=f"/tooi/id/provincie/{config.Province_ID}",
             opdracht={
                 "opdracht_type": opdracht_type,
                 "id_levering": str(package.UUID),
-                "id_bevoegdgezag": str(package.Authority_ID),
-                "id_aanleveraar": str(package.Submitter_ID),
-                "publicatie_bestand": package.Publication_Filename,  # TODO: Generate based on frbr
+                "id_bevoegdgezag": str(config.Authority_ID),
+                "id_aanleveraar": str(config.Submitter_ID),
+                "publicatie_bestand": package.FRBR_Info.as_filename(),
                 "datum_bekendmaking": bekendmakingsdatum,
             },
             doel=dso_models.Doel(jaar="2024", naam="InstellingOmgevingsvisie"),  # TODO insert Doel from bill/package
@@ -109,7 +120,7 @@ def map_dso_input_data(
             versienummer="1",
             officiele_titel=bill.Bill_Data.Regulation_Title,
             citeertitel=bill.Bill_Data.Regulation_Title,  # TODO: add citation title
-            is_officieel="true",
+            is_officieel=bill.Is_Official,
             rechtsgebieden=[config.Jurisdiction],
             onderwerpen=[config.Subjects],
         ),

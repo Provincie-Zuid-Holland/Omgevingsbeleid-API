@@ -1,28 +1,23 @@
 import uuid
-from copy import deepcopy
 from datetime import datetime
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
-from app.extensions.publications.enums import Bill_Type, Document_Type, Package_Event_Type
+from app.extensions.publications.enums import Document_Type, Package_Event_Type, Procedure_Type
 
 
 class PublicationConfig(BaseModel):
     ID: int
     Created_Date: datetime
-    Modified_Date: datetime
-
     Province_ID: str
     Authority_ID: str
     Submitter_ID: str
-
     Jurisdiction: str
     Subjects: str
-
-    dso_stop_version: str
-    dso_tpod_version: str
-    dso_bhkv_version: str
+    DSO_STOP_VERSION: str
+    DSO_TPOD_VERSION: str
+    DSO_BHKV_VERSION: str
 
     class Config:
         orm_mode = True
@@ -76,44 +71,51 @@ class Bill_Data(BaseModel):
     Signature: str  # Ondertekening
 
 
+class Publication(BaseModel):
+    UUID: uuid.UUID
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    Module_ID: int
+    Template_ID: Optional[int]
+    Work_ID: Optional[int]
+
+    Document_Type: Document_Type
+    Official_Title: str
+    Regulation_Title: str
+
+    class Config:
+        orm_mode = True
+
+
 class PublicationBill(BaseModel):
     """
     STOP Besluit
     """
 
     UUID: uuid.UUID
-    Version_ID: Optional[int]
-    Module_ID: int
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    Publication_UUID: uuid.UUID
     Module_Status_ID: int
 
-    Created_Date: datetime = datetime.now()
-    Modified_Date: datetime = datetime.now()
+    Version_ID: Optional[int]
+    Procedure_Type: Procedure_Type
+    Is_Official: bool
+    Effective_Date: datetime
+    Announcement_Date: datetime
 
-    Document_Type: Document_Type
-    Bill_Type: Bill_Type
-    Effective_Date: Optional[datetime]
-    Announcement_Date: Optional[datetime]
     Bill_Data: Optional[Bill_Data]
     Procedure_Data: Optional[Procedure_Data]
-
-    @classmethod
-    def from_orm(cls, obj):
-        # auto convert and validate db json to the Bill_Data schema
-        obj = deepcopy(obj)
-        if isinstance(obj.Bill_Data, dict):
-            obj.Bill_Data = Bill_Data(**obj.Bill_Data)
-        if isinstance(obj.Procedure_Data, dict):
-            obj.Procedure_Data = Procedure_Data(**obj.Procedure_Data)
-        return super().from_orm(obj)
 
     class Config:
         orm_mode = True
 
 
 class PublicationFRBR(BaseModel):
-    UUID: uuid.UUID
+    ID: int
     Created_Date: datetime
-    Modified_Date: datetime
 
     # Fields for bill_frbr
     bill_work_country: str  # work_land
@@ -157,6 +159,10 @@ class PublicationFRBR(BaseModel):
             "expression_overig": self.act_expression_misc,
         }
 
+    def as_filename(self) -> str:
+        pattern = f"akn_{self.bill_expression_lang}_bill_pv28-{self.bill_work_misc}.xml"
+        return pattern.lower()
+
     class Config:
         orm_mode = True
 
@@ -167,23 +173,17 @@ class PublicationPackage(BaseModel):
     Modified_Date: datetime
 
     Bill_UUID: uuid.UUID
-    FRBR_UUID: uuid.UUID
+    Config_ID: int
+    FRBR_ID: int
 
     Package_Event_Type: Package_Event_Type
     Publication_Filename: Optional[str]
     Announcement_Date: datetime
+    Validated_At: Optional[datetime]
 
-    FRBR_Info: Optional[PublicationFRBR]
+    Publication_Config: Optional[PublicationConfig]
     Publication_Bill: Optional[PublicationBill]
-
-    Province_ID: str
-    Submitter_ID: str
-    Authority_ID: str
-    Jurisdiction: str
-    Subjects: str
-    dso_stop_version: str
-    dso_tpod_version: str
-    dso_bhkv_version: str
+    FRBR_Info: Optional[PublicationFRBR]
 
     class Config:
         orm_mode = True

@@ -1,3 +1,4 @@
+import uuid
 from typing import Optional
 
 from fastapi import APIRouter, Depends
@@ -10,7 +11,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SimplePagination
 from app.extensions.modules.models.models import ModuleStatusCode
-from app.extensions.publications import Document_Type, PublicationBill
+from app.extensions.publications import PublicationBill
 from app.extensions.publications.dependencies import depends_publication_repository
 from app.extensions.publications.repository import PublicationRepository
 
@@ -23,17 +24,15 @@ class ListPublicationBillsEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             # user: UsersTable = Depends(depends_current_active_user),
-            document_type: Optional[Document_Type] = None,
+            publication_uuid: Optional[uuid.UUID] = None,
             version_id: Optional[int] = None,
-            module_id: Optional[int] = None,
             module_status: Optional[ModuleStatusCode] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
-            bill_repository: PublicationRepository = Depends(depends_publication_repository),
+            pub_repository: PublicationRepository = Depends(depends_publication_repository),
         ) -> PagedResponse[PublicationBill]:
-            paginated_result = bill_repository.get_publication_bills(
-                document_type=document_type,
+            paginated_result = pub_repository.get_publication_bills(
+                publication_uuid=publication_uuid,
                 version_id=version_id,
-                module_id=module_id,
                 module_status=module_status,
                 offset=pagination.offset,
                 limit=pagination.limit,

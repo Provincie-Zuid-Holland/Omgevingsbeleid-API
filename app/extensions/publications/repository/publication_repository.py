@@ -62,8 +62,7 @@ class PublicationRepository(BaseRepository):
 
     def get_publication_bills(
         self,
-        document_type: Optional[Document_Type] = None,
-        module_id: Optional[int] = None,
+        publication_uuid: Optional[UUID] = None,
         version_id: Optional[int] = None,
         module_status: Optional[ModuleStatusCode] = None,
         offset: int = 0,
@@ -84,10 +83,8 @@ class PublicationRepository(BaseRepository):
             PaginatedQueryResult: The paginated query result containing the publication bills.
         """
         query = select(PublicationBillTable).join(PublicationBillTable.Module_Status)
-        if document_type is not None:
-            query = query.filter(PublicationBillTable.Document_Type == document_type)
-        if module_id is not None:
-            query = query.filter(PublicationBillTable.Module_ID == module_id)
+        if publication_uuid is not None:
+            query = query.filter(PublicationBillTable.Publication_UUID == publication_uuid)
         if version_id is not None:
             query = query.filter(PublicationBillTable.Version_ID == version_id)
         if module_status is not None:
@@ -145,10 +142,30 @@ class PublicationRepository(BaseRepository):
         return bill
 
     def create_publication_package(self, new_package: PublicationPackageTable) -> PublicationPackageTable:
-        # If validation package create new FRBR, else link to existing
-        # if new_package.Package_Event_Type == Package_Event_Type.VALIDATION.value:
-        #     new_frbr = self.create_default_frbr(document_type="omgevingsvisie", work_ID=1, expression_version=1)
-        #     new_package.FRBR_Info = new_frbr
+        frbr = None
+        # If validation package, create new FRBR
+        if new_package.Package_Event_Type == Package_Event_Type.VALIDATION:
+            bill = self.get_publication_bill(new_package.Bill_UUID)
+            frbr = PublicationFRBRTable.create_default_frbr(
+                document_type=bill.Publication.Document_Type,
+                expression_version=bill.Version_ID,
+                work_ID=bill.Publication.Work_ID,
+            )
+            new_package.FRBR_Info = frbr
+        else:
+            # if publication event, use earlier FRBR created at validation version of this bill
+            stmt = (
+                select(PublicationPackageTable)
+                .where(
+                    PublicationPackageTable.Bill_UUID == new_package.Bill_UUID,
+                    PublicationPackageTable.Package_Event_Type == Package_Event_Type.VALIDATION,
+                    PublicationPackageTable.Validated_At.isnot(None),
+                )
+                .order_by(desc(PublicationPackageTable.Modified_Date))
+                .limit(1)
+            )
+            validated_package = self.fetch_first(stmt)
+            new_package.FRBR_ID = validated_package.FRBR_ID
 
         self._db.add(new_package)
         self._db.flush()
@@ -186,6 +203,19 @@ class PublicationRepository(BaseRepository):
             sort=(PublicationPackageTable.Modified_Date, "desc"),
         )
         return paged_result
+
+    def get_frbr_by_id(self, frbr_id: int) -> Optional[PublicationFRBRTable]:
+        """
+        Retrieves a FRBR entry by its ID.
+
+        Args:
+            frbr_id (int): The ID of the FRBR entry.
+
+        Returns:
+            Optional[PublicationFRBRTable]: The FRBR entry with the specified ID, or None if not found.
+        """
+        stmt = select(PublicationFRBRTable).where(PublicationFRBRTable.ID == frbr_id)
+        return self.fetch_first(stmt)
 
     def create_default_frbr(
         self,
@@ -238,6 +268,10 @@ class PublicationRepository(BaseRepository):
             Optional[PublicationConfigTable]: The latest publication configuration, or None if no configuration is found.
         """
         config_query = select(PublicationConfigTable).order_by(desc(PublicationConfigTable.Created_Date)).limit(1)
+        return self.fetch_first(config_query)
+
+    def get_config_by_id(self, config_id: int) -> Optional[PublicationConfigTable]:
+        config_query = select(PublicationConfigTable).where(PublicationConfigTable.ID == config_id)
         return self.fetch_first(config_query)
 
     def create_dso_state_export(self, export: DSOStateExportTable) -> DSOStateExportTable:

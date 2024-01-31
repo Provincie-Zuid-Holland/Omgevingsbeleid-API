@@ -2,16 +2,15 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import Column, DateTime, String
+from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy import ForeignKey, UniqueConstraint, func
-from sqlalchemy.ext.hybrid import hybrid_method
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import JSON, Integer
 
 from app.core.db.base import Base
 from app.core.db.mixins import HasUUID, TimeStamped
-from app.extensions.publications.enums import Bill_Type, Document_Type, Package_Event_Type
+from app.extensions.publications.enums import Document_Type, Package_Event_Type, Procedure_Type
 
 
 class PublicationConfigTable(Base):
@@ -25,6 +24,7 @@ class PublicationConfigTable(Base):
     Submitter_ID: Mapped[str]  # Aanleveraar_ID
     Jurisdiction: Mapped[str]  # Rechtsgebied
     Subjects: Mapped[str]  # Onderwerpen
+    # Act_Componentname: Mapped[str]  # Regeling Componentnaam
 
     DSO_STOP_VERSION: Mapped[str]
     DSO_TPOD_VERSION: Mapped[str]
@@ -56,7 +56,7 @@ class PublicationBillTable(Base, HasUUID, TimeStamped):
     Version_ID: Mapped[int]
 
     Is_Official: Mapped[bool]
-    Procedure_Type = Column(SQLAlchemyEnum(*[e.value for e in Bill_Type]), nullable=False)  # Procedure soort
+    Procedure_Type = Column(SQLAlchemyEnum(*[e.value for e in Procedure_Type]), nullable=False)  # Procedure soort
     Bill_Data = Column(JSON)  # Besluit
     Procedure_Data = Column(JSON)  # Procedureverloop
     Effective_Date: Mapped[Optional[datetime]]  # Juridische inwerkingtredingsdatum
@@ -111,6 +111,31 @@ class PublicationFRBRTable(Base):
     act_expression_version: Mapped[str] = mapped_column(String(255), nullable=False)
     act_expression_misc: Mapped[Optional[str]] = mapped_column(String(255), nullable=False)
 
+    @classmethod
+    def create_default_frbr(
+        cls,
+        document_type: str,
+        work_ID: int,
+        expression_version: int,
+    ):
+        current_year = datetime.now().year
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        return cls(
+            Created_Date=datetime.now(),
+            bill_work_country="nl",
+            bill_work_date=str(current_year),
+            bill_work_misc=f"{document_type}_{work_ID}",
+            bill_expression_lang="nld",
+            bill_expression_date=current_date,
+            bill_expression_version=str(expression_version),
+            act_work_country="nl",
+            act_work_date=str(current_year),
+            act_work_misc=f"{document_type}_{work_ID}",
+            act_expression_lang="nld",
+            act_expression_date=current_date,
+            act_expression_version=str(expression_version),
+        )
+
 
 class PublicationPackageTable(Base, HasUUID, TimeStamped):
     __tablename__ = "publication_packages"
@@ -123,7 +148,9 @@ class PublicationPackageTable(Base, HasUUID, TimeStamped):
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
     Announcement_Date: Mapped[Optional[datetime]]  # Datum_Bekendmaking
     Validated_At: Mapped[Optional[datetime]]  # Validated date
+    # Validation_Report: Mapped[Optional[str]]  # LVBB Validatie resultaat
 
+    Config: Mapped["PublicationConfigTable"] = relationship("PublicationConfigTable")
     Bill: Mapped["PublicationBillTable"] = relationship("PublicationBillTable")
     FRBR_Info: Mapped["PublicationFRBRTable"] = relationship(
         "PublicationFRBRTable", backref=backref("publication_package", uselist=False, cascade="all, delete-orphan")

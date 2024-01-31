@@ -45,15 +45,17 @@ class PublicationPackageCreate(BaseModel):
     Attributes:
         Bill_UUID (uuid.UUID): The UUID of the bill associated with the package.
         Announcement_Date (Optional[datetime]): DSO announcement date, should be in the future
+            if none provided will use Bill announcement date.
         Package_Event_Type (Package_Event_Type): The event type of the package.
     """
 
     Bill_UUID: uuid.UUID
+    Config_ID: Optional[int]
     Announcement_Date: Optional[datetime]
     Package_Event_Type: Package_Event_Type
 
     @validator("Announcement_Date", pre=False, always=True)
-    def validate_effective_date(cls, v):
+    def validate_announcement_date(cls, v):
         if v is not None:
             effective_date = parse(v) if isinstance(v, str) else v
             if effective_date <= datetime.now(ZoneInfo("Europe/Amsterdam")):
@@ -106,8 +108,9 @@ class CreatePublicationPackageEndpoint(Endpoint):
         dso_service: DSOService,
     ) -> PublicationPackage:
         """
-        - Create new publication package using bill and config data
-        - Call DSO Service build publication package files
+        - Finalises bill and locks its settings/content.
+        - Create new validation or publication package using this bill and config data
+        - Call DSO Service build publication package files with external module
         - Save filtered export state in DB
         - Save new OW objects in DB
         - Return package UUID
@@ -122,7 +125,12 @@ class CreatePublicationPackageEndpoint(Endpoint):
         Returns:
             PublicationPackage: The response containing the UUID of the created publication package.
         """
-        current_config: PublicationConfigTable = pub_repo.get_latest_config()
+        # Defaults to latest config row
+        if not object_in.Config_ID:
+            current_config: PublicationConfigTable = pub_repo.get_latest_config()
+        else:
+            current_config: PublicationConfigTable = pub_repo.get_config_by_id(config_id=object_in.Config_ID)
+
         if not current_config:
             raise MissingPublicationConfigError("No config found")
         current_config = PublicationConfig.from_orm(current_config)
@@ -130,31 +138,22 @@ class CreatePublicationPackageEndpoint(Endpoint):
         bill_db = pub_repo.get_publication_bill(uuid=object_in.Bill_UUID)
         if not bill_db:
             raise PublicationBillNotFound(f"Publication bill with UUID {object_in.Bill_UUID} not found")
-        bill = PublicationBill.from_orm(bill_db)
 
-        data = object_in.dict()
         new_package_db = PublicationPackageTable(
             UUID=uuid.uuid4(),
             Created_Date=datetime.now(),
             Modified_Date=datetime.now(),
-            Publication_Filename="akn_testfixture.xml",
-            Province_ID=current_config.Province_ID,
-            Submitter_ID=current_config.Submitter_ID,
-            Authority_ID=current_config.Authority_ID,
-            Jurisdiction=current_config.Jurisdiction,
-            Subjects=current_config.Subjects,
-            dso_stop_version=current_config.dso_stop_version,
-            dso_tpod_version=current_config.dso_tpod_version,
-            dso_bhkv_version=current_config.dso_bhkv_version,
-            **data,
+            Bill_UUID=bill_db.UUID,
+            Config_ID=current_config.ID,
+            Package_Event_Type=object_in.Package_Event_Type,
+            Announcement_Date=object_in.Announcement_Date if object_in.Announcement_Date else bill_db.Announcement_Date,
         )
         new_package_db = pub_repo.create_publication_package(new_package_db)
         package = PublicationPackage.from_orm(new_package_db)
-        # package.FRBR_Info = new_package_db.FRBR_Info
 
         # Call DSO Service create package files
         objects = pub_object_repository.fetch_objects(
-            module_id=bill.Module_ID,
+            module_id=bill_db.Publication.Module_ID,
             timepoint=datetime.utcnow(),
             object_types=[
                 "visie_algemeen",
@@ -178,7 +177,8 @@ class CreatePublicationPackageEndpoint(Endpoint):
         )
 
         input_data = dso_service.prepare_publication_input(
-            bill=bill,
+            publication=bill_db.Publication,
+            bill=PublicationBill.from_orm(bill_db),
             package=package,
             config=current_config,
             objects=objects,
@@ -193,7 +193,6 @@ class CreatePublicationPackageEndpoint(Endpoint):
         new_export = DSOStateExportTable(
             UUID=uuid.uuid4(),
             Created_Date=datetime.now(),
-            Modified_Date=datetime.now(),
             Package_UUID=package.UUID,
             Export_Data=state_exported,
         )
@@ -203,7 +202,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         ow_objects = create_ow_objects_from_json(
             exported_state=state_exported,
             package_uuid=package.UUID,
-            bill_type=bill.Bill_Type,
+            bill_type=bill_db.Procedure_Type,
         )
         ow_object_repo.create_ow_objects(ow_objects)
 

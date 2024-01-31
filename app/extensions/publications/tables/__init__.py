@@ -11,9 +11,9 @@ from .ow import (
 )
 from .tables import (
     DSOStateExportTable,
-    PublicationTable,
     PublicationBillTable,
     PublicationConfigTable,
     PublicationFRBRTable,
     PublicationPackageTable,
+    PublicationTable,
 )

@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import List
 
-from app.extensions.publications.enums import Bill_Type
+from app.extensions.publications.enums import Procedure_Type
 from app.extensions.publications.exceptions import DSOExportOWError
 from app.extensions.publications.tables.ow import (
     OWAmbtsgebiedTable,
@@ -16,7 +16,7 @@ from app.extensions.publications.tables.ow import (
 
 
 def create_ow_objects_from_json(
-    exported_state: dict, package_uuid: uuid.UUID, bill_type: Bill_Type
+    exported_state: dict, package_uuid: uuid.UUID, bill_type: Procedure_Type
 ) -> List[OWObjectTable]:
     """
     Parses the DSO exported state to build a list of OW objects with the correct relations.

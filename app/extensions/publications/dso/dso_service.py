@@ -12,7 +12,7 @@ from app.extensions.publications.dso.dso_werkingsgebieden_factory import DsoWerk
 from app.extensions.publications.dso.input_data_mapper import map_dso_input_data
 from app.extensions.publications.dso.template_parser import TemplateParser
 from app.extensions.publications.exceptions import DSOStateExportError
-from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig, PublicationPackage
 
 
 class DSOService:
@@ -63,7 +63,12 @@ class DSOService:
         return results
 
     def prepare_publication_input(
-        self, bill: PublicationBill, package: PublicationPackage, config: PublicationConfig, objects
+        self,
+        publication: Publication,
+        bill: PublicationBill,
+        package: PublicationPackage,
+        config: PublicationConfig,
+        objects,
     ):
         """
         Start point for converting our publication data to DSO input data.
@@ -71,9 +76,9 @@ class DSOService:
 
         # Build parsed object templates
         try:
-            parser = self._template_parsers[bill.Document_Type.value]
+            parser = self._template_parsers[publication.Document_Type]
         except KeyError:
-            raise KeyError(f"No template parser found for document type {bill.Document_Type.value}")
+            raise KeyError(f"No template parser found for document type {publication.Document_Type.value}")
 
         free_text_template_str = parser.get_parsed_template(objects=objects)
         used_object_codes = self._calculate_used_object_codes(free_text_template_str)
@@ -87,6 +92,7 @@ class DSOService:
 
         # Convert to INput data
         input_data: InputData = map_dso_input_data(
+            publication,
             bill,
             package,
             config,

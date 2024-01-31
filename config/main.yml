@@ -290,6 +290,9 @@ api:
         - resolver: list_all_latest_objects
           resolver_data:
             sort: *sort_default_object_id
+    - prefix: /publications
+      endpoints:
+        - resolver: create_publication
     - prefix: /publications/bills
       endpoints:
         - resolver: list_publication_bills

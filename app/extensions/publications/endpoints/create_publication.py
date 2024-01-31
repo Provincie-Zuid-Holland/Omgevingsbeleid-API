@@ -1,0 +1,75 @@
+from datetime import datetime
+from uuid import uuid4
+
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel
+
+from app.dynamic.config.models import Api, EndpointConfig
+from app.dynamic.converter import Converter
+from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
+from app.dynamic.event_dispatcher import EventDispatcher
+from app.dynamic.models_resolver import ModelsResolver
+from app.extensions.publications.dependencies import depends_publication_repository
+from app.extensions.publications.enums import Document_Type
+from app.extensions.publications.models import Publication
+from app.extensions.publications.repository import PublicationRepository
+from app.extensions.publications.tables import PublicationTable
+from app.extensions.publications.tables.tables import PublicationTable
+
+
+class PublicationCreate(BaseModel):
+    Module_ID: int
+    Document_Type: Document_Type
+    Official_Title: str
+    Regulation_Title: str
+    # Template_ID: Optional[int]
+
+
+class CreatePublicationEndpoint(Endpoint):
+    def __init__(self, path: str):
+        self._path: str = path
+
+    def register(self, router: APIRouter) -> APIRouter:
+        def fastapi_handler(
+            # user: UsersTable = Depends(depends_current_active_user),
+            object_in: PublicationCreate,
+            pub_repository: PublicationRepository = Depends(depends_publication_repository),
+        ) -> Publication:
+            return self._handler(object_in=object_in, repo=pub_repository)
+
+        router.add_api_route(
+            self._path,
+            fastapi_handler,
+            methods=["POST"],
+            response_model=Publication,
+            summary="Create a new publication",
+            description=None,
+            tags=["Publications"],
+        )
+
+        return router
+
+    def _handler(self, object_in: PublicationCreate, repo: PublicationRepository):
+        data = object_in.dict()
+        new_publication = PublicationTable(
+            UUID=uuid4(), Created_Date=datetime.now(), Modified_Date=datetime.now(), **data
+        )
+        result = repo.create_publication(new_publication)
+        return Publication.from_orm(result)
+
+
+class CreatePublicationEndpointResolver(EndpointResolver):
+    def get_id(self) -> str:
+        return "create_publication"
+
+    def generate_endpoint(
+        self,
+        event_dispatcher: EventDispatcher,
+        converter: Converter,
+        models_resolver: ModelsResolver,
+        endpoint_config: EndpointConfig,
+        api: Api,
+    ) -> Endpoint:
+        resolver_config: dict = endpoint_config.resolver_data
+        path: str = endpoint_config.prefix + resolver_config.get("path", "")
+        return CreatePublicationEndpoint(path=path)
