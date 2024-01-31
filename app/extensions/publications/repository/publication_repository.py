@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult
@@ -13,13 +14,38 @@ from app.extensions.publications import (
     PublicationConfigTable,
     PublicationPackageTable,
 )
-from app.extensions.publications.tables.tables import DSOStateExportTable, PublicationFRBRTable
+from app.extensions.publications.enums import Package_Event_Type
+from app.extensions.publications.tables.tables import DSOStateExportTable, PublicationFRBRTable, PublicationTable
 
 
 class PublicationRepository(BaseRepository):
     """
     Repository for handling publication-related database operations.
     """
+
+    def create_publication(self, new_publication: PublicationTable) -> PublicationTable:
+        """
+        Creates a new publication in the database and automatically sets the Work_ID.
+
+        Args:
+            new_publication (PublicationTable): The publication to be created.
+
+        Returns:
+            PublicationTable: The created publication.
+        """
+
+        max_id = (
+            self._db.query(func.max(PublicationTable.Work_ID))
+            .filter_by(Document_Type=new_publication.Document_Type)
+            .scalar()
+        )
+        next_id = 1 if max_id is None else max_id + 1
+        new_publication.Work_ID = next_id
+
+        self._db.add(new_publication)
+        self._db.flush()
+        self._db.commit()
+        return new_publication
 
     def get_publication_bill(self, uuid: UUID) -> Optional[PublicationBillTable]:
         """
@@ -86,24 +112,44 @@ class PublicationRepository(BaseRepository):
             PublicationBillTable: The created publication bill.
         """
         # set version to last known + 1
-        new_bill.Version_ID = PublicationBillTable.next_version(self._db, new_bill.Module_ID, new_bill.Document_Type)
+        max_id = (
+            self._db.query(func.max(PublicationBillTable.Version_ID))
+            .filter_by(Publication_UUID=new_bill.Publication_UUID)
+            .scalar()
+        )
+        next_id = 1 if max_id is None else max_id + 1
+        new_bill.Version_ID = next_id
         self._db.add(new_bill)
         self._db.flush()
         self._db.commit()
         return new_bill
 
-    def create_publication_package(self, new_package: PublicationPackageTable) -> PublicationPackageTable:
+    def update_publication_bill(self, bill_uuid: UUID, **kwargs) -> PublicationBillTable:
         """
-        Creates a new publication package in the database.
-        Automatically creates a new FRBR entry for the package as relation.
+        Updates a publication bill with the specified values.
 
         Args:
-            new_package (PublicationPackageTable): The new publication package to be created.
+            **kwargs: The values to be updated.
 
         Returns:
-            PublicationPackageTable: The newly created publication package.
+            PublicationBillTable: The updated publication bill.
         """
-        new_package.FRBR_Info = PublicationFRBRTable.create_default(self._db, "omgevingsvisie")
+        bill = self.get_publication_bill(bill_uuid)
+        if bill is None:
+            raise ValueError(f"Publication bill with UUID {bill_uuid} not found.")
+
+        for key, value in kwargs.items():
+            setattr(bill, key, value)
+        self._db.flush()
+        self._db.commit()
+        return bill
+
+    def create_publication_package(self, new_package: PublicationPackageTable) -> PublicationPackageTable:
+        # If validation package create new FRBR, else link to existing
+        # if new_package.Package_Event_Type == Package_Event_Type.VALIDATION.value:
+        #     new_frbr = self.create_default_frbr(document_type="omgevingsvisie", work_ID=1, expression_version=1)
+        #     new_package.FRBR_Info = new_frbr
+
         self._db.add(new_package)
         self._db.flush()
         self._db.commit()
@@ -140,6 +186,49 @@ class PublicationRepository(BaseRepository):
             sort=(PublicationPackageTable.Modified_Date, "desc"),
         )
         return paged_result
+
+    def create_default_frbr(
+        self,
+        document_type: str,
+        work_ID: int,
+        expression_version: int,
+    ) -> PublicationFRBRTable:
+        """
+        Creates a new FRBR entry in the database.
+
+        Args:
+            new_frbr (PublicationFRBRTable): The FRBR entry to be created.
+
+        Returns:
+            PublicationFRBRTable: The newly created FRBR entry.
+        """
+        current_year = datetime.now().year
+        current_date = datetime.now().strftime("%Y-%m-%d")
+
+        new_frbr = PublicationFRBRTable(
+            Created_Date=datetime.now(),
+            # Fields for bill_frbr
+            bill_work_country="nl",
+            bill_work_date=str(current_year),
+            bill_work_misc=f"{document_type}_{work_ID}",
+            bill_expression_lang="nld",
+            bill_expression_date=current_date,
+            bill_expression_version=str(expression_version),
+            bill_expression_misc=None,
+            # Fields for act_frbr
+            act_work_country="nl",
+            act_work_date=str(current_year),
+            act_work_misc=f"{document_type}_{work_ID}",
+            act_expression_lang="nld",
+            act_expression_date=current_date,
+            act_expression_version=str(expression_version),
+            act_expression_misc=None,
+        )
+
+        self._db.add(new_frbr)
+        self._db.flush()
+        self._db.commit()
+        return new_frbr
 
     def get_latest_config(self) -> Optional[PublicationConfigTable]:
         """
