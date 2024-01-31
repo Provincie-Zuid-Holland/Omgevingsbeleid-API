@@ -1,3 +1,4 @@
+import uuid
 from typing import List
 
 import dso.models as dso_models
@@ -35,7 +36,7 @@ class InputDataService:
                 provincie_ref="/tooi/id/provincie/pv28",
                 opdracht={
                     "opdracht_type": "VALIDATIE",
-                    "id_levering": "c43e95c5-6d8d-4132-bfa7-9507f8fb9cd2",
+                    "id_levering": str(uuid.uuid4()),
                     "id_bevoegdgezag": "00000001002306608000",
                     "id_aanleveraar": "00000001002306608000",
                     "publicatie_bestand": "akn_nl_bill_pv28-2-89.xml",
