@@ -76,9 +76,9 @@ api:
         - resolver: reset_user_password
           resolver_data:
             path: /reset-password
-    - prefix: /werkingsgebieden
+    - prefix: /source-werkingsgebieden
       endpoints:
-        - resolver: list_werkingsgebieden
+        - resolver: source_list_werkingsgebieden
           resolver_data:
             sort:
               default:
@@ -89,14 +89,14 @@ api:
                 - ID
                 - Created_Date
                 - Modified_Date
-    - prefix: /search/geo
+    - prefix: /search/source-geo
       endpoints:
-        - resolver: list_objects_in_werkingsgebieden
+        - resolver: source_list_objects_in_werkingsgebieden
           resolver_data:
             sort: *sort_default_title
-    - prefix: /search/geometry
+    - prefix: /search/source-geometry
       endpoints:
-        - resolver: list_objects_by_geometry
+        - resolver: source_list_objects_by_geometry
           resolver_data:
             sort: *sort_default_title
             allowed_object_types:
@@ -123,6 +123,7 @@ api:
               - verplicht_programma
               - visie_algemeen
               - programma_algemeen
+              - werkingsgebied
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
@@ -140,6 +141,7 @@ api:
               - verplicht_programma
               - visie_algemeen
               - programma_algemeen
+              - werkingsgebied
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
@@ -216,30 +218,22 @@ api:
                     label: Hierarchy_Code
                   - column: Gebied_UUID
                     label: Gebied_UUID
+                  - column: Werkingsgebied_Code
+                    label: Werkingsgebied_Code
               - object_type: maatregel
                 content:
                   - column: Description
                     label: Wat wil de provincie bereiken?
                   - column: Role
                     label: Rol
-                  - column: Effect
-                    label: Uitwerking
+                  - column: Explanation
+                    label: Toelichting
                   - column: Hierarchy_Code
                     label: Hierarchy_Code
                   - column: Gebied_UUID
                     label: Gebied_UUID
-              - object_type: visie_algemeen
-                content:
-                  - column: Description
-                    label: Omschrijving
-              - object_type: programma_algemeen
-                content:
-                  - column: Description
-                    label: Omschrijving
-              - object_type: werkingsgebied
-                content:
-                  - column: Description
-                    label: Omschrijving
+                  - column: Werkingsgebied_Code
+                    label: Werkingsgebied_Code
         - resolver: module_add_new_object
           resolver_data:
             path: /add-new-object
@@ -252,6 +246,7 @@ api:
               - gebiedsprogramma
               - visie_algemeen
               - programma_algemeen
+              - werkingsgebied
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -264,6 +259,7 @@ api:
               - gebiedsprogramma
               - visie_algemeen
               - programma_algemeen
+              - werkingsgebied
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
@@ -304,6 +300,15 @@ columns:
     type: str
     serializers: []
     deserializers: ["str"]
+    nullable: true
+  # Area_UUID used to store reference to the shape
+  area_uuid:
+    name: Area_UUID
+    type: area_uuid
+    type_data:
+      relation_field: Area
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
     nullable: true
   # Beschrijf de uitwerking van het object
   effect:
@@ -383,6 +388,14 @@ columns:
     type: object_code
     type_data:
       relation_field: Hierarchy_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  werkingsgebied_code:
+    name: Werkingsgebied_Code
+    type: object_code
+    type_data:
+      relation_field: Werkingsgebied_Statics
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true

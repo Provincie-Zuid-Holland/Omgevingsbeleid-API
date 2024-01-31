@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 
 class ValidSearchConfig(BaseModel):
@@ -42,3 +42,4 @@ class SearchObject(ValidSearchObject):
 
 class SearchRequestData(BaseModel):
     Object_Types: Optional[List[str]]
+    Like: bool = Field(False)

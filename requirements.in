@@ -1,7 +1,7 @@
 # Core libraries
 fastapi
 uvicorn[standard]
-pydantic[email,dotenv]>=1.0.0,<2.0.0
+pydantic==1.*
 pyodbc
 SQLAlchemy
 pyyaml
@@ -10,7 +10,7 @@ pyyaml
 python-jose
 passlib
 python-multipart
-bcrypt
+bcrypt==4.0.1
 
 # Util
 diff-match-patch

@@ -10,8 +10,8 @@ from sqlalchemy.sql import func
 from app.dynamic.db import ObjectsTable
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination, query_paginated
-from app.extensions.werkingsgebieden.db.tables import WerkingsgebiedenTable
-from app.extensions.werkingsgebieden.models.models import VALID_GEOMETRIES, GeometryFunctions
+from app.extensions.source_werkingsgebieden.db.tables import SourceWerkingsgebiedenTable
+from app.extensions.source_werkingsgebieden.models.models import VALID_GEOMETRIES, GeometryFunctions
 
 SPATIAL_FUNCTION_MAP = {
     GeometryFunctions.CONTAINS: "STContains",
@@ -22,13 +22,21 @@ SPATIAL_FUNCTION_MAP = {
 
 
 class WerkingsgebiedenRepository(BaseRepository):
+    # def get_full_by_uuid(self, uuidx: UUID) -> Optional[SourceWerkingsgebiedenTable]:
+    #     stmt = (
+    #         select(SourceWerkingsgebiedenTable)
+    #         .filter(SourceWerkingsgebiedenTable.UUID == uuidx)
+    #         .options(undefer(SourceWerkingsgebiedenTable.SHAPE))
+    #     )
+    #     return self.fetch_first(stmt)
+
     def get_all_paginated(self, pagination: SortedPagination) -> PaginatedQueryResult:
-        stmt = select(WerkingsgebiedenTable).filter(WerkingsgebiedenTable.End_Validity > datetime.now())
+        stmt = select(SourceWerkingsgebiedenTable).filter(SourceWerkingsgebiedenTable.End_Validity > datetime.now())
         return self.fetch_paginated(
             statement=stmt,
             offset=pagination.offset,
             limit=pagination.limit,
-            sort=(getattr(WerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
+            sort=(getattr(SourceWerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
         )
 
     def get_latest_in_area(
@@ -92,10 +100,10 @@ class WerkingsgebiedenRepository(BaseRepository):
         timepoint = datetime.utcnow()
 
         werkingsgebieden = (
-            select(WerkingsgebiedenTable.UUID)
-            .select_from(WerkingsgebiedenTable)
-            .filter(WerkingsgebiedenTable.Start_Validity < timepoint)
-            .filter(WerkingsgebiedenTable.End_Validity > timepoint)
+            select(SourceWerkingsgebiedenTable.UUID)
+            .select_from(SourceWerkingsgebiedenTable)
+            .filter(SourceWerkingsgebiedenTable.Start_Validity < timepoint)
+            .filter(SourceWerkingsgebiedenTable.End_Validity > timepoint)
             .filter(text(geometry_filter))
             .params(polygon=geometry)
         )

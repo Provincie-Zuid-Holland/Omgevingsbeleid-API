@@ -13,7 +13,6 @@ from app.dynamic.dependencies import depends_event_dispatcher, depends_object_st
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import (
     depends_active_and_activated_module,
@@ -75,7 +74,7 @@ class EndpointHandler:
         if not self._changes:
             raise HTTPException(400, "Nothing to update")
 
-        new_record: ModuleObjectsTable = self._module_object_repository.patch_latest_module_object(
+        old_record, new_record = self._module_object_repository.patch_latest_module_object(
             self._module.Module_ID,
             self._object_type,
             self._lineage_id,
@@ -90,6 +89,7 @@ class EndpointHandler:
                 self._changes,
                 self._timepoint,
                 self._request_model,
+                old_record,
                 new_record,
             )
         )
