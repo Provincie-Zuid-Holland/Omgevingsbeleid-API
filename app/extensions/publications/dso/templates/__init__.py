@@ -1,3 +1,2 @@
 from .omgevingsprogramma import OmgevingsprogrammaTextTemplate
 from .omgevingsvisie import OmgevingsvisieTextTemplate
-from .text_template import TextTemplate

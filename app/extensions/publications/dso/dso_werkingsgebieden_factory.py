@@ -47,6 +47,9 @@ class DsoWerkingsgebiedenFactory:
     def _as_werkingsgebied(self, werkingsgebied: dict, area: dict) -> dict:
         result = {
             "UUID": werkingsgebied["UUID"],
+            "Object_ID": werkingsgebied["Object_ID"],
+            "Object_Type": werkingsgebied["Object_Type"],
+            "Code": werkingsgebied["Code"],
             "Title": area["Source_Title"],
             "Symbol": area["Source_Symbol"],
             "Created_Date": str(werkingsgebied["Created_Date"]),

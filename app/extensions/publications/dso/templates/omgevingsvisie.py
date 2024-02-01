@@ -1,6 +1,6 @@
 from typing import Dict
 
-from app.extensions.playground.templates.text_template import TextTemplate
+from app.extensions.publications.dso.templates.text_template import TextTemplate
 
 # @note: This data will at some points be manages in the GUI
 
@@ -9,8 +9,6 @@ class OmgevingsvisieTextTemplate(TextTemplate):
     def get_free_text_template(self) -> str:
         template = """
 <div><object code="visie_algemeen-1" /></div>
-<div><object code="visie_algemeen-2" /></div>
-<div><object code="visie_algemeen-3" /></div>
 
 <div>
     <h1>Ambities van Zuid-Holland</h1>
@@ -61,8 +59,8 @@ class OmgevingsvisieTextTemplate(TextTemplate):
             "beleidskeuze": """
 <h1>{{ o.Title }}</h1>
 <!--[OBJECT-CODE:{{o.Code}}]-->
-{% if o.Gebied_UUID is not none %}
-<!--[GEBIED-UUID:{{o.Gebied_UUID}}]-->
+{% if o.Werkingsgebied_Code is not none %}
+<!--[GEBIED-CODE:{{o.Werkingsgebied_Code}}]-->
 {% endif %}
 
 {% if o.Description %}
