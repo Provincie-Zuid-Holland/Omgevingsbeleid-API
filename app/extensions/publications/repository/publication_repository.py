@@ -253,19 +253,19 @@ class PublicationRepository(BaseRepository):
 
     def get_publication_packages(
         self,
-        document_type: Optional[Document_Type] = None,
-        module_id: Optional[int] = None,
-        version_id: Optional[int] = None,
+        bill_uuid: Optional[UUID] = None,
+        package_event_type: Optional[Package_Event_Type] = None,
+        is_validated: Optional[bool] = None,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
-        query = select(PublicationPackageTable).join(PublicationPackageTable.Module_Status)
-        if document_type is not None:
-            query = query.filter(PublicationPackageTable.Document_Type == document_type)
-        if module_id is not None:
-            query = query.filter(PublicationPackageTable.Module_ID == module_id)
-        if version_id is not None:
-            query = query.filter(PublicationPackageTable.Version_ID == version_id)
+        query = select(PublicationPackageTable)
+        if bill_uuid is not None:
+            query = query.filter(PublicationPackageTable.Bill_UUID == bill_uuid)
+        if package_event_type is not None:
+            query = query.filter(PublicationPackageTable.Package_Event_Type == package_event_type)
+        if is_validated is not None:
+            query = query.filter(PublicationPackageTable.Validated_At.isnot(None))
 
         paged_result = self.fetch_paginated(
             statement=query,

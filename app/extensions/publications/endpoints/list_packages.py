@@ -1,4 +1,5 @@
 from typing import Optional
+import uuid
 
 from fastapi import APIRouter, Depends
 
@@ -11,24 +12,24 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SimplePagination
 from app.extensions.publications import Document_Type, PublicationPackage
 from app.extensions.publications.dependencies import depends_publication_repository
+from app.extensions.publications.enums import Package_Event_Type
 from app.extensions.publications.repository.publication_repository import PublicationRepository
 
 
 class ListPublicationPackagesEndpoint(Endpoint):
-    def __init__(self, path: str, order_config: OrderConfig):
+    def __init__(self, path: str):
         self._path: str = path
-        self._order_config: OrderConfig = order_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            document_type: Optional[Document_Type] = None,
-            version_id: Optional[int] = None,
-            module_id: Optional[int] = None,
+            bill_uuid: uuid.UUID,
+            package_event_type: Optional[Package_Event_Type] = None,
+            is_validated: Optional[bool] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             publication_repository: PublicationRepository = Depends(depends_publication_repository),
         ) -> PagedResponse[PublicationPackage]:
             paginated_result = publication_repository.get_publication_packages(
-                document_type=document_type, module_id=module_id, version_id=version_id
+                bill_uuid=bill_uuid, package_event_type=package_event_type, is_validated=is_validated
             )
 
             packages = [PublicationPackage.from_orm(r) for r in paginated_result.items]
@@ -67,9 +68,7 @@ class ListPublicationPackagesEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
-        order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
         return ListPublicationPackagesEndpoint(
             path=path,
-            order_config=order_config,
         )
