@@ -9,7 +9,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications import commands, endpoints
-from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
 
 
 class PublicationsExtension(Extension):
@@ -18,7 +18,7 @@ class PublicationsExtension(Extension):
             ExtensionModel(
                 id="publication",
                 name="publication",
-                pydantic_model=Publication,
+                pydantic_model=PublicationBill,
             ),
         )
         models_resolver.add(
@@ -51,10 +51,15 @@ class PublicationsExtension(Extension):
     ) -> List[EndpointResolver]:
         return [
             endpoints.CreatePublicationEndpointResolver(),
-            endpoints.ListPublicationBillsEndpointResolver(),
             endpoints.CreatePublicationBillEndpointResolver(),
             endpoints.CreatePublicationPackageEndpointResolver(),
+            endpoints.DetailPublicationEndpointResolver(),
+            endpoints.DetailPublicationBillEndpointResolver(),
+            endpoints.EditPublicationBillEndpointResolver(),
+            endpoints.EditPublicationEndpointResolver(),
+            endpoints.ListPublicationBillsEndpointResolver(),
             endpoints.ListPublicationPackagesEndpointResolver(),
+            endpoints.ListPublicationsEndpointResolver(),
         ]
 
     def register_listeners(
@@ -68,4 +73,3 @@ class PublicationsExtension(Extension):
 
     def register_commands(self, main_command_group: click.Group, main_config: dict):
         main_command_group.add_command(commands.generate_dso_package, "generate-dso-package")
-        main_command_group.add_command(commands.generate_frbr, "generate-frbr")

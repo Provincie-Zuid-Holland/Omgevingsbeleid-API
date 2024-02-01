@@ -15,6 +15,7 @@ from app.extensions.publications import (
     PublicationPackageTable,
 )
 from app.extensions.publications.enums import Package_Event_Type
+from app.extensions.publications.exceptions import PublicationBillNotFound, PublicationNotFound
 from app.extensions.publications.tables.tables import DSOStateExportTable, PublicationFRBRTable, PublicationTable
 
 
@@ -46,6 +47,74 @@ class PublicationRepository(BaseRepository):
         self._db.flush()
         self._db.commit()
         return new_publication
+
+    def get_publication_by_uuid(self, uuid: UUID) -> Optional[PublicationTable]:
+        """
+        Retrieves a publication by its UUID.
+
+        Args:
+            uuid (UUID): The UUID of the publication.
+
+        Returns:
+            Optional[PublicationTable]: The publication with the specified UUID, or None if not found.
+        """
+        stmt = select(PublicationTable).where(PublicationTable.UUID == uuid)
+        return self.fetch_first(stmt)
+
+    def list_publications(
+        self,
+        document_type: Optional[Document_Type] = None,
+        module_id: Optional[int] = None,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> PaginatedQueryResult:
+        """
+        Retrieves a list of publications based on the specified filters.
+
+        Args:
+            document_type (Optional[Document_Type]): The document type to filter by.
+            module_id (Optional[int]): The module ID to filter by.
+            offset (int): The offset for pagination.
+            limit (int): The limit for pagination.
+
+        Returns:
+            PaginatedQueryResult: The paginated query result containing the publications.
+        """
+        query = select(PublicationTable)
+        if document_type is not None:
+            query = query.filter(PublicationTable.Document_Type == document_type)
+        if module_id is not None:
+            query = query.filter(PublicationTable.Module_ID == module_id)
+
+        paged_result = self.fetch_paginated(
+            statement=query,
+            offset=offset,
+            limit=limit,
+            sort=(PublicationTable.Modified_Date, "desc"),
+        )
+        return paged_result
+
+    def update_publication(self, publication_uuid: UUID, **kwargs) -> PublicationTable:
+        """
+        Updates a publication with the specified values.
+
+        Args:
+            publication_uuid (UUID): The UUID of the publication to be updated.
+            **kwargs: The values to be updated.
+
+        Returns:
+            PublicationTable: The updated publication.
+        """
+        publication = self.get_publication_by_uuid(publication_uuid)
+        if publication is None:
+            raise PublicationNotFound(f"Publication with UUID {publication_uuid} not found.")
+
+        publication.Modified_Date = datetime.now()
+        for key, value in kwargs.items():
+            setattr(publication, key, value)
+        self._db.flush()
+        self._db.commit()
+        return publication
 
     def get_publication_bill(self, uuid: UUID) -> Optional[PublicationBillTable]:
         """
@@ -133,10 +202,12 @@ class PublicationRepository(BaseRepository):
         """
         bill = self.get_publication_bill(bill_uuid)
         if bill is None:
-            raise ValueError(f"Publication bill with UUID {bill_uuid} not found.")
+            raise PublicationBillNotFound(f"Publication bill with UUID {bill_uuid} not found.")
 
+        bill.Modified_Date = datetime.now()
         for key, value in kwargs.items():
             setattr(bill, key, value)
+
         self._db.flush()
         self._db.commit()
         return bill
@@ -175,7 +246,7 @@ class PublicationRepository(BaseRepository):
     def get_publication_package(self, uuid: UUID) -> Optional[PublicationPackageTable]:
         """
         Retrieves full publication package by its UUID.
-        #TODO add files/link
+        # TODO add zip uuid
         """
         stmt = select(PublicationPackageTable).where(PublicationPackageTable.UUID == uuid)
         return self.fetch_first(stmt)

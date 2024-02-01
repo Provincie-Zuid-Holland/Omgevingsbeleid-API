@@ -199,12 +199,13 @@ class CreatePublicationPackageEndpoint(Endpoint):
         new_export = pub_repo.create_dso_state_export(new_export)
 
         # Store new OW objects in DB
-        ow_objects = create_ow_objects_from_json(
-            exported_state=state_exported,
-            package_uuid=package.UUID,
-            bill_type=bill_db.Procedure_Type,
-        )
-        ow_object_repo.create_ow_objects(ow_objects)
+        if new_package_db.Package_Event_Type == Package_Event_Type.PUBLICATION:
+            ow_objects = create_ow_objects_from_json(
+                exported_state=state_exported,
+                package_uuid=package.UUID,
+                bill_type=bill_db.Procedure_Type,
+            )
+            ow_object_repo.create_ow_objects(ow_objects)
 
         return PublicationPackage.from_orm(new_package_db)
 

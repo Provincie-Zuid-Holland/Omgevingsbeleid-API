@@ -71,17 +71,6 @@ class PublicationBillTable(Base, HasUUID, TimeStamped):
         "PublicationPackageTable", backref="publication_bill"
     )
 
-    # @hybrid_method
-    # def latest_version(cls, db, module_id, document_type):
-    #     return db.query(func.max(cls.Version_ID)).filter_by(Module_ID=module_id, Document_Type=document_type).scalar()
-
-    # @hybrid_method
-    # def next_version(cls, db, module_id, document_type) -> int:
-    #     latest = cls.latest_version(db, module_id, document_type)
-    #     if not latest:
-    #         return 1
-    #     return latest + 1
-
 
 class PublicationFRBRTable(Base):
     __tablename__ = "publication_frbr"

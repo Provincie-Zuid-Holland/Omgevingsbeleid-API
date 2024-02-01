@@ -2,6 +2,10 @@ class MissingPublicationConfigError(Exception):
     pass
 
 
+class PublicationNotFound(Exception):
+    pass
+
+
 class PublicationBillNotFound(Exception):
     pass
 

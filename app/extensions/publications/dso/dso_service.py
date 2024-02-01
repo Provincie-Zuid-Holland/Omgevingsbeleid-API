@@ -12,7 +12,7 @@ from app.extensions.publications.dso.dso_werkingsgebieden_factory import DsoWerk
 from app.extensions.publications.dso.input_data_mapper import map_dso_input_data
 from app.extensions.publications.dso.template_parser import TemplateParser
 from app.extensions.publications.exceptions import DSOStateExportError
-from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
 
 
 class DSOService:
@@ -64,7 +64,7 @@ class DSOService:
 
     def prepare_publication_input(
         self,
-        publication: Publication,
+        publication: PublicationBill,
         bill: PublicationBill,
         package: PublicationPackage,
         config: PublicationConfig,

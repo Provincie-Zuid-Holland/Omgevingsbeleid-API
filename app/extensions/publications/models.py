@@ -23,6 +23,22 @@ class PublicationConfig(BaseModel):
         orm_mode = True
 
 
+class Publication(BaseModel):
+    UUID: uuid.UUID
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    Module_ID: int
+    Template_ID: Optional[int]
+    Document_Type: Document_Type
+    Work_ID: int
+    Official_Title: str
+    Regulation_Title: str
+
+    class Config:
+        orm_mode = True
+
+
 class Article(BaseModel):
     """
     STOP Artikel
@@ -71,7 +87,7 @@ class Bill_Data(BaseModel):
     Signature: str  # Ondertekening
 
 
-class Publication(BaseModel):
+class PublicationBill(BaseModel):
     UUID: uuid.UUID
     Created_Date: datetime
     Modified_Date: datetime

@@ -13,11 +13,11 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
 )
 
 from app.extensions.publications.enums import Document_Type, Procedure_Type
-from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
 
 
 def map_dso_input_data(
-    publication: Publication,
+    publication: PublicationBill,
     bill: PublicationBill,
     package: PublicationPackage,
     config: PublicationConfig,

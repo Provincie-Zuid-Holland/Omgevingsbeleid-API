@@ -1,5 +1,11 @@
 from .enums import Document_Type, Package_Event_Type
-from .exceptions import MissingPublicationConfigError
+from .exceptions import (
+    DSOExportOWError,
+    DSOStateExportError,
+    MissingPublicationConfigError,
+    PublicationBillNotFound,
+    PublicationNotFound,
+)
 from .helpers import serialize_datetime
 from .models import (
     AmendmentArticle,
@@ -8,6 +14,7 @@ from .models import (
     BillArticle,
     Procedure_Data,
     ProcedureStep,
+    Publication,
     PublicationBill,
     PublicationFRBR,
     PublicationPackage,

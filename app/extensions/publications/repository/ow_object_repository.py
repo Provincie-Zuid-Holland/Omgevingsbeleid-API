@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult
-from app.extensions.publications.tables.ow import OWObjectTable
+from app.extensions.publications.tables.ow import OWAmbtsgebiedTable, OWObjectTable
 
 
 class OWObjectRepository(BaseRepository):
@@ -38,8 +38,19 @@ class OWObjectRepository(BaseRepository):
         Returns:
             List[OWObject]: The list of created OWObjects.
         """
-        self._db.add_all(new_ow_objects)
-        self._db.flush()
+        # TODO: This is a temp fix, make sure ambstgebied is only generated when needed
+        for new_ow_object in new_ow_objects:
+            if isinstance(new_ow_object, OWAmbtsgebiedTable):
+                existing: OWAmbtsgebiedTable = self.get_ow_object_by_uuid(new_ow_object.uuid)
+                if existing:
+                    existing.OW_ID = new_ow_object.OW_ID
+                    existing.Modified_Date = new_ow_object.Modified_Date
+                    existing.Bestuurlijke_grenzen_id = new_ow_object.Bestuurlijke_grenzen_id
+                    existing.Geldig_Op = new_ow_object.Geldig_Op
+                    existing.Domein = new_ow_object.Domein
+                    self._db.flush()
+                    continue
+            self._db.add(new_ow_object)
         self._db.commit()
         return new_ow_objects
 
