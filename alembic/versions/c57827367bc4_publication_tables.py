@@ -27,34 +27,48 @@ def upgrade() -> None:
         "publication_config",
         sa.Column("ID", sa.Integer(), nullable=False),
         sa.Column("Created_Date", sa.DateTime(), nullable=False),
-        sa.Column("Province_ID", sa.String(), nullable=False),
-        sa.Column("Authority_ID", sa.String(), nullable=False),
-        sa.Column("Submitter_ID", sa.String(), nullable=False),
-        sa.Column("Jurisdiction", sa.String(), nullable=False),
-        sa.Column("Subjects", sa.String(), nullable=False),
-        sa.Column("DSO_STOP_VERSION", sa.String(), nullable=False),
-        sa.Column("DSO_TPOD_VERSION", sa.String(), nullable=False),
-        sa.Column("DSO_BHKV_VERSION", sa.String(), nullable=False),
+        sa.Column("Province_ID", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("Authority_ID", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("Submitter_ID", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("Jurisdiction", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("Subjects", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("DSO_STOP_VERSION", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("DSO_TPOD_VERSION", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("DSO_BHKV_VERSION", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
         sa.PrimaryKeyConstraint("ID"),
     )
     op.create_table(
         "publication_frbr",
         sa.Column("ID", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("Created_Date", sa.DateTime(), nullable=False),
-        sa.Column("bill_work_country", sa.String(255), nullable=False),
-        sa.Column("bill_work_date", sa.String(255), nullable=False),
-        sa.Column("bill_work_misc", sa.String(255), nullable=False),
-        sa.Column("bill_expression_lang", sa.String(255), nullable=False),
+        sa.Column(
+            "bill_work_country", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False
+        ),
+        sa.Column("bill_work_date", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("bill_work_misc", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column(
+            "bill_expression_lang", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False
+        ),
         sa.Column("bill_expression_date", sa.DateTime(), nullable=False),
-        sa.Column("bill_expression_version", sa.String(255), nullable=False),
-        sa.Column("bill_expression_misc", sa.String(255), nullable=True),
-        sa.Column("act_work_country", sa.String(255), nullable=False),
-        sa.Column("act_work_date", sa.String(255), nullable=False),
-        sa.Column("act_work_misc", sa.String(255), nullable=False),
-        sa.Column("act_expression_lang", sa.String(255), nullable=False),
+        sa.Column(
+            "bill_expression_version", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False
+        ),
+        sa.Column(
+            "bill_expression_misc", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True
+        ),
+        sa.Column("act_work_country", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("act_work_date", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("act_work_misc", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column(
+            "act_expression_lang", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False
+        ),
         sa.Column("act_expression_date", sa.DateTime(255), nullable=False),
-        sa.Column("act_expression_version", sa.String(255), nullable=False),
-        sa.Column("act_expression_misc", sa.String(255), nullable=True),
+        sa.Column(
+            "act_expression_version", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False
+        ),
+        sa.Column(
+            "act_expression_misc", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True
+        ),
         sa.PrimaryKeyConstraint("ID"),
     )
     op.create_unique_constraint(
@@ -71,8 +85,8 @@ def upgrade() -> None:
         sa.Column("Module_ID", sa.Integer(), nullable=False),
         sa.Column("Template_ID", sa.Integer(), nullable=True),
         sa.Column("Work_ID", sa.Integer(), nullable=False),
-        sa.Column("Official_Title", sa.String(), nullable=False),
-        sa.Column("Regulation_Title", sa.String(), nullable=False),
+        sa.Column("Official_Title", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("Regulation_Title", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
         sa.Column(
             "Document_Type", sa.Enum("Omgevingsvisie", "Omgevingsprogramma", "Omgevingsverordening"), nullable=True
         ),
@@ -115,7 +129,7 @@ def upgrade() -> None:
         sa.Column("Bill_UUID", sa.Uuid(), nullable=False),
         sa.Column("Config_ID", sa.Integer(), nullable=False),
         sa.Column("FRBR_ID", sa.Integer(), nullable=False),
-        sa.Column("Publication_Filename", sa.String(), nullable=True),
+        sa.Column("Publication_Filename", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
         sa.Column("Announcement_Date", sa.DateTime(), nullable=False),
         sa.Column("Validated_At", sa.DateTime(), nullable=True),
         sa.Column("Package_Event_Type", sa.Enum("Validatie", "Publicatie", "Afbreken"), nullable=False),
@@ -151,7 +165,7 @@ def upgrade() -> None:
         sa.Column("UUID", sa.Uuid(), nullable=False),
         sa.Column("Created_Date", sa.DateTime(), nullable=False),
         sa.Column("Modified_Date", sa.DateTime(), nullable=False),
-        sa.Column("OW_ID", sa.String(length=255), nullable=False),
+        sa.Column("OW_ID", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
         sa.Column(
             "IMOW_Type",
             sa.Enum(
@@ -182,15 +196,15 @@ def upgrade() -> None:
             nullable=True,
         ),
         sa.Column("Procedure_Status", sa.Enum("Ontwerp", "Definitief"), nullable=True),
-        sa.Column("Noemer", sa.String(), nullable=True),
+        sa.Column("Noemer", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
         sa.Column("Package_UUID", sa.Uuid(), nullable=False),
-        sa.Column("WID", sa.String(), nullable=True),
+        sa.Column("WID", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
         sa.Column("Geo_UUID", sa.Uuid(), nullable=True),
-        sa.Column("Divisie_ref", sa.String(length=255), nullable=True),
-        sa.Column("Bestuurlijke_grenzen_id", sa.String(), nullable=True),
-        sa.Column("Domein", sa.String(), nullable=True),
-        sa.Column("Geldig_Op", sa.String(), nullable=True),
-        sa.Column("Ambtsgebied", sa.String(), nullable=True),
+        sa.Column("Divisie_ref", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
+        sa.Column("Bestuurlijke_grenzen_id", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
+        sa.Column("Domein", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
+        sa.Column("Geldig_Op", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
+        sa.Column("Ambtsgebied", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
         sa.ForeignKeyConstraint(
             ["Divisie_ref"],
             ["publication_ow_objects.OW_ID"],
@@ -208,9 +222,9 @@ def upgrade() -> None:
     )
     op.create_table(
         "publication_ow_association",
-        sa.Column("OW_ID_1", sa.String(length=255), nullable=False),
-        sa.Column("OW_ID_2", sa.String(length=255), nullable=False),
-        sa.Column("Type", sa.String(), nullable=True),
+        sa.Column("OW_ID_1", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("OW_ID_2", sa.VARCHAR(length=255, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
+        sa.Column("Type", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
         sa.ForeignKeyConstraint(
             ["OW_ID_1"],
             ["publication_ow_objects.OW_ID"],

@@ -143,9 +143,9 @@ class OWTekstdeelTable(OWObjectTable):
 
 
 class OWAmbtsgebiedTable(OWObjectTable):
-    Bestuurlijke_grenzen_id: Mapped[str]
-    Domein: Mapped[str]
-    Geldig_Op: Mapped[str]
+    Bestuurlijke_grenzen_id: Mapped[str] = mapped_column(String(255), nullable=True)
+    Domein: Mapped[str] = mapped_column(String(255), nullable=True)
+    Geldig_Op: Mapped[str] = mapped_column(String(255), nullable=True)
 
     __mapper_args__ = {
         "polymorphic_identity": IMOWTYPE.AMBTSGEBIED.value,
@@ -153,7 +153,7 @@ class OWAmbtsgebiedTable(OWObjectTable):
 
 
 class OWRegelingsgebiedTable(OWObjectTable):
-    Ambtsgebied: Mapped[str]
+    Ambtsgebied: Mapped[str] = mapped_column(String(255), nullable=True)
 
     __mapper_args__ = {
         "polymorphic_identity": IMOWTYPE.REGELINGSGEBIED.value,

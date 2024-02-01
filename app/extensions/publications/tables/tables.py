@@ -35,6 +35,9 @@ class PublicationTable(Base, HasUUID, TimeStamped):
     __tablename__ = "publications"
     __table_args__ = (UniqueConstraint("Document_Type", "Work_ID", name="uq_publications_document_work"),)
 
+    Created_Date: Mapped[datetime]
+    Modified_Date: Mapped[datetime]
+
     Module_ID: Mapped[int] = mapped_column(Integer, ForeignKey("modules.Module_ID"), nullable=False)
     Template_ID: Mapped[Optional[int]]  # TODO: key to new template storage
 
@@ -49,6 +52,9 @@ class PublicationTable(Base, HasUUID, TimeStamped):
 
 class PublicationBillTable(Base, HasUUID, TimeStamped):
     __tablename__ = "publication_bills"
+
+    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     Publication_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publications.UUID"), nullable=False)
     Module_Status_ID: Mapped[int] = mapped_column(Integer, ForeignKey("module_status_history.ID"), nullable=False)
@@ -85,20 +91,20 @@ class PublicationFRBRTable(Base):
     # Fields for bill_frbr
     bill_work_country: Mapped[str] = mapped_column(String(255), nullable=False)
     bill_work_date: Mapped[str] = mapped_column(String(255), nullable=False)
-    bill_work_misc: Mapped[str] = mapped_column(String(255), nullable=True)
+    bill_work_misc: Mapped[str] = mapped_column(String(255), nullable=False)
     bill_expression_lang: Mapped[str] = mapped_column(String(255), nullable=False)
-    bill_expression_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    bill_expression_date: Mapped[datetime]
     bill_expression_version: Mapped[str] = mapped_column(String(255), nullable=False)
-    bill_expression_misc: Mapped[Optional[str]] = mapped_column(String(255), nullable=False)
+    bill_expression_misc: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     # Fields for act_frbr
     act_work_country: Mapped[str] = mapped_column(String(255), nullable=False)
     act_work_date: Mapped[str] = mapped_column(String(255), nullable=False)
-    act_work_misc: Mapped[str] = mapped_column(String(255), nullable=True)
+    act_work_misc: Mapped[str] = mapped_column(String(255), nullable=False)
     act_expression_lang: Mapped[str] = mapped_column(String(255), nullable=False)
-    act_expression_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    act_expression_date: Mapped[datetime]
     act_expression_version: Mapped[str] = mapped_column(String(255), nullable=False)
-    act_expression_misc: Mapped[Optional[str]] = mapped_column(String(255), nullable=False)
+    act_expression_misc: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     @classmethod
     def create_default_frbr(
@@ -126,16 +132,18 @@ class PublicationFRBRTable(Base):
         )
 
 
-class PublicationPackageTable(Base, HasUUID, TimeStamped):
+class PublicationPackageTable(Base, HasUUID):
     __tablename__ = "publication_packages"
+    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     Bill_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_bills.UUID"), nullable=False)
     Config_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_config.ID"), nullable=False)
     FRBR_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_frbr.ID"), nullable=False, unique=True)
 
-    Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in Package_Event_Type]))
+    Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in Package_Event_Type]), nullable=False)
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
-    Announcement_Date: Mapped[Optional[datetime]]  # Datum_Bekendmaking
+    Announcement_Date: Mapped[datetime]  # Datum_Bekendmaking
     Validated_At: Mapped[Optional[datetime]]  # Validated date
     # Validation_Report: Mapped[Optional[str]]  # LVBB Validatie resultaat
 
