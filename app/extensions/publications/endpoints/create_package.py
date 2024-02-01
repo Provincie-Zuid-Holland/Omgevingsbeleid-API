@@ -160,6 +160,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
                 "ambitie",
                 "beleidsdoel",
                 "beleidskeuze",
+                "werkingsgebied",
             ],
             field_map=[
                 "UUID",
@@ -167,12 +168,16 @@ class CreatePublicationPackageEndpoint(Endpoint):
                 "Object_ID",
                 "Code",
                 "Hierarchy_Code",
-                "Gebied_UUID",
+                "Werkingsgebied_Code",
                 "Title",
                 "Description",
                 "Cause",
                 "Provincial_Interest",
                 "Explanation",
+                # Used for Werkingsgebied
+                "Area_UUID",
+                "Created_Date",
+                "Modified_Date",
             ],
         )
 

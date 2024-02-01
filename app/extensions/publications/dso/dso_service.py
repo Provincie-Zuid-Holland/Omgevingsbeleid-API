@@ -13,6 +13,7 @@ from app.extensions.publications.dso.input_data_mapper import map_dso_input_data
 from app.extensions.publications.dso.template_parser import TemplateParser
 from app.extensions.publications.exceptions import DSOStateExportError
 from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.source_werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
 
 
 class DSOService:
@@ -87,7 +88,12 @@ class DSOService:
         # Initialize repositories
         object_template_repository = parser.get_object_template_repository()
         asset_repository = self._dso_assets_factory.get_repository_for_objects(used_objects)
-        werkingsgebieden_repository = self._dso_werkingsgebieden_factory.get_repository_for_objects(objects)
+
+        werkingsgebieden_objects: List[dict] = [o for o in objects if o["Object_Type"] == "werkingsgebied"]
+        werkingsgebieden_repository: WerkingsgebiedenRepository = (
+            self._dso_werkingsgebieden_factory.get_repository_for_objects(werkingsgebieden_objects, used_objects)
+        )
+
         policy_object_repository = self.get_policy_object_repository(used_objects)
 
         # Convert to INput data
