@@ -17,6 +17,7 @@ diff-match-patch
 pytz
 validators
 shapely
+geopandas
 
 # Command
 Click

@@ -17,4 +17,5 @@ class PlaygroundExtension(Extension):
     ) -> List[EndpointResolver]:
         return [
             endpoints.DoDsoEndpointResolver(),
+            endpoints.CheckGeoEndpointResolver(),
         ]

@@ -11,6 +11,8 @@ anyio==4.2.0
     #   watchfiles
 appdirs==1.4.4
     # via fs
+attrs==23.2.0
+    # via fiona
 bcrypt==4.0.1
     # via -r requirements.in
 beautifulsoup4==4.12.3
@@ -20,14 +22,22 @@ beautifulsoup4==4.12.3
 certifi==2023.11.17
     # via
     #   dso
+    #   fiona
     #   httpcore
     #   httpx
     #   pyproj
 click==8.1.7
     # via
     #   -r requirements.in
+    #   click-plugins
+    #   cligj
     #   dso
+    #   fiona
     #   uvicorn
+click-plugins==1.1.1
+    # via fiona
+cligj==0.7.2
+    # via fiona
 dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20230430
@@ -40,7 +50,11 @@ exceptiongroup==1.2.0
     # via anyio
 fastapi==0.109.0
     # via -r requirements.in
+fiona==1.9.5
+    # via geopandas
 fs==2.4.16
+    # via -r requirements.in
+geopandas==0.14.3
     # via -r requirements.in
 greenlet==3.0.3
     # via sqlalchemy
@@ -73,9 +87,14 @@ markupsafe==2.1.4
 numpy==1.26.3
     # via
     #   dso
+    #   pandas
     #   shapely
 packaging==23.2
-    # via dso
+    # via
+    #   dso
+    #   geopandas
+pandas==2.2.0
+    # via geopandas
 passlib==1.7.4
     # via -r requirements.in
 pathspec==0.12.1
@@ -98,7 +117,11 @@ pydantic==1.10.14
 pyodbc==5.0.1
     # via -r requirements.in
 pyproj==3.6.1
-    # via dso
+    # via
+    #   dso
+    #   geopandas
+python-dateutil==2.8.2
+    # via pandas
 python-dotenv==1.0.1
     # via uvicorn
 python-jose==3.3.0
@@ -106,7 +129,9 @@ python-jose==3.3.0
 python-multipart==0.0.6
     # via -r requirements.in
 pytz==2023.4
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   pandas
 pyyaml==6.0.1
     # via
     #   -r requirements.in
@@ -119,10 +144,13 @@ shapely==2.0.2
     # via
     #   -r requirements.in
     #   dso
+    #   geopandas
 six==1.16.0
     # via
     #   ecdsa
+    #   fiona
     #   fs
+    #   python-dateutil
 sniffio==1.3.0
     # via
     #   anyio
@@ -145,6 +173,8 @@ typing-extensions==4.9.0
     #   pydantic
     #   sqlalchemy
     #   uvicorn
+tzdata==2023.4
+    # via pandas
 uvicorn[standard]==0.27.0.post1
     # via -r requirements.in
 uvloop==0.19.0

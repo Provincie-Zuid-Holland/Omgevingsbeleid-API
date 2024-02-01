@@ -37,6 +37,9 @@ api:
         - resolver: playground_do_dso
           resolver_data:
             path: /do-dso/{module_id}
+        - resolver: playground_check_geo
+          resolver_data:
+            path: /check-geo
     - prefix: /users
       endpoints:
         - resolver: list_users
