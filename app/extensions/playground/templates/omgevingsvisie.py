@@ -9,6 +9,12 @@ class OmgevingsvisieTextTemplate(TextTemplate):
     def get_free_text_template(self) -> str:
         template = """
 <div><object code="visie_algemeen-1" /></div>
+<div><object code="visie_algemeen-2" /></div>
+<div><object code="visie_algemeen-3" /></div>
+<div><object code="visie_algemeen-4" /></div>
+<div><object code="visie_algemeen-5" /></div>
+<div><object code="visie_algemeen-6" /></div>
+<div><object code="visie_algemeen-7" /></div>
 
 <div>
     <h1>Ambities van Zuid-Holland</h1>
@@ -36,6 +42,8 @@ class OmgevingsvisieTextTemplate(TextTemplate):
         </div>
     {%- endfor %}
 </div>
+
+<div><object code="visie_algemeen-8" /></div>
 """
         return template
 

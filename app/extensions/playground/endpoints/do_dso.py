@@ -86,6 +86,15 @@ class EndpointHandler:
             ],
         )
 
+        # @todo: remove
+        # pretend all beleidskeuzes have werkingsgebied-3 as werkingsgebied
+        for i, o in enumerate(objects):
+            if o["Object_Type"] != "beleidskeuze":
+                continue
+            if o.get("Werkingsgebied_Code", None) is None:
+                continue
+            objects[i]["Werkingsgebied_Code"] = "werkingsgebied-3"
+
         free_text_template_str = self._omgevingsvisie_template_parser.get_parsed_template(objects)
         object_template_repository: ObjectTemplateRepository = (
             self._omgevingsvisie_template_parser.get_object_template_repository()

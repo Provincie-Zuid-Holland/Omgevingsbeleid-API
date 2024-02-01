@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import List
 
 import dso.models as dso_models
@@ -63,8 +64,8 @@ class InputDataService:
                 },
             ),
             besluit=Besluit(
-                officiele_titel="Opschrift besluit - Dossier naam Hello World Programma",
-                regeling_opschrift="Omgevingsprogramma Provincie Zuid-Holland",
+                officiele_titel=f"Opschrift besluit - Omgevingsvisie {datetime.utcnow()}",
+                regeling_opschrift=f"Omgevingsvisie Provincie Zuid-Holland {datetime.utcnow()}",
                 aanhef="Om de Omgevingsvisie Provincie Zuid-Holland beschikbaar te maken in het Digitale Stelsel van de Omgevingswet is het noodzakelijk dat de reeds vastgestelde Omgevingsvisie Zuid-Holland opnieuw wordt gepubliceerd en bekend gemaakt.",
                 wijzig_artikel=Artikel(
                     label="Artikel",
@@ -85,8 +86,8 @@ class InputDataService:
             ),
             regeling=Regeling(
                 versienummer="1",
-                officiele_titel="Dossier naam Hello World Programma",
-                citeertitel="Citeertitel omgevingsprogramma hello World",
+                officiele_titel=f"Omgevingsvisie Provincie Zuid-Holland {datetime.utcnow()}",
+                citeertitel="Citeertitel omgevingsvisie hello World",
                 is_officieel="true",
                 rechtsgebieden=[
                     "Omgevingsrecht",
