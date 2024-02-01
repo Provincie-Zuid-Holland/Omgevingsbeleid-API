@@ -1,8 +1,7 @@
-from datetime import datetime
+import uuid
 from typing import Optional
-from uuid import uuid4
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from app.dynamic.config.models import Api, EndpointConfig
@@ -11,57 +10,59 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_publication_repository
-from app.extensions.publications.enums import Document_Type
+from app.extensions.publications.exceptions import PublicationNotFound
 from app.extensions.publications.models import Publication
 from app.extensions.publications.repository import PublicationRepository
-from app.extensions.publications.tables import PublicationTable
-from app.extensions.publications.tables.tables import PublicationTable
 
 
-class PublicationCreate(BaseModel):
-    Module_ID: int
-    Document_Type: Document_Type
-    Official_Title: str
-    Regulation_Title: str
+class PublicationEdit(BaseModel):
     Template_ID: Optional[int]
+    Official_Title: Optional[str]
+    Regulation_Title: Optional[str]
 
 
-class CreatePublicationEndpoint(Endpoint):
+class EditPublicationEndpoint(Endpoint):
     def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            # user: UsersTable = Depends(depends_current_active_user),
-            object_in: PublicationCreate,
-            pub_repository: PublicationRepository = Depends(depends_publication_repository),
+            publication_uuid: uuid.UUID,
+            object_in: PublicationEdit,
+            publication_repo: PublicationRepository = Depends(depends_publication_repository),
         ) -> Publication:
-            return self._handler(object_in=object_in, repo=pub_repository)
+            return self._handler(publication_uuid=publication_uuid, object_in=object_in, repo=publication_repo)
 
         router.add_api_route(
             self._path,
             fastapi_handler,
-            methods=["POST"],
+            methods=["PATCH"],
             response_model=Publication,
-            summary="Create a new publication",
+            summary="Edit an existing publication",
             description=None,
             tags=["Publications"],
         )
 
         return router
 
-    def _handler(self, object_in: PublicationCreate, repo: PublicationRepository):
+    def _handler(
+        self, publication_uuid: uuid.UUID, repo: PublicationRepository, object_in: PublicationEdit
+    ) -> Publication:
+        # Only update provided fields that are not None
         data = object_in.dict()
-        new_publication = PublicationTable(
-            UUID=uuid4(), Created_Date=datetime.now(), Modified_Date=datetime.now(), **data
-        )
-        result = repo.create_publication(new_publication)
+        data = {k: v for k, v in data.items() if v is not None}
+
+        try:
+            result = repo.update_publication(publication_uuid, **data)
+        except PublicationNotFound as e:
+            raise HTTPException(status_code=404, detail=str(e))
+
         return Publication.from_orm(result)
 
 
-class CreatePublicationEndpointResolver(EndpointResolver):
+class EditPublicationEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "create_publication"
+        return "edit_publication"
 
     def generate_endpoint(
         self,
@@ -73,4 +74,4 @@ class CreatePublicationEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
-        return CreatePublicationEndpoint(path=path)
+        return EditPublicationEndpoint(path=path)

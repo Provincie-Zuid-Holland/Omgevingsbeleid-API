@@ -8,44 +8,48 @@ from app.dynamic.dependencies import depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SimplePagination
-from app.extensions.publications import Document_Type, PublicationPackage
+from app.dynamic.utils.pagination import PagedResponse, SimplePagination
+from app.extensions.publications import PublicationBill
 from app.extensions.publications.dependencies import depends_publication_repository
-from app.extensions.publications.repository.publication_repository import PublicationRepository
+from app.extensions.publications.enums import Document_Type
+from app.extensions.publications.models import Publication
+from app.extensions.publications.repository import PublicationRepository
 
 
-class ListPublicationPackagesEndpoint(Endpoint):
-    def __init__(self, path: str, order_config: OrderConfig):
+class ListPublicationsEndpoint(Endpoint):
+    def __init__(self, path: str):
         self._path: str = path
-        self._order_config: OrderConfig = order_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
+            # user: UsersTable = Depends(depends_current_active_user),
             document_type: Optional[Document_Type] = None,
-            version_id: Optional[int] = None,
-            module_id: Optional[int] = None,
+            module_ID: Optional[int] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
-            publication_repository: PublicationRepository = Depends(depends_publication_repository),
-        ) -> PagedResponse[PublicationPackage]:
-            paginated_result = publication_repository.get_publication_packages(
-                document_type=document_type, module_id=module_id, version_id=version_id
+            pub_repository: PublicationRepository = Depends(depends_publication_repository),
+        ) -> PagedResponse[PublicationBill]:
+            paginated_result = pub_repository.list_publications(
+                document_type=document_type,
+                module_id=module_ID,
+                limit=pagination.limit,
+                offset=pagination.offset,
             )
 
-            packages = [PublicationPackage.from_orm(r) for r in paginated_result.items]
+            publications = [Publication.from_orm(r) for r in paginated_result.items]
 
-            return PagedResponse[PublicationPackage](
+            return PagedResponse[Publication](
                 total=paginated_result.total_count,
                 offset=pagination.offset,
                 limit=pagination.limit,
-                results=packages,
+                results=publications,
             )
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=PagedResponse[PublicationPackage],
-            summary="List the existing publication Packages",
+            response_model=PagedResponse[Publication],
+            summary="List the existing Publication",
             description=None,
             tags=["Publications"],
         )
@@ -53,9 +57,9 @@ class ListPublicationPackagesEndpoint(Endpoint):
         return router
 
 
-class ListPublicationPackagesEndpointResolver(EndpointResolver):
+class ListPublicationsEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "list_publication_packages"
+        return "list_publications"
 
     def generate_endpoint(
         self,
@@ -67,9 +71,5 @@ class ListPublicationPackagesEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
-        order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
-        return ListPublicationPackagesEndpoint(
-            path=path,
-            order_config=order_config,
-        )
+        return ListPublicationsEndpoint(path=path)
