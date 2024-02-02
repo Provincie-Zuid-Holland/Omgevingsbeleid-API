@@ -8,8 +8,8 @@ from app.extensions.playground.services.dso_assets_factory import DsoAssetsFacto
 from app.extensions.playground.services.dso_werkingsgebieden_factory import DsoWerkingsgebiedenFactory
 from app.extensions.playground.services.input_data_service import InputDataService
 from app.extensions.playground.services.template_parser import TemplateParser
-from app.extensions.playground.templates.omgevingsprogramma import OmgevingsprogrammaTextTemplate
 from app.extensions.playground.templates.omgevingsvisie import OmgevingsvisieTextTemplate
+from app.extensions.playground.templates.programma import ProgrammaTextTemplate
 
 
 def depends_dso_werkingsgebieden_factory(
@@ -24,9 +24,9 @@ def depends_omgevingsvisie_template_parser() -> TemplateParser:
     )
 
 
-def depends_omgevingsprogramma_template_parser() -> TemplateParser:
+def depends_programma_template_parser() -> TemplateParser:
     return TemplateParser(
-        template_style=OmgevingsprogrammaTextTemplate(),
+        template_style=ProgrammaTextTemplate(),
     )
 
 

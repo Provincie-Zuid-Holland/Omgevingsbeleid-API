@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from app.extensions.playground.templates.text_template import TextTemplate
 
@@ -6,6 +6,16 @@ from app.extensions.playground.templates.text_template import TextTemplate
 
 
 class OmgevingsvisieTextTemplate(TextTemplate):
+    def get_object_types(self) -> List[str]:
+        object_types = [
+            "visie_algemeen",
+            "ambitie",
+            "beleidsdoel",
+            "beleidskeuze",
+            "werkingsgebied",
+        ]
+        return object_types
+
     def get_free_text_template(self) -> str:
         template = """
 <div><object code="visie_algemeen-1" /></div>

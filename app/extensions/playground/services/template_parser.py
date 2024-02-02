@@ -30,3 +30,27 @@ class TemplateParser:
         object_templates = self._template_style.get_object_templates()
         repository = ObjectTemplateRepository(object_templates)
         return repository
+
+    def get_object_types(self) -> List[str]:
+        object_types: List[str] = self._template_style.get_object_types()
+        return object_types
+
+    def get_field_map(self) -> List[str]:
+        field_map = [
+            "UUID",
+            "Object_Type",
+            "Object_ID",
+            "Code",
+            "Hierarchy_Code",
+            "Werkingsgebied_Code",
+            "Title",
+            "Description",
+            "Cause",
+            "Provincial_Interest",
+            "Explanation",
+            # Used for Werkingsgebied
+            "Area_UUID",
+            "Created_Date",
+            "Modified_Date",
+        ]
+        return field_map

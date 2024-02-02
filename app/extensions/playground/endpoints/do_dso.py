@@ -10,6 +10,7 @@ from dso.builder.state_manager.input_data.resource.asset.asset_repository import
 from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied_repository import (
     WerkingsgebiedRepository,
 )
+from dso.models import DocumentType, OpdrachtType
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
@@ -28,6 +29,7 @@ from app.extensions.playground.dependencies import (
     depends_dso_werkingsgebieden_factory,
     depends_input_data_service,
     depends_omgevingsvisie_template_parser,
+    depends_programma_template_parser,
 )
 from app.extensions.playground.repository.publication_object_repository import PublicationObjectRepository
 from app.extensions.playground.services.dso_assets_factory import DsoAssetsFactory
@@ -44,61 +46,49 @@ class EndpointHandler:
         werkingsgebieden_factory: DsoWerkingsgebiedenFactory,
         assets_factory: DsoAssetsFactory,
         omgevingsvisie_template_parser: TemplateParser,
+        programma_template_parser: TemplateParser,
         input_data_service: InputDataService,
         module: ModuleTable,
+        document_type: DocumentType,
+        opdracht_type: OpdrachtType,
+        work_version: str,
     ):
+        if document_type == DocumentType.VISIE:
+            template_parser = omgevingsvisie_template_parser
+        elif document_type == DocumentType.PROGRAMMA:
+            template_parser = programma_template_parser
+
         self._db: Session = db
         self._object_repository: ObjectRepository = object_repository
         self._werkingsgebieden_factory: DsoWerkingsgebiedenFactory = werkingsgebieden_factory
         self._assets_factory: DsoAssetsFactory = assets_factory
-        self._omgevingsvisie_template_parser: TemplateParser = omgevingsvisie_template_parser
+        self._template_parser: TemplateParser = template_parser
         self._input_data_service: InputDataService = input_data_service
         self._module: ModuleTable = module
+        self._document_type: DocumentType = document_type
+        self._opdracht_type: OpdrachtType = opdracht_type
+        self._work_version: str = work_version
 
     def handle(self) -> Response:
         repository = PublicationObjectRepository(self._db)
         objects = repository.fetch_objects(
             module_id=self._module.Module_ID,
             timepoint=datetime.utcnow(),
-            object_types=[
-                "visie_algemeen",
-                "ambitie",
-                "beleidsdoel",
-                "beleidskeuze",
-                "werkingsgebied",
-            ],
-            field_map=[
-                "UUID",
-                "Object_Type",
-                "Object_ID",
-                "Code",
-                "Hierarchy_Code",
-                "Werkingsgebied_Code",
-                "Title",
-                "Description",
-                "Cause",
-                "Provincial_Interest",
-                "Explanation",
-                # Used for Werkingsgebied
-                "Area_UUID",
-                "Created_Date",
-                "Modified_Date",
-            ],
+            object_types=self._template_parser.get_object_types(),
+            field_map=self._template_parser.get_field_map(),
         )
 
         # @todo: remove
-        # pretend all beleidskeuzes have werkingsgebied-3 as werkingsgebied
+        # pretend all object have werkingsgebied-3 as werkingsgebied
         for i, o in enumerate(objects):
-            if o["Object_Type"] != "beleidskeuze":
+            if o["Object_Type"] in ["beleidskeuze", "maatregel"]:
                 continue
-            if o.get("Werkingsgebied_Code", None) is None:
-                continue
+            # if o.get("Werkingsgebied_Code", None) is None:
+            #     continue
             objects[i]["Werkingsgebied_Code"] = "werkingsgebied-3"
 
-        free_text_template_str = self._omgevingsvisie_template_parser.get_parsed_template(objects)
-        object_template_repository: ObjectTemplateRepository = (
-            self._omgevingsvisie_template_parser.get_object_template_repository()
-        )
+        free_text_template_str = self._template_parser.get_parsed_template(objects)
+        object_template_repository: ObjectTemplateRepository = self._template_parser.get_object_template_repository()
 
         used_object_codes = self._calculate_used_object_codes(free_text_template_str)
         used_objects = self._filter_to_used_objects(objects, used_object_codes)
@@ -112,6 +102,9 @@ class EndpointHandler:
         )
 
         input_data: InputData = self._input_data_service.create(
+            self._document_type,
+            self._opdracht_type,
+            self._work_version,
             used_objects,
             free_text_template_str,
             object_template_repository,
@@ -159,11 +152,15 @@ class DoDsoEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
+            work_version: str,
+            document_type: DocumentType,
+            opdracht_type: OpdrachtType = OpdrachtType.VALIDATIE,
             db: Session = Depends(depends_db),
             object_repository: ObjectRepository = Depends(depends_object_repository),
             werkingsgebieden_factory: DsoWerkingsgebiedenFactory = Depends(depends_dso_werkingsgebieden_factory),
             assets_factory: DsoAssetsFactory = Depends(depends_dso_assets_factory),
             omgevingsvisie_template_parser: TemplateParser = Depends(depends_omgevingsvisie_template_parser),
+            programma_template_parser: TemplateParser = Depends(depends_programma_template_parser),
             input_data_service: InputDataService = Depends(depends_input_data_service),
             module: ModuleTable = Depends(depends_active_module),
         ) -> Response:
@@ -173,8 +170,12 @@ class DoDsoEndpoint(Endpoint):
                 werkingsgebieden_factory,
                 assets_factory,
                 omgevingsvisie_template_parser,
+                programma_template_parser,
                 input_data_service,
                 module,
+                document_type,
+                opdracht_type,
+                work_version,
             )
             return handler.handle()
 
