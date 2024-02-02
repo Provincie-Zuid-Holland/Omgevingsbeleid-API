@@ -19,7 +19,7 @@ beautifulsoup4==4.12.3
     # via
     #   -r requirements.in
     #   dso
-certifi==2023.11.17
+certifi==2024.2.2
     # via
     #   dso
     #   fiona
@@ -42,7 +42,7 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20230430
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.0.15
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.0.22
     # via -r requirements.in
 ecdsa==0.18.0
     # via python-jose
@@ -128,7 +128,7 @@ python-jose==3.3.0
     # via -r requirements.in
 python-multipart==0.0.6
     # via -r requirements.in
-pytz==2023.4
+pytz==2024.1
     # via
     #   -r requirements.in
     #   pandas

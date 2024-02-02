@@ -18,7 +18,7 @@ bandit==1.7.7
     # via -r requirements-dev.in
 black==24.1.1
     # via -r requirements-dev.in
-certifi==2023.11.17
+certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests

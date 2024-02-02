@@ -1,3 +1,4 @@
+import math
 import uuid
 from datetime import datetime
 from typing import List
@@ -24,10 +25,15 @@ class InputDataService:
         asset_repository: DSOAssetRepository,
         werkingsgebied_repository: WerkingsgebiedRepository,
     ) -> InputData:
+        date = datetime.utcnow()
+        datum = str(date)[0:10]
+        jaar = str(date)[0:4]
+        versie = str(math.ceil((date.minute + (date.hour * 60)) / 5))
+
         input_data = InputData(
             publication_settings=dso_models.PublicationSettings(
                 document_type="VISIE",
-                datum_bekendmaking="2024-02-14",
+                datum_bekendmaking=datum,
                 datum_juridisch_werkend_vanaf="2024-02-15",
                 provincie_id="pv28",
                 wId_suffix="1",
@@ -36,30 +42,30 @@ class InputDataService:
                 regeling_componentnaam="nieuweregeling",
                 provincie_ref="/tooi/id/provincie/pv28",
                 opdracht={
-                    "opdracht_type": "VALIDATIE",
+                    "opdracht_type": "PUBLICATIE",  # "VALIDATIE",
                     "id_levering": str(uuid.uuid4()),
                     "id_bevoegdgezag": "00000001002306608000",
                     "id_aanleveraar": "00000001002306608000",
-                    "publicatie_bestand": "akn_nl_bill_pv28-2-89.xml",
+                    "publicatie_bestand": f"akn_nl_bill_pv28-{datum}-{versie}.xml",
                     "datum_bekendmaking": "2024-02-14",
                 },
                 doel=dso_models.Doel(jaar="2024", naam="InstellingOmgevingsvisie"),
                 besluit_frbr={
                     "work_land": "nl",
-                    "work_datum": "2024",
-                    "work_overig": "2_2093",
+                    "work_datum": jaar,
+                    "work_overig": f"1_{versie}",
                     "expression_taal": "nld",
-                    "expression_datum": "2024-01-05",
-                    "expression_versie": "2093",
+                    "expression_datum": datum,
+                    "expression_versie": versie,
                     "expression_overig": None,
                 },
                 regeling_frbr={
                     "work_land": "nl",
-                    "work_datum": "2024",
-                    "work_overig": "2_89",
+                    "work_datum": jaar,
+                    "work_overig": f"2_{versie}",
                     "expression_taal": "nld",
                     "expression_datum": "2024-01-05",
-                    "expression_versie": "89",
+                    "expression_versie": versie,
                     "expression_overig": None,
                 },
             ),
@@ -96,7 +102,7 @@ class InputDataService:
             ),
             regeling_vrijetekst=free_text_template_str,
             procedure_verloop=dso_models.ProcedureVerloop(
-                bekend_op="2024-02-14",
+                bekend_op="2024-02-02",
                 stappen=[
                     dso_models.ProcedureStap(
                         soort_stap="/join/id/stop/procedure/stap_002",

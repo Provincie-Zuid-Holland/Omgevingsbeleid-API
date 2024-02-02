@@ -126,6 +126,7 @@ class EndpointHandler:
         zip_filename = (
             f"download-dso-module-{self._module.Module_ID}-at-{datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S')}.zip"
         )
+        zip_filename = input_data.publication_settings.opdracht.publicatie_bestand.replace(".xml", ".zip")
 
         return Response(
             content=zip_buffer.read(),

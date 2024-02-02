@@ -49,6 +49,7 @@ class DsoWerkingsgebiedenFactory:
             "UUID": werkingsgebied["UUID"],
             "Object_ID": werkingsgebied["Object_ID"],
             "Object_Type": werkingsgebied["Object_Type"],
+            "New": False,
             "Code": werkingsgebied["Code"],
             "Title": area["Source_Title"],
             "Symbol": area["Source_Symbol"],
