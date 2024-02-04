@@ -52,6 +52,7 @@ class EndpointHandler:
         document_type: DocumentType,
         opdracht_type: OpdrachtType,
         work_version: str,
+        geo_new: bool,
     ):
         if document_type == DocumentType.VISIE:
             template_parser = omgevingsvisie_template_parser
@@ -68,6 +69,7 @@ class EndpointHandler:
         self._document_type: DocumentType = document_type
         self._opdracht_type: OpdrachtType = opdracht_type
         self._work_version: str = work_version
+        self._geo_new: bool = geo_new
 
     def handle(self) -> Response:
         repository = PublicationObjectRepository(self._db)
@@ -98,7 +100,9 @@ class EndpointHandler:
 
         werkingsgebieden_objects: List[dict] = [o for o in objects if o["Object_Type"] == "werkingsgebied"]
         werkingsgebieden_repository: WerkingsgebiedRepository = (
-            self._werkingsgebieden_factory.get_repository_for_objects(werkingsgebieden_objects, used_objects)
+            self._werkingsgebieden_factory.get_repository_for_objects(
+                werkingsgebieden_objects, used_objects, self._geo_new
+            )
         )
 
         input_data: InputData = self._input_data_service.create(
@@ -154,6 +158,7 @@ class DoDsoEndpoint(Endpoint):
         def fastapi_handler(
             work_version: str,
             document_type: DocumentType,
+            geo_new: bool = True,
             opdracht_type: OpdrachtType = OpdrachtType.VALIDATIE,
             db: Session = Depends(depends_db),
             object_repository: ObjectRepository = Depends(depends_object_repository),
@@ -176,6 +181,7 @@ class DoDsoEndpoint(Endpoint):
                 document_type,
                 opdracht_type,
                 work_version,
+                geo_new,
             )
             return handler.handle()
 

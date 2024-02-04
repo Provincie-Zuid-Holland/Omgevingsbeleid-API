@@ -48,7 +48,7 @@ ecdsa==0.18.0
     # via python-jose
 exceptiongroup==1.2.0
     # via anyio
-fastapi==0.109.0
+fastapi==0.109.1
     # via -r requirements.in
 fiona==1.9.5
     # via geopandas
@@ -80,7 +80,7 @@ lxml==5.1.0
     # via
     #   -r requirements.in
     #   dso
-markupsafe==2.1.4
+markupsafe==2.1.5
     # via
     #   dso
     #   jinja2
@@ -126,7 +126,7 @@ python-dotenv==1.0.1
     # via uvicorn
 python-jose==3.3.0
     # via -r requirements.in
-python-multipart==0.0.6
+python-multipart==0.0.7
     # via -r requirements.in
 pytz==2024.1
     # via

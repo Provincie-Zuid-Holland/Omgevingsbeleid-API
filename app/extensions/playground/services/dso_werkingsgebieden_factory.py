@@ -12,18 +12,21 @@ class DsoWerkingsgebiedenFactory:
         self._area_geometry_repository: AreaGeometryRepository = geometry_repository
 
     def get_repository_for_objects(
-        self, werkingsgebieden_objects: List[dict], objects: List[dict]
+        self,
+        werkingsgebieden_objects: List[dict],
+        objects: List[dict],
+        geo_new: bool,
     ) -> WerkingsgebiedRepository:
         werkingsgebied_codes: List[str] = self._calculate_werkingsgebied_codes(objects)
         used_werkingsgebieden_objects: List[str] = [
             w for w in werkingsgebieden_objects if w["Code"] in werkingsgebied_codes
         ]
 
-        werkingsgebieden: List[dict] = self._get_werkingsgebieden_with_areas(used_werkingsgebieden_objects)
+        werkingsgebieden: List[dict] = self._get_werkingsgebieden_with_areas(used_werkingsgebieden_objects, geo_new)
         repository: WerkingsgebiedRepository = self._create_repository(werkingsgebieden)
         return repository
 
-    def _get_werkingsgebieden_with_areas(self, werkingsgebieden_objects: List[dict]) -> List[dict]:
+    def _get_werkingsgebieden_with_areas(self, werkingsgebieden_objects: List[dict], geo_new: bool) -> List[dict]:
         result: List[dict] = []
         for werkingsgebied in werkingsgebieden_objects:
             code = werkingsgebied["Code"]
@@ -33,7 +36,7 @@ class DsoWerkingsgebiedenFactory:
                 continue
             area: dict = self._area_geometry_repository.get_area(area_uuid)
 
-            dso_werkingsgebied: dict = self._as_werkingsgebied(werkingsgebied, area)
+            dso_werkingsgebied: dict = self._as_werkingsgebied(werkingsgebied, area, geo_new)
             result.append(dso_werkingsgebied)
 
         return result
@@ -44,12 +47,12 @@ class DsoWerkingsgebiedenFactory:
             repository.add(werkingsgebied)
         return repository
 
-    def _as_werkingsgebied(self, werkingsgebied: dict, area: dict) -> dict:
+    def _as_werkingsgebied(self, werkingsgebied: dict, area: dict, geo_new: bool) -> dict:
         result = {
             "UUID": werkingsgebied["UUID"],
             "Object_ID": werkingsgebied["Object_ID"],
             "Object_Type": werkingsgebied["Object_Type"],
-            "New": False,
+            "New": geo_new,
             "Code": werkingsgebied["Code"],
             "Title": area["Source_Title"],
             "Symbol": area["Source_Symbol"],
