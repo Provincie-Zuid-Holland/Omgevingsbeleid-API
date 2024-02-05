@@ -4,8 +4,7 @@ from typing import List, Optional
 
 from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy import ForeignKey, LargeBinary, String, Text, UniqueConstraint, exists, func, select
-from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import ForeignKey, LargeBinary, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, backref, deferred, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import JSON, Integer
 
@@ -146,9 +145,11 @@ class PublicationPackageTable(Base, HasUUID):
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
     Announcement_Date: Mapped[datetime]  # Datum_Bekendmaking
 
-    ZIP_File_Name: Mapped[Optional[str]] = Column(LargeBinary)
+    ZIP_File_Name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     ZIP_File_Binary: Mapped[Optional[bytes]] = deferred(Column(LargeBinary))  # Change to azure blob storage later
-    ZIP_File_Checksum: Mapped[Optional[str]] = Column(String(32))
+    ZIP_File_Checksum: Mapped[Optional[str]] = Column(String(64))
+
+    Validation_Status: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     Config: Mapped["PublicationConfigTable"] = relationship("PublicationConfigTable")
     Bill: Mapped["PublicationBillTable"] = relationship("PublicationBillTable")
@@ -161,22 +162,6 @@ class PublicationPackageTable(Base, HasUUID):
         "PublicationPackageReportTable", back_populates="Package"
     )
 
-    @hybrid_property
-    def Is_Successful(self) -> bool:
-        return all(report.Result == "succes" for report in self.Reports)
-
-    @Is_Successful.expression
-    def Is_Successful(cls):
-        failed_reports = (
-            select(func.count())
-            .where(PublicationPackageReportTable.Package_UUID == cls.UUID)
-            .where(PublicationPackageReportTable.Result != "succes")
-            .label("failed_count")
-        )
-
-        # return true if no failed reports
-        return ~exists().where(failed_reports > 0)
-
 
 class PublicationPackageReportTable(Base):
     __tablename__ = "publication_package_reports"
@@ -186,10 +171,11 @@ class PublicationPackageReportTable(Base):
     Package_UUID: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("publication_packages.UUID"), nullable=False
     )  # Idlevering
-    Result: Mapped[str] = mapped_column(String, nullable=False)  # tijdstipVerslag
+    Result: Mapped[str] = mapped_column(String, nullable=False)  # Uitkomst
     Report_Timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)  # tijdstipVerslag
     Messages = Column(Text)  # Storing XML string of <meldingen> for simplicity
-    Report_Type: Mapped[str] = mapped_column(String, nullable=False)  # tijdstipVerslag
+    Source_Document = Column(Text)  # full original document for downloading
+    Report_Type: Mapped[str] = mapped_column(String, nullable=False)  # Voortgang
 
     Package = relationship("PublicationPackageTable", back_populates="Reports")
 

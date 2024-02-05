@@ -85,6 +85,7 @@ class PublicationsExtension(Extension):
             endpoints.DetailPublicationEndpointResolver(),
             endpoints.DetailPublicationBillEndpointResolver(),
             endpoints.DownloadPackageEndpointResolver(),
+            endpoints.DownloadPackageReportsEndpointResolver(),
             endpoints.EditPublicationBillEndpointResolver(),
             endpoints.EditPublicationEndpointResolver(),
             endpoints.CreatePackageReportEndpointResolver(),

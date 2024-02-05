@@ -5,6 +5,7 @@ from .create_publication import CreatePublicationEndpointResolver
 from .detail_bill import DetailPublicationBillEndpointResolver
 from .detail_publication import DetailPublicationEndpointResolver
 from .download_package import DownloadPackageEndpointResolver
+from .download_package_reports import DownloadPackageReportsEndpointResolver
 from .edit_bill import EditPublicationBillEndpointResolver
 from .edit_publication import EditPublicationEndpointResolver
 from .list_bills import ListPublicationBillsEndpointResolver

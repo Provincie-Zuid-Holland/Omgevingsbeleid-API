@@ -234,7 +234,11 @@ class PublicationRepository(BaseRepository):
         """
         Retrieves full publication package by its UUID.
         """
-        stmt = select(PublicationPackageTable).where(PublicationPackageTable.UUID == uuid)
+        stmt = (
+            select(PublicationPackageTable)
+            .where(PublicationPackageTable.UUID == uuid)
+            .options(selectinload(PublicationPackageTable.Reports))
+        )
         return self.fetch_first(stmt)
 
     def get_publication_packages(
@@ -265,9 +269,9 @@ class PublicationRepository(BaseRepository):
             query = query.filter(PublicationPackageTable.Package_Event_Type == package_event_type)
         if is_successful is not None:
             if is_successful:
-                query = query.filter(PublicationPackageTable.Is_Successful)
+                query = query.filter(PublicationPackageTable.Validation_Status == "Valid")
             else:
-                query = query.filter(~PublicationPackageTable.Is_Successful)
+                query = query.filter(~PublicationPackageTable.Validation_Status.in_(["Pending", "Failed"]))
 
         paged_result = self.fetch_paginated(
             statement=query,

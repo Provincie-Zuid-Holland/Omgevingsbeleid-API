@@ -29,19 +29,32 @@ def upgrade() -> None:
         sa.Column("ID", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("Created_Date", sa.DateTime(), nullable=False),
         sa.Column("Package_UUID", sa.Uuid(), nullable=False),
-        sa.Column("Result", sa.String(), nullable=False),
+        sa.Column("Result", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
         sa.Column("Report_Timestamp", sa.DateTime(), nullable=False),
         sa.Column("Messages", sa.Text(), nullable=True),
-        sa.Column("Report_Type", sa.String(), nullable=False),
+        sa.Column("Source_Document", sa.Text(), nullable=True),
+        sa.Column("Report_Type", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=False),
         sa.ForeignKeyConstraint(
             ["Package_UUID"],
             ["publication_packages.UUID"],
         ),
         sa.PrimaryKeyConstraint("ID"),
     )
-    op.add_column("publication_packages", sa.Column("ZIP_File_Name", sa.LargeBinary(), nullable=True))
+    op.add_column(
+        "publication_packages",
+        sa.Column("ZIP_File_Name", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
+    )
     op.add_column("publication_packages", sa.Column("ZIP_File_Binary", sa.LargeBinary(), nullable=True))
-    op.add_column("publication_packages", sa.Column("ZIP_File_Checksum", sa.String(length=32), nullable=True))
+    op.add_column(
+        "publication_packages",
+        sa.Column("ZIP_File_Checksum", sa.VARCHAR(length=64, collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
+    )
+
+    op.add_column(
+        "publication_packages",
+        sa.Column("Validation_Status", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
+    )
+
     op.drop_column("publication_packages", "Validated_At")
     # ### end Alembic commands ###
 
@@ -52,5 +65,6 @@ def downgrade() -> None:
     op.drop_column("publication_packages", "ZIP_File_Checksum")
     op.drop_column("publication_packages", "ZIP_File_Binary")
     op.drop_column("publication_packages", "ZIP_File_Name")
+    op.drop_column("publication_packages", "Validation_Status")
     op.drop_table("publication_package_reports")
     # ### end Alembic commands ###

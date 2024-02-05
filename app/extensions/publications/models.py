@@ -193,9 +193,8 @@ class PublicationPackage(BaseModel):
     Announcement_Date: datetime
 
     ZIP_File_Name: Optional[str]
-    # ZIP_File_Binary: Optional[bytes]
-    # ZIP_File_Checksum: Optional[str]
-    Is_Successful: Optional[bool]
+    ZIP_File_Checksum: Optional[str]
+    Validation_Status: Optional[str]
 
     Publication_Config: Optional[PublicationConfig]
     Publication_Bill: Optional[PublicationBill]
