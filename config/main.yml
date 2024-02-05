@@ -312,15 +312,22 @@ api:
           resolver_data:
             path: /bills/{bill_uuid}
 
-    - prefix: /publication-bills/{bill_uuid}/packages
+    - prefix: /publication-bills/{bill_uuid}
       endpoints:
         - resolver: create_publication_package
           resolver_data:
+            path: /packages
+        - resolver: list_publication_packages
+          resolver_data:
+            path: /packages
 
 
     - prefix: /publication-packages/{package_uuid}
       endpoints:
         # - resolver: detail_publication_package
+        - resolver: create_package_report
+          resolver_data:
+            path: /report
         - resolver: download_publication_package
           resolver_data:
             path: /download

@@ -22,3 +22,4 @@ output-dso/*
 notes.md
 .python-version
 temp/
+tmp/

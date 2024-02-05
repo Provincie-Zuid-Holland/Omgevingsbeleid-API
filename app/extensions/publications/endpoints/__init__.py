@@ -1,5 +1,6 @@
 from .create_bill import CreatePublicationBillEndpointResolver
 from .create_package import CreatePublicationPackageEndpointResolver
+from .create_package_report import CreatePackageReportEndpointResolver
 from .create_publication import CreatePublicationEndpointResolver
 from .detail_bill import DetailPublicationBillEndpointResolver
 from .detail_publication import DetailPublicationEndpointResolver

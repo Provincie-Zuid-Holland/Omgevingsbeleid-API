@@ -1,3 +1,4 @@
+import hashlib
 import json
 import uuid
 from datetime import datetime
@@ -7,7 +8,9 @@ from zoneinfo import ZoneInfo
 from dateutil.parser import parse
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, validator
+from sqlalchemy.orm import Session
 
+from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -29,7 +32,7 @@ from app.extensions.publications.dependencies import (
 )
 from app.extensions.publications.dso.dso_service import DSOService
 from app.extensions.publications.dso.ow_export import create_ow_objects_from_json
-from app.extensions.publications.exceptions import PublicationBillNotFound
+from app.extensions.publications.exceptions import DSOModuleException, PublicationBillNotFound
 from app.extensions.publications.models import PublicationBill, PublicationConfig
 from app.extensions.publications.repository import (
     OWObjectRepository,
@@ -73,6 +76,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
             pub_object_repo: PublicationObjectRepository = Depends(depends_publication_object_repository),
             ow_object_repo: OWObjectRepository = Depends(depends_ow_object_repository),
+            db: Session = Depends(depends_db),
             dso_service: DSOService = Depends(depends_dso_service),
         ) -> PublicationPackage:
             try:
@@ -82,6 +86,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
                     dso_service=dso_service,
                     pub_object_repository=pub_object_repo,
                     ow_object_repo=ow_object_repo,
+                    db=db,
                 )
             except MissingPublicationConfigError:
                 raise HTTPException(status_code=500, detail="No publication config found")
@@ -106,6 +111,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         pub_object_repository: PublicationObjectRepository,
         ow_object_repo: OWObjectRepository,
         dso_service: DSOService,
+        db: Session,
     ) -> PublicationPackage:
         """
         - Finalises bill and locks its settings/content.
@@ -190,7 +196,21 @@ class CreatePublicationPackageEndpoint(Endpoint):
         )
 
         # Start DSO module
-        dso_service.build_dso_package(input_data)
+        try:
+            dso_service.build_dso_package(input_data)
+        except DSOModuleException as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+        # Store ZIP directly for now
+        frbr = f"{new_package_db.FRBR_Info.bill_work_misc}-{new_package_db.FRBR_Info.bill_expression_version}"
+        time = datetime.utcnow().strftime("%Y-%m-%d_%H:%M:%S")
+        zip_filename = f"dso-{new_package_db.Package_Event_Type}-{frbr}-{time}.zip"
+
+        # Commit zip updates
+        new_package_db.ZIP_File_Name = zip_filename.encode("utf-8")
+        new_package_db.ZIP_File_Binary = dso_service._zip_buffer.getvalue()
+        new_package_db.ZIP_Checksum = hashlib.sha256(dso_service._zip_buffer.getvalue()).hexdigest()
+        db.commit()
 
         # Save state and new objects in DB
         state_exported = json.loads(dso_service.get_filtered_export_state())
@@ -204,7 +224,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         new_export = pub_repo.create_dso_state_export(new_export)
 
         # Store new OW objects in DB
-        if new_package_db.Package_Event_Type == Package_Event_Type.PUBLICATION:
+        if new_package_db.Package_Event_Type == Package_Event_Type.PUBLICATION and bill_db.Is_Official:
             ow_objects = create_ow_objects_from_json(
                 exported_state=state_exported,
                 package_uuid=package.UUID,

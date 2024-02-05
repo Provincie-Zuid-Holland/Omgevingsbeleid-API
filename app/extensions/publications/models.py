@@ -88,23 +88,6 @@ class Bill_Data(BaseModel):
 
 
 class PublicationBill(BaseModel):
-    UUID: uuid.UUID
-    Created_Date: datetime
-    Modified_Date: datetime
-
-    Module_ID: int
-    Template_ID: Optional[int]
-    Work_ID: Optional[int]
-
-    Document_Type: Document_Type
-    Official_Title: str
-    Regulation_Title: str
-
-    class Config:
-        orm_mode = True
-
-
-class PublicationBill(BaseModel):
     """
     STOP Besluit
     """
@@ -183,6 +166,19 @@ class PublicationFRBR(BaseModel):
         orm_mode = True
 
 
+class PublicationPackageReport(BaseModel):
+    ID: int
+    Created_Date: datetime
+    Package_UUID: uuid.UUID
+    Result: Optional[str]
+    Report_Timestamp: Optional[datetime]
+    Messages: Optional[str]
+    Report_Type: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
 class PublicationPackage(BaseModel):
     UUID: uuid.UUID
     Created_Date: datetime
@@ -199,9 +195,12 @@ class PublicationPackage(BaseModel):
     ZIP_File_Name: Optional[str]
     # ZIP_File_Binary: Optional[bytes]
     # ZIP_File_Checksum: Optional[str]
+    Is_Successful: Optional[bool]
+
     Publication_Config: Optional[PublicationConfig]
     Publication_Bill: Optional[PublicationBill]
     FRBR_Info: Optional[PublicationFRBR]
+    Reports: Optional[List[PublicationPackageReport]]
 
     class Config:
         orm_mode = True

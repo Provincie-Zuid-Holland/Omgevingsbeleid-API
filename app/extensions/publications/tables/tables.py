@@ -149,6 +149,7 @@ class PublicationPackageTable(Base, HasUUID):
     ZIP_File_Name: Mapped[Optional[str]] = Column(LargeBinary)
     ZIP_File_Binary: Mapped[Optional[bytes]] = deferred(Column(LargeBinary))  # Change to azure blob storage later
     ZIP_File_Checksum: Mapped[Optional[str]] = Column(String(32))
+
     Config: Mapped["PublicationConfigTable"] = relationship("PublicationConfigTable")
     Bill: Mapped["PublicationBillTable"] = relationship("PublicationBillTable")
     FRBR_Info: Mapped["PublicationFRBRTable"] = relationship(
@@ -156,6 +157,41 @@ class PublicationPackageTable(Base, HasUUID):
         backref=backref("publication_package", uselist=False, cascade="all, delete-orphan"),
     )
     OW_Objects: Mapped[List["OWObjectTable"]] = relationship("OWObjectTable", back_populates="Package")
+    Reports: Mapped[List["PublicationPackageReportTable"]] = relationship(
+        "PublicationPackageReportTable", back_populates="Package"
+    )
+
+    @hybrid_property
+    def Is_Successful(self) -> bool:
+        return all(report.Result == "succes" for report in self.Reports)
+
+    @Is_Successful.expression
+    def Is_Successful(cls):
+        failed_reports = (
+            select(func.count())
+            .where(PublicationPackageReportTable.Package_UUID == cls.UUID)
+            .where(PublicationPackageReportTable.Result != "succes")
+            .label("failed_count")
+        )
+
+        # return true if no failed reports
+        return ~exists().where(failed_reports > 0)
+
+
+class PublicationPackageReportTable(Base):
+    __tablename__ = "publication_package_reports"
+
+    ID: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    Package_UUID: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("publication_packages.UUID"), nullable=False
+    )  # Idlevering
+    Result: Mapped[str] = mapped_column(String, nullable=False)  # tijdstipVerslag
+    Report_Timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)  # tijdstipVerslag
+    Messages = Column(Text)  # Storing XML string of <meldingen> for simplicity
+    Report_Type: Mapped[str] = mapped_column(String, nullable=False)  # tijdstipVerslag
+
+    Package = relationship("PublicationPackageTable", back_populates="Reports")
 
 
 class DSOStateExportTable(Base, HasUUID):
