@@ -9,7 +9,15 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications import commands, endpoints
-from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.endpoints.list_bills import PublicationBillShort
+from app.extensions.publications.models import (
+    Publication,
+    PublicationBill,
+    PublicationConfig,
+    PublicationFRBR,
+    PublicationPackage,
+    PublicationPackageReport,
+)
 
 
 class PublicationsExtension(Extension):
@@ -18,7 +26,7 @@ class PublicationsExtension(Extension):
             ExtensionModel(
                 id="publication",
                 name="publication",
-                pydantic_model=PublicationBill,
+                pydantic_model=Publication,
             ),
         )
         models_resolver.add(
@@ -30,9 +38,30 @@ class PublicationsExtension(Extension):
         )
         models_resolver.add(
             ExtensionModel(
+                id="publication_bill_short",
+                name="publication_bill_short",
+                pydantic_model=PublicationBillShort,
+            ),
+        )
+        models_resolver.add(
+            ExtensionModel(
+                id="publication_package_report",
+                name="publication_package_report",
+                pydantic_model=PublicationPackageReport,
+            ),
+        )
+        models_resolver.add(
+            ExtensionModel(
                 id="publication_package",
                 name="publication_package",
                 pydantic_model=PublicationPackage,
+            ),
+        )
+        models_resolver.add(
+            ExtensionModel(
+                id="publication_frbr",
+                name="publication_frbr",
+                pydantic_model=PublicationFRBR,
             ),
         )
         models_resolver.add(
@@ -55,8 +84,11 @@ class PublicationsExtension(Extension):
             endpoints.CreatePublicationPackageEndpointResolver(),
             endpoints.DetailPublicationEndpointResolver(),
             endpoints.DetailPublicationBillEndpointResolver(),
+            endpoints.DownloadPackageEndpointResolver(),
+            endpoints.DownloadPackageReportsEndpointResolver(),
             endpoints.EditPublicationBillEndpointResolver(),
             endpoints.EditPublicationEndpointResolver(),
+            endpoints.CreatePackageReportEndpointResolver(),
             endpoints.ListPublicationBillsEndpointResolver(),
             endpoints.ListPublicationPackagesEndpointResolver(),
             endpoints.ListPublicationsEndpointResolver(),

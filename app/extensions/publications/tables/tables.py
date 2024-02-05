@@ -4,8 +4,8 @@ from typing import List, Optional
 
 from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy import ForeignKey, String, UniqueConstraint
-from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
+from sqlalchemy import ForeignKey, LargeBinary, String, Text, UniqueConstraint
+from sqlalchemy.orm import Mapped, backref, deferred, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import JSON, Integer
 
 from app.core.db.base import Base
@@ -144,15 +144,40 @@ class PublicationPackageTable(Base, HasUUID):
     Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in Package_Event_Type]), nullable=False)
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
     Announcement_Date: Mapped[datetime]  # Datum_Bekendmaking
-    Validated_At: Mapped[Optional[datetime]]  # Validated date
-    # Validation_Report: Mapped[Optional[str]]  # LVBB Validatie resultaat
+
+    ZIP_File_Name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    ZIP_File_Binary: Mapped[Optional[bytes]] = deferred(Column(LargeBinary))  # Change to azure blob storage later
+    ZIP_File_Checksum: Mapped[Optional[str]] = Column(String(64))
+
+    Validation_Status: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     Config: Mapped["PublicationConfigTable"] = relationship("PublicationConfigTable")
     Bill: Mapped["PublicationBillTable"] = relationship("PublicationBillTable")
     FRBR_Info: Mapped["PublicationFRBRTable"] = relationship(
-        "PublicationFRBRTable", backref=backref("publication_package", uselist=False, cascade="all, delete-orphan")
+        "PublicationFRBRTable",
+        backref=backref("publication_package", uselist=False, cascade="all, delete-orphan"),
     )
     OW_Objects: Mapped[List["OWObjectTable"]] = relationship("OWObjectTable", back_populates="Package")
+    Reports: Mapped[List["PublicationPackageReportTable"]] = relationship(
+        "PublicationPackageReportTable", back_populates="Package"
+    )
+
+
+class PublicationPackageReportTable(Base):
+    __tablename__ = "publication_package_reports"
+
+    ID: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    Package_UUID: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("publication_packages.UUID"), nullable=False
+    )  # Idlevering
+    Result: Mapped[str] = mapped_column(String, nullable=False)  # Uitkomst
+    Report_Timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)  # tijdstipVerslag
+    Messages = Column(Text)  # Storing XML string of <meldingen> for simplicity
+    Source_Document = Column(Text)  # full original document for downloading
+    Report_Type: Mapped[str] = mapped_column(String, nullable=False)  # Voortgang
+
+    Package = relationship("PublicationPackageTable", back_populates="Reports")
 
 
 class DSOStateExportTable(Base, HasUUID):

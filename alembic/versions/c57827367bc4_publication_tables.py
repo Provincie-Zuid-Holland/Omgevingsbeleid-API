@@ -131,7 +131,6 @@ def upgrade() -> None:
         sa.Column("FRBR_ID", sa.Integer(), nullable=False),
         sa.Column("Publication_Filename", sa.VARCHAR(collation="SQL_Latin1_General_CP1_CI_AS"), nullable=True),
         sa.Column("Announcement_Date", sa.DateTime(), nullable=False),
-        sa.Column("Validated_At", sa.DateTime(), nullable=True),
         sa.Column("Package_Event_Type", sa.Enum("Validatie", "Publicatie", "Afbreken"), nullable=False),
         sa.ForeignKeyConstraint(
             ["Bill_UUID"],

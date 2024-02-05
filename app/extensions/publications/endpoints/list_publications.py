@@ -14,6 +14,8 @@ from app.extensions.publications.dependencies import depends_publication_reposit
 from app.extensions.publications.enums import Document_Type
 from app.extensions.publications.models import Publication
 from app.extensions.publications.repository import PublicationRepository
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class ListPublicationsEndpoint(Endpoint):
@@ -22,11 +24,11 @@ class ListPublicationsEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            # user: UsersTable = Depends(depends_current_active_user),
             document_type: Optional[Document_Type] = None,
             module_ID: Optional[int] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             pub_repository: PublicationRepository = Depends(depends_publication_repository),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> PagedResponse[PublicationBill]:
             paginated_result = pub_repository.list_publications(
                 document_type=document_type,

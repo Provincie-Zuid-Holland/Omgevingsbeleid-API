@@ -1,7 +1,9 @@
 import uuid
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
@@ -9,27 +11,43 @@ from app.dynamic.dependencies import depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SimplePagination
+from app.dynamic.utils.pagination import PagedResponse, SimplePagination
 from app.extensions.modules.models.models import ModuleStatusCode
-from app.extensions.publications import PublicationBill
+from app.extensions.publications import Procedure_Type, PublicationBill
 from app.extensions.publications.dependencies import depends_publication_repository
 from app.extensions.publications.repository import PublicationRepository
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
+
+
+class PublicationBillShort(BaseModel):
+    UUID: uuid.UUID
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    Publication_UUID: uuid.UUID
+    Module_Status_ID: int
+    Version_ID: Optional[int]
+    Procedure_Type: Procedure_Type
+    Is_Official: bool
+
+    class Config:
+        orm_mode = True
 
 
 class ListPublicationBillsEndpoint(Endpoint):
-    def __init__(self, path: str, order_config: OrderConfig):
+    def __init__(self, path: str):
         self._path: str = path
-        self._order_config: OrderConfig = order_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            # user: UsersTable = Depends(depends_current_active_user),
             publication_uuid: Optional[uuid.UUID] = None,
             version_id: Optional[int] = None,
             module_status: Optional[ModuleStatusCode] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             pub_repository: PublicationRepository = Depends(depends_publication_repository),
-        ) -> PagedResponse[PublicationBill]:
+            user: UsersTable = Depends(depends_current_active_user),
+        ) -> PagedResponse[PublicationBillShort]:
             paginated_result = pub_repository.get_publication_bills(
                 publication_uuid=publication_uuid,
                 version_id=version_id,
@@ -40,7 +58,7 @@ class ListPublicationBillsEndpoint(Endpoint):
 
             bills = [PublicationBill.from_orm(r) for r in paginated_result.items]
 
-            return PagedResponse[PublicationBill](
+            return PagedResponse[PublicationBillShort](
                 total=paginated_result.total_count,
                 offset=pagination.offset,
                 limit=pagination.limit,
@@ -51,7 +69,7 @@ class ListPublicationBillsEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=PagedResponse[PublicationBill],
+            response_model=PagedResponse[PublicationBillShort],
             summary="List the existing Publication Bills",
             description=None,
             tags=["Publications"],
@@ -74,9 +92,5 @@ class ListPublicationBillsEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
-        order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
-        return ListPublicationBillsEndpoint(
-            path=path,
-            order_config=order_config,
-        )
+        return ListPublicationBillsEndpoint(path=path)

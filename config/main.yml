@@ -293,7 +293,6 @@ api:
         - resolver: list_all_latest_objects
           resolver_data:
             sort: *sort_default_object_id
-
     - prefix: /publications
       endpoints:
         - resolver: list_publications
@@ -302,33 +301,32 @@ api:
       endpoints:
         - resolver: detail_publication
         - resolver: edit_publication
+    - prefix: /publications/{publication_uuid}/bills
+      endpoints:
         - resolver: create_publication_bill
-          resolver_data:
-            path: /bills
         - resolver: list_publication_bills
-          resolver_data:
-            path: /bills
-            sort: *sort_default_modified_date
         - resolver: edit_publication_bill
           resolver_data:
-            path: /bills/{bill_uuid}
-
+            path: /{bill_uuid}
+        - resolver: detail_publication_bill
+          resolver_data:
+            path: /{bill_uuid}
     - prefix: /publication-bills/{bill_uuid}/packages
       endpoints:
         - resolver: create_publication_package
-        - resolver: list_publication_packages # list for 1 bill
+        - resolver: list_publication_packages
+    - prefix: /publication-packages/{package_uuid}
+      endpoints:
+        # - resolver: detail_publication_package
+        - resolver: create_package_report
           resolver_data:
-            sort: *sort_default_modified_date
-
-    # - prefix: /publication-bills/{bill_uuid}/packages/{package_uuid}
-    #   endpoints:
-    #     - resolver: validate_publication_package
-    #       resolver_data:
-    #         path: /validate
-
-    # - prefix: /package-report
-    #   endpoints:
-    #     - resolver: list_package_report
+            path: /report
+        - resolver: download_publication_package_reports
+          resolver_data:
+            path: /report/download
+        - resolver: download_publication_package
+          resolver_data:
+            path: /download
 
 columns:
   # Titel

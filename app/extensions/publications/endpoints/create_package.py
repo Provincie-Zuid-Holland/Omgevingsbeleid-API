@@ -1,3 +1,4 @@
+import hashlib
 import json
 import uuid
 from datetime import datetime
@@ -7,7 +8,9 @@ from zoneinfo import ZoneInfo
 from dateutil.parser import parse
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, validator
+from sqlalchemy.orm import Session
 
+from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -29,27 +32,18 @@ from app.extensions.publications.dependencies import (
 )
 from app.extensions.publications.dso.dso_service import DSOService
 from app.extensions.publications.dso.ow_export import create_ow_objects_from_json
-from app.extensions.publications.exceptions import PublicationBillNotFound
+from app.extensions.publications.exceptions import DSOModuleException, PublicationBillNotFound
 from app.extensions.publications.models import PublicationBill, PublicationConfig
 from app.extensions.publications.repository import (
     OWObjectRepository,
     PublicationObjectRepository,
     PublicationRepository,
 )
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class PublicationPackageCreate(BaseModel):
-    """
-    Represents a publication package creation request.
-
-    Attributes:
-        Bill_UUID (uuid.UUID): The UUID of the bill associated with the package.
-        Announcement_Date (Optional[datetime]): DSO announcement date, should be in the future
-            if none provided will use Bill announcement date.
-        Package_Event_Type (Package_Event_Type): The event type of the package.
-    """
-
-    Bill_UUID: uuid.UUID
     Config_ID: Optional[int]
     Announcement_Date: Optional[datetime]
     Package_Event_Type: Package_Event_Type
@@ -69,19 +63,24 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
+            bill_uuid: uuid.UUID,
             object_in: PublicationPackageCreate,
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
             pub_object_repo: PublicationObjectRepository = Depends(depends_publication_object_repository),
             ow_object_repo: OWObjectRepository = Depends(depends_ow_object_repository),
+            db: Session = Depends(depends_db),
             dso_service: DSOService = Depends(depends_dso_service),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> PublicationPackage:
             try:
                 return self._handler(
+                    bill_uuid=bill_uuid,
                     object_in=object_in,
                     pub_repo=publication_repo,
                     dso_service=dso_service,
                     pub_object_repository=pub_object_repo,
                     ow_object_repo=ow_object_repo,
+                    db=db,
                 )
             except MissingPublicationConfigError:
                 raise HTTPException(status_code=500, detail="No publication config found")
@@ -101,11 +100,13 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
     def _handler(
         self,
+        bill_uuid: uuid.UUID,
         pub_repo: PublicationRepository,
         object_in: PublicationPackageCreate,
         pub_object_repository: PublicationObjectRepository,
         ow_object_repo: OWObjectRepository,
         dso_service: DSOService,
+        db: Session,
     ) -> PublicationPackage:
         """
         - Finalises bill and locks its settings/content.
@@ -116,6 +117,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         - Return package UUID
 
         Args:
+            bill_uuid: The UUID of the bill to create a package for.
             pub_repo (PublicationRepository): The repository for publication data.
             object_in (PublicationPackageCreate): The input data for creating a publication package.
             pub_object_repository (PublicationObjectRepository): The repository for publication objects.
@@ -135,9 +137,9 @@ class CreatePublicationPackageEndpoint(Endpoint):
             raise MissingPublicationConfigError("No config found")
         current_config = PublicationConfig.from_orm(current_config)
 
-        bill_db = pub_repo.get_publication_bill(uuid=object_in.Bill_UUID)
+        bill_db = pub_repo.get_publication_bill(uuid=bill_uuid)
         if not bill_db:
-            raise PublicationBillNotFound(f"Publication bill with UUID {object_in.Bill_UUID} not found")
+            raise PublicationBillNotFound(f"Publication bill with UUID {bill_uuid} not found")
 
         new_package_db = PublicationPackageTable(
             UUID=uuid.uuid4(),
@@ -146,6 +148,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
             Bill_UUID=bill_db.UUID,
             Config_ID=current_config.ID,
             Package_Event_Type=object_in.Package_Event_Type,
+            Validation_Status="Pending",
             Announcement_Date=object_in.Announcement_Date if object_in.Announcement_Date else bill_db.Announcement_Date,
         )
         new_package_db = pub_repo.create_publication_package(new_package_db)
@@ -190,7 +193,21 @@ class CreatePublicationPackageEndpoint(Endpoint):
         )
 
         # Start DSO module
-        dso_service.build_dso_package(input_data)
+        try:
+            dso_service.build_dso_package(input_data)
+        except DSOModuleException as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+        # Store ZIP directly for now
+        frbr = f"{new_package_db.FRBR_Info.bill_work_misc}-{new_package_db.FRBR_Info.bill_expression_version}"
+        time = datetime.utcnow().strftime("%Y-%m-%d_%H-%M")
+        zip_filename = f"dso-{new_package_db.Package_Event_Type}-{frbr}-{time}.zip"
+
+        # Commit zip updates
+        new_package_db.ZIP_File_Name = zip_filename.encode("utf-8").lower()
+        new_package_db.ZIP_File_Binary = dso_service._zip_buffer.getvalue()
+        new_package_db.ZIP_File_Checksum = hashlib.sha256(dso_service._zip_buffer.getvalue()).hexdigest()
+        db.commit()
 
         # Save state and new objects in DB
         state_exported = json.loads(dso_service.get_filtered_export_state())
@@ -204,7 +221,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         new_export = pub_repo.create_dso_state_export(new_export)
 
         # Store new OW objects in DB
-        if new_package_db.Package_Event_Type == Package_Event_Type.PUBLICATION:
+        if new_package_db.Package_Event_Type == Package_Event_Type.PUBLICATION and bill_db.Is_Official:
             ow_objects = create_ow_objects_from_json(
                 exported_state=state_exported,
                 package_uuid=package.UUID,
@@ -229,4 +246,8 @@ class CreatePublicationPackageEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
+
+        if not "{bill_uuid}" in path:
+            raise RuntimeError("Missing {bill_uuid} argument in path")
+
         return CreatePublicationPackageEndpoint(path=path)

@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import desc, func, select
+from sqlalchemy.orm import defer, selectinload
 
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult
@@ -117,15 +118,6 @@ class PublicationRepository(BaseRepository):
         return publication
 
     def get_publication_bill(self, uuid: UUID) -> Optional[PublicationBillTable]:
-        """
-        Retrieves a publication bill by its UUID.
-
-        Args:
-            uuid (UUID): The UUID of the publication bill.
-
-        Returns:
-            Optional[PublicationBillTable]: The publication bill with the specified UUID, or None if not found.
-        """
         stmt = select(PublicationBillTable).where(PublicationBillTable.UUID == uuid)
         return self.fetch_first(stmt)
 
@@ -137,20 +129,6 @@ class PublicationRepository(BaseRepository):
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
-        """
-        Retrieves a list of publication bills based on the specified filters.
-
-        Args:
-            document_type (Optional[Document_Type]): The document type to filter by.
-            module_id (Optional[int]): The module ID to filter by.
-            version_id (Optional[int]): The version ID to filter by.
-            module_status (Optional[ModuleStatusCode]): The module status to filter by.
-            offset (int): The offset for pagination.
-            limit (int): The limit for pagination.
-
-        Returns:
-            PaginatedQueryResult: The paginated query result containing the publication bills.
-        """
         query = select(PublicationBillTable).join(PublicationBillTable.Module_Status)
         if publication_uuid is not None:
             query = query.filter(PublicationBillTable.Publication_UUID == publication_uuid)
@@ -213,6 +191,15 @@ class PublicationRepository(BaseRepository):
         return bill
 
     def create_publication_package(self, new_package: PublicationPackageTable) -> PublicationPackageTable:
+        """
+        Creates a publication package and automatically sets the FRBR if it's a validation package.
+
+        Args:
+            new_package (PublicationPackageTable): The new publication package to be created.
+
+        Returns:
+            PublicationPackageTable: The created publication package.
+        """
         frbr = None
         # If validation package, create new FRBR
         if new_package.Package_Event_Type == Package_Event_Type.VALIDATION:
@@ -224,7 +211,7 @@ class PublicationRepository(BaseRepository):
             )
             new_package.FRBR_Info = frbr
         else:
-            # if publication event, use earlier FRBR created at validation version of this bill
+            # if publication event, try using earlier FRBR created at validation version of this bill
             stmt = (
                 select(PublicationPackageTable)
                 .where(
@@ -246,26 +233,45 @@ class PublicationRepository(BaseRepository):
     def get_publication_package(self, uuid: UUID) -> Optional[PublicationPackageTable]:
         """
         Retrieves full publication package by its UUID.
-        # TODO add zip uuid
         """
-        stmt = select(PublicationPackageTable).where(PublicationPackageTable.UUID == uuid)
+        stmt = (
+            select(PublicationPackageTable)
+            .where(PublicationPackageTable.UUID == uuid)
+            .options(selectinload(PublicationPackageTable.Reports))
+        )
         return self.fetch_first(stmt)
 
     def get_publication_packages(
         self,
         bill_uuid: Optional[UUID] = None,
         package_event_type: Optional[Package_Event_Type] = None,
-        is_validated: Optional[bool] = None,
+        is_successful: Optional[bool] = None,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
-        query = select(PublicationPackageTable)
+        """
+        Retrieves publication packages based on the provided filters.
+
+        Args:
+            bill_uuid (Optional[UUID]): The UUID of the bill to filter by.
+            package_event_type (Optional[Package_Event_Type]): The event type of the package to filter by.
+            is_successful (Optional[bool]): Whether the package is successful or not.
+            offset (int): The offset value for pagination.
+            limit (int): The limit value for pagination.
+
+        Returns:
+            PaginatedQueryResult: The paginated query result containing the publication packages.
+        """
+        query = select(PublicationPackageTable).options(selectinload(PublicationPackageTable.Reports))
         if bill_uuid is not None:
             query = query.filter(PublicationPackageTable.Bill_UUID == bill_uuid)
         if package_event_type is not None:
             query = query.filter(PublicationPackageTable.Package_Event_Type == package_event_type)
-        if is_validated is not None:
-            query = query.filter(PublicationPackageTable.Validated_At.isnot(None))
+        if is_successful is not None:
+            if is_successful:
+                query = query.filter(PublicationPackageTable.Validation_Status == "Valid")
+            else:
+                query = query.filter(~PublicationPackageTable.Validation_Status.in_(["Pending", "Failed"]))
 
         paged_result = self.fetch_paginated(
             statement=query,
@@ -275,16 +281,12 @@ class PublicationRepository(BaseRepository):
         )
         return paged_result
 
+    def get_package_download(self, package_uuid: UUID) -> Optional[PublicationPackageTable]:
+        stmt = select(PublicationPackageTable).where(PublicationPackageTable.UUID == package_uuid)
+        stmt = stmt.options(defer(PublicationPackageTable.ZIP_File_Binary))
+        return self.fetch_first(stmt)
+
     def get_frbr_by_id(self, frbr_id: int) -> Optional[PublicationFRBRTable]:
-        """
-        Retrieves a FRBR entry by its ID.
-
-        Args:
-            frbr_id (int): The ID of the FRBR entry.
-
-        Returns:
-            Optional[PublicationFRBRTable]: The FRBR entry with the specified ID, or None if not found.
-        """
         stmt = select(PublicationFRBRTable).where(PublicationFRBRTable.ID == frbr_id)
         return self.fetch_first(stmt)
 
@@ -295,10 +297,13 @@ class PublicationRepository(BaseRepository):
         expression_version: int,
     ) -> PublicationFRBRTable:
         """
-        Creates a new FRBR entry in the database.
+        Creates a default FRBR (Functional Requirements for Bibliographic Records) entry
+        for a publication.
 
         Args:
-            new_frbr (PublicationFRBRTable): The FRBR entry to be created.
+            document_type (str): The type of the document.
+            work_ID (int): The ID of the work.
+            expression_version (int): The version of the expression.
 
         Returns:
             PublicationFRBRTable: The newly created FRBR entry.

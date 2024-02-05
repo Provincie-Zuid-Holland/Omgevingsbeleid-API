@@ -10,6 +10,10 @@ class PublicationBillNotFound(Exception):
     pass
 
 
+class DSOModuleException(Exception):
+    pass
+
+
 class DSOStateExportError(Exception):
     pass
 

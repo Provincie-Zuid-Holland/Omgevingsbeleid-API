@@ -1,3 +1,4 @@
+import io
 import json
 from typing import Dict, List, Optional
 
@@ -11,7 +12,7 @@ from app.extensions.publications.dso.dso_assets_factory import DsoAssetsFactory
 from app.extensions.publications.dso.dso_werkingsgebieden_factory import DsoWerkingsgebiedenFactory
 from app.extensions.publications.dso.input_data_mapper import map_dso_input_data
 from app.extensions.publications.dso.template_parser import TemplateParser
-from app.extensions.publications.exceptions import DSOStateExportError
+from app.extensions.publications.exceptions import DSOModuleException, DSOStateExportError
 from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
 from app.extensions.source_werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
 
@@ -31,10 +32,10 @@ class DSOService:
         self._template_parsers: Dict[str, TemplateParser] = template_parsers
         self._dso_werkingsgebieden_factory: DsoWerkingsgebiedenFactory = dso_werkingsgebieden_factory
         self._dso_assets_factory: DsoAssetsFactory = dso_assets_factory
-
+        self._builder: Optional[Builder] = None
         self._input_data: Optional[InputData] = None
         self._state_exported: Optional[str] = None
-        self._builder: Optional[Builder] = None
+        self._zip_buffer: Optional[io.BytesIO] = None
 
     def get_object_template_repository(self, object_templates):
         repository = ObjectTemplateRepository(object_templates)
@@ -158,10 +159,15 @@ class DSOService:
         """
         return self.state_filter(self.get_exported_state())
 
-    def build_dso_package(self, input_data: Optional[InputData] = None, output_path: str = "./output-dso"):
+    def build_dso_package(self, input_data: Optional[InputData] = None, output_path: str = "./tmp"):
         """
-        Build DSO package from input data and export generator State.
+        Triggers the DSO module to build the publication package from out input data.
+        Saves the files to
         """
-        self._builder = Builder(input_data or self._input_data)
-        self._builder.build_publication_files()
-        self._builder.save_files(output_path)
+        try:
+            self._builder = Builder(input_data or self._input_data)
+            self._builder.build_publication_files()
+            self._builder.save_files(output_path)
+            self._zip_buffer: io.BytesIO = self._builder.zip_files()
+        except Exception as e:
+            raise DSOModuleException(e)
