@@ -48,6 +48,8 @@ class TemplateParser:
             "Cause",
             "Provincial_Interest",
             "Explanation",
+            "Role",
+            "Effect",
             # Used for Werkingsgebied
             "Area_UUID",
             "Created_Date",

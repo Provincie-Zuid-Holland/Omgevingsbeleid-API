@@ -39,7 +39,7 @@ class InputDataService:
             publication_settings=dso_models.PublicationSettings(
                 document_type=document_type.value.upper(),
                 datum_bekendmaking=datum,
-                datum_juridisch_werkend_vanaf="2024-02-15",
+                datum_juridisch_werkend_vanaf="2024-02-06",
                 provincie_id="pv28",
                 wId_suffix=work_version,
                 soort_bestuursorgaan="/tooi/def/thes/kern/c_411b4e4a",
@@ -52,13 +52,13 @@ class InputDataService:
                     "id_bevoegdgezag": "00000001002306608000",
                     "id_aanleveraar": "00000001002306608000",
                     "publicatie_bestand": f"akn_nl_bill_pv28-{datum}-{versie}.xml",
-                    "datum_bekendmaking": "2024-02-14",
+                    "datum_bekendmaking": "2024-02-06",
                 },
                 doel=dso_models.Doel(jaar="2024", naam=f"Instelling{document_type_title.capitalize()}"),
                 besluit_frbr={
                     "work_land": "nl",
                     "work_datum": jaar,
-                    "work_overig": work_version,
+                    "work_overig": f"{document_type.value.lower()}_{work_version}",
                     "expression_taal": "nld",
                     "expression_datum": datum,
                     "expression_versie": versie,
@@ -67,9 +67,9 @@ class InputDataService:
                 regeling_frbr={
                     "work_land": "nl",
                     "work_datum": jaar,
-                    "work_overig": work_version,
+                    "work_overig": f"{document_type.value.lower()}_{work_version}",
                     "expression_taal": "nld",
-                    "expression_datum": "2024-01-05",
+                    "expression_datum": datum,
                     "expression_versie": versie,
                     "expression_overig": None,
                 },
@@ -87,7 +87,7 @@ class InputDataService:
                     label="Artikel",
                     inhoud="Dit besluit treedt in werking op de dag waarop dit bekend wordt gemaakt.",
                 ),
-                sluiting="Gegeven te 's-Gravenhage, 15 februari 2024",
+                sluiting="Gegeven te 's-Gravenhage, 06 januari 2024",
                 ondertekening="Gedupeerde Staten",
                 rechtsgebieden=[
                     "Omgevingsrecht",
@@ -107,7 +107,7 @@ class InputDataService:
             ),
             regeling_vrijetekst=free_text_template_str,
             procedure_verloop=dso_models.ProcedureVerloop(
-                bekend_op="2024-02-02",
+                bekend_op="2024-02-06",
                 stappen=[
                     dso_models.ProcedureStap(
                         soort_stap="/join/id/stop/procedure/stap_002",

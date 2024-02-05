@@ -54,7 +54,7 @@ class EndpointHandler:
         work_version: str,
         geo_new: bool,
     ):
-        if document_type == DocumentType.VISIE:
+        if document_type == DocumentType.OMGEVINGSVISIE:
             template_parser = omgevingsvisie_template_parser
         elif document_type == DocumentType.PROGRAMMA:
             template_parser = programma_template_parser
@@ -83,10 +83,8 @@ class EndpointHandler:
         # @todo: remove
         # pretend all object have werkingsgebied-3 as werkingsgebied
         for i, o in enumerate(objects):
-            if o["Object_Type"] in ["beleidskeuze", "maatregel"]:
+            if o["Object_Type"] not in ["beleidskeuze", "maatregel"]:
                 continue
-            # if o.get("Werkingsgebied_Code", None) is None:
-            #     continue
             objects[i]["Werkingsgebied_Code"] = "werkingsgebied-3"
 
         free_text_template_str = self._template_parser.get_parsed_template(objects)
@@ -117,13 +115,28 @@ class EndpointHandler:
         )
 
         builder = Builder(input_data)
-        builder.build_publication_files()
-        zip_buffer: io.BytesIO() = builder.zip_files()
+        try:
+            builder.build_publication_files()
+            zip_buffer: io.BytesIO() = builder.zip_files()
+        except Exception as e:
+            a = True
+            raise e
 
-        zip_filename = (
-            f"download-dso-module-{self._module.Module_ID}-at-{datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S')}.zip"
+        # zip_filename = (
+        #     f"download-dso-module-{self._module.Module_ID}-at-{datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S')}.zip"
+        # )
+        # zip_filename = input_data.publication_settings.opdracht.publicatie_bestand.replace(".xml", ".zip")
+        zip_filename = "-".join(
+            [
+                "download",
+                str(datetime.utcnow())[:10],
+                self._document_type.value.lower(),
+                self._opdracht_type.value.lower()[:3],
+                self._work_version,
+                str(input_data.publication_settings.opdracht.id_levering)[-6:],
+            ]
         )
-        zip_filename = input_data.publication_settings.opdracht.publicatie_bestand.replace(".xml", ".zip")
+        zip_filename = f"{zip_filename}.zip"
 
         return Response(
             content=zip_buffer.read(),

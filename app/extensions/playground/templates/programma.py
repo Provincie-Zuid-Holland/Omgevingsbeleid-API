@@ -29,7 +29,7 @@ class ProgrammaTextTemplate(TextTemplate):
         <div>
             <h1>Maatregelen van {{ d.Title }}</h1>
             {%- for m in maatregelen_for_doel | sort(attribute='Title') %}
-            <div><object code="{{ m.Code }}" template="maatregel" /></div>
+            <div data-hint-element="divisietekst"><object code="{{ m.Code }}" template="maatregel" /></div>
             {%- endfor %}
         </div>
         {% endif %}
@@ -59,19 +59,20 @@ class ProgrammaTextTemplate(TextTemplate):
 {% endif %}
 
 {% if o.Description %}
-<h2>Wat wil de provincie bereiken?</h2>
+<h6>Wat wil de provincie bereiken?</h6>
 {{ o.Description }}
 {% endif %}
 
 {% if o.Role %}
-<h2>Rolkeuze</h2>
-{{ o.Role }}
+    <h6>Rolkeuze</h6>
+    <p>{{ o.Role }}</p>
 {% endif %}
 
-{% if o.Effect %}
-<h2>Uitwerking</h2>
-{{ o.Effect }}
+{% if o.Effect | length > 15  %}
+    <h6>Uitwerking</h6>
+    {{ o.Effect }}
 {% endif %}
+
 """,
         }
         return object_templates

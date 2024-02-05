@@ -34,6 +34,7 @@ class DsoAssetsFactory:
             "Cause",
             "Provincial_Interest",
             "Explanation",
+            "Effect",
         ]
 
         for o in objects:
