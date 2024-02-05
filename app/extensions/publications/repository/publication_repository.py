@@ -275,16 +275,12 @@ class PublicationRepository(BaseRepository):
         )
         return paged_result
 
+    def get_package_download(self, package_uuid: UUID) -> Optional[PublicationPackageTable]:
+        stmt = select(PublicationPackageTable).where(PublicationPackageTable.UUID == package_uuid)
+        stmt = stmt.options(defer(PublicationPackageTable.ZIP_File_Binary))
+        return self.fetch_first(stmt)
+
     def get_frbr_by_id(self, frbr_id: int) -> Optional[PublicationFRBRTable]:
-        """
-        Retrieves a FRBR entry by its ID.
-
-        Args:
-            frbr_id (int): The ID of the FRBR entry.
-
-        Returns:
-            Optional[PublicationFRBRTable]: The FRBR entry with the specified ID, or None if not found.
-        """
         stmt = select(PublicationFRBRTable).where(PublicationFRBRTable.ID == frbr_id)
         return self.fetch_first(stmt)
 
@@ -295,10 +291,13 @@ class PublicationRepository(BaseRepository):
         expression_version: int,
     ) -> PublicationFRBRTable:
         """
-        Creates a new FRBR entry in the database.
+        Creates a default FRBR (Functional Requirements for Bibliographic Records) entry
+        for a publication.
 
         Args:
-            new_frbr (PublicationFRBRTable): The FRBR entry to be created.
+            document_type (str): The type of the document.
+            work_ID (int): The ID of the work.
+            expression_version (int): The version of the expression.
 
         Returns:
             PublicationFRBRTable: The newly created FRBR entry.

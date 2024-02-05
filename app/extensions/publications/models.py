@@ -195,8 +195,10 @@ class PublicationPackage(BaseModel):
     Package_Event_Type: Package_Event_Type
     Publication_Filename: Optional[str]
     Announcement_Date: datetime
-    Validated_At: Optional[datetime]
 
+    ZIP_File_Name: Optional[str]
+    # ZIP_File_Binary: Optional[bytes]
+    # ZIP_File_Checksum: Optional[str]
     Publication_Config: Optional[PublicationConfig]
     Publication_Bill: Optional[PublicationBill]
     FRBR_Info: Optional[PublicationFRBR]
