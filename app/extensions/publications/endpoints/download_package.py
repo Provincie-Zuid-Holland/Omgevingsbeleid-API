@@ -26,6 +26,10 @@ class DownloadPackageEndpoint(Endpoint):
             package = pub_repository.get_package_download(package_uuid)
             if not package:
                 raise HTTPException(status_code=404, detail=f"Package: {package_uuid} not found")
+            if package.ZIP_File_Binary is None:
+                raise HTTPException(status_code=403, detail=f"Package: {package_uuid} has no stored ZIP file.")
+            if package.ZIP_File_Name is None:
+                package.ZIP_File_Name = f"package-{package.UUID.hex()}.zip"
 
             return Response(
                 content=package.ZIP_File_Binary,

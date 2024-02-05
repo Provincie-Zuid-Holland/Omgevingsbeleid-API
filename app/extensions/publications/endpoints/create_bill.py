@@ -24,7 +24,6 @@ from app.extensions.users.dependencies import depends_current_active_user
 
 
 class PublicationBillCreate(BaseModel):
-    Publication_UUID: uuid.UUID
     Module_Status_ID: int
     Procedure_Type: Procedure_Type
     Is_Official: bool
@@ -65,11 +64,12 @@ class CreatePublicationBillEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
+            publication_uuid: uuid.UUID,
             object_in: PublicationBillCreate,
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> PublicationBill:
-            return self._handler(object_in=object_in, repo=publication_repo)
+            return self._handler(object_in=object_in, repo=publication_repo, publication_uuid=publication_uuid)
 
         router.add_api_route(
             self._path,
@@ -83,21 +83,19 @@ class CreatePublicationBillEndpoint(Endpoint):
 
         return router
 
-    def _handler(self, repo: PublicationRepository, object_in: PublicationBillCreate) -> PublicationBill:
-        """
-        Handles the creation of a publication bill.
-
-        Args:
-            bill_repo (PublicationRepository): The repository for publication bills.
-            object_in (PublicationBillCreate): The input data for creating a publication bill.
-
-        Returns:
-            PublicationBill: The response containing the version ID of the created publication bill.
-        """
+    def _handler(
+        self, repo: PublicationRepository, object_in: PublicationBillCreate, publication_uuid: uuid.UUID
+    ) -> PublicationBill:
         data = object_in.dict()
         data["Bill_Data"] = serialize_datetime(data["Bill_Data"])
         data["Procedure_Data"] = serialize_datetime(data["Procedure_Data"])
-        new_bill = PublicationBillTable(UUID=uuid4(), Created_Date=datetime.now(), Modified_Date=datetime.now(), **data)
+        new_bill = PublicationBillTable(
+            UUID=uuid4(),
+            Created_Date=datetime.now(),
+            Modified_Date=datetime.now(),
+            Publication_UUID=publication_uuid,
+            **data
+        )
         result = repo.create_publication_bill(new_bill)
         return PublicationBill.from_orm(result)
 
@@ -116,4 +114,8 @@ class CreatePublicationBillEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
+
+        if not "{publication_uuid}" in path:
+            raise RuntimeError("Missing {publication_uuid} argument in path")
+
         return CreatePublicationBillEndpoint(path=path)

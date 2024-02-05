@@ -44,17 +44,6 @@ from app.extensions.users.dependencies import depends_current_active_user
 
 
 class PublicationPackageCreate(BaseModel):
-    """
-    Represents a publication package creation request.
-
-    Attributes:
-        Bill_UUID (uuid.UUID): The UUID of the bill associated with the package.
-        Announcement_Date (Optional[datetime]): DSO announcement date, should be in the future
-            if none provided will use Bill announcement date.
-        Package_Event_Type (Package_Event_Type): The event type of the package.
-    """
-
-    Bill_UUID: uuid.UUID
     Config_ID: Optional[int]
     Announcement_Date: Optional[datetime]
     Package_Event_Type: Package_Event_Type
@@ -74,6 +63,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
+            bill_uuid: uuid.UUID,
             object_in: PublicationPackageCreate,
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
             pub_object_repo: PublicationObjectRepository = Depends(depends_publication_object_repository),
@@ -84,6 +74,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         ) -> PublicationPackage:
             try:
                 return self._handler(
+                    bill_uuid=bill_uuid,
                     object_in=object_in,
                     pub_repo=publication_repo,
                     dso_service=dso_service,
@@ -109,6 +100,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
     def _handler(
         self,
+        bill_uuid: uuid.UUID,
         pub_repo: PublicationRepository,
         object_in: PublicationPackageCreate,
         pub_object_repository: PublicationObjectRepository,
@@ -125,6 +117,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         - Return package UUID
 
         Args:
+            bill_uuid: The UUID of the bill to create a package for.
             pub_repo (PublicationRepository): The repository for publication data.
             object_in (PublicationPackageCreate): The input data for creating a publication package.
             pub_object_repository (PublicationObjectRepository): The repository for publication objects.
@@ -144,9 +137,9 @@ class CreatePublicationPackageEndpoint(Endpoint):
             raise MissingPublicationConfigError("No config found")
         current_config = PublicationConfig.from_orm(current_config)
 
-        bill_db = pub_repo.get_publication_bill(uuid=object_in.Bill_UUID)
+        bill_db = pub_repo.get_publication_bill(uuid=bill_uuid)
         if not bill_db:
-            raise PublicationBillNotFound(f"Publication bill with UUID {object_in.Bill_UUID} not found")
+            raise PublicationBillNotFound(f"Publication bill with UUID {bill_uuid} not found")
 
         new_package_db = PublicationPackageTable(
             UUID=uuid.uuid4(),
@@ -155,6 +148,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
             Bill_UUID=bill_db.UUID,
             Config_ID=current_config.ID,
             Package_Event_Type=object_in.Package_Event_Type,
+            Validation_Status="Pending",
             Announcement_Date=object_in.Announcement_Date if object_in.Announcement_Date else bill_db.Announcement_Date,
         )
         new_package_db = pub_repo.create_publication_package(new_package_db)
@@ -206,13 +200,13 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
         # Store ZIP directly for now
         frbr = f"{new_package_db.FRBR_Info.bill_work_misc}-{new_package_db.FRBR_Info.bill_expression_version}"
-        time = datetime.utcnow().strftime("%Y-%m-%d_%H:%M:%S")
+        time = datetime.utcnow().strftime("%Y-%m-%d_%H-%M")
         zip_filename = f"dso-{new_package_db.Package_Event_Type}-{frbr}-{time}.zip"
 
         # Commit zip updates
-        new_package_db.ZIP_File_Name = zip_filename.encode("utf-8")
+        new_package_db.ZIP_File_Name = zip_filename.encode("utf-8").lower()
         new_package_db.ZIP_File_Binary = dso_service._zip_buffer.getvalue()
-        new_package_db.ZIP_Checksum = hashlib.sha256(dso_service._zip_buffer.getvalue()).hexdigest()
+        new_package_db.ZIP_File_Checksum = hashlib.sha256(dso_service._zip_buffer.getvalue()).hexdigest()
         db.commit()
 
         # Save state and new objects in DB
@@ -252,4 +246,8 @@ class CreatePublicationPackageEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
+
+        if not "{bill_uuid}" in path:
+            raise RuntimeError("Missing {bill_uuid} argument in path")
+
         return CreatePublicationPackageEndpoint(path=path)

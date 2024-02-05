@@ -59,6 +59,7 @@ class EditPublicationBillEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
+            publication_uuid: uuid.UUID,
             bill_uuid: uuid.UUID,
             object_in: PublicationBillEdit,
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
@@ -111,4 +112,10 @@ class EditPublicationBillEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
+
+        if not "{publication_uuid}" in path:
+            raise RuntimeError("Missing {publication_uuid} argument in path")
+        if not "{bill_uuid}" in path:
+            raise RuntimeError("Missing {bill_uuid} argument in path")
+
         return EditPublicationBillEndpoint(path=path)
