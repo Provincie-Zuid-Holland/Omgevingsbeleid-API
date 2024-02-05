@@ -13,8 +13,7 @@ from app.extensions.publications.repository import PublicationRepository
 
 
 class DetailPublicationBillEndpoint(Endpoint):
-    def __init__(self, event_dispatcher: EventDispatcher, path: str):
-        self._event_dispatcher: EventDispatcher = event_dispatcher
+    def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
@@ -59,7 +58,4 @@ class DetailPublicationBillEndpointResolver(EndpointResolver):
         if not "{bill_uuid}" in path:
             raise RuntimeError("Missing {bill_uuid} argument in path")
 
-        return DetailPublicationBillEndpoint(
-            event_dispatcher=event_dispatcher,
-            path=path,
-        )
+        return DetailPublicationBillEndpoint(path=path)

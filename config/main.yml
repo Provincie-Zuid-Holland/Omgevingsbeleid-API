@@ -311,7 +311,9 @@ api:
         - resolver: edit_publication_bill
           resolver_data:
             path: /bills/{bill_uuid}
-
+        - resolver: detail_publication_bill
+          resolver_data:
+            path: /bills/{bill_uuid}
     - prefix: /publication-bills/{bill_uuid}
       endpoints:
         - resolver: create_publication_package

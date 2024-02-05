@@ -24,12 +24,12 @@ class ListPublicationPackagesEndpoint(Endpoint):
         def fastapi_handler(
             bill_uuid: uuid.UUID,
             package_event_type: Optional[Package_Event_Type] = None,
-            is_validated: Optional[bool] = None,
+            is_successful: Optional[bool] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             publication_repository: PublicationRepository = Depends(depends_publication_repository),
         ) -> PagedResponse[PublicationPackage]:
             paginated_result = publication_repository.get_publication_packages(
-                bill_uuid=bill_uuid, package_event_type=package_event_type, is_validated=is_validated
+                bill_uuid=bill_uuid, package_event_type=package_event_type, is_successful=is_successful
             )
 
             packages = [PublicationPackage.from_orm(r) for r in paginated_result.items]
