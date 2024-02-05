@@ -13,6 +13,8 @@ from app.extensions.publications.dependencies import depends_publication_reposit
 from app.extensions.publications.exceptions import PublicationNotFound
 from app.extensions.publications.models import Publication
 from app.extensions.publications.repository import PublicationRepository
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class PublicationEdit(BaseModel):
@@ -30,6 +32,7 @@ class EditPublicationEndpoint(Endpoint):
             publication_uuid: uuid.UUID,
             object_in: PublicationEdit,
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> Publication:
             return self._handler(publication_uuid=publication_uuid, object_in=object_in, repo=publication_repo)
 

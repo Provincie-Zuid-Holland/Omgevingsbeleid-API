@@ -39,6 +39,8 @@ from app.extensions.publications.repository import (
     PublicationObjectRepository,
     PublicationRepository,
 )
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class PublicationPackageCreate(BaseModel):
@@ -78,6 +80,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
             ow_object_repo: OWObjectRepository = Depends(depends_ow_object_repository),
             db: Session = Depends(depends_db),
             dso_service: DSOService = Depends(depends_dso_service),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> PublicationPackage:
             try:
                 return self._handler(

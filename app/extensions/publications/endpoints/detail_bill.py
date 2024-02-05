@@ -10,6 +10,8 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_publication_repository
 from app.extensions.publications.models import PublicationBill
 from app.extensions.publications.repository import PublicationRepository
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class DetailPublicationBillEndpoint(Endpoint):
@@ -18,9 +20,9 @@ class DetailPublicationBillEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            # user: UsersTable = Depends(depends_current_active_user),
             bill_uuid: uuid.UUID,
             pub_repository: PublicationRepository = Depends(depends_publication_repository),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> PublicationBill:
             bill = pub_repository.get_publication_bill(bill_uuid)
             if not bill:

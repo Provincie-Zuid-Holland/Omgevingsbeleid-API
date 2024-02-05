@@ -17,6 +17,8 @@ from app.extensions.publications.exceptions import PublicationBillNotFound
 from app.extensions.publications.helpers import serialize_datetime
 from app.extensions.publications.models import Bill_Data, Procedure_Data, PublicationBill
 from app.extensions.publications.repository import PublicationRepository
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class PublicationBillEdit(BaseModel):
@@ -60,6 +62,7 @@ class EditPublicationBillEndpoint(Endpoint):
             bill_uuid: uuid.UUID,
             object_in: PublicationBillEdit,
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> PublicationBill:
             return self._handler(bill_uuid=bill_uuid, object_in=object_in, repo=publication_repo)
 

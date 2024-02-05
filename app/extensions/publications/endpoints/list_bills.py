@@ -16,6 +16,8 @@ from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.publications import Procedure_Type, PublicationBill
 from app.extensions.publications.dependencies import depends_publication_repository
 from app.extensions.publications.repository import PublicationRepository
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class PublicationBillShort(BaseModel):
@@ -39,12 +41,12 @@ class ListPublicationBillsEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            # user: UsersTable = Depends(depends_current_active_user),
             publication_uuid: Optional[uuid.UUID] = None,
             version_id: Optional[int] = None,
             module_status: Optional[ModuleStatusCode] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             pub_repository: PublicationRepository = Depends(depends_publication_repository),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> PagedResponse[PublicationBillShort]:
             paginated_result = pub_repository.get_publication_bills(
                 publication_uuid=publication_uuid,

@@ -14,6 +14,8 @@ from app.extensions.publications import PublicationPackage
 from app.extensions.publications.dependencies import depends_publication_repository
 from app.extensions.publications.enums import Package_Event_Type
 from app.extensions.publications.repository.publication_repository import PublicationRepository
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class ListPublicationPackagesEndpoint(Endpoint):
@@ -27,6 +29,7 @@ class ListPublicationPackagesEndpoint(Endpoint):
             is_successful: Optional[bool] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             publication_repository: PublicationRepository = Depends(depends_publication_repository),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> PagedResponse[PublicationPackage]:
             paginated_result = publication_repository.get_publication_packages(
                 bill_uuid=bill_uuid, package_event_type=package_event_type, is_successful=is_successful

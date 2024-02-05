@@ -16,6 +16,8 @@ from app.extensions.publications.models import Publication
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.publications.tables import PublicationTable
 from app.extensions.publications.tables.tables import PublicationTable
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class PublicationCreate(BaseModel):
@@ -32,9 +34,9 @@ class CreatePublicationEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            # user: UsersTable = Depends(depends_current_active_user),
             object_in: PublicationCreate,
             pub_repository: PublicationRepository = Depends(depends_publication_repository),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> Publication:
             return self._handler(object_in=object_in, repo=pub_repository)
 

@@ -13,9 +13,8 @@ from app.extensions.publications.dependencies import depends_publication_reposit
 from app.extensions.publications.models import PublicationPackageReport
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.publications.tables.tables import PublicationPackageReportTable
-
-# class EditPackage(BaseModel):
-#     Submission_Report: str
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class CreatePackageReportEndpoint(Endpoint):
@@ -29,10 +28,10 @@ class CreatePackageReportEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         async def fastapi_handler(
-            # user: UsersTable = Depends(depends_current_active_user),
             package_uuid: uuid.UUID,
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
             xml_file: UploadFile = File(...),
+            user: UsersTable = Depends(depends_current_active_user),
         ):
             xml_content = await xml_file.read()
             report_db = self._parse_xml_to_publication_package_report(xml_content=xml_content)

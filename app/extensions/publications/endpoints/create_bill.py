@@ -19,6 +19,8 @@ from app.extensions.publications.helpers import serialize_datetime
 from app.extensions.publications.models import Bill_Data, Procedure_Data, PublicationBill
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.publications.tables import PublicationBillTable
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_current_active_user
 
 
 class PublicationBillCreate(BaseModel):
@@ -57,19 +59,15 @@ class PublicationBillCreate(BaseModel):
         return v
 
 
-# class PublicationBill(BaseModel):
-#     Version_ID: int
-
-
 class CreatePublicationBillEndpoint(Endpoint):
     def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            # user: UsersTable = Depends(depends_current_active_user),
             object_in: PublicationBillCreate,
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
+            user: UsersTable = Depends(depends_current_active_user),
         ) -> PublicationBill:
             return self._handler(object_in=object_in, repo=publication_repo)
 
