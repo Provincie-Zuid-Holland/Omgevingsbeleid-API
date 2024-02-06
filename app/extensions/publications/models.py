@@ -15,6 +15,8 @@ class PublicationConfig(BaseModel):
     Submitter_ID: str
     Jurisdiction: str
     Subjects: str
+    Governing_Body_Type: str
+    Act_Componentname: str
     DSO_STOP_VERSION: str
     DSO_TPOD_VERSION: str
     DSO_BHKV_VERSION: str

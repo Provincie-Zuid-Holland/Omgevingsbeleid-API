@@ -120,10 +120,9 @@ def map_dso_input_data(
             datum_juridisch_werkend_vanaf=bill.Effective_Date.strftime("%Y-%m-%d"),
             provincie_id=config.Province_ID,
             wId_suffix=package.FRBR_Info.bill_expression_version,
-            soort_bestuursorgaan="/tooi/def/thes/kern/c_411b4e4a",
+            soort_bestuursorgaan=config.Governing_Body_Type,  # Provinciale_states "/tooi/def/thes/kern/c_411b4e4a"
             expression_taal=package.FRBR_Info.bill_expression_lang,
-            regeling_componentnaam="nieuweregeling",
-            provincie_ref=f"/tooi/id/provincie/{config.Province_ID}",
+            regeling_componentnaam=config.Act_Componentname,  # nieuweregeling
             opdracht={
                 "opdracht_type": get_opdracht_type(package.Package_Event_Type),
                 "id_levering": str(package.UUID),
@@ -138,9 +137,9 @@ def map_dso_input_data(
         ),
         besluit=dso_bill,
         regeling=Regeling(
-            versienummer="1",
+            versienummer=package.FRBR_Info.act_expression_version,
             officiele_titel=bill.Bill_Data.Regulation_Title,
-            citeertitel=bill.Bill_Data.Regulation_Title,  # TODO: add citation title
+            citeertitel=bill.Bill_Data.Regulation_Title,  # TODO: add citation title?
             is_officieel=bill.Is_Official,
             rechtsgebieden=[config.Jurisdiction],
             onderwerpen=[config.Subjects],

@@ -24,7 +24,8 @@ class PublicationConfigTable(Base):
     Submitter_ID: Mapped[str]  # Aanleveraar_ID
     Jurisdiction: Mapped[str]  # Rechtsgebied
     Subjects: Mapped[str]  # Onderwerpen
-    # Act_Componentname: Mapped[str]  # Regeling Componentnaam
+    Governing_Body_Type: Mapped[str]  # Bestuursorgaan_Soort
+    Act_Componentname: Mapped[str]  # Regeling Componentnaam
 
     DSO_STOP_VERSION: Mapped[str]
     DSO_TPOD_VERSION: Mapped[str]
