@@ -12,12 +12,48 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
     WerkingsgebiedRepository,
 )
 
-from app.extensions.publications.enums import Document_Type, Procedure_Type
-from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.enums import Document_Type, Package_Event_Type, Procedure_Type
+from app.extensions.publications.models import (
+    ProcedureStep,
+    Publication,
+    PublicationBill,
+    PublicationConfig,
+    PublicationPackage,
+)
+
+DOCUMENT_TYPE_MAP = {
+    Document_Type.VISION: "OMGEVINGSVISIE",
+    Document_Type.PROGRAM: "PROGRAMMA",
+    Document_Type.ORDINANCE: "VERORDENING",
+}
+
+OPDRACHT_TYPE_MAP = {
+    Package_Event_Type.VALIDATION: "VALIDATIE",
+    Package_Event_Type.PUBLICATION: "PUBLICATIE",
+}
+
+
+def get_opdracht_type(package_event_type: Package_Event_Type) -> str:
+    return OPDRACHT_TYPE_MAP.get(package_event_type, "PUBLICATIE")
+
+
+def get_document_type(document_type: Document_Type) -> str:
+    if document_type == Document_Type.ORDINANCE:
+        raise NotImplementedError(f"Document type {document_type} not supported")
+    return DOCUMENT_TYPE_MAP.get(document_type, "")
+
+
+def get_procedure_type(procedure_type: Procedure_Type) -> str:
+    if procedure_type == Procedure_Type.CONCEPT:
+        return "Ontwerpbesluit"
+    if procedure_type == Procedure_Type.FINAL:
+        return "Definitief_besluit"
+    else:
+        raise ValueError(f"Unknown procedure type: {procedure_type}")
 
 
 def map_dso_input_data(
-    publication: PublicationBill,
+    publication: Publication,
     bill: PublicationBill,
     package: PublicationPackage,
     config: PublicationConfig,
@@ -29,12 +65,14 @@ def map_dso_input_data(
     policy_object_repository: PolicyObjectRepository,
 ):
     bekendmakingsdatum = package.Announcement_Date.strftime("%Y-%m-%d")
-    opdracht_type = {"Validatie": "VALIDATIE", "Publicatie": "PUBLICATIE"}.get(package.Package_Event_Type, "PUBLICATIE")
 
-    # TODO: change db column to use same values to skip this step
-    soort_procedure = "Definitief_besluit"
-    if bill.Procedure_Type == Procedure_Type.CONCEPT:
-        soort_procedure = "Ontwerpbesluit"
+    tekst_artikelen = [
+        Artikel(
+            label=art.Label,
+            inhoud=art.Content,
+        )
+        for art in bill.Bill_Data.Articles
+    ]
 
     dso_bill = Besluit(
         officiele_titel=bill.Bill_Data.Bill_Title,
@@ -44,37 +82,29 @@ def map_dso_input_data(
             label=bill.Bill_Data.Amendment_Article.Label,
             inhoud=bill.Bill_Data.Amendment_Article.Content,
         ),
-        tekst_artikelen=[],
+        tekst_artikelen=tekst_artikelen,
         tijd_artikel=Artikel(
-            label=bill.Bill_Data.Amendment_Article.Label,
-            inhoud=bill.Bill_Data.Amendment_Article.Content,
-        ),  # TODO: add time article seperate in Bill_Data?
+            label=bill.Bill_Data.Time_Article.Label,
+            inhoud=bill.Bill_Data.Time_Article.Content,
+        ),
         sluiting=bill.Bill_Data.Closing,
         ondertekening=bill.Bill_Data.Signature,
         rechtsgebieden=[config.Jurisdiction],
         onderwerpen=[config.Subjects],
-        soort_procedure=soort_procedure,
+        soort_procedure=get_procedure_type(bill.Procedure_Type),
     )
-    for article in bill.Bill_Data.Articles:
-        dso_bill.tekst_artikelen.append(
-            Artikel(
-                label=article.Label,
-                inhoud=article.Content,
-            )
-        )
 
-    # convert procudure steps
+    # Convert procudure steps
     procedure = dso_models.ProcedureVerloop(
         bekend_op=bill.Procedure_Data.Announcement_Date.strftime("%Y-%m-%d"),
-        stappen=[],
-    )
-    for step in bill.Procedure_Data.Steps:
-        procedure.stappen.append(
+        stappen=[
             dso_models.ProcedureStap(
-                soort_stap=step.Procedure_Step_Type,
-                voltooid_op=step.Completed_Date.strftime("%Y-%m-%d"),
+                soort_stap=step.Step_Type.value,
+                voltooid_op=step.Conclusion_Date.strftime("%Y-%m-%d"),
             )
-        )
+            for step in bill.Procedure_Data.Steps
+        ],
+    )
 
     resources = Resources(
         policy_object_repository=policy_object_repository,
@@ -82,19 +112,10 @@ def map_dso_input_data(
         werkingsgebied_repository=werkingsgebied_repository,
     )
 
-    document_type_mapping = {
-        Document_Type.VISION: "VISIE",
-        Document_Type.PROGRAM: "PROGRAMMA",
-        Document_Type.ORDINANCE: "VERORDENING",
-    }
-    document_type = document_type_mapping.get(publication.Document_Type, None)
-    if document_type == "VERORDENING":
-        raise NotImplementedError(f"Document type {publication.Document_Type} not supported")
-
     # Create inputdata
     input_data = InputData(
         publication_settings=dso_models.PublicationSettings(
-            document_type=document_type,
+            document_type=get_document_type(publication.Document_Type),
             datum_bekendmaking=bekendmakingsdatum,
             datum_juridisch_werkend_vanaf=bill.Effective_Date.strftime("%Y-%m-%d"),
             provincie_id=config.Province_ID,
@@ -104,7 +125,7 @@ def map_dso_input_data(
             regeling_componentnaam="nieuweregeling",
             provincie_ref=f"/tooi/id/provincie/{config.Province_ID}",
             opdracht={
-                "opdracht_type": opdracht_type,
+                "opdracht_type": get_opdracht_type(package.Package_Event_Type),
                 "id_levering": str(package.UUID),
                 "id_bevoegdgezag": str(config.Authority_ID),
                 "id_aanleveraar": str(config.Submitter_ID),

@@ -1,6 +1,6 @@
 from typing import Dict
 
-from app.extensions.playground.templates.text_template import TextTemplate
+from app.extensions.publications.dso.templates.text_template import TextTemplate
 
 # @note: This data will at some points be manages in the GUI
 

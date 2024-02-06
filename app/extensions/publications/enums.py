@@ -18,6 +18,22 @@ class Package_Event_Type(str, Enum):
     TERMINATE = "Afbreken"
 
 
+class ProcedureStepTypeEnum(str, Enum):
+    """
+    STOP ProcedureStappenDefinitief
+    """
+
+    DETERMINATION = "Vaststelling"
+    SIGNING = "Ondertekening"
+    PUBLICATION = "Publicatie"
+    END_OBJECTION_PERIOD = "Einde_bezwaartermijn"
+    END_APPEAL_PERIOD = "Einde_beroepstermijn"
+    START_APPEAL_PROCEDURES = "Start_beroepsprocedures"
+    SUSPENSION = "Schorsing"
+    LIFT_SUSPENSION = "Opheffing_Schorsing"
+    END_APPEAL_PROCEDURES = "Einde_beroepsprocedures"
+
+
 class OWProcedureStatus(str, Enum):
     CONCEPT = "Ontwerp"
     FINAL = "Definitief"

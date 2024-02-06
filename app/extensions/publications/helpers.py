@@ -1,11 +1,12 @@
 from datetime import datetime
+from datetime import datetime, date
 
 
 def serialize_datetime(obj):
     """
-    Recursively convert datetime objects to strings in a dictionary.
+    Recursively convert datetime and date objects to strings in a dictionary.
     """
-    if isinstance(obj, datetime):
+    if isinstance(obj, (datetime, date)):
         return obj.isoformat()
     elif isinstance(obj, dict):
         return {key: serialize_datetime(value) for key, value in obj.items()}

@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
-from app.extensions.publications.enums import Document_Type, Package_Event_Type, Procedure_Type
+from app.extensions.publications.enums import Document_Type, Package_Event_Type, Procedure_Type, ProcedureStepTypeEnum
 
 
 class PublicationConfig(BaseModel):
@@ -45,7 +45,7 @@ class Article(BaseModel):
     """
 
     Label: str
-    Number: str
+    Number: Optional[str]
     Content: str
 
 
@@ -54,8 +54,22 @@ class AmendmentArticle(Article):
     STOP WijzigingArtikel
     """
 
+    pass
+
 
 class BillArticle(Article):
+    """
+    tekst_artikel
+    """
+
+    pass
+
+
+class TimeArticle(Article):
+    """
+    tijd_artikel
+    """
+
     pass
 
 
@@ -64,8 +78,8 @@ class ProcedureStep(BaseModel):
     STOP Procedurestap
     """
 
-    Step_Type: str
-    Conclusion_Date: datetime
+    Step_Type: ProcedureStepTypeEnum
+    Conclusion_Date: date
 
 
 class Procedure_Data(BaseModel):
@@ -73,8 +87,8 @@ class Procedure_Data(BaseModel):
     STOP Procedureverloop
     """
 
-    Announcement_Date: datetime  # BekendOp
-    Steps: List[ProcedureStep] = []  # Procedurestappen
+    Announcement_Date: date  # BekendOp
+    Steps: List[ProcedureStep]  # Procedurestappen
 
 
 class Bill_Data(BaseModel):
@@ -82,7 +96,8 @@ class Bill_Data(BaseModel):
     Regulation_Title: str  # Regeling opschrift
     Preamble: Optional[str]  # Aanhef
     Amendment_Article: Optional[AmendmentArticle]  # WijzigingArtikel
-    Articles: Optional[List[BillArticle]]  # Artikel
+    Articles: Optional[List[BillArticle]]  # tekst Artikel
+    Time_Article: Optional[TimeArticle]  # tijdArtikel
     Closing: str  # Sluiting
     Signature: str  # Ondertekening
 
