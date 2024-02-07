@@ -121,6 +121,7 @@ class PublicationBill(BaseModel):
     Is_Official: bool
     Effective_Date: datetime
     Announcement_Date: datetime
+    PZH_Bill_Identifier: Optional[str]
 
     Bill_Data: Optional[Bill_Data]
     Procedure_Data: Optional[Procedure_Data]

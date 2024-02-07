@@ -59,7 +59,6 @@ class PublicationBillTable(Base, HasUUID, TimeStamped):
 
     Publication_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publications.UUID"), nullable=False)
     Module_Status_ID: Mapped[int] = mapped_column(Integer, ForeignKey("module_status_history.ID"), nullable=False)
-
     Version_ID: Mapped[int]
 
     Is_Official: Mapped[bool]
@@ -68,9 +67,7 @@ class PublicationBillTable(Base, HasUUID, TimeStamped):
     Procedure_Data = Column(JSON)  # Procedureverloop
     Effective_Date: Mapped[Optional[datetime]]  # Juridische inwerkingtredingsdatum
     Announcement_Date: Mapped[Optional[datetime]]  # Bekendmaking_Datum
-    # Council_Proposal_File: Mapped[Optional[str]]  # Statenvoorstel_Bestand
-
-    # TODO: Add titles to allow overrride from PublicationTable?
+    PZH_Bill_Identifier: Mapped[Optional[str]]  # Besluitnummer
 
     Publication: Mapped["PublicationTable"] = relationship("PublicationTable")
     Module_Status: Mapped["ModuleStatusHistoryTable"] = relationship("ModuleStatusHistoryTable")
