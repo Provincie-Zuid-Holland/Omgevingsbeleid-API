@@ -31,8 +31,10 @@ from .tables import (
     OWObjectTable,
     OWRegelingsgebiedTable,
     OWTekstdeelTable,
+    PublicationTable,
     PublicationBillTable,
     PublicationConfigTable,
     PublicationFRBRTable,
     PublicationPackageTable,
+    PublicationPackageReportTable,
 )

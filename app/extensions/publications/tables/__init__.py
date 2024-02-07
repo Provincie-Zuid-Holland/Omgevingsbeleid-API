@@ -15,5 +15,6 @@ from .tables import (
     PublicationConfigTable,
     PublicationFRBRTable,
     PublicationPackageTable,
+    PublicationPackageReportTable,
     PublicationTable,
 )

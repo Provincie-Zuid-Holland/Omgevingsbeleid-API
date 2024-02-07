@@ -53,6 +53,16 @@ class CreatePublicationEndpoint(Endpoint):
         return router
 
     def _handler(self, object_in: PublicationCreate, repo: PublicationRepository):
+        """
+        Create a new publication if not existing for the given module and document type
+        """
+        # check if publication exists for module+document type
+        existing = repo.list_publications(module_id=object_in.Module_ID, document_type=object_in.Document_Type)
+        if existing.total_count != 0:
+            raise ValueError(
+                f"Publication UUID: {existing.items[0].UUID} already exists for this module and document type"
+            )
+
         data = object_in.dict()
         new_publication = PublicationTable(
             UUID=uuid4(), Created_Date=datetime.now(), Modified_Date=datetime.now(), **data
