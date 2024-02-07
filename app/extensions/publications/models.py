@@ -158,7 +158,7 @@ class PublicationFRBR(BaseModel):
         """
         # Just use work version since we will not need seperate target joins for now
         # could be changed to custom name db field if nessessary
-        target = f"{self.bill_work_misc}-{self.bill_expression_version}"
+        target = f"Instelling-{self.bill_work_misc}-{self.bill_expression_version}"
         return {"year": self.bill_expression_date.year, "target_name": target}
 
     def get_besluit_frbr(self) -> Dict[str, Optional[str]]:
