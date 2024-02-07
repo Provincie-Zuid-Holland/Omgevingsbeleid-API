@@ -217,7 +217,7 @@ class PublicationRepository(BaseRepository):
                 .where(
                     PublicationPackageTable.Bill_UUID == new_package.Bill_UUID,
                     PublicationPackageTable.Package_Event_Type == Package_Event_Type.VALIDATION,
-                    PublicationPackageTable.Validated_At.isnot(None),
+                    PublicationPackageTable.Validation_Status == "Valid",
                 )
                 .order_by(desc(PublicationPackageTable.Modified_Date))
                 .limit(1)
