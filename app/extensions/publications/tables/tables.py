@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Optional
 
 from sqlalchemy import Column, DateTime
@@ -45,7 +45,7 @@ class PublicationTable(Base, HasUUID, TimeStamped):
     Document_Type = Column(SQLAlchemyEnum(*[e.value for e in Document_Type]))
     Work_ID: Mapped[int]  # FRBR counter
 
-    Official_Title: Mapped[str]  # Officiele titelb
+    Official_Title: Mapped[str]  # Officiele titel
     Regulation_Title: Mapped[str]  # Regeling opschrift
 
     Module: Mapped["ModuleTable"] = relationship("ModuleTable")
@@ -65,8 +65,8 @@ class PublicationBillTable(Base, HasUUID, TimeStamped):
     Procedure_Type = Column(SQLAlchemyEnum(*[e.value for e in Procedure_Type]), nullable=False)  # Procedure soort
     Bill_Data = Column(JSON)  # Besluit
     Procedure_Data = Column(JSON)  # Procedureverloop
-    Effective_Date: Mapped[Optional[datetime]]  # Juridische inwerkingtredingsdatum
-    Announcement_Date: Mapped[Optional[datetime]]  # Bekendmaking_Datum
+    Effective_Date: Mapped[Optional[date]]  # Juridische inwerkingtredingsdatum
+    Announcement_Date: Mapped[Optional[date]]  # Bekendmaking_Datum
     PZH_Bill_Identifier: Mapped[Optional[str]]  # Besluitnummer
 
     Publication: Mapped["PublicationTable"] = relationship("PublicationTable")
@@ -91,7 +91,7 @@ class PublicationFRBRTable(Base):
     bill_work_date: Mapped[str] = mapped_column(String(255), nullable=False)
     bill_work_misc: Mapped[str] = mapped_column(String(255), nullable=False)
     bill_expression_lang: Mapped[str] = mapped_column(String(255), nullable=False)
-    bill_expression_date: Mapped[datetime]
+    bill_expression_date: Mapped[date]
     bill_expression_version: Mapped[str] = mapped_column(String(255), nullable=False)
     bill_expression_misc: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
@@ -100,7 +100,7 @@ class PublicationFRBRTable(Base):
     act_work_date: Mapped[str] = mapped_column(String(255), nullable=False)
     act_work_misc: Mapped[str] = mapped_column(String(255), nullable=False)
     act_expression_lang: Mapped[str] = mapped_column(String(255), nullable=False)
-    act_expression_date: Mapped[datetime]
+    act_expression_date: Mapped[date]
     act_expression_version: Mapped[str] = mapped_column(String(255), nullable=False)
     act_expression_misc: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
@@ -141,7 +141,7 @@ class PublicationPackageTable(Base, HasUUID):
 
     Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in Package_Event_Type]), nullable=False)
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
-    Announcement_Date: Mapped[datetime]  # Datum_Bekendmaking
+    Announcement_Date: Mapped[date]  # Datum_Bekendmaking
 
     ZIP_File_Name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     ZIP_File_Binary: Mapped[Optional[bytes]] = deferred(Column(LargeBinary))  # Change to azure blob storage later

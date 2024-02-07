@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 from zoneinfo import ZoneInfo
 
@@ -22,8 +22,8 @@ from app.extensions.users.dependencies import depends_current_active_user
 
 
 class PublicationBillEdit(BaseModel):
-    Effective_Date: Optional[datetime]
-    Announcement_Date: Optional[datetime]
+    Effective_Date: Optional[date]
+    Announcement_Date: Optional[date]
     Bill_Data: Optional[Bill_Data]
     Procedure_Data: Optional[Procedure_Data]
 
@@ -31,7 +31,7 @@ class PublicationBillEdit(BaseModel):
     def validate_effective_date(cls, v):
         if v is not None:
             effective_date = parse(v) if isinstance(v, str) else v
-            if effective_date <= datetime.now(ZoneInfo("Europe/Amsterdam")):
+            if effective_date <= date.today():
                 raise ValueError("Effective Date must be in the future")
         return v
 
@@ -47,7 +47,7 @@ class PublicationBillEdit(BaseModel):
             if effective_date is not None and announcement_date >= effective_date:
                 raise ValueError("Announcement Date must be earlier than Effective Date")
 
-            if announcement_date <= datetime.now(ZoneInfo("Europe/Amsterdam")):
+            if announcement_date <= date.today():
                 raise ValueError("Announcement Date must in the future")
 
         return v

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 from uuid import uuid4
 from zoneinfo import ZoneInfo
@@ -27,8 +27,8 @@ class PublicationBillCreate(BaseModel):
     Module_Status_ID: int
     Procedure_Type: Procedure_Type
     Is_Official: bool
-    Effective_Date: Optional[datetime]
-    Announcement_Date: Optional[datetime]
+    Effective_Date: Optional[date]
+    Announcement_Date: Optional[date]
     PZH_Bill_Identifier: Optional[str]
     Bill_Data: Optional[Bill_Data]
     Procedure_Data: Optional[Procedure_Data]
@@ -37,7 +37,7 @@ class PublicationBillCreate(BaseModel):
     def validate_effective_date(cls, v):
         if v is not None:
             effective_date = parse(v) if isinstance(v, str) else v
-            if effective_date <= datetime.now(ZoneInfo("Europe/Amsterdam")):
+            if effective_date <= date.today():
                 raise ValueError("Effective Date must be in the future")
         return v
 
@@ -53,7 +53,7 @@ class PublicationBillCreate(BaseModel):
             if effective_date is not None and announcement_date >= effective_date:
                 raise ValueError("Announcement Date must be earlier than Effective Date")
 
-            if announcement_date <= datetime.now(ZoneInfo("Europe/Amsterdam")):
+            if announcement_date <= date.today():
                 raise ValueError("Announcement Date must in the future")
 
         return v

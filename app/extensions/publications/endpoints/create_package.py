@@ -1,7 +1,7 @@
 import hashlib
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 from zoneinfo import ZoneInfo
 
@@ -41,18 +41,19 @@ from app.extensions.publications.repository import (
 )
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
+from datetime import datetime, date
 
 
 class PublicationPackageCreate(BaseModel):
     Config_ID: Optional[int]
-    Announcement_Date: Optional[datetime]
+    Announcement_Date: Optional[date]
     Package_Event_Type: Package_Event_Type
 
     @validator("Announcement_Date", pre=False, always=True)
     def validate_announcement_date(cls, v):
         if v is not None:
             effective_date = parse(v) if isinstance(v, str) else v
-            if effective_date <= datetime.now(ZoneInfo("Europe/Amsterdam")):
+            if effective_date <= date.today():
                 raise ValueError("Announcement Date must be in the future")
         return v
 

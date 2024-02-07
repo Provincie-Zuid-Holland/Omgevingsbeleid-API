@@ -119,8 +119,8 @@ class PublicationBill(BaseModel):
     Version_ID: Optional[int]
     Procedure_Type: Procedure_Type
     Is_Official: bool
-    Effective_Date: datetime
-    Announcement_Date: datetime
+    Effective_Date: date
+    Announcement_Date: date
     PZH_Bill_Identifier: Optional[str]
 
     Bill_Data: Optional[Bill_Data]
@@ -139,7 +139,7 @@ class PublicationFRBR(BaseModel):
     bill_work_date: str  # work_datum
     bill_work_misc: Optional[str]  # work_overig
     bill_expression_lang: str  # expression_taal
-    bill_expression_date: datetime  # expression_datum
+    bill_expression_date: date  # expression_datum
     bill_expression_version: str  # expression_versie
     bill_expression_misc: Optional[str]  # expression_overig
 
@@ -148,7 +148,7 @@ class PublicationFRBR(BaseModel):
     act_work_date: str  # work_datum
     act_work_misc: Optional[str]  # work_overig
     act_expression_lang: str  # expression_taal
-    act_expression_date: datetime  # expression_datum
+    act_expression_date: date  # expression_datum
     act_expression_version: str  # expression_versie
     act_expression_misc: Optional[str]  # expression_overig
 
@@ -168,7 +168,7 @@ class PublicationFRBR(BaseModel):
             "work_datum": self.bill_work_date,
             "work_overig": self.bill_work_misc,
             "expression_taal": self.bill_expression_lang,
-            "expression_datum": self.bill_expression_date.strftime("%Y-%m-%d") if self.bill_expression_date else None,
+            "expression_datum": self.bill_expression_date if self.bill_expression_date else None,
             "expression_versie": self.bill_expression_version,
             "expression_overig": self.bill_expression_misc,
         }
@@ -180,7 +180,7 @@ class PublicationFRBR(BaseModel):
             "work_datum": self.act_work_date,
             "work_overig": self.act_work_misc,
             "expression_taal": self.act_expression_lang,
-            "expression_datum": self.act_expression_date.strftime("%Y-%m-%d") if self.act_expression_date else None,
+            "expression_datum": self.act_expression_date if self.act_expression_date else None,
             "expression_versie": self.act_expression_version,
             "expression_overig": self.act_expression_misc,
         }
@@ -217,7 +217,7 @@ class PublicationPackage(BaseModel):
 
     Package_Event_Type: Package_Event_Type
     Publication_Filename: Optional[str]
-    Announcement_Date: datetime
+    Announcement_Date: date
 
     ZIP_File_Name: Optional[str]
     ZIP_File_Checksum: Optional[str]
