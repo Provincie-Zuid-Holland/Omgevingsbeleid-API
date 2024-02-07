@@ -58,17 +58,17 @@ class ProgrammaTextTemplate(TextTemplate):
 <!--[GEBIED-CODE:{{o.Werkingsgebied_Code}}]-->
 {% endif %}
 
-{% if o.Description %}
-<h6>Wat wil de provincie bereiken?</h6>
-{{ o.Description }}
+{% if o.Description | has_text %}
+    <h6>Wat wil de provincie bereiken?</h6>
+    {{ o.Description }}
 {% endif %}
 
-{% if o.Role %}
+{% if o.Role | has_text %}
     <h6>Rolkeuze</h6>
     <p>{{ o.Role }}</p>
 {% endif %}
 
-{% if o.Effect | length > 15  %}
+{% if o.Effect | has_text  %}
     <h6>Uitwerking</h6>
     {{ o.Effect }}
 {% endif %}

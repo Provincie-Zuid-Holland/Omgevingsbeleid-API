@@ -81,24 +81,24 @@ class OmgevingsvisieTextTemplate(TextTemplate):
 <!--[GEBIED-CODE:{{o.Werkingsgebied_Code}}]-->
 {% endif %}
 
-{% if o.Description %}
-<h2>Wat wil de provincie bereiken?</h2>
-{{ o.Description }}
+{% if o.Description | has_text %}
+    <h6>Wat wil de provincie bereiken?</h6>
+    {{ o.Description }}
 {% endif %}
 
-{% if o.Cause %}
-<h2>Aanleiding</h2>
-{{ o.Cause }}
+{% if o.Cause | has_text %}
+    <h6>Aanleiding</h6>
+    {{ o.Cause }}
 {% endif %}
 
-{% if o.Provincial_Interest %}
-<h2>Motivering Provinciaal Belang</h2>
-{{ o.Provincial_Interest }}
+{% if o.Provincial_Interest | has_text %}
+    <h6>Motivering Provinciaal Belang</h6>
+    {{ o.Provincial_Interest }}
 {% endif %}
 
-{% if o.Explanation %}
-<h2>Nadere uitwerking</h2>
-{{ o.Explanation }}
+{% if o.Explanation | has_text %}
+    <h6>Nadere uitwerking</h6>
+    {{ o.Explanation }}
 {% endif %}
 """,
         }

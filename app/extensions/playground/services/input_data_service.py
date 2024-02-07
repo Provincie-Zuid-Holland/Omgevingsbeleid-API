@@ -39,10 +39,10 @@ class InputDataService:
             publication_settings=dso_models.PublicationSettings(
                 document_type=document_type.value.upper(),
                 datum_bekendmaking=datum,
-                datum_juridisch_werkend_vanaf="2024-02-06",
+                datum_juridisch_werkend_vanaf="2024-02-07",
                 provincie_id="pv28",
                 wId_suffix=work_version,
-                soort_bestuursorgaan="/tooi/def/thes/kern/c_411b4e4a",
+                soort_bestuursorgaan="Provinciale_staten",
                 expression_taal="nld",
                 regeling_componentnaam="nieuweregeling",
                 provincie_ref="/tooi/id/provincie/pv28",
@@ -52,7 +52,7 @@ class InputDataService:
                     "id_bevoegdgezag": "00000001002306608000",
                     "id_aanleveraar": "00000001002306608000",
                     "publicatie_bestand": f"akn_nl_bill_pv28-{datum}-{versie}.xml",
-                    "datum_bekendmaking": "2024-02-06",
+                    "datum_bekendmaking": "2024-02-07",
                 },
                 doel=dso_models.Doel(jaar="2024", naam=f"Instelling{document_type_title.capitalize()}"),
                 besluit_frbr={
@@ -110,13 +110,17 @@ class InputDataService:
                 bekend_op="2024-02-06",
                 stappen=[
                     dso_models.ProcedureStap(
-                        soort_stap="/join/id/stop/procedure/stap_002",
+                        soort_stap="Vaststelling",
                         voltooid_op="2024-01-05",
                     ),
                     dso_models.ProcedureStap(
-                        soort_stap="/join/id/stop/procedure/stap_003",
+                        soort_stap="Ondertekening",
                         voltooid_op="2024-01-06",
                     ),
+                    # dso_models.ProcedureStap(
+                    #     soort_stap="Publicatie",
+                    #     voltooid_op="2024-02-07",
+                    # ),
                 ],
             ),
             resources=Resources(

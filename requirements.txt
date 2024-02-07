@@ -42,7 +42,7 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20230430
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.0.29
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.0.33
     # via -r requirements.in
 ecdsa==0.18.0
     # via python-jose
@@ -84,7 +84,7 @@ markupsafe==2.1.5
     # via
     #   dso
     #   jinja2
-numpy==1.26.3
+numpy==1.26.4
     # via
     #   dso
     #   pandas
@@ -114,7 +114,7 @@ pydantic==1.10.14
     #   -r requirements.in
     #   dso
     #   fastapi
-pyodbc==5.0.1
+pyodbc==5.1.0
     # via -r requirements.in
 pyproj==3.6.1
     # via
