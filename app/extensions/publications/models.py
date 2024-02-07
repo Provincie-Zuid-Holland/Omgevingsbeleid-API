@@ -151,6 +151,15 @@ class PublicationFRBR(BaseModel):
     act_expression_version: str  # expression_versie
     act_expression_misc: Optional[str]  # expression_overig
 
+    def get_target_info(self) -> Dict[str, Optional[str]]:
+        """
+        target == DSO doel
+        """
+        # Just use work version since we will not need seperate target joins for now
+        # could be changed to custom name db field if nessessary
+        target = f"{self.bill_work_misc}-{self.bill_expression_version}"
+        return {"year": self.bill_expression_date.year, "target_name": target}
+
     def get_besluit_frbr(self) -> Dict[str, Optional[str]]:
         # to export for dso input_data
         return {

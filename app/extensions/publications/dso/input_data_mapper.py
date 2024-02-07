@@ -131,7 +131,10 @@ def map_dso_input_data(
                 "publicatie_bestand": package.FRBR_Info.as_filename(),
                 "datum_bekendmaking": bekendmakingsdatum,
             },
-            doel=dso_models.Doel(jaar="2024", naam="InstellingOmgevingsvisie"),  # TODO insert Doel from bill/package
+            doel=dso_models.Doel(
+                jaar=package.FRBR_Info.get_target_info()["year"],
+                naam=package.FRBR_Info.get_target_info()["target_name"],
+            ),
             besluit_frbr=package.FRBR_Info.get_besluit_frbr(),
             regeling_frbr=package.FRBR_Info.get_regeling_frbr(),
         ),
