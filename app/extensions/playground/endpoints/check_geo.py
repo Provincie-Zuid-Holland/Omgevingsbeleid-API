@@ -24,7 +24,7 @@ class CheckGeoEndpoint(Endpoint):
         ) -> Response:
             query = f"""
             SELECT UUID, Werkingsgebied, SHAPE.STAsText() FROM
-            Werkingsgebieden WHERE Created_Date > '2024'
+            Werkingsgebieden WHERE Created_Date >= '2024-02-06'
             """
             # SHAPE.STAsText()
             result = db.execute(text(query)).all()
