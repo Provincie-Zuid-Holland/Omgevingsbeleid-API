@@ -41,7 +41,7 @@ class OWObjectRepository(BaseRepository):
         # TODO: This is a temp fix, make sure ambstgebied is only generated when needed
         for new_ow_object in new_ow_objects:
             if isinstance(new_ow_object, OWAmbtsgebiedTable):
-                existing: OWAmbtsgebiedTable = self.get_ow_object_by_uuid(new_ow_object.uuid)
+                existing: OWAmbtsgebiedTable = self.get_ow_object_by_uuid(new_ow_object.UUID)
                 if existing:
                     existing.OW_ID = new_ow_object.OW_ID
                     existing.Modified_Date = new_ow_object.Modified_Date
