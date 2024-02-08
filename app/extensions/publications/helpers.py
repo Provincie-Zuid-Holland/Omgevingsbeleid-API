@@ -1,5 +1,4 @@
-from datetime import datetime
-from datetime import datetime, date
+from datetime import date, datetime
 
 
 def serialize_datetime(obj):

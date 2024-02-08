@@ -10,8 +10,8 @@ from .helpers import serialize_datetime
 from .models import (
     AmendmentArticle,
     Article,
-    BillData,
     BillArticle,
+    BillData,
     ProcedureData,
     ProcedureStep,
     Publication,
@@ -31,10 +31,10 @@ from .tables import (
     OWObjectTable,
     OWRegelingsgebiedTable,
     OWTekstdeelTable,
-    PublicationTable,
     PublicationBillTable,
     PublicationConfigTable,
     PublicationFRBRTable,
-    PublicationPackageTable,
     PublicationPackageReportTable,
+    PublicationPackageTable,
+    PublicationTable,
 )

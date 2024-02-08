@@ -4,7 +4,7 @@ from typing import Optional
 
 from sqlalchemy import Column
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, Unicode
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
@@ -21,9 +21,9 @@ class OWAssociationTable(Base):
     """
 
     __tablename__ = "publication_ow_association"
-    OW_ID_1 = Column(String(255), ForeignKey("publication_ow_objects.OW_ID"), primary_key=True)
-    OW_ID_2 = Column(String(255), ForeignKey("publication_ow_objects.OW_ID"), primary_key=True)
-    Type = Column(String)
+    OW_ID_1 = Column(Unicode(255), ForeignKey("publication_ow_objects.OW_ID"), primary_key=True)
+    OW_ID_2 = Column(Unicode(255), ForeignKey("publication_ow_objects.OW_ID"), primary_key=True)
+    Type = Column(Unicode)
     # Type = Column(SQLAlchemyEnum(*[e.value for e in OWAssociationType]))
 
     # Relationships to ow objects
@@ -38,11 +38,11 @@ class OWObjectTable(Base, TimeStamped):
     Created_Date: Mapped[datetime] = mapped_column(default=datetime.now())
     Modified_Date: Mapped[datetime] = mapped_column(default=datetime.now())
 
-    OW_ID: Mapped[str] = mapped_column(String(255), unique=True)
+    OW_ID: Mapped[str] = mapped_column(Unicode(255), unique=True)
 
     IMOW_Type = Column(SQLAlchemyEnum(*[e.value for e in IMOWTYPE]))
     Procedure_Status = Column(SQLAlchemyEnum(*[e.value for e in OWProcedureStatusType]))
-    Noemer: Mapped[Optional[str]]
+    Noemer: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)
 
     # Relationship to PublicationPackageTable
     Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_packages.UUID"), nullable=False)
@@ -55,7 +55,7 @@ class OWObjectTable(Base, TimeStamped):
 
 
 class OWDivisieTable(OWObjectTable):
-    WID = Column(String)
+    WID = Column(Unicode)
 
     __mapper_args__ = {
         "polymorphic_identity": IMOWTYPE.DIVISIE.value,
@@ -109,7 +109,7 @@ class OWTekstdeelTable(OWObjectTable):
     the association proxy is used to auto insert the correct OWAssociation with matching type.
     """
 
-    Divisie_ref = Column(String(255), ForeignKey("publication_ow_objects.OW_ID"))
+    Divisie_ref = Column(Unicode(255), ForeignKey("publication_ow_objects.OW_ID"))
 
     # New association_proxy
     _locations = relationship(
@@ -143,9 +143,9 @@ class OWTekstdeelTable(OWObjectTable):
 
 
 class OWAmbtsgebiedTable(OWObjectTable):
-    Bestuurlijke_grenzen_id: Mapped[str] = mapped_column(String(255), nullable=True)
-    Domein: Mapped[str] = mapped_column(String(255), nullable=True)
-    Geldig_Op: Mapped[str] = mapped_column(String(255), nullable=True)
+    Bestuurlijke_grenzen_id: Mapped[str] = mapped_column(Unicode(255), nullable=True)
+    Domein: Mapped[str] = mapped_column(Unicode(255), nullable=True)
+    Geldig_Op: Mapped[str] = mapped_column(Unicode(255), nullable=True)
 
     __mapper_args__ = {
         "polymorphic_identity": IMOWTYPE.AMBTSGEBIED.value,
@@ -153,7 +153,7 @@ class OWAmbtsgebiedTable(OWObjectTable):
 
 
 class OWRegelingsgebiedTable(OWObjectTable):
-    Ambtsgebied: Mapped[str] = mapped_column(String(255), nullable=True)
+    Ambtsgebied: Mapped[str] = mapped_column(Unicode(255), nullable=True)
 
     __mapper_args__ = {
         "polymorphic_identity": IMOWTYPE.REGELINGSGEBIED.value,

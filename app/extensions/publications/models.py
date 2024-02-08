@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
-from app.extensions.publications.enums import DocumentType, PackageEventType, ProcedureType, ProcedureStepType
+from app.extensions.publications.enums import DocumentType, PackageEventType, ProcedureStepType, ProcedureType
 
 
 class PublicationConfig(BaseModel):
@@ -58,23 +58,17 @@ class AmendmentArticle(Article):
     STOP WijzigingArtikel
     """
 
-    pass
-
 
 class BillArticle(Article):
     """
     tekst_artikel
     """
 
-    pass
-
 
 class TimeArticle(Article):
     """
     tijd_artikel
     """
-
-    pass
 
 
 class ProcedureStep(BaseModel):

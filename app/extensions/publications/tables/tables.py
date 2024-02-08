@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy import ForeignKey, LargeBinary, String, Text, UniqueConstraint
+from sqlalchemy import ForeignKey, LargeBinary, Text, Unicode, UniqueConstraint
 from sqlalchemy.orm import Mapped, backref, deferred, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import JSON, Integer
 
@@ -19,17 +19,17 @@ class PublicationConfigTable(Base):
     ID: Mapped[int] = mapped_column(primary_key=True)
     Created_Date: Mapped[datetime]
 
-    Province_ID: Mapped[str]  # Provincie_ID
-    Authority_ID: Mapped[str]  # Bevoegdgezag_ID
-    Submitter_ID: Mapped[str]  # Aanleveraar_ID
-    Jurisdiction: Mapped[str]  # Rechtsgebied
-    Subjects: Mapped[str]  # Onderwerpen
-    Governing_Body_Type: Mapped[str]  # Bestuursorgaan_Soort
-    Act_Componentname: Mapped[str]  # Regeling Componentnaam
+    Province_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Provincie_ID
+    Authority_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Bevoegdgezag_ID
+    Submitter_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Aanleveraar_ID
+    Jurisdiction: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Rechtsgebied
+    Subjects: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Onderwerpen
+    Governing_Body_Type: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Bestuursorgaan_Soort
+    Act_Componentname: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Regeling Componentnaam
 
-    DSO_STOP_VERSION: Mapped[str]
-    DSO_TPOD_VERSION: Mapped[str]
-    DSO_BHKV_VERSION: Mapped[str]
+    DSO_STOP_VERSION: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    DSO_TPOD_VERSION: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    DSO_BHKV_VERSION: Mapped[str] = mapped_column(Unicode(255), nullable=False)
 
 
 class PublicationTable(Base, HasUUID, TimeStamped, UserMetaData):
@@ -45,8 +45,8 @@ class PublicationTable(Base, HasUUID, TimeStamped, UserMetaData):
     Document_Type = Column(SQLAlchemyEnum(*[e.value for e in DocumentType]))
     Work_ID: Mapped[int]  # FRBR counter
 
-    Official_Title: Mapped[str]  # Officiele titel
-    Regulation_Title: Mapped[str]  # Regeling opschrift
+    Official_Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Officiele titel
+    Regulation_Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Regeling opschrift
 
     Module: Mapped["ModuleTable"] = relationship("ModuleTable")
 
@@ -67,7 +67,7 @@ class PublicationBillTable(Base, HasUUID, TimeStamped, UserMetaData):
     Procedure_Data = Column(JSON)  # Procedureverloop
     Effective_Date: Mapped[Optional[date]]  # Juridische inwerkingtredingsdatum
     Announcement_Date: Mapped[Optional[date]]  # Bekendmaking_Datum
-    PZH_Bill_Identifier: Mapped[Optional[str]]  # Besluitnummer
+    PZH_Bill_Identifier: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)  # Besluitnummer
 
     Publication: Mapped["PublicationTable"] = relationship("PublicationTable")
     Module_Status: Mapped["ModuleStatusHistoryTable"] = relationship("ModuleStatusHistoryTable")
@@ -87,22 +87,22 @@ class PublicationFRBRTable(Base):
     Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     # Fields for bill_frbr
-    bill_work_country: Mapped[str] = mapped_column(String(255), nullable=False)
-    bill_work_date: Mapped[str] = mapped_column(String(255), nullable=False)
-    bill_work_misc: Mapped[str] = mapped_column(String(255), nullable=False)
-    bill_expression_lang: Mapped[str] = mapped_column(String(255), nullable=False)
+    bill_work_country: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    bill_work_date: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    bill_work_misc: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    bill_expression_lang: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     bill_expression_date: Mapped[date]
-    bill_expression_version: Mapped[str] = mapped_column(String(255), nullable=False)
-    bill_expression_misc: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    bill_expression_version: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    bill_expression_misc: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)
 
     # Fields for act_frbr
-    act_work_country: Mapped[str] = mapped_column(String(255), nullable=False)
-    act_work_date: Mapped[str] = mapped_column(String(255), nullable=False)
-    act_work_misc: Mapped[str] = mapped_column(String(255), nullable=False)
-    act_expression_lang: Mapped[str] = mapped_column(String(255), nullable=False)
+    act_work_country: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    act_work_date: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    act_work_misc: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    act_expression_lang: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     act_expression_date: Mapped[date]
-    act_expression_version: Mapped[str] = mapped_column(String(255), nullable=False)
-    act_expression_misc: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    act_expression_version: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    act_expression_misc: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)
 
     @classmethod
     def create_default_frbr(
@@ -140,12 +140,12 @@ class PublicationPackageTable(Base, HasUUID, UserMetaData):
     FRBR_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_frbr.ID"), nullable=False)
 
     Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in PackageEventType]), nullable=False)
-    Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
+    Publication_Filename: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)  # Publicatie_Bestandnaam
     Announcement_Date: Mapped[date]  # Datum_Bekendmaking
 
-    ZIP_File_Name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    ZIP_File_Name: Mapped[Optional[str]] = mapped_column(Unicode, nullable=True)
     ZIP_File_Binary: Mapped[Optional[bytes]] = deferred(Column(LargeBinary))  # Change to azure blob storage later
-    ZIP_File_Checksum: Mapped[Optional[str]] = Column(String(64))
+    ZIP_File_Checksum: Mapped[Optional[str]] = Column(Unicode(64))
 
     Validation_Status = Column(
         SQLAlchemyEnum(*[e.value for e in ValidationStatusType]),
@@ -175,11 +175,11 @@ class PublicationPackageReportTable(Base):
     Package_UUID: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("publication_packages.UUID"), nullable=False
     )  # Idlevering
-    Result: Mapped[str] = mapped_column(String, nullable=False)  # Uitkomst
+    Result: Mapped[str] = mapped_column(Unicode, nullable=False)  # Uitkomst
     Report_Timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)  # tijdstipVerslag
     Messages = Column(Text)  # Storing XML string of <meldingen> for simplicity
     Source_Document = Column(Text)  # full original document for downloading
-    Report_Type: Mapped[str] = mapped_column(String, nullable=False)  # Voortgang
+    Report_Type: Mapped[str] = mapped_column(Unicode, nullable=False)  # Voortgang
 
     Package = relationship("PublicationPackageTable", back_populates="Reports")
 

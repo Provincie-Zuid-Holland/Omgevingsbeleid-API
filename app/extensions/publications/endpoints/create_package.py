@@ -1,9 +1,8 @@
 import hashlib
 import json
 import uuid
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import Optional
-from zoneinfo import ZoneInfo
 
 from dateutil.parser import parse
 from fastapi import APIRouter, Depends, HTTPException
@@ -42,7 +41,6 @@ from app.extensions.publications.repository import (
 )
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
-from datetime import datetime, date
 
 
 class PublicationPackageCreate(BaseModel):

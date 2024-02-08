@@ -13,13 +13,7 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
 )
 
 from app.extensions.publications.enums import DocumentType, PackageEventType, ProcedureType
-from app.extensions.publications.models import (
-    ProcedureStep,
-    Publication,
-    PublicationBill,
-    PublicationConfig,
-    PublicationPackage,
-)
+from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig, PublicationPackage
 
 DOCUMENT_TYPE_MAP = {
     DocumentType.VISION: "OMGEVINGSVISIE",

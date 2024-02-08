@@ -1,8 +1,7 @@
 import uuid
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import Optional
 from uuid import uuid4
-from zoneinfo import ZoneInfo
 
 from dateutil.parser import parse
 from fastapi import APIRouter, Depends
