@@ -118,7 +118,7 @@ def map_dso_input_data(
             datum_bekendmaking=bekendmakingsdatum,
             datum_juridisch_werkend_vanaf=str(bill.Effective_Date),
             provincie_id=config.Province_ID,
-            wId_suffix=package.FRBR_Info.bill_expression_version,
+            wId_suffix=str(package.FRBR_Info.ID),
             soort_bestuursorgaan=config.Governing_Body_Type,  # Provinciale_states "/tooi/def/thes/kern/c_411b4e4a"
             expression_taal=package.FRBR_Info.bill_expression_lang,
             regeling_componentnaam=config.Act_Componentname,  # nieuweregeling
