@@ -137,7 +137,7 @@ class PublicationPackageTable(Base, HasUUID, UserMetaData):
 
     Bill_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_bills.UUID"), nullable=False)
     Config_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_config.ID"), nullable=False)
-    FRBR_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_frbr.ID"), nullable=False, unique=True)
+    FRBR_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_frbr.ID"), nullable=False)
 
     Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in PackageEventType]), nullable=False)
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
