@@ -81,11 +81,11 @@ class EndpointHandler:
         )
 
         # @todo: remove
-        # pretend all object have werkingsgebied-3 as werkingsgebied
+        # pretend all object have werkingsgebied-1 as werkingsgebied
         for i, o in enumerate(objects):
             if o["Object_Type"] not in ["beleidskeuze", "maatregel"]:
                 continue
-            objects[i]["Werkingsgebied_Code"] = "werkingsgebied-3"
+            objects[i]["Werkingsgebied_Code"] = "werkingsgebied-1"
 
         free_text_template_str = self._template_parser.get_parsed_template(objects)
         object_template_repository: ObjectTemplateRepository = self._template_parser.get_object_template_repository()

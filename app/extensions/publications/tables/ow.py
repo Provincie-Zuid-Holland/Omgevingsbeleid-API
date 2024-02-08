@@ -100,7 +100,7 @@ class OWGebiedenGroepTable(OWLocationTable):
     # Relationship using OWAssociationTable
     _gebieden = relationship(
         "OWAssociationTable",
-        primaryjoin=f"and_(OWGebiedenGroepTable.OW_ID_HASH == OWAssociationTable.OW_ID_HASH_1, OWAssociationTable.Type == '{OWAssociationType.GEBIEDENGROEP_GEBIED.value}')",
+        primaryjoin=f"and_(OWGebiedenGroepTable.OW_ID_HASH == OWAssociationTable.OW_ID_1_HASH, OWAssociationTable.Type == '{OWAssociationType.GEBIEDENGROEP_GEBIED.value}')",
         cascade="all, delete-orphan",
     )
 
@@ -128,7 +128,7 @@ class OWTekstdeelTable(OWObjectTable):
     # New association_proxy
     _locations = relationship(
         "OWAssociationTable",
-        primaryjoin=f"and_(OWTekstdeelTable.OW_ID_HASH == OWAssociationTable.OW_ID_HASH_1, OWAssociationTable.Type == '{OWAssociationType.TEKSTDEEL_LOCATION.value}')",
+        primaryjoin=f"and_(OWTekstdeelTable.OW_ID_HASH == OWAssociationTable.OW_ID_1_HASH, OWAssociationTable.Type == '{OWAssociationType.TEKSTDEEL_LOCATION.value}')",
         cascade="all, delete-orphan",
     )
 

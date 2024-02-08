@@ -39,7 +39,7 @@ class InputDataService:
             publication_settings=dso_models.PublicationSettings(
                 document_type=document_type.value.upper(),
                 datum_bekendmaking=datum,
-                datum_juridisch_werkend_vanaf="2024-02-07",
+                datum_juridisch_werkend_vanaf="2024-02-09",
                 provincie_id="pv28",
                 wId_suffix=work_version,
                 soort_bestuursorgaan="Provinciale_staten",
@@ -52,7 +52,7 @@ class InputDataService:
                     "id_bevoegdgezag": "00000001002306608000",
                     "id_aanleveraar": "00000001002306608000",
                     "publicatie_bestand": f"akn_nl_bill_pv28-{datum}-{versie}.xml",
-                    "datum_bekendmaking": "2024-02-07",
+                    "datum_bekendmaking": "2024-02-09",
                 },
                 doel=dso_models.Doel(jaar="2024", naam=f"Instelling{document_type_title.capitalize()}"),
                 besluit_frbr={

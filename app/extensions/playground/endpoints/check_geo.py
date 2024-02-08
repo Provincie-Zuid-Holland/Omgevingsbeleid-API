@@ -5,6 +5,7 @@ from shapely import wkt
 from shapely.geometry import GeometryCollection, LineString, MultiPolygon, Point, Polygon
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+from collections import Counter
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
@@ -24,7 +25,7 @@ class CheckGeoEndpoint(Endpoint):
         ) -> Response:
             query = f"""
             SELECT UUID, Werkingsgebied, SHAPE.STAsText() FROM
-            Werkingsgebieden WHERE Created_Date >= '2024-02-06'
+            Werkingsgebieden WHERE Created_Date >= '2024-02-06' AND Werkingsgebied = 'Windenergie'
             """
             # SHAPE.STAsText()
             result = db.execute(text(query)).all()
@@ -43,6 +44,11 @@ class CheckGeoEndpoint(Endpoint):
 
             df = pd.DataFrame({"UUID": uuids, "TITLE": titles, "SHAPE": shapes})
             gdf = gpd.GeoDataFrame(df, geometry="SHAPE")
+
+            def get_duplicates(a):
+                element_counts = Counter(a)
+                duplicates = [element for element, count in element_counts.items() if count > 1]
+                return duplicates
 
             def simplify_geometry(geom):
                 tolerance = (
@@ -88,10 +94,12 @@ class CheckGeoEndpoint(Endpoint):
                     # Check coordinates in the exterior and interior rings of a Polygon
                     exterior_coords = list(geom.exterior.coords)
                     if len(exterior_coords) != len(set(exterior_coords)):
+                        print(f"exterior error on these: {get_duplicates(exterior_coords)}")
                         return False
                     for interior in geom.interiors:
                         interior_coords = list(interior.coords)
                         if len(interior_coords) != len(set(interior_coords)):
+                            print(f"interior error on these: {get_duplicates(interior_coords)}")
                             return False
                     return True
 
@@ -133,7 +141,7 @@ class CheckGeoEndpoint(Endpoint):
                 gdf["SHAPE"].apply(fix_invalid_geometry).apply(simplify_geometry).apply(remove_repeated_points)
             )
             gdf["Check_After_Fix"] = gdf["Fixed_SHAPE"].apply(check_geometry)
-            print(gdf[["TITLE", "Check"]])
+            print(gdf[["UUID", "TITLE", "Check"]])
 
         router.add_api_route(
             self._path,
