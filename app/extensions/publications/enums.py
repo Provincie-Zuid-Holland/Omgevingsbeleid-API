@@ -1,24 +1,35 @@
 from enum import Enum
 
 
-class Document_Type(str, Enum):
+class DocumentType(str, Enum):
     VISION = "Omgevingsvisie"
     PROGRAM = "Omgevingsprogramma"
     ORDINANCE = "Omgevingsverordening"
 
 
-class Procedure_Type(str, Enum):
+class ProcedureType(str, Enum):
     CONCEPT = "Ontwerp"
     FINAL = "Definitief"
 
 
-class Package_Event_Type(str, Enum):
+class PackageEventType(str, Enum):
     VALIDATION = "Validatie"
     PUBLICATION = "Publicatie"
     TERMINATE = "Afbreken"
 
 
-class ProcedureStepTypeEnum(str, Enum):
+class ValidationStatusType(str, Enum):
+    """
+    Status type of Publication Packages during the validation process.
+    Defaults to Pending and is set to (in)Valid after report is uploaded.
+    """
+
+    PENDING = "Pending"
+    VALID = "Valid"
+    FAILED = "Failed"
+
+
+class ProcedureStepType(str, Enum):
     """
     STOP ProcedureStappenDefinitief
     """
@@ -34,7 +45,7 @@ class ProcedureStepTypeEnum(str, Enum):
     END_APPEAL_PROCEDURES = "Einde_beroepsprocedures"
 
 
-class OWProcedureStatus(str, Enum):
+class OWProcedureStatusType(str, Enum):
     CONCEPT = "Ontwerp"
     FINAL = "Definitief"
 

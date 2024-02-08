@@ -19,7 +19,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications import (
     DSOStateExportTable,
     MissingPublicationConfigError,
-    Package_Event_Type,
+    PackageEventType,
     PublicationConfigTable,
     PublicationPackage,
     PublicationPackageTable,
@@ -47,7 +47,7 @@ from datetime import datetime, date
 class PublicationPackageCreate(BaseModel):
     Config_ID: Optional[int]
     Announcement_Date: Optional[date]
-    Package_Event_Type: Package_Event_Type
+    Package_Event_Type: PackageEventType
 
     @validator("Announcement_Date", pre=False, always=True)
     def validate_announcement_date(cls, v):
@@ -75,6 +75,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         ) -> PublicationPackage:
             try:
                 return self._handler(
+                    user=user,
                     bill_uuid=bill_uuid,
                     object_in=object_in,
                     pub_repo=publication_repo,
@@ -101,6 +102,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
     def _handler(
         self,
+        user: UsersTable,
         bill_uuid: uuid.UUID,
         pub_repo: PublicationRepository,
         object_in: PublicationPackageCreate,
@@ -146,6 +148,8 @@ class CreatePublicationPackageEndpoint(Endpoint):
             UUID=uuid.uuid4(),
             Created_Date=datetime.now(),
             Modified_Date=datetime.now(),
+            Created_By_UUID=user.UUID,
+            Modified_By_UUID=user.UUID,
             Bill_UUID=bill_db.UUID,
             Config_ID=current_config.ID,
             Package_Event_Type=object_in.Package_Event_Type,
@@ -222,7 +226,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         new_export = pub_repo.create_dso_state_export(new_export)
 
         # Store new OW objects in DB
-        if new_package_db.Package_Event_Type == Package_Event_Type.PUBLICATION and bill_db.Is_Official:
+        if new_package_db.Package_Event_Type == PackageEventType.PUBLICATION and bill_db.Is_Official:
             ow_objects = create_ow_objects_from_json(
                 exported_state=state_exported,
                 package_uuid=package.UUID,

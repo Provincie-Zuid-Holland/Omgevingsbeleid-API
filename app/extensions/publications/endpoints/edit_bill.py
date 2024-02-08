@@ -15,7 +15,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_publication_repository
 from app.extensions.publications.exceptions import PublicationBillNotFound
 from app.extensions.publications.helpers import serialize_datetime
-from app.extensions.publications.models import Bill_Data, Procedure_Data, PublicationBill
+from app.extensions.publications.models import BillData, ProcedureData, PublicationBill
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
@@ -24,8 +24,8 @@ from app.extensions.users.dependencies import depends_current_active_user
 class PublicationBillEdit(BaseModel):
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
-    Bill_Data: Optional[Bill_Data]
-    Procedure_Data: Optional[Procedure_Data]
+    Bill_Data: Optional[BillData]
+    Procedure_Data: Optional[ProcedureData]
 
     @validator("Effective_Date", pre=False, always=True)
     def validate_effective_date(cls, v):
@@ -65,7 +65,7 @@ class EditPublicationBillEndpoint(Endpoint):
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> PublicationBill:
-            return self._handler(bill_uuid=bill_uuid, object_in=object_in, repo=publication_repo)
+            return self._handler(user=user, bill_uuid=bill_uuid, object_in=object_in, repo=publication_repo)
 
         router.add_api_route(
             self._path,
@@ -80,16 +80,15 @@ class EditPublicationBillEndpoint(Endpoint):
         return router
 
     def _handler(
-        self, bill_uuid: uuid.UUID, repo: PublicationRepository, object_in: PublicationBillEdit
+        self, user: UsersTable, bill_uuid: uuid.UUID, repo: PublicationRepository, object_in: PublicationBillEdit
     ) -> PublicationBill:
-        # TODO: ensure effective date gap is not bypassed
         data = object_in.dict()
         data["Bill_Data"] = serialize_datetime(data["Bill_Data"])
         data["Procedure_Data"] = serialize_datetime(data["Procedure_Data"])
-
         # Only update provided fields that are not None
         data = {k: v for k, v in data.items() if v is not None}
-
+        # Update modified by
+        data["Modified_By_UUID"] = user.UUID
         try:
             result = repo.update_publication_bill(bill_uuid, **data)
         except PublicationBillNotFound as e:

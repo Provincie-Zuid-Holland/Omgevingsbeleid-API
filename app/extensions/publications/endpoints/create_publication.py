@@ -11,7 +11,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_publication_repository
-from app.extensions.publications.enums import Document_Type
+from app.extensions.publications.enums import DocumentType
 from app.extensions.publications.models import Publication
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.publications.tables import PublicationTable
@@ -22,7 +22,7 @@ from app.extensions.users.dependencies import depends_current_active_user
 
 class PublicationCreate(BaseModel):
     Module_ID: int
-    Document_Type: Document_Type
+    Document_Type: DocumentType
     Official_Title: str
     Regulation_Title: str
     Template_ID: Optional[int]
@@ -38,7 +38,7 @@ class CreatePublicationEndpoint(Endpoint):
             pub_repository: PublicationRepository = Depends(depends_publication_repository),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> Publication:
-            return self._handler(object_in=object_in, repo=pub_repository)
+            return self._handler(user=user, object_in=object_in, repo=pub_repository)
 
         router.add_api_route(
             self._path,
@@ -52,7 +52,7 @@ class CreatePublicationEndpoint(Endpoint):
 
         return router
 
-    def _handler(self, object_in: PublicationCreate, repo: PublicationRepository):
+    def _handler(self, user: UsersTable, object_in: PublicationCreate, repo: PublicationRepository):
         """
         Create a new publication if not existing for the given module and document type
         """
@@ -65,7 +65,12 @@ class CreatePublicationEndpoint(Endpoint):
 
         data = object_in.dict()
         new_publication = PublicationTable(
-            UUID=uuid4(), Created_Date=datetime.now(), Modified_Date=datetime.now(), **data
+            UUID=uuid4(),
+            Created_Date=datetime.now(),
+            Modified_Date=datetime.now(),
+            Created_By_UUID=user.UUID,
+            Modified_By_UUID=user.UUID,
+            **data,
         )
         result = repo.create_publication(new_publication)
         return Publication.from_orm(result)

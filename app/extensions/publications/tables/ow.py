@@ -12,7 +12,7 @@ from sqlalchemy.sql.expression import select
 
 from app.core.db.base import Base
 from app.core.db.mixins import TimeStamped
-from app.extensions.publications.enums import IMOWTYPE, OWAssociationType, OWProcedureStatus
+from app.extensions.publications.enums import IMOWTYPE, OWAssociationType, OWProcedureStatusType
 
 
 class OWAssociationTable(Base):
@@ -41,7 +41,7 @@ class OWObjectTable(Base, TimeStamped):
     OW_ID: Mapped[str] = mapped_column(String(255), unique=True)
 
     IMOW_Type = Column(SQLAlchemyEnum(*[e.value for e in IMOWTYPE]))
-    Procedure_Status = Column(SQLAlchemyEnum(*[e.value for e in OWProcedureStatus]))
+    Procedure_Status = Column(SQLAlchemyEnum(*[e.value for e in OWProcedureStatusType]))
     Noemer: Mapped[Optional[str]]
 
     # Relationship to PublicationPackageTable

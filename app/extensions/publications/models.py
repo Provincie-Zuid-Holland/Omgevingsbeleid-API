@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
-from app.extensions.publications.enums import Document_Type, Package_Event_Type, Procedure_Type, ProcedureStepTypeEnum
+from app.extensions.publications.enums import DocumentType, PackageEventType, ProcedureType, ProcedureStepType
 
 
 class PublicationConfig(BaseModel):
@@ -29,10 +29,12 @@ class Publication(BaseModel):
     UUID: uuid.UUID
     Created_Date: datetime
     Modified_Date: datetime
+    Created_By_UUID: uuid.UUID
+    Modified_By_UUID: uuid.UUID
 
     Module_ID: int
     Template_ID: Optional[int]
-    Document_Type: Document_Type
+    Document_Type: DocumentType
     Work_ID: int
     Official_Title: str
     Regulation_Title: str
@@ -80,11 +82,11 @@ class ProcedureStep(BaseModel):
     STOP Procedurestap
     """
 
-    Step_Type: ProcedureStepTypeEnum
+    Step_Type: ProcedureStepType
     Conclusion_Date: date
 
 
-class Procedure_Data(BaseModel):
+class ProcedureData(BaseModel):
     """
     STOP Procedureverloop
     """
@@ -93,7 +95,7 @@ class Procedure_Data(BaseModel):
     Steps: List[ProcedureStep]  # Procedurestappen
 
 
-class Bill_Data(BaseModel):
+class BillData(BaseModel):
     Bill_Title: str  # Officiele titel
     Regulation_Title: str  # Regeling opschrift
     Preamble: Optional[str]  # Aanhef
@@ -112,19 +114,21 @@ class PublicationBill(BaseModel):
     UUID: uuid.UUID
     Created_Date: datetime
     Modified_Date: datetime
+    Created_By_UUID: uuid.UUID
+    Modified_By_UUID: uuid.UUID
 
     Publication_UUID: uuid.UUID
     Module_Status_ID: int
 
     Version_ID: Optional[int]
-    Procedure_Type: Procedure_Type
+    Procedure_Type: ProcedureType
     Is_Official: bool
     Effective_Date: date
     Announcement_Date: date
     PZH_Bill_Identifier: Optional[str]
 
-    Bill_Data: Optional[Bill_Data]
-    Procedure_Data: Optional[Procedure_Data]
+    Bill_Data: Optional[BillData]
+    Procedure_Data: Optional[ProcedureData]
 
     class Config:
         orm_mode = True
@@ -196,6 +200,7 @@ class PublicationFRBR(BaseModel):
 class PublicationPackageReport(BaseModel):
     ID: int
     Created_Date: datetime
+    Created_By_UUID: uuid.UUID
     Package_UUID: uuid.UUID
     Result: Optional[str]
     Report_Timestamp: Optional[datetime]
@@ -210,14 +215,16 @@ class PublicationPackage(BaseModel):
     UUID: uuid.UUID
     Created_Date: datetime
     Modified_Date: datetime
+    Created_By_UUID: uuid.UUID
+    Modified_By_UUID: uuid.UUID
 
     Bill_UUID: uuid.UUID
     Config_ID: int
     FRBR_ID: int
 
-    Package_Event_Type: Package_Event_Type
+    Package_Event_Type: PackageEventType
     Publication_Filename: Optional[str]
-    Announcement_Date: date
+    Announcement_Date: date  # passed from bill or overwritten on package create
 
     ZIP_File_Name: Optional[str]
     ZIP_File_Checksum: Optional[str]

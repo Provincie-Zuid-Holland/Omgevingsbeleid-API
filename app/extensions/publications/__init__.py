@@ -1,4 +1,4 @@
-from .enums import IMOWTYPE, Document_Type, OWAssociationType, OWProcedureStatus, Package_Event_Type, Procedure_Type
+from .enums import IMOWTYPE, DocumentType, OWAssociationType, OWProcedureStatusType, PackageEventType, ProcedureType
 from .exceptions import (
     DSOExportOWError,
     DSOStateExportError,
@@ -10,9 +10,9 @@ from .helpers import serialize_datetime
 from .models import (
     AmendmentArticle,
     Article,
-    Bill_Data,
+    BillData,
     BillArticle,
-    Procedure_Data,
+    ProcedureData,
     ProcedureStep,
     Publication,
     PublicationBill,

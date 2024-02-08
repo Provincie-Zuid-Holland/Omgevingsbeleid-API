@@ -12,6 +12,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_publication_repository
+from app.extensions.publications.enums import ValidationStatusType
 from app.extensions.publications.models import PublicationPackageReport
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.publications.tables.tables import PublicationPackageReportTable
@@ -47,17 +48,20 @@ class CreatePackageReportEndpoint(Endpoint):
                 raise HTTPException(status_code=403, detail="Report idLevering does not match publication package UUID")
 
             report_db.Source_Document = xml_content.decode("utf-8")
+            report_db.Created_By_UUID = user.UUID
             db.add(report_db)
 
             if report_db.Result != "succes":
-                package.Validation_Status = "Invalid"
+                package.Validation_Status = ValidationStatusType.FAILED
             else:
                 # Check if all reports for this package are valid to mark the package as valid
                 valid_reports_count = self._count_valid_reports(db, package_uuid)
                 total_reports_count = self._count_total_reports(db, package_uuid)
                 if valid_reports_count == total_reports_count:
-                    package.Validation_Status = "Valid"
-                # If there are no failed but not all reports are processed, it remains in Pending
+                    package.Validation_Status = ValidationStatusType.VALID
+
+            package.Modified_By_UUID = user.UUID
+            package.Modified_Date = datetime.now()
             db.commit()
 
             report = PublicationPackageReport.from_orm(report_db)

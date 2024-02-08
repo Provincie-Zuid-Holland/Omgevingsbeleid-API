@@ -14,9 +14,9 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_publication_repository
-from app.extensions.publications.enums import Procedure_Type
+from app.extensions.publications.enums import ProcedureType
 from app.extensions.publications.helpers import serialize_datetime
-from app.extensions.publications.models import Bill_Data, Procedure_Data, PublicationBill
+from app.extensions.publications.models import BillData, ProcedureData, PublicationBill
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.publications.tables import PublicationBillTable
 from app.extensions.users.db.tables import UsersTable
@@ -25,13 +25,13 @@ from app.extensions.users.dependencies import depends_current_active_user
 
 class PublicationBillCreate(BaseModel):
     Module_Status_ID: int
-    Procedure_Type: Procedure_Type
+    Procedure_Type: ProcedureType
     Is_Official: bool
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
     PZH_Bill_Identifier: Optional[str]
-    Bill_Data: Optional[Bill_Data]
-    Procedure_Data: Optional[Procedure_Data]
+    Bill_Data: Optional[BillData]
+    Procedure_Data: Optional[ProcedureData]
 
     @validator("Effective_Date", pre=False, always=True)
     def validate_effective_date(cls, v):
@@ -70,7 +70,9 @@ class CreatePublicationBillEndpoint(Endpoint):
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> PublicationBill:
-            return self._handler(object_in=object_in, repo=publication_repo, publication_uuid=publication_uuid)
+            return self._handler(
+                user=user, object_in=object_in, repo=publication_repo, publication_uuid=publication_uuid
+            )
 
         router.add_api_route(
             self._path,
@@ -85,7 +87,11 @@ class CreatePublicationBillEndpoint(Endpoint):
         return router
 
     def _handler(
-        self, repo: PublicationRepository, object_in: PublicationBillCreate, publication_uuid: uuid.UUID
+        self,
+        user: UsersTable,
+        repo: PublicationRepository,
+        object_in: PublicationBillCreate,
+        publication_uuid: uuid.UUID,
     ) -> PublicationBill:
         data = object_in.dict()
         data["Bill_Data"] = serialize_datetime(data["Bill_Data"])
@@ -94,6 +100,8 @@ class CreatePublicationBillEndpoint(Endpoint):
             UUID=uuid4(),
             Created_Date=datetime.now(),
             Modified_Date=datetime.now(),
+            Created_By_UUID=user.UUID,
+            Modified_By_UUID=user.UUID,
             Publication_UUID=publication_uuid,
             **data
         )

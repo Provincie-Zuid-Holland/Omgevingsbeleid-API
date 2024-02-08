@@ -9,8 +9,8 @@ from sqlalchemy.orm import Mapped, backref, deferred, mapped_column, relationshi
 from sqlalchemy.sql.sqltypes import JSON, Integer
 
 from app.core.db.base import Base
-from app.core.db.mixins import HasUUID, TimeStamped
-from app.extensions.publications.enums import Document_Type, Package_Event_Type, Procedure_Type
+from app.core.db.mixins import HasUUID, TimeStamped, UserMetaData
+from app.extensions.publications.enums import DocumentType, PackageEventType, ProcedureType, ValidationStatusType
 
 
 class PublicationConfigTable(Base):
@@ -32,17 +32,17 @@ class PublicationConfigTable(Base):
     DSO_BHKV_VERSION: Mapped[str]
 
 
-class PublicationTable(Base, HasUUID, TimeStamped):
+class PublicationTable(Base, HasUUID, TimeStamped, UserMetaData):
     __tablename__ = "publications"
     __table_args__ = (UniqueConstraint("Document_Type", "Work_ID", name="uq_publications_document_work"),)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     Module_ID: Mapped[int] = mapped_column(Integer, ForeignKey("modules.Module_ID"), nullable=False)
     Template_ID: Mapped[Optional[int]]  # TODO: key to new template storage
 
-    Document_Type = Column(SQLAlchemyEnum(*[e.value for e in Document_Type]))
+    Document_Type = Column(SQLAlchemyEnum(*[e.value for e in DocumentType]))
     Work_ID: Mapped[int]  # FRBR counter
 
     Official_Title: Mapped[str]  # Officiele titel
@@ -51,7 +51,7 @@ class PublicationTable(Base, HasUUID, TimeStamped):
     Module: Mapped["ModuleTable"] = relationship("ModuleTable")
 
 
-class PublicationBillTable(Base, HasUUID, TimeStamped):
+class PublicationBillTable(Base, HasUUID, TimeStamped, UserMetaData):
     __tablename__ = "publication_bills"
 
     Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
@@ -62,7 +62,7 @@ class PublicationBillTable(Base, HasUUID, TimeStamped):
     Version_ID: Mapped[int]
 
     Is_Official: Mapped[bool]
-    Procedure_Type = Column(SQLAlchemyEnum(*[e.value for e in Procedure_Type]), nullable=False)  # Procedure soort
+    Procedure_Type = Column(SQLAlchemyEnum(*[e.value for e in ProcedureType]), nullable=False)  # Procedure soort
     Bill_Data = Column(JSON)  # Besluit
     Procedure_Data = Column(JSON)  # Procedureverloop
     Effective_Date: Mapped[Optional[date]]  # Juridische inwerkingtredingsdatum
@@ -130,7 +130,7 @@ class PublicationFRBRTable(Base):
         )
 
 
-class PublicationPackageTable(Base, HasUUID):
+class PublicationPackageTable(Base, HasUUID, UserMetaData):
     __tablename__ = "publication_packages"
     Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
@@ -139,7 +139,7 @@ class PublicationPackageTable(Base, HasUUID):
     Config_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_config.ID"), nullable=False)
     FRBR_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_frbr.ID"), nullable=False, unique=True)
 
-    Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in Package_Event_Type]), nullable=False)
+    Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in PackageEventType]), nullable=False)
     Publication_Filename: Mapped[Optional[str]]  # Publicatie_Bestandnaam
     Announcement_Date: Mapped[date]  # Datum_Bekendmaking
 
@@ -147,7 +147,11 @@ class PublicationPackageTable(Base, HasUUID):
     ZIP_File_Binary: Mapped[Optional[bytes]] = deferred(Column(LargeBinary))  # Change to azure blob storage later
     ZIP_File_Checksum: Mapped[Optional[str]] = Column(String(64))
 
-    Validation_Status: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    Validation_Status = Column(
+        SQLAlchemyEnum(*[e.value for e in ValidationStatusType]),
+        nullable=False,
+        default=ValidationStatusType.PENDING.value,
+    )
 
     Config: Mapped["PublicationConfigTable"] = relationship("PublicationConfigTable")
     Bill: Mapped["PublicationBillTable"] = relationship("PublicationBillTable")
@@ -166,6 +170,8 @@ class PublicationPackageReportTable(Base):
 
     ID: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+
     Package_UUID: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("publication_packages.UUID"), nullable=False
     )  # Idlevering

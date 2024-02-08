@@ -11,7 +11,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, SimplePagination
 from app.extensions.publications import PublicationBill
 from app.extensions.publications.dependencies import depends_publication_repository
-from app.extensions.publications.enums import Document_Type
+from app.extensions.publications.enums import DocumentType
 from app.extensions.publications.models import Publication
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.users.db.tables import UsersTable
@@ -24,7 +24,7 @@ class ListPublicationsEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            document_type: Optional[Document_Type] = None,
+            document_type: Optional[DocumentType] = None,
             module_ID: Optional[int] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             pub_repository: PublicationRepository = Depends(depends_publication_repository),

@@ -34,7 +34,9 @@ class EditPublicationEndpoint(Endpoint):
             publication_repo: PublicationRepository = Depends(depends_publication_repository),
             user: UsersTable = Depends(depends_current_active_user),
         ) -> Publication:
-            return self._handler(publication_uuid=publication_uuid, object_in=object_in, repo=publication_repo)
+            return self._handler(
+                user=user, publication_uuid=publication_uuid, object_in=object_in, repo=publication_repo
+            )
 
         router.add_api_route(
             self._path,
@@ -49,12 +51,12 @@ class EditPublicationEndpoint(Endpoint):
         return router
 
     def _handler(
-        self, publication_uuid: uuid.UUID, repo: PublicationRepository, object_in: PublicationEdit
+        self, user: UsersTable, publication_uuid: uuid.UUID, repo: PublicationRepository, object_in: PublicationEdit
     ) -> Publication:
         # Only update provided fields that are not None
         data = object_in.dict()
         data = {k: v for k, v in data.items() if v is not None}
-
+        data["Modified_By_UUID"] = user.UUID
         try:
             result = repo.update_publication(publication_uuid, **data)
         except PublicationNotFound as e:

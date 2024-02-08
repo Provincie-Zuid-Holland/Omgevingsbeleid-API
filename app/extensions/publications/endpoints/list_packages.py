@@ -12,7 +12,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, SimplePagination
 from app.extensions.publications import PublicationPackage
 from app.extensions.publications.dependencies import depends_publication_repository
-from app.extensions.publications.enums import Package_Event_Type
+from app.extensions.publications.enums import PackageEventType
 from app.extensions.publications.repository.publication_repository import PublicationRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
@@ -25,7 +25,7 @@ class ListPublicationPackagesEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             bill_uuid: uuid.UUID,
-            package_event_type: Optional[Package_Event_Type] = None,
+            package_event_type: Optional[PackageEventType] = None,
             is_successful: Optional[bool] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             publication_repository: PublicationRepository = Depends(depends_publication_repository),

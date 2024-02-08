@@ -10,12 +10,12 @@ from app.dynamic.utils.pagination import PaginatedQueryResult
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable
 from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.publications import (
-    Document_Type,
+    DocumentType,
     PublicationBillTable,
     PublicationConfigTable,
     PublicationPackageTable,
 )
-from app.extensions.publications.enums import Package_Event_Type
+from app.extensions.publications.enums import PackageEventType
 from app.extensions.publications.exceptions import PublicationBillNotFound, PublicationNotFound
 from app.extensions.publications.tables.tables import DSOStateExportTable, PublicationFRBRTable, PublicationTable
 
@@ -64,7 +64,7 @@ class PublicationRepository(BaseRepository):
 
     def list_publications(
         self,
-        document_type: Optional[Document_Type] = None,
+        document_type: Optional[DocumentType] = None,
         module_id: Optional[int] = None,
         offset: int = 0,
         limit: int = 20,
@@ -202,7 +202,7 @@ class PublicationRepository(BaseRepository):
         """
         frbr = None
         # If validation package, create new FRBR
-        if new_package.Package_Event_Type == Package_Event_Type.VALIDATION:
+        if new_package.Package_Event_Type == PackageEventType.VALIDATION:
             bill = self.get_publication_bill(new_package.Bill_UUID)
             frbr = PublicationFRBRTable.create_default_frbr(
                 document_type=bill.Publication.Document_Type,
@@ -216,7 +216,7 @@ class PublicationRepository(BaseRepository):
                 select(PublicationPackageTable)
                 .where(
                     PublicationPackageTable.Bill_UUID == new_package.Bill_UUID,
-                    PublicationPackageTable.Package_Event_Type == Package_Event_Type.VALIDATION,
+                    PublicationPackageTable.Package_Event_Type == PackageEventType.VALIDATION,
                     PublicationPackageTable.Validation_Status == "Valid",
                 )
                 .order_by(desc(PublicationPackageTable.Modified_Date))
@@ -244,7 +244,7 @@ class PublicationRepository(BaseRepository):
     def get_publication_packages(
         self,
         bill_uuid: Optional[UUID] = None,
-        package_event_type: Optional[Package_Event_Type] = None,
+        package_event_type: Optional[PackageEventType] = None,
         is_successful: Optional[bool] = None,
         offset: int = 0,
         limit: int = 20,

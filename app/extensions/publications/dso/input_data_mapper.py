@@ -12,7 +12,7 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
     WerkingsgebiedRepository,
 )
 
-from app.extensions.publications.enums import Document_Type, Package_Event_Type, Procedure_Type
+from app.extensions.publications.enums import DocumentType, PackageEventType, ProcedureType
 from app.extensions.publications.models import (
     ProcedureStep,
     Publication,
@@ -22,31 +22,31 @@ from app.extensions.publications.models import (
 )
 
 DOCUMENT_TYPE_MAP = {
-    Document_Type.VISION: "OMGEVINGSVISIE",
-    Document_Type.PROGRAM: "PROGRAMMA",
-    Document_Type.ORDINANCE: "VERORDENING",
+    DocumentType.VISION: "OMGEVINGSVISIE",
+    DocumentType.PROGRAM: "PROGRAMMA",
+    DocumentType.ORDINANCE: "VERORDENING",
 }
 
 OPDRACHT_TYPE_MAP = {
-    Package_Event_Type.VALIDATION: "VALIDATIE",
-    Package_Event_Type.PUBLICATION: "PUBLICATIE",
+    PackageEventType.VALIDATION: "VALIDATIE",
+    PackageEventType.PUBLICATION: "PUBLICATIE",
 }
 
 
-def get_opdracht_type(package_event_type: Package_Event_Type) -> str:
+def get_opdracht_type(package_event_type: PackageEventType) -> str:
     return OPDRACHT_TYPE_MAP.get(package_event_type, "PUBLICATIE")
 
 
-def get_document_type(document_type: Document_Type) -> str:
-    if document_type == Document_Type.ORDINANCE:
+def get_document_type(document_type: DocumentType) -> str:
+    if document_type == DocumentType.ORDINANCE:
         raise NotImplementedError(f"Document type {document_type} not supported")
     return DOCUMENT_TYPE_MAP.get(document_type, "")
 
 
-def get_procedure_type(procedure_type: Procedure_Type) -> str:
-    if procedure_type == Procedure_Type.CONCEPT:
+def get_procedure_type(procedure_type: ProcedureType) -> str:
+    if procedure_type == ProcedureType.CONCEPT:
         return "Ontwerpbesluit"
-    if procedure_type == Procedure_Type.FINAL:
+    if procedure_type == ProcedureType.FINAL:
         return "Definitief_besluit"
     else:
         raise ValueError(f"Unknown procedure type: {procedure_type}")
