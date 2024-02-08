@@ -32,6 +32,7 @@ from app.extensions.publications.dependencies import (
 )
 from app.extensions.publications.dso.dso_service import DSOService
 from app.extensions.publications.dso.ow_export import create_ow_objects_from_json
+from app.extensions.publications.enums import ValidationStatusType
 from app.extensions.publications.exceptions import DSOModuleException, PublicationBillNotFound
 from app.extensions.publications.models import PublicationBill, PublicationConfig
 from app.extensions.publications.repository import (
@@ -153,7 +154,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
             Bill_UUID=bill_db.UUID,
             Config_ID=current_config.ID,
             Package_Event_Type=object_in.Package_Event_Type,
-            Validation_Status="Pending",
+            Validation_Status=ValidationStatusType.PENDING.value,
             Announcement_Date=object_in.Announcement_Date if object_in.Announcement_Date else bill_db.Announcement_Date,
         )
         new_package_db = pub_repo.create_publication_package(new_package_db)

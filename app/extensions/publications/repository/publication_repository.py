@@ -15,7 +15,7 @@ from app.extensions.publications import (
     PublicationConfigTable,
     PublicationPackageTable,
 )
-from app.extensions.publications.enums import PackageEventType
+from app.extensions.publications.enums import PackageEventType, ValidationStatusType
 from app.extensions.publications.exceptions import PublicationBillNotFound, PublicationNotFound
 from app.extensions.publications.tables.tables import DSOStateExportTable, PublicationFRBRTable, PublicationTable
 
@@ -217,12 +217,14 @@ class PublicationRepository(BaseRepository):
                 .where(
                     PublicationPackageTable.Bill_UUID == new_package.Bill_UUID,
                     PublicationPackageTable.Package_Event_Type == PackageEventType.VALIDATION,
-                    PublicationPackageTable.Validation_Status == "Valid",
+                    PublicationPackageTable.Validation_Status == ValidationStatusType.VALID,
                 )
                 .order_by(desc(PublicationPackageTable.Modified_Date))
                 .limit(1)
             )
             validated_package = self.fetch_first(stmt)
+            if not validated_package:
+                raise ValueError("No validated package found for this bill")
             new_package.FRBR_ID = validated_package.FRBR_ID
 
         self._db.add(new_package)
