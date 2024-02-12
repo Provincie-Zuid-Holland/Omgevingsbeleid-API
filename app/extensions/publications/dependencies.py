@@ -10,16 +10,14 @@ from app.extensions.publications.dso import (
     DsoAssetsFactory,
     DSOService,
     DsoWerkingsgebiedenFactory,
-    ProgrammaTextTemplate,
     OmgevingsvisieTextTemplate,
+    ProgrammaTextTemplate,
     TemplateParser,
 )
 from app.extensions.publications.enums import DocumentType
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.publications.repository.ow_object_repository import OWObjectRepository
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
-from app.extensions.source_werkingsgebieden.dependencies import depends_geometry_repository
-from app.extensions.source_werkingsgebieden.repository.geometry_repository import GeometryRepository
 
 
 def depends_publication_repository(db: Session = Depends(depends_db)) -> PublicationRepository:

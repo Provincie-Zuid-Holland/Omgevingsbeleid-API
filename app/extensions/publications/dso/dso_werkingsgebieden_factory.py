@@ -1,5 +1,4 @@
-from typing import Dict, List, Set
-import uuid
+from typing import List, Set
 
 from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied_repository import (
     WerkingsgebiedRepository,

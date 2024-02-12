@@ -43,7 +43,7 @@ from app.extensions.publications.repository import (
     PublicationRepository,
 )
 from app.extensions.publications.tables.ow import OWAmbtsgebiedTable, OWObjectTable
-from app.extensions.publications.tables.tables import PublicationBillTable, PublicationFRBRTable
+from app.extensions.publications.tables.tables import PublicationFRBRTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
