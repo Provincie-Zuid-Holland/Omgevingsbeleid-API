@@ -4,7 +4,7 @@ from typing import List
 from dso.builder.state_manager.input_data.object_template_repository import ObjectTemplateRepository
 from jinja2 import Template
 
-from app.extensions.playground.templates.text_template import TextTemplate
+from app.extensions.publications.dso.templates.text_template import TextTemplate
 
 
 class TemplateParser:
@@ -30,3 +30,29 @@ class TemplateParser:
         object_templates = self._template_style.get_object_templates()
         repository = ObjectTemplateRepository(object_templates)
         return repository
+
+    def get_object_types(self) -> List[str]:
+        object_types: List[str] = self._template_style.get_object_types()
+        return object_types
+
+    def get_field_map(self) -> List[str]:
+        field_map = [
+            "UUID",
+            "Object_Type",
+            "Object_ID",
+            "Code",
+            "Hierarchy_Code",
+            "Werkingsgebied_Code",
+            "Title",
+            "Description",
+            "Cause",
+            "Provincial_Interest",
+            "Explanation",
+            "Role",
+            "Effect",
+            # Used for Werkingsgebied
+            "Area_UUID",
+            "Created_Date",
+            "Modified_Date",
+        ]
+        return field_map

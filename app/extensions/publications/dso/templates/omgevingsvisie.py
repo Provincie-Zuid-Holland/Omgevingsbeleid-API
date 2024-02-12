@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from app.extensions.publications.dso.templates.text_template import TextTemplate
 
@@ -6,9 +6,25 @@ from app.extensions.publications.dso.templates.text_template import TextTemplate
 
 
 class OmgevingsvisieTextTemplate(TextTemplate):
+    def get_object_types(self) -> List[str]:
+        object_types = [
+            "visie_algemeen",
+            "ambitie",
+            "beleidsdoel",
+            "beleidskeuze",
+            "werkingsgebied",
+        ]
+        return object_types
+
     def get_free_text_template(self) -> str:
         template = """
 <div><object code="visie_algemeen-1" /></div>
+<div><object code="visie_algemeen-2" /></div>
+<div><object code="visie_algemeen-3" /></div>
+<div><object code="visie_algemeen-4" /></div>
+<div><object code="visie_algemeen-5" /></div>
+<div><object code="visie_algemeen-6" /></div>
+<div><object code="visie_algemeen-7" /></div>
 
 <div>
     <h1>Ambities van Zuid-Holland</h1>
@@ -36,6 +52,8 @@ class OmgevingsvisieTextTemplate(TextTemplate):
         </div>
     {%- endfor %}
 </div>
+
+<div><object code="visie_algemeen-8" /></div>
 """
         return template
 
@@ -63,24 +81,24 @@ class OmgevingsvisieTextTemplate(TextTemplate):
 <!--[GEBIED-CODE:{{o.Werkingsgebied_Code}}]-->
 {% endif %}
 
-{% if o.Description %}
-<h2>Wat wil de provincie bereiken?</h2>
-{{ o.Description }}
+{% if o.Description | has_text %}
+    <h6>Wat wil de provincie bereiken?</h6>
+    {{ o.Description }}
 {% endif %}
 
-{% if o.Cause %}
-<h2>Aanleiding</h2>
-{{ o.Cause }}
+{% if o.Cause | has_text %}
+    <h6>Aanleiding</h6>
+    {{ o.Cause }}
 {% endif %}
 
-{% if o.Provincial_Interest %}
-<h2>Motivering Provinciaal Belang</h2>
-{{ o.Provincial_Interest }}
+{% if o.Provincial_Interest | has_text %}
+    <h6>Motivering Provinciaal Belang</h6>
+    {{ o.Provincial_Interest }}
 {% endif %}
 
-{% if o.Explanation %}
-<h2>Nadere uitwerking</h2>
-{{ o.Explanation }}
+{% if o.Explanation | has_text %}
+    <h6>Nadere uitwerking</h6>
+    {{ o.Explanation }}
 {% endif %}
 """,
         }

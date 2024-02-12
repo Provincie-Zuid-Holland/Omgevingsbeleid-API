@@ -2,13 +2,15 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
+from app.extensions.areas.dependencies import depends_area_geometry_repository
+from app.extensions.areas.repository.area_geometry_repository import AreaGeometryRepository
 from app.extensions.html_assets.dependencies import depends_asset_repository
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.publications.dso import (
     DsoAssetsFactory,
     DSOService,
     DsoWerkingsgebiedenFactory,
-    OmgevingsprogrammaTextTemplate,
+    ProgrammaTextTemplate,
     OmgevingsvisieTextTemplate,
     TemplateParser,
 )
@@ -37,7 +39,7 @@ def depends_ow_object_repository(
 
 
 def depends_dso_werkingsgebieden_factory(
-    geometry_repository: GeometryRepository = Depends(depends_geometry_repository),
+    geometry_repository: AreaGeometryRepository = Depends(depends_area_geometry_repository),
 ) -> DsoWerkingsgebiedenFactory:
     return DsoWerkingsgebiedenFactory(geometry_repository)
 
@@ -45,7 +47,7 @@ def depends_dso_werkingsgebieden_factory(
 def depends_get_parsers() -> TemplateParser:
     return {
         DocumentType.VISION.value: TemplateParser(template_style=OmgevingsvisieTextTemplate()),
-        DocumentType.PROGRAM.value: TemplateParser(template_style=OmgevingsprogrammaTextTemplate()),
+        DocumentType.PROGRAM.value: TemplateParser(template_style=ProgrammaTextTemplate()),
     }
 
 

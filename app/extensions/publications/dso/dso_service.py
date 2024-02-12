@@ -13,7 +13,7 @@ from app.extensions.publications.dso.dso_werkingsgebieden_factory import DsoWerk
 from app.extensions.publications.dso.input_data_mapper import map_dso_input_data
 from app.extensions.publications.dso.template_parser import TemplateParser
 from app.extensions.publications.exceptions import DSOModuleException, DSOStateExportError
-from app.extensions.publications.models import PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig, PublicationPackage
 from app.extensions.source_werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
 
 
@@ -37,11 +37,11 @@ class DSOService:
         self._state_exported: Optional[str] = None
         self._zip_buffer: Optional[io.BytesIO] = None
 
-    def get_object_template_repository(self, object_templates):
+    def _get_object_template_repository(self, object_templates):
         repository = ObjectTemplateRepository(object_templates)
         return repository
 
-    def get_policy_object_repository(self, used_objects: List[dict]) -> PolicyObjectRepository:
+    def _get_policy_object_repository(self, used_objects: List[dict]) -> PolicyObjectRepository:
         repository = PolicyObjectRepository()
         for o in used_objects:
             repository.add(o["Code"], o)
@@ -66,22 +66,16 @@ class DSOService:
 
     def prepare_publication_input(
         self,
-        publication: PublicationBill,
+        parser: TemplateParser,
+        publication: Publication,
         bill: PublicationBill,
         package: PublicationPackage,
         config: PublicationConfig,
         objects,
-    ):
+    ) -> InputData:
         """
         Start point for converting our publication data to DSO input data.
         """
-
-        # Build parsed object templates
-        try:
-            parser = self._template_parsers[publication.Document_Type]
-        except KeyError:
-            raise KeyError(f"No template parser found for document type {publication.Document_Type.value}")
-
         free_text_template_str = parser.get_parsed_template(objects=objects)
         used_object_codes = self._calculate_used_object_codes(free_text_template_str)
         used_objects = self._filter_to_used_objects(objects, used_object_codes)
@@ -92,10 +86,10 @@ class DSOService:
 
         werkingsgebieden_objects: List[dict] = [o for o in objects if o["Object_Type"] == "werkingsgebied"]
         werkingsgebieden_repository: WerkingsgebiedenRepository = (
-            self._dso_werkingsgebieden_factory.get_repository_for_objects(werkingsgebieden_objects, used_objects)
+            self._dso_werkingsgebieden_factory.get_repository_for_objects(werkingsgebieden_objects, used_objects, True)
         )
 
-        policy_object_repository = self.get_policy_object_repository(used_objects)
+        policy_object_repository = self._get_policy_object_repository(used_objects)
 
         # Convert to INput data
         input_data: InputData = map_dso_input_data(
