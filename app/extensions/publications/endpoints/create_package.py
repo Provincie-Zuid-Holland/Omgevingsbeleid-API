@@ -1,12 +1,15 @@
 import hashlib
 import json
+import os
+import select
 import uuid
 from datetime import date, datetime
-from typing import Optional
+from typing import List, Optional
 
 from dateutil.parser import parse
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, validator
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -31,14 +34,16 @@ from app.extensions.publications.dependencies import (
 )
 from app.extensions.publications.dso.dso_service import DSOService
 from app.extensions.publications.dso.ow_export import create_ow_objects_from_json
-from app.extensions.publications.enums import ValidationStatusType
+from app.extensions.publications.enums import DocumentType, ValidationStatusType
 from app.extensions.publications.exceptions import DSOModuleException, PublicationBillNotFound
-from app.extensions.publications.models import PublicationBill, PublicationConfig
+from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig
 from app.extensions.publications.repository import (
     OWObjectRepository,
     PublicationObjectRepository,
     PublicationRepository,
 )
+from app.extensions.publications.tables.ow import OWAmbtsgebiedTable, OWObjectTable
+from app.extensions.publications.tables.tables import PublicationBillTable, PublicationFRBRTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
@@ -99,6 +104,100 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
         return router
 
+    def _get_config(self, pub_repo: PublicationRepository, config_id) -> PublicationConfig:
+        # Defaults to latest config row
+        if not config_id:
+            current_config: PublicationConfigTable = pub_repo.get_latest_config()
+        else:
+            current_config: PublicationConfigTable = pub_repo.get_config_by_id(config_id=config_id)
+
+        if not current_config:
+            raise MissingPublicationConfigError("No config found")
+
+        return PublicationConfig.from_orm(current_config)
+
+    def _add_frbr_to_package(
+        self,
+        db: Session,
+        document_type: DocumentType,
+        bill_version_id: int,
+        publication_work_id: int,
+        new_package: PublicationPackageTable,
+    ) -> PublicationPackage:
+        frbr = None
+        # If validation package, create new FRBR
+        if new_package.Package_Event_Type == PackageEventType.VALIDATION:
+            frbr = PublicationFRBRTable.create_default_frbr(
+                document_type=document_type,
+                expression_version=bill_version_id,
+                work_ID=publication_work_id,
+            )
+            new_package.FRBR_Info = frbr
+        else:
+            # if publication event, try using earlier FRBR created at validation version of this bill
+            stmt = (
+                select(PublicationPackageTable)
+                .where(
+                    PublicationPackageTable.Bill_UUID == new_package.Bill_UUID,
+                    PublicationPackageTable.Package_Event_Type == PackageEventType.VALIDATION,
+                    PublicationPackageTable.Validation_Status == ValidationStatusType.VALID,
+                )
+                .order_by(desc(PublicationPackageTable.Modified_Date))
+                .limit(1)
+            )
+            validated_package = db.execute(stmt).scalar()
+            if not validated_package:
+                raise ValueError("No validated package found for this bill")
+            new_package.FRBR_ID = validated_package.FRBR_ID
+
+        return new_package
+
+    def _update_existing_ow_objects(
+        self, ow_repo: OWObjectRepository, new_ow_objects: List[OWObjectTable]
+    ) -> List[OWObjectTable]:
+        # TODO: add versioning to OW objects and increment for updated geos?
+        ow_objects = []
+        for new_ow_object in new_ow_objects:
+            # TODO: This is a temp fix, make sure ambstgebied is only generated when needed
+            if isinstance(new_ow_object, OWAmbtsgebiedTable):
+                existing: OWAmbtsgebiedTable = ow_repo.get_ow_object_by_uuid(new_ow_object.UUID)
+                if existing:
+                    existing.OW_ID = new_ow_object.OW_ID
+                    existing.Modified_Date = new_ow_object.Modified_Date
+                    existing.Bestuurlijke_grenzen_id = new_ow_object.Bestuurlijke_grenzen_id
+                    existing.Geldig_Op = new_ow_object.Geldig_Op
+                    existing.Domein = new_ow_object.Domein
+                    continue
+            ow_objects.append(new_ow_object)
+
+        return ow_objects
+
+    def _add_zip_to_package(self, new_package_db: PublicationPackageTable, zip_binary: bytes):
+        """
+        Add zip file to package and calculate filename + checksum
+        """
+        frbr = f"{new_package_db.FRBR_Info.bill_work_misc}-{new_package_db.FRBR_Info.bill_expression_version}"
+        time = datetime.utcnow().strftime("%Y-%m-%d_%H-%M")
+        zip_filename = f"dso-{new_package_db.Package_Event_Type}-{frbr}-{time}.zip"
+        new_package_db.ZIP_File_Name = zip_filename.lower()
+        new_package_db.ZIP_File_Binary = zip_binary
+        new_package_db.ZIP_File_Checksum = hashlib.sha256(zip_binary).hexdigest()
+
+        return new_package_db
+
+    def _local_store_zip_result(self, zip_binary: bytes, zip_filename: str):
+        # Store zip result in temp folder for reference
+        try:
+            project_root = os.getcwd()
+            temp_dir = os.path.join(project_root, "temp")
+            if not os.path.exists(temp_dir):
+                os.makedirs(temp_dir)
+            os.chdir(temp_dir)
+            with open(os.path.join(os.getcwd(), zip_filename), "wb") as f:
+                f.write(zip_binary)
+        except Exception as e:
+            print(f"Error storing zip result: {e}")
+
     def _handler(
         self,
         user: UsersTable,
@@ -117,31 +216,15 @@ class CreatePublicationPackageEndpoint(Endpoint):
         - Save filtered export state in DB
         - Save new OW objects in DB
         - Return package UUID
-
-        Args:
-            bill_uuid: The UUID of the bill to create a package for.
-            pub_repo (PublicationRepository): The repository for publication data.
-            object_in (PublicationPackageCreate): The input data for creating a publication package.
-            pub_object_repository (PublicationObjectRepository): The repository for publication objects.
-            ow_object_repo (OWObjectRepository): The repository for OW objects.
-            dso_service (DSOService): The DSO service.
-
-        Returns:
-            PublicationPackage: The response containing the UUID of the created publication package.
         """
-        # Defaults to latest config row
-        if not object_in.Config_ID:
-            current_config: PublicationConfigTable = pub_repo.get_latest_config()
-        else:
-            current_config: PublicationConfigTable = pub_repo.get_config_by_id(config_id=object_in.Config_ID)
-
-        if not current_config:
-            raise MissingPublicationConfigError("No config found")
-        current_config = PublicationConfig.from_orm(current_config)
+        current_config = self._get_config(pub_repo, object_in.Config_ID)
 
         bill_db = pub_repo.get_publication_bill(uuid=bill_uuid)
         if not bill_db:
             raise PublicationBillNotFound(f"Publication bill with UUID {bill_uuid} not found")
+
+        bill = PublicationBill.from_orm(bill_db)
+        publication = Publication.from_orm(bill_db.Publication)
 
         new_package_db = PublicationPackageTable(
             UUID=uuid.uuid4(),
@@ -149,91 +232,98 @@ class CreatePublicationPackageEndpoint(Endpoint):
             Modified_Date=datetime.now(),
             Created_By_UUID=user.UUID,
             Modified_By_UUID=user.UUID,
-            Bill_UUID=bill_db.UUID,
+            Bill_UUID=bill.UUID,
             Config_ID=current_config.ID,
             Package_Event_Type=object_in.Package_Event_Type,
             Validation_Status=ValidationStatusType.PENDING.value,
-            Announcement_Date=object_in.Announcement_Date if object_in.Announcement_Date else bill_db.Announcement_Date,
+            Announcement_Date=object_in.Announcement_Date if object_in.Announcement_Date else bill.Announcement_Date,
         )
-        new_package_db = pub_repo.create_publication_package(new_package_db)
-        package = PublicationPackage.from_orm(new_package_db)
-
-        # Call DSO Service create package files
-        objects = pub_object_repository.fetch_objects(
-            module_id=bill_db.Publication.Module_ID,
-            timepoint=datetime.utcnow(),
-            object_types=[
-                "visie_algemeen",
-                "ambitie",
-                "beleidsdoel",
-                "beleidskeuze",
-                "werkingsgebied",
-            ],
-            field_map=[
-                "UUID",
-                "Object_Type",
-                "Object_ID",
-                "Code",
-                "Hierarchy_Code",
-                "Werkingsgebied_Code",
-                "Title",
-                "Description",
-                "Cause",
-                "Provincial_Interest",
-                "Explanation",
-                # Used for Werkingsgebied
-                "Area_UUID",
-                "Created_Date",
-                "Modified_Date",
-            ],
+        new_package_db = self._add_frbr_to_package(
+            db=db,
+            document_type=publication.Document_Type,
+            publication_work_id=publication.Work_ID,
+            bill_version_id=bill.Version_ID,
+            new_package=new_package_db,
         )
 
-        input_data = dso_service.prepare_publication_input(
-            publication=bill_db.Publication,
-            bill=PublicationBill.from_orm(bill_db),
-            package=package,
-            config=current_config,
-            objects=objects,
-        )
-
-        # Start DSO module
+        # move?
         try:
-            dso_service.build_dso_package(input_data)
-        except DSOModuleException as e:
-            raise HTTPException(status_code=500, detail=str(e))
+            template_parser = dso_service._template_parsers[publication.Document_Type]
+        except KeyError:
+            raise KeyError(f"No template parser found for document type {publication.Document_Type.value}")
 
-        # Store ZIP directly for now
-        frbr = f"{new_package_db.FRBR_Info.bill_work_misc}-{new_package_db.FRBR_Info.bill_expression_version}"
-        time = datetime.utcnow().strftime("%Y-%m-%d_%H-%M")
-        zip_filename = f"dso-{new_package_db.Package_Event_Type}-{frbr}-{time}.zip"
+        try:
+            # Start a transaction
+            db.add(new_package_db)
 
-        # Commit zip updates
-        new_package_db.ZIP_File_Name = zip_filename.encode("utf-8").lower()
-        new_package_db.ZIP_File_Binary = dso_service._zip_buffer.getvalue()
-        new_package_db.ZIP_File_Checksum = hashlib.sha256(dso_service._zip_buffer.getvalue()).hexdigest()
-        db.commit()
+            # Create a savepoint right before the risky operation
+            savepoint = db.begin_nested()
+            package = PublicationPackage.from_orm(new_package_db)
 
-        # Save state and new objects in DB
-        state_exported = json.loads(dso_service.get_filtered_export_state())
-
-        new_export = DSOStateExportTable(
-            UUID=uuid.uuid4(),
-            Created_Date=datetime.now(),
-            Package_UUID=package.UUID,
-            Export_Data=state_exported,
-        )
-        new_export = pub_repo.create_dso_state_export(new_export)
-
-        # Store new OW objects in DB
-        if new_package_db.Package_Event_Type == PackageEventType.PUBLICATION and bill_db.Is_Official:
-            ow_objects = create_ow_objects_from_json(
-                exported_state=state_exported,
-                package_uuid=package.UUID,
-                bill_type=bill_db.Procedure_Type,
+            # Call DSO Service create package files
+            # objects = self._fetch_objects(pub_object_repository, module_id=bill_db.Publication.Module_ID)
+            objects = pub_object_repository.fetch_objects(
+                module_id=bill_db.Publication.Module_ID,
+                timepoint=datetime.utcnow(),
+                object_types=template_parser.get_object_types(),
+                field_map=template_parser.get_field_map(),
             )
-            ow_object_repo.create_ow_objects(ow_objects)
 
-        return PublicationPackage.from_orm(new_package_db)
+            input_data = dso_service.prepare_publication_input(
+                parser=template_parser,
+                publication=publication,
+                bill=bill,
+                package=package,
+                config=current_config,
+                objects=objects,
+            )
+
+            # Start DSO module
+            try:
+                dso_service.build_dso_package(input_data)
+                savepoint.commit()
+            except DSOModuleException as e:
+                savepoint.rollback()
+                raise HTTPException(status_code=500, detail=str(e))
+
+            new_package_db = self._add_zip_to_package(
+                new_package_db=new_package_db,
+                zip_binary=dso_service._zip_buffer.getvalue(),
+            )
+
+            # Store zip result in temp folder for reference
+            self._local_store_zip_result(
+                zip_binary=new_package_db.ZIP_File_Binary,
+                zip_filename=new_package_db.ZIP_File_Name,
+            )
+
+            # Save state and new objects in DB
+            state_exported = json.loads(dso_service.get_filtered_export_state())
+            db.add(
+                DSOStateExportTable(
+                    UUID=uuid.uuid4(),
+                    Created_Date=datetime.now(),
+                    Package_UUID=package.UUID,
+                    Export_Data=state_exported,
+                )
+            )
+
+            # Store new OW objects in DB
+            if new_package_db.Package_Event_Type == PackageEventType.PUBLICATION and bill_db.Is_Official:
+                ow_objects = create_ow_objects_from_json(
+                    exported_state=state_exported,
+                    package_uuid=package.UUID,
+                    bill_type=bill.Procedure_Type,
+                )
+                self._update_existing_ow_objects(ow_repo=ow_object_repo, new_ow_objects=ow_objects)
+                db.add_all(ow_objects)
+
+            db.commit()
+
+            return PublicationPackage.from_orm(new_package_db)
+        except Exception as e:
+            db.rollback()
+            raise e
 
 
 class CreatePublicationPackageEndpointResolver(EndpointResolver):

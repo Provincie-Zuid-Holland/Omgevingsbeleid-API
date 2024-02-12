@@ -271,9 +271,13 @@ class PublicationRepository(BaseRepository):
             query = query.filter(PublicationPackageTable.Package_Event_Type == package_event_type)
         if is_successful is not None:
             if is_successful:
-                query = query.filter(PublicationPackageTable.Validation_Status == "Valid")
+                query = query.filter(PublicationPackageTable.Validation_Status == ValidationStatusType.VALID)
             else:
-                query = query.filter(~PublicationPackageTable.Validation_Status.in_(["Pending", "Failed"]))
+                query = query.filter(
+                    PublicationPackageTable.Validation_Status.in_(
+                        [ValidationStatusType.FAILED, ValidationStatusType.PENDING]
+                    )
+                )
 
         paged_result = self.fetch_paginated(
             statement=query,
