@@ -118,22 +118,16 @@ class DSOService:
         try:
             resources = data["input_data"]["resources"]
 
-            # Filter policy_object_repository
-            policy_objects = resources["policy_object_repository"]
-            resources["policy_object_repository"] = {k: v["UUID"] for k, v in policy_objects.items()}
+            # Filter policy_object_repository to Code : UUID pair dict
+            resources["policy_object_repository"] = {
+                k: v["UUID"] for k, v in resources["policy_object_repository"].items()
+            }
 
-            # Filter asset_repository
-            assets = resources["asset_repository"]
-            resources["asset_repository"] = {k: v["UUID"] for k, v in assets.items()}
+            # Filter asset_repository to only store UUIDs
+            resources["asset_repository"] = list(resources["asset_repository"].keys())
 
-            # Filter werkingsgebied_repository
-            werkingsgebieden = resources["werkingsgebied_repository"]
-            for key, value in werkingsgebieden.items():
-                filtered_locaties = [{"UUID": loc["UUID"]} for loc in value["Locaties"]]
-                werkingsgebied = value.get("Title", None)
-                werkingsgebieden[key] = {"UUID": value["UUID"], "Locaties": filtered_locaties}
-                if werkingsgebied is not None:
-                    werkingsgebieden[key]["Title"] = werkingsgebied
+            # Filter werkingsgebied_repository to only store UUIDs
+            resources["werkingsgebied_repository"] = list(resources["werkingsgebied_repository"].keys())
 
             return json.dumps(data)
         except KeyError as e:
