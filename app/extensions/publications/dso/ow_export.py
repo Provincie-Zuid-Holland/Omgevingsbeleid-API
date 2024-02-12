@@ -74,15 +74,16 @@ def create_ow_objects_from_json(
 
         # Process 'ambtsgebieden'
         for ambtsgebied in locaties_content.get("ambtsgebieden"):
-            office_area = OWAmbtsgebiedTable(
-                UUID=uuid.uuid4(),
-                OW_ID=ambtsgebied["OW_ID"],
-                Bestuurlijke_grenzen_id=ambtsgebied["bestuurlijke_genzenverwijzing"]["bestuurlijke_grenzen_id"],
-                Domein=ambtsgebied["bestuurlijke_genzenverwijzing"]["domein"],
-                Geldig_Op=ambtsgebied["bestuurlijke_genzenverwijzing"]["geldig_op"],
-                **shared_ow_attrs,
+            created_objects.append(
+                OWAmbtsgebiedTable(
+                    UUID=uuid.uuid4(),
+                    OW_ID=ambtsgebied["OW_ID"],
+                    Bestuurlijke_grenzen_id=ambtsgebied["bestuurlijke_genzenverwijzing"]["bestuurlijke_grenzen_id"],
+                    Domein=ambtsgebied["bestuurlijke_genzenverwijzing"]["domein"],
+                    Geldig_Op=ambtsgebied["bestuurlijke_genzenverwijzing"]["geldig_op"],
+                    **shared_ow_attrs,
+                )
             )
-            created_objects.append(office_area)
 
     if "divisie_content" in ow_data:
         div_content = ow_data["divisie_content"]
