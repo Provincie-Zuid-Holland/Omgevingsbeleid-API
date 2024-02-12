@@ -177,7 +177,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         Add zip file to package and calculate filename + checksum
         """
         frbr = f"{new_package_db.FRBR_Info.bill_work_misc}-{new_package_db.FRBR_Info.bill_expression_version}"
-        time = datetime.utcnow().strftime("%Y-%m-%d_%H-%M")
+        time = new_package_db.Created_Date.strftime("%Y-%m-%d_%H-%M")
         zip_filename = f"dso-{new_package_db.Package_Event_Type}-{frbr}-{time}.zip"
         new_package_db.ZIP_File_Name = zip_filename.lower()
         new_package_db.ZIP_File_Binary = zip_binary
