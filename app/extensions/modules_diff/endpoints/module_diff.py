@@ -182,6 +182,8 @@ class EndpointHandler:
 
         html_content = '<br style="page-break-before: always">'.join(contents)
         as_response: FileResponse = self._format_response(html_content)
+        as_response.headers["Access-Control-Expose-Headers"] = "Content-Disposition"
+
         return as_response
 
     def _get_module_objects(self) -> List[ModuleObjectsTable]:
