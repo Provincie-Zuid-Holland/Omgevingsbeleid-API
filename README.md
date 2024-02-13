@@ -172,3 +172,5 @@ For example in the .env file:
 ```bash
 FRONTEND_BRANCH=main
 ```
+
+
