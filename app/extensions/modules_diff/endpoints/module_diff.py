@@ -182,6 +182,8 @@ class EndpointHandler:
 
         html_content = '<br style="page-break-before: always">'.join(contents)
         as_response: FileResponse = self._format_response(html_content)
+        as_response.headers["Access-Control-Expose-Headers"] = "Content-Disposition"
+
         return as_response
 
     def _get_module_objects(self) -> List[ModuleObjectsTable]:
@@ -192,6 +194,27 @@ class EndpointHandler:
 
         return module_objects.all()
 
+    def _as_diff(self, old_html_content: str, new_html_content: str) -> str:
+        old_html_content = tokenize_html(old_html_content)
+        new_html_content = tokenize_html(new_html_content)
+
+        d = difflib.Differ()
+        diff = d.compare(old_html_content, new_html_content)
+        diff_list = list(diff)
+        result = []
+        for d in diff_list:
+            op, line = d[:2], d[2:]
+            if op == "  ":
+                result.append(line)
+            elif op == "- ":
+                result.append('<del style="background:#ffe6e6;">%s</del>' % line)
+            elif op == "+ ":
+                result.append('<ins style="background:#e6ffe6;">%s</ins>' % line)
+        html_result = "".join(result)
+        soup = BeautifulSoup(html_result, "html.parser")
+        html_result = str(soup)
+        return html_result
+
     def _generate_for_module_object(self, module_object: ModuleObjectsTable) -> str:
         response = []
         valid_object: Optional[ObjectsTable] = self._object_repository.get_latest_valid_by_id(
@@ -201,7 +224,11 @@ class EndpointHandler:
 
         display_object = self._object_mapping.get(module_object.Object_Type)
 
-        response.append(f"<h2>{module_object.Title}</h2>")
+        title = module_object.Title
+        if valid_object is not None:
+            title = self._as_diff(valid_object.Title, title)
+
+        response.append(f"<h2>{title}</h2>")
         response.append(f"<p>Object Type: {module_object.Object_Type}</p>")
         response.append(f"<p>Object ID: {module_object.Object_ID}</p>")
         response.append(f"<p>Action: <b>{module_object.ModuleObjectContext.Action}</b></p>")
@@ -231,26 +258,9 @@ class EndpointHandler:
         else:
             for object_config in display_object.content:
                 old_html_content = getattr(valid_object, object_config.column) or ""
-                old_html_content = tokenize_html(old_html_content)
-
                 new_html_content = getattr(module_object, object_config.column) or ""
-                new_html_content = tokenize_html(new_html_content)
 
-                d = difflib.Differ()
-                diff = d.compare(old_html_content, new_html_content)
-                diff_list = list(diff)
-                result = []
-                for d in diff_list:
-                    op, line = d[:2], d[2:]
-                    if op == "  ":
-                        result.append(line)
-                    elif op == "- ":
-                        result.append('<del style="background:#ffe6e6;">%s</del>' % line)
-                    elif op == "+ ":
-                        result.append('<ins style="background:#e6ffe6;">%s</ins>' % line)
-                html_result = "".join(result)
-                soup = BeautifulSoup(html_result, "html.parser")
-                html_result = str(soup)
+                html_result = self._as_diff(old_html_content, new_html_content)
 
                 response.append(f"<h4>{object_config.label}</h4>")
                 response.append(html_result)

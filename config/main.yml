@@ -234,14 +234,26 @@ api:
                     label: Wat wil de provincie bereiken?
                   - column: Role
                     label: Rol
-                  - column: Explanation
-                    label: Toelichting
+                  - column: Effect
+                    label: Uitwerking
                   - column: Hierarchy_Code
                     label: Hierarchy_Code
                   - column: Gebied_UUID
                     label: Gebied_UUID
                   - column: Werkingsgebied_Code
                     label: Werkingsgebied_Code
+              - object_type: visie_algemeen
+                content:
+                  - column: Description
+                    label: Omschrijving
+              - object_type: programma_algemeen
+                content:
+                  - column: Description
+                    label: Omschrijving
+              - object_type: werkingsgebied
+                content:
+                  - column: Description
+                    label: Omschrijving
         - resolver: module_add_new_object
           resolver_data:
             path: /add-new-object
