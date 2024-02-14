@@ -11,9 +11,11 @@ from dso.builder.state_manager.input_data.resource.policy_object.policy_object_r
 from app.extensions.publications.dso.dso_assets_factory import DsoAssetsFactory
 from app.extensions.publications.dso.dso_werkingsgebieden_factory import DsoWerkingsgebiedenFactory
 from app.extensions.publications.dso.input_data_mapper import map_dso_input_data
+from app.extensions.publications.dso.ow_helpers import create_updated_ambtsgebied_data
 from app.extensions.publications.dso.template_parser import TemplateParser
 from app.extensions.publications.exceptions import DSOModuleException, DSOStateExportError
 from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig, PublicationPackage
+from app.extensions.publications.tables.ow import OWRegelingsgebiedTable
 from app.extensions.source_werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
 
 
@@ -72,6 +74,7 @@ class DSOService:
         package: PublicationPackage,
         config: PublicationConfig,
         objects,
+        regelingsgebied: Optional[OWRegelingsgebiedTable],
     ) -> InputData:
         """
         Start point for converting our publication data to DSO input data.
@@ -91,7 +94,17 @@ class DSOService:
 
         policy_object_repository = self._get_policy_object_repository(used_objects)
 
-        # Convert to INput data
+        if regelingsgebied:
+            regelingsgebied_data = {
+                "regelingsgebied": {"OW_ID": regelingsgebied.OW_ID, "ambtsgebied": regelingsgebied.Ambtsgebied}
+            }
+        else:
+            regelingsgebied_data = create_updated_ambtsgebied_data(
+                administative_borders_id=config.Administrative_Borders_ID,
+                administative_borders_domain=config.Administrative_Borders_Domain,
+                administrative_borders_date=config.Administrative_Borders_Date.strftime("%Y-%m-%d"),
+            )
+
         input_data: InputData = map_dso_input_data(
             publication,
             bill,
@@ -103,6 +116,7 @@ class DSOService:
             asset_repository,
             werkingsgebieden_repository,
             policy_object_repository,
+            regelingsgebied_data,
         )
 
         self._input_data = input_data
@@ -152,10 +166,8 @@ class DSOService:
         Triggers the DSO module to build the publication package from out input data.
         Saves the files to
         """
-        try:
-            self._builder = Builder(input_data or self._input_data)
-            self._builder.build_publication_files()
-            self._builder.save_files(output_path)
-            self._zip_buffer: io.BytesIO = self._builder.zip_files()
-        except Exception as e:
-            raise DSOModuleException(e)
+        self._builder = Builder(input_data or self._input_data)
+        self._builder.build_publication_files()
+        # Need file export still?
+        # self._builder.save_files(output_path)
+        self._zip_buffer: io.BytesIO = self._builder.zip_files()

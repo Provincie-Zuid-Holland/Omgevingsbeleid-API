@@ -5,7 +5,8 @@ from sqlalchemy import select
 
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult
-from app.extensions.publications.tables.ow import OWAmbtsgebiedTable, OWObjectTable
+from app.extensions.publications.enums import IMOWTYPE
+from app.extensions.publications.tables.ow import OWAmbtsgebiedTable, OWObjectTable, OWRegelingsgebiedTable
 
 
 class OWObjectRepository(BaseRepository):
@@ -55,16 +56,11 @@ class OWObjectRepository(BaseRepository):
         return new_ow_objects
 
     def get_ow_object_by_uuid(self, uuid: UUID) -> Optional[OWObjectTable]:
-        """
-        Retrieves an OWObject by its UUID.
-
-        Args:
-            uuid (UUID): The UUID of the OWObject.
-
-        Returns:
-            Optional[OWObject]: The OWObject with the specified UUID, or None if not found.
-        """
         stmt = select(OWObjectTable).where(OWObjectTable.UUID == uuid)
+        return self.fetch_first(stmt)
+
+    def get_ow_object_by_ow_id(self, ow_id: str) -> Optional[OWObjectTable]:
+        stmt = select(OWObjectTable).where(OWObjectTable.OW_ID == ow_id)
         return self.fetch_first(stmt)
 
     def get_ow_objects(self, offset: int = 0, limit: int = 20) -> PaginatedQueryResult:
@@ -86,3 +82,11 @@ class OWObjectRepository(BaseRepository):
             sort=(OWObjectTable.Modified_Date, "desc"),
         )
         return paged_result
+
+    def get_latest_regelinggebied(self) -> Optional[OWRegelingsgebiedTable]:
+        stmt = (
+            select(OWRegelingsgebiedTable)
+            .where(OWRegelingsgebiedTable.IMOW_Type == IMOWTYPE.REGELINGSGEBIED.value)
+            .order_by(OWObjectTable.Modified_Date.desc())
+        )
+        return self.fetch_first(stmt)

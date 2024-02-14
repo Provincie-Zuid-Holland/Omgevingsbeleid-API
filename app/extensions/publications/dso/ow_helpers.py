@@ -1,8 +1,9 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import List
+import re
 
-from app.extensions.publications.enums import ProcedureType
+from app.extensions.publications.enums import IMOWTYPE, ProcedureType
 from app.extensions.publications.exceptions import DSOExportOWError
 from app.extensions.publications.tables.ow import (
     OWAmbtsgebiedTable,
@@ -11,8 +12,48 @@ from app.extensions.publications.tables.ow import (
     OWGebiedenGroepTable,
     OWGebiedTable,
     OWObjectTable,
+    OWRegelingsgebiedTable,
     OWTekstdeelTable,
 )
+
+
+OW_REGEX = r"nl\.imow-(gm|pv|ws|mn|mnre)[0-9]{1,6}\.(regeltekst|gebied|gebiedengroep|lijn|lijnengroep|punt|puntengroep|activiteit|gebiedsaanwijzing|omgevingswaarde|omgevingsnorm|pons|kaart|tekstdeel|hoofdlijn|divisie|kaartlaag|juridischeregel|activiteitlocatieaanduiding|normwaarde|regelingsgebied|ambtsgebied|divisietekst)\.[A-Za-z0-9]{1,32}"
+
+
+def generate_ow_id(ow_type: IMOWTYPE, unique_code: str = None) -> str:
+    prefix = "nl.imow-pv28"
+    if not unique_code:
+        unique_code = uuid.uuid4().hex
+
+    generated_id = f"{prefix}.{ow_type.value}.{unique_code}"
+
+    imow_pattern = re.compile(OW_REGEX)
+    if not imow_pattern.match(generated_id):
+        raise Exception("generated IMOW ID does not match official regex")
+
+    return generated_id
+
+
+def create_updated_ambtsgebied_data(
+    administative_borders_id: str, administative_borders_domain: str, administrative_borders_date: date
+):
+    new_ambtsgebied_id = generate_ow_id(ow_type=IMOWTYPE.AMBTSGEBIED)
+    new_regelingsgebied_id = generate_ow_id(ow_type=IMOWTYPE.REGELINGSGEBIED)
+    regelingsgebied_data = {
+        "ambtsgebied": {
+            "OW_ID": new_ambtsgebied_id,
+            "bestuurlijke_genzenverwijzing": {
+                "bestuurlijke_grenzen_id": administative_borders_id,
+                "domein": administative_borders_domain,
+                "geldig_op": administrative_borders_date,
+            },
+        },
+        "regelingsgebied": {
+            "OW_ID": new_regelingsgebied_id,
+            "ambtsgebied": new_ambtsgebied_id,
+        },
+    }
+    return regelingsgebied_data
 
 
 def create_ow_objects_from_json(
@@ -72,19 +113,7 @@ def create_ow_objects_from_json(
 
             created_objects.append(area_group)
 
-        # Process 'ambtsgebieden'
-        for ambtsgebied in locaties_content.get("ambtsgebieden"):
-            created_objects.append(
-                OWAmbtsgebiedTable(
-                    UUID=uuid.uuid4(),
-                    OW_ID=ambtsgebied["OW_ID"],
-                    Bestuurlijke_grenzen_id=ambtsgebied["bestuurlijke_genzenverwijzing"]["bestuurlijke_grenzen_id"],
-                    Domein=ambtsgebied["bestuurlijke_genzenverwijzing"]["domein"],
-                    Geldig_Op=ambtsgebied["bestuurlijke_genzenverwijzing"]["geldig_op"],
-                    **shared_ow_attrs,
-                )
-            )
-
+    # Process 'divisie_content'
     if "divisie_content" in ow_data:
         div_content = ow_data["divisie_content"]
 
@@ -136,4 +165,26 @@ def create_ow_objects_from_json(
 
             created_objects.append(annotation_item)
 
+    # Process regelingsgebied_content
+    if "locaties_content" in ow_data:
+        for ambtsgebied in ow_data["locaties_content"].get("ambtsgebieden", []):
+            created_objects.append(
+                OWAmbtsgebiedTable(
+                    UUID=uuid.uuid4(),
+                    OW_ID=ambtsgebied["OW_ID"],
+                    Bestuurlijke_grenzen_id=ambtsgebied["bestuurlijke_genzenverwijzing"]["bestuurlijke_grenzen_id"],
+                    Domein=ambtsgebied["bestuurlijke_genzenverwijzing"]["domein"],
+                    Geldig_Op=ambtsgebied["bestuurlijke_genzenverwijzing"]["geldig_op"],
+                    **shared_ow_attrs,
+                )
+            )
+    if "regelingsgebied_content" in ow_data:
+        for regelingsgebied in ow_data["regelingsgebied_content"].get("regelingsgebieden", []):
+            rg_object = OWRegelingsgebiedTable(
+                UUID=uuid.uuid4(),
+                OW_ID=regelingsgebied["OW_ID"],
+                Ambtsgebied=regelingsgebied["ambtsgebied"],
+                **shared_ow_attrs,
+            )
+            created_objects.append(rg_object)
     return created_objects

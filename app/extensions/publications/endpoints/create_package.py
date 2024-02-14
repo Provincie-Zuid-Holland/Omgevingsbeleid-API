@@ -1,7 +1,5 @@
 import hashlib
 import json
-import os
-import select
 import uuid
 from datetime import date, datetime
 from typing import List, Optional
@@ -9,8 +7,9 @@ from typing import List, Optional
 from dateutil.parser import parse
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, validator
-from sqlalchemy import desc
+from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
+from app.core.settings import settings
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
@@ -33,16 +32,17 @@ from app.extensions.publications.dependencies import (
     depends_publication_repository,
 )
 from app.extensions.publications.dso.dso_service import DSOService
-from app.extensions.publications.dso.ow_export import create_ow_objects_from_json
+from app.extensions.publications.dso.ow_helpers import create_ow_objects_from_json, create_updated_ambtsgebied_data
 from app.extensions.publications.enums import DocumentType, ValidationStatusType
-from app.extensions.publications.exceptions import DSOModuleException, PublicationBillNotFound
+from app.extensions.publications.exceptions import PublicationBillNotFound
+from app.extensions.publications.helpers import export_zip_to_filesystem
 from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig
 from app.extensions.publications.repository import (
     OWObjectRepository,
     PublicationObjectRepository,
     PublicationRepository,
 )
-from app.extensions.publications.tables.ow import OWAmbtsgebiedTable, OWObjectTable
+from app.extensions.publications.tables.ow import OWAmbtsgebiedTable, OWObjectTable, OWRegelingsgebiedTable
 from app.extensions.publications.tables.tables import PublicationFRBRTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
@@ -152,26 +152,6 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
         return new_package
 
-    def _update_existing_ow_objects(
-        self, ow_repo: OWObjectRepository, new_ow_objects: List[OWObjectTable]
-    ) -> List[OWObjectTable]:
-        # TODO: add versioning to OW objects and increment for updated geos?
-        ow_objects = []
-        for new_ow_object in new_ow_objects:
-            # TODO: This is a temp fix, make sure ambstgebied is only generated when needed
-            if isinstance(new_ow_object, OWAmbtsgebiedTable):
-                existing: OWAmbtsgebiedTable = ow_repo.get_ow_object_by_uuid(new_ow_object.UUID)
-                if existing:
-                    existing.OW_ID = new_ow_object.OW_ID
-                    existing.Modified_Date = new_ow_object.Modified_Date
-                    existing.Bestuurlijke_grenzen_id = new_ow_object.Bestuurlijke_grenzen_id
-                    existing.Geldig_Op = new_ow_object.Geldig_Op
-                    existing.Domein = new_ow_object.Domein
-                    continue
-            ow_objects.append(new_ow_object)
-
-        return ow_objects
-
     def _add_zip_to_package(self, new_package_db: PublicationPackageTable, zip_binary: bytes):
         """
         Add zip file to package and calculate filename + checksum
@@ -185,19 +165,6 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
         return new_package_db
 
-    def _local_store_zip_result(self, zip_binary: bytes, zip_filename: str):
-        # Store zip result in temp folder for reference
-        try:
-            project_root = os.getcwd()
-            temp_dir = os.path.join(project_root, "temp")
-            if not os.path.exists(temp_dir):
-                os.makedirs(temp_dir)
-            os.chdir(temp_dir)
-            with open(os.path.join(os.getcwd(), zip_filename), "wb") as f:
-                f.write(zip_binary)
-        except Exception as e:
-            print(f"Error storing zip result: {e}")
-
     def _handler(
         self,
         user: UsersTable,
@@ -210,7 +177,6 @@ class CreatePublicationPackageEndpoint(Endpoint):
         db: Session,
     ) -> PublicationPackage:
         """
-        - Finalises bill and locks its settings/content.
         - Create new validation or publication package using this bill and config data
         - Call DSO Service build publication package files with external module
         - Save filtered export state in DB
@@ -246,7 +212,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
             new_package=new_package_db,
         )
 
-        # move?
+        # TODO: move?
         try:
             template_parser = dso_service._template_parsers[publication.Document_Type]
         except KeyError:
@@ -261,7 +227,6 @@ class CreatePublicationPackageEndpoint(Endpoint):
             package = PublicationPackage.from_orm(new_package_db)
 
             # Call DSO Service create package files
-            # objects = self._fetch_objects(pub_object_repository, module_id=bill_db.Publication.Module_ID)
             objects = pub_object_repository.fetch_objects(
                 module_id=bill_db.Publication.Module_ID,
                 timepoint=datetime.utcnow(),
@@ -276,15 +241,16 @@ class CreatePublicationPackageEndpoint(Endpoint):
                 package=package,
                 config=current_config,
                 objects=objects,
+                regelingsgebied=ow_object_repo.get_latest_regelinggebied(),
             )
 
             # Start DSO module
             try:
                 dso_service.build_dso_package(input_data)
                 savepoint.commit()
-            except DSOModuleException as e:
+            except Exception as e:
                 savepoint.rollback()
-                raise HTTPException(status_code=500, detail=str(e))
+                raise e
 
             new_package_db = self._add_zip_to_package(
                 new_package_db=new_package_db,
@@ -292,10 +258,16 @@ class CreatePublicationPackageEndpoint(Endpoint):
             )
 
             # Store zip result in temp folder for reference
-            self._local_store_zip_result(
-                zip_binary=new_package_db.ZIP_File_Binary,
-                zip_filename=new_package_db.ZIP_File_Name,
-            )
+            if settings.DSO_MODULE_DEBUG_EXPORT:
+                try:
+                    export_zip_to_filesystem(
+                        zip_binary=new_package_db.ZIP_File_Binary,
+                        zip_filename=new_package_db.ZIP_File_Name,
+                        path=settings.DSO_MODULE_DEBUG_EXPORT_PATH,
+                    )
+                except Exception as e:
+                    # notify but dont block
+                    print("Failed to export zip to filesystem", e)
 
             # Save state and new objects in DB
             state_exported = json.loads(dso_service.get_filtered_export_state())
@@ -308,15 +280,19 @@ class CreatePublicationPackageEndpoint(Endpoint):
                 )
             )
 
-            # Store new OW objects in DB
+            # Store new OW objects from DSO module in DB
             if new_package_db.Package_Event_Type == PackageEventType.PUBLICATION and bill_db.Is_Official:
-                ow_objects = create_ow_objects_from_json(
+                exported_ow_objects = create_ow_objects_from_json(
                     exported_state=state_exported,
                     package_uuid=package.UUID,
                     bill_type=bill.Procedure_Type,
                 )
-                self._update_existing_ow_objects(ow_repo=ow_object_repo, new_ow_objects=ow_objects)
-                db.add_all(ow_objects)
+                for ow_object in exported_ow_objects:
+                    if isinstance(ow_object, (OWAmbtsgebiedTable, OWRegelingsgebiedTable)):
+                        existing = ow_object_repo.get_ow_object_by_ow_id(ow_object.OW_ID)
+                        if existing:
+                            exported_ow_objects.remove(ow_object)
+                db.add_all(exported_ow_objects)
 
             db.commit()
 

@@ -57,6 +57,7 @@ def map_dso_input_data(
     asset_repository: AssetRepository,
     werkingsgebied_repository: WerkingsgebiedRepository,
     policy_object_repository: PolicyObjectRepository,
+    regelingsgebied_data: Dict[str, dict],
 ):
     bekendmakingsdatum = str(package.Announcement_Date)
     tekst_artikelen = [
@@ -144,5 +145,6 @@ def map_dso_input_data(
         procedure_verloop=procedure,
         resources=resources,
         object_template_repository=object_template_repository,
+        regelingsgebied=regelingsgebied_data,
     )
     return input_data
