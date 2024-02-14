@@ -26,8 +26,8 @@ class PublicationBillCreate(BaseModel):
     Module_Status_ID: int
     Procedure_Type: ProcedureType
     Is_Official: bool
-    Effective_Date: Optional[date]
-    Announcement_Date: Optional[date]
+    Effective_Date: Optional[datetime]
+    Announcement_Date: Optional[datetime]
     PZH_Bill_Identifier: Optional[str]
     Bill_Data: Optional[BillData]
     Procedure_Data: Optional[ProcedureData]
@@ -35,7 +35,7 @@ class PublicationBillCreate(BaseModel):
     @validator("Effective_Date", pre=False, always=True)
     def validate_effective_date(cls, v):
         if v is not None:
-            effective_date = parse(v) if isinstance(v, str) else v
+            effective_date = parse(v).date() if isinstance(v, str) else v.date()
             if effective_date <= date.today():
                 raise ValueError("Effective Date must be in the future")
         return v
@@ -43,17 +43,17 @@ class PublicationBillCreate(BaseModel):
     @validator("Announcement_Date", pre=False, always=True)
     def validate_announcement_date(cls, v, values, **kwargs):
         if "Effective_Date" in values and v is not None:
-            announcement_date = parse(v) if isinstance(v, str) else v
+            announcement_date = parse(v).date() if isinstance(v, str) else v.date()
             effective_date = (
-                parse(values["Effective_Date"])
+                parse(values["Effective_Date"]).date()
                 if isinstance(values["Effective_Date"], str)
-                else values["Effective_Date"]
+                else values["Effective_Date"].date()
             )
             if effective_date is not None and announcement_date >= effective_date:
                 raise ValueError("Announcement Date must be earlier than Effective Date")
 
             if announcement_date <= date.today():
-                raise ValueError("Announcement Date must in the future")
+                raise ValueError("Announcement Date must be in the future")
 
         return v
 
