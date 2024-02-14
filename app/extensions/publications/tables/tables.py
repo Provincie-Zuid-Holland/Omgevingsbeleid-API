@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime
 from typing import List, Optional
 
-from sqlalchemy import Column, DateTime
+from sqlalchemy import Column, Date, DateTime
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, LargeBinary, Text, Unicode, UniqueConstraint
 from sqlalchemy.orm import Mapped, backref, deferred, mapped_column, relationship
@@ -27,6 +27,12 @@ class PublicationConfigTable(Base):
     Governing_Body_Type: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Bestuursorgaan_Soort
     Act_Componentname: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Regeling Componentnaam
 
+    Administrative_Borders_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # bestuurlijke grenzen ID
+    Administrative_Borders_Domain: Mapped[str] = mapped_column(
+        Unicode(255), nullable=False
+    )  # bestuurlijke grenzen domein
+    Administrative_Borders_Date: Mapped[date] = mapped_column(Date, nullable=False)  # bestuurlijke grenzen bekend op
+
     DSO_STOP_VERSION: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     DSO_TPOD_VERSION: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     DSO_BHKV_VERSION: Mapped[str] = mapped_column(Unicode(255), nullable=False)
@@ -45,8 +51,8 @@ class PublicationTable(Base, HasUUID, TimeStamped, UserMetaData):
     Document_Type = Column(SQLAlchemyEnum(*[e.value for e in DocumentType]))
     Work_ID: Mapped[int]  # FRBR counter
 
-    Official_Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Officiele titel
-    Regulation_Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Regeling opschrift
+    Official_Title: Mapped[str] = mapped_column(Unicode(), nullable=False)  # Officiele titel
+    Regulation_Title: Mapped[str] = mapped_column(Unicode(), nullable=False)  # Regeling opschrift
 
     Module: Mapped["ModuleTable"] = relationship("ModuleTable")
 

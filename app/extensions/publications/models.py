@@ -17,6 +17,10 @@ class PublicationConfig(BaseModel):
     Subjects: str
     Governing_Body_Type: str
     Act_Componentname: str
+    Administrative_Borders_ID: str
+    Administrative_Borders_Domain: str
+    Administrative_Borders_Date: date
+
     DSO_STOP_VERSION: str
     DSO_TPOD_VERSION: str
     DSO_BHKV_VERSION: str
@@ -224,8 +228,6 @@ class PublicationPackage(BaseModel):
     ZIP_File_Checksum: Optional[str]
     Validation_Status: Optional[str]
 
-    Publication_Config: Optional[PublicationConfig]
-    Publication_Bill: Optional[PublicationBill]
     FRBR_Info: Optional[PublicationFRBR]
     Reports: Optional[List[PublicationPackageReport]]
 
