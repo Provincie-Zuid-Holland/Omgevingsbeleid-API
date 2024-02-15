@@ -83,7 +83,7 @@ class OWDivisietekstTable(OWDivisieTable):
 
 
 class OWLocationTable(OWObjectTable):
-    Geo_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Werkingsgebieden.UUID"), nullable=True)
+    Geo_UUID: Mapped[Optional[uuid.UUID]]
 
     __mapper_args__ = {
         "polymorphic_abstract": True,

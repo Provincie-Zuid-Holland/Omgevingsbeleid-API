@@ -228,10 +228,6 @@ def upgrade() -> None:
             ["publication_ow_objects.OW_ID_HASH"],
         ),
         sa.ForeignKeyConstraint(
-            ["Geo_UUID"],
-            ["Werkingsgebieden.UUID"],
-        ),
-        sa.ForeignKeyConstraint(
             ["Package_UUID"],
             ["publication_packages.UUID"],
         ),
