@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
     MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
 
+    # Other
+    DSO_MODULE_DEBUG_EXPORT: bool = False
+    DSO_MODULE_DEBUG_EXPORT_PATH: str = "./tmp/dso-export"
+
     class Config:
         case_sensitive = True
         env_file = ".env"
