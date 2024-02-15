@@ -59,7 +59,7 @@ def map_dso_input_data(
     policy_object_repository: PolicyObjectRepository,
     regelingsgebied_data: Dict[str, dict],
 ):
-    bekendmakingsdatum = str(package.Announcement_Date.date())
+    bekendmakingsdatum = str(package.Announcement_Date)
     tekst_artikelen = [
         Artikel(
             label=art.Label,
@@ -90,11 +90,11 @@ def map_dso_input_data(
 
     # Convert procudure steps
     procedure = dso_models.ProcedureVerloop(
-        bekend_op=str(bill.Procedure_Data.Announcement_Date.date()),
+        bekend_op=str(bill.Procedure_Data.Announcement_Date),
         stappen=[
             dso_models.ProcedureStap(
                 soort_stap=step.Step_Type.value,
-                voltooid_op=str(step.Conclusion_Date.date()),
+                voltooid_op=str(step.Conclusion_Date),
             )
             for step in bill.Procedure_Data.Steps
         ],
@@ -111,7 +111,7 @@ def map_dso_input_data(
         publication_settings=dso_models.PublicationSettings(
             document_type=get_document_type(publication.Document_Type),
             datum_bekendmaking=bekendmakingsdatum,
-            datum_juridisch_werkend_vanaf=str(bill.Effective_Date.date()),
+            datum_juridisch_werkend_vanaf=str(bill.Effective_Date),
             provincie_id=config.Province_ID,
             wId_suffix=str(package.FRBR_Info.ID),
             soort_bestuursorgaan=config.Governing_Body_Type,  # Provinciale_states "/tooi/def/thes/kern/c_411b4e4a"

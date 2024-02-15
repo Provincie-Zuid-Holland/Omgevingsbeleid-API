@@ -81,7 +81,7 @@ class ProcedureStep(BaseModel):
     """
 
     Step_Type: ProcedureStepType
-    Conclusion_Date: datetime
+    Conclusion_Date: date
 
 
 class ProcedureData(BaseModel):
@@ -89,7 +89,7 @@ class ProcedureData(BaseModel):
     STOP Procedureverloop
     """
 
-    Announcement_Date: datetime  # BekendOp
+    Announcement_Date: date  # BekendOp
     Steps: List[ProcedureStep]  # Procedurestappen
 
 
@@ -121,8 +121,8 @@ class PublicationBill(BaseModel):
     Version_ID: Optional[int]
     Procedure_Type: ProcedureType
     Is_Official: bool
-    Effective_Date: datetime
-    Announcement_Date: datetime
+    Effective_Date: date
+    Announcement_Date: date
     PZH_Bill_Identifier: Optional[str]
 
     Bill_Data: Optional[BillData]
@@ -222,7 +222,7 @@ class PublicationPackage(BaseModel):
 
     Package_Event_Type: PackageEventType
     Publication_Filename: Optional[str]
-    Announcement_Date: datetime  # passed from bill or overwritten on package create
+    Announcement_Date: date  # passed from bill or overwritten on package create
 
     ZIP_File_Name: Optional[str]
     ZIP_File_Checksum: Optional[str]

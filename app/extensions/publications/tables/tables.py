@@ -71,8 +71,8 @@ class PublicationBillTable(Base, HasUUID, TimeStamped, UserMetaData):
     Procedure_Type = Column(SQLAlchemyEnum(*[e.value for e in ProcedureType]), nullable=False)  # Procedure soort
     Bill_Data = Column(JSON)  # Besluit
     Procedure_Data = Column(JSON)  # Procedureverloop
-    Effective_Date: Mapped[Optional[datetime]]  # Juridische inwerkingtredingsdatum
-    Announcement_Date: Mapped[Optional[datetime]]  # Bekendmaking_Datum
+    Effective_Date: Mapped[Optional[date]]  # Juridische inwerkingtredingsdatum
+    Announcement_Date: Mapped[Optional[date]]  # Bekendmaking_Datum
     PZH_Bill_Identifier: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)  # Besluitnummer
 
     Publication: Mapped["PublicationTable"] = relationship("PublicationTable")
@@ -147,7 +147,7 @@ class PublicationPackageTable(Base, HasUUID, UserMetaData):
 
     Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in PackageEventType]), nullable=False)
     Publication_Filename: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)  # Publicatie_Bestandnaam
-    Announcement_Date: Mapped[datetime]  # Datum_Bekendmaking
+    Announcement_Date: Mapped[date]  # Datum_Bekendmaking
 
     ZIP_File_Name: Mapped[Optional[str]] = mapped_column(Unicode, nullable=True)
     ZIP_File_Binary: Mapped[Optional[bytes]] = deferred(Column(LargeBinary))  # Change to azure blob storage later
