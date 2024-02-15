@@ -45,7 +45,7 @@ class OmgevingsvisieTextTemplate(TextTemplate):
             <div>
                 <h1>Beleidskeuzes van {{ d.Title }}</h1>
                 {%- for k in filtered_results | sort(attribute='Title') %}
-                <div><object code="{{ k.Code }}" template="beleidskeuze" /></div>
+                <div data-hint-element="divisietekst"><object code="{{ k.Code }}" template="beleidskeuze" /></div>
                 {%- endfor %}
             </div>
             {% endif %}
