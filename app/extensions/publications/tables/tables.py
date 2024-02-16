@@ -11,6 +11,7 @@ from sqlalchemy.sql.sqltypes import JSON, Integer
 from app.core.db.base import Base
 from app.core.db.mixins import HasUUID, TimeStamped, UserMetaData
 from app.extensions.publications.enums import DocumentType, PackageEventType, ProcedureType, ValidationStatusType
+from app.extensions.publications.tables.ow import package_ow_association
 
 
 class PublicationConfigTable(Base):
@@ -165,9 +166,11 @@ class PublicationPackageTable(Base, HasUUID, UserMetaData):
         "PublicationFRBRTable",
         backref=backref("publication_package", uselist=False, cascade="all, delete-orphan"),
     )
-    OW_Objects: Mapped[List["OWObjectTable"]] = relationship("OWObjectTable", back_populates="Package")
     Reports: Mapped[List["PublicationPackageReportTable"]] = relationship(
         "PublicationPackageReportTable", back_populates="Package"
+    )
+    OW_Objects: Mapped[List["OWObjectTable"]] = relationship(
+        "OWObjectTable", secondary=package_ow_association, back_populates="Packages"
     )
 
 

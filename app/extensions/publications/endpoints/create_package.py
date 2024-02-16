@@ -32,7 +32,7 @@ from app.extensions.publications.dependencies import (
     depends_publication_repository,
 )
 from app.extensions.publications.dso.dso_service import DSOService
-from app.extensions.publications.dso.ow_helpers import create_ow_objects_from_json, create_updated_ambtsgebied_data
+from app.extensions.publications.dso.ow_helpers import create_ow_objects_from_json
 from app.extensions.publications.enums import DocumentType, ValidationStatusType
 from app.extensions.publications.exceptions import PublicationBillNotFound
 from app.extensions.publications.helpers import export_zip_to_filesystem
@@ -282,17 +282,36 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
             # Store new OW objects from DSO module in DB
             if new_package_db.Package_Event_Type == PackageEventType.PUBLICATION and bill_db.Is_Official:
-                exported_ow_objects = create_ow_objects_from_json(
+                exported_ow_objects, exported_assoc_tables = create_ow_objects_from_json(
                     exported_state=state_exported,
-                    package_uuid=package.UUID,
                     bill_type=bill.Procedure_Type,
                 )
-                for ow_object in exported_ow_objects:
-                    if isinstance(ow_object, (OWAmbtsgebiedTable, OWRegelingsgebiedTable)):
-                        existing = ow_object_repo.get_ow_object_by_ow_id(ow_object.OW_ID)
-                        if existing:
-                            exported_ow_objects.remove(ow_object)
-                db.add_all(exported_ow_objects)
+                # generated OW ids by DSO module
+                ow_ids = [ow_object.OW_ID for ow_object in exported_ow_objects]
+
+                # Query for re-used OW objects
+                stmt = select(OWObjectTable).where(OWObjectTable.OW_ID.in_(ow_ids))
+                existing_ow_objects = db.execute(stmt).scalars().all()
+                existing_ow_map = {ow_object.OW_ID: ow_object for ow_object in existing_ow_objects}
+
+                for ow_object in list(exported_ow_objects):
+                    if ow_object.OW_ID in existing_ow_map:
+                        # OW obj already exists so just add this package as relation
+                        existing_ow_map[ow_object.OW_ID].Packages.append(new_package_db)
+                    else:
+                        # new OW object
+                        ow_object.Packages.append(new_package_db)
+                        db.add(ow_object)
+
+                # Add the OW assoc relations
+                db.add_all(exported_assoc_tables)
+
+                # Ensure any duplicate OW objects that were auto added by the ORM
+                # are removed from the session.new state
+                for obj in db.new:
+                    if isinstance(obj, OWObjectTable):
+                        if obj.OW_ID in existing_ow_map:
+                            db.expunge(obj)
 
             db.commit()
 

@@ -1,9 +1,9 @@
 import hashlib
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
-from sqlalchemy import Column
+from sqlalchemy import Column, Table
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, String, Unicode
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -21,6 +21,14 @@ def generate_hash(ow_id: str) -> str:
         return ow_id
 
     return hashlib.sha256(ow_id.encode("utf-8")).hexdigest()
+
+
+package_ow_association = Table(
+    "publication_package_ow_association",
+    Base.metadata,
+    Column("Package_UUID", ForeignKey("publication_packages.UUID"), primary_key=True),
+    Column("OW_ID_HASH", ForeignKey("publication_ow_objects.OW_ID_HASH"), primary_key=True),
+)
 
 
 class OWAssociationTable(Base):
@@ -58,9 +66,13 @@ class OWObjectTable(Base, TimeStamped):
     Procedure_Status = Column(SQLAlchemyEnum(*[e.value for e in OWProcedureStatusType]))
     Noemer: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)
 
+    # TODO: DSO status column type Pending / Accepted / Withdrawn
+    # DSO_Status: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True, default="Pending")
+
     # Relationship to PublicationPackageTable
-    Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_packages.UUID"), nullable=False)
-    Package = relationship("PublicationPackageTable", back_populates="OW_Objects")
+    Packages: Mapped[List["PublicationPackageTable"]] = relationship(
+        "PublicationPackageTable", secondary=package_ow_association, back_populates="OW_Objects"
+    )
 
     __mapper_args__ = {
         "polymorphic_identity": "publication_ow_objects",

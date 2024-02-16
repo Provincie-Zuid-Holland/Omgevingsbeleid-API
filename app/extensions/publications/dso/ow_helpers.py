@@ -1,12 +1,13 @@
 import uuid
 from datetime import date, datetime
-from typing import List
+from typing import List, Tuple
 import re
 
-from app.extensions.publications.enums import IMOWTYPE, ProcedureType
+from app.extensions.publications.enums import IMOWTYPE, OWAssociationType, ProcedureType
 from app.extensions.publications.exceptions import DSOExportOWError
 from app.extensions.publications.tables.ow import (
     OWAmbtsgebiedTable,
+    OWAssociationTable,
     OWDivisieTable,
     OWDivisietekstTable,
     OWGebiedenGroepTable,
@@ -15,6 +16,7 @@ from app.extensions.publications.tables.ow import (
     OWRegelingsgebiedTable,
     OWTekstdeelTable,
 )
+from app.extensions.publications.tables.tables import PublicationPackageTable
 
 
 OW_REGEX = r"nl\.imow-(gm|pv|ws|mn|mnre)[0-9]{1,6}\.(regeltekst|gebied|gebiedengroep|lijn|lijnengroep|punt|puntengroep|activiteit|gebiedsaanwijzing|omgevingswaarde|omgevingsnorm|pons|kaart|tekstdeel|hoofdlijn|divisie|kaartlaag|juridischeregel|activiteitlocatieaanduiding|normwaarde|regelingsgebied|ambtsgebied|divisietekst)\.[A-Za-z0-9]{1,32}"
@@ -57,8 +59,8 @@ def create_updated_ambtsgebied_data(
 
 
 def create_ow_objects_from_json(
-    exported_state: dict, package_uuid: uuid.UUID, bill_type: ProcedureType
-) -> List[OWObjectTable]:
+    exported_state: dict, bill_type: ProcedureType
+) -> Tuple[List[OWObjectTable], List[OWAssociationTable]]:
     """
     Parses the DSO exported state to build a list of OW objects with the correct relations.
     """
@@ -69,13 +71,13 @@ def create_ow_objects_from_json(
 
     ow_data = exported_state["ow_repository"]
     created_objects = []
+    created_relations = []
 
     # Set shared values for created ow objects
     current_time = datetime.now()
     shared_ow_attrs = {
         "Created_Date": current_time,
         "Modified_Date": current_time,
-        "Package_UUID": package_uuid,
         "Procedure_Status": bill_type,
     }
 
@@ -161,23 +163,31 @@ def create_ow_objects_from_json(
                         raise DSOExportOWError(
                             "Invalid data: Could not find matching OW Location defined in this Division annotation."
                         )
-                    annotation_item.Locations.append(matching_object)
+
+                    # TODO: manual relationship for now due to session bug with duplicates
+                    # annotation_item.Locations.append(matching_object)
+                    created_relations.append(
+                        OWAssociationTable(
+                            OW_ID_1_HASH=annotation_item.OW_ID_HASH,
+                            OW_ID_2_HASH=matching_object.OW_ID_HASH,
+                            Type=OWAssociationType.TEKSTDEEL_LOCATION.value,
+                        )
+                    )
 
             created_objects.append(annotation_item)
 
     # Process regelingsgebied_content
     if "locaties_content" in ow_data:
         for ambtsgebied in ow_data["locaties_content"].get("ambtsgebieden", []):
-            created_objects.append(
-                OWAmbtsgebiedTable(
-                    UUID=uuid.uuid4(),
-                    OW_ID=ambtsgebied["OW_ID"],
-                    Bestuurlijke_grenzen_id=ambtsgebied["bestuurlijke_genzenverwijzing"]["bestuurlijke_grenzen_id"],
-                    Domein=ambtsgebied["bestuurlijke_genzenverwijzing"]["domein"],
-                    Geldig_Op=ambtsgebied["bestuurlijke_genzenverwijzing"]["geldig_op"],
-                    **shared_ow_attrs,
-                )
+            ambts_ow = OWAmbtsgebiedTable(
+                UUID=uuid.uuid4(),
+                OW_ID=ambtsgebied["OW_ID"],
+                Bestuurlijke_grenzen_id=ambtsgebied["bestuurlijke_genzenverwijzing"]["bestuurlijke_grenzen_id"],
+                Domein=ambtsgebied["bestuurlijke_genzenverwijzing"]["domein"],
+                Geldig_Op=ambtsgebied["bestuurlijke_genzenverwijzing"]["geldig_op"],
+                **shared_ow_attrs,
             )
+            created_objects.append(ambts_ow)
     if "regelingsgebied_content" in ow_data:
         for regelingsgebied in ow_data["regelingsgebied_content"].get("regelingsgebieden", []):
             rg_object = OWRegelingsgebiedTable(
@@ -187,4 +197,4 @@ def create_ow_objects_from_json(
                 **shared_ow_attrs,
             )
             created_objects.append(rg_object)
-    return created_objects
+    return created_objects, created_relations
