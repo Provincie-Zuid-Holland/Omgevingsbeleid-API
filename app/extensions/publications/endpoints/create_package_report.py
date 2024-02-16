@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
+from app.core.settings import settings
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -43,12 +44,18 @@ class CreatePackageReportEndpoint(Endpoint):
 
             # Parse XML report
             xml_content = await xml_file.read()
-            report_db = self._parse_xml_to_publication_package_report(xml_content=xml_content)
-            if report_db.Package_UUID != package_uuid:
-                raise HTTPException(status_code=403, detail="Report idLevering does not match publication package UUID")
-
-            report_db.Source_Document = xml_content.decode("utf-8")
+            report_data = self._parse_report_xml(xml_content)
+            report_db = PublicationPackageReportTable(
+                Source_Document=xml_content.decode("utf-8"),
+                **report_data,
+            )
+            report_db.Created_Date = datetime.now()
             report_db.Created_By_UUID = user.UUID
+
+            if not settings.DEBUG_MODE and report_data.get("Package_UUID") != package_uuid:
+                raise HTTPException(status_code=403, detail="Report idLevering does not match publication package UUID")
+            report_db.Package_UUID = package_uuid
+
             db.add(report_db)
 
             if report_db.Result != "succes":
@@ -91,9 +98,9 @@ class CreatePackageReportEndpoint(Endpoint):
         """
         return db.query(PublicationPackageReportTable).filter_by(Package_UUID=package_uuid).count()
 
-    def _parse_xml_to_publication_package_report(self, xml_content: str) -> PublicationPackageReportTable:
+    def _parse_report_xml(self, xml_content: str) -> dict:
         """
-        Parse the XML content to a PublicationPackageReportTable object
+        Parse the XML content to a dictionary of variables
         """
         root = ET.fromstring(xml_content)
         namespace = {"lvbb": "http://www.overheid.nl/2017/lvbb", "stop": "http://www.overheid.nl/2017/stop"}
@@ -106,14 +113,13 @@ class CreatePackageReportEndpoint(Endpoint):
         meldingen = ET.tostring(verslag.find("lvbb:meldingen", namespace), encoding="unicode")
         voortgang = verslag.find("lvbb:voortgang", namespace).text
 
-        return PublicationPackageReportTable(
-            Created_Date=datetime.now(),
-            Package_UUID=idLevering,
-            Result=uitkomst,
-            Report_Timestamp=tijdstipVerslag,
-            Messages=meldingen,
-            Report_Type=voortgang,
-        )
+        return {
+            "Package_UUID": idLevering,
+            "Result": uitkomst,
+            "Report_Timestamp": tijdstipVerslag,
+            "Messages": meldingen,
+            "Report_Type": voortgang,
+        }
 
 
 class CreatePackageReportEndpointResolver(EndpointResolver):
