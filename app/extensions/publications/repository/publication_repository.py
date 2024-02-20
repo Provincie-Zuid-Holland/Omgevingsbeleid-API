@@ -129,10 +129,7 @@ class PublicationRepository(BaseRepository):
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
-        query = select(
-            PublicationBillTable,
-            exists().where(PublicationPackageTable.Bill_UUID == PublicationBillTable.UUID).label("has_packages"),
-        ).join(PublicationBillTable.Module_Status)
+        query = select(PublicationBillTable).join(PublicationBillTable.Module_Status)
         if publication_uuid is not None:
             query = query.filter(PublicationBillTable.Publication_UUID == publication_uuid)
         if version_id is not None:
@@ -140,7 +137,7 @@ class PublicationRepository(BaseRepository):
         if module_status is not None:
             query = query.filter(ModuleStatusHistoryTable.Status == module_status.value)
 
-        paged_result = self.fetch_paginated_no_scalars(
+        paged_result = self.fetch_paginated(
             statement=query,
             offset=offset,
             limit=limit,
