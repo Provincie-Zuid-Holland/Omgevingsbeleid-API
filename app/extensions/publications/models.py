@@ -216,6 +216,9 @@ class PublicationPackage(BaseModel):
     Created_By_UUID: uuid.UUID
     Modified_By_UUID: uuid.UUID
 
+    Latest_Download_Date: Optional[datetime]
+    Latest_Download_By_UUID: Optional[uuid.UUID]
+
     Bill_UUID: uuid.UUID
     Config_ID: int
     FRBR_ID: int
