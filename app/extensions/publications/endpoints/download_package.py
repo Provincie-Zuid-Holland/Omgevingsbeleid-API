@@ -37,6 +37,8 @@ class DownloadPackageEndpoint(Endpoint):
 
             package.Latest_Download_Date = datetime.utcnow()
             package.Latest_Download_By_UUID = user.UUID
+            db.add(package)
+            db.commit()
             db.flush()
 
             return Response(

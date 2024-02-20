@@ -122,6 +122,7 @@ def upgrade() -> None:
         sa.Column('Effective_Date', sa.Date(), nullable=True),
         sa.Column('Announcement_Date', sa.Date(), nullable=True),
         sa.Column('PZH_Bill_Identifier', sa.Unicode(length=255), nullable=True),
+        sa.Column('Locked', sa.Boolean(), nullable=False),
         sa.Column('UUID', sa.Uuid(), nullable=False),
         sa.Column('Created_By_UUID', sa.Uuid(), nullable=False),
         sa.Column('Modified_By_UUID', sa.Uuid(), nullable=False),

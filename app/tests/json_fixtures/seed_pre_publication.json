@@ -199,16 +199,13 @@
     "publication_bill": [
         {
             "UUID": "bfd97376ccea4a708fd928f39b14053b",
+            "Publication_UUID": "",
             "Created_Date": "2023-12-28 17:23:04.940723",
             "Modified_Date": "2023-12-28 17:23:04.940731",
             "Version_ID": 1,
-            "Module_ID": 1,
             "Module_Status_ID": 1,
-            "Council_Proposal_File": null,
             "Effective_Date": "2024-02-20 09:16:28.427000",
             "Announcement_Date": "2024-02-18 09:16:28.427000",
-            "Bill_Type": "Definitief",
-            "Document_Type": "Omgevingsvisie",
             "Bill_Data": {
                 "Bill_Title": "Voorbeeld besluit module 1 visie",
                 "Regulation_Title": "Voorbeeld besluit module 1 visie",
@@ -238,15 +235,19 @@
         {
             "ID": 1,
             "Created_Date": "2023-12-28 09:16:28.427000",
-            "Modified_Date": "2023-12-28 09:16:28.427000",
             "Province_ID": "pv28",
             "Authority_ID": "00000001002306608000",
             "Submitter_ID": "00000001002306608000",
             "Jurisdiction": "Omgevingsrecht",
             "Subjects": "ruimtelijke_ordening",
-            "dso_stop_version": "1.3.0",
-            "dso_tpod_version": "2.0.2",
-            "dso_bhkv_version": "1.2.0"
+            "Governing_Body_Type": "Provinciale_staten",
+            "Act_Componentname": "nieuweregeling",
+            "Administrative_Borders_ID": "002000000000000000009928",
+            "Administrative_Borders_Domain": "NL.BI.BestuurlijkGebied",
+            "Administrative_Borders_Date": "2023-09-29",
+            "DSO_STOP_VERSION": "1.3.0",
+            "DSO_TPOD_VERSION": "2.0.2",
+            "DSO_BHKV_VERSION": "1.2.0"
         }
     ],
     "publication_package": [
@@ -263,14 +264,13 @@
             "Submitter_ID": "00000001002306608000",
             "Jurisdiction": "Omgevingsrecht",
             "Subjects": "ruimtelijke_ordening",
-            "dso_stop_version": "1.3.0",
-            "dso_tpod_version": "2.0.2",
-            "dso_bhkv_version": "1.2.0"
+            "DSO_STOP_VERSION": "1.3.0",
+            "DSO_TPOD_VERSION": "2.0.2",
+            "DSO_BHKV_VERSION": "1.2.0"
         },
         {
             "UUID": "8b9c8c900ef245eca112d0fa75c850ef",
             "Created_Date": "2024-01-03 16:06:46.744669",
-            "Modified_Date": "2024-01-03 16:06:46.744672",
             "Bill_UUID": "bfd97376ccea4a708fd928f39b14053b",
             "Package_Event_Type": "Publicatie",
             "Publication_Filename": "akn_testfixture.xml",
@@ -280,9 +280,9 @@
             "Submitter_ID": "00000001002306608000",
             "Jurisdiction": "Omgevingsrecht",
             "Subjects": "ruimtelijke_ordening",
-            "dso_stop_version": "1.3.0",
-            "dso_tpod_version": "2.0.2",
-            "dso_bhkv_version": "1.2.0"
+            "DSO_STOP_VERSION": "1.3.0",
+            "DSO_TPOD_VERSION": "2.0.2",
+            "DSO_BHKV_VERSION": "1.2.0"
         }
     ],
     "publication_ow_objects": [

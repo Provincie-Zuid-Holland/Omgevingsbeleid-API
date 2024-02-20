@@ -75,6 +75,7 @@ class PublicationBillTable(Base, HasUUID, TimeStamped, UserMetaData):
     Effective_Date: Mapped[Optional[date]]  # Juridische inwerkingtredingsdatum
     Announcement_Date: Mapped[Optional[date]]  # Bekendmaking_Datum
     PZH_Bill_Identifier: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)  # Besluitnummer
+    Locked: Mapped[bool] = mapped_column(default=False)
 
     Publication: Mapped["PublicationTable"] = relationship("PublicationTable")
     Module_Status: Mapped["ModuleStatusHistoryTable"] = relationship("ModuleStatusHistoryTable")

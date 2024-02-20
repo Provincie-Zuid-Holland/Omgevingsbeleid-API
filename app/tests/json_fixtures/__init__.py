@@ -9,6 +9,13 @@ def parse_datetime(date_str):
     return None
 
 
+def parse_date(date_str):
+    # json doesn't support datetime, so parse it manually
+    if date_str:
+        return datetime.strptime(date_str, "%Y-%m-%d")
+    return None
+
+
 def parse_uuid(uuid_str):
     # json doesn't support uuid, so parse it manually
     if uuid_str:

@@ -36,7 +36,7 @@ from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository
 from app.extensions.source_werkingsgebieden.repository.sqlite_geometry_repository import SqliteGeometryRepository
 from app.extensions.users.db import UsersTable
 from app.extensions.users.db.tables import IS_ACTIVE
-from app.tests.json_fixtures import filter_valid_fields, parse_datetime, parse_uuid
+from app.tests.json_fixtures import filter_valid_fields, parse_date, parse_datetime, parse_uuid
 
 
 class DatabaseFixtures:
@@ -848,7 +848,7 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
         configs = []
         for item in data["publication_config"]:
             item["Created_Date"] = parse_datetime(item.get("Created_Date"))
-            item["Modified_Date"] = parse_datetime(item.get("Modified_Date"))
+            item["Administrative_Borders_Date"] = parse_date(item.get("Administrative_Borders_Date"))
             configs.append(PublicationConfigTable(**item))
         self._db.bulk_save_objects(configs)
 
@@ -921,7 +921,6 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
         values = {
             "ID": 1,
             "Created_Date": datetime.fromisoformat("2023-12-28 09:16:28.427000"),
-            "Modified_Date": datetime.fromisoformat("2023-12-28 09:16:28.427000"),
             "Province_ID": "pv28",
             "Authority_ID": "123",
             "Submitter_ID": "123",

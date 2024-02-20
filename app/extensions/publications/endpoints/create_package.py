@@ -313,6 +313,10 @@ class CreatePublicationPackageEndpoint(Endpoint):
                         if obj.OW_ID in existing_ow_map:
                             db.expunge(obj)
 
+            # Lock the bill
+            bill_db.Locked = True
+            db.add(bill_db)
+
             db.commit()
 
             return PublicationPackage.from_orm(new_package_db)
