@@ -42,7 +42,10 @@ class DownloadPackageReportsEndpoint(Endpoint):
             return Response(
                 content=response_xml,
                 media_type="application/xml",
-                headers={"Content-Disposition": f"attachment; filename={filename}"},
+                headers={
+                    "Access-Control-Expose-Headers": "Content-Disposition",
+                    "Content-Disposition": f"attachment; filename={filename}",
+                },
             )
 
         router.add_api_route(

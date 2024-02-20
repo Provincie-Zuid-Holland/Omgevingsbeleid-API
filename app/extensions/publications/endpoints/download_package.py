@@ -42,7 +42,10 @@ class DownloadPackageEndpoint(Endpoint):
             return Response(
                 content=package.ZIP_File_Binary,
                 media_type="application/x-zip-compressed",
-                headers={"Content-Disposition": f"attachment; filename={package.ZIP_File_Name}"},
+                headers={
+                    "Access-Control-Expose-Headers": "Content-Disposition",
+                    "Content-Disposition": f"attachment; filename={package.ZIP_File_Name}",
+                },
             )
 
         router.add_api_route(

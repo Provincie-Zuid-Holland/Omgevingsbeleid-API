@@ -141,7 +141,10 @@ class EndpointHandler:
         return Response(
             content=zip_buffer.read(),
             media_type="application/x-zip-compressed",
-            headers={"Content-Disposition": f"attachment; filename={zip_filename}"},
+            headers={
+                "Access-Control-Expose-Headers": "Content-Disposition",
+                "Content-Disposition": f"attachment; filename={zip_filename}",
+            },
         )
 
     def _debug_invalid_objects(self, used_objects: List[dict]):
