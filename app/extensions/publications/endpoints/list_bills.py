@@ -30,6 +30,7 @@ class PublicationBillShort(BaseModel):
     Version_ID: Optional[int]
     Procedure_Type: ProcedureType
     Is_Official: bool
+    Locked: bool
 
     class Config:
         orm_mode = True
