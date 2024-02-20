@@ -2,16 +2,16 @@ import hashlib
 import json
 import uuid
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Optional
 
 from dateutil.parser import parse
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, validator
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
-from app.core.settings import settings
 
 from app.core.dependencies import depends_db
+from app.core.settings import settings
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -42,7 +42,7 @@ from app.extensions.publications.repository import (
     PublicationObjectRepository,
     PublicationRepository,
 )
-from app.extensions.publications.tables.ow import OWAmbtsgebiedTable, OWObjectTable, OWRegelingsgebiedTable
+from app.extensions.publications.tables.ow import OWObjectTable
 from app.extensions.publications.tables.tables import PublicationFRBRTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user

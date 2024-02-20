@@ -1,7 +1,10 @@
 import uuid
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Response
+from sqlalchemy.orm import Session
 
+from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -22,6 +25,7 @@ class DownloadPackageEndpoint(Endpoint):
             package_uuid: uuid.UUID,
             pub_repository: PublicationRepository = Depends(depends_publication_repository),
             user: UsersTable = Depends(depends_current_active_user),
+            db: Session = Depends(depends_db),
         ):
             package = pub_repository.get_package_download(package_uuid)
             if not package:
@@ -30,6 +34,10 @@ class DownloadPackageEndpoint(Endpoint):
                 raise HTTPException(status_code=403, detail=f"Package: {package_uuid} has no stored ZIP file.")
             if package.ZIP_File_Name is None:
                 package.ZIP_File_Name = f"package-{package.UUID.hex()}.zip"
+
+            package.Latest_Download_Date = datetime.utcnow()
+            package.Latest_Download_By_UUID = user.UUID
+            db.flush()
 
             return Response(
                 content=package.ZIP_File_Binary,

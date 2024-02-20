@@ -142,6 +142,9 @@ class PublicationPackageTable(Base, HasUUID, UserMetaData):
     Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
+    Latest_Download_Date: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    Latest_Download_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"), nullable=True)
+
     Bill_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_bills.UUID"), nullable=False)
     Config_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_config.ID"), nullable=False)
     FRBR_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_frbr.ID"), nullable=False)

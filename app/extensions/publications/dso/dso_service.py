@@ -13,7 +13,7 @@ from app.extensions.publications.dso.dso_werkingsgebieden_factory import DsoWerk
 from app.extensions.publications.dso.input_data_mapper import map_dso_input_data
 from app.extensions.publications.dso.ow_helpers import create_updated_ambtsgebied_data
 from app.extensions.publications.dso.template_parser import TemplateParser
-from app.extensions.publications.exceptions import DSOModuleException, DSOStateExportError
+from app.extensions.publications.exceptions import DSOStateExportError
 from app.extensions.publications.models import Publication, PublicationBill, PublicationConfig, PublicationPackage
 from app.extensions.publications.tables.ow import OWRegelingsgebiedTable
 from app.extensions.source_werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository

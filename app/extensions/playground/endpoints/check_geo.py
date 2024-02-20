@@ -1,3 +1,5 @@
+from collections import Counter
+
 import geopandas as gpd
 import pandas as pd
 from fastapi import APIRouter, Depends, Response
@@ -5,7 +7,6 @@ from shapely import wkt
 from shapely.geometry import GeometryCollection, LineString, MultiPolygon, Point, Polygon
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from collections import Counter
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig

@@ -1,7 +1,7 @@
+import re
 import uuid
 from datetime import date, datetime
 from typing import List, Tuple
-import re
 
 from app.extensions.publications.enums import IMOWTYPE, OWAssociationType, ProcedureType
 from app.extensions.publications.exceptions import DSOExportOWError
@@ -16,8 +16,6 @@ from app.extensions.publications.tables.ow import (
     OWRegelingsgebiedTable,
     OWTekstdeelTable,
 )
-from app.extensions.publications.tables.tables import PublicationPackageTable
-
 
 OW_REGEX = r"nl\.imow-(gm|pv|ws|mn|mnre)[0-9]{1,6}\.(regeltekst|gebied|gebiedengroep|lijn|lijnengroep|punt|puntengroep|activiteit|gebiedsaanwijzing|omgevingswaarde|omgevingsnorm|pons|kaart|tekstdeel|hoofdlijn|divisie|kaartlaag|juridischeregel|activiteitlocatieaanduiding|normwaarde|regelingsgebied|ambtsgebied|divisietekst)\.[A-Za-z0-9]{1,32}"
 
