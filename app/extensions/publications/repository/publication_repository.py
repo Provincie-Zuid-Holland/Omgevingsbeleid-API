@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import desc, exists, func, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import defer, selectinload
 
 from app.dynamic.repository.repository import BaseRepository

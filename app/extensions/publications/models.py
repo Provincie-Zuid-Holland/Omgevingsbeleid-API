@@ -121,6 +121,7 @@ class PublicationBill(BaseModel):
     Version_ID: Optional[int]
     Procedure_Type: ProcedureType
     Is_Official: bool
+    Locked: bool
     Effective_Date: date
     Announcement_Date: date
     PZH_Bill_Identifier: Optional[str]

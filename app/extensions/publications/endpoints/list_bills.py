@@ -13,7 +13,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, SimplePagination
 from app.extensions.modules.models.models import ModuleStatusCode
-from app.extensions.publications import ProcedureType, PublicationBill
+from app.extensions.publications import ProcedureType
 from app.extensions.publications.dependencies import depends_publication_repository
 from app.extensions.publications.repository import PublicationRepository
 from app.extensions.users.db.tables import UsersTable
@@ -57,7 +57,7 @@ class ListPublicationBillsEndpoint(Endpoint):
                 limit=pagination.limit,
             )
 
-            bills = [PublicationBill.from_orm(r) for r in paginated_result.items]
+            bills = [PublicationBillShort.from_orm(r) for r in paginated_result.items]
 
             return PagedResponse[PublicationBillShort](
                 total=paginated_result.total_count,
