@@ -141,7 +141,7 @@ class PublicationRepository(BaseRepository):
             statement=query,
             offset=offset,
             limit=limit,
-            sort=(PublicationBillTable.Modified_Date, "desc"),
+            sort=(PublicationBillTable.Version_ID, "asc"),
         )
         return paged_result
 
