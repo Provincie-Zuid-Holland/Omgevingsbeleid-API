@@ -1,0 +1,4 @@
+from .create_version import CreatePublicationVersionEndpointResolver
+from .detail_version import DetailPublicationVersionEndpointResolver
+from .edit_version import EditPublicationVersionEndpointResolver
+from .list_versions import ListPublicationVersionsEndpointResolver

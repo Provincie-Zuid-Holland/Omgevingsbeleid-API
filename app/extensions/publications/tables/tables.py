@@ -1,181 +1,251 @@
 import uuid
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Optional
 
-from sqlalchemy import Column, Date, DateTime
-from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy import ForeignKey, LargeBinary, Text, Unicode, UniqueConstraint
-from sqlalchemy.orm import Mapped, backref, deferred, mapped_column, relationship
+from sqlalchemy import Column, Date, DateTime, ForeignKey, LargeBinary, Unicode, UnicodeText, UniqueConstraint
+from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import JSON, Integer
 
 from app.core.db.base import Base
-from app.core.db.mixins import HasUUID, TimeStamped, UserMetaData
-from app.extensions.publications.enums import DocumentType, PackageEventType, ProcedureType, ValidationStatusType
-from app.extensions.publications.tables.ow import package_ow_association
+from app.core.db.mixins import UserMetaData
+from app.extensions.modules.db.tables import ModuleStatusHistoryTable
 
 
-class PublicationConfigTable(Base):
-    __tablename__ = "publication_config"
+class PublicationTemplateTable(Base, UserMetaData):
+    __tablename__ = "publication_templates"
 
-    ID: Mapped[int] = mapped_column(primary_key=True)
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Title: Mapped[str] = mapped_column(Unicode, nullable=False)
+    Description: Mapped[str] = mapped_column(Unicode, nullable=False)
+
+    Is_Active: Mapped[bool]
+    Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
+    Object_Types: Mapped[list] = mapped_column(JSON, nullable=False)
+    Text_Template: Mapped[str] = mapped_column(Unicode, nullable=False)
+    Object_Templates: Mapped[dict] = mapped_column(JSON, nullable=False)
+    Field_Map: Mapped[list] = mapped_column(JSON, nullable=False)
+
     Created_Date: Mapped[datetime]
-
-    Province_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Provincie_ID
-    Authority_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Bevoegdgezag_ID
-    Submitter_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Aanleveraar_ID
-    Jurisdiction: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Rechtsgebied
-    Subjects: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Onderwerpen
-    Governing_Body_Type: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Bestuursorgaan_Soort
-    Act_Componentname: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # Regeling Componentnaam
-
-    Administrative_Borders_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)  # bestuurlijke grenzen ID
-    Administrative_Borders_Domain: Mapped[str] = mapped_column(
-        Unicode(255), nullable=False
-    )  # bestuurlijke grenzen domein
-    Administrative_Borders_Date: Mapped[date] = mapped_column(Date, nullable=False)  # bestuurlijke grenzen bekend op
-
-    DSO_STOP_VERSION: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    DSO_TPOD_VERSION: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    DSO_BHKV_VERSION: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    Modified_Date: Mapped[datetime]
 
 
-class PublicationTable(Base, HasUUID, TimeStamped, UserMetaData):
+class PublicationEnvironmentTable(Base, UserMetaData):
+    __tablename__ = "publication_environments"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Title: Mapped[str] = mapped_column(Unicode)
+    Description: Mapped[str] = mapped_column(Unicode)
+
+    Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    Authority_ID: Mapped[str] = mapped_column(Unicode(20), nullable=False)
+    Submitter_ID: Mapped[str] = mapped_column(Unicode(20), nullable=False)
+    Governing_Body_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    Frbr_Country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
+    Frbr_Language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
+
+    Is_Active: Mapped[bool]
+    Has_State: Mapped[bool]
+    Can_Validate: Mapped[bool]
+    Can_Publicate: Mapped[bool]
+
+    Created_Date: Mapped[datetime]
+    Modified_Date: Mapped[datetime]
+
+
+class PublicationEnvironmentStateTable(Base):
+    __tablename__ = "publication_environment_states"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
+    Adjust_On_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("publication_environment_states.UUID"), nullable=True
+    )
+
+    Change_Set = Column(JSON)
+    State = Column(JSON)
+
+    Is_Activated: Mapped[bool]
+    Activated_Datetime: Mapped[Optional[datetime]]
+
+    Created_Date: Mapped[datetime]
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+
+
+class PublicationAreaOfJurisdictionTable(Base):
+    # Ambtsgebied
+    __tablename__ = "publication_area_of_jurisdictions"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+
+    Administrative_Borders_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    Administrative_Borders_Domain: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    Administrative_Borders_Date: Mapped[date] = mapped_column(Date, nullable=False)
+
+    Created_Date: Mapped[datetime]
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+
+
+class PublicationTable(Base, UserMetaData):
     __tablename__ = "publications"
-    __table_args__ = (UniqueConstraint("Document_Type", "Work_ID", name="uq_publications_document_work"),)
 
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
 
     Module_ID: Mapped[int] = mapped_column(Integer, ForeignKey("modules.Module_ID"), nullable=False)
-    Template_ID: Mapped[Optional[int]]  # TODO: key to new template storage
+    Document_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
+    Template_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_templates.UUID"), nullable=False)
 
-    Document_Type = Column(SQLAlchemyEnum(*[e.value for e in DocumentType]))
-    Work_ID: Mapped[int]  # FRBR counter
-
-    Official_Title: Mapped[str] = mapped_column(Unicode(), nullable=False)  # Officiele titel
-    Regulation_Title: Mapped[str] = mapped_column(Unicode(), nullable=False)  # Regeling opschrift
+    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     Module: Mapped["ModuleTable"] = relationship("ModuleTable")
+    Template: Mapped["PublicationTemplateTable"] = relationship("PublicationTemplateTable")
 
 
-class PublicationBillTable(Base, HasUUID, TimeStamped, UserMetaData):
-    __tablename__ = "publication_bills"
+class PublicationVersionTable(Base, UserMetaData):
+    __tablename__ = "publication_versions"
 
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
 
     Publication_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publications.UUID"), nullable=False)
-    Module_Status_ID: Mapped[int] = mapped_column(Integer, ForeignKey("module_status_history.ID"), nullable=False)
-    Version_ID: Mapped[int]
+    Module_Status_ID: Mapped[int] = mapped_column(ForeignKey("module_status_history.ID"), nullable=False)
+    Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
+    Procedure_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
 
-    Is_Official: Mapped[bool]
-    Procedure_Type = Column(SQLAlchemyEnum(*[e.value for e in ProcedureType]), nullable=False)  # Procedure soort
-    Bill_Data = Column(JSON)  # Besluit
-    Procedure_Data = Column(JSON)  # Procedureverloop
-    Effective_Date: Mapped[Optional[date]]  # Juridische inwerkingtredingsdatum
-    Announcement_Date: Mapped[Optional[date]]  # Bekendmaking_Datum
-    PZH_Bill_Identifier: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)  # Besluitnummer
+    # BesluitMetadata
+    Bill_Metadata = Column(JSON)
+    # BesluitCompact
+    Bill_Compact = Column(JSON)
+    # Procedureverloop
+    Procedural = Column(JSON)
+    # RegelingMetadata
+    Act_Metadata = Column(JSON)
+
+    # ConsolidatieInformatie.Tijdstempels.juridischWerkendVanaf
+    Effective_Date: Mapped[Optional[date]]
+    # opdracht-xml.datumBekendmaking
+    Announcement_Date: Mapped[Optional[date]]
+
     Locked: Mapped[bool] = mapped_column(default=False)
 
-    Publication: Mapped["PublicationTable"] = relationship("PublicationTable")
-    Module_Status: Mapped["ModuleStatusHistoryTable"] = relationship("ModuleStatusHistoryTable")
-    Packages: Mapped[List["PublicationPackageTable"]] = relationship(
-        "PublicationPackageTable", backref="publication_bill"
-    )
+    Created_Date: Mapped[datetime]
+    Modified_Date: Mapped[datetime]
+
+    Publication: Mapped[PublicationTable] = relationship("PublicationTable")
+    Module_Status: Mapped[ModuleStatusHistoryTable] = relationship("ModuleStatusHistoryTable")
+    Environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable")
+    # Packages: Mapped[List["PublicationPackageTable"]] = relationship(back_populates="Bill")
 
 
-class PublicationFRBRTable(Base):
-    __tablename__ = "publication_frbr"
-    __table_args__ = (
-        UniqueConstraint("bill_work_misc", "bill_expression_version", name="bill_unique_constraint"),
-        UniqueConstraint("act_work_misc", "act_expression_version", name="act_unique_constraint"),
-    )
+class PublicationActTable(Base, UserMetaData):
+    __tablename__ = "publication_acts"
 
-    ID: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
 
-    # Fields for bill_frbr
-    bill_work_country: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    bill_work_date: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    bill_work_misc: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    bill_expression_lang: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    bill_expression_date: Mapped[date]
-    bill_expression_version: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    bill_expression_misc: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)
+    # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
+    Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False, unique=True)
+    Status: Mapped[str]
 
-    # Fields for act_frbr
-    act_work_country: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    act_work_date: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    act_work_misc: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    act_expression_lang: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    act_expression_date: Mapped[date]
-    act_expression_version: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    act_expression_misc: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)
-
-    @classmethod
-    def create_default_frbr(
-        cls,
-        document_type: str,
-        work_ID: int,
-        expression_version: int,
-    ):
-        current_year = datetime.now().year
-        current_date = datetime.now().strftime("%Y-%m-%d")
-        return cls(
-            Created_Date=datetime.now(),
-            bill_work_country="nl",
-            bill_work_date=str(current_year),
-            bill_work_misc=f"{document_type}_{work_ID}",
-            bill_expression_lang="nld",
-            bill_expression_date=current_date,
-            bill_expression_version=str(expression_version),
-            act_work_country="nl",
-            act_work_date=str(current_year),
-            act_work_misc=f"{document_type}_{work_ID}",
-            act_expression_lang="nld",
-            act_expression_date=current_date,
-            act_expression_version=str(expression_version),
-        )
+    Created_Date: Mapped[datetime]
+    Modified_Date: Mapped[datetime]
 
 
-class PublicationPackageTable(Base, HasUUID, UserMetaData):
+class PublicationActVersionTable(Base, UserMetaData):
+    __tablename__ = "publication_act_versions"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Act_UUID: Mapped[int] = mapped_column(ForeignKey("publication_acts.UUID"))
+    Version: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    Act: Mapped[PublicationActTable] = relationship()
+
+    __table_args__ = (UniqueConstraint("Act_UUID", "Version", name="uix_act_version"),)
+
+
+class PublicationBillTable(Base, UserMetaData):
+    __tablename__ = "publication_bills"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+
+    # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
+    Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False, unique=True)
+    Status: Mapped[str]
+
+    Created_Date: Mapped[datetime]
+    Modified_Date: Mapped[datetime]
+
+
+class PublicationBillVersionTable(Base, UserMetaData):
+    __tablename__ = "publication_bill_versions"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Bill_UUID: Mapped[int] = mapped_column(ForeignKey("publication_bills.UUID"))
+    Version: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    Bill: Mapped[PublicationBillTable] = relationship()
+
+    __table_args__ = (UniqueConstraint("Bill_UUID", "Version", name="uix_bill_version"),)
+
+
+# class PublicationBillTable(Base, HasUUID, UserMetaData):
+#     __tablename__ = "publication_bills"
+
+#     Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+#     Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+#     Publication_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publications.UUID"), nullable=False)
+#     Module_Status_ID: Mapped[int] = mapped_column(Integer, ForeignKey("module_status_history.ID"), nullable=False)
+#     Version_ID: Mapped[int]
+
+#     Is_Official: Mapped[bool]
+#     Procedure_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)  # Procedure soort
+#     Bill_Data = Column(JSON)  # Besluit
+#     Procedure_Data = Column(JSON)  # Procedureverloop
+#     Effective_Date: Mapped[Optional[date]]  # Juridische inwerkingtredingsdatum
+#     Announcement_Date: Mapped[Optional[date]]  # Bekendmaking_Datum
+#     PZH_Bill_Identifier: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)  # Besluitnummer
+#     Locked: Mapped[bool] = mapped_column(default=False)
+
+#     Publication: Mapped["PublicationTable"] = relationship("PublicationTable")
+#     Module_Status: Mapped["ModuleStatusHistoryTable"] = relationship("ModuleStatusHistoryTable")
+#     Packages: Mapped[List["PublicationPackageTable"]] = relationship(back_populates="Bill")
+
+
+class PublicationPackageTable(Base, UserMetaData):
     __tablename__ = "publication_packages"
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Publication_Version_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_versions.UUID"), nullable=False)
+    Zip_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package_zips.UUID"), nullable=False)
+
+    Package_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    Validation_Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+
+    Created_Date: Mapped[datetime]
+    Modified_Date: Mapped[datetime]
+
+    Publication_Version: Mapped["PublicationVersionTable"] = relationship()
+    Zip: Mapped["PublicationPackageZipTable"] = relationship()
+
+    # Reports: Mapped[List["PublicationPackageReportTable"]] = relationship(
+    #     "PublicationPackageReportTable", back_populates="Package"
+    # )
+
+
+class PublicationPackageZipTable(Base):
+    __tablename__ = "publication_package_zips"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+
+    # Name of the main akn file
+    Publication_Filename: Mapped[str] = mapped_column(Unicode(255), nullable=True)
+
+    Filename: Mapped[str] = mapped_column(Unicode, nullable=False)
+    Binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
+    Checksum: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+
+    Created_Date: Mapped[datetime]
     Latest_Download_Date: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     Latest_Download_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"), nullable=True)
-
-    Bill_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_bills.UUID"), nullable=False)
-    Config_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_config.ID"), nullable=False)
-    FRBR_ID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_frbr.ID"), nullable=False)
-
-    Package_Event_Type = Column(SQLAlchemyEnum(*[e.value for e in PackageEventType]), nullable=False)
-    Publication_Filename: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)  # Publicatie_Bestandnaam
-    Announcement_Date: Mapped[date]  # Datum_Bekendmaking
-
-    ZIP_File_Name: Mapped[Optional[str]] = mapped_column(Unicode, nullable=True)
-    ZIP_File_Binary: Mapped[Optional[bytes]] = deferred(Column(LargeBinary))  # Change to azure blob storage later
-    ZIP_File_Checksum: Mapped[Optional[str]] = Column(Unicode(64))
-
-    Validation_Status = Column(
-        SQLAlchemyEnum(*[e.value for e in ValidationStatusType]),
-        nullable=False,
-        default=ValidationStatusType.PENDING.value,
-    )
-
-    Config: Mapped["PublicationConfigTable"] = relationship("PublicationConfigTable")
-    Bill: Mapped["PublicationBillTable"] = relationship("PublicationBillTable")
-    FRBR_Info: Mapped["PublicationFRBRTable"] = relationship(
-        "PublicationFRBRTable",
-        backref=backref("publication_package", uselist=False, cascade="all, delete-orphan"),
-    )
-    Reports: Mapped[List["PublicationPackageReportTable"]] = relationship(
-        "PublicationPackageReportTable", back_populates="Package"
-    )
-    OW_Objects: Mapped[List["OWObjectTable"]] = relationship(
-        "OWObjectTable", secondary=package_ow_association, back_populates="Packages"
-    )
 
 
 class PublicationPackageReportTable(Base):
@@ -188,18 +258,25 @@ class PublicationPackageReportTable(Base):
     Package_UUID: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("publication_packages.UUID"), nullable=False
     )  # Idlevering
-    Result: Mapped[str] = mapped_column(Unicode, nullable=False)  # Uitkomst
+
+    Outcome: Mapped[str] = mapped_column(Unicode, nullable=False)  # Uitkomst
+    Result: Mapped[str] = mapped_column(Unicode, nullable=False)
     Report_Timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)  # tijdstipVerslag
-    Messages = Column(Text)  # Storing XML string of <meldingen> for simplicity
-    Source_Document = Column(Text)  # full original document for downloading
-    Report_Type: Mapped[str] = mapped_column(Unicode, nullable=False)  # Voortgang
+    Messages: Mapped[str] = mapped_column(UnicodeText)  # Storing XML string of <meldingen> for simplicity
+    Report_Progress: Mapped[str] = mapped_column(Unicode, nullable=True)  # Voortgang
 
-    Package = relationship("PublicationPackageTable", back_populates="Reports")
+    Filename: Mapped[str] = mapped_column(Unicode, nullable=False)
+    Source_Document: Mapped[str] = mapped_column(UnicodeText)  # full original document for downloading
+
+    # Package = relationship("PublicationPackageTable", back_populates="Reports")
 
 
-class DSOStateExportTable(Base, HasUUID):
-    __tablename__ = "publication_dso_state_exports"
+class PublicationPackageExportState(Base):
+    __tablename__ = "publication_package_export_state"
 
-    Created_Date: Mapped[datetime]
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+
     Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_packages.UUID"), nullable=False)
     Export_Data = Column(JSON)
+
+    Created_Date: Mapped[datetime]

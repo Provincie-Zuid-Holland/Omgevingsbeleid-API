@@ -39,7 +39,7 @@ class InputDataService:
             publication_settings=dso_models.PublicationSettings(
                 document_type=document_type.value.upper(),
                 datum_bekendmaking=datum,
-                datum_juridisch_werkend_vanaf="2024-02-09",
+                datum_juridisch_werkend_vanaf="2024-02-28",
                 provincie_id="pv28",
                 wId_suffix=work_version,
                 soort_bestuursorgaan="Provinciale_staten",
@@ -52,7 +52,7 @@ class InputDataService:
                     "id_bevoegdgezag": "00000001002306608000",
                     "id_aanleveraar": "00000001002306608000",
                     "publicatie_bestand": f"akn_nl_bill_pv28-{datum}-{versie}.xml",
-                    "datum_bekendmaking": "2024-02-09",
+                    "datum_bekendmaking": "2024-02-28",
                 },
                 doel=dso_models.Doel(jaar="2024", naam=f"Instelling{document_type_title.capitalize()}"),
                 besluit_frbr={
@@ -87,7 +87,7 @@ class InputDataService:
                     label="Artikel",
                     inhoud="Dit besluit treedt in werking op de dag waarop dit bekend wordt gemaakt.",
                 ),
-                sluiting="Gegeven te 's-Gravenhage, 06 januari 2024",
+                sluiting="Gegeven te 's-Gravenhage, 28 februari 2024",
                 ondertekening="Gedupeerde Staten",
                 rechtsgebieden=[
                     "Omgevingsrecht",
@@ -129,6 +129,12 @@ class InputDataService:
                 werkingsgebied_repository=werkingsgebied_repository,
             ),
             object_template_repository=object_template_repository,
+            regelingsgebied={
+                "regelingsgebied": {
+                    "OW_ID": "nl.imow-pv28.regelingsgebied.622f52669f684b418d484415d4ad037e",
+                    "ambtsgebied": "nl.imow-pv28.ambtsgebied.002000000000000000009928",
+                },
+            },
         )
 
         return input_data

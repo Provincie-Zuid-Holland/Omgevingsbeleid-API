@@ -305,6 +305,24 @@ api:
         - resolver: list_all_latest_objects
           resolver_data:
             sort: *sort_default_object_id
+    - prefix: /publication-templates
+      endpoints:
+        - resolver: create_publication_template
+        - resolver: edit_publication_template
+          resolver_data:
+            path: /{template_uuid}
+        - resolver: list_publication_templates
+    - prefix: /publication-environments
+      endpoints:
+        - resolver: create_publication_environment
+        - resolver: edit_publication_environment
+          resolver_data:
+            path: /{environment_uuid}
+        - resolver: list_publication_environments
+    - prefix: /publication-environments
+      endpoints:
+        - resolver: create_publication_aoj
+        - resolver: list_publication_aoj
     - prefix: /publications
       endpoints:
         - resolver: list_publications
@@ -313,32 +331,34 @@ api:
       endpoints:
         - resolver: detail_publication
         - resolver: edit_publication
-    - prefix: /publications/{publication_uuid}/bills
+        - resolver: create_publication_version
+          resolver_data:
+            path: /version
+        - resolver: list_publication_versions
+          resolver_data:
+            path: /versions
+    - prefix: /publication-versions
       endpoints:
-        - resolver: create_publication_bill
-        - resolver: list_publication_bills
-        - resolver: edit_publication_bill
-          resolver_data:
-            path: /{bill_uuid}
-        - resolver: detail_publication_bill
-          resolver_data:
-            path: /{bill_uuid}
-    - prefix: /publication-bills/{bill_uuid}/packages
+        - resolver: list_publication_version
+    - prefix: /publication-versions/{version_uuid}
+      endpoints:
+        - resolver: edit_publication_version
+        - resolver: detail_publication_version
+    - prefix: /publication-versions/{version_uuid}/packages
       endpoints:
         - resolver: create_publication_package
         - resolver: list_publication_packages
     - prefix: /publication-packages/{package_uuid}
       endpoints:
-        # - resolver: detail_publication_package
+        - resolver: download_publication_package
+          resolver_data:
+            path: /download
         - resolver: create_package_report
           resolver_data:
             path: /report
         - resolver: download_publication_package_reports
           resolver_data:
             path: /report/download
-        - resolver: download_publication_package
-          resolver_data:
-            path: /download
 
 columns:
   # Titel
@@ -535,6 +555,9 @@ users_permissions:
     - can_edit_user
     - can_reset_user_password
     - can_patch_object_static
+    - can_create_publication_template
+    - can_edit_publication_template
+    - can_view_publication_template
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -554,6 +577,9 @@ users_permissions:
     - can_edit_user
     - can_reset_user_password
     - can_patch_object_static
+    - can_create_publication_template
+    - can_edit_publication_template
+    - can_view_publication_template
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -572,6 +598,9 @@ users_permissions:
     - can_edit_user
     - can_reset_user_password
     - can_patch_object_static
+    - can_create_publication_template
+    - can_edit_publication_template
+    - can_view_publication_template
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -590,6 +619,21 @@ users_permissions:
     - can_edit_user
     - can_reset_user_password
     - can_patch_object_static
+    - can_create_publication_template
+    - can_edit_publication_template
+    - can_view_publication_template
+    - can_create_publication_environment
+    - can_edit_publication_environment
+    - can_view_publication_environment
+    - can_create_publication
+    - can_edit_publication
+    - can_view_publication
+    - can_create_publication_version
+    - can_edit_publication_version
+    - can_view_publication_version
+    - can_create_publication_package
+    - can_view_publication_package
+    - can_download_publication_package
   "Test runner":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -608,6 +652,9 @@ users_permissions:
     - can_edit_user
     - can_reset_user_password
     - can_patch_object_static
+    - can_create_publication_template
+    - can_edit_publication_template
+    - can_view_publication_template
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -626,23 +673,43 @@ users_permissions:
     - can_edit_user
     - can_reset_user_password
     - can_patch_object_static
-
-modules_pdf_export:
-  # prefixed by /config/
-  template_path: /extensions/module_pdf_export/templates
-  templates:
-    ambitie: ambitie.j2
-    beleidsdoel: beleidsdoel.j2
-    beleidskeuze: beleidskeuze.j2
-    maatregel: maatregel.j2
-  # prefixed by /output/
-  destination_path: /extensions/module_pdf_export
-
-modules_xml_export:
-  destination_path: /extensions/module_xml_export
+    - can_create_publication_template
+    - can_edit_publication_template
+    - can_view_publication_template
 
 mssql_search:
   - table_name: objects
     <<: *searchable_config
   - table_name: module_objects
     <<: *searchable_config
+
+publication:
+  defaults:
+    omgevingsvisie:
+      # @see: class BillMetadata
+      bill_metadata:
+        OfficialTitle: Omgevingsvisie Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+      # @see: class BillCompact
+      bill_compact:
+        Preamble: |
+          <Al>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</Al>
+        Closing: |
+          <Al>Om de Omgevingsvisie Provincie Zuid-Holland beschikbaar te maken in het Digitale Stelsel van de Omgevingswet is het noodzakelijk dat de reeds vastgestelde Omgevingsvisie Zuid-Holland opnieuw wordt gepubliceerd en bekend gemaakt.</Al>
+        Signed: |
+          <Al>Gedupeerde Staten</Al>
+        AmendmentArticle: |
+          De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
+        TimeArticle: |
+          <Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>
+      # @see: class ActMetadata
+      act_metadata:
+        OfficialTitle: Omgevingsvisie Provincie Zuid-Holland
+        QuoteTitle: Omgevingsvisie Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht

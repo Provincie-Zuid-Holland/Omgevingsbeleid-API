@@ -6,17 +6,17 @@
 #
 alembic==1.13.1
     # via -r requirements-dev.in
-astroid==3.0.3
+astroid==3.1.0
     # via pylint
 asttokens==2.4.1
     # via
     #   devtools
     #   stack-data
-autoflake==2.2.1
+autoflake==2.3.0
     # via -r requirements-dev.in
-bandit==1.7.7
+bandit==1.7.8
     # via -r requirements-dev.in
-black==24.1.1
+black==24.2.0
     # via -r requirements-dev.in
 certifi==2024.2.2
     # via requests
@@ -24,14 +24,14 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via black
-coverage[toml]==7.4.1
+coverage[toml]==7.4.3
     # via
     #   -r requirements-dev.in
     #   coverage-badge
     #   pytest-cov
 coverage-badge==1.1.0
     # via -r requirements-dev.in
-debugpy==1.8.0
+debugpy==1.8.1
     # via -r requirements-dev.in
 decorator==5.1.1
     # via ipython
@@ -47,7 +47,7 @@ executing==2.0.1
     # via
     #   devtools
     #   stack-data
-faker==22.7.0
+faker==24.1.0
     # via -r requirements-dev.in
 flake8==7.0.0
     # via -r requirements-dev.in
@@ -59,7 +59,7 @@ idna==3.6
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==8.21.0
+ipython==8.22.2
     # via -r requirements-dev.in
 isort==5.13.2
     # via
@@ -81,7 +81,7 @@ mccabe==0.7.0
     #   pylint
 mdurl==0.1.2
     # via markdown-it-py
-mypy==1.8.0
+mypy==1.9.0
     # via
     #   -r requirements-dev.in
     #   sqlalchemy
@@ -124,9 +124,9 @@ pygments==2.17.2
     #   devtools
     #   ipython
     #   rich
-pylint==3.0.3
+pylint==3.1.0
     # via -r requirements-dev.in
-pytest==8.0.0
+pytest==8.0.2
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -135,7 +135,7 @@ pytest-cov==4.1.0
     # via -r requirements-dev.in
 pytest-mock==3.12.0
     # via -r requirements-dev.in
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   faker
     #   freezegun
@@ -145,20 +145,20 @@ requests==2.31.0
     # via requests-mock
 requests-mock==1.11.0
     # via -r requirements-dev.in
-rich==13.7.0
+rich==13.7.1
     # via bandit
 six==1.16.0
     # via
     #   asttokens
     #   python-dateutil
     #   requests-mock
-sqlalchemy[mypy]==2.0.25
+sqlalchemy[mypy]==2.0.28
     # via
     #   -r requirements-dev.in
     #   alembic
 stack-data==0.6.3
     # via ipython
-stevedore==5.1.0
+stevedore==5.2.0
     # via bandit
 tomli==2.0.1
     # via
@@ -169,20 +169,20 @@ tomli==2.0.1
     #   pylint
     #   pytest
     #   vulture
-tomlkit==0.12.3
+tomlkit==0.12.4
     # via pylint
 traitlets==5.14.1
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.9.0
+typing-extensions==4.10.0
     # via
     #   alembic
     #   astroid
     #   black
     #   mypy
     #   sqlalchemy
-urllib3==2.2.0
+urllib3==2.2.1
     # via requests
 vulture==2.11
     # via -r requirements-dev.in

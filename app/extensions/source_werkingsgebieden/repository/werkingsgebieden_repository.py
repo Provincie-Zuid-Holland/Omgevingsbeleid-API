@@ -22,16 +22,8 @@ SPATIAL_FUNCTION_MAP = {
 
 
 class WerkingsgebiedenRepository(BaseRepository):
-    # def get_full_by_uuid(self, uuidx: UUID) -> Optional[SourceWerkingsgebiedenTable]:
-    #     stmt = (
-    #         select(SourceWerkingsgebiedenTable)
-    #         .filter(SourceWerkingsgebiedenTable.UUID == uuidx)
-    #         .options(undefer(SourceWerkingsgebiedenTable.SHAPE))
-    #     )
-    #     return self.fetch_first(stmt)
-
     def get_all_paginated(self, pagination: SortedPagination) -> PaginatedQueryResult:
-        stmt = select(SourceWerkingsgebiedenTable).filter(SourceWerkingsgebiedenTable.End_Validity > datetime.now())
+        stmt = select(SourceWerkingsgebiedenTable).filter(SourceWerkingsgebiedenTable.End_Validity > datetime.utcnow())
         return self.fetch_paginated(
             statement=stmt,
             offset=pagination.offset,

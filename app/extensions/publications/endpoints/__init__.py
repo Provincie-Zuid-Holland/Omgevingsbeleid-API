@@ -1,13 +1,28 @@
-from .create_bill import CreatePublicationBillEndpointResolver
-from .create_package import CreatePublicationPackageEndpointResolver
-from .create_package_report import CreatePackageReportEndpointResolver
-from .create_publication import CreatePublicationEndpointResolver
-from .detail_bill import DetailPublicationBillEndpointResolver
-from .detail_publication import DetailPublicationEndpointResolver
-from .download_package import DownloadPackageEndpointResolver
-from .download_package_reports import DownloadPackageReportsEndpointResolver
-from .edit_bill import EditPublicationBillEndpointResolver
-from .edit_publication import EditPublicationEndpointResolver
-from .list_bills import ListPublicationBillsEndpointResolver
-from .list_packages import ListPublicationPackagesEndpointResolver
-from .list_publications import ListPublicationsEndpointResolver
+from .area_of_jurisdictions import CreatePublicationAOJEndpointResolver, ListPublicationAOJEndpointResolver
+from .environments import (
+    CreatePublicationEnvironmentEndpointResolver,
+    EditPublicationEnvironmentEndpointResolver,
+    ListPublicationEnvironmentsEndpointResolver,
+)
+from .publications import (
+    CreatePublicationEndpointResolver,
+    DetailPublicationEndpointResolver,
+    EditPublicationEndpointResolver,
+    ListPublicationsEndpointResolver,
+)
+from .publications.packages.create_package import CreatePublicationPackageEndpointResolver
+from .publications.packages.download_package import DownloadPackageEndpointResolver
+from .publications.packages.list_packages import ListPublicationPackagesEndpointResolver
+from .publications.reports.create_package_report import CreatePackageReportEndpointResolver
+from .publications.reports.download_package_reports import DownloadPackageReportsEndpointResolver
+from .publications.versions import (
+    CreatePublicationVersionEndpointResolver,
+    DetailPublicationVersionEndpointResolver,
+    EditPublicationVersionEndpointResolver,
+    ListPublicationVersionsEndpointResolver,
+)
+from .templates import (
+    CreatePublicationTemplateEndpointResolver,
+    EditPublicationTemplateEndpointResolver,
+    ListPublicationTemplatesEndpointResolver,
+)

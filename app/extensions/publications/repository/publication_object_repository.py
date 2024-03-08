@@ -114,6 +114,7 @@ class PublicationObjectRepository(BaseRepository):
         union_query = (
             union_all(
                 # alias().select() is a cheat to force parentheses
+                # Else the union might fail on sqlite
                 (object_query.alias().select()),
                 (module_query.alias().select()),
             )

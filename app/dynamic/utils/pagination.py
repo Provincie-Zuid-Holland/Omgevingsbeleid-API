@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import Select
 
 
-class SortOrder(Enum):
+class SortOrder(str, Enum):
     ASC = "ASC"
     DESC = "DESC"
 
