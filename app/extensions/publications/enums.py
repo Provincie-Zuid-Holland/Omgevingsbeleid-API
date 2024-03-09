@@ -25,6 +25,7 @@ class PackageType(str, Enum):
 
 
 class ValidationStatusType(str, Enum):
+    NOT_APPLICABLE = "Not Applicable"
     PENDING = "Pending"
     VALID = "Valid"
     FAILED = "Failed"

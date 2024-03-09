@@ -49,9 +49,9 @@ class ListPublicationPackagesEndpoint(Endpoint):
             fastapi_handler,
             methods=["GET"],
             response_model=PagedResponse[PublicationPackage],
-            summary="List the existing publication Packages",
+            summary="List the existing publication packages",
             description=None,
-            tags=["Publications"],
+            tags=["Publications", "Publication Packages"],
         )
 
         return router

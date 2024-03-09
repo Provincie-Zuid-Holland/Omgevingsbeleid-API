@@ -10,7 +10,6 @@ from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.db.tables import ObjectsTable
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
-from app.extensions.areas.db.tables import AreasTable
 from app.extensions.areas.repository.mssql_area_geometry_repository import MssqlAreaGeometryRepository
 from app.extensions.areas.repository.sqlite_area_geometry_repository import SqliteAreaGeometryRepository  # # noqa
 from app.extensions.html_assets.db.tables import AssetsTable

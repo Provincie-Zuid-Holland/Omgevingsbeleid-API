@@ -398,7 +398,7 @@ class DatabaseFixturesPublications:
                     TimeArticle="<Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>",
                 ).dict(),
                 Procedural=Procedural(
-                    SignedDate=self._timepoint.strftime('%Y-%m-%d'),
+                    SignedDate=self._timepoint.strftime("%Y-%m-%d"),
                 ).dict(),
                 Act_Metadata=ActMetadata(
                     OfficialTitle="Test: Omgevingsvisie van Zuid-Holland",

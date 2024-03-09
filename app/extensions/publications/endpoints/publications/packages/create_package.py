@@ -1,24 +1,28 @@
 import uuid
 from datetime import datetime
-import io
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from dso.builder.builder import Builder
 from app.core.dependencies import depends_db
+from app.core.settings import Settings
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
+from app.dynamic.dependencies import depends_settings
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_package_builder_factory, depends_publication_version
-from app.extensions.publications.enums import PackageType
+from app.extensions.publications.enums import PackageType, ValidationStatusType
 from app.extensions.publications.permissions import PublicationsPermissions
-from app.extensions.publications.services.package_builder import PackageBuilder
+from app.extensions.publications.services.package_builder import PackageBuilder, ZipData
 from app.extensions.publications.services.package_builder_factory import PackageBuilderFactory
-from app.extensions.publications.tables.tables import PublicationVersionTable
+from app.extensions.publications.tables.tables import (
+    PublicationPackageTable,
+    PublicationPackageZipTable,
+    PublicationVersionTable,
+)
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
@@ -28,19 +32,22 @@ class PublicationPackageCreate(BaseModel):
 
 
 class PublicationPackageCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    Package_UUID: uuid.UUID
+    Zip_UUID: uuid.UUID
 
 
 class EndpointHandler:
     def __init__(
         self,
         db: Session,
+        settings: Settings,
         package_builder_factory: PackageBuilderFactory,
         user: UsersTable,
         object_in: PublicationPackageCreate,
         publication_version: PublicationVersionTable,
     ):
         self._db: Session = db
+        self._settings: Settings = settings
         self._package_builder_factory: PackageBuilderFactory = package_builder_factory
         self._user: UsersTable = user
         self._object_in: PublicationPackageCreate = object_in
@@ -54,15 +61,54 @@ class EndpointHandler:
             self._publication_version,
             self._object_in.Package_Type,
         )
-        dso_builder: Builder = package_builder.build()
         try:
-            dso_builder.build_publication_files()
-            zip_buffer: io.BytesIO = dso_builder.zip_files()
-            dso_builder.save_files("./output-dso")
+            package_builder.build_publication_files()
+            zip_data: ZipData = package_builder.zip_files()
+
+            if self._settings.DSO_MODULE_DEBUG_EXPORT:
+                package_builder.save_files("./output-dso")
+
+            validation_status: ValidationStatusType = ValidationStatusType.NOT_APPLICABLE
+            if self._publication_version.Environment.Has_State:
+                validation_status = ValidationStatusType.PENDING
+
+            package: PublicationPackageTable = PublicationPackageTable(
+                UUID=uuid.uuid4(),
+                Publication_Version_UUID=self._publication_version.UUID,
+                Package_Type=self._object_in.Package_Type,
+                Validation_Status=validation_status,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user.UUID,
+                Modified_By_UUID=self._user.UUID,
+            )
+
+            package_zip: PublicationPackageZipTable = PublicationPackageZipTable(
+                UUID=uuid.uuid4(),
+                Package_UUID=package.UUID,
+                Publication_Filename=zip_data.Publication_Filename,
+                Filename=zip_data.Filename,
+                Binary=zip_data.Binary,
+                Checksum=zip_data.Checksum,
+                Latest_Download_Date=None,
+                Latest_Download_By_UUID=None,
+                Created_Date=self._timepoint,
+                Created_By_UUID=self._user.UUID,
+            )
+
+            self._db.add(package)
+            self._db.add(package_zip)
+            self._db.commit()
+            self._db.flush()
+
+            response: PublicationPackageCreatedResponse = PublicationPackageCreatedResponse(
+                Package_UUID=package.UUID,
+                Zip_UUID=package_zip.UUID,
+            )
+            return response
+
         except Exception as e:
             raise e
-
-        a = True
 
     def _guard_validate_package_type(self):
         match self._object_in.Package_Type:
@@ -86,14 +132,16 @@ class CreatePublicationPackageEndpoint(Endpoint):
             publication_version: PublicationVersionTable = Depends(depends_publication_version),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
-                    PublicationsPermissions.can_view_publication_version,
+                    PublicationsPermissions.can_create_publication_package,
                 )
             ),
             package_builder_factory: PackageBuilderFactory = Depends(depends_package_builder_factory),
             db: Session = Depends(depends_db),
+            settings: Settings = Depends(depends_settings),
         ) -> PublicationPackageCreatedResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
+                settings,
                 package_builder_factory,
                 user,
                 object_in,

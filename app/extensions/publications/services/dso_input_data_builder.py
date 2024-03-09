@@ -1,21 +1,12 @@
-from typing import List, Optional
 import uuid
-
-from dso.builder.state_manager.input_data.input_data_loader import InputData
-from app.extensions.publications.enums import DocumentType, PackageType
-from app.extensions.publications.models import PublicationEnvironment, PublicationTemplate
-from app.extensions.publications.services.act_frbr_provider import ActFrbr
-from app.extensions.publications.services.bill_frbr_provider import BillFrbr
-from app.extensions.publications.services.publication_data_provider import PublicationData
-
-from app.extensions.publications.tables.tables import PublicationEnvironmentTable, PublicationTable, PublicationTemplateTable, PublicationVersionTable
+from typing import List, Optional
 
 import dso.models as dso_models
+from dso.builder.state_manager.input_data.ambtsgebied import Ambtsgebied
 from dso.builder.state_manager.input_data.besluit import Artikel, Besluit
 from dso.builder.state_manager.input_data.input_data_loader import InputData
 from dso.builder.state_manager.input_data.object_template_repository import ObjectTemplateRepository
 from dso.builder.state_manager.input_data.regeling import Regeling
-from dso.builder.state_manager.input_data.ambtsgebied import Ambtsgebied
 from dso.builder.state_manager.input_data.resource.asset.asset_repository import AssetRepository as DSOAssetRepository
 from dso.builder.state_manager.input_data.resource.policy_object.policy_object_repository import PolicyObjectRepository
 from dso.builder.state_manager.input_data.resource.resources import Resources
@@ -23,8 +14,17 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
     WerkingsgebiedRepository,
 )
 
+from app.extensions.publications.enums import DocumentType, PackageType
+from app.extensions.publications.services.act_frbr_provider import ActFrbr
+from app.extensions.publications.services.bill_frbr_provider import BillFrbr
+from app.extensions.publications.services.publication_data_provider import PublicationData
+from app.extensions.publications.tables.tables import (
+    PublicationEnvironmentTable,
+    PublicationTable,
+    PublicationTemplateTable,
+    PublicationVersionTable,
+)
 from app.extensions.publications.waardelijsten import Bestuursorgaan, Onderwerp, Rechtsgebied
-
 
 DOCUMENT_TYPE_MAP = {
     DocumentType.VISION: "OMGEVINGSVISIE",
@@ -74,15 +74,13 @@ class DsoInputDataBuilder:
 
         publication_settings = dso_models.PublicationSettings(
             document_type=dso_document_type,
-            datum_bekendmaking=self._publication_version.Announcement_Date.strftime('%Y-%m-%d'),
-            datum_juridisch_werkend_vanaf=self._publication_version.Effective_Date.strftime('%Y-%m-%d'),
+            datum_bekendmaking=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
+            datum_juridisch_werkend_vanaf=self._publication_version.Effective_Date.strftime("%Y-%m-%d"),
             provincie_id=self._environment.Province_ID,
             wId_suffix=self._act_frbr.Expression_Version,
             soort_bestuursorgaan=self._get_soort_bestuursorgaan(),
-
             # @todo: This should be moved to Werkingsgebieden which is the only one that uses this
             expression_taal=self._act_frbr.Expression_Language,
-
             regeling_componentnaam=self._act_frbr.Component_Name,
             provincie_ref=f"/tooi/id/provincie/{self._environment.Province_ID}",
             opdracht={
@@ -93,7 +91,9 @@ class DsoInputDataBuilder:
                 "publicatie_bestand": f"akn_nl_bill_{self._environment.Province_ID}-{self._bill_frbr.Work_Country}-{self._bill_frbr.Work_Other}.xml",
                 "datum_bekendmaking": "2024-02-28",
             },
-            doel=dso_models.Doel(jaar="2024", naam=f"instelling-{self._act_frbr.Work_Other}-{self._act_frbr.Expression_Version}"),
+            doel=dso_models.Doel(
+                jaar="2024", naam=f"instelling-{self._act_frbr.Work_Other}-{self._act_frbr.Expression_Version}"
+            ),
             besluit_frbr={
                 "work_land": self._bill_frbr.Work_Country,
                 "work_datum": self._bill_frbr.Work_Date,
@@ -154,23 +154,27 @@ class DsoInputDataBuilder:
 
         enactment_date: Optional[str] = self._publication_version.Procedural.get("EnactmentDate", None)
         if enactment_date is not None:
-            steps.append(dso_models.ProcedureStap(
-                soort_stap="Vaststelling",
-                voltooid_op=enactment_date,
-            ))
+            steps.append(
+                dso_models.ProcedureStap(
+                    soort_stap="Vaststelling",
+                    voltooid_op=enactment_date,
+                )
+            )
 
         signed_date: Optional[str] = self._publication_version.Procedural.get("SignedDate", None)
         if signed_date is None:
             raise RuntimeError("EnactmentDate.SignedDate is required")
 
-        steps.append(dso_models.ProcedureStap(
-            soort_stap="Ondertekening",
-            voltooid_op=signed_date,
-        ))
+        steps.append(
+            dso_models.ProcedureStap(
+                soort_stap="Ondertekening",
+                voltooid_op=signed_date,
+            )
+        )
 
         procedure_verloop = dso_models.ProcedureVerloop(
             # @todo: This should be its own date
-            bekend_op=self._publication_version.Announcement_Date.strftime('%Y-%m-%d'),
+            bekend_op=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
             stappen=steps,
         )
         return procedure_verloop
@@ -213,7 +217,7 @@ class DsoInputDataBuilder:
         ambtsgebied: Ambtsgebied = Ambtsgebied(
             identificatie_suffix=aoj["Administrative_Borders_ID"],
             domein=aoj["Administrative_Borders_Domain"],
-            geldig_op=aoj["Administrative_Borders_Date"].strftime('%Y-%m-%d'),
+            geldig_op=aoj["Administrative_Borders_Date"].strftime("%Y-%m-%d"),
             new=aoj["New"],
         )
         return ambtsgebied
@@ -225,16 +229,11 @@ class DsoInputDataBuilder:
     def _as_dso_onderwerpen(self, values: List[str]) -> List[str]:
         result: List[str] = []
         for value in values:
-            result.append(
-                Onderwerp[value]
-            )
+            result.append(Onderwerp[value])
         return result
 
     def _as_dso_rechtsgebieden(self, values: List[str]) -> List[str]:
         result: List[str] = []
         for value in values:
-            result.append(
-                Rechtsgebied[value]
-            )
+            result.append(Rechtsgebied[value])
         return result
-        

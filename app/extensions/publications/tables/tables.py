@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime
 from typing import Optional
 
-from sqlalchemy import Column, Date, DateTime, ForeignKey, LargeBinary, Unicode, UnicodeText, UniqueConstraint
+from sqlalchemy import Column, Date, DateTime, ForeignKey, LargeBinary, String, Unicode, UnicodeText, UniqueConstraint
 from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import JSON, Integer
 
@@ -186,36 +186,11 @@ class PublicationBillVersionTable(Base, UserMetaData):
     __table_args__ = (UniqueConstraint("Bill_UUID", "Version", name="uix_bill_version"),)
 
 
-# class PublicationBillTable(Base, HasUUID, UserMetaData):
-#     __tablename__ = "publication_bills"
-
-#     Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-#     Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-
-#     Publication_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publications.UUID"), nullable=False)
-#     Module_Status_ID: Mapped[int] = mapped_column(Integer, ForeignKey("module_status_history.ID"), nullable=False)
-#     Version_ID: Mapped[int]
-
-#     Is_Official: Mapped[bool]
-#     Procedure_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)  # Procedure soort
-#     Bill_Data = Column(JSON)  # Besluit
-#     Procedure_Data = Column(JSON)  # Procedureverloop
-#     Effective_Date: Mapped[Optional[date]]  # Juridische inwerkingtredingsdatum
-#     Announcement_Date: Mapped[Optional[date]]  # Bekendmaking_Datum
-#     PZH_Bill_Identifier: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)  # Besluitnummer
-#     Locked: Mapped[bool] = mapped_column(default=False)
-
-#     Publication: Mapped["PublicationTable"] = relationship("PublicationTable")
-#     Module_Status: Mapped["ModuleStatusHistoryTable"] = relationship("ModuleStatusHistoryTable")
-#     Packages: Mapped[List["PublicationPackageTable"]] = relationship(back_populates="Bill")
-
-
 class PublicationPackageTable(Base, UserMetaData):
     __tablename__ = "publication_packages"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Publication_Version_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_versions.UUID"), nullable=False)
-    Zip_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package_zips.UUID"), nullable=False)
 
     Package_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
     Validation_Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
@@ -224,51 +199,45 @@ class PublicationPackageTable(Base, UserMetaData):
     Modified_Date: Mapped[datetime]
 
     Publication_Version: Mapped["PublicationVersionTable"] = relationship()
-    Zip: Mapped["PublicationPackageZipTable"] = relationship()
-
-    # Reports: Mapped[List["PublicationPackageReportTable"]] = relationship(
-    #     "PublicationPackageReportTable", back_populates="Package"
-    # )
 
 
 class PublicationPackageZipTable(Base):
     __tablename__ = "publication_package_zips"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_packages.UUID"), nullable=False)
 
     # Name of the main akn file
     Publication_Filename: Mapped[str] = mapped_column(Unicode(255), nullable=True)
 
     Filename: Mapped[str] = mapped_column(Unicode, nullable=False)
     Binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
-    Checksum: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    Checksum: Mapped[str] = mapped_column(String(64), nullable=False)
+
+    Latest_Download_Date: Mapped[Optional[datetime]]
+    Latest_Download_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"), nullable=True)
 
     Created_Date: Mapped[datetime]
-    Latest_Download_Date: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    Latest_Download_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"), nullable=True)
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationPackageReportTable(Base):
     __tablename__ = "publication_package_reports"
 
-    ID: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    Package_UUID: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("publication_packages.UUID"), nullable=False
-    )  # Idlevering
+    Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_packages.UUID"), nullable=False)
 
-    Outcome: Mapped[str] = mapped_column(Unicode, nullable=False)  # Uitkomst
+    Outcome: Mapped[str] = mapped_column(Unicode, nullable=False)
     Result: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Report_Timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)  # tijdstipVerslag
-    Messages: Mapped[str] = mapped_column(UnicodeText)  # Storing XML string of <meldingen> for simplicity
-    Report_Progress: Mapped[str] = mapped_column(Unicode, nullable=True)  # Voortgang
+    Report_Timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    Messages: Mapped[str] = mapped_column(UnicodeText)
+    Report_Progress: Mapped[str] = mapped_column(Unicode, nullable=True)
 
     Filename: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Source_Document: Mapped[str] = mapped_column(UnicodeText)  # full original document for downloading
-
-    # Package = relationship("PublicationPackageTable", back_populates="Reports")
+    Source_Document: Mapped[str] = mapped_column(UnicodeText)
 
 
 class PublicationPackageExportState(Base):

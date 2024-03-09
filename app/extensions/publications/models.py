@@ -232,18 +232,7 @@ class PublicationPackage(BaseModel):
     Latest_Download_Date: Optional[datetime]
     Latest_Download_By_UUID: Optional[uuid.UUID]
 
-    Bill_UUID: uuid.UUID
-    Config_ID: int
-    FRBR_ID: int
-
-    Package_Event_Type: PackageType
-    Publication_Filename: Optional[str]
-
-    ZIP_File_Name: Optional[str]
-    ZIP_File_Checksum: Optional[str]
     Validation_Status: Optional[str]
-
-    Reports: Optional[List[PublicationPackageReport]]
 
     class Config:
         orm_mode = True

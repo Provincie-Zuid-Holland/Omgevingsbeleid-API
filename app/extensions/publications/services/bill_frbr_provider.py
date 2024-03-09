@@ -1,9 +1,8 @@
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
-import uuid
 
-from app.core.db.base import Base
 from app.extensions.publications.enums import PackageType
 from app.extensions.publications.tables.tables import (
     PublicationEnvironmentTable,
