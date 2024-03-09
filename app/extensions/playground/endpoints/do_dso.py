@@ -117,7 +117,7 @@ class EndpointHandler:
         builder = Builder(input_data)
         try:
             builder.build_publication_files()
-            zip_buffer: io.BytesIO() = builder.zip_files()
+            zip_buffer: io.BytesIO = builder.zip_files()
         except Exception as e:
             a = True
             raise e

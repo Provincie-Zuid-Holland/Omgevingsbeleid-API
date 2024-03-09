@@ -10,6 +10,7 @@ def _enable_sqlite_load_extension(dbapi_connection, connection_record):
     if isinstance(dbapi_connection, sqlite3.Connection):
         dbapi_connection.enable_load_extension(True)
         dbapi_connection.execute('SELECT load_extension("mod_spatialite")')
+        dbapi_connection.load_extension('mod_spatialite')
 
 
 engine = create_engine(

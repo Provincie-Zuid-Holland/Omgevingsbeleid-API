@@ -60,6 +60,7 @@ class AreaGeometryRepository(BaseRepository, metaclass=ABCMeta):
                 UUID = :uuid
             """
         self._db.execute(text(sql), params)
+        self._db.commit()
 
     def get_area(self, uuidx: uuid.UUID) -> dict:
         row = self.get_area_optional(uuidx)
@@ -69,7 +70,7 @@ class AreaGeometryRepository(BaseRepository, metaclass=ABCMeta):
 
     def get_area_optional(self, uuidx: uuid.UUID) -> Optional[dict]:
         params = {
-            "uuid": str(uuidx),
+            "uuid": self._format_uuid(uuidx),
         }
         sql = f"""
             SELECT

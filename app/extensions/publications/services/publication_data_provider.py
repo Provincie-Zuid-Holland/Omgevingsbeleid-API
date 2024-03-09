@@ -95,5 +95,6 @@ class PublicationDataProvider:
             "Administrative_Borders_Domain": aoj.Administrative_Borders_Domain,
             "Administrative_Borders_Date": aoj.Administrative_Borders_Date,
             "Created_Date": aoj.Created_Date,
+            "New": True,
         }
         return result

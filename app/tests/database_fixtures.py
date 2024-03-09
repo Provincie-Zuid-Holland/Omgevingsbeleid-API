@@ -5,11 +5,14 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash
+from app.core.utils.utils import DATE_FORMAT
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.db.tables import ObjectsTable
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
-from app.extensions.areas.db.tables import AreasTable  # # noqa
+from app.extensions.areas.db.tables import AreasTable
+from app.extensions.areas.repository.mssql_area_geometry_repository import MssqlAreaGeometryRepository
+from app.extensions.areas.repository.sqlite_area_geometry_repository import SqliteAreaGeometryRepository  # # noqa
 from app.extensions.html_assets.db.tables import AssetsTable
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
@@ -26,6 +29,7 @@ class DatabaseFixtures:
     def __init__(self, db: Session):
         self._db = db
         self._geometry_repository = self._create_geometry_repository()
+        self._area_geometry_repository = self._create_area_geometry_repository()
 
     def _create_geometry_repository(self):
         match self._db.bind.dialect.name:
@@ -36,9 +40,19 @@ class DatabaseFixtures:
             case _:
                 raise RuntimeError("Unknown database type connected")
 
+    def _create_area_geometry_repository(self):
+        match self._db.bind.dialect.name:
+            case "mssql":
+                return MssqlAreaGeometryRepository(self._db)
+            case "sqlite":
+                return SqliteAreaGeometryRepository(self._db)
+            case _:
+                raise RuntimeError("Unknown database type connected")
+
     def create_all(self):
         self.create_users()
-        self.create_werkingsgebieden()
+        self.create_source_werkingsgebieden()
+        self.create_areas()
         self.create_assets()
         self.create_object_statics()
         self.existing_objects()
@@ -126,7 +140,7 @@ class DatabaseFixtures:
         )
         self._db.commit()
 
-    def create_werkingsgebieden(self):
+    def create_source_werkingsgebieden(self):
         self._geometry_repository.add_werkingsgebied(
             uuidx=uuid.UUID("00000000-0009-0000-0000-000000000001"),
             idx=1,
@@ -136,7 +150,26 @@ class DatabaseFixtures:
             created_date=datetime(2023, 2, 2, 2, 2, 2),
             modified_date=datetime(2023, 2, 2, 2, 2, 2),
             start_validity=datetime(2023, 2, 2, 2, 2, 2),
-            end_validity=None,
+            end_validity=datetime(2099, 2, 2, 2, 2, 2),
+        )
+        self._db.commit()
+
+    def create_areas(self):
+        self._area_geometry_repository.create_area(
+            uuidx=uuid.UUID("00000000-0009-0000-0001-000000000001"),
+            created_date=datetime(2023, 2, 2, 2, 2, 2),
+            created_by_uuid=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            werkingsgebied={
+                "UUID": "00000000-0009-0000-0000-000000000001",
+                "ID": 1,
+                "Title": "Maatwerkgebied glastuinbouw",
+                "Symbol": "ES227",
+                "Geometry": "POLYGON ((74567.347600001842 443493.91890000325, 74608.622699998392 443619.86080000486, 74661.431899998352 443796.90439999942, 74657.325500000254 443794.78040000005, 74664.067999999956 443810.51300000178, 74729.171500001146 444013.33940000291, 74754.307000000073 444217.06900000118, 74766.111800000086 444287.24220000062, 74700.32570000003 444274.74290000094, 74617.775499999538 444246.9616000005, 74514.7938000001 444196.70150000026, 74448.482099998742 444165.69250000105, 74333.605200000064 444112.87550000072, 74204.86380000037 444067.32080000057, 74148.195700000957 444071.55770000169, 74232.0122999996 443919.14220000163, 74294.7186000012 443819.92320000188, 74402.363600000725 443672.54520000424, 74411.650600001187 443659.83020000259, 74518.027399998187 443515.38720000343, 74567.347600001842 443493.91890000325))",
+                "Start_Validity": datetime(2023, 2, 2, 2, 2, 2).strftime(DATE_FORMAT)[:23],
+                "End_Validity": datetime(2099, 2, 2, 2, 2, 2).strftime(DATE_FORMAT)[:23],
+                "Created_Date": datetime(2023, 2, 2, 2, 2, 2).strftime(DATE_FORMAT)[:23],
+                "Modified_Date": datetime(2023, 2, 2, 2, 2, 2).strftime(DATE_FORMAT)[:23],
+            },
         )
         self._db.commit()
 
@@ -228,6 +261,15 @@ class DatabaseFixtures:
                 Object_Type="maatregel",
                 Object_ID=2,
                 Code="maatregel-2",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
+            )
+        )
+
+        self._db.add(
+            ObjectStaticsTable(
+                Object_Type="werkingsgebied",
+                Object_ID=1,
+                Code="werkingsgebied-1",
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
             )
         )
@@ -459,6 +501,7 @@ class DatabaseFixtures:
                 Object_ID=1,
                 Code="beleidskeuze-1",
                 Hierarchy_Code="beleidsdoel-1",
+                Werkingsgebied_Code="werkingsgebied-1",
                 UUID=uuid.UUID("00000000-0000-0003-0000-000000000001"),
                 Title="Titel van het eerste beleidskeuze",
                 Description='<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eleifend lobortis libero, sit amet vestibulum lorem molestie sed.</p><img src="[ASSET:00000000-AAAA-0000-0000-000000000001]"/><p>Cras felis mi, finibus eget dignissim id, pretium egestas elit. Cras sodales eleifend velit vel aliquet. Nulla dapibus sem at velit suscipit, at varius augue porttitor. Morbi tempor vel est id dictum. Donec ante eros, rutrum eu quam non, interdum tristique turpis. Donec odio ipsum, tincidunt ut dignissim vel, scelerisque ut ex. Sed sit amet molestie tellus. Vestibulum porta condimentum molestie. Praesent non facilisis nisi, in egestas mi.<p>',
@@ -466,7 +509,6 @@ class DatabaseFixtures:
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-                Gebied_UUID=uuid.UUID("00000000-0009-0000-0000-000000000001"),
             )
         )
         self._db.commit()
@@ -494,6 +536,7 @@ class DatabaseFixtures:
                 Object_ID=2,
                 Code="beleidskeuze-2",
                 Hierarchy_Code="beleidsdoel-1",
+                Werkingsgebied_Code="werkingsgebied-1",
                 UUID=uuid.UUID("00000000-0000-0003-0000-000000000002"),
                 Title="Titel van het tweede beleidskeuze",
                 Description="<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eleifend lobortis libero, sit amet vestibulum lorem molestie sed. Cras felis mi, finibus eget dignissim id, pretium egestas elit. Cras sodales eleifend velit vel aliquet. Nulla dapibus sem at velit suscipit, at varius augue porttitor. Morbi tempor vel est id dictum. Donec ante eros, rutrum eu quam non, interdum tristique turpis. Donec odio ipsum, tincidunt ut dignissim vel, scelerisque ut ex. Sed sit amet molestie tellus. Vestibulum porta condimentum molestie. Praesent non facilisis nisi, in egestas mi. \n\nCurabitur porta dolor libero, auctor laoreet magna imperdiet tempus. Mauris at metus sit amet urna malesuada bibendum. Nulla ut tortor ut justo venenatis luctus nec vitae purus. Aliquam eget arcu sed ligula feugiat auctor. Integer at commodo turpis, id cursus enim. Pellentesque mattis posuere libero ut volutpat. Sed sagittis magna ac neque aliquam, eget scelerisque erat efficitur. Vivamus at erat rhoncus metus venenatis laoreet. Aliquam at pharetra leo. Vestibulum metus purus, molestie vel iaculis quis, suscipit nec velit. Nunc finibus felis quis iaculis posuere.</p>",
@@ -501,7 +544,6 @@ class DatabaseFixtures:
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-                Gebied_UUID=uuid.UUID("00000000-0009-0000-0000-000000000001"),
             )
         )
         self._db.commit()
@@ -530,13 +572,13 @@ class DatabaseFixtures:
                 Object_Type="maatregel",
                 Object_ID=1,
                 Code="maatregel-1",
+                Werkingsgebied_Code="werkingsgebied-1",
                 UUID=uuid.UUID("00000000-0000-0004-0000-000000000001"),
                 Title="Titel van de eerste maatregel",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-                Gebied_UUID=uuid.UUID("00000000-0009-0000-0000-000000000001"),
             )
         )
         self._db.commit()
@@ -563,13 +605,48 @@ class DatabaseFixtures:
                 Object_Type="maatregel",
                 Object_ID=2,
                 Code="maatregel-2",
+                Werkingsgebied_Code="werkingsgebied-1",
                 UUID=uuid.UUID("00000000-0000-0004-0000-000000000002"),
                 Title="Titel van de tweede maatregel",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-                Gebied_UUID=uuid.UUID("00000000-0009-0000-0000-000000000001"),
+            )
+        )
+        self._db.commit()
+
+        # Werkingsgebied
+        self._db.add(
+            ModuleObjectContextTable(
+                Module_ID=module.Module_ID,
+                Object_Type="werkingsgebied",
+                Object_ID=1,
+                Code="werkingsgebied-1",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Original_Adjust_On=None,
+                Action=ModuleObjectActionFilter.Create,
+                Explanation="Deze wil ik toevoegen",
+                Conclusion="Geen conclusie",
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="werkingsgebied",
+                Object_ID=1,
+                Code="werkingsgebied-1",
+                UUID=uuid.UUID("00000000-0000-0005-0000-000000000001"),
+                Title="Titel van de eerste werkingsgbied",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Area_UUID=uuid.UUID("00000000-0009-0000-0001-000000000001"),
             )
         )
         self._db.commit()

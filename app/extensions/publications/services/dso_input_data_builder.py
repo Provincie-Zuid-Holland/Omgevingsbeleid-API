@@ -15,6 +15,7 @@ from dso.builder.state_manager.input_data.besluit import Artikel, Besluit
 from dso.builder.state_manager.input_data.input_data_loader import InputData
 from dso.builder.state_manager.input_data.object_template_repository import ObjectTemplateRepository
 from dso.builder.state_manager.input_data.regeling import Regeling
+from dso.builder.state_manager.input_data.ambtsgebied import Ambtsgebied
 from dso.builder.state_manager.input_data.resource.asset.asset_repository import AssetRepository as DSOAssetRepository
 from dso.builder.state_manager.input_data.resource.policy_object.policy_object_repository import PolicyObjectRepository
 from dso.builder.state_manager.input_data.resource.resources import Resources
@@ -207,8 +208,15 @@ class DsoInputDataBuilder:
         repository = ObjectTemplateRepository(self._template.Object_Templates)
         return repository
 
-    def _get_ambtsgebied(self) -> dict:
-        return self._publication_data.area_of_juristiction
+    def _get_ambtsgebied(self) -> Ambtsgebied:
+        aoj: dict = self._publication_data.area_of_juristiction
+        ambtsgebied: Ambtsgebied = Ambtsgebied(
+            identificatie_suffix=aoj["Administrative_Borders_ID"],
+            domein=aoj["Administrative_Borders_Domain"],
+            geldig_op=aoj["Administrative_Borders_Date"].strftime('%Y-%m-%d'),
+            new=aoj["New"],
+        )
+        return ambtsgebied
 
     def _get_soort_bestuursorgaan(self) -> str:
         bestuursorgaan: str = Bestuursorgaan[self._environment.Governing_Body_Type].value

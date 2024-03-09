@@ -1,10 +1,12 @@
 import uuid
 from datetime import datetime
+import io
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from dso.builder.builder import Builder
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
@@ -48,11 +50,17 @@ class EndpointHandler:
     def handle(self) -> PublicationPackageCreatedResponse:
         self._guard_validate_package_type()
 
-        builder: PackageBuilder = self._package_builder_factory.create_builder(
+        package_builder: PackageBuilder = self._package_builder_factory.create_builder(
             self._publication_version,
             self._object_in.Package_Type,
         )
-        builder.build()
+        dso_builder: Builder = package_builder.build()
+        try:
+            dso_builder.build_publication_files()
+            zip_buffer: io.BytesIO = dso_builder.zip_files()
+            dso_builder.save_files("./output-dso")
+        except Exception as e:
+            raise e
 
         a = True
 

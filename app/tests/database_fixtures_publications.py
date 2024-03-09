@@ -66,12 +66,6 @@ class DatabaseFixturesPublications:
                 ],
                 Text_Template="""
 <div><object code="visie_algemeen-1" /></div>
-<div><object code="visie_algemeen-2" /></div>
-<div><object code="visie_algemeen-3" /></div>
-<div><object code="visie_algemeen-4" /></div>
-<div><object code="visie_algemeen-5" /></div>
-<div><object code="visie_algemeen-6" /></div>
-<div><object code="visie_algemeen-7" /></div>
 
 <div>
     <h1>Ambities van Zuid-Holland</h1>
@@ -100,7 +94,7 @@ class DatabaseFixturesPublications:
     {%- endfor %}
 </div>
 
-<div><object code="visie_algemeen-8" /></div>
+<div><object code="visie_algemeen-2" /></div>
 """.strip(),
                 Object_Templates={
                     "visie_algemeen": """
