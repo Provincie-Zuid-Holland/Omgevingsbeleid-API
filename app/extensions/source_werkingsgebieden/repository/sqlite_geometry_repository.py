@@ -60,6 +60,7 @@ class SqliteGeometryRepository(GeometryRepository):
         idx: int,
         title: str,
         text_shape: str,
+        gml: str,
         symbol: str,
         created_date: datetime,
         modified_date: datetime,
@@ -74,6 +75,7 @@ class SqliteGeometryRepository(GeometryRepository):
             "id": idx,
             "title": title,
             "shape": text_shape,
+            "gml": gml,
             "symbol": symbol,
             "created_date": created_date.strftime(DATE_FORMAT),
             "modified_date": modified_date.strftime(DATE_FORMAT),
@@ -84,12 +86,12 @@ class SqliteGeometryRepository(GeometryRepository):
             INSERT INTO
                 Werkingsgebieden
                     (
-                        UUID, ID, Werkingsgebied, SHAPE, symbol,
+                        UUID, ID, Werkingsgebied, SHAPE, GML, symbol,
                         Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid
                     )
                 VALUES
                     (
-                        :uuid, :id, :title, GeomFromText(:shape, 28992), :symbol,
+                        :uuid, :id, :title, GeomFromText(:shape, 28992), :gml, :symbol,
                         :created_date, :modified_date, :start_validity, :end_validity
                     )
             """
@@ -108,7 +110,7 @@ class SqliteGeometryRepository(GeometryRepository):
         sql = """
             SELECT
                 UUID, Werkingsgebied AS Title, symbol AS Symbol,
-                Created_Date, Modified_Date, AsText(SHAPE) AS Geometry,
+                Created_Date, Modified_Date, AsText(SHAPE) AS Geometry, GML,
                 Begin_Geldigheid AS Start_Validity,
                 Eind_Geldigheid AS End_Validity
             FROM
