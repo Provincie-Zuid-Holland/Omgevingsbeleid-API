@@ -31,6 +31,7 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         idx: int,
         title: str,
         text_shape: str,
+        gml: str,
         symbol: str,
         created_date: datetime,
         modified_date: datetime,

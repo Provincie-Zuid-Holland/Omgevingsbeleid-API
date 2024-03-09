@@ -35,6 +35,7 @@ class AreaGeometryRepository(BaseRepository, metaclass=ABCMeta):
             Created_Date=created_date,
             Created_By_UUID=created_by_uuid,
             Shape=None,
+            Gml=werkingsgebied.get("GML"),
             Source_UUID=uuid.UUID(werkingsgebied.get("UUID")),
             Source_ID=werkingsgebied.get("ID"),
             Source_Title=werkingsgebied.get("Title"),
