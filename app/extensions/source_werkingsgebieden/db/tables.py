@@ -21,6 +21,7 @@ class SourceWerkingsgebiedenTable(Base):
 
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
     SHAPE: Mapped[bytes] = deferred(mapped_column(Geometry()))
+    GML: Mapped[str] = deferred(mapped_column(Unicode))
     symbol: Mapped[str] = mapped_column(Unicode(265))
 
     def __repr__(self) -> str:
