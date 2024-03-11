@@ -41,7 +41,7 @@ class ListPublicationEnvironmentsEndpoint(Endpoint):
             response_model=PagedResponse[PublicationEnvironment],
             summary=f"List the publication environments",
             description=None,
-            tags=["Publications", "Publication Environments"],
+            tags=["Publication Environments"],
         )
 
         return router

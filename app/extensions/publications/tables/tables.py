@@ -193,8 +193,12 @@ class PublicationPackageTable(Base, UserMetaData):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Publication_Version_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_versions.UUID"), nullable=False)
-    Bill_Version_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("publication_bill_versions.UUID"), nullable=True)
-    Act_Version_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("publication_act_versions.UUID"), nullable=True)
+    Bill_Version_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("publication_bill_versions.UUID"), nullable=True
+    )
+    Act_Version_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("publication_act_versions.UUID"), nullable=True
+    )
     Zip_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package_zips.UUID"), nullable=False)
 
     Package_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)

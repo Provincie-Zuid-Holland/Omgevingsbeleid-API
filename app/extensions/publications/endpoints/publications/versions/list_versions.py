@@ -46,7 +46,7 @@ class ListPublicationVersionsEndpoint(Endpoint):
             response_model=PagedResponse[PublicationVersionShort],
             summary="List the existing Publication versions",
             description=None,
-            tags=["Publications", "Publication Versions"],
+            tags=["Publication Versions"],
         )
 
         return router

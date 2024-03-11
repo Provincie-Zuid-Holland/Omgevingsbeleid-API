@@ -158,7 +158,7 @@ class CreatePublicationVersionEndpoint(Endpoint):
             response_model=PublicationVersionCreatedResponse,
             summary="Create new publication version",
             description=None,
-            tags=["Publications", "Publication Versions"],
+            tags=["Publication Versions"],
         )
 
         return router

@@ -54,7 +54,7 @@ class DownloadPackageReportsEndpoint(Endpoint):
             methods=["GET"],
             summary=f"Download package reports",
             description=None,
-            tags=["Publications"],
+            tags=["Publication Reports"],
         )
 
         return router

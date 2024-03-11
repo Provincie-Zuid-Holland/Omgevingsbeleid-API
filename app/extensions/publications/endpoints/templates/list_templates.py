@@ -39,7 +39,7 @@ class ListPublicationTemplatesEndpoint(Endpoint):
             response_model=PagedResponse[PublicationTemplate],
             summary=f"List the publication templates",
             description=None,
-            tags=["Publications", "Publication Templates"],
+            tags=["Publication Templates"],
         )
 
         return router

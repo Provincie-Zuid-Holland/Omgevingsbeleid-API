@@ -87,7 +87,7 @@ class EditPublicationVersionEndpoint(Endpoint):
             response_model=ResponseOK,
             summary="Edit an existing publication version",
             description=None,
-            tags=["Publications", "Publication Versions"],
+            tags=["Publication Versions"],
         )
 
         return router

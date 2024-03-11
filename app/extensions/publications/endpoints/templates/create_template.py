@@ -100,7 +100,7 @@ class CreatePublicationTemplateEndpoint(Endpoint):
             response_model=TemplateCreatedResponse,
             summary=f"Create new publication template",
             description=None,
-            tags=["Publications", "Publication Templates"],
+            tags=["Publication Templates"],
         )
 
         return router

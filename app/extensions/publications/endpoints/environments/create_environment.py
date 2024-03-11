@@ -118,7 +118,7 @@ class CreatePublicationEnvironmentEndpoint(Endpoint):
             response_model=EnvironmentCreatedResponse,
             summary=f"Create new publication environment",
             description=None,
-            tags=["Publications", "Publication Environments"],
+            tags=["Publication Environments"],
         )
 
         return router

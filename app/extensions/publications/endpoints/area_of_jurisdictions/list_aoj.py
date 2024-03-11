@@ -36,7 +36,7 @@ class ListPublicationAOJEndpoint(Endpoint):
             response_model=PagedResponse[PublicationAOJ],
             summary=f"List the publication area of jurisdictions",
             description=None,
-            tags=["Publications", "Publication AOJ"],
+            tags=["Publication AOJ"],
         )
 
         return router

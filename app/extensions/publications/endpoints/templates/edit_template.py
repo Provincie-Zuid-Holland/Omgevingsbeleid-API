@@ -95,7 +95,7 @@ class EditPublicationTemplateEndpoint(Endpoint):
             response_model=ResponseOK,
             summary=f"Edit publication template",
             description=None,
-            tags=["Publications", "Publication Templates"],
+            tags=["Publication Templates"],
         )
 
         return router

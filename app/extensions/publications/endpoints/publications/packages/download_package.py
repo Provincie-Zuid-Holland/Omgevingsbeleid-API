@@ -56,7 +56,7 @@ class DownloadPackageEndpoint(Endpoint):
             methods=["GET"],
             summary=f"Download a generated publication package ZIP file",
             description=None,
-            tags=["Publications"],
+            tags=["Publication Packages"],
         )
 
         return router

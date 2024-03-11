@@ -155,7 +155,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
             methods=["POST"],
             response_model=PublicationPackageCreatedResponse,
             summary="Create new Publication Package",
-            tags=["Publications", "Publication Packages"],
+            tags=["Publication Packages"],
         )
 
         return router

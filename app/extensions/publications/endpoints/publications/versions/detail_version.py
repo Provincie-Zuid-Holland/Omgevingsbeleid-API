@@ -36,7 +36,7 @@ class DetailPublicationVersionEndpoint(Endpoint):
             response_model=PublicationVersion,
             summary=f"Get details of a publication version",
             description=None,
-            tags=["Publications", "Publication Versions"],
+            tags=["Publication Versions"],
         )
 
         return router

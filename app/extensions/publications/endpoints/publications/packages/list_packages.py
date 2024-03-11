@@ -51,7 +51,7 @@ class ListPublicationPackagesEndpoint(Endpoint):
             response_model=PagedResponse[PublicationPackage],
             summary="List the existing publication packages",
             description=None,
-            tags=["Publications", "Publication Packages"],
+            tags=["Publication Packages"],
         )
 
         return router

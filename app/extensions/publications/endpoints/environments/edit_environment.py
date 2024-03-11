@@ -98,7 +98,7 @@ class EditPublicationEnvironmentEndpoint(Endpoint):
             response_model=ResponseOK,
             summary=f"Edit publication environment",
             description=None,
-            tags=["Publications", "Publication Environments"],
+            tags=["Publication Environments"],
         )
 
         return router

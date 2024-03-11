@@ -201,7 +201,7 @@ class CreatePackageReportEndpoint(Endpoint):
             summary=f"Record the submission response from lvbb of a publication package",
             response_model=PublicationPackageReport,
             description=None,
-            tags=["Publications"],
+            tags=["Publication Reports"],
         )
 
         return router

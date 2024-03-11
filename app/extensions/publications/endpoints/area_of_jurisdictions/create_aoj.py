@@ -85,7 +85,7 @@ class CreatePublicationAOJEndpoint(Endpoint):
             response_model=AOJCreatedResponse,
             summary=f"Create new publication area of jurisdictions",
             description=None,
-            tags=["Publications", "Publication AOJ"],
+            tags=["Publication AOJ"],
         )
 
         return router
