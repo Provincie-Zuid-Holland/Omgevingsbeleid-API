@@ -88,11 +88,12 @@ class DsoInputDataBuilder:
                 "id_levering": str(uuid.uuid4()),
                 "id_bevoegdgezag": self._environment.Authority_ID,
                 "id_aanleveraar": self._environment.Submitter_ID,
-                "publicatie_bestand": f"akn_nl_bill_{self._environment.Province_ID}-{self._bill_frbr.Work_Country}-{self._bill_frbr.Work_Other}.xml",
-                "datum_bekendmaking": "2024-02-28",
+                "publicatie_bestand": self._get_akn_filename(),
+                "datum_bekendmaking": self._publication_version.Procedural["Procedural_Announcement_Date"],
             },
             doel=dso_models.Doel(
-                jaar="2024", naam=f"instelling-{self._act_frbr.Work_Other}-{self._act_frbr.Expression_Version}"
+                jaar=self._bill_frbr.Work_Date[:4],
+                naam=f"instelling-{self._act_frbr.Work_Other}-{self._act_frbr.Expression_Version}",
             ),
             besluit_frbr={
                 "work_land": self._bill_frbr.Work_Country,
@@ -114,6 +115,11 @@ class DsoInputDataBuilder:
             },
         )
         return publication_settings
+
+    def _get_akn_filename(self) -> str:
+        package_type: str = (self._package_type[:3]).lower()
+        filename: str = f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}.xml"
+        return filename
 
     def _get_besluit(self) -> Besluit:
         besluit = Besluit(

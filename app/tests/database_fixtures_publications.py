@@ -399,6 +399,7 @@ class DatabaseFixturesPublications:
                 ).dict(),
                 Procedural=Procedural(
                     SignedDate=self._timepoint.strftime("%Y-%m-%d"),
+                    Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
                 ).dict(),
                 Act_Metadata=ActMetadata(
                     OfficialTitle="Test: Omgevingsvisie van Zuid-Holland",

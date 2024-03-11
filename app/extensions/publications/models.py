@@ -115,8 +115,27 @@ class BillCompact(BaseModel):
 class Procedural(BaseModel):
     EnactmentDate: Optional[str] = Field(None)
     SignedDate: Optional[str] = Field(None)
+    Procedural_Announcement_Date: Optional[str] = Field(None)
 
-    @validator("EnactmentDate", "SignedDate")
+    @validator("EnactmentDate", "SignedDate", "Procedural_Announcement_Date")
+    def validate_date(cls, value):
+        if value is not None:
+            try:
+                datetime.strptime(value, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError(f"Invalid date format. Expected YYYY-MM-DD, got {value}")
+        return value
+
+    class Config:
+        orm_mode = True
+
+
+class ProceduralValidated(BaseModel):
+    EnactmentDate: Optional[str] = Field(None)
+    SignedDate: str
+    Procedural_Announcement_Date: str
+
+    @validator("EnactmentDate", "SignedDate", "Procedural_Announcement_Date")
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -146,7 +165,7 @@ class PublicationVersionValidated(BaseModel):
 
     Bill_Metadata: BillMetadata
     Bill_Compact: BillCompact
-    Procedural: Procedural
+    Procedural: ProceduralValidated
     Act_Metadata: ActMetadata
 
     Effective_Date: date
