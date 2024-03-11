@@ -64,28 +64,6 @@ class PublicationAOJ(BaseModel):
         orm_mode = True
 
 
-class PublicationConfig(BaseModel):
-    ID: int
-    Created_Date: datetime
-    Province_ID: str
-    Authority_ID: str
-    Submitter_ID: str
-    Jurisdiction: str
-    Subjects: str
-    Governing_Body_Type: str
-    Act_Componentname: str
-    Administrative_Borders_ID: str
-    Administrative_Borders_Domain: str
-    Administrative_Borders_Date: date
-
-    DSO_STOP_VERSION: str
-    DSO_TPOD_VERSION: str
-    DSO_BHKV_VERSION: str
-
-    class Config:
-        orm_mode = True
-
-
 class Publication(BaseModel):
     UUID: uuid.UUID
 
@@ -156,6 +134,23 @@ class ActMetadata(BaseModel):
     QuoteTitle: str = Field("")
     Subjects: List[str] = Field([])
     Jurisdictions: List[str] = Field([])
+
+    class Config:
+        orm_mode = True
+
+
+class PublicationVersionValidated(BaseModel):
+    UUID: uuid.UUID
+
+    Procedure_Type: str
+
+    Bill_Metadata: BillMetadata
+    Bill_Compact: BillCompact
+    Procedural: Procedural
+    Act_Metadata: ActMetadata
+
+    Effective_Date: date
+    Announcement_Date: date
 
     class Config:
         orm_mode = True

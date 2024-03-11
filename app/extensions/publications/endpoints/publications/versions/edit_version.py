@@ -12,6 +12,13 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_publication_version
+from app.extensions.publications.models import (
+    ActMetadata,
+    BillCompact,
+    BillMetadata,
+    Procedural,
+    PublicationVersionValidated,
+)
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.tables.tables import PublicationVersionTable
 from app.extensions.users.db.tables import UsersTable
@@ -21,6 +28,11 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 class PublicationVersionEdit(BaseModel):
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
+
+    Bill_Metadata: Optional[BillMetadata]
+    Bill_Compact: Optional[BillCompact]
+    Procedural: Optional[Procedural]
+    Act_Metadata: Optional[ActMetadata]
 
 
 class PublicationVersionEditResponse(BaseModel):
@@ -46,6 +58,8 @@ class EndpointHandler:
             raise HTTPException(400, "Nothing to update")
 
         for key, value in changes.items():
+            if isinstance(value, BaseModel):
+                value = value.dict()
             setattr(self._version, key, value)
 
         self._version.Modified_By_UUID = self._user.UUID
@@ -55,11 +69,12 @@ class EndpointHandler:
         self._db.commit()
         self._db.flush()
 
-        # @todo: Validate
         is_valid: bool = False
-        # try:
-        #     is_valid = true
-        # ecept:
+        try:
+            _ = PublicationVersionValidated.from_orm(self._version)
+            is_valid = True
+        except:
+            pass
 
         return PublicationVersionEditResponse(
             Is_Valid=is_valid,
