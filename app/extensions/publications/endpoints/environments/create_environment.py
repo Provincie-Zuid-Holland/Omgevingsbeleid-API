@@ -23,6 +23,8 @@ class EnvironmentCreate(BaseModel):
     Province_ID: str
     Authority_ID: str
     Submitter_ID: str
+    Frbr_Country: str
+    Frbr_Language: str
     Has_State: bool
     Can_Validate: bool
     Can_Publicate: bool
@@ -53,6 +55,8 @@ class EndpointHandler:
             Authority_ID=self._object_in.Authority_ID,
             Submitter_ID=self._object_in.Submitter_ID,
             Governing_Body_Type="Provinciale_staten",
+            Frbr_Country=self._object_in.Frbr_Country,
+            Frbr_Language=self._object_in.Frbr_Language,
             Is_Active=True,
             Has_State=self._object_in.Has_State,
             Can_Validate=self._object_in.Can_Validate,

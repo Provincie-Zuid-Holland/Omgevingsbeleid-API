@@ -40,6 +40,8 @@ class PublicationEnvironment(BaseModel):
     Authority_ID: str
     Submitter_ID: str
     Governing_Body_Type: str
+    Frbr_Country: str
+    Frbr_Language: str
     Is_Active: bool
     Has_State: bool
     Can_Validate: bool

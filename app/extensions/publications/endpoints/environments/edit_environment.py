@@ -27,6 +27,9 @@ class EnvironmentEdit(BaseModel):
     Authority_ID: Optional[str] = Field(None, nullable=True)
     Submitter_ID: Optional[str] = Field(None, nullable=True)
 
+    Frbr_Country: Optional[str] = Field(None, nullable=True)
+    Frbr_Language: Optional[str] = Field(None, nullable=True)
+
     Is_Active: Optional[bool] = Field(None, nullable=True)
     Can_Validate: Optional[bool] = Field(None, nullable=True)
     Can_Publicate: Optional[bool] = Field(None, nullable=True)

@@ -305,6 +305,10 @@ api:
         - resolver: list_all_latest_objects
           resolver_data:
             sort: *sort_default_object_id
+    - prefix: /publication-aoj
+      endpoints:
+        - resolver: create_publication_area_of_jurisdictions
+        - resolver: list_publication_area_of_jurisdictions
     - prefix: /publication-templates
       endpoints:
         - resolver: create_publication_template
@@ -558,6 +562,17 @@ users_permissions:
     - can_create_publication_template
     - can_edit_publication_template
     - can_view_publication_template
+    - can_view_publication_environment
+    - can_view_publication_aoj
+    - can_create_publication
+    - can_edit_publication
+    - can_view_publication
+    - can_create_publication_version
+    - can_edit_publication_version
+    - can_view_publication_version
+    - can_create_publication_package
+    - can_view_publication_package
+    - can_download_publication_package
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -580,6 +595,20 @@ users_permissions:
     - can_create_publication_template
     - can_edit_publication_template
     - can_view_publication_template
+    - can_create_publication_environment
+    - can_edit_publication_environment
+    - can_view_publication_environment
+    - can_create_publication_aoj
+    - can_view_publication_aoj
+    - can_create_publication
+    - can_edit_publication
+    - can_view_publication
+    - can_create_publication_version
+    - can_edit_publication_version
+    - can_view_publication_version
+    - can_create_publication_package
+    - can_view_publication_package
+    - can_download_publication_package
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -601,6 +630,20 @@ users_permissions:
     - can_create_publication_template
     - can_edit_publication_template
     - can_view_publication_template
+    - can_create_publication_environment
+    - can_edit_publication_environment
+    - can_view_publication_environment
+    - can_create_publication_aoj
+    - can_view_publication_aoj
+    - can_create_publication
+    - can_edit_publication
+    - can_view_publication
+    - can_create_publication_version
+    - can_edit_publication_version
+    - can_view_publication_version
+    - can_create_publication_package
+    - can_view_publication_package
+    - can_download_publication_package
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -625,6 +668,8 @@ users_permissions:
     - can_create_publication_environment
     - can_edit_publication_environment
     - can_view_publication_environment
+    - can_create_publication_aoj
+    - can_view_publication_aoj
     - can_create_publication
     - can_edit_publication
     - can_view_publication
@@ -655,6 +700,20 @@ users_permissions:
     - can_create_publication_template
     - can_edit_publication_template
     - can_view_publication_template
+    - can_create_publication_environment
+    - can_edit_publication_environment
+    - can_view_publication_environment
+    - can_create_publication_aoj
+    - can_view_publication_aoj
+    - can_create_publication
+    - can_edit_publication
+    - can_view_publication
+    - can_create_publication_version
+    - can_edit_publication_version
+    - can_view_publication_version
+    - can_create_publication_package
+    - can_view_publication_package
+    - can_download_publication_package
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -676,6 +735,20 @@ users_permissions:
     - can_create_publication_template
     - can_edit_publication_template
     - can_view_publication_template
+    - can_create_publication_environment
+    - can_edit_publication_environment
+    - can_view_publication_environment
+    - can_create_publication_aoj
+    - can_view_publication_aoj
+    - can_create_publication
+    - can_edit_publication
+    - can_view_publication
+    - can_create_publication_version
+    - can_edit_publication_version
+    - can_view_publication_version
+    - can_create_publication_package
+    - can_view_publication_package
+    - can_download_publication_package
 
 mssql_search:
   - table_name: objects

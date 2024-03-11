@@ -24,6 +24,7 @@ class TemplateCreate(BaseModel):
     Description: str
     Document_Type: DocumentType
     Object_Types: List[str]
+    Field_Map: List[str]
     Text_Template: str
     Object_Templates: Dict[str, str]
 
@@ -52,6 +53,7 @@ class EndpointHandler:
             Is_Active=True,
             Document_Type=self._object_in.Document_Type,
             Object_Types=self._object_in.Object_Types,
+            Field_Map=self._object_in.Field_Map,
             Text_Template=self._object_in.Text_Template,
             Object_Templates=self._object_in.Object_Templates,
             Created_Date=self._timepoint,
