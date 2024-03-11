@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field, validator
 
 from app.extensions.modules.models.models import ModuleStatus
-from app.extensions.publications.enums import DocumentType, PackageType
+from app.extensions.publications.enums import DocumentType
 from app.extensions.publications.waardelijsten import Bestuursorgaan, Onderwerp, Rechtsgebied
 
 

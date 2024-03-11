@@ -72,21 +72,8 @@ class EndpointHandler:
             if self._publication_version.Environment.Has_State:
                 validation_status = ValidationStatusType.PENDING
 
-            package: PublicationPackageTable = PublicationPackageTable(
-                UUID=uuid.uuid4(),
-                Publication_Version_UUID=self._publication_version.UUID,
-                Package_Type=self._object_in.Package_Type,
-                Validation_Status=validation_status,
-                Created_Date=self._timepoint,
-                Modified_Date=self._timepoint,
-                Created_By_UUID=self._user.UUID,
-                Modified_By_UUID=self._user.UUID,
-            )
-
             package_zip: PublicationPackageZipTable = PublicationPackageZipTable(
                 UUID=uuid.uuid4(),
-                Package_UUID=package.UUID,
-                Publication_Filename=zip_data.Publication_Filename,
                 Filename=zip_data.Filename,
                 Binary=zip_data.Binary,
                 Checksum=zip_data.Checksum,
@@ -96,8 +83,21 @@ class EndpointHandler:
                 Created_By_UUID=self._user.UUID,
             )
 
-            self._db.add(package)
+            package: PublicationPackageTable = PublicationPackageTable(
+                UUID=uuid.uuid4(),
+                Publication_Version_UUID=self._publication_version.UUID,
+                Zip_UUID=package_zip.UUID,
+                Delivery_ID=package_builder.get_delivery_id(),
+                Package_Type=self._object_in.Package_Type,
+                Validation_Status=validation_status,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user.UUID,
+                Modified_By_UUID=self._user.UUID,
+            )
+
             self._db.add(package_zip)
+            self._db.add(package)
             self._db.commit()
             self._db.flush()
 

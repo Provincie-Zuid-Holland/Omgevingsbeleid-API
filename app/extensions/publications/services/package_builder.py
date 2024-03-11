@@ -41,3 +41,7 @@ class PackageBuilder:
             Checksum=checksum,
         )
         return zip_data
+
+    def get_delivery_id(self) -> str:
+        delivery_id: str = self._input_data.publication_settings.opdracht.id_levering
+        return delivery_id

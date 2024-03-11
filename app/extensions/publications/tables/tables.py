@@ -140,6 +140,7 @@ class PublicationActTable(Base, UserMetaData):
     __tablename__ = "publication_acts"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False, unique=True)
@@ -165,6 +166,7 @@ class PublicationBillTable(Base, UserMetaData):
     __tablename__ = "publication_bills"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False, unique=True)
@@ -191,9 +193,14 @@ class PublicationPackageTable(Base, UserMetaData):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Publication_Version_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_versions.UUID"), nullable=False)
+    Bill_Version_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("publication_bill_versions.UUID"), nullable=True)
+    Act_Version_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("publication_act_versions.UUID"), nullable=True)
+    Zip_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package_zips.UUID"), nullable=False)
 
     Package_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
     Validation_Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+
+    Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
@@ -205,10 +212,6 @@ class PublicationPackageZipTable(Base):
     __tablename__ = "publication_package_zips"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_packages.UUID"), nullable=False)
-
-    # Name of the main akn file
-    Publication_Filename: Mapped[str] = mapped_column(Unicode(255), nullable=True)
 
     Filename: Mapped[str] = mapped_column(Unicode, nullable=False)
     Binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
