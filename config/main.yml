@@ -351,18 +351,18 @@ api:
     - prefix: /publication-versions/{version_uuid}/packages
       endpoints:
         - resolver: create_publication_package
-        - resolver: list_publication_packages
-    - prefix: /publication-packages/{package_uuid}
-      endpoints:
-        - resolver: download_publication_package
-          resolver_data:
-            path: /download
-        - resolver: create_package_report
-          resolver_data:
-            path: /report
-        - resolver: download_publication_package_reports
-          resolver_data:
-            path: /report/download
+        # - resolver: list_publication_packages
+    # - prefix: /publication-packages/{package_uuid}
+    #   endpoints:
+    #     - resolver: download_publication_package
+    #       resolver_data:
+    #         path: /download
+    #     - resolver: create_package_report
+    #       resolver_data:
+    #         path: /report
+    #     - resolver: download_publication_package_reports
+    #       resolver_data:
+    #         path: /report/download
 
 columns:
   # Titel
