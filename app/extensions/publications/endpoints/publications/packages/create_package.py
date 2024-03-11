@@ -82,6 +82,8 @@ class EndpointHandler:
                 Created_Date=self._timepoint,
                 Created_By_UUID=self._user.UUID,
             )
+            self._db.add(package_zip)
+            self._db.flush()
 
             package: PublicationPackageTable = PublicationPackageTable(
                 UUID=uuid.uuid4(),
@@ -95,11 +97,9 @@ class EndpointHandler:
                 Created_By_UUID=self._user.UUID,
                 Modified_By_UUID=self._user.UUID,
             )
-
-            self._db.add(package_zip)
             self._db.add(package)
-            self._db.commit()
             self._db.flush()
+            self._db.commit()
 
             response: PublicationPackageCreatedResponse = PublicationPackageCreatedResponse(
                 Package_UUID=package.UUID,

@@ -177,6 +177,7 @@ class PublicationVersion(BaseModel):
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
     Locked: bool
+    Is_Valid: bool = Field(False)
 
     Created_Date: datetime
     Modified_Date: datetime

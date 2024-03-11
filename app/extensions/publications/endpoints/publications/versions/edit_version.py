@@ -11,7 +11,6 @@ from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.response import ResponseOK
 from app.extensions.publications.dependencies import depends_publication_version
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.tables.tables import PublicationVersionTable
@@ -22,6 +21,10 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 class PublicationVersionEdit(BaseModel):
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
+
+
+class PublicationVersionEditResponse(BaseModel):
+    Is_Valid: bool
 
 
 class EndpointHandler:
@@ -37,7 +40,7 @@ class EndpointHandler:
         self._version: PublicationVersionTable = version
         self._object_in: PublicationVersionEdit = object_in
 
-    def handle(self) -> ResponseOK:
+    def handle(self) -> PublicationVersionEditResponse:
         changes: dict = self._object_in.dict(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
@@ -52,8 +55,14 @@ class EndpointHandler:
         self._db.commit()
         self._db.flush()
 
-        return ResponseOK(
-            message="OK",
+        # @todo: Validate
+        is_valid: bool = False
+        # try:
+        #     is_valid = true
+        # ecept:
+
+        return PublicationVersionEditResponse(
+            Is_Valid=is_valid,
         )
 
 
@@ -71,7 +80,7 @@ class EditPublicationVersionEndpoint(Endpoint):
             ),
             version: PublicationVersionTable = Depends(depends_publication_version),
             db: Session = Depends(depends_db),
-        ) -> ResponseOK:
+        ) -> PublicationVersionEditResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 user,
@@ -84,7 +93,7 @@ class EditPublicationVersionEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["POST"],
-            response_model=ResponseOK,
+            response_model=PublicationVersionEditResponse,
             summary="Edit an existing publication version",
             description=None,
             tags=["Publication Versions"],

@@ -67,6 +67,7 @@ class EndpointHandler:
             Modified_By_UUID=self._user.UUID,
         )
         self._db.add(environment)
+        self._db.flush()
 
         if environment.Has_State:
             initial_state: PublicationEnvironmentStateTable = PublicationEnvironmentStateTable(
@@ -82,8 +83,8 @@ class EndpointHandler:
             )
             self._db.add(initial_state)
 
-        self._db.commit()
         self._db.flush()
+        self._db.commit()
 
         return EnvironmentCreatedResponse(
             UUID=environment.UUID,

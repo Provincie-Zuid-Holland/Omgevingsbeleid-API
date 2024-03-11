@@ -10,7 +10,7 @@ def depends_db() -> Generator:
     db = SessionLocal()
     try:
         if db.bind.dialect.name == "sqlite":
-            # db.execute(text("pragma foreign_keys=on"))
+            db.execute(text("pragma foreign_keys=on"))
             db.execute(text("SELECT load_extension('mod_spatialite')"))
         yield db
     except Exception as e:

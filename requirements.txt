@@ -89,7 +89,7 @@ numpy==1.26.4
     #   dso
     #   pandas
     #   shapely
-packaging==23.2
+packaging==24.0
     # via
     #   dso
     #   geopandas
