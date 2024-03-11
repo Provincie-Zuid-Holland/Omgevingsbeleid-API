@@ -76,7 +76,7 @@ class SimplePagination(BaseModel):
     def default_limit(cls, v):
         if v is None:
             return 20
-        if v > 500:
+        if v > 1000:
             return 20
         return v
 
