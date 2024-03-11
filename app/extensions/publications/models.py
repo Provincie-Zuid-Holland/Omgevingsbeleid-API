@@ -57,7 +57,7 @@ class PublicationAOJ(BaseModel):
     UUID: uuid.UUID
     Administrative_Borders_ID: str
     Administrative_Borders_Domain: str
-    Administrative_Borders_Date: bool
+    Administrative_Borders_Date: str
     Created_Date: datetime
 
     class Config:
