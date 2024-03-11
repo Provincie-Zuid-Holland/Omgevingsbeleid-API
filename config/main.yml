@@ -32,14 +32,6 @@ sort_default_object_id: &sort_default_object_id
 
 api:
   routers:
-    - prefix: /playground
-      endpoints:
-        - resolver: playground_do_dso
-          resolver_data:
-            path: /do-dso/{module_id}
-        - resolver: playground_check_geo
-          resolver_data:
-            path: /check-geo
     - prefix: /users
       endpoints:
         - resolver: list_users
@@ -351,12 +343,14 @@ api:
     - prefix: /publication-versions/{version_uuid}/packages
       endpoints:
         - resolver: create_publication_package
-        # - resolver: list_publication_packages
-    # - prefix: /publication-packages/{package_uuid}
-    #   endpoints:
-    #     - resolver: download_publication_package
-    #       resolver_data:
-    #         path: /download
+    - prefix: /publication-packages
+      endpoints:
+        - resolver: list_publication_packages
+    - prefix: /publication-packages/{package_uuid}
+      endpoints:
+        - resolver: download_publication_package
+          resolver_data:
+            path: /download
     #     - resolver: create_package_report
     #       resolver_data:
     #         path: /report
@@ -782,6 +776,33 @@ publication:
       act_metadata:
         OfficialTitle: Omgevingsvisie Provincie Zuid-Holland
         QuoteTitle: Omgevingsvisie Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+
+    programma:
+      bill_metadata:
+        OfficialTitle: Programma Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+      bill_compact:
+        Preamble: |
+          <Al>Vaststellingsbesluit Programma Provincie Zuid-Holland.</Al>
+        Closing: |
+          <Al>Om het Programma Provincie Zuid-Holland beschikbaar te maken in het Digitale Stelsel van de Omgevingswet is het noodzakelijk dat de reeds vastgestelde Omgevingsvisie Zuid-Holland opnieuw wordt gepubliceerd en bekend gemaakt.</Al>
+        Signed: |
+          <Al>Gedupeerde Staten</Al>
+        AmendmentArticle: |
+          Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
+        TimeArticle: |
+          <Al>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</Al>
+      # @see: class ActMetadata
+      act_metadata:
+        OfficialTitle: Programma Provincie Zuid-Holland
+        QuoteTitle: Programma Provincie Zuid-Holland
         Subjects:
           - ruimtelijke_ordening
         Jurisdictions:

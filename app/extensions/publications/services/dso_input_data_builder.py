@@ -130,7 +130,7 @@ class DsoInputDataBuilder:
                 inhoud=self._publication_version.Bill_Compact["TimeArticle"],
             ),
             sluiting=self._publication_version.Bill_Compact["Closing"],
-            ondertekening=self._publication_version.Bill_Compact["Signed"],
+            ondertekening=self._get_signed_text(),
             rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.Bill_Metadata["Jurisdictions"]),
             onderwerpen=self._as_dso_onderwerpen(self._publication_version.Bill_Metadata["Subjects"]),
             soort_procedure=self._publication_version.Procedure_Type,
@@ -237,3 +237,8 @@ class DsoInputDataBuilder:
         for value in values:
             result.append(Rechtsgebied[value])
         return result
+
+    def _get_signed_text(self) -> str:
+        text: str = self._publication_version.Bill_Compact["Signed"]
+        text = text.replace("[[EFFECTIVE_DATE]]", self._publication_version.Procedural.get("SignedDate", ""))
+        return text

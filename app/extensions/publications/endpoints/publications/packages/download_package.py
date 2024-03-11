@@ -1,7 +1,6 @@
-import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -10,10 +9,11 @@ from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.publications.dependencies import depends_publication_repository
-from app.extensions.publications.repository import PublicationRepository
+from app.extensions.publications.dependencies import depends_publication_zip_by_package
+from app.extensions.publications.permissions import PublicationsPermissions
+from app.extensions.publications.tables.tables import PublicationPackageZipTable
 from app.extensions.users.db.tables import UsersTable
-from app.extensions.users.dependencies import depends_current_active_user
+from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
 
 class DownloadPackageEndpoint(Endpoint):
@@ -22,32 +22,18 @@ class DownloadPackageEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            package_uuid: uuid.UUID,
-            pub_repository: PublicationRepository = Depends(depends_publication_repository),
-            user: UsersTable = Depends(depends_current_active_user),
+            package_zip: PublicationPackageZipTable = Depends(depends_publication_zip_by_package),
+            user: UsersTable = Depends(
+                depends_current_active_user_with_permission_curried(
+                    PublicationsPermissions.can_download_publication_package,
+                ),
+            ),
             db: Session = Depends(depends_db),
-        ):
-            package = pub_repository.get_package_download(package_uuid)
-            if not package:
-                raise HTTPException(status_code=404, detail=f"Package: {package_uuid} not found")
-            if package.ZIP_File_Binary is None:
-                raise HTTPException(status_code=403, detail=f"Package: {package_uuid} has no stored ZIP file.")
-            if package.ZIP_File_Name is None:
-                package.ZIP_File_Name = f"package-{package.UUID.hex()}.zip"
-
-            package.Latest_Download_Date = datetime.utcnow()
-            package.Latest_Download_By_UUID = user.UUID
-            db.add(package)
-            db.commit()
-            db.flush()
-
-            return Response(
-                content=package.ZIP_File_Binary,
-                media_type="application/x-zip-compressed",
-                headers={
-                    "Access-Control-Expose-Headers": "Content-Disposition",
-                    "Content-Disposition": f"attachment; filename={package.ZIP_File_Name}",
-                },
+        ) -> Response:
+            return self._handler(
+                db,
+                user,
+                package_zip,
             )
 
         router.add_api_route(
@@ -60,6 +46,23 @@ class DownloadPackageEndpoint(Endpoint):
         )
 
         return router
+
+    def _handler(self, db: Session, user: UsersTable, package_zip: PublicationPackageZipTable) -> Response:
+        package_zip.Latest_Download_Date = datetime.utcnow()
+        package_zip.Latest_Download_By_UUID = user.UUID
+
+        db.add(package_zip)
+        db.commit()
+        db.flush()
+
+        return Response(
+            content=package_zip.Binary,
+            media_type="application/x-zip-compressed",
+            headers={
+                "Access-Control-Expose-Headers": "Content-Disposition",
+                "Content-Disposition": f"attachment; filename={package_zip.Filename}",
+            },
+        )
 
 
 class DownloadPackageEndpointResolver(EndpointResolver):

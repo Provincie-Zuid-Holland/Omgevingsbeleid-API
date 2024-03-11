@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
 from app.dynamic.dependencies import depends_main_config
-from app.extensions.areas.dependencies import depends_area_geometry_repository
+from app.extensions.areas.dependencies import depends_area_repository
 from app.extensions.areas.repository.area_geometry_repository import AreaGeometryRepository
 from app.extensions.html_assets.dependencies import depends_asset_repository
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
@@ -14,7 +14,9 @@ from app.extensions.publications.repository import PublicationRepository, Public
 from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
 from app.extensions.publications.repository.publication_environment_repository import PublicationEnvironmentRepository
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
+from app.extensions.publications.repository.publication_package_repository import PublicationPackageRepository
 from app.extensions.publications.repository.publication_version_repository import PublicationVersionRepository
+from app.extensions.publications.repository.publication_zip_repository import PublicationZipRepository
 from app.extensions.publications.services.act_frbr_provider import ActFrbrProvider
 from app.extensions.publications.services.assets.asset_remove_transparency import AssetRemoveTransparency
 from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
@@ -28,6 +30,7 @@ from app.extensions.publications.tables import PublicationPackageTable, Publicat
 from app.extensions.publications.tables.tables import (
     PublicationAreaOfJurisdictionTable,
     PublicationEnvironmentTable,
+    PublicationPackageZipTable,
     PublicationTable,
     PublicationVersionTable,
 )
@@ -103,14 +106,42 @@ def depends_publication_version(
     return maybe_version
 
 
+def depends_publication_package_repository(db: Session = Depends(depends_db)) -> PublicationPackageRepository:
+    return PublicationPackageRepository(db)
+
+
 def depends_publication_package(
     package_uuid: uuid.UUID,
-    publication_repository: PublicationRepository = Depends(depends_publication_repository),
+    package_repository: PublicationPackageRepository = Depends(depends_publication_package_repository),
 ) -> PublicationPackageTable:
-    package: Optional[PublicationPackageTable] = publication_repository.get_publication_package(package_uuid)
+    package: Optional[PublicationPackageTable] = package_repository.get_by_uuid(package_uuid)
     if package is None:
         raise HTTPException(status_code=404, detail="Package not found")
     return package
+
+
+def depends_publication_zip_repository(db: Session = Depends(depends_db)) -> PublicationZipRepository:
+    return PublicationZipRepository(db)
+
+
+def depends_publication_zip(
+    zip_uuid: uuid.UUID,
+    repository: PublicationZipRepository = Depends(depends_publication_zip_repository),
+) -> PublicationPackageZipTable:
+    package_zip: Optional[PublicationPackageZipTable] = repository.get_by_uuid(zip_uuid)
+    if package_zip is None:
+        raise HTTPException(status_code=404, detail="Zip not found")
+    return package_zip
+
+
+def depends_publication_zip_by_package(
+    package_uuid: uuid.UUID,
+    repository: PublicationZipRepository = Depends(depends_publication_zip_repository),
+) -> PublicationPackageZipTable:
+    package_zip: Optional[PublicationPackageZipTable] = repository.get_by_package_uuid(package_uuid)
+    if package_zip is None:
+        raise HTTPException(status_code=404, detail="Package Zip not found")
+    return package_zip
 
 
 def depends_package_version_defaults_provider(
@@ -144,10 +175,10 @@ def depends_publication_asset_provider(
 
 
 def depends_publication_werkingsgebieden_provider(
-    area_geometry_repository: AreaGeometryRepository = Depends(depends_area_geometry_repository),
+    area_repository: AreaGeometryRepository = Depends(depends_area_repository),
 ) -> PublicationWerkingsgebiedenProvider:
     return PublicationWerkingsgebiedenProvider(
-        area_geometry_repository,
+        area_repository,
     )
 
 

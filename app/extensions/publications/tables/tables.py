@@ -210,6 +210,7 @@ class PublicationPackageTable(Base, UserMetaData):
     Modified_Date: Mapped[datetime]
 
     Publication_Version: Mapped["PublicationVersionTable"] = relationship()
+    Zip: Mapped["PublicationPackageZipTable"] = relationship()
 
 
 class PublicationPackageZipTable(Base):
