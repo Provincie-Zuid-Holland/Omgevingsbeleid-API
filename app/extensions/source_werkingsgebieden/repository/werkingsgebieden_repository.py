@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List
 from uuid import UUID
 
@@ -31,7 +30,7 @@ class WerkingsgebiedenRepository(BaseRepository):
     #     return self.fetch_first(stmt)
 
     def get_all_paginated(self, pagination: SortedPagination) -> PaginatedQueryResult:
-        stmt = select(SourceWerkingsgebiedenTable).filter(SourceWerkingsgebiedenTable.End_Validity > datetime.now())
+        stmt = select(SourceWerkingsgebiedenTable)
         return self.fetch_paginated(
             statement=stmt,
             offset=pagination.offset,
@@ -97,13 +96,10 @@ class WerkingsgebiedenRepository(BaseRepository):
 
         spatial_function = SPATIAL_FUNCTION_MAP[function]
         geometry_filter = f"SHAPE.{spatial_function}(geometry::STGeomFromText('{geometry}', 28992)) = 1"
-        timepoint = datetime.utcnow()
 
         werkingsgebieden = (
             select(SourceWerkingsgebiedenTable.UUID)
             .select_from(SourceWerkingsgebiedenTable)
-            .filter(SourceWerkingsgebiedenTable.Start_Validity < timepoint)
-            .filter(SourceWerkingsgebiedenTable.End_Validity > timepoint)
             .filter(text(geometry_filter))
             .params(polygon=geometry)
         )
