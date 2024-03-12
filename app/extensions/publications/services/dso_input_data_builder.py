@@ -1,4 +1,5 @@
 import uuid
+from datetime import date, datetime
 from typing import List, Optional
 
 import dso.models as dso_models
@@ -34,6 +35,21 @@ DOCUMENT_TYPE_MAP = {
 OPDRACHT_TYPE_MAP = {
     PackageType.VALIDATION: "VALIDATIE",
     PackageType.PUBLICATION: "PUBLICATIE",
+}
+
+DUTCH_MONTHS = {
+    1: "januari",
+    2: "februari",
+    3: "maart",
+    4: "april",
+    5: "mei",
+    6: "juni",
+    7: "juli",
+    8: "augustus",
+    9: "september",
+    10: "oktober",
+    11: "november",
+    12: "december",
 }
 
 
@@ -137,8 +153,8 @@ class DsoInputDataBuilder:
                 label="Artikel",
                 inhoud=self._get_time_article(),
             ),
-            sluiting=self._publication_version.Bill_Compact["Closing"],
-            ondertekening=self._get_signed_text(),
+            sluiting=self._get_closing_text(),
+            ondertekening=self._publication_version.Bill_Compact["Signed"],
             rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.Bill_Metadata["Jurisdictions"]),
             onderwerpen=self._as_dso_onderwerpen(self._publication_version.Bill_Metadata["Subjects"]),
             soort_procedure=self._publication_version.Procedure_Type,
@@ -256,12 +272,27 @@ class DsoInputDataBuilder:
             result.append(Rechtsgebied[value])
         return result
 
-    def _get_signed_text(self) -> str:
-        text: str = self._publication_version.Bill_Compact["Signed"]
-        text = text.replace("[[EFFECTIVE_DATE]]", self._publication_version.Procedural.get("Signed_Date", ""))
+    def _get_closing_text(self) -> str:
+        signed_date: Optional[str] = self._publication_version.Procedural.get("Signed_Date", None)
+        if signed_date is None:
+            raise RuntimeError("Procedural.Signed_Date is required")
+
+        text: str = self._publication_version.Bill_Compact["Closing"]
+        signed_date_readable: str = self._get_readable_date_from_str(signed_date)
+        text = text.replace("[[SIGNED_DATE]]", signed_date_readable)
         return text
 
     def _get_time_article(self) -> str:
         text: str = self._publication_version.Bill_Compact["Time_Article"]
-        text = text.replace("[[EFFECTIVE_DATE]]", self._publication_version.Procedural.get("Signed_Date", ""))
+        effective_date_readable: str = self._get_readable_date(self._publication_version.Effective_Date)
+        text = text.replace("[[EFFECTIVE_DATE]]", effective_date_readable)
         return text
+
+    def _get_readable_date(self, d: date) -> str:
+        formatted_date = f"{d.day} {DUTCH_MONTHS[d.month]} {d.year}"
+        return formatted_date
+
+    def _get_readable_date_from_str(self, date_str: str) -> str:
+        d: date = datetime.strptime(date_str, "%Y-%m-%d")
+        result: str = self._get_readable_date(d)
+        return result

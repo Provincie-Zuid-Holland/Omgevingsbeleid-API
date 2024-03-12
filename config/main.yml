@@ -765,7 +765,7 @@ publication:
         Preamble: |
           <Al>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</Al>
         Closing: |
-          <Al>Om de Omgevingsvisie Provincie Zuid-Holland beschikbaar te maken in het Digitale Stelsel van de Omgevingswet is het noodzakelijk dat de reeds vastgestelde Omgevingsvisie Zuid-Holland opnieuw wordt gepubliceerd en bekend gemaakt.</Al>
+          <Al>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</Al>
         Signed: |
           <Al>Gedeputeerde Staten</Al>
         Amendment_Article: |
@@ -792,7 +792,7 @@ publication:
         Preamble: |
           <Al>Vaststellingsbesluit Programma Provincie Zuid-Holland.</Al>
         Closing: |
-          <Al>Om het Programma Provincie Zuid-Holland beschikbaar te maken in het Digitale Stelsel van de Omgevingswet is het noodzakelijk dat de reeds vastgestelde Omgevingsvisie Zuid-Holland opnieuw wordt gepubliceerd en bekend gemaakt.</Al>
+          <Al>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</Al>
         Signed: |
           <Al>Gedeputeerde Staten</Al>
         Amendment_Article: |

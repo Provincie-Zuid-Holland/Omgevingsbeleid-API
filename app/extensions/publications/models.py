@@ -241,17 +241,29 @@ class PublicationPackageReport(BaseModel):
         orm_mode = True
 
 
+class PackageZipShort(BaseModel):
+    UUID: uuid.UUID
+    Filename: str
+    Latest_Download_Date: Optional[datetime]
+    Latest_Download_By_UUID: Optional[uuid.UUID]
+
+    class Config:
+        orm_mode = True
+
+
 class PublicationPackage(BaseModel):
     UUID: uuid.UUID
+
+    Package_Type: str
+    Validation_Status: str
+    Delivery_ID: str
+
     Created_Date: datetime
     Modified_Date: datetime
     Created_By_UUID: uuid.UUID
     Modified_By_UUID: uuid.UUID
 
-    Latest_Download_Date: Optional[datetime]
-    Latest_Download_By_UUID: Optional[uuid.UUID]
-
-    Validation_Status: Optional[str]
+    Zip: PackageZipShort
 
     class Config:
         orm_mode = True
