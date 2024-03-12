@@ -93,7 +93,7 @@ class EditPublicationEndpoint(Endpoint):
             publication: PublicationTable = Depends(depends_publication),
             template_repository: PublicationTemplateRepository = Depends(depends_publication_repository),
             db: Session = Depends(depends_db),
-        ) -> Publication:
+        ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 template_repository,
@@ -107,7 +107,7 @@ class EditPublicationEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["POST"],
-            response_model=Publication,
+            response_model=ResponseOK,
             summary="Edit an existing publication",
             description=None,
             tags=["Publications"],
