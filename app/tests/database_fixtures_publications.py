@@ -392,9 +392,9 @@ class DatabaseFixturesPublications:
                     )
                 ).dict(),
                 Bill_Compact=BillCompact(
-                    Preamble="<Al>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</Al>",
-                    Closing="<Al>Om de Omgevingsvisie Provincie Zuid-Holland beschikbaar te maken in het Digitale Stelsel van de Omgevingswet is het noodzakelijk dat de reeds vastgestelde Omgevingsvisie Zuid-Holland opnieuw wordt gepubliceerd en bekend gemaakt.</Al>",
-                    Signed="<Al>Gedeputeerde Staten</Al>",
+                    Preamble="<p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>",
+                    Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
+                    Signed="<p>Gedeputeerde Staten</p>",
                     Amendment_Article='De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.',
                     Time_Article="<Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>",
                     Custom_Articles=[
