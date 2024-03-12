@@ -31,6 +31,7 @@ class PublicationsExtension(Extension):
             endpoints.CreatePublicationTemplateEndpointResolver(),
             endpoints.EditPublicationTemplateEndpointResolver(),
             endpoints.ListPublicationTemplatesEndpointResolver(),
+            endpoints.DetailPublicationTemplateEndpointResolver(),
             # Environment
             endpoints.CreatePublicationEnvironmentEndpointResolver(),
             endpoints.EditPublicationEnvironmentEndpointResolver(),

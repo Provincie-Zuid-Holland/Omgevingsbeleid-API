@@ -23,6 +23,7 @@ from .publications.versions import (
 )
 from .templates import (
     CreatePublicationTemplateEndpointResolver,
+    DetailPublicationTemplateEndpointResolver,
     EditPublicationTemplateEndpointResolver,
     ListPublicationTemplatesEndpointResolver,
 )

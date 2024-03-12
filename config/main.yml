@@ -307,6 +307,9 @@ api:
         - resolver: edit_publication_template
           resolver_data:
             path: /{template_uuid}
+        - resolver: detail_publication_template
+          resolver_data:
+            path: /{template_uuid}
         - resolver: list_publication_templates
     - prefix: /publication-environments
       endpoints:
@@ -763,11 +766,11 @@ publication:
       # @see: class BillCompact
       bill_compact:
         Preamble: |
-          <Al>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</Al>
+          <p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>
         Closing: |
-          <Al>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</Al>
+          <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
         Signed: |
-          <Al>Gedeputeerde Staten</Al>
+          <p>Gedeputeerde Staten</p>
         Amendment_Article: |
           De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
@@ -790,11 +793,11 @@ publication:
           - omgevingsrecht
       bill_compact:
         Preamble: |
-          <Al>Vaststellingsbesluit Programma Provincie Zuid-Holland.</Al>
+          <p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>
         Closing: |
-          <Al>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</Al>
+          <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
         Signed: |
-          <Al>Gedeputeerde Staten</Al>
+          <p>Gedeputeerde Staten</p>
         Amendment_Article: |
           Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
