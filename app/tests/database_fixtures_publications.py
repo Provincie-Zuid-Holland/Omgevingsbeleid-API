@@ -381,7 +381,7 @@ class DatabaseFixturesPublications:
                 Procedure_Type=ProcedureType.FINAL.value,
                 Bill_Metadata=(
                     BillMetadata(
-                        OfficialTitle="Test: Omgevingsvisie van Zuid-Holland",
+                        Official_Title="Test: Omgevingsvisie van Zuid-Holland",
                         Subjects=[
                             Onderwerp.ruimtelijke_ordening.name,
                         ],
@@ -394,16 +394,16 @@ class DatabaseFixturesPublications:
                     Preamble="<Al>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</Al>",
                     Closing="<Al>Om de Omgevingsvisie Provincie Zuid-Holland beschikbaar te maken in het Digitale Stelsel van de Omgevingswet is het noodzakelijk dat de reeds vastgestelde Omgevingsvisie Zuid-Holland opnieuw wordt gepubliceerd en bekend gemaakt.</Al>",
                     Signed="<Al>Gedupeerde Staten</Al>",
-                    AmendmentArticle='De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.',
-                    TimeArticle="<Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>",
+                    Amendment_Article='De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.',
+                    Time_Article="<Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>",
                 ).dict(),
                 Procedural=Procedural(
-                    SignedDate=self._timepoint.strftime("%Y-%m-%d"),
+                    Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
                     Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
                 ).dict(),
                 Act_Metadata=ActMetadata(
-                    OfficialTitle="Test: Omgevingsvisie van Zuid-Holland",
-                    QuoteTitle="Test: Omgevingsvisie van Zuid-Holland",
+                    Official_Title="Test: Omgevingsvisie van Zuid-Holland",
+                    Quote_Title="Test: Omgevingsvisie van Zuid-Holland",
                     Subjects=[
                         Onderwerp.ruimtelijke_ordening.name,
                     ],

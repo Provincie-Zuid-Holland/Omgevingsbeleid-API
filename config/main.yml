@@ -755,7 +755,7 @@ publication:
     omgevingsvisie:
       # @see: class BillMetadata
       bill_metadata:
-        OfficialTitle: Omgevingsvisie Provincie Zuid-Holland
+        Official_Title: Omgevingsvisie Provincie Zuid-Holland
         Subjects:
           - ruimtelijke_ordening
         Jurisdictions:
@@ -768,14 +768,14 @@ publication:
           <Al>Om de Omgevingsvisie Provincie Zuid-Holland beschikbaar te maken in het Digitale Stelsel van de Omgevingswet is het noodzakelijk dat de reeds vastgestelde Omgevingsvisie Zuid-Holland opnieuw wordt gepubliceerd en bekend gemaakt.</Al>
         Signed: |
           <Al>Gedupeerde Staten</Al>
-        AmendmentArticle: |
+        Amendment_Article: |
           De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
-        TimeArticle: |
+        Time_Article: |
           <Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>
       # @see: class ActMetadata
       act_metadata:
-        OfficialTitle: Omgevingsvisie Provincie Zuid-Holland
-        QuoteTitle: Omgevingsvisie Provincie Zuid-Holland
+        Official_Title: Omgevingsvisie Provincie Zuid-Holland
+        Quote_Title: Omgevingsvisie Provincie Zuid-Holland
         Subjects:
           - ruimtelijke_ordening
         Jurisdictions:
@@ -783,7 +783,7 @@ publication:
 
     programma:
       bill_metadata:
-        OfficialTitle: Programma Provincie Zuid-Holland
+        Official_Title: Programma Provincie Zuid-Holland
         Subjects:
           - ruimtelijke_ordening
         Jurisdictions:
@@ -795,14 +795,14 @@ publication:
           <Al>Om het Programma Provincie Zuid-Holland beschikbaar te maken in het Digitale Stelsel van de Omgevingswet is het noodzakelijk dat de reeds vastgestelde Omgevingsvisie Zuid-Holland opnieuw wordt gepubliceerd en bekend gemaakt.</Al>
         Signed: |
           <Al>Gedupeerde Staten</Al>
-        AmendmentArticle: |
+        Amendment_Article: |
           Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
-        TimeArticle: |
+        Time_Article: |
           <Al>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</Al>
       # @see: class ActMetadata
       act_metadata:
-        OfficialTitle: Programma Provincie Zuid-Holland
-        QuoteTitle: Programma Provincie Zuid-Holland
+        Official_Title: Programma Provincie Zuid-Holland
+        Quote_Title: Programma Provincie Zuid-Holland
         Subjects:
           - ruimtelijke_ordening
         Jurisdictions:

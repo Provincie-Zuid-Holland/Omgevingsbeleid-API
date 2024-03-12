@@ -92,8 +92,13 @@ class PublicationShort(BaseModel):
         orm_mode = True
 
 
+class Article(BaseModel):
+    Label: str
+    Content: str
+
+
 class BillMetadata(BaseModel):
-    OfficialTitle: str = Field("")
+    Official_Title: str = Field("")
     Subjects: List[str] = Field([])
     Jurisdictions: List[str] = Field([])
 
@@ -105,19 +110,20 @@ class BillCompact(BaseModel):
     Preamble: str = Field("")
     Closing: str = Field("")
     Signed: str = Field("")
-    AmendmentArticle: str = Field("")
-    TimeArticle: str = Field("")
+    Amendment_Article: str = Field("")
+    Time_Article: str = Field("")
+    Custom_Articles: List[Article] = Field([])
 
     class Config:
         orm_mode = True
 
 
 class Procedural(BaseModel):
-    EnactmentDate: Optional[str] = Field(None)
-    SignedDate: Optional[str] = Field(None)
+    Enactment_Date: Optional[str] = Field(None)
+    Signed_Date: Optional[str] = Field(None)
     Procedural_Announcement_Date: Optional[str] = Field(None)
 
-    @validator("EnactmentDate", "SignedDate", "Procedural_Announcement_Date")
+    @validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -131,11 +137,11 @@ class Procedural(BaseModel):
 
 
 class ProceduralValidated(BaseModel):
-    EnactmentDate: Optional[str] = Field(None)
-    SignedDate: str
+    Enactment_Date: Optional[str] = Field(None)
+    Signed_Date: str
     Procedural_Announcement_Date: str
 
-    @validator("EnactmentDate", "SignedDate", "Procedural_Announcement_Date")
+    @validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -149,8 +155,8 @@ class ProceduralValidated(BaseModel):
 
 
 class ActMetadata(BaseModel):
-    OfficialTitle: str = Field("")
-    QuoteTitle: str = Field("")
+    Official_Title: str = Field("")
+    Quote_Title: str = Field("")
     Subjects: List[str] = Field([])
     Jurisdictions: List[str] = Field([])
 
@@ -217,12 +223,6 @@ class PublicationVersionShort(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-class Article(BaseModel):
-    Label: str
-    Number: Optional[str]
-    Content: str
 
 
 class PublicationPackageReport(BaseModel):

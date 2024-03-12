@@ -118,17 +118,19 @@ class DsoInputDataBuilder:
 
     def _get_akn_filename(self) -> str:
         package_type: str = (self._package_type[:3]).lower()
-        filename: str = f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}.xml"
+        filename: str = (
+            f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}.xml"
+        )
         return filename
 
     def _get_besluit(self) -> Besluit:
         besluit = Besluit(
-            officiele_titel=self._publication_version.Bill_Metadata["OfficialTitle"],
-            regeling_opschrift=self._publication_version.Bill_Metadata["OfficialTitle"],
+            officiele_titel=self._publication_version.Bill_Metadata["Official_Title"],
+            regeling_opschrift=self._publication_version.Bill_Metadata["Official_Title"],
             aanhef=self._publication_version.Bill_Compact["Preamble"],
             wijzig_artikel=Artikel(
                 label="Artikel",
-                inhoud=self._publication_version.Bill_Compact["AmendmentArticle"],
+                inhoud=self._publication_version.Bill_Compact["Amendment_Article"],
             ),
             tekst_artikelen=[],
             tijd_artikel=Artikel(
@@ -146,8 +148,8 @@ class DsoInputDataBuilder:
     def _get_regeling(self) -> Regeling:
         regeling = Regeling(
             versienummer=self._act_frbr.Expression_Version,
-            officiele_titel=self._publication_version.Act_Metadata["OfficialTitle"],
-            citeertitel=self._publication_version.Act_Metadata["QuoteTitle"],
+            officiele_titel=self._publication_version.Act_Metadata["Official_Title"],
+            citeertitel=self._publication_version.Act_Metadata["Quote_Title"],
             # @todo: This might change when we add "Ontwerpen"
             is_officieel="true",
             rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.Act_Metadata["Jurisdictions"]),
@@ -158,7 +160,7 @@ class DsoInputDataBuilder:
     def _get_procedure_verloop(self) -> dso_models.ProcedureVerloop:
         steps: List[dso_models.ProcedureStap] = []
 
-        enactment_date: Optional[str] = self._publication_version.Procedural.get("EnactmentDate", None)
+        enactment_date: Optional[str] = self._publication_version.Procedural.get("Enactment_Date", None)
         if enactment_date is not None:
             steps.append(
                 dso_models.ProcedureStap(
@@ -167,9 +169,9 @@ class DsoInputDataBuilder:
                 )
             )
 
-        signed_date: Optional[str] = self._publication_version.Procedural.get("SignedDate", None)
+        signed_date: Optional[str] = self._publication_version.Procedural.get("Signed_Date", None)
         if signed_date is None:
-            raise RuntimeError("EnactmentDate.SignedDate is required")
+            raise RuntimeError("Procedural.Signed_Date is required")
 
         steps.append(
             dso_models.ProcedureStap(
@@ -246,5 +248,5 @@ class DsoInputDataBuilder:
 
     def _get_signed_text(self) -> str:
         text: str = self._publication_version.Bill_Compact["Signed"]
-        text = text.replace("[[EFFECTIVE_DATE]]", self._publication_version.Procedural.get("SignedDate", ""))
+        text = text.replace("[[EFFECTIVE_DATE]]", self._publication_version.Procedural.get("Signed_Date", ""))
         return text
