@@ -68,6 +68,7 @@ class Publication(BaseModel):
     UUID: uuid.UUID
 
     Module_ID: int
+    Title: str
     Document_Type: DocumentType
     Template_UUID: Optional[uuid.UUID]
 
@@ -82,6 +83,7 @@ class PublicationShort(BaseModel):
     UUID: uuid.UUID
 
     Module_ID: int
+    Title: str
     Document_Type: str
     Template_UUID: Optional[uuid.UUID]
 

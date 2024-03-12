@@ -360,6 +360,7 @@ class DatabaseFixturesPublications:
             PublicationTable(
                 UUID=uuid.UUID("90000005-0000-0000-0000-000000000001"),
                 Module_ID=1,
+                Title="Publicatie van Module 1",
                 Document_Type=DocumentType.VISION.value,
                 Template_UUID=uuid.UUID("90000001-0000-0000-0000-000000000001"),
                 Created_Date=self._timepoint,

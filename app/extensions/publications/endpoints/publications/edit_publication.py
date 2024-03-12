@@ -24,6 +24,7 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 class PublicationEdit(BaseModel):
     Template_UUID: Optional[uuid.UUID]
+    Title: Optional[str]
 
 
 class EndpointHandler:
@@ -71,6 +72,8 @@ class EndpointHandler:
             raise HTTPException(status_code=404, detail="Template niet gevonden")
         if template.Is_Active:
             raise HTTPException(status_code=404, detail="Template is gesloten")
+        if template.Document_Type != self._object_in.Document_Type.value:
+            raise HTTPException(status_code=404, detail="Template hoort niet bij dit document type")
 
         return template
 
@@ -103,7 +106,7 @@ class EditPublicationEndpoint(Endpoint):
         router.add_api_route(
             self._path,
             fastapi_handler,
-            methods=["PATCH"],
+            methods=["POST"],
             response_model=Publication,
             summary="Edit an existing publication",
             description=None,

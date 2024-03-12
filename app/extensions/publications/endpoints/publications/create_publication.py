@@ -27,6 +27,7 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 class PublicationCreate(BaseModel):
     Module_ID: int
+    Title: str
     Document_Type: DocumentType
     Template_UUID: uuid.UUID
 
@@ -58,6 +59,7 @@ class EndpointHandler:
         publication: PublicationTable = PublicationTable(
             UUID=uuid.uuid4(),
             Module_ID=module.Module_ID,
+            Title=self._object_in.Title,
             Document_Type=self._object_in.Document_Type,
             Template_UUID=template.UUID,
             Created_Date=self._timepoint,
@@ -94,6 +96,8 @@ class EndpointHandler:
             raise HTTPException(status_code=404, detail="Template niet gevonden")
         if not template.Is_Active:
             raise HTTPException(status_code=404, detail="Template is gesloten")
+        if template.Document_Type != self._object_in.Document_Type.value:
+            raise HTTPException(status_code=404, detail="Template hoort niet bij dit document type")
 
         return template
 
