@@ -135,7 +135,7 @@ class DsoInputDataBuilder:
             tekst_artikelen=self._get_text_articles(),
             tijd_artikel=Artikel(
                 label="Artikel",
-                inhoud=self._publication_version.Bill_Compact["Time_Article"],
+                inhoud=self._get_time_article(),
             ),
             sluiting=self._publication_version.Bill_Compact["Closing"],
             ondertekening=self._get_signed_text(),
@@ -258,5 +258,10 @@ class DsoInputDataBuilder:
 
     def _get_signed_text(self) -> str:
         text: str = self._publication_version.Bill_Compact["Signed"]
+        text = text.replace("[[EFFECTIVE_DATE]]", self._publication_version.Procedural.get("Signed_Date", ""))
+        return text
+
+    def _get_time_article(self) -> str:
+        text: str = self._publication_version.Bill_Compact["Time_Article"]
         text = text.replace("[[EFFECTIVE_DATE]]", self._publication_version.Procedural.get("Signed_Date", ""))
         return text

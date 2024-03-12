@@ -14,7 +14,6 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.publications.dependencies import depends_publication, depends_publication_repository
-from app.extensions.publications.models import Publication
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.repository.publication_template_repository import PublicationTemplateRepository
 from app.extensions.publications.tables.tables import PublicationTable, PublicationTemplateTable

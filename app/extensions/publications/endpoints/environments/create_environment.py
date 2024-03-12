@@ -54,7 +54,7 @@ class EndpointHandler:
             Province_ID=self._object_in.Province_ID,
             Authority_ID=self._object_in.Authority_ID,
             Submitter_ID=self._object_in.Submitter_ID,
-            Governing_Body_Type="Provinciale_staten",
+            Governing_Body_Type="provinciale_staten",
             Frbr_Country=self._object_in.Frbr_Country,
             Frbr_Language=self._object_in.Frbr_Language,
             Is_Active=True,
