@@ -157,12 +157,16 @@ def depends_publication_object_repository(
     return PublicationObjectRepository(db)
 
 
-def depends_bill_frbr_provider() -> BillFrbrProvider:
-    return BillFrbrProvider()
+def depends_bill_frbr_provider(
+    db: Session = Depends(depends_db),
+) -> BillFrbrProvider:
+    return BillFrbrProvider(db)
 
 
-def depends_act_frbr_provider() -> ActFrbrProvider:
-    return ActFrbrProvider()
+def depends_act_frbr_provider(
+    db: Session = Depends(depends_db),
+) -> ActFrbrProvider:
+    return ActFrbrProvider(db)
 
 
 def depends_publication_asset_provider(

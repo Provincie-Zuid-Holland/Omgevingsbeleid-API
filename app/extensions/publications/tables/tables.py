@@ -48,6 +48,16 @@ class PublicationEnvironmentTable(Base, UserMetaData):
     Can_Validate: Mapped[bool]
     Can_Publicate: Mapped[bool]
 
+    Is_Locked: Mapped[bool]
+
+    Active_State_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("publication_environment_states.UUID"), nullable=True
+    )
+    Active_State: Mapped[Optional["PublicationEnvironmentStateTable"]] = relationship(
+        "PublicationEnvironmentStateTable",
+        primaryjoin="PublicationEnvironmentTable.Active_State_UUID == PublicationEnvironmentStateTable.UUID",
+    )
+
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
 
@@ -126,7 +136,7 @@ class PublicationVersionTable(Base, UserMetaData):
     # opdracht-xml.datumBekendmaking
     Announcement_Date: Mapped[Optional[date]]
 
-    Locked: Mapped[bool] = mapped_column(default=False)
+    Is_Locked: Mapped[bool] = mapped_column(default=False)
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
@@ -142,25 +152,33 @@ class PublicationActTable(Base, UserMetaData):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
+    Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
+    Work_Country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
+    Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False, unique=True)
-    Status: Mapped[str]
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
 
 
-class PublicationActVersionTable(Base, UserMetaData):
+class PublicationActVersionTable(Base):
     __tablename__ = "publication_act_versions"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Act_UUID: Mapped[int] = mapped_column(ForeignKey("publication_acts.UUID"))
-    Version: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    Expression_Language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
+    Expression_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    Expression_Version: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    Created_Date: Mapped[datetime]
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     Act: Mapped[PublicationActTable] = relationship()
 
-    __table_args__ = (UniqueConstraint("Act_UUID", "Version", name="uix_act_version"),)
+    __table_args__ = (UniqueConstraint("Act_UUID", "Expression_Version", name="uix_act_version"),)
 
 
 class PublicationBillTable(Base, UserMetaData):
@@ -168,25 +186,33 @@ class PublicationBillTable(Base, UserMetaData):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
+    Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
+    Work_Country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
+    Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False, unique=True)
-    Status: Mapped[str]
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
 
 
-class PublicationBillVersionTable(Base, UserMetaData):
+class PublicationBillVersionTable(Base):
     __tablename__ = "publication_bill_versions"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Bill_UUID: Mapped[int] = mapped_column(ForeignKey("publication_bills.UUID"))
-    Version: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    Expression_Language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
+    Expression_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    Expression_Version: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    Created_Date: Mapped[datetime]
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     Bill: Mapped[PublicationBillTable] = relationship()
 
-    __table_args__ = (UniqueConstraint("Bill_UUID", "Version", name="uix_bill_version"),)
+    __table_args__ = (UniqueConstraint("Bill_UUID", "Expression_Version", name="uix_bill_version"),)
 
 
 class PublicationPackageTable(Base, UserMetaData):
@@ -206,6 +232,13 @@ class PublicationPackageTable(Base, UserMetaData):
     Validation_Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
 
     Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
+
+    Used_Environment_State_UUID: Mapped[Optional[PublicationEnvironmentStateTable]] = mapped_column(
+        ForeignKey("publication_environment_states.UUID"), nullable=True
+    )
+    Created_Environment_State_UUID: Mapped[Optional[PublicationEnvironmentStateTable]] = mapped_column(
+        ForeignKey("publication_environment_states.UUID"), nullable=True
+    )
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]

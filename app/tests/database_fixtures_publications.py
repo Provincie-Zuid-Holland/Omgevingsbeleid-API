@@ -245,99 +245,108 @@ class DatabaseFixturesPublications:
 
     def create_environments(self):
         # Stateless
-        self._db.add(
-            PublicationEnvironmentTable(
-                UUID=uuid.UUID("90000002-0000-0000-0000-000000000001"),
-                Title="Stateless",
-                Description="",
-                Province_ID="pv28",
-                Authority_ID="00000001002306608000",
-                Submitter_ID="00000001002306608000",
-                Governing_Body_Type="provinciale_staten",
-                Frbr_Country="nl",
-                Frbr_Language="nld",
-                Is_Active=True,
-                Has_State=False,
-                Can_Validate=True,
-                Can_Publicate=False,
-                Created_Date=self._timepoint,
-                Modified_Date=self._timepoint,
-                Created_By_UUID=self._user,
-                Modified_By_UUID=self._user,
-            )
+        env_stateless = PublicationEnvironmentTable(
+            UUID=uuid.UUID("90000002-0000-0000-0000-000000000001"),
+            Title="Stateless",
+            Description="",
+            Province_ID="pv28",
+            Authority_ID="00000001002306608000",
+            Submitter_ID="00000001002306608000",
+            Governing_Body_Type="provinciale_staten",
+            Frbr_Country="nl",
+            Frbr_Language="nld",
+            Is_Active=True,
+            Has_State=False,
+            Can_Validate=True,
+            Can_Publicate=False,
+            Is_Locked=False,
+            Created_Date=self._timepoint,
+            Modified_Date=self._timepoint,
+            Created_By_UUID=self._user,
+            Modified_By_UUID=self._user,
         )
+        self._db.add(env_stateless)
+        self._db.flush()
 
         # Pre-Prod
-        self._db.add(
-            PublicationEnvironmentTable(
-                UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
-                Title="Pre-Prod",
-                Description="",
-                Province_ID="pv28",
-                Authority_ID="00000001002306608000",
-                Submitter_ID="00000001002306608000",
-                Governing_Body_Type="provinciale_staten",
-                Frbr_Country="nl",
-                Frbr_Language="nld",
-                Is_Active=True,
-                Has_State=True,
-                Can_Validate=True,
-                Can_Publicate=True,
-                Created_Date=self._timepoint,
-                Modified_Date=self._timepoint,
-                Created_By_UUID=self._user,
-                Modified_By_UUID=self._user,
-            )
+        env_preprod = PublicationEnvironmentTable(
+            UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
+            Title="Pre-Prod",
+            Description="",
+            Province_ID="pv28",
+            Authority_ID="00000001002306608000",
+            Submitter_ID="00000001002306608000",
+            Governing_Body_Type="provinciale_staten",
+            Frbr_Country="nl",
+            Frbr_Language="nld",
+            Is_Active=True,
+            Has_State=True,
+            Can_Validate=True,
+            Can_Publicate=True,
+            Is_Locked=False,
+            Created_Date=self._timepoint,
+            Modified_Date=self._timepoint,
+            Created_By_UUID=self._user,
+            Modified_By_UUID=self._user,
         )
-        self._db.add(
-            PublicationEnvironmentStateTable(
-                UUID=uuid.UUID("90000003-0000-0000-0000-000000000001"),
-                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
-                Adjust_On_UUID=None,
-                Change_Set={},
-                State={},
-                Is_Activated=True,
-                Activated_Datetime=self._timepoint,
-                Created_Date=self._timepoint,
-                Created_By_UUID=self._user,
-            )
+        self._db.add(env_preprod)
+        self._db.flush()
+
+        state_preprod = PublicationEnvironmentStateTable(
+            UUID=uuid.UUID("90000003-0000-0000-0000-000000000001"),
+            Environment_UUID=env_preprod.UUID,
+            Adjust_On_UUID=None,
+            Change_Set={},
+            State={},
+            Is_Activated=True,
+            Activated_Datetime=self._timepoint,
+            Created_Date=self._timepoint,
+            Created_By_UUID=self._user,
         )
+        self._db.add(state_preprod)
+        self._db.flush()
+        env_preprod.Active_State_UUID = state_preprod.UUID
+        self._db.add(env_preprod)
 
         # Prod
-        self._db.add(
-            PublicationEnvironmentTable(
-                UUID=uuid.UUID("90000002-0000-0000-0000-000000000003"),
-                Title="Prod",
-                Description="",
-                Province_ID="pv28",
-                Authority_ID="00000001002306608000",
-                Submitter_ID="00000001002306608000",
-                Governing_Body_Type="provinciale_staten",
-                Frbr_Country="nl",
-                Frbr_Language="nld",
-                Is_Active=True,
-                Has_State=True,
-                Can_Validate=True,
-                Can_Publicate=True,
-                Created_Date=self._timepoint,
-                Modified_Date=self._timepoint,
-                Created_By_UUID=self._user,
-                Modified_By_UUID=self._user,
-            )
+        env_prod = PublicationEnvironmentTable(
+            UUID=uuid.UUID("90000002-0000-0000-0000-000000000003"),
+            Title="Prod",
+            Description="",
+            Province_ID="pv28",
+            Authority_ID="00000001002306608000",
+            Submitter_ID="00000001002306608000",
+            Governing_Body_Type="provinciale_staten",
+            Frbr_Country="nl",
+            Frbr_Language="nld",
+            Is_Active=True,
+            Has_State=True,
+            Can_Validate=True,
+            Can_Publicate=True,
+            Is_Locked=False,
+            Created_Date=self._timepoint,
+            Modified_Date=self._timepoint,
+            Created_By_UUID=self._user,
+            Modified_By_UUID=self._user,
         )
-        self._db.add(
-            PublicationEnvironmentStateTable(
-                UUID=uuid.UUID("90000003-0000-0000-0000-000000000002"),
-                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000003"),
-                Adjust_On_UUID=None,
-                Change_Set={},
-                State={},
-                Is_Activated=True,
-                Activated_Datetime=self._timepoint,
-                Created_Date=self._timepoint,
-                Created_By_UUID=self._user,
-            )
+        self._db.add(env_prod)
+        self._db.flush()
+
+        state_prod = PublicationEnvironmentStateTable(
+            UUID=uuid.UUID("90000003-0000-0000-0000-000000000002"),
+            Environment_UUID=env_prod.UUID,
+            Adjust_On_UUID=None,
+            Change_Set={},
+            State={},
+            Is_Activated=True,
+            Activated_Datetime=self._timepoint,
+            Created_Date=self._timepoint,
+            Created_By_UUID=self._user,
         )
+        self._db.add(state_prod)
+        self._db.flush()
+        env_prod.Active_State_UUID = state_prod.UUID
+        self._db.add(env_prod)
 
         self._db.commit()
 
@@ -420,7 +429,7 @@ class DatabaseFixturesPublications:
                 ).dict(),
                 Effective_Date=self._timepoint + timedelta(days=7),
                 Announcement_Date=self._timepoint + timedelta(days=7),
-                Locked=False,
+                Is_Locked=False,
                 Created_Date=self._timepoint,
                 Modified_Date=self._timepoint,
                 Created_By_UUID=self._user,

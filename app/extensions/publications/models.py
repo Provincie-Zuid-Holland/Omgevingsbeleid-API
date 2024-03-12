@@ -109,6 +109,7 @@ class BillMetadata(BaseModel):
 
 
 class BillCompact(BaseModel):
+    Component_Name: str = Field("")
     Preamble: str = Field("")
     Closing: str = Field("")
     Signed: str = Field("")
@@ -198,7 +199,7 @@ class PublicationVersion(BaseModel):
 
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
-    Locked: bool
+    Is_Locked: bool
     Is_Valid: bool = Field(False)
 
     Created_Date: datetime
@@ -220,7 +221,7 @@ class PublicationVersionShort(BaseModel):
 
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
-    Locked: bool
+    Is_Locked: bool
 
     Created_Date: datetime
     Modified_Date: datetime

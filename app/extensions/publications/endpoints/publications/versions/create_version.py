@@ -83,7 +83,7 @@ class EndpointHandler:
             Act_Metadata=act_metadata.dict(),
             Effective_Date=None,
             Announcement_Date=None,
-            Locked=False,
+            Is_Locked=False,
             Created_Date=self._timepoint,
             Modified_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,

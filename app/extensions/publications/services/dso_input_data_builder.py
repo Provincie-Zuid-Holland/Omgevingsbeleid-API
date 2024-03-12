@@ -97,7 +97,7 @@ class DsoInputDataBuilder:
             soort_bestuursorgaan=self._get_soort_bestuursorgaan(),
             # @todo: This should be moved to Werkingsgebieden which is the only one that uses this
             expression_taal=self._act_frbr.Expression_Language,
-            regeling_componentnaam=self._act_frbr.Component_Name,
+            regeling_componentnaam=self._publication_version.Bill_Compact["Component_Name"],
             provincie_ref=f"/tooi/id/provincie/{self._environment.Province_ID}",
             opdracht={
                 "opdracht_type": dso_opdracht_type,

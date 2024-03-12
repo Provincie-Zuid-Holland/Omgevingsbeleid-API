@@ -41,7 +41,7 @@ class PackageBuilderFactory:
         )
 
         # @todo: transform data based on state
-        # @todo: dthis includes adding "Intrekkingen" if needed
+        # @todo: this includes adding "Intrekkingen" if needed
 
         input_data_builder: DsoInputDataBuilder = DsoInputDataBuilder(
             publication_version,
@@ -52,5 +52,9 @@ class PackageBuilderFactory:
         )
         input_data: InputData = input_data_builder.build()
 
-        builder: PackageBuilder = PackageBuilder(input_data)
+        builder: PackageBuilder = PackageBuilder(
+            bill_frbr,
+            act_frbr,
+            input_data,
+        )
         return builder
