@@ -216,6 +216,8 @@ class PublicationVersionShort(BaseModel):
     Environment_UUID: uuid.UUID
     Procedure_Type: str
 
+    Bill_Metadata: dict
+
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
     Locked: bool
