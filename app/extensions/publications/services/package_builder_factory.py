@@ -41,7 +41,7 @@ class PackageBuilderFactory:
         )
 
         # @todo: transform data based on state
-        #           this includes adding "Intrekkingen" if needed
+        # @todo: dthis includes adding "Intrekkingen" if needed
 
         input_data_builder: DsoInputDataBuilder = DsoInputDataBuilder(
             publication_version,

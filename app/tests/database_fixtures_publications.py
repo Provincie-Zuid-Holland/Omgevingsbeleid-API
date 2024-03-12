@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.extensions.areas.db.tables import AreasTable  # # noqa
 from app.extensions.publications.enums import DocumentType, ProcedureType
-from app.extensions.publications.models import ActMetadata, BillCompact, BillMetadata, Procedural
+from app.extensions.publications.models import ActMetadata, Article, BillCompact, BillMetadata, Procedural
 from app.extensions.publications.tables.tables import (
     PublicationAreaOfJurisdictionTable,
     PublicationEnvironmentStateTable,
@@ -396,6 +396,12 @@ class DatabaseFixturesPublications:
                     Signed="<Al>Gedupeerde Staten</Al>",
                     Amendment_Article='De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.',
                     Time_Article="<Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>",
+                    Custom_Articles=[
+                        Article(
+                            Label="Artikel",
+                            Content="<p>Hierbij nog meer tekst</p>",
+                        ),
+                    ],
                 ).dict(),
                 Procedural=Procedural(
                     Signed_Date=self._timepoint.strftime("%Y-%m-%d"),

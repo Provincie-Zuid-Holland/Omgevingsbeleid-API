@@ -1,3 +1,4 @@
+import re
 import uuid
 from typing import List, Optional
 
@@ -132,10 +133,10 @@ class DsoInputDataBuilder:
                 label="Artikel",
                 inhoud=self._publication_version.Bill_Compact["Amendment_Article"],
             ),
-            tekst_artikelen=[],
+            tekst_artikelen=self._get_text_articles(),
             tijd_artikel=Artikel(
                 label="Artikel",
-                inhoud=self._publication_version.Bill_Compact["TimeArticle"],
+                inhoud=self._publication_version.Bill_Compact["Time_Article"],
             ),
             sluiting=self._publication_version.Bill_Compact["Closing"],
             ondertekening=self._get_signed_text(),
@@ -186,6 +187,16 @@ class DsoInputDataBuilder:
             stappen=steps,
         )
         return procedure_verloop
+
+    def _get_text_articles(self) -> List[Artikel]:
+        result: List[Artikel] = []
+        for custom_article in self._publication_version.Bill_Compact.get("Custom_Articles", []):
+            article: Artikel = Artikel(
+                label=custom_article["Label"],
+                inhoud=custom_article["Content"],
+            )
+            result.append(article)
+        return result
 
     def _get_resources(self) -> Resources:
         resources = Resources(
