@@ -89,7 +89,7 @@ class DsoInputDataBuilder:
                 "id_bevoegdgezag": self._environment.Authority_ID,
                 "id_aanleveraar": self._environment.Submitter_ID,
                 "publicatie_bestand": self._get_akn_filename(),
-                "datum_bekendmaking": self._publication_version.Procedural["Procedural_Announcement_Date"],
+                "datum_bekendmaking": self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
             },
             doel=dso_models.Doel(
                 jaar=self._bill_frbr.Work_Date[:4],
@@ -182,7 +182,7 @@ class DsoInputDataBuilder:
 
         procedure_verloop = dso_models.ProcedureVerloop(
             # @todo: This should be its own date
-            bekend_op=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
+            bekend_op=self._publication_version.Procedural["Procedural_Announcement_Date"],
             stappen=steps,
         )
         return procedure_verloop
