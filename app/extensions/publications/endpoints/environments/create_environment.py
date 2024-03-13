@@ -62,6 +62,7 @@ class EndpointHandler:
             Has_State=self._object_in.Has_State,
             Can_Validate=self._object_in.Can_Validate,
             Can_Publicate=self._object_in.Can_Publicate,
+            Is_Locked=False,
             Created_Date=self._timepoint,
             Modified_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
