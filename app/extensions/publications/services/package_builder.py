@@ -1,5 +1,6 @@
 import hashlib
 import io
+import uuid
 from dataclasses import dataclass
 
 from dso.builder.builder import Builder
@@ -7,6 +8,12 @@ from dso.builder.state_manager.input_data.input_data_loader import InputData
 
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
+from app.extensions.publications.services.state.initial import InitialState
+from app.extensions.publications.tables.tables import (
+    PublicationEnvironmentStateTable,
+    PublicationEnvironmentTable,
+    PublicationVersionTable,
+)
 
 
 @dataclass
@@ -22,10 +29,12 @@ class PackageBuilder:
         self,
         bill_frbr: BillFrbr,
         act_frbr: ActFrbr,
+        publication_version: PublicationVersionTable,
         input_data: InputData,
     ):
         self._bill_frbr: BillFrbr = bill_frbr
         self._act_frbr: ActFrbr = act_frbr
+        self._publication_version: PublicationVersionTable = publication_version
         self._input_data: InputData = input_data
         self._dso_builder: Builder = Builder(input_data)
 
@@ -58,3 +67,21 @@ class PackageBuilder:
 
     def get_act_frbr(self) -> ActFrbr:
         return self._act_frbr
+
+    def create_new_state(self) -> PublicationEnvironmentStateTable:
+        environment: PublicationEnvironmentTable = self._publication_version.Environment
+
+        state_data = InitialState(
+            Data={"id": str(uuid.uuid4())},
+        )
+
+        state: PublicationEnvironmentStateTable = PublicationEnvironmentStateTable(
+            UUID=uuid.uuid4(),
+            Environment_UUID=environment.UUID,
+            Adjust_On_UUID=environment.Active_State_UUID,
+            Change_Set={},
+            State=state_data.dict(),
+            Is_Activated=False,
+            Activated_Datetime=None,
+        )
+        return state

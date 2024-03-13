@@ -15,6 +15,7 @@ from app.extensions.publications.repository.publication_aoj_repository import Pu
 from app.extensions.publications.repository.publication_environment_repository import PublicationEnvironmentRepository
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.extensions.publications.repository.publication_package_repository import PublicationPackageRepository
+from app.extensions.publications.repository.publication_report_repository import PublicationReportRepository
 from app.extensions.publications.repository.publication_version_repository import PublicationVersionRepository
 from app.extensions.publications.repository.publication_zip_repository import PublicationZipRepository
 from app.extensions.publications.services.act_frbr_provider import ActFrbrProvider
@@ -30,6 +31,7 @@ from app.extensions.publications.tables import PublicationPackageTable, Publicat
 from app.extensions.publications.tables.tables import (
     PublicationAreaOfJurisdictionTable,
     PublicationEnvironmentTable,
+    PublicationPackageReportTable,
     PublicationPackageZipTable,
     PublicationTable,
     PublicationVersionTable,
@@ -142,6 +144,20 @@ def depends_publication_zip_by_package(
     if package_zip is None:
         raise HTTPException(status_code=404, detail="Package Zip not found")
     return package_zip
+
+
+def depends_publication_report_repository(db: Session = Depends(depends_db)) -> PublicationReportRepository:
+    return PublicationReportRepository(db)
+
+
+def depends_publication_report(
+    report_uuid: uuid.UUID,
+    repository: PublicationReportRepository = Depends(depends_publication_report_repository),
+) -> PublicationPackageReportTable:
+    report: Optional[PublicationPackageReportTable] = repository.get_by_uuid(report_uuid)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Package report not found")
+    return report
 
 
 def depends_package_version_defaults_provider(

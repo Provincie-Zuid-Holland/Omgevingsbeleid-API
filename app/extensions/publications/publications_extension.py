@@ -18,15 +18,6 @@ class PublicationsExtension(Extension):
         models_resolver: ModelsResolver,
     ) -> List[EndpointResolver]:
         return [
-            endpoints.CreatePublicationEndpointResolver(),
-            endpoints.CreatePublicationPackageEndpointResolver(),
-            endpoints.DetailPublicationEndpointResolver(),
-            endpoints.DownloadPackageEndpointResolver(),
-            endpoints.DownloadPackageReportsEndpointResolver(),
-            endpoints.EditPublicationEndpointResolver(),
-            endpoints.CreatePackageReportEndpointResolver(),
-            endpoints.ListPublicationPackagesEndpointResolver(),
-            endpoints.ListPublicationsEndpointResolver(),
             # Template
             endpoints.CreatePublicationTemplateEndpointResolver(),
             endpoints.EditPublicationTemplateEndpointResolver(),
@@ -39,11 +30,25 @@ class PublicationsExtension(Extension):
             # Area of jurisdictions
             endpoints.CreatePublicationAOJEndpointResolver(),
             endpoints.ListPublicationAOJEndpointResolver(),
+            # Publication
+            endpoints.CreatePublicationEndpointResolver(),
+            endpoints.DetailPublicationEndpointResolver(),
+            endpoints.EditPublicationEndpointResolver(),
+            endpoints.ListPublicationsEndpointResolver(),
             # Publication Version
             endpoints.CreatePublicationVersionEndpointResolver(),
             endpoints.EditPublicationVersionEndpointResolver(),
             endpoints.DetailPublicationVersionEndpointResolver(),
             endpoints.ListPublicationVersionsEndpointResolver(),
+            # Package
+            endpoints.ListPublicationPackagesEndpointResolver(),
+            endpoints.CreatePublicationPackageEndpointResolver(),
+            endpoints.DownloadPackageEndpointResolver(),
+            # Package Reports
+            endpoints.UploadPackageReportEndpointResolver(),
+            endpoints.ListPackageReportsEndpointResolver(),
+            endpoints.DetailPackageReportEndpointResolver(),
+            endpoints.DownloadPackageReportEndpointResolver(),
         ]
 
     def register_models(self, models_resolver: ModelsResolver):

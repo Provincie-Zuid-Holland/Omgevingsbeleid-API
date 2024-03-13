@@ -24,7 +24,7 @@ class PackageType(str, Enum):
     TERMINATE = "Afbreken"
 
 
-class ValidationStatusType(str, Enum):
+class ReportStatusType(str, Enum):
     NOT_APPLICABLE = "Not Applicable"
     PENDING = "Pending"
     VALID = "Valid"

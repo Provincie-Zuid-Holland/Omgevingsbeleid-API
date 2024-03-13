@@ -229,7 +229,7 @@ class PublicationPackageTable(Base, UserMetaData):
     Zip_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package_zips.UUID"), nullable=False)
 
     Package_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
-    Validation_Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    Report_Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
 
     Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
 
@@ -245,6 +245,10 @@ class PublicationPackageTable(Base, UserMetaData):
 
     Publication_Version: Mapped["PublicationVersionTable"] = relationship()
     Zip: Mapped["PublicationPackageZipTable"] = relationship()
+    Created_Environment_State: Mapped["PublicationEnvironmentStateTable"] = relationship(
+        "PublicationEnvironmentStateTable",
+        primaryjoin="PublicationPackageTable.Created_Environment_State_UUID == PublicationEnvironmentStateTable.UUID",
+    )
 
 
 class PublicationPackageZipTable(Base):
@@ -267,19 +271,20 @@ class PublicationPackageReportTable(Base):
     __tablename__ = "publication_package_reports"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
-
     Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_packages.UUID"), nullable=False)
 
-    Outcome: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Result: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Report_Timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Messages: Mapped[str] = mapped_column(UnicodeText)
-    Report_Progress: Mapped[str] = mapped_column(Unicode, nullable=True)
+    Report_Status: Mapped[str] = mapped_column(Unicode, nullable=False)
 
     Filename: Mapped[str] = mapped_column(Unicode, nullable=False)
     Source_Document: Mapped[str] = mapped_column(UnicodeText)
+
+    Main_Outcome: Mapped[str] = mapped_column(Unicode, nullable=False)
+    Sub_Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
+    Sub_Progress: Mapped[str] = mapped_column(Unicode(100), nullable=False)
+    Sub_Outcome: Mapped[str] = mapped_column(Unicode(100), nullable=False)
+
+    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationPackageExportState(Base):

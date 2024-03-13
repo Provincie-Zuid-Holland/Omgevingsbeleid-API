@@ -25,6 +25,8 @@ class PublicationTemplate(BaseModel):
     Object_Types: List[str]
     Text_Template: str
     Object_Templates: Dict[str, str]
+    Field_Map: List[str]
+
     Created_Date: datetime
     Modified_Date: datetime
 
@@ -230,15 +232,33 @@ class PublicationVersionShort(BaseModel):
         orm_mode = True
 
 
-class PublicationPackageReport(BaseModel):
-    ID: int
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
+class PublicationPackageReportShort(BaseModel):
+    UUID: uuid.UUID
     Package_UUID: uuid.UUID
-    Result: Optional[str]
-    Report_Timestamp: Optional[datetime]
-    Messages: Optional[str]
-    Report_Type: Optional[str]
+
+    Report_Status: str
+    Filename: str
+    Main_Outcome: str
+
+    Created_Date: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class PublicationPackageReport(BaseModel):
+    UUID: uuid.UUID
+    Package_UUID: uuid.UUID
+
+    Report_Status: str
+    Filename: str
+    Source_Document: str
+    Main_Outcome: str
+    Sub_Delivery_ID: str
+    Sub_Progress: str
+    Sub_Outcome: str
+
+    Created_Date: datetime
 
     class Config:
         orm_mode = True
@@ -258,7 +278,7 @@ class PublicationPackage(BaseModel):
     UUID: uuid.UUID
 
     Package_Type: str
-    Validation_Status: str
+    Report_Status: str
     Delivery_ID: str
 
     Created_Date: datetime

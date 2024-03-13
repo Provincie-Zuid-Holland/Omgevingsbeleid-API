@@ -13,8 +13,12 @@ from .publications import (
 from .publications.packages.create_package import CreatePublicationPackageEndpointResolver
 from .publications.packages.download_package import DownloadPackageEndpointResolver
 from .publications.packages.list_packages import ListPublicationPackagesEndpointResolver
-from .publications.reports.create_package_report import CreatePackageReportEndpointResolver
-from .publications.reports.download_package_reports import DownloadPackageReportsEndpointResolver
+from .publications.reports import (
+    DetailPackageReportEndpointResolver,
+    DownloadPackageReportEndpointResolver,
+    ListPackageReportsEndpointResolver,
+    UploadPackageReportEndpointResolver,
+)
 from .publications.versions import (
     CreatePublicationVersionEndpointResolver,
     DetailPublicationVersionEndpointResolver,

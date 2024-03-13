@@ -14,7 +14,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_package_builder_factory, depends_publication_version
-from app.extensions.publications.enums import PackageType, ValidationStatusType
+from app.extensions.publications.enums import PackageType, ReportStatusType
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
@@ -26,6 +26,7 @@ from app.extensions.publications.tables.tables import (
     PublicationBillTable,
     PublicationBillVersionTable,
     PublicationEnvironmentStateTable,
+    PublicationEnvironmentTable,
     PublicationPackageTable,
     PublicationPackageZipTable,
     PublicationVersionTable,
@@ -73,9 +74,9 @@ class EndpointHandler:
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()
 
-            validation_status: ValidationStatusType = ValidationStatusType.NOT_APPLICABLE
+            report_status: ReportStatusType = ReportStatusType.NOT_APPLICABLE
             if self._publication_version.Environment.Has_State:
-                validation_status = ValidationStatusType.PENDING
+                report_status = ReportStatusType.PENDING
 
             package_zip: PublicationPackageZipTable = PublicationPackageZipTable(
                 UUID=uuid.uuid4(),
@@ -96,7 +97,7 @@ class EndpointHandler:
                 Zip_UUID=package_zip.UUID,
                 Delivery_ID=package_builder.get_delivery_id(),
                 Package_Type=self._object_in.Package_Type,
-                Validation_Status=validation_status,
+                Report_Status=report_status,
                 Created_Date=self._timepoint,
                 Modified_Date=self._timepoint,
                 Created_By_UUID=self._user.UUID,
@@ -105,7 +106,7 @@ class EndpointHandler:
             self._db.add(package)
             self._db.flush()
 
-            # self._handle_new_state(package_builder, package)
+            self._handle_new_state(package_builder, package)
             self._handle_bill_and_act(package_builder, package)
 
             self._db.commit()
@@ -125,16 +126,16 @@ class EndpointHandler:
                 raise NotImplementedError("Afbreek verzoek is nog niet geimplementeerd")
             case PackageType.VALIDATION:
                 if not self._publication_version.Environment.Can_Validate:
-                    raise HTTPException("Can not create Validation for this environment")
+                    raise HTTPException(status_code=409, detail="Can not create Validation for this environment")
             case PackageType.PUBLICATION:
                 if not self._publication_version.Environment.Can_Publicate:
-                    raise HTTPException("Can not create Publication for this environment")
+                    raise HTTPException(status_code=409, detail="Can not create Publication for this environment")
 
     def _guard_locked(self):
         if self._publication_version.Is_Locked:
-            raise HTTPException("This publication version is locked")
+            raise HTTPException(status_code=409, detail="This publication version is locked")
         if self._publication_version.Environment.Is_Locked:
-            raise HTTPException("This environment is locked")
+            raise HTTPException(status_code=409, detail="This environment is locked")
 
     def _handle_new_state(self, package_builder: PackageBuilder, package: PublicationPackageTable):
         if not self._publication_version.Environment.Has_State:
@@ -150,6 +151,8 @@ class EndpointHandler:
         # Terminate should probably an whole different flow...
 
         new_state: PublicationEnvironmentStateTable = package_builder.create_new_state()
+        new_state.Created_Date = self._timepoint
+        new_state.Created_By_UUID = self._user.UUID
         self._db.add(new_state)
         self._db.flush()
 
@@ -157,6 +160,10 @@ class EndpointHandler:
         package.Created_Environment_State_UUID = new_state.UUID
         self._db.add(package)
         self._db.flush()
+
+        environment: PublicationEnvironmentTable = self._publication_version.Environment
+        environment.Is_Locked = True
+        self._db.add(environment)
 
     def _handle_bill_and_act(self, package_builder: PackageBuilder, package: PublicationPackageTable):
         if not self._publication_version.Environment.Has_State:

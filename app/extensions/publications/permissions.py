@@ -24,3 +24,7 @@ class PublicationsPermissions(str, Enum):
     can_create_publication_package = "can_create_publication_package"
     can_view_publication_package = "can_view_publication_package"
     can_download_publication_package = "can_download_publication_package"
+
+    can_upload_publication_package_report = "can_upload_publication_package_report"
+    can_view_publication_package_report = "can_view_publication_package_report"
+    can_download_publication_package_report = "can_download_publication_package_report"

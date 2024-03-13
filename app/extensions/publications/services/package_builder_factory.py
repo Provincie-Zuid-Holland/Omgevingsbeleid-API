@@ -55,6 +55,7 @@ class PackageBuilderFactory:
         builder: PackageBuilder = PackageBuilder(
             bill_frbr,
             act_frbr,
+            publication_version,
             input_data,
         )
         return builder

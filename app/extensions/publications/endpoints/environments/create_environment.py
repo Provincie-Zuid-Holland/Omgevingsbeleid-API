@@ -12,6 +12,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.permissions import PublicationsPermissions
+from app.extensions.publications.services.state.initial import InitialState
 from app.extensions.publications.tables.tables import PublicationEnvironmentStateTable, PublicationEnvironmentTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
@@ -75,7 +76,7 @@ class EndpointHandler:
                 Environment_UUID=environment.UUID,
                 Adjust_On_UUID=None,
                 Change_Set={},
-                State={},
+                State=(InitialState().dict()),
                 Is_Activated=True,
                 Activated_Datetime=self._timepoint,
                 Created_Date=self._timepoint,
