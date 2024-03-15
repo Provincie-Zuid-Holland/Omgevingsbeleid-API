@@ -15,13 +15,13 @@ class PublicationEnvironmentRepository(BaseRepository):
 
     def get_with_filters(
         self,
-        only_active: bool,
+        is_active: Optional[bool],
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
         filters = []
-        if only_active:
-            filters.append(and_(PublicationEnvironmentTable.Is_Active == True))
+        if is_active is not None:
+            filters.append(and_(PublicationEnvironmentTable.Is_Active == is_active))
 
         stmt = select(PublicationEnvironmentTable).filter(*filters)
 

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
@@ -21,7 +23,7 @@ class ListPublicationTemplatesEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            only_active: bool = True,
+            is_active: Optional[bool] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
@@ -30,7 +32,7 @@ class ListPublicationTemplatesEndpoint(Endpoint):
             ),
             template_repository: PublicationTemplateRepository = Depends(depends_publication_template_repository),
         ) -> PagedResponse[PublicationTemplate]:
-            return self._handler(template_repository, only_active, pagination)
+            return self._handler(template_repository, is_active, pagination)
 
         router.add_api_route(
             self._path,
@@ -47,11 +49,11 @@ class ListPublicationTemplatesEndpoint(Endpoint):
     def _handler(
         self,
         template_repository: PublicationTemplateRepository,
-        only_active: bool,
+        is_active: Optional[bool],
         pagination: SimplePagination,
     ):
         paginated_result = template_repository.get_with_filters(
-            only_active=only_active,
+            is_active=is_active,
             offset=pagination.offset,
             limit=pagination.limit,
         )
