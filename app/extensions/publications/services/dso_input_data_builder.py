@@ -16,9 +16,7 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
 )
 
 from app.extensions.publications.enums import DocumentType, PackageType
-from app.extensions.publications.services.act_frbr_provider import ActFrbr
-from app.extensions.publications.services.bill_frbr_provider import BillFrbr
-from app.extensions.publications.services.publication_data_provider import PublicationData
+from app.extensions.publications.models.api_input_data import ActFrbr, ApiInputData, BillFrbr, PublicationData
 from app.extensions.publications.tables.tables import (
     PublicationEnvironmentTable,
     PublicationTable,
@@ -54,21 +52,14 @@ DUTCH_MONTHS = {
 
 
 class DsoInputDataBuilder:
-    def __init__(
-        self,
-        publication_version: PublicationVersionTable,
-        package_type: PackageType,
-        bill_frbr: BillFrbr,
-        act_frbr: ActFrbr,
-        publication_data: PublicationData,
-    ):
-        self._publication_version: PublicationVersionTable = publication_version
-        self._package_type: PackageType = package_type
-        self._bill_frbr: BillFrbr = bill_frbr
-        self._act_frbr: ActFrbr = act_frbr
-        self._publication_data: PublicationData = publication_data
-        self._publication: PublicationTable = publication_version.Publication
-        self._environment: PublicationEnvironmentTable = publication_version.Environment
+    def __init__(self, api_input_data: ApiInputData):
+        self._publication_version: PublicationVersionTable = api_input_data.Publication_Version
+        self._package_type: PackageType = api_input_data.Package_Type
+        self._bill_frbr: BillFrbr = api_input_data.Bill_Frbr
+        self._act_frbr: ActFrbr = api_input_data.Act_Frbr
+        self._publication_data: PublicationData = api_input_data.Publication_Data
+        self._publication: PublicationTable = api_input_data.Publication_Version.Publication
+        self._environment: PublicationEnvironmentTable = api_input_data.Publication_Version.Environment
         self._template: PublicationTemplateTable = self._publication.Template
 
     def build(self) -> InputData:

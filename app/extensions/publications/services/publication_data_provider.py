@@ -1,23 +1,14 @@
-from dataclasses import dataclass
 from typing import List, Optional, Set
 
 from bs4 import BeautifulSoup
 
+from app.extensions.publications.models.api_input_data import ActFrbr, PublicationData
 from app.extensions.publications.repository import PublicationObjectRepository
 from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
 from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.extensions.publications.services.template_parser import TemplateParser
 from app.extensions.publications.services.werkingsgebieden_provider import PublicationWerkingsgebiedenProvider
 from app.extensions.publications.tables.tables import PublicationAreaOfJurisdictionTable, PublicationVersionTable
-
-
-@dataclass
-class PublicationData:
-    objects: List[dict]
-    assets: List[dict]
-    werkingsgebieden: List[dict]
-    area_of_juristiction: dict
-    parsed_template: str
 
 
 class PublicationDataProvider:
@@ -40,6 +31,7 @@ class PublicationDataProvider:
     def fetch_data(
         self,
         publication_version: PublicationVersionTable,
+        act_frbr: ActFrbr,
     ):
         objects: List[dict] = self._get_objects(publication_version)
         parsed_template = self._template_parser.get_parsed_template(
@@ -50,6 +42,7 @@ class PublicationDataProvider:
         used_objects: List[dict] = self._get_used_objects(objects, used_object_codes)
         assets: List[dict] = self._publication_asset_provider.get_assets(used_objects)
         werkingsgebieden: List[dict] = self._publication_werkingsgebieden_provider.get_werkingsgebieden(
+            act_frbr,
             objects,
             used_objects,
         )

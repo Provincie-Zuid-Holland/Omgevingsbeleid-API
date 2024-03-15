@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.extensions.areas.db.tables import AreasTable  # # noqa
 from app.extensions.publications.enums import DocumentType, ProcedureType
 from app.extensions.publications.models import ActMetadata, Article, BillCompact, BillMetadata, Procedural
-from app.extensions.publications.services.state.initial import InitialState
+from app.extensions.publications.services.state.state import InitialState
 from app.extensions.publications.tables.tables import (
     PublicationAreaOfJurisdictionTable,
     PublicationEnvironmentStateTable,
@@ -298,7 +298,7 @@ class DatabaseFixturesPublications:
             Environment_UUID=env_preprod.UUID,
             Adjust_On_UUID=None,
             Change_Set={},
-            State=(InitialState().dict()),
+            State=(InitialState().state_dict()),
             Is_Activated=True,
             Activated_Datetime=self._timepoint,
             Created_Date=self._timepoint,
@@ -338,7 +338,7 @@ class DatabaseFixturesPublications:
             Environment_UUID=env_prod.UUID,
             Adjust_On_UUID=None,
             Change_Set={},
-            State=(InitialState().dict()),
+            State=(InitialState().state_dict()),
             Is_Activated=True,
             Activated_Datetime=self._timepoint,
             Created_Date=self._timepoint,

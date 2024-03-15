@@ -155,6 +155,7 @@ class PublicationActTable(Base, UserMetaData):
     Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
+    Work_Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
     Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False, unique=True)
@@ -189,6 +190,7 @@ class PublicationBillTable(Base, UserMetaData):
     Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
+    Work_Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
     Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False, unique=True)

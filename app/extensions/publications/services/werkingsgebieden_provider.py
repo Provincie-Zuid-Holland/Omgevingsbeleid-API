@@ -2,6 +2,7 @@ from typing import List, Optional, Set
 
 from app.extensions.areas.db.tables import AreasTable
 from app.extensions.areas.repository.area_repository import AreaRepository
+from app.extensions.publications.models.api_input_data import ActFrbr
 
 
 class PublicationWerkingsgebiedenProvider:
@@ -10,6 +11,7 @@ class PublicationWerkingsgebiedenProvider:
 
     def get_werkingsgebieden(
         self,
+        act_frbr: ActFrbr,
         all_objects: List[dict],
         used_obejcts: List[dict],
     ) -> List[dict]:
@@ -19,10 +21,17 @@ class PublicationWerkingsgebiedenProvider:
             w for w in werkingsgebieden_objects if w["Code"] in werkingsgebied_codes
         ]
 
-        werkingsgebieden: List[dict] = self._get_werkingsgebieden_with_areas(used_werkingsgebieden_objects)
+        werkingsgebieden: List[dict] = self._get_werkingsgebieden_with_areas(
+            act_frbr,
+            used_werkingsgebieden_objects,
+        )
         return werkingsgebieden
 
-    def _get_werkingsgebieden_with_areas(self, werkingsgebieden_objects: List[dict]) -> List[dict]:
+    def _get_werkingsgebieden_with_areas(
+        self,
+        act_frbr: ActFrbr,
+        werkingsgebieden_objects: List[dict],
+    ) -> List[dict]:
         result: List[dict] = []
 
         for werkingsgebied in werkingsgebieden_objects:
@@ -35,22 +44,33 @@ class PublicationWerkingsgebiedenProvider:
             if area is None:
                 raise RuntimeError(f"Area UUID does not exists for code: {code}")
 
-            dso_werkingsgebied: dict = self._as_dso_werkingsgebied(werkingsgebied, area)
+            dso_werkingsgebied: dict = self._as_dso_werkingsgebied(act_frbr, werkingsgebied, area)
             result.append(dso_werkingsgebied)
 
         return result
 
-    def _as_dso_werkingsgebied(self, werkingsgebied: dict, area: AreasTable) -> dict:
+    def _as_dso_werkingsgebied(
+        self,
+        act_frbr: ActFrbr,
+        werkingsgebied: dict,
+        area: AreasTable,
+    ) -> dict:
+        work_date: str = f"{werkingsgebied['Created_Date'].year}"
+        work_identifier = str(werkingsgebied["Object_ID"])
+        work: str = f"/join/id/regdata/{act_frbr.Work_Province_ID}/{work_date}/{work_identifier}"
+
+        date_version: str = werkingsgebied["Modified_Date"].strftime("%Y-%m-%d;%H%M")
+        expression_version: str = f"{act_frbr.Expression_Language}@{date_version}"
+
         result = {
             "UUID": werkingsgebied["UUID"],
             "Object_ID": werkingsgebied["Object_ID"],
-            "Object_Type": werkingsgebied["Object_Type"],
             "Code": werkingsgebied["Code"],
             "New": True,
+            "Work": work,
+            "Expression_Version": expression_version,
             "Title": area.Source_Title,
             "Symbol": area.Source_Symbol,
-            "Created_Date": str(werkingsgebied["Created_Date"]),
-            "Modified_Date": str(werkingsgebied["Modified_Date"]),
             "Achtergrond_Verwijzing": "TOP10NL",
             "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
             "Onderverdelingen": [
@@ -59,8 +79,6 @@ class PublicationWerkingsgebiedenProvider:
                     "Title": area.Source_Title,
                     "Symbol": area.Source_Symbol,
                     "Gml": area.Gml,
-                    "Created_Date": str(werkingsgebied["Created_Date"]),
-                    "Modified_Date": str(werkingsgebied["Modified_Date"]),
                 }
             ],
         }

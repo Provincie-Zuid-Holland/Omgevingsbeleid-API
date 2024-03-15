@@ -25,6 +25,9 @@ from app.extensions.publications.services.bill_frbr_provider import BillFrbrProv
 from app.extensions.publications.services.package_builder_factory import PackageBuilderFactory
 from app.extensions.publications.services.package_version_defaults_provider import PackageVersionDefaultsProvider
 from app.extensions.publications.services.publication_data_provider import PublicationDataProvider
+from app.extensions.publications.services.state.data.state_v1 import StateV1
+from app.extensions.publications.services.state.state_loader import StateLoader
+from app.extensions.publications.services.state.state_version_factory import StateVersionFactory
 from app.extensions.publications.services.template_parser import TemplateParser
 from app.extensions.publications.services.werkingsgebieden_provider import PublicationWerkingsgebiedenProvider
 from app.extensions.publications.tables import PublicationPackageTable, PublicationTemplateTable
@@ -219,15 +222,30 @@ def depends_publication_data_provider(
     )
 
 
+def depends_state_version_factory() -> StateVersionFactory:
+    factory: StateVersionFactory = StateVersionFactory()
+    factory.add(StateV1)
+    return factory
+
+
+def depends_state_loader(
+    version_factory: StateVersionFactory = Depends(depends_state_version_factory),
+) -> StateLoader:
+    state_loader: StateLoader = StateLoader(version_factory)
+    return state_loader
+
+
 def depends_package_builder_factory(
     db: Session = Depends(depends_db),
     bill_frbr_provider: BillFrbrProvider = Depends(depends_bill_frbr_provider),
     act_frbr_provider: ActFrbrProvider = Depends(depends_act_frbr_provider),
+    state_loader: StateLoader = Depends(depends_state_loader),
     publication_data_provider: PublicationDataProvider = Depends(depends_publication_data_provider),
 ) -> PackageBuilderFactory:
     return PackageBuilderFactory(
         db,
         bill_frbr_provider,
         act_frbr_provider,
+        state_loader,
         publication_data_provider,
     )

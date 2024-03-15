@@ -2,18 +2,17 @@ import hashlib
 import io
 import uuid
 from dataclasses import dataclass
+from typing import Optional
 
 from dso.builder.builder import Builder
 from dso.builder.state_manager.input_data.input_data_loader import InputData
 
+from app.extensions.publications.models.api_input_data import ApiInputData
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
-from app.extensions.publications.services.state.initial import InitialState
-from app.extensions.publications.tables.tables import (
-    PublicationEnvironmentStateTable,
-    PublicationEnvironmentTable,
-    PublicationVersionTable,
-)
+from app.extensions.publications.services.state.state import State
+from app.extensions.publications.services.state.state_changer import StateChanger
+from app.extensions.publications.tables.tables import PublicationEnvironmentStateTable, PublicationEnvironmentTable
 
 
 @dataclass
@@ -27,14 +26,12 @@ class ZipData:
 class PackageBuilder:
     def __init__(
         self,
-        bill_frbr: BillFrbr,
-        act_frbr: ActFrbr,
-        publication_version: PublicationVersionTable,
+        api_input_data: ApiInputData,
+        state: Optional[State],
         input_data: InputData,
     ):
-        self._bill_frbr: BillFrbr = bill_frbr
-        self._act_frbr: ActFrbr = act_frbr
-        self._publication_version: PublicationVersionTable = publication_version
+        self._api_input_data: ApiInputData = api_input_data
+        self._state: Optional[State] = state
         self._input_data: InputData = input_data
         self._dso_builder: Builder = Builder(input_data)
 
@@ -63,25 +60,27 @@ class PackageBuilder:
         return delivery_id
 
     def get_bill_frbr(self) -> BillFrbr:
-        return self._bill_frbr
+        return self._api_input_data.Bill_Frbr
 
     def get_act_frbr(self) -> ActFrbr:
-        return self._act_frbr
+        return self._api_input_data.Act_Frbr
 
-    def create_new_state(self) -> PublicationEnvironmentStateTable:
-        environment: PublicationEnvironmentTable = self._publication_version.Environment
+    def create_new_state(self) -> Optional[PublicationEnvironmentStateTable]:
+        if self._state is None:
+            raise RuntimeError("Can not create new state")
 
-        state_data = InitialState(
-            Data={"id": str(uuid.uuid4())},
-        )
+        environment: PublicationEnvironmentTable = self._api_input_data.Publication_Version.Environment
 
-        state: PublicationEnvironmentStateTable = PublicationEnvironmentStateTable(
+        state_changer: StateChanger = StateChanger(self._api_input_data)
+        state: State = state_changer.apply(self._state)
+
+        state_table: PublicationEnvironmentStateTable = PublicationEnvironmentStateTable(
             UUID=uuid.uuid4(),
             Environment_UUID=environment.UUID,
             Adjust_On_UUID=environment.Active_State_UUID,
             Change_Set={},
-            State=state_data.dict(),
+            State=state.state_dict(),
             Is_Activated=False,
             Activated_Datetime=None,
         )
-        return state
+        return state_table
