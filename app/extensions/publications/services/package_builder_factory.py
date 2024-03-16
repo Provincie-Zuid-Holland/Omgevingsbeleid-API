@@ -10,7 +10,8 @@ from app.extensions.publications.services.bill_frbr_provider import BillFrbr, Bi
 from app.extensions.publications.services.dso_input_data_builder import DsoInputDataBuilder
 from app.extensions.publications.services.package_builder import PackageBuilder
 from app.extensions.publications.services.publication_data_provider import PublicationDataProvider
-from app.extensions.publications.services.state.state import State
+from app.extensions.publications.services.state.api_input_data_patcher import ApiInputDataPatcher
+from app.extensions.publications.services.state.state import ActiveState
 from app.extensions.publications.services.state.state_loader import StateLoader
 from app.extensions.publications.tables.tables import PublicationVersionTable
 
@@ -50,9 +51,11 @@ class PackageBuilderFactory:
             Publication_Version=publication_version,
         )
 
-        state: Optional[State] = self._state_loader.load_from_publication_version(publication_version)
-        # @todo: transform data based on state
-        # @todo: this includes adding "Intrekkingen" if needed
+        state: Optional[ActiveState] = self._state_loader.load_from_publication_version(publication_version)
+        if state is not None:
+            data_patcher: ApiInputDataPatcher = ApiInputDataPatcher(state)
+            api_input_data = data_patcher.apply(api_input_data)
+            # @todo: Add "Intrekkingen" in separate service
 
         input_data_builder: DsoInputDataBuilder = DsoInputDataBuilder(
             api_input_data,

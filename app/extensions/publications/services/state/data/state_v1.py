@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -10,7 +10,7 @@ from app.extensions.publications.services.state.actions.consolidate_area_of_juri
 from app.extensions.publications.services.state.actions.consolidate_werkingsgebied_action import (
     ConsolidateWerkingsgebiedAction,
 )
-from app.extensions.publications.services.state.state import State
+from app.extensions.publications.services.state.state import ActiveState
 
 
 class ConsolidationStatus(str, Enum):
@@ -21,6 +21,7 @@ class ConsolidationStatus(str, Enum):
 class Werkingsgebied(BaseModel):
     UUID: str
     Consolidation_Status: ConsolidationStatus
+    # @todo: Should have consolidation date
     Object_ID: int
     Work: str
     Expression_Version: str
@@ -31,14 +32,15 @@ class Werkingsgebied(BaseModel):
 class AreaOfJurisdiction(BaseModel):
     UUID: str
     Consolidation_Status: ConsolidationStatus
+    # @todo: Should have consolidation date
     Administrative_Borders_ID: str
     Act_Work: str
     Act_Expression_Version: str
 
 
-class StateV1(State):
+class StateV1(ActiveState):
     Werkingsgebieden: Dict[int, Werkingsgebied] = Field({})
-    AreaOfJurisdictions: List[AreaOfJurisdiction] = Field([])
+    Area_Of_Jurisdiction: Optional[AreaOfJurisdiction] = Field(None)
 
     @staticmethod
     def get_schema_version() -> int:
@@ -47,6 +49,20 @@ class StateV1(State):
     def get_data(self) -> dict:
         data: dict = self.dict()
         return data
+
+    def has_werkingsgebied(self, werkingsgebied: dict) -> bool:
+        object_id: int = werkingsgebied["Object_ID"]
+        maybe_werkingsgebied: Optional[Werkingsgebied] = self.Werkingsgebieden.get(object_id, None)
+        if maybe_werkingsgebied is None:
+            return False
+        result: bool = str(werkingsgebied["UUID"]) == maybe_werkingsgebied.UUID
+        return result
+
+    def has_area_of_jurisdiction(self, aoj: dict) -> bool:
+        if self.Area_Of_Jurisdiction is None:
+            return False
+        result: bool = str(aoj["UUID"]) == self.Area_Of_Jurisdiction.UUID
+        return result
 
     def handle_action(self, action: Action):
         match action:
@@ -79,4 +95,4 @@ class StateV1(State):
             Act_Work=action.Act_Frbr.get_work(),
             Act_Expression_Version=action.Act_Frbr.get_expression_version(),
         )
-        self.AreaOfJurisdictions.append(aoj)
+        self.Area_Of_Jurisdiction = aoj

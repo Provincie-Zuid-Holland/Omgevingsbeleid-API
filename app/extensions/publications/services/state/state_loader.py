@@ -18,7 +18,7 @@ class StateLoader:
         version_model: Type[State] = self._state_version_factory.get_state_model(
             schema.Schema_Version,
         )
-        state: State = version_model.parse_obj(state_dict)
+        state: State = version_model.parse_obj(state_dict["Data"])
         return state
 
     def load_from_publication_version(self, publication_version: PublicationVersionTable) -> Optional[State]:

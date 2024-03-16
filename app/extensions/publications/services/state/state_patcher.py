@@ -10,7 +10,7 @@ from app.extensions.publications.services.state.actions.consolidate_werkingsgebi
 from app.extensions.publications.services.state.state import State
 
 
-class StateChanger:
+class StatePatcher:
     def __init__(self, api_input_data: ApiInputData):
         self._api_input_data: ApiInputData = api_input_data
 

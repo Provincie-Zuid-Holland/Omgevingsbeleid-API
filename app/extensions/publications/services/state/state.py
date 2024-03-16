@@ -30,6 +30,16 @@ class State(BaseModel, metaclass=ABCMeta):
         orm_mode = True
 
 
+class ActiveState(State):
+    @abstractmethod
+    def has_werkingsgebied(self, werkingsgebied: dict) -> bool:
+        pass
+
+    @abstractmethod
+    def has_area_of_jurisdiction(self, aoj: dict) -> bool:
+        pass
+
+
 class StateSchema(BaseModel):
     Schema_Version: int
 

@@ -11,7 +11,7 @@ from app.extensions.publications.models.api_input_data import ApiInputData
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
 from app.extensions.publications.services.state.state import State
-from app.extensions.publications.services.state.state_changer import StateChanger
+from app.extensions.publications.services.state.state_patcher import StatePatcher
 from app.extensions.publications.tables.tables import PublicationEnvironmentStateTable, PublicationEnvironmentTable
 
 
@@ -71,7 +71,7 @@ class PackageBuilder:
 
         environment: PublicationEnvironmentTable = self._api_input_data.Publication_Version.Environment
 
-        state_changer: StateChanger = StateChanger(self._api_input_data)
+        state_changer: StatePatcher = StatePatcher(self._api_input_data)
         state: State = state_changer.apply(self._state)
 
         state_table: PublicationEnvironmentStateTable = PublicationEnvironmentStateTable(
