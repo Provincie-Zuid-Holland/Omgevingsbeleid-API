@@ -46,13 +46,13 @@ class PublicationDataProvider:
             objects,
             used_objects,
         )
-        area_of_juristiction: dict = self._get_aoj()
+        area_of_jurisdiction: dict = self._get_aoj()
 
         result: PublicationData = PublicationData(
             objects=used_objects,
             assets=assets,
             werkingsgebieden=werkingsgebieden,
-            area_of_juristiction=area_of_juristiction,
+            area_of_jurisdiction=area_of_jurisdiction,
             parsed_template=parsed_template,
         )
         return result

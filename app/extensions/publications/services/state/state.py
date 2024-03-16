@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 from pydantic import BaseModel
 
-from app.extensions.publications.services.state.actions import Action
+from app.extensions.publications.services.state.actions.action import Action
 
 
 class State(BaseModel, metaclass=ABCMeta):

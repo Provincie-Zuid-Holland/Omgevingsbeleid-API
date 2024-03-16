@@ -238,7 +238,7 @@ class DsoInputDataBuilder:
         return repository
 
     def _get_ambtsgebied(self) -> Ambtsgebied:
-        aoj: dict = self._publication_data.area_of_juristiction
+        aoj: dict = self._publication_data.area_of_jurisdiction
         ambtsgebied: Ambtsgebied = Ambtsgebied(
             identificatie_suffix=aoj["Administrative_Borders_ID"],
             domein=aoj["Administrative_Borders_Domain"],

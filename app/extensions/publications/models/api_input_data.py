@@ -52,13 +52,21 @@ class ActFrbr:
             expression = f"{expression};{self.Expression_Other}"
         return expression
 
+    def __repr__(self) -> str:
+        return f"""
+        ActFrbr(
+            Work={self.get_work()},
+            Expression_Version={self.get_expression_version()},
+        )
+        """
+
 
 @dataclass
 class PublicationData:
     objects: List[dict]
     assets: List[dict]
     werkingsgebieden: List[dict]
-    area_of_juristiction: dict
+    area_of_jurisdiction: dict
     parsed_template: str
 
 
