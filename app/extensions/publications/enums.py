@@ -1,6 +1,11 @@
 from enum import Enum
 
 
+class PurposeType(str, Enum):
+    CONSOLIDATION = "Consolidation"
+    WITHDRAWAL = "Withdrawal"
+
+
 class DocumentType(str, Enum):
     VISION = "Omgevingsvisie"
     PROGRAM = "Programma"

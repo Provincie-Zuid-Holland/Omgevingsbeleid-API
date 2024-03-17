@@ -98,6 +98,7 @@ class DsoInputDataBuilder:
                 "publicatie_bestand": self._get_akn_filename(),
                 "datum_bekendmaking": self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
             },
+            # @todo: doel moet naar een provider. samen met copy van inwerkingstreding
             doel=dso_models.Doel(
                 jaar=self._bill_frbr.Work_Date[:4],
                 naam=f"instelling-{self._act_frbr.Work_Other}-{self._act_frbr.Expression_Version}",

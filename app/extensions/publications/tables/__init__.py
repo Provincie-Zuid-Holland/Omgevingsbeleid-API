@@ -4,7 +4,6 @@ from .tables import (
     PublicationAreaOfJurisdictionTable,
     PublicationEnvironmentStateTable,
     PublicationEnvironmentTable,
-    PublicationPackageExportState,
     PublicationPackageReportTable,
     PublicationPackageTable,
     PublicationPackageZipTable,
