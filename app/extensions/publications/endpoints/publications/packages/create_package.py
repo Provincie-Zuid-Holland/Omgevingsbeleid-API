@@ -15,6 +15,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_package_builder_factory, depends_publication_version
 from app.extensions.publications.enums import PackageType, ReportStatusType
+from app.extensions.publications.models.api_input_data import Purpose
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
@@ -29,6 +30,7 @@ from app.extensions.publications.tables.tables import (
     PublicationEnvironmentTable,
     PublicationPackageTable,
     PublicationPackageZipTable,
+    PublicationPurposeTable,
     PublicationVersionTable,
 )
 from app.extensions.users.db.tables import UsersTable
@@ -107,7 +109,7 @@ class EndpointHandler:
             self._db.flush()
 
             self._handle_new_state(package_builder, package)
-            self._handle_bill_and_act(package_builder, package)
+            self._handle_bill_act_purpose(package_builder)
 
             self._db.commit()
 
@@ -165,11 +167,26 @@ class EndpointHandler:
         environment.Is_Locked = True
         self._db.add(environment)
 
-    def _handle_bill_and_act(self, package_builder: PackageBuilder, package: PublicationPackageTable):
+    def _handle_bill_act_purpose(self, package_builder: PackageBuilder):
         if not self._publication_version.Environment.Has_State:
             return
         if self._object_in.Package_Type != PackageType.PUBLICATION:
             return
+
+        purpose: Purpose = package_builder.get_consolidation_purpose()
+        purpose_table: PublicationPurposeTable = PublicationPurposeTable(
+            UUID=uuid.uuid4(),
+            Environment_UUID=self._publication_version.Environment_UUID,
+            Purpose_Type=purpose.Purpose_Type,
+            Effective_Date=purpose.Effective_Date,
+            Work_Province_ID=purpose.Work_Province_ID,
+            Work_Date=purpose.Work_Date,
+            Work_Other=purpose.Work_Other,
+            Created_Date=self._timepoint,
+            Created_By_UUID=self._user.UUID,
+        )
+        self._db.add(purpose_table)
+        self._db.flush()
 
         bill_frbr: BillFrbr = package_builder.get_bill_frbr()
         bill: PublicationBillTable = PublicationBillTable(
@@ -217,6 +234,7 @@ class EndpointHandler:
         act_version: PublicationActVersionTable = PublicationActVersionTable(
             UUID=uuid.uuid4(),
             Act_UUID=act.UUID,
+            Consolidation_Purpose_UUID=purpose_table.UUID,
             Expression_Language=act_frbr.Expression_Language,
             Expression_Date=act_frbr.Expression_Date,
             Expression_Version=act_frbr.Expression_Version,

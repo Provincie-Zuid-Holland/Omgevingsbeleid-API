@@ -34,6 +34,7 @@ class ActFrbrProvider:
             select(func.count())
             .select_from(PublicationActTable)
             .filter(PublicationActTable.Document_Type == publication_version.Publication.Document_Type)
+            .filter(PublicationActTable.Environment_UUID == publication_version.Environment_UUID)
         )
         count: int = self._db.execute(stmt).scalar() + 1
         id_suffix: str = f"{count}"

@@ -7,7 +7,7 @@ from typing import Optional
 from dso.builder.builder import Builder
 from dso.builder.state_manager.input_data.input_data_loader import InputData
 
-from app.extensions.publications.models.api_input_data import ApiInputData
+from app.extensions.publications.models.api_input_data import ApiInputData, Purpose
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
 from app.extensions.publications.services.state.state import State
@@ -64,6 +64,9 @@ class PackageBuilder:
 
     def get_act_frbr(self) -> ActFrbr:
         return self._api_input_data.Act_Frbr
+
+    def get_consolidation_purpose(self) -> Purpose:
+        return self._api_input_data.Consolidation_Purpose
 
     def create_new_state(self) -> Optional[PublicationEnvironmentStateTable]:
         if self._state is None:

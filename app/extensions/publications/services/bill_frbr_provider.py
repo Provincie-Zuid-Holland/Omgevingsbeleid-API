@@ -34,6 +34,7 @@ class BillFrbrProvider:
             select(func.count())
             .select_from(PublicationBillTable)
             .filter(PublicationBillTable.Document_Type == publication_version.Publication.Document_Type)
+            .filter(PublicationBillTable.Environment_UUID == publication_version.Environment_UUID)
         )
         count: int = self._db.execute(stmt).scalar() + 1
         id_suffix: str = f"{count}"

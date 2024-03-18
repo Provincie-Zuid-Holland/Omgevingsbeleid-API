@@ -147,7 +147,7 @@ class PublicationVersionTable(Base, UserMetaData):
     # Packages: Mapped[List["PublicationPackageTable"]] = relationship(back_populates="Bill")
 
 
-class PublicationPurposeTable(Base, UserMetaData):
+class PublicationPurposeTable(Base):
     __tablename__ = "publication_purposes"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
@@ -161,6 +161,7 @@ class PublicationPurposeTable(Base, UserMetaData):
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
 
     Created_Date: Mapped[datetime]
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_env_other"),)
 
@@ -170,6 +171,10 @@ class PublicationActTable(Base, UserMetaData):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
+    Withdrawal_Purpose_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("publication_purposes.UUID"), nullable=True
+    )
+
     Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
@@ -181,6 +186,11 @@ class PublicationActTable(Base, UserMetaData):
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
 
+    Withdrawal_Purpose: Mapped[Optional[PublicationPurposeTable]] = relationship(
+        "PublicationPurposeTable",
+        primaryjoin="PublicationActTable.Withdrawal_Purpose_UUID == PublicationPurposeTable.UUID",
+    )
+
     __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_env_other"),)
 
 
@@ -189,6 +199,7 @@ class PublicationActVersionTable(Base):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Act_UUID: Mapped[int] = mapped_column(ForeignKey("publication_acts.UUID"))
+    Consolidation_Purpose_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_purposes.UUID"))
 
     Expression_Language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
     Expression_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
@@ -198,6 +209,11 @@ class PublicationActVersionTable(Base):
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     Act: Mapped[PublicationActTable] = relationship()
+
+    Consolidation_Purpose: Mapped[PublicationPurposeTable] = relationship(
+        "PublicationPurposeTable",
+        primaryjoin="PublicationActVersionTable.Consolidation_Purpose_UUID == PublicationPurposeTable.UUID",
+    )
 
     __table_args__ = (UniqueConstraint("Act_UUID", "Expression_Version", name="uix_act_version"),)
 
@@ -209,11 +225,6 @@ class PublicationBillTable(Base, UserMetaData):
     Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
     Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
 
-    Consolidation_Purpose_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_purposes.UUID"))
-    Withdrawal_Purpose_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey("publication_purposes.UUID"), nullable=True
-    )
-
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
     Work_Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
@@ -222,15 +233,6 @@ class PublicationBillTable(Base, UserMetaData):
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
-
-    Consolidation_Purpose: Mapped[PublicationPurposeTable] = relationship(
-        "PublicationPurposeTable",
-        primaryjoin="PublicationBillTable.Consolidation_Purpose_UUID == PublicationPurposeTable.UUID",
-    )
-    Withdrawal_Purpose: Mapped[Optional[PublicationPurposeTable]] = relationship(
-        "PublicationPurposeTable",
-        primaryjoin="PublicationBillTable.Withdrawal_Purpose_UUID == PublicationPurposeTable.UUID",
-    )
 
     __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_env_other"),)
 

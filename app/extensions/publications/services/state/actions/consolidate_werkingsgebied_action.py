@@ -1,6 +1,6 @@
 import uuid
 
-from app.extensions.publications.models.api_input_data import ActFrbr
+from app.extensions.publications.models.api_input_data import ActFrbr, Purpose
 from app.extensions.publications.services.state.actions.action import Action
 
 
@@ -10,6 +10,7 @@ class ConsolidateWerkingsgebiedAction(Action):
     Work: str
     Expression_Version: str
     Act_Frbr: ActFrbr
+    Consolidation_Purpose: Purpose
 
     def __repr__(self) -> str:
         return f"""
@@ -19,5 +20,6 @@ class ConsolidateWerkingsgebiedAction(Action):
             Work="{self.Work}",
             Expression_Version="{self.Expression_Version}",
             Act_Frbr={self.Act_Frbr},
+            Consolidation_Purpose={self.Consolidation_Purpose},
         )
         """

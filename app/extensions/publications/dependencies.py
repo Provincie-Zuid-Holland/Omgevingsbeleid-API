@@ -25,6 +25,7 @@ from app.extensions.publications.services.bill_frbr_provider import BillFrbrProv
 from app.extensions.publications.services.package_builder_factory import PackageBuilderFactory
 from app.extensions.publications.services.package_version_defaults_provider import PackageVersionDefaultsProvider
 from app.extensions.publications.services.publication_data_provider import PublicationDataProvider
+from app.extensions.publications.services.purpose_provider import PurposeProvider
 from app.extensions.publications.services.state.data.state_v1 import StateV1
 from app.extensions.publications.services.state.state_loader import StateLoader
 from app.extensions.publications.services.state.state_version_factory import StateVersionFactory
@@ -188,6 +189,12 @@ def depends_act_frbr_provider(
     return ActFrbrProvider(db)
 
 
+def depends_purpose_provider(
+    db: Session = Depends(depends_db),
+) -> PurposeProvider:
+    return PurposeProvider(db)
+
+
 def depends_publication_asset_provider(
     asset_repository: AssetRepository = Depends(depends_asset_repository),
 ) -> PublicationAssetProvider:
@@ -239,6 +246,7 @@ def depends_package_builder_factory(
     db: Session = Depends(depends_db),
     bill_frbr_provider: BillFrbrProvider = Depends(depends_bill_frbr_provider),
     act_frbr_provider: ActFrbrProvider = Depends(depends_act_frbr_provider),
+    purpose_provider: PurposeProvider = Depends(depends_purpose_provider),
     state_loader: StateLoader = Depends(depends_state_loader),
     publication_data_provider: PublicationDataProvider = Depends(depends_publication_data_provider),
 ) -> PackageBuilderFactory:
@@ -246,6 +254,7 @@ def depends_package_builder_factory(
         db,
         bill_frbr_provider,
         act_frbr_provider,
+        purpose_provider,
         state_loader,
         publication_data_provider,
     )

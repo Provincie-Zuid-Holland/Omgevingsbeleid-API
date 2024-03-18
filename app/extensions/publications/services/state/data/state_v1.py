@@ -4,8 +4,8 @@ from typing import Dict, Optional
 from pydantic import BaseModel, Field
 
 from app.extensions.publications.services.state.actions.action import Action
-from app.extensions.publications.services.state.actions.consolidate_area_of_jurisdiction_action import (
-    ConsolidateAreaOfJurisdictionAction,
+from app.extensions.publications.services.state.actions.add_area_of_jurisdiction_action import (
+    AddAreaOfJurisdictionAction,
 )
 from app.extensions.publications.services.state.actions.consolidate_werkingsgebied_action import (
     ConsolidateWerkingsgebiedAction,
@@ -18,10 +18,17 @@ class ConsolidationStatus(str, Enum):
     withdrawn = "withdrawn"
 
 
+class Purpose(BaseModel):
+    Effective_Date: str
+    Work_Province_ID: str
+    Work_Date: str
+    Work_Other: str
+
+
 class Werkingsgebied(BaseModel):
     UUID: str
     Consolidation_Status: ConsolidationStatus
-    # @todo: Should have consolidation date
+    Consolidation_Purpose: Purpose
     Object_ID: int
     Work: str
     Expression_Version: str
@@ -68,8 +75,8 @@ class StateV1(ActiveState):
         match action:
             case ConsolidateWerkingsgebiedAction():
                 self._handle_consolidate_werkinggsgebied_action(action)
-            case ConsolidateAreaOfJurisdictionAction():
-                self._handle_consolidate_area_of_jurisdiction_action(action)
+            case AddAreaOfJurisdictionAction():
+                self._handle_add_area_of_jurisdiction_action(action)
             case _:
                 raise RuntimeError(f"Action {action.__class__.__name__} is not implemented for StateV1")
 
@@ -78,6 +85,12 @@ class StateV1(ActiveState):
         werkingsgebied: Werkingsgebied = Werkingsgebied(
             UUID=str(action.UUID),
             Consolidation_Status=ConsolidationStatus.consolidated,
+            Consolidation_Purpose=Purpose(
+                Effective_Date=action.Consolidation_Purpose.Effective_Date.strftime("%Y-%m-%d"),
+                Work_Province_ID=action.Consolidation_Purpose.Work_Province_ID,
+                Work_Date=action.Consolidation_Purpose.Work_Date,
+                Work_Other=action.Consolidation_Purpose.Work_Other,
+            ),
             Object_ID=action.Object_ID,
             Work=action.Work,
             Expression_Version=action.Expression_Version,
@@ -86,7 +99,7 @@ class StateV1(ActiveState):
         )
         self.Werkingsgebieden[werkingsgebied.Object_ID] = werkingsgebied
 
-    def _handle_consolidate_area_of_jurisdiction_action(self, action: ConsolidateAreaOfJurisdictionAction):
+    def _handle_add_area_of_jurisdiction_action(self, action: AddAreaOfJurisdictionAction):
         # @todo: guard that we do not add duplicates
         aoj: AreaOfJurisdiction = AreaOfJurisdiction(
             UUID=str(action.UUID),

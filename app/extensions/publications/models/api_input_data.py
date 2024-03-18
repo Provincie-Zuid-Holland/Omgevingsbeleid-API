@@ -1,7 +1,8 @@
 from dataclasses import dataclass
+from datetime import date
 from typing import List, Optional
 
-from app.extensions.publications.enums import PackageType
+from app.extensions.publications.enums import PackageType, PurposeType
 from app.extensions.publications.tables.tables import PublicationVersionTable
 
 
@@ -62,6 +63,15 @@ class ActFrbr:
 
 
 @dataclass
+class Purpose:
+    Purpose_Type: PurposeType
+    Effective_Date: date
+    Work_Province_ID: str
+    Work_Date: str
+    Work_Other: str
+
+
+@dataclass
 class PublicationData:
     objects: List[dict]
     assets: List[dict]
@@ -74,6 +84,7 @@ class PublicationData:
 class ApiInputData:
     Bill_Frbr: BillFrbr
     Act_Frbr: ActFrbr
+    Consolidation_Purpose: Purpose
     Publication_Data: PublicationData
     Package_Type: PackageType
     Publication_Version: PublicationVersionTable

@@ -1,8 +1,8 @@
 from copy import deepcopy
 
 from app.extensions.publications.models.api_input_data import ApiInputData
-from app.extensions.publications.services.state.actions.consolidate_area_of_jurisdiction_action import (
-    ConsolidateAreaOfJurisdictionAction,
+from app.extensions.publications.services.state.actions.add_area_of_jurisdiction_action import (
+    AddAreaOfJurisdictionAction,
 )
 from app.extensions.publications.services.state.actions.consolidate_werkingsgebied_action import (
     ConsolidateWerkingsgebiedAction,
@@ -20,18 +20,19 @@ class StatePatcher:
         state = self._patch_area_of_jurisdiction(state)
         return state
 
-    def _patch_act(self, state: State) -> State:
-        aoj: dict = self._api_input_data.Publication_Data.area_of_jurisdiction
-        if not aoj["New"]:
-            return state
+    # def _patch_act(self, state: State) -> State:
+    #     aoj: dict = self._api_input_data.Publication_Data.area_of_jurisdiction
+    #     if not aoj["New"]:
+    #         return state
 
-        action = ConsolidateAreaOfJurisdictionAction(
-            UUID=aoj["UUID"],
-            Administrative_Borders_ID=aoj["Administrative_Borders_ID"],
-            Act_Frbr=self._api_input_data.Act_Frbr,
-        )
-        state.handle_action(action)
-        return state
+    #     action = ConsolidateAreaOfJurisdictionAction(
+    #         UUID=aoj["UUID"],
+    #         Administrative_Borders_ID=aoj["Administrative_Borders_ID"],
+    #         Act_Frbr=self._api_input_data.Act_Frbr,
+    #         Consolidation_Purpose=self._api_input_data.Consolidation_Purpose,
+    #     )
+    #     state.handle_action(action)
+    #     return state
 
     def _patch_werkingsgebieden(self, state: State) -> State:
         for werkingsgebied in self._api_input_data.Publication_Data.werkingsgebieden:
@@ -44,6 +45,7 @@ class StatePatcher:
                 Work=werkingsgebied["Work"],
                 Expression_Version=werkingsgebied["Expression_Version"],
                 Act_Frbr=self._api_input_data.Act_Frbr,
+                Consolidation_Purpose=self._api_input_data.Consolidation_Purpose,
             )
             state.handle_action(action)
 
@@ -54,7 +56,7 @@ class StatePatcher:
         if not aoj["New"]:
             return state
 
-        action = ConsolidateAreaOfJurisdictionAction(
+        action = AddAreaOfJurisdictionAction(
             UUID=aoj["UUID"],
             Administrative_Borders_ID=aoj["Administrative_Borders_ID"],
             Act_Frbr=self._api_input_data.Act_Frbr,

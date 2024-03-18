@@ -16,7 +16,7 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
 )
 
 from app.extensions.publications.enums import DocumentType, PackageType
-from app.extensions.publications.models.api_input_data import ActFrbr, ApiInputData, BillFrbr, PublicationData
+from app.extensions.publications.models.api_input_data import ActFrbr, ApiInputData, BillFrbr, PublicationData, Purpose
 from app.extensions.publications.tables.tables import (
     PublicationEnvironmentTable,
     PublicationTable,
@@ -57,6 +57,7 @@ class DsoInputDataBuilder:
         self._package_type: PackageType = api_input_data.Package_Type
         self._bill_frbr: BillFrbr = api_input_data.Bill_Frbr
         self._act_frbr: ActFrbr = api_input_data.Act_Frbr
+        self._consolidation_purpose: Purpose = api_input_data.Consolidation_Purpose
         self._publication_data: PublicationData = api_input_data.Publication_Data
         self._publication: PublicationTable = api_input_data.Publication_Version.Publication
         self._environment: PublicationEnvironmentTable = api_input_data.Publication_Version.Environment
@@ -98,10 +99,9 @@ class DsoInputDataBuilder:
                 "publicatie_bestand": self._get_akn_filename(),
                 "datum_bekendmaking": self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
             },
-            # @todo: doel moet naar een provider. samen met copy van inwerkingstreding
             doel=dso_models.Doel(
-                jaar=self._bill_frbr.Work_Date[:4],
-                naam=f"instelling-{self._act_frbr.Work_Other}-{self._act_frbr.Expression_Version}",
+                jaar=self._consolidation_purpose.Work_Date,
+                naam=self._consolidation_purpose.Work_Other,
             ),
             besluit_frbr={
                 "work_land": self._bill_frbr.Work_Country,
