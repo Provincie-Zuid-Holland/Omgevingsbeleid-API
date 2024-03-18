@@ -202,7 +202,7 @@ class DatabaseFixtures:
                 Object_Type="ambitie",
                 Object_ID=2,
                 Code="ambitie-2",
-                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
         self._db.add(
@@ -210,7 +210,15 @@ class DatabaseFixtures:
                 Object_Type="ambitie",
                 Object_ID=3,
                 Code="ambitie-3",
-                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.add(
+            ObjectStaticsTable(
+                Object_Type="ambitie",
+                Object_ID=4,
+                Code="ambitie-4",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
 
@@ -283,7 +291,7 @@ class DatabaseFixtures:
                 Object_ID=1,
                 Code="ambitie-1",
                 UUID=uuid.UUID("00000000-0000-0001-0000-A00000000001"),
-                Title="Titel van de eerste ambitie",
+                Title="Y:VIG: Titel van de eerste ambitie",
                 Description="<p>Description of Ambitie 1</p>",
                 Created_Date=datetime(2022, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2022, 2, 2, 3, 3, 3),
@@ -298,7 +306,7 @@ class DatabaseFixtures:
                 Object_ID=3,
                 Code="ambitie-3",
                 UUID=uuid.UUID("00000000-0000-0001-0000-A00000000003"),
-                Title="Titel van de derde ambitie",
+                Title="N:VIG: Titel van de derde ambitie",
                 Description="<p>Description of Ambitie 3</p>",
                 Created_Date=datetime(2022, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2022, 2, 2, 3, 3, 3),
@@ -342,12 +350,137 @@ class DatabaseFixtures:
         self._db.commit()
 
         # Ambitie
+        # Ambitie-1: Add and remove from module, should use Vigerend in Publication
         self._db.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
                 Object_ID=1,
                 Code="ambitie-1",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Original_Adjust_On=None,
+                Action=ModuleObjectActionFilter.Edit,
+                Explanation="Deze wil ik toevoegen",
+                Conclusion="Geen conclusie",
+                # Removed from module
+                Hidden=True,
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="ambitie",
+                Object_ID=1,
+                Code="ambitie-1",
+                UUID=uuid.UUID("00000000-0000-0001-0000-000000000001"),
+                Title="N:MOD: Titel van de eerste ambitie - edited",
+                Description="<p>Description of Ambitie 1</p>",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="ambitie",
+                Object_ID=1,
+                Code="ambitie-1",
+                UUID=uuid.UUID("00000000-0000-0001-0001-000000000001"),
+                # Flag as deleted, title does not really update but makes debugging easier
+                Title="N:MOD: Titel van de eerste ambitie - edited (verwijderd)",
+                Deleted=True,
+                Description="<p>Description of Ambitie 1</p>",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.commit()
+
+        # Ambitie-2: New ambitie, should be in publication
+        self._db.add(
+            ModuleObjectContextTable(
+                Module_ID=module.Module_ID,
+                Object_Type="ambitie",
+                Object_ID=2,
+                Code="ambitie-2",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Original_Adjust_On=None,
+                Action=ModuleObjectActionFilter.Create,
+                Explanation="Deze wil ik maken",
+                Conclusion="Geen conclusie",
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="ambitie",
+                Object_ID=2,
+                Code="ambitie-2",
+                UUID=uuid.UUID("00000000-0000-0001-0000-000000000002"),
+                Title="Y:MOD: Titel van de tweede ambitie",
+                Description="<p>Description of Ambitie 2</p>",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.commit()
+
+        # Adding ambitie-3 to be widrawn. Should NOT be in Publication
+        self._db.add(
+            ModuleObjectContextTable(
+                Module_ID=module.Module_ID,
+                Object_Type="ambitie",
+                Object_ID=3,
+                Code="ambitie-3",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Original_Adjust_On=None,
+                Action=ModuleObjectActionFilter.Terminate,
+                Explanation="Deze wil ik verwijderen",
+                Conclusion="Geen conclusie",
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="ambitie",
+                Object_ID=3,
+                Code="ambitie-3",
+                UUID=uuid.UUID("00000000-0000-0001-0000-000000000003"),
+                Title="N:MOD: Titel van de derde ambitie",
+                Description="<p>Description of Ambitie 3</p>",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.commit()
+
+        # Ambitie-4: New ambitie, Should be in Publication
+        self._db.add(
+            ModuleObjectContextTable(
+                Module_ID=module.Module_ID,
+                Object_Type="ambitie",
+                Object_ID=4,
+                Code="ambitie-4",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
@@ -363,44 +496,11 @@ class DatabaseFixtures:
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
-                Object_ID=1,
-                Code="ambitie-1",
-                UUID=uuid.UUID("00000000-0000-0001-0000-000000000001"),
-                Title="Titel van de eerste ambitie - edited",
-                Description="<p>Description of Ambitie 1</p>",
-                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
-                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
-                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-            )
-        )
-        self._db.commit()
-        self._db.add(
-            ModuleObjectContextTable(
-                Module_ID=module.Module_ID,
-                Object_Type="ambitie",
-                Object_ID=2,
-                Code="ambitie-2",
-                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
-                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
-                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-                Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Edit,
-                Explanation="Deze wil ik toevoegen",
-                Conclusion="Geen conclusie",
-            )
-        )
-        self._db.commit()
-        self._db.add(
-            ModuleObjectsTable(
-                Module_ID=module.Module_ID,
-                Object_Type="ambitie",
-                Object_ID=2,
-                Code="ambitie-2",
-                UUID=uuid.UUID("00000000-0000-0001-0000-000000000002"),
-                Title="Titel van de tweede ambitie",
-                Description="<p>Description of Ambitie 2</p>",
+                Object_ID=4,
+                Code="ambitie-4",
+                UUID=uuid.UUID("00000000-0000-0001-0000-000000000004"),
+                Title="Y:MOD: Titel van de vierde ambitie - new",
+                Description="<p>Description of Ambitie 4</p>",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),

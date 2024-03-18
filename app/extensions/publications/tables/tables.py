@@ -210,7 +210,9 @@ class PublicationBillTable(Base, UserMetaData):
     Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
 
     Consolidation_Purpose_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_purposes.UUID"))
-    Withdrawal_Purpose_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("publication_purposes.UUID"), nullable=True)
+    Withdrawal_Purpose_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("publication_purposes.UUID"), nullable=True
+    )
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
     Work_Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
