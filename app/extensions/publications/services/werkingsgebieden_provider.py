@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional, Set
 
 import dso.models as dso_models
@@ -57,18 +58,24 @@ class PublicationWerkingsgebiedenProvider:
         werkingsgebied: dict,
         area: AreasTable,
     ) -> dict:
-        work_date: str = f"{werkingsgebied['Created_Date'].year}"
-        work_identifier = str(werkingsgebied["Object_ID"])
+        # We build it so that werkingsgebieden are consolidated per Act
+        # Therefor their Work_Date is the acts Work_Date
+        # And their identifier is made unique with acts data
+        work_date: str = act_frbr.Work_Date
+        work_identifier = f"{act_frbr.Act_ID}-{werkingsgebied['Object_ID']}"
 
-        date_version: str = werkingsgebied["Modified_Date"].strftime("%Y-%m-%d")
-        expression_version: str = werkingsgebied["Modified_Date"].strftime("%H%M")
+        # Theses expression values are set as if this is the first version
+        # But should be overwritten by the state system if they are already published under this UUID
+        timepoint: datetime = datetime.utcnow()
+        expression_date: str = timepoint.strftime("%Y-%m-%d")
+        expression_version: str = act_frbr.Expression_Version
 
         frbr = dso_models.GioFRBR(
             Work_Province_ID=act_frbr.Work_Province_ID,
             Work_Date=work_date,
             Work_Other=work_identifier,
             Expression_Language=act_frbr.Expression_Language,
-            Expression_Date=date_version,
+            Expression_Date=expression_date,
             Expression_Version=expression_version,
         )
 

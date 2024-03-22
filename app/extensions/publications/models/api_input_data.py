@@ -33,6 +33,7 @@ class BillFrbr:
 class ActFrbr:
     Document_Type: str
 
+    Act_ID: int
     Work_Province_ID: str
     Work_Country: str
     Work_Date: str

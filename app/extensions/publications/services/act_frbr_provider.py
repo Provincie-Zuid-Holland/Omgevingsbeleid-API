@@ -17,6 +17,7 @@ class ActFrbrProvider:
 
         timepoint: datetime = datetime.utcnow()
         frbr: ActFrbr = ActFrbr(
+            Act_ID=act.ID,
             Work_Province_ID=act.Work_Province_ID,
             Work_Country=act.Work_Country,
             Work_Date=act.Work_Date,
