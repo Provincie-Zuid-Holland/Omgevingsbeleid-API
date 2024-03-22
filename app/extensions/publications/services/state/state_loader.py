@@ -22,7 +22,7 @@ class StateLoader:
         return state
 
     def load_from_publication_version(self, publication_version: PublicationVersionTable) -> Optional[State]:
-        environment: PublicationEnvironmentTable = publication_version.Environment
+        environment: PublicationEnvironmentTable = publication_version.Publication.Environment
         if not environment.Has_State:
             return None
 

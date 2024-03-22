@@ -12,13 +12,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import depends_publication_version
-from app.extensions.publications.models import (
-    ActMetadata,
-    BillCompact,
-    BillMetadata,
-    Procedural,
-    PublicationVersionValidated,
-)
+from app.extensions.publications.models import BillCompact, BillMetadata, Procedural, PublicationVersionValidated
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.tables.tables import PublicationVersionTable
 from app.extensions.users.db.tables import UsersTable
@@ -32,7 +26,6 @@ class PublicationVersionEdit(BaseModel):
     Bill_Metadata: Optional[BillMetadata]
     Bill_Compact: Optional[BillCompact]
     Procedural: Optional[Procedural]
-    Act_Metadata: Optional[ActMetadata]
 
 
 class PublicationVersionEditResponse(BaseModel):

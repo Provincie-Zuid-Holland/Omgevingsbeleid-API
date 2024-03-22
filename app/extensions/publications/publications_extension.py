@@ -30,6 +30,11 @@ class PublicationsExtension(Extension):
             # Area of jurisdictions
             endpoints.CreatePublicationAOJEndpointResolver(),
             endpoints.ListPublicationAOJEndpointResolver(),
+            # Acts
+            endpoints.CreateActEndpointResolver(),
+            endpoints.EditPublicationActEndpointResolver(),
+            endpoints.ListPublicationActsEndpointResolver(),
+            endpoints.DetailPublicationActEndpointResolver(),
             # Publication
             endpoints.CreatePublicationEndpointResolver(),
             endpoints.DetailPublicationEndpointResolver(),

@@ -31,6 +31,7 @@ from app.extensions.publications.tables.tables import (
     PublicationPackageTable,
     PublicationPackageZipTable,
     PublicationPurposeTable,
+    PublicationTable,
     PublicationVersionTable,
 )
 from app.extensions.users.db.tables import UsersTable
@@ -62,6 +63,9 @@ class EndpointHandler:
         self._user: UsersTable = user
         self._object_in: PublicationPackageCreate = object_in
         self._publication_version: PublicationVersionTable = publication_version
+        self._publication: PublicationTable = publication_version.Publication
+        self._environment: PublicationEnvironmentTable = publication_version.Publication.Environment
+        self._act: PublicationActTable = publication_version.Publication.Act
         self._timepoint: datetime = datetime.utcnow()
 
     def handle(self) -> PublicationPackageCreatedResponse:
@@ -77,7 +81,7 @@ class EndpointHandler:
             zip_data: ZipData = package_builder.zip_files()
 
             report_status: ReportStatusType = ReportStatusType.NOT_APPLICABLE
-            if self._publication_version.Environment.Has_State:
+            if self._environment.Has_State:
                 report_status = ReportStatusType.PENDING
 
             package_zip: PublicationPackageZipTable = PublicationPackageZipTable(
@@ -124,29 +128,31 @@ class EndpointHandler:
 
     def _guard_validate_package_type(self):
         match self._object_in.Package_Type:
-            case PackageType.TERMINATE:
+            case PackageType.PUBLICATION_ABORT:
                 raise NotImplementedError("Afbreek verzoek is nog niet geimplementeerd")
             case PackageType.VALIDATION:
-                if not self._publication_version.Environment.Can_Validate:
+                if not self._environment.Can_Validate:
                     raise HTTPException(status_code=409, detail="Can not create Validation for this environment")
             case PackageType.PUBLICATION:
-                if not self._publication_version.Environment.Can_Publicate:
+                if not self._environment.Can_Publicate:
                     raise HTTPException(status_code=409, detail="Can not create Publication for this environment")
 
     def _guard_locked(self):
         if self._publication_version.Is_Locked:
             raise HTTPException(status_code=409, detail="This publication version is locked")
-        if self._publication_version.Environment.Is_Locked:
+        if self._environment.Is_Locked:
             raise HTTPException(status_code=409, detail="This environment is locked")
+        if not self._act.Is_Active:
+            raise HTTPException(status_code=409, detail="This act can no longer be used")
 
     def _handle_new_state(self, package_builder: PackageBuilder, package: PublicationPackageTable):
-        if not self._publication_version.Environment.Has_State:
+        if not self._environment.Has_State:
             return
-        if self._object_in.Package_Type not in [PackageType.PUBLICATION, PackageType.TERMINATE]:
+        if self._object_in.Package_Type not in [PackageType.PUBLICATION, PackageType.PUBLICATION_ABORT]:
             return
 
         # @todo: Terminate should fetch the Adjusted On state and promote that as new state (by recreating that one)
-        if self._object_in.Package_Type == PackageType.TERMINATE:
+        if self._object_in.Package_Type == PackageType.PUBLICATION_ABORT:
             raise NotImplementedError("Afbreek verzoek is nog niet geimplementeerd")
         # @todo:
         # Pretending it is PackageType.PUBLICATION from here on
@@ -158,17 +164,17 @@ class EndpointHandler:
         self._db.add(new_state)
         self._db.flush()
 
-        package.Used_Environment_State_UUID = self._publication_version.Environment.Active_State_UUID
+        package.Used_Environment_State_UUID = self._environment.Active_State_UUID
         package.Created_Environment_State_UUID = new_state.UUID
         self._db.add(package)
         self._db.flush()
 
-        environment: PublicationEnvironmentTable = self._publication_version.Environment
+        environment: PublicationEnvironmentTable = self._environment
         environment.Is_Locked = True
         self._db.add(environment)
 
     def _handle_bill_act_purpose(self, package_builder: PackageBuilder):
-        if not self._publication_version.Environment.Has_State:
+        if not self._environment.Has_State:
             return
         if self._object_in.Package_Type != PackageType.PUBLICATION:
             return
@@ -176,7 +182,7 @@ class EndpointHandler:
         purpose: Purpose = package_builder.get_consolidation_purpose()
         purpose_table: PublicationPurposeTable = PublicationPurposeTable(
             UUID=uuid.uuid4(),
-            Environment_UUID=self._publication_version.Environment_UUID,
+            Environment_UUID=self._environment.UUID,
             Purpose_Type=purpose.Purpose_Type,
             Effective_Date=purpose.Effective_Date,
             Work_Province_ID=purpose.Work_Province_ID,
@@ -191,8 +197,8 @@ class EndpointHandler:
         bill_frbr: BillFrbr = package_builder.get_bill_frbr()
         bill: PublicationBillTable = PublicationBillTable(
             UUID=uuid.uuid4(),
-            Environment_UUID=self._publication_version.Environment_UUID,
-            Document_Type=self._publication_version.Publication.Document_Type,
+            Environment_UUID=self._environment.UUID,
+            Document_Type=self._publication.Document_Type,
             Work_Province_ID=bill_frbr.Work_Province_ID,
             Work_Country=bill_frbr.Work_Country,
             Work_Date=bill_frbr.Work_Date,
@@ -216,24 +222,9 @@ class EndpointHandler:
         self._db.add(bill_version)
 
         act_frbr: ActFrbr = package_builder.get_act_frbr()
-        act: PublicationActTable = PublicationActTable(
-            UUID=uuid.uuid4(),
-            Environment_UUID=self._publication_version.Environment_UUID,
-            Document_Type=self._publication_version.Publication.Document_Type,
-            Work_Province_ID=act_frbr.Work_Province_ID,
-            Work_Country=act_frbr.Work_Country,
-            Work_Date=act_frbr.Work_Date,
-            Work_Other=act_frbr.Work_Other,
-            Created_Date=self._timepoint,
-            Modified_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
-            Modified_By_UUID=self._user.UUID,
-        )
-        self._db.add(act)
-        self._db.flush()
         act_version: PublicationActVersionTable = PublicationActVersionTable(
             UUID=uuid.uuid4(),
-            Act_UUID=act.UUID,
+            Act_UUID=self._act.UUID,
             Consolidation_Purpose_UUID=purpose_table.UUID,
             Expression_Language=act_frbr.Expression_Language,
             Expression_Date=act_frbr.Expression_Date,

@@ -1,3 +1,9 @@
+from .acts import (
+    CreateActEndpointResolver,
+    DetailPublicationActEndpointResolver,
+    EditPublicationActEndpointResolver,
+    ListPublicationActsEndpointResolver,
+)
 from .area_of_jurisdictions import CreatePublicationAOJEndpointResolver, ListPublicationAOJEndpointResolver
 from .environments import (
     CreatePublicationEnvironmentEndpointResolver,

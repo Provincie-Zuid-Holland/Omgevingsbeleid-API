@@ -11,6 +11,7 @@ class BillFrbr:
     # This is the "instrument" not the work document type
     # As the class already represents the Work_Document_Type
     Document_Type: str
+
     Work_Province_ID: str
     Work_Country: str
     Work_Date: str
@@ -18,7 +19,6 @@ class BillFrbr:
     Expression_Language: str
     Expression_Date: str
     Expression_Version: int
-    Expression_Other: Optional[str]
 
     def get_work(self) -> str:
         work: str = f"/akn/{self.Work_Country}/bill/{self.Work_Province_ID}/{self.Work_Date}/{self.Work_Other}"
@@ -26,14 +26,13 @@ class BillFrbr:
 
     def get_expression_version(self) -> str:
         expression: str = f"{self.Expression_Language}@{self.Expression_Date};{self.Expression_Version}"
-        if self.Expression_Other is not None:
-            expression = f"{expression};{self.Expression_Other}"
         return expression
 
 
 @dataclass
 class ActFrbr:
     Document_Type: str
+
     Work_Province_ID: str
     Work_Country: str
     Work_Date: str
@@ -41,7 +40,6 @@ class ActFrbr:
     Expression_Language: str
     Expression_Date: str
     Expression_Version: int
-    Expression_Other: Optional[str]
 
     def get_work(self) -> str:
         work: str = f"/akn/{self.Work_Country}/act/{self.Work_Province_ID}/{self.Work_Date}/{self.Work_Other}"
@@ -49,8 +47,6 @@ class ActFrbr:
 
     def get_expression_version(self) -> str:
         expression: str = f"{self.Expression_Language}@{self.Expression_Date};{self.Expression_Version}"
-        if self.Expression_Other is not None:
-            expression = f"{expression};{self.Expression_Other}"
         return expression
 
     def __repr__(self) -> str:
@@ -65,7 +61,7 @@ class ActFrbr:
 @dataclass
 class Purpose:
     Purpose_Type: PurposeType
-    Effective_Date: date
+    Effective_Date: Optional[date]
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str

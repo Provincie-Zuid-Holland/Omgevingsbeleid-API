@@ -8,6 +8,7 @@ from app.extensions.publications.enums import DocumentType, ProcedureType
 from app.extensions.publications.models import ActMetadata, Article, BillCompact, BillMetadata, Procedural
 from app.extensions.publications.services.state.state import InitialState
 from app.extensions.publications.tables.tables import (
+    PublicationActTable,
     PublicationAreaOfJurisdictionTable,
     PublicationEnvironmentStateTable,
     PublicationEnvironmentTable,
@@ -28,6 +29,7 @@ class DatabaseFixturesPublications:
         self.create_templates()
         self.create_environments()
         self.create_area_of_jurisdictions()
+        self.create_acts()
         self.create_publication()
         self.create_publication_version()
 
@@ -365,14 +367,102 @@ class DatabaseFixturesPublications:
 
         self._db.commit()
 
+    def create_acts(self):
+        self._db.add(
+            PublicationActTable(
+                ID=1,
+                UUID=uuid.UUID("90000007-0000-0000-0000-000000000001"),
+                Title="Omgevingsvisie 1 voor Stateless",
+                Is_Active=True,
+                Document_Type=DocumentType.VISION.value,
+                Procedure_Type=ProcedureType.FINAL,
+                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000001"),
+                Metadata=ActMetadata(
+                    Official_Title="Inhouse: Omgevingsvisie van Zuid-Holland",
+                    Quote_Title="Inhouse: Omgevingsvisie van Zuid-Holland",
+                    Subjects=[
+                        Onderwerp.ruimtelijke_ordening.name,
+                    ],
+                    Jurisdictions=[
+                        Rechtsgebied.omgevingsrecht.name,
+                    ],
+                ).dict(),
+                Metadata_Is_Locked=False,
+                Work_Province_ID="pv28",
+                Work_Country="nl",
+                Work_Date="2024",
+                Work_Other="omgevingsvisie-1",
+                Withdrawal_Purpose_UUID=None,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
+
+        self._db.add(
+            PublicationActTable(
+                ID=2,
+                UUID=uuid.UUID("90000007-0000-0000-0000-000000000002"),
+                Title="Omgevingsvisie 1 voor Pre-Prod",
+                Is_Active=True,
+                Document_Type=DocumentType.VISION.value,
+                Procedure_Type=ProcedureType.FINAL,
+                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
+                Metadata=ActMetadata(
+                    Official_Title="Omgevingsvisie van Zuid-Holland",
+                    Quote_Title="Omgevingsvisie van Zuid-Holland",
+                    Subjects=[
+                        Onderwerp.ruimtelijke_ordening.name,
+                    ],
+                    Jurisdictions=[
+                        Rechtsgebied.omgevingsrecht.name,
+                    ],
+                ).dict(),
+                Metadata_Is_Locked=False,
+                Work_Province_ID="pv28",
+                Work_Country="nl",
+                Work_Date="2024",
+                Work_Other="omgevingsvisie-1",
+                Withdrawal_Purpose_UUID=None,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
+
+        self._db.commit()
+
     def create_publication(self):
         self._db.add(
             PublicationTable(
                 UUID=uuid.UUID("90000005-0000-0000-0000-000000000001"),
                 Module_ID=1,
-                Title="Publicatie van Module 1",
+                Title="Stateless Omgevingsvisie Module 1",
                 Document_Type=DocumentType.VISION.value,
+                Procedure_Type=ProcedureType.FINAL.value,
                 Template_UUID=uuid.UUID("90000001-0000-0000-0000-000000000001"),
+                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000001"),
+                Act_UUID=uuid.UUID("90000007-0000-0000-0000-000000000001"),
+                Is_Locked=False,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
+        self._db.add(
+            PublicationTable(
+                UUID=uuid.UUID("90000005-0000-0000-0000-000000000002"),
+                Module_ID=1,
+                Title="Pre-Prod Omgevingsvisie Module 1",
+                Document_Type=DocumentType.VISION.value,
+                Procedure_Type=ProcedureType.FINAL.value,
+                Template_UUID=uuid.UUID("90000001-0000-0000-0000-000000000001"),
+                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
+                Act_UUID=uuid.UUID("90000007-0000-0000-0000-000000000002"),
+                Is_Locked=False,
                 Created_Date=self._timepoint,
                 Modified_Date=self._timepoint,
                 Created_By_UUID=self._user,
@@ -388,11 +478,9 @@ class DatabaseFixturesPublications:
                 UUID=uuid.UUID("90000006-0000-0000-0000-000000000001"),
                 Publication_UUID=uuid.UUID("90000005-0000-0000-0000-000000000001"),
                 Module_Status_ID=2,
-                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000001"),
-                Procedure_Type=ProcedureType.FINAL.value,
                 Bill_Metadata=(
                     BillMetadata(
-                        Official_Title="Test: Omgevingsvisie van Zuid-Holland",
+                        Official_Title="Omgevingsvisie van Zuid-Holland",
                         Subjects=[
                             Onderwerp.ruimtelijke_ordening.name,
                         ],
@@ -402,6 +490,7 @@ class DatabaseFixturesPublications:
                     )
                 ).dict(),
                 Bill_Compact=BillCompact(
+                    Component_Name="nieuweregeling",
                     Preamble="<p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>",
                     Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
                     Signed="<p>Gedeputeerde Staten</p>",
@@ -418,15 +507,49 @@ class DatabaseFixturesPublications:
                     Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
                     Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
                 ).dict(),
-                Act_Metadata=ActMetadata(
-                    Official_Title="Test: Omgevingsvisie van Zuid-Holland",
-                    Quote_Title="Test: Omgevingsvisie van Zuid-Holland",
-                    Subjects=[
-                        Onderwerp.ruimtelijke_ordening.name,
+                Effective_Date=self._timepoint + timedelta(days=7),
+                Announcement_Date=self._timepoint + timedelta(days=7),
+                Is_Locked=False,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
+
+        self._db.add(
+            PublicationVersionTable(
+                UUID=uuid.UUID("90000006-0000-0000-0000-000000000002"),
+                Publication_UUID=uuid.UUID("90000005-0000-0000-0000-000000000002"),
+                Module_Status_ID=2,
+                Bill_Metadata=(
+                    BillMetadata(
+                        Official_Title="Omgevingsvisie van Zuid-Holland",
+                        Subjects=[
+                            Onderwerp.ruimtelijke_ordening.name,
+                        ],
+                        Jurisdictions=[
+                            Rechtsgebied.omgevingsrecht.name,
+                        ],
+                    )
+                ).dict(),
+                Bill_Compact=BillCompact(
+                    Component_Name="nieuweregeling",
+                    Preamble="<p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>",
+                    Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
+                    Signed="<p>Gedeputeerde Staten</p>",
+                    Amendment_Article='De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.',
+                    Time_Article="<Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>",
+                    Custom_Articles=[
+                        Article(
+                            Label="Artikel",
+                            Content="<p>Hierbij nog meer tekst</p>",
+                        ),
                     ],
-                    Jurisdictions=[
-                        Rechtsgebied.omgevingsrecht.name,
-                    ],
+                ).dict(),
+                Procedural=Procedural(
+                    Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
+                    Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
                 ).dict(),
                 Effective_Date=self._timepoint + timedelta(days=7),
                 Announcement_Date=self._timepoint + timedelta(days=7),

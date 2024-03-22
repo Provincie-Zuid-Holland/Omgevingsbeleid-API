@@ -2,35 +2,28 @@ from enum import Enum
 
 
 class PurposeType(str, Enum):
-    CONSOLIDATION = "Consolidation"
-    WITHDRAWAL = "Withdrawal"
+    CONSOLIDATION = "consolidation"
+    WITHDRAWAL = "withdrawal"
 
 
 class DocumentType(str, Enum):
-    VISION = "Omgevingsvisie"
-    PROGRAM = "Programma"
+    VISION = "omgevingsvisie"
+    PROGRAM = "programma"
 
 
 class ProcedureType(str, Enum):
-    DRAFT = "Ontwerpbesluit"
-    FINAL = "Definitief_besluit"
-
-
-class PublicationActStatus(str, Enum):
-    RESERVED = "Reserved"
-    PENDING = "Pending"
-    ACTIVE = "Active"
-    REVOKED = "Revoked"
+    DRAFT = "draft"
+    FINAL = "final"
 
 
 class PackageType(str, Enum):
-    VALIDATION = "Validatie"
-    PUBLICATION = "Publicatie"
-    TERMINATE = "Afbreken"
+    VALIDATION = "validation"
+    PUBLICATION = "publication"
+    PUBLICATION_ABORT = "publication_abort"
 
 
 class ReportStatusType(str, Enum):
-    NOT_APPLICABLE = "Not Applicable"
-    PENDING = "Pending"
-    VALID = "Valid"
-    FAILED = "Failed"
+    NOT_APPLICABLE = "not_applicable"
+    PENDING = "pending"
+    VALID = "valid"
+    FAILED = "failed"

@@ -1,7 +1,7 @@
-from app.extensions.publications.models import ActMetadata, BillCompact, BillMetadata, Procedural
+from app.extensions.publications.models import BillCompact, BillMetadata, Procedural
 
 
-class PackageVersionDefaultsProvider:
+class PublicationVersionDefaultsProvider:
     def __init__(self, defaults: dict):
         self._defaults: dict = defaults
 
@@ -17,9 +17,4 @@ class PackageVersionDefaultsProvider:
 
     def get_procedural(self) -> Procedural:
         result: Procedural = Procedural()
-        return result
-
-    def get_act_metadata(self, document_type: str) -> ActMetadata:
-        defaults: dict = self._defaults[document_type.lower()]["act_metadata"]
-        result: ActMetadata = ActMetadata(**defaults)
         return result

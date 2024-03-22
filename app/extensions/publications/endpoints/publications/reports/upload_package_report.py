@@ -222,11 +222,11 @@ class EndpointHandler:
 
     def _handle_conclusive_failed(self):
         # On failed we just unlock the environment
-        self._package.Publication_Version.Environment.Is_Locked = False
-        self._db.add(self._package.Publication_Version.Environment)
+        self._package.Publication_Version.Publication.Environment.Is_Locked = False
+        self._db.add(self._package.Publication_Version.Publication.Environment)
 
     def _handle_conclusive_valid(self):
-        environment: PublicationEnvironmentTable = self._package.Publication_Version.Environment
+        environment: PublicationEnvironmentTable = self._package.Publication_Version.Publication.Environment
         new_state: PublicationEnvironmentStateTable = self._package.Created_Environment_State
 
         # On success we have to:

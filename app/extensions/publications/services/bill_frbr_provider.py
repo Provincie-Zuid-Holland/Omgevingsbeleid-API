@@ -21,7 +21,7 @@ class BillFrbrProvider:
         self,
         publication_version: PublicationVersionTable,
     ) -> BillFrbr:
-        if publication_version.Environment.Has_State:
+        if publication_version.Publication.Environment.Has_State:
             return self._create_real(publication_version)
 
         return self._create_fake(publication_version)
@@ -34,7 +34,7 @@ class BillFrbrProvider:
             select(func.count())
             .select_from(PublicationBillTable)
             .filter(PublicationBillTable.Document_Type == publication_version.Publication.Document_Type)
-            .filter(PublicationBillTable.Environment_UUID == publication_version.Environment_UUID)
+            .filter(PublicationBillTable.Environment_UUID == publication_version.Publication.Environment_UUID)
         )
         count: int = self._db.execute(stmt).scalar() + 1
         id_suffix: str = f"{count}"
@@ -55,7 +55,7 @@ class BillFrbrProvider:
         id_suffix: str,
     ) -> BillFrbr:
         publication: PublicationTable = publication_version.Publication
-        environment: PublicationEnvironmentTable = publication_version.Environment
+        environment: PublicationEnvironmentTable = publication.Environment
 
         timepoint: datetime = datetime.utcnow()
         frbr: BillFrbr = BillFrbr(
@@ -66,7 +66,6 @@ class BillFrbrProvider:
             Expression_Language=environment.Frbr_Language,
             Expression_Date=timepoint.strftime("%Y-%m-%d"),
             Expression_Version=1,
-            Expression_Other=None,
             Document_Type=publication.Document_Type,
         )
         return frbr

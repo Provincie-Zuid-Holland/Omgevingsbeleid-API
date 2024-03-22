@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from enum import Enum
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -15,21 +16,40 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.dependencies import depends_module_repository
 from app.extensions.modules.repository.module_repository import ModuleRepository
-from app.extensions.publications.dependencies import depends_publication_template_repository
+from app.extensions.publications.dependencies import (
+    depends_publication_act_repository,
+    depends_publication_environment_repository,
+    depends_publication_template_repository,
+)
 from app.extensions.publications.enums import DocumentType
 from app.extensions.publications.permissions import PublicationsPermissions
+from app.extensions.publications.repository.publication_act_repository import PublicationActRepository
+from app.extensions.publications.repository.publication_environment_repository import PublicationEnvironmentRepository
 from app.extensions.publications.repository.publication_template_repository import PublicationTemplateRepository
 from app.extensions.publications.tables import PublicationTable
-from app.extensions.publications.tables.tables import PublicationTable, PublicationTemplateTable
+from app.extensions.publications.tables.tables import (
+    PublicationActTable,
+    PublicationEnvironmentTable,
+    PublicationTable,
+    PublicationTemplateTable,
+)
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
+
+
+class ImplementedProcedureType(str, Enum):
+    # @todo: implement draft, then this type can be removed
+    FINAL = "final"
 
 
 class PublicationCreate(BaseModel):
     Module_ID: int
     Title: str
     Document_Type: DocumentType
+    Procedure_Type: ImplementedProcedureType
     Template_UUID: uuid.UUID
+    Environment_UUID: uuid.UUID
+    Act_UUID: uuid.UUID
 
 
 class PublicationCreatedResponse(BaseModel):
@@ -42,12 +62,16 @@ class EndpointHandler:
         db: Session,
         module_repository: ModuleRepository,
         template_repository: PublicationTemplateRepository,
+        environment_repository: PublicationEnvironmentRepository,
+        act_repository: PublicationActRepository,
         user: UsersTable,
         object_in: PublicationCreate,
     ):
         self._db: Session = db
         self._module_repository: ModuleRepository = module_repository
         self._template_repository: PublicationTemplateRepository = template_repository
+        self._environment_repository: PublicationEnvironmentRepository = environment_repository
+        self._act_repository: PublicationActRepository = act_repository
         self._user: UsersTable = user
         self._object_in: PublicationCreate = object_in
         self._timepoint: datetime = datetime.utcnow()
@@ -55,13 +79,19 @@ class EndpointHandler:
     def handle(self) -> PublicationCreatedResponse:
         module: ModuleTable = self._get_module()
         template: PublicationTemplateTable = self._get_template()
+        environment: PublicationEnvironmentTable = self._get_environment()
+        act: PublicationActTable = self._get_act()
 
         publication: PublicationTable = PublicationTable(
             UUID=uuid.uuid4(),
             Module_ID=module.Module_ID,
             Title=self._object_in.Title,
-            Document_Type=self._object_in.Document_Type,
+            Document_Type=self._object_in.Document_Type.value,
+            Procedure_Type=self._object_in.Procedure_Type.value,
             Template_UUID=template.UUID,
+            Environment_UUID=environment.UUID,
+            Act_UUID=act.UUID,
+            Is_Locked=False,
             Created_Date=self._timepoint,
             Modified_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
@@ -101,6 +131,34 @@ class EndpointHandler:
 
         return template
 
+    def _get_environment(self) -> PublicationEnvironmentTable:
+        environment: Optional[PublicationEnvironmentTable] = self._environment_repository.get_by_uuid(
+            self._object_in.Environment_UUID,
+        )
+        if environment is None:
+            raise HTTPException(status_code=404, detail="Publication Environment niet gevonden")
+        if not environment.Is_Active:
+            raise HTTPException(status_code=404, detail="Publication Environment is in actief")
+
+        return environment
+
+    def _get_act(self) -> PublicationActTable:
+        act: Optional[PublicationActTable] = self._act_repository.get_by_uuid(
+            self._object_in.Act_UUID,
+        )
+        if act is None:
+            raise HTTPException(status_code=404, detail="Publication Act niet gevonden")
+        if not act.Is_Active:
+            raise HTTPException(status_code=404, detail="Publication Act is in actief")
+        if not act.Environment_UUID != self._object_in.Environment_UUID:
+            raise HTTPException(status_code=404, detail="Publication Act is van een ander Environment")
+        if not act.Document_Type != self._object_in.Document_Type.value:
+            raise HTTPException(status_code=404, detail="Publication Act is van een ander Document Type")
+        if not act.Procedure_Type != self._object_in.Procedure_Type.value:
+            raise HTTPException(status_code=404, detail="Publication Act is van een ander Procedure Type")
+
+        return act
+
 
 class CreatePublicationEndpoint(Endpoint):
     def __init__(self, path: str):
@@ -114,12 +172,18 @@ class CreatePublicationEndpoint(Endpoint):
             ),
             module_repository: ModuleRepository = Depends(depends_module_repository),
             template_repository: PublicationTemplateRepository = Depends(depends_publication_template_repository),
+            environment_repository: PublicationEnvironmentRepository = Depends(
+                depends_publication_environment_repository
+            ),
+            act_repository: PublicationActRepository = Depends(depends_publication_act_repository),
             db: Session = Depends(depends_db),
         ) -> PublicationCreatedResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 module_repository,
                 template_repository,
+                environment_repository,
+                act_repository,
                 user,
                 object_in,
             )

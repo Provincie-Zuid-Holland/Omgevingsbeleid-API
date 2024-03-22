@@ -311,6 +311,16 @@ api:
           resolver_data:
             path: /{template_uuid}
         - resolver: list_publication_templates
+    - prefix: /publication-acts
+      endpoints:
+        - resolver: create_publication_act
+        - resolver: edit_publication_act
+          resolver_data:
+            path: /{act_uuid}
+        - resolver: detail_publication_act
+          resolver_data:
+            path: /{act_uuid}
+        - resolver: list_publication_acts
     - prefix: /publication-environments
       endpoints:
         - resolver: create_publication_environment
@@ -775,7 +785,43 @@ mssql_search:
     <<: *searchable_config
 
 publication:
-  defaults:
+  act_defaults:
+    draft_omgevingsvisie:
+      # @see: class ActMetadata
+      metadata:
+        Official_Title: Omgevingsvisie Provincie Zuid-Holland
+        Quote_Title: Omgevingsvisie Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+    final_omgevingsvisie:
+      metadata:
+        Official_Title: Omgevingsvisie Provincie Zuid-Holland
+        Quote_Title: Omgevingsvisie Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+
+    draft_programma:
+      metadata:
+        Official_Title: Programma Provincie Zuid-Holland
+        Quote_Title: Programma Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+    final_programma:
+      metadata:
+        Official_Title: Programma Provincie Zuid-Holland
+        Quote_Title: Programma Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+  
+  bill_defaults:
     omgevingsvisie:
       # @see: class BillMetadata
       bill_metadata:

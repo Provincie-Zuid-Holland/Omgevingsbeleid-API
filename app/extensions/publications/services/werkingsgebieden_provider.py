@@ -1,5 +1,7 @@
 from typing import List, Optional, Set
 
+import dso.models as dso_models
+
 from app.extensions.areas.db.tables import AreasTable
 from app.extensions.areas.repository.area_repository import AreaRepository
 from app.extensions.publications.models.api_input_data import ActFrbr
@@ -57,27 +59,33 @@ class PublicationWerkingsgebiedenProvider:
     ) -> dict:
         work_date: str = f"{werkingsgebied['Created_Date'].year}"
         work_identifier = str(werkingsgebied["Object_ID"])
-        work: str = f"/join/id/regdata/{act_frbr.Work_Province_ID}/{work_date}/{work_identifier}"
 
-        date_version: str = werkingsgebied["Modified_Date"].strftime("%Y-%m-%d;%H%M")
-        expression_version: str = f"{act_frbr.Expression_Language}@{date_version}"
+        date_version: str = werkingsgebied["Modified_Date"].strftime("%Y-%m-%d")
+        expression_version: str = werkingsgebied["Modified_Date"].strftime("%H%M")
+
+        frbr = dso_models.GioFRBR(
+            Work_Province_ID=act_frbr.Work_Province_ID,
+            Work_Date=work_date,
+            Work_Other=work_identifier,
+            Expression_Language=act_frbr.Expression_Language,
+            Expression_Date=date_version,
+            Expression_Version=expression_version,
+        )
 
         result = {
             "UUID": werkingsgebied["UUID"],
             "Object_ID": werkingsgebied["Object_ID"],
             "Code": werkingsgebied["Code"],
             "New": True,
-            "Work": work,
-            "Expression_Version": expression_version,
+            "Frbr": frbr,
             "Title": area.Source_Title,
-            "Symbol": area.Source_Symbol,
+            "Geboorteregeling": act_frbr.get_work(),
             "Achtergrond_Verwijzing": "TOP10NL",
             "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
             "Onderverdelingen": [
                 {
                     "UUID": werkingsgebied["UUID"],
                     "Title": area.Source_Title,
-                    "Symbol": area.Source_Symbol,
                     "Gml": area.Gml,
                 }
             ],

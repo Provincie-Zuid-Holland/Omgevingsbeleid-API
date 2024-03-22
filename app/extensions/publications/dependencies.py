@@ -11,6 +11,7 @@ from app.extensions.areas.repository.area_geometry_repository import AreaGeometr
 from app.extensions.html_assets.dependencies import depends_asset_repository
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.publications.repository import PublicationRepository, PublicationTemplateRepository
+from app.extensions.publications.repository.publication_act_repository import PublicationActRepository
 from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
 from app.extensions.publications.repository.publication_environment_repository import PublicationEnvironmentRepository
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
@@ -18,13 +19,16 @@ from app.extensions.publications.repository.publication_package_repository impor
 from app.extensions.publications.repository.publication_report_repository import PublicationReportRepository
 from app.extensions.publications.repository.publication_version_repository import PublicationVersionRepository
 from app.extensions.publications.repository.publication_zip_repository import PublicationZipRepository
+from app.extensions.publications.services.act_defaults_provider import ActDefaultsProvider
 from app.extensions.publications.services.act_frbr_provider import ActFrbrProvider
 from app.extensions.publications.services.assets.asset_remove_transparency import AssetRemoveTransparency
 from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.extensions.publications.services.bill_frbr_provider import BillFrbrProvider
 from app.extensions.publications.services.package_builder_factory import PackageBuilderFactory
-from app.extensions.publications.services.package_version_defaults_provider import PackageVersionDefaultsProvider
 from app.extensions.publications.services.publication_data_provider import PublicationDataProvider
+from app.extensions.publications.services.publication_version_defaults_provider import (
+    PublicationVersionDefaultsProvider,
+)
 from app.extensions.publications.services.purpose_provider import PurposeProvider
 from app.extensions.publications.services.state.data.state_v1 import StateV1
 from app.extensions.publications.services.state.state_loader import StateLoader
@@ -33,6 +37,7 @@ from app.extensions.publications.services.template_parser import TemplateParser
 from app.extensions.publications.services.werkingsgebieden_provider import PublicationWerkingsgebiedenProvider
 from app.extensions.publications.tables import PublicationPackageTable, PublicationTemplateTable
 from app.extensions.publications.tables.tables import (
+    PublicationActTable,
     PublicationAreaOfJurisdictionTable,
     PublicationEnvironmentTable,
     PublicationPackageReportTable,
@@ -82,6 +87,28 @@ def depends_publication_aoj(
     if not maybe_environment:
         raise HTTPException(status_code=404, detail="Publication area of jurisdiction niet gevonden")
     return maybe_environment
+
+
+def depends_publication_act_repository(db: Session = Depends(depends_db)) -> PublicationActRepository:
+    return PublicationActRepository(db)
+
+
+def depends_publication_act(
+    act_uuid: uuid.UUID,
+    repository: PublicationActRepository = Depends(depends_publication_act_repository),
+) -> PublicationActTable:
+    maybe_act: Optional[PublicationActTable] = repository.get_by_uuid(act_uuid)
+    if not maybe_act:
+        raise HTTPException(status_code=404, detail="Publicatie regeling niet gevonden")
+    return maybe_act
+
+
+def depends_publication_act_active(
+    act: PublicationActTable = Depends(depends_publication_act),
+) -> PublicationActTable:
+    if not act.Is_Active:
+        raise HTTPException(status_code=404, detail="Publicatie regeling is gesloten")
+    return act
 
 
 def depends_publication_repository(db: Session = Depends(depends_db)) -> PublicationRepository:
@@ -164,11 +191,18 @@ def depends_publication_report(
     return report
 
 
-def depends_package_version_defaults_provider(
+def depends_act_defaults_provider(
     main_config: dict = Depends(depends_main_config),
-) -> PackageVersionDefaultsProvider:
-    defaults: dict = main_config["publication"]["defaults"]
-    return PackageVersionDefaultsProvider(defaults)
+) -> ActDefaultsProvider:
+    defaults: dict = main_config["publication"]["act_defaults"]
+    return ActDefaultsProvider(defaults)
+
+
+def depends_publication_version_defaults_provider(
+    main_config: dict = Depends(depends_main_config),
+) -> PublicationVersionDefaultsProvider:
+    defaults: dict = main_config["publication"]["bill_defaults"]
+    return PublicationVersionDefaultsProvider(defaults)
 
 
 def depends_publication_object_repository(

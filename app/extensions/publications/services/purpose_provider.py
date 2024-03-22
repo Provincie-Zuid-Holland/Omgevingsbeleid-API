@@ -23,7 +23,7 @@ class PurposeProvider:
         act_frbr: ActFrbr,
         purpose_type: PurposeType,
     ) -> Purpose:
-        if publication_version.Environment.Has_State:
+        if publication_version.Publication.Environment.Has_State:
             return self._create_real(publication_version, act_frbr, purpose_type)
 
         return self._create_fake(publication_version, act_frbr, purpose_type)
@@ -60,7 +60,7 @@ class PurposeProvider:
         purpose_type: PurposeType,
         work_other: str,
     ) -> Purpose:
-        environment: PublicationEnvironmentTable = publication_version.Environment
+        environment: PublicationEnvironmentTable = publication_version.Publication.Environment
 
         timepoint: datetime = datetime.utcnow()
         purpose: Purpose = Purpose(

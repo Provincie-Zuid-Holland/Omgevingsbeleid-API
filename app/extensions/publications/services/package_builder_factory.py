@@ -14,7 +14,7 @@ from app.extensions.publications.services.purpose_provider import PurposeProvide
 from app.extensions.publications.services.state.api_input_data_patcher import ApiInputDataPatcher
 from app.extensions.publications.services.state.state import ActiveState
 from app.extensions.publications.services.state.state_loader import StateLoader
-from app.extensions.publications.tables.tables import PublicationVersionTable
+from app.extensions.publications.tables.tables import PublicationActTable, PublicationTable, PublicationVersionTable
 
 
 class PackageBuilderFactory:
@@ -39,8 +39,11 @@ class PackageBuilderFactory:
         publication_version: PublicationVersionTable,
         package_type: PackageType,
     ) -> PackageBuilder:
+        publication: PublicationTable = publication_version.Publication
+        act: PublicationActTable = publication.Act
+
         bill_frbr: BillFrbr = self._bill_frbr_provider.generate_frbr(publication_version)
-        act_frbr: ActFrbr = self._act_frbr_provider.generate_frbr(publication_version)
+        act_frbr: ActFrbr = self._act_frbr_provider.generate_frbr(act)
         purpose: Purpose = self._purpose_provider.generate_purpose(
             publication_version,
             act_frbr,

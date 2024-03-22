@@ -15,9 +15,10 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
     WerkingsgebiedRepository,
 )
 
-from app.extensions.publications.enums import DocumentType, PackageType
+from app.extensions.publications.enums import DocumentType, PackageType, ProcedureType
 from app.extensions.publications.models.api_input_data import ActFrbr, ApiInputData, BillFrbr, PublicationData, Purpose
 from app.extensions.publications.tables.tables import (
+    PublicationActTable,
     PublicationEnvironmentTable,
     PublicationTable,
     PublicationTemplateTable,
@@ -33,6 +34,11 @@ DOCUMENT_TYPE_MAP = {
 OPDRACHT_TYPE_MAP = {
     PackageType.VALIDATION: "VALIDATIE",
     PackageType.PUBLICATION: "PUBLICATIE",
+}
+
+PROCEDURE_TYPE_MAP = {
+    ProcedureType.DRAFT: "Ontwerpbesluit",
+    ProcedureType.FINAL: "Definitief_besluit",
 }
 
 DUTCH_MONTHS = {
@@ -60,7 +66,8 @@ class DsoInputDataBuilder:
         self._consolidation_purpose: Purpose = api_input_data.Consolidation_Purpose
         self._publication_data: PublicationData = api_input_data.Publication_Data
         self._publication: PublicationTable = api_input_data.Publication_Version.Publication
-        self._environment: PublicationEnvironmentTable = api_input_data.Publication_Version.Environment
+        self._environment: PublicationEnvironmentTable = api_input_data.Publication_Version.Publication.Environment
+        self._act: PublicationActTable = api_input_data.Publication_Version.Publication.Act
         self._template: PublicationTemplateTable = self._publication.Template
 
     def build(self) -> InputData:
@@ -85,10 +92,7 @@ class DsoInputDataBuilder:
             datum_bekendmaking=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
             datum_juridisch_werkend_vanaf=self._publication_version.Effective_Date.strftime("%Y-%m-%d"),
             provincie_id=self._environment.Province_ID,
-            wId_suffix=self._act_frbr.Expression_Version,
             soort_bestuursorgaan=self._get_soort_bestuursorgaan(),
-            # @todo: This should be moved to Werkingsgebieden which is the only one that uses this
-            expression_taal=self._act_frbr.Expression_Language,
             regeling_componentnaam=self._publication_version.Bill_Compact["Component_Name"],
             provincie_ref=f"/tooi/id/provincie/{self._environment.Province_ID}",
             opdracht={
@@ -99,28 +103,29 @@ class DsoInputDataBuilder:
                 "publicatie_bestand": self._get_akn_filename(),
                 "datum_bekendmaking": self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
             },
-            doel=dso_models.Doel(
-                jaar=self._consolidation_purpose.Work_Date,
-                naam=self._consolidation_purpose.Work_Other,
+            doel=dso_models.DoelFRBR(
+                Work_Province_ID=self._consolidation_purpose.Work_Province_ID,
+                Work_Date=self._consolidation_purpose.Work_Date,
+                Work_Other=self._consolidation_purpose.Work_Other,
             ),
-            besluit_frbr={
-                "work_land": self._bill_frbr.Work_Country,
-                "work_datum": self._bill_frbr.Work_Date,
-                "work_overig": self._bill_frbr.Work_Other,
-                "expression_taal": self._bill_frbr.Expression_Language,
-                "expression_datum": self._bill_frbr.Expression_Date,
-                "expression_versie": self._bill_frbr.Expression_Version,
-                "expression_overig": self._bill_frbr.Expression_Other,
-            },
-            regeling_frbr={
-                "work_land": self._act_frbr.Work_Country,
-                "work_datum": self._act_frbr.Work_Date,
-                "work_overig": self._act_frbr.Work_Other,
-                "expression_taal": self._act_frbr.Expression_Language,
-                "expression_datum": self._act_frbr.Expression_Date,
-                "expression_versie": self._act_frbr.Expression_Version,
-                "expression_overig": self._act_frbr.Expression_Other,
-            },
+            besluit_frbr=dso_models.BillFRBR(
+                Work_Province_ID=self._environment.Province_ID,
+                Work_Country=self._bill_frbr.Work_Country,
+                Work_Date=self._bill_frbr.Work_Date,
+                Work_Other=self._bill_frbr.Work_Other,
+                Expression_Language=self._bill_frbr.Expression_Language,
+                Expression_Date=self._bill_frbr.Expression_Date,
+                Expression_Version=self._bill_frbr.Expression_Version,
+            ),
+            regeling_frbr=dso_models.ActFRBR(
+                Work_Province_ID=self._environment.Province_ID,
+                Work_Country=self._act_frbr.Work_Country,
+                Work_Date=self._act_frbr.Work_Date,
+                Work_Other=self._act_frbr.Work_Other,
+                Expression_Language=self._act_frbr.Expression_Language,
+                Expression_Date=self._act_frbr.Expression_Date,
+                Expression_Version=self._act_frbr.Expression_Version,
+            ),
         )
         return publication_settings
 
@@ -132,6 +137,8 @@ class DsoInputDataBuilder:
         return filename
 
     def _get_besluit(self) -> Besluit:
+        dso_procedure_type: str = PROCEDURE_TYPE_MAP[self._publication.Procedure_Type]
+
         besluit = Besluit(
             officiele_titel=self._publication_version.Bill_Metadata["Official_Title"],
             regeling_opschrift=self._publication_version.Bill_Metadata["Official_Title"],
@@ -149,19 +156,19 @@ class DsoInputDataBuilder:
             ondertekening=self._publication_version.Bill_Compact["Signed"],
             rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.Bill_Metadata["Jurisdictions"]),
             onderwerpen=self._as_dso_onderwerpen(self._publication_version.Bill_Metadata["Subjects"]),
-            soort_procedure=self._publication_version.Procedure_Type,
+            soort_procedure=dso_procedure_type,
         )
         return besluit
 
     def _get_regeling(self) -> Regeling:
         regeling = Regeling(
             versienummer=self._act_frbr.Expression_Version,
-            officiele_titel=self._publication_version.Act_Metadata["Official_Title"],
-            citeertitel=self._publication_version.Act_Metadata["Quote_Title"],
+            officiele_titel=self._act.Metadata["Official_Title"],
+            citeertitel=self._act.Metadata["Quote_Title"],
             # @todo: This might change when we add "Ontwerpen"
             is_officieel="true",
-            rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.Act_Metadata["Jurisdictions"]),
-            onderwerpen=self._as_dso_onderwerpen(self._publication_version.Act_Metadata["Subjects"]),
+            rechtsgebieden=self._as_dso_rechtsgebieden(self._act.Metadata["Jurisdictions"]),
+            onderwerpen=self._as_dso_onderwerpen(self._act.Metadata["Subjects"]),
         )
         return regeling
 
@@ -226,10 +233,7 @@ class DsoInputDataBuilder:
         return repository
 
     def _get_werkingsgebied_repository(self) -> WerkingsgebiedRepository:
-        repository = WerkingsgebiedRepository(
-            self._environment.Province_ID,
-            self._act_frbr.Expression_Language,
-        )
+        repository = WerkingsgebiedRepository()
         for w in self._publication_data.werkingsgebieden:
             repository.add(w)
         return repository

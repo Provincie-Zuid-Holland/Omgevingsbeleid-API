@@ -7,6 +7,7 @@ from app.extensions.publications.services.state.actions.action import Action
 from app.extensions.publications.services.state.actions.add_area_of_jurisdiction_action import (
     AddAreaOfJurisdictionAction,
 )
+from app.extensions.publications.services.state.actions.add_purpose_action import AddPurposeAction
 from app.extensions.publications.services.state.actions.consolidate_werkingsgebied_action import (
     ConsolidateWerkingsgebiedAction,
 )
@@ -19,10 +20,15 @@ class ConsolidationStatus(str, Enum):
 
 
 class Purpose(BaseModel):
+    Purpose_Type: str
     Effective_Date: str
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str
+
+    def get_frbr_work(self) -> str:
+        result: str = f"/join/id/proces/{self.Work_Province_ID}/{self.Work_Date}/{self.Work_Other}"
+        return result
 
 
 class Werkingsgebied(BaseModel):
@@ -39,15 +45,26 @@ class Werkingsgebied(BaseModel):
 class AreaOfJurisdiction(BaseModel):
     UUID: str
     Consolidation_Status: ConsolidationStatus
-    # @todo: Should have consolidation date
     Administrative_Borders_ID: str
     Act_Work: str
     Act_Expression_Version: str
 
 
+class Bill(BaseModel):
+    Work: str
+    Expression_Version: str
+
+
+class Act(BaseModel):
+    Work: str
+    Expression_Version: str
+
+
 class StateV1(ActiveState):
     Werkingsgebieden: Dict[int, Werkingsgebied] = Field({})
     Area_Of_Jurisdiction: Optional[AreaOfJurisdiction] = Field(None)
+    Purposes: Dict[str, Purpose] = Field({})
+    Active_Acts: Dict[str, Act] = Field({})
 
     @staticmethod
     def get_schema_version() -> int:
@@ -73,6 +90,8 @@ class StateV1(ActiveState):
 
     def handle_action(self, action: Action):
         match action:
+            case AddPurposeAction():
+                self._handle_add_purpose_action(action)
             case ConsolidateWerkingsgebiedAction():
                 self._handle_consolidate_werkinggsgebied_action(action)
             case AddAreaOfJurisdictionAction():
@@ -80,12 +99,24 @@ class StateV1(ActiveState):
             case _:
                 raise RuntimeError(f"Action {action.__class__.__name__} is not implemented for StateV1")
 
+    def _handle_add_purpose_action(self, action: AddPurposeAction):
+        purpose: Purpose = Purpose(
+            Purpose_Type=action.Purpose_Type.value,
+            Effective_Date=action.get_effective_date_str(),
+            Work_Province_ID=action.Work_Province_ID,
+            Work_Date=action.Work_Date,
+            Work_Other=action.Work_Other,
+        )
+        frbr: str = purpose.get_frbr_work()
+        self.Purposes[frbr] = purpose
+
     def _handle_consolidate_werkinggsgebied_action(self, action: ConsolidateWerkingsgebiedAction):
         # @todo: guard that Object_ID can not be added if one is already widrawn
         werkingsgebied: Werkingsgebied = Werkingsgebied(
             UUID=str(action.UUID),
             Consolidation_Status=ConsolidationStatus.consolidated,
             Consolidation_Purpose=Purpose(
+                Purpose_Type=action.Consolidation_Purpose.Purpose_Type,
                 Effective_Date=action.Consolidation_Purpose.Effective_Date.strftime("%Y-%m-%d"),
                 Work_Province_ID=action.Consolidation_Purpose.Work_Province_ID,
                 Work_Date=action.Consolidation_Purpose.Work_Date,

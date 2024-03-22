@@ -5,7 +5,6 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field, validator
 
 from app.extensions.modules.models.models import ModuleStatus
-from app.extensions.publications.enums import DocumentType
 from app.extensions.publications.waardelijsten import Bestuursorgaan, Onderwerp, Rechtsgebied
 
 
@@ -66,13 +65,58 @@ class PublicationAOJ(BaseModel):
         orm_mode = True
 
 
+class PublicationAct(BaseModel):
+    UUID: uuid.UUID
+    Title: str
+    Is_Active: bool
+    Environment: PublicationEnvironment
+    Document_Type: str
+    Procedure_Type: str
+    Metadata: dict
+
+    Work_Province_ID: str
+    Work_Country: str
+    Work_Date: str
+    Work_Other: str
+
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class PublicationActShort(BaseModel):
+    UUID: uuid.UUID
+    Title: str
+    Is_Active: bool
+    Environment_UUID: uuid.UUID
+    Document_Type: str
+    Procedure_Type: str
+
+    Work_Province_ID: str
+    Work_Country: str
+    Work_Date: str
+    Work_Other: str
+
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    class Config:
+        orm_mode = True
+
+
 class Publication(BaseModel):
     UUID: uuid.UUID
 
     Module_ID: int
     Title: str
-    Document_Type: DocumentType
+    Is_Locked: bool
+    Document_Type: str
+    Procedure_Type: str
     Template_UUID: Optional[uuid.UUID]
+    Environment_UUID: Optional[uuid.UUID]
+    Act_UUID: Optional[uuid.UUID]
 
     Created_Date: datetime
     Modified_Date: datetime
@@ -86,8 +130,12 @@ class PublicationShort(BaseModel):
 
     Module_ID: int
     Title: str
+    Is_Locked: bool
     Document_Type: str
+    Procedure_Type: str
     Template_UUID: Optional[uuid.UUID]
+    Environment_UUID: Optional[uuid.UUID]
+    Act_UUID: Optional[uuid.UUID]
 
     Created_Date: datetime
     Modified_Date: datetime
@@ -177,7 +225,6 @@ class PublicationVersionValidated(BaseModel):
     Bill_Metadata: BillMetadata
     Bill_Compact: BillCompact
     Procedural: ProceduralValidated
-    Act_Metadata: ActMetadata
 
     Effective_Date: date
     Announcement_Date: date
@@ -191,13 +238,10 @@ class PublicationVersion(BaseModel):
 
     Publication: PublicationShort
     Module_Status: ModuleStatus
-    Environment: PublicationEnvironment
-    Procedure_Type: str
 
     Bill_Metadata: dict
     Bill_Compact: dict
     Procedural: dict
-    Act_Metadata: dict
 
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
@@ -216,8 +260,6 @@ class PublicationVersionShort(BaseModel):
 
     Publication_UUID: uuid.UUID
     Module_Status: ModuleStatus
-    Environment_UUID: uuid.UUID
-    Procedure_Type: str
 
     Bill_Metadata: dict
 
