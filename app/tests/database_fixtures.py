@@ -221,6 +221,14 @@ class DatabaseFixtures:
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
+        self._db.add(
+            ObjectStaticsTable(
+                Object_Type="ambitie",
+                Object_ID=5,
+                Code="ambitie-5",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
 
         self._db.add(
             ObjectStaticsTable(
@@ -341,8 +349,15 @@ class DatabaseFixtures:
         )
         module.status_history.append(
             ModuleStatusHistoryTable(
-                Status=ModuleStatusCode.Vastgesteld,
+                Status=ModuleStatusCode.Definitief_Ontwerp_PS,
                 Created_Date=datetime(2023, 2, 3, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        module.status_history.append(
+            ModuleStatusHistoryTable(
+                Status=ModuleStatusCode.Vastgesteld,
+                Created_Date=datetime(2023, 2, 4, 4, 4, 4),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
@@ -503,6 +518,42 @@ class DatabaseFixtures:
                 Description="<p>Description of Ambitie 4</p>",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.commit()
+
+        # Ambitie 5: Should be in Module Status 3 (not 2)
+        # Which allows testing a second publication
+        self._db.add(
+            ModuleObjectContextTable(
+                Module_ID=module.Module_ID,
+                Object_Type="ambitie",
+                Object_ID=5,
+                Code="ambitie-5",
+                Created_Date=datetime(2023, 2, 4, 0, 0, 0),
+                Modified_Date=datetime(2023, 2, 4, 0, 0, 0),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Original_Adjust_On=None,
+                Action=ModuleObjectActionFilter.Create,
+                Explanation="Deze wil ik toevoegen",
+                Conclusion="Geen conclusie",
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="ambitie",
+                Object_ID=5,
+                Code="ambitie-5",
+                UUID=uuid.UUID("00000000-0000-0001-0000-000000000005"),
+                Title="Y:MOD: Titel van de vijfde ambitie - new in module status 3",
+                Description="<p>Description of Ambitie 5</p>",
+                Created_Date=datetime(2023, 2, 4, 0, 0, 0),
+                Modified_Date=datetime(2023, 2, 4, 0, 0, 0),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )

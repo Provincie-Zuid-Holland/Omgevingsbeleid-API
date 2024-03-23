@@ -17,6 +17,7 @@ class ActFrbrProvider:
 
         timepoint: datetime = datetime.utcnow()
         frbr: ActFrbr = ActFrbr(
+            Document_Type=act.Document_Type,
             Act_ID=act.ID,
             Work_Province_ID=act.Work_Province_ID,
             Work_Country=act.Work_Country,
@@ -25,8 +26,6 @@ class ActFrbrProvider:
             Expression_Language=act.Environment.Frbr_Language,
             Expression_Date=timepoint.strftime("%Y-%m-%d"),
             Expression_Version=expression_version,
-            Expression_Other=None,
-            Document_Type=act.Document_Type,
         )
         return frbr
 

@@ -1,7 +1,9 @@
 from abc import ABCMeta, abstractmethod
+from typing import Optional
 
 from pydantic import BaseModel
 
+from app.extensions.publications.services.state import result_models
 from app.extensions.publications.services.state.actions.action import Action
 
 
@@ -32,11 +34,7 @@ class State(BaseModel, metaclass=ABCMeta):
 
 class ActiveState(State):
     @abstractmethod
-    def has_werkingsgebied(self, werkingsgebied: dict) -> bool:
-        pass
-
-    @abstractmethod
-    def has_area_of_jurisdiction(self, aoj: dict) -> bool:
+    def get_act(self, document_type: str, procedure_type: str) -> Optional[result_models.ActiveAct]:
         pass
 
 

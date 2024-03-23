@@ -8,12 +8,3 @@ class AddAreaOfJurisdictionAction(Action):
     UUID: uuid.UUID
     Administrative_Borders_ID: str
     Act_Frbr: ActFrbr
-
-    def __repr__(self) -> str:
-        return f"""
-        class AddAreaOfJurisdictionAction(
-            UUID="{self.UUID}",
-            Administrative_Borders_ID="{self.Administrative_Borders_ID}",
-            Act_Frbr={self.Act_Frbr},
-        )
-        """

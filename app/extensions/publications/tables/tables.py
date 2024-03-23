@@ -71,7 +71,6 @@ class PublicationEnvironmentStateTable(Base):
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
 
-    Change_Set = Column(JSON)
     State = Column(JSON)
 
     Is_Activated: Mapped[bool]

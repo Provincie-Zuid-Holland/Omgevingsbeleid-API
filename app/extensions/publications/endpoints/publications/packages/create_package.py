@@ -148,15 +148,8 @@ class EndpointHandler:
     def _handle_new_state(self, package_builder: PackageBuilder, package: PublicationPackageTable):
         if not self._environment.Has_State:
             return
-        if self._object_in.Package_Type not in [PackageType.PUBLICATION, PackageType.PUBLICATION_ABORT]:
+        if self._object_in.Package_Type != PackageType.PUBLICATION:
             return
-
-        # @todo: Terminate should fetch the Adjusted On state and promote that as new state (by recreating that one)
-        if self._object_in.Package_Type == PackageType.PUBLICATION_ABORT:
-            raise NotImplementedError("Afbreek verzoek is nog niet geimplementeerd")
-        # @todo:
-        # Pretending it is PackageType.PUBLICATION from here on
-        # Terminate should probably an whole different flow...
 
         new_state: PublicationEnvironmentStateTable = package_builder.create_new_state()
         new_state.Created_Date = self._timepoint

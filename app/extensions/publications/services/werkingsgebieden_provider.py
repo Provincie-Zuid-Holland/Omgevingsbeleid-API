@@ -64,19 +64,15 @@ class PublicationWerkingsgebiedenProvider:
         work_date: str = act_frbr.Work_Date
         work_identifier = f"{act_frbr.Act_ID}-{werkingsgebied['Object_ID']}"
 
-        # Theses expression values are set as if this is the first version
+        # Some of these expression values are set as if this is the first version
         # But should be overwritten by the state system if they are already published under this UUID
-        timepoint: datetime = datetime.utcnow()
-        expression_date: str = timepoint.strftime("%Y-%m-%d")
-        expression_version: str = act_frbr.Expression_Version
-
         frbr = dso_models.GioFRBR(
             Work_Province_ID=act_frbr.Work_Province_ID,
             Work_Date=work_date,
             Work_Other=work_identifier,
             Expression_Language=act_frbr.Expression_Language,
-            Expression_Date=expression_date,
-            Expression_Version=expression_version,
+            Expression_Date=datetime.utcnow().strftime("%Y-%m-%d"),
+            Expression_Version=1,
         )
 
         result = {

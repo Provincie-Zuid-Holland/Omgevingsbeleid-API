@@ -11,15 +11,3 @@ class ConsolidateWerkingsgebiedAction(Action):
     Expression_Version: str
     Act_Frbr: ActFrbr
     Consolidation_Purpose: Purpose
-
-    def __repr__(self) -> str:
-        return f"""
-        ConsolidateWerkingsgebiedAction(
-            UUID="{self.UUID}",
-            Object_ID="{self.Object_ID}",
-            Work="{self.Work}",
-            Expression_Version="{self.Expression_Version}",
-            Act_Frbr={self.Act_Frbr},
-            Consolidation_Purpose={self.Consolidation_Purpose},
-        )
-        """

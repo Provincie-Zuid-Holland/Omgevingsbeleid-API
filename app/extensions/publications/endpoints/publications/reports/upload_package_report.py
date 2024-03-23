@@ -170,7 +170,7 @@ class EndpointHandler:
         return response
 
     def _guard_can_upload_files(self):
-        if not self._package.Publication_Version.Environment.Has_State:
+        if not self._package.Publication_Version.Publication.Environment.Has_State:
             raise HTTPException(status_code=400, detail="Can not upload packages for stateless environment")
 
     def _update_running_status(

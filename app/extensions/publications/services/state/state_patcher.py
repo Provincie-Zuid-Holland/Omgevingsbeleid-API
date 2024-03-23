@@ -1,32 +1,115 @@
 from copy import deepcopy
+from typing import Dict, Optional
+
+import dso.models as dso_models
+from dso.builder.builder import Builder
 
 from app.extensions.publications.models.api_input_data import ApiInputData, Purpose
-from app.extensions.publications.services.state.actions.add_area_of_jurisdiction_action import (
-    AddAreaOfJurisdictionAction,
-)
+from app.extensions.publications.services.state import result_models
+from app.extensions.publications.services.state.actions.add_publication_action import AddPublicationAction
 from app.extensions.publications.services.state.actions.add_purpose_action import AddPurposeAction
-from app.extensions.publications.services.state.actions.consolidate_werkingsgebied_action import (
-    ConsolidateWerkingsgebiedAction,
-)
-from app.extensions.publications.services.state.state import State
+from app.extensions.publications.services.state.state import ActiveState
+from app.extensions.publications.tables.tables import PublicationTable
 
 
 class StatePatcher:
-    def __init__(self, api_input_data: ApiInputData):
+    def __init__(self, api_input_data: ApiInputData, dso_builder: Builder):
         self._api_input_data: ApiInputData = api_input_data
+        self._dso_builder: Builder = dso_builder
+        self._publication: PublicationTable = api_input_data.Publication_Version.Publication
 
-    def apply(self, source_state: State) -> State:
-        state: State = deepcopy(source_state)
-        state = self._patch_act(state)
+    def apply(self, source_state: ActiveState) -> ActiveState:
+        state: ActiveState = deepcopy(source_state)
+        state = self._patch_publication(state)
         state = self._patch_consolidation_purpose(state)
-        state = self._patch_werkingsgebieden(state)
-        state = self._patch_area_of_jurisdiction(state)
         return state
 
-    def _patch_act(self, state: State) -> State:
+    def _patch_publication(self, state: ActiveState) -> ActiveState:
+        werkingsgebieden: Dict[int, result_models.Werkingsgebied] = self._resolve_werkingsgebieden(state)
+        wid_data = result_models.WidData(
+            Known_Wid_Map=self._dso_builder.get_used_wid_map(),
+            Known_Wids=self._dso_builder.get_used_wids(),
+        )
+        ow_data = result_models.OwData()
+
+        input_purpose = self._api_input_data.Consolidation_Purpose
+        effective_date: Optional[str] = None
+        if input_purpose.Effective_Date is not None:
+            effective_date = input_purpose.Effective_Date.strftime("%Y-%m-%d")
+        purpose = result_models.Purpose(
+            Purpose_Type=input_purpose.Purpose_Type.value,
+            Effective_Date=effective_date,
+            Work_Province_ID=input_purpose.Work_Province_ID,
+            Work_Date=input_purpose.Work_Date,
+            Work_Other=input_purpose.Work_Other,
+        )
+
+        act_frbr = result_models.Frbr(
+            Work_Province_ID=self._api_input_data.Act_Frbr.Work_Province_ID,
+            Work_Country=self._api_input_data.Act_Frbr.Work_Country,
+            Work_Date=self._api_input_data.Act_Frbr.Work_Date,
+            Work_Other=self._api_input_data.Act_Frbr.Work_Other,
+            Expression_Language=self._api_input_data.Act_Frbr.Expression_Language,
+            Expression_Date=self._api_input_data.Act_Frbr.Expression_Date,
+            Expression_Version=self._api_input_data.Act_Frbr.Expression_Version,
+        )
+        bill_frbr = result_models.Frbr(
+            Work_Province_ID=self._api_input_data.Bill_Frbr.Work_Province_ID,
+            Work_Country=self._api_input_data.Bill_Frbr.Work_Country,
+            Work_Date=self._api_input_data.Bill_Frbr.Work_Date,
+            Work_Other=self._api_input_data.Bill_Frbr.Work_Other,
+            Expression_Language=self._api_input_data.Bill_Frbr.Expression_Language,
+            Expression_Date=self._api_input_data.Bill_Frbr.Expression_Date,
+            Expression_Version=self._api_input_data.Bill_Frbr.Expression_Version,
+        )
+
+        action = AddPublicationAction(
+            Act_Frbr=act_frbr,
+            Bill_Frbr=bill_frbr,
+            Consolidation_Purpose=purpose,
+            Document_Type=self._api_input_data.Publication_Version.Publication.Document_Type,
+            Procedure_Type=self._api_input_data.Publication_Version.Publication.Procedure_Type,
+            Werkingsgebieden=werkingsgebieden,
+            Wid_Data=wid_data,
+            Ow_Data=ow_data,
+        )
+        state.handle_action(action)
         return state
 
-    def _patch_consolidation_purpose(self, state: State) -> State:
+    def _resolve_werkingsgebieden(self, state: ActiveState) -> Dict[int, result_models.Werkingsgebied]:
+        existing_act: Optional[result_models.ActiveAct] = state.get_act(
+            self._publication.Document_Type,
+            self._publication.Procedure_Type,
+        )
+        werkingsgebieden: Dict[int, result_models.Werkingsgebied] = {}
+        if existing_act is not None:
+            werkingsgebieden = existing_act.Werkingsgebieden
+
+        # @note: We have not implemented terminating werkingsgebieden yet
+        # So we can just merge the existing list with the new list
+        # Overwriting werkingsgebieden with the same Object_ID
+        for dso_werkingsgebied in self._api_input_data.Publication_Data.werkingsgebieden:
+            dso_frbr: dso_models.GioFRBR = dso_werkingsgebied["Frbr"]
+            frbr = result_models.Frbr(
+                Work_Province_ID=dso_frbr.Work_Province_ID,
+                Work_Country="",
+                Work_Date=dso_frbr.Work_Date,
+                Work_Other=dso_frbr.Work_Other,
+                Expression_Language=dso_frbr.Expression_Language,
+                Expression_Date=dso_frbr.Expression_Date,
+                Expression_Version=dso_frbr.Expression_Version,
+            )
+            werkingsgebied = result_models.Werkingsgebied(
+                UUID=str(dso_werkingsgebied["UUID"]),
+                Object_ID=dso_werkingsgebied["Object_ID"],
+                Owner_Act=dso_werkingsgebied["Geboorteregeling"],
+                Frbr=frbr,
+            )
+            werkingsgebieden[werkingsgebied.Object_ID] = werkingsgebied
+
+        return werkingsgebieden
+
+    def _patch_consolidation_purpose(self, state: ActiveState) -> ActiveState:
         purpose: Purpose = self._api_input_data.Consolidation_Purpose
         action = AddPurposeAction(
             Purpose_Type=purpose.Purpose_Type,
@@ -38,32 +121,15 @@ class StatePatcher:
         state.handle_action(action)
         return state
 
-    def _patch_werkingsgebieden(self, state: State) -> State:
-        for werkingsgebied in self._api_input_data.Publication_Data.werkingsgebieden:
-            if not werkingsgebied["New"]:
-                continue
+    # def _patch_area_of_jurisdiction(self, state: State) -> State:
+    #     aoj: dict = self._api_input_data.Publication_Data.area_of_jurisdiction
+    #     if not aoj["New"]:
+    #         return state
 
-            action = ConsolidateWerkingsgebiedAction(
-                UUID=werkingsgebied["UUID"],
-                Object_ID=werkingsgebied["Object_ID"],
-                Work="",  # @todo: jordy werkingsgebied["Work"],
-                Expression_Version="",  # @todo: jordy werkingsgebied["Expression_Version"],
-                Act_Frbr=self._api_input_data.Act_Frbr,
-                Consolidation_Purpose=self._api_input_data.Consolidation_Purpose,
-            )
-            state.handle_action(action)
-
-        return state
-
-    def _patch_area_of_jurisdiction(self, state: State) -> State:
-        aoj: dict = self._api_input_data.Publication_Data.area_of_jurisdiction
-        if not aoj["New"]:
-            return state
-
-        action = AddAreaOfJurisdictionAction(
-            UUID=aoj["UUID"],
-            Administrative_Borders_ID=aoj["Administrative_Borders_ID"],
-            Act_Frbr=self._api_input_data.Act_Frbr,
-        )
-        state.handle_action(action)
-        return state
+    #     action = AddAreaOfJurisdictionAction(
+    #         UUID=aoj["UUID"],
+    #         Administrative_Borders_ID=aoj["Administrative_Borders_ID"],
+    #         Act_Frbr=self._api_input_data.Act_Frbr,
+    #     )
+    #     state.handle_action(action)
+    #     return state

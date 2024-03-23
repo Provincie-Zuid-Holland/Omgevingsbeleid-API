@@ -16,6 +16,7 @@ class BillFrbr:
     Work_Country: str
     Work_Date: str
     Work_Other: str
+
     Expression_Language: str
     Expression_Date: str
     Expression_Version: int
@@ -32,12 +33,13 @@ class BillFrbr:
 @dataclass
 class ActFrbr:
     Document_Type: str
-
     Act_ID: int
+
     Work_Province_ID: str
     Work_Country: str
     Work_Date: str
     Work_Other: str
+
     Expression_Language: str
     Expression_Date: str
     Expression_Version: int

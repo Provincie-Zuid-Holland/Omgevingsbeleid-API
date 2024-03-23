@@ -72,16 +72,15 @@ class PackageBuilder:
         if self._state is None:
             raise RuntimeError("Can not create new state")
 
-        environment: PublicationEnvironmentTable = self._api_input_data.Publication_Version.Environment
+        environment: PublicationEnvironmentTable = self._api_input_data.Publication_Version.Publication.Environment
 
-        state_changer: StatePatcher = StatePatcher(self._api_input_data)
+        state_changer: StatePatcher = StatePatcher(self._api_input_data, self._dso_builder)
         state: State = state_changer.apply(self._state)
 
         state_table: PublicationEnvironmentStateTable = PublicationEnvironmentStateTable(
             UUID=uuid.uuid4(),
             Environment_UUID=environment.UUID,
             Adjust_On_UUID=environment.Active_State_UUID,
-            Change_Set={},
             State=state.state_dict(),
             Is_Activated=False,
             Activated_Datetime=None,

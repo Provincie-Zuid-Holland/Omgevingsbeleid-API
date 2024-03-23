@@ -17,14 +17,3 @@ class AddPurposeAction(Action):
             return ""
 
         return self.Effective_Date.strftime("%Y-%m-%d")
-
-    def __repr__(self) -> str:
-        return f"""
-        class AddPurposeAction(
-            Purpose_Type="{self.Purpose_Type.value}",
-            Effective_Date="{self.get_effective_date_str()}",
-            Work_Province_ID="{self.Work_Province_ID}",
-            Work_Date="{self.Work_Date}",
-            Work_Other="{self.Work_Other}",
-        )
-        """

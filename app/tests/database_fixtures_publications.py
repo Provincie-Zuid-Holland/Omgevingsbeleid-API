@@ -299,7 +299,6 @@ class DatabaseFixturesPublications:
             UUID=uuid.UUID("90000003-0000-0000-0000-000000000001"),
             Environment_UUID=env_preprod.UUID,
             Adjust_On_UUID=None,
-            Change_Set={},
             State=(InitialState().state_dict()),
             Is_Activated=True,
             Activated_Datetime=self._timepoint,
@@ -339,7 +338,6 @@ class DatabaseFixturesPublications:
             UUID=uuid.UUID("90000003-0000-0000-0000-000000000002"),
             Environment_UUID=env_prod.UUID,
             Adjust_On_UUID=None,
-            Change_Set={},
             State=(InitialState().state_dict()),
             Is_Activated=True,
             Activated_Datetime=self._timepoint,
@@ -522,6 +520,50 @@ class DatabaseFixturesPublications:
                 UUID=uuid.UUID("90000006-0000-0000-0000-000000000002"),
                 Publication_UUID=uuid.UUID("90000005-0000-0000-0000-000000000002"),
                 Module_Status_ID=2,
+                Bill_Metadata=(
+                    BillMetadata(
+                        Official_Title="Omgevingsvisie van Zuid-Holland",
+                        Subjects=[
+                            Onderwerp.ruimtelijke_ordening.name,
+                        ],
+                        Jurisdictions=[
+                            Rechtsgebied.omgevingsrecht.name,
+                        ],
+                    )
+                ).dict(),
+                Bill_Compact=BillCompact(
+                    Component_Name="nieuweregeling",
+                    Preamble="<p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>",
+                    Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
+                    Signed="<p>Gedeputeerde Staten</p>",
+                    Amendment_Article='De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.',
+                    Time_Article="<Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>",
+                    Custom_Articles=[
+                        Article(
+                            Label="Artikel",
+                            Content="<p>Hierbij nog meer tekst</p>",
+                        ),
+                    ],
+                ).dict(),
+                Procedural=Procedural(
+                    Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
+                    Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
+                ).dict(),
+                Effective_Date=self._timepoint + timedelta(days=3),
+                Announcement_Date=self._timepoint + timedelta(days=3),
+                Is_Locked=False,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
+
+        self._db.add(
+            PublicationVersionTable(
+                UUID=uuid.UUID("90000006-0000-0000-0000-000000000003"),
+                Publication_UUID=uuid.UUID("90000005-0000-0000-0000-000000000002"),
+                Module_Status_ID=3,
                 Bill_Metadata=(
                     BillMetadata(
                         Official_Title="Omgevingsvisie van Zuid-Holland",
