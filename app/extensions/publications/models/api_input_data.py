@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import date
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from app.extensions.publications.enums import PackageType, PurposeType
 from app.extensions.publications.tables.tables import PublicationVersionTable
@@ -80,6 +80,13 @@ class PublicationData:
 
 
 @dataclass
+class ActMutation:
+    Consolidated_Act_Frbr: ActFrbr
+    Known_Wid_Map: Dict[str, str]
+    Known_Wids: List[str]
+
+
+@dataclass
 class ApiInputData:
     Bill_Frbr: BillFrbr
     Act_Frbr: ActFrbr
@@ -87,3 +94,4 @@ class ApiInputData:
     Publication_Data: PublicationData
     Package_Type: PackageType
     Publication_Version: PublicationVersionTable
+    Act_Mutation: Optional[ActMutation]

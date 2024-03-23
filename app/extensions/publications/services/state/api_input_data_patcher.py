@@ -33,14 +33,3 @@ class ApiInputDataPatcher:
         mutation_patcher: PatchActMutation = PatchActMutation(active_act)
         data = mutation_patcher.patch(data)
         return data
-
-    # def _patch_werkingsgebieden(self, data: ApiInputData) -> ApiInputData:
-    #     for index, werkingsgebied in enumerate(data.Publication_Data.werkingsgebieden):
-    #         has_this_werkingsgebied: bool = self._state.has_werkingsgebied(werkingsgebied)
-    #         data.Publication_Data.werkingsgebieden[index]["New"] = not has_this_werkingsgebied
-    #     return data
-
-    # def _patch_area_of_jurisdiction(self, data: ApiInputData) -> ApiInputData:
-    #     has_this_aoj: bool = self._state.has_area_of_jurisdiction(data.Publication_Data.area_of_jurisdiction)
-    #     data.Publication_Data.area_of_jurisdiction["New"] = not has_this_aoj
-    #     return data

@@ -61,6 +61,7 @@ class PackageBuilderFactory:
             Publication_Data=publication_data,
             Package_Type=package_type,
             Publication_Version=publication_version,
+            Act_Mutation=None,
         )
 
         state: Optional[ActiveState] = self._state_loader.load_from_publication_version(publication_version)

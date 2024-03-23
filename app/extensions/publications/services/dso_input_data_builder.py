@@ -16,7 +16,14 @@ from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied
 )
 
 from app.extensions.publications.enums import DocumentType, PackageType, ProcedureType
-from app.extensions.publications.models.api_input_data import ActFrbr, ApiInputData, BillFrbr, PublicationData, Purpose
+from app.extensions.publications.models.api_input_data import (
+    ActFrbr,
+    ActMutation,
+    ApiInputData,
+    BillFrbr,
+    PublicationData,
+    Purpose,
+)
 from app.extensions.publications.tables.tables import (
     PublicationActTable,
     PublicationEnvironmentTable,
@@ -69,6 +76,7 @@ class DsoInputDataBuilder:
         self._environment: PublicationEnvironmentTable = api_input_data.Publication_Version.Publication.Environment
         self._act: PublicationActTable = api_input_data.Publication_Version.Publication.Act
         self._template: PublicationTemplateTable = self._publication.Template
+        self._act_mutation: Optional[ActMutation] = api_input_data.Act_Mutation
 
     def build(self) -> InputData:
         input_data: InputData = InputData(
@@ -80,6 +88,7 @@ class DsoInputDataBuilder:
             resources=self._get_resources(),
             object_template_repository=self._get_object_template_repository(),
             ambtsgebied=self._get_ambtsgebied(),
+            regeling_mutatie=self._get_regeling_mutatie(),
         )
         return input_data
 
@@ -291,4 +300,24 @@ class DsoInputDataBuilder:
     def _get_readable_date_from_str(self, date_str: str) -> str:
         d: date = datetime.strptime(date_str, "%Y-%m-%d")
         result: str = self._get_readable_date(d)
+        return result
+
+    def _get_regeling_mutatie(self) -> Optional[dso_models.RegelingMutatie]:
+        if self._act_mutation is None:
+            return None
+
+        frbr = dso_models.ActFRBR(
+            Work_Province_ID=self._act_mutation.Consolidated_Act_Frbr.Work_Province_ID,
+            Work_Country=self._act_mutation.Consolidated_Act_Frbr.Work_Country,
+            Work_Date=self._act_mutation.Consolidated_Act_Frbr.Work_Date,
+            Work_Other=self._act_mutation.Consolidated_Act_Frbr.Work_Other,
+            Expression_Language=self._act_mutation.Consolidated_Act_Frbr.Expression_Language,
+            Expression_Date=self._act_mutation.Consolidated_Act_Frbr.Expression_Date,
+            Expression_Version=self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
+        )
+        result = dso_models.RegelingMutatie(
+            was_regeling_frbr=frbr,
+            bekend_wid_map=self._act_mutation.Known_Wid_Map,
+            bekend_wids=self._act_mutation.Known_Wids,
+        )
         return result
