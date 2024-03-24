@@ -74,3 +74,4 @@ class ActiveAct(BaseModel):
     Werkingsgebieden: Dict[int, Werkingsgebied]
     Wid_Data: WidData
     Ow_Data: OwData
+    Act_Text: str

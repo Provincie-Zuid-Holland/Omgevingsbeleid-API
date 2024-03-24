@@ -159,7 +159,7 @@ soupsieve==2.5
     # via
     #   beautifulsoup4
     #   dso
-sqlalchemy==2.0.28
+sqlalchemy==2.0.29
     # via -r requirements.in
 starlette==0.36.3
     # via fastapi
@@ -179,7 +179,7 @@ uvicorn[standard]==0.29.0
     # via -r requirements.in
 uvloop==0.19.0
     # via uvicorn
-validators==0.23.2
+validators==0.24.0
     # via -r requirements.in
 watchfiles==0.21.0
     # via uvicorn

@@ -152,7 +152,7 @@ six==1.16.0
     #   asttokens
     #   python-dateutil
     #   requests-mock
-sqlalchemy[mypy]==2.0.28
+sqlalchemy[mypy]==2.0.29
     # via
     #   -r requirements-dev.in
     #   alembic

@@ -141,7 +141,7 @@ class DsoInputDataBuilder:
     def _get_akn_filename(self) -> str:
         package_type: str = (self._package_type[:3]).lower()
         filename: str = (
-            f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}.xml"
+            f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
         )
         return filename
 
@@ -317,6 +317,7 @@ class DsoInputDataBuilder:
         )
         result = dso_models.RegelingMutatie(
             was_regeling_frbr=frbr,
+            was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
             bekend_wid_map=self._act_mutation.Known_Wid_Map,
             bekend_wids=self._act_mutation.Known_Wids,
         )

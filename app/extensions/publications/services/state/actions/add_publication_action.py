@@ -13,3 +13,4 @@ class AddPublicationAction(Action):
     Werkingsgebieden: Dict[int, result_models.Werkingsgebied]
     Wid_Data: result_models.WidData
     Ow_Data: result_models.OwData
+    Act_Text: str

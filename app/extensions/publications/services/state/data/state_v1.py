@@ -56,6 +56,7 @@ class StateV1(ActiveState):
             Werkingsgebieden=action.Werkingsgebieden,
             Wid_Data=action.Wid_Data,
             Ow_Data=action.Ow_Data,
+            Act_Text=action.Act_Text,
         )
         key: str = f"{action.Document_Type}-{action.Procedure_Type}"
         self.Acts[key] = active_act

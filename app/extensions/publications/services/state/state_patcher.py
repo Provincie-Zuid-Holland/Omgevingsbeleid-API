@@ -63,6 +63,10 @@ class StatePatcher:
             Expression_Version=self._api_input_data.Bill_Frbr.Expression_Version,
         )
 
+        act_text: Optional[str] = self._dso_builder.get_regeling_vrijetekst()
+        if act_text is None:
+            raise RuntimeError("Regeling vrijetekst bestaat niet")
+
         action = AddPublicationAction(
             Act_Frbr=act_frbr,
             Bill_Frbr=bill_frbr,
@@ -72,6 +76,7 @@ class StatePatcher:
             Werkingsgebieden=werkingsgebieden,
             Wid_Data=wid_data,
             Ow_Data=ow_data,
+            Act_Text=act_text,
         )
         state.handle_action(action)
         return state

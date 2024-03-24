@@ -52,6 +52,7 @@ class PatchActMutation:
         )
         data.Act_Mutation = ActMutation(
             Consolidated_Act_Frbr=consolidated_frbr,
+            Consolidated_Act_Text=self._active_act.Act_Text,
             Known_Wid_Map=self._active_act.Wid_Data.Known_Wid_Map,
             Known_Wids=self._active_act.Wid_Data.Known_Wids,
         )

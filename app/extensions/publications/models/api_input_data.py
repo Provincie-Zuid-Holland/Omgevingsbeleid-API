@@ -82,6 +82,7 @@ class PublicationData:
 @dataclass
 class ActMutation:
     Consolidated_Act_Frbr: ActFrbr
+    Consolidated_Act_Text: str
     Known_Wid_Map: Dict[str, str]
     Known_Wids: List[str]
 
