@@ -60,14 +60,3 @@ class StateV1(ActiveState):
         )
         key: str = f"{action.Document_Type}-{action.Procedure_Type}"
         self.Acts[key] = active_act
-
-    # def _handle_add_area_of_jurisdiction_action(self, action: AddAreaOfJurisdictionAction):
-    #     # @todo: guard that we do not add duplicates
-    #     aoj: result_models.AreaOfJurisdiction = result_models.AreaOfJurisdiction(
-    #         UUID=str(action.UUID),
-    #         Consolidation_Status=result_models.ConsolidationStatus.consolidated,
-    #         Administrative_Borders_ID=action.Administrative_Borders_ID,
-    #         Act_Work=action.Act_Frbr.get_work(),
-    #         Act_Expression_Version=action.Act_Frbr.get_expression_version(),
-    #     )
-    #     self.Area_Of_Jurisdiction = aoj

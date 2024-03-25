@@ -68,7 +68,6 @@ class PackageBuilderFactory:
         if state is not None:
             data_patcher: ApiInputDataPatcher = ApiInputDataPatcher(state)
             api_input_data = data_patcher.apply(api_input_data)
-            # @todo: Add "Intrekkingen" in separate service
 
         input_data_builder: DsoInputDataBuilder = DsoInputDataBuilder(
             api_input_data,

@@ -7,6 +7,8 @@ Create Date: ${create_date}
 """
 from alembic import op
 import sqlalchemy as sa
+from app.extensions.source_werkingsgebieden import geometry  ## noqa
+from app.extensions.source_werkingsgebieden.geometry import Geometry  ## noqa
 
 # We need these to load all sqlalchemy tables
 from app.main import app  ## noqa 

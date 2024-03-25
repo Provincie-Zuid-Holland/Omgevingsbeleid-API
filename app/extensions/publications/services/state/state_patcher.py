@@ -125,16 +125,3 @@ class StatePatcher:
         )
         state.handle_action(action)
         return state
-
-    # def _patch_area_of_jurisdiction(self, state: State) -> State:
-    #     aoj: dict = self._api_input_data.Publication_Data.area_of_jurisdiction
-    #     if not aoj["New"]:
-    #         return state
-
-    #     action = AddAreaOfJurisdictionAction(
-    #         UUID=aoj["UUID"],
-    #         Administrative_Borders_ID=aoj["Administrative_Borders_ID"],
-    #         Act_Frbr=self._api_input_data.Act_Frbr,
-    #     )
-    #     state.handle_action(action)
-    #     return state

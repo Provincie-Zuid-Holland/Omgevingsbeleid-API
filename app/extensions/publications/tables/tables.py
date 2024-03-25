@@ -112,7 +112,7 @@ class PublicationPurposeTable(Base):
     Created_Date: Mapped[datetime]
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_env_other"),)
+    __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_pub_pur_env_other"),)
 
 
 class PublicationActTable(Base, UserMetaData):
@@ -157,7 +157,7 @@ class PublicationActTable(Base, UserMetaData):
         primaryjoin="PublicationActTable.Withdrawal_Purpose_UUID == PublicationPurposeTable.UUID",
     )
 
-    __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_env_other"),)
+    __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_pub_act_env_other"),)
 
 
 class PublicationActVersionTable(Base):
@@ -255,7 +255,7 @@ class PublicationBillTable(Base, UserMetaData):
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
 
-    __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_env_other"),)
+    __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_pub_bil_env_other"),)
 
 
 class PublicationBillVersionTable(Base):

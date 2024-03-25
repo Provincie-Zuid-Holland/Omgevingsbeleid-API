@@ -1,12 +1,14 @@
-""" Adding publications
+"""Adding publications
 
-Revision ID: 102e47f49b1a
+Revision ID: 63f9900b5b1c
 Revises: 7cb2d113ad32
-Create Date: 2024-03-13 15:26:58.351752
+Create Date: 2024-03-25 13:58:21.549198
 
 """
 from alembic import op
 import sqlalchemy as sa
+from app.extensions.source_werkingsgebieden import geometry  ## noqa
+from app.extensions.source_werkingsgebieden.geometry import Geometry  ## noqa
 
 # We need these to load all sqlalchemy tables
 from app.main import app  ## noqa 
@@ -16,7 +18,7 @@ from app.core.settings import settings  ## noqa
 
 
 # revision identifiers, used by Alembic.
-revision = '102e47f49b1a'
+revision = '63f9900b5b1c'
 down_revision = '7cb2d113ad32'
 branch_labels = None
 depends_on = None
@@ -31,12 +33,10 @@ def upgrade() -> None:
         sa.Column('Is_Activated', sa.Boolean(), nullable=False),
         sa.Column('Activated_Datetime', sa.DateTime(), nullable=True),
         sa.Column('Created_Date', sa.DateTime(), nullable=False),
-        sa.Column('Change_Set', sa.JSON(), nullable=True),
         sa.Column('State', sa.JSON(), nullable=True),
         sa.Column('Created_By_UUID', sa.Uuid(), nullable=False),
         sa.ForeignKeyConstraint(['Adjust_On_UUID'], ['publication_environment_states.UUID'], ),
         sa.ForeignKeyConstraint(['Created_By_UUID'], ['Gebruikers.UUID'], ),
-        sa.ForeignKeyConstraint(['Environment_UUID'], ['publication_environments.UUID'], ),
         sa.PrimaryKeyConstraint('UUID')
     )
     op.create_table('publication_environments',
@@ -64,23 +64,13 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['Modified_By_UUID'], ['Gebruikers.UUID'], ),
         sa.PrimaryKeyConstraint('UUID')
     )
-    op.create_table('publication_acts',
-        sa.Column('UUID', sa.Uuid(), nullable=False),
-        sa.Column('Environment_UUID', sa.Uuid(), nullable=False),
-        sa.Column('Document_Type', sa.Unicode(), nullable=False),
-        sa.Column('Work_Country', sa.Unicode(length=2), nullable=False),
-        sa.Column('Work_Date', sa.Unicode(length=32), nullable=False),
-        sa.Column('Work_Other', sa.Unicode(length=128), nullable=False),
-        sa.Column('Created_Date', sa.DateTime(), nullable=False),
-        sa.Column('Modified_Date', sa.DateTime(), nullable=False),
-        sa.Column('Created_By_UUID', sa.Uuid(), nullable=False),
-        sa.Column('Modified_By_UUID', sa.Uuid(), nullable=False),
-        sa.ForeignKeyConstraint(['Created_By_UUID'], ['Gebruikers.UUID'], ),
-        sa.ForeignKeyConstraint(['Environment_UUID'], ['publication_environments.UUID'], ),
-        sa.ForeignKeyConstraint(['Modified_By_UUID'], ['Gebruikers.UUID'], ),
-        sa.PrimaryKeyConstraint('UUID'),
-        sa.UniqueConstraint('Work_Other')
+    op.create_foreign_key('fk_pub_state_to_env',
+        source_table='publication_environment_states',
+        referent_table='publication_environments',
+        local_cols=['Environment_UUID'],
+        remote_cols=['UUID'],
     )
+
     op.create_table('publication_area_of_jurisdictions',
         sa.Column('UUID', sa.Uuid(), nullable=False),
         sa.Column('Administrative_Borders_ID', sa.Unicode(length=255), nullable=False),
@@ -95,6 +85,7 @@ def upgrade() -> None:
         sa.Column('UUID', sa.Uuid(), nullable=False),
         sa.Column('Environment_UUID', sa.Uuid(), nullable=False),
         sa.Column('Document_Type', sa.Unicode(), nullable=False),
+        sa.Column('Work_Province_ID', sa.Unicode(length=32), nullable=False),
         sa.Column('Work_Country', sa.Unicode(length=2), nullable=False),
         sa.Column('Work_Date', sa.Unicode(length=32), nullable=False),
         sa.Column('Work_Other', sa.Unicode(length=128), nullable=False),
@@ -106,7 +97,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['Environment_UUID'], ['publication_environments.UUID'], ),
         sa.ForeignKeyConstraint(['Modified_By_UUID'], ['Gebruikers.UUID'], ),
         sa.PrimaryKeyConstraint('UUID'),
-        sa.UniqueConstraint('Work_Other')
+        sa.UniqueConstraint('Environment_UUID', 'Work_Other', name='uix_pub_bil_env_other')
     )
     op.create_table('publication_package_zips',
         sa.Column('UUID', sa.Uuid(), nullable=False),
@@ -120,6 +111,21 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['Created_By_UUID'], ['Gebruikers.UUID'], ),
         sa.ForeignKeyConstraint(['Latest_Download_By_UUID'], ['Gebruikers.UUID'], ),
         sa.PrimaryKeyConstraint('UUID')
+    )
+    op.create_table('publication_purposes',
+        sa.Column('UUID', sa.Uuid(), nullable=False),
+        sa.Column('Environment_UUID', sa.Uuid(), nullable=False),
+        sa.Column('Purpose_Type', sa.Unicode(length=50), nullable=False),
+        sa.Column('Effective_Date', sa.Date(), nullable=True),
+        sa.Column('Work_Province_ID', sa.Unicode(length=32), nullable=False),
+        sa.Column('Work_Date', sa.Unicode(length=32), nullable=False),
+        sa.Column('Work_Other', sa.Unicode(length=128), nullable=False),
+        sa.Column('Created_Date', sa.DateTime(), nullable=False),
+        sa.Column('Created_By_UUID', sa.Uuid(), nullable=False),
+        sa.ForeignKeyConstraint(['Created_By_UUID'], ['Gebruikers.UUID'], ),
+        sa.ForeignKeyConstraint(['Environment_UUID'], ['publication_environments.UUID'], ),
+        sa.PrimaryKeyConstraint('UUID'),
+        sa.UniqueConstraint('Environment_UUID', 'Work_Other', name='uix_pub_pur_env_other')
     )
     op.create_table('publication_templates',
         sa.Column('UUID', sa.Uuid(), nullable=False),
@@ -139,18 +145,32 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['Modified_By_UUID'], ['Gebruikers.UUID'], ),
         sa.PrimaryKeyConstraint('UUID')
     )
-    op.create_table('publication_act_versions',
+    op.create_table('publication_acts',
+        sa.Column('ID', sa.Integer(), nullable=False),
         sa.Column('UUID', sa.Uuid(), nullable=False),
-        sa.Column('Act_UUID', sa.Uuid(), nullable=False),
-        sa.Column('Expression_Language', sa.Unicode(length=3), nullable=False),
-        sa.Column('Expression_Date', sa.Unicode(length=32), nullable=False),
-        sa.Column('Expression_Version', sa.Integer(), nullable=False),
+        sa.Column('Environment_UUID', sa.Uuid(), nullable=False),
+        sa.Column('Document_Type', sa.Unicode(length=50), nullable=False),
+        sa.Column('Procedure_Type', sa.Unicode(length=50), nullable=False),
+        sa.Column('Title', sa.Unicode(), nullable=False),
+        sa.Column('Is_Active', sa.Boolean(), nullable=False),
+        sa.Column('Metadata', sa.JSON(), nullable=True),
+        sa.Column('Metadata_Is_Locked', sa.Boolean(), nullable=False),
+        sa.Column('Work_Province_ID', sa.Unicode(length=32), nullable=False),
+        sa.Column('Work_Country', sa.Unicode(length=2), nullable=False),
+        sa.Column('Work_Date', sa.Unicode(length=32), nullable=False),
+        sa.Column('Work_Other', sa.Unicode(length=128), nullable=False),
+        sa.Column('Withdrawal_Purpose_UUID', sa.Uuid(), nullable=True),
         sa.Column('Created_Date', sa.DateTime(), nullable=False),
+        sa.Column('Modified_Date', sa.DateTime(), nullable=False),
         sa.Column('Created_By_UUID', sa.Uuid(), nullable=False),
-        sa.ForeignKeyConstraint(['Act_UUID'], ['publication_acts.UUID'], ),
+        sa.Column('Modified_By_UUID', sa.Uuid(), nullable=False),
         sa.ForeignKeyConstraint(['Created_By_UUID'], ['Gebruikers.UUID'], ),
-        sa.PrimaryKeyConstraint('UUID'),
-        sa.UniqueConstraint('Act_UUID', 'Expression_Version', name='uix_act_version')
+        sa.ForeignKeyConstraint(['Environment_UUID'], ['publication_environments.UUID'], ),
+        sa.ForeignKeyConstraint(['Modified_By_UUID'], ['Gebruikers.UUID'], ),
+        sa.ForeignKeyConstraint(['Withdrawal_Purpose_UUID'], ['publication_purposes.UUID'], ),
+        sa.PrimaryKeyConstraint('ID'),
+        sa.UniqueConstraint('Environment_UUID', 'Work_Other', name='uix_pub_act_env_other'),
+        sa.UniqueConstraint('UUID')
     )
     op.create_table('publication_bill_versions',
         sa.Column('UUID', sa.Uuid(), nullable=False),
@@ -165,17 +185,38 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint('UUID'),
         sa.UniqueConstraint('Bill_UUID', 'Expression_Version', name='uix_bill_version')
     )
+    op.create_table('publication_act_versions',
+        sa.Column('UUID', sa.Uuid(), nullable=False),
+        sa.Column('Act_UUID', sa.Uuid(), nullable=False),
+        sa.Column('Consolidation_Purpose_UUID', sa.Uuid(), nullable=False),
+        sa.Column('Expression_Language', sa.Unicode(length=3), nullable=False),
+        sa.Column('Expression_Date', sa.Unicode(length=32), nullable=False),
+        sa.Column('Expression_Version', sa.Integer(), nullable=False),
+        sa.Column('Created_Date', sa.DateTime(), nullable=False),
+        sa.Column('Created_By_UUID', sa.Uuid(), nullable=False),
+        sa.ForeignKeyConstraint(['Act_UUID'], ['publication_acts.UUID'], ),
+        sa.ForeignKeyConstraint(['Consolidation_Purpose_UUID'], ['publication_purposes.UUID'], ),
+        sa.ForeignKeyConstraint(['Created_By_UUID'], ['Gebruikers.UUID'], ),
+        sa.PrimaryKeyConstraint('UUID'),
+        sa.UniqueConstraint('Act_UUID', 'Expression_Version', name='uix_act_version')
+    )
     op.create_table('publications',
         sa.Column('UUID', sa.Uuid(), nullable=False),
         sa.Column('Module_ID', sa.Integer(), nullable=False),
         sa.Column('Title', sa.Unicode(), nullable=False),
         sa.Column('Document_Type', sa.Unicode(length=50), nullable=False),
+        sa.Column('Procedure_Type', sa.Unicode(length=50), nullable=False),
         sa.Column('Template_UUID', sa.Uuid(), nullable=False),
+        sa.Column('Environment_UUID', sa.Uuid(), nullable=False),
+        sa.Column('Act_UUID', sa.Uuid(), nullable=False),
+        sa.Column('Is_Locked', sa.Boolean(), nullable=False),
         sa.Column('Created_Date', sa.DateTime(), nullable=False),
         sa.Column('Modified_Date', sa.DateTime(), nullable=False),
         sa.Column('Created_By_UUID', sa.Uuid(), nullable=False),
         sa.Column('Modified_By_UUID', sa.Uuid(), nullable=False),
+        sa.ForeignKeyConstraint(['Act_UUID'], ['publication_acts.UUID'], ),
         sa.ForeignKeyConstraint(['Created_By_UUID'], ['Gebruikers.UUID'], ),
+        sa.ForeignKeyConstraint(['Environment_UUID'], ['publication_environments.UUID'], ),
         sa.ForeignKeyConstraint(['Modified_By_UUID'], ['Gebruikers.UUID'], ),
         sa.ForeignKeyConstraint(['Module_ID'], ['modules.Module_ID'], ),
         sa.ForeignKeyConstraint(['Template_UUID'], ['publication_templates.UUID'], ),
@@ -185,21 +226,17 @@ def upgrade() -> None:
         sa.Column('UUID', sa.Uuid(), nullable=False),
         sa.Column('Publication_UUID', sa.Uuid(), nullable=False),
         sa.Column('Module_Status_ID', sa.Integer(), nullable=False),
-        sa.Column('Environment_UUID', sa.Uuid(), nullable=False),
-        sa.Column('Procedure_Type', sa.Unicode(length=50), nullable=False),
         sa.Column('Effective_Date', sa.Date(), nullable=True),
         sa.Column('Announcement_Date', sa.Date(), nullable=True),
         sa.Column('Bill_Metadata', sa.JSON(), nullable=True),
         sa.Column('Bill_Compact', sa.JSON(), nullable=True),
         sa.Column('Procedural', sa.JSON(), nullable=True),
-        sa.Column('Act_Metadata', sa.JSON(), nullable=True),
         sa.Column('Is_Locked', sa.Boolean(), nullable=False),
         sa.Column('Created_Date', sa.DateTime(), nullable=False),
         sa.Column('Modified_Date', sa.DateTime(), nullable=False),
         sa.Column('Created_By_UUID', sa.Uuid(), nullable=False),
         sa.Column('Modified_By_UUID', sa.Uuid(), nullable=False),
         sa.ForeignKeyConstraint(['Created_By_UUID'], ['Gebruikers.UUID'], ),
-        sa.ForeignKeyConstraint(['Environment_UUID'], ['publication_environments.UUID'], ),
         sa.ForeignKeyConstraint(['Modified_By_UUID'], ['Gebruikers.UUID'], ),
         sa.ForeignKeyConstraint(['Module_Status_ID'], ['module_status_history.ID'], ),
         sa.ForeignKeyConstraint(['Publication_UUID'], ['publications.UUID'], ),
@@ -230,14 +267,6 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['Zip_UUID'], ['publication_package_zips.UUID'], ),
         sa.PrimaryKeyConstraint('UUID')
     )
-    op.create_table('publication_package_export_state',
-        sa.Column('UUID', sa.Uuid(), nullable=False),
-        sa.Column('Package_UUID', sa.Uuid(), nullable=False),
-        sa.Column('Export_Data', sa.JSON(), nullable=True),
-        sa.Column('Created_Date', sa.DateTime(), nullable=False),
-        sa.ForeignKeyConstraint(['Package_UUID'], ['publication_packages.UUID'], ),
-        sa.PrimaryKeyConstraint('UUID')
-    )
     op.create_table('publication_package_reports',
         sa.Column('UUID', sa.Uuid(), nullable=False),
         sa.Column('Package_UUID', sa.Uuid(), nullable=False),
@@ -260,17 +289,17 @@ def upgrade() -> None:
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('publication_package_reports')
-    op.drop_table('publication_package_export_state')
     op.drop_table('publication_packages')
     op.drop_table('publication_versions')
     op.drop_table('publications')
-    op.drop_table('publication_bill_versions')
     op.drop_table('publication_act_versions')
+    op.drop_table('publication_bill_versions')
+    op.drop_table('publication_acts')
     op.drop_table('publication_templates')
+    op.drop_table('publication_purposes')
     op.drop_table('publication_package_zips')
     op.drop_table('publication_bills')
     op.drop_table('publication_area_of_jurisdictions')
-    op.drop_table('publication_acts')
     op.drop_table('publication_environments')
     op.drop_table('publication_environment_states')
     # ### end Alembic commands ###

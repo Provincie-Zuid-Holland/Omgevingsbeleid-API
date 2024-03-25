@@ -113,7 +113,7 @@ class EndpointHandler:
             self._db.flush()
 
             self._handle_new_state(package_builder, package)
-            self._handle_bill_act_purpose(package_builder)
+            self._handle_bill_act_purpose(package_builder, package)
 
             self._db.commit()
 
@@ -166,7 +166,7 @@ class EndpointHandler:
         environment.Is_Locked = True
         self._db.add(environment)
 
-    def _handle_bill_act_purpose(self, package_builder: PackageBuilder):
+    def _handle_bill_act_purpose(self, package_builder: PackageBuilder, package: PublicationPackageTable):
         if not self._environment.Has_State:
             return
         if self._object_in.Package_Type != PackageType.PUBLICATION:
@@ -203,6 +203,7 @@ class EndpointHandler:
         )
         self._db.add(bill)
         self._db.flush()
+
         bill_version: PublicationBillVersionTable = PublicationBillVersionTable(
             UUID=uuid.uuid4(),
             Bill_UUID=bill.UUID,
@@ -226,6 +227,12 @@ class EndpointHandler:
             Created_By_UUID=self._user.UUID,
         )
         self._db.add(act_version)
+        self._db.flush()
+
+        package.Bill_Version_UUID = bill_version.UUID
+        package.Act_Version_UUID = act_version.UUID
+        self._db.add(package)
+        self._db.flush()
 
 
 class CreatePublicationPackageEndpoint(Endpoint):
