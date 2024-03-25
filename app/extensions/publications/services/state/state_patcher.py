@@ -30,7 +30,10 @@ class StatePatcher:
             Known_Wid_Map=self._dso_builder.get_used_wid_map(),
             Known_Wids=self._dso_builder.get_used_wids(),
         )
-        ow_data = result_models.OwData()
+        ow_data = result_models.OwData(
+            Object_Ids=self._dso_builder.get_created_ow_object_ids(),
+            Object_Map=self._dso_builder.get_created_ow_object_map(),
+        )
 
         input_purpose = self._api_input_data.Consolidation_Purpose
         effective_date: Optional[str] = None

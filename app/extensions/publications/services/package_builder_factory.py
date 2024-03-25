@@ -4,7 +4,7 @@ from dso.builder.state_manager.input_data.input_data_loader import InputData
 from sqlalchemy.orm import Session
 
 from app.extensions.publications.enums import PackageType, PurposeType
-from app.extensions.publications.models.api_input_data import ApiInputData, PublicationData, Purpose
+from app.extensions.publications.models.api_input_data import ApiInputData, OwData, PublicationData, Purpose
 from app.extensions.publications.services.act_frbr_provider import ActFrbr, ActFrbrProvider
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr, BillFrbrProvider
 from app.extensions.publications.services.dso_input_data_builder import DsoInputDataBuilder
@@ -62,6 +62,7 @@ class PackageBuilderFactory:
             Package_Type=package_type,
             Publication_Version=publication_version,
             Act_Mutation=None,
+            Ow_Data=OwData(),
         )
 
         state: Optional[ActiveState] = self._state_loader.load_from_publication_version(publication_version)

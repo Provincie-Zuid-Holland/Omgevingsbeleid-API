@@ -62,7 +62,8 @@ class WidData(BaseModel):
 
 
 class OwData(BaseModel):
-    pass
+    Object_Ids: List[str]
+    Object_Map: Dict[str, Dict[str, str]]
 
 
 class ActiveAct(BaseModel):

@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Dict, List, Optional
 
+from pydantic import Field
+
 from app.extensions.publications.enums import PackageType, PurposeType
 from app.extensions.publications.tables.tables import PublicationVersionTable
 
@@ -71,6 +73,12 @@ class Purpose:
 
 
 @dataclass
+class OwData:
+    Object_Ids: List[str] = Field([])
+    Object_Map: Dict[str, Dict[str, str]] = Field({})
+
+
+@dataclass
 class PublicationData:
     objects: List[dict]
     assets: List[dict]
@@ -96,3 +104,4 @@ class ApiInputData:
     Package_Type: PackageType
     Publication_Version: PublicationVersionTable
     Act_Mutation: Optional[ActMutation]
+    Ow_Data: OwData

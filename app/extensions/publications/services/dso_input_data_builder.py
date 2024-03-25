@@ -21,6 +21,7 @@ from app.extensions.publications.models.api_input_data import (
     ActMutation,
     ApiInputData,
     BillFrbr,
+    OwData,
     PublicationData,
     Purpose,
 )
@@ -77,6 +78,7 @@ class DsoInputDataBuilder:
         self._act: PublicationActTable = api_input_data.Publication_Version.Publication.Act
         self._template: PublicationTemplateTable = self._publication.Template
         self._act_mutation: Optional[ActMutation] = api_input_data.Act_Mutation
+        self._ow_data: OwData = api_input_data.Ow_Data
 
     def build(self) -> InputData:
         input_data: InputData = InputData(
@@ -89,6 +91,7 @@ class DsoInputDataBuilder:
             object_template_repository=self._get_object_template_repository(),
             ambtsgebied=self._get_ambtsgebied(),
             regeling_mutatie=self._get_regeling_mutatie(),
+            ow_data=self._get_ow_data(),
         )
         return input_data
 
@@ -320,5 +323,12 @@ class DsoInputDataBuilder:
             was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
             bekend_wid_map=self._act_mutation.Known_Wid_Map,
             bekend_wids=self._act_mutation.Known_Wids,
+        )
+        return result
+
+    def _get_ow_data(self) -> dso_models.OwData:
+        result = dso_models.OwData(
+            object_ids=self._ow_data.Object_Ids,
+            object_map=self._ow_data.Object_Map,
         )
         return result

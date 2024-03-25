@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 
-from app.extensions.publications.models.api_input_data import ActFrbr, ActMutation, ApiInputData
+from app.extensions.publications.models.api_input_data import ActFrbr, ActMutation, ApiInputData, OwData
 from app.extensions.publications.services.state import result_models
 
 
@@ -11,6 +11,7 @@ class PatchActMutation:
     def patch(self, data: ApiInputData) -> ApiInputData:
         data = self._patch_werkingsgebieden(data)
         data = self._patch_act_mutation(data)
+        data = self._patch_ow_data(data)
         return data
 
     def _patch_werkingsgebieden(self, data: ApiInputData) -> ApiInputData:
@@ -55,5 +56,12 @@ class PatchActMutation:
             Consolidated_Act_Text=self._active_act.Act_Text,
             Known_Wid_Map=self._active_act.Wid_Data.Known_Wid_Map,
             Known_Wids=self._active_act.Wid_Data.Known_Wids,
+        )
+        return data
+
+    def _patch_ow_data(self, data: ApiInputData) -> ApiInputData:
+        data.Ow_Data = OwData(
+            Object_Ids=self._active_act.Ow_Data.Object_Ids,
+            Object_Map=self._active_act.Ow_Data.Object_Map,
         )
         return data

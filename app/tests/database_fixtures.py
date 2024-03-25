@@ -874,7 +874,7 @@ class DatabaseFixtures:
                 UUID=uuid.UUID("00000000-0000-0010-0000-000000000001"),
                 Title="Inleiding",
                 Description="""
-<h3>Leeswijzer</h3>
+<h6>Leeswijzer</h6>
 <p>De Zuid-Hollandse leefomgeving verbeteren, elke dag, dat is waar de provincie
 aan werkt. Zeven vernieuwingsambities laten zien waar Zuid-Holland naartoe wil.
 Noem het gerust uitdagingen. Met de zeven ambities maakt de provincie ruimte
@@ -892,7 +892,7 @@ compleet met een integraal overzicht van alle beleidsdoelen, beleidskeuzes en de
 kaarten die op hoofdlijnen . Dit hoofdstuk is ook (actueel) te raadplegen via
 https://omgevingsbeleid.zuid-holland.nl</p>
 
-<h3>Doel en opzet</h3>
+<h6>Doel en opzet</h6>
 <p>De Omgevingsvisie van Zuid-Holland biedt een strategische blik op de lange(re)
 termijn voor de gehele fysieke leefomgeving en bevat de hoofdzaken van het te
 voeren integrale beleid van de provincie Zuid-Holland. De Omgevingsvisie vormt
@@ -926,14 +926,14 @@ daarvoor levert.</p>""",
                 UUID=uuid.UUID("00000000-0000-0010-0000-000000000002"),
                 Title="Sturingsfilosofie",
                 Description="""
-<h3>Ruimte voor ontwikkeling, met waarborg voor kwaliteit: 8 sturingsprincipes voor de fysieke leefomgeving</h3>
+<h6>Ruimte voor ontwikkeling, met waarborg voor kwaliteit: 8 sturingsprincipes voor de fysieke leefomgeving</h6>
 <p>De provincie Zuid-Holland heeft met haar uitgebreide instrumentarium grote
 meerwaarde bij het oplossen van de maatschappelijke opgaven van vandaag en
 morgen. En met inbreng van kennis en creativiteit vanuit de samenleving kan nog
 meer worden bereikt. De kunst is het oplossend vermogen van de maatschappij
 te stimuleren en te benutten. Alleen ga je sneller, samen kom je verder</p>
 
-<h3>Doel en opzet</h3>
+<h6>Doel en opzet</h6>
 <p>Zuid-Holland biedt daarom ruimte en vertrouwen aan maatschappelijke
 initiatieven. Maar ruimte en vrijheid gedijen alleen binnen grenzen. Daarom werkt
 de provincie Zuid-Holland vanuit een aantal principes en kaders, voor haarzelf én
@@ -972,7 +972,7 @@ internationale netwerken.</p></li>
 <li><p>Een beschrijving van de huidige staat van de LEEFOMGEVING op basis van de
 leefomgevingstoets.</p></li></ul>
 
-<h3>De kwaliteiten van Zuid-Holland</h3>
+<h6>De kwaliteiten van Zuid-Holland</h6>
 <p>Zuid-Holland is een strategisch gelegen, vruchtbare delta, grotendeels onder
 zeeniveau. De wijze waarop de bewoners van deze delta door de eeuwen heen
 het water hebben weten te bedwingen en benutten, heeft een landschap
