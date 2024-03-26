@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Dict, List, Optional
 
-
 from app.extensions.publications.enums import PackageType, PurposeType
 from app.extensions.publications.tables.tables import PublicationVersionTable
 
