@@ -77,6 +77,14 @@ class ModuleObjectRepository(BaseRepository):
         objects: List[ModuleObjectsTable] = self._db.execute(stmt).scalars()
         return objects
 
+    def get_all_objects_in_time(self, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
+        subq = self._build_snapshot_objects_query(module_id, before).subquery()
+        aliased_objects = aliased(ModuleObjectsTable, subq)
+        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).filter(subq.c.Deleted == False)
+
+        objects: List[ModuleObjectsTable] = self._db.execute(stmt).all()
+        return objects
+
     @staticmethod
     def latest_per_module_query(
         code: str,

@@ -1,4 +1,5 @@
 *.db
+*.db-journal
 .venv/
 venv/
 __pycache__/
@@ -16,7 +17,10 @@ search-date.json
 .coverage
 **/*.hidden*
 output/*
+output-dso/*
 !output/.gitkeep
 .vscode
 notes.md
 .python-version
+temp/
+tmp/

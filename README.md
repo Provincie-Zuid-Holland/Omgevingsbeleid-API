@@ -22,8 +22,12 @@ Then run:
 make test
 ```
 
+### sqlite
 
 
+```
+CONFIGURE_OPTS="--enable-loadable-sqlite-extensions" pyenv install 3.10.13
+```
 
 
 # @TODO: Fix below this
@@ -168,3 +172,5 @@ For example in the .env file:
 ```bash
 FRONTEND_BRANCH=main
 ```
+
+

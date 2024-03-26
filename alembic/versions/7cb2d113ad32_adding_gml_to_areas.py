@@ -1,7 +1,7 @@
 """Adding GML to areas
 
 Revision ID: 7cb2d113ad32
-Revises: 8bdf199b3b73
+Revises: 00c1d7bd6337
 Create Date: 2024-03-09 15:16:33.012620
 
 """
@@ -17,7 +17,7 @@ from app.core.settings import settings  ## noqa
 
 # revision identifiers, used by Alembic.
 revision = '7cb2d113ad32'
-down_revision = '8bdf199b3b73'
+down_revision = '00c1d7bd6337'
 branch_labels = None
 depends_on = None
 

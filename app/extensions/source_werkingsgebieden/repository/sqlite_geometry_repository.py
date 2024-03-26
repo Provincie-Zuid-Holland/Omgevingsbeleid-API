@@ -82,6 +82,7 @@ class SqliteGeometryRepository(GeometryRepository):
             "start_validity": start_validity.strftime(DATE_FORMAT),
             "end_validity": end_validity.strftime(DATE_FORMAT),
         }
+
         sql = """
             INSERT INTO
                 Werkingsgebieden

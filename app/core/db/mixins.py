@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from sqlalchemy import ForeignKey, Unicode
@@ -30,6 +30,8 @@ class SerializerMixin:
     @staticmethod
     def serialize(value):
         if isinstance(value, datetime):
+            return value.isoformat()
+        if isinstance(value, date):
             return value.isoformat()
         if isinstance(value, uuid.UUID):
             return str(value)

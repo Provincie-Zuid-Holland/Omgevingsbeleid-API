@@ -1,6 +1,7 @@
 import uuid
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
+from typing import Dict, List, Optional
 
 from sqlalchemy import text
 
@@ -60,3 +61,48 @@ class AreaGeometryRepository(BaseRepository, metaclass=ABCMeta):
                 UUID = :uuid
             """
         self._db.execute(text(sql), params)
+        self._db.commit()
+
+    def get_area(self, uuidx: uuid.UUID) -> dict:
+        row = self.get_area_optional(uuidx)
+        if row is None:
+            raise RuntimeError(f"Area with UUID {uuidx} does not exist")
+        return row
+
+    def get_area_optional(self, uuidx: uuid.UUID) -> Optional[dict]:
+        params = {
+            "uuid": self._format_uuid(uuidx),
+        }
+        sql = f"""
+            SELECT
+                UUID, Created_Date, Created_By_UUID,
+                {self._shape_to_text("Shape")} AS Shape,
+                Source_Title, Source_Symbol
+            FROM
+                areas
+            WHERE
+                UUID = :uuid
+            """
+        row = self._db.execute(text(sql), params).fetchone()
+        if row is None:
+            return None
+
+        row_dict = row._asdict()
+        return row_dict
+
+    # TODO: WIP - not used yet. combine query for multiple areas for performance
+    def get_areas(self, uuids: List[uuid.UUID]) -> Dict[uuid.UUID, dict]:
+        placeholders = ", ".join(f":uuid{i}" for i in range(len(uuids)))
+        params = {f"uuid{i}": uuid for i, uuid in enumerate(uuids)}
+        sql = f"""
+            SELECT
+                UUID, Created_Date, Created_By_UUID,
+                {self._shape_to_text("Shape")} AS Shape,
+                Source_Title, Source_Symbol
+            FROM
+                areas
+            WHERE
+                UUID IN ({placeholders})
+            """
+        rows = self._db.execute(text(sql), params).fetchall()
+        return {row.UUID: row._asdict() for row in rows}

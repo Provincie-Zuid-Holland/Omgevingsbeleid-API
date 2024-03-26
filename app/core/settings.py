@@ -6,7 +6,7 @@ from pydantic import BaseSettings, validator
 
 class Settings(BaseSettings):
     PROJECT_VERSION: str = "3.0-alpha"
-    DEBUG_MODE: bool = True
+    DEBUG_MODE: bool = False
 
     PROJECT_NAME: str = "Omgevingsbeleid API"
     PROJECT_DESC: str = """
@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     # Mssql Search
     MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
     MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
+
+    # Other
+    DSO_MODULE_DEBUG_EXPORT: bool = False
+    DSO_MODULE_DEBUG_EXPORT_PATH: str = "./tmp/dso-export"
 
     class Config:
         case_sensitive = True
