@@ -150,11 +150,11 @@ class EndpointHandler:
             raise HTTPException(status_code=404, detail="Publication Act niet gevonden")
         if not act.Is_Active:
             raise HTTPException(status_code=404, detail="Publication Act is in actief")
-        if not act.Environment_UUID != self._object_in.Environment_UUID:
+        if act.Environment_UUID != self._object_in.Environment_UUID:
             raise HTTPException(status_code=404, detail="Publication Act is van een ander Environment")
-        if not act.Document_Type != self._object_in.Document_Type.value:
+        if act.Document_Type != self._object_in.Document_Type.value:
             raise HTTPException(status_code=404, detail="Publication Act is van een ander Document Type")
-        if not act.Procedure_Type != self._object_in.Procedure_Type.value:
+        if act.Procedure_Type != self._object_in.Procedure_Type.value:
             raise HTTPException(status_code=404, detail="Publication Act is van een ander Procedure Type")
 
         return act
