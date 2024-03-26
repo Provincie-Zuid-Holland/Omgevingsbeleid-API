@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.extensions.publications.enums import ProcedureType
 from app.extensions.publications.models import BillFrbr
 from app.extensions.publications.tables.tables import (
     PublicationBillTable,
@@ -57,12 +58,16 @@ class BillFrbrProvider:
         publication: PublicationTable = publication_version.Publication
         environment: PublicationEnvironmentTable = publication.Environment
 
+        draft_prefix: str = ""
+        if publication_version.Publication.Procedure_Type == ProcedureType.DRAFT:
+            draft_prefix = "ontwerp-"
+
         timepoint: datetime = datetime.utcnow()
         frbr: BillFrbr = BillFrbr(
             Work_Province_ID=environment.Province_ID,
             Work_Country=environment.Frbr_Country,
             Work_Date=str(timepoint.year),
-            Work_Other=f"{publication.Document_Type.lower()}-{id_suffix}",
+            Work_Other=f"{draft_prefix}{publication.Document_Type.lower()}-{id_suffix}",
             Expression_Language=environment.Frbr_Language,
             Expression_Date=timepoint.strftime("%Y-%m-%d"),
             Expression_Version=1,

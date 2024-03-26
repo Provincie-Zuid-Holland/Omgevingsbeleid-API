@@ -169,8 +169,7 @@ class DsoInputDataBuilder:
             versienummer=self._act_frbr.Expression_Version,
             officiele_titel=self._act.Metadata["Official_Title"],
             citeertitel=self._act.Metadata["Quote_Title"],
-            # @todo: This might change when we add "Ontwerpen"
-            is_officieel="true",
+            is_officieel=("true" if self._act.Procedure_Type == ProcedureType.FINAL else "false"),
             rechtsgebieden=self._as_dso_rechtsgebieden(self._act.Metadata["Jurisdictions"]),
             onderwerpen=self._as_dso_onderwerpen(self._act.Metadata["Subjects"]),
         )
