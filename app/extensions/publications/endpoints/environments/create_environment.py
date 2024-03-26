@@ -76,7 +76,6 @@ class EndpointHandler:
                 UUID=uuid.uuid4(),
                 Environment_UUID=environment.UUID,
                 Adjust_On_UUID=None,
-                Change_Set={},
                 State=(InitialState().state_dict()),
                 Is_Activated=True,
                 Activated_Datetime=self._timepoint,
