@@ -407,7 +407,7 @@ class DatabaseFixturesPublications:
                 Title="Omgevingsvisie 1 voor Stateless",
                 Is_Active=True,
                 Document_Type=DocumentType.VISION.value,
-                Procedure_Type=ProcedureType.FINAL,
+                Procedure_Type=ProcedureType.FINAL.value,
                 Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000001"),
                 Metadata=ActMetadata(
                     Official_Title="Inhouse: Omgevingsvisie van Zuid-Holland",
@@ -439,7 +439,7 @@ class DatabaseFixturesPublications:
                 Title="Omgevingsvisie 1 voor Pre-Prod",
                 Is_Active=True,
                 Document_Type=DocumentType.VISION.value,
-                Procedure_Type=ProcedureType.FINAL,
+                Procedure_Type=ProcedureType.FINAL.value,
                 Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
                 Metadata=ActMetadata(
                     Official_Title="Omgevingsvisie van Zuid-Holland",
@@ -456,6 +456,38 @@ class DatabaseFixturesPublications:
                 Work_Country="nl",
                 Work_Date="2024",
                 Work_Other="omgevingsvisie-1",
+                Withdrawal_Purpose_UUID=None,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
+
+        self._db.add(
+            PublicationActTable(
+                ID=3,
+                UUID=uuid.UUID("90000007-0000-0000-0000-000000000003"),
+                Title="Ontwerp Omgevingsvisie 1 voor Pre-Prod",
+                Is_Active=True,
+                Document_Type=DocumentType.VISION.value,
+                Procedure_Type=ProcedureType.DRAFT.value,
+                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
+                Metadata=ActMetadata(
+                    Official_Title="Ontwerp omgevingsvisie van Zuid-Holland",
+                    Quote_Title="Ontwerp omgevingsvisie van Zuid-Holland",
+                    Subjects=[
+                        Onderwerp.ruimtelijke_ordening.name,
+                    ],
+                    Jurisdictions=[
+                        Rechtsgebied.omgevingsrecht.name,
+                    ],
+                ).dict(),
+                Metadata_Is_Locked=False,
+                Work_Province_ID="pv28",
+                Work_Country="nl",
+                Work_Date="2024",
+                Work_Other="ontwerp-omgevingsvisie-1",
                 Withdrawal_Purpose_UUID=None,
                 Created_Date=self._timepoint,
                 Modified_Date=self._timepoint,
@@ -494,6 +526,23 @@ class DatabaseFixturesPublications:
                 Template_UUID=uuid.UUID("90000001-0000-0000-0000-000000000001"),
                 Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
                 Act_UUID=uuid.UUID("90000007-0000-0000-0000-000000000002"),
+                Is_Locked=False,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
+        self._db.add(
+            PublicationTable(
+                UUID=uuid.UUID("90000005-0000-0000-0000-000000000003"),
+                Module_ID=1,
+                Title="Pre-Prod Ontwerp Omgevingsvisie Module 1",
+                Document_Type=DocumentType.VISION.value,
+                Procedure_Type=ProcedureType.DRAFT.value,
+                Template_UUID=uuid.UUID("90000001-0000-0000-0000-000000000001"),
+                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
+                Act_UUID=uuid.UUID("90000007-0000-0000-0000-000000000003"),
                 Is_Locked=False,
                 Created_Date=self._timepoint,
                 Modified_Date=self._timepoint,
@@ -628,6 +677,48 @@ class DatabaseFixturesPublications:
                     Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
                 ).dict(),
                 Effective_Date=self._timepoint + timedelta(days=7),
+                Announcement_Date=self._timepoint + timedelta(days=7),
+                Is_Locked=False,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
+
+        self._db.add(
+            PublicationVersionTable(
+                UUID=uuid.UUID("90000006-0000-0000-0000-000000000004"),
+                Publication_UUID=uuid.UUID("90000005-0000-0000-0000-000000000003"),
+                Module_Status_ID=3,
+                Bill_Metadata=(
+                    BillMetadata(
+                        Official_Title="Ontwerp Omgevingsvisie van Zuid-Holland",
+                        Subjects=[
+                            Onderwerp.ruimtelijke_ordening.name,
+                        ],
+                        Jurisdictions=[
+                            Rechtsgebied.omgevingsrecht.name,
+                        ],
+                    )
+                ).dict(),
+                Bill_Compact=BillCompact(
+                    Component_Name="nieuweregeling",
+                    Preamble="<p>Ontwerp Omgevingsvisie Provincie Zuid-Holland.</p>",
+                    Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
+                    Signed="<p>Gedeputeerde Staten</p>",
+                    Amendment_Article='Het ontwerp van de Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.',
+                    Custom_Articles=[
+                        Article(
+                            Label="Artikel",
+                            Content="<p>Hierbij nog meer tekst</p>",
+                        ),
+                    ],
+                ).dict(),
+                Procedural=Procedural(
+                    Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
+                    Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
+                ).dict(),
                 Announcement_Date=self._timepoint + timedelta(days=7),
                 Is_Locked=False,
                 Created_Date=self._timepoint,

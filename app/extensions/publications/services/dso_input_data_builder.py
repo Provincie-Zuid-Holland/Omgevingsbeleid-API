@@ -102,7 +102,6 @@ class DsoInputDataBuilder:
         publication_settings = dso_models.PublicationSettings(
             document_type=dso_document_type,
             datum_bekendmaking=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
-            datum_juridisch_werkend_vanaf=self._publication_version.Effective_Date.strftime("%Y-%m-%d"),
             provincie_id=self._environment.Province_ID,
             soort_bestuursorgaan=self._get_soort_bestuursorgaan(),
             regeling_componentnaam=self._publication_version.Bill_Compact["Component_Name"],
@@ -115,11 +114,7 @@ class DsoInputDataBuilder:
                 "publicatie_bestand": self._get_akn_filename(),
                 "datum_bekendmaking": self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
             },
-            doel=dso_models.DoelFRBR(
-                Work_Province_ID=self._consolidation_purpose.Work_Province_ID,
-                Work_Date=self._consolidation_purpose.Work_Date,
-                Work_Other=self._consolidation_purpose.Work_Other,
-            ),
+            instelling_doel=self._get_instelling_doel(),
             besluit_frbr=dso_models.BillFRBR(
                 Work_Province_ID=self._environment.Province_ID,
                 Work_Country=self._bill_frbr.Work_Country,
@@ -143,7 +138,9 @@ class DsoInputDataBuilder:
 
     def _get_akn_filename(self) -> str:
         package_type: str = (self._package_type[:3]).lower()
-        filename: str = f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
+        filename: str = (
+            f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
+        )
         return filename
 
     def _get_besluit(self) -> Besluit:
@@ -158,10 +155,7 @@ class DsoInputDataBuilder:
                 inhoud=self._publication_version.Bill_Compact["Amendment_Article"],
             ),
             tekst_artikelen=self._get_text_articles(),
-            tijd_artikel=Artikel(
-                label="Artikel",
-                inhoud=self._get_time_article(),
-            ),
+            tijd_artikel=self._get_time_article(),
             sluiting=self._get_closing_text(),
             ondertekening=self._publication_version.Bill_Compact["Signed"],
             rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.Bill_Metadata["Jurisdictions"]),
@@ -181,6 +175,33 @@ class DsoInputDataBuilder:
             onderwerpen=self._as_dso_onderwerpen(self._act.Metadata["Subjects"]),
         )
         return regeling
+
+    def _get_instelling_doel(self) -> dso_models.InstellingDoel:
+        frbr = dso_models.DoelFRBR(
+            Work_Province_ID=self._consolidation_purpose.Work_Province_ID,
+            Work_Date=self._consolidation_purpose.Work_Date,
+            Work_Other=self._consolidation_purpose.Work_Other,
+        )
+
+        datum: Optional[str] = None
+        if self._act.Procedure_Type == ProcedureType.FINAL.value:
+            datum = self._publication_version.Effective_Date.strftime("%Y-%m-%d")
+
+        result = dso_models.InstellingDoel(
+            frbr=frbr,
+            datum_juridisch_werkend_vanaf=datum,
+        )
+        return result
+
+    def _get_time_article(self) -> Optional[Artikel]:
+        if self._act.Procedure_Type == ProcedureType.DRAFT.value:
+            return None
+
+        result = Artikel(
+            label="Artikel",
+            inhoud=self._get_time_article_content(),
+        )
+        return result
 
     def _get_procedure_verloop(self) -> dso_models.ProcedureVerloop:
         steps: List[dso_models.ProcedureStap] = []
@@ -289,7 +310,7 @@ class DsoInputDataBuilder:
         text = text.replace("[[SIGNED_DATE]]", signed_date_readable)
         return text
 
-    def _get_time_article(self) -> str:
+    def _get_time_article_content(self) -> str:
         text: str = self._publication_version.Bill_Compact["Time_Article"]
         effective_date_readable: str = self._get_readable_date(self._publication_version.Effective_Date)
         text = text.replace("[[EFFECTIVE_DATE]]", effective_date_readable)
