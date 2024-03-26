@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import dso.models as dso_models
 from dso.builder.state_manager.input_data.ambtsgebied import Ambtsgebied
@@ -143,9 +143,7 @@ class DsoInputDataBuilder:
 
     def _get_akn_filename(self) -> str:
         package_type: str = (self._package_type[:3]).lower()
-        filename: str = (
-            f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
-        )
+        filename: str = f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
         return filename
 
     def _get_besluit(self) -> Besluit:
@@ -257,6 +255,7 @@ class DsoInputDataBuilder:
     def _get_ambtsgebied(self) -> Ambtsgebied:
         aoj: dict = self._publication_data.area_of_jurisdiction
         ambtsgebied: Ambtsgebied = Ambtsgebied(
+            UUID=aoj["UUID"],
             identificatie_suffix=aoj["Administrative_Borders_ID"],
             domein=aoj["Administrative_Borders_Domain"],
             geldig_op=aoj["Administrative_Borders_Date"].strftime("%Y-%m-%d"),
@@ -327,8 +326,8 @@ class DsoInputDataBuilder:
         return result
 
     def _get_ow_data(self) -> dso_models.OwData:
-        object_ids: List[str] = self._ow_data.Object_Ids
-        object_map: Dict[str, Dict[str, str]] = self._ow_data.Object_Map
+        object_ids = self._ow_data.Object_Ids
+        object_map = self._ow_data.Object_Map
         result = dso_models.OwData(
             object_ids=object_ids,
             object_map=object_map,

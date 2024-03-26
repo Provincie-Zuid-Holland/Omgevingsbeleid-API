@@ -1,6 +1,8 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from typing import Dict, List, Optional
+
+from pydantic import BaseModel
 
 from app.extensions.publications.enums import PackageType, PurposeType
 from app.extensions.publications.tables.tables import PublicationVersionTable
@@ -70,10 +72,14 @@ class Purpose:
     Work_Other: str
 
 
-@dataclass
-class OwData:
-    Object_Ids: List[str] = field(default_factory=list)
-    Object_Map: Dict[str, Dict[str, str]] = field(default_factory=dict)
+class OwObjectMap(BaseModel):
+    id_mapping: Dict[str, Dict[str, str]]
+    tekstdeel_mapping: Dict[str, Dict[str, Dict[str, str]]]
+
+
+class OwData(BaseModel):
+    Object_Ids: List[str] = []
+    Object_Map: OwObjectMap = {}
 
 
 @dataclass
