@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import dso.models as dso_models
 from dso.builder.state_manager.input_data.ambtsgebied import Ambtsgebied
@@ -327,8 +327,10 @@ class DsoInputDataBuilder:
         return result
 
     def _get_ow_data(self) -> dso_models.OwData:
+        object_ids: List[str] = self._ow_data.Object_Ids
+        object_map: Dict[str, Dict[str, str]] = self._ow_data.Object_Map
         result = dso_models.OwData(
-            object_ids=self._ow_data.Object_Ids,
-            object_map=self._ow_data.Object_Map,
+            object_ids=object_ids,
+            object_map=object_map,
         )
         return result
