@@ -5,46 +5,46 @@ from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.publications.dependencies import depends_publication_report
-from app.extensions.publications.models import PublicationPackageReport
+from app.extensions.publications.dependencies import depends_publication_announcement
+from app.extensions.publications.models.models import PublicationAnnouncement
 from app.extensions.publications.permissions import PublicationsPermissions
-from app.extensions.publications.tables.tables import PublicationPackageReportTable
+from app.extensions.publications.tables.tables import PublicationAnnouncementTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
 
-class DetailPackageReportEndpoint(Endpoint):
+class DetailPublicationAnnouncementEndpoint(Endpoint):
     def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            report: PublicationPackageReportTable = Depends(depends_publication_report),
+            announcement: PublicationAnnouncementTable = Depends(depends_publication_announcement),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
-                    PublicationsPermissions.can_view_publication_package_report,
+                    PublicationsPermissions.can_view_publication_announcement,
                 )
             ),
-        ) -> PublicationPackageReport:
-            result: PublicationPackageReport = PublicationPackageReport.from_orm(report)
+        ) -> PublicationAnnouncement:
+            result: PublicationAnnouncement = PublicationAnnouncement.from_orm(announcement)
             return result
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=PublicationPackageReport,
-            summary=f"Get details of a publication report",
+            response_model=PublicationAnnouncement,
+            summary=f"Get details of a publication announcement",
             description=None,
-            tags=["Publication Reports"],
+            tags=["Publication Announcements"],
         )
 
         return router
 
 
-class DetailPackageReportEndpointResolver(EndpointResolver):
+class DetailPublicationAnnouncementEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "detail_publication_package_report"
+        return "detail_publication_announcement"
 
     def generate_endpoint(
         self,
@@ -57,7 +57,7 @@ class DetailPackageReportEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        if not "{report_uuid}" in path:
-            raise RuntimeError("Missing {report_uuid} argument in path")
+        if not "{announcement_uuid}" in path:
+            raise RuntimeError("Missing {announcement_uuid} argument in path")
 
-        return DetailPackageReportEndpoint(path=path)
+        return DetailPublicationAnnouncementEndpoint(path=path)

@@ -71,6 +71,5 @@ class BillFrbrProvider:
             Expression_Language=environment.Frbr_Language,
             Expression_Date=timepoint.strftime("%Y-%m-%d"),
             Expression_Version=1,
-            Document_Type=publication.Document_Type,
         )
         return frbr

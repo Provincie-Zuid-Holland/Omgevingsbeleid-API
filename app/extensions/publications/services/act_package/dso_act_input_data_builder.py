@@ -3,15 +3,19 @@ from datetime import date, datetime
 from typing import List, Optional
 
 import dso.models as dso_models
-from dso.builder.state_manager.input_data.ambtsgebied import Ambtsgebied
-from dso.builder.state_manager.input_data.besluit import Artikel, Besluit
-from dso.builder.state_manager.input_data.input_data_loader import InputData
-from dso.builder.state_manager.input_data.object_template_repository import ObjectTemplateRepository
-from dso.builder.state_manager.input_data.regeling import Regeling
-from dso.builder.state_manager.input_data.resource.asset.asset_repository import AssetRepository as DSOAssetRepository
-from dso.builder.state_manager.input_data.resource.policy_object.policy_object_repository import PolicyObjectRepository
-from dso.builder.state_manager.input_data.resource.resources import Resources
-from dso.builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied_repository import (
+from dso.act_builder.state_manager.input_data.ambtsgebied import Ambtsgebied
+from dso.act_builder.state_manager.input_data.besluit import Artikel, Besluit
+from dso.act_builder.state_manager.input_data.input_data_loader import InputData
+from dso.act_builder.state_manager.input_data.object_template_repository import ObjectTemplateRepository
+from dso.act_builder.state_manager.input_data.regeling import Regeling
+from dso.act_builder.state_manager.input_data.resource.asset.asset_repository import (
+    AssetRepository as DSOAssetRepository,
+)
+from dso.act_builder.state_manager.input_data.resource.policy_object.policy_object_repository import (
+    PolicyObjectRepository,
+)
+from dso.act_builder.state_manager.input_data.resource.resources import Resources
+from dso.act_builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied_repository import (
     WerkingsgebiedRepository,
 )
 
@@ -19,7 +23,7 @@ from app.extensions.publications.enums import DocumentType, PackageType, Procedu
 from app.extensions.publications.models.api_input_data import (
     ActFrbr,
     ActMutation,
-    ApiInputData,
+    ApiActInputData,
     BillFrbr,
     OwData,
     PublicationData,
@@ -65,8 +69,8 @@ DUTCH_MONTHS = {
 }
 
 
-class DsoInputDataBuilder:
-    def __init__(self, api_input_data: ApiInputData):
+class DsoActInputDataBuilder:
+    def __init__(self, api_input_data: ApiActInputData):
         self._publication_version: PublicationVersionTable = api_input_data.Publication_Version
         self._package_type: PackageType = api_input_data.Package_Type
         self._bill_frbr: BillFrbr = api_input_data.Bill_Frbr

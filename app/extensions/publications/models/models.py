@@ -333,3 +333,98 @@ class PublicationPackage(BaseModel):
     class Config:
         orm_mode = True
         arbitrary_types_allowed = True
+
+
+class PublicationPackageShort(BaseModel):
+    UUID: uuid.UUID
+
+    Package_Type: str
+    Report_Status: str
+    Delivery_ID: str
+
+    Created_Date: datetime
+    Modified_Date: datetime
+    Created_By_UUID: uuid.UUID
+    Modified_By_UUID: uuid.UUID
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+
+class AnnouncementMetadata(BaseModel):
+    Official_Title: str = Field("")
+    Subjects: List[str] = Field([])
+
+    class Config:
+        orm_mode = True
+
+
+class AnnouncementProcedural(BaseModel):
+    Enactment_Date: Optional[str] = Field(None)
+    Signed_Date: Optional[str] = Field(None)
+    Procedural_Announcement_Date: Optional[str] = Field(None)
+    Begin_Inspection_Period_Date: Optional[str] = Field(None)
+    End_Inspection_Period_Date: Optional[str] = Field(None)
+
+    @validator(
+        "Enactment_Date",
+        "Signed_Date",
+        "Procedural_Announcement_Date",
+        "Begin_Inspection_Period_Date",
+        "End_Inspection_Period_Date",
+    )
+    def validate_date(cls, value):
+        if value is not None:
+            try:
+                datetime.strptime(value, "%Y-%m-%d").date()
+            except ValueError:
+                raise ValueError(f"Invalid date format. Expected YYYY-MM-DD, got {value}")
+        return value
+
+    class Config:
+        orm_mode = True
+
+
+class AnnouncementText(BaseModel):
+    Title: str
+    Description: str
+
+
+class AnnouncementContent(BaseModel):
+    Texts: List[AnnouncementText]
+
+
+class PublicationAnnouncement(BaseModel):
+    UUID: uuid.UUID
+
+    Act_Package: PublicationPackageShort
+    Publication: PublicationShort
+
+    Metadata: dict
+    Procedural: dict
+    Content: dict
+
+    Announcement_Date: Optional[date]
+    Is_Locked: bool
+
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class PublicationAnnouncementShort(BaseModel):
+    UUID: uuid.UUID
+
+    Metadata: dict
+
+    Announcement_Date: Optional[date]
+    Is_Locked: bool
+
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    class Config:
+        orm_mode = True

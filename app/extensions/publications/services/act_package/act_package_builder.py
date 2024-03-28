@@ -1,36 +1,28 @@
 import hashlib
 import io
 import uuid
-from dataclasses import dataclass
 from typing import Optional
 
-from dso.builder.builder import Builder
-from dso.builder.state_manager.input_data.input_data_loader import InputData
+from dso.act_builder.builder import Builder
+from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 
-from app.extensions.publications.models.api_input_data import ApiInputData, Purpose
+from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
+from app.extensions.publications.models.zip import ZipData
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
+from app.extensions.publications.services.act_package.act_state_patcher import ActStatePatcher
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
 from app.extensions.publications.services.state.state import State
-from app.extensions.publications.services.state.state_patcher import StatePatcher
 from app.extensions.publications.tables.tables import PublicationEnvironmentStateTable, PublicationEnvironmentTable
 
 
-@dataclass
-class ZipData:
-    Publication_Filename: str
-    Filename: str
-    Binary: bytes
-    Checksum: str
-
-
-class PackageBuilder:
+class ActPackageBuilder:
     def __init__(
         self,
-        api_input_data: ApiInputData,
+        api_input_data: ApiActInputData,
         state: Optional[State],
         input_data: InputData,
     ):
-        self._api_input_data: ApiInputData = api_input_data
+        self._api_input_data: ApiActInputData = api_input_data
         self._state: Optional[State] = state
         self._input_data: InputData = input_data
         self._dso_builder: Builder = Builder(input_data)
@@ -74,7 +66,7 @@ class PackageBuilder:
 
         environment: PublicationEnvironmentTable = self._api_input_data.Publication_Version.Publication.Environment
 
-        state_changer: StatePatcher = StatePatcher(self._api_input_data, self._dso_builder)
+        state_changer: ActStatePatcher = ActStatePatcher(self._api_input_data, self._dso_builder)
         state: State = state_changer.apply(self._state)
 
         state_table: PublicationEnvironmentStateTable = PublicationEnvironmentStateTable(

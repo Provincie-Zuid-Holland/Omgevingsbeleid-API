@@ -1,4 +1,4 @@
-from .api_input_data import ActFrbr, BillFrbr, PublicationData
+from .api_input_data import ActFrbr, BillFrbr, DocFrbr, PublicationData
 from .models import (
     ActMetadata,
     Article,

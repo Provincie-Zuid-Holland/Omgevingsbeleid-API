@@ -1,0 +1,4 @@
+from .detail_package_act_report import DetailPackageActReportEndpointResolver
+from .download_package_report import DownloadPackageActReportEndpointResolver
+from .list_package_reports import ListPackageActReportsEndpointResolver
+from .upload_package_report import UploadPackageActReportEndpointResolver

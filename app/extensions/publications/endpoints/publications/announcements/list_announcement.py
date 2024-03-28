@@ -10,32 +10,32 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, SimplePagination
-from app.extensions.publications.dependencies import depends_publication_package_repository
-from app.extensions.publications.models import PublicationPackage
+from app.extensions.publications.dependencies import depends_publication_announcement_repository
+from app.extensions.publications.models.models import PublicationAnnouncementShort
 from app.extensions.publications.permissions import PublicationsPermissions
-from app.extensions.publications.repository.publication_package_repository import PublicationPackageRepository
+from app.extensions.publications.repository.publication_announcement_repository import PublicationAnnouncementRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
 
-class ListPublicationPackagesEndpoint(Endpoint):
+class ListPublicationAnnouncementsEndpoint(Endpoint):
     def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            version_uuid: Optional[uuid.UUID] = None,
+            act_package_uuid: Optional[uuid.UUID] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
-            package_repository: PublicationPackageRepository = Depends(depends_publication_package_repository),
+            repository: PublicationAnnouncementRepository = Depends(depends_publication_announcement_repository),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
-                    PublicationsPermissions.can_view_publication_package,
+                    PublicationsPermissions.can_view_publication_announcement,
                 )
             ),
-        ) -> PagedResponse[PublicationPackage]:
+        ) -> PagedResponse[PublicationAnnouncementShort]:
             return self._handler(
-                package_repository,
-                version_uuid,
+                repository,
+                act_package_uuid,
                 pagination,
             )
 
@@ -43,29 +43,29 @@ class ListPublicationPackagesEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=PagedResponse[PublicationPackage],
-            summary="List the existing publication packages of a publication version",
+            response_model=PagedResponse[PublicationAnnouncementShort],
+            summary="List the existing Publication announcements",
             description=None,
-            tags=["Publication Packages"],
+            tags=["Publication Announcements"],
         )
 
         return router
 
     def _handler(
         self,
-        package_repository: PublicationPackageRepository,
-        version_uuid: Optional[uuid.UUID],
+        repository: PublicationAnnouncementRepository,
+        act_package_uuid: Optional[uuid.UUID],
         pagination: SimplePagination,
     ):
-        paginated_result = package_repository.get_with_filters(
-            version_uuid=version_uuid,
+        paginated_result = repository.get_with_filters(
+            act_package_uuid=act_package_uuid,
             offset=pagination.offset,
             limit=pagination.limit,
         )
 
-        results = [PublicationPackage.from_orm(r) for r in paginated_result.items]
+        results = [PublicationAnnouncementShort.from_orm(r) for r in paginated_result.items]
 
-        return PagedResponse[PublicationPackage](
+        return PagedResponse[PublicationAnnouncementShort](
             total=paginated_result.total_count,
             offset=pagination.offset,
             limit=pagination.limit,
@@ -73,9 +73,9 @@ class ListPublicationPackagesEndpoint(Endpoint):
         )
 
 
-class ListPublicationPackagesEndpointResolver(EndpointResolver):
+class ListPublicationAnnouncementsEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "list_publication_packages"
+        return "list_publication_announcements"
 
     def generate_endpoint(
         self,
@@ -88,6 +88,4 @@ class ListPublicationPackagesEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        return ListPublicationPackagesEndpoint(
-            path=path,
-        )
+        return ListPublicationAnnouncementsEndpoint(path=path)

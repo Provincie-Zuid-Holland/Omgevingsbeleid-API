@@ -54,8 +54,12 @@ class EndpointHandler:
     def handle(self) -> PublicationVersionCreatedResponse:
         module_status: ModuleStatusHistoryTable = self._get_module_status()
 
-        bill_metadata = self._defaults_provider.get_bill_metadata(self._publication.Document_Type)
-        bill_compact = self._defaults_provider.get_bill_compact(self._publication.Document_Type)
+        bill_metadata = self._defaults_provider.get_bill_metadata(
+            self._publication.Document_Type, self._publication.Procedure_Type
+        )
+        bill_compact = self._defaults_provider.get_bill_compact(
+            self._publication.Document_Type, self._publication.Procedure_Type
+        )
         procedural = self._defaults_provider.get_procedural()
 
         version: PublicationVersionTable = PublicationVersionTable(

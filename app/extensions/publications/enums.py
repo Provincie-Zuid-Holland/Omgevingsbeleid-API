@@ -19,7 +19,6 @@ class ProcedureType(str, Enum):
 class PackageType(str, Enum):
     VALIDATION = "validation"
     PUBLICATION = "publication"
-    PUBLICATION_ABORT = "publication_abort"
 
 
 class ReportStatusType(str, Enum):

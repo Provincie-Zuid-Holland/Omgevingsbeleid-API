@@ -50,10 +50,19 @@ class PublicationsExtension(Extension):
             endpoints.CreatePublicationPackageEndpointResolver(),
             endpoints.DownloadPackageEndpointResolver(),
             # Package Reports
-            endpoints.UploadPackageReportEndpointResolver(),
-            endpoints.ListPackageReportsEndpointResolver(),
-            endpoints.DetailPackageReportEndpointResolver(),
-            endpoints.DownloadPackageReportEndpointResolver(),
+            endpoints.UploadPackageActReportEndpointResolver(),
+            endpoints.ListPackageActReportsEndpointResolver(),
+            endpoints.DetailPackageActReportEndpointResolver(),
+            endpoints.DownloadPackageActReportEndpointResolver(),
+            # Announcements
+            endpoints.CreatePublicationAnnouncementEndpointResolver(),
+            endpoints.ListPublicationAnnouncementsEndpointResolver(),
+            endpoints.DetailPublicationAnnouncementEndpointResolver(),
+            endpoints.EditPublicationAnnouncementEndpointResolver(),
+            # Announcement Packages
+            endpoints.CreatePublicationAnnouncementPackageEndpointResolver(),
+            endpoints.DownloadPublicationAnnouncementPackageEndpointResolver(),
+            endpoints.ListPublicationAnnouncementPackagesEndpointResolver(),
         ]
 
     def register_models(self, models_resolver: ModelsResolver):

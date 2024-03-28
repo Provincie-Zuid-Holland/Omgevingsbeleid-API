@@ -16,14 +16,27 @@ from .publications import (
     EditPublicationEndpointResolver,
     ListPublicationsEndpointResolver,
 )
-from .publications.packages.create_package import CreatePublicationPackageEndpointResolver
-from .publications.packages.download_package import DownloadPackageEndpointResolver
-from .publications.packages.list_packages import ListPublicationPackagesEndpointResolver
-from .publications.reports import (
-    DetailPackageReportEndpointResolver,
-    DownloadPackageReportEndpointResolver,
-    ListPackageReportsEndpointResolver,
-    UploadPackageReportEndpointResolver,
+from .publications.act_packages import (
+    CreatePublicationPackageEndpointResolver,
+    DownloadPackageEndpointResolver,
+    ListPublicationPackagesEndpointResolver,
+)
+from .publications.act_reports import (
+    DetailPackageActReportEndpointResolver,
+    DownloadPackageActReportEndpointResolver,
+    ListPackageActReportsEndpointResolver,
+    UploadPackageActReportEndpointResolver,
+)
+from .publications.announcement_packages import (
+    CreatePublicationAnnouncementPackageEndpointResolver,
+    DownloadPublicationAnnouncementPackageEndpointResolver,
+    ListPublicationAnnouncementPackagesEndpointResolver,
+)
+from .publications.announcements import (
+    CreatePublicationAnnouncementEndpointResolver,
+    DetailPublicationAnnouncementEndpointResolver,
+    EditPublicationAnnouncementEndpointResolver,
+    ListPublicationAnnouncementsEndpointResolver,
 )
 from .publications.versions import (
     CreatePublicationVersionEndpointResolver,

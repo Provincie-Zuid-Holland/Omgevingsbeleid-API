@@ -353,27 +353,27 @@ api:
       endpoints:
         - resolver: edit_publication_version
         - resolver: detail_publication_version
-    - prefix: /publication-versions/{version_uuid}/packages
+    - prefix: /publication-versions/{version_uuid}/act-packages
       endpoints:
-        - resolver: create_publication_package
-    - prefix: /publication-packages
+        - resolver: create_publication_act_package
+    - prefix: /publication-act-packages
       endpoints:
-        - resolver: list_publication_packages
-    - prefix: /publication-packages/{package_uuid}
+        - resolver: list_publication_act_packages
+    - prefix: /publication-act-packages/{package_uuid}
       endpoints:
-        - resolver: download_publication_package
+        - resolver: download_publication_act_package
           resolver_data:
             path: /download
-        - resolver: upload_publication_package_report
+        - resolver: upload_publication_act_package_report
           resolver_data:
             path: /report
-    - prefix: /publication-reports
+    - prefix: /publication-act-reports
       endpoints:
-        - resolver: list_publication_package_reports
-    - prefix: /publication-reports/{report_uuid}
+        - resolver: list_publication_act_package_reports
+    - prefix: /publication-act-reports/{act_report_uuid}
       endpoints:
-        - resolver: detail_publication_package_report
-        - resolver: download_publication_package_report
+        - resolver: detail_publication_act_package_report
+        - resolver: download_publication_act_package_report
           resolver_data:
             path: /download
 
@@ -583,9 +583,9 @@ users_permissions:
     - can_create_publication_version
     - can_edit_publication_version
     - can_view_publication_version
-    - can_create_publication_package
-    - can_view_publication_package
-    - can_download_publication_package
+    - can_create_publication_act_package
+    - can_view_publication_act_package
+    - can_download_publication_act_package
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -622,12 +622,12 @@ users_permissions:
     - can_create_publication_version
     - can_edit_publication_version
     - can_view_publication_version
-    - can_create_publication_package
-    - can_view_publication_package
-    - can_download_publication_package
-    - can_upload_publication_package_report
-    - can_view_publication_package_report
-    - can_download_publication_package_report
+    - can_create_publication_act_package
+    - can_view_publication_act_package
+    - can_download_publication_act_package
+    - can_upload_publication_act_package_report
+    - can_view_publication_act_package_report
+    - can_download_publication_act_package_report
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -663,12 +663,12 @@ users_permissions:
     - can_create_publication_version
     - can_edit_publication_version
     - can_view_publication_version
-    - can_create_publication_package
-    - can_view_publication_package
-    - can_download_publication_package
-    - can_upload_publication_package_report
-    - can_view_publication_package_report
-    - can_download_publication_package_report
+    - can_create_publication_act_package
+    - can_view_publication_act_package
+    - can_download_publication_act_package
+    - can_upload_publication_act_package_report
+    - can_view_publication_act_package_report
+    - can_download_publication_act_package_report
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -704,12 +704,12 @@ users_permissions:
     - can_create_publication_version
     - can_edit_publication_version
     - can_view_publication_version
-    - can_create_publication_package
-    - can_view_publication_package
-    - can_download_publication_package
-    - can_upload_publication_package_report
-    - can_view_publication_package_report
-    - can_download_publication_package_report
+    - can_create_publication_act_package
+    - can_view_publication_act_package
+    - can_download_publication_act_package
+    - can_upload_publication_act_package_report
+    - can_view_publication_act_package_report
+    - can_download_publication_act_package_report
   "Test runner":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -745,12 +745,12 @@ users_permissions:
     - can_create_publication_version
     - can_edit_publication_version
     - can_view_publication_version
-    - can_create_publication_package
-    - can_view_publication_package
-    - can_download_publication_package
-    - can_upload_publication_package_report
-    - can_view_publication_package_report
-    - can_download_publication_package_report
+    - can_create_publication_act_package
+    - can_view_publication_act_package
+    - can_download_publication_act_package
+    - can_upload_publication_act_package_report
+    - can_view_publication_act_package_report
+    - can_download_publication_act_package_report
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -786,12 +786,12 @@ users_permissions:
     - can_create_publication_version
     - can_edit_publication_version
     - can_view_publication_version
-    - can_create_publication_package
-    - can_view_publication_package
-    - can_download_publication_package
-    - can_upload_publication_package_report
-    - can_view_publication_package_report
-    - can_download_publication_package_report
+    - can_create_publication_act_package
+    - can_view_publication_act_package
+    - can_download_publication_act_package
+    - can_upload_publication_act_package_report
+    - can_view_publication_act_package_report
+    - can_download_publication_act_package_report
 
 mssql_search:
   - table_name: objects
@@ -837,7 +837,36 @@ publication:
           - omgevingsrecht
   
   bill_defaults:
-    omgevingsvisie:
+    draft_omgevingsvisie:
+      # @see: class BillMetadata
+      bill_metadata:
+        Official_Title: Omgevingsvisie Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+      # @see: class BillCompact
+      bill_compact:
+        Component_Name: nieuweregeling
+        Preamble: |
+          <p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>
+        Closing: |
+          <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
+        Signed: |
+          <p>Gedeputeerde Staten</p>
+        Amendment_Article: |
+          De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
+        Time_Article: |
+          <Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>
+      # @see: class ActMetadata
+      act_metadata:
+        Official_Title: Omgevingsvisie Provincie Zuid-Holland
+        Quote_Title: Omgevingsvisie Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+    final_omgevingsvisie:
       # @see: class BillMetadata
       bill_metadata:
         Official_Title: Omgevingsvisie Provincie Zuid-Holland
@@ -867,7 +896,7 @@ publication:
         Jurisdictions:
           - omgevingsrecht
 
-    programma:
+    draft_programma:
       bill_metadata:
         Official_Title: Programma Provincie Zuid-Holland
         Subjects:
@@ -893,3 +922,55 @@ publication:
           - ruimtelijke_ordening
         Jurisdictions:
           - omgevingsrecht
+    final_programma:
+      bill_metadata:
+        Official_Title: Programma Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+      bill_compact:
+        Component_Name: nieuweregeling
+        Preamble: |
+          <p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>
+        Closing: |
+          <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
+        Signed: |
+          <p>Gedeputeerde Staten</p>
+        Amendment_Article: |
+          Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
+        Time_Article: |
+          <Al>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</Al>
+      act_metadata:
+        Official_Title: Programma Provincie Zuid-Holland
+        Quote_Title: Programma Provincie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+        Jurisdictions:
+          - omgevingsrecht
+
+  announcement_defaults:
+    draft_omgevingsvisie:
+      metadata:
+        Official_Title: Kennisgeving bij het ontwerpbesluit tot instellen van de Omgevingsvisie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+  
+    final_omgevingsvisie:
+      metadata:
+        Official_Title: Kennisgeving bij het definitief besluit tot instellen van de Omgevingsvisie Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+
+    draft_programma:
+      metadata:
+        Official_Title: Kennisgeving bij het ontwerpbesluit tot instellen van de Programma Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+
+    final_programma:
+      metadata:
+        Official_Title: Kennisgeving bij het definitief besluit tot instellen van de Programma Zuid-Holland
+        Subjects:
+          - ruimtelijke_ordening
+  

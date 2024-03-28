@@ -15,15 +15,18 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PaginatedQueryResult
-from app.extensions.publications.dependencies import depends_publication_package, depends_publication_report_repository
+from app.extensions.publications.dependencies import (
+    depends_publication_act_package,
+    depends_publication_act_report_repository,
+)
 from app.extensions.publications.enums import PackageType, ReportStatusType
 from app.extensions.publications.permissions import PublicationsPermissions
-from app.extensions.publications.repository.publication_report_repository import PublicationReportRepository
+from app.extensions.publications.repository.publication_act_report_repository import PublicationActReportRepository
 from app.extensions.publications.tables.tables import (
+    PublicationActPackageReportTable,
+    PublicationActPackageTable,
     PublicationEnvironmentStateTable,
     PublicationEnvironmentTable,
-    PublicationPackageReportTable,
-    PublicationPackageTable,
 )
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
@@ -42,11 +45,11 @@ class RunningStatus(BaseModel):
 class FileParser:
     def __init__(
         self,
-        package: PublicationPackageTable,
+        package: PublicationActPackageTable,
         created_by_uuid: uuid.UUID,
         timepoint: datetime,
     ):
-        self._package: PublicationPackageTable = package
+        self._package: PublicationActPackageTable = package
         self._created_by_uuid: uuid.UUID = created_by_uuid
         self._timepoint: datetime = timepoint
         self._namespaces: Dict[str, str] = {
@@ -54,17 +57,17 @@ class FileParser:
             "stop": "http://www.overheid.nl/2017/stop",
         }
 
-    def parse(self, file: UploadFile) -> PublicationPackageReportTable:
+    def parse(self, file: UploadFile) -> PublicationActPackageReportTable:
         content: bytes = file.file.read()
         file.file.close()
 
-        report: PublicationPackageReportTable = self._parse_report_xml(content, file.filename)
+        report: PublicationActPackageReportTable = self._parse_report_xml(content, file.filename)
         if not settings.DEBUG_MODE and report.Sub_Delivery_ID != self._package.Delivery_ID:
             raise HTTPException(status_code=403, detail="Report idLevering does not match publication package UUID")
 
         return report
 
-    def _parse_report_xml(self, content: bytes, filename: str) -> PublicationPackageReportTable:
+    def _parse_report_xml(self, content: bytes, filename: str) -> PublicationActPackageReportTable:
         """
         Parse the XML content to a dictionary of variables
         """
@@ -83,7 +86,7 @@ class FileParser:
             if main_outcome == "succes":
                 report_status = ReportStatusType.VALID
 
-            report_table = PublicationPackageReportTable(
+            report_table = PublicationActPackageReportTable(
                 UUID=uuid.uuid4(),
                 Package_UUID=self._package.UUID,
                 Report_Status=report_status,
@@ -111,16 +114,16 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
-        report_repository: PublicationReportRepository,
+        report_repository: PublicationActReportRepository,
         user: UsersTable,
         uploaded_files: List[UploadFile],
-        package: PublicationPackageTable,
+        package: PublicationActPackageTable,
     ):
         self._db: Session = db
-        self._report_repository: PublicationReportRepository = report_repository
+        self._report_repository: PublicationActReportRepository = report_repository
         self._user: UsersTable = user
         self._uploaded_files: List[UploadFile] = uploaded_files
-        self._package: PublicationPackageTable = package
+        self._package: PublicationActPackageTable = package
         self._timepoint: datetime = datetime.utcnow()
         self._starting_status: ReportStatusType = self._package.Report_Status
         self._file_parser: FileParser = FileParser(
@@ -150,7 +153,7 @@ class EndpointHandler:
                 duplicate_count += 1
                 continue
 
-            report: PublicationPackageReportTable = self._file_parser.parse(file)
+            report: PublicationActPackageReportTable = self._file_parser.parse(file)
             self._db.add(report)
             running_status = self._update_running_status(running_status, report)
 
@@ -176,7 +179,7 @@ class EndpointHandler:
     def _update_running_status(
         self,
         running_status: RunningStatus,
-        report: PublicationPackageReportTable,
+        report: PublicationActPackageReportTable,
     ):
         if self._package.Report_Status == ReportStatusType.FAILED:
             running_status.Status = ReportStatusType.FAILED
@@ -249,20 +252,20 @@ class EndpointHandler:
             self._db.add(self._package.Publication_Version)
 
 
-class UploadPackageReportEndpoint(Endpoint):
+class UploadPackageActReportEndpoint(Endpoint):
     def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            package: PublicationPackageTable = Depends(depends_publication_package),
+            package: PublicationActPackageTable = Depends(depends_publication_act_package),
             uploaded_files: List[UploadFile] = File(...),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
-                    PublicationsPermissions.can_upload_publication_package_report,
+                    PublicationsPermissions.can_upload_publication_act_package_report,
                 )
             ),
-            report_repository: PublicationReportRepository = Depends(depends_publication_report_repository),
+            report_repository: PublicationActReportRepository = Depends(depends_publication_act_report_repository),
             db: Session = Depends(depends_db),
         ) -> UploadPackageReportResponse:
             handler: EndpointHandler = EndpointHandler(
@@ -282,15 +285,15 @@ class UploadPackageReportEndpoint(Endpoint):
             summary=f"Record the submission response from lvbb of a publication package",
             response_model=UploadPackageReportResponse,
             description=None,
-            tags=["Publication Reports"],
+            tags=["Publication Act Reports"],
         )
 
         return router
 
 
-class UploadPackageReportEndpointResolver(EndpointResolver):
+class UploadPackageActReportEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "upload_publication_package_report"
+        return "upload_publication_act_package_report"
 
     def generate_endpoint(
         self,
@@ -305,4 +308,4 @@ class UploadPackageReportEndpointResolver(EndpointResolver):
         if not "{package_uuid}" in path:
             raise RuntimeError("Missing {package_uuid} argument in path")
 
-        return UploadPackageReportEndpoint(path=path)
+        return UploadPackageActReportEndpoint(path=path)

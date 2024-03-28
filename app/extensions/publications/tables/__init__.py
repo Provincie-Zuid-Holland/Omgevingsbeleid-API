@@ -1,11 +1,11 @@
 from .tables import (
+    PublicationActPackageReportTable,
+    PublicationActPackageTable,
     PublicationActTable,
     PublicationActVersionTable,
     PublicationAreaOfJurisdictionTable,
     PublicationEnvironmentStateTable,
     PublicationEnvironmentTable,
-    PublicationPackageReportTable,
-    PublicationPackageTable,
     PublicationPackageZipTable,
     PublicationTable,
     PublicationTemplateTable,

@@ -2,9 +2,9 @@ from copy import deepcopy
 from typing import Dict, Optional
 
 import dso.models as dso_models
-from dso.builder.builder import Builder
+from dso.act_builder.builder import Builder
 
-from app.extensions.publications.models.api_input_data import ApiInputData, Purpose
+from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
 from app.extensions.publications.services.state import result_models
 from app.extensions.publications.services.state.actions.add_publication_action import AddPublicationAction
 from app.extensions.publications.services.state.actions.add_purpose_action import AddPurposeAction
@@ -12,9 +12,9 @@ from app.extensions.publications.services.state.state import ActiveState
 from app.extensions.publications.tables.tables import PublicationTable
 
 
-class StatePatcher:
-    def __init__(self, api_input_data: ApiInputData, dso_builder: Builder):
-        self._api_input_data: ApiInputData = api_input_data
+class ActStatePatcher:
+    def __init__(self, api_input_data: ApiActInputData, dso_builder: Builder):
+        self._api_input_data: ApiActInputData = api_input_data
         self._dso_builder: Builder = dso_builder
         self._publication: PublicationTable = api_input_data.Publication_Version.Publication
 

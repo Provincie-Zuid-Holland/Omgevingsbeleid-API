@@ -11,21 +11,38 @@ from app.extensions.areas.repository.area_geometry_repository import AreaGeometr
 from app.extensions.html_assets.dependencies import depends_asset_repository
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.publications.repository import PublicationRepository, PublicationTemplateRepository
+from app.extensions.publications.repository.publication_act_package_repository import PublicationActPackageRepository
+from app.extensions.publications.repository.publication_act_report_repository import PublicationActReportRepository
 from app.extensions.publications.repository.publication_act_repository import PublicationActRepository
+from app.extensions.publications.repository.publication_announcement_package_repository import (
+    PublicationAnnouncementPackageRepository,
+)
+from app.extensions.publications.repository.publication_announcement_report_repository import (
+    PublicationAnnouncementReportRepository,
+)
+from app.extensions.publications.repository.publication_announcement_repository import PublicationAnnouncementRepository
 from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
 from app.extensions.publications.repository.publication_environment_repository import PublicationEnvironmentRepository
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
-from app.extensions.publications.repository.publication_package_repository import PublicationPackageRepository
-from app.extensions.publications.repository.publication_report_repository import PublicationReportRepository
 from app.extensions.publications.repository.publication_version_repository import PublicationVersionRepository
 from app.extensions.publications.repository.publication_zip_repository import PublicationZipRepository
 from app.extensions.publications.services.act_defaults_provider import ActDefaultsProvider
 from app.extensions.publications.services.act_frbr_provider import ActFrbrProvider
+from app.extensions.publications.services.act_package.act_package_builder_factory import ActPackageBuilderFactory
+from app.extensions.publications.services.act_package.act_publication_data_provider import ActPublicationDataProvider
+from app.extensions.publications.services.act_package.werkingsgebieden_provider import (
+    PublicationWerkingsgebiedenProvider,
+)
+from app.extensions.publications.services.announcement_package.announcement_package_builder_factory import (
+    AnnouncementPackageBuilderFactory,
+)
 from app.extensions.publications.services.assets.asset_remove_transparency import AssetRemoveTransparency
 from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.extensions.publications.services.bill_frbr_provider import BillFrbrProvider
-from app.extensions.publications.services.package_builder_factory import PackageBuilderFactory
-from app.extensions.publications.services.publication_data_provider import PublicationDataProvider
+from app.extensions.publications.services.doc_frbr_provider import DocFrbrProvider
+from app.extensions.publications.services.publication_announcement_defaults_provider import (
+    PublicationAnnouncementDefaultsProvider,
+)
 from app.extensions.publications.services.publication_version_defaults_provider import (
     PublicationVersionDefaultsProvider,
 )
@@ -34,13 +51,15 @@ from app.extensions.publications.services.state.data.state_v1 import StateV1
 from app.extensions.publications.services.state.state_loader import StateLoader
 from app.extensions.publications.services.state.state_version_factory import StateVersionFactory
 from app.extensions.publications.services.template_parser import TemplateParser
-from app.extensions.publications.services.werkingsgebieden_provider import PublicationWerkingsgebiedenProvider
-from app.extensions.publications.tables import PublicationPackageTable, PublicationTemplateTable
+from app.extensions.publications.tables import PublicationActPackageTable, PublicationTemplateTable
 from app.extensions.publications.tables.tables import (
+    PublicationActPackageReportTable,
     PublicationActTable,
+    PublicationAnnouncementPackageReportTable,
+    PublicationAnnouncementPackageTable,
+    PublicationAnnouncementTable,
     PublicationAreaOfJurisdictionTable,
     PublicationEnvironmentTable,
-    PublicationPackageReportTable,
     PublicationPackageZipTable,
     PublicationTable,
     PublicationVersionTable,
@@ -139,15 +158,15 @@ def depends_publication_version(
     return maybe_version
 
 
-def depends_publication_package_repository(db: Session = Depends(depends_db)) -> PublicationPackageRepository:
-    return PublicationPackageRepository(db)
+def depends_publication_act_package_repository(db: Session = Depends(depends_db)) -> PublicationActPackageRepository:
+    return PublicationActPackageRepository(db)
 
 
-def depends_publication_package(
+def depends_publication_act_package(
     package_uuid: uuid.UUID,
-    package_repository: PublicationPackageRepository = Depends(depends_publication_package_repository),
-) -> PublicationPackageTable:
-    package: Optional[PublicationPackageTable] = package_repository.get_by_uuid(package_uuid)
+    package_repository: PublicationActPackageRepository = Depends(depends_publication_act_package_repository),
+) -> PublicationActPackageTable:
+    package: Optional[PublicationActPackageTable] = package_repository.get_by_uuid(package_uuid)
     if package is None:
         raise HTTPException(status_code=404, detail="Package not found")
     return package
@@ -167,25 +186,25 @@ def depends_publication_zip(
     return package_zip
 
 
-def depends_publication_zip_by_package(
-    package_uuid: uuid.UUID,
+def depends_publication_zip_by_act_package(
+    act_package_uuid: uuid.UUID,
     repository: PublicationZipRepository = Depends(depends_publication_zip_repository),
 ) -> PublicationPackageZipTable:
-    package_zip: Optional[PublicationPackageZipTable] = repository.get_by_package_uuid(package_uuid)
+    package_zip: Optional[PublicationPackageZipTable] = repository.get_by_act_package_uuid(act_package_uuid)
     if package_zip is None:
         raise HTTPException(status_code=404, detail="Package Zip not found")
     return package_zip
 
 
-def depends_publication_report_repository(db: Session = Depends(depends_db)) -> PublicationReportRepository:
-    return PublicationReportRepository(db)
+def depends_publication_act_report_repository(db: Session = Depends(depends_db)) -> PublicationActReportRepository:
+    return PublicationActReportRepository(db)
 
 
-def depends_publication_report(
-    report_uuid: uuid.UUID,
-    repository: PublicationReportRepository = Depends(depends_publication_report_repository),
-) -> PublicationPackageReportTable:
-    report: Optional[PublicationPackageReportTable] = repository.get_by_uuid(report_uuid)
+def depends_publication_act_report(
+    act_report_uuid: uuid.UUID,
+    repository: PublicationActReportRepository = Depends(depends_publication_act_report_repository),
+) -> PublicationActPackageReportTable:
+    report: Optional[PublicationActPackageReportTable] = repository.get_by_uuid(act_report_uuid)
     if report is None:
         raise HTTPException(status_code=404, detail="Package report not found")
     return report
@@ -205,6 +224,13 @@ def depends_publication_version_defaults_provider(
     return PublicationVersionDefaultsProvider(defaults)
 
 
+def depends_publication_announcement_defaults_provider(
+    main_config: dict = Depends(depends_main_config),
+) -> PublicationAnnouncementDefaultsProvider:
+    defaults: dict = main_config["publication"]["announcement_defaults"]
+    return PublicationAnnouncementDefaultsProvider(defaults)
+
+
 def depends_publication_object_repository(
     db: Session = Depends(depends_db),
 ) -> PublicationObjectRepository:
@@ -221,6 +247,12 @@ def depends_act_frbr_provider(
     db: Session = Depends(depends_db),
 ) -> ActFrbrProvider:
     return ActFrbrProvider(db)
+
+
+def depends_doc_frbr_provider(
+    db: Session = Depends(depends_db),
+) -> DocFrbrProvider:
+    return DocFrbrProvider(db)
 
 
 def depends_purpose_provider(
@@ -246,15 +278,15 @@ def depends_publication_werkingsgebieden_provider(
     )
 
 
-def depends_publication_data_provider(
+def depends_act_publication_data_provider(
     publication_object_repository: PublicationObjectRepository = Depends(depends_publication_object_repository),
     publication_asset_provider: PublicationAssetProvider = Depends(depends_publication_asset_provider),
     publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider = Depends(
         depends_publication_werkingsgebieden_provider
     ),
     publication_aoj_repository: PublicationAOJRepository = Depends(depends_publication_aoj_repository),
-) -> PublicationDataProvider:
-    return PublicationDataProvider(
+) -> ActPublicationDataProvider:
+    return ActPublicationDataProvider(
         publication_object_repository,
         publication_asset_provider,
         publication_werkingsgebieden_provider,
@@ -276,15 +308,15 @@ def depends_state_loader(
     return state_loader
 
 
-def depends_package_builder_factory(
+def depends_act_package_builder_factory(
     db: Session = Depends(depends_db),
     bill_frbr_provider: BillFrbrProvider = Depends(depends_bill_frbr_provider),
     act_frbr_provider: ActFrbrProvider = Depends(depends_act_frbr_provider),
     purpose_provider: PurposeProvider = Depends(depends_purpose_provider),
     state_loader: StateLoader = Depends(depends_state_loader),
-    publication_data_provider: PublicationDataProvider = Depends(depends_publication_data_provider),
-) -> PackageBuilderFactory:
-    return PackageBuilderFactory(
+    publication_data_provider: ActPublicationDataProvider = Depends(depends_act_publication_data_provider),
+) -> ActPackageBuilderFactory:
+    return ActPackageBuilderFactory(
         db,
         bill_frbr_provider,
         act_frbr_provider,
@@ -292,3 +324,75 @@ def depends_package_builder_factory(
         state_loader,
         publication_data_provider,
     )
+
+
+def depends_publication_announcement_repository(db: Session = Depends(depends_db)) -> PublicationAnnouncementRepository:
+    return PublicationAnnouncementRepository(db)
+
+
+def depends_publication_announcement(
+    announcement_uuid: uuid.UUID,
+    repository: PublicationAnnouncementRepository = Depends(depends_publication_announcement_repository),
+) -> PublicationAnnouncementTable:
+    maybe_announcement: Optional[PublicationAnnouncementTable] = repository.get_by_uuid(announcement_uuid)
+    if not maybe_announcement:
+        raise HTTPException(status_code=404, detail="Publication announcement niet gevonden")
+    return maybe_announcement
+
+
+def depends_announcement_package_builder_factory(
+    db: Session = Depends(depends_db),
+    doc_frbr_provider: DocFrbrProvider = Depends(depends_doc_frbr_provider),
+    state_loader: StateLoader = Depends(depends_state_loader),
+) -> AnnouncementPackageBuilderFactory:
+    return AnnouncementPackageBuilderFactory(
+        db,
+        doc_frbr_provider,
+        state_loader,
+    )
+
+
+def depends_publication_zip_by_announcement_package(
+    announcement_package_uuid: uuid.UUID,
+    repository: PublicationZipRepository = Depends(depends_publication_zip_repository),
+) -> PublicationPackageZipTable:
+    package_zip: Optional[PublicationPackageZipTable] = repository.get_by_announcement_package_uuid(
+        announcement_package_uuid
+    )
+    if package_zip is None:
+        raise HTTPException(status_code=404, detail="Package Zip not found")
+    return package_zip
+
+
+def depends_publication_announcement_report_repository(
+    db: Session = Depends(depends_db),
+) -> PublicationAnnouncementReportRepository:
+    return PublicationAnnouncementReportRepository(db)
+
+
+def depends_publication_announcement_report(
+    announcement_report_uuid: uuid.UUID,
+    repository: PublicationAnnouncementReportRepository = Depends(depends_publication_announcement_report_repository),
+) -> PublicationAnnouncementPackageReportTable:
+    report: Optional[PublicationAnnouncementPackageReportTable] = repository.get_by_uuid(announcement_report_uuid)
+    if report is None:
+        raise HTTPException(status_code=404, detail="Package report not found")
+    return report
+
+
+def depends_publication_announcement_package_repository(
+    db: Session = Depends(depends_db),
+) -> PublicationAnnouncementPackageRepository:
+    return PublicationAnnouncementPackageRepository(db)
+
+
+def depends_publication_announcement_package(
+    package_uuid: uuid.UUID,
+    package_repository: PublicationAnnouncementPackageRepository = Depends(
+        depends_publication_announcement_package_repository
+    ),
+) -> PublicationAnnouncementPackageTable:
+    package: Optional[PublicationAnnouncementPackageTable] = package_repository.get_by_uuid(package_uuid)
+    if package is None:
+        raise HTTPException(status_code=404, detail="Package not found")
+    return package

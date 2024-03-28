@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 
-from app.extensions.publications.models.api_input_data import ActFrbr, ActMutation, ApiInputData, OwData
+from app.extensions.publications.models.api_input_data import ActFrbr, ActMutation, ApiActInputData, OwData
 from app.extensions.publications.services.state import result_models
 
 
@@ -8,13 +8,13 @@ class PatchActMutation:
     def __init__(self, active_act: result_models.ActiveAct):
         self._active_act: result_models.ActiveAct = active_act
 
-    def patch(self, data: ApiInputData) -> ApiInputData:
+    def patch(self, data: ApiActInputData) -> ApiActInputData:
         data = self._patch_werkingsgebieden(data)
         data = self._patch_act_mutation(data)
         data = self._patch_ow_data(data)
         return data
 
-    def _patch_werkingsgebieden(self, data: ApiInputData) -> ApiInputData:
+    def _patch_werkingsgebieden(self, data: ApiActInputData) -> ApiActInputData:
         state_werkingsgebieden: Dict[int, result_models.Werkingsgebied] = self._active_act.Werkingsgebieden
 
         werkingsgebieden: List[dict] = data.Publication_Data.werkingsgebieden
@@ -39,9 +39,8 @@ class PatchActMutation:
 
         return data
 
-    def _patch_act_mutation(self, data: ApiInputData) -> ApiInputData:
+    def _patch_act_mutation(self, data: ApiActInputData) -> ApiActInputData:
         consolidated_frbr: ActFrbr = ActFrbr(
-            Document_Type="",
             Act_ID=0,
             Work_Province_ID=self._active_act.Act_Frbr.Work_Province_ID,
             Work_Country=self._active_act.Act_Frbr.Work_Country,
@@ -59,7 +58,7 @@ class PatchActMutation:
         )
         return data
 
-    def _patch_ow_data(self, data: ApiInputData) -> ApiInputData:
+    def _patch_ow_data(self, data: ApiActInputData) -> ApiActInputData:
         data.Ow_Data = OwData(
             Object_Ids=self._active_act.Ow_Data.Object_Ids,
             Object_Map=self._active_act.Ow_Data.Object_Map,

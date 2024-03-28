@@ -23,6 +23,9 @@ class StateLoader:
 
     def load_from_publication_version(self, publication_version: PublicationVersionTable) -> Optional[State]:
         environment: PublicationEnvironmentTable = publication_version.Publication.Environment
+        return self.load_from_environment(environment)
+
+    def load_from_environment(self, environment: PublicationEnvironmentTable) -> Optional[State]:
         if not environment.Has_State:
             return None
 

@@ -13,22 +13,22 @@ from app.dynamic.dependencies import depends_settings
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.publications.dependencies import depends_package_builder_factory, depends_publication_version
+from app.extensions.publications.dependencies import depends_act_package_builder_factory, depends_publication_version
 from app.extensions.publications.enums import PackageType, ReportStatusType
 from app.extensions.publications.models.api_input_data import Purpose
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
+from app.extensions.publications.services.act_package.act_package_builder import ActPackageBuilder, ZipData
+from app.extensions.publications.services.act_package.act_package_builder_factory import ActPackageBuilderFactory
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
-from app.extensions.publications.services.package_builder import PackageBuilder, ZipData
-from app.extensions.publications.services.package_builder_factory import PackageBuilderFactory
 from app.extensions.publications.tables.tables import (
+    PublicationActPackageTable,
     PublicationActTable,
     PublicationActVersionTable,
     PublicationBillTable,
     PublicationBillVersionTable,
     PublicationEnvironmentStateTable,
     PublicationEnvironmentTable,
-    PublicationPackageTable,
     PublicationPackageZipTable,
     PublicationPurposeTable,
     PublicationTable,
@@ -52,14 +52,14 @@ class EndpointHandler:
         self,
         db: Session,
         settings: Settings,
-        package_builder_factory: PackageBuilderFactory,
+        package_builder_factory: ActPackageBuilderFactory,
         user: UsersTable,
         object_in: PublicationPackageCreate,
         publication_version: PublicationVersionTable,
     ):
         self._db: Session = db
         self._settings: Settings = settings
-        self._package_builder_factory: PackageBuilderFactory = package_builder_factory
+        self._package_builder_factory: ActPackageBuilderFactory = package_builder_factory
         self._user: UsersTable = user
         self._object_in: PublicationPackageCreate = object_in
         self._publication_version: PublicationVersionTable = publication_version
@@ -72,7 +72,7 @@ class EndpointHandler:
         self._guard_validate_package_type()
         self._guard_locked()
 
-        package_builder: PackageBuilder = self._package_builder_factory.create_builder(
+        package_builder: ActPackageBuilder = self._package_builder_factory.create_builder(
             self._publication_version,
             self._object_in.Package_Type,
         )
@@ -97,7 +97,7 @@ class EndpointHandler:
             self._db.add(package_zip)
             self._db.flush()
 
-            package: PublicationPackageTable = PublicationPackageTable(
+            package: PublicationActPackageTable = PublicationActPackageTable(
                 UUID=uuid.uuid4(),
                 Publication_Version_UUID=self._publication_version.UUID,
                 Zip_UUID=package_zip.UUID,
@@ -128,8 +128,6 @@ class EndpointHandler:
 
     def _guard_validate_package_type(self):
         match self._object_in.Package_Type:
-            case PackageType.PUBLICATION_ABORT:
-                raise NotImplementedError("Afbreek verzoek is nog niet geimplementeerd")
             case PackageType.VALIDATION:
                 if not self._environment.Can_Validate:
                     raise HTTPException(status_code=409, detail="Can not create Validation for this environment")
@@ -145,7 +143,7 @@ class EndpointHandler:
         if not self._act.Is_Active:
             raise HTTPException(status_code=409, detail="This act can no longer be used")
 
-    def _handle_new_state(self, package_builder: PackageBuilder, package: PublicationPackageTable):
+    def _handle_new_state(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
         if not self._environment.Has_State:
             return
         if self._object_in.Package_Type != PackageType.PUBLICATION:
@@ -166,7 +164,7 @@ class EndpointHandler:
         environment.Is_Locked = True
         self._db.add(environment)
 
-    def _handle_bill_act_purpose(self, package_builder: PackageBuilder, package: PublicationPackageTable):
+    def _handle_bill_act_purpose(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
         if not self._environment.Has_State:
             return
         if self._object_in.Package_Type != PackageType.PUBLICATION:
@@ -245,10 +243,10 @@ class CreatePublicationPackageEndpoint(Endpoint):
             publication_version: PublicationVersionTable = Depends(depends_publication_version),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
-                    PublicationsPermissions.can_create_publication_package,
+                    PublicationsPermissions.can_create_publication_act_package,
                 )
             ),
-            package_builder_factory: PackageBuilderFactory = Depends(depends_package_builder_factory),
+            package_builder_factory: ActPackageBuilderFactory = Depends(depends_act_package_builder_factory),
             db: Session = Depends(depends_db),
             settings: Settings = Depends(depends_settings),
         ) -> PublicationPackageCreatedResponse:
@@ -267,8 +265,8 @@ class CreatePublicationPackageEndpoint(Endpoint):
             fastapi_handler,
             methods=["POST"],
             response_model=PublicationPackageCreatedResponse,
-            summary="Create new Publication Package",
-            tags=["Publication Packages"],
+            summary="Create new Publication Act Package",
+            tags=["Publication Act Packages"],
         )
 
         return router
@@ -276,7 +274,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
 
 class CreatePublicationPackageEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "create_publication_package"
+        return "create_publication_act_package"
 
     def generate_endpoint(
         self,

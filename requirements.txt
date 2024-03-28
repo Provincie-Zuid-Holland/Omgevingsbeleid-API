@@ -62,7 +62,7 @@ h11==0.14.0
     # via
     #   httpcore
     #   uvicorn
-httpcore==1.0.4
+httpcore==1.0.5
     # via httpx
 httptools==0.6.1
     # via uvicorn

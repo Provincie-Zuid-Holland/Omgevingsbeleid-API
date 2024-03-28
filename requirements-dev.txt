@@ -143,7 +143,7 @@ pyyaml==6.0.1
     # via bandit
 requests==2.31.0
     # via requests-mock
-requests-mock==1.11.0
+requests-mock==1.12.0
     # via -r requirements-dev.in
 rich==13.7.1
     # via bandit
@@ -151,7 +151,6 @@ six==1.16.0
     # via
     #   asttokens
     #   python-dateutil
-    #   requests-mock
 sqlalchemy[mypy]==2.0.29
     # via
     #   -r requirements-dev.in

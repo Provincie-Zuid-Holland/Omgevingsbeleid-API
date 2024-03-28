@@ -9,7 +9,7 @@ from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.publications.dependencies import depends_publication_zip_by_package
+from app.extensions.publications.dependencies import depends_publication_zip_by_act_package
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.tables.tables import PublicationPackageZipTable
 from app.extensions.users.db.tables import UsersTable
@@ -22,10 +22,10 @@ class DownloadPackageEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            package_zip: PublicationPackageZipTable = Depends(depends_publication_zip_by_package),
+            package_zip: PublicationPackageZipTable = Depends(depends_publication_zip_by_act_package),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
-                    PublicationsPermissions.can_download_publication_package,
+                    PublicationsPermissions.can_download_publication_act_package,
                 ),
             ),
             db: Session = Depends(depends_db),
@@ -40,9 +40,9 @@ class DownloadPackageEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["GET"],
-            summary=f"Download a generated publication package ZIP file",
+            summary=f"Download a generated publication act package ZIP file",
             description=None,
-            tags=["Publication Packages"],
+            tags=["Publication Act Packages"],
         )
 
         return router
@@ -67,7 +67,7 @@ class DownloadPackageEndpoint(Endpoint):
 
 class DownloadPackageEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "download_publication_package"
+        return "download_publication_act_package"
 
     def generate_endpoint(
         self,

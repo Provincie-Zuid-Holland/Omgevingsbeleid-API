@@ -5,13 +5,15 @@ from bs4 import BeautifulSoup
 from app.extensions.publications.models.api_input_data import ActFrbr, PublicationData
 from app.extensions.publications.repository import PublicationObjectRepository
 from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
+from app.extensions.publications.services.act_package.werkingsgebieden_provider import (
+    PublicationWerkingsgebiedenProvider,
+)
 from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.extensions.publications.services.template_parser import TemplateParser
-from app.extensions.publications.services.werkingsgebieden_provider import PublicationWerkingsgebiedenProvider
 from app.extensions.publications.tables.tables import PublicationAreaOfJurisdictionTable, PublicationVersionTable
 
 
-class PublicationDataProvider:
+class ActPublicationDataProvider:
     def __init__(
         self,
         publication_object_repository: PublicationObjectRepository,
