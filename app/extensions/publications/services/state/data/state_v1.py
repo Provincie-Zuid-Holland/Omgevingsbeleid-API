@@ -4,6 +4,7 @@ from pydantic import Field
 
 from app.extensions.publications.services.state import result_models
 from app.extensions.publications.services.state.actions.action import Action
+from app.extensions.publications.services.state.actions.add_announcement_action import AddAnnouncementAction
 from app.extensions.publications.services.state.actions.add_publication_action import AddPublicationAction
 from app.extensions.publications.services.state.actions.add_purpose_action import AddPurposeAction
 from app.extensions.publications.services.state.state import ActiveState
@@ -12,6 +13,7 @@ from app.extensions.publications.services.state.state import ActiveState
 class StateV1(ActiveState):
     Purposes: Dict[str, result_models.Purpose] = Field({})
     Acts: Dict[str, result_models.ActiveAct] = Field({})
+    Announcements: Dict[str, result_models.ActiveAnnouncement] = Field({})
 
     @staticmethod
     def get_schema_version() -> int:
@@ -32,6 +34,8 @@ class StateV1(ActiveState):
                 self._handle_add_purpose_action(action)
             case AddPublicationAction():
                 self._handle_add_publication_action(action)
+            case AddAnnouncementAction():
+                self._handle_add_announcement_action(action)
             case _:
                 raise RuntimeError(f"Action {action.__class__.__name__} is not implemented for StateV1")
 
@@ -60,3 +64,14 @@ class StateV1(ActiveState):
         )
         key: str = f"{action.Document_Type}-{action.Procedure_Type}"
         self.Acts[key] = active_act
+
+    def _handle_add_announcement_action(self, action: AddAnnouncementAction):
+        active_announcement = result_models.ActiveAnnouncement(
+            Doc_Frbr=action.Doc_Frbr,
+            About_Act_Frbr=action.About_Act_Frbr,
+            About_Bill_Frbr=action.About_Bill_Frbr,
+            Document_Type=action.Document_Type,
+            Procedure_Type=action.Procedure_Type,
+        )
+        key: str = f"{action.Document_Type}-{action.Procedure_Type}"
+        self.Announcements[key] = active_announcement

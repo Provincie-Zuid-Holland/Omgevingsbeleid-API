@@ -165,7 +165,7 @@ class DsoAnnouncementInputDataBuilder:
         for data in self._announcement_content.Texts:
             description: str = data.Description
             # @todo: parse dates and other placeholders
-            html = f"""<h1>{data['Title']}</h1>{description}"""
+            html = f"""<div data-hint-element="divisietekst"><h1>{data.Title}</h1>{description}</div>"""
             pieces.append(html)
         result: str = "\n".join(pieces)
 

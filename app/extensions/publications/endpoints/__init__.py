@@ -22,15 +22,21 @@ from .publications.act_packages import (
     ListPublicationPackagesEndpointResolver,
 )
 from .publications.act_reports import (
-    DetailPackageActReportEndpointResolver,
-    DownloadPackageActReportEndpointResolver,
-    ListPackageActReportsEndpointResolver,
-    UploadPackageActReportEndpointResolver,
+    DetailActPackageReportEndpointResolver,
+    DownloadActPackageReportEndpointResolver,
+    ListActPackageReportsEndpointResolver,
+    UploadActPackageReportEndpointResolver,
 )
 from .publications.announcement_packages import (
     CreatePublicationAnnouncementPackageEndpointResolver,
     DownloadPublicationAnnouncementPackageEndpointResolver,
     ListPublicationAnnouncementPackagesEndpointResolver,
+)
+from .publications.announcement_reports import (
+    DetailAnnouncementPackageReportEndpointResolver,
+    DownloadAnnouncementPackageReportEndpointResolver,
+    ListAnnouncementPackageReportsEndpointResolver,
+    UploadAnnouncementPackageReportEndpointResolver,
 )
 from .publications.announcements import (
     CreatePublicationAnnouncementEndpointResolver,

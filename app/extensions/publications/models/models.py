@@ -274,9 +274,9 @@ class PublicationVersionShort(BaseModel):
         orm_mode = True
 
 
-class PublicationPackageReportShort(BaseModel):
+class PublicationActPackageReportShort(BaseModel):
     UUID: uuid.UUID
-    Package_UUID: uuid.UUID
+    Act_Package_UUID: uuid.UUID
 
     Report_Status: str
     Filename: str
@@ -288,9 +288,9 @@ class PublicationPackageReportShort(BaseModel):
         orm_mode = True
 
 
-class PublicationPackageReport(BaseModel):
+class PublicationActPackageReport(BaseModel):
     UUID: uuid.UUID
-    Package_UUID: uuid.UUID
+    Act_Package_UUID: uuid.UUID
 
     Report_Status: str
     Filename: str
@@ -425,6 +425,38 @@ class PublicationAnnouncementShort(BaseModel):
 
     Created_Date: datetime
     Modified_Date: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class PublicationAnnouncementPackageReportShort(BaseModel):
+    UUID: uuid.UUID
+    Announcement_Package_UUID: uuid.UUID
+
+    Report_Status: str
+    Filename: str
+    Main_Outcome: str
+
+    Created_Date: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class PublicationAnnouncementPackageReport(BaseModel):
+    UUID: uuid.UUID
+    Announcement_Package_UUID: uuid.UUID
+
+    Report_Status: str
+    Filename: str
+    Source_Document: str
+    Main_Outcome: str
+    Sub_Delivery_ID: str
+    Sub_Progress: str
+    Sub_Outcome: str
+
+    Created_Date: datetime
 
     class Config:
         orm_mode = True

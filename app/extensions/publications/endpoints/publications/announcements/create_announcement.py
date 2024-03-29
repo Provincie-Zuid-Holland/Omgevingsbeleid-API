@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -15,6 +15,7 @@ from app.extensions.publications.dependencies import (
     depends_publication_act_package,
     depends_publication_announcement_defaults_provider,
 )
+from app.extensions.publications.enums import ReportStatusType
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.services.publication_announcement_defaults_provider import (
     PublicationAnnouncementDefaultsProvider,
@@ -49,11 +50,13 @@ class EndpointHandler:
         self._timepoint: datetime = datetime.utcnow()
 
     def handle(self) -> AnnouncementCreatedResponse:
+        self._guard_can_create_announcement()
+
         metadata = self._defaults_provider.get_metadata(
             self._publication.Document_Type, self._publication.Procedure_Type
         )
         procedural = self._defaults_provider.get_procedural()
-        texts = self._defaults_provider.get_metadata(self._publication.Document_Type, self._publication.Procedure_Type)
+        content = self._defaults_provider.get_content(self._publication.Document_Type, self._publication.Procedure_Type)
 
         announcement: PublicationAnnouncementTable = PublicationAnnouncementTable(
             UUID=uuid.uuid4(),
@@ -61,7 +64,7 @@ class EndpointHandler:
             Publication_UUID=self._publication.UUID,
             Metadata=metadata.dict(),
             Procedural=procedural.dict(),
-            Texts=texts.dict(),
+            Content=content.dict(),
             Announcement_Date=None,
             Is_Locked=False,
             Created_Date=self._timepoint,
@@ -76,6 +79,16 @@ class EndpointHandler:
 
         return AnnouncementCreatedResponse(
             UUID=announcement.UUID,
+        )
+
+    def _guard_can_create_announcement(self):
+        if not self._publication.Environment.Has_State:
+            return
+        if self._act_package.Report_Status == ReportStatusType.VALID:
+            return
+
+        raise HTTPException(
+            status_code=409, detail="Can not create an announcement for act package that is not successful"
         )
 
 
@@ -132,7 +145,7 @@ class CreatePublicationAnnouncementEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        if not "{package_uuid}" in path:
-            raise RuntimeError("Missing {package_uuid} argument in path")
+        if not "{act_package_uuid}" in path:
+            raise RuntimeError("Missing {act_package_uuid} argument in path")
 
         return CreatePublicationAnnouncementEndpoint(path=path)

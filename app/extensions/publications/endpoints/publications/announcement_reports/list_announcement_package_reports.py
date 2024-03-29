@@ -10,34 +10,38 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, SimplePagination
-from app.extensions.publications.dependencies import depends_publication_act_report_repository
+from app.extensions.publications.dependencies import depends_publication_announcement_report_repository
 from app.extensions.publications.enums import ReportStatusType
-from app.extensions.publications.models import PublicationPackageReportShort
+from app.extensions.publications.models.models import PublicationAnnouncementPackageReportShort
 from app.extensions.publications.permissions import PublicationsPermissions
-from app.extensions.publications.repository.publication_act_report_repository import PublicationActReportRepository
+from app.extensions.publications.repository.publication_announcement_report_repository import (
+    PublicationAnnouncementReportRepository,
+)
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
 
-class ListPackageActReportsEndpoint(Endpoint):
+class ListAnnouncementPackageReportsEndpoint(Endpoint):
     def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            package_uuid: Optional[uuid.UUID] = None,
+            announcement_package_uuid: Optional[uuid.UUID] = None,
             report_status: Optional[ReportStatusType] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
-            report_repository: PublicationActReportRepository = Depends(depends_publication_act_report_repository),
+            report_repository: PublicationAnnouncementReportRepository = Depends(
+                depends_publication_announcement_report_repository
+            ),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
-                    PublicationsPermissions.can_view_publication_act_package_report,
+                    PublicationsPermissions.can_view_publication_announcement_package_report,
                 )
             ),
-        ) -> PagedResponse[PublicationPackageReportShort]:
+        ) -> PagedResponse[PublicationAnnouncementPackageReportShort]:
             return self._handler(
                 report_repository,
-                package_uuid,
+                announcement_package_uuid,
                 report_status,
                 pagination,
             )
@@ -46,17 +50,17 @@ class ListPackageActReportsEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["GET"],
-            response_model=PagedResponse[PublicationPackageReportShort],
-            summary="List the existing Publication reports",
+            response_model=PagedResponse[PublicationAnnouncementPackageReportShort],
+            summary="List the existing Publication Announcement reports",
             description=None,
-            tags=["Publication Act Reports"],
+            tags=["Publication Announcement Reports"],
         )
 
         return router
 
     def _handler(
         self,
-        report_repository: PublicationActReportRepository,
+        report_repository: PublicationAnnouncementReportRepository,
         package_uuid: Optional[uuid.UUID],
         report_status: Optional[ReportStatusType],
         pagination: SimplePagination,
@@ -68,9 +72,9 @@ class ListPackageActReportsEndpoint(Endpoint):
             limit=pagination.limit,
         )
 
-        results = [PublicationPackageReportShort.from_orm(r) for r in paginated_result.items]
+        results = [PublicationAnnouncementPackageReportShort.from_orm(r) for r in paginated_result.items]
 
-        return PagedResponse[PublicationPackageReportShort](
+        return PagedResponse[PublicationAnnouncementPackageReportShort](
             total=paginated_result.total_count,
             offset=pagination.offset,
             limit=pagination.limit,
@@ -78,9 +82,9 @@ class ListPackageActReportsEndpoint(Endpoint):
         )
 
 
-class ListPackageActReportsEndpointResolver(EndpointResolver):
+class ListAnnouncementPackageReportsEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "list_publication_act_package_reports"
+        return "list_publication_announcement_package_reports"
 
     def generate_endpoint(
         self,
@@ -93,4 +97,4 @@ class ListPackageActReportsEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        return ListPackageActReportsEndpoint(path=path)
+        return ListAnnouncementPackageReportsEndpoint(path=path)

@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from enum import Enum
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -21,7 +20,7 @@ from app.extensions.publications.dependencies import (
     depends_publication_environment_repository,
     depends_publication_template_repository,
 )
-from app.extensions.publications.enums import DocumentType
+from app.extensions.publications.enums import DocumentType, ProcedureType
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.repository.publication_act_repository import PublicationActRepository
 from app.extensions.publications.repository.publication_environment_repository import PublicationEnvironmentRepository
@@ -37,16 +36,11 @@ from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
 
-class ImplementedProcedureType(str, Enum):
-    # @todo: implement draft, then this type can be removed
-    FINAL = "final"
-
-
 class PublicationCreate(BaseModel):
     Module_ID: int
     Title: str
     Document_Type: DocumentType
-    Procedure_Type: ImplementedProcedureType
+    Procedure_Type: ProcedureType
     Template_UUID: uuid.UUID
     Environment_UUID: uuid.UUID
     Act_UUID: uuid.UUID

@@ -1,54 +1,50 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.publications.dependencies import depends_publication_act_report
+from app.extensions.publications.dependencies import depends_publication_announcement_report
+from app.extensions.publications.models.models import PublicationAnnouncementPackageReport
 from app.extensions.publications.permissions import PublicationsPermissions
-from app.extensions.publications.tables.tables import PublicationActPackageReportTable
+from app.extensions.publications.tables.tables import PublicationAnnouncementPackageReportTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
 
-class DownloadPackageActReportEndpoint(Endpoint):
+class DetailAnnouncementPackageReportEndpoint(Endpoint):
     def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            report: PublicationActPackageReportTable = Depends(depends_publication_act_report),
+            report: PublicationAnnouncementPackageReportTable = Depends(depends_publication_announcement_report),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
-                    PublicationsPermissions.can_download_publication_act_package_report,
+                    PublicationsPermissions.can_view_publication_announcement_package_report,
                 )
             ),
-        ) -> Response:
-            return Response(
-                content=report.Source_Document,
-                media_type="application/xml",
-                headers={
-                    "Access-Control-Expose-Headers": "Content-Disposition",
-                    "Content-Disposition": f"attachment; filename={report.Filename}",
-                },
-            )
+        ) -> PublicationAnnouncementPackageReport:
+            result: PublicationAnnouncementPackageReport = PublicationAnnouncementPackageReport.from_orm(report)
+            return result
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["GET"],
-            summary=f"Download publication package report",
+            response_model=PublicationAnnouncementPackageReport,
+            summary=f"Get details of a publication announcement report",
             description=None,
-            tags=["Publication Act Reports"],
+            tags=["Publication Announcement Reports"],
         )
 
         return router
 
 
-class DownloadPackageActReportEndpointResolver(EndpointResolver):
+class DetailAnnouncementPackageReportEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "download_publication_act_package_report"
+        return "detail_publication_announcement_package_report"
 
     def generate_endpoint(
         self,
@@ -60,7 +56,8 @@ class DownloadPackageActReportEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
-        if not "{act_report_uuid}" in path:
-            raise RuntimeError("Missing {act_report_uuid} argument in path")
 
-        return DownloadPackageActReportEndpoint(path=path)
+        if not "{announcement_report_uuid}" in path:
+            raise RuntimeError("Missing {announcement_report_uuid} argument in path")
+
+        return DetailAnnouncementPackageReportEndpoint(path=path)

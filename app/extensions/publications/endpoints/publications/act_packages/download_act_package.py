@@ -79,7 +79,7 @@ class DownloadPackageEndpointResolver(EndpointResolver):
     ) -> Endpoint:
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
-        if not "{package_uuid}" in path:
-            raise RuntimeError("Missing {package_uuid} argument in path")
+        if not "{act_package_uuid}" in path:
+            raise RuntimeError("Missing {act_package_uuid} argument in path")
 
         return DownloadPackageEndpoint(path=path)

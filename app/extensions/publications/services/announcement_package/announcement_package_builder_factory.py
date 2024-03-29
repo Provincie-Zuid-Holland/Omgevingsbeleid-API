@@ -86,6 +86,7 @@ class AnnouncementPackageBuilderFactory:
         act_version_table: PublicationActVersionTable = announcement.Act_Package.Act_Version
 
         result = ActFrbr(
+            Act_ID=act_version_table.Act.ID,
             Work_Province_ID=act_version_table.Act.Work_Province_ID,
             Work_Country=act_version_table.Act.Work_Country,
             Work_Date=act_version_table.Act.Work_Date,

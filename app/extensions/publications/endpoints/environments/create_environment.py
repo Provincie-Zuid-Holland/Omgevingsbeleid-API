@@ -83,6 +83,10 @@ class EndpointHandler:
                 Created_By_UUID=self._user.UUID,
             )
             self._db.add(initial_state)
+            self._db.flush()
+
+            environment.Active_State_UUID = initial_state.UUID
+            self._db.add(environment)
 
         self._db.flush()
         self._db.commit()

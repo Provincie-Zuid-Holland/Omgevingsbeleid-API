@@ -28,10 +28,6 @@ class PublicationAnnouncementEdit(BaseModel):
     Texts: Optional[AnnouncementContent]
 
 
-class PublicationAnnouncementEditResponse(BaseModel):
-    Is_Valid: bool
-
-
 class EndpointHandler:
     def __init__(
         self,
@@ -45,7 +41,7 @@ class EndpointHandler:
         self._announcement: PublicationAnnouncementTable = announcement
         self._object_in: PublicationAnnouncementEdit = object_in
 
-    def handle(self) -> PublicationAnnouncementEditResponse:
+    def handle(self) -> ResponseOK:
         changes: dict = self._object_in.dict(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
@@ -81,7 +77,7 @@ class EditPublicationAnnouncementEndpoint(Endpoint):
             ),
             announcement: PublicationAnnouncementTable = Depends(depends_publication_announcement),
             db: Session = Depends(depends_db),
-        ) -> PublicationAnnouncementEditResponse:
+        ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 user,
@@ -94,10 +90,10 @@ class EditPublicationAnnouncementEndpoint(Endpoint):
             self._path,
             fastapi_handler,
             methods=["POST"],
-            response_model=PublicationAnnouncementEditResponse,
+            response_model=ResponseOK,
             summary="Edit an existing publication announcement",
             description=None,
-            tags=["Publication Announcement"],
+            tags=["Publication Announcements"],
         )
 
         return router

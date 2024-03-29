@@ -15,9 +15,9 @@ class PublicationAnnouncementDefaultsProvider:
         result: AnnouncementProcedural = AnnouncementProcedural()
         return result
 
-    def get_texts(self, document_type: str, procedure_type: str) -> AnnouncementContent:
+    def get_content(self, document_type: str, procedure_type: str) -> AnnouncementContent:
         key: str = self._get_key(document_type, procedure_type)
-        defaults: dict = self._defaults[key]["texts"]
+        defaults: dict = self._defaults[key]["contents"]
         result: AnnouncementContent = AnnouncementContent(**defaults)
         return result
 

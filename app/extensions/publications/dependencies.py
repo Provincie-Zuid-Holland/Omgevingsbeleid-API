@@ -163,10 +163,10 @@ def depends_publication_act_package_repository(db: Session = Depends(depends_db)
 
 
 def depends_publication_act_package(
-    package_uuid: uuid.UUID,
+    act_package_uuid: uuid.UUID,
     package_repository: PublicationActPackageRepository = Depends(depends_publication_act_package_repository),
 ) -> PublicationActPackageTable:
-    package: Optional[PublicationActPackageTable] = package_repository.get_by_uuid(package_uuid)
+    package: Optional[PublicationActPackageTable] = package_repository.get_by_uuid(act_package_uuid)
     if package is None:
         raise HTTPException(status_code=404, detail="Package not found")
     return package

@@ -415,7 +415,7 @@ class PublicationAnnouncementPackageTable(Base, UserMetaData):
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Announcement_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_announcements.UUID"), nullable=False)
     Doc_Version_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey("publication_bill_versions.UUID"), nullable=True
+        ForeignKey("publication_doc_versions.UUID"), nullable=True
     )
     Zip_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package_zips.UUID"), nullable=False)
 

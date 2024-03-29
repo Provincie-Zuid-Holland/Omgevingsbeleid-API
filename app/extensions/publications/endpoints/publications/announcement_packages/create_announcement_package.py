@@ -200,8 +200,10 @@ class EndpointHandler:
             Created_By_UUID=self._user.UUID,
         )
         self._db.add(doc_version)
+        self._db.flush()
 
-        package.Doc_Version_UUID = doc_version.UUID
+        # @todo: turn on
+        # package.Doc_Version_UUID = doc_version.UUID
         self._db.add(package)
         self._db.flush()
 

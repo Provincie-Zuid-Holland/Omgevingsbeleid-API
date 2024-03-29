@@ -81,3 +81,11 @@ class ActiveAct(BaseModel):
     Wid_Data: WidData
     Ow_Data: OwData
     Act_Text: str
+
+
+class ActiveAnnouncement(BaseModel):
+    Doc_Frbr: Frbr
+    About_Act_Frbr: Frbr
+    About_Bill_Frbr: Frbr
+    Document_Type: str
+    Procedure_Type: str
