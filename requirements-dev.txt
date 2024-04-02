@@ -59,7 +59,7 @@ idna==3.6
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==8.22.2
+ipython==8.23.0
     # via -r requirements-dev.in
 isort==5.13.2
     # via
@@ -179,6 +179,7 @@ typing-extensions==4.10.0
     #   alembic
     #   astroid
     #   black
+    #   ipython
     #   mypy
     #   sqlalchemy
 urllib3==2.2.1
