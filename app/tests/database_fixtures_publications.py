@@ -227,12 +227,20 @@ class DatabaseFixturesPublications:
     {% set beleidskeuzes_codes_for_beleidsdoel = beleidskeuze | selectattr('Hierarchy_Code', 'equalto', d.Code) | map(attribute='Code') | list %}
     {% set maatregelen_for_doel = maatregel | selectattr('Hierarchy_Code', 'in', beleidskeuzes_codes_for_beleidsdoel) | list %}
     {% if maatregelen_for_doel %}
-    <div data-hint-wid-code="programma-custom-beleidsdoel-{{ d.Code }}-wrapper">
-        <h1>Maatregelen van {{ d.Title }}</h1>
-        {%- for m in maatregelen_for_doel | sort(attribute='Title') %}
-        <div data-hint-element="divisietekst"><object code="{{ m.Code }}" template="maatregel" /></div>
-        {%- endfor %}
-    </div>
+
+        <div data-hint-wid-code="programma-custom-beleidsdoel-{{ d.Code }}-wrapper">
+            <h1>Beleidsdoel {{ d.Title }} met maatregelen</h1>
+            <div data-hint-element="divisietekst"><object code="{{ d.Code }}" template="beleidsdoel" /></div>
+            <div data-hint-wid-code="programma-custom-maatregel-{{ d.Code }}-wrapper">
+                <h1>Maatregelen van {{ d.Title }}</h1>
+                {%- for m in maatregelen_for_doel | sort(attribute='Title') %}
+                <div data-hint-element="divisietekst"><object code="{{ m.Code }}" template="maatregel" /></div>
+                {%- endfor %}
+            </div>
+        </div>
+
+    {% else %}
+        <div data-hint-element="divisietekst"><object code="{{ d.Code }}" template="beleidsdoel" /></div>
     {% endif %}
 {%- endfor %}
 """.strip(),
