@@ -893,35 +893,135 @@ publication:
     draft_omgevingsvisie:
       # @see: class ActMetadata
       metadata:
-        Official_Title: Omgevingsvisie Provincie Zuid-Holland
-        Quote_Title: Omgevingsvisie Provincie Zuid-Holland
+        Official_Title: Omgevingsvisie Zuid-Holland
+        Quote_Title: Omgevingsvisie Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
     final_omgevingsvisie:
       metadata:
-        Official_Title: Omgevingsvisie Provincie Zuid-Holland
-        Quote_Title: Omgevingsvisie Provincie Zuid-Holland
+        Official_Title: Omgevingsvisie Zuid-Holland
+        Quote_Title: Omgevingsvisie Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
 
     draft_programma:
       metadata:
-        Official_Title: Programma Provincie Zuid-Holland
-        Quote_Title: Programma Provincie Zuid-Holland
+        Official_Title: Omgevingsprogramma Zuid-Holland
+        Quote_Title: Omgevingsprogramma Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
     final_programma:
       metadata:
-        Official_Title: Programma Provincie Zuid-Holland
-        Quote_Title: Programma Provincie Zuid-Holland
+        Official_Title: Omgevingsprogramma Zuid-Holland
+        Quote_Title: Omgevingsprogramma Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
   
@@ -929,9 +1029,34 @@ publication:
     draft_omgevingsvisie:
       # @see: class BillMetadata
       bill_metadata:
-        Official_Title: Omgevingsvisie Provincie Zuid-Holland
+        Official_Title: Wijziging van de Omgevingsvisie Zuid-Holland, in het kader van de Herziening Omgevingsbeleid module Wonen, Werken en Werelderfgoed
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
       # @see: class BillCompact
@@ -947,20 +1072,38 @@ publication:
           De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
           <Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>
-      # @see: class ActMetadata
-      act_metadata:
-        Official_Title: Omgevingsvisie Provincie Zuid-Holland
-        Quote_Title: Omgevingsvisie Provincie Zuid-Holland
-        Subjects:
-          - ruimtelijke_ordening
-        Jurisdictions:
-          - omgevingsrecht
+
     final_omgevingsvisie:
       # @see: class BillMetadata
       bill_metadata:
-        Official_Title: Omgevingsvisie Provincie Zuid-Holland
+        Official_Title: Wijziging van de Omgevingsvisie Zuid-Holland, in het kader van de Herziening Omgevingsbeleid module Wonen, Werken en Werelderfgoed
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
       # @see: class BillCompact
@@ -981,7 +1124,32 @@ publication:
         Official_Title: Omgevingsvisie Provincie Zuid-Holland
         Quote_Title: Omgevingsvisie Provincie Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
 
@@ -989,7 +1157,32 @@ publication:
       bill_metadata:
         Official_Title: Programma Provincie Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
       bill_compact:
@@ -1008,14 +1201,64 @@ publication:
         Official_Title: Programma Provincie Zuid-Holland
         Quote_Title: Programma Provincie Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
     final_programma:
       bill_metadata:
         Official_Title: Programma Provincie Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
       bill_compact:
@@ -1034,7 +1277,32 @@ publication:
         Official_Title: Programma Provincie Zuid-Holland
         Quote_Title: Programma Provincie Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
         Jurisdictions:
           - omgevingsrecht
 
@@ -1043,7 +1311,32 @@ publication:
       metadata:
         Official_Title: Kennisgeving bij het ontwerpbesluit tot instellen van de Omgevingsvisie Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
       contents:
         Texts:
           - Title: Ontwerp Omgevingsvisie Zuid-Holland
@@ -1054,17 +1347,92 @@ publication:
       metadata:
         Official_Title: Kennisgeving bij het definitief besluit tot instellen van de Omgevingsvisie Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
 
     draft_programma:
       metadata:
         Official_Title: Kennisgeving bij het ontwerpbesluit tot instellen van de Programma Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
 
     final_programma:
       metadata:
         Official_Title: Kennisgeving bij het definitief besluit tot instellen van de Programma Zuid-Holland
         Subjects:
+          - water
           - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
   

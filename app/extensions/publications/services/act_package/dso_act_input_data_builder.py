@@ -152,12 +152,8 @@ class DsoActInputDataBuilder:
 
         besluit = Besluit(
             officiele_titel=self._publication_version.Bill_Metadata["Official_Title"],
-            regeling_opschrift=self._publication_version.Bill_Metadata["Official_Title"],
             aanhef=self._publication_version.Bill_Compact["Preamble"],
-            wijzig_artikel=Artikel(
-                label="Artikel",
-                inhoud=self._publication_version.Bill_Compact["Amendment_Article"],
-            ),
+            wijzig_artikel=self._get_wijzigingsartikel(),
             tekst_artikelen=self._get_text_articles(),
             tijd_artikel=self._get_time_article(),
             sluiting=self._get_closing_text(),
@@ -235,6 +231,20 @@ class DsoActInputDataBuilder:
             stappen=steps,
         )
         return procedure_verloop
+
+    def _get_wijzigingsartikel(self) -> str:
+        text: str = self._publication_version.Bill_Compact["Amendment_Article"]
+
+        enactment_date: Optional[str] = self._publication_version.Procedural.get("Enactment_Date", None)
+        if enactment_date is not None:
+            date_readable: str = self._get_readable_date_from_str(enactment_date)
+            text = text.replace("[[ENACTMENT_DATE]]", date_readable)
+
+        result = Artikel(
+            label="Artikel",
+            inhoud=text,
+        )
+        return result
 
     def _get_text_articles(self) -> List[Artikel]:
         result: List[Artikel] = []
