@@ -152,6 +152,7 @@ class DsoActInputDataBuilder:
 
         besluit = Besluit(
             officiele_titel=self._publication_version.Bill_Metadata["Official_Title"],
+            citeertitel=self._publication_version.Bill_Metadata["Quote_Title"],
             aanhef=self._publication_version.Bill_Compact["Preamble"],
             wijzig_artikel=self._get_wijzigingsartikel(),
             tekst_artikelen=self._get_text_articles(),

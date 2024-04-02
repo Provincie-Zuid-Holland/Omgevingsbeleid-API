@@ -151,6 +151,7 @@ class Article(BaseModel):
 
 class BillMetadata(BaseModel):
     Official_Title: str = Field("")
+    Quote_Title: str = Field("")
     Subjects: List[str] = Field([])
     Jurisdictions: List[str] = Field([])
 

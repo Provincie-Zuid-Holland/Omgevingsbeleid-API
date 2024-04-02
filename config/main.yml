@@ -1030,6 +1030,7 @@ publication:
       # @see: class BillMetadata
       bill_metadata:
         Official_Title: Wijziging van de Omgevingsvisie Zuid-Holland, in het kader van de Herziening Omgevingsbeleid module Wonen, Werken en Werelderfgoed
+        Quote_Title: Vaststelling wijziging Omgevingsvisie Zuid-Holland module Wonen, Werken en Werelderfgoed
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1077,6 +1078,7 @@ publication:
       # @see: class BillMetadata
       bill_metadata:
         Official_Title: Wijziging van de Omgevingsvisie Zuid-Holland, in het kader van de Herziening Omgevingsbeleid module Wonen, Werken en Werelderfgoed
+        Quote_Title: Vaststelling wijziging Omgevingsvisie Zuid-Holland module Wonen, Werken en Werelderfgoed
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1119,43 +1121,11 @@ publication:
           De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
           <Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>
-      # @see: class ActMetadata
-      act_metadata:
-        Official_Title: Omgevingsvisie Provincie Zuid-Holland
-        Quote_Title: Omgevingsvisie Provincie Zuid-Holland
-        Subjects:
-          - water
-          - ruimtelijke_ordening
-          - waterbeheer
-          - natuur_en_milieu
-          - ruimte_en_infrastructuur
-          - verkeer
-          - cultureel_erfgoed
-          - bouwen_en_verbouwen
-          - wonen
-          - woningmarkt
-          - economie
-          - werk
-          - recreatie
-          - bodem
-          - energie
-          - flora_en_fauna
-          - geluid
-          - veiligheid
-          - natuur_en_landschapsbeheer
-          - luchtvaart
-          - rail_en_wegverkeer
-          - scheepvaart
-          - lucht
-          - netwerken
-          - cultuur_en_recreatie
-          - werkgelegenheid
-        Jurisdictions:
-          - omgevingsrecht
 
     draft_programma:
       bill_metadata:
-        Official_Title: Programma Provincie Zuid-Holland
+        Official_Title: Wijziging van de Omgevingsprogramma Zuid-Holland, in het kader van de Herziening Omgevingsbeleid module Wonen, Werken en Werelderfgoed
+        Quote_Title: Vaststelling wijziging Omgevingsprogramma Zuid-Holland module Wonen, Werken en Werelderfgoed
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1197,41 +1167,11 @@ publication:
           Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
           <Al>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</Al>
-      act_metadata:
-        Official_Title: Programma Provincie Zuid-Holland
-        Quote_Title: Programma Provincie Zuid-Holland
-        Subjects:
-          - water
-          - ruimtelijke_ordening
-          - waterbeheer
-          - natuur_en_milieu
-          - ruimte_en_infrastructuur
-          - verkeer
-          - cultureel_erfgoed
-          - bouwen_en_verbouwen
-          - wonen
-          - woningmarkt
-          - economie
-          - werk
-          - recreatie
-          - bodem
-          - energie
-          - flora_en_fauna
-          - geluid
-          - veiligheid
-          - natuur_en_landschapsbeheer
-          - luchtvaart
-          - rail_en_wegverkeer
-          - scheepvaart
-          - lucht
-          - netwerken
-          - cultuur_en_recreatie
-          - werkgelegenheid
-        Jurisdictions:
-          - omgevingsrecht
+
     final_programma:
       bill_metadata:
-        Official_Title: Programma Provincie Zuid-Holland
+        Official_Title: Wijziging van de Omgevingsprogramma Zuid-Holland, in het kader van de Herziening Omgevingsbeleid module Wonen, Werken en Werelderfgoed
+        Quote_Title: Vaststelling wijziging Omgevingsprogramma Zuid-Holland module Wonen, Werken en Werelderfgoed
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1273,38 +1213,6 @@ publication:
           Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
           <Al>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</Al>
-      act_metadata:
-        Official_Title: Programma Provincie Zuid-Holland
-        Quote_Title: Programma Provincie Zuid-Holland
-        Subjects:
-          - water
-          - ruimtelijke_ordening
-          - waterbeheer
-          - natuur_en_milieu
-          - ruimte_en_infrastructuur
-          - verkeer
-          - cultureel_erfgoed
-          - bouwen_en_verbouwen
-          - wonen
-          - woningmarkt
-          - economie
-          - werk
-          - recreatie
-          - bodem
-          - energie
-          - flora_en_fauna
-          - geluid
-          - veiligheid
-          - natuur_en_landschapsbeheer
-          - luchtvaart
-          - rail_en_wegverkeer
-          - scheepvaart
-          - lucht
-          - netwerken
-          - cultuur_en_recreatie
-          - werkgelegenheid
-        Jurisdictions:
-          - omgevingsrecht
 
   announcement_defaults:
     draft_omgevingsvisie:
