@@ -387,12 +387,12 @@ def depends_publication_announcement_package_repository(
 
 
 def depends_publication_announcement_package(
-    package_uuid: uuid.UUID,
+    announcement_package_uuid: uuid.UUID,
     package_repository: PublicationAnnouncementPackageRepository = Depends(
         depends_publication_announcement_package_repository
     ),
 ) -> PublicationAnnouncementPackageTable:
-    package: Optional[PublicationAnnouncementPackageTable] = package_repository.get_by_uuid(package_uuid)
+    package: Optional[PublicationAnnouncementPackageTable] = package_repository.get_by_uuid(announcement_package_uuid)
     if package is None:
         raise HTTPException(status_code=404, detail="Package not found")
     return package
