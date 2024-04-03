@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 
 class Werkingsgebied(BaseModel):
-    ID: int
+    ID: Optional[int]
     UUID: uuid.UUID
     Created_Date: datetime
     Modified_Date: datetime

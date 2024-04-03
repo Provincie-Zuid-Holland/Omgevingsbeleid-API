@@ -12,17 +12,16 @@ run:
 debug:
 	python app/main.py localhost 8000 8001
 
-local-sync: local-env
-local-env:
+pip-sync:
 	pip install -U pip pip-tools
 	pip-sync requirements.txt requirements-dev.txt
 
-local-pip-compile:
+pip-compile:
 	pip install -U pip pip-tools
 	pip-compile requirements.in
 	pip-compile requirements-dev.in
 
-local-pip-upgrade:
+pip-upgrade:
 	pip install -U pip pip-tools
 	pip-compile --upgrade requirements.in
 	pip-compile --upgrade requirements-dev.in

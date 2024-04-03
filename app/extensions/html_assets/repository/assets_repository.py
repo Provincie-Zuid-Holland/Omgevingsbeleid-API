@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import select
@@ -15,6 +15,11 @@ class AssetRepository:
         stmt = select(AssetsTable).filter(AssetsTable.UUID == uuid)
         maybe_asset = self._db.scalars(stmt).first()
         return maybe_asset
+
+    def get_by_uuids(self, uuids: List[UUID]) -> List[AssetsTable]:
+        stmt = select(AssetsTable).filter(AssetsTable.UUID.in_(uuids))
+        assets = self._db.scalars(stmt).all()
+        return assets
 
     def get_by_hash_and_content(self, hash: str, content: str) -> Optional[AssetsTable]:
         stmt = (

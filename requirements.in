@@ -17,6 +17,7 @@ diff-match-patch
 pytz
 validators
 shapely
+geopandas
 
 # Command
 Click
@@ -36,3 +37,6 @@ pdfkit
 jinja2
 dicttoxml
 lxml
+
+# DSO
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.1.4

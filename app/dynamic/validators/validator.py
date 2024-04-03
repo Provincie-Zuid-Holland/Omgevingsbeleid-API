@@ -108,6 +108,8 @@ class HtmlValidator(Validator):
 
     def get_validator_func(self, config: dict) -> Callable:
         def pydantic_plain_text_validator(cls, v):
+            if v is None:
+                return
             if not isinstance(v, str):
                 raise ValueError("Value must be a string")
 

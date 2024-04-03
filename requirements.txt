@@ -4,36 +4,57 @@
 #
 #    pip-compile requirements.in
 #
-anyio==4.2.0
+anyio==4.3.0
     # via
     #   httpx
     #   starlette
     #   watchfiles
 appdirs==1.4.4
     # via fs
+attrs==23.2.0
+    # via fiona
 bcrypt==4.0.1
     # via -r requirements.in
 beautifulsoup4==4.12.3
-    # via -r requirements.in
-certifi==2023.11.17
     # via
+    #   -r requirements.in
+    #   dso
+certifi==2024.2.2
+    # via
+    #   dso
+    #   fiona
     #   httpcore
     #   httpx
+    #   pyproj
 click==8.1.7
     # via
     #   -r requirements.in
+    #   click-plugins
+    #   cligj
+    #   dso
+    #   fiona
     #   uvicorn
+click-plugins==1.1.1
+    # via fiona
+cligj==0.7.2
+    # via fiona
 dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20230430
+    # via -r requirements.in
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.1.4
     # via -r requirements.in
 ecdsa==0.18.0
     # via python-jose
 exceptiongroup==1.2.0
     # via anyio
-fastapi==0.109.0
+fastapi==0.110.1
     # via -r requirements.in
+fiona==1.9.6
+    # via geopandas
 fs==2.4.16
+    # via -r requirements.in
+geopandas==0.14.3
     # via -r requirements.in
 greenlet==3.0.3
     # via sqlalchemy
@@ -41,82 +62,124 @@ h11==0.14.0
     # via
     #   httpcore
     #   uvicorn
-httpcore==1.0.2
+httpcore==1.0.5
     # via httpx
 httptools==0.6.1
     # via uvicorn
-httpx==0.26.0
+httpx==0.27.0
     # via -r requirements.in
 idna==3.6
     # via
     #   anyio
     #   httpx
 jinja2==3.1.3
-    # via -r requirements.in
-lxml==5.1.0
-    # via -r requirements.in
-markupsafe==2.1.4
-    # via jinja2
-numpy==1.26.3
-    # via shapely
+    # via
+    #   -r requirements.in
+    #   dso
+lxml==5.2.0
+    # via
+    #   -r requirements.in
+    #   dso
+markupsafe==2.1.5
+    # via
+    #   dso
+    #   jinja2
+numpy==1.26.4
+    # via
+    #   dso
+    #   pandas
+    #   shapely
+packaging==24.0
+    # via
+    #   dso
+    #   geopandas
+pandas==2.2.1
+    # via geopandas
 passlib==1.7.4
     # via -r requirements.in
+pathspec==0.12.1
+    # via dso
 pdfkit==1.0.0
     # via -r requirements.in
-pillow==10.2.0
+pillow==10.3.0
     # via -r requirements.in
-pyasn1==0.5.1
+platformdirs==4.2.0
+    # via dso
+pyasn1==0.6.0
     # via
     #   python-jose
     #   rsa
 pydantic==1.10.14
     # via
     #   -r requirements.in
+    #   dso
     #   fastapi
-pyodbc==5.0.1
+pyodbc==5.1.0
     # via -r requirements.in
+pyproj==3.6.1
+    # via
+    #   dso
+    #   geopandas
+python-dateutil==2.9.0.post0
+    # via pandas
 python-dotenv==1.0.1
     # via uvicorn
 python-jose==3.3.0
     # via -r requirements.in
-python-multipart==0.0.6
+python-multipart==0.0.9
     # via -r requirements.in
-pytz==2023.3.post1
-    # via -r requirements.in
+pytz==2024.1
+    # via
+    #   -r requirements.in
+    #   pandas
 pyyaml==6.0.1
     # via
     #   -r requirements.in
     #   uvicorn
+roman==4.1
+    # via dso
 rsa==4.9
     # via python-jose
-shapely==2.0.2
-    # via -r requirements.in
+shapely==2.0.3
+    # via
+    #   -r requirements.in
+    #   dso
+    #   geopandas
 six==1.16.0
     # via
     #   ecdsa
+    #   fiona
     #   fs
-sniffio==1.3.0
+    #   python-dateutil
+sniffio==1.3.1
     # via
     #   anyio
     #   httpx
 soupsieve==2.5
-    # via beautifulsoup4
-sqlalchemy==2.0.25
+    # via
+    #   beautifulsoup4
+    #   dso
+sqlalchemy==2.0.29
     # via -r requirements.in
-starlette==0.35.1
+starlette==0.37.2
     # via fastapi
-typing-extensions==4.9.0
+tomli==2.0.1
+    # via dso
+typing-extensions==4.10.0
     # via
     #   anyio
+    #   dso
     #   fastapi
     #   pydantic
     #   sqlalchemy
     #   uvicorn
-uvicorn[standard]==0.27.0
+tzdata==2024.1
+    # via pandas
+uvicorn[standard]==0.29.0
     # via -r requirements.in
 uvloop==0.19.0
     # via uvicorn
-validators==0.22.0
+validators==0.26.0
     # via -r requirements.in
 watchfiles==0.21.0
     # via uvicorn

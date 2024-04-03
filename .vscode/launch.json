@@ -8,9 +8,10 @@
             "name": "Python: Remote Debug",
             "type": "python",
             "request": "attach",
+            "justMyCode": false,
             "connect": {
                 "host": "localhost",
-                "port": 5679
+                "port": 5678
             },
             "pathMappings": [
                 {
@@ -25,7 +26,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Python: FastAPI",
@@ -36,7 +37,7 @@
                 "app.main:app"
             ],
             "jinja": true,
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Python: Import Script",
@@ -45,19 +46,14 @@
             "module": "scripts.import.main"
         },
         {
-            "name": "Python: Remote Debug",
+            "name": "Python: Custom Command",
             "type": "python",
-            "request": "attach",
-            "connect": {
-                "host": "localhost",
-                "port": 5679
-            },
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}",
-                    "remoteRoot": "/code"
-                }
-            ]
-        },
+            "request": "launch",
+            "program": "cmds.py",
+            "args": [
+                "test-dso-call"
+            ],
+            "justMyCode": false
+        }
     ]
 }
