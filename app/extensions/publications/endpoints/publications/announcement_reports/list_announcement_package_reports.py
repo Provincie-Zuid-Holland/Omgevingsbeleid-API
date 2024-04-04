@@ -61,12 +61,12 @@ class ListAnnouncementPackageReportsEndpoint(Endpoint):
     def _handler(
         self,
         report_repository: PublicationAnnouncementReportRepository,
-        package_uuid: Optional[uuid.UUID],
+        announcement_package_uuid: Optional[uuid.UUID],
         report_status: Optional[ReportStatusType],
         pagination: SimplePagination,
     ):
         paginated_result = report_repository.get_with_filters(
-            package_uuid=package_uuid,
+            announcement_package_uuid=announcement_package_uuid,
             report_status=report_status,
             offset=pagination.offset,
             limit=pagination.limit,

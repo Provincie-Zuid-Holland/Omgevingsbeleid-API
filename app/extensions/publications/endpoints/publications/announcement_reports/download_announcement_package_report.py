@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Response
+from lxml import etree
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.converter import Converter
@@ -25,14 +26,7 @@ class DownloadAnnouncementPackageReportEndpoint(Endpoint):
                 )
             ),
         ) -> Response:
-            return Response(
-                content=report.Source_Document,
-                media_type="application/xml",
-                headers={
-                    "Access-Control-Expose-Headers": "Content-Disposition",
-                    "Content-Disposition": f"attachment; filename={report.Filename}",
-                },
-            )
+            return self._handler(report)
 
         router.add_api_route(
             self._path,
@@ -44,6 +38,25 @@ class DownloadAnnouncementPackageReportEndpoint(Endpoint):
         )
 
         return router
+
+    def _handler(self, report: PublicationAnnouncementPackageReportTable) -> Response:
+        content = report.Source_Document
+
+        try:
+            xml_tree = etree.fromstring(content)
+            content = etree.tostring(xml_tree, pretty_print=True).decode()
+        except:
+            pass
+
+        response = Response(
+            content=report.Source_Document,
+            media_type="application/xml",
+            headers={
+                "Access-Control-Expose-Headers": "Content-Disposition",
+                "Content-Disposition": f"attachment; filename={report.Filename}",
+            },
+        )
+        return response
 
 
 class DownloadAnnouncementPackageReportEndpointResolver(EndpointResolver):
