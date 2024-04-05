@@ -25,7 +25,7 @@ class PublicationAnnouncementEdit(BaseModel):
 
     Metadata: Optional[AnnouncementMetadata]
     Procedural: Optional[AnnouncementProcedural]
-    Texts: Optional[AnnouncementContent]
+    Content: Optional[AnnouncementContent]
 
 
 class EndpointHandler:

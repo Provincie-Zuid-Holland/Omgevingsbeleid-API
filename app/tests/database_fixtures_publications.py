@@ -18,39 +18,6 @@ from app.extensions.publications.tables.tables import (
 )
 from app.extensions.publications.waardelijsten import Onderwerp, Rechtsgebied
 
-# Text_Template="""
-# <div data-hint-element="divisietekst"><object code="visie_algemeen-1" /></div>
-
-# <div data-hint-wid-code="custom-ambities-wrapper">
-#     <h1>Ambities van Zuid-Holland</h1>
-#     {%- for a in ambitie | sort(attribute='Title') %}
-#         <div data-hint-element="divisietekst"><object code="{{ a.Code }}" template="ambitie" /></div>
-#     {%- endfor %}
-# </div>
-
-# <div data-hint-wid-code="custom-beleidsdoelen-and-beleidskeuzes-wrapper">
-#     <h1>Beleidsdoelen en beleidskeuzes</h1>
-
-#     {%- for d in beleidsdoel | sort(attribute='Title') %}
-#         <div data-hint-wid-code="custom-beleidsdoel-{{ d.Code }}-wrapper">
-#             <object data-hint-element="divisietekst" code="{{ d.Code }}" template="beleidsdoel" />
-
-#             {% set filtered_results = beleidskeuze | selectattr('Hierarchy_Code', 'equalto', d.Code) | list %}
-#             {% if filtered_results %}
-#             <div data-hint-wid-code="custom-beleidskeuze-{{ d.Code }}-wrapper">
-#                 <h1>Beleidskeuzes van {{ d.Title }}</h1>
-#                 {%- for k in filtered_results | sort(attribute='Title') %}
-#                 <div data-hint-element="divisietekst"><object code="{{ k.Code }}" template="beleidskeuze" /></div>
-#                 {%- endfor %}
-#             </div>
-#             {% endif %}
-#         </div>
-#     {%- endfor %}
-# </div>
-
-# <div data-hint-element="divisietekst"><object code="visie_algemeen-2" /></div>
-# """.strip(),
-
 
 class DatabaseFixturesPublications:
     def __init__(self, db: Session):

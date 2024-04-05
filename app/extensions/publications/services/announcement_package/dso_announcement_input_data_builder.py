@@ -164,6 +164,8 @@ class DsoAnnouncementInputDataBuilder:
         pieces: List[str] = []
         for data in self._announcement_content.Texts:
             description: str = data.Description
+            description = self._replace_placeholders(description)
+
             # @todo: parse dates and other placeholders
             html = f"""<div data-hint-element="divisietekst"><h1>{data.Title}</h1>{description}</div>"""
             pieces.append(html)
@@ -179,3 +181,11 @@ class DsoAnnouncementInputDataBuilder:
         d: date = datetime.strptime(date_str, "%Y-%m-%d")
         result: str = self._get_readable_date(d)
         return result
+
+    def _replace_placeholders(self, content: str) -> str:
+        content = content.replace(
+            "[[BILL_URL]]",
+            f"""<a href="{self._about_bill_frbr.get_work()}/{self._about_bill_frbr.get_expression_version()}">www.officielebekendmakingen.nl</a>""",
+        )
+
+        return content
