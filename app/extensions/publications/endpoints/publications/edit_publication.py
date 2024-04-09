@@ -13,7 +13,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
-from app.extensions.publications.dependencies import depends_publication, depends_publication_repository
+from app.extensions.publications.dependencies import depends_publication, depends_publication_repository, depends_publication_template_repository
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.repository.publication_template_repository import PublicationTemplateRepository
 from app.extensions.publications.tables.tables import PublicationTable, PublicationTemplateTable
@@ -69,7 +69,7 @@ class EndpointHandler:
         )
         if template is None:
             raise HTTPException(status_code=404, detail="Template niet gevonden")
-        if template.Is_Active:
+        if not template.Is_Active:
             raise HTTPException(status_code=404, detail="Template is gesloten")
         if template.Document_Type != self._publication.Document_Type:
             raise HTTPException(status_code=404, detail="Template hoort niet bij dit document type")
@@ -90,7 +90,7 @@ class EditPublicationEndpoint(Endpoint):
                 ),
             ),
             publication: PublicationTable = Depends(depends_publication),
-            template_repository: PublicationTemplateRepository = Depends(depends_publication_repository),
+            template_repository: PublicationTemplateRepository = Depends(depends_publication_template_repository),
             db: Session = Depends(depends_db),
         ) -> ResponseOK:
             handler: EndpointHandler = EndpointHandler(
