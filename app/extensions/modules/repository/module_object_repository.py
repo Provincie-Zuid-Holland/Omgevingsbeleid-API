@@ -167,9 +167,19 @@ class ModuleObjectRepository(BaseRepository):
         actions: List[ModuleObjectActionFilter] = [],
     ):
         """
-        Generic filterable listing of latest module-object versions
-        fetched grouped per object Code.
+        Generic filterable module-object listing query used
+        for listing objects in draft or if object type is unknown.
         """
+        latest_status_subquery = (
+            select(ModuleStatusHistoryTable.Status)
+            .filter(ModuleObjectsTable.Module_ID == ModuleStatusHistoryTable.Module_ID)
+            .order_by(ModuleStatusHistoryTable.ID.desc())
+            .limit(1)
+            .correlate(ModuleObjectsTable)  # Explicit correlate needed to merge back in outer query
+            .scalar_subquery()
+            .label("Latest_Status")
+        )
+
         subq = (
             select(
                 ModuleObjectsTable,
@@ -179,6 +189,7 @@ class ModuleObjectRepository(BaseRepository):
                     order_by=desc(ModuleObjectsTable.Modified_Date),
                 )
                 .label("_RowNumber"),
+                latest_status_subquery,  # Include each mo latest status
             )
             .select_from(ModuleObjectsTable)
             .join(ModuleTable)
@@ -186,7 +197,6 @@ class ModuleObjectRepository(BaseRepository):
             .join(ModuleObjectsTable.ModuleObjectContext)
             .filter(ModuleObjectContextTable.Hidden == False)
         )
-
         # Build minimum status list starting at given status, if provided
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
 
@@ -205,15 +215,13 @@ class ModuleObjectRepository(BaseRepository):
             ModuleObjectsTable.Object_Type == object_type if object_type is not None else None,
             ModuleObjectContextTable.Action.in_(actions) if actions else None,
         ]
-        filters = [f for f in filters if f is not None]  # first remove None filters
-        subq = subq.filter(and_(*filters))  # apply remaining filters to the query
 
-        subq = subq.subquery()
+        # Applying your filters and making it a subquery
+        subq = subq.filter(and_(*[f for f in filters if f is not None])).subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
-        aliased_module = aliased(ModuleTable, subq)
 
-        # Select module-objects + current module status
-        stmt = select(aliased_objects, aliased_module.Current_Status).filter(subq.c._RowNumber == 1)
+        # Outer query to select all fields including the latest status
+        stmt = select(aliased_objects, subq.c.Latest_Status).filter(subq.c._RowNumber == 1)
 
         return self.fetch_paginated_no_scalars(
             statement=stmt,
