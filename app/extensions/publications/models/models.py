@@ -191,7 +191,7 @@ class Procedural(BaseModel):
 
 
 class ProceduralValidated(BaseModel):
-    Enactment_Date: Optional[str] = Field(None)
+    Enactment_Date: str = Field(None)
     Signed_Date: str
     Procedural_Announcement_Date: str
 
@@ -220,8 +220,6 @@ class ActMetadata(BaseModel):
 
 class PublicationVersionValidated(BaseModel):
     UUID: uuid.UUID
-
-    Procedure_Type: str
 
     Bill_Metadata: BillMetadata
     Bill_Compact: BillCompact
