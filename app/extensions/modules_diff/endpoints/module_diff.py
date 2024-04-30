@@ -207,9 +207,9 @@ class EndpointHandler:
             if op == "  ":
                 result.append(line)
             elif op == "- ":
-                result.append('<del style="background:#ffe6e6;">%s</del>' % line)
+                result.append('<del style="background:#FBE4D5;"><s>%s</s></del>' % line)
             elif op == "+ ":
-                result.append('<ins style="background:#e6ffe6;">%s</ins>' % line)
+                result.append('<ins style="background:#E2EFD9;">%s</ins>' % line)
         html_result = "".join(result)
         soup = BeautifulSoup(html_result, "html.parser")
         html_result = str(soup)
@@ -242,18 +242,18 @@ class EndpointHandler:
         if module_object.ModuleObjectContext.Action in ["", ModuleObjectActionFilter.Terminate]:
             # It could be that there is no valid object at the moment, because it has been terminated in parallel
             if valid_object is None:
-                response.append(f'<del style="background:#ffe6e6;">[Already terminated]</del>')
+                response.append(f'<del style="background:#FBE4D5;">[Already terminated]</del>')
             else:
                 for object_config in display_object.content:
                     response.append(f"<h4>{object_config.label}</h4>")
                     response.append(
-                        f'<del style="background:#ffe6e6;">{getattr(valid_object, object_config.column)}</del>'
+                        f'<del style="background:#FBE4D5;"><s>{getattr(valid_object, object_config.column)}</s></del>'
                     )
         elif valid_object is None:
             for object_config in display_object.content:
                 response.append(f"<h4>{object_config.label}</h4>")
                 response.append(
-                    f'<ins style="background:#e6ffe6;">{getattr(module_object, object_config.column)}</ins>'
+                    f'<ins style="background:#E2EFD9;">{getattr(module_object, object_config.column)}</ins>'
                 )
         else:
             for object_config in display_object.content:
