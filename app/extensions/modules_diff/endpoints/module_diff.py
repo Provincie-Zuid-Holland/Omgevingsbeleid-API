@@ -180,7 +180,31 @@ class EndpointHandler:
             if object_response:
                 contents.append(object_response)
 
-        html_content = '<br style="page-break-before: always">'.join(contents)
+        html_body = '<br style="page-break-before: always">'.join(contents)
+
+        html_css = """
+html, body, h1, h2, h3, h4, h5, h6, del, ins, p, li, td, th {
+    font-family: 'Carlito', 'Calibri', sans-serif;
+}
+del, ins, p, li, td, th {
+    font-size: 11pt;
+}
+"""
+        html_content = f"""<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Export</title>
+    <link href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        {html_css}
+    </style>
+</head>
+<body>
+    {html_body}
+</body>"""
+
         as_response: FileResponse = self._format_response(html_content)
         as_response.headers["Access-Control-Expose-Headers"] = "Content-Disposition"
 
@@ -228,14 +252,11 @@ class EndpointHandler:
         if valid_object is not None:
             title = self._as_diff(valid_object.Title, title)
 
-        response.append(f"<h2>{title}</h2>")
-        response.append(f"<p>Object Type: {module_object.Object_Type}</p>")
-        response.append(f"<p>Object ID: {module_object.Object_ID}</p>")
-        response.append(f"<p>Action: <b>{module_object.ModuleObjectContext.Action}</b></p>")
-        response.append(f"<h3>Toelichting</h3>")
-        response.append(module_object.ModuleObjectContext.Explanation)
-        response.append(f"<h3>Conclusie</h3>")
-        response.append(module_object.ModuleObjectContext.Conclusion)
+        response.append(f"<h2>{module_object.Object_Type}: {title}</h2>")
+        # response.append(f"<h3>Toelichting</h3>")
+        # response.append(module_object.ModuleObjectContext.Explanation)
+        # response.append(f"<h3>Conclusie</h3>")
+        # response.append(module_object.ModuleObjectContext.Conclusion)
         response.append(f"<h3>Inhoud</h3>")
 
         # @todo: I'm not sure about the "" anymore
