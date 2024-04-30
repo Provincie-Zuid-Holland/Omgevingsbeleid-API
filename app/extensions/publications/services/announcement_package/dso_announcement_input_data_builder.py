@@ -117,8 +117,6 @@ class DsoAnnouncementInputDataBuilder:
         steps: List[dso_models.ProcedureStap] = []
 
         field_map: List[dict] = [
-            {"field": "Enactment_Date", "target": dso_models.ProcedureStappen.Vaststelling, "required": False},
-            {"field": "Signed_Date", "target": dso_models.ProcedureStappen.Ondertekening, "required": False},
             {
                 "field": "Begin_Inspection_Period_Date",
                 "target": dso_models.ProcedureStappen.Begin_inzagetermijn,
