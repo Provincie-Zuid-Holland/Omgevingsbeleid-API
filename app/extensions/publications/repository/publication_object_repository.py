@@ -26,7 +26,7 @@ class PublicationObjectRepository(BaseRepository):
         return rows
 
     def _get_object_query(
-        module_id: int,
+        self,
         timepoint: datetime,
         object_types: List[str],
         field_map: List[str],
@@ -112,8 +112,10 @@ class PublicationObjectRepository(BaseRepository):
         object_types: List[str],
         field_map: List[str],
     ):
-        object_query = self._get_object_query(timepoint, object_types, field_map)
-        module_query = self._get_module_object_query(module_id, timepoint, object_types, field_map)
+        object_query = self._get_object_query(timepoint=timepoint, object_types=object_types, field_map=field_map)
+        module_query = self._get_module_object_query(
+            module_id=module_id, timepoint=timepoint, object_types=object_types, field_map=field_map
+        )
         union_query = (
             union_all(
                 # alias().select() is a cheat to force parentheses
