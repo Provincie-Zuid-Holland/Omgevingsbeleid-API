@@ -189,6 +189,10 @@ html, body, h1, h2, h3, h4, h5, h6, del, ins, p, li, td, th {
 del, ins, p, li, td, th {
     font-size: 11pt;
 }
+h2 ins, h2 del {
+    display: inline;
+    font-size: 18pt;
+}
 """
         html_content = f"""<!DOCTYPE html>
 <html lang="nl">
@@ -250,9 +254,11 @@ del, ins, p, li, td, th {
 
         title = module_object.Title
         if valid_object is not None:
-            title = self._as_diff(valid_object.Title, title)
+            title = self._as_diff(
+                f"{module_object.Object_Type}: {valid_object.Title}", f"{module_object.Object_Type}: {title}"
+            )
 
-        response.append(f"<h2>{module_object.Object_Type}: {title}</h2>")
+        response.append(f"<h2>{title}</h2>")
         # response.append(f"<h3>Toelichting</h3>")
         # response.append(module_object.ModuleObjectContext.Explanation)
         # response.append(f"<h3>Conclusie</h3>")
