@@ -362,15 +362,11 @@ class AnnouncementMetadata(BaseModel):
 
 
 class AnnouncementProcedural(BaseModel):
-    Enactment_Date: Optional[str] = Field(None)
-    Signed_Date: Optional[str] = Field(None)
     Procedural_Announcement_Date: Optional[str] = Field(None)
     Begin_Inspection_Period_Date: Optional[str] = Field(None)
     End_Inspection_Period_Date: Optional[str] = Field(None)
 
     @validator(
-        "Enactment_Date",
-        "Signed_Date",
         "Procedural_Announcement_Date",
         "Begin_Inspection_Period_Date",
         "End_Inspection_Period_Date",
