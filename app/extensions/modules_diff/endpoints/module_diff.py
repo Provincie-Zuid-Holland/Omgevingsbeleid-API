@@ -186,12 +186,8 @@ class EndpointHandler:
 html, body, h1, h2, h3, h4, h5, h6, del, ins, p, li, td, th {
     font-family: 'Carlito', 'Calibri', sans-serif;
 }
-del, ins, p, li, td, th {
-    font-size: 11pt;
-}
 h2 ins, h2 del {
     display: inline;
-    font-size: 18pt;
 }
 """
         html_content = f"""<!DOCTYPE html>
