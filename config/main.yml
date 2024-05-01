@@ -214,12 +214,6 @@ api:
                     label: Provinciaal belang
                   - column: Explanation
                     label: Toelichting
-                  - column: Hierarchy_Code
-                    label: Hierarchy_Code
-                  - column: Gebied_UUID
-                    label: Gebied_UUID
-                  - column: Werkingsgebied_Code
-                    label: Werkingsgebied_Code
               - object_type: maatregel
                 content:
                   - column: Description
@@ -228,12 +222,6 @@ api:
                     label: Rol
                   - column: Effect
                     label: Uitwerking
-                  - column: Hierarchy_Code
-                    label: Hierarchy_Code
-                  - column: Gebied_UUID
-                    label: Gebied_UUID
-                  - column: Werkingsgebied_Code
-                    label: Werkingsgebied_Code
               - object_type: visie_algemeen
                 content:
                   - column: Description
