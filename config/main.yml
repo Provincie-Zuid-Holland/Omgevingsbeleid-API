@@ -1269,6 +1269,11 @@ publication:
           - netwerken
           - cultuur_en_recreatie
           - werkgelegenheid
+      contents:
+        Texts:
+          - Title: Ontwerp Omgevingsvisie Zuid-Holland
+            Description: |
+              <p>Tekst</p>
 
     draft_programma:
       metadata:
@@ -1300,6 +1305,11 @@ publication:
           - netwerken
           - cultuur_en_recreatie
           - werkgelegenheid
+      contents:
+        Texts:
+          - Title: Ontwerp Programma Zuid-Holland
+            Description: |
+              <p>Tekst</p>
 
     final_programma:
       metadata:
@@ -1331,4 +1341,9 @@ publication:
           - netwerken
           - cultuur_en_recreatie
           - werkgelegenheid
+      contents:
+        Texts:
+          - Title: Ontwerp Programma Zuid-Holland
+            Description: |
+              <p>Tekst</p>
   
