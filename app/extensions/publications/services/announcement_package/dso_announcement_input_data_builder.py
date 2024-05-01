@@ -180,10 +180,33 @@ class DsoAnnouncementInputDataBuilder:
         result: str = self._get_readable_date(d)
         return result
 
+    def _get_readable_date_short(self, d: date) -> str:
+        formatted_date = f"{d.day} {DUTCH_MONTHS[d.month]}"
+        return formatted_date
+
+    def _get_readable_date_from_str_short(self, date_str: str) -> str:
+        d: date = datetime.strptime(date_str, "%Y-%m-%d")
+        result: str = self._get_readable_date_short(d)
+        return result
+
     def _replace_placeholders(self, content: str) -> str:
         content = content.replace(
             "[[BILL_URL]]",
             f"""<a href="{self._about_bill_frbr.get_work()}/{self._about_bill_frbr.get_expression_version()}">www.officielebekendmakingen.nl</a>""",
         )
+
+        begin_date: Optional[str] = self._procedural.Begin_Inspection_Period_Date
+        if begin_date is not None:
+            date_readable: str = self._get_readable_date_from_str(begin_date)
+            content = content.replace("[[BEGIN_INSPECTION_DATE]]", date_readable)
+            date_readable: str = self._get_readable_date_from_str_short(begin_date)
+            content = content.replace("[[BEGIN_INSPECTION_DATE_SHORT]]", date_readable)
+
+        end_date: Optional[str] = self._procedural.End_Inspection_Period_Date
+        if end_date is not None:
+            date_readable: str = self._get_readable_date_from_str(begin_date)
+            content = content.replace("[[END_INSPECTION_DATE]]", date_readable)
+            date_readable: str = self._get_readable_date_from_str_short(begin_date)
+            content = content.replace("[[END_INSPECTION_DATE_SHORT]]", date_readable)
 
         return content
