@@ -204,9 +204,9 @@ class DsoAnnouncementInputDataBuilder:
 
         end_date: Optional[str] = self._procedural.End_Inspection_Period_Date
         if end_date is not None:
-            date_readable: str = self._get_readable_date_from_str(begin_date)
+            date_readable: str = self._get_readable_date_from_str(end_date)
             content = content.replace("[[END_INSPECTION_DATE]]", date_readable)
-            date_readable: str = self._get_readable_date_from_str_short(begin_date)
+            date_readable: str = self._get_readable_date_from_str_short(end_date)
             content = content.replace("[[END_INSPECTION_DATE_SHORT]]", date_readable)
 
         return content
