@@ -180,14 +180,14 @@ class EndpointHandler:
 
         for visie in filter(lambda o: o.Object_Type == "visie_algemeen", module_objects):
             if visie.Code not in used_object_codes:
-                visie_response = self._generate_for_module_object(visie)
+                visie_response = self._generate_for_module_object(visie, "h1")
                 if visie_response:
                     used_object_codes.add(visie.Code)
                     contents.append(visie_response)
 
         for ambitie_object in filter(lambda o: o.Object_Type == "ambitie", module_objects):
             if ambitie_object.Code not in used_object_codes:
-                ambitie_response = self._generate_for_module_object(ambitie_object)
+                ambitie_response = self._generate_for_module_object(ambitie_object, "h1")
                 if ambitie_response:
                     used_object_codes.add(ambitie_object.Code)
                     contents.append(ambitie_response)
@@ -197,7 +197,7 @@ class EndpointHandler:
                         module_objects,
                     ):
                         if doel_object.Code not in used_object_codes:
-                            doel_response = self._generate_for_module_object(doel_object)
+                            doel_response = self._generate_for_module_object(doel_object, "h2")
                             if doel_response:
                                 used_object_codes.add(doel_object.Code)
                                 contents.append(doel_response)
@@ -207,7 +207,7 @@ class EndpointHandler:
                                     module_objects,
                                 ):
                                     if keuze_object.Code not in used_object_codes:
-                                        keuze_response = self._generate_for_module_object(keuze_object)
+                                        keuze_response = self._generate_for_module_object(keuze_object, "h3")
                                         if keuze_response:
                                             used_object_codes.add(keuze_object.Code)
                                             contents.append(keuze_response)
@@ -219,7 +219,7 @@ class EndpointHandler:
                                             ):
                                                 if maatregel_object.Code not in used_object_codes:
                                                     maatregel_response = self._generate_for_module_object(
-                                                        maatregel_object
+                                                        maatregel_object, "h4"
                                                     )
                                                     if maatregel_response:
                                                         used_object_codes.add(maatregel_object.Code)
@@ -229,7 +229,7 @@ class EndpointHandler:
 
         for module_object in module_objects:
             if module_object.Code not in used_object_codes:
-                object_response = self._generate_for_module_object(module_object)
+                object_response = self._generate_for_module_object(module_object, "h2")
                 if object_response:
                     used_object_codes.add(module_object.Code)
                     contents.append(object_response)
@@ -294,7 +294,7 @@ h2 ins, h2 del {
         html_result = str(soup)
         return html_result
 
-    def _generate_for_module_object(self, module_object: ModuleObjectsTable) -> str:
+    def _generate_for_module_object(self, module_object: ModuleObjectsTable, heading: str) -> str:
         response = []
         valid_object: Optional[ObjectsTable] = self._object_repository.get_latest_valid_by_id(
             module_object.Object_Type,
@@ -310,7 +310,7 @@ h2 ins, h2 del {
                 title
             )
 
-        response.append(f"<h2>{title}</h2>")
+        response.append(f"<{heading}>{title}</{heading}>")
         # response.append(f"<h3>Toelichting</h3>")
         # response.append(module_object.ModuleObjectContext.Explanation)
         # response.append(f"<h3>Conclusie</h3>")
@@ -324,13 +324,13 @@ h2 ins, h2 del {
                 response.append(f'<del style="background:#FBE4D5;">[Already terminated]</del>')
             else:
                 for object_config in display_object.content:
-                    response.append(f"<h4>{object_config.label}</h4>")
+                    response.append(f"<h6>{object_config.label}</h6>")
                     response.append(
                         f'<del style="background:#FBE4D5;"><s>{getattr(valid_object, object_config.column)}</s></del>'
                     )
         elif valid_object is None:
             for object_config in display_object.content:
-                response.append(f"<h4>{object_config.label}</h4>")
+                response.append(f"<h6>{object_config.label}</h6>")
                 response.append(
                     f'<ins style="background:#E2EFD9;">{getattr(module_object, object_config.column)}</ins>'
                 )
@@ -341,7 +341,7 @@ h2 ins, h2 del {
 
                 html_result = self._as_diff(old_html_content, new_html_content)
 
-                response.append(f"<h4>{object_config.label}</h4>")
+                response.append(f"<h6>{object_config.label}</h6>")
                 response.append(html_result)
 
         html_content = "".join(response)
