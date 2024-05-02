@@ -195,15 +195,13 @@ api:
             path: /diff
             objects:
               - object_type: ambitie
-                content:
-                  - column: Description
-                    label: Omschrijving
+                content: []
+                  # - column: Description
+                  #   label: Omschrijving
               - object_type: beleidsdoel
                 content:
                   - column: Description
                     label: Omschrijving
-                  - column: Hierarchy_Code
-                    label: Hierarchy_Code
               - object_type: beleidskeuze
                 content:
                   - column: Description
