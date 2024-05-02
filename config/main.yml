@@ -230,10 +230,6 @@ api:
                 content:
                   - column: Description
                     label: Omschrijving
-              - object_type: werkingsgebied
-                content:
-                  - column: Description
-                    label: Omschrijving
         - resolver: module_add_new_object
           resolver_data:
             path: /add-new-object

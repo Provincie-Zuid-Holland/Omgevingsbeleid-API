@@ -6,7 +6,7 @@ from datetime import datetime
 from enum import Enum
 from io import BytesIO
 from os import path
-from typing import List, Optional
+from typing import List, Optional, Set
 from uuid import UUID
 
 from bs4 import BeautifulSoup, NavigableString, Tag
@@ -172,13 +172,72 @@ class EndpointHandler:
 
     def handle(self) -> FileResponse:
         module_objects: List[ModuleObjectsTable] = self._get_module_objects()
+        module_objects = list(filter(lambda o: o.Object_Type != "werkingsgebied", module_objects))
         module_objects.sort(key=lambda mo: mo.Code)
 
+        used_object_codes: Set[str] = set()
         contents = []
+
+        for visie in filter(lambda o: o.Object_Type == "visie_algemeen", module_objects):
+            if visie.Code not in used_object_codes:
+                visie_response = self._generate_for_module_object(visie)
+                if visie_response:
+                    used_object_codes.add(visie.Code)
+                    contents.append(visie_response)
+
+        for ambitie_object in filter(lambda o: o.Object_Type == "ambitie", module_objects):
+            if ambitie_object.Code not in used_object_codes:
+                ambitie_response = self._generate_for_module_object(ambitie_object)
+                if ambitie_response:
+                    used_object_codes.add(ambitie_object.Code)
+                    contents.append(ambitie_response)
+
+                    for doel_object in filter(
+                        lambda o: o.Object_Type == "beleidsdoel" and o.Hierarchy_Code == ambitie_object.Code,
+                        module_objects,
+                    ):
+                        if doel_object.Code not in used_object_codes:
+                            doel_response = self._generate_for_module_object(doel_object)
+                            if doel_response:
+                                used_object_codes.add(doel_object.Code)
+                                contents.append(doel_response)
+
+                                for keuze_object in filter(
+                                    lambda o: o.Object_Type == "beleidskeuze" and o.Hierarchy_Code == doel_object.Code,
+                                    module_objects,
+                                ):
+                                    if keuze_object.Code not in used_object_codes:
+                                        keuze_response = self._generate_for_module_object(keuze_object)
+                                        if keuze_response:
+                                            used_object_codes.add(keuze_object.Code)
+                                            contents.append(keuze_response)
+
+                                            for maatregel_object in filter(
+                                                lambda o: o.Object_Type == "maatregel"
+                                                and o.Hierarchy_Code == keuze_object.Code,
+                                                module_objects,
+                                            ):
+                                                if maatregel_object.Code not in used_object_codes:
+                                                    maatregel_response = self._generate_for_module_object(
+                                                        maatregel_object
+                                                    )
+                                                    if maatregel_response:
+                                                        used_object_codes.add(maatregel_object.Code)
+                                                        contents.append(maatregel_response)
+
+        contents.append("<h1>Niet ingedeelde objecten!</h1>")
+
         for module_object in module_objects:
-            object_response = self._generate_for_module_object(module_object)
-            if object_response:
-                contents.append(object_response)
+            if module_object.Code not in used_object_codes:
+                object_response = self._generate_for_module_object(module_object)
+                if object_response:
+                    used_object_codes.add(module_object.Code)
+                    contents.append(object_response)
+
+        # for module_object in module_objects:
+        #     object_response = self._generate_for_module_object(module_object)
+        #     if object_response:
+        #         contents.append(object_response)
 
         html_body = '<br style="page-break-before: always">'.join(contents)
 
