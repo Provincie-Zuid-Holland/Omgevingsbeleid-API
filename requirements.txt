@@ -42,19 +42,19 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20230430
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.1.6
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.1.7
     # via -r requirements.in
-ecdsa==0.18.0
+ecdsa==0.19.0
     # via python-jose
-exceptiongroup==1.2.0
+exceptiongroup==1.2.1
     # via anyio
-fastapi==0.110.1
+fastapi==0.110.3
     # via -r requirements.in
 fiona==1.9.6
     # via geopandas
 fs==2.4.16
     # via -r requirements.in
-geopandas==0.14.3
+geopandas==0.14.4
     # via -r requirements.in
 greenlet==3.0.3
     # via sqlalchemy
@@ -68,7 +68,7 @@ httptools==0.6.1
     # via uvicorn
 httpx==0.27.0
     # via -r requirements.in
-idna==3.6
+idna==3.7
     # via
     #   anyio
     #   httpx
@@ -87,13 +87,14 @@ markupsafe==2.1.5
 numpy==1.26.4
     # via
     #   dso
+    #   geopandas
     #   pandas
     #   shapely
 packaging==24.0
     # via
     #   dso
     #   geopandas
-pandas==2.2.1
+pandas==2.2.2
     # via geopandas
 passlib==1.7.4
     # via -r requirements.in
@@ -103,7 +104,7 @@ pdfkit==1.0.0
     # via -r requirements.in
 pillow==10.3.0
     # via -r requirements.in
-platformdirs==4.2.0
+platformdirs==4.2.1
     # via dso
 pyasn1==0.6.0
     # via
@@ -136,11 +137,11 @@ pyyaml==6.0.1
     # via
     #   -r requirements.in
     #   uvicorn
-roman==4.1
+roman==4.2
     # via dso
 rsa==4.9
     # via python-jose
-shapely==2.0.3
+shapely==2.0.4
     # via
     #   -r requirements.in
     #   dso
@@ -165,7 +166,7 @@ starlette==0.37.2
     # via fastapi
 tomli==2.0.1
     # via dso
-typing-extensions==4.10.0
+typing-extensions==4.11.0
     # via
     #   anyio
     #   dso
@@ -179,7 +180,7 @@ uvicorn[standard]==0.29.0
     # via -r requirements.in
 uvloop==0.19.0
     # via uvicorn
-validators==0.28.0
+validators==0.28.1
     # via -r requirements.in
 watchfiles==0.21.0
     # via uvicorn

@@ -216,15 +216,13 @@ class DsoActInputDataBuilder:
             )
 
         signed_date: Optional[str] = self._publication_version.Procedural.get("Signed_Date", None)
-        if signed_date is None:
-            raise RuntimeError("Procedural.Signed_Date is required")
-
-        steps.append(
-            dso_models.ProcedureStap(
-                soort_stap="Ondertekening",
-                voltooid_op=signed_date,
+        if signed_date is not None:
+            steps.append(
+                dso_models.ProcedureStap(
+                    soort_stap="Ondertekening",
+                    voltooid_op=signed_date,
+                )
             )
-        )
 
         procedure_verloop = dso_models.ProcedureVerloop(
             # @todo: This should be its own date
@@ -315,13 +313,13 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_closing_text(self) -> str:
-        signed_date: Optional[str] = self._publication_version.Procedural.get("Signed_Date", None)
-        if signed_date is None:
-            raise RuntimeError("Procedural.Signed_Date is required")
-
         text: str = self._publication_version.Bill_Compact["Closing"]
-        signed_date_readable: str = self._get_readable_date_from_str(signed_date)
-        text = text.replace("[[SIGNED_DATE]]", signed_date_readable)
+
+        signed_date: Optional[str] = self._publication_version.Procedural.get("Signed_Date", None)
+        if signed_date is not None:
+            signed_date_readable: str = self._get_readable_date_from_str(signed_date)
+            text = text.replace("[[SIGNED_DATE]]", signed_date_readable)
+
         return text
 
     def _get_time_article_content(self) -> str:
