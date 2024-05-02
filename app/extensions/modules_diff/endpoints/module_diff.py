@@ -160,6 +160,7 @@ class EndpointHandler:
         module: ModuleTable,
         status: Optional[ModuleStatusHistoryTable],
         output_format: Format,
+        show_differences: bool,
     ):
         self._object_mapping: ObjectMappings = object_mapping
         self._module_object_repository: ModuleObjectRepository = module_object_repository
@@ -168,6 +169,7 @@ class EndpointHandler:
         self._module: ModuleTable = module
         self._status: Optional[ModuleStatusHistoryTable] = status
         self._output_format: Format = output_format
+        self._show_differences: bool = show_differences
         self._timepoint: datetime = self._status.Created_Date if self._status is not None else datetime.utcnow()
 
     def handle(self) -> FileResponse:
@@ -304,7 +306,7 @@ h2 ins, h2 del {
         display_object = self._object_mapping.get(module_object.Object_Type)
 
         title = f"{module_object.Object_Type.capitalize()}: {module_object.Title}"
-        if valid_object is not None:
+        if valid_object is not None and self._show_differences:
             title = self._as_diff(
                 f"{module_object.Object_Type.capitalize()}: {valid_object.Title}",
                 title
@@ -328,6 +330,12 @@ h2 ins, h2 del {
                     response.append(
                         f'<del style="background:#FBE4D5;"><s>{getattr(valid_object, object_config.column)}</s></del>'
                     )
+        elif self._show_differences == False:
+            for object_config in display_object.content:
+                response.append(f"<h6>{object_config.label}</h6>")
+                response.append(
+                    f'{getattr(module_object, object_config.column)}'
+                )
         elif valid_object is None:
             for object_config in display_object.content:
                 response.append(f"<h6>{object_config.label}</h6>")
@@ -382,6 +390,7 @@ class ModuleDiffEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             output_format: Format = Format.HTML,
+            show_differences: bool = True,
             user: UsersTable = Depends(depends_current_active_user),
             status: Optional[ModuleStatusHistoryTable] = Depends(depends_maybe_module_status_by_id),
             module: ModuleTable = Depends(depends_active_module),
@@ -397,6 +406,7 @@ class ModuleDiffEndpoint(Endpoint):
                 module,
                 status,
                 output_format,
+                show_differences,
             )
             return handler.handle()
 
