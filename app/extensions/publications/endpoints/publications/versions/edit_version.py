@@ -20,6 +20,7 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class PublicationVersionEdit(BaseModel):
+    Module_Status_ID: Optional[int]
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
 
