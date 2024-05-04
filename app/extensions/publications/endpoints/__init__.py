@@ -49,6 +49,7 @@ from .publications.versions import (
     DetailPublicationVersionEndpointResolver,
     EditPublicationVersionEndpointResolver,
     ListPublicationVersionsEndpointResolver,
+    UploadPublicationVersionAttachmentEndpointResolver,
 )
 from .templates import (
     CreatePublicationTemplateEndpointResolver,

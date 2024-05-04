@@ -145,7 +145,8 @@ class PublicationShort(BaseModel):
 
 
 class Article(BaseModel):
-    Label: str
+    Label: str = Field("") # @deprecated
+    Number: str
     Content: str
 
 
@@ -159,6 +160,27 @@ class BillMetadata(BaseModel):
         orm_mode = True
 
 
+class Appendix(BaseModel):
+    Number: str
+    Title: str
+    Content: str
+
+    class Config:
+        orm_mode = True
+
+
+class Motivation(BaseModel):
+    Title: str
+    Content: str
+    Appendices: List[Appendix] = Field([])
+
+    class Config:
+        orm_mode = True
+
+
+MotivationClass = Motivation
+
+
 class BillCompact(BaseModel):
     Component_Name: str = Field("")
     Preamble: str = Field("")
@@ -167,6 +189,9 @@ class BillCompact(BaseModel):
     Amendment_Article: str = Field("")
     Time_Article: str = Field("")
     Custom_Articles: List[Article] = Field([])
+
+    Appendices: List[Appendix] = Field([])
+    Motivation: Optional[MotivationClass] = Field(None)
 
     class Config:
         orm_mode = True
@@ -234,6 +259,17 @@ class PublicationVersionValidated(BaseModel):
         orm_mode = True
 
 
+class AttachmentShort(BaseModel):
+    File_UUID: uuid.UUID
+    Filename: str
+    Title: str
+    Created_Date: datetime
+    Modified_Date: datetime
+
+    class Config:
+        orm_mode = True
+
+
 class PublicationVersion(BaseModel):
     UUID: uuid.UUID
 
@@ -251,6 +287,8 @@ class PublicationVersion(BaseModel):
 
     Created_Date: datetime
     Modified_Date: datetime
+
+    Attachments: List[AttachmentShort]
 
     class Config:
         orm_mode = True

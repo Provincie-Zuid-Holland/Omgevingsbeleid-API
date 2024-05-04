@@ -24,6 +24,10 @@ from app.extensions.publications.repository.publication_announcement_repository 
 from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
 from app.extensions.publications.repository.publication_environment_repository import PublicationEnvironmentRepository
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
+from app.extensions.publications.repository.publication_storage_file_repository import PublicationStorageFileRepository
+from app.extensions.publications.repository.publication_version_attachment_repository import (
+    PublicationVersionAttachmentRepository,
+)
 from app.extensions.publications.repository.publication_version_repository import PublicationVersionRepository
 from app.extensions.publications.repository.publication_zip_repository import PublicationZipRepository
 from app.extensions.publications.services.act_defaults_provider import ActDefaultsProvider
@@ -396,3 +400,15 @@ def depends_publication_announcement_package(
     if package is None:
         raise HTTPException(status_code=404, detail="Package not found")
     return package
+
+
+def depends_publication_storage_file_repository(
+    db: Session = Depends(depends_db),
+) -> PublicationStorageFileRepository:
+    return PublicationStorageFileRepository(db)
+
+
+def depends_publication_version_attachment_repository(
+    db: Session = Depends(depends_db),
+) -> PublicationVersionAttachmentRepository:
+    return PublicationVersionAttachmentRepository(db)
