@@ -151,7 +151,7 @@ six==1.16.0
     # via
     #   asttokens
     #   python-dateutil
-sqlalchemy[mypy]==2.0.29
+sqlalchemy[mypy]==2.0.30
     # via
     #   -r requirements-dev.in
     #   alembic
