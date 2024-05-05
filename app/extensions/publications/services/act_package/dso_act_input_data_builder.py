@@ -197,8 +197,8 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_time_article(self) -> Optional[Artikel]:
-        if self._act.Procedure_Type == ProcedureType.DRAFT.value:
-            return None
+        # if self._act.Procedure_Type == ProcedureType.DRAFT.value:
+        #     return None
 
         result = Artikel(
             nummer="II",
@@ -357,9 +357,12 @@ class DsoActInputDataBuilder:
         return text
 
     def _get_time_article_content(self) -> str:
-        text: str = self._publication_version.Bill_Compact["Time_Article"]
-        effective_date_readable: str = self._get_readable_date(self._publication_version.Effective_Date)
-        text = text.replace("[[EFFECTIVE_DATE]]", effective_date_readable)
+        text: str = self._publication_version.Bill_Compact.get("Time_Article", "")
+
+        if self._publication_version.Effective_Date is not None:
+            effective_date_readable: str = self._get_readable_date(self._publication_version.Effective_Date)
+            text = text.replace("[[EFFECTIVE_DATE]]", effective_date_readable)
+
         return text
 
     def _get_readable_date(self, d: date) -> str:

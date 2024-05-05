@@ -45,7 +45,7 @@ diff-match-patch==20230430
     # via -r requirements.in
 dnspython==2.6.1
     # via email-validator
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.2.0
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.2.2
     # via -r requirements.in
 ecdsa==0.19.0
     # via python-jose
