@@ -145,7 +145,7 @@ class PublicationShort(BaseModel):
 
 
 class Article(BaseModel):
-    Label: str = Field("") # @deprecated
+    Label: str = Field("")  # @deprecated
     Number: str
     Content: str
 

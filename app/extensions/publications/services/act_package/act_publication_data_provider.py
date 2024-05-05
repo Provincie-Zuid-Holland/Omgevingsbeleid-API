@@ -1,8 +1,9 @@
 from typing import List, Optional, Set
 
+import dso.models as dso_models
 from bs4 import BeautifulSoup
 
-from app.extensions.publications.models.api_input_data import ActFrbr, PublicationData
+from app.extensions.publications.models.api_input_data import ActFrbr, BillFrbr, PublicationData
 from app.extensions.publications.repository import PublicationObjectRepository
 from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
 from app.extensions.publications.services.act_package.werkingsgebieden_provider import (
@@ -33,6 +34,7 @@ class ActPublicationDataProvider:
     def fetch_data(
         self,
         publication_version: PublicationVersionTable,
+        bill_frbr: BillFrbr,
         act_frbr: ActFrbr,
     ):
         objects: List[dict] = self._get_objects(publication_version)
@@ -49,11 +51,13 @@ class ActPublicationDataProvider:
             used_objects,
         )
         area_of_jurisdiction: dict = self._get_aoj()
+        attachments: List[dict] = self._get_attachments(publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
             objects=used_objects,
             assets=assets,
             werkingsgebieden=werkingsgebieden,
+            attachments=attachments,
             area_of_jurisdiction=area_of_jurisdiction,
             parsed_template=parsed_template,
         )
@@ -92,4 +96,30 @@ class ActPublicationDataProvider:
             "Created_Date": aoj.Created_Date,
             "New": True,
         }
+        return result
+
+    def _get_attachments(self, publication_version: PublicationVersionTable, bill_frbr: BillFrbr) -> List[dict]:
+        result: List[dict] = []
+
+        for attachment in publication_version.Attachments:
+            work_other = f"pdf-{bill_frbr.Work_Other}-{attachment.ID}"
+
+            frbr = dso_models.PubdataFRBR(
+                Work_Province_ID=bill_frbr.Work_Province_ID,
+                Work_Date=bill_frbr.Work_Date,
+                Work_Other=work_other,
+                Expression_Language=bill_frbr.Expression_Language,
+                Expression_Date=bill_frbr.Expression_Date,
+                Expression_Version=1,
+            )
+            attachment_dict: dict = {
+                "id": attachment.ID,
+                "uuid": attachment.File.UUID,
+                "filename": attachment.Filename,
+                "title": attachment.Title,
+                "binary": attachment.File.Binary,
+                "frbr": frbr,
+            }
+            result.append(attachment_dict)
+
         return result
