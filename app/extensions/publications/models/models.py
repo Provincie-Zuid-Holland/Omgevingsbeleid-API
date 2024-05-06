@@ -260,6 +260,7 @@ class PublicationVersionValidated(BaseModel):
 
 
 class AttachmentShort(BaseModel):
+    ID: int
     File_UUID: uuid.UUID
     Filename: str
     Title: str
