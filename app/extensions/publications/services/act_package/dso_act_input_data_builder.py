@@ -4,13 +4,14 @@ from typing import List, Optional
 
 import dso.models as dso_models
 from dso.act_builder.state_manager.input_data.ambtsgebied import Ambtsgebied
-from dso.act_builder.state_manager.input_data.besluit import Artikel, Besluit
+from dso.act_builder.state_manager.input_data.besluit import Artikel, Besluit, Bijlage, Motivering
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 from dso.act_builder.state_manager.input_data.object_template_repository import ObjectTemplateRepository
 from dso.act_builder.state_manager.input_data.regeling import Regeling
 from dso.act_builder.state_manager.input_data.resource.asset.asset_repository import (
     AssetRepository as DSOAssetRepository,
 )
+from dso.act_builder.state_manager.input_data.resource.pdf.pdf_repository import PdfRepository
 from dso.act_builder.state_manager.input_data.resource.policy_object.policy_object_repository import (
     PolicyObjectRepository,
 )
@@ -162,6 +163,8 @@ class DsoActInputDataBuilder:
             rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.Bill_Metadata["Jurisdictions"]),
             onderwerpen=self._as_dso_onderwerpen(self._publication_version.Bill_Metadata["Subjects"]),
             soort_procedure=dso_procedure_type,
+            bijlagen=self._get_appendices(),
+            motivering=self._get_motivering(),
         )
         return besluit
 
@@ -194,11 +197,11 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_time_article(self) -> Optional[Artikel]:
-        if self._act.Procedure_Type == ProcedureType.DRAFT.value:
-            return None
+        # if self._act.Procedure_Type == ProcedureType.DRAFT.value:
+        #     return None
 
         result = Artikel(
-            label="Artikel",
+            nummer="II",
             inhoud=self._get_time_article_content(),
         )
         return result
@@ -240,7 +243,7 @@ class DsoActInputDataBuilder:
             text = text.replace("[[ENACTMENT_DATE]]", date_readable)
 
         result = Artikel(
-            label="Artikel",
+            nummer="I",
             inhoud=text,
         )
         return result
@@ -249,10 +252,34 @@ class DsoActInputDataBuilder:
         result: List[Artikel] = []
         for custom_article in self._publication_version.Bill_Compact.get("Custom_Articles", []):
             article: Artikel = Artikel(
-                label=custom_article["Label"],
+                nummer=custom_article["Number"],
                 inhoud=custom_article["Content"],
             )
             result.append(article)
+        return result
+
+    def _get_appendices(self) -> List[Bijlage]:
+        appendices: List[dict] = self._publication_version.Bill_Compact.get("Appendices", [])
+        result: List[dict] = []
+
+        for appendix in appendices:
+            bijlage = Bijlage(
+                nummer=appendix["Number"],
+                opschrift=appendix["Title"],
+                content=appendix["Content"],
+            )
+            result.append(bijlage)
+        return result
+
+    def _get_motivering(self) -> Optional[Motivering]:
+        motivation: Optional[dict] = self._publication_version.Bill_Compact.get("Motivation", None)
+        if motivation is None:
+            return None
+
+        result = Motivering(
+            opschrift=motivation["Title"],
+            content=motivation["Content"],
+        )
         return result
 
     def _get_resources(self) -> Resources:
@@ -260,6 +287,7 @@ class DsoActInputDataBuilder:
             policy_object_repository=self._get_policy_object_repository(),
             asset_repository=self._get_asset_repository(),
             werkingsgebied_repository=self._get_werkingsgebied_repository(),
+            pdf_repository=self._get_pdf_repository(),
         )
         return resources
 
@@ -279,6 +307,12 @@ class DsoActInputDataBuilder:
         repository = WerkingsgebiedRepository()
         for w in self._publication_data.werkingsgebieden:
             repository.add(w)
+        return repository
+
+    def _get_pdf_repository(self) -> PdfRepository:
+        repository = PdfRepository()
+        for a in self._publication_data.attachments:
+            repository.add(a)
         return repository
 
     def _get_object_template_repository(self) -> ObjectTemplateRepository:
@@ -323,9 +357,12 @@ class DsoActInputDataBuilder:
         return text
 
     def _get_time_article_content(self) -> str:
-        text: str = self._publication_version.Bill_Compact["Time_Article"]
-        effective_date_readable: str = self._get_readable_date(self._publication_version.Effective_Date)
-        text = text.replace("[[EFFECTIVE_DATE]]", effective_date_readable)
+        text: str = self._publication_version.Bill_Compact.get("Time_Article", "")
+
+        if self._publication_version.Effective_Date is not None:
+            effective_date_readable: str = self._get_readable_date(self._publication_version.Effective_Date)
+            text = text.replace("[[EFFECTIVE_DATE]]", effective_date_readable)
+
         return text
 
     def _get_readable_date(self, d: date) -> str:

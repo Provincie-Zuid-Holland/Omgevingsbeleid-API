@@ -51,6 +51,7 @@ class ActPackageBuilderFactory:
         )
         publication_data: PublicationData = self._publication_data_provider.fetch_data(
             publication_version,
+            bill_frbr,
             act_frbr,
         )
 

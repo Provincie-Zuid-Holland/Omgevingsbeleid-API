@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy import Column, Date, DateTime, ForeignKey, LargeBinary, String, Unicode, UnicodeText, UniqueConstraint
 from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
@@ -9,6 +9,24 @@ from sqlalchemy.sql.sqltypes import JSON, Integer
 from app.core.db.base import Base
 from app.core.db.mixins import UserMetaData
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable
+
+
+class PublicationStorageFileTable(Base):
+    __tablename__ = "publication_storage_files"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+
+    # Lookup for faster access
+    Lookup: Mapped[str] = mapped_column(Unicode(10), index=True)
+    Checksum: Mapped[str] = mapped_column(String(64), nullable=False)
+
+    Filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    Content_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    Size: Mapped[int] = mapped_column(Integer, nullable=False)
+    Binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
+
+    Created_Date: Mapped[datetime]
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationTemplateTable(Base, UserMetaData):
@@ -236,6 +254,29 @@ class PublicationVersionTable(Base, UserMetaData):
 
     Publication: Mapped[PublicationTable] = relationship("PublicationTable")
     Module_Status: Mapped[ModuleStatusHistoryTable] = relationship("ModuleStatusHistoryTable")
+    Attachments: Mapped[List["PublicationVersionAttachmentTable"]] = relationship(
+        back_populates="Publication_Version", order_by="asc(PublicationVersionAttachmentTable.ID)"
+    )
+
+
+class PublicationVersionAttachmentTable(Base, UserMetaData):
+    __tablename__ = "publication_version_attachments"
+
+    # We need a small unique identifier for publications
+    ID: Mapped[int] = mapped_column(primary_key=True)
+
+    Publication_Version_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_versions.UUID"), nullable=False)
+    File_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_storage_files.UUID"), nullable=False)
+    Filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+
+    Created_Date: Mapped[datetime]
+    Modified_Date: Mapped[datetime]
+
+    Publication_Version: Mapped["PublicationVersionTable"] = relationship()
+    File: Mapped[PublicationStorageFileTable] = relationship()
+
+    __table_args__ = (UniqueConstraint("Publication_Version_UUID", "File_UUID", name="uix_publication_version_file"),)
 
 
 class PublicationBillTable(Base, UserMetaData):
