@@ -6,7 +6,7 @@ from datetime import datetime
 from enum import Enum
 from io import BytesIO
 from os import path
-from typing import List, Optional
+from typing import List, Optional, Set
 from uuid import UUID
 
 from bs4 import BeautifulSoup, NavigableString, Tag
@@ -160,6 +160,7 @@ class EndpointHandler:
         module: ModuleTable,
         status: Optional[ModuleStatusHistoryTable],
         output_format: Format,
+        show_differences: bool,
     ):
         self._object_mapping: ObjectMappings = object_mapping
         self._module_object_repository: ModuleObjectRepository = module_object_repository
@@ -168,24 +169,81 @@ class EndpointHandler:
         self._module: ModuleTable = module
         self._status: Optional[ModuleStatusHistoryTable] = status
         self._output_format: Format = output_format
+        self._show_differences: bool = show_differences
         self._timepoint: datetime = self._status.Created_Date if self._status is not None else datetime.utcnow()
 
     def handle(self) -> FileResponse:
         module_objects: List[ModuleObjectsTable] = self._get_module_objects()
-        module_objects.sort(key=lambda mo: mo.Code)
+        module_objects = list(filter(lambda o: o.Object_Type != "werkingsgebied", module_objects))
+        module_objects.sort(key=lambda mo: mo.Title)
 
+        used_object_codes: Set[str] = set()
         contents = []
+
+        for visie in filter(lambda o: o.Object_Type == "visie_algemeen", module_objects):
+            if visie.Code not in used_object_codes:
+                visie_response = self._generate_for_module_object(visie, "h1")
+                if visie_response:
+                    used_object_codes.add(visie.Code)
+                    contents.append(visie_response)
+
+        for ambitie_object in filter(lambda o: o.Object_Type == "ambitie", module_objects):
+            if ambitie_object.Code not in used_object_codes:
+                ambitie_response = self._generate_for_module_object(ambitie_object, "h1")
+                if ambitie_response:
+                    used_object_codes.add(ambitie_object.Code)
+                    contents.append(ambitie_response)
+
+                    for doel_object in filter(
+                        lambda o: o.Object_Type == "beleidsdoel" and o.Hierarchy_Code == ambitie_object.Code,
+                        module_objects,
+                    ):
+                        if doel_object.Code not in used_object_codes:
+                            doel_response = self._generate_for_module_object(doel_object, "h2")
+                            if doel_response:
+                                used_object_codes.add(doel_object.Code)
+                                contents.append(doel_response)
+
+                                for keuze_object in filter(
+                                    lambda o: o.Object_Type == "beleidskeuze" and o.Hierarchy_Code == doel_object.Code,
+                                    module_objects,
+                                ):
+                                    if keuze_object.Code not in used_object_codes:
+                                        keuze_response = self._generate_for_module_object(keuze_object, "h3")
+                                        if keuze_response:
+                                            used_object_codes.add(keuze_object.Code)
+                                            contents.append(keuze_response)
+
+                                            for maatregel_object in filter(
+                                                lambda o: o.Object_Type == "maatregel"
+                                                and o.Hierarchy_Code == keuze_object.Code,
+                                                module_objects,
+                                            ):
+                                                if maatregel_object.Code not in used_object_codes:
+                                                    maatregel_response = self._generate_for_module_object(
+                                                        maatregel_object, "h4"
+                                                    )
+                                                    if maatregel_response:
+                                                        used_object_codes.add(maatregel_object.Code)
+                                                        contents.append(maatregel_response)
+
+        contents.append("<h1>Niet ingedeelde objecten!</h1>")
+
         for module_object in module_objects:
-            object_response = self._generate_for_module_object(module_object)
-            if object_response:
-                contents.append(object_response)
+            if module_object.Code not in used_object_codes:
+                object_response = self._generate_for_module_object(module_object, "h2")
+                if object_response:
+                    used_object_codes.add(module_object.Code)
+                    contents.append(object_response)
+
+        # for module_object in module_objects:
+        #     object_response = self._generate_for_module_object(module_object)
+        #     if object_response:
+        #         contents.append(object_response)
 
         html_body = '<br style="page-break-before: always">'.join(contents)
 
         html_css = """
-html, body, h1, h2, h3, h4, h5, h6, del, ins, p, li, td, th {
-    font-family: 'Carlito', 'Calibri', sans-serif;
-}
 h2 ins, h2 del {
     display: inline;
 }
@@ -196,7 +254,6 @@ h2 ins, h2 del {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Module Export</title>
-    <link href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&display=swap" rel="stylesheet">
     <style>
         {html_css}
     </style>
@@ -239,7 +296,7 @@ h2 ins, h2 del {
         html_result = str(soup)
         return html_result
 
-    def _generate_for_module_object(self, module_object: ModuleObjectsTable) -> str:
+    def _generate_for_module_object(self, module_object: ModuleObjectsTable, heading: str) -> str:
         response = []
         valid_object: Optional[ObjectsTable] = self._object_repository.get_latest_valid_by_id(
             module_object.Object_Type,
@@ -248,18 +305,19 @@ h2 ins, h2 del {
 
         display_object = self._object_mapping.get(module_object.Object_Type)
 
-        title = module_object.Title
-        if valid_object is not None:
+        title = f"{module_object.Object_Type.capitalize()}: {module_object.Title}"
+        if valid_object is not None and self._show_differences:
             title = self._as_diff(
-                f"{module_object.Object_Type}: {valid_object.Title}", f"{module_object.Object_Type}: {title}"
+                f"{module_object.Object_Type.capitalize()}: {valid_object.Title}",
+                title
             )
 
-        response.append(f"<h2>{title}</h2>")
+        response.append(f"<{heading}>{title}</{heading}>")
         # response.append(f"<h3>Toelichting</h3>")
         # response.append(module_object.ModuleObjectContext.Explanation)
         # response.append(f"<h3>Conclusie</h3>")
         # response.append(module_object.ModuleObjectContext.Conclusion)
-        response.append(f"<h3>Inhoud</h3>")
+        # response.append(f"<h3>Inhoud</h3>")
 
         # @todo: I'm not sure about the "" anymore
         if module_object.ModuleObjectContext.Action in ["", ModuleObjectActionFilter.Terminate]:
@@ -268,13 +326,19 @@ h2 ins, h2 del {
                 response.append(f'<del style="background:#FBE4D5;">[Already terminated]</del>')
             else:
                 for object_config in display_object.content:
-                    response.append(f"<h4>{object_config.label}</h4>")
+                    response.append(f"<h6>{object_config.label}</h6>")
                     response.append(
                         f'<del style="background:#FBE4D5;"><s>{getattr(valid_object, object_config.column)}</s></del>'
                     )
+        elif self._show_differences == False:
+            for object_config in display_object.content:
+                response.append(f"<h6>{object_config.label}</h6>")
+                response.append(
+                    f'{getattr(module_object, object_config.column)}'
+                )
         elif valid_object is None:
             for object_config in display_object.content:
-                response.append(f"<h4>{object_config.label}</h4>")
+                response.append(f"<h6>{object_config.label}</h6>")
                 response.append(
                     f'<ins style="background:#E2EFD9;">{getattr(module_object, object_config.column)}</ins>'
                 )
@@ -285,7 +349,7 @@ h2 ins, h2 del {
 
                 html_result = self._as_diff(old_html_content, new_html_content)
 
-                response.append(f"<h4>{object_config.label}</h4>")
+                response.append(f"<h6>{object_config.label}</h6>")
                 response.append(html_result)
 
         html_content = "".join(response)
@@ -326,6 +390,7 @@ class ModuleDiffEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             output_format: Format = Format.HTML,
+            show_differences: bool = True,
             user: UsersTable = Depends(depends_current_active_user),
             status: Optional[ModuleStatusHistoryTable] = Depends(depends_maybe_module_status_by_id),
             module: ModuleTable = Depends(depends_active_module),
@@ -341,6 +406,7 @@ class ModuleDiffEndpoint(Endpoint):
                 module,
                 status,
                 output_format,
+                show_differences,
             )
             return handler.handle()
 
