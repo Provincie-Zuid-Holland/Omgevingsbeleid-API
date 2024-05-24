@@ -31,6 +31,9 @@ class PublicationObjectRepository(BaseRepository):
         object_types: List[str],
         field_map: List[str],
     ):
+        # TODO: edge case possible problem where terminated objects are returned
+        # from objects table if the End_Validity from module completion is set
+        # before the timestamp of this queried module status.
         row_number = (
             func.row_number()
             .over(

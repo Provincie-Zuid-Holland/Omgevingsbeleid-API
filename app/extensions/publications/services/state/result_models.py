@@ -61,6 +61,19 @@ class WidData(BaseModel):
     Known_Wids: List[str]
 
 
+class OwIdMapping(BaseModel):
+    gebieden: Dict[str, str]
+    gebiedengroep: Dict[str, str]
+    ambtsgebied: Dict[str, str]
+    wid: Dict[str, str]
+    regelingsgebied: Dict[str, str]
+
+
+class OwTekstdeelMap(BaseModel):
+    divisie: str
+    location: str
+
+
 class OwObjectMap(BaseModel):
     id_mapping: Dict[str, Dict[str, str]]
     tekstdeel_mapping: Dict[str, Dict[str, str]]
@@ -69,6 +82,7 @@ class OwObjectMap(BaseModel):
 class OwData(BaseModel):
     Object_Ids: List[str]
     Object_Map: OwObjectMap
+    Terminated_Object_Ids: List[str] = []
 
 
 class ActiveAct(BaseModel):

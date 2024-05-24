@@ -92,7 +92,7 @@ class Purpose:
 
 class OwObjectMap(BaseModel):
     id_mapping: Dict[str, Dict[str, str]]
-    tekstdeel_mapping: Dict[str, Dict[str, Dict[str, str]]]
+    tekstdeel_mapping: Dict[str, Dict[str, str]]
 
 
 class OwData(BaseModel):
