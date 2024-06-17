@@ -197,9 +197,6 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_time_article(self) -> Optional[Artikel]:
-        # if self._act.Procedure_Type == ProcedureType.DRAFT.value:
-        #     return None
-
         result = Artikel(
             nummer="II",
             inhoud=self._get_time_article_content(),
