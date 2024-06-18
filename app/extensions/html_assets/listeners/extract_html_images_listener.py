@@ -42,7 +42,11 @@ class HtmlImagesExtractor:
     def process(self) -> ModuleObjectsTable:
         for field_name in self._interested_fields:
             content: str = getattr(self._module_object, field_name)
-            soup = BeautifulSoup(content, "html.parser")
+            try:
+                soup = BeautifulSoup(content, "html.parser")
+            except:
+                continue
+
             for img in soup.find_all("img", src=re.compile("^data:image/")):
                 self._handle_image(img)
             setattr(self._module_object, field_name, str(soup))
