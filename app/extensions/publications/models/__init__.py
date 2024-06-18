@@ -16,7 +16,8 @@ from .models import (
     PublicationShort,
     PublicationTemplate,
     PublicationVersion,
+    PublicationVersionDraftValidated,
+    PublicationVersionFinalValidated,
     PublicationVersionShort,
-    PublicationVersionValidated,
     Waardelijsten,
 )
