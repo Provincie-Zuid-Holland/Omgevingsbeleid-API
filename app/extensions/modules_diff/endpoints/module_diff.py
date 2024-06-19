@@ -307,10 +307,7 @@ h2 ins, h2 del {
 
         title = f"{module_object.Object_Type.capitalize()}: {module_object.Title}"
         if valid_object is not None and self._show_differences:
-            title = self._as_diff(
-                f"{module_object.Object_Type.capitalize()}: {valid_object.Title}",
-                title
-            )
+            title = self._as_diff(f"{module_object.Object_Type.capitalize()}: {valid_object.Title}", title)
 
         response.append(f"<{heading}>{title}</{heading}>")
         # response.append(f"<h3>Toelichting</h3>")
@@ -333,9 +330,7 @@ h2 ins, h2 del {
         elif self._show_differences == False:
             for object_config in display_object.content:
                 response.append(f"<h6>{object_config.label}</h6>")
-                response.append(
-                    f'{getattr(module_object, object_config.column)}'
-                )
+                response.append(f"{getattr(module_object, object_config.column)}")
         elif valid_object is None:
             for object_config in display_object.content:
                 response.append(f"<h6>{object_config.label}</h6>")
