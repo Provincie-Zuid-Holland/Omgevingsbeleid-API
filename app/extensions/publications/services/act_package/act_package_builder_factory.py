@@ -4,6 +4,7 @@ from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 from sqlalchemy.orm import Session
 
 from app.extensions.publications.enums import PackageType, PurposeType
+from app.extensions.publications.exceptions import DSOConfigurationException
 from app.extensions.publications.models.api_input_data import ApiActInputData, OwData, PublicationData, Purpose
 from app.extensions.publications.services.act_frbr_provider import ActFrbr, ActFrbrProvider
 from app.extensions.publications.services.act_package.act_package_builder import ActPackageBuilder
@@ -74,7 +75,11 @@ class ActPackageBuilderFactory:
         input_data_builder: DsoActInputDataBuilder = DsoActInputDataBuilder(
             api_input_data,
         )
-        input_data: InputData = input_data_builder.build()
+
+        try:
+            input_data: InputData = input_data_builder.build()
+        except Exception as e:
+            raise DSOConfigurationException(str(e))
 
         builder: ActPackageBuilder = ActPackageBuilder(
             api_input_data,

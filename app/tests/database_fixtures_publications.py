@@ -554,7 +554,7 @@ class DatabaseFixturesPublications:
                     Time_Article="<Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>",
                     Custom_Articles=[
                         Article(
-                            Label="Artikel",
+                            Number="III",
                             Content="<p>Hierbij nog meer tekst</p>",
                         ),
                     ],
@@ -598,7 +598,7 @@ class DatabaseFixturesPublications:
                     Time_Article="<Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>",
                     Custom_Articles=[
                         Article(
-                            Label="Artikel",
+                            Number="III",
                             Content="<p>Hierbij nog meer tekst</p>",
                         ),
                     ],
@@ -642,7 +642,7 @@ class DatabaseFixturesPublications:
                     Time_Article="<Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>",
                     Custom_Articles=[
                         Article(
-                            Label="Artikel",
+                            Number="III",
                             Content="<p>Hierbij nog meer tekst</p>",
                         ),
                     ],
@@ -685,7 +685,7 @@ class DatabaseFixturesPublications:
                     Amendment_Article='Het ontwerp van de Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.',
                     Custom_Articles=[
                         Article(
-                            Label="Artikel",
+                            Number="III",
                             Content="<p>Hierbij nog meer tekst</p>",
                         ),
                     ],

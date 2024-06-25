@@ -50,6 +50,7 @@ from app.extensions.publications.services.publication_announcement_defaults_prov
 from app.extensions.publications.services.publication_version_defaults_provider import (
     PublicationVersionDefaultsProvider,
 )
+from app.extensions.publications.services.publication_version_validator import PublicationVersionValidator
 from app.extensions.publications.services.purpose_provider import PurposeProvider
 from app.extensions.publications.services.state.data.state_v1 import StateV1
 from app.extensions.publications.services.state.state_loader import StateLoader
@@ -412,3 +413,7 @@ def depends_publication_version_attachment_repository(
     db: Session = Depends(depends_db),
 ) -> PublicationVersionAttachmentRepository:
     return PublicationVersionAttachmentRepository(db)
+
+
+def depends_publication_version_validator() -> PublicationVersionValidator:
+    return PublicationVersionValidator()

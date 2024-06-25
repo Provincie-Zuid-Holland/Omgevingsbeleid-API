@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -13,14 +14,20 @@ from app.dynamic.dependencies import depends_settings
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.publications.dependencies import depends_act_package_builder_factory, depends_publication_version
+from app.extensions.publications.dependencies import (
+    depends_act_package_builder_factory,
+    depends_publication_version,
+    depends_publication_version_validator,
+)
 from app.extensions.publications.enums import PackageType, ReportStatusType
+from app.extensions.publications.exceptions import DSOConfigurationException
 from app.extensions.publications.models.api_input_data import Purpose
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
 from app.extensions.publications.services.act_package.act_package_builder import ActPackageBuilder, ZipData
 from app.extensions.publications.services.act_package.act_package_builder_factory import ActPackageBuilderFactory
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
+from app.extensions.publications.services.publication_version_validator import PublicationVersionValidator
 from app.extensions.publications.tables.tables import (
     PublicationActPackageTable,
     PublicationActTable,
@@ -51,6 +58,7 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
+        validator: PublicationVersionValidator,
         settings: Settings,
         package_builder_factory: ActPackageBuilderFactory,
         user: UsersTable,
@@ -58,6 +66,7 @@ class EndpointHandler:
         publication_version: PublicationVersionTable,
     ):
         self._db: Session = db
+        self._validator: PublicationVersionValidator = validator
         self._settings: Settings = settings
         self._package_builder_factory: ActPackageBuilderFactory = package_builder_factory
         self._user: UsersTable = user
@@ -71,12 +80,13 @@ class EndpointHandler:
     def handle(self) -> PublicationPackageCreatedResponse:
         self._guard_validate_package_type()
         self._guard_locked()
+        self._guard_valid_publication_version()
 
-        package_builder: ActPackageBuilder = self._package_builder_factory.create_builder(
-            self._publication_version,
-            self._object_in.Package_Type,
-        )
         try:
+            package_builder: ActPackageBuilder = self._package_builder_factory.create_builder(
+                self._publication_version,
+                self._object_in.Package_Type,
+            )
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()
 
@@ -123,7 +133,16 @@ class EndpointHandler:
             )
             return response
 
+        except HTTPException as e:
+            # This is already correctly formatted
+            raise e
+        except ValidationError as e:
+            raise HTTPException(status_code=409, detail=e.errors())
+        except DSOConfigurationException as e:
+            raise HTTPException(status_code=409, detail=e.message)
         except Exception as e:
+            # We do not know what to except here
+            # This will result in a 500 server error
             raise e
 
     def _guard_validate_package_type(self):
@@ -142,6 +161,11 @@ class EndpointHandler:
             raise HTTPException(status_code=409, detail="This environment is locked")
         if not self._act.Is_Active:
             raise HTTPException(status_code=409, detail="This act can no longer be used")
+
+    def _guard_valid_publication_version(self):
+        errors: List[dict] = self._validator.get_errors(self._publication_version)
+        if len(errors) != 0:
+            raise HTTPException(status_code=409, detail=errors)
 
     def _handle_new_state(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
         if not self._environment.Has_State:
@@ -241,6 +265,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         def fastapi_handler(
             object_in: PublicationPackageCreate,
             publication_version: PublicationVersionTable = Depends(depends_publication_version),
+            publication_version_validator: PublicationVersionValidator = Depends(depends_publication_version_validator),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
                     PublicationsPermissions.can_create_publication_act_package,
@@ -252,6 +277,7 @@ class CreatePublicationPackageEndpoint(Endpoint):
         ) -> PublicationPackageCreatedResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
+                publication_version_validator,
                 settings,
                 package_builder_factory,
                 user,

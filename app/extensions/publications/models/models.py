@@ -243,7 +243,23 @@ class ActMetadata(BaseModel):
         orm_mode = True
 
 
-class PublicationVersionValidated(BaseModel):
+class PublicationVersionFinalValidated(BaseModel):
+    UUID: uuid.UUID
+
+    Procedure_Type: str
+
+    Bill_Metadata: BillMetadata
+    Bill_Compact: BillCompact
+    Procedural: ProceduralValidated
+
+    Effective_Date: date
+    Announcement_Date: date
+
+    class Config:
+        orm_mode = True
+
+
+class PublicationVersionDraftValidated(BaseModel):
     UUID: uuid.UUID
 
     Procedure_Type: str
@@ -280,16 +296,16 @@ class PublicationVersion(BaseModel):
     Bill_Metadata: dict
     Bill_Compact: dict
     Procedural: dict
-
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
     Is_Locked: bool
-    Is_Valid: bool = Field(False)
 
     Created_Date: datetime
     Modified_Date: datetime
 
     Attachments: List[AttachmentShort]
+
+    Errors: List[dict] = Field([])
 
     class Config:
         orm_mode = True
