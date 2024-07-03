@@ -246,8 +246,6 @@ class ActMetadata(BaseModel):
 class PublicationVersionFinalValidated(BaseModel):
     UUID: uuid.UUID
 
-    Procedure_Type: str
-
     Bill_Metadata: BillMetadata
     Bill_Compact: BillCompact
     Procedural: ProceduralValidated
@@ -261,8 +259,6 @@ class PublicationVersionFinalValidated(BaseModel):
 
 class PublicationVersionDraftValidated(BaseModel):
     UUID: uuid.UUID
-
-    Procedure_Type: str
 
     Bill_Metadata: BillMetadata
     Bill_Compact: BillCompact
