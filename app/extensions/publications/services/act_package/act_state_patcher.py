@@ -4,6 +4,7 @@ from typing import Dict, Optional
 import dso.models as dso_models
 from dso.act_builder.builder import Builder
 
+from app.extensions.publications import dso
 from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
 from app.extensions.publications.services.state import result_models
 from app.extensions.publications.services.state.actions.add_publication_action import AddPublicationAction
@@ -30,10 +31,10 @@ class ActStatePatcher:
             Known_Wid_Map=self._dso_builder.get_used_wid_map(),
             Known_Wids=self._dso_builder.get_used_wids(),
         )
-        ow_data = result_models.OwData(
-            Object_Ids=self._dso_builder.get_created_ow_object_ids(),
-            Object_Map=self._dso_builder.get_created_ow_object_map(),
-        )
+
+        # Serialize dso_ow_state to a simple dict for result model
+        dso_ow_state: dso_models.OwData = self._dso_builder.get_ow_object_state()
+        ow_data = result_models.OwData.parse_raw(dso_ow_state.json())
 
         input_purpose = self._api_input_data.Consolidation_Purpose
         effective_date: Optional[str] = None
