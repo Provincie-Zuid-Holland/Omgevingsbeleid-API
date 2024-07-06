@@ -27,6 +27,10 @@ class ActPackageBuilder:
         self._input_data: InputData = input_data
         self._dso_builder: Builder = Builder(input_data)
 
+    @property
+    def input_data(self) -> InputData:
+        return self._input_data
+
     def build_publication_files(self):
         self._dso_builder.build_publication_files()
 

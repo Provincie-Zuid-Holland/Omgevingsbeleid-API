@@ -1,8 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
-from typing import Dict, List, Optional
-
-from pydantic import BaseModel
+from typing import Any, Dict, List, Optional
 
 from app.extensions.publications.enums import PackageType, PurposeType
 from app.extensions.publications.models.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
@@ -90,14 +88,21 @@ class Purpose:
     Work_Other: str
 
 
-class OwObjectMap(BaseModel):
-    id_mapping: Dict[str, Dict[str, str]]
-    tekstdeel_mapping: Dict[str, Dict[str, Dict[str, str]]]
+# class OwObjectMap(BaseModel):
+#     id_mapping: Dict[str, Dict[str, str]]
+#     tekstdeel_mapping: Dict[str, Dict[str, Dict[str, str]]]
 
 
-class OwData(BaseModel):
-    Object_Ids: List[str] = []
-    Object_Map: OwObjectMap = {}
+# class OwData(BaseModel):
+#     Object_Ids: List[str] = []
+#     Object_Map: OwObjectMap = {}
+
+
+@dataclass
+class OwData:
+    used_ow_ids: List[str] = field(default_factory=list)
+    ow_objects: Dict[str, Any] = field(default_factory=dict)
+    terminated_ow_ids: List[str] = field(default_factory=list)
 
 
 @dataclass
