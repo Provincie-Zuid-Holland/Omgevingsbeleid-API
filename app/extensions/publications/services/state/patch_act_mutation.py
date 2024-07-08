@@ -60,7 +60,7 @@ class PatchActMutation:
 
     def _patch_ow_data(self, data: ApiActInputData) -> ApiActInputData:
         data.Ow_Data = OwData(
-            Object_Ids=self._active_act.Ow_Data.Object_Ids,
-            Object_Map=self._active_act.Ow_Data.Object_Map,
+            ow_objects=self._active_act.Ow_Data.ow_objects,
+            terminated_ow_ids=self._active_act.Ow_Data.terminated_ow_ids,
         )
         return data
