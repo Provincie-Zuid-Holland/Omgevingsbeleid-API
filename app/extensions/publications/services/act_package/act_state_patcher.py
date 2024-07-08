@@ -4,7 +4,6 @@ from typing import Dict, Optional
 import dso.models as dso_models
 from dso.act_builder.builder import Builder
 
-from app.extensions.publications import dso
 from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
 from app.extensions.publications.services.state import result_models
 from app.extensions.publications.services.state.actions.add_publication_action import AddPublicationAction

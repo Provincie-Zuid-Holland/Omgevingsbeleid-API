@@ -72,7 +72,6 @@ class WidData(BaseModel):
 
 
 class OwData(BaseModel):
-    used_ow_ids: List[str] = []
     ow_objects: Dict[str, Any] = {}
     terminated_ow_ids: List[str] = []
 

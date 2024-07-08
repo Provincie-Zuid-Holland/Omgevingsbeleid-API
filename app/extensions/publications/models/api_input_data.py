@@ -100,7 +100,6 @@ class Purpose:
 
 @dataclass
 class OwData:
-    used_ow_ids: List[str] = field(default_factory=list)
     ow_objects: Dict[str, Any] = field(default_factory=dict)
     terminated_ow_ids: List[str] = field(default_factory=list)
 
