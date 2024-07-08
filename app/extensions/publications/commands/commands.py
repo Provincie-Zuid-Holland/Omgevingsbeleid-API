@@ -34,18 +34,25 @@ def write_json_file(input_data: str, filename: str) -> None:
 
 
 @click.command()
-@click.argument("publication_version")
-@click.argument("package_type")
-@click.option("--output", default="main.json", help="Output file name")
-def create_dso_json_scenario(publication_version, package_type, output) -> None:
+@click.option("--publication_version", default=None, help="Publication version")
+def create_dso_json_scenario(publication_version) -> None:
+    if not publication_version:
+        publication_version = click.prompt("Please enter the publication_version UUID:", type=str)
+
     output_path = os.path.join(os.getcwd(), "output")
     version_UUID = UUID(publication_version)
-    package_type_obj = PackageType(package_type)
-
-    click.echo(click.style("Creating DSO JSON scenario from publication version: %s" % publication_version, fg="green"))
+    package_type_obj = PackageType.PUBLICATION
 
     with db_in_context_manager() as db:
-        pub_version = db.query(PublicationVersionTable).filter(PublicationVersionTable.UUID == version_UUID).one()
+        pub_version = db.query(PublicationVersionTable).filter(PublicationVersionTable.UUID == version_UUID).first()
+
+        if not pub_version:
+            click.echo(click.style("Publication version UUID does not exist in DB", fg="red"))
+            return
+
+        click.echo(
+            click.style("Creating DSO JSON scenario from publication version: %s" % publication_version, fg="green")
+        )
 
         # Manually sertup the ActPackageBuilder dependencies since
         # we cannot use the FastAPI Depends()
@@ -79,8 +86,8 @@ def create_dso_json_scenario(publication_version, package_type, output) -> None:
     exporter = InputDataExporter(input_data=dso_input_data, output_dir=output_path)
 
     try:
-        exporter.export_full_scenario()
-        click.echo(click.style(f"DSO JSON scenario saved in: {output}", fg="green"))
+        exporter.export_dev_scenario()
+        click.echo(click.style(f"DSO JSON scenario saved in: {output_path}", fg="green"))
         click.echo(click.style("---finished---", fg="green"))
     except Exception as e:
         click.echo(click.style(f"Error while exporting DSO JSON scenario:", fg="red"))
