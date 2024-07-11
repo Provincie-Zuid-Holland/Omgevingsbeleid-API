@@ -17,6 +17,8 @@ engine = create_engine(
     settings.SQLALCHEMY_DATABASE_URI,
     pool_pre_ping=True,
     echo=settings.SQLALCHEMY_ECHO,
+    pool_size=100,
+    max_overflow=200,
 )
 if engine.dialect.name == "sqlite":
     event.listen(engine, "connect", _enable_sqlite_load_extension)

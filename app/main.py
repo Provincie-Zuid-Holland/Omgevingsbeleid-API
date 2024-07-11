@@ -19,7 +19,7 @@ build_datetime: datetime = datetime.utcnow()
 
 
 @app.get("/health")
-async def health_check():
+def health_check():
     health_info = {
         "status": "healthy",
         "database": "ok",
@@ -41,7 +41,7 @@ async def health_check():
 
 
 @app.exception_handler(sqlalchemy.exc.IntegrityError)
-async def http_exception_handler(request, exc):  # noqa
+def http_exception_handler(request, exc):  # noqa
     return JSONResponse(
         {
             "msg": "Foreign key error",
