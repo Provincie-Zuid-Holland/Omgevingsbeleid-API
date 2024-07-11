@@ -23,7 +23,7 @@ class ModulesExtension(Extension):
             static=False,
         )
         # Additional orm properties for sqlalchemy
-        extend_with_attributes()
+        # extend_with_attributes()
 
     def register_endpoint_resolvers(
         self,

@@ -22,7 +22,7 @@ class AcknowledgedRelationsExtension(Extension):
             ),
         )
         # Additional orm properties for sqlalchemy
-        extend_with_attributes(ObjectStaticsTable)
+        # extend_with_attributes(ObjectStaticsTable)
 
     def register_endpoint_resolvers(
         self,

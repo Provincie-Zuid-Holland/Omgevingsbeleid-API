@@ -39,7 +39,7 @@ class ExtendedTableFactory(LocalTableFactory):
                 "LocalObjectsTable", back_populates="ObjectStatics", lazy="select"
             )
 
-        extend_with_attributes(LocalObjectStaticsTable)
+        # extend_with_attributes(LocalObjectStaticsTable)
         return LocalObjectStaticsTable
 
     def _generate_ack_rel_table(self):
