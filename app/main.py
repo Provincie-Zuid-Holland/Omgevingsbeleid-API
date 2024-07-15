@@ -22,12 +22,20 @@ build_datetime: datetime = datetime.utcnow()
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
-    sleep(random.randint(10, 50) * 0.001)
+    # sleep(random.randint(10, 50) * 0.001)
+
+    hash_key = "[not set]"
 
     response = Response("Internal server error!", status_code=500)
     with SessionLocal() as db:
+        hash_key = db.hash_key
+
+        print(f"\n\n------ Start request for hash_key {hash_key}\n\n")
+
         request.state.db = db
         response = await call_next(request)
+
+        print(f"\n\n------ ENDING request for hash_key {hash_key}\n\n")
 
     return response
 
