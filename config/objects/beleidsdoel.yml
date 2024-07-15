@@ -215,9 +215,9 @@ models:
       end_validity:
       hierarchy_code:
     services:
-      insert_assets:
-        fields:
-          - Description
+      # insert_assets:
+      #   fields:
+      #     - Description
       # insert_computed_fields:
       #   fields: 
       #     - field_name: Public_Revisions

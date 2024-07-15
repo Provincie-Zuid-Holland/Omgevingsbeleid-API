@@ -250,12 +250,12 @@ models:
       hierarchy_code:
       werkingsgebied_code:
     services:
-      insert_assets:
-        fields:
-          - Description
-          - Cause
-          - Provincial_Interest
-          - Explanation
+      # insert_assets:
+      #   fields:
+      #     - Description
+      #     - Cause
+      #     - Provincial_Interest
+      #     - Explanation
       # insert_computed_fields:
       #   fields: 
       #     - field_name: Public_Revisions
