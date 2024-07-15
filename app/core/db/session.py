@@ -1,6 +1,6 @@
 import sqlite3
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import NullPool, create_engine, event
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from app.core.settings import settings
@@ -19,6 +19,7 @@ engine = create_engine(
     echo=settings.SQLALCHEMY_ECHO,
     pool_size=100,
     max_overflow=200,
+    poolclass=NullPool,
 )
 if engine.dialect.name == "sqlite":
     event.listen(engine, "connect", _enable_sqlite_load_extension)
