@@ -31,6 +31,7 @@ class EventDispatcher(Generic[EventType]):
             return event
 
         if self._db:
+            print(f"\n\n\n------------- EventDispatcher DB HASH_KEY: {self._db.hash_key}\n\n\n")
             event.provide_db(self._db)
         if self._task_runner:
             event.provide_task_runner(self._task_runner)
