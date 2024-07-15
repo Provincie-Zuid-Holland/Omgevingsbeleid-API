@@ -37,6 +37,7 @@ class EventDispatcher(Generic[EventType]):
             event.provide_task_runner(self._task_runner)
 
         for listener in self._listeners[event_type]:
+            print(f"\n\n\n------------- Run event: {type(listener).__name__}\n\n\n")
             response = listener.handle_event(event)
             if response is not None:
                 event = response
