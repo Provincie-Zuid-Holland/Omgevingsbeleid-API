@@ -3,11 +3,12 @@ from typing import Generator
 
 from sqlalchemy import text
 
-from app.core.db.session import SessionLocal
+from app.core.db.session import SessionLocal, ScopedSessionLocal
 
 
 def depends_db() -> Generator:
-    db = SessionLocal()
+    # db = SessionLocal()
+    db = ScopedSessionLocal()
     try:
         if db.bind.dialect.name == "sqlite":
             db.execute(text("pragma foreign_keys=on"))

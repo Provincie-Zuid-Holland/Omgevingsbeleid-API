@@ -29,10 +29,11 @@ def health_check():
 
     try:
         session: Session = SessionLocal()
-        session.close()
     except sqlalchemy.exc.SQLAlchemyError:
         health_info["status"] = "unhealthy"
         health_info["database"] = "not connected"
+    finally:
+        session.close()
 
     if health_info["status"] == "unhealthy":
         raise HTTPException(status_code=503, detail=health_info)

@@ -1,7 +1,7 @@
 import sqlite3
 
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 from app.core.settings import settings
 
@@ -24,6 +24,7 @@ if engine.dialect.name == "sqlite":
     event.listen(engine, "connect", _enable_sqlite_load_extension)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+ScopedSessionLocal = scoped_session(SessionLocal)
 
 
 engine_with_auto_commit = create_engine(
