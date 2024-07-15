@@ -2,7 +2,7 @@ import uuid
 from typing import Callable, Optional
 
 import yaml
-from fastapi import BackgroundTasks, Depends, HTTPException
+from fastapi import Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -27,11 +27,9 @@ def depends_main_config(settings: Settings = Depends(depends_settings)) -> dict:
 
 
 def depends_event_dispatcher(
-    background_tasks: BackgroundTasks,
     db: Session = Depends(depends_db),
 ) -> EventDispatcher:
     main_event_dispatcher.provide_db(db)
-    main_event_dispatcher.provide_task_runner(background_tasks)
     return main_event_dispatcher
 
 
