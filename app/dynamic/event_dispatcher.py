@@ -36,6 +36,9 @@ class EventDispatcher(Generic[EventType]):
         if self._task_runner:
             event.provide_task_runner(self._task_runner)
 
+        list_keys = [type(l).__name__ for l in self._listeners]
+        print(f"\n\n\n------------- All keys: {list_keys}\n\n\n")
+
         for listener in self._listeners[event_type]:
             print(f"\n\n\n------------- Run event: {type(listener).__name__}\n\n\n")
             response = listener.handle_event(event)
