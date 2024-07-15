@@ -9,6 +9,8 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 from sqlalchemy.orm import Session
+from time import sleep
+import random
 
 from app.app import dynamic_app
 from app.core.db.session import SessionLocal
@@ -20,6 +22,8 @@ build_datetime: datetime = datetime.utcnow()
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
+    sleep(random.randint(10, 50) * 0.001)
+
     response = Response("Internal server error!", status_code=500)
     with SessionLocal() as db:
         request.state.db = db
