@@ -29,7 +29,7 @@ build_datetime: datetime = datetime.utcnow()
 
 
 @app.get("/health")
-def health_check():
+async def health_check():
     health_info = {
         "status": "healthy",
         "database": "ok",
@@ -39,11 +39,10 @@ def health_check():
 
     try:
         session: Session = SessionLocal()
+        session.close()
     except sqlalchemy.exc.SQLAlchemyError:
         health_info["status"] = "unhealthy"
         health_info["database"] = "not connected"
-    finally:
-        session.close()
 
     if health_info["status"] == "unhealthy":
         raise HTTPException(status_code=503, detail=health_info)
@@ -52,7 +51,7 @@ def health_check():
 
 
 @app.exception_handler(sqlalchemy.exc.IntegrityError)
-def http_exception_handler(request, exc):  # noqa
+async def http_exception_handler(request, exc):  # noqa
     return JSONResponse(
         {
             "msg": "Foreign key error",

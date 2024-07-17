@@ -16,7 +16,7 @@ class HtmlAssetsExtension(Extension):
     ):
         event_listeners.register(listeners.ExtractHtmlImagesListener())
         event_listeners.register(listeners.InsertHtmlImagesForModuleListener())
-        # event_dispatcher.register(listeners.InsertHtmlImagesForObjectListener())
+        event_listeners.register(listeners.InsertHtmlImagesForObjectListener())
         event_listeners.register(listeners.StoreImagesListener())
         event_listeners.register(listeners.GetImagesForModuleListener())
-        # event_dispatcher.register(listeners.GetImagesForObjectListener())
+        event_listeners.register(listeners.GetImagesForObjectListener())
