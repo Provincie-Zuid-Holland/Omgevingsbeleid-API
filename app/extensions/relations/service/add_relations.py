@@ -163,7 +163,6 @@ class AddRelationsService:
 
         stmt = select(subq).filter(subq.c._RowNumber == 1)
 
-        print(f"\n\n\n------------- add_relations DB HASH_KEY: {self._db.hash_key} for {config} \n\n\n")
         rows = self._db.execute(stmt).all()
         dict_rows = [r._asdict() for r in rows]
         return dict_rows

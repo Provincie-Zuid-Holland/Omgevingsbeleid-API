@@ -68,8 +68,6 @@ class ObjectVersionEndpoint(Endpoint):
         rows: List[self._response_type] = [row]
 
         # Ask extensions for more information
-        print("\n\n\n")
-
         rows = self._run_events([maybe_object], event_dispatcher)
 
         return rows[0]

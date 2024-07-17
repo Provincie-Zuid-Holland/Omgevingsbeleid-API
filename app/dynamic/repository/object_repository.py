@@ -65,8 +65,6 @@ class ObjectRepository(BaseRepository):
         return self.fetch_first(stmt)
 
     def get_by_object_type_and_uuid(self, object_type: str, uuid: UUID) -> Optional[ObjectsTable]:
-        print(f"\n\n\n------------- get_by_object_type_and_uuid DB HASH_KEY: {self._db.hash_key}\n\n\n")
-
         stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid).filter(ObjectsTable.Object_Type == object_type)
         return self.fetch_first(stmt)
 
