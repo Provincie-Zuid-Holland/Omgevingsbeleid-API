@@ -9,6 +9,7 @@ from app.dynamic.extension import Extension
 from app.dynamic.generate_table import generate_table
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
+from app.extensions.modules.db.table_extensions import extend_with_attributes
 from app.extensions.modules.models.models import PublicModuleObjectRevision
 
 
@@ -22,7 +23,7 @@ class ModulesExtension(Extension):
             static=False,
         )
         # Additional orm properties for sqlalchemy
-        # extend_with_attributes()
+        extend_with_attributes()
 
     def register_endpoint_resolvers(
         self,

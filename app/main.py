@@ -4,7 +4,7 @@ from datetime import datetime
 
 import sqlalchemy.exc
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
@@ -18,14 +18,14 @@ app: FastAPI = dynamic_app.run()
 build_datetime: datetime = datetime.utcnow()
 
 
-@app.middleware("http")
-async def db_session_middleware(request: Request, call_next):
-    response = Response("Internal server error!", status_code=500)
-    with SessionLocal() as db:
-        request.state.db = db
-        response = await call_next(request)
+# @app.middleware("http")
+# async def db_session_middleware(request: Request, call_next):
+#     response = Response("Internal server error!", status_code=500)
+#     with SessionLocal() as db:
+#         request.state.db = db
+#         response = await call_next(request)
 
-    return response
+#     return response
 
 
 @app.get("/health")

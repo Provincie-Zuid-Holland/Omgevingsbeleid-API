@@ -35,7 +35,7 @@ class Settings(BaseSettings):
         if isinstance(v, str) and len(v):
             return v
 
-        db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']};MultipleActiveResultSets=true;Mars_Connection=yes"
+        db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
         return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
 
     @validator("SQLALCHEMY_TEST_DATABASE_URI", pre=True)

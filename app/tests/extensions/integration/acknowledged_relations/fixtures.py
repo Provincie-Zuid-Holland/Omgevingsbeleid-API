@@ -5,6 +5,7 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Mapped, Session, relationship
 
 from app.dynamic.db import StaticBaseColumns
+from app.extensions.acknowledged_relations.db.table_extensions.object_statics import extend_with_attributes
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationColumns
 from app.extensions.acknowledged_relations.repository.acknowledged_relations_repository import (
     AcknowledgedRelationsRepository,
@@ -38,7 +39,7 @@ class ExtendedTableFactory(LocalTableFactory):
                 "LocalObjectsTable", back_populates="ObjectStatics", lazy="select"
             )
 
-        # extend_with_attributes(LocalObjectStaticsTable)
+        extend_with_attributes(LocalObjectStaticsTable)
         return LocalObjectStaticsTable
 
     def _generate_ack_rel_table(self):

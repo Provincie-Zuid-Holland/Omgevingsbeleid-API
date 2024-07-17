@@ -17,15 +17,11 @@ engine = create_engine(
     settings.SQLALCHEMY_DATABASE_URI,
     pool_pre_ping=True,
     echo=settings.SQLALCHEMY_ECHO,
-    # pool_size=100,
-    # max_overflow=200,
-    # poolclass=NullPool,
 )
 if engine.dialect.name == "sqlite":
     event.listen(engine, "connect", _enable_sqlite_load_extension)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-# ScopedSessionLocal = scoped_session(SessionLocal)
 
 
 engine_with_auto_commit = create_engine(

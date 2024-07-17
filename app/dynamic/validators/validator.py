@@ -196,9 +196,6 @@ class ObjectCodeExistsValidator(Validator):
             if v is None:
                 return None
 
-            # @todo
-            return None
-
             if not isinstance(v, str):
                 raise ValueError("Value must be a string")
 

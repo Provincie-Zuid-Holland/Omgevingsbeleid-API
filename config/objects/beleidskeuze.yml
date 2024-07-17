@@ -250,42 +250,42 @@ models:
       hierarchy_code:
       werkingsgebied_code:
     services:
-      # insert_assets:
-      #   fields:
-      #     - Description
-      #     - Cause
-      #     - Provincial_Interest
-      #     - Explanation
-      # insert_computed_fields:
-      #   fields: 
-      #     - field_name: Public_Revisions
-      #       model_id: public_module_object_revision
-      #       list: true
-      #       optional: true
-      # foreign_keys_extender:
-      #   fields_map:
-      #     - to_field: Gebied
-      #       model_id: werkingsgebied
-      #     - to_field: Hierarchy_Statics
-      #       model_id: hierarchy_statics
-      #     - to_field: Werkingsgebied_Statics
-      #       model_id: werkingsgebied_statics
-      #     - to_field: Created_By
-      #       model_id: user_short
-      #     - to_field: Modified_By
-      #       model_id: user_short
-      # static_foreign_keys_extender:
-      #   fields_map:
-      #     - to_field: Owner_1
-      #       model_id: user_short
-      #     - to_field: Owner_2
-      #       model_id: user_short
-      #     - to_field: Portfolio_Holder_1
-      #       model_id: user_short
-      #     - to_field: Portfolio_Holder_2
-      #       model_id: user_short
-      #     - to_field: Client_1
-      #       model_id: user_short
+      insert_assets:
+        fields:
+          - Description
+          - Cause
+          - Provincial_Interest
+          - Explanation
+      insert_computed_fields:
+        fields: 
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Gebied
+            model_id: werkingsgebied
+          - to_field: Hierarchy_Statics
+            model_id: hierarchy_statics
+          - to_field: Werkingsgebied_Statics
+            model_id: werkingsgebied_statics
+          - to_field: Created_By
+            model_id: user_short
+          - to_field: Modified_By
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
       relations:
         objects:
           - object_type: wettelijke_taak

@@ -215,15 +215,15 @@ models:
       end_validity:
       hierarchy_code:
     services:
-      # insert_assets:
-      #   fields:
-      #     - Description
-      # insert_computed_fields:
-      #   fields: 
-      #     - field_name: Public_Revisions
-      #       model_id: public_module_object_revision
-      #       list: true
-      #       optional: true
+      insert_assets:
+        fields:
+          - Description
+      insert_computed_fields:
+        fields: 
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
       relations:
         objects:
           - object_type: ambitie
@@ -241,26 +241,26 @@ models:
             to_field: "Maatregelen"
             model_id: maatregel_minimal
             wrapped_with_relation_data: true
-      # foreign_keys_extender:
-      #   fields_map:
-      #     - to_field: Hierarchy_Statics
-      #       model_id: hierarchy_statics
-      #     - to_field: Created_By
-      #       model_id: user_short
-      #     - to_field: Modified_By
-      #       model_id: user_short
-      # static_foreign_keys_extender:
-      #   fields_map:
-      #     - to_field: Owner_1
-      #       model_id: user_short
-      #     - to_field: Owner_2
-      #       model_id: user_short
-      #     - to_field: Portfolio_Holder_1
-      #       model_id: user_short
-      #     - to_field: Portfolio_Holder_2
-      #       model_id: user_short
-      #     - to_field: Client_1
-      #       model_id: user_short
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Hierarchy_Statics
+            model_id: hierarchy_statics
+          - to_field: Created_By
+            model_id: user_short
+          - to_field: Modified_By
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
   beleidsdoel_patch:
     name: BeleidsdoelPatch
     fields:
