@@ -6,9 +6,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.tables import ModuleObjectContextTable
 from app.extensions.modules.dependencies import depends_active_module_object_context
@@ -40,12 +38,7 @@ class ModuleObjectContext(BaseModel):
 
 
 class ModuleGetObjectContextEndpoint(Endpoint):
-    def __init__(
-        self,
-        event_dispatcher: EventDispatcher,
-        path: str,
-    ):
-        self._event_dispatcher: EventDispatcher = event_dispatcher
+    def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
@@ -75,8 +68,6 @@ class ModuleGetObjectContextEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
@@ -90,7 +81,4 @@ class ModuleGetObjectContextEndpointResolver(EndpointResolver):
         if not "{lineage_id}" in path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
-        return ModuleGetObjectContextEndpoint(
-            event_dispatcher=event_dispatcher,
-            path=path,
-        )
+        return ModuleGetObjectContextEndpoint(path=path)

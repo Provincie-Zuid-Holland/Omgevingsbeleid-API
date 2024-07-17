@@ -195,7 +195,7 @@ class ObjectCodeExistsValidator(Validator):
         def pydantic_validator_object_code_exists(cls, v):
             if v is None:
                 return None
-            
+
             # @todo
             return None
 

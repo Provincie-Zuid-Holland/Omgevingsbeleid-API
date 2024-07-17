@@ -1,7 +1,7 @@
 import sqlite3
 
-from sqlalchemy import NullPool, create_engine, event
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import sessionmaker
 
 from app.core.settings import settings
 

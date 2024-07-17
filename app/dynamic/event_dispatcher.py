@@ -1,39 +1,31 @@
-from typing import Any, Dict, Generic, List, Optional
+from typing import Any, Generic, List, Optional
 
 from sqlalchemy.orm import Session
+
+from app.dynamic.event_listeners import EventListeners
 
 from .event.types import EventType, Listener
 
 
 class EventDispatcher(Generic[EventType]):
-    def __init__(self):
-        self._db: Optional[Session] = None
-        self._listeners: Dict[EventType, List[Listener]] = {}
-
-    def provide_db(self, db: Session):
-        self._db = db
-
-    def register(self, listener: Listener):
-        event_type = self._get_event_type(listener)
-        if not event_type in self._listeners:
-            self._listeners[event_type] = []
-
-        self._listeners[event_type].append(listener)
+    def __init__(
+        self,
+        event_listeners: EventListeners,
+        db: Optional[Session] = None,
+    ):
+        self._event_listeners: EventListeners = event_listeners
+        self._db: Optional[Session] = db
 
     def dispatch(self, event: EventType) -> EventType:
-        event_type = type(event)
-        if not event_type in self._listeners:
+        listeners: List[Listener] = self._event_listeners.get_listeners(event)
+        if not listeners:
             return event
 
         if self._db:
             print(f"\n\n\n------------- EventDispatcher DB HASH_KEY: {self._db.hash_key}\n\n\n")
             event.provide_db(self._db)
 
-        list_keys = [type(l).__name__ for l in self._listeners[event_type]]
-        print(f"\n\n\n------------- All keys: {list_keys}\n\n\n")
-
-        for listener in self._listeners[event_type]:
-            print(f"\n\n\n------------- Run event: {type(listener).__name__}\n\n\n")
+        for listener in listeners:
             response = listener.handle_event(event)
             if response is not None:
                 event = response
@@ -44,6 +36,3 @@ class EventDispatcher(Generic[EventType]):
         if hasattr(listener, "__orig_class__"):
             return listener.__orig_class__.__args__[0]
         return listener.__orig_bases__[0].__args__[0]
-
-
-main_event_dispatcher = EventDispatcher()

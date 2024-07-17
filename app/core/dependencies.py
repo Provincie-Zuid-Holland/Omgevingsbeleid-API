@@ -2,10 +2,6 @@ from contextlib import contextmanager
 from typing import Generator
 
 from fastapi import Request
-from sqlalchemy import text
-
-from app.core.db.session import SessionLocal
-
 
 # def depends_db() -> Generator:
 #     with SessionLocal() as db:
@@ -21,7 +17,6 @@ from app.core.db.session import SessionLocal
 
 def depends_db(request: Request):
     return request.state.db
-
 
 
 @contextmanager

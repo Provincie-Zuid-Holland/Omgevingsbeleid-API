@@ -3,8 +3,6 @@ from abc import ABC, abstractmethod
 from fastapi import APIRouter
 
 from app.dynamic.config.models import EndpointConfig
-from app.dynamic.converter import Converter
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 
 
@@ -22,8 +20,6 @@ class EndpointResolver(ABC):
     @abstractmethod
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
     ) -> Endpoint:

@@ -4,13 +4,11 @@ from datetime import datetime
 
 import sqlalchemy.exc
 import uvicorn
-from fastapi import FastAPI, HTTPException, Response, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 from sqlalchemy.orm import Session
-from time import sleep
-import random
 
 from app.app import dynamic_app
 from app.core.db.session import SessionLocal
@@ -22,8 +20,6 @@ build_datetime: datetime = datetime.utcnow()
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
-    # sleep(random.randint(10, 50) * 0.001)
-
     hash_key = "[not set]"
 
     response = Response("Internal server error!", status_code=500)
