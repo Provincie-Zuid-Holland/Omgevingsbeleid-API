@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -61,14 +61,19 @@ class WidData(BaseModel):
     Known_Wids: List[str]
 
 
-class OwObjectMap(BaseModel):
-    id_mapping: Dict[str, Dict[str, str]]
-    tekstdeel_mapping: Dict[str, Dict[str, str]]
+# class OwObjectMap(BaseModel):
+#     id_mapping: Dict[str, Dict[str, str]]
+#     tekstdeel_mapping: Dict[str, Dict[str, str]]
+
+
+# class OwData(BaseModel):
+#     Object_Ids: List[str]
+#     Object_Map: OwObjectMap
 
 
 class OwData(BaseModel):
-    Object_Ids: List[str]
-    Object_Map: OwObjectMap
+    ow_objects: Dict[str, Any] = {}
+    terminated_ow_ids: List[str] = []
 
 
 class ActiveAct(BaseModel):
