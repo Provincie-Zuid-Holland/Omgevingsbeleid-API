@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session, aliased
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, DynamicObjectModel, EndpointConfig, Model
-from app.dynamic.converter import Converter
 from app.dynamic.db import ObjectsTable
 from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
 from app.dynamic.dependencies import depends_event_dispatcher, depends_sorted_pagination_curried, depends_string_filters
@@ -23,7 +22,6 @@ from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagin
 class ValidListLineagesEndpoint(Endpoint):
     def __init__(
         self,
-        converter: Converter,
         endpoint_id: str,
         path: str,
         object_id: str,
@@ -32,7 +30,6 @@ class ValidListLineagesEndpoint(Endpoint):
         allowed_filter_columns: List[str],
         order_config: OrderConfig,
     ):
-        self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
         self._path: str = path
         self._object_id: str = object_id
@@ -150,8 +147,6 @@ class ValidListLineagesEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
@@ -165,7 +160,6 @@ class ValidListLineagesEndpointResolver(EndpointResolver):
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
         return ValidListLineagesEndpoint(
-            converter=converter,
             endpoint_id=self.get_id(),
             path=path,
             object_id=api.id,

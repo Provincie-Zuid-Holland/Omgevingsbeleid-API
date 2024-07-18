@@ -7,17 +7,19 @@ from app.core.db.session import SessionLocal
 
 
 def depends_db() -> Generator:
-    db = SessionLocal()
-    try:
-        if db.bind.dialect.name == "sqlite":
-            db.execute(text("pragma foreign_keys=on"))
-            db.execute(text("SELECT load_extension('mod_spatialite')"))
-        yield db
-    except Exception as e:
-        # Gives me a place to inspect
-        raise e
-    finally:
-        db.close()
+    with SessionLocal() as db:
+        try:
+            if db.bind.dialect.name == "sqlite":
+                db.execute(text("pragma foreign_keys=on"))
+                db.execute(text("SELECT load_extension('mod_spatialite')"))
+            yield db
+        except Exception as e:
+            # Gives me a place to inspect
+            raise e
+
+
+# def depends_db(request: Request):
+#     return request.state.db
 
 
 @contextmanager

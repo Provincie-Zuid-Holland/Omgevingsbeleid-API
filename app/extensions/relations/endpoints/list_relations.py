@@ -6,9 +6,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.relations.models.models import ReadRelation
@@ -69,13 +67,11 @@ class EndpointHandler:
 class ListRelationsEndpoint(Endpoint):
     def __init__(
         self,
-        converter: Converter,
         endpoint_id: str,
         path: str,
         object_id: str,
         object_type: str,
     ):
-        self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
         self._path: str = path
         self._object_id: str = object_id
@@ -111,8 +107,6 @@ class ListRelationsEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
@@ -125,7 +119,6 @@ class ListRelationsEndpointResolver(EndpointResolver):
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         return ListRelationsEndpoint(
-            converter=converter,
             endpoint_id=self.get_id(),
             path=path,
             object_id=api.id,

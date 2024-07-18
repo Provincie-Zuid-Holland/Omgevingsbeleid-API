@@ -4,41 +4,32 @@
 #
 #    pip-compile requirements.in
 #
-anyio==4.3.0
+anyio==4.4.0
     # via
     #   httpx
     #   starlette
     #   watchfiles
 appdirs==1.4.4
     # via fs
-attrs==23.2.0
-    # via fiona
 bcrypt==4.0.1
     # via -r requirements.in
 beautifulsoup4==4.12.3
     # via
     #   -r requirements.in
     #   dso
-certifi==2024.2.2
+certifi==2024.7.4
     # via
     #   dso
-    #   fiona
     #   httpcore
     #   httpx
+    #   pyogrio
     #   pyproj
 click==8.1.7
     # via
     #   -r requirements.in
-    #   click-plugins
-    #   cligj
     #   dso
-    #   fiona
     #   typer
     #   uvicorn
-click-plugins==1.1.1
-    # via fiona
-cligj==0.7.2
-    # via fiona
 dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20230430
@@ -49,21 +40,17 @@ dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.2
     # via -r requirements.in
 ecdsa==0.19.0
     # via python-jose
-email-validator==2.1.1
+email-validator==2.2.0
     # via fastapi
-exceptiongroup==1.2.1
+exceptiongroup==1.2.2
     # via anyio
-fastapi==0.111.0
-    # via
-    #   -r requirements.in
-    #   fastapi-cli
-fastapi-cli==0.0.2
+fastapi==0.111.1
+    # via -r requirements.in
+fastapi-cli==0.0.4
     # via fastapi
-fiona==1.9.6
-    # via geopandas
 fs==2.4.16
     # via -r requirements.in
-geopandas==0.14.4
+geopandas==1.0.1
     # via -r requirements.in
 greenlet==3.0.3
     # via sqlalchemy
@@ -89,7 +76,7 @@ jinja2==3.1.4
     #   -r requirements.in
     #   dso
     #   fastapi
-lxml==5.2.1
+lxml==5.2.2
     # via
     #   -r requirements.in
     #   dso
@@ -101,18 +88,18 @@ markupsafe==2.1.5
     #   jinja2
 mdurl==0.1.2
     # via markdown-it-py
-numpy==1.26.4
+numpy==2.0.0
     # via
     #   dso
     #   geopandas
     #   pandas
+    #   pyogrio
     #   shapely
-orjson==3.10.3
-    # via fastapi
-packaging==24.0
+packaging==24.1
     # via
     #   dso
     #   geopandas
+    #   pyogrio
 pandas==2.2.2
     # via geopandas
 passlib==1.7.4
@@ -121,15 +108,15 @@ pathspec==0.12.1
     # via dso
 pdfkit==1.0.0
     # via -r requirements.in
-pillow==10.3.0
+pillow==10.4.0
     # via -r requirements.in
-platformdirs==4.2.1
+platformdirs==4.2.2
     # via dso
 pyasn1==0.6.0
     # via
     #   python-jose
     #   rsa
-pydantic==1.10.15
+pydantic==1.10.17
     # via
     #   -r requirements.in
     #   dso
@@ -138,6 +125,8 @@ pygments==2.18.0
     # via rich
 pyodbc==5.1.0
     # via -r requirements.in
+pyogrio==0.9.0
+    # via geopandas
 pyproj==3.6.1
     # via
     #   dso
@@ -166,7 +155,7 @@ roman==4.2
     # via dso
 rsa==4.9
     # via python-jose
-shapely==2.0.4
+shapely==2.0.5
     # via
     #   -r requirements.in
     #   dso
@@ -176,7 +165,6 @@ shellingham==1.5.4
 six==1.16.0
     # via
     #   ecdsa
-    #   fiona
     #   fs
     #   python-dateutil
 sniffio==1.3.1
@@ -187,7 +175,7 @@ soupsieve==2.5
     # via
     #   beautifulsoup4
     #   dso
-sqlalchemy==2.0.30
+sqlalchemy==2.0.31
     # via -r requirements.in
 starlette==0.37.2
     # via fastapi
@@ -195,7 +183,7 @@ tomli==2.0.1
     # via dso
 typer==0.12.3
     # via fastapi-cli
-typing-extensions==4.11.0
+typing-extensions==4.12.2
     # via
     #   anyio
     #   dso
@@ -206,18 +194,15 @@ typing-extensions==4.11.0
     #   uvicorn
 tzdata==2024.1
     # via pandas
-ujson==5.9.0
-    # via fastapi
-uvicorn[standard]==0.29.0
+uvicorn[standard]==0.30.1
     # via
     #   -r requirements.in
     #   fastapi
-    #   fastapi-cli
 uvloop==0.19.0
     # via uvicorn
-validators==0.28.1
+validators==0.33.0
     # via -r requirements.in
-watchfiles==0.21.0
+watchfiles==0.22.0
     # via uvicorn
 websockets==12.0
     # via uvicorn

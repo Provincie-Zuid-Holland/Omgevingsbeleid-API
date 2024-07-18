@@ -6,7 +6,6 @@ import pydantic
 from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig, Model
-from app.dynamic.converter import Converter
 from app.dynamic.db import ObjectsTable
 from app.dynamic.dependencies import depends_event_dispatcher, depends_object_repository
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -19,14 +18,12 @@ from app.dynamic.repository.object_repository import ObjectRepository
 class ObjectVersionEndpoint(Endpoint):
     def __init__(
         self,
-        converter: Converter,
         endpoint_id: str,
         path: str,
         object_id: str,
         object_type: str,
         response_model: Model,
     ):
-        self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
         self._path: str = path
         self._object_id: str = object_id
@@ -95,8 +92,6 @@ class ObjectVersionEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
@@ -110,7 +105,6 @@ class ObjectVersionEndpointResolver(EndpointResolver):
             raise RuntimeError("Missing {object_uuid} argument in path")
 
         return ObjectVersionEndpoint(
-            converter=converter,
             endpoint_id=self.get_id(),
             path=path,
             object_id=api.id,

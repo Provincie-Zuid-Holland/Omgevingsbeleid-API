@@ -16,11 +16,9 @@ from PIL import Image
 from pydantic import BaseModel
 
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.converter import Converter
 from app.dynamic.db import ObjectsTable
 from app.dynamic.dependencies import depends_object_repository
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.extensions.html_assets.db.tables import AssetsTable
@@ -424,8 +422,6 @@ class ModuleDiffEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,

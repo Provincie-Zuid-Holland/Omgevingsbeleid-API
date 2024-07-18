@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig, Model
-from app.dynamic.converter import Converter
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.dependencies import depends_event_dispatcher, depends_object_static_by_object_type_and_id_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -177,8 +176,6 @@ class ModulePatchObjectEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
