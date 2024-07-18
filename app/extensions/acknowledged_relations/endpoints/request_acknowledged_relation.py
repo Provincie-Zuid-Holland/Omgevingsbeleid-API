@@ -7,9 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
@@ -116,12 +114,10 @@ class EndpointHandler:
 class RequestAcknowledgedRelationEndpoint(Endpoint):
     def __init__(
         self,
-        event_dispatcher: EventDispatcher,
         path: str,
         object_type: str,
         allowed_object_types: List[str],
     ):
-        self._event_dispatcher: EventDispatcher = event_dispatcher
         self._path: str = path
         self._object_type: str = object_type
         self._allowed_object_types: List[str] = allowed_object_types
@@ -162,8 +158,6 @@ class RequestAcknowledgedRelationEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
@@ -176,7 +170,6 @@ class RequestAcknowledgedRelationEndpointResolver(EndpointResolver):
             raise RuntimeError("Missing required config allowed_object_types")
 
         return RequestAcknowledgedRelationEndpoint(
-            event_dispatcher=event_dispatcher,
             path=path,
             object_type=api.object_type,
             allowed_object_types=allowed_object_types,

@@ -4,9 +4,7 @@ from fastapi import APIRouter, Depends
 
 from app.core.utils.utils import table_to_dict
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleStatusHistoryTable, ModuleTable
@@ -88,8 +86,6 @@ class ModuleSnapshotEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
@@ -99,6 +95,4 @@ class ModuleSnapshotEndpointResolver(EndpointResolver):
         if not "{module_id}" in path:
             raise RuntimeError("Missing {module_id} argument in path")
 
-        return ModuleSnapshotEndpoint(
-            path=path,
-        )
+        return ModuleSnapshotEndpoint(path=path)

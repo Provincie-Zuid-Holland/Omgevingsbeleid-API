@@ -1,5 +1,4 @@
 import pytest
-from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 
 from app.dynamic.event.types import Event, Listener
@@ -30,7 +29,6 @@ class TestEventDispatcher:
 
     def test_dispatch(self, event_dispatcher, db: Session):
         event_dispatcher.provide_db(db)
-        event_dispatcher.provide_task_runner(BackgroundTasks())
         event_dispatcher.register(MockListener())
 
         event = MockEvent("testy")

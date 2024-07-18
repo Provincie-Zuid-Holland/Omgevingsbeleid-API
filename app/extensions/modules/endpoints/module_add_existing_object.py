@@ -8,9 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
@@ -208,8 +206,6 @@ class ModuleAddExistingObjectEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,

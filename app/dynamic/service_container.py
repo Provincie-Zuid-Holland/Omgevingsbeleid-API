@@ -4,7 +4,7 @@ import click
 
 from app.dynamic.config.models import IntermediateModel, IntermediateObject
 from app.dynamic.converter import Converter
-from app.dynamic.event_dispatcher import EventDispatcher, main_event_dispatcher
+from app.dynamic.event_listeners import EventListeners
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.validators.validator_provider import ValidatorProvider
 
@@ -16,7 +16,7 @@ class ServiceContainer:
         self.build_model_intermediates: List[IntermediateModel] = []
 
         self.models_resolver: ModelsResolver = ModelsResolver()
-        self.event_dispatcher: EventDispatcher = main_event_dispatcher
+        self.event_listeners: EventListeners = EventListeners()
         self.converter: Converter = Converter()
         self.validator_provider: ValidatorProvider = ValidatorProvider()
 

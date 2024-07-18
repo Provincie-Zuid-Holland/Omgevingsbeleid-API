@@ -2,14 +2,15 @@ import uuid
 from typing import Callable, Optional
 
 import yaml
-from fastapi import BackgroundTasks, Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
 from app.core.settings import Settings, settings
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
-from app.dynamic.event_dispatcher import EventDispatcher, main_event_dispatcher
+from app.dynamic.event_dispatcher import EventDispatcher
+from app.dynamic.event_listeners import EventListeners
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.dynamic.repository.object_static_repository import ObjectStaticRepository
 
@@ -27,12 +28,11 @@ def depends_main_config(settings: Settings = Depends(depends_settings)) -> dict:
 
 
 def depends_event_dispatcher(
-    background_tasks: BackgroundTasks,
+    request: Request,
     db: Session = Depends(depends_db),
 ) -> EventDispatcher:
-    main_event_dispatcher.provide_db(db)
-    main_event_dispatcher.provide_task_runner(background_tasks)
-    return main_event_dispatcher
+    event_listeners: EventListeners = request.app.state.event_listeners
+    return EventDispatcher(event_listeners, db)
 
 
 def depends_object_repository(

@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig, Model
-from app.dynamic.converter import Converter
 from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
 from app.dynamic.dependencies import depends_event_dispatcher, depends_sorted_pagination_curried, depends_string_filters
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -137,8 +136,6 @@ class ModuleListLineageTreeEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,

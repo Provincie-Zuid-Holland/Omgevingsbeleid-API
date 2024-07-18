@@ -3,9 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
 from app.extensions.acknowledged_relations.dependencies import depends_acknowledged_relations_repository
@@ -46,13 +44,11 @@ class EndpointHandler:
 class ListAcknowledgedRelationsEndpoint(Endpoint):
     def __init__(
         self,
-        converter: Converter,
         endpoint_id: str,
         path: str,
         object_id: str,
         object_type: str,
     ):
-        self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
         self._path: str = path
         self._object_id: str = object_id
@@ -95,8 +91,6 @@ class ListAcknowledgedRelationsEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
@@ -109,7 +103,6 @@ class ListAcknowledgedRelationsEndpointResolver(EndpointResolver):
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         return ListAcknowledgedRelationsEndpoint(
-            converter=converter,
             endpoint_id=self.get_id(),
             path=path,
             object_id=api.id,

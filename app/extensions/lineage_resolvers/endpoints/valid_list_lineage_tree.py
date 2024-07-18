@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig, Model
-from app.dynamic.converter import Converter
 from app.dynamic.db import ObjectsTable
 from app.dynamic.db.filters_converter import FiltersConverterResult, convert_filters
 from app.dynamic.dependencies import depends_event_dispatcher, depends_sorted_pagination_curried, depends_string_filters
@@ -23,7 +22,6 @@ from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagin
 class ValidListLineageTreeEndpoint(Endpoint):
     def __init__(
         self,
-        converter: Converter,
         endpoint_id: str,
         path: str,
         object_id: str,
@@ -32,7 +30,6 @@ class ValidListLineageTreeEndpoint(Endpoint):
         allowed_filter_columns: List[str],
         order_config: OrderConfig,
     ):
-        self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
         self._path: str = path
         self._object_id: str = object_id
@@ -130,8 +127,6 @@ class ValidListLineageTreeEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
@@ -149,7 +144,6 @@ class ValidListLineageTreeEndpointResolver(EndpointResolver):
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         return ValidListLineageTreeEndpoint(
-            converter=converter,
             endpoint_id=self.get_id(),
             path=path,
             object_id=api.id,

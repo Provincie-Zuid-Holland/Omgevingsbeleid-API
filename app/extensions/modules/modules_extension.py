@@ -2,9 +2,9 @@ from typing import Dict, List
 
 import app.extensions.modules.endpoints as endpoints
 from app.dynamic.config.models import Column, ExtensionModel
-from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
+from app.dynamic.event_listeners import EventListeners
 from app.dynamic.extension import Extension
 from app.dynamic.generate_table import generate_table
 from app.dynamic.models_resolver import ModelsResolver
@@ -27,8 +27,7 @@ class ModulesExtension(Extension):
 
     def register_endpoint_resolvers(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
+        event_listeners: EventListeners,
         models_resolver: ModelsResolver,
     ) -> List[EndpointResolver]:
         return [

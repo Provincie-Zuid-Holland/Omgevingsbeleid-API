@@ -2,7 +2,6 @@ import pydantic
 from fastapi import APIRouter
 
 from app.dynamic.config.models import ExtensionModel, Model
-from app.dynamic.converter import Converter
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
@@ -34,7 +33,6 @@ class AuthExtension(Extension):
     def register_endpoints(
         self,
         event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         router: APIRouter,
     ) -> APIRouter:

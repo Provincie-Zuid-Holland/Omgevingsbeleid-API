@@ -4,7 +4,6 @@ import pydantic
 from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig, Model
-from app.dynamic.converter import Converter
 from app.dynamic.dependencies import depends_event_dispatcher
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
@@ -25,14 +24,12 @@ from app.extensions.users.dependencies import depends_current_active_user
 class ModuleObjectLatestEndpoint(Endpoint):
     def __init__(
         self,
-        converter: Converter,
         endpoint_id: str,
         path: str,
         object_id: str,
         object_type: str,
         response_model: Model,
     ):
-        self._converter: Converter = converter
         self._endpoint_id: str = endpoint_id
         self._path: str = path
         self._object_id: str = object_id
@@ -100,8 +97,6 @@ class ModuleObjectLatestEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
@@ -116,7 +111,6 @@ class ModuleObjectLatestEndpointResolver(EndpointResolver):
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         return ModuleObjectLatestEndpoint(
-            converter=converter,
             endpoint_id=self.get_id(),
             path=path,
             object_id=api.id,

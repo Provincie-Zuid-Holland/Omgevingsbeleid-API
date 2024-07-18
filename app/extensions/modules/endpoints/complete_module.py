@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 from app.core.utils.utils import table_to_dict
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.converter import Converter
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.dependencies import depends_event_dispatcher
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -188,12 +187,7 @@ class EndpointHandler:
 
 
 class CompleteModuleEndpoint(Endpoint):
-    def __init__(
-        self,
-        event_dispatcher: EventDispatcher,
-        path: str,
-    ):
-        self._event_dispatcher: EventDispatcher = event_dispatcher
+    def __init__(self, path: str):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
@@ -236,8 +230,6 @@ class CompleteModuleEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,
@@ -247,7 +239,4 @@ class CompleteModuleEndpointResolver(EndpointResolver):
         if not "{module_id}" in path:
             raise RuntimeError("Missing {module_id} argument in path")
 
-        return CompleteModuleEndpoint(
-            event_dispatcher=event_dispatcher,
-            path=path,
-        )
+        return CompleteModuleEndpoint(path=path)

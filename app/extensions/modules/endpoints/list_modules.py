@@ -4,10 +4,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.converter import Converter
 from app.dynamic.dependencies import FilterObjectCode, depends_filter_object_code, depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
-from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, SimplePagination, SortedPagination
 from app.extensions.modules.dependencies import depends_module_repository
@@ -81,8 +79,6 @@ class ListModulesEndpointResolver(EndpointResolver):
 
     def generate_endpoint(
         self,
-        event_dispatcher: EventDispatcher,
-        converter: Converter,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
         api: Api,

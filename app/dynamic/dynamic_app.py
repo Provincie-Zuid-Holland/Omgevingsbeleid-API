@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 import app.dynamic.serializers as serializers
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
+from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.generate_table import generate_table
 from app.dynamic.listeners.add_object_code_relationship import AddObjectCodeRelationshipListener
@@ -91,7 +92,7 @@ class DynamicAppBuilder:
             extension.initialize(self._main_config)
             extension.register_listeners(
                 self._main_config,
-                self._service_container.event_dispatcher,
+                self._service_container.event_listeners,
                 self._service_container.converter,
                 self._service_container.models_resolver,
             )
@@ -102,21 +103,24 @@ class DynamicAppBuilder:
             for base_field in extension.register_base_fields():
                 self._base_fields[base_field.id] = base_field
             endpoint_resolvers: List[EndpointResolver] = extension.register_endpoint_resolvers(
-                self._service_container.event_dispatcher,
-                self._service_container.converter,
+                self._service_container.event_listeners,
                 self._service_container.models_resolver,
             )
             self._merge_endpoint_resolvers(endpoint_resolvers)
 
+        event_dispatcher: EventDispatcher = EventDispatcher(
+            self._service_container.event_listeners,
+        )
+
         generate_table(
-            self._service_container.event_dispatcher,
+            event_dispatcher,
             ObjectStaticsTable,
             "ObjectStaticsTable",
             self._columns,
             static=True,
         )
         generate_table(
-            self._service_container.event_dispatcher,
+            event_dispatcher,
             ObjectsTable,
             "ObjectsTable",
             self._columns,
@@ -124,7 +128,7 @@ class DynamicAppBuilder:
         )
         for extension in self._extensions:
             extension.register_tables(
-                self._service_container.event_dispatcher,
+                event_dispatcher,
                 self._columns,
             )
 
@@ -145,7 +149,7 @@ class DynamicAppBuilder:
 
         # Build intermediate models
         models_loader: ModelsLoader = ModelsLoader(
-            self._service_container.event_dispatcher,
+            event_dispatcher,
             self._service_container.models_resolver,
             self._service_container.validator_provider,
         )
@@ -178,8 +182,7 @@ class DynamicAppBuilder:
 
         for extension in self._extensions:
             extension.register_endpoints(
-                self._service_container.event_dispatcher,
-                self._service_container.converter,
+                event_dispatcher,
                 self._service_container.models_resolver,
                 main_router,
             )
@@ -189,6 +192,9 @@ class DynamicAppBuilder:
 
         fastapi_app.include_router(main_router)
         fastapi_app.add_exception_handler(ValueError, self._value_error_exception_handler)
+
+        # Bring some readonly services to the global scope
+        fastapi_app.state.event_listeners = self._service_container.event_listeners
 
         return DynamicApp(
             fastapi_app=fastapi_app,
@@ -221,8 +227,6 @@ class DynamicAppBuilder:
 
             resolver: EndpointResolver = self._endpoint_resolvers[endpoint_config.resolver_id]
             endpoint: Endpoint = resolver.generate_endpoint(
-                self._service_container.event_dispatcher,
-                self._service_container.converter,
                 self._service_container.models_resolver,
                 endpoint_config,
                 object_intermediate.api,
@@ -247,8 +251,6 @@ class DynamicAppBuilder:
 
             resolver: EndpointResolver = self._endpoint_resolvers[endpoint_config.resolver_id]
             endpoint: Endpoint = resolver.generate_endpoint(
-                self._service_container.event_dispatcher,
-                self._service_container.converter,
                 self._service_container.models_resolver,
                 endpoint_config,
                 main_api_config,
@@ -264,7 +266,7 @@ class DynamicAppBuilder:
             return yaml.safe_load(stream)
 
     def _register_base_listeners(self):
-        self._service_container.event_dispatcher.register(AddObjectCodeRelationshipListener())
+        self._service_container.event_listeners.register(AddObjectCodeRelationshipListener())
 
     def _register_base_serializers(self):
         self._service_container.converter.register_serializer("str", serializers.serializer_str)
