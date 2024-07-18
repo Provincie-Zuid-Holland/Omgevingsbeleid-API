@@ -394,6 +394,7 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_ow_data(self) -> dso_models.OwData:
+        # @todo
         ow_data_dict = self._ow_data.__dict__
         result = dso_models.OwData.from_dict(ow_data_dict)
         return result

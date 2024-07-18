@@ -27,10 +27,6 @@ class ActPackageBuilder:
         self._input_data: InputData = input_data
         self._dso_builder: Builder = Builder(input_data)
 
-    @property
-    def input_data(self) -> InputData:
-        return self._input_data
-
     def build_publication_files(self):
         self._dso_builder.build_publication_files()
 
@@ -50,6 +46,9 @@ class ActPackageBuilder:
             Checksum=checksum,
         )
         return zip_data
+
+    def get_input_data(self) -> InputData:
+        return self._input_data
 
     def get_delivery_id(self) -> str:
         delivery_id: str = self._input_data.publication_settings.opdracht.id_levering

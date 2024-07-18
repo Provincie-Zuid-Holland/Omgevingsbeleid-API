@@ -82,7 +82,7 @@ def create_dso_json_scenario(publication_version) -> None:
         builder: ActPackageBuilder = package_builder_factory.create_builder(pub_version, package_type_obj)
 
     # extract the final InputData without starting the .build_publication_files() process
-    dso_input_data: InputData = builder.input_data
+    dso_input_data: InputData = builder.get_input_data()
     exporter = InputDataExporter(input_data=dso_input_data, output_dir=output_path)
 
     try:
