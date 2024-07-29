@@ -1,9 +1,9 @@
 from abc import ABCMeta, abstractmethod
-from typing import Optional
+from typing import Optional, Any
 
 from pydantic import BaseModel
 
-from app.extensions.publications.services.state import result_models
+from app.extensions.publications.services import models
 from app.extensions.publications.services.state.actions.action import Action
 
 
@@ -34,7 +34,7 @@ class State(BaseModel, metaclass=ABCMeta):
 
 class ActiveState(State):
     @abstractmethod
-    def get_act(self, document_type: str, procedure_type: str) -> Optional[result_models.ActiveAct]:
+    def get_act(self, document_type: str, procedure_type: str) -> Optional[Any]:
         pass
 
 

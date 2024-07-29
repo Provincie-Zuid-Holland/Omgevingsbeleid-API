@@ -1,8 +1,7 @@
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
-from app.extensions.publications.services.state import result_models
 from app.extensions.publications.services.state.actions.action import Action
 from app.extensions.publications.services.state.actions.add_announcement_action import AddAnnouncementAction
 from app.extensions.publications.services.state.actions.add_publication_action import AddPublicationAction
@@ -10,10 +9,71 @@ from app.extensions.publications.services.state.actions.add_purpose_action impor
 from app.extensions.publications.services.state.state import ActiveState
 
 
+
+
+class Purpose(BaseModel):
+    Purpose_Type: str
+    Effective_Date: Optional[str]
+    Work_Province_ID: str
+    Work_Date: str
+    Work_Other: str
+
+    def get_frbr_work(self) -> str:
+        result: str = f"/join/id/proces/{self.Work_Province_ID}/{self.Work_Date}/{self.Work_Other}"
+        return result
+
+
+class Frbr(BaseModel):
+    Work_Province_ID: str
+    Work_Country: str
+    Work_Date: str
+    Work_Other: str
+    Expression_Language: str
+    Expression_Date: str
+    Expression_Version: int
+
+
+class Werkingsgebied(BaseModel):
+    UUID: str
+    Object_ID: int
+    Owner_Act: str
+    Frbr: Frbr
+
+
+class WidData(BaseModel):
+    Known_Wid_Map: Dict[str, str]
+    Known_Wids: List[str]
+
+
+class OwData(BaseModel):
+    ow_objects: Dict[str, Any] = {}
+    terminated_ow_ids: List[str] = []
+
+
+class ActiveAct(BaseModel):
+    Act_Frbr: Frbr
+    Bill_Frbr: Frbr
+    Consolidation_Purpose: Purpose
+    Document_Type: str
+    Procedure_Type: str
+    Werkingsgebieden: Dict[int, Werkingsgebied]
+    Wid_Data: WidData
+    Ow_Data: OwData
+    Act_Text: str
+
+
+class ActiveAnnouncement(BaseModel):
+    Doc_Frbr: Frbr
+    About_Act_Frbr: Frbr
+    About_Bill_Frbr: Frbr
+    Document_Type: str
+    Procedure_Type: str
+
+
 class StateV1(ActiveState):
-    Purposes: Dict[str, result_models.Purpose] = Field({})
-    Acts: Dict[str, result_models.ActiveAct] = Field({})
-    Announcements: Dict[str, result_models.ActiveAnnouncement] = Field({})
+    Purposes: Dict[str, Purpose] = Field({})
+    Acts: Dict[str, ActiveAct] = Field({})
+    Announcements: Dict[str, ActiveAnnouncement] = Field({})
 
     @staticmethod
     def get_schema_version() -> int:
@@ -23,9 +83,9 @@ class StateV1(ActiveState):
         data: dict = self.dict()
         return data
 
-    def get_act(self, document_type: str, procedure_type: str) -> Optional[result_models.ActiveAct]:
+    def get_act(self, document_type: str, procedure_type: str) -> Optional[Any]:
         key: str = f"{document_type}-{procedure_type}"
-        result: Optional[result_models.ActiveAct] = self.Acts.get(key)
+        result: Optional[ActiveAct] = self.Acts.get(key)
         return result
 
     def handle_action(self, action: Action):
@@ -40,7 +100,7 @@ class StateV1(ActiveState):
                 raise RuntimeError(f"Action {action.__class__.__name__} is not implemented for StateV1")
 
     def _handle_add_purpose_action(self, action: AddPurposeAction):
-        purpose = result_models.Purpose(
+        purpose = Purpose(
             Purpose_Type=action.Purpose_Type.value,
             Effective_Date=action.get_effective_date_str(),
             Work_Province_ID=action.Work_Province_ID,
@@ -51,7 +111,7 @@ class StateV1(ActiveState):
         self.Purposes[frbr] = purpose
 
     def _handle_add_publication_action(self, action: AddPublicationAction):
-        active_act = result_models.ActiveAct(
+        active_act = ActiveAct(
             Act_Frbr=action.Act_Frbr,
             Bill_Frbr=action.Bill_Frbr,
             Consolidation_Purpose=action.Consolidation_Purpose,
@@ -66,7 +126,7 @@ class StateV1(ActiveState):
         self.Acts[key] = active_act
 
     def _handle_add_announcement_action(self, action: AddAnnouncementAction):
-        active_announcement = result_models.ActiveAnnouncement(
+        active_announcement = ActiveAnnouncement(
             Doc_Frbr=action.Doc_Frbr,
             About_Act_Frbr=action.About_Act_Frbr,
             About_Bill_Frbr=action.About_Bill_Frbr,
