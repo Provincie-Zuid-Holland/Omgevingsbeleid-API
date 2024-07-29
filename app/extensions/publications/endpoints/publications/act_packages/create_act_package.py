@@ -137,7 +137,7 @@ class EndpointHandler:
         except ValidationError as e:
             raise HTTPException(status_code=409, detail=e.errors())
         except DSOConfigurationException as e:
-            raise HTTPException(status_code=409, detail=e.message)
+            raise HTTPException(status_code=424, detail=e.message)
         except Exception as e:
             # We do not know what to except here
             # This will result in a 500 server error
