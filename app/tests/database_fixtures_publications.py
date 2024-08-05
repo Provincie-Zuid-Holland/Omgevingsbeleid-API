@@ -128,7 +128,6 @@ class DatabaseFixturesPublications:
 
 {% if o.Description | has_text %}
     <h6>Wat wil de provincie bereiken?</h6>
-    <h6 data-hint-wid-code-{{ d.Code }}-h6-c="omgevingsvisie-custom-ambities-wrapper">De nieuwe titel</h6>
     {{ o.Description }}
 {% endif %}
 
