@@ -1,9 +1,15 @@
+import uuid
 from abc import ABCMeta, abstractmethod
 
 from .state import State
 
 
 class StateUpgrader(metaclass=ABCMeta):
+    @staticmethod
     @abstractmethod
-    def upgrade(self, state: State) -> State:
+    def get_input_schema_version() -> int:
+        pass
+
+    @abstractmethod
+    def upgrade(self, environment_uuid: uuid.UUID, old_state: State) -> State:
         pass

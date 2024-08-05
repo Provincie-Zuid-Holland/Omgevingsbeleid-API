@@ -2,13 +2,13 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-from app.extensions.publications.services.state.actions.action import Action
-from app.extensions.publications.services.state.actions.add_announcement_action import AddAnnouncementAction
-from app.extensions.publications.services.state.actions.add_publication_action import AddPublicationAction
-from app.extensions.publications.services.state.actions.add_purpose_action import AddPurposeAction
-from app.extensions.publications.services.state.state import ActiveState
-
-
+from app.extensions.publications.services.state.state import State
+from app.extensions.publications.services.state.versions.v2.actions import (
+    Action,
+    AddAnnouncementAction,
+    AddPublicationAction,
+    AddPurposeAction,
+)
 
 
 class Purpose(BaseModel):
@@ -35,7 +35,9 @@ class Frbr(BaseModel):
 
 class Werkingsgebied(BaseModel):
     UUID: str
+    Hash: str
     Object_ID: int
+    Title: str
     Owner_Act: str
     Frbr: Frbr
 
@@ -46,8 +48,8 @@ class WidData(BaseModel):
 
 
 class OwData(BaseModel):
-    ow_objects: Dict[str, Any] = {}
-    terminated_ow_ids: List[str] = []
+    Ow_Objects: Dict[str, Any]
+    Terminated_Ow_Ids: List[str]
 
 
 class ActiveAct(BaseModel):
@@ -60,6 +62,7 @@ class ActiveAct(BaseModel):
     Wid_Data: WidData
     Ow_Data: OwData
     Act_Text: str
+    Publication_Version_UUID: str
 
 
 class ActiveAnnouncement(BaseModel):
@@ -70,14 +73,14 @@ class ActiveAnnouncement(BaseModel):
     Procedure_Type: str
 
 
-class StateV1(ActiveState):
+class StateV2(State):
     Purposes: Dict[str, Purpose] = Field({})
     Acts: Dict[str, ActiveAct] = Field({})
     Announcements: Dict[str, ActiveAnnouncement] = Field({})
 
     @staticmethod
     def get_schema_version() -> int:
-        return 1
+        return 2
 
     def get_data(self) -> dict:
         data: dict = self.dict()
@@ -97,7 +100,7 @@ class StateV1(ActiveState):
             case AddAnnouncementAction():
                 self._handle_add_announcement_action(action)
             case _:
-                raise RuntimeError(f"Action {action.__class__.__name__} is not implemented for StateV1")
+                raise RuntimeError(f"Action {action.__class__.__name__} is not implemented for StateV2")
 
     def _handle_add_purpose_action(self, action: AddPurposeAction):
         purpose = Purpose(
@@ -121,6 +124,7 @@ class StateV1(ActiveState):
             Wid_Data=action.Wid_Data,
             Ow_Data=action.Ow_Data,
             Act_Text=action.Act_Text,
+            Publication_Version_UUID=action.Publication_Version_UUID,
         )
         key: str = f"{action.Document_Type}-{action.Procedure_Type}"
         self.Acts[key] = active_act

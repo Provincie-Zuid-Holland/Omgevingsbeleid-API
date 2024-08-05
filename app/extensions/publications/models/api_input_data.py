@@ -88,16 +88,6 @@ class Purpose:
     Work_Other: str
 
 
-# class OwObjectMap(BaseModel):
-#     id_mapping: Dict[str, Dict[str, str]]
-#     tekstdeel_mapping: Dict[str, Dict[str, Dict[str, str]]]
-
-
-# class OwData(BaseModel):
-#     Object_Ids: List[str] = []
-#     Object_Map: OwObjectMap = {}
-
-
 @dataclass
 class OwData:
     ow_objects: Dict[str, Any] = field(default_factory=dict)
