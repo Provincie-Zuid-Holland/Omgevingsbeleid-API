@@ -36,7 +36,8 @@ class ActPublicationDataProvider:
         publication_version: PublicationVersionTable,
         bill_frbr: BillFrbr,
         act_frbr: ActFrbr,
-    ):
+        all_data: bool = False,
+    ) -> PublicationData:
         objects: List[dict] = self._get_objects(publication_version)
         parsed_template = self._template_parser.get_parsed_template(
             publication_version.Publication.Template.Text_Template,
@@ -49,6 +50,7 @@ class ActPublicationDataProvider:
             act_frbr,
             objects,
             used_objects,
+            all_data,
         )
         area_of_jurisdiction: dict = self._get_aoj()
         attachments: List[dict] = self._get_attachments(publication_version, bill_frbr)
@@ -90,6 +92,7 @@ class ActPublicationDataProvider:
 
         result: dict = {
             "UUID": aoj.UUID,
+            "Title": aoj.Title,
             "Administrative_Borders_ID": aoj.Administrative_Borders_ID,
             "Administrative_Borders_Domain": aoj.Administrative_Borders_Domain,
             "Administrative_Borders_Date": aoj.Administrative_Borders_Date,

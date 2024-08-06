@@ -1,11 +1,14 @@
 from typing import List
 
+import click
+
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_listeners import EventListeners
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications import endpoints
+from app.extensions.publications.commands import commands
 from app.extensions.publications.models import Waardelijsten
 
 
@@ -77,3 +80,6 @@ class PublicationsExtension(Extension):
                 pydantic_model=Waardelijsten,
             )
         )
+
+    def register_commands(self, main_command_group: click.Group, main_config: dict):
+        main_command_group.add_command(commands.create_dso_json_scenario, "create-dso-json-scenario")

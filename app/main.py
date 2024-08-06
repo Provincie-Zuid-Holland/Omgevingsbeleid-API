@@ -18,16 +18,6 @@ app: FastAPI = dynamic_app.run()
 build_datetime: datetime = datetime.utcnow()
 
 
-# @app.middleware("http")
-# async def db_session_middleware(request: Request, call_next):
-#     response = Response("Internal server error!", status_code=500)
-#     with SessionLocal() as db:
-#         request.state.db = db
-#         response = await call_next(request)
-
-#     return response
-
-
 @app.get("/health")
 async def health_check():
     health_info = {

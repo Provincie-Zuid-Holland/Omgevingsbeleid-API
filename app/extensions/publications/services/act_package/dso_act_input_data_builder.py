@@ -138,6 +138,7 @@ class DsoActInputDataBuilder:
                 Expression_Date=self._act_frbr.Expression_Date,
                 Expression_Version=self._act_frbr.Expression_Version,
             ),
+            intrekking=None,
         )
         return publication_settings
 
@@ -393,10 +394,7 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_ow_data(self) -> dso_models.OwData:
-        object_ids = self._ow_data.Object_Ids
-        object_map = self._ow_data.Object_Map
-        result = dso_models.OwData(
-            object_ids=object_ids,
-            object_map=object_map,
-        )
+        # @todo
+        ow_data_dict = self._ow_data.__dict__
+        result = dso_models.OwData.from_dict(ow_data_dict)
         return result
