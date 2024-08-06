@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import Optional, Type
 
+from app.extensions.publications.services.state.state import State, StateSchema
 from app.extensions.publications.services.state.state_version_factory import StateVersionFactory
-from app.extensions.publications.services.state.versions import ActiveState
 from app.extensions.publications.tables.tables import (
     PublicationEnvironmentStateTable,
     PublicationEnvironmentTable,
@@ -13,11 +13,19 @@ class StateLoader:
     def __init__(self, state_version_factory: StateVersionFactory):
         self._state_version_factory: StateVersionFactory = state_version_factory
 
-    def load_from_publication_version(self, publication_version: PublicationVersionTable) -> Optional[ActiveState]:
+    def load(self, state_dict: dict) -> State:
+        schema: StateSchema = StateSchema.parse_obj(state_dict)
+        version_model: Type[State] = self._state_version_factory.get_state_model(
+            schema.Schema_Version,
+        )
+        state: State = version_model.parse_obj(state_dict["Data"])
+        return state
+
+    def load_from_publication_version(self, publication_version: PublicationVersionTable) -> Optional[State]:
         environment: PublicationEnvironmentTable = publication_version.Publication.Environment
         return self.load_from_environment(environment)
 
-    def load_from_environment(self, environment: PublicationEnvironmentTable) -> Optional[ActiveState]:
+    def load_from_environment(self, environment: PublicationEnvironmentTable) -> Optional[State]:
         if not environment.Has_State:
             return None
 
@@ -26,9 +34,5 @@ class StateLoader:
         current_state_table: PublicationEnvironmentStateTable = environment.Active_State
         current_state_dict: dict = current_state_table.State
 
-        state: ActiveState = self._state_version_factory.get_state_model(
-            environment.UUID,
-            current_state_dict,
-        )
-
+        state: State = self.load(current_state_dict)
         return state

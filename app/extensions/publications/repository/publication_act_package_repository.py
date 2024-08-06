@@ -13,13 +13,6 @@ class PublicationActPackageRepository(BaseRepository):
         stmt = select(PublicationActPackageTable).filter(PublicationActPackageTable.UUID == uuid)
         return self.fetch_first(stmt)
 
-    def get_by_act_version(self, act_version_uuid: UUID) -> Optional[PublicationActPackageTable]:
-        stmt = select(PublicationActPackageTable).filter(
-            PublicationActPackageTable.Act_Version_UUID == act_version_uuid
-        )
-        result: Optional[PublicationActPackageTable] = self.fetch_first(stmt)
-        return result
-
     def get_with_filters(
         self,
         version_uuid: Optional[UUID] = None,

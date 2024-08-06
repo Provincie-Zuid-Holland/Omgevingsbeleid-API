@@ -13,8 +13,8 @@ from app.extensions.publications.services.act_package.api_act_input_data_patcher
 from app.extensions.publications.services.act_package.dso_act_input_data_builder import DsoActInputDataBuilder
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr, BillFrbrProvider
 from app.extensions.publications.services.purpose_provider import PurposeProvider
+from app.extensions.publications.services.state.state import ActiveState
 from app.extensions.publications.services.state.state_loader import StateLoader
-from app.extensions.publications.services.state.versions import ActiveState
 from app.extensions.publications.tables.tables import PublicationActTable, PublicationTable, PublicationVersionTable
 
 

@@ -1,41 +1,21 @@
-import uuid
-from typing import Dict, List, Optional, Type
+from typing import Dict, Type
 
-from app.extensions.publications.services.state.state import State, StateSchema
-from app.extensions.publications.services.state.state_upgrader import StateUpgrader
-from app.extensions.publications.services.state.versions import ActiveState
+from app.extensions.publications.services.state.state import ActiveState, State
 
 
 class StateVersionFactory:
-    def __init__(self, versions: List[Type[State]], upgraders: List[StateUpgrader]):
-        self._versions: Dict[int, Type[State]] = {v.get_schema_version(): v for v in versions}
-        self._upgraders: Dict[int, StateUpgrader] = {u.get_input_schema_version(): u for u in upgraders}
+    def __init__(self):
+        self._versions: Dict[int, Type[State]] = {}
 
-    def get_state_model(self, environment_uuid: uuid.UUID, state_dict: dict) -> ActiveState:
-        schema: StateSchema = StateSchema.parse_obj(state_dict)
-        if schema.Schema_Version not in self._versions:
-            raise RuntimeError(f"State schema version '{schema.Schema_Version}' is not registered")
+    def add(self, state_model: Type[State]):
+        schema_version: int = state_model.get_schema_version()
+        self._versions[schema_version] = state_model
 
-        version_model: Type[State] = self._versions[schema.Schema_Version]
-        state: State = version_model.parse_obj(state_dict["Data"])
-        state = self._upgrade(environment_uuid, state)
-
-        return state
-
-    def _upgrade(self, environment_uuid: uuid.UUID, state: State) -> ActiveState:
-        guard_counter: int = len(self._upgraders)
-
-        while not isinstance(state, ActiveState):
-            upgrader: Optional[StateUpgrader] = self._upgraders.get(state.get_schema_version())
-            if upgrader is None:
-                raise RuntimeError(f"No upgrader created for old state with version {state.get_schema_version()}")
-
-            state = upgrader.upgrade(environment_uuid, state)
-
-            if guard_counter < 0:
-                raise RuntimeError(
-                    f"Upgrading the state is hanging and ending with version '{state.get_schema_version()}'"
-                )
-            guard_counter -= 1
-
-        return state
+    def get_state_model(self, schema_version: int) -> Type[ActiveState]:
+        if schema_version not in self._versions:
+            raise RuntimeError(f"State schema version '{schema_version}' is not registered")
+        result: Type[State] = self._versions[schema_version]
+        if not issubclass(result, ActiveState):
+            # @todo: Jordy
+            raise NotImplementedError("Should implement that the state can be upgraded to the newer state")
+        return result

@@ -8,8 +8,6 @@ from app.core.dependencies import db_in_context_manager
 from app.extensions.areas.repository.area_repository import AreaRepository
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.publications.enums import PackageType
-from app.extensions.publications.repository.publication_act_package_repository import PublicationActPackageRepository
-from app.extensions.publications.repository.publication_act_version_repository import PublicationActVersionRepository
 from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
 from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.extensions.publications.services.act_frbr_provider import ActFrbrProvider
@@ -23,11 +21,9 @@ from app.extensions.publications.services.assets.asset_remove_transparency impor
 from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.extensions.publications.services.bill_frbr_provider import BillFrbrProvider
 from app.extensions.publications.services.purpose_provider import PurposeProvider
+from app.extensions.publications.services.state.data.state_v1 import StateV1
 from app.extensions.publications.services.state.state_loader import StateLoader
 from app.extensions.publications.services.state.state_version_factory import StateVersionFactory
-from app.extensions.publications.services.state.versions.v1.state_v1 import StateV1
-from app.extensions.publications.services.state.versions.v2.state_v2 import StateV2
-from app.extensions.publications.services.state.versions.v2.state_v2_upgrader import StateV2Upgrader
 from app.extensions.publications.services.template_parser import TemplateParser
 from app.extensions.publications.tables.tables import PublicationVersionTable
 
@@ -60,20 +56,8 @@ def create_dso_json_scenario(publication_version) -> None:
 
         # Manually sertup the ActPackageBuilder dependencies since
         # we cannot use the FastAPI Depends()
-        state_v2_upgrader = StateV2Upgrader(
-            PublicationActVersionRepository(db),
-            PublicationActPackageRepository(db),
-            ActPublicationDataProvider(db),
-        )
-        state_version_factory = StateVersionFactory(
-            versions=[
-                StateV1,
-                StateV2,
-            ],
-            upgraders=[
-                state_v2_upgrader,
-            ],
-        )
+        state_version_factory = StateVersionFactory()
+        state_version_factory.add(StateV1)  # TODO: still StateV1 until upgraded
 
         publication_asset_provider = PublicationAssetProvider(AssetRepository(db), AssetRemoveTransparency())
         publication_werkingsgebieden_provider = PublicationWerkingsgebiedenProvider(AreaRepository(db))

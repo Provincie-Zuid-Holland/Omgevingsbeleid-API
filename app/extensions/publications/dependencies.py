@@ -14,7 +14,6 @@ from app.extensions.publications.repository import PublicationRepository, Public
 from app.extensions.publications.repository.publication_act_package_repository import PublicationActPackageRepository
 from app.extensions.publications.repository.publication_act_report_repository import PublicationActReportRepository
 from app.extensions.publications.repository.publication_act_repository import PublicationActRepository
-from app.extensions.publications.repository.publication_act_version_repository import PublicationActVersionRepository
 from app.extensions.publications.repository.publication_announcement_package_repository import (
     PublicationAnnouncementPackageRepository,
 )
@@ -53,11 +52,9 @@ from app.extensions.publications.services.publication_version_defaults_provider 
 )
 from app.extensions.publications.services.publication_version_validator import PublicationVersionValidator
 from app.extensions.publications.services.purpose_provider import PurposeProvider
+from app.extensions.publications.services.state.data.state_v1 import StateV1
 from app.extensions.publications.services.state.state_loader import StateLoader
 from app.extensions.publications.services.state.state_version_factory import StateVersionFactory
-from app.extensions.publications.services.state.versions.v1.state_v1 import StateV1
-from app.extensions.publications.services.state.versions.v2.state_v2 import StateV2
-from app.extensions.publications.services.state.versions.v2.state_v2_upgrader import StateV2Upgrader
 from app.extensions.publications.services.template_parser import TemplateParser
 from app.extensions.publications.tables import PublicationActPackageTable, PublicationTemplateTable
 from app.extensions.publications.tables.tables import (
@@ -164,10 +161,6 @@ def depends_publication_version(
     if not maybe_version:
         raise HTTPException(status_code=404, detail="Publication version niet gevonden")
     return maybe_version
-
-
-def depends_publication_act_version_repository(db: Session = Depends(depends_db)) -> PublicationActVersionRepository:
-    return PublicationActVersionRepository(db)
 
 
 def depends_publication_act_package_repository(db: Session = Depends(depends_db)) -> PublicationActPackageRepository:
@@ -307,30 +300,9 @@ def depends_act_publication_data_provider(
     )
 
 
-def depends_state_v2_upgrader(
-    act_version_repository: PublicationActVersionRepository = Depends(depends_publication_act_version_repository),
-    act_package_repository: PublicationActPackageRepository = Depends(depends_publication_act_package_repository),
-    act_data_provider: ActPublicationDataProvider = Depends(depends_act_publication_data_provider),
-) -> StateV2Upgrader:
-    return StateV2Upgrader(
-        act_version_repository,
-        act_package_repository,
-        act_data_provider,
-    )
-
-
-def depends_state_version_factory(
-    state_v2_upgrader: StateV2Upgrader = Depends(depends_state_v2_upgrader),
-) -> StateVersionFactory:
-    factory: StateVersionFactory = StateVersionFactory(
-        versions=[
-            StateV1,
-            StateV2,
-        ],
-        upgraders=[
-            state_v2_upgrader,
-        ],
-    )
+def depends_state_version_factory() -> StateVersionFactory:
+    factory: StateVersionFactory = StateVersionFactory()
+    factory.add(StateV1)
     return factory
 
 

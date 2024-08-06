@@ -14,8 +14,8 @@ from app.extensions.publications.services.announcement_package.dso_announcement_
 )
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
 from app.extensions.publications.services.doc_frbr_provider import DocFrbrProvider
+from app.extensions.publications.services.state.state import ActiveState
 from app.extensions.publications.services.state.state_loader import StateLoader
-from app.extensions.publications.services.state.versions import ActiveState
 from app.extensions.publications.tables.tables import (
     PublicationActVersionTable,
     PublicationAnnouncementTable,
