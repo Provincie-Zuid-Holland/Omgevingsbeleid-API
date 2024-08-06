@@ -1,3 +1,4 @@
+import hashlib
 from datetime import datetime
 from typing import List, Optional, Set
 
@@ -16,12 +17,13 @@ class PublicationWerkingsgebiedenProvider:
         self,
         act_frbr: ActFrbr,
         all_objects: List[dict],
-        used_obejcts: List[dict],
+        used_objects: List[dict],
+        all_data: bool = False,
     ) -> List[dict]:
         werkingsgebieden_objects: List[dict] = [o for o in all_objects if o["Object_Type"] == "werkingsgebied"]
-        werkingsgebied_codes: Set[str] = self._calculate_werkingsgebied_codes(used_obejcts)
+        werkingsgebied_codes: Set[str] = self._calculate_werkingsgebied_codes(used_objects)
         used_werkingsgebieden_objects: List[str] = [
-            w for w in werkingsgebieden_objects if w["Code"] in werkingsgebied_codes
+            w for w in werkingsgebieden_objects if w["Code"] in werkingsgebied_codes or all_data
         ]
 
         werkingsgebieden: List[dict] = self._get_werkingsgebieden_with_areas(
@@ -75,8 +77,12 @@ class PublicationWerkingsgebiedenProvider:
             Expression_Version=1,
         )
 
+        gml_hash = hashlib.sha512()
+        gml_hash.update(area.Gml.encode())
+
         result = {
             "UUID": werkingsgebied["UUID"],
+            "Hash": gml_hash.hexdigest(),
             "Object_ID": werkingsgebied["Object_ID"],
             "Code": werkingsgebied["Code"],
             "New": True,

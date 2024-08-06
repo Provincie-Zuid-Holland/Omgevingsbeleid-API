@@ -141,7 +141,7 @@ class PublicationActTable(Base, UserMetaData):
     ID: Mapped[int] = mapped_column(primary_key=True)
 
     # This UUID would not really be needed
-    # But we keep it as it is less confusion that everything is linked by UUID
+    # But we keep it as it is less confusing that everything is linked by UUID
     UUID: Mapped[uuid.UUID] = mapped_column(unique=True)
 
     Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))

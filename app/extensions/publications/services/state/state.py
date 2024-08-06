@@ -1,10 +1,6 @@
 from abc import ABCMeta, abstractmethod
-from typing import Optional
 
 from pydantic import BaseModel
-
-from app.extensions.publications.services.state import result_models
-from app.extensions.publications.services.state.actions.action import Action
 
 
 class State(BaseModel, metaclass=ABCMeta):
@@ -15,10 +11,6 @@ class State(BaseModel, metaclass=ABCMeta):
 
     @abstractmethod
     def get_data(self) -> dict:
-        pass
-
-    @abstractmethod
-    def handle_action(self, action: Action):
         pass
 
     def state_dict(self) -> dict:
@@ -32,12 +24,6 @@ class State(BaseModel, metaclass=ABCMeta):
         orm_mode = True
 
 
-class ActiveState(State):
-    @abstractmethod
-    def get_act(self, document_type: str, procedure_type: str) -> Optional[result_models.ActiveAct]:
-        pass
-
-
 class StateSchema(BaseModel):
     Schema_Version: int
 
@@ -48,10 +34,7 @@ class StateSchema(BaseModel):
 class InitialState(State):
     @staticmethod
     def get_schema_version() -> int:
-        return 1
+        return 2
 
     def get_data(self) -> dict:
         return {}
-
-    def handle_action(self, action: Action):
-        pass
