@@ -12,6 +12,7 @@ import sqlalchemy as sa
 from app.main import app  ## noqa 
 from app.core.db import table_metadata  ## noqa 
 from app.core.settings import settings  ## noqa 
+from app.extensions.source_werkingsgebieden.geometry import Geometry  ## noqa
 
 
 
@@ -28,7 +29,7 @@ def upgrade() -> None:
         sa.Column('UUID', sa.Uuid(), nullable=False),
         sa.Column('Created_Date', sa.DateTime(), nullable=False),
         sa.Column('Created_By_UUID', sa.Uuid(), nullable=False),
-        sa.Column('Shape', sa.LargeBinary(), nullable=True),
+        sa.Column('Shape', Geometry(), nullable=True),
         sa.Column('Source_UUID', sa.Uuid(), nullable=False),
         sa.Column('Source_ID', sa.Integer(), nullable=True),
         sa.Column('Source_Title', sa.String(), nullable=False),

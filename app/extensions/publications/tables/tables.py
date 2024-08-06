@@ -104,6 +104,7 @@ class PublicationAreaOfJurisdictionTable(Base):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
 
+    Title: Mapped[str] = mapped_column(Unicode, server_default="")
     Administrative_Borders_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     Administrative_Borders_Domain: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     Administrative_Borders_Date: Mapped[date] = mapped_column(Date, nullable=False)
