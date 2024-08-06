@@ -193,7 +193,7 @@ class StateV2Upgrader(StateUpgrader):
                 "status": None,
                 "procedure_status": None,
                 "mapped_uuid": str(original_data.area_of_jurisdiction["UUID"]),
-                "noemer": None,
+                "noemer": "Provincie Zuid-Holland",
                 "bestuurlijke_grenzen_verwijzing": {
                     "bestuurlijke_grenzen_id": original_data.area_of_jurisdiction["Administrative_Borders_ID"],
                     "domein": original_data.area_of_jurisdiction["Administrative_Borders_Domain"],
