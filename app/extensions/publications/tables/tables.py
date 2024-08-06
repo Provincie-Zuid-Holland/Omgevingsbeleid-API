@@ -147,7 +147,9 @@ class PublicationActTable(Base, UserMetaData):
     Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
 
     Document_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
-    Procedure_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
+
+    # @deprecated
+    Procedure_Type: Mapped[Optional[str]] = mapped_column(Unicode(50), nullable=True)
 
     Title: Mapped[str] = mapped_column(Unicode)
     Is_Active: Mapped[bool] = mapped_column(default=False)

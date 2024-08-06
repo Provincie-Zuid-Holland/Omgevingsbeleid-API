@@ -875,41 +875,7 @@ mssql_search:
 
 publication:
   act_defaults:
-    draft_omgevingsvisie:
-      # @see: class ActMetadata
-      metadata:
-        Official_Title: Omgevingsvisie Zuid-Holland
-        Quote_Title: Omgevingsvisie Zuid-Holland
-        Subjects:
-          - water
-          - ruimtelijke_ordening
-          - waterbeheer
-          - natuur_en_milieu
-          - ruimte_en_infrastructuur
-          - verkeer
-          - cultureel_erfgoed
-          - bouwen_en_verbouwen
-          - wonen
-          - woningmarkt
-          - economie
-          - werk
-          - recreatie
-          - bodem
-          - energie
-          - flora_en_fauna
-          - geluid
-          - veiligheid
-          - natuur_en_landschapsbeheer
-          - luchtvaart
-          - rail_en_wegverkeer
-          - scheepvaart
-          - lucht
-          - netwerken
-          - cultuur_en_recreatie
-          - werkgelegenheid
-        Jurisdictions:
-          - omgevingsrecht
-    final_omgevingsvisie:
+    omgevingsvisie:
       metadata:
         Official_Title: Omgevingsvisie Zuid-Holland
         Quote_Title: Omgevingsvisie Zuid-Holland
@@ -943,40 +909,7 @@ publication:
         Jurisdictions:
           - omgevingsrecht
 
-    draft_programma:
-      metadata:
-        Official_Title: Omgevingsprogramma Zuid-Holland
-        Quote_Title: Omgevingsprogramma Zuid-Holland
-        Subjects:
-          - water
-          - ruimtelijke_ordening
-          - waterbeheer
-          - natuur_en_milieu
-          - ruimte_en_infrastructuur
-          - verkeer
-          - cultureel_erfgoed
-          - bouwen_en_verbouwen
-          - wonen
-          - woningmarkt
-          - economie
-          - werk
-          - recreatie
-          - bodem
-          - energie
-          - flora_en_fauna
-          - geluid
-          - veiligheid
-          - natuur_en_landschapsbeheer
-          - luchtvaart
-          - rail_en_wegverkeer
-          - scheepvaart
-          - lucht
-          - netwerken
-          - cultuur_en_recreatie
-          - werkgelegenheid
-        Jurisdictions:
-          - omgevingsrecht
-    final_programma:
+    programma:
       metadata:
         Official_Title: Omgevingsprogramma Zuid-Holland
         Quote_Title: Omgevingsprogramma Zuid-Holland
