@@ -16,7 +16,7 @@ autoflake==2.3.1
     # via -r requirements-dev.in
 bandit==1.7.9
     # via -r requirements-dev.in
-black==24.4.2
+black==24.8.0
     # via -r requirements-dev.in
 certifi==2024.7.4
     # via requests
@@ -24,14 +24,14 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via black
-coverage[toml]==7.6.0
+coverage[toml]==7.6.1
     # via
     #   -r requirements-dev.in
     #   coverage-badge
     #   pytest-cov
-coverage-badge==1.1.1
+coverage-badge==1.1.2
     # via -r requirements-dev.in
-debugpy==1.8.2
+debugpy==1.8.5
     # via -r requirements-dev.in
 decorator==5.1.1
     # via ipython
@@ -49,7 +49,7 @@ executing==2.0.1
     #   stack-data
 faker==26.1.0
     # via -r requirements-dev.in
-flake8==7.1.0
+flake8==7.1.1
     # via -r requirements-dev.in
 freezegun==1.5.1
     # via -r requirements-dev.in
@@ -113,7 +113,7 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pycodestyle==2.12.0
+pycodestyle==2.12.1
     # via flake8
 pyflakes==3.2.0
     # via
@@ -151,7 +151,7 @@ six==1.16.0
     # via
     #   asttokens
     #   python-dateutil
-sqlalchemy[mypy]==2.0.31
+sqlalchemy[mypy]==2.0.32
     # via
     #   -r requirements-dev.in
     #   alembic
@@ -188,3 +188,6 @@ vulture==2.11
     # via -r requirements-dev.in
 wcwidth==0.2.13
     # via prompt-toolkit
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

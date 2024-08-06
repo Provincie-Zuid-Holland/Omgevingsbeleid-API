@@ -92,6 +92,7 @@ class ActPublicationDataProvider:
 
         result: dict = {
             "UUID": aoj.UUID,
+            "Title": aoj.Title,
             "Administrative_Borders_ID": aoj.Administrative_Borders_ID,
             "Administrative_Borders_Domain": aoj.Administrative_Borders_Domain,
             "Administrative_Borders_Date": aoj.Administrative_Borders_Date,
