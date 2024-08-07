@@ -390,6 +390,8 @@ class DsoActInputDataBuilder:
             was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
             bekend_wid_map=self._act_mutation.Known_Wid_Map,
             bekend_wids=self._act_mutation.Known_Wids,
+            strategy="renvooi",
+            renvooi_api_key="",
         )
         return result
 
