@@ -8,7 +8,7 @@ from sqlalchemy.engine import Engine, create_engine
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship, sessionmaker
 
 from app.core.db.mixins import HasIDType, TimeStamped, UserMetaData
-from app.core.settings import settings
+from app.core.settings.base_settings import settings
 from app.dynamic.db import ObjectBaseColumns, StaticBaseColumns
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsColumns
 from app.extensions.modules.db.tables import ModuleBaseColumns, ModuleObjectContextColumns, ModuleStatusHistoryColumns

@@ -1,10 +1,11 @@
 import os
 from typing import Any, Dict, Optional
 
-from pydantic import BaseSettings, validator
+import pydantic
+from pydantic import validator
 
 
-class Settings(BaseSettings):
+class BaseSettings(pydantic.BaseSettings):
     PROJECT_VERSION: str = "3.0-alpha"
     DEBUG_MODE: bool = False
 
@@ -63,8 +64,4 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 
-def settings_factory():
-    return Settings()
-
-
-settings = settings_factory()
+settings = BaseSettings()

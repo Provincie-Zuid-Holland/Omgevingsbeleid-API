@@ -7,8 +7,8 @@ from lxml import etree
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import depends_db
-from app.core.settings import settings
+from app.core.dependencies import depends_db, depends_settings
+from app.core.settings.dynamic_settings import DynamicSettings
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
@@ -45,10 +45,12 @@ class RunningStatus(BaseModel):
 class FileParser:
     def __init__(
         self,
+        settings: DynamicSettings,
         announcement_package: PublicationAnnouncementPackageTable,
         created_by_uuid: uuid.UUID,
         timepoint: datetime,
     ):
+        self._settings: DynamicSettings = settings
         self._announcement_package: PublicationAnnouncementPackageTable = announcement_package
         self._created_by_uuid: uuid.UUID = created_by_uuid
         self._timepoint: datetime = timepoint
@@ -62,7 +64,7 @@ class FileParser:
         file.file.close()
 
         report: PublicationAnnouncementPackageReportTable = self._parse_report_xml(content, file.filename)
-        if not settings.DEBUG_MODE and report.Sub_Delivery_ID != self._announcement_package.Delivery_ID:
+        if not self._settings.DEBUG_MODE and report.Sub_Delivery_ID != self._announcement_package.Delivery_ID:
             raise HTTPException(status_code=403, detail="Report idLevering does not match publication package UUID")
 
         return report
@@ -114,6 +116,7 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
+        settings: DynamicSettings,
         report_repository: PublicationAnnouncementReportRepository,
         user: UsersTable,
         uploaded_files: List[UploadFile],
@@ -127,6 +130,7 @@ class EndpointHandler:
         self._timepoint: datetime = datetime.utcnow()
         self._starting_status: ReportStatusType = self._announcement_package.Report_Status
         self._file_parser: FileParser = FileParser(
+            settings=settings,
             announcement_package=announcement_package,
             created_by_uuid=user.UUID,
             timepoint=self._timepoint,
@@ -271,6 +275,7 @@ class UploadAnnouncementPackageReportEndpoint(Endpoint):
                 depends_publication_announcement_report_repository
             ),
             db: Session = Depends(depends_db),
+            settings: DynamicSettings = Depends(depends_settings),
         ) -> UploadPackageReportResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,

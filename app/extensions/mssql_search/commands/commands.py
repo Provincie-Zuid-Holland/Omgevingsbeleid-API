@@ -5,7 +5,7 @@ from sqlalchemy import DDL, inspect, text
 from sqlalchemy.orm import Session
 
 from app.core.db.session import SessionLocalWithAutoCommit
-from app.core.settings import settings
+from app.core.settings.base_settings import settings
 from app.extensions.mssql_search.config.stopwords import stopwords
 
 

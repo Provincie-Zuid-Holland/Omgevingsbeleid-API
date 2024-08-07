@@ -100,7 +100,12 @@ class EndpointHandler:
             .select_from(PublicationActTable)
             .filter(PublicationActTable.Environment_UUID == self._object_in.Environment_UUID)
             .filter(PublicationActTable.Document_Type == self._object_in.Document_Type.value)
-            .filter(or_(PublicationActTable.Procedure_Type == ProcedureType.FINAL, PublicationActTable.Procedure_Type == None).self_group())
+            .filter(
+                or_(
+                    PublicationActTable.Procedure_Type == ProcedureType.FINAL,
+                    PublicationActTable.Procedure_Type == None,
+                ).self_group()
+            )
         )
         count: int = self._db.execute(stmt).scalar() + 1
         id_suffix: str = f"{count}"

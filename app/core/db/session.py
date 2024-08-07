@@ -3,7 +3,7 @@ import sqlite3
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
-from app.core.settings import settings
+from app.core.settings.base_settings import settings
 
 
 def _enable_sqlite_load_extension(dbapi_connection, connection_record):

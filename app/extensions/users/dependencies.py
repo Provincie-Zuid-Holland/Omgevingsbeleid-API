@@ -7,9 +7,9 @@ from jose import jwt
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import depends_db
-from app.core.security import ALGORITHM
-from app.core.settings import settings
+from app.core.dependencies import depends_db, depends_security, depends_settings
+from app.core.security import ALGORITHM, Security
+from app.core.settings.dynamic_settings import DynamicSettings
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.model import TokenPayload
 from app.extensions.users.permission_service import PermissionService, main_permission_service
@@ -26,13 +26,17 @@ def depends_permission_service() -> PermissionService:
     return main_permission_service
 
 
-def depends_user_repository(db: Session = Depends(depends_db)) -> UserRepository:
-    return UserRepository(db)
+def depends_user_repository(
+    db: Session = Depends(depends_db),
+    security: Security = Depends(depends_security),
+) -> UserRepository:
+    return UserRepository(db, security)
 
 
 def depends_current_user(
     token: str = Depends(reusable_oauth2),
     user_repository: UserRepository = Depends(depends_user_repository),
+    settings: DynamicSettings = Depends(depends_settings),
 ) -> UsersTable:
     """
     Adds authentication to an endpoint, makes bearer token required and validates
@@ -57,6 +61,7 @@ def depends_current_user(
 def optional_user(
     token: str = Depends(OAuth2PasswordBearer(tokenUrl="/login/access-token", auto_error=False)),
     user_repository: UserRepository = Depends(depends_user_repository),
+    settings: DynamicSettings = Depends(depends_settings),
 ) -> Optional[UsersTable]:
     """
     Copy of depends_current_user, but allows logged in AND logged out users.

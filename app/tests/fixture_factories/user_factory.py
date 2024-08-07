@@ -2,7 +2,8 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from app.core.security import get_password_hash
+from app.core.security import Security
+from app.core.settings.dynamic_settings import dynamic_settings_factory
 from app.extensions.users.db import UsersTable
 from app.extensions.users.db.tables import IS_ACTIVE
 
@@ -12,6 +13,7 @@ from .fixture_factory import FixtureDataFactory
 class UserFixtureFactory(FixtureDataFactory):
     def __init__(self, db: Session):
         super().__init__(db)
+        self._security: Security = Security(dynamic_settings_factory())
 
     def populate_db(self):
         if len(self.objects) == 0:
@@ -38,7 +40,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Email": "test@example.com",
                 "Rol": "Superuser",
                 "Status": IS_ACTIVE,
-                "Wachtwoord": get_password_hash("password"),
+                "Wachtwoord": self._security.get_password_hash("password"),
             },
             {
                 "UUID": UUID("11111111-0000-0000-0000-000000000002"),
@@ -46,7 +48,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Email": "b@example.com",
                 "Rol": "Ambtelijk opdrachtgever",
                 "Status": IS_ACTIVE,
-                "Wachtwoord": get_password_hash("password"),
+                "Wachtwoord": self._security.get_password_hash("password"),
             },
             {
                 "UUID": UUID("11111111-0000-0000-0000-000000000003"),
@@ -54,7 +56,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Email": "c@example.com",
                 "Rol": "Behandelend Ambtenaar",
                 "Status": IS_ACTIVE,
-                "Wachtwoord": get_password_hash("password"),
+                "Wachtwoord": self._security.get_password_hash("password"),
             },
             {
                 "UUID": UUID("11111111-0000-0000-0000-000000000004"),
@@ -62,7 +64,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Email": "d@example.com",
                 "Rol": "Beheerder",
                 "Status": IS_ACTIVE,
-                "Wachtwoord": get_password_hash("password"),
+                "Wachtwoord": self._security.get_password_hash("password"),
             },
             {
                 "UUID": UUID("11111111-0000-0000-0000-000000000005"),
@@ -70,7 +72,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Email": "e@example.com",
                 "Rol": "Portefeuillehouder",
                 "Status": IS_ACTIVE,
-                "Wachtwoord": get_password_hash("password"),
+                "Wachtwoord": self._security.get_password_hash("password"),
             },
             {
                 "UUID": UUID("11111111-0000-0000-0000-000000000006"),
@@ -78,7 +80,7 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Email": "f@example.com",
                 "Rol": "Test runner",
                 "Status": IS_ACTIVE,
-                "Wachtwoord": get_password_hash("password"),
+                "Wachtwoord": self._security.get_password_hash("password"),
             },
             {
                 "UUID": UUID("11111111-0000-0000-0000-000000000007"),
@@ -86,6 +88,6 @@ class UserFixtureFactory(FixtureDataFactory):
                 "Email": "g@example.com",
                 "Rol": "Tester",
                 "Status": IS_ACTIVE,
-                "Wachtwoord": get_password_hash("password"),
+                "Wachtwoord": self._security.get_password_hash("password"),
             },
         ]

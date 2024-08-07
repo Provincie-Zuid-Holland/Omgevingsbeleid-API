@@ -4,8 +4,7 @@ from typing import Optional
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import depends_db
-from app.dynamic.dependencies import depends_main_config
+from app.core.dependencies import depends_db, depends_main_config
 from app.extensions.areas.dependencies import depends_area_repository
 from app.extensions.areas.repository.area_geometry_repository import AreaGeometryRepository
 from app.extensions.html_assets.dependencies import depends_asset_repository

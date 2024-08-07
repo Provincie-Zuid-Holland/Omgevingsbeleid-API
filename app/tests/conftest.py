@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy.engine import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.core.settings import settings
+from app.core.settings.base_settings import settings
 from app.dynamic.converter import Converter, ObjectConverterData
 from app.dynamic.dynamic_app import DynamicAppBuilder
 from app.dynamic.event_dispatcher import EventDispatcher

@@ -1,8 +1,9 @@
 from abc import ABC
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Type
 
 import click
 from fastapi import APIRouter
+from pydantic import BaseSettings
 
 from app.dynamic.config.models import Column, Field
 from app.dynamic.converter import Converter
@@ -16,6 +17,9 @@ from app.dynamic.service_container import ServiceContainer
 class Extension(ABC):
     def __init__(self):
         self._service_container: Optional[ServiceContainer]
+
+    def extend_settings(self) -> Optional[Type[BaseSettings]]:
+        return None
 
     def initialize(self, main_config: dict):
         pass
