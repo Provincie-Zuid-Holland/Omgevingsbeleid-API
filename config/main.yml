@@ -396,6 +396,15 @@ api:
         - resolver: download_publication_announcement_package_report
           resolver_data:
             path: /download
+    # DSO value list getters
+    - prefix: /publication-dso-value-lists
+      endpoints:
+        - resolver: list_area_designation_types
+          resolver_data:
+            path: /area-designation-types
+        - resolver: list_area_designation_groups
+          resolver_data:
+            path: /area-designation-groups
 
 columns:
   # Titel
