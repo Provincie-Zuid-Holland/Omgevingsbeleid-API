@@ -70,6 +70,9 @@ class PublicationsExtension(Extension):
             endpoints.ListAnnouncementPackageReportsEndpointResolver(),
             endpoints.DetailAnnouncementPackageReportEndpointResolver(),
             endpoints.DownloadAnnouncementPackageReportEndpointResolver(),
+            # dso value lists
+            endpoints.ListAreaDesignationTypesEndpointResolver(),
+            endpoints.ListAreaDesignationGroupsEndpointResolver(),
         ]
 
     def register_models(self, models_resolver: ModelsResolver):
