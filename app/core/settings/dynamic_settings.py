@@ -1,20 +1,20 @@
 from typing import List, Type
 
-import pydantic
+from pydantic import BaseSettings, create_model
 
-pydantic
-from .base_settings import BaseSettings
+from .core_settings import CoreSettings
 
 
-class DynamicSettings(BaseSettings):
+class DynamicSettings(CoreSettings):
     pass
 
 
-def extend_settings(classes: List[Type[pydantic.BaseSettings]]):
-    for classx in classes:
-        for field in classx.__fields__:
-            setattr(DynamicSettings, field, classx.__fields__[field])
+def create_dynamic_settings(settings_classes: List[Type[BaseSettings]] = []) -> DynamicSettings:
+    fields = {}
+    for ext_cls in settings_classes:
+        fields.update({name: (field.outer_type_, field.default) for name, field in ext_cls.__fields__.items()})
 
+    MergedSettings = create_model("MergedSettings", **fields, __base__=CoreSettings)
 
-def dynamic_settings_factory() -> DynamicSettings:
-    return DynamicSettings()
+    result = MergedSettings()
+    return result

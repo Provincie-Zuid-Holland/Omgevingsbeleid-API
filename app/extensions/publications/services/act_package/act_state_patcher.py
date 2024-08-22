@@ -6,7 +6,7 @@ from dso.act_builder.builder import Builder
 
 from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
 from app.extensions.publications.services.state.versions import ActiveState
-from app.extensions.publications.services.state.versions.v2 import state_v2
+from app.extensions.publications.services.state.versions.v2 import models
 from app.extensions.publications.services.state.versions.v2.actions import AddPublicationAction, AddPurposeAction
 from app.extensions.publications.tables.tables import PublicationTable, PublicationVersionTable
 
@@ -25,8 +25,8 @@ class ActStatePatcher:
         return state
 
     def _patch_publication(self, state: ActiveState) -> ActiveState:
-        werkingsgebieden: Dict[int, state_v2.Werkingsgebied] = self._resolve_werkingsgebieden(state)
-        wid_data = state_v2.WidData(
+        werkingsgebieden: Dict[int, models.Werkingsgebied] = self._resolve_werkingsgebieden(state)
+        wid_data = models.WidData(
             Known_Wid_Map=self._dso_builder.get_used_wid_map(),
             Known_Wids=self._dso_builder.get_used_wids(),
         )
@@ -34,7 +34,7 @@ class ActStatePatcher:
         # Serialize dso_ow_state to a simple dict for result model
         dso_ow_state: dso_models.OwData = self._dso_builder.get_ow_object_state()
         dso_ow_state_dict: dict = dso_ow_state.dict()
-        ow_data = state_v2.OwData.parse_obj(
+        ow_data = models.OwData.parse_obj(
             {
                 "Ow_Objects": dso_ow_state_dict["ow_objects"],
                 "Terminated_Ow_Ids": dso_ow_state_dict["terminated_ow_ids"],
@@ -45,7 +45,7 @@ class ActStatePatcher:
         effective_date: Optional[str] = None
         if input_purpose.Effective_Date is not None:
             effective_date = input_purpose.Effective_Date.strftime("%Y-%m-%d")
-        purpose = state_v2.Purpose(
+        purpose = models.Purpose(
             Purpose_Type=input_purpose.Purpose_Type.value,
             Effective_Date=effective_date,
             Work_Province_ID=input_purpose.Work_Province_ID,
@@ -53,7 +53,7 @@ class ActStatePatcher:
             Work_Other=input_purpose.Work_Other,
         )
 
-        act_frbr = state_v2.Frbr(
+        act_frbr = models.Frbr(
             Work_Province_ID=self._api_input_data.Act_Frbr.Work_Province_ID,
             Work_Country=self._api_input_data.Act_Frbr.Work_Country,
             Work_Date=self._api_input_data.Act_Frbr.Work_Date,
@@ -62,7 +62,7 @@ class ActStatePatcher:
             Expression_Date=self._api_input_data.Act_Frbr.Expression_Date,
             Expression_Version=self._api_input_data.Act_Frbr.Expression_Version,
         )
-        bill_frbr = state_v2.Frbr(
+        bill_frbr = models.Frbr(
             Work_Province_ID=self._api_input_data.Bill_Frbr.Work_Province_ID,
             Work_Country=self._api_input_data.Bill_Frbr.Work_Country,
             Work_Date=self._api_input_data.Bill_Frbr.Work_Date,
@@ -91,12 +91,12 @@ class ActStatePatcher:
         state.handle_action(action)
         return state
 
-    def _resolve_werkingsgebieden(self, state: ActiveState) -> Dict[int, state_v2.Werkingsgebied]:
-        existing_act: Optional[state_v2.ActiveAct] = state.get_act(
+    def _resolve_werkingsgebieden(self, state: ActiveState) -> Dict[int, models.Werkingsgebied]:
+        existing_act: Optional[models.ActiveAct] = state.get_act(
             self._publication.Document_Type,
             self._publication.Procedure_Type,
         )
-        werkingsgebieden: Dict[int, state_v2.Werkingsgebied] = {}
+        werkingsgebieden: Dict[int, models.Werkingsgebied] = {}
         if existing_act is not None:
             werkingsgebieden = existing_act.Werkingsgebieden
 
@@ -105,7 +105,7 @@ class ActStatePatcher:
         # Overwriting werkingsgebieden with the same Object_ID
         for dso_werkingsgebied in self._api_input_data.Publication_Data.werkingsgebieden:
             dso_frbr: dso_models.GioFRBR = dso_werkingsgebied["Frbr"]
-            frbr = state_v2.Frbr(
+            frbr = models.Frbr(
                 Work_Province_ID=dso_frbr.Work_Province_ID,
                 Work_Country="",
                 Work_Date=dso_frbr.Work_Date,
@@ -114,7 +114,7 @@ class ActStatePatcher:
                 Expression_Date=dso_frbr.Expression_Date,
                 Expression_Version=dso_frbr.Expression_Version,
             )
-            werkingsgebied = state_v2.Werkingsgebied(
+            werkingsgebied = models.Werkingsgebied(
                 UUID=str(dso_werkingsgebied["UUID"]),
                 Hash=dso_werkingsgebied["Hash"],
                 Object_ID=dso_werkingsgebied["Object_ID"],

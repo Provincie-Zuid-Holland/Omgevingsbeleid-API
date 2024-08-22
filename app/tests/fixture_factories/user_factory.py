@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.core.security import Security
-from app.core.settings.dynamic_settings import dynamic_settings_factory
+from app.core.settings.dynamic_settings import create_dynamic_settings
 from app.extensions.users.db import UsersTable
 from app.extensions.users.db.tables import IS_ACTIVE
 
@@ -13,7 +13,7 @@ from .fixture_factory import FixtureDataFactory
 class UserFixtureFactory(FixtureDataFactory):
     def __init__(self, db: Session):
         super().__init__(db)
-        self._security: Security = Security(dynamic_settings_factory())
+        self._security: Security = Security(create_dynamic_settings())
 
     def populate_db(self):
         if len(self.objects) == 0:

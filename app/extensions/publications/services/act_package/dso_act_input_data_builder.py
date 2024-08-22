@@ -20,6 +20,7 @@ from dso.act_builder.state_manager.input_data.resource.werkingsgebied.werkingsge
     WerkingsgebiedRepository,
 )
 
+from app.core.settings.dynamic_settings import DynamicSettings
 from app.extensions.publications.enums import DocumentType, PackageType, ProcedureType
 from app.extensions.publications.models.api_input_data import (
     ActFrbr,
@@ -30,6 +31,7 @@ from app.extensions.publications.models.api_input_data import (
     PublicationData,
     Purpose,
 )
+from app.extensions.publications.settings import RenvooiSettings
 from app.extensions.publications.tables.tables import (
     PublicationActTable,
     PublicationEnvironmentTable,
@@ -71,7 +73,8 @@ DUTCH_MONTHS = {
 
 
 class DsoActInputDataBuilder:
-    def __init__(self, api_input_data: ApiActInputData):
+    def __init__(self, settings: DynamicSettings, api_input_data: ApiActInputData):
+        self._settings: DynamicSettings = settings
         self._publication_version: PublicationVersionTable = api_input_data.Publication_Version
         self._package_type: PackageType = api_input_data.Package_Type
         self._bill_frbr: BillFrbr = api_input_data.Bill_Frbr
@@ -376,6 +379,13 @@ class DsoActInputDataBuilder:
         if self._act_mutation is None:
             return None
 
+        if self._environment.Code is None:
+            raise RuntimeError("Expecting Environment.Code to be set")
+
+        renvooi: Optional[RenvooiSettings] = self._settings.PUBLICATION_RENVOOI.get(self._environment.Code)
+        if renvooi is None:
+            raise RuntimeError("Missing runtime environment settings for this PublicationEnvironment")
+
         frbr = dso_models.ActFRBR(
             Work_Province_ID=self._act_mutation.Consolidated_Act_Frbr.Work_Province_ID,
             Work_Country=self._act_mutation.Consolidated_Act_Frbr.Work_Country,
@@ -390,8 +400,9 @@ class DsoActInputDataBuilder:
             was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
             bekend_wid_map=self._act_mutation.Known_Wid_Map,
             bekend_wids=self._act_mutation.Known_Wids,
-            strategy="renvooi",
-            renvooi_api_key="",
+            # @todo: strategy="vervang-regeling"
+            # strategy="renvooi",
+            renvooi_api_key=renvooi.RENVOOI_API_KEY,
         )
         return result
 

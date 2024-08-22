@@ -11,7 +11,7 @@ def validate_effective_date(cls, v):
     return v
 
 
-def validate_announcement_date(cls, v, values, **kwargs):
+def validate_announcement_date(cls, v, values, **kwargs):  # noqa
     if "Effective_Date" in values and v is not None:
         announcement_date = parse(v) if isinstance(v, str) else v
         effective_date = (

@@ -3,6 +3,7 @@ from typing import Optional
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 from sqlalchemy.orm import Session
 
+from app.core.settings.dynamic_settings import DynamicSettings
 from app.extensions.publications.enums import PackageType, PurposeType
 from app.extensions.publications.exceptions import DSOConfigurationException
 from app.extensions.publications.models.api_input_data import ApiActInputData, OwData, PublicationData, Purpose
@@ -22,6 +23,7 @@ class ActPackageBuilderFactory:
     def __init__(
         self,
         db: Session,
+        settings: DynamicSettings,
         bill_frbr_provider: BillFrbrProvider,
         act_frbr_provider: ActFrbrProvider,
         purpose_provider: PurposeProvider,
@@ -29,6 +31,7 @@ class ActPackageBuilderFactory:
         publication_data_provider: ActPublicationDataProvider,
     ):
         self._db: Session = db
+        self._settings: DynamicSettings = settings
         self._bill_frbr_provider: BillFrbrProvider = bill_frbr_provider
         self._act_frbr_provider: ActFrbrProvider = act_frbr_provider
         self._purpose_provider: PurposeProvider = purpose_provider
@@ -73,6 +76,7 @@ class ActPackageBuilderFactory:
             api_input_data = data_patcher.apply(api_input_data)
 
         input_data_builder: DsoActInputDataBuilder = DsoActInputDataBuilder(
+            self._settings,
             api_input_data,
         )
 

@@ -259,6 +259,7 @@ class DatabaseFixturesPublications:
         # Stateless
         env_stateless = PublicationEnvironmentTable(
             UUID=uuid.UUID("90000002-0000-0000-0000-000000000001"),
+            Code="STATELESS",
             Title="Stateless",
             Description="",
             Province_ID="pv28",
@@ -283,6 +284,7 @@ class DatabaseFixturesPublications:
         # Pre-Prod
         env_preprod = PublicationEnvironmentTable(
             UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
+            Code="PRE",
             Title="Pre-Prod",
             Description="",
             Province_ID="pv28",
@@ -322,6 +324,7 @@ class DatabaseFixturesPublications:
         # Prod
         env_prod = PublicationEnvironmentTable(
             UUID=uuid.UUID("90000002-0000-0000-0000-000000000003"),
+            Code="PROD",
             Title="Prod",
             Description="",
             Province_ID="pv28",

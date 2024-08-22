@@ -1,12 +1,12 @@
 from typing import Dict, List, Optional
 
-import app.extensions.publications.services.state.versions.v2.state_v2 as active
 from app.extensions.publications.models.api_input_data import ActFrbr, ActMutation, ApiActInputData, OwData
+from app.extensions.publications.services.state.versions.v2 import models
 
 
 class PatchActMutation:
-    def __init__(self, active_act: active.ActiveAct):
-        self._active_act: active.ActiveAct = active_act
+    def __init__(self, active_act: models.ActiveAct):
+        self._active_act: models.ActiveAct = active_act
 
     def patch(self, data: ApiActInputData) -> ApiActInputData:
         data = self._patch_werkingsgebieden(data)
@@ -15,12 +15,12 @@ class PatchActMutation:
         return data
 
     def _patch_werkingsgebieden(self, data: ApiActInputData) -> ApiActInputData:
-        state_werkingsgebieden: Dict[int, active.Werkingsgebied] = self._active_act.Werkingsgebieden
+        state_werkingsgebieden: Dict[int, models.Werkingsgebied] = self._active_act.Werkingsgebieden
 
         werkingsgebieden: List[dict] = data.Publication_Data.werkingsgebieden
         for index, werkingsgebied in enumerate(werkingsgebieden):
             object_id: int = werkingsgebied["Object_ID"]
-            existing_werkingsgebied: Optional[active.Werkingsgebied] = state_werkingsgebieden.get(object_id)
+            existing_werkingsgebied: Optional[models.Werkingsgebied] = state_werkingsgebieden.get(object_id)
             if existing_werkingsgebied is None:
                 continue
 

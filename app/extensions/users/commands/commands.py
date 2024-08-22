@@ -6,12 +6,12 @@ from sqlalchemy import select, text
 
 from app.core.dependencies import db_in_context_manager
 from app.core.security import Security
-from app.core.settings import DynamicSettings, dynamic_settings_factory
+from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings
 from app.extensions.users.db.tables import IS_ACTIVE, UsersTable
 
 
 def get_security() -> Security:
-    settings: DynamicSettings = dynamic_settings_factory()
+    settings: DynamicSettings = create_dynamic_settings()
     return Security(settings)
 
 

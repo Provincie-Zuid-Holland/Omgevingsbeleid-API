@@ -5,7 +5,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.core.security import Security
-from app.core.settings.dynamic_settings import dynamic_settings_factory
+from app.core.settings.dynamic_settings import create_dynamic_settings
 from app.core.utils.utils import DATE_FORMAT
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.db.tables import ObjectsTable
@@ -30,7 +30,7 @@ class DatabaseFixtures:
         self._db = db
         self._geometry_repository = self._create_geometry_repository()
         self._area_geometry_repository = self._create_area_geometry_repository()
-        self._security: Security = Security(dynamic_settings_factory())
+        self._security: Security = Security(create_dynamic_settings())
 
     def _create_geometry_repository(self):
         match self._db.bind.dialect.name:

@@ -1,6 +1,7 @@
 import uuid
 from typing import Any, Dict, Optional, Tuple
 
+import app.extensions.publications.services.state.versions.v2.models as models_v2
 from app.extensions.publications.models.api_input_data import ActFrbr, BillFrbr, PublicationData
 from app.extensions.publications.repository.publication_act_package_repository import PublicationActPackageRepository
 from app.extensions.publications.repository.publication_act_version_repository import PublicationActVersionRepository
@@ -44,42 +45,42 @@ class StateV2Upgrader(StateUpgrader):
 
         return new_state
 
-    def _mutate_purposes(self, old_state: state_v1.StateV1) -> Dict[str, state_v2.Purpose]:
-        purposes: Dict[str, state_v2.Purpose] = {}
+    def _mutate_purposes(self, old_state: state_v1.StateV1) -> Dict[str, models_v2.Purpose]:
+        purposes: Dict[str, models_v2.Purpose] = {}
 
         for key, old_purpose in old_state.Purposes.items():
-            new_purpose: state_v2.Purpose = state_v2.Purpose.parse_obj(old_purpose.dict())
+            new_purpose: models_v2.Purpose = models_v2.Purpose.parse_obj(old_purpose.dict())
             purposes[key] = new_purpose
 
         return purposes
 
-    def _mutate_acts(self, environment_uuid: uuid.UUID, old_state: state_v1.StateV1) -> Dict[str, state_v2.Purpose]:
-        acts: Dict[str, state_v2.ActiveAct] = {}
+    def _mutate_acts(self, environment_uuid: uuid.UUID, old_state: state_v1.StateV1) -> Dict[str, models_v2.Purpose]:
+        acts: Dict[str, models_v2.ActiveAct] = {}
 
         for key, old_act in old_state.Acts.items():
-            new_act: state_v2.ActiveAct = self._mutate_act(environment_uuid, old_act)
+            new_act: models_v2.ActiveAct = self._mutate_act(environment_uuid, old_act)
             acts[key] = new_act
 
         return acts
 
-    def _mutate_act(self, environment_uuid: uuid.UUID, old_act: state_v1.ActiveAct) -> state_v2.ActiveAct:
+    def _mutate_act(self, environment_uuid: uuid.UUID, old_act: state_v1.ActiveAct) -> models_v2.ActiveAct:
         original_data, publication_version_uuid = self._get_original_input_data(environment_uuid, old_act)
 
-        werkingsgebieden: Dict[int, state_v2.Werkingsgebied] = self._get_act_werkingsgebieden(
+        werkingsgebieden: Dict[int, models_v2.Werkingsgebied] = self._get_act_werkingsgebieden(
             original_data,
             old_act,
         )
 
-        ow_data: state_v2.OwData = self._get_act_ow_data(original_data, old_act)
+        ow_data: models_v2.OwData = self._get_act_ow_data(original_data, old_act)
 
-        act = state_v2.ActiveAct(
-            Act_Frbr=state_v2.Frbr.parse_obj(old_act.Act_Frbr.dict()),
-            Bill_Frbr=state_v2.Frbr.parse_obj(old_act.Bill_Frbr.dict()),
-            Consolidation_Purpose=state_v2.Purpose.parse_obj(old_act.Consolidation_Purpose.dict()),
+        act = models_v2.ActiveAct(
+            Act_Frbr=models_v2.Frbr.parse_obj(old_act.Act_Frbr.dict()),
+            Bill_Frbr=models_v2.Frbr.parse_obj(old_act.Bill_Frbr.dict()),
+            Consolidation_Purpose=models_v2.Purpose.parse_obj(old_act.Consolidation_Purpose.dict()),
             Document_Type=old_act.Document_Type,
             Procedure_Type=old_act.Procedure_Type,
             Werkingsgebieden=werkingsgebieden,
-            Wid_Data=state_v2.WidData.parse_obj(old_act.Wid_Data.dict()),
+            Wid_Data=models_v2.WidData.parse_obj(old_act.Wid_Data.dict()),
             Ow_Data=ow_data,
             Act_Text=old_act.Act_Text,
             Publication_Version_UUID=str(publication_version_uuid),
@@ -88,8 +89,8 @@ class StateV2Upgrader(StateUpgrader):
 
     def _get_act_werkingsgebieden(
         self, original_data: PublicationData, old_act: state_v1.ActiveAct
-    ) -> Dict[int, state_v2.Werkingsgebied]:
-        new_werkingsgebieden: Dict[int, state_v2.Werkingsgebied] = {}
+    ) -> Dict[int, models_v2.Werkingsgebied]:
+        new_werkingsgebieden: Dict[int, models_v2.Werkingsgebied] = {}
 
         for key, old_werkingsgebied in old_act.Werkingsgebieden.items():
             original_werkingsgebied: Optional[dict] = next(
@@ -104,7 +105,7 @@ class StateV2Upgrader(StateUpgrader):
             data_dict["Title"] = original_werkingsgebied["Title"]
             data_dict["Hash"] = original_werkingsgebied["Hash"]
 
-            new_werkingsgebied = state_v2.Werkingsgebied.parse_obj(data_dict)
+            new_werkingsgebied = models_v2.Werkingsgebied.parse_obj(data_dict)
             new_werkingsgebieden[key] = new_werkingsgebied
 
         return new_werkingsgebieden
@@ -161,18 +162,18 @@ class StateV2Upgrader(StateUpgrader):
         )
         return publication_data, act_package.Publication_Version.UUID
 
-    def _mutate_announcements(self, old_state: state_v1.StateV1) -> Dict[str, state_v2.ActiveAnnouncement]:
-        announcements: Dict[str, state_v2.ActiveAnnouncement] = {}
+    def _mutate_announcements(self, old_state: state_v1.StateV1) -> Dict[str, models_v2.ActiveAnnouncement]:
+        announcements: Dict[str, models_v2.ActiveAnnouncement] = {}
 
         for key, old_announcement in old_state.Announcements.items():
-            new_announcement: state_v2.ActiveAnnouncement = state_v2.ActiveAnnouncement.parse_obj(
+            new_announcement: models_v2.ActiveAnnouncement = models_v2.ActiveAnnouncement.parse_obj(
                 old_announcement.dict()
             )
             announcements[key] = new_announcement
 
         return announcements
 
-    def _get_act_ow_data(self, original_data: PublicationData, old_act: state_v1.ActiveAct) -> state_v2.OwData:
+    def _get_act_ow_data(self, original_data: PublicationData, old_act: state_v1.ActiveAct) -> models_v2.OwData:
         old_id_mapping: Dict[str, Dict[str, str]] = old_act.Ow_Data.Object_Map.id_mapping
         old_tekstdeel_mapping: Dict[str, Dict[str, str]] = old_act.Ow_Data.Object_Map.tekstdeel_mapping
 
@@ -270,7 +271,7 @@ class StateV2Upgrader(StateUpgrader):
             }
             new_ow_objects[ow_id] = ow
 
-        new_ow_data = state_v2.OwData(
+        new_ow_data = models_v2.OwData(
             Ow_Objects=new_ow_objects,
             Terminated_Ow_Ids=[],
         )

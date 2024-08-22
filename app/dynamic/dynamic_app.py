@@ -4,13 +4,13 @@ from os.path import isfile, join
 from typing import Dict, List, Optional, Type
 
 import click
-from pydantic import BaseSettings
 import yaml
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import JSONResponse
+from pydantic import BaseSettings
 
 import app.dynamic.serializers as serializers
-from app.core.settings.dynamic_settings import DynamicSettings, dynamic_settings_factory, extend_settings
+from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
@@ -207,13 +207,14 @@ class DynamicAppBuilder:
         )
 
     def _build_settings(self) -> DynamicSettings:
+        settings_classes = []
         for extension in self._extensions:
             settings_class: Optional[Type[BaseSettings]] = extension.extend_settings()
             if settings_class is None:
                 continue
-            extend_settings([settings_class])
+            settings_classes.append(settings_class)
 
-        settings: DynamicSettings = dynamic_settings_factory()
+        settings: DynamicSettings = create_dynamic_settings(settings_classes)
         return settings
 
     def _build_config_intermediate(self, config: dict):

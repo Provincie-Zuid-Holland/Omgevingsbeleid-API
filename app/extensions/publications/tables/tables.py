@@ -52,6 +52,9 @@ class PublicationEnvironmentTable(Base, UserMetaData):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Title: Mapped[str] = mapped_column(Unicode)
+
+    # Used to map secret data to the environment like API Keys
+    Code: Mapped[Optional[str]] = mapped_column(Unicode(32), nullable=True)
     Description: Mapped[str] = mapped_column(Unicode)
 
     Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
