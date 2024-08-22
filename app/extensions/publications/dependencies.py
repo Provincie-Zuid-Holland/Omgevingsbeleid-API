@@ -4,8 +4,8 @@ from typing import Optional
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import depends_db
-from app.dynamic.dependencies import depends_main_config
+from app.core.dependencies import depends_db, depends_main_config, depends_settings
+from app.core.settings.dynamic_settings import DynamicSettings
 from app.extensions.areas.dependencies import depends_area_repository
 from app.extensions.areas.repository.area_geometry_repository import AreaGeometryRepository
 from app.extensions.html_assets.dependencies import depends_asset_repository
@@ -343,6 +343,7 @@ def depends_state_loader(
 
 def depends_act_package_builder_factory(
     db: Session = Depends(depends_db),
+    settings: DynamicSettings = Depends(depends_settings),
     bill_frbr_provider: BillFrbrProvider = Depends(depends_bill_frbr_provider),
     act_frbr_provider: ActFrbrProvider = Depends(depends_act_frbr_provider),
     purpose_provider: PurposeProvider = Depends(depends_purpose_provider),
@@ -351,6 +352,7 @@ def depends_act_package_builder_factory(
 ) -> ActPackageBuilderFactory:
     return ActPackageBuilderFactory(
         db,
+        settings,
         bill_frbr_provider,
         act_frbr_provider,
         purpose_provider,

@@ -5,8 +5,14 @@ import click
 from sqlalchemy import select, text
 
 from app.core.dependencies import db_in_context_manager
-from app.core.security import get_password_hash, get_random_password
+from app.core.security import Security
+from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings
 from app.extensions.users.db.tables import IS_ACTIVE, UsersTable
+
+
+def get_security() -> Security:
+    settings: DynamicSettings = create_dynamic_settings()
+    return Security(settings)
 
 
 @click.command()
@@ -14,8 +20,9 @@ from app.extensions.users.db.tables import IS_ACTIVE, UsersTable
 @click.argument("email")
 @click.argument("rol")
 def create_user(gebruikersnaam, email, rol):
-    password = "change-me-" + get_random_password()
-    password_hash = get_password_hash(password)
+    security: Security = get_security()
+    password = "change-me-" + security.get_random_password()
+    password_hash = security.get_password_hash(password)
 
     user: UsersTable = UsersTable(
         UUID=uuid.uuid4(),
@@ -39,8 +46,9 @@ def create_user(gebruikersnaam, email, rol):
 @click.command()
 @click.argument("email")
 def reset_password(email):
-    password = "change-me-" + get_random_password()
-    password_hash = get_password_hash(password)
+    security: Security = get_security()
+    password = "change-me-" + security.get_random_password()
+    password_hash = security.get_password_hash(password)
 
     with db_in_context_manager() as db:
         stmt = select(UsersTable).filter(UsersTable.Email == email)
@@ -61,8 +69,9 @@ def reset_password(email):
 @click.command()
 @click.argument("uuid")
 def reset_password_uuid(uuid):
-    password = "change-me-" + get_random_password()
-    password_hash = get_password_hash(password)
+    security: Security = get_security()
+    password = "change-me-" + security.get_random_password()
+    password_hash = security.get_password_hash(password)
 
     with db_in_context_manager() as db:
         stmt = select(UsersTable).filter(UsersTable.UUID == uuid)

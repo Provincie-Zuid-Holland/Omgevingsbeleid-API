@@ -1,7 +1,8 @@
 import pydantic
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.core.security import verify_password
+from app.core.dependencies import depends_security
+from app.core.security import Security
 from app.dynamic.endpoints.endpoint import Endpoint
 from app.dynamic.utils.response import ResponseOK
 from app.extensions.users.db.tables import UsersTable
@@ -20,8 +21,9 @@ class PasswordResetEndpoint(Endpoint):
             password_in: PasswordUpdate = Depends(),
             current_user: UsersTable = Depends(depends_current_active_user),
             user_repository: UserRepository = Depends(depends_user_repository),
+            security: Security = Depends(depends_security),
         ) -> ResponseOK:
-            return self._handler(user_repository, current_user, password_in)
+            return self._handler(security, user_repository, current_user, password_in)
 
         router.add_api_route(
             "/password-reset",
@@ -37,11 +39,12 @@ class PasswordResetEndpoint(Endpoint):
 
     def _handler(
         self,
+        security: Security,
         user_repository: UserRepository,
         current_user: UsersTable,
         password_in: PasswordUpdate,
     ):
-        valid: bool = verify_password(password_in.password, current_user.Wachtwoord)
+        valid: bool = security.verify_password(password_in.password, current_user.Wachtwoord)
         if not valid:
             raise HTTPException(status_code=401, detail="Incorrect password")
 

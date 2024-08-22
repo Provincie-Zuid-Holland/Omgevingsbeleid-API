@@ -2,8 +2,9 @@ from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import asc, or_, select
+from sqlalchemy.orm import Session
 
-from app.core.security import get_password_hash, verify_password
+from app.core.security import Security
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination
 from app.extensions.users.db.tables import IS_ACTIVE, UsersTable
@@ -12,6 +13,10 @@ from ..model import User
 
 
 class UserRepository(BaseRepository):
+    def __init__(self, db: Session, security: Security):
+        self._db = db
+        self._security: Security = security
+
     def get_by_uuid(self, uuid: UUID) -> Optional[UsersTable]:
         stmt = select(UsersTable).where(UsersTable.UUID == uuid)
         return self.fetch_first(stmt)
@@ -68,12 +73,12 @@ class UserRepository(BaseRepository):
         maybe_user: Optional[UsersTable] = self.fetch_first(stmt)
         if not maybe_user:
             return None
-        if not verify_password(password, maybe_user.Wachtwoord):
+        if not self._security.verify_password(password, maybe_user.Wachtwoord):
             return None
         return maybe_user
 
     def change_password(self, user: UsersTable, new_password: str):
-        new_hash = get_password_hash(new_password)
+        new_hash = self._security.get_password_hash(new_password)
         user.Wachtwoord = new_hash
         self._db.add(user)
         self._db.flush()

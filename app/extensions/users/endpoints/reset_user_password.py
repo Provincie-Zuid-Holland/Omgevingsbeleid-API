@@ -7,8 +7,8 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import depends_db
-from app.core.security import get_password_hash, get_random_password
+from app.core.dependencies import depends_db, depends_security
+from app.core.security import Security
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
@@ -28,8 +28,16 @@ class ResetPasswordResponse(BaseModel):
 
 
 class ResetUserPasswordEndpointHandler:
-    def __init__(self, db: Session, repository: UserRepository, logged_in_user: UsersTable, user_uuid: uuid.UUID):
+    def __init__(
+        self,
+        db: Session,
+        security: Security,
+        repository: UserRepository,
+        logged_in_user: UsersTable,
+        user_uuid: uuid.UUID,
+    ):
         self._db: Session = db
+        self._security: Security = security
         self._repository: UserRepository = repository
         self._logged_in_user: UsersTable = logged_in_user
         self._user_uuid: uuid.UUID = user_uuid
@@ -42,8 +50,8 @@ class ResetUserPasswordEndpointHandler:
         if not user.IsActive:
             raise ValueError(f"User is inactive")
 
-        password = "change-me-" + get_random_password()
-        password_hash = get_password_hash(password)
+        password = "change-me-" + self._security.get_random_password()
+        password_hash = self._security.get_password_hash(password)
 
         user.Wachtwoord = password_hash
 
@@ -77,9 +85,11 @@ class ResetUserPasswordEndpoint(Endpoint):
             ),
             db: Session = Depends(depends_db),
             repository: UserRepository = Depends(depends_user_repository),
+            security: Security = Depends(depends_security),
         ) -> ResetPasswordResponse:
             handler: ResetUserPasswordEndpointHandler = ResetUserPasswordEndpointHandler(
                 db,
+                security,
                 repository,
                 logged_in_user,
                 user_uuid,

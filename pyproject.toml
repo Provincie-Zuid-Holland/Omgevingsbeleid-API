@@ -11,3 +11,6 @@ line-length = 120
 [tool.pytest.ini_options]
 norecursedirs = "*venv* *.venv* *.pytest_cache*"
 testpaths = "app/tests"
+
+[tool.mypy]
+files = ["app"]

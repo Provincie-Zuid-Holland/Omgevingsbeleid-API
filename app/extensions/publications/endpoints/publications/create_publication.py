@@ -146,8 +146,6 @@ class EndpointHandler:
             raise HTTPException(status_code=404, detail="Publication Act is van een ander Environment")
         if act.Document_Type != self._object_in.Document_Type.value:
             raise HTTPException(status_code=404, detail="Publication Act is van een ander Document Type")
-        if act.Procedure_Type != self._object_in.Procedure_Type.value:
-            raise HTTPException(status_code=404, detail="Publication Act is van een ander Procedure Type")
 
         return act
 

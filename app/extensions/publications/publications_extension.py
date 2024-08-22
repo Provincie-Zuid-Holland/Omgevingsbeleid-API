@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Optional, Type
 
 import click
+from pydantic import BaseSettings
 
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.endpoints.endpoint import EndpointResolver
@@ -10,9 +11,13 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications import endpoints
 from app.extensions.publications.commands import commands
 from app.extensions.publications.models import Waardelijsten
+from app.extensions.publications.settings import PublicationSettings
 
 
 class PublicationsExtension(Extension):
+    def extend_settings(self) -> Optional[Type[BaseSettings]]:
+        return PublicationSettings
+
     def register_endpoint_resolvers(
         self,
         event_listeners: EventListeners,

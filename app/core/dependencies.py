@@ -1,9 +1,13 @@
 from contextlib import contextmanager
 from typing import Generator
 
+import yaml
+from fastapi import Depends, Request
 from sqlalchemy import text
 
 from app.core.db.session import SessionLocal
+from app.core.security import Security
+from app.core.settings.dynamic_settings import DynamicSettings
 
 
 def depends_db() -> Generator:
@@ -18,10 +22,19 @@ def depends_db() -> Generator:
             raise e
 
 
-# def depends_db(request: Request):
-#     return request.state.db
-
-
 @contextmanager
 def db_in_context_manager() -> Generator:
     yield from depends_db()
+
+
+def depends_settings(request: Request) -> DynamicSettings:
+    return request.app.state.settings
+
+
+def depends_main_config(settings: DynamicSettings = Depends(depends_settings)) -> dict:
+    with open(settings.MAIN_CONFIG_FILE) as stream:
+        return yaml.safe_load(stream)
+
+
+def depends_security(settings: DynamicSettings = Depends(depends_settings)) -> Security:
+    return Security(settings)

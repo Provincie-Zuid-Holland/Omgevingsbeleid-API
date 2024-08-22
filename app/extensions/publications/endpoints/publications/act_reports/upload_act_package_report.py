@@ -7,8 +7,8 @@ from lxml import etree
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import depends_db
-from app.core.settings import settings
+from app.core.dependencies import depends_db, depends_settings
+from app.core.settings.dynamic_settings import DynamicSettings
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
@@ -43,10 +43,12 @@ class RunningStatus(BaseModel):
 class FileParser:
     def __init__(
         self,
+        settings: DynamicSettings,
         act_package: PublicationActPackageTable,
         created_by_uuid: uuid.UUID,
         timepoint: datetime,
     ):
+        self._settings: DynamicSettings = settings
         self._act_package: PublicationActPackageTable = act_package
         self._created_by_uuid: uuid.UUID = created_by_uuid
         self._timepoint: datetime = timepoint
@@ -60,7 +62,7 @@ class FileParser:
         file.file.close()
 
         report: PublicationActPackageReportTable = self._parse_report_xml(content, file.filename)
-        if not settings.DEBUG_MODE and report.Sub_Delivery_ID != self._act_package.Delivery_ID:
+        if not self._settings.DEBUG_MODE and report.Sub_Delivery_ID != self._act_package.Delivery_ID:
             raise HTTPException(status_code=403, detail="Report idLevering does not match publication package UUID")
 
         return report
@@ -112,6 +114,7 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
+        settings: DynamicSettings,
         report_repository: PublicationActReportRepository,
         user: UsersTable,
         uploaded_files: List[UploadFile],
@@ -125,6 +128,7 @@ class EndpointHandler:
         self._timepoint: datetime = datetime.utcnow()
         self._starting_status: ReportStatusType = self._act_package.Report_Status
         self._file_parser: FileParser = FileParser(
+            settings=settings,
             act_package=act_package,
             created_by_uuid=user.UUID,
             timepoint=self._timepoint,
@@ -265,9 +269,11 @@ class UploadActPackageReportEndpoint(Endpoint):
             ),
             report_repository: PublicationActReportRepository = Depends(depends_publication_act_report_repository),
             db: Session = Depends(depends_db),
+            settings: DynamicSettings = Depends(depends_settings),
         ) -> UploadPackageReportResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
+                settings,
                 report_repository,
                 user,
                 uploaded_files,

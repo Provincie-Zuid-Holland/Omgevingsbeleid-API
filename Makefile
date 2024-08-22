@@ -48,6 +48,12 @@ check-security:
 check-venture:
 	python -m vulture app/ --exclude app/tests/ --min-confidence 100
 
+check-lint:
+	python -m pylint -j 0 app/
+
+check-types:
+	python -m mypy --check app/
+
 check: check-venture check-security
 
 test:
@@ -77,7 +83,7 @@ docker-mssql: ## Exec into mssql
 	docker compose exec mssql /bin/bash
 
 docker-mssql-create-database-dev:
-	@docker compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-dev.sql
+	@docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-dev.sql
 
 docker-drop-database:
 	docker compose exec api python cmds.py drop-db
@@ -105,5 +111,5 @@ docker-test:
 	docker compose exec api python -m pytest
 
 docker-testx:
-	docker compose exec mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Passw0rd -i /opt/sql/init-test.sql
+	docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-test.sql
 	docker compose exec api python -m pytest -vv -x

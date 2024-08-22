@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from pydantic import BaseSettings, validator
 
 
-class Settings(BaseSettings):
+class CoreSettings(BaseSettings):
     PROJECT_VERSION: str = "3.0-alpha"
     DEBUG_MODE: bool = False
 
@@ -58,13 +58,13 @@ class Settings(BaseSettings):
     DSO_MODULE_DEBUG_EXPORT: bool = False
     DSO_MODULE_DEBUG_EXPORT_PATH: str = "./tmp/dso-export"
 
+    # @todo: should be moved to extension
+    # PUBLICATION_RENVOOI: Dict[str, str] = Field({})
+
     class Config:
         case_sensitive = True
         env_file = ".env"
+        env_nested_delimiter = "__"
 
 
-def settings_factory():
-    return Settings()
-
-
-settings = settings_factory()
+core_settings = CoreSettings()

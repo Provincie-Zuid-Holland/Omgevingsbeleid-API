@@ -4,7 +4,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -27,7 +27,6 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 class ActCreate(BaseModel):
     Environment_UUID: uuid.UUID
     Document_Type: DocumentType
-    Procedure_Type: ProcedureType
     Title: str
 
 
@@ -54,17 +53,13 @@ class EndpointHandler:
     def handle(self) -> ActCreatedResponse:
         environment: PublicationEnvironmentTable = self._get_environment()
 
-        metadata = self._defaults_provider.get_metadata(
-            self._object_in.Document_Type.value,
-            self._object_in.Procedure_Type.value,
-        )
+        metadata = self._defaults_provider.get_metadata(self._object_in.Document_Type.value)
         work_other: str = self._get_work_other()
 
         act: PublicationActTable = PublicationActTable(
             UUID=uuid.uuid4(),
             Environment_UUID=environment.UUID,
             Document_Type=self._object_in.Document_Type.value,
-            Procedure_Type=self._object_in.Procedure_Type.value,
             Title=self._object_in.Title,
             Is_Active=True,
             Metadata=metadata.dict(),
@@ -105,16 +100,17 @@ class EndpointHandler:
             .select_from(PublicationActTable)
             .filter(PublicationActTable.Environment_UUID == self._object_in.Environment_UUID)
             .filter(PublicationActTable.Document_Type == self._object_in.Document_Type.value)
-            .filter(PublicationActTable.Procedure_Type == self._object_in.Procedure_Type.value)
+            .filter(
+                or_(
+                    PublicationActTable.Procedure_Type == ProcedureType.FINAL,
+                    PublicationActTable.Procedure_Type == None,
+                ).self_group()
+            )
         )
         count: int = self._db.execute(stmt).scalar() + 1
         id_suffix: str = f"{count}"
 
-        draft_prefix: str = ""
-        if self._object_in.Procedure_Type == ProcedureType.DRAFT:
-            draft_prefix = "ontwerp-"
-
-        work_other: str = f"{draft_prefix}{self._object_in.Document_Type.value.lower()}-{id_suffix}"
+        work_other: str = f"{self._object_in.Document_Type.value.lower()}-{id_suffix}"
         return work_other
 
 

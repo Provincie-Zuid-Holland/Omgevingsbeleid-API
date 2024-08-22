@@ -4,7 +4,8 @@ import pydantic
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.core.security import create_access_token
+from app.core.dependencies import depends_security
+from app.core.security import Security
 from app.dynamic.config.models import Model
 from app.dynamic.endpoints.endpoint import Endpoint
 from app.dynamic.models_resolver import ModelsResolver
@@ -23,8 +24,9 @@ class LoginAccessTokenEndpoint(Endpoint):
         def fastapi_handler(
             form_data: OAuth2PasswordRequestForm = Depends(),
             user_repository: UserRepository = Depends(depends_user_repository),
+            security: Security = Depends(depends_security),
         ) -> self._response_type:
-            return self._handler(user_repository, form_data)
+            return self._handler(security, user_repository, form_data)
 
         router.add_api_route(
             "/login/access-token",
@@ -38,14 +40,19 @@ class LoginAccessTokenEndpoint(Endpoint):
 
         return router
 
-    def _handler(self, user_repository: UserRepository, form_data: OAuth2PasswordRequestForm):
+    def _handler(
+        self,
+        security: Security,
+        user_repository: UserRepository,
+        form_data: OAuth2PasswordRequestForm,
+    ):
         user: Optional[UsersTable] = user_repository.authenticate(form_data.username, form_data.password)
         if not user:
             raise HTTPException(status_code=401, detail="Incorrect email or password")
         elif not user.IsActive:
             raise HTTPException(status_code=401, detail="Inactive user")
 
-        access_token = create_access_token(user.UUID)
+        access_token = security.create_access_token(user.UUID)
         pydantic_user: User = User.from_orm(user)
 
         response = self._response_type.parse_obj(

@@ -7,9 +7,7 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
-from app.core.settings import Settings
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.dependencies import depends_settings
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import (
@@ -57,7 +55,6 @@ class EndpointHandler:
         self,
         db: Session,
         validator: PublicationVersionValidator,
-        settings: Settings,
         package_builder_factory: ActPackageBuilderFactory,
         user: UsersTable,
         object_in: PublicationPackageCreate,
@@ -65,7 +62,6 @@ class EndpointHandler:
     ):
         self._db: Session = db
         self._validator: PublicationVersionValidator = validator
-        self._settings: Settings = settings
         self._package_builder_factory: ActPackageBuilderFactory = package_builder_factory
         self._user: UsersTable = user
         self._object_in: PublicationPackageCreate = object_in
@@ -271,12 +267,10 @@ class CreatePublicationPackageEndpoint(Endpoint):
             ),
             package_builder_factory: ActPackageBuilderFactory = Depends(depends_act_package_builder_factory),
             db: Session = Depends(depends_db),
-            settings: Settings = Depends(depends_settings),
         ) -> PublicationPackageCreatedResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 publication_version_validator,
-                settings,
                 package_builder_factory,
                 user,
                 object_in,

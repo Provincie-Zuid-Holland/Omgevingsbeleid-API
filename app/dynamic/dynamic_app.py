@@ -1,14 +1,16 @@
 from copy import deepcopy
 from os import listdir
 from os.path import isfile, join
-from typing import Dict, List
+from typing import Dict, List, Optional, Type
 
 import click
 import yaml
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import JSONResponse
+from pydantic import BaseSettings
 
 import app.dynamic.serializers as serializers
+from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
@@ -74,6 +76,8 @@ class DynamicAppBuilder:
         self._config_objects.append(config)
 
     def build(self) -> DynamicApp:
+        dynamic_settings: DynamicSettings = self._build_settings()
+
         fastapi_app: FastAPI = FastAPI(
             title="Dynamic APP",
             openapi_url="/openapi.json",
@@ -195,11 +199,23 @@ class DynamicAppBuilder:
 
         # Bring some readonly services to the global scope
         fastapi_app.state.event_listeners = self._service_container.event_listeners
+        fastapi_app.state.settings = dynamic_settings
 
         return DynamicApp(
             fastapi_app=fastapi_app,
             commands=self._service_container.main_command_group,
         )
+
+    def _build_settings(self) -> DynamicSettings:
+        settings_classes = []
+        for extension in self._extensions:
+            settings_class: Optional[Type[BaseSettings]] = extension.extend_settings()
+            if settings_class is None:
+                continue
+            settings_classes.append(settings_class)
+
+        settings: DynamicSettings = create_dynamic_settings(settings_classes)
+        return settings
 
     def _build_config_intermediate(self, config: dict):
         id = config.get("id")

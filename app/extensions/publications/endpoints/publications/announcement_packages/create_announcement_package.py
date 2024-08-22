@@ -6,9 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
-from app.core.settings import Settings
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.dependencies import depends_settings
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import (
@@ -53,14 +51,12 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
-        settings: Settings,
         package_builder_factory: AnnouncementPackageBuilderFactory,
         user: UsersTable,
         object_in: PublicationAnnouncementPackageCreate,
         announcement: PublicationAnnouncementTable,
     ):
         self._db: Session = db
-        self._settings: Settings = settings
         self._package_builder_factory: AnnouncementPackageBuilderFactory = package_builder_factory
         self._user: UsersTable = user
         self._object_in: PublicationAnnouncementPackageCreate = object_in
@@ -223,11 +219,9 @@ class CreatePublicationAnnouncementPackageEndpoint(Endpoint):
                 depends_announcement_package_builder_factory
             ),
             db: Session = Depends(depends_db),
-            settings: Settings = Depends(depends_settings),
         ) -> PublicationAnnouncementPackageCreatedResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
-                settings,
                 package_builder_factory,
                 user,
                 object_in,
