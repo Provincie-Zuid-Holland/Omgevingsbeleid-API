@@ -980,7 +980,6 @@ publication:
           - omgevingsrecht
       # @see: class BillCompact
       bill_compact:
-        Component_Name: nieuweregeling
         Preamble: |
           <p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>
         Closing: |
@@ -1028,7 +1027,6 @@ publication:
           - omgevingsrecht
       # @see: class BillCompact
       bill_compact:
-        Component_Name: nieuweregeling
         Preamble: |
           <p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>
         Closing: |
@@ -1074,7 +1072,6 @@ publication:
         Jurisdictions:
           - omgevingsrecht
       bill_compact:
-        Component_Name: nieuweregeling
         Preamble: |
           <p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>
         Closing: |
@@ -1120,7 +1117,6 @@ publication:
         Jurisdictions:
           - omgevingsrecht
       bill_compact:
-        Component_Name: nieuweregeling
         Preamble: |
           <p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>
         Closing: |

@@ -182,7 +182,6 @@ MotivationClass = Motivation
 
 
 class BillCompact(BaseModel):
-    Component_Name: str = Field("")
     Preamble: str = Field("")
     Closing: str = Field("")
     Signed: str = Field("")

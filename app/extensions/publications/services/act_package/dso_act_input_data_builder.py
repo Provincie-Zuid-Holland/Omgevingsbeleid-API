@@ -112,7 +112,7 @@ class DsoActInputDataBuilder:
             datum_bekendmaking=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
             provincie_id=self._environment.Province_ID,
             soort_bestuursorgaan=self._get_soort_bestuursorgaan(),
-            regeling_componentnaam=self._publication_version.Bill_Compact["Component_Name"],
+            regeling_componentnaam=self._get_componentnaam(),
             provincie_ref=f"/tooi/id/provincie/{self._environment.Province_ID}",
             opdracht={
                 "opdracht_type": dso_opdracht_type,
@@ -395,16 +395,33 @@ class DsoActInputDataBuilder:
             Expression_Date=self._act_mutation.Consolidated_Act_Frbr.Expression_Date,
             Expression_Version=self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
         )
-        result = dso_models.RegelingMutatie(
+        # result = dso_models.VervangRegelingMutatie(
+        #     was_regeling_frbr=frbr,
+        #     was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
+        # )
+        result = dso_models.RenvooiRegelingMutatie(
             was_regeling_frbr=frbr,
             was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
             bekend_wid_map=self._act_mutation.Known_Wid_Map,
             bekend_wids=self._act_mutation.Known_Wids,
-            # @todo: strategy="vervang-regeling"
-            # strategy="renvooi",
             renvooi_api_key=renvooi.RENVOOI_API_KEY,
+            renvooi_api_url=renvooi.RENVOOI_API_URL,
         )
         return result
+
+    def _get_componentnaam(self) -> str:
+        if self._act_mutation is None:
+            return "nieuweregeling"
+
+        key: str = "_".join(
+            [
+                self._act_frbr.Work_Province_ID,
+                self._act_frbr.Work_Other,
+                self._act_frbr.Expression_Version,
+                self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
+            ]
+        )
+        return key
 
     def _get_ow_data(self) -> dso_models.OwData:
         # @todo

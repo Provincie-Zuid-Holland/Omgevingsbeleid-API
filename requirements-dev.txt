@@ -47,7 +47,7 @@ executing==2.0.1
     # via
     #   devtools
     #   stack-data
-faker==26.1.0
+faker==28.0.0
     # via -r requirements-dev.in
 flake8==7.1.1
     # via -r requirements-dev.in
@@ -55,7 +55,7 @@ freezegun==1.5.1
     # via -r requirements-dev.in
 greenlet==3.0.3
     # via sqlalchemy
-idna==3.7
+idna==3.8
     # via requests
 iniconfig==2.0.0
     # via pytest
@@ -81,7 +81,7 @@ mccabe==0.7.0
     #   pylint
 mdurl==0.1.2
     # via markdown-it-py
-mypy==1.11.1
+mypy==1.11.2
     # via
     #   -r requirements-dev.in
     #   sqlalchemy
@@ -139,7 +139,7 @@ python-dateutil==2.9.0.post0
     # via
     #   faker
     #   freezegun
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via bandit
 requests==2.32.3
     # via requests-mock
@@ -157,7 +157,7 @@ sqlalchemy[mypy]==2.0.32
     #   alembic
 stack-data==0.6.3
     # via ipython
-stevedore==5.2.0
+stevedore==5.3.0
     # via bandit
 tomli==2.0.1
     # via
@@ -168,7 +168,7 @@ tomli==2.0.1
     #   pylint
     #   pytest
     #   vulture
-tomlkit==0.13.0
+tomlkit==0.13.2
     # via pylint
 traitlets==5.14.3
     # via
