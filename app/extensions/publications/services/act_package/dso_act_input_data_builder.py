@@ -395,10 +395,12 @@ class DsoActInputDataBuilder:
             Expression_Date=self._act_mutation.Consolidated_Act_Frbr.Expression_Date,
             Expression_Version=self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
         )
+
+        # @note: Example for VervangRegeling
         # result = dso_models.VervangRegelingMutatie(
         #     was_regeling_frbr=frbr,
-        #     was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
         # )
+
         result = dso_models.RenvooiRegelingMutatie(
             was_regeling_frbr=frbr,
             was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
