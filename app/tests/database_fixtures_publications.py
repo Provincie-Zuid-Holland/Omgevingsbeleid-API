@@ -549,7 +549,6 @@ class DatabaseFixturesPublications:
                     )
                 ).dict(),
                 Bill_Compact=BillCompact(
-                    Component_Name="nieuweregeling",
                     Preamble="<p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>",
                     Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
                     Signed="<p>Gedeputeerde Staten</p>",
@@ -593,7 +592,6 @@ class DatabaseFixturesPublications:
                     )
                 ).dict(),
                 Bill_Compact=BillCompact(
-                    Component_Name="nieuweregeling",
                     Preamble="<p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>",
                     Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
                     Signed="<p>Gedeputeerde Staten</p>",
@@ -637,7 +635,6 @@ class DatabaseFixturesPublications:
                     )
                 ).dict(),
                 Bill_Compact=BillCompact(
-                    Component_Name="nieuweregeling",
                     Preamble="<p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>",
                     Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
                     Signed="<p>Gedeputeerde Staten</p>",
@@ -681,7 +678,6 @@ class DatabaseFixturesPublications:
                     )
                 ).dict(),
                 Bill_Compact=BillCompact(
-                    Component_Name="nieuweregeling",
                     Preamble="<p>Ontwerp Omgevingsvisie Provincie Zuid-Holland.</p>",
                     Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
                     Signed="<p>Gedeputeerde Staten</p>",

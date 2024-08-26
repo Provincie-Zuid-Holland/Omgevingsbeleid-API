@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from typing import List
 
+from dso.exceptions import RenvooiError
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
@@ -131,9 +132,11 @@ class EndpointHandler:
             # This is already correctly formatted
             raise e
         except ValidationError as e:
-            raise HTTPException(status_code=409, detail=e.errors())
+            raise HTTPException(status_code=441, detail=e.errors())
         except DSOConfigurationException as e:
-            raise HTTPException(status_code=409, detail=e.message)
+            raise HTTPException(status_code=442, detail=e.message)
+        except RenvooiError as e:
+            raise HTTPException(status_code=443, detail=e.msg)
         except Exception as e:
             # We do not know what to except here
             # This will result in a 500 server error
