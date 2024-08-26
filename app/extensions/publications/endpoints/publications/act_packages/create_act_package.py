@@ -2,9 +2,7 @@ import uuid
 from datetime import datetime
 from typing import List
 
-from dso.act_builder.services.aanlevering_besluit.besluit_versie.besluit_compact.renvooi.renvooi_errors import (
-    RenvooiError,
-)
+from dso.exceptions import RenvooiError
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
