@@ -7,6 +7,7 @@ from pydantic import BaseSettings, validator
 class CoreSettings(BaseSettings):
     PROJECT_VERSION: str = "3.0-alpha"
     DEBUG_MODE: bool = False
+    LOCAL_DEVELOPMENT_MODE: bool = False
 
     PROJECT_NAME: str = "Omgevingsbeleid API"
     PROJECT_DESC: str = """
