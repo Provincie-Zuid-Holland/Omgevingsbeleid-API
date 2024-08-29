@@ -417,12 +417,12 @@ class DsoActInputDataBuilder:
 
         key: str = "_".join(
             [
-                self._act_frbr.Work_Province_ID,
-                self._act_frbr.Work_Other,
+                str(self._act_frbr.Work_Province_ID),
+                str(self._act_frbr.Work_Other),
                 str(self._act_frbr.Expression_Version),
                 str(self._act_mutation.Consolidated_Act_Frbr.Expression_Version),
             ]
-        )
+        ).replace("-", "_")
         return key
 
     def _get_ow_data(self) -> dso_models.OwData:
