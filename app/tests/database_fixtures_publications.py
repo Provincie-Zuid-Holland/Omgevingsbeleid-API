@@ -367,7 +367,7 @@ class DatabaseFixturesPublications:
         self._db.add(
             PublicationAreaOfJurisdictionTable(
                 UUID=uuid.UUID("90000004-0000-0000-0000-000000000001"),
-                Administrative_Borders_ID="002000000000000000009928",
+                Administrative_Borders_ID="PV28",
                 Administrative_Borders_Domain="NL.BI.BestuurlijkGebied",
                 Administrative_Borders_Date=datetime.strptime("2023-09-29", "%Y-%m-%d").date(),
                 Created_Date=self._timepoint,
