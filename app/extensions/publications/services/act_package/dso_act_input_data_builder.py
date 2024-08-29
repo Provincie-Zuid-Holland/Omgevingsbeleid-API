@@ -419,8 +419,8 @@ class DsoActInputDataBuilder:
             [
                 self._act_frbr.Work_Province_ID,
                 self._act_frbr.Work_Other,
-                self._act_frbr.Expression_Version,
-                self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
+                str(self._act_frbr.Expression_Version),
+                str(self._act_mutation.Consolidated_Act_Frbr.Expression_Version),
             ]
         )
         return key
