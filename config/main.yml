@@ -342,6 +342,9 @@ api:
     - prefix: /publication-versions/{version_uuid}/packages
       endpoints:
         - resolver: create_publication_act_package
+    - prefix: /publication-versions/{version_uuid}/pdf_export
+      endpoints:
+        - resolver: create_publication_act_pdf
     - prefix: /publication-act-packages
       endpoints:
         - resolver: list_publication_act_packages

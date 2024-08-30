@@ -4,7 +4,7 @@ from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 from sqlalchemy.orm import Session
 
 from app.core.settings.dynamic_settings import DynamicSettings
-from app.extensions.publications.enums import PackageType, PurposeType
+from app.extensions.publications.enums import MutationStrategy, PackageType, PurposeType
 from app.extensions.publications.exceptions import DSOConfigurationException
 from app.extensions.publications.models.api_input_data import ApiActInputData, OwData, PublicationData, Purpose
 from app.extensions.publications.services.act_frbr_provider import ActFrbr, ActFrbrProvider
@@ -42,6 +42,7 @@ class ActPackageBuilderFactory:
         self,
         publication_version: PublicationVersionTable,
         package_type: PackageType,
+        mutation_strategy: MutationStrategy,
     ) -> ActPackageBuilder:
         publication: PublicationTable = publication_version.Publication
         act: PublicationActTable = publication.Act
@@ -68,6 +69,7 @@ class ActPackageBuilderFactory:
             Publication_Version=publication_version,
             Act_Mutation=None,
             Ow_Data=OwData(),
+            Mutation_Strategy=mutation_strategy,
         )
 
         state: Optional[ActiveState] = self._state_loader.load_from_publication_version(publication_version)

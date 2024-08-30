@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Any, Dict, List, Optional
 
-from app.extensions.publications.enums import PackageType, PurposeType
+from app.extensions.publications.enums import MutationStrategy, PackageType, PurposeType
 from app.extensions.publications.models.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
 from app.extensions.publications.tables.tables import PublicationAnnouncementTable, PublicationVersionTable
 
@@ -122,6 +122,7 @@ class ApiActInputData:
     Publication_Version: PublicationVersionTable
     Act_Mutation: Optional[ActMutation]
     Ow_Data: OwData
+    Mutation_Strategy: MutationStrategy
 
 
 @dataclass

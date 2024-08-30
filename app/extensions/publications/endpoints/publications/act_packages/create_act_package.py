@@ -16,7 +16,7 @@ from app.extensions.publications.dependencies import (
     depends_publication_version,
     depends_publication_version_validator,
 )
-from app.extensions.publications.enums import PackageType, ReportStatusType
+from app.extensions.publications.enums import MutationStrategy, PackageType, ReportStatusType
 from app.extensions.publications.exceptions import DSOConfigurationException
 from app.extensions.publications.models.api_input_data import Purpose
 from app.extensions.publications.permissions import PublicationsPermissions
@@ -81,6 +81,7 @@ class EndpointHandler:
             package_builder: ActPackageBuilder = self._package_builder_factory.create_builder(
                 self._publication_version,
                 self._object_in.Package_Type,
+                MutationStrategy.RENVOOI,
             )
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()

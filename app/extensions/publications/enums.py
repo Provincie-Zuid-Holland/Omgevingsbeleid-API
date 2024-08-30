@@ -26,3 +26,8 @@ class ReportStatusType(str, Enum):
     PENDING = "pending"
     VALID = "valid"
     FAILED = "failed"
+
+
+class MutationStrategy(str, Enum):
+    RENVOOI = "renvooi"
+    REPLACE = "replace"

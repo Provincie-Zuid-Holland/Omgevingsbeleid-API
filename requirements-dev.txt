@@ -18,7 +18,7 @@ bandit==1.7.9
     # via -r requirements-dev.in
 black==24.8.0
     # via -r requirements-dev.in
-certifi==2024.7.4
+certifi==2024.8.30
     # via requests
 charset-normalizer==3.3.2
     # via requests
@@ -97,7 +97,7 @@ parso==0.8.4
     # via jedi
 pathspec==0.12.1
     # via black
-pbr==6.0.0
+pbr==6.1.0
     # via stevedore
 pexpect==4.9.0
     # via ipython
@@ -145,7 +145,7 @@ requests==2.32.3
     # via requests-mock
 requests-mock==1.12.1
     # via -r requirements-dev.in
-rich==13.7.1
+rich==13.8.0
     # via bandit
 six==1.16.0
     # via

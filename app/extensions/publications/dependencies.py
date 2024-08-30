@@ -45,6 +45,7 @@ from app.extensions.publications.services.assets.asset_remove_transparency impor
 from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.extensions.publications.services.bill_frbr_provider import BillFrbrProvider
 from app.extensions.publications.services.doc_frbr_provider import DocFrbrProvider
+from app.extensions.publications.services.pdf_export_service import PdfExportService
 from app.extensions.publications.services.publication_announcement_defaults_provider import (
     PublicationAnnouncementDefaultsProvider,
 )
@@ -447,3 +448,9 @@ def depends_publication_version_attachment_repository(
 
 def depends_publication_version_validator() -> PublicationVersionValidator:
     return PublicationVersionValidator()
+
+
+def depends_pdf_export_service(
+    settings: DynamicSettings = Depends(depends_settings),
+) -> PdfExportService:
+    return PdfExportService(settings)
