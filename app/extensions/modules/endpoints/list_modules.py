@@ -7,7 +7,7 @@ from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.dependencies import FilterObjectCode, depends_filter_object_code, depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import PagedResponse, SimplePagination, SortedPagination
+from app.dynamic.utils.pagination import PagedResponse, PaginatedQueryResult, SimplePagination, SortedPagination
 from app.extensions.modules.dependencies import depends_module_repository
 from app.extensions.modules.models import Module
 from app.extensions.modules.repository.module_repository import ModuleRepository
@@ -21,14 +21,27 @@ class ListModulesEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            only_mine: bool = True,
-            only_active: bool = True,
+            only_mine: bool = False,
+            filter_activated: Optional[bool] = None,
+            filter_closed: Optional[bool] = None,
+            filter_successful: Optional[bool] = None,
+            filter_title: Optional[str] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             user: UsersTable = Depends(depends_current_active_user),
             module_repository: ModuleRepository = Depends(depends_module_repository),
             object_code: Optional[FilterObjectCode] = Depends(depends_filter_object_code),
         ) -> PagedResponse[Module]:
-            return self._handler(module_repository, user, only_mine, only_active, object_code, pagination)
+            return self._handler(
+                module_repository,
+                user,
+                only_mine,
+                filter_activated,
+                filter_closed,
+                filter_successful,
+                filter_title,
+                object_code,
+                pagination,
+            )
 
         router.add_api_route(
             self._path,
@@ -47,16 +60,22 @@ class ListModulesEndpoint(Endpoint):
         module_repository: ModuleRepository,
         user: UsersTable,
         only_mine: bool,
-        only_active: bool,
+        filter_activated: Optional[bool],
+        filter_closed: Optional[bool],
+        filter_successful: Optional[bool],
+        filter_title: Optional[str],
         object_code: Optional[FilterObjectCode],
         pagination: SortedPagination,
     ):
         filter_on_me: Optional[UUID] = None
-        if only_mine:
+        if only_mine is not None:
             filter_on_me = user.UUID
 
-        paginated_result = module_repository.get_with_filters(
-            only_active=only_active,
+        paginated_result: PaginatedQueryResult = module_repository.get_with_filters(
+            filter_activated=filter_activated,
+            filter_closed=filter_closed,
+            filter_successful=filter_successful,
+            filter_title=filter_title,
             mine=filter_on_me,
             object_code=object_code,
             offset=pagination.offset,
