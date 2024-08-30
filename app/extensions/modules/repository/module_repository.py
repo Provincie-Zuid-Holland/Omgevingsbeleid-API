@@ -1,6 +1,8 @@
+from enum import Enum
 from typing import Optional
 from uuid import UUID
 
+from pydantic import BaseModel
 from sqlalchemy import and_, desc, or_, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
@@ -12,6 +14,20 @@ from app.dynamic.utils.pagination import PaginatedQueryResult, SimplePagination,
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.models.models import PublicModuleStatusCode
+
+
+class ModuleSortColumn(str, Enum):
+    Created_Date = "Created_Date"
+    Modified_Date = "Modified_Date"
+
+
+class ModuleSort(BaseModel):
+    column: ModuleSortColumn
+    order: SortOrder
+
+
+class ModuleSortedPagination(SimplePagination):
+    sort: ModuleSort
 
 
 class ModuleRepository(BaseRepository):
@@ -74,14 +90,13 @@ class ModuleRepository(BaseRepository):
 
     def get_with_filters(
         self,
+        pagination: ModuleSortedPagination,
         filter_activated: Optional[bool] = None,
         filter_closed: Optional[bool] = None,
         filter_successful: Optional[bool] = None,
         filter_title: Optional[str] = None,
         mine: Optional[UUID] = None,
         object_code: Optional[FilterObjectCode] = None,
-        offset: int = 0,
-        limit: int = 20,
     ) -> PaginatedQueryResult:
         stmt = self.get_filtered_query(
             filter_activated,
@@ -93,9 +108,9 @@ class ModuleRepository(BaseRepository):
         )
         paged_result = self.fetch_paginated(
             statement=stmt,
-            offset=offset,
-            limit=limit,
-            sort=(ModuleTable.Created_Date, SortOrder.DESC),
+            offset=pagination.offset,
+            limit=pagination.limit,
+            sort=(getattr(ModuleTable, pagination.sort.column), pagination.sort.order),
         )
         return paged_result
 

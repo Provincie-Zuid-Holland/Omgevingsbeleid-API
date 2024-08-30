@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 from app.dynamic.dependencies import depends_object_repository
 from app.dynamic.repository.object_repository import ObjectRepository
+from app.dynamic.utils.pagination import SortOrder
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.models import Module
@@ -16,6 +17,7 @@ from app.extensions.modules.repository import (
     ModuleRepository,
     ModuleStatusRepository,
 )
+from app.extensions.modules.repository.module_repository import ModuleSort, ModuleSortColumn, ModuleSortedPagination
 from app.extensions.modules.repository.object_provider import ObjectProvider
 
 
@@ -165,3 +167,24 @@ def depends_object_provider(
         module_object_repository,
     )
     return object_provider
+
+
+def depends_module_sorted_pagination_curried(default_column: ModuleSortColumn, default_order: SortOrder) -> Callable:
+    def depends_module_sorted_pagination_inner(
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
+        sort_column: Optional[ModuleSortColumn] = None,
+        sort_order: Optional[SortOrder] = None,
+    ) -> ModuleSortedPagination:
+        column: ModuleSortColumn = sort_column or default_column
+        order: SortOrder = sort_order or default_order
+        module_sort = ModuleSort(column=column, order=order)
+
+        pagination: ModuleSortedPagination = ModuleSortedPagination(
+            offset=offset,
+            limit=limit,
+            sort=module_sort,
+        )
+        return pagination
+
+    return depends_module_sorted_pagination_inner
