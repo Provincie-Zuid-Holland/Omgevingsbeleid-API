@@ -2,6 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
+from sqlalchemy.orm import selectinload
 
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult, SortOrder
@@ -23,7 +24,9 @@ class PublicationVersionRepository(BaseRepository):
         if publication_uuid is not None:
             filters.append(and_(PublicationVersionTable.Publication_UUID == publication_uuid))
 
-        stmt = select(PublicationVersionTable).filter(*filters)
+        stmt = (
+            select(PublicationVersionTable).filter(*filters).options(selectinload(PublicationVersionTable.Act_Packages))
+        )
 
         paged_result = self.fetch_paginated(
             statement=stmt,

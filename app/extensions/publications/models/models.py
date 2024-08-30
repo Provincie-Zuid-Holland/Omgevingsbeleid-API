@@ -306,6 +306,23 @@ class PublicationVersion(BaseModel):
         orm_mode = True
 
 
+class PublicationPackageShort(BaseModel):
+    UUID: uuid.UUID
+
+    Package_Type: str
+    Report_Status: str
+    Delivery_ID: str
+
+    Created_Date: datetime
+    Modified_Date: datetime
+    Created_By_UUID: uuid.UUID
+    Modified_By_UUID: uuid.UUID
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+
 class PublicationVersionShort(BaseModel):
     UUID: uuid.UUID
 
@@ -320,6 +337,8 @@ class PublicationVersionShort(BaseModel):
 
     Created_Date: datetime
     Modified_Date: datetime
+
+    Act_Packages: List[PublicationPackageShort]
 
     class Config:
         orm_mode = True
@@ -380,23 +399,6 @@ class PublicationPackage(BaseModel):
     Modified_By_UUID: uuid.UUID
 
     Zip: PackageZipShort
-
-    class Config:
-        orm_mode = True
-        arbitrary_types_allowed = True
-
-
-class PublicationPackageShort(BaseModel):
-    UUID: uuid.UUID
-
-    Package_Type: str
-    Report_Status: str
-    Delivery_ID: str
-
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
 
     class Config:
         orm_mode = True

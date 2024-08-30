@@ -1,5 +1,7 @@
 from typing import List
 
+from dso.services.ow.imow_waardelijsten import NON_ALLOWED_DOCUMENT_TYPE_MAPPING
+from dso.services.ow.imow_waardelijsten import TypeGebiedsaanwijzingEnum as AreaDesignationTypes
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -7,10 +9,6 @@ from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.enums import DocumentType
-from dso.services.ow.imow_waardelijsten import (
-    TypeGebiedsaanwijzingEnum as AreaDesignationTypes,
-    NON_ALLOWED_DOCUMENT_TYPE_MAPPING,
-)
 
 
 class AreaDesignationValueList(BaseModel):
