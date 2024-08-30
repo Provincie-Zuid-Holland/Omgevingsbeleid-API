@@ -5,6 +5,8 @@ from .acts import (
     ListPublicationActsEndpointResolver,
 )
 from .area_of_jurisdictions import CreatePublicationAOJEndpointResolver, ListPublicationAOJEndpointResolver
+from .dso_value_lists.area_designation_groups import ListAreaDesignationGroupsEndpointResolver
+from .dso_value_lists.area_designation_types import ListAreaDesignationTypesEndpointResolver
 from .environments import (
     CreatePublicationEnvironmentEndpointResolver,
     EditPublicationEnvironmentEndpointResolver,
@@ -57,5 +59,3 @@ from .templates import (
     EditPublicationTemplateEndpointResolver,
     ListPublicationTemplatesEndpointResolver,
 )
-from .dso_value_lists.area_designation_types import ListAreaDesignationTypesEndpointResolver
-from .dso_value_lists.area_designation_groups import ListAreaDesignationGroupsEndpointResolver
