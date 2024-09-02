@@ -43,11 +43,11 @@ exceptiongroup==1.2.2
     # via
     #   ipython
     #   pytest
-executing==2.0.1
+executing==2.1.0
     # via
     #   devtools
     #   stack-data
-faker==28.0.0
+faker==28.1.0
     # via -r requirements-dev.in
 flake8==7.1.1
     # via -r requirements-dev.in
@@ -59,7 +59,7 @@ idna==3.8
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==8.26.0
+ipython==8.27.0
     # via -r requirements-dev.in
 isort==5.13.2
     # via
@@ -124,7 +124,7 @@ pygments==2.18.0
     #   devtools
     #   ipython
     #   rich
-pylint==3.2.6
+pylint==3.2.7
     # via -r requirements-dev.in
 pytest==8.3.2
     # via
