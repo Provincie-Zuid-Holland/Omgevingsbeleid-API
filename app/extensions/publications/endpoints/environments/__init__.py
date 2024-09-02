@@ -1,3 +1,4 @@
 from .create_environment import CreatePublicationEnvironmentEndpointResolver
+from .detail_environment import DetailPublicationEnvironmentEndpointResolver
 from .edit_environment import EditPublicationEnvironmentEndpointResolver
 from .list_environments import ListPublicationEnvironmentsEndpointResolver

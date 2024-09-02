@@ -31,6 +31,7 @@ class PublicationsExtension(Extension):
             endpoints.DetailPublicationTemplateEndpointResolver(),
             # Environment
             endpoints.CreatePublicationEnvironmentEndpointResolver(),
+            endpoints.DetailPublicationEnvironmentEndpointResolver(),
             endpoints.EditPublicationEnvironmentEndpointResolver(),
             endpoints.ListPublicationEnvironmentsEndpointResolver(),
             # Area of jurisdictions

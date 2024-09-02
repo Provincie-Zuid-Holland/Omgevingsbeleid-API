@@ -309,6 +309,9 @@ api:
         - resolver: edit_publication_environment
           resolver_data:
             path: /{environment_uuid}
+        - resolver: detail_publication_environment
+          resolver_data:
+            path: /{environment_uuid}
         - resolver: list_publication_environments
     - prefix: /publication-environments
       endpoints:
