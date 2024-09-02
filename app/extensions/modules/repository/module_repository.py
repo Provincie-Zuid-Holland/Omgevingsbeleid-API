@@ -1,6 +1,8 @@
+from enum import Enum
 from typing import Optional
 from uuid import UUID
 
+from pydantic import BaseModel
 from sqlalchemy import and_, desc, or_, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, or_
@@ -8,10 +10,24 @@ from sqlalchemy.sql import and_, func, or_
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.dependencies import FilterObjectCode
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import PaginatedQueryResult, SimplePagination
+from app.dynamic.utils.pagination import PaginatedQueryResult, SimplePagination, SortOrder
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
 from app.extensions.modules.models.models import PublicModuleStatusCode
+
+
+class ModuleSortColumn(str, Enum):
+    Created_Date = "Created_Date"
+    Modified_Date = "Modified_Date"
+
+
+class ModuleSort(BaseModel):
+    column: ModuleSortColumn
+    order: SortOrder
+
+
+class ModuleSortedPagination(SimplePagination):
+    sort: ModuleSort
 
 
 class ModuleRepository(BaseRepository):
@@ -21,13 +37,22 @@ class ModuleRepository(BaseRepository):
 
     def get_filtered_query(
         self,
-        only_active: bool,
+        filter_activated: Optional[bool],
+        filter_closed: Optional[bool],
+        filter_successful: Optional[bool],
+        filter_title: Optional[str],
         mine: Optional[UUID],
         object_code: Optional[FilterObjectCode],
     ):
         filters = []
-        if only_active:
-            filters.append(and_(ModuleTable.Closed == False))
+        if filter_activated is not None:
+            filters.append(and_(ModuleTable.Activated == filter_activated))
+        if filter_closed is not None:
+            filters.append(and_(ModuleTable.Closed == filter_closed))
+        if filter_successful is not None:
+            filters.append(and_(ModuleTable.Successful == filter_successful))
+        if filter_title is not None:
+            filters.append(and_(ModuleTable.Title.like(filter_title)))
 
         if mine is not None:
             filters.append(
@@ -65,15 +90,27 @@ class ModuleRepository(BaseRepository):
 
     def get_with_filters(
         self,
-        only_active: bool,
-        mine: Optional[UUID],
-        object_code: Optional[FilterObjectCode],
-        offset: int = 0,
-        limit: int = 20,
+        pagination: ModuleSortedPagination,
+        filter_activated: Optional[bool] = None,
+        filter_closed: Optional[bool] = None,
+        filter_successful: Optional[bool] = None,
+        filter_title: Optional[str] = None,
+        mine: Optional[UUID] = None,
+        object_code: Optional[FilterObjectCode] = None,
     ) -> PaginatedQueryResult:
-        stmt = self.get_filtered_query(only_active, mine, object_code)
+        stmt = self.get_filtered_query(
+            filter_activated,
+            filter_closed,
+            filter_successful,
+            filter_title,
+            mine,
+            object_code,
+        )
         paged_result = self.fetch_paginated(
-            statement=stmt, offset=offset, limit=limit, sort=(ModuleTable.Modified_Date, "desc")
+            statement=stmt,
+            offset=pagination.offset,
+            limit=pagination.limit,
+            sort=(getattr(ModuleTable, pagination.sort.column), pagination.sort.order),
         )
         return paged_result
 
