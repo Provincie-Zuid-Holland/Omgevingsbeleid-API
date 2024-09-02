@@ -264,6 +264,10 @@ class PublicationVersionTable(Base, UserMetaData):
         back_populates="Publication_Version", order_by="asc(PublicationVersionAttachmentTable.ID)"
     )
 
+    Act_Packages: Mapped[List["PublicationActPackageTable"]] = relationship(
+        back_populates="Publication_Version", order_by="asc(PublicationActPackageTable.Created_Date)"
+    )
+
 
 class PublicationVersionAttachmentTable(Base, UserMetaData):
     __tablename__ = "publication_version_attachments"
