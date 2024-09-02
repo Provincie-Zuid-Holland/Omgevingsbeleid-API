@@ -43,6 +43,9 @@ class OwData(BaseModel):
     Ow_Objects: Dict[str, Any] = Field({}, alias="ow_objects")
     Terminated_Ow_Ids: List[str] = Field([], alias="terminated_ow_ids")
 
+    class Config:
+        allow_population_by_field_name = True
+
 
 class ActiveAct(BaseModel):
     Act_Frbr: Frbr
