@@ -59,9 +59,6 @@ class CoreSettings(BaseSettings):
     DSO_MODULE_DEBUG_EXPORT: bool = False
     DSO_MODULE_DEBUG_EXPORT_PATH: str = "./tmp/dso-export"
 
-    # @todo: should be moved to extension
-    # PUBLICATION_RENVOOI: Dict[str, str] = Field({})
-
     class Config:
         case_sensitive = True
         env_file = ".env"

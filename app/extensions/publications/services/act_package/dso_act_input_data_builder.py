@@ -21,7 +21,7 @@ from dso.act_builder.state_manager.input_data.resource.werkingsgebied.werkingsge
 )
 
 from app.core.settings.dynamic_settings import DynamicSettings
-from app.extensions.publications.enums import DocumentType, PackageType, ProcedureType
+from app.extensions.publications.enums import DocumentType, MutationStrategy, PackageType, ProcedureType
 from app.extensions.publications.models.api_input_data import (
     ActFrbr,
     ActMutation,
@@ -31,7 +31,7 @@ from app.extensions.publications.models.api_input_data import (
     PublicationData,
     Purpose,
 )
-from app.extensions.publications.settings import RenvooiSettings
+from app.extensions.publications.settings import KoopSettings
 from app.extensions.publications.tables.tables import (
     PublicationActTable,
     PublicationEnvironmentTable,
@@ -87,6 +87,7 @@ class DsoActInputDataBuilder:
         self._template: PublicationTemplateTable = self._publication.Template
         self._act_mutation: Optional[ActMutation] = api_input_data.Act_Mutation
         self._ow_data: OwData = api_input_data.Ow_Data
+        self._mutation_strategy: MutationStrategy = api_input_data.Mutation_Strategy
 
     def build(self) -> InputData:
         input_data: InputData = InputData(
@@ -382,7 +383,7 @@ class DsoActInputDataBuilder:
         if self._environment.Code is None:
             raise RuntimeError("Expecting Environment.Code to be set")
 
-        renvooi: Optional[RenvooiSettings] = self._settings.PUBLICATION_RENVOOI.get(self._environment.Code)
+        renvooi: Optional[KoopSettings] = self._settings.PUBLICATION_KOOP.get(self._environment.Code)
         if renvooi is None:
             raise RuntimeError("Missing runtime environment settings for this PublicationEnvironment")
 
@@ -396,20 +397,26 @@ class DsoActInputDataBuilder:
             Expression_Version=self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
         )
 
-        # @note: Example for VervangRegeling
-        # result = dso_models.VervangRegelingMutatie(
-        #     was_regeling_frbr=frbr,
-        # )
+        match self._mutation_strategy:
+            case MutationStrategy.REPLACE:
+                result = dso_models.VervangRegelingMutatie(
+                    was_regeling_frbr=frbr,
+                )
+                return result
 
-        result = dso_models.RenvooiRegelingMutatie(
-            was_regeling_frbr=frbr,
-            was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
-            bekend_wid_map=self._act_mutation.Known_Wid_Map,
-            bekend_wids=self._act_mutation.Known_Wids,
-            renvooi_api_key=renvooi.RENVOOI_API_KEY,
-            renvooi_api_url=renvooi.RENVOOI_API_URL,
-        )
-        return result
+            case MutationStrategy.RENVOOI:
+                result = dso_models.RenvooiRegelingMutatie(
+                    was_regeling_frbr=frbr,
+                    was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
+                    bekend_wid_map=self._act_mutation.Known_Wid_Map,
+                    bekend_wids=self._act_mutation.Known_Wids,
+                    renvooi_api_key=renvooi.API_KEY,
+                    renvooi_api_url=renvooi.RENVOOI_API_URL,
+                )
+                return result
+
+            case _:
+                raise NotImplementedError()
 
     def _get_componentnaam(self) -> str:
         if self._act_mutation is None:

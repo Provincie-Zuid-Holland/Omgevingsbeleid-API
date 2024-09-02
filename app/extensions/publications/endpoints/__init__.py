@@ -20,6 +20,7 @@ from .publications import (
 )
 from .publications.act_packages import (
     CreatePublicationPackageEndpointResolver,
+    CreatePublicationPdfEndpointResolver,
     DownloadPackageEndpointResolver,
     ListPublicationPackagesEndpointResolver,
 )

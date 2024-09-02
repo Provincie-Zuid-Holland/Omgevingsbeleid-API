@@ -7,7 +7,7 @@ from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 from app.core.dependencies import db_in_context_manager
 from app.extensions.areas.repository.area_repository import AreaRepository
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
-from app.extensions.publications.enums import PackageType
+from app.extensions.publications.enums import MutationStrategy, PackageType
 from app.extensions.publications.repository.publication_act_package_repository import PublicationActPackageRepository
 from app.extensions.publications.repository.publication_act_version_repository import PublicationActVersionRepository
 from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
@@ -95,7 +95,11 @@ def create_dso_json_scenario(publication_version) -> None:
             publication_data_provider=act_publication_data_provider,
         )
 
-        builder: ActPackageBuilder = package_builder_factory.create_builder(pub_version, package_type_obj)
+        builder: ActPackageBuilder = package_builder_factory.create_builder(
+            pub_version,
+            package_type_obj,
+            MutationStrategy.REPLACE,
+        )
 
     # extract the final InputData without starting the .build_publication_files() process
     dso_input_data: InputData = builder.get_input_data()

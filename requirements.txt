@@ -17,7 +17,7 @@ beautifulsoup4==4.12.3
     # via
     #   -r requirements.in
     #   dso
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   dso
     #   httpcore
@@ -58,7 +58,7 @@ httpcore==1.0.5
     # via httpx
 httptools==0.6.1
     # via uvicorn
-httpx==0.27.0
+httpx==0.27.2
     # via -r requirements.in
 idna==3.8
     # via
@@ -186,9 +186,9 @@ uvloop==0.20.0
     # via uvicorn
 validators==0.33.0
     # via -r requirements.in
-watchfiles==0.23.0
+watchfiles==0.24.0
     # via uvicorn
-websockets==13.0
+websockets==13.0.1
     # via uvicorn
 
 # The following packages are considered to be unsafe in a requirements file:
