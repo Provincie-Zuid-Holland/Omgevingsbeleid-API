@@ -9,6 +9,7 @@ from .dso_value_lists.area_designation_groups import ListAreaDesignationGroupsEn
 from .dso_value_lists.area_designation_types import ListAreaDesignationTypesEndpointResolver
 from .environments import (
     CreatePublicationEnvironmentEndpointResolver,
+    DetailPublicationEnvironmentEndpointResolver,
     EditPublicationEnvironmentEndpointResolver,
     ListPublicationEnvironmentsEndpointResolver,
 )
