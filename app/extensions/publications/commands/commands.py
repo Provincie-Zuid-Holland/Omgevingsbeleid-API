@@ -5,6 +5,7 @@ import click
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData, InputDataExporter
 
 from app.core.dependencies import db_in_context_manager
+from app.dynamic.dynamic_app import DynamicApp
 from app.extensions.areas.repository.area_repository import AreaRepository
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.publications.enums import MutationStrategy, PackageType
@@ -39,7 +40,10 @@ def write_json_file(input_data: str, filename: str) -> None:
 
 @click.command()
 @click.option("--publication_version", default=None, help="Publication version")
-def create_dso_json_scenario(publication_version) -> None:
+@click.pass_obj
+def create_dso_json_scenario(dynamic_app: DynamicApp, publication_version) -> None:
+    app_settings = dynamic_app.get_app_settings()
+
     if not publication_version:
         publication_version = click.prompt("Please enter the publication_version UUID:", type=str)
 
@@ -63,7 +67,13 @@ def create_dso_json_scenario(publication_version) -> None:
         state_v2_upgrader = StateV2Upgrader(
             PublicationActVersionRepository(db),
             PublicationActPackageRepository(db),
-            ActPublicationDataProvider(db),
+            ActPublicationDataProvider(
+                publication_object_repository=PublicationObjectRepository(db),
+                publication_asset_provider=PublicationAssetProvider(AssetRepository(db), AssetRemoveTransparency()),
+                publication_werkingsgebieden_provider=PublicationWerkingsgebiedenProvider(AreaRepository(db)),
+                publication_aoj_repository=PublicationAOJRepository(db),
+                template_parser=TemplateParser(),
+            ),
         )
         state_version_factory = StateVersionFactory(
             versions=[
@@ -88,6 +98,7 @@ def create_dso_json_scenario(publication_version) -> None:
 
         package_builder_factory = ActPackageBuilderFactory(
             db=db,
+            settings=app_settings,
             bill_frbr_provider=BillFrbrProvider(db),
             act_frbr_provider=ActFrbrProvider(db),
             purpose_provider=PurposeProvider(db),
@@ -98,7 +109,7 @@ def create_dso_json_scenario(publication_version) -> None:
         builder: ActPackageBuilder = package_builder_factory.create_builder(
             pub_version,
             package_type_obj,
-            MutationStrategy.REPLACE,
+            MutationStrategy.RENVOOI,
         )
 
     # extract the final InputData without starting the .build_publication_files() process

@@ -42,11 +42,14 @@ class DynamicApp:
         self._fastapi_app: FastAPI = fastapi_app
         self._commands: click.Group = commands
 
+    def get_app_settings(self) -> DynamicSettings:
+        return self._fastapi_app.state.settings
+
     def run(self):
         return self._fastapi_app
 
     def run_commands(self):
-        self._commands()
+        self._commands(obj=self)
 
 
 class DynamicAppBuilder:
