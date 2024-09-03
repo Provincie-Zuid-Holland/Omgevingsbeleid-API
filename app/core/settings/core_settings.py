@@ -21,12 +21,13 @@ class CoreSettings(BaseSettings):
 
     # Database
     SQLALCHEMY_ECHO: bool = True
-    DB_DRIVER: str = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
-    DB_HOST: str = os.getenv("DB_HOST", "mssql")
-    DB_NAME: str = os.getenv("DB_NAME", "development")
-    DB_USER: str = os.getenv("DB_USER", "SA")
-    DB_PASS: str = os.getenv("DB_PASS", "Passw0rd")
-    TEST_DB_NAME: str = os.getenv("TEST_DB_NAME", "db_test")
+    DB_DRIVER: str = "ODBC Driver 17 for SQL Server"
+    DB_HOST: str
+    DB_NAME: str
+    DB_USER: str
+    DB_PASS: str
+    DB_PORT: int = 1433
+    TEST_DB_NAME: str = "test_db"
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
     SQLALCHEMY_TEST_DATABASE_URI: Optional[str] = None
