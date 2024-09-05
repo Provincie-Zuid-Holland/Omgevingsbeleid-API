@@ -77,7 +77,7 @@ class ListModulesEndpoint(Endpoint):
         pagination: ModuleSortedPagination,
     ):
         filter_on_me: Optional[UUID] = None
-        if only_mine is not None:
+        if only_mine:
             filter_on_me = user.UUID
 
         paginated_result: PaginatedQueryResult = module_repository.get_with_filters(
