@@ -46,7 +46,7 @@ class DynamicApp:
         return self._fastapi_app
 
     def run_commands(self):
-        self._commands()
+        self._commands(obj=self._fastapi_app)
 
 
 class DynamicAppBuilder:

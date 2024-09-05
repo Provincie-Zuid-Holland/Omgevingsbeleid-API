@@ -1,7 +1,6 @@
-import os
 from typing import Any, Dict, Optional
 
-from pydantic import BaseSettings, validator
+from pydantic import BaseSettings, validator, Field
 
 
 class CoreSettings(BaseSettings):
@@ -21,12 +20,12 @@ class CoreSettings(BaseSettings):
 
     # Database
     SQLALCHEMY_ECHO: bool = True
-    DB_DRIVER: str = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
-    DB_HOST: str = os.getenv("DB_HOST", "mssql")
-    DB_NAME: str = os.getenv("DB_NAME", "development")
-    DB_USER: str = os.getenv("DB_USER", "SA")
-    DB_PASS: str = os.getenv("DB_PASS", "Passw0rd")
-    TEST_DB_NAME: str = os.getenv("TEST_DB_NAME", "db_test")
+    DB_DRIVER: str = Field("ODBC Driver 17 for SQL Server", description="The driver for the SQL database")
+    DB_HOST: str = Field("mssql", description="The host address of the database")
+    DB_NAME: str = Field("development", description="The name of the database")
+    DB_USER: str = Field("SA", description="The database username")
+    DB_PASS: str = Field("Passw0rd", description="The password for the database user")
+    TEST_DB_NAME: str = Field("db_test", description="The name of the test database")
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
     SQLALCHEMY_TEST_DATABASE_URI: Optional[str] = None
@@ -54,10 +53,6 @@ class CoreSettings(BaseSettings):
     # Mssql Search
     MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
     MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
-
-    # Other
-    DSO_MODULE_DEBUG_EXPORT: bool = False
-    DSO_MODULE_DEBUG_EXPORT_PATH: str = "./tmp/dso-export"
 
     class Config:
         case_sensitive = True
