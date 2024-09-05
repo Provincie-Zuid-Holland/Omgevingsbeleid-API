@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from pydantic import BaseSettings, validator
+from pydantic import BaseSettings, validator, Field
 
 
 class CoreSettings(BaseSettings):
@@ -20,13 +20,12 @@ class CoreSettings(BaseSettings):
 
     # Database
     SQLALCHEMY_ECHO: bool = True
-    DB_DRIVER: str = "ODBC Driver 17 for SQL Server"
-    DB_HOST: str
-    DB_NAME: str
-    DB_USER: str
-    DB_PASS: str
-    DB_PORT: int = 1433
-    TEST_DB_NAME: str = "test_db"
+    DB_DRIVER: str = Field("ODBC Driver 17 for SQL Server", description="The driver for the SQL database")
+    DB_HOST: str = Field("mssql", description="The host address of the database")
+    DB_NAME: str = Field("development", description="The name of the database")
+    DB_USER: str = Field("SA", description="The database username")
+    DB_PASS: str = Field("Passw0rd", description="The password for the database user")
+    TEST_DB_NAME: str = Field("db_test", description="The name of the test database")
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
     SQLALCHEMY_TEST_DATABASE_URI: Optional[str] = None
