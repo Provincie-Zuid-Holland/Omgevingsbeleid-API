@@ -1,36 +1,20 @@
+import asyncio
 import os
 from uuid import UUID
 
 import click
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData, InputDataExporter
+from fastapi import FastAPI
 
-from app.core.dependencies import db_in_context_manager
-from app.dynamic.dynamic_app import DynamicApp
-from app.extensions.areas.repository.area_repository import AreaRepository
-from app.extensions.html_assets.repository.assets_repository import AssetRepository
+from app.dynamic.utils.commands import resolve_dependencies
+from app.extensions.publications.dependencies import (
+    depends_act_package_builder_factory,
+    depends_publication_version_repository,
+)
 from app.extensions.publications.enums import MutationStrategy, PackageType
-from app.extensions.publications.repository.publication_act_package_repository import PublicationActPackageRepository
-from app.extensions.publications.repository.publication_act_version_repository import PublicationActVersionRepository
-from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
-from app.extensions.publications.repository.publication_object_repository import PublicationObjectRepository
-from app.extensions.publications.services.act_frbr_provider import ActFrbrProvider
+from app.extensions.publications.repository.publication_version_repository import PublicationVersionRepository
 from app.extensions.publications.services.act_package.act_package_builder import ActPackageBuilder
 from app.extensions.publications.services.act_package.act_package_builder_factory import ActPackageBuilderFactory
-from app.extensions.publications.services.act_package.act_publication_data_provider import ActPublicationDataProvider
-from app.extensions.publications.services.act_package.werkingsgebieden_provider import (
-    PublicationWerkingsgebiedenProvider,
-)
-from app.extensions.publications.services.assets.asset_remove_transparency import AssetRemoveTransparency
-from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
-from app.extensions.publications.services.bill_frbr_provider import BillFrbrProvider
-from app.extensions.publications.services.purpose_provider import PurposeProvider
-from app.extensions.publications.services.state.state_loader import StateLoader
-from app.extensions.publications.services.state.state_version_factory import StateVersionFactory
-from app.extensions.publications.services.state.versions.v1.state_v1 import StateV1
-from app.extensions.publications.services.state.versions.v2.state_v2 import StateV2
-from app.extensions.publications.services.state.versions.v2.state_v2_upgrader import StateV2Upgrader
-from app.extensions.publications.services.template_parser import TemplateParser
-from app.extensions.publications.tables.tables import PublicationVersionTable
 
 
 def write_json_file(input_data: str, filename: str) -> None:
@@ -41,76 +25,41 @@ def write_json_file(input_data: str, filename: str) -> None:
 @click.command()
 @click.option("--publication_version", default=None, help="Publication version")
 @click.pass_obj
-def create_dso_json_scenario(dynamic_app: DynamicApp, publication_version) -> None:
-    app_settings = dynamic_app.get_app_settings()
+def create_dso_json_scenario(fastapi_app: FastAPI, publication_version) -> None:
+    asyncio.run(_do_create_dso_json_scenario(fastapi_app, publication_version))
 
+
+async def _do_create_dso_json_scenario(fastapi_app: FastAPI, publication_version) -> None:
     if not publication_version:
         publication_version = click.prompt("Please enter the publication_version UUID:", type=str)
 
     output_path = os.path.join(os.getcwd(), "output")
-    version_UUID = UUID(publication_version)
+    version_uuid = UUID(publication_version)
     package_type_obj = PackageType.PUBLICATION
 
-    with db_in_context_manager() as db:
-        pub_version = db.query(PublicationVersionTable).filter(PublicationVersionTable.UUID == version_UUID).first()
+    services = await resolve_dependencies(
+        fastapi_app,
+        {
+            "publication_version_repository": depends_publication_version_repository,
+            "package_builder_factory": depends_act_package_builder_factory,
+        },
+    )
 
-        if not pub_version:
-            click.echo(click.style("Publication version UUID does not exist in DB", fg="red"))
-            return
+    pv_repository: PublicationVersionRepository = services["publication_version_repository"]
+    package_builder_factory: ActPackageBuilderFactory = services["package_builder_factory"]
 
-        click.echo(
-            click.style("Creating DSO JSON scenario from publication version: %s" % publication_version, fg="green")
-        )
+    pub_version = pv_repository.get_by_uuid(version_uuid)
+    if not pub_version:
+        click.echo(click.style("Publication version UUID does not exist in DB", fg="red"))
+        return
 
-        # Manually sertup the ActPackageBuilder dependencies since
-        # we cannot use the FastAPI Depends()
-        state_v2_upgrader = StateV2Upgrader(
-            PublicationActVersionRepository(db),
-            PublicationActPackageRepository(db),
-            ActPublicationDataProvider(
-                publication_object_repository=PublicationObjectRepository(db),
-                publication_asset_provider=PublicationAssetProvider(AssetRepository(db), AssetRemoveTransparency()),
-                publication_werkingsgebieden_provider=PublicationWerkingsgebiedenProvider(AreaRepository(db)),
-                publication_aoj_repository=PublicationAOJRepository(db),
-                template_parser=TemplateParser(),
-            ),
-        )
-        state_version_factory = StateVersionFactory(
-            versions=[
-                StateV1,
-                StateV2,
-            ],
-            upgraders=[
-                state_v2_upgrader,
-            ],
-        )
+    click.echo(click.style("Creating DSO JSON scenario from publication version: %s" % publication_version, fg="green"))
 
-        publication_asset_provider = PublicationAssetProvider(AssetRepository(db), AssetRemoveTransparency())
-        publication_werkingsgebieden_provider = PublicationWerkingsgebiedenProvider(AreaRepository(db))
-
-        act_publication_data_provider = ActPublicationDataProvider(
-            publication_object_repository=PublicationObjectRepository(db),
-            publication_asset_provider=publication_asset_provider,
-            publication_werkingsgebieden_provider=publication_werkingsgebieden_provider,
-            publication_aoj_repository=PublicationAOJRepository(db),
-            template_parser=TemplateParser(),
-        )
-
-        package_builder_factory = ActPackageBuilderFactory(
-            db=db,
-            settings=app_settings,
-            bill_frbr_provider=BillFrbrProvider(db),
-            act_frbr_provider=ActFrbrProvider(db),
-            purpose_provider=PurposeProvider(db),
-            state_loader=StateLoader(state_version_factory),
-            publication_data_provider=act_publication_data_provider,
-        )
-
-        builder: ActPackageBuilder = package_builder_factory.create_builder(
-            pub_version,
-            package_type_obj,
-            MutationStrategy.RENVOOI,
-        )
+    builder: ActPackageBuilder = package_builder_factory.create_builder(
+        pub_version,
+        package_type_obj,
+        MutationStrategy.RENVOOI,
+    )
 
     # extract the final InputData without starting the .build_publication_files() process
     dso_input_data: InputData = builder.get_input_data()
