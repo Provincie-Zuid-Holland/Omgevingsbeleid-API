@@ -254,6 +254,10 @@ class StateV2Upgrader(StateUpgrader):
         # Divisietekst
         for wid, ow_id in old_id_mapping.get("wid", {}).items():
             ow = {"OW_ID": ow_id, "status": None, "procedure_status": None, "wid": wid, "ow_type": "OWDivisieTekst"}
+            # get key from old act Wid_Data.Known_Wid_map dict if wid matching this dicts value
+            ow["mapped_policy_object_code"] = next(
+                (k for k, v in old_act.Wid_Data.Known_Wid_Map.items() if v == wid), None
+            )
             new_ow_objects[ow_id] = ow
 
         # Tekstdeel
