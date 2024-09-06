@@ -1,13 +1,11 @@
 import uuid
 from typing import Callable, Optional
 
-import yaml
 from fastapi import Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
-from app.core.settings import Settings, settings
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.event_listeners import EventListeners
@@ -16,15 +14,6 @@ from app.dynamic.repository.object_static_repository import ObjectStaticReposito
 
 from .utils.filters import FilterCombiner, Filters
 from .utils.pagination import OrderConfig, SimplePagination, Sort, SortedPagination, SortOrder
-
-
-def depends_settings() -> Settings:
-    return settings
-
-
-def depends_main_config(settings: Settings = Depends(depends_settings)) -> dict:
-    with open(settings.MAIN_CONFIG_FILE) as stream:
-        return yaml.safe_load(stream)
 
 
 def depends_event_dispatcher(

@@ -4,8 +4,8 @@ from typing import Optional
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import depends_db
-from app.dynamic.dependencies import depends_main_config
+from app.core.dependencies import depends_db, depends_main_config, depends_settings
+from app.core.settings.dynamic_settings import DynamicSettings
 from app.extensions.areas.dependencies import depends_area_repository
 from app.extensions.areas.repository.area_geometry_repository import AreaGeometryRepository
 from app.extensions.html_assets.dependencies import depends_asset_repository
@@ -14,6 +14,7 @@ from app.extensions.publications.repository import PublicationRepository, Public
 from app.extensions.publications.repository.publication_act_package_repository import PublicationActPackageRepository
 from app.extensions.publications.repository.publication_act_report_repository import PublicationActReportRepository
 from app.extensions.publications.repository.publication_act_repository import PublicationActRepository
+from app.extensions.publications.repository.publication_act_version_repository import PublicationActVersionRepository
 from app.extensions.publications.repository.publication_announcement_package_repository import (
     PublicationAnnouncementPackageRepository,
 )
@@ -44,6 +45,7 @@ from app.extensions.publications.services.assets.asset_remove_transparency impor
 from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.extensions.publications.services.bill_frbr_provider import BillFrbrProvider
 from app.extensions.publications.services.doc_frbr_provider import DocFrbrProvider
+from app.extensions.publications.services.pdf_export_service import PdfExportService
 from app.extensions.publications.services.publication_announcement_defaults_provider import (
     PublicationAnnouncementDefaultsProvider,
 )
@@ -52,9 +54,11 @@ from app.extensions.publications.services.publication_version_defaults_provider 
 )
 from app.extensions.publications.services.publication_version_validator import PublicationVersionValidator
 from app.extensions.publications.services.purpose_provider import PurposeProvider
-from app.extensions.publications.services.state.data.state_v1 import StateV1
 from app.extensions.publications.services.state.state_loader import StateLoader
 from app.extensions.publications.services.state.state_version_factory import StateVersionFactory
+from app.extensions.publications.services.state.versions.v1.state_v1 import StateV1
+from app.extensions.publications.services.state.versions.v2.state_v2 import StateV2
+from app.extensions.publications.services.state.versions.v2.state_v2_upgrader import StateV2Upgrader
 from app.extensions.publications.services.template_parser import TemplateParser
 from app.extensions.publications.tables import PublicationActPackageTable, PublicationTemplateTable
 from app.extensions.publications.tables.tables import (
@@ -161,6 +165,10 @@ def depends_publication_version(
     if not maybe_version:
         raise HTTPException(status_code=404, detail="Publication version niet gevonden")
     return maybe_version
+
+
+def depends_publication_act_version_repository(db: Session = Depends(depends_db)) -> PublicationActVersionRepository:
+    return PublicationActVersionRepository(db)
 
 
 def depends_publication_act_package_repository(db: Session = Depends(depends_db)) -> PublicationActPackageRepository:
@@ -300,9 +308,30 @@ def depends_act_publication_data_provider(
     )
 
 
-def depends_state_version_factory() -> StateVersionFactory:
-    factory: StateVersionFactory = StateVersionFactory()
-    factory.add(StateV1)
+def depends_state_v2_upgrader(
+    act_version_repository: PublicationActVersionRepository = Depends(depends_publication_act_version_repository),
+    act_package_repository: PublicationActPackageRepository = Depends(depends_publication_act_package_repository),
+    act_data_provider: ActPublicationDataProvider = Depends(depends_act_publication_data_provider),
+) -> StateV2Upgrader:
+    return StateV2Upgrader(
+        act_version_repository,
+        act_package_repository,
+        act_data_provider,
+    )
+
+
+def depends_state_version_factory(
+    state_v2_upgrader: StateV2Upgrader = Depends(depends_state_v2_upgrader),
+) -> StateVersionFactory:
+    factory: StateVersionFactory = StateVersionFactory(
+        versions=[
+            StateV1,
+            StateV2,
+        ],
+        upgraders=[
+            state_v2_upgrader,
+        ],
+    )
     return factory
 
 
@@ -315,6 +344,7 @@ def depends_state_loader(
 
 def depends_act_package_builder_factory(
     db: Session = Depends(depends_db),
+    settings: DynamicSettings = Depends(depends_settings),
     bill_frbr_provider: BillFrbrProvider = Depends(depends_bill_frbr_provider),
     act_frbr_provider: ActFrbrProvider = Depends(depends_act_frbr_provider),
     purpose_provider: PurposeProvider = Depends(depends_purpose_provider),
@@ -323,6 +353,7 @@ def depends_act_package_builder_factory(
 ) -> ActPackageBuilderFactory:
     return ActPackageBuilderFactory(
         db,
+        settings,
         bill_frbr_provider,
         act_frbr_provider,
         purpose_provider,
@@ -417,3 +448,9 @@ def depends_publication_version_attachment_repository(
 
 def depends_publication_version_validator() -> PublicationVersionValidator:
     return PublicationVersionValidator()
+
+
+def depends_pdf_export_service(
+    settings: DynamicSettings = Depends(depends_settings),
+) -> PdfExportService:
+    return PdfExportService(settings)

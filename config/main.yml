@@ -309,6 +309,9 @@ api:
         - resolver: edit_publication_environment
           resolver_data:
             path: /{environment_uuid}
+        - resolver: detail_publication_environment
+          resolver_data:
+            path: /{environment_uuid}
         - resolver: list_publication_environments
     - prefix: /publication-environments
       endpoints:
@@ -342,6 +345,9 @@ api:
     - prefix: /publication-versions/{version_uuid}/packages
       endpoints:
         - resolver: create_publication_act_package
+    - prefix: /publication-versions/{version_uuid}/pdf_export
+      endpoints:
+        - resolver: create_publication_act_pdf
     - prefix: /publication-act-packages
       endpoints:
         - resolver: list_publication_act_packages
@@ -396,6 +402,15 @@ api:
         - resolver: download_publication_announcement_package_report
           resolver_data:
             path: /download
+    # DSO value list getters
+    - prefix: /publication-dso-value-lists
+      endpoints:
+        - resolver: list_area_designation_types
+          resolver_data:
+            path: /area-designation-types
+        - resolver: list_area_designation_groups
+          resolver_data:
+            path: /area-designation-groups
 
 columns:
   # Titel
@@ -875,41 +890,7 @@ mssql_search:
 
 publication:
   act_defaults:
-    draft_omgevingsvisie:
-      # @see: class ActMetadata
-      metadata:
-        Official_Title: Omgevingsvisie Zuid-Holland
-        Quote_Title: Omgevingsvisie Zuid-Holland
-        Subjects:
-          - water
-          - ruimtelijke_ordening
-          - waterbeheer
-          - natuur_en_milieu
-          - ruimte_en_infrastructuur
-          - verkeer
-          - cultureel_erfgoed
-          - bouwen_en_verbouwen
-          - wonen
-          - woningmarkt
-          - economie
-          - werk
-          - recreatie
-          - bodem
-          - energie
-          - flora_en_fauna
-          - geluid
-          - veiligheid
-          - natuur_en_landschapsbeheer
-          - luchtvaart
-          - rail_en_wegverkeer
-          - scheepvaart
-          - lucht
-          - netwerken
-          - cultuur_en_recreatie
-          - werkgelegenheid
-        Jurisdictions:
-          - omgevingsrecht
-    final_omgevingsvisie:
+    omgevingsvisie:
       metadata:
         Official_Title: Omgevingsvisie Zuid-Holland
         Quote_Title: Omgevingsvisie Zuid-Holland
@@ -943,40 +924,7 @@ publication:
         Jurisdictions:
           - omgevingsrecht
 
-    draft_programma:
-      metadata:
-        Official_Title: Omgevingsprogramma Zuid-Holland
-        Quote_Title: Omgevingsprogramma Zuid-Holland
-        Subjects:
-          - water
-          - ruimtelijke_ordening
-          - waterbeheer
-          - natuur_en_milieu
-          - ruimte_en_infrastructuur
-          - verkeer
-          - cultureel_erfgoed
-          - bouwen_en_verbouwen
-          - wonen
-          - woningmarkt
-          - economie
-          - werk
-          - recreatie
-          - bodem
-          - energie
-          - flora_en_fauna
-          - geluid
-          - veiligheid
-          - natuur_en_landschapsbeheer
-          - luchtvaart
-          - rail_en_wegverkeer
-          - scheepvaart
-          - lucht
-          - netwerken
-          - cultuur_en_recreatie
-          - werkgelegenheid
-        Jurisdictions:
-          - omgevingsrecht
-    final_programma:
+    programma:
       metadata:
         Official_Title: Omgevingsprogramma Zuid-Holland
         Quote_Title: Omgevingsprogramma Zuid-Holland
@@ -1047,7 +995,6 @@ publication:
           - omgevingsrecht
       # @see: class BillCompact
       bill_compact:
-        Component_Name: nieuweregeling
         Preamble: |
           <p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>
         Closing: |
@@ -1095,7 +1042,6 @@ publication:
           - omgevingsrecht
       # @see: class BillCompact
       bill_compact:
-        Component_Name: nieuweregeling
         Preamble: |
           <p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>
         Closing: |
@@ -1141,7 +1087,6 @@ publication:
         Jurisdictions:
           - omgevingsrecht
       bill_compact:
-        Component_Name: nieuweregeling
         Preamble: |
           <p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>
         Closing: |
@@ -1187,7 +1132,6 @@ publication:
         Jurisdictions:
           - omgevingsrecht
       bill_compact:
-        Component_Name: nieuweregeling
         Preamble: |
           <p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>
         Closing: |

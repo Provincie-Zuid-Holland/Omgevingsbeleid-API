@@ -1,4 +1,4 @@
-from app.core.settings import settings
+from app.core.settings.core_settings import core_settings
 from app.dynamic.dynamic_app import DynamicAppBuilder
 from app.extensions.acknowledged_relations.acknowledged_relations_extension import AcknowledgedRelationsExtension
 from app.extensions.areas.areas_extension import AreasExtension
@@ -21,7 +21,7 @@ from app.extensions.relations.relations_extension import RelationsExtension
 from app.extensions.source_werkingsgebieden.werkingsgebieden_extension import WerkingsgebiedenExtension
 from app.extensions.users.users_extension import UsersExtension
 
-app_builder = DynamicAppBuilder(settings.MAIN_CONFIG_FILE)
+app_builder = DynamicAppBuilder(core_settings.MAIN_CONFIG_FILE)
 
 app_builder.register_extension(ComputedFieldsExtension())
 app_builder.register_extension(HierarchyExtension())
@@ -45,7 +45,7 @@ app_builder.register_extension(DatabaseMigrationExtension())
 app_builder.register_extension(PublicationsExtension())
 
 # Register the dynamic objects
-app_builder.register_objects(settings.OBJECT_CONFIG_PATH)
+app_builder.register_objects(core_settings.OBJECT_CONFIG_PATH)
 
 # We can generate the data after all objects are registered
 # this is because objects can have references to eachother

@@ -1,10 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel
-
-from app.extensions.publications.enums import PackageType, PurposeType
+from app.extensions.publications.enums import MutationStrategy, PackageType, PurposeType
 from app.extensions.publications.models.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
 from app.extensions.publications.tables.tables import PublicationAnnouncementTable, PublicationVersionTable
 
@@ -90,14 +88,10 @@ class Purpose:
     Work_Other: str
 
 
-class OwObjectMap(BaseModel):
-    id_mapping: Dict[str, Dict[str, str]]
-    tekstdeel_mapping: Dict[str, Dict[str, Dict[str, str]]]
-
-
-class OwData(BaseModel):
-    Object_Ids: List[str] = []
-    Object_Map: OwObjectMap = {}
+@dataclass
+class OwData:
+    ow_objects: Dict[str, Any] = field(default_factory=dict)
+    terminated_ow_ids: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -128,6 +122,7 @@ class ApiActInputData:
     Publication_Version: PublicationVersionTable
     Act_Mutation: Optional[ActMutation]
     Ow_Data: OwData
+    Mutation_Strategy: MutationStrategy
 
 
 @dataclass

@@ -52,6 +52,9 @@ class PublicationEnvironmentTable(Base, UserMetaData):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Title: Mapped[str] = mapped_column(Unicode)
+
+    # Used to map secret data to the environment like API Keys
+    Code: Mapped[Optional[str]] = mapped_column(Unicode(32), nullable=True)
     Description: Mapped[str] = mapped_column(Unicode)
 
     Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
@@ -104,6 +107,7 @@ class PublicationAreaOfJurisdictionTable(Base):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
 
+    Title: Mapped[str] = mapped_column(Unicode, server_default="")
     Administrative_Borders_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     Administrative_Borders_Domain: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     Administrative_Borders_Date: Mapped[date] = mapped_column(Date, nullable=False)
@@ -141,13 +145,15 @@ class PublicationActTable(Base, UserMetaData):
     ID: Mapped[int] = mapped_column(primary_key=True)
 
     # This UUID would not really be needed
-    # But we keep it as it is less confusion that everything is linked by UUID
+    # But we keep it as it is less confusing that everything is linked by UUID
     UUID: Mapped[uuid.UUID] = mapped_column(unique=True)
 
     Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
 
     Document_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
-    Procedure_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
+
+    # @deprecated
+    Procedure_Type: Mapped[Optional[str]] = mapped_column(Unicode(50), nullable=True)
 
     Title: Mapped[str] = mapped_column(Unicode)
     Is_Active: Mapped[bool] = mapped_column(default=False)
@@ -256,6 +262,10 @@ class PublicationVersionTable(Base, UserMetaData):
     Module_Status: Mapped[ModuleStatusHistoryTable] = relationship("ModuleStatusHistoryTable")
     Attachments: Mapped[List["PublicationVersionAttachmentTable"]] = relationship(
         back_populates="Publication_Version", order_by="asc(PublicationVersionAttachmentTable.ID)"
+    )
+
+    Act_Packages: Mapped[List["PublicationActPackageTable"]] = relationship(
+        back_populates="Publication_Version", order_by="asc(PublicationActPackageTable.Created_Date)"
     )
 
 

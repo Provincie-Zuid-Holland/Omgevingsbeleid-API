@@ -20,7 +20,8 @@ from dso.act_builder.state_manager.input_data.resource.werkingsgebied.werkingsge
     WerkingsgebiedRepository,
 )
 
-from app.extensions.publications.enums import DocumentType, PackageType, ProcedureType
+from app.core.settings.dynamic_settings import DynamicSettings
+from app.extensions.publications.enums import DocumentType, MutationStrategy, PackageType, ProcedureType
 from app.extensions.publications.models.api_input_data import (
     ActFrbr,
     ActMutation,
@@ -30,6 +31,7 @@ from app.extensions.publications.models.api_input_data import (
     PublicationData,
     Purpose,
 )
+from app.extensions.publications.settings import KoopSettings
 from app.extensions.publications.tables.tables import (
     PublicationActTable,
     PublicationEnvironmentTable,
@@ -71,7 +73,8 @@ DUTCH_MONTHS = {
 
 
 class DsoActInputDataBuilder:
-    def __init__(self, api_input_data: ApiActInputData):
+    def __init__(self, settings: DynamicSettings, api_input_data: ApiActInputData):
+        self._settings: DynamicSettings = settings
         self._publication_version: PublicationVersionTable = api_input_data.Publication_Version
         self._package_type: PackageType = api_input_data.Package_Type
         self._bill_frbr: BillFrbr = api_input_data.Bill_Frbr
@@ -84,6 +87,7 @@ class DsoActInputDataBuilder:
         self._template: PublicationTemplateTable = self._publication.Template
         self._act_mutation: Optional[ActMutation] = api_input_data.Act_Mutation
         self._ow_data: OwData = api_input_data.Ow_Data
+        self._mutation_strategy: MutationStrategy = api_input_data.Mutation_Strategy
 
     def build(self) -> InputData:
         input_data: InputData = InputData(
@@ -109,7 +113,7 @@ class DsoActInputDataBuilder:
             datum_bekendmaking=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
             provincie_id=self._environment.Province_ID,
             soort_bestuursorgaan=self._get_soort_bestuursorgaan(),
-            regeling_componentnaam=self._publication_version.Bill_Compact["Component_Name"],
+            regeling_componentnaam=self._get_componentnaam(),
             provincie_ref=f"/tooi/id/provincie/{self._environment.Province_ID}",
             opdracht={
                 "opdracht_type": dso_opdracht_type,
@@ -138,6 +142,7 @@ class DsoActInputDataBuilder:
                 Expression_Date=self._act_frbr.Expression_Date,
                 Expression_Version=self._act_frbr.Expression_Version,
             ),
+            intrekking=None,
         )
         return publication_settings
 
@@ -375,6 +380,13 @@ class DsoActInputDataBuilder:
         if self._act_mutation is None:
             return None
 
+        if self._environment.Code is None:
+            raise RuntimeError("Expecting Environment.Code to be set")
+
+        renvooi: Optional[KoopSettings] = self._settings.PUBLICATION_KOOP.get(self._environment.Code)
+        if renvooi is None:
+            raise RuntimeError("Missing runtime environment settings for this PublicationEnvironment")
+
         frbr = dso_models.ActFRBR(
             Work_Province_ID=self._act_mutation.Consolidated_Act_Frbr.Work_Province_ID,
             Work_Country=self._act_mutation.Consolidated_Act_Frbr.Work_Country,
@@ -384,19 +396,44 @@ class DsoActInputDataBuilder:
             Expression_Date=self._act_mutation.Consolidated_Act_Frbr.Expression_Date,
             Expression_Version=self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
         )
-        result = dso_models.RegelingMutatie(
-            was_regeling_frbr=frbr,
-            was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
-            bekend_wid_map=self._act_mutation.Known_Wid_Map,
-            bekend_wids=self._act_mutation.Known_Wids,
-        )
-        return result
+
+        match self._mutation_strategy:
+            case MutationStrategy.REPLACE:
+                result = dso_models.VervangRegelingMutatie(
+                    was_regeling_frbr=frbr,
+                )
+                return result
+
+            case MutationStrategy.RENVOOI:
+                result = dso_models.RenvooiRegelingMutatie(
+                    was_regeling_frbr=frbr,
+                    was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
+                    bekend_wid_map=self._act_mutation.Known_Wid_Map,
+                    bekend_wids=self._act_mutation.Known_Wids,
+                    renvooi_api_key=renvooi.API_KEY,
+                    renvooi_api_url=renvooi.RENVOOI_API_URL,
+                )
+                return result
+
+            case _:
+                raise NotImplementedError()
+
+    def _get_componentnaam(self) -> str:
+        if self._act_mutation is None:
+            return "nieuweregeling"
+
+        key: str = "_".join(
+            [
+                str(self._act_frbr.Work_Province_ID),
+                str(self._act_frbr.Work_Other),
+                str(self._act_frbr.Expression_Version),
+                str(self._act_mutation.Consolidated_Act_Frbr.Expression_Version),
+            ]
+        ).replace("-", "_")
+        return key
 
     def _get_ow_data(self) -> dso_models.OwData:
-        object_ids = self._ow_data.Object_Ids
-        object_map = self._ow_data.Object_Map
-        result = dso_models.OwData(
-            object_ids=object_ids,
-            object_map=object_map,
-        )
+        # @todo
+        ow_data_dict = self._ow_data.__dict__
+        result = dso_models.OwData.from_dict(ow_data_dict)
         return result

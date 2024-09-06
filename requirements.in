@@ -5,6 +5,8 @@ pydantic==1.*
 pyodbc
 SQLAlchemy
 pyyaml
+requests
+requests-toolbelt
 
 # JWT
 python-jose
@@ -39,4 +41,4 @@ dicttoxml
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.2.3
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.3.0

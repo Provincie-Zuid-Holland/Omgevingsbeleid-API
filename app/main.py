@@ -12,20 +12,9 @@ from sqlalchemy.orm import Session
 
 from app.app import dynamic_app
 from app.core.db.session import SessionLocal
-from app.core.settings import settings
 
 app: FastAPI = dynamic_app.run()
 build_datetime: datetime = datetime.utcnow()
-
-
-# @app.middleware("http")
-# async def db_session_middleware(request: Request, call_next):
-#     response = Response("Internal server error!", status_code=500)
-#     with SessionLocal() as db:
-#         request.state.db = db
-#         response = await call_next(request)
-
-#     return response
 
 
 @app.get("/health")
@@ -79,14 +68,15 @@ def set_operator_id_from_unique_id(app: FastAPI) -> None:
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
+
     openapi_schema = get_openapi(
-        title=settings.PROJECT_NAME,
-        version=settings.PROJECT_VERSION,
+        title=app.state.settings.PROJECT_NAME,
+        version=app.state.settings.PROJECT_VERSION,
         openapi_version="3.0.0",
-        description=settings.PROJECT_DESC,
+        description=app.state.settings.PROJECT_DESC,
         routes=app.routes,
     )
-    openapi_schema["info"]["x-logo"] = {"url": settings.OPENAPI_LOGO}
+    openapi_schema["info"]["x-logo"] = {"url": app.state.settings.OPENAPI_LOGO}
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 

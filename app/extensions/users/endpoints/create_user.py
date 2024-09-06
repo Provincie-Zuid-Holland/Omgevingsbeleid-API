@@ -8,8 +8,8 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field, validator
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import depends_db
-from app.core.security import get_password_hash, get_random_password
+from app.core.dependencies import depends_db, depends_security
+from app.core.security import Security
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
@@ -46,12 +46,14 @@ class CreateUserEndpointHandler:
     def __init__(
         self,
         db: Session,
+        security: Security,
         repository: UserRepository,
         allowed_roles: List[str],
         logged_in_user: UsersTable,
         object_in: UserCreate,
     ):
         self._db: Session = db
+        self._security: Security = security
         self._repository: UserRepository = repository
         self._allowed_roles: List[str] = allowed_roles
         self._logged_in_user: UsersTable = logged_in_user
@@ -65,8 +67,8 @@ class CreateUserEndpointHandler:
         if same_email_user:
             raise ValueError(f"Email already in use")
 
-        password = "change-me-" + get_random_password()
-        password_hash = get_password_hash(password)
+        password = "change-me-" + self._security.get_random_password()
+        password_hash = self._security.get_password_hash(password)
 
         user: UsersTable = UsersTable(
             UUID=uuid.uuid4(),
@@ -111,9 +113,11 @@ class CreateUserEndpoint(Endpoint):
             ),
             db: Session = Depends(depends_db),
             repository: UserRepository = Depends(depends_user_repository),
+            security: Security = Depends(depends_security),
         ) -> UserCreateResponse:
             handler: CreateUserEndpointHandler = CreateUserEndpointHandler(
                 db,
+                security,
                 repository,
                 self._allowed_roles,
                 logged_in_user,

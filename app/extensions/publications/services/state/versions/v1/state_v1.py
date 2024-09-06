@@ -1,20 +1,20 @@
-from enum import Enum
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from app.extensions.publications.services.state.state import State
 
 
-class ConsolidationStatus(str, Enum):
-    consolidated = "consolidated"
-    withdrawn = "withdrawn"
+class Purpose(BaseModel):
+    Purpose_Type: str
+    Effective_Date: Optional[str]
+    Work_Province_ID: str
+    Work_Date: str
+    Work_Other: str
 
-
-class AreaOfJurisdiction(BaseModel):
-    UUID: str
-    Consolidation_Status: ConsolidationStatus
-    Administrative_Borders_ID: str
-    Act_Work: str
-    Act_Expression_Version: str
+    def get_frbr_work(self) -> str:
+        result: str = f"/join/id/proces/{self.Work_Province_ID}/{self.Work_Date}/{self.Work_Other}"
+        return result
 
 
 class Frbr(BaseModel):
@@ -32,28 +32,6 @@ class Werkingsgebied(BaseModel):
     Object_ID: int
     Owner_Act: str
     Frbr: Frbr
-
-
-class Purpose(BaseModel):
-    Purpose_Type: str
-    Effective_Date: Optional[str]
-    Work_Province_ID: str
-    Work_Date: str
-    Work_Other: str
-
-    def get_frbr_work(self) -> str:
-        result: str = f"/join/id/proces/{self.Work_Province_ID}/{self.Work_Date}/{self.Work_Other}"
-        return result
-
-
-class Bill(BaseModel):
-    Work: str
-    Expression_Version: str
-
-
-class Act(BaseModel):
-    Work: str
-    Expression_Version: str
 
 
 class WidData(BaseModel):
@@ -89,3 +67,17 @@ class ActiveAnnouncement(BaseModel):
     About_Bill_Frbr: Frbr
     Document_Type: str
     Procedure_Type: str
+
+
+class StateV1(State):
+    Purposes: Dict[str, Purpose] = Field({})
+    Acts: Dict[str, ActiveAct] = Field({})
+    Announcements: Dict[str, ActiveAnnouncement] = Field({})
+
+    @staticmethod
+    def get_schema_version() -> int:
+        return 1
+
+    def get_data(self) -> dict:
+        data: dict = self.dict()
+        return data

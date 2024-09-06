@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy.engine import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.core.settings import settings
+from app.core.settings.core_settings import core_settings
 from app.dynamic.converter import Converter, ObjectConverterData
 from app.dynamic.dynamic_app import DynamicAppBuilder
 from app.dynamic.event_dispatcher import EventDispatcher
@@ -33,13 +33,13 @@ class TestSettings:
 
 @pytest.fixture(scope="function")
 def engine() -> Engine:
-    if settings.SQLALCHEMY_TEST_DATABASE_URI is None:
+    if core_settings.SQLALCHEMY_TEST_DATABASE_URI is None:
         raise Exception("Missing Test DB connection URI")
 
     engine = create_engine(
-        settings.SQLALCHEMY_TEST_DATABASE_URI,
+        core_settings.SQLALCHEMY_TEST_DATABASE_URI,
         pool_pre_ping=True,
-        echo=settings.SQLALCHEMY_ECHO,
+        echo=core_settings.SQLALCHEMY_ECHO,
     )
     yield engine
 

@@ -8,7 +8,7 @@ from sqlalchemy.engine import Engine, create_engine
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship, sessionmaker
 
 from app.core.db.mixins import HasIDType, TimeStamped, UserMetaData
-from app.core.settings import settings
+from app.core.settings.core_settings import core_settings
 from app.dynamic.db import ObjectBaseColumns, StaticBaseColumns
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsColumns
 from app.extensions.modules.db.tables import ModuleBaseColumns, ModuleObjectContextColumns, ModuleStatusHistoryColumns
@@ -145,9 +145,9 @@ def local_tables():
 @pytest.fixture(scope="class")
 def engine() -> Engine:
     engine = create_engine(
-        settings.SQLALCHEMY_TEST_DATABASE_URI,
+        core_settings.SQLALCHEMY_TEST_DATABASE_URI,
         pool_pre_ping=True,
-        echo=settings.SQLALCHEMY_ECHO,
+        echo=core_settings.SQLALCHEMY_ECHO,
     )
     yield engine
 

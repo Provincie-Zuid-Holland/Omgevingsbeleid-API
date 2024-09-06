@@ -2,14 +2,13 @@ import uuid
 from datetime import datetime
 from typing import List
 
+from dso.exceptions import RenvooiError
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
-from app.core.settings import Settings
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.dependencies import depends_settings
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.publications.dependencies import (
@@ -17,7 +16,7 @@ from app.extensions.publications.dependencies import (
     depends_publication_version,
     depends_publication_version_validator,
 )
-from app.extensions.publications.enums import PackageType, ReportStatusType
+from app.extensions.publications.enums import MutationStrategy, PackageType, ReportStatusType
 from app.extensions.publications.exceptions import DSOConfigurationException
 from app.extensions.publications.models.api_input_data import Purpose
 from app.extensions.publications.permissions import PublicationsPermissions
@@ -57,7 +56,6 @@ class EndpointHandler:
         self,
         db: Session,
         validator: PublicationVersionValidator,
-        settings: Settings,
         package_builder_factory: ActPackageBuilderFactory,
         user: UsersTable,
         object_in: PublicationPackageCreate,
@@ -65,7 +63,6 @@ class EndpointHandler:
     ):
         self._db: Session = db
         self._validator: PublicationVersionValidator = validator
-        self._settings: Settings = settings
         self._package_builder_factory: ActPackageBuilderFactory = package_builder_factory
         self._user: UsersTable = user
         self._object_in: PublicationPackageCreate = object_in
@@ -84,6 +81,7 @@ class EndpointHandler:
             package_builder: ActPackageBuilder = self._package_builder_factory.create_builder(
                 self._publication_version,
                 self._object_in.Package_Type,
+                MutationStrategy.RENVOOI,
             )
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()
@@ -135,9 +133,11 @@ class EndpointHandler:
             # This is already correctly formatted
             raise e
         except ValidationError as e:
-            raise HTTPException(status_code=409, detail=e.errors())
+            raise HTTPException(status_code=441, detail=e.errors())
         except DSOConfigurationException as e:
-            raise HTTPException(status_code=424, detail=e.message)
+            raise HTTPException(status_code=442, detail=e.message)
+        except RenvooiError as e:
+            raise HTTPException(status_code=443, detail=e.msg)
         except Exception as e:
             # We do not know what to except here
             # This will result in a 500 server error
@@ -271,12 +271,10 @@ class CreatePublicationPackageEndpoint(Endpoint):
             ),
             package_builder_factory: ActPackageBuilderFactory = Depends(depends_act_package_builder_factory),
             db: Session = Depends(depends_db),
-            settings: Settings = Depends(depends_settings),
         ) -> PublicationPackageCreatedResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
                 publication_version_validator,
-                settings,
                 package_builder_factory,
                 user,
                 object_in,
