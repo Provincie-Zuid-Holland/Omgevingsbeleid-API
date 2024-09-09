@@ -101,7 +101,7 @@ pbr==6.1.0
     # via stevedore
 pexpect==4.9.0
     # via ipython
-platformdirs==4.2.2
+platformdirs==4.3.2
     # via
     #   black
     #   pylint
