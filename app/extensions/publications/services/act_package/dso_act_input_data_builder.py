@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import dso.models as dso_models
 from dso.act_builder.state_manager.input_data.ambtsgebied import Ambtsgebied
-from dso.act_builder.state_manager.input_data.besluit import Artikel, Besluit, Bijlage, Motivering
+from dso.act_builder.state_manager.input_data.besluit import Artikel, Besluit, Bijlage, Motivering, WijzigBijlage
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 from dso.act_builder.state_manager.input_data.object_template_repository import ObjectTemplateRepository
 from dso.act_builder.state_manager.input_data.regeling import Regeling
@@ -161,6 +161,7 @@ class DsoActInputDataBuilder:
             citeertitel=self._publication_version.Bill_Metadata["Quote_Title"],
             aanhef=self._publication_version.Bill_Compact["Preamble"],
             wijzig_artikel=self._get_wijzigingsartikel(),
+            wijzig_bijlage=self._get_amendment_appendix(),
             tekst_artikelen=self._get_text_articles(),
             tijd_artikel=self._get_time_article(),
             sluiting=self._get_closing_text(),
@@ -247,6 +248,17 @@ class DsoActInputDataBuilder:
         result = Artikel(
             nummer="I",
             inhoud=text,
+        )
+        return result
+
+    def _get_amendment_appendix(self) -> WijzigBijlage:
+        data: dict = self._publication_version.Bill_Compact.get("Amendment_Appendix", {})
+        number = data.get("Number", "A")
+        title = data.get("Title", "bij Artikel I")
+
+        result = WijzigBijlage(
+            nummer=number,
+            opschrift=title,
         )
         return result
 

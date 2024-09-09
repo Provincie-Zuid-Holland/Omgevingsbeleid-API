@@ -178,6 +178,14 @@ class Motivation(BaseModel):
         orm_mode = True
 
 
+class AmendmentAppendix(BaseModel):
+    Number: str
+    Title: str
+
+    class Config:
+        orm_mode = True
+
+
 MotivationClass = Motivation
 
 
@@ -186,6 +194,12 @@ class BillCompact(BaseModel):
     Closing: str = Field("")
     Signed: str = Field("")
     Amendment_Article: str = Field("")
+    Amendment_Appendix: AmendmentAppendix = Field(
+        AmendmentAppendix(
+            Number="A",
+            Title="bij Artikel I",
+        )
+    )
     Time_Article: str = Field("")
     Custom_Articles: List[Article] = Field([])
 

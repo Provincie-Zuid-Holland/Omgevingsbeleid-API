@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from pydantic import BaseSettings, validator, Field
+from pydantic import BaseSettings, Field, validator
 
 
 class CoreSettings(BaseSettings):
