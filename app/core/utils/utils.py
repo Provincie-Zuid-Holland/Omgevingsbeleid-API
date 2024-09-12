@@ -1,4 +1,5 @@
-from datetime import datetime
+import uuid
+from datetime import date, datetime
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
@@ -29,3 +30,18 @@ def as_datetime(value) -> datetime:
     if isinstance(value, datetime):
         return value
     return datetime.strptime(value, DATE_FORMAT)
+
+
+def serialize_data(obj):
+    if isinstance(obj, dict):
+        return {key: serialize_data(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [serialize_data(element) for element in obj]
+    elif isinstance(obj, datetime):
+        return obj.isoformat()
+    elif isinstance(obj, date):
+        return obj.isoformat()
+    elif isinstance(obj, uuid.UUID):
+        return str(obj)
+    else:
+        return obj

@@ -12,6 +12,7 @@ from app.extensions.publications.services.act_frbr_provider import ActFrbr
 from app.extensions.publications.services.act_package.act_state_patcher import ActStatePatcher
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr
 from app.extensions.publications.services.state.state import State
+from app.extensions.publications.services.state.versions import ActiveState
 from app.extensions.publications.tables.tables import PublicationEnvironmentStateTable, PublicationEnvironmentTable
 
 
@@ -19,11 +20,11 @@ class ActPackageBuilder:
     def __init__(
         self,
         api_input_data: ApiActInputData,
-        state: Optional[State],
+        state: Optional[ActiveState],
         input_data: InputData,
     ):
         self._api_input_data: ApiActInputData = api_input_data
-        self._state: Optional[State] = state
+        self._state: Optional[ActiveState] = state
         self._input_data: InputData = input_data
         self._dso_builder: Builder = Builder(input_data)
 
