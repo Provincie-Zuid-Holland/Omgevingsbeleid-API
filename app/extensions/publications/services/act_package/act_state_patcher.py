@@ -4,6 +4,7 @@ from typing import Dict, Optional
 import dso.models as dso_models
 from dso.act_builder.builder import Builder
 
+from app.core.utils.utils import serialize_data
 from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
 from app.extensions.publications.services.state.versions import ActiveState
 from app.extensions.publications.services.state.versions.v2 import models
@@ -34,10 +35,11 @@ class ActStatePatcher:
         # Serialize dso_ow_state to a simple dict for result model
         dso_ow_state: dso_models.OwData = self._dso_builder.get_ow_object_state()
         dso_ow_state_dict: dict = dso_ow_state.dict()
+        dso_ow_state_dict_serialized: dict = serialize_data(dso_ow_state_dict)
         ow_data = models.OwData.parse_obj(
             {
-                "Ow_Objects": dso_ow_state_dict["ow_objects"],
-                "Terminated_Ow_Ids": dso_ow_state_dict["terminated_ow_ids"],
+                "Ow_Objects": dso_ow_state_dict_serialized["ow_objects"],
+                "Terminated_Ow_Ids": dso_ow_state_dict_serialized["terminated_ow_ids"],
             }
         )
 
