@@ -2,7 +2,7 @@ from contextlib import AsyncExitStack
 from typing import Callable, Dict
 
 from fastapi import FastAPI, Request
-from fastapi.dependencies.utils import get_dependant, solve_dependencies
+from fastapi.dependencies.utils import SolvedDependency, get_dependant, solve_dependencies
 
 
 async def resolve_dependencies(app: FastAPI, dependencies: Dict[str, Callable]) -> Dict[str, Callable]:
@@ -25,12 +25,14 @@ async def resolve_dependencies(app: FastAPI, dependencies: Dict[str, Callable]) 
 
         for key, dependency_function in dependencies.items():
             dependant = get_dependant(path="/", call=dependency_function)
-            values, errors, background_tasks, response, dependency_cache = await solve_dependencies(
+            solved_dependency: SolvedDependency = await solve_dependencies(
                 request=request,
                 dependant=dependant,
                 dependency_overrides_provider=app,
                 async_exit_stack=async_exit_stack,
+                embed_body_fields=False,  # needs True if requests are handled
             )
+            values = solved_dependency.values
 
             result[key] = dependency_function(**values)
 
