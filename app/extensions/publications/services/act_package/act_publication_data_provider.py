@@ -89,11 +89,14 @@ class ActPublicationDataProvider:
         aoj: Optional[PublicationAreaOfJurisdictionTable] = self._publication_aoj_repository.get_latest()
         if aoj is None:
             raise RuntimeError("There needs to be an area of jurisdiction")
-        # dict excluding Created_By_UUID
-        result = {
-            column.name: getattr(aoj, column.name)
-            for column in PublicationAreaOfJurisdictionTable.__table__.columns
-            if column.name != "Created_By_UUID"
+
+        result: dict = {
+            "UUID": aoj.UUID,
+            "Title": aoj.Title,
+            "Administrative_Borders_ID": aoj.Administrative_Borders_ID,
+            "Administrative_Borders_Domain": aoj.Administrative_Borders_Domain,
+            "Administrative_Borders_Date": aoj.Administrative_Borders_Date,
+            "Created_Date": aoj.Created_Date,
         }
         return result
 
