@@ -28,6 +28,7 @@ class ActCreate(BaseModel):
     Environment_UUID: uuid.UUID
     Document_Type: DocumentType
     Title: str
+    Work_Other: Optional[str] = None
 
 
 class ActCreatedResponse(BaseModel):
@@ -54,7 +55,7 @@ class EndpointHandler:
         environment: PublicationEnvironmentTable = self._get_environment()
 
         metadata = self._defaults_provider.get_metadata(self._object_in.Document_Type.value)
-        work_other: str = self._get_work_other()
+        work_other: str = self._object_in.Work_Other or self._get_work_other()
 
         act: PublicationActTable = PublicationActTable(
             UUID=uuid.uuid4(),
