@@ -340,7 +340,7 @@ class DsoActInputDataBuilder:
             identificatie_suffix=aoj["Administrative_Borders_ID"],
             domein=aoj["Administrative_Borders_Domain"],
             geldig_op=aoj["Administrative_Borders_Date"].strftime("%Y-%m-%d"),
-            new=aoj["New"],
+            titel=aoj["Title"],
         )
         return ambtsgebied
 
