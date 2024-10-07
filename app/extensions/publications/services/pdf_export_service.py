@@ -58,7 +58,7 @@ class PdfExportService:
         multipart_data = MultipartEncoder(
             fields={
                 "aanlevering-zip": (zip_data.Filename, zip_data.Binary, "application/zip"),
-                "voor-ondertekenen": "false",
+                "voor-ondertekenen": "true",
                 "auto-clean-up": "true",
             }
         )

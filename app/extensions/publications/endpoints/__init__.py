@@ -21,7 +21,6 @@ from .publications import (
 )
 from .publications.act_packages import (
     CreatePublicationPackageEndpointResolver,
-    CreatePublicationPdfEndpointResolver,
     DownloadPackageEndpointResolver,
     ListPublicationPackagesEndpointResolver,
 )
@@ -50,6 +49,7 @@ from .publications.announcements import (
 )
 from .publications.versions import (
     CreatePublicationVersionEndpointResolver,
+    CreatePublicationVersionPdfEndpointResolver,
     DetailPublicationVersionEndpointResolver,
     EditPublicationVersionEndpointResolver,
     ListPublicationVersionsEndpointResolver,

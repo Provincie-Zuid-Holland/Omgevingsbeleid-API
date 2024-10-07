@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from fastapi import APIRouter
 
-from app.dynamic.config.models import EndpointConfig
+from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.models_resolver import ModelsResolver
 
 
@@ -22,5 +22,6 @@ class EndpointResolver(ABC):
         self,
         models_resolver: ModelsResolver,
         endpoint_config: EndpointConfig,
+        api: Api,
     ) -> Endpoint:
         pass

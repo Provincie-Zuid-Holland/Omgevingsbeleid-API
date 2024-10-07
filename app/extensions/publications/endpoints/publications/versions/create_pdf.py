@@ -105,7 +105,7 @@ class EndpointHandler:
             raise HTTPException(status_code=409, detail=errors)
 
 
-class CreatePublicationPdfEndpoint(Endpoint):
+class CreatePublicationVersionPdfEndpoint(Endpoint):
     def __init__(self, path: str):
         self._path: str = path
 
@@ -136,16 +136,16 @@ class CreatePublicationPdfEndpoint(Endpoint):
             fastapi_handler,
             methods=["POST"],
             response_model=None,
-            summary="Download Publication Act as Pdf",
-            tags=["Publication Act Packages"],
+            summary="Download Publication Version as Pdf",
+            tags=["Publication Versions"],
         )
 
         return router
 
 
-class CreatePublicationPdfEndpointResolver(EndpointResolver):
+class CreatePublicationVersionPdfEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "create_publication_act_pdf"
+        return "create_publication_version_pdf"
 
     def generate_endpoint(
         self,
@@ -159,4 +159,4 @@ class CreatePublicationPdfEndpointResolver(EndpointResolver):
         if not "{version_uuid}" in path:
             raise RuntimeError("Missing {version_uuid} argument in path")
 
-        return CreatePublicationPdfEndpoint(path=path)
+        return CreatePublicationVersionPdfEndpoint(path=path)
