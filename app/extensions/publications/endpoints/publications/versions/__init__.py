@@ -1,3 +1,4 @@
+from .create_pdf import CreatePublicationVersionPdfEndpointResolver
 from .create_version import CreatePublicationVersionEndpointResolver
 from .detail_version import DetailPublicationVersionEndpointResolver
 from .edit_version import EditPublicationVersionEndpointResolver

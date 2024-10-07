@@ -1,4 +1,3 @@
 from .create_act_package import CreatePublicationPackageEndpointResolver
-from .create_act_pdf import CreatePublicationPdfEndpointResolver
 from .download_act_package import DownloadPackageEndpointResolver
 from .list_act_packages import ListPublicationPackagesEndpointResolver
