@@ -205,7 +205,7 @@ api:
               - object_type: beleidskeuze
                 content:
                   - column: Description
-                    label: Wat wil de provincie bereiken?
+                    label: Wat gaat de provincie doen?
                   - column: Cause
                     label: Aanleiding
                   - column: Provincial_Interest
@@ -215,7 +215,7 @@ api:
               - object_type: maatregel
                 content:
                   - column: Description
-                    label: Wat wil de provincie bereiken?
+                    label: Wat gaat de provincie doen?
                   - column: Role
                     label: Rol
                   - column: Effect

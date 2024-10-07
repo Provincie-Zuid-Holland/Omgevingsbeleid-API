@@ -127,7 +127,7 @@ class DatabaseFixturesPublications:
 {% endif %}
 
 {% if o.Description | has_text %}
-    <h6>Wat wil de provincie bereiken?</h6>
+    <h6>Wat gaat de provincie doen?</h6>
     {{ o.Description }}
 {% endif %}
 
@@ -230,7 +230,7 @@ class DatabaseFixturesPublications:
 {% endif %}
 
 {% if o.Description | has_text %}
-    <h6>Wat wil de provincie bereiken?</h6>
+    <h6>Wat gaat de provincie doen?</h6>
     {{ o.Description }}
 {% endif %}
 
