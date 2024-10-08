@@ -413,8 +413,8 @@ class DsoActInputDataBuilder:
             case MutationStrategy.REPLACE:
                 result = dso_models.VervangRegelingMutatie(
                     was_regeling_frbr=frbr,
-                    # bekend_wid_map=self._act_mutation.Known_Wid_Map,
-                    # bekend_wids=self._act_mutation.Known_Wids,
+                    bekend_wid_map=self._act_mutation.Known_Wid_Map,
+                    bekend_wids=self._act_mutation.Known_Wids,
                 )
                 return result
 

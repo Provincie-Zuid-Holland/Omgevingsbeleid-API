@@ -24,14 +24,21 @@ def write_json_file(input_data: str, filename: str) -> None:
 
 @click.command()
 @click.option("--publication_version", default=None, help="Publication version")
+@click.option("--mutation-strategy", default=MutationStrategy.RENVOOI, help="renvooi or replace")
 @click.pass_obj
-def create_dso_json_scenario(fastapi_app: FastAPI, publication_version) -> None:
-    asyncio.run(_do_create_dso_json_scenario(fastapi_app, publication_version))
+def create_dso_json_scenario(fastapi_app: FastAPI, publication_version, mutation_strategy) -> None:
+    asyncio.run(_do_create_dso_json_scenario(fastapi_app, publication_version, mutation_strategy))
 
 
-async def _do_create_dso_json_scenario(fastapi_app: FastAPI, publication_version) -> None:
+async def _do_create_dso_json_scenario(fastapi_app: FastAPI, publication_version, mutation_strategy) -> None:
     if not publication_version:
         publication_version = click.prompt("Please enter the publication_version UUID:", type=str)
+
+    try:
+        mutation_strat = MutationStrategy(mutation_strategy)
+    except ValueError:
+        click.error(click.style("Invalid mutation strategy, should be renvooi or replace", fg="red"))
+        return
 
     output_path = os.path.join(os.getcwd(), "output")
     version_uuid = UUID(publication_version)
@@ -58,7 +65,7 @@ async def _do_create_dso_json_scenario(fastapi_app: FastAPI, publication_version
     builder: ActPackageBuilder = package_builder_factory.create_builder(
         pub_version,
         package_type_obj,
-        MutationStrategy.RENVOOI,
+        mutation_strategy=mutation_strat,
     )
 
     # extract the final InputData without starting the .build_publication_files() process
