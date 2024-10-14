@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 from app.extensions.publications.models.api_input_data import ActFrbr, ActMutation, ApiActInputData, OwData
 from app.extensions.publications.services.state.versions.v2 import models
@@ -39,6 +39,28 @@ class PatchActMutation:
 
         return data
 
+    def _get_removed_werkingsgebieden(self, data: ApiActInputData) -> List[x]:
+        used_werkingsgebieden_ids: Set[int] = set([w["Object_ID"] for w in data.Publication_Data.werkingsgebieden])
+
+        state_werkingsgebieden: Dict[int, models.Werkingsgebied] = self._active_act.Werkingsgebieden
+        removed_werkingsgebiedenen: List[dict] = []
+
+        for werkingsgebied_id, state_werkingsgebied in state_werkingsgebieden.items():
+            if werkingsgebied_id in used_werkingsgebieden_ids:
+                continue
+
+            removed_werkingsgebied: dict = {
+                "UUID": state_werkingsgebied.UUID,
+                "Code": f"werkingsgebied-{state_werkingsgebied.Object_ID}",
+                "Object_ID": state_werkingsgebied.Object_ID,
+                "Owner_Act": state_werkingsgebied.Owner_Act,
+                "Title": state_werkingsgebied.Title,
+                "Frbr": state_werkingsgebied.Frbr.dict(),
+            }
+            removed_werkingsgebiedenen.append(removed_werkingsgebied)
+
+        return removed_werkingsgebiedenen
+
     def _patch_act_mutation(self, data: ApiActInputData) -> ApiActInputData:
         consolidated_frbr: ActFrbr = ActFrbr(
             Act_ID=0,
@@ -55,6 +77,7 @@ class PatchActMutation:
             Consolidated_Act_Text=self._active_act.Act_Text,
             Known_Wid_Map=self._active_act.Wid_Data.Known_Wid_Map,
             Known_Wids=self._active_act.Wid_Data.Known_Wids,
+            Removed_Werkingsgebieden=self._get_removed_werkingsgebieden(data),
         )
         return data
 

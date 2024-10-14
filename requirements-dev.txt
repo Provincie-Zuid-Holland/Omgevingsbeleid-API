@@ -4,9 +4,9 @@
 #
 #    pip-compile requirements-dev.in
 #
-alembic==1.13.2
+alembic==1.13.3
     # via -r requirements-dev.in
-astroid==3.2.4
+astroid==3.3.5
     # via pylint
 asttokens==2.4.1
     # via
@@ -14,30 +14,30 @@ asttokens==2.4.1
     #   stack-data
 autoflake==2.3.1
     # via -r requirements-dev.in
-bandit==1.7.9
+bandit==1.7.10
     # via -r requirements-dev.in
-black==24.8.0
+black==24.10.0
     # via -r requirements-dev.in
 certifi==2024.8.30
     # via requests
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via requests
 click==8.1.7
     # via black
-coverage[toml]==7.6.1
+coverage[toml]==7.6.3
     # via
     #   -r requirements-dev.in
     #   coverage-badge
     #   pytest-cov
 coverage-badge==1.1.2
     # via -r requirements-dev.in
-debugpy==1.8.5
+debugpy==1.8.7
     # via -r requirements-dev.in
 decorator==5.1.1
     # via ipython
 devtools==0.12.2
     # via -r requirements-dev.in
-dill==0.3.8
+dill==0.3.9
     # via pylint
 exceptiongroup==1.2.2
     # via
@@ -47,19 +47,19 @@ executing==2.1.0
     # via
     #   devtools
     #   stack-data
-faker==28.4.1
+faker==30.3.0
     # via -r requirements-dev.in
 flake8==7.1.1
     # via -r requirements-dev.in
 freezegun==1.5.1
     # via -r requirements-dev.in
-greenlet==3.0.3
+greenlet==3.1.1
     # via sqlalchemy
-idna==3.8
+idna==3.10
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==8.27.0
+ipython==8.28.0
     # via -r requirements-dev.in
 isort==5.13.2
     # via
@@ -71,7 +71,7 @@ mako==1.3.5
     # via alembic
 markdown-it-py==3.0.0
     # via rich
-markupsafe==2.1.5
+markupsafe==3.0.1
     # via mako
 matplotlib-inline==0.1.7
     # via ipython
@@ -81,7 +81,7 @@ mccabe==0.7.0
     #   pylint
 mdurl==0.1.2
     # via markdown-it-py
-mypy==1.11.2
+mypy==1.12.0
     # via
     #   -r requirements-dev.in
     #   sqlalchemy
@@ -101,13 +101,13 @@ pbr==6.1.0
     # via stevedore
 pexpect==4.9.0
     # via ipython
-platformdirs==4.3.2
+platformdirs==4.3.6
     # via
     #   black
     #   pylint
 pluggy==1.5.0
     # via pytest
-prompt-toolkit==3.0.47
+prompt-toolkit==3.0.48
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
@@ -124,9 +124,9 @@ pygments==2.18.0
     #   devtools
     #   ipython
     #   rich
-pylint==3.2.7
+pylint==3.3.1
     # via -r requirements-dev.in
-pytest==8.3.2
+pytest==8.3.3
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -145,13 +145,13 @@ requests==2.32.3
     # via requests-mock
 requests-mock==1.12.1
     # via -r requirements-dev.in
-rich==13.8.0
+rich==13.9.2
     # via bandit
 six==1.16.0
     # via
     #   asttokens
     #   python-dateutil
-sqlalchemy[mypy]==2.0.34
+sqlalchemy[mypy]==2.0.35
     # via
     #   -r requirements-dev.in
     #   alembic
@@ -159,7 +159,7 @@ stack-data==0.6.3
     # via ipython
 stevedore==5.3.0
     # via bandit
-tomli==2.0.1
+tomli==2.0.2
     # via
     #   autoflake
     #   black
@@ -179,12 +179,14 @@ typing-extensions==4.12.2
     #   alembic
     #   astroid
     #   black
+    #   faker
     #   ipython
     #   mypy
+    #   rich
     #   sqlalchemy
-urllib3==2.2.2
+urllib3==2.2.3
     # via requests
-vulture==2.11
+vulture==2.13
     # via -r requirements-dev.in
 wcwidth==0.2.13
     # via prompt-toolkit
