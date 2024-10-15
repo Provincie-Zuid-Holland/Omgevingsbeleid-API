@@ -411,7 +411,7 @@ class DsoActInputDataBuilder:
 
         te_verwijderden_werkingsgebieden = [
             dso_models.VerwijderdWerkingsgebied(
-                UUID=uuid.UUID(w["UUID"]),
+                UUID=w["UUID"],
                 code=w["Code"],
                 object_id=w["Object_ID"],
                 frbr=dso_models.GioFRBR.parse_obj(w["Frbr"]),
