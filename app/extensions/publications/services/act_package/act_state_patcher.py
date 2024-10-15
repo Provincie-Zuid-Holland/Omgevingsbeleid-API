@@ -94,17 +94,9 @@ class ActStatePatcher:
         return state
 
     def _resolve_werkingsgebieden(self, state: ActiveState) -> Dict[int, models.Werkingsgebied]:
-        existing_act: Optional[models.ActiveAct] = state.get_act(
-            self._publication.Document_Type,
-            self._publication.Procedure_Type,
-        )
         werkingsgebieden: Dict[int, models.Werkingsgebied] = {}
-        if existing_act is not None:
-            werkingsgebieden = existing_act.Werkingsgebieden
 
-        # @note: We have not implemented terminating werkingsgebieden yet
-        # So we can just merge the existing list with the new list
-        # Overwriting werkingsgebieden with the same Object_ID
+        # We only keep the send werkingsgebieden, as all other should have been withdrawn
         for dso_werkingsgebied in self._api_input_data.Publication_Data.werkingsgebieden:
             dso_frbr: dso_models.GioFRBR = dso_werkingsgebied["Frbr"]
             frbr = models.Frbr(
@@ -114,7 +106,7 @@ class ActStatePatcher:
                 Work_Other=dso_frbr.Work_Other,
                 Expression_Language=dso_frbr.Expression_Language,
                 Expression_Date=dso_frbr.Expression_Date,
-                Expression_Version=dso_frbr.Expression_Version,
+                Expression_Version=dso_frbr.Expression_Version or 0,
             )
             werkingsgebied = models.Werkingsgebied(
                 UUID=str(dso_werkingsgebied["UUID"]),
