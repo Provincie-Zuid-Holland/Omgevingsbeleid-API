@@ -279,6 +279,7 @@ class UploadAnnouncementPackageReportEndpoint(Endpoint):
         ) -> UploadPackageReportResponse:
             handler: EndpointHandler = EndpointHandler(
                 db,
+                settings,
                 report_repository,
                 user,
                 uploaded_files,

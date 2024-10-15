@@ -39,7 +39,7 @@ class PatchActMutation:
 
         return data
 
-    def _get_removed_werkingsgebieden(self, data: ApiActInputData) -> List[x]:
+    def _get_removed_werkingsgebieden(self, data: ApiActInputData) -> List[dict]:
         used_werkingsgebieden_ids: Set[int] = set([w["Object_ID"] for w in data.Publication_Data.werkingsgebieden])
 
         state_werkingsgebieden: Dict[int, models.Werkingsgebied] = self._active_act.Werkingsgebieden
