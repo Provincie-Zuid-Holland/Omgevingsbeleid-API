@@ -409,12 +409,25 @@ class DsoActInputDataBuilder:
             Expression_Version=self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
         )
 
+        te_verwijderden_werkingsgebieden = [
+            dso_models.VerwijderdWerkingsgebied(
+                UUID=w["UUID"],
+                code=w["Code"],
+                object_id=w["Object_ID"],
+                frbr=dso_models.GioFRBR.parse_obj(w["Frbr"]),
+                geboorteregeling=w["Owner_Act"],
+                titel=w["Title"],
+            )
+            for w in self._act_mutation.Removed_Werkingsgebieden
+        ]
+
         match self._mutation_strategy:
             case MutationStrategy.REPLACE:
                 result = dso_models.VervangRegelingMutatie(
                     was_regeling_frbr=frbr,
                     bekend_wid_map=self._act_mutation.Known_Wid_Map,
                     bekend_wids=self._act_mutation.Known_Wids,
+                    te_verwijderden_werkingsgebieden=te_verwijderden_werkingsgebieden,
                 )
                 return result
 
@@ -424,6 +437,7 @@ class DsoActInputDataBuilder:
                     was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
                     bekend_wid_map=self._act_mutation.Known_Wid_Map,
                     bekend_wids=self._act_mutation.Known_Wids,
+                    te_verwijderden_werkingsgebieden=te_verwijderden_werkingsgebieden,
                     renvooi_api_key=renvooi.API_KEY,
                     renvooi_api_url=renvooi.RENVOOI_API_URL,
                 )

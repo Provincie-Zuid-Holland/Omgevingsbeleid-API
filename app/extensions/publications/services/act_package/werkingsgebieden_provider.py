@@ -22,7 +22,7 @@ class PublicationWerkingsgebiedenProvider:
     ) -> List[dict]:
         werkingsgebieden_objects: List[dict] = [o for o in all_objects if o["Object_Type"] == "werkingsgebied"]
         werkingsgebied_codes: Set[str] = self._calculate_werkingsgebied_codes(used_objects)
-        used_werkingsgebieden_objects: List[str] = [
+        used_werkingsgebieden_objects: List[dict] = [
             w for w in werkingsgebieden_objects if w["Code"] in werkingsgebied_codes or all_data
         ]
 
@@ -64,10 +64,10 @@ class PublicationWerkingsgebiedenProvider:
         # Therefor their Work_Date is the acts Work_Date
         # And their identifier is made unique with acts data
         work_date: str = act_frbr.Work_Date
-        work_identifier = f"{act_frbr.Act_ID}-{werkingsgebied['Object_ID']}"
+        work_identifier = f"{act_frbr.Act_ID}-{act_frbr.Expression_Version}-{werkingsgebied['Object_ID']}"
 
         # Some of these expression values are set as if this is the first version
-        # But should be overwritten by the state system if they are already published under this UUID
+        # But should be overwritten by the state system if they are already published under this UUID/Hash
         frbr = dso_models.GioFRBR(
             Work_Province_ID=act_frbr.Work_Province_ID,
             Work_Date=work_date,
@@ -104,5 +104,5 @@ class PublicationWerkingsgebiedenProvider:
     def _calculate_werkingsgebied_codes(self, used_objects: List[dict]) -> Set[str]:
         werkingsgebied_codes: Set[str] = set(
             [o.get("Werkingsgebied_Code") for o in used_objects if o.get("Werkingsgebied_Code", None) is not None]
-        )
+        )  # type: ignore
         return werkingsgebied_codes
