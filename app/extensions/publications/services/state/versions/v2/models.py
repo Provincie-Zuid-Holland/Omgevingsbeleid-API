@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, root_validator
 
 
 class Purpose(BaseModel):
@@ -27,11 +27,18 @@ class Frbr(BaseModel):
 
 class Werkingsgebied(BaseModel):
     UUID: str
+    Identifier: str
     Hash: str
     Object_ID: int
     Title: str
     Owner_Act: str
     Frbr: Frbr
+
+    @root_validator(pre=True)
+    def default_identifier_to_uuid(cls, values):
+        if not values.get("Identifier"):
+            values["Identifier"] = str(values["UUID"])
+        return values
 
 
 class WidData(BaseModel):

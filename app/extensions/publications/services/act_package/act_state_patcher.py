@@ -110,6 +110,7 @@ class ActStatePatcher:
             )
             werkingsgebied = models.Werkingsgebied(
                 UUID=str(dso_werkingsgebied["UUID"]),
+                Identifier=str(dso_werkingsgebied["Identifier"]),
                 Hash=dso_werkingsgebied["Hash"],
                 Object_ID=dso_werkingsgebied["Object_ID"],
                 Title=dso_werkingsgebied["Title"],

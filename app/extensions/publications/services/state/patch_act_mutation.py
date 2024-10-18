@@ -28,10 +28,12 @@ class PatchActMutation:
             # and define the werkingsgebied as not new
             if str(werkingsgebied["Hash"]) == existing_werkingsgebied.Hash:
                 werkingsgebieden[index]["New"] = False
+                werkingsgebieden[index]["UUID"] = existing_werkingsgebied.UUID
+                werkingsgebieden[index]["Identifier"] = existing_werkingsgebied.Identifier
                 werkingsgebieden[index]["Frbr"].Expression_Date = existing_werkingsgebied.Frbr.Expression_Date
                 werkingsgebieden[index]["Frbr"].Expression_Version = existing_werkingsgebied.Frbr.Expression_Version
             else:
-                # If the uuids are different that we will publish this as a new version
+                # If the hash are different that we will publish this as a new version
                 werkingsgebieden[index]["New"] = True
                 werkingsgebieden[index]["Frbr"].Expression_Version = existing_werkingsgebied.Frbr.Expression_Version + 1
 

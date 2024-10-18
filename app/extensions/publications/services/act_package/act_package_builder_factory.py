@@ -47,8 +47,8 @@ class ActPackageBuilderFactory:
         publication: PublicationTable = publication_version.Publication
         act: PublicationActTable = publication.Act
 
-        bill_frbr: BillFrbr = self._bill_frbr_provider.generate_frbr(publication_version)
         act_frbr: ActFrbr = self._act_frbr_provider.generate_frbr(act)
+        bill_frbr: BillFrbr = self._bill_frbr_provider.generate_frbr(publication.Environment, act_frbr)
         purpose: Purpose = self._purpose_provider.generate_purpose(
             publication_version,
             act_frbr,

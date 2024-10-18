@@ -82,6 +82,7 @@ class PublicationWerkingsgebiedenProvider:
 
         result = {
             "UUID": werkingsgebied["UUID"],
+            "Identifier": f"wg-{act_frbr.Act_ID}-{werkingsgebied['UUID']}",
             "Hash": gml_hash.hexdigest(),
             "Object_ID": werkingsgebied["Object_ID"],
             "Code": werkingsgebied["Code"],
@@ -94,6 +95,7 @@ class PublicationWerkingsgebiedenProvider:
             "Onderverdelingen": [
                 {
                     "UUID": werkingsgebied["UUID"],
+                    "Identifier": f"lo-{act_frbr.Act_ID}-{werkingsgebied['UUID']}",
                     "Title": area.Source_Title,
                     "Gml": area.Gml,
                 }

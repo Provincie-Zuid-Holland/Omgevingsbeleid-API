@@ -179,7 +179,7 @@ class DsoActInputDataBuilder:
             versienummer=self._act_frbr.Expression_Version,
             officiele_titel=self._act.Metadata["Official_Title"],
             citeertitel=self._act.Metadata["Quote_Title"],
-            is_officieel=("true" if self._act.Procedure_Type == ProcedureType.FINAL else "false"),
+            is_officieel=("true" if self._publication.Procedure_Type == ProcedureType.FINAL else "false"),
             rechtsgebieden=self._as_dso_rechtsgebieden(self._act.Metadata["Jurisdictions"]),
             onderwerpen=self._as_dso_onderwerpen(self._act.Metadata["Subjects"]),
         )
@@ -193,7 +193,7 @@ class DsoActInputDataBuilder:
         )
 
         datum: Optional[str] = None
-        if self._act.Procedure_Type == ProcedureType.FINAL.value:
+        if self._publication.Procedure_Type == ProcedureType.FINAL.value:
             datum = self._publication_version.Effective_Date.strftime("%Y-%m-%d")
 
         result = dso_models.InstellingDoel(
