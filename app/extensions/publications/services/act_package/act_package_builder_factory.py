@@ -11,6 +11,9 @@ from app.extensions.publications.services.act_frbr_provider import ActFrbr, ActF
 from app.extensions.publications.services.act_package.act_package_builder import ActPackageBuilder
 from app.extensions.publications.services.act_package.act_publication_data_provider import ActPublicationDataProvider
 from app.extensions.publications.services.act_package.api_act_input_data_patcher import ApiActInputDataPatcher
+from app.extensions.publications.services.act_package.api_act_input_data_patcher_factory import (
+    ApiActInputDataPatcherFactory,
+)
 from app.extensions.publications.services.act_package.dso_act_input_data_builder import DsoActInputDataBuilder
 from app.extensions.publications.services.bill_frbr_provider import BillFrbr, BillFrbrProvider
 from app.extensions.publications.services.purpose_provider import PurposeProvider
@@ -29,6 +32,7 @@ class ActPackageBuilderFactory:
         purpose_provider: PurposeProvider,
         state_loader: StateLoader,
         publication_data_provider: ActPublicationDataProvider,
+        data_patcher_factory: ApiActInputDataPatcherFactory,
     ):
         self._db: Session = db
         self._settings: DynamicSettings = settings
@@ -37,6 +41,7 @@ class ActPackageBuilderFactory:
         self._purpose_provider: PurposeProvider = purpose_provider
         self._state_loader: StateLoader = state_loader
         self._publication_data_provider: ActPublicationDataProvider = publication_data_provider
+        self._data_patcher_factory: ApiActInputDataPatcherFactory = data_patcher_factory
 
     def create_builder(
         self,
@@ -74,7 +79,7 @@ class ActPackageBuilderFactory:
 
         state: Optional[ActiveState] = self._state_loader.load_from_publication_version(publication_version)
         if state is not None:
-            data_patcher: ApiActInputDataPatcher = ApiActInputDataPatcher(state)
+            data_patcher: ApiActInputDataPatcher = self._data_patcher_factory.create(state)
             api_input_data = data_patcher.apply(api_input_data)
 
         input_data_builder: DsoActInputDataBuilder = DsoActInputDataBuilder(

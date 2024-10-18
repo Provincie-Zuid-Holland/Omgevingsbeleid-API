@@ -7,8 +7,8 @@ from dso.act_builder.builder import Builder
 from app.core.utils.utils import serialize_data
 from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
 from app.extensions.publications.services.state.versions import ActiveState
-from app.extensions.publications.services.state.versions.v2 import models
-from app.extensions.publications.services.state.versions.v2.actions import AddPublicationAction, AddPurposeAction
+from app.extensions.publications.services.state.versions.v3 import models
+from app.extensions.publications.services.state.versions.v3.actions import AddPublicationAction, AddPurposeAction
 from app.extensions.publications.tables.tables import PublicationTable, PublicationVersionTable
 
 
@@ -85,6 +85,7 @@ class ActStatePatcher:
             Document_Type=self._api_input_data.Publication_Version.Publication.Document_Type,
             Procedure_Type=self._api_input_data.Publication_Version.Publication.Procedure_Type,
             Werkingsgebieden=werkingsgebieden,
+            Assets={},  # @todo: get USED assets (DSO response update needed)
             Wid_Data=wid_data,
             Ow_Data=ow_data,
             Act_Text=act_text,

@@ -6,11 +6,11 @@ from typing import Dict, List, Optional
 from sqlalchemy import text
 
 from app.core.utils.utils import as_datetime
-from app.dynamic.repository.repository import BaseRepository
 from app.extensions.areas.db.tables import AreasTable
+from app.extensions.areas.repository.area_repository import AreaRepository
 
 
-class AreaGeometryRepository(BaseRepository, metaclass=ABCMeta):
+class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
     @abstractmethod
     def _text_to_shape(self, key: str) -> str:
         pass

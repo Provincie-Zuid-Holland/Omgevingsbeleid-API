@@ -4,8 +4,8 @@ from dso.announcement_builder.builder import Builder
 
 from app.extensions.publications.models.api_input_data import ApiAnnouncementInputData
 from app.extensions.publications.services.state.versions import ActiveState
-from app.extensions.publications.services.state.versions.v2 import state_v2
-from app.extensions.publications.services.state.versions.v2.actions import AddAnnouncementAction
+from app.extensions.publications.services.state.versions.v3 import models
+from app.extensions.publications.services.state.versions.v3.actions import AddAnnouncementAction
 from app.extensions.publications.tables.tables import PublicationAnnouncementTable, PublicationTable
 
 
@@ -22,7 +22,7 @@ class AnnouncementStatePatcher:
         return state
 
     def _patch_announcement(self, state: ActiveState) -> ActiveState:
-        doc_frbr = state_v2.Frbr(
+        doc_frbr = models.Frbr(
             Work_Province_ID=self._api_input_data.Doc_Frbr.Work_Province_ID,
             Work_Country=self._api_input_data.Doc_Frbr.Work_Country,
             Work_Date=self._api_input_data.Doc_Frbr.Work_Date,
@@ -31,7 +31,7 @@ class AnnouncementStatePatcher:
             Expression_Date=self._api_input_data.Doc_Frbr.Expression_Date,
             Expression_Version=self._api_input_data.Doc_Frbr.Expression_Version,
         )
-        about_bill_frbr = state_v2.Frbr(
+        about_bill_frbr = models.Frbr(
             Work_Province_ID=self._api_input_data.About_Bill_Frbr.Work_Province_ID,
             Work_Country=self._api_input_data.About_Bill_Frbr.Work_Country,
             Work_Date=self._api_input_data.About_Bill_Frbr.Work_Date,
@@ -40,7 +40,7 @@ class AnnouncementStatePatcher:
             Expression_Date=self._api_input_data.About_Bill_Frbr.Expression_Date,
             Expression_Version=self._api_input_data.About_Bill_Frbr.Expression_Version,
         )
-        about_act_frbr = state_v2.Frbr(
+        about_act_frbr = models.Frbr(
             Work_Province_ID=self._api_input_data.About_Act_Frbr.Work_Province_ID,
             Work_Country=self._api_input_data.About_Act_Frbr.Work_Country,
             Work_Date=self._api_input_data.About_Act_Frbr.Work_Date,

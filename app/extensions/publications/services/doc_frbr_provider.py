@@ -4,9 +4,9 @@ from datetime import datetime
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.extensions.publications.enums import ProcedureType
 from app.extensions.publications.models import DocFrbr
 from app.extensions.publications.tables.tables import (
+    PublicationActVersionTable,
     PublicationAnnouncementTable,
     PublicationDocTable,
     PublicationEnvironmentTable,
@@ -25,12 +25,7 @@ class DocFrbrProvider:
         return self._create_fake(announcement)
 
     def _create_real(self, announcement: PublicationAnnouncementTable) -> DocFrbr:
-        stmt = (
-            select(func.count())
-            .select_from(PublicationDocTable)
-            .filter(PublicationDocTable.Document_Type == announcement.Publication.Document_Type)
-            .filter(PublicationDocTable.Environment_UUID == announcement.Publication.Environment_UUID)
-        )
+        stmt = select(func.count()).select_from(PublicationDocTable)
         count: int = self._db.execute(stmt).scalar() + 1
         id_suffix: str = f"{count}"
         result: DocFrbr = self._create(announcement, id_suffix)
@@ -46,19 +41,18 @@ class DocFrbrProvider:
         announcement: PublicationAnnouncementTable,
         id_suffix: str,
     ) -> DocFrbr:
+        act_version: PublicationActVersionTable = announcement.Act_Package.Act_Version
         publication: PublicationTable = announcement.Publication
         environment: PublicationEnvironmentTable = publication.Environment
 
-        draft_prefix: str = ""
-        if publication.Procedure_Type == ProcedureType.DRAFT:
-            draft_prefix = "ontwerp-"
+        work_other: str = f"kennisgeving-{act_version.Act.Work_Other}-{id_suffix}"
 
         timepoint: datetime = datetime.utcnow()
         frbr: DocFrbr = DocFrbr(
             Work_Province_ID=environment.Province_ID,
             Work_Country=environment.Frbr_Country,
             Work_Date=str(timepoint.year),
-            Work_Other=f"{draft_prefix}{publication.Document_Type.lower()}-{id_suffix}",
+            Work_Other=work_other,
             Expression_Language=environment.Frbr_Language,
             Expression_Date=timepoint.strftime("%Y-%m-%d"),
             Expression_Version=1,
