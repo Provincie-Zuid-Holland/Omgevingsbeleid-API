@@ -277,7 +277,6 @@ class PublicationVersionDraftValidated(BaseModel):
     Bill_Compact: BillCompact
     Procedural: ProceduralValidated
 
-    Effective_Date: date
     Announcement_Date: date
 
     class Config:

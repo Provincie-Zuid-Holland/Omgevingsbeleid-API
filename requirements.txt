@@ -34,7 +34,7 @@ click==8.1.7
     #   uvicorn
 dicttoxml==1.7.16
     # via -r requirements.in
-diff-match-patch==20230430
+diff-match-patch==20241021
     # via -r requirements.in
 dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@basischeck
     # via -r requirements.in
@@ -73,7 +73,7 @@ lxml==5.3.0
     # via
     #   -r requirements.in
     #   dso
-markupsafe==3.0.1
+markupsafe==3.0.2
     # via
     #   dso
     #   jinja2
