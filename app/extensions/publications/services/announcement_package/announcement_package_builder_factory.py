@@ -40,8 +40,8 @@ class AnnouncementPackageBuilderFactory:
         package_type: PackageType,
     ) -> AnnouncementPackageBuilder:
         doc_frbr: DocFrbr = self._doc_frbr_provider.generate_frbr(announcement)
-        about_bill_frbr: BillFrbr = self._get_about_bill_frbr(announcement)
         about_act_frbr: ActFrbr = self._get_about_act_frbr(announcement)
+        about_bill_frbr: BillFrbr = self._get_about_bill_frbr(announcement)
 
         api_input_data: ApiAnnouncementInputData = ApiAnnouncementInputData(
             Doc_Frbr=doc_frbr,
