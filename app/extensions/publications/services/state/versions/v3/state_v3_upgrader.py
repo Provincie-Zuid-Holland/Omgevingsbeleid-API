@@ -82,7 +82,7 @@ class StateV3Upgrader(StateUpgrader):
 
 class ActTextAssetParser:
     def __init__(self):
-        self._uuid_regex = r"img_([a-f0-9\-]+)\.png"
+        self._uuid_regex = r"img_([a-f0-9\-]+)\.(png|jpg|jpeg|gif|bmp|tiff|webp)"
 
     def get_asset_uuids(self, act_text: str) -> Set[str]:
         parser = etree.XMLParser(ns_clean=True)
@@ -98,7 +98,7 @@ class ActTextAssetParser:
         return asset_uuids
 
     def _extract_uuid(self, name: str) -> str:
-        match = re.search(r"img_([a-f0-9\-]+)\.png", name)
+        match = re.search(self._uuid_regex, name)
         if match:
             return match.group(1)
 
