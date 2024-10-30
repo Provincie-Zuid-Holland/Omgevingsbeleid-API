@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Dict, Optional
+from typing import Dict, Optional, Set
 
 import dso.models as dso_models
 from dso.act_builder.builder import Builder
@@ -78,6 +78,9 @@ class ActStatePatcher:
         if act_text is None:
             raise RuntimeError("Regeling vrijetekst bestaat niet")
 
+        used_asset_uuids: Set[str] = self._dso_builder.get_used_asset_uuids()
+        assets: Dict[str, models.Asset] = {uuidx: models.Asset(UUID=uuidx) for uuidx in used_asset_uuids}
+
         action = AddPublicationAction(
             Act_Frbr=act_frbr,
             Bill_Frbr=bill_frbr,
@@ -85,7 +88,7 @@ class ActStatePatcher:
             Document_Type=self._api_input_data.Publication_Version.Publication.Document_Type,
             Procedure_Type=self._api_input_data.Publication_Version.Publication.Procedure_Type,
             Werkingsgebieden=werkingsgebieden,
-            Assets={},  # @todo: get USED assets (DSO response update needed)
+            Assets=assets,
             Wid_Data=wid_data,
             Ow_Data=ow_data,
             Act_Text=act_text,

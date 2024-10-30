@@ -53,7 +53,6 @@ class PatchActMutation:
             [sa.UUID for _, sa in state_assets.items() if sa.UUID not in fetched_assets_uuids]
         )
         additional_asset_uuids: List[UUID] = [UUID(uuid_str) for uuid_str in additional_asset_uuids_str]
-
         additional_assets: List[dict] = self._asset_provider.get_assets_by_uuids(additional_asset_uuids)
 
         data.Publication_Data.assets = data.Publication_Data.assets + additional_assets
