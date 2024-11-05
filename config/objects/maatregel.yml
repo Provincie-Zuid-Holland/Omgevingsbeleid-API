@@ -118,10 +118,6 @@ fields:
     name: Effect
     type: str
     column: effect
-  gebied_uuid:
-    name: Gebied_UUID
-    type: uuid
-    column: gebied_uuid
   idms_link:
     name: IDMS_Link
     type: str
@@ -203,8 +199,6 @@ models:
     services:
       foreign_keys_extender:
         fields_map:
-          - to_field: Gebied
-            model_id: werkingsgebied
           - to_field: Created_By
             model_id: user_short
           - to_field: Modified_By
@@ -268,8 +262,6 @@ models:
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
-          - to_field: Gebied
-            model_id: werkingsgebied
           - to_field: Hierarchy_Statics
             model_id: hierarchy_statics
           - to_field: Werkingsgebied_Statics
@@ -325,9 +317,6 @@ models:
               max_width: 1500
               max_height: 2500
               max_kb: 800
-      gebied_uuid:
-        default: none
-        optional: true
       hierarchy_code:
         default: none
         optional: true
