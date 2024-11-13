@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
 
@@ -36,7 +36,7 @@ class ObjectRepository(BaseRepository):
                     ObjectStaticsTable.Client_1_UUID == user_uuid,
                 ).self_group()
             )
-            .filter(ObjectsTable.Start_Validity <= datetime.utcnow())
+            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
         )
 
         subq = subq.subquery()
@@ -46,7 +46,7 @@ class ObjectRepository(BaseRepository):
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.utcnow(),
+                    subq.c.End_Validity > datetime.now(timezone.utc),
                     subq.c.End_Validity == None,
                 )
             )
@@ -112,7 +112,7 @@ class ObjectRepository(BaseRepository):
             .join(ObjectsTable.ObjectStatics)
             .filter(ObjectsTable.Object_Type == object_type)
             .filter(ObjectsTable.Object_ID == object_id)
-            .filter(ObjectsTable.Start_Validity <= datetime.utcnow())
+            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
         )
 
         subq = subq.subquery()
@@ -122,13 +122,12 @@ class ObjectRepository(BaseRepository):
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.utcnow(),
+                    subq.c.End_Validity > datetime.now(timezone.utc),
                     subq.c.End_Validity == None,
                 )
             )
             .order_by(desc(subq.c.Modified_Date))
         )
-
         result = self.fetch_first(stmt)
         return result
 
@@ -160,7 +159,7 @@ class ObjectRepository(BaseRepository):
             select(ObjectsTable, row_number)
             .options(selectinload(ObjectsTable.ObjectStatics))
             .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Start_Validity <= datetime.utcnow())
+            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
         )
 
         filters = []
@@ -187,7 +186,7 @@ class ObjectRepository(BaseRepository):
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.utcnow(),
+                    subq.c.End_Validity > datetime.now(timezone.utc),
                     subq.c.End_Validity == None,
                 )
             )
