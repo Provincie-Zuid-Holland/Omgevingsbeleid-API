@@ -68,6 +68,34 @@ class ObjectRepository(BaseRepository):
         stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid).filter(ObjectsTable.Object_Type == object_type)
         return self.fetch_first(stmt)
 
+    @staticmethod
+    def next_valid_by_uuid_query(object_uuid: UUID):
+        reference_obj = (
+            select(ObjectsTable)
+            .filter(ObjectsTable.UUID == object_uuid)
+        ).subquery()
+
+        stmt = (
+            select(ObjectsTable)
+            .options(selectinload(ObjectsTable.ObjectStatics))
+            .join(ObjectsTable.ObjectStatics)
+            .filter(ObjectsTable.Object_ID == reference_obj.c.Object_ID)
+            .filter(ObjectsTable.Modified_Date > reference_obj.c.Modified_Date)
+            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+            .filter(
+                or_(
+                    ObjectsTable.End_Validity > datetime.now(timezone.utc),
+                    ObjectsTable.End_Validity == None,
+                )
+            )
+            .order_by(ObjectsTable.Modified_Date.asc())  # get the next one not the latest
+        )
+        return stmt
+
+    def get_next_valid_object(self, object_uuid: UUID) -> Optional[ObjectsTable]:
+        stmt = self.next_valid_by_uuid_query(object_uuid)
+        return self.fetch_first(stmt)
+
     def get_latest_valid_by_id(self, object_type: str, object_id: int) -> Optional[ObjectsTable]:
         row_number = (
             func.row_number()
