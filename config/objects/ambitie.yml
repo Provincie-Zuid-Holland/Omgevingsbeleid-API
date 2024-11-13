@@ -39,7 +39,7 @@ api:
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: ambitie_full
+            response_model: ambitie_detail
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
@@ -213,6 +213,58 @@ models:
           - field_name: Public_Revisions
             model_id: public_module_object_revision
             list: true
+            optional: true
+      relations:
+        objects:
+          - object_type: beleidsdoel
+            object_id: beleidsdoel
+            to_field: "Beleidsdoelen"
+            model_id: beleidsdoel_minimal
+            wrapped_with_relation_data: true
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: user_short
+          - to_field: Modified_By
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
+  ambitie_detail:
+    name: AmbitieDetail
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      description:
+      start_validity:
+      end_validity:
+    services:
+      insert_assets:
+        fields:
+          - Description
+      insert_computed_fields:
+        fields: 
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
+          - field_name: Next_Version
+            model_id: next_object_validities
+            list: false
             optional: true
       relations:
         objects:

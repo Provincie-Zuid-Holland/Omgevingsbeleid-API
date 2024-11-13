@@ -39,7 +39,7 @@ api:
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidskeuze_full
+            response_model: beleidskeuze_detail
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
@@ -313,6 +313,90 @@ models:
             to_field: "Maatregelen"
             model_id: maatregel_minimal
             wrapped_with_relation_data: true
+  beleidskeuze_detail:
+      name: BeleidskeuzeDetail
+      fields:
+        object_id:
+        code:
+        uuid:
+        adjust_on:
+        created_date:
+        modified_date:
+        start_validity:
+        end_validity:
+        title:
+        description:
+        cause:
+        provincial_interest:
+        explanation:
+        hierarchy_code:
+        werkingsgebied_code:
+      services:
+        insert_assets:
+          fields:
+            - Description
+            - Cause
+            - Provincial_Interest
+            - Explanation
+        insert_computed_fields:
+          fields: 
+            - field_name: Public_Revisions
+              model_id: public_module_object_revision
+              list: true
+              optional: true
+            - field_name: Next_Version
+              model_id: next_object_validities
+              list: false
+              optional: true
+        foreign_keys_extender:
+          fields_map:
+            - to_field: Hierarchy_Statics
+              model_id: hierarchy_statics
+            - to_field: Werkingsgebied_Statics
+              model_id: werkingsgebied_statics
+            - to_field: Created_By
+              model_id: user_short
+            - to_field: Modified_By
+              model_id: user_short
+        static_foreign_keys_extender:
+          fields_map:
+            - to_field: Owner_1
+              model_id: user_short
+            - to_field: Owner_2
+              model_id: user_short
+            - to_field: Portfolio_Holder_1
+              model_id: user_short
+            - to_field: Portfolio_Holder_2
+              model_id: user_short
+            - to_field: Client_1
+              model_id: user_short
+        relations:
+          objects:
+            - object_type: wettelijke_taak
+              object_id: wettelijke_taak
+              to_field: "WettelijkeTaken"
+              model_id: wettelijke_taak_minimal
+              wrapped_with_relation_data: true
+            - object_type: nationaal_belang
+              object_id: nationaal_belang
+              to_field: "NationaleBelangen"
+              model_id: nationaal_belang_minimal
+              wrapped_with_relation_data: true
+            - object_type: beleidsdoel
+              object_id: beleidsdoel
+              to_field: "Beleidsdoelen"
+              model_id: beleidsdoel_minimal
+              wrapped_with_relation_data: true
+            - object_type: beleidsregel
+              object_id: beleidsregel
+              to_field: "Beleidsregels"
+              model_id: beleidsregel_minimal
+              wrapped_with_relation_data: true
+            - object_type: maatregel
+              object_id: maatregel
+              to_field: "Maatregelen"
+              model_id: maatregel_minimal
+              wrapped_with_relation_data: true
   beleidskeuze_patch:
     name: BeleidskeuzePatch
     fields:
