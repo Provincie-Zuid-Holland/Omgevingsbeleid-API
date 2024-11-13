@@ -31,5 +31,6 @@ def get_next_object_validities(self):
     )
     return next_object_validities
 
+
 def extend_with_attributes():
     setattr(ObjectsTable, "Next_Version", hybrid_property(get_next_object_validities))

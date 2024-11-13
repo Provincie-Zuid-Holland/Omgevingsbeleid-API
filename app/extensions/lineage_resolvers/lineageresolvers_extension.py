@@ -1,7 +1,7 @@
 from typing import List
 
-from app.dynamic.config.models import ExtensionModel
 import app.extensions.lineage_resolvers.endpoints as endpoints
+from app.dynamic.config.models import ExtensionModel
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_listeners import EventListeners
 from app.dynamic.extension import Extension

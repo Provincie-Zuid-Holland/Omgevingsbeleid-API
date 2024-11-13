@@ -70,10 +70,7 @@ class ObjectRepository(BaseRepository):
 
     @staticmethod
     def next_valid_by_uuid_query(object_uuid: UUID):
-        reference_obj = (
-            select(ObjectsTable)
-            .filter(ObjectsTable.UUID == object_uuid)
-        ).subquery()
+        reference_obj = (select(ObjectsTable).filter(ObjectsTable.UUID == object_uuid)).subquery()
 
         stmt = (
             select(ObjectsTable)
