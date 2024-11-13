@@ -57,19 +57,14 @@ class ObjectVersionEndpoint(Endpoint):
         event_dispatcher: EventDispatcher,
         object_uuid: UUID,
     ):
-        maybe_object: Optional[ObjectsTable] = object_repository.get_by_object_type_and_uuid(
+        object: Optional[ObjectsTable] = object_repository.get_by_object_type_and_uuid(
             self._object_type,
             object_uuid,
         )
-        if not maybe_object:
+        if not object:
             raise ValueError("object_uuid does not exist")
 
-        row: self._response_type = self._response_type.from_orm(maybe_object)
-        rows: List[self._response_type] = [row]
-
-        # Ask extensions for more information
-        rows = self._run_events([maybe_object], event_dispatcher)
-
+        rows = self._run_events([object], event_dispatcher)
         return rows[0]
 
     def _run_events(self, table_rows: List[ObjectsTable], event_dispatcher: EventDispatcher):
