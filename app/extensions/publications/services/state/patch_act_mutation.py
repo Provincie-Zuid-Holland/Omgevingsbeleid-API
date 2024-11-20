@@ -34,11 +34,20 @@ class PatchActMutation:
                 werkingsgebieden[index]["New"] = False
                 werkingsgebieden[index]["UUID"] = existing_werkingsgebied.UUID
                 werkingsgebieden[index]["Identifier"] = existing_werkingsgebied.Identifier
+                # Keep the same FRBR
+                werkingsgebieden[index]["Frbr"].Work_Province_ID = existing_werkingsgebied.Frbr.Work_Province_ID
+                werkingsgebieden[index]["Frbr"].Work_Date = existing_werkingsgebied.Frbr.Work_Date
+                werkingsgebieden[index]["Frbr"].Work_Other = existing_werkingsgebied.Frbr.Work_Other
+                werkingsgebieden[index]["Frbr"].Expression_Language = existing_werkingsgebied.Frbr.Expression_Language
                 werkingsgebieden[index]["Frbr"].Expression_Date = existing_werkingsgebied.Frbr.Expression_Date
                 werkingsgebieden[index]["Frbr"].Expression_Version = existing_werkingsgebied.Frbr.Expression_Version
             else:
                 # If the hash are different that we will publish this as a new version
                 werkingsgebieden[index]["New"] = True
+                # Keep the same FRBR Work, but new expression
+                werkingsgebieden[index]["Frbr"].Work_Province_ID = existing_werkingsgebied.Frbr.Work_Province_ID
+                werkingsgebieden[index]["Frbr"].Work_Date = existing_werkingsgebied.Frbr.Work_Date
+                werkingsgebieden[index]["Frbr"].Work_Other = existing_werkingsgebied.Frbr.Work_Other
                 werkingsgebieden[index]["Frbr"].Expression_Version = existing_werkingsgebied.Frbr.Expression_Version + 1
 
         data.Publication_Data.werkingsgebieden = werkingsgebieden
