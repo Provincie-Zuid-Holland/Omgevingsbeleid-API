@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import Dict, List
 
 from sqlalchemy import case, desc, select
 from sqlalchemy.orm import aliased, selectinload
@@ -16,19 +16,30 @@ class PublicationObjectRepository(BaseRepository):
         self,
         module_id: int,
         timepoint: datetime,
-        object_types: List[str],
+        object_types: Dict[str, dict],
         field_map: List[str],
     ) -> List[dict]:
         query = self._get_full_query(module_id, timepoint, object_types, field_map)
-
         result = self._db.execute(query)
-        rows = [row._asdict() for row in result]
+        rows = []
+
+        for row in result:
+            row_dict = row._asdict()
+            object_type = row_dict["Object_Type"]
+
+            try:
+                relevant_fields = object_types[object_type]["Field_Map"]
+                filtered_row = {k: row_dict[k] for k in relevant_fields}
+                rows.append(filtered_row)
+            except (KeyError, TypeError) as e:
+                raise ValueError(f"object_type '{object_type}' missing Field_Map, upgrade required.") from e
+
         return rows
 
     def _get_object_query(
-        module_id: int,
+        self,
         timepoint: datetime,
-        object_types: List[str],
+        object_types: Dict[str, dict],
         field_map: List[str],
     ):
         row_number = (
@@ -71,7 +82,7 @@ class PublicationObjectRepository(BaseRepository):
         self,
         module_id: int,
         timepoint: datetime,
-        object_types: List[str],
+        object_types: Dict[str, dict],
         field_map: List[str],
     ):
         subq = (
@@ -109,7 +120,7 @@ class PublicationObjectRepository(BaseRepository):
         self,
         module_id: int,
         timepoint: datetime,
-        object_types: List[str],
+        object_types: Dict[str, dict],
         field_map: List[str],
     ):
         object_query = self._get_object_query(timepoint, object_types, field_map)
