@@ -21,7 +21,7 @@ class TemplateCreate(BaseModel):
     Title: str = Field(..., min_length=3)
     Description: str
     Document_Type: DocumentType
-    Object_Types: List[str]
+    Object_Types: Dict[str, dict]
     Field_Map: List[str]
     Text_Template: str
     Object_Templates: Dict[str, str]

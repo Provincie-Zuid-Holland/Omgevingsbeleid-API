@@ -21,7 +21,7 @@ class PublicationTemplate(BaseModel):
     Description: str
     Is_Active: bool
     Document_Type: str
-    Object_Types: List[str]
+    Object_Types: Dict[str, dict]
     Text_Template: str
     Object_Templates: Dict[str, str]
     Field_Map: List[str]

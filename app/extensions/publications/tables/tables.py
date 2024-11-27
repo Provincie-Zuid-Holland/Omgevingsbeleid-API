@@ -38,7 +38,7 @@ class PublicationTemplateTable(Base, UserMetaData):
 
     Is_Active: Mapped[bool]
     Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Object_Types: Mapped[list] = mapped_column(JSON, nullable=False)
+    Object_Types: Mapped[dict] = mapped_column(JSON, nullable=False)
     Text_Template: Mapped[str] = mapped_column(Unicode, nullable=False)
     Object_Templates: Mapped[dict] = mapped_column(JSON, nullable=False)
     Field_Map: Mapped[list] = mapped_column(JSON, nullable=False)
