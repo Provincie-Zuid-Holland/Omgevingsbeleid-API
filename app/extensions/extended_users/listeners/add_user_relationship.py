@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import ForeignKey, Uuid
 from sqlalchemy.orm import mapped_column, relationship
 
@@ -7,7 +9,7 @@ from app.extensions.users.db.tables import UsersTable
 
 
 class AddUserRelationshipListener(Listener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent:
+    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
         column = event.column
         if column.type != "user_uuid":
             return

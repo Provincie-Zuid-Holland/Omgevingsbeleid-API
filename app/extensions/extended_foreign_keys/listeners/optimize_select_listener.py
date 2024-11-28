@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.base import ExecutableOption
@@ -9,7 +9,7 @@ from app.dynamic.event.types import Listener
 
 
 class OptimizeSelectListener(Listener[BeforeSelectExecutionEvent]):
-    def handle_event(self, event: BeforeSelectExecutionEvent) -> BeforeSelectExecutionEvent:
+    def handle_event(self, event: BeforeSelectExecutionEvent) -> Optional[BeforeSelectExecutionEvent]:
         if not event.context.response_model:
             return event
 

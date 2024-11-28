@@ -97,9 +97,10 @@ class OwData:
 @dataclass
 class PublicationData:
     objects: List[dict]
+    documents: List[dict]
     assets: List[dict]
     werkingsgebieden: List[dict]
-    attachments: List[Dict]
+    bill_attachments: List[Dict]
     area_of_jurisdiction: dict
     parsed_template: str
 

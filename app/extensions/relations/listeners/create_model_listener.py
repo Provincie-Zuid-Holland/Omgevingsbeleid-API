@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import pydantic
 
@@ -13,7 +13,7 @@ class CreateModelListener(Listener[CreateModelEvent]):
         self._models_resolver: ModelsResolver = models_resolver
         self._relation_model_id: str = "read_relation_short"
 
-    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent:
+    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
         if not "relations" in service_config:
             return event

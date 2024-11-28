@@ -5,16 +5,17 @@ from sqlalchemy.orm import mapped_column, relationship
 
 from app.dynamic.event.generate_table_event import GenerateTableEvent
 from app.dynamic.event.types import Listener
+from app.extensions.attachments.db.tables import StorageFileTable
 
 
-class AddWerkingsgebiedenRelationshipListener(Listener[GenerateTableEvent]):
+class AddStoreageFileRelationshipListener(Listener[GenerateTableEvent]):
     def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
         column = event.column
-        if column.type != "werkingsgebied_uuid":
+        if column.type != "file_uuid":
             return
 
         # Add the column itself
-        additional_args = [ForeignKey("Werkingsgebieden.UUID")]
+        additional_args = [ForeignKey(StorageFileTable.UUID)]
         setattr(
             event.table_type,
             column.name,
@@ -28,8 +29,8 @@ class AddWerkingsgebiedenRelationshipListener(Listener[GenerateTableEvent]):
                 event.table_type,
                 relation_field,
                 relationship(
-                    "SourceWerkingsgebiedenTable",
-                    primaryjoin=f"{event.table_name}.{column.name} == SourceWerkingsgebiedenTable.UUID",
+                    StorageFileTable,
+                    primaryjoin=f"{event.table_name}.{column.name} == StorageFileTable.UUID",
                     viewonly=True,
                 ),
             )

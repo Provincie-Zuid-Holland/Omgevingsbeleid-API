@@ -25,7 +25,7 @@ class InsertComputedFieldsListener(Listener[CreateModelEvent]):
 
     SERVICE_NAME: str = "insert_computed_fields"
 
-    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent:
+    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
         config: dict = service_config.get(self.SERVICE_NAME, None)
         if not config:

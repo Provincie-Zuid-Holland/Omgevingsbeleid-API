@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from app.extensions.publications.models.api_input_data import ActFrbr, BillFrbr, PublicationData
 from app.extensions.publications.repository import PublicationObjectRepository
 from app.extensions.publications.repository.publication_aoj_repository import PublicationAOJRepository
+from app.extensions.publications.services.act_package.documents_provider import PublicationDocumentsProvider
 from app.extensions.publications.services.act_package.werkingsgebieden_provider import (
     PublicationWerkingsgebiedenProvider,
 )
@@ -20,6 +21,7 @@ class ActPublicationDataProvider:
         publication_object_repository: PublicationObjectRepository,
         publication_asset_provider: PublicationAssetProvider,
         publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider,
+        publication_documents_provider: PublicationDocumentsProvider,
         publication_aoj_repository: PublicationAOJRepository,
         template_parser: TemplateParser,
     ):
@@ -28,6 +30,7 @@ class ActPublicationDataProvider:
         self._publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider = (
             publication_werkingsgebieden_provider
         )
+        self._publication_documents_provider: PublicationDocumentsProvider = publication_documents_provider
         self._publication_aoj_repository: PublicationAOJRepository = publication_aoj_repository
         self._template_parser: TemplateParser = template_parser
 
@@ -52,14 +55,20 @@ class ActPublicationDataProvider:
             used_objects,
             all_data,
         )
+        documents: List[dict] = self._publication_documents_provider.get_documents(
+            act_frbr,
+            objects,
+            used_objects,
+        )
         area_of_jurisdiction: dict = self._get_aoj()
-        attachments: List[dict] = self._get_attachments(publication_version, bill_frbr)
+        bill_attachments: List[dict] = self._get_bill_attachments(publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
             objects=used_objects,
+            documents=documents,
             assets=assets,
             werkingsgebieden=werkingsgebieden,
-            attachments=attachments,
+            bill_attachments=bill_attachments,
             area_of_jurisdiction=area_of_jurisdiction,
             parsed_template=parsed_template,
         )
@@ -100,7 +109,7 @@ class ActPublicationDataProvider:
         }
         return result
 
-    def _get_attachments(self, publication_version: PublicationVersionTable, bill_frbr: BillFrbr) -> List[dict]:
+    def _get_bill_attachments(self, publication_version: PublicationVersionTable, bill_frbr: BillFrbr) -> List[dict]:
         result: List[dict] = []
 
         for attachment in publication_version.Attachments:

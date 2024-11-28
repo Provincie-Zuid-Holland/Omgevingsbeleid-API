@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -12,7 +12,7 @@ class RetrievedModuleObjectsListener(Listener[RetrievedModuleObjectsEvent]):
     def __init__(self, converter: Converter):
         self._converter: Converter = converter
 
-    def handle_event(self, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent:
+    def handle_event(self, event: RetrievedModuleObjectsEvent) -> Optional[RetrievedModuleObjectsEvent]:
         add_service: AddRelationsService = AddRelationsService(
             self._converter,
             event.get_db(),

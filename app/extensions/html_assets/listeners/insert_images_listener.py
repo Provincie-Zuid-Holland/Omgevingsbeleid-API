@@ -64,7 +64,7 @@ EventT = TypeVar("EventT")
 
 
 class InsertHtmlImagesListenerBase(Listener[EventT], Generic[EventT]):
-    def handle_event(self, event: EventT) -> EventT:
+    def handle_event(self, event: EventT) -> Optional[EventT]:
         config: Optional[InsertHtmlImagesConfig] = self._collect_config(event.context.response_model)
         if not config or not config.fields:
             return event

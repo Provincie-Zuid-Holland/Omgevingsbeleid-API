@@ -19,12 +19,15 @@ from app.dynamic.generate_table import generate_table
 from app.dynamic.listeners.add_object_code_relationship import AddObjectCodeRelationshipListener
 from app.dynamic.service_container import ServiceContainer
 from app.dynamic.validators.validator import (
+    FilenameValidator,
     HtmlValidator,
     ImageValidator,
     LengthValidator,
     NotEqualRootValidator,
     ObjectCodeAllowedTypeValidator,
     ObjectCodeExistsValidator,
+    ObjectCodesAllowedTypeValidator,
+    ObjectCodesExistsValidator,
     PlainTextValidator,
 )
 
@@ -289,15 +292,19 @@ class DynamicAppBuilder:
         self._service_container.converter.register_serializer("optional_str", serializers.serializer_optional_str)
         self._service_container.converter.register_serializer("uuid", serializers.serializer_uuid)
         self._service_container.converter.register_serializer("optional_uuid", serializers.serializer_optional_uuid)
+        self._service_container.converter.register_serializer("json_dumps", serializers.serializer_json_dumps)
 
     def _register_base_validators(self):
         self._service_container.validator_provider.register(LengthValidator())
         self._service_container.validator_provider.register(PlainTextValidator())
+        self._service_container.validator_provider.register(FilenameValidator())
         self._service_container.validator_provider.register(HtmlValidator())
         self._service_container.validator_provider.register(ImageValidator())
         self._service_container.validator_provider.register(NotEqualRootValidator())
         self._service_container.validator_provider.register(ObjectCodeExistsValidator())
         self._service_container.validator_provider.register(ObjectCodeAllowedTypeValidator())
+        self._service_container.validator_provider.register(ObjectCodesExistsValidator())
+        self._service_container.validator_provider.register(ObjectCodesAllowedTypeValidator())
 
     def _merge_endpoint_resolvers(self, resolvers: List[EndpointResolver]):
         for resolver in resolvers:

@@ -1,3 +1,4 @@
+import json
 from typing import Any, Optional
 from uuid import UUID
 
@@ -24,3 +25,7 @@ def serializer_optional_uuid(value: Any) -> Optional[UUID]:
     if value is None:
         return None
     return serializer_uuid(value)
+
+
+def serializer_json_dumps(value: Any) -> Optional[str]:
+    return json.dumps(value)

@@ -3,6 +3,7 @@ from app.dynamic.dynamic_app import DynamicAppBuilder
 from app.extensions.acknowledged_relations.acknowledged_relations_extension import AcknowledgedRelationsExtension
 from app.extensions.areas.areas_extension import AreasExtension
 from app.extensions.atemporal.atemporal_extension import AtemporalExtension
+from app.extensions.attachments.attachments_extension import AttachmentsExtension
 from app.extensions.auth.auth_extension import AuthExtension
 from app.extensions.change_logger.change_logger_extension import ChangeLoggerExtension
 from app.extensions.computed_fields.computed_fields_extension import ComputedFieldsExtension
@@ -40,6 +41,7 @@ app_builder.register_extension(AcknowledgedRelationsExtension())
 app_builder.register_extension(HtmlAssetsExtension())
 app_builder.register_extension(ModulesDiffExtension())
 app_builder.register_extension(AreasExtension())
+app_builder.register_extension(AttachmentsExtension())
 app_builder.register_extension(ChangeLoggerExtension())
 app_builder.register_extension(DatabaseMigrationExtension())
 app_builder.register_extension(PublicationsExtension())

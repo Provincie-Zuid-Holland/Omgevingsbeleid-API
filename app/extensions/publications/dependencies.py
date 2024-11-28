@@ -8,6 +8,8 @@ from app.core.dependencies import depends_db, depends_main_config, depends_setti
 from app.core.settings.dynamic_settings import DynamicSettings
 from app.extensions.areas.dependencies import depends_area_repository
 from app.extensions.areas.repository.area_geometry_repository import AreaGeometryRepository
+from app.extensions.attachments.dependencies import depends_storage_file_repository
+from app.extensions.attachments.repository.storage_file_repository import StorageFileRepository
 from app.extensions.html_assets.dependencies import depends_asset_repository
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.publications.repository import PublicationRepository, PublicationTemplateRepository
@@ -38,6 +40,7 @@ from app.extensions.publications.services.act_package.act_publication_data_provi
 from app.extensions.publications.services.act_package.api_act_input_data_patcher_factory import (
     ApiActInputDataPatcherFactory,
 )
+from app.extensions.publications.services.act_package.documents_provider import PublicationDocumentsProvider
 from app.extensions.publications.services.act_package.werkingsgebieden_provider import (
     PublicationWerkingsgebiedenProvider,
 )
@@ -297,18 +300,28 @@ def depends_publication_werkingsgebieden_provider(
     )
 
 
+def depends_publication_documents_provider(
+    storage_file_repository: StorageFileRepository = Depends(depends_storage_file_repository),
+) -> PublicationDocumentsProvider:
+    return PublicationDocumentsProvider(
+        storage_file_repository,
+    )
+
+
 def depends_act_publication_data_provider(
     publication_object_repository: PublicationObjectRepository = Depends(depends_publication_object_repository),
     publication_asset_provider: PublicationAssetProvider = Depends(depends_publication_asset_provider),
     publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider = Depends(
         depends_publication_werkingsgebieden_provider
     ),
+    publication_documents_provider: PublicationDocumentsProvider = Depends(depends_publication_documents_provider),
     publication_aoj_repository: PublicationAOJRepository = Depends(depends_publication_aoj_repository),
 ) -> ActPublicationDataProvider:
     return ActPublicationDataProvider(
         publication_object_repository,
         publication_asset_provider,
         publication_werkingsgebieden_provider,
+        publication_documents_provider,
         publication_aoj_repository,
         TemplateParser(),
     )
