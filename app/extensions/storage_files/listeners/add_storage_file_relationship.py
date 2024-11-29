@@ -5,7 +5,7 @@ from sqlalchemy.orm import mapped_column, relationship
 
 from app.dynamic.event.generate_table_event import GenerateTableEvent
 from app.dynamic.event.types import Listener
-from app.extensions.attachments.db.tables import StorageFileTable
+from app.extensions.storage_files.db.tables import StorageFileTable
 
 
 class AddStoreageFileRelationshipListener(Listener[GenerateTableEvent]):

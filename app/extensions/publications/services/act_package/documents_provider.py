@@ -3,9 +3,9 @@ from typing import List, Optional, Set
 
 import dso.models as dso_models
 
-from app.extensions.attachments.db.tables import StorageFileTable
-from app.extensions.attachments.repository.storage_file_repository import StorageFileRepository
 from app.extensions.publications.models.api_input_data import ActFrbr
+from app.extensions.storage_files.db.tables import StorageFileTable
+from app.extensions.storage_files.repository.storage_file_repository import StorageFileRepository
 
 
 class PublicationDocumentsProvider:

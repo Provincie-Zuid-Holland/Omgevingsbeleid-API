@@ -12,10 +12,10 @@ from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.attachments.db.tables import StorageFileTable
-from app.extensions.attachments.dependencies import depends_storage_file_repository
-from app.extensions.attachments.permissions import AttachmentPermissions
-from app.extensions.attachments.repository.storage_file_repository import StorageFileRepository
+from app.extensions.storage_files.db.tables import StorageFileTable
+from app.extensions.storage_files.dependencies import depends_storage_file_repository
+from app.extensions.storage_files.permissions import StorageFilePermissions
+from app.extensions.storage_files.repository.storage_file_repository import StorageFileRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
@@ -115,7 +115,7 @@ class EndpointHandler:
         return file_table
 
 
-class AttachmentUploadFileEndpoint(Endpoint):
+class StorageFileUploadFileEndpoint(Endpoint):
     def __init__(self, path: str):
         self._path: str = path
 
@@ -124,7 +124,7 @@ class AttachmentUploadFileEndpoint(Endpoint):
             uploaded_file: UploadFile = File(...),
             user: UsersTable = Depends(
                 depends_current_active_user_with_permission_curried(
-                    AttachmentPermissions.can_upload_files,
+                    StorageFilePermissions.storage_file_can_upload_files,
                 )
             ),
             storage_repository: StorageFileRepository = Depends(depends_storage_file_repository),
@@ -148,15 +148,15 @@ class AttachmentUploadFileEndpoint(Endpoint):
             summary=f"Upload an File",
             response_model=UploadFileResponse,
             description=None,
-            tags=["Attachments"],
+            tags=["Storage File"],
         )
 
         return router
 
 
-class AttachmentUploadFileEndpointResolver(EndpointResolver):
+class StorageFileUploadFileEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "attachment_upload_file"
+        return "storage_file_upload_file"
 
     def generate_endpoint(
         self,
@@ -167,4 +167,4 @@ class AttachmentUploadFileEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        return AttachmentUploadFileEndpoint(path=path)
+        return StorageFileUploadFileEndpoint(path=path)

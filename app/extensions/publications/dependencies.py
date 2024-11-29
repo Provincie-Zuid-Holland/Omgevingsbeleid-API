@@ -8,8 +8,6 @@ from app.core.dependencies import depends_db, depends_main_config, depends_setti
 from app.core.settings.dynamic_settings import DynamicSettings
 from app.extensions.areas.dependencies import depends_area_repository
 from app.extensions.areas.repository.area_geometry_repository import AreaGeometryRepository
-from app.extensions.attachments.dependencies import depends_storage_file_repository
-from app.extensions.attachments.repository.storage_file_repository import StorageFileRepository
 from app.extensions.html_assets.dependencies import depends_asset_repository
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.publications.repository import PublicationRepository, PublicationTemplateRepository
@@ -82,6 +80,8 @@ from app.extensions.publications.tables.tables import (
     PublicationTable,
     PublicationVersionTable,
 )
+from app.extensions.storage_files.dependencies import depends_storage_file_repository
+from app.extensions.storage_files.repository.storage_file_repository import StorageFileRepository
 
 
 def depends_publication_template_repository(db: Session = Depends(depends_db)) -> PublicationTemplateRepository:

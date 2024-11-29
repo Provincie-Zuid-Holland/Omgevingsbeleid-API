@@ -14,7 +14,6 @@ from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelation
 from app.extensions.acknowledged_relations.models.models import AcknowledgedRelationSide
 from app.extensions.areas.repository.mssql_area_geometry_repository import MssqlAreaGeometryRepository
 from app.extensions.areas.repository.sqlite_area_geometry_repository import SqliteAreaGeometryRepository  # # noqa
-from app.extensions.attachments.db.tables import StorageFileTable
 from app.extensions.html_assets.db.tables import AssetsTable
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
@@ -22,6 +21,7 @@ from app.extensions.modules.models.models import ModuleObjectActionFilter, Modul
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import MssqlGeometryRepository
 from app.extensions.source_werkingsgebieden.repository.sqlite_geometry_repository import SqliteGeometryRepository
+from app.extensions.storage_files.db.tables import StorageFileTable
 from app.extensions.users.db import UsersTable
 from app.extensions.users.db.tables import IS_ACTIVE
 from app.tests.database_fixtures_publications import DatabaseFixturesPublications

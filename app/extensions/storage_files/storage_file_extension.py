@@ -1,18 +1,18 @@
 from typing import List
 
-import app.extensions.attachments.endpoints as endpoints
-import app.extensions.attachments.listeners as listeners
+import app.extensions.storage_files.endpoints as endpoints
+import app.extensions.storage_files.listeners as listeners
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_listeners import EventListeners
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.attachments.db.tables import StorageFileTable  # # noqa
-from app.extensions.attachments.models import StorageFileBasic
+from app.extensions.storage_files.db.tables import StorageFileTable  # # noqa
+from app.extensions.storage_files.models import StorageFileBasic
 
 
-class AttachmentsExtension(Extension):
+class StorageFileExtension(Extension):
     def register_models(self, models_resolver: ModelsResolver):
         models_resolver.add(
             ExtensionModel(
@@ -28,7 +28,8 @@ class AttachmentsExtension(Extension):
         models_resolver: ModelsResolver,
     ) -> List[EndpointResolver]:
         return [
-            endpoints.AttachmentUploadFileEndpointResolver(),
+            endpoints.StorageFileUploadFileEndpointResolver(),
+            endpoints.ListStorageFilesEndpointResolver(),
         ]
 
     def register_listeners(

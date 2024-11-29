@@ -169,7 +169,8 @@ api:
             path: /{module_id}
     - prefix: /storage-files
       endpoints:
-        - resolver: attachment_upload_file
+        - resolver: list_storage_files
+        - resolver: storage_file_upload_file
     - prefix: /modules
       endpoints:
         - resolver: create_module
@@ -658,7 +659,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
-    - can_upload_files
+    - storage_file_can_upload_files
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -710,7 +711,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
-    - can_upload_files
+    - storage_file_can_upload_files
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -761,7 +762,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
-    - can_upload_files
+    - storage_file_can_upload_files
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -812,7 +813,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
-    - can_upload_files
+    - storage_file_can_upload_files
   "Test runner":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -863,7 +864,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
-    - can_upload_files
+    - storage_file_can_upload_files
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -914,7 +915,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
-    - can_upload_files
+    - storage_file_can_upload_files
 
 mssql_search:
   - table_name: objects
