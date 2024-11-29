@@ -13,6 +13,7 @@ class PatchActMutation:
 
     def patch(self, data: ApiActInputData) -> ApiActInputData:
         data = self._patch_werkingsgebieden(data)
+        data = self._patch_documents(data)
         data = self._patch_assets(data)
         data = self._patch_act_mutation(data)
         data = self._patch_ow_data(data)
@@ -51,6 +52,41 @@ class PatchActMutation:
                 werkingsgebieden[index]["Frbr"].Expression_Version = existing_werkingsgebied.Frbr.Expression_Version + 1
 
         data.Publication_Data.werkingsgebieden = werkingsgebieden
+
+        return data
+
+    def _patch_documents(self, data: ApiActInputData) -> ApiActInputData:
+        state_documents: Dict[int, models.Document] = self._active_act.Documents
+
+        documents: List[dict] = data.Publication_Data.documents
+        for index, document in enumerate(documents):
+            object_id: int = document["Object_ID"]
+            existing_document: Optional[models.Document] = state_documents.get(object_id)
+            if existing_document is None:
+                continue
+
+            # If the Hash are the same, then we use the state data
+            # and define the document as not new
+            if str(document["Hash"]) == existing_document.Hash:
+                documents[index]["New"] = False
+                documents[index]["UUID"] = existing_document.UUID
+                # Keep the same FRBR
+                documents[index]["Frbr"].Work_Province_ID = existing_document.Frbr.Work_Province_ID
+                documents[index]["Frbr"].Work_Date = existing_document.Frbr.Work_Date
+                documents[index]["Frbr"].Work_Other = existing_document.Frbr.Work_Other
+                documents[index]["Frbr"].Expression_Language = existing_document.Frbr.Expression_Language
+                documents[index]["Frbr"].Expression_Date = existing_document.Frbr.Expression_Date
+                documents[index]["Frbr"].Expression_Version = existing_document.Frbr.Expression_Version
+            else:
+                # If the hash are different that we will publish this as a new version
+                documents[index]["New"] = True
+                # Keep the same FRBR Work, but new expression
+                documents[index]["Frbr"].Work_Province_ID = existing_document.Frbr.Work_Province_ID
+                documents[index]["Frbr"].Work_Date = existing_document.Frbr.Work_Date
+                documents[index]["Frbr"].Work_Other = existing_document.Frbr.Work_Other
+                documents[index]["Frbr"].Expression_Version = existing_document.Frbr.Expression_Version + 1
+
+        data.Publication_Data.documents = documents
 
         return data
 

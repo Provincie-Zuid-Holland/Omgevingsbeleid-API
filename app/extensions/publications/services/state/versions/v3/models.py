@@ -41,6 +41,18 @@ class Werkingsgebied(BaseModel):
         return values
 
 
+class Document(BaseModel):
+    UUID: str
+    Code: str
+    Frbr: Frbr
+    Filename: str
+    Title: str
+    Owner_Act: str
+    Content_Type: str
+    Object_ID: int
+    Hash: str
+
+
 class Asset(BaseModel):
     UUID: str
 
@@ -65,6 +77,7 @@ class ActiveAct(BaseModel):
     Document_Type: str
     Procedure_Type: str
     Werkingsgebieden: Dict[int, Werkingsgebied]
+    Documents: Dict[int, Document] = Field({})
     Assets: Dict[str, Asset]
     Wid_Data: WidData
     Ow_Data: OwData
