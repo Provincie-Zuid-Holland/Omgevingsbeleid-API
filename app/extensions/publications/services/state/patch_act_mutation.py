@@ -35,6 +35,7 @@ class PatchActMutation:
                 werkingsgebieden[index]["New"] = False
                 werkingsgebieden[index]["UUID"] = existing_werkingsgebied.UUID
                 werkingsgebieden[index]["Identifier"] = existing_werkingsgebied.Identifier
+                werkingsgebieden[index]["Geboorteregeling"] = existing_werkingsgebied.Owner_Act
                 # Keep the same FRBR
                 werkingsgebieden[index]["Frbr"].Work_Province_ID = existing_werkingsgebied.Frbr.Work_Province_ID
                 werkingsgebieden[index]["Frbr"].Work_Date = existing_werkingsgebied.Frbr.Work_Date
@@ -45,6 +46,7 @@ class PatchActMutation:
             else:
                 # If the hash are different that we will publish this as a new version
                 werkingsgebieden[index]["New"] = True
+                werkingsgebieden[index]["Geboorteregeling"] = existing_werkingsgebied.Owner_Act
                 # Keep the same FRBR Work, but new expression
                 werkingsgebieden[index]["Frbr"].Work_Province_ID = existing_werkingsgebied.Frbr.Work_Province_ID
                 werkingsgebieden[index]["Frbr"].Work_Date = existing_werkingsgebied.Frbr.Work_Date
@@ -70,6 +72,7 @@ class PatchActMutation:
             if str(document["Hash"]) == existing_document.Hash:
                 documents[index]["New"] = False
                 documents[index]["UUID"] = existing_document.UUID
+                documents[index]["Geboorteregeling"] = existing_document.Owner_Act
                 # Keep the same FRBR
                 documents[index]["Frbr"].Work_Province_ID = existing_document.Frbr.Work_Province_ID
                 documents[index]["Frbr"].Work_Date = existing_document.Frbr.Work_Date
@@ -80,6 +83,7 @@ class PatchActMutation:
             else:
                 # If the hash are different that we will publish this as a new version
                 documents[index]["New"] = True
+                documents[index]["Geboorteregeling"] = existing_document.Owner_Act
                 # Keep the same FRBR Work, but new expression
                 documents[index]["Frbr"].Work_Province_ID = existing_document.Frbr.Work_Province_ID
                 documents[index]["Frbr"].Work_Date = existing_document.Frbr.Work_Date
