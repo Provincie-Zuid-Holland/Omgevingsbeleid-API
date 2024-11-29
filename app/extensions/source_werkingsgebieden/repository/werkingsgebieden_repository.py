@@ -2,7 +2,7 @@ from typing import List
 from uuid import UUID
 
 from shapely import wkt
-from sqlalchemy import desc, select, text
+from sqlalchemy import desc, literal_column, select, text
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
 
@@ -22,13 +22,20 @@ SPATIAL_FUNCTION_MAP = {
 
 class WerkingsgebiedenRepository(BaseRepository):
     def get_all_paginated(self, pagination: SortedPagination) -> PaginatedQueryResult:
-        stmt = select(SourceWerkingsgebiedenTable)
-        return self.fetch_paginated(
+        # add a short hash of the shape to the result
+        shape_binary = SourceWerkingsgebiedenTable.SHAPE.STAsBinary()
+        hash_bytes = func.HASHBYTES(literal_column("'SHA2_256'"), shape_binary)
+        converted_hash = func.CONVERT(literal_column("VARCHAR(MAX)"), hash_bytes, literal_column("2"))
+        short_hash = func.LEFT(converted_hash, literal_column("16")).label("Short_Hash")
+
+        stmt = select(SourceWerkingsgebiedenTable, short_hash)
+        result = self.fetch_paginated_no_scalars(
             statement=stmt,
             offset=pagination.offset,
             limit=pagination.limit,
             sort=(getattr(SourceWerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
         )
+        return result
 
     def get_latest_in_area(
         self,

@@ -41,7 +41,12 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
     ) -> PagedResponse[Werkingsgebied]:
         paged_results = repository.get_all_paginated(pagination)
 
-        werkingsgebieden: List[Werkingsgebied] = [Werkingsgebied.from_orm(w) for w in paged_results.items]
+        werkingsgebieden: List[Werkingsgebied] = []
+        for w, shape_hash in paged_results.items:
+            werkingsgebied = Werkingsgebied.from_orm(w)
+            werkingsgebied.Geometry_Hash = shape_hash
+            werkingsgebieden.append(werkingsgebied)
+
         return PagedResponse[Werkingsgebied](
             total=paged_results.total_count,
             offset=pagination.offset,
