@@ -54,7 +54,9 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_werkingsgebieden_hashed(self, pagination: SimplePagination, title: Optional[str] = None) -> Tuple[int, List[Dict[str, Any]]]:
+    def get_werkingsgebieden_hashed(
+        self, pagination: SimplePagination, title: Optional[str] = None
+    ) -> Tuple[int, List[Dict[str, Any]]]:
         pass
 
     @abstractmethod

@@ -9,8 +9,9 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SimplePagination
 from app.extensions.source_werkingsgebieden.dependencies import depends_geometry_repository
 from app.extensions.source_werkingsgebieden.models.models import Werkingsgebied
-from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import GeometryRepository
-from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import MssqlGeometryRepository
+from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import (
+    GeometryRepository,
+)
 
 
 class ListWerkingsgebiedenEndpoint(Endpoint):
