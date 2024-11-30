@@ -1,10 +1,11 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy import text
 
 from app.core.utils.utils import DATE_FORMAT
+from app.dynamic.utils.pagination import PaginatedQueryResult, SimplePagination, SortedPagination
 from app.extensions.source_werkingsgebieden.repository.geometry_repository import GeometryRepository
 
 
@@ -140,5 +141,75 @@ class MssqlGeometryRepository(GeometryRepository):
             """
         rows = self._db.execute(text(sql), params).all()
 
+        dict_rows = [row._asdict() for row in rows]
+        return dict_rows
+
+    def get_werkingsgebieden_hashed(self, pagination: SimplePagination, title: Optional[str] = None) -> List[Dict[str, Any]]:
+        sql = f"""
+            SELECT
+                "Werkingsgebieden"."UUID",
+                "Werkingsgebieden"."ID",
+                "Werkingsgebieden"."Created_Date",
+                "Werkingsgebieden"."Modified_Date",
+                "Werkingsgebieden"."Begin_Geldigheid",
+                "Werkingsgebieden"."Eind_Geldigheid",
+                "Werkingsgebieden"."Werkingsgebied" AS Title,
+                "Werkingsgebieden".symbol AS Symbol,
+                "Werkingsgebieden"."SHAPE".STAsText() AS Geometry,
+                LEFT(CONVERT(VARCHAR(MAX), HASHBYTES('SHA2_256', "Werkingsgebieden"."SHAPE".STAsBinary()), 2), 16) AS "Geometry_Hash"
+            FROM Werkingsgebieden
+            { 'WHERE "Werkingsgebieden"."Werkingsgebied" = :title' if title else '' }
+            ORDER BY "Werkingsgebieden"."ID"
+            OFFSET :offset ROWS
+            FETCH NEXT :limit ROWS ONLY
+        """
+        params = {
+            "offset": pagination.offset,
+            "limit": pagination.limit,
+        }
+        if title:
+            params["title"] = title
+
+        rows = self._db.execute(text(sql), params).all()
+        dict_rows = [row._asdict() for row in rows]
+        return dict_rows
+
+    def get_werkingsgebieden_grouped_by_title(self, pagination: SimplePagination) -> List[Dict[str, Any]]:
+        sql = f"""
+            WITH RankedWerkingsgebieden AS (
+                SELECT
+                    "Werkingsgebieden"."UUID",
+                    "Werkingsgebieden"."ID",
+                    "Werkingsgebieden"."Created_Date",
+                    "Werkingsgebieden"."Modified_Date",
+                    "Werkingsgebieden"."Begin_Geldigheid",
+                    "Werkingsgebieden"."Eind_Geldigheid",
+                    "Werkingsgebieden"."Werkingsgebied" AS Title,
+                    "Werkingsgebieden".symbol AS Symbol,
+                    "Werkingsgebieden"."SHAPE".STAsText() AS Geometry,
+                    ROW_NUMBER() OVER (PARTITION BY "Werkingsgebieden"."Werkingsgebied" ORDER BY "Werkingsgebieden"."Created_Date" DESC) AS rn
+                FROM Werkingsgebieden
+            )
+            SELECT
+                UUID,
+                ID,
+                Created_Date,
+                Modified_Date,
+                Begin_Geldigheid,
+                Eind_Geldigheid,
+                Title,
+                Symbol,
+                Geometry
+            FROM RankedWerkingsgebieden
+            WHERE rn = 1
+            ORDER BY ID
+            OFFSET :offset ROWS
+            FETCH NEXT :limit ROWS ONLY
+        """
+        params = {
+            "offset": pagination.offset,
+            "limit": pagination.limit,
+        }
+        rows = self._db.execute(text(sql), params).all()
         dict_rows = [row._asdict() for row in rows]
         return dict_rows
