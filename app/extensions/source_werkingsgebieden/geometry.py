@@ -1,29 +1,9 @@
-from sqlalchemy import text, types
-from sqlalchemy.ext.compiler import compiles
+from sqlalchemy import text
 from sqlalchemy.sql.elements import BindParameter
-from sqlalchemy.sql.functions import FunctionElement
 from sqlalchemy.types import UserDefinedType
 
 
-class STAsBinary(FunctionElement):
-    type = types.LargeBinary  # Specify the return type
-    name = "STAsBinary"
-    inherit_cache = True
-
-
-@compiles(STAsBinary)
-def compile_STAsBinary(element, compiler, **kw):
-    """
-    Custom SQLAlchemy compiler for STAsBinary.
-    Renders output in format: [column].STAsBinary()
-    """
-    col = compiler.process(list(element.clauses)[0], **kw)  # Get the column expression
-    return f"{col}.STAsBinary()"
-
-
 class Geometry(UserDefinedType):
-    cache_ok = True
-
     def get_col_spec(self):
         return "geometry"
 
@@ -44,7 +24,3 @@ class Geometry(UserDefinedType):
             return bindvalue.compile.dialect.name
         else:
             raise AttributeError("Unable to determine the database dialect from the bind value.")
-
-    class comparator_factory(UserDefinedType.Comparator):
-        def STAsBinary(self):
-            return STAsBinary(self.expr)
