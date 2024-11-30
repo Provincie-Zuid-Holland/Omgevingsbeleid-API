@@ -161,7 +161,6 @@ class SqliteGeometryRepository(GeometryRepository):
             SELECT
                 UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid,
                 Werkingsgebied AS Title, symbol AS Symbol,
-                AsText(SHAPE) AS Geometry,
                 substr(hex(SHAPE), 1, 16) AS Geometry_Hash
             FROM Werkingsgebieden
             { 'WHERE Werkingsgebied = :title' if title else '' }
@@ -191,13 +190,12 @@ class SqliteGeometryRepository(GeometryRepository):
                 SELECT
                     UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid,
                     Werkingsgebied AS Title, symbol AS Symbol,
-                    AsText(SHAPE) AS Geometry,
                     ROW_NUMBER() OVER (PARTITION BY Werkingsgebied ORDER BY Created_Date DESC) AS rn
                 FROM Werkingsgebieden
             )
             SELECT
                 UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid,
-                Title, Symbol, Geometry
+                Title, Symbol
             FROM RankedWerkingsgebieden
             WHERE rn = 1
             ORDER BY ID

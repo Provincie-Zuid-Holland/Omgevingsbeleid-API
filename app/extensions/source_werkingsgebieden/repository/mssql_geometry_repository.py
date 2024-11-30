@@ -162,7 +162,6 @@ class MssqlGeometryRepository(GeometryRepository):
             SELECT
                 UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid,
                 Werkingsgebied AS Title, symbol AS Symbol,
-                SHAPE.STAsText() AS Geometry,
                 LEFT(CONVERT(VARCHAR(MAX), HASHBYTES('SHA2_256', SHAPE.STAsBinary()), 2), 16) AS Geometry_Hash
             FROM Werkingsgebieden
             { 'WHERE "Werkingsgebieden"."Werkingsgebied" = :title' if title else '' }
@@ -194,13 +193,11 @@ class MssqlGeometryRepository(GeometryRepository):
                 SELECT
                     UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid,
                     Werkingsgebied AS Title, symbol AS Symbol,
-                    SHAPE.STAsText() AS Geometry,
                     ROW_NUMBER() OVER (PARTITION BY Werkingsgebied ORDER BY Created_Date DESC) AS rn
                 FROM Werkingsgebieden
             )
             SELECT
-                UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid,
-                Title, Symbol, Geometry
+                UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid, Title, Symbol
             FROM RankedWerkingsgebieden
             WHERE rn = 1
             ORDER BY ID
