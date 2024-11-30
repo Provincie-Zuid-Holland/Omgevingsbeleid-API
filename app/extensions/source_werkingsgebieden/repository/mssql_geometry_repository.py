@@ -170,7 +170,7 @@ class MssqlGeometryRepository(GeometryRepository):
                 LEFT(CONVERT(VARCHAR(MAX), HASHBYTES('SHA2_256', "Werkingsgebieden"."SHAPE".STAsBinary()), 2), 16) AS "Geometry_Hash"
             FROM Werkingsgebieden
             { 'WHERE "Werkingsgebieden"."Werkingsgebied" = :title' if title else '' }
-            ORDER BY "Werkingsgebieden"."ID"
+            ORDER BY "Werkingsgebieden"."Modified_Date" DESC, "Werkingsgebieden"."ID"
             OFFSET :offset ROWS
             FETCH NEXT :limit ROWS ONLY
         """
@@ -219,7 +219,7 @@ class MssqlGeometryRepository(GeometryRepository):
                 Symbol,
                 Geometry
             FROM RankedWerkingsgebieden
-            WHERE rn = 1  -- Get the first (newest) entry per group
+            WHERE rn = 1
             ORDER BY ID
             OFFSET :offset ROWS
             FETCH NEXT :limit ROWS ONLY
