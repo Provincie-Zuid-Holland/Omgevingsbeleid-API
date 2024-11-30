@@ -1,15 +1,16 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.dependencies import depends_sorted_pagination_curried
+from app.dynamic.dependencies import depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination
-from app.extensions.source_werkingsgebieden.dependencies import depends_werkingsgebieden_repository
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SimplePagination
+from app.extensions.source_werkingsgebieden.dependencies import depends_geometry_repository
 from app.extensions.source_werkingsgebieden.models.models import Werkingsgebied
-from app.extensions.source_werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
+from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import GeometryRepository
+from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import MssqlGeometryRepository
 
 
 class ListWerkingsgebiedenEndpoint(Endpoint):
@@ -19,10 +20,11 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
-            repository: WerkingsgebiedenRepository = Depends(depends_werkingsgebieden_repository),
+            pagination: SimplePagination = Depends(depends_simple_pagination),
+            repository: GeometryRepository = Depends(depends_geometry_repository),
+            title: Optional[str] = None,
         ) -> PagedResponse[Werkingsgebied]:
-            return self._handler(repository, pagination)
+            return self._handler(repository, pagination, title)
 
         router.add_api_route(
             self._path,
@@ -37,18 +39,20 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
         return router
 
     def _handler(
-        self, repository: WerkingsgebiedenRepository, pagination: SortedPagination
+        self, repository: GeometryRepository, pagination: SimplePagination, title: Optional[str] = None
     ) -> PagedResponse[Werkingsgebied]:
-        paged_results = repository.get_all_paginated(pagination)
+        if title is None:
+            werkingsgebieden_dicts = repository.get_werkingsgebieden_grouped_by_title(pagination)
+        else:
+            werkingsgebieden_dicts = repository.get_werkingsgebieden_hashed(pagination=pagination, title=title)
 
         werkingsgebieden: List[Werkingsgebied] = []
-        for w, shape_hash in paged_results.items:
-            werkingsgebied = Werkingsgebied.from_orm(w)
-            werkingsgebied.Geometry_Hash = shape_hash
+        for row in werkingsgebieden_dicts:
+            werkingsgebied = Werkingsgebied(**row)
             werkingsgebieden.append(werkingsgebied)
 
         return PagedResponse[Werkingsgebied](
-            total=paged_results.total_count,
+            total=len(werkingsgebieden),
             offset=pagination.offset,
             limit=pagination.limit,
             results=werkingsgebieden,
