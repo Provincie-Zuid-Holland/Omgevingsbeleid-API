@@ -42,9 +42,9 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
         self, repository: GeometryRepository, pagination: SimplePagination, title: Optional[str] = None
     ) -> PagedResponse[Werkingsgebied]:
         if title is None:
-            werkingsgebieden_dicts = repository.get_werkingsgebieden_grouped_by_title(pagination)
+            total_count, werkingsgebieden_dicts = repository.get_werkingsgebieden_grouped_by_title(pagination)
         else:
-            werkingsgebieden_dicts = repository.get_werkingsgebieden_hashed(pagination=pagination, title=title)
+            total_count, werkingsgebieden_dicts = repository.get_werkingsgebieden_hashed(pagination, title)
 
         werkingsgebieden: List[Werkingsgebied] = []
         for row in werkingsgebieden_dicts:
@@ -52,7 +52,7 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
             werkingsgebieden.append(werkingsgebied)
 
         return PagedResponse[Werkingsgebied](
-            total=len(werkingsgebieden),
+            total=total_count,
             offset=pagination.offset,
             limit=pagination.limit,
             results=werkingsgebieden,

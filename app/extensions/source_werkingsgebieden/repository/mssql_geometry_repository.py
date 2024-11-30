@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy import text
 
@@ -144,7 +144,18 @@ class MssqlGeometryRepository(GeometryRepository):
         dict_rows = [row._asdict() for row in rows]
         return dict_rows
 
-    def get_werkingsgebieden_hashed(self, pagination: SimplePagination, title: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_werkingsgebieden_hashed(self, pagination: SimplePagination, title: Optional[str] = None) -> Tuple[int, List[Dict[str, Any]]]:
+        count_sql = f"""
+            SELECT COUNT(*) 
+            FROM Werkingsgebieden
+            { 'WHERE "Werkingsgebieden"."Werkingsgebied" = :title' if title else '' }
+        """
+        count_params = {}
+        if title:
+            count_params["title"] = title
+
+        total_count = self._db.execute(text(count_sql), count_params).scalar()
+
         sql = f"""
             SELECT
                 "Werkingsgebieden"."UUID",
@@ -172,9 +183,16 @@ class MssqlGeometryRepository(GeometryRepository):
 
         rows = self._db.execute(text(sql), params).all()
         dict_rows = [row._asdict() for row in rows]
-        return dict_rows
 
-    def get_werkingsgebieden_grouped_by_title(self, pagination: SimplePagination) -> List[Dict[str, Any]]:
+        return total_count, dict_rows
+
+    def get_werkingsgebieden_grouped_by_title(self, pagination: SimplePagination) -> Tuple[int, List[Dict[str, Any]]]:
+        count_sql = """
+            SELECT COUNT(DISTINCT "Werkingsgebieden"."Werkingsgebied") 
+            FROM Werkingsgebieden
+        """
+        total_count = self._db.execute(text(count_sql)).scalar()
+
         sql = f"""
             WITH RankedWerkingsgebieden AS (
                 SELECT
@@ -201,7 +219,7 @@ class MssqlGeometryRepository(GeometryRepository):
                 Symbol,
                 Geometry
             FROM RankedWerkingsgebieden
-            WHERE rn = 1
+            WHERE rn = 1  -- Get the first (newest) entry per group
             ORDER BY ID
             OFFSET :offset ROWS
             FETCH NEXT :limit ROWS ONLY
@@ -212,4 +230,5 @@ class MssqlGeometryRepository(GeometryRepository):
         }
         rows = self._db.execute(text(sql), params).all()
         dict_rows = [row._asdict() for row in rows]
-        return dict_rows
+
+        return total_count, dict_rows
