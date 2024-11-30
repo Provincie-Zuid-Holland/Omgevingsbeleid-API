@@ -145,7 +145,11 @@ class MssqlGeometryRepository(GeometryRepository):
         return dict_rows
 
     def get_werkingsgebieden_hashed(
-        self, pagination: SimplePagination, title: Optional[str] = None
+        self,
+        pagination: SimplePagination,
+        title: Optional[str] = None,
+        order_column: str = "Modified_Date",
+        order_direction: str = "DESC",
     ) -> Tuple[int, List[Dict[str, Any]]]:
         count_sql = f"""
             SELECT COUNT(*) 
@@ -165,7 +169,7 @@ class MssqlGeometryRepository(GeometryRepository):
                 LEFT(CONVERT(VARCHAR(MAX), HASHBYTES('SHA2_256', SHAPE.STAsBinary()), 2), 16) AS Geometry_Hash
             FROM Werkingsgebieden
             { 'WHERE "Werkingsgebieden"."Werkingsgebied" = :title' if title else '' }
-            ORDER BY Modified_Date DESC, ID
+            ORDER BY {order_column} {order_direction}, ID
             OFFSET :offset ROWS
             FETCH NEXT :limit ROWS ONLY
         """
@@ -181,7 +185,9 @@ class MssqlGeometryRepository(GeometryRepository):
 
         return total_count, dict_rows
 
-    def get_werkingsgebieden_grouped_by_title(self, pagination: SimplePagination) -> Tuple[int, List[Dict[str, Any]]]:
+    def get_werkingsgebieden_grouped_by_title(
+        self, pagination: SimplePagination, order_column: str = "ID", order_direction: str = "ASC"
+    ) -> Tuple[int, List[Dict[str, Any]]]:
         count_sql = """
             SELECT COUNT(DISTINCT Werkingsgebied) 
             FROM Werkingsgebieden
@@ -200,7 +206,7 @@ class MssqlGeometryRepository(GeometryRepository):
                 UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid, Title, Symbol
             FROM RankedWerkingsgebieden
             WHERE rn = 1
-            ORDER BY ID
+            ORDER BY {order_column} {order_direction}
             OFFSET :offset ROWS
             FETCH NEXT :limit ROWS ONLY
         """

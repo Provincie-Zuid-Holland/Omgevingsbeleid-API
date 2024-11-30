@@ -145,7 +145,13 @@ class SqliteGeometryRepository(GeometryRepository):
         dict_rows = [row._asdict() for row in rows]
         return dict_rows
 
-    def get_werkingsgebieden_hashed(self, pagination: SimplePagination, title: Optional[str] = None) -> Tuple[int, List[Dict[str, Any]]]:
+    def get_werkingsgebieden_hashed(
+        self,
+        pagination: SimplePagination,
+        title: Optional[str] = None,
+        order_column: str = "Modified_Date",
+        order_direction: str = "DESC",
+    ) -> Tuple[int, List[Dict[str, Any]]]:
         count_sql = f"""
             SELECT COUNT(*) 
             FROM Werkingsgebieden
@@ -161,10 +167,11 @@ class SqliteGeometryRepository(GeometryRepository):
             SELECT
                 UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid,
                 Werkingsgebied AS Title, symbol AS Symbol,
+                AsText(SHAPE) AS Geometry,
                 substr(hex(SHAPE), 1, 16) AS Geometry_Hash
             FROM Werkingsgebieden
             { 'WHERE Werkingsgebied = :title' if title else '' }
-            ORDER BY Modified_Date DESC, ID
+            ORDER BY {order_column} {order_direction}, ID
             LIMIT :limit OFFSET :offset
         """
         params = {
@@ -178,7 +185,9 @@ class SqliteGeometryRepository(GeometryRepository):
         dict_rows = [row._asdict() for row in rows]
         return total_count, dict_rows
 
-    def get_werkingsgebieden_grouped_by_title(self, pagination: SimplePagination) -> Tuple[int, List[Dict[str, Any]]]:
+    def get_werkingsgebieden_grouped_by_title(
+        self, pagination: SimplePagination, order_column: str = "ID", order_direction: str = "ASC"
+    ) -> Tuple[int, List[Dict[str, Any]]]:
         count_sql = """
             SELECT COUNT(DISTINCT Werkingsgebied) 
             FROM Werkingsgebieden
@@ -194,11 +203,10 @@ class SqliteGeometryRepository(GeometryRepository):
                 FROM Werkingsgebieden
             )
             SELECT
-                UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid,
-                Title, Symbol
+                UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid, Title, Symbol
             FROM RankedWerkingsgebieden
             WHERE rn = 1
-            ORDER BY ID
+            ORDER BY {order_column} {order_direction}
             LIMIT :limit OFFSET :offset
         """
         params = {

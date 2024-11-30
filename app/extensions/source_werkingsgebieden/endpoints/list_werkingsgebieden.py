@@ -3,10 +3,10 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.dependencies import depends_simple_pagination
+from app.dynamic.dependencies import depends_sorted_pagination_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SimplePagination
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination
 from app.extensions.source_werkingsgebieden.dependencies import depends_geometry_repository
 from app.extensions.source_werkingsgebieden.models.models import Werkingsgebied
 from app.extensions.source_werkingsgebieden.repository import GeometryRepository
@@ -19,18 +19,19 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
-            pagination: SimplePagination = Depends(depends_simple_pagination),
+            pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
             repository: GeometryRepository = Depends(depends_geometry_repository),
             title: Optional[str] = None,
         ) -> PagedResponse[Werkingsgebied]:
-            return self._handler(repository, pagination, title)
+            sort = pagination.sort
+            return self._handler(repository, pagination, title, sort.column, sort.order)
 
         router.add_api_route(
             self._path,
             fastapi_handler,
             methods=["GET"],
             response_model=PagedResponse[Werkingsgebied],
-            summary=f"List the werkingsgebieden",
+            summary="List the werkingsgebieden",
             description=None,
             tags=["Source Werkingsgebieden"],
         )
@@ -38,12 +39,21 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
         return router
 
     def _handler(
-        self, repository: GeometryRepository, pagination: SimplePagination, title: Optional[str] = None
+        self,
+        repository: GeometryRepository,
+        pagination: SortedPagination,
+        title: Optional[str] = None,
+        order_column: str = "Modified_Date",
+        order_direction: str = "DESC",
     ) -> PagedResponse[Werkingsgebied]:
         if title is None:
-            total_count, werkingsgebieden_dicts = repository.get_werkingsgebieden_grouped_by_title(pagination)
+            total_count, werkingsgebieden_dicts = repository.get_werkingsgebieden_grouped_by_title(
+                pagination, order_column, order_direction
+            )
         else:
-            total_count, werkingsgebieden_dicts = repository.get_werkingsgebieden_hashed(pagination, title)
+            total_count, werkingsgebieden_dicts = repository.get_werkingsgebieden_hashed(
+                pagination, title, order_column, order_direction
+            )
 
         werkingsgebieden: List[Werkingsgebied] = []
         for row in werkingsgebieden_dicts:
