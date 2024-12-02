@@ -14,6 +14,7 @@ class Werkingsgebied(BaseModel):
     Title: str
     Start_Validity: Optional[datetime] = Field(None)
     End_Validity: Optional[datetime] = Field(None)
+    Geometry_Hash: Optional[str] = Field(None)
 
     class Config:
         orm_mode = True

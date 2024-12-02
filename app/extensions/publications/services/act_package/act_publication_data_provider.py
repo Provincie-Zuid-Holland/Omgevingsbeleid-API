@@ -1,4 +1,5 @@
 from typing import List, Optional, Set
+from datetime import datetime
 
 import dso.models as dso_models
 from bs4 import BeautifulSoup
@@ -60,7 +61,7 @@ class ActPublicationDataProvider:
             objects,
             used_objects,
         )
-        area_of_jurisdiction: dict = self._get_aoj()
+        area_of_jurisdiction: dict = self._get_aoj(before_datetime=publication_version.Created_Date)
         bill_attachments: List[dict] = self._get_bill_attachments(publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
@@ -94,8 +95,10 @@ class ActPublicationDataProvider:
         results: List[dict] = [o for o in objects if o["Code"] in used_object_codes]
         return results
 
-    def _get_aoj(self) -> dict:
-        aoj: Optional[PublicationAreaOfJurisdictionTable] = self._publication_aoj_repository.get_latest()
+    def _get_aoj(self, before_datetime: Optional[datetime] = None) -> dict:
+        aoj: Optional[PublicationAreaOfJurisdictionTable] = self._publication_aoj_repository.get_latest(
+            before_datetime=before_datetime,
+        )
         if aoj is None:
             raise RuntimeError("There needs to be an area of jurisdiction")
 
