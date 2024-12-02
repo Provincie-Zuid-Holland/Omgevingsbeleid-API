@@ -27,6 +27,7 @@ class ActStatePatcher:
 
     def _patch_publication(self, state: ActiveState) -> ActiveState:
         werkingsgebieden: Dict[int, models.Werkingsgebied] = self._resolve_werkingsgebieden(state)
+        documents: Dict[int, models.Document] = self._resolve_documents(state)
         wid_data = models.WidData(
             Known_Wid_Map=self._dso_builder.get_used_wid_map(),
             Known_Wids=self._dso_builder.get_used_wids(),
@@ -88,6 +89,7 @@ class ActStatePatcher:
             Document_Type=self._api_input_data.Publication_Version.Publication.Document_Type,
             Procedure_Type=self._api_input_data.Publication_Version.Publication.Procedure_Type,
             Werkingsgebieden=werkingsgebieden,
+            Documents=documents,
             Assets=assets,
             Wid_Data=wid_data,
             Ow_Data=ow_data,
@@ -124,6 +126,36 @@ class ActStatePatcher:
             werkingsgebieden[werkingsgebied.Object_ID] = werkingsgebied
 
         return werkingsgebieden
+
+    def _resolve_documents(self, state: ActiveState) -> Dict[int, models.Document]:
+        documents: Dict[int, models.Document] = {}
+
+        # We only keep the send documents, as all other should have been withdrawn
+        for dso_document in self._api_input_data.Publication_Data.documents:
+            dso_frbr: dso_models.GioFRBR = dso_document["Frbr"]
+            frbr = models.Frbr(
+                Work_Province_ID=dso_frbr.Work_Province_ID,
+                Work_Country="",
+                Work_Date=dso_frbr.Work_Date,
+                Work_Other=dso_frbr.Work_Other,
+                Expression_Language=dso_frbr.Expression_Language,
+                Expression_Date=dso_frbr.Expression_Date,
+                Expression_Version=dso_frbr.Expression_Version or 0,
+            )
+            document = models.Document(
+                UUID=str(dso_document["UUID"]),
+                Code=str(dso_document["Code"]),
+                Frbr=frbr,
+                Filename=dso_document["Filename"],
+                Title=dso_document["Title"],
+                Owner_Act=dso_document["Geboorteregeling"],
+                Content_Type=dso_document["Content_Type"],
+                Object_ID=dso_document["Object_ID"],
+                Hash=dso_document["Hash"],
+            )
+            documents[document.Object_ID] = document
+
+        return documents
 
     def _patch_consolidation_purpose(self, state: ActiveState) -> ActiveState:
         purpose: Purpose = self._api_input_data.Consolidation_Purpose

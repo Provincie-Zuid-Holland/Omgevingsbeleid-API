@@ -38,6 +38,7 @@ from app.extensions.publications.services.act_package.act_publication_data_provi
 from app.extensions.publications.services.act_package.api_act_input_data_patcher_factory import (
     ApiActInputDataPatcherFactory,
 )
+from app.extensions.publications.services.act_package.documents_provider import PublicationDocumentsProvider
 from app.extensions.publications.services.act_package.werkingsgebieden_provider import (
     PublicationWerkingsgebiedenProvider,
 )
@@ -79,6 +80,8 @@ from app.extensions.publications.tables.tables import (
     PublicationTable,
     PublicationVersionTable,
 )
+from app.extensions.storage_files.dependencies import depends_storage_file_repository
+from app.extensions.storage_files.repository.storage_file_repository import StorageFileRepository
 
 
 def depends_publication_template_repository(db: Session = Depends(depends_db)) -> PublicationTemplateRepository:
@@ -297,18 +300,28 @@ def depends_publication_werkingsgebieden_provider(
     )
 
 
+def depends_publication_documents_provider(
+    storage_file_repository: StorageFileRepository = Depends(depends_storage_file_repository),
+) -> PublicationDocumentsProvider:
+    return PublicationDocumentsProvider(
+        storage_file_repository,
+    )
+
+
 def depends_act_publication_data_provider(
     publication_object_repository: PublicationObjectRepository = Depends(depends_publication_object_repository),
     publication_asset_provider: PublicationAssetProvider = Depends(depends_publication_asset_provider),
     publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider = Depends(
         depends_publication_werkingsgebieden_provider
     ),
+    publication_documents_provider: PublicationDocumentsProvider = Depends(depends_publication_documents_provider),
     publication_aoj_repository: PublicationAOJRepository = Depends(depends_publication_aoj_repository),
 ) -> ActPublicationDataProvider:
     return ActPublicationDataProvider(
         publication_object_repository,
         publication_asset_provider,
         publication_werkingsgebieden_provider,
+        publication_documents_provider,
         publication_aoj_repository,
         TemplateParser(),
     )

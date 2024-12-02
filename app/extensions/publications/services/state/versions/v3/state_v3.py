@@ -60,6 +60,7 @@ class StateV3(State):
             Document_Type=action.Document_Type,
             Procedure_Type=action.Procedure_Type,
             Werkingsgebieden=action.Werkingsgebieden,
+            Documents=action.Documents,
             Assets=action.Assets,
             Wid_Data=action.Wid_Data,
             Ow_Data=action.Ow_Data,

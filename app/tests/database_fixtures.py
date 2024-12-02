@@ -1,3 +1,4 @@
+import hashlib
 import json
 import uuid
 from datetime import datetime
@@ -20,6 +21,7 @@ from app.extensions.modules.models.models import ModuleObjectActionFilter, Modul
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import MssqlGeometryRepository
 from app.extensions.source_werkingsgebieden.repository.sqlite_geometry_repository import SqliteGeometryRepository
+from app.extensions.storage_files.db.tables import StorageFileTable
 from app.extensions.users.db import UsersTable
 from app.extensions.users.db.tables import IS_ACTIVE
 from app.tests.database_fixtures_publications import DatabaseFixturesPublications
@@ -54,13 +56,14 @@ class DatabaseFixtures:
         self.create_users()
         self.create_source_werkingsgebieden()
         self.create_areas()
+        self.create_storage_files()
         self.create_assets()
         self.create_object_statics()
         self.existing_objects()
         self.create_modules()
         self.create_relations()
         self.create_acknowledged_relations()
-        self.create_visie()
+        self.create_visie_algemeen()
 
         self.create_publication_templates()
 
@@ -174,6 +177,45 @@ class DatabaseFixtures:
                 "Modified_Date": datetime(2023, 2, 2, 2, 2, 2).strftime(DATE_FORMAT)[:23],
             },
         )
+        self._db.commit()
+
+    def create_storage_files(self):
+        with open("./app/tests/files/document-1.pdf", "rb") as file:
+            file_binary = file.read()
+            file_size = len(file_binary)
+            checksum = hashlib.sha256(file_binary).hexdigest()
+            lookup = checksum[0:10]
+            self._db.add(
+                StorageFileTable(
+                    UUID=uuid.UUID("00000000-0011-0000-0001-000000000001"),
+                    Lookup=lookup,
+                    Checksum=checksum,
+                    Filename="document-1.pdf",
+                    Content_Type="application/pdf",
+                    Size=file_size,
+                    Binary=file_binary,
+                    Created_Date=datetime(2022, 2, 2, 3, 3, 3),
+                    Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                )
+            )
+        with open("./app/tests/files/document-2.pdf", "rb") as file:
+            file_binary = file.read()
+            file_size = len(file_binary)
+            checksum = hashlib.sha256(file_binary).hexdigest()
+            lookup = checksum[0:10]
+            self._db.add(
+                StorageFileTable(
+                    UUID=uuid.UUID("00000000-0011-0000-0001-000000000002"),
+                    Lookup=lookup,
+                    Checksum=checksum,
+                    Filename="document-2.pdf",
+                    Content_Type="application/pdf",
+                    Size=file_size,
+                    Binary=file_binary,
+                    Created_Date=datetime(2022, 2, 2, 3, 3, 3),
+                    Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                )
+            )
         self._db.commit()
 
     def create_assets(self):
@@ -292,6 +334,26 @@ class DatabaseFixtures:
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
             )
         )
+
+        self._db.add(
+            ObjectStaticsTable(
+                Object_Type="document",
+                Object_ID=1,
+                Code="document-1",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Cached_Title="Titel van document 1",
+            )
+        )
+        self._db.add(
+            ObjectStaticsTable(
+                Object_Type="document",
+                Object_ID=2,
+                Code="document-2",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Cached_Title="Titel van document 2",
+            )
+        )
+
         self._db.commit()
 
     def existing_objects(self):
@@ -726,6 +788,8 @@ class DatabaseFixtures:
                 Object_Type="maatregel",
                 Object_ID=1,
                 Code="maatregel-1",
+                Hierarchy_Code="beleidskeuze-1",
+                Documents=["document-1", "document-2"],
                 Werkingsgebied_Code="werkingsgebied-1",
                 UUID=uuid.UUID("00000000-0000-0004-0000-000000000001"),
                 Title="Titel van de eerste maatregel",
@@ -759,9 +823,81 @@ class DatabaseFixtures:
                 Object_Type="maatregel",
                 Object_ID=2,
                 Code="maatregel-2",
+                Hierarchy_Code="beleidskeuze-2",
                 Werkingsgebied_Code="werkingsgebied-1",
+                Documents=["document-1"],
                 UUID=uuid.UUID("00000000-0000-0004-0000-000000000002"),
                 Title="Titel van de tweede maatregel",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.commit()
+
+        # Document
+        self._db.add(
+            ModuleObjectContextTable(
+                Module_ID=module.Module_ID,
+                Object_Type="document",
+                Object_ID=1,
+                Code="document-1",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Original_Adjust_On=None,
+                Action=ModuleObjectActionFilter.Create,
+                Explanation="Deze wil ik toevoegen",
+                Conclusion="Geen conclusie",
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="document",
+                Object_ID=1,
+                Code="document-1",
+                UUID=uuid.UUID("00000000-0000-0012-0000-000000000001"),
+                Title="Titel van document 1",
+                Filename="document-1.pdf",
+                File_UUID=uuid.UUID("00000000-0011-0000-0001-000000000001"),
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ModuleObjectContextTable(
+                Module_ID=module.Module_ID,
+                Object_Type="document",
+                Object_ID=2,
+                Code="document-2",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Original_Adjust_On=None,
+                Action=ModuleObjectActionFilter.Create,
+                Explanation="Deze wil ik toevoegen",
+                Conclusion="Geen conclusie",
+            )
+        )
+        self._db.commit()
+        self._db.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="document",
+                Object_ID=2,
+                Code="document-2",
+                UUID=uuid.UUID("00000000-0000-0012-0000-000000000002"),
+                Title="Titel van document 2",
+                Filename="document-2.pdf",
+                File_UUID=uuid.UUID("00000000-0011-0000-0001-000000000002"),
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
@@ -858,7 +994,7 @@ class DatabaseFixtures:
         self._db.add(ack_table)
         self._db.commit()
 
-    def create_visie(self):
+    def create_visie_algemeen(self):
         self._db.add(
             ObjectStaticsTable(
                 Object_Type="visie_algemeen",

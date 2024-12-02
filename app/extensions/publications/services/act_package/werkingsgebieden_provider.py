@@ -1,5 +1,6 @@
 import hashlib
 import re
+import uuid
 from datetime import datetime
 from typing import List, Optional, Set
 
@@ -83,7 +84,7 @@ class PublicationWerkingsgebiedenProvider:
 
         result = {
             "UUID": werkingsgebied["UUID"],
-            "Identifier": f"wg-{act_frbr.Act_ID}-{werkingsgebied['UUID']}",
+            "Identifier": str(uuid.uuid4()),
             "Hash": gml_hash.hexdigest(),
             "Object_ID": werkingsgebied["Object_ID"],
             "Code": werkingsgebied["Code"],
@@ -96,7 +97,7 @@ class PublicationWerkingsgebiedenProvider:
             "Onderverdelingen": [
                 {
                     "UUID": werkingsgebied["UUID"],
-                    "Identifier": f"lo-{act_frbr.Act_ID}-{werkingsgebied['UUID']}",
+                    "Identifier": str(uuid.uuid4()),
                     "Title": area.Source_Title,
                     "Gml": area.Gml,
                 }

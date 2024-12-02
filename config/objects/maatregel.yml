@@ -126,6 +126,10 @@ fields:
     name: Decision_Number
     type: str
     column: decision_number
+  documents:
+    name: Documents
+    type: list_str
+    column: documents
   hierarchy_code:
     name: Hierarchy_Code
     type: str
@@ -228,6 +232,7 @@ models:
       end_validity:
       title:
       description:
+      documents:
       role:
       effect:
       hierarchy_code:
@@ -326,6 +331,15 @@ models:
               allowed_object_types:
                 - beleidskeuze
           - id: object_code_exists
+      documents:
+        default: none
+        optional: true
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - document
+          - id: object_codes_exists
       werkingsgebied_code:
         default: none
         optional: true

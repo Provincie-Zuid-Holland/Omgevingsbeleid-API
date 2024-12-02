@@ -54,7 +54,7 @@ class ImageInserter:
 
 
 class GetImagesForModuleListener(Listener[RetrievedModuleObjectsEvent]):
-    def handle_event(self, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent:
+    def handle_event(self, event: RetrievedModuleObjectsEvent) -> Optional[RetrievedModuleObjectsEvent]:
         config: Optional[GetImagesConfig] = self._collect_config(event.context.response_model)
         if not config:
             return event
@@ -87,7 +87,7 @@ class GetImagesForModuleListener(Listener[RetrievedModuleObjectsEvent]):
 
 
 class GetImagesForObjectListener(Listener[RetrievedObjectsEvent]):
-    def handle_event(self, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent:
+    def handle_event(self, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
         config: Optional[GetImagesConfig] = self._collect_config(event.context.response_model)
         if not config:
             return event

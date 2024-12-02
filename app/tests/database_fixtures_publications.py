@@ -31,7 +31,8 @@ class DatabaseFixturesPublications:
         self.create_area_of_jurisdictions()
         self.create_acts()
         self.create_publication()
-        self.create_publication_version()
+        self.create_publication_version_visies()
+        self.create_publication_version_maatregelen()
 
     def create_templates(self):
         # Omgevingsvisie
@@ -168,6 +169,7 @@ class DatabaseFixturesPublications:
                     "beleidskeuze",
                     "maatregel",
                     "werkingsgebied",
+                    "document",
                 ],
                 Field_Map=[
                     "UUID",
@@ -176,6 +178,9 @@ class DatabaseFixturesPublications:
                     "Code",
                     "Hierarchy_Code",
                     "Werkingsgebied_Code",
+                    "Documents",
+                    "File_UUID",
+                    "Filename",
                     "Title",
                     "Description",
                     "Cause",
@@ -242,6 +247,15 @@ class DatabaseFixturesPublications:
 {% if o.Effect | has_text  %}
     <h6>Uitwerking</h6>
     {{ o.Effect }}
+{% endif %}
+
+{% if documents | length > 0 %}
+    <h6>Documenten</h6>
+    <ul data-hint-wid-code="programma-custom-maatregel-{{ o.Code }}-documenten">
+        {%- for d in documents | sort(attribute='Title') %}
+        <li><p><a href="#" data-hint-wid-code="document-{{ o.Code }}-{{ d.Code }}-ref" data-hint-type="document" data-hint-document-uuid="{{ d.UUID }}">{{ d.Title }}</a></p></li>
+        {%- endfor %}
+    </ul>
 {% endif %}
 
 """,
@@ -367,6 +381,7 @@ class DatabaseFixturesPublications:
         self._db.add(
             PublicationAreaOfJurisdictionTable(
                 UUID=uuid.UUID("90000004-0000-0000-0000-000000000001"),
+                Title="Provincie Zuid-Hollan",
                 Administrative_Borders_ID="PV28",
                 Administrative_Borders_Domain="NL.BI.BestuurlijkGebied",
                 Administrative_Borders_Date=datetime.strptime("2023-09-29", "%Y-%m-%d").date(),
@@ -474,6 +489,38 @@ class DatabaseFixturesPublications:
             )
         )
 
+        self._db.add(
+            PublicationActTable(
+                ID=4,
+                UUID=uuid.UUID("90000007-0000-0000-0000-000000000004"),
+                Title="Programma 1 voor Pre-Prod",
+                Is_Active=True,
+                Document_Type=DocumentType.PROGRAM.value,
+                Procedure_Type=ProcedureType.FINAL.value,
+                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
+                Metadata=ActMetadata(
+                    Official_Title="Programma van Zuid-Holland",
+                    Quote_Title="Programma van Zuid-Holland",
+                    Subjects=[
+                        Onderwerp.ruimtelijke_ordening.name,
+                    ],
+                    Jurisdictions=[
+                        Rechtsgebied.omgevingsrecht.name,
+                    ],
+                ).dict(),
+                Metadata_Is_Locked=False,
+                Work_Province_ID="pv28",
+                Work_Country="nl",
+                Work_Date="2024",
+                Work_Other="programma-1",
+                Withdrawal_Purpose_UUID=None,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
+
         self._db.commit()
 
     def create_publication(self):
@@ -528,10 +575,27 @@ class DatabaseFixturesPublications:
                 Modified_By_UUID=self._user,
             )
         )
+        self._db.add(
+            PublicationTable(
+                UUID=uuid.UUID("90000005-0000-0000-0000-000000000004"),
+                Module_ID=1,
+                Title="Pre-Prod Programma Module 1",
+                Document_Type=DocumentType.VISION.value,
+                Procedure_Type=ProcedureType.FINAL.value,
+                Template_UUID=uuid.UUID("90000001-0000-0000-0000-000000000002"),
+                Environment_UUID=uuid.UUID("90000002-0000-0000-0000-000000000002"),
+                Act_UUID=uuid.UUID("90000007-0000-0000-0000-000000000004"),
+                Is_Locked=False,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
 
         self._db.commit()
 
-    def create_publication_version(self):
+    def create_publication_version_visies(self):
         self._db.add(
             PublicationVersionTable(
                 UUID=uuid.UUID("90000006-0000-0000-0000-000000000001"),
@@ -540,6 +604,7 @@ class DatabaseFixturesPublications:
                 Bill_Metadata=(
                     BillMetadata(
                         Official_Title="Omgevingsvisie van Zuid-Holland",
+                        Quote_Title="Omgevingsvisie van Zuid-Holland",
                         Subjects=[
                             Onderwerp.ruimtelijke_ordening.name,
                         ],
@@ -583,6 +648,7 @@ class DatabaseFixturesPublications:
                 Bill_Metadata=(
                     BillMetadata(
                         Official_Title="Omgevingsvisie van Zuid-Holland",
+                        Quote_Title="Omgevingsvisie van Zuid-Holland",
                         Subjects=[
                             Onderwerp.ruimtelijke_ordening.name,
                         ],
@@ -626,6 +692,7 @@ class DatabaseFixturesPublications:
                 Bill_Metadata=(
                     BillMetadata(
                         Official_Title="Omgevingsvisie van Zuid-Holland",
+                        Quote_Title="Omgevingsvisie van Zuid-Holland",
                         Subjects=[
                             Onderwerp.ruimtelijke_ordening.name,
                         ],
@@ -669,6 +736,7 @@ class DatabaseFixturesPublications:
                 Bill_Metadata=(
                     BillMetadata(
                         Official_Title="Ontwerp Omgevingsvisie van Zuid-Holland",
+                        Quote_Title="Ontwerp Omgevingsvisie van Zuid-Holland",
                         Subjects=[
                             Onderwerp.ruimtelijke_ordening.name,
                         ],
@@ -702,4 +770,50 @@ class DatabaseFixturesPublications:
             )
         )
 
+        self._db.commit()
+
+    def create_publication_version_maatregelen(self):
+        self._db.add(
+            PublicationVersionTable(
+                UUID=uuid.UUID("90000006-0000-0000-0000-000000000005"),
+                Publication_UUID=uuid.UUID("90000005-0000-0000-0000-000000000004"),
+                Module_Status_ID=3,
+                Bill_Metadata=(
+                    BillMetadata(
+                        Official_Title="Programma van Zuid-Holland",
+                        Quote_Title="Programma van Zuid-Holland",
+                        Subjects=[
+                            Onderwerp.ruimtelijke_ordening.name,
+                        ],
+                        Jurisdictions=[
+                            Rechtsgebied.omgevingsrecht.name,
+                        ],
+                    )
+                ).dict(),
+                Bill_Compact=BillCompact(
+                    Preamble="<p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>",
+                    Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
+                    Signed="<p>Gedeputeerde Staten</p>",
+                    Amendment_Article='Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.',
+                    Time_Article="<Al>Dit Programma treedt in werking op [[EFFECTIVE_DATE]].</Al>",
+                    Custom_Articles=[
+                        Article(
+                            Number="III",
+                            Content="<p>Hierbij nog meer tekst</p>",
+                        ),
+                    ],
+                ).dict(),
+                Procedural=Procedural(
+                    Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
+                    Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
+                ).dict(),
+                Effective_Date=self._timepoint + timedelta(days=7),
+                Announcement_Date=self._timepoint + timedelta(days=7),
+                Is_Locked=False,
+                Created_Date=self._timepoint,
+                Modified_Date=self._timepoint,
+                Created_By_UUID=self._user,
+                Modified_By_UUID=self._user,
+            )
+        )
         self._db.commit()

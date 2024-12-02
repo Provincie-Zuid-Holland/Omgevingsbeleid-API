@@ -11,7 +11,8 @@ from dso.act_builder.state_manager.input_data.regeling import Regeling
 from dso.act_builder.state_manager.input_data.resource.asset.asset_repository import (
     AssetRepository as DSOAssetRepository,
 )
-from dso.act_builder.state_manager.input_data.resource.pdf.pdf_repository import PdfRepository
+from dso.act_builder.state_manager.input_data.resource.besluit_pdf.besluit_pdf_repository import BesluitPdfRepository
+from dso.act_builder.state_manager.input_data.resource.document.document_repository import DocumentRepository
 from dso.act_builder.state_manager.input_data.resource.policy_object.policy_object_repository import (
     PolicyObjectRepository,
 )
@@ -301,7 +302,8 @@ class DsoActInputDataBuilder:
             policy_object_repository=self._get_policy_object_repository(),
             asset_repository=self._get_asset_repository(),
             werkingsgebied_repository=self._get_werkingsgebied_repository(),
-            pdf_repository=self._get_pdf_repository(),
+            besluit_pdf_repository=self._get_pdf_repository(),
+            document_repository=self._get_document_repository(),
         )
         return resources
 
@@ -323,10 +325,16 @@ class DsoActInputDataBuilder:
             repository.add(w)
         return repository
 
-    def _get_pdf_repository(self) -> PdfRepository:
-        repository = PdfRepository()
-        for a in self._publication_data.attachments:
+    def _get_pdf_repository(self) -> BesluitPdfRepository:
+        repository = BesluitPdfRepository()
+        for a in self._publication_data.bill_attachments:
             repository.add(a)
+        return repository
+
+    def _get_document_repository(self) -> DocumentRepository:
+        repository = DocumentRepository()
+        for b in self._publication_data.documents:
+            repository.add(b)
         return repository
 
     def _get_object_template_repository(self) -> ObjectTemplateRepository:

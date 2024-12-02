@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from app.extensions.publications.enums import PurposeType
 from app.extensions.publications.models.api_input_data import ActFrbr
 
-from .models import Asset, Frbr, OwData, Purpose, Werkingsgebied, WidData
+from .models import Asset, Document, Frbr, OwData, Purpose, Werkingsgebied, WidData
 
 
 class Action(BaseModel, metaclass=ABCMeta):
@@ -30,6 +30,7 @@ class AddPublicationAction(Action):
     Document_Type: str
     Procedure_Type: str
     Werkingsgebieden: Dict[int, Werkingsgebied]
+    Documents: Dict[int, Document]
     Assets: Dict[str, Asset]
     Wid_Data: WidData
     Ow_Data: OwData
