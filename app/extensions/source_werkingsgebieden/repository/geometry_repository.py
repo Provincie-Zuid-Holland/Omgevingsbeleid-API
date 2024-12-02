@@ -55,12 +55,15 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
 
     @abstractmethod
     def get_werkingsgebieden_hashed(
-        self, pagination: SimplePagination, title: Optional[str], order_column: str, order_direction: str
+        self,
+        pagination: SimplePagination,
+        title: Optional[str],
     ) -> Tuple[int, List[Dict[str, Any]]]:
         pass
 
     @abstractmethod
     def get_werkingsgebieden_grouped_by_title(
-        self, pagination: SimplePagination, order_column: str, order_direction: str
+        self,
+        pagination: SimplePagination,
     ) -> Tuple[int, List[Dict[str, Any]]]:
         pass

@@ -5,7 +5,7 @@ from app.extensions.publications.models.api_input_data import ApiActInputData
 from app.extensions.publications.services.state.patch_act_mutation import PatchActMutation
 from app.extensions.publications.services.state.patch_act_mutation_factory import PatchActMutationFactory
 from app.extensions.publications.services.state.versions import ActiveState
-from app.extensions.publications.services.state.versions.v3.models import ActiveAct
+from app.extensions.publications.services.state.versions.v4.models import ActiveAct
 
 
 class ApiActInputDataPatcher:

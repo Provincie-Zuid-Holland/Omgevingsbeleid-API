@@ -66,6 +66,8 @@ from app.extensions.publications.services.state.versions.v2.state_v2 import Stat
 from app.extensions.publications.services.state.versions.v2.state_v2_upgrader import StateV2Upgrader
 from app.extensions.publications.services.state.versions.v3.state_v3 import StateV3
 from app.extensions.publications.services.state.versions.v3.state_v3_upgrader import StateV3Upgrader
+from app.extensions.publications.services.state.versions.v4.state_v4 import StateV4
+from app.extensions.publications.services.state.versions.v4.state_v4_upgrader import StateV4Upgrader
 from app.extensions.publications.services.template_parser import TemplateParser
 from app.extensions.publications.tables import PublicationActPackageTable, PublicationTemplateTable
 from app.extensions.publications.tables.tables import (
@@ -343,19 +345,26 @@ def depends_state_v3_upgrader() -> StateV3Upgrader:
     return StateV3Upgrader()
 
 
+def depends_state_v4_upgrader() -> StateV4Upgrader:
+    return StateV4Upgrader()
+
+
 def depends_state_version_factory(
     state_v2_upgrader: StateV2Upgrader = Depends(depends_state_v2_upgrader),
     state_v3_upgrader: StateV3Upgrader = Depends(depends_state_v3_upgrader),
+    state_v4_upgrader: StateV3Upgrader = Depends(depends_state_v4_upgrader),
 ) -> StateVersionFactory:
     factory: StateVersionFactory = StateVersionFactory(
         versions=[
             StateV1,
             StateV2,
             StateV3,
+            StateV4,
         ],
         upgraders=[
             state_v2_upgrader,
             state_v3_upgrader,
+            state_v4_upgrader,
         ],
     )
     return factory

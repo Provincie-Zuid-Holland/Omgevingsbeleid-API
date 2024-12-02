@@ -34,7 +34,7 @@ class StateSchema(BaseModel):
 class InitialState(State):
     @staticmethod
     def get_schema_version() -> int:
-        return 2
+        return 4
 
     def get_data(self) -> dict:
         return {}

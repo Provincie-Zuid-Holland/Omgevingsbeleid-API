@@ -1,6 +1,6 @@
 from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.extensions.publications.services.state.patch_act_mutation import PatchActMutation
-from app.extensions.publications.services.state.versions.v3 import models
+from app.extensions.publications.services.state.versions.v4 import models
 
 
 class PatchActMutationFactory:

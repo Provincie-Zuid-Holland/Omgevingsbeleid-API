@@ -3,7 +3,7 @@ from uuid import UUID
 
 from app.extensions.publications.models.api_input_data import ActFrbr, ActMutation, ApiActInputData, OwData
 from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
-from app.extensions.publications.services.state.versions.v3 import models
+from app.extensions.publications.services.state.versions.v4 import models
 
 
 class PatchActMutation:
@@ -31,11 +31,19 @@ class PatchActMutation:
 
             # If the Hash are the same, then we use the state data
             # and define the werkingsgebied as not new
-            if str(werkingsgebied["Hash"]) == existing_werkingsgebied.Hash:
+            if self._werkingsgebied_is_same(existing_werkingsgebied, werkingsgebied):
                 werkingsgebieden[index]["New"] = False
                 werkingsgebieden[index]["UUID"] = existing_werkingsgebied.UUID
                 werkingsgebieden[index]["Identifier"] = existing_werkingsgebied.Identifier
                 werkingsgebieden[index]["Geboorteregeling"] = existing_werkingsgebied.Owner_Act
+
+                # Update the locations based on the state data
+                existing_location_lookup = {loc.UUID: loc.dict() for loc in existing_werkingsgebied.Locations}
+                werkingsgebieden[index]["Locaties"] = [
+                    {**location, **existing_location_lookup.get(location["UUID"], {})}
+                    for location in werkingsgebied["Locaties"]
+                ]
+
                 # Keep the same FRBR
                 werkingsgebieden[index]["Frbr"].Work_Province_ID = existing_werkingsgebied.Frbr.Work_Province_ID
                 werkingsgebieden[index]["Frbr"].Work_Date = existing_werkingsgebied.Frbr.Work_Date
@@ -56,6 +64,12 @@ class PatchActMutation:
         data.Publication_Data.werkingsgebieden = werkingsgebieden
 
         return data
+
+    def _werkingsgebied_is_same(self, existing: models.Werkingsgebied, werkingsgebied: dict) -> bool:
+        if not existing.is_still_valid():
+            return False
+
+        return str(werkingsgebied["Hash"]) == existing.Hash
 
     def _patch_documents(self, data: ApiActInputData) -> ApiActInputData:
         state_documents: Dict[int, models.Document] = self._active_act.Documents

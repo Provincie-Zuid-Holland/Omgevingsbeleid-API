@@ -1,5 +1,5 @@
-from typing import List, Optional, Set
 from datetime import datetime
+from typing import List, Optional, Set
 
 import dso.models as dso_models
 from bs4 import BeautifulSoup

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from sqlalchemy import text
 
@@ -148,9 +148,7 @@ class MssqlGeometryRepository(GeometryRepository):
         self,
         pagination: SimplePagination,
         title: Optional[str] = None,
-        order_column: str = "Modified_Date",
-        order_direction: str = "DESC",
-    ) -> Tuple[int, List[Dict[str, Any]]]:
+    ) -> Tuple[int, List[dict]]:
         count_sql = f"""
             SELECT COUNT(*) 
             FROM Werkingsgebieden
@@ -186,8 +184,9 @@ class MssqlGeometryRepository(GeometryRepository):
         return total_count, dict_rows
 
     def get_werkingsgebieden_grouped_by_title(
-        self, pagination: SimplePagination, order_column: str = "ID", order_direction: str = "ASC"
-    ) -> Tuple[int, List[Dict[str, Any]]]:
+        self,
+        pagination: SimplePagination,
+    ) -> Tuple[int, List[dict]]:
         count_sql = """
             SELECT COUNT(DISTINCT Werkingsgebied) 
             FROM Werkingsgebieden

@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Dict, Optional, Set
+from typing import Dict, List, Optional, Set
 
 import dso.models as dso_models
 from dso.act_builder.builder import Builder
@@ -7,8 +7,8 @@ from dso.act_builder.builder import Builder
 from app.core.utils.utils import serialize_data
 from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
 from app.extensions.publications.services.state.versions import ActiveState
-from app.extensions.publications.services.state.versions.v3 import models
-from app.extensions.publications.services.state.versions.v3.actions import AddPublicationAction, AddPurposeAction
+from app.extensions.publications.services.state.versions.v4 import models
+from app.extensions.publications.services.state.versions.v4.actions import AddPublicationAction, AddPurposeAction
 from app.extensions.publications.tables.tables import PublicationTable, PublicationVersionTable
 
 
@@ -114,6 +114,16 @@ class ActStatePatcher:
                 Expression_Date=dso_frbr.Expression_Date,
                 Expression_Version=dso_frbr.Expression_Version or 0,
             )
+            locations: List[models.Location] = [
+                models.Location(
+                    UUID=l["UUID"],
+                    Identifier=l["Identifier"],
+                    Gml_ID=l["Gml_ID"],
+                    Group_ID=l["Group_ID"],
+                    Title=l["Title"],
+                )
+                for l in dso_werkingsgebied["Locaties"]
+            ]
             werkingsgebied = models.Werkingsgebied(
                 UUID=str(dso_werkingsgebied["UUID"]),
                 Identifier=str(dso_werkingsgebied["Identifier"]),
@@ -122,6 +132,7 @@ class ActStatePatcher:
                 Title=dso_werkingsgebied["Title"],
                 Owner_Act=dso_werkingsgebied["Geboorteregeling"],
                 Frbr=frbr,
+                Locations=locations,
             )
             werkingsgebieden[werkingsgebied.Object_ID] = werkingsgebied
 

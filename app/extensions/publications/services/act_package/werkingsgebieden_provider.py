@@ -94,10 +94,12 @@ class PublicationWerkingsgebiedenProvider:
             "Geboorteregeling": act_frbr.get_work(),
             "Achtergrond_Verwijzing": "TOP10NL",
             "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
-            "Onderverdelingen": [
+            "Locaties": [
                 {
                     "UUID": werkingsgebied["UUID"],
                     "Identifier": str(uuid.uuid4()),
+                    "Gml_ID": str(uuid.uuid4()),
+                    "Group_ID": str(uuid.uuid4()),
                     "Title": area.Source_Title,
                     "Gml": area.Gml,
                 }

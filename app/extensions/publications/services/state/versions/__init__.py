@@ -1,3 +1,3 @@
-from app.extensions.publications.services.state.versions.v3.state_v3 import StateV3
+from app.extensions.publications.services.state.versions.v4.state_v4 import StateV4
 
-ActiveState = StateV3
+ActiveState = StateV4

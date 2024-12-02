@@ -4,8 +4,8 @@ from dso.announcement_builder.builder import Builder
 
 from app.extensions.publications.models.api_input_data import ApiAnnouncementInputData
 from app.extensions.publications.services.state.versions import ActiveState
-from app.extensions.publications.services.state.versions.v3 import models
-from app.extensions.publications.services.state.versions.v3.actions import AddAnnouncementAction
+from app.extensions.publications.services.state.versions.v4 import models
+from app.extensions.publications.services.state.versions.v4.actions import AddAnnouncementAction
 from app.extensions.publications.tables.tables import PublicationAnnouncementTable, PublicationTable
 
 
