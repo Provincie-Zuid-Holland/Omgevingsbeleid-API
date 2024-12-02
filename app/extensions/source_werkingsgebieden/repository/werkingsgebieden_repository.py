@@ -2,7 +2,7 @@ from typing import List
 from uuid import UUID
 
 from shapely import wkt
-from sqlalchemy import desc, select, text
+from sqlalchemy import desc, literal_column, select, text
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
 
@@ -21,14 +21,6 @@ SPATIAL_FUNCTION_MAP = {
 
 
 class WerkingsgebiedenRepository(BaseRepository):
-    def get_all_paginated(self, pagination: SortedPagination) -> PaginatedQueryResult:
-        stmt = select(SourceWerkingsgebiedenTable)
-        return self.fetch_paginated(
-            statement=stmt,
-            offset=pagination.offset,
-            limit=pagination.limit,
-            sort=(getattr(SourceWerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
-        )
 
     def get_latest_in_area(
         self,

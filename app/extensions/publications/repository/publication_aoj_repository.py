@@ -1,5 +1,6 @@
 import uuid
 from typing import Optional
+from datetime import datetime
 
 from sqlalchemy import desc, select
 
@@ -28,10 +29,12 @@ class PublicationAOJRepository(BaseRepository):
         )
         return paged_result
 
-    def get_latest(self) -> Optional[PublicationAreaOfJurisdictionTable]:
+    def get_latest(self, before_datetime: Optional[datetime] = None) -> Optional[PublicationAreaOfJurisdictionTable]:
         stmt = (
             select(PublicationAreaOfJurisdictionTable)
             .order_by(desc(PublicationAreaOfJurisdictionTable.Created_Date))
             .limit(1)
         )
+        if before_datetime:
+            stmt = stmt.where(PublicationAreaOfJurisdictionTable.Created_Date < before_datetime)
         return self.fetch_first(stmt)
