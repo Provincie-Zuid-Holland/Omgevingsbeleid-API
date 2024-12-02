@@ -199,7 +199,7 @@ class MssqlGeometryRepository(GeometryRepository):
                 SELECT
                     UUID, ID, Created_Date, Modified_Date, Begin_Geldigheid, Eind_Geldigheid,
                     Werkingsgebied AS Title, symbol AS Symbol,
-                    ROW_NUMBER() OVER (PARTITION BY Werkingsgebied ORDER BY Created_Date DESC) AS rn
+                    ROW_NUMBER() OVER (PARTITION BY Werkingsgebied ORDER BY Modified_Date DESC) AS rn
                 FROM Werkingsgebieden
             )
             SELECT
