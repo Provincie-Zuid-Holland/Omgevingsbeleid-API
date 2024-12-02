@@ -245,7 +245,7 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
-              - bijlage
+              - document
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -259,7 +259,7 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
-              - bijlage
+              - document
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}

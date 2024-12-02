@@ -15,7 +15,8 @@ class AddStoreageFileRelationshipListener(Listener[GenerateTableEvent]):
             return
 
         # Add the column itself
-        additional_args = [ForeignKey(StorageFileTable.UUID)]
+        fk_name = f"fk_{event.table_name}_{column.name}_to_storagefile_uuid"
+        additional_args = [ForeignKey(StorageFileTable.UUID, name=fk_name)]
         setattr(
             event.table_type,
             column.name,
