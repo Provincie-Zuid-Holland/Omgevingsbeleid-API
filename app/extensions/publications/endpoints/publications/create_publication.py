@@ -105,6 +105,8 @@ class EndpointHandler:
         )
         if module is None:
             raise HTTPException(status_code=404, detail="Module niet gevonden")
+        if module.Closed:
+            raise HTTPException(status_code=404, detail="Module is gesloten")
 
         return module
 
