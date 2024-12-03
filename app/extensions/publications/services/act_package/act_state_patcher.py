@@ -116,7 +116,7 @@ class ActStatePatcher:
             )
             locations: List[models.Location] = [
                 models.Location(
-                    UUID=l["UUID"],
+                    UUID=str(l["UUID"]),
                     Identifier=l["Identifier"],
                     Gml_ID=l["Gml_ID"],
                     Group_ID=l["Group_ID"],

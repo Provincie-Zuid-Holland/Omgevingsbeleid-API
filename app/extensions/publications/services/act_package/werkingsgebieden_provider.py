@@ -96,7 +96,7 @@ class PublicationWerkingsgebiedenProvider:
             "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
             "Locaties": [
                 {
-                    "UUID": werkingsgebied["UUID"],
+                    "UUID": str(werkingsgebied["UUID"]),
                     "Identifier": str(uuid.uuid4()),
                     "Gml_ID": str(uuid.uuid4()),
                     "Group_ID": str(uuid.uuid4()),
