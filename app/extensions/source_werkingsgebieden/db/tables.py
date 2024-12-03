@@ -21,7 +21,7 @@ class SourceWerkingsgebiedenTable(Base):
 
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
     SHAPE: Mapped[bytes] = deferred(mapped_column(Geometry()))
-    Geometry_Hash: Mapped[str] = mapped_column(Unicode(64))
+    Geometry_Hash: Mapped[str] = mapped_column(Unicode(64), nullable=True)
     GML: Mapped[str] = deferred(mapped_column(Unicode))
     symbol: Mapped[str] = mapped_column(Unicode(265))
 
