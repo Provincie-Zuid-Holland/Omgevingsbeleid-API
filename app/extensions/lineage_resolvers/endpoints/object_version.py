@@ -57,25 +57,27 @@ class ObjectVersionEndpoint(Endpoint):
         event_dispatcher: EventDispatcher,
         object_uuid: UUID,
     ):
-        object: Optional[ObjectsTable] = object_repository.get_by_object_type_and_uuid(
+        maybe_object: Optional[ObjectsTable] = object_repository.get_by_object_type_and_uuid(
             self._object_type,
             object_uuid,
         )
-        if not object:
+        if not maybe_object:
             raise ValueError("object_uuid does not exist")
 
-        rows = self._run_events([object], event_dispatcher)
+        row: self._response_type = self._response_type.from_orm(maybe_object)
+        rows: List[self._response_type] = [row]
+        rows = self._run_events(rows, event_dispatcher)
         return rows[0]
 
-    def _run_events(self, table_rows: List[ObjectsTable], event_dispatcher: EventDispatcher):
+    def _run_events(self, dynamic_objects: List[pydantic.BaseModel], event_dispatcher: EventDispatcher):
         """
         Ask extensions for more information.
         """
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
             RetrievedObjectsEvent.create(
-                table_rows,
-                self._endpoint_id,
-                self._response_model,
+                rows=dynamic_objects,
+                endpoint_id=self._endpoint_id,
+                response_model=self._response_model,
             )
         )
         return event.payload.rows
