@@ -1,4 +1,6 @@
 import hashlib
+import re
+import uuid
 from datetime import datetime
 from typing import List, Optional, Set
 
@@ -82,6 +84,7 @@ class PublicationWerkingsgebiedenProvider:
 
         result = {
             "UUID": werkingsgebied["UUID"],
+            "Identifier": str(uuid.uuid4()),
             "Hash": gml_hash.hexdigest(),
             "Object_ID": werkingsgebied["Object_ID"],
             "Code": werkingsgebied["Code"],
@@ -91,9 +94,12 @@ class PublicationWerkingsgebiedenProvider:
             "Geboorteregeling": act_frbr.get_work(),
             "Achtergrond_Verwijzing": "TOP10NL",
             "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
-            "Onderverdelingen": [
+            "Locaties": [
                 {
-                    "UUID": werkingsgebied["UUID"],
+                    "UUID": str(werkingsgebied["UUID"]),
+                    "Identifier": str(uuid.uuid4()),
+                    "Gml_ID": str(uuid.uuid4()),
+                    "Group_ID": str(uuid.uuid4()),
                     "Title": area.Source_Title,
                     "Gml": area.Gml,
                 }
@@ -105,4 +111,27 @@ class PublicationWerkingsgebiedenProvider:
         werkingsgebied_codes: Set[str] = set(
             [o.get("Werkingsgebied_Code") for o in used_objects if o.get("Werkingsgebied_Code", None) is not None]
         )  # type: ignore
-        return werkingsgebied_codes
+
+        gebiedsaanwijzingen_codes: Set[str] = self._resolve_gebiedsaanwijzingen(used_objects)
+
+        result = werkingsgebied_codes.union(gebiedsaanwijzingen_codes)
+
+        return result
+
+    def _resolve_gebiedsaanwijzingen(self, used_objects: List[dict]) -> Set[str]:
+        # @todo: this implementation now looks to all fields and objects, but this is wrong
+        # For example in the Programma it also used Beleidskeuze for reference, but does not use it text
+        # So when a Beleidskeuze.Description has a gebiedsaanwijzing, then it will be resolved but not used
+        # This needs to be updated to only check fields from types that are actually used
+        values: Set[str] = set()
+        pattern = r'<a[^>]*data-hint-locatie="(.*?)"[^>]*>'
+
+        for obj in used_objects:
+            for _, value in obj.items():
+                if not isinstance(value, str):
+                    continue
+
+                matches = re.findall(pattern, value)
+                values.update(matches)
+
+        return values

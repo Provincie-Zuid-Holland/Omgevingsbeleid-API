@@ -1,15 +1,20 @@
 from typing import Dict, List, Optional, Set
+from uuid import UUID
 
 from app.extensions.publications.models.api_input_data import ActFrbr, ActMutation, ApiActInputData, OwData
-from app.extensions.publications.services.state.versions.v2 import models
+from app.extensions.publications.services.assets.publication_asset_provider import PublicationAssetProvider
+from app.extensions.publications.services.state.versions.v4 import models
 
 
 class PatchActMutation:
-    def __init__(self, active_act: models.ActiveAct):
+    def __init__(self, asset_provider: PublicationAssetProvider, active_act: models.ActiveAct):
+        self._asset_provider: PublicationAssetProvider = asset_provider
         self._active_act: models.ActiveAct = active_act
 
     def patch(self, data: ApiActInputData) -> ApiActInputData:
         data = self._patch_werkingsgebieden(data)
+        data = self._patch_documents(data)
+        data = self._patch_assets(data)
         data = self._patch_act_mutation(data)
         data = self._patch_ow_data(data)
         return data
@@ -26,16 +31,94 @@ class PatchActMutation:
 
             # If the Hash are the same, then we use the state data
             # and define the werkingsgebied as not new
-            if str(werkingsgebied["Hash"]) == existing_werkingsgebied.Hash:
+            if self._werkingsgebied_is_same(existing_werkingsgebied, werkingsgebied):
                 werkingsgebieden[index]["New"] = False
+                werkingsgebieden[index]["UUID"] = existing_werkingsgebied.UUID
+                werkingsgebieden[index]["Identifier"] = existing_werkingsgebied.Identifier
+                werkingsgebieden[index]["Geboorteregeling"] = existing_werkingsgebied.Owner_Act
+
+                # Update the locations based on the state data
+                existing_location_lookup = {loc.UUID: loc.dict() for loc in existing_werkingsgebied.Locations}
+                werkingsgebieden[index]["Locaties"] = [
+                    {**location, **existing_location_lookup.get(location["UUID"], {})}
+                    for location in werkingsgebied["Locaties"]
+                ]
+
+                # Keep the same FRBR
+                werkingsgebieden[index]["Frbr"].Work_Province_ID = existing_werkingsgebied.Frbr.Work_Province_ID
+                werkingsgebieden[index]["Frbr"].Work_Date = existing_werkingsgebied.Frbr.Work_Date
+                werkingsgebieden[index]["Frbr"].Work_Other = existing_werkingsgebied.Frbr.Work_Other
+                werkingsgebieden[index]["Frbr"].Expression_Language = existing_werkingsgebied.Frbr.Expression_Language
                 werkingsgebieden[index]["Frbr"].Expression_Date = existing_werkingsgebied.Frbr.Expression_Date
                 werkingsgebieden[index]["Frbr"].Expression_Version = existing_werkingsgebied.Frbr.Expression_Version
             else:
-                # If the uuids are different that we will publish this as a new version
+                # If the hash are different that we will publish this as a new version
                 werkingsgebieden[index]["New"] = True
+                werkingsgebieden[index]["Geboorteregeling"] = existing_werkingsgebied.Owner_Act
+                # Keep the same FRBR Work, but new expression
+                werkingsgebieden[index]["Frbr"].Work_Province_ID = existing_werkingsgebied.Frbr.Work_Province_ID
+                werkingsgebieden[index]["Frbr"].Work_Date = existing_werkingsgebied.Frbr.Work_Date
+                werkingsgebieden[index]["Frbr"].Work_Other = existing_werkingsgebied.Frbr.Work_Other
                 werkingsgebieden[index]["Frbr"].Expression_Version = existing_werkingsgebied.Frbr.Expression_Version + 1
 
         data.Publication_Data.werkingsgebieden = werkingsgebieden
+
+        return data
+
+    def _werkingsgebied_is_same(self, existing: models.Werkingsgebied, werkingsgebied: dict) -> bool:
+        if not existing.is_still_valid():
+            return False
+
+        return str(werkingsgebied["Hash"]) == existing.Hash
+
+    def _patch_documents(self, data: ApiActInputData) -> ApiActInputData:
+        state_documents: Dict[int, models.Document] = self._active_act.Documents
+
+        documents: List[dict] = data.Publication_Data.documents
+        for index, document in enumerate(documents):
+            object_id: int = document["Object_ID"]
+            existing_document: Optional[models.Document] = state_documents.get(object_id)
+            if existing_document is None:
+                continue
+
+            # If the Hash are the same, then we use the state data
+            # and define the document as not new
+            if str(document["Hash"]) == existing_document.Hash:
+                documents[index]["New"] = False
+                documents[index]["UUID"] = existing_document.UUID
+                documents[index]["Geboorteregeling"] = existing_document.Owner_Act
+                # Keep the same FRBR
+                documents[index]["Frbr"].Work_Province_ID = existing_document.Frbr.Work_Province_ID
+                documents[index]["Frbr"].Work_Date = existing_document.Frbr.Work_Date
+                documents[index]["Frbr"].Work_Other = existing_document.Frbr.Work_Other
+                documents[index]["Frbr"].Expression_Language = existing_document.Frbr.Expression_Language
+                documents[index]["Frbr"].Expression_Date = existing_document.Frbr.Expression_Date
+                documents[index]["Frbr"].Expression_Version = existing_document.Frbr.Expression_Version
+            else:
+                # If the hash are different that we will publish this as a new version
+                documents[index]["New"] = True
+                documents[index]["Geboorteregeling"] = existing_document.Owner_Act
+                # Keep the same FRBR Work, but new expression
+                documents[index]["Frbr"].Work_Province_ID = existing_document.Frbr.Work_Province_ID
+                documents[index]["Frbr"].Work_Date = existing_document.Frbr.Work_Date
+                documents[index]["Frbr"].Work_Other = existing_document.Frbr.Work_Other
+                documents[index]["Frbr"].Expression_Version = existing_document.Frbr.Expression_Version + 1
+
+        data.Publication_Data.documents = documents
+
+        return data
+
+    def _patch_assets(self, data: ApiActInputData) -> ApiActInputData:
+        state_assets: Dict[str, models.Asset] = self._active_act.Assets
+
+        fetched_assets_uuids: Set[str] = set([a["UUID"] for a in data.Publication_Data.assets])
+        additional_asset_uuids_str: Set[str] = set(
+            [sa.UUID for _, sa in state_assets.items() if sa.UUID not in fetched_assets_uuids]
+        )
+        additional_asset_uuids: List[UUID] = [UUID(uuid_str) for uuid_str in additional_asset_uuids_str]
+        additional_assets: List[dict] = self._asset_provider.get_assets_by_uuids(additional_asset_uuids)
+
+        data.Publication_Data.assets = data.Publication_Data.assets + additional_assets
 
         return data
 

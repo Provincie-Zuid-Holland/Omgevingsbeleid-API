@@ -19,7 +19,7 @@ class PublicationActVersionRepository(BaseRepository):
         work_other: str,
         expression_language: str,
         expression_date: str,
-        expression_version: str,
+        expression_version: int,
     ) -> Optional[PublicationActVersionTable]:
         stmt = (
             select(PublicationActVersionTable)

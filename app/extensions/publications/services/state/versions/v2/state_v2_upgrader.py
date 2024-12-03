@@ -33,6 +33,9 @@ class StateV2Upgrader(StateUpgrader):
         if old_state.get_schema_version() != state_v1.StateV1.get_schema_version():
             raise RuntimeError("Unexpected state provided")
 
+        if not isinstance(old_state, state_v1.StateV1):
+            raise RuntimeError("Unexpected state provided")
+
         purposes = self._mutate_purposes(old_state)
         acts = self._mutate_acts(environment_uuid, old_state)
         announcements = self._mutate_announcements(old_state)
@@ -54,7 +57,7 @@ class StateV2Upgrader(StateUpgrader):
 
         return purposes
 
-    def _mutate_acts(self, environment_uuid: uuid.UUID, old_state: state_v1.StateV1) -> Dict[str, models_v2.Purpose]:
+    def _mutate_acts(self, environment_uuid: uuid.UUID, old_state: state_v1.StateV1) -> Dict[str, models_v2.ActiveAct]:
         acts: Dict[str, models_v2.ActiveAct] = {}
 
         for key, old_act in old_state.Acts.items():
@@ -276,7 +279,7 @@ class StateV2Upgrader(StateUpgrader):
             new_ow_objects[ow_id] = ow
 
         new_ow_data = models_v2.OwData(
-            Ow_Objects=new_ow_objects,
-            Terminated_Ow_Ids=[],
+            Ow_Objects=new_ow_objects,  # type: ignore
+            Terminated_Ow_Ids=[],  # type: ignore
         )
         return new_ow_data

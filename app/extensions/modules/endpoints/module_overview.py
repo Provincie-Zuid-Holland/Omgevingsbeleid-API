@@ -13,7 +13,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
-from app.extensions.modules.dependencies import depends_active_module
+from app.extensions.modules.dependencies import depends_module
 from app.extensions.modules.models import Module
 from app.extensions.modules.models.models import ModuleStatus
 from app.extensions.users.db.tables import UsersTable
@@ -131,7 +131,7 @@ class ModuleOverviewEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             user: UsersTable = Depends(depends_current_active_user),
-            module: ModuleTable = Depends(depends_active_module),
+            module: ModuleTable = Depends(depends_module),
             db: Session = Depends(depends_db),
         ) -> ModuleOverview:
             handler: EndpointHandler = EndpointHandler(

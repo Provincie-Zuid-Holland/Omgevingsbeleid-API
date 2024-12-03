@@ -167,6 +167,10 @@ api:
         - resolver: public_module_overview
           resolver_data:
             path: /{module_id}
+    - prefix: /storage-files
+      endpoints:
+        - resolver: list_storage_files
+        - resolver: storage_file_upload_file
     - prefix: /modules
       endpoints:
         - resolver: create_module
@@ -241,6 +245,7 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
+              - document
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -254,6 +259,7 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
+              - document
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
@@ -420,6 +426,13 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # Filename
+  filename:
+    name: Filename
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
   # Omschrijving
   description:
     name: Description
@@ -427,12 +440,28 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # Document references
+  documents:
+    name: Documents
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
   # Area_UUID used to store reference to the shape
   area_uuid:
     name: Area_UUID
     type: area_uuid
     type_data:
       relation_field: Area
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+  # File_UUID used to store reference to the file
+  file_uuid:
+    name: File_UUID
+    type: file_uuid
+    type_data:
+      relation_field: File
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -630,6 +659,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
+    - storage_file_can_upload_files
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -681,6 +711,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
+    - storage_file_can_upload_files
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -731,6 +762,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
+    - storage_file_can_upload_files
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -781,6 +813,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
+    - storage_file_can_upload_files
   "Test runner":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -831,6 +864,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
+    - storage_file_can_upload_files
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -881,6 +915,7 @@ users_permissions:
     - can_upload_publication_announcement_package_report
     - can_view_publication_announcement_package_report
     - can_download_publication_announcement_package_report
+    - storage_file_can_upload_files
 
 mssql_search:
   - table_name: objects

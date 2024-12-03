@@ -35,6 +35,10 @@ from app.extensions.publications.services.act_defaults_provider import ActDefaul
 from app.extensions.publications.services.act_frbr_provider import ActFrbrProvider
 from app.extensions.publications.services.act_package.act_package_builder_factory import ActPackageBuilderFactory
 from app.extensions.publications.services.act_package.act_publication_data_provider import ActPublicationDataProvider
+from app.extensions.publications.services.act_package.api_act_input_data_patcher_factory import (
+    ApiActInputDataPatcherFactory,
+)
+from app.extensions.publications.services.act_package.documents_provider import PublicationDocumentsProvider
 from app.extensions.publications.services.act_package.werkingsgebieden_provider import (
     PublicationWerkingsgebiedenProvider,
 )
@@ -54,11 +58,16 @@ from app.extensions.publications.services.publication_version_defaults_provider 
 )
 from app.extensions.publications.services.publication_version_validator import PublicationVersionValidator
 from app.extensions.publications.services.purpose_provider import PurposeProvider
+from app.extensions.publications.services.state.patch_act_mutation_factory import PatchActMutationFactory
 from app.extensions.publications.services.state.state_loader import StateLoader
 from app.extensions.publications.services.state.state_version_factory import StateVersionFactory
 from app.extensions.publications.services.state.versions.v1.state_v1 import StateV1
 from app.extensions.publications.services.state.versions.v2.state_v2 import StateV2
 from app.extensions.publications.services.state.versions.v2.state_v2_upgrader import StateV2Upgrader
+from app.extensions.publications.services.state.versions.v3.state_v3 import StateV3
+from app.extensions.publications.services.state.versions.v3.state_v3_upgrader import StateV3Upgrader
+from app.extensions.publications.services.state.versions.v4.state_v4 import StateV4
+from app.extensions.publications.services.state.versions.v4.state_v4_upgrader import StateV4Upgrader
 from app.extensions.publications.services.template_parser import TemplateParser
 from app.extensions.publications.tables import PublicationActPackageTable, PublicationTemplateTable
 from app.extensions.publications.tables.tables import (
@@ -73,6 +82,8 @@ from app.extensions.publications.tables.tables import (
     PublicationTable,
     PublicationVersionTable,
 )
+from app.extensions.storage_files.dependencies import depends_storage_file_repository
+from app.extensions.storage_files.repository.storage_file_repository import StorageFileRepository
 
 
 def depends_publication_template_repository(db: Session = Depends(depends_db)) -> PublicationTemplateRepository:
@@ -291,18 +302,28 @@ def depends_publication_werkingsgebieden_provider(
     )
 
 
+def depends_publication_documents_provider(
+    storage_file_repository: StorageFileRepository = Depends(depends_storage_file_repository),
+) -> PublicationDocumentsProvider:
+    return PublicationDocumentsProvider(
+        storage_file_repository,
+    )
+
+
 def depends_act_publication_data_provider(
     publication_object_repository: PublicationObjectRepository = Depends(depends_publication_object_repository),
     publication_asset_provider: PublicationAssetProvider = Depends(depends_publication_asset_provider),
     publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider = Depends(
         depends_publication_werkingsgebieden_provider
     ),
+    publication_documents_provider: PublicationDocumentsProvider = Depends(depends_publication_documents_provider),
     publication_aoj_repository: PublicationAOJRepository = Depends(depends_publication_aoj_repository),
 ) -> ActPublicationDataProvider:
     return ActPublicationDataProvider(
         publication_object_repository,
         publication_asset_provider,
         publication_werkingsgebieden_provider,
+        publication_documents_provider,
         publication_aoj_repository,
         TemplateParser(),
     )
@@ -320,16 +341,30 @@ def depends_state_v2_upgrader(
     )
 
 
+def depends_state_v3_upgrader() -> StateV3Upgrader:
+    return StateV3Upgrader()
+
+
+def depends_state_v4_upgrader() -> StateV4Upgrader:
+    return StateV4Upgrader()
+
+
 def depends_state_version_factory(
     state_v2_upgrader: StateV2Upgrader = Depends(depends_state_v2_upgrader),
+    state_v3_upgrader: StateV3Upgrader = Depends(depends_state_v3_upgrader),
+    state_v4_upgrader: StateV3Upgrader = Depends(depends_state_v4_upgrader),
 ) -> StateVersionFactory:
     factory: StateVersionFactory = StateVersionFactory(
         versions=[
             StateV1,
             StateV2,
+            StateV3,
+            StateV4,
         ],
         upgraders=[
             state_v2_upgrader,
+            state_v3_upgrader,
+            state_v4_upgrader,
         ],
     )
     return factory
@@ -342,6 +377,22 @@ def depends_state_loader(
     return state_loader
 
 
+def depends_patch_act_mutation_factory(
+    asset_provider: PublicationAssetProvider = Depends(depends_publication_asset_provider),
+) -> PatchActMutationFactory:
+    return PatchActMutationFactory(
+        asset_provider,
+    )
+
+
+def depends_api_act_input_data_patcher_factory(
+    mutation_factory: PatchActMutationFactory = Depends(depends_patch_act_mutation_factory),
+) -> ApiActInputDataPatcherFactory:
+    return ApiActInputDataPatcherFactory(
+        mutation_factory,
+    )
+
+
 def depends_act_package_builder_factory(
     db: Session = Depends(depends_db),
     settings: DynamicSettings = Depends(depends_settings),
@@ -350,6 +401,7 @@ def depends_act_package_builder_factory(
     purpose_provider: PurposeProvider = Depends(depends_purpose_provider),
     state_loader: StateLoader = Depends(depends_state_loader),
     publication_data_provider: ActPublicationDataProvider = Depends(depends_act_publication_data_provider),
+    data_patcher_factory: ApiActInputDataPatcherFactory = Depends(depends_api_act_input_data_patcher_factory),
 ) -> ActPackageBuilderFactory:
     return ActPackageBuilderFactory(
         db,
@@ -359,6 +411,7 @@ def depends_act_package_builder_factory(
         purpose_provider,
         state_loader,
         publication_data_provider,
+        data_patcher_factory,
     )
 
 

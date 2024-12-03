@@ -6,7 +6,7 @@ from app.dynamic.event.types import Listener
 
 
 class ObjectsExtenderListener(Listener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent:
+    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
         if not "foreign_keys_extender" in service_config:
             return event

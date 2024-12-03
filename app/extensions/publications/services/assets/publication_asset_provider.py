@@ -22,8 +22,13 @@ class PublicationAssetProvider:
         self._asset_remove_transparency: AssetRemoveTransparency = asset_remove_transparency
 
     def get_assets(self, objects: List[dict]) -> List[dict]:
-        asset_uuids = self._calculate_asset_uuids(objects)
-        assets: List[AssetsTable] = self._asset_repository.get_by_uuids(asset_uuids)
+        asset_uuids: List[uuid.UUID] = self._calculate_asset_uuids(objects)
+        dso_assets: List[dict] = self.get_assets_by_uuids(asset_uuids)
+
+        return dso_assets
+
+    def get_assets_by_uuids(self, uuids: List[uuid.UUID]) -> List[dict]:
+        assets: List[AssetsTable] = self._asset_repository.get_by_uuids(uuids)
         dso_assets: List[dict] = self._as_dso_assets(assets)
 
         return dso_assets

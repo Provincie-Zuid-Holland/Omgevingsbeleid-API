@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pytest
 from sqlalchemy.orm import Session
 
@@ -12,7 +14,7 @@ class MockEvent(Event):
 
 
 class MockListener(Listener[MockEvent]):
-    def handle_event(self, event: MockEvent) -> MockEvent:
+    def handle_event(self, event: MockEvent) -> Optional[MockEvent]:
         event.message = "handled"
         return event
 

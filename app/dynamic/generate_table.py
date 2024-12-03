@@ -1,6 +1,6 @@
 from typing import Any, Dict, Type
 
-from sqlalchemy import DateTime, Integer, Unicode, Uuid
+from sqlalchemy import JSON, DateTime, Integer, Unicode, Uuid
 from sqlalchemy.orm import mapped_column
 
 from app.core.db import Base
@@ -15,6 +15,7 @@ column_type_map: Dict[str, Any] = {
     "str_35": Unicode(35),
     "datetime": DateTime,
     "object_uuid": Uuid,
+    "json": JSON,
 }
 
 

@@ -34,15 +34,15 @@ click==8.1.7
     #   uvicorn
 dicttoxml==1.7.16
     # via -r requirements.in
-diff-match-patch==20230430
+diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@main
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.5.0
     # via -r requirements.in
 ecdsa==0.19.0
     # via python-jose
 exceptiongroup==1.2.2
     # via anyio
-fastapi==0.115.2
+fastapi==0.115.5
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
@@ -54,11 +54,11 @@ h11==0.14.0
     # via
     #   httpcore
     #   uvicorn
-httpcore==1.0.6
+httpcore==1.0.7
     # via httpx
-httptools==0.6.2
+httptools==0.6.4
     # via uvicorn
-httpx==0.27.2
+httpx==0.28.0
     # via -r requirements.in
 idna==3.10
     # via
@@ -73,18 +73,18 @@ lxml==5.3.0
     # via
     #   -r requirements.in
     #   dso
-markupsafe==3.0.1
+markupsafe==3.0.2
     # via
     #   dso
     #   jinja2
-numpy==2.1.2
+numpy==2.1.3
     # via
     #   dso
     #   geopandas
     #   pandas
     #   pyogrio
     #   shapely
-packaging==24.1
+packaging==24.2
     # via
     #   dso
     #   geopandas
@@ -97,7 +97,7 @@ pathspec==0.12.1
     # via dso
 pdfkit==1.0.0
     # via -r requirements.in
-pillow==10.4.0
+pillow==11.0.0
     # via -r requirements.in
 platformdirs==4.3.6
     # via dso
@@ -105,12 +105,12 @@ pyasn1==0.6.1
     # via
     #   python-jose
     #   rsa
-pydantic==1.10.18
+pydantic==1.10.19
     # via
     #   -r requirements.in
     #   dso
     #   fastapi
-pyodbc==5.1.0
+pyodbc==5.2.0
     # via -r requirements.in
 pyogrio==0.10.0
     # via geopandas
@@ -124,7 +124,7 @@ python-dotenv==1.0.1
     # via uvicorn
 python-jose==3.3.0
     # via -r requirements.in
-python-multipart==0.0.12
+python-multipart==0.0.19
     # via -r requirements.in
 pytz==2024.2
     # via
@@ -155,18 +155,16 @@ six==1.16.0
     #   fs
     #   python-dateutil
 sniffio==1.3.1
-    # via
-    #   anyio
-    #   httpx
+    # via anyio
 soupsieve==2.6
     # via
     #   beautifulsoup4
     #   dso
-sqlalchemy==2.0.35
+sqlalchemy==2.0.36
     # via -r requirements.in
-starlette==0.40.0
+starlette==0.41.3
     # via fastapi
-tomli==2.0.2
+tomli==2.2.1
     # via dso
 typing-extensions==4.12.2
     # via
@@ -180,15 +178,15 @@ tzdata==2024.2
     # via pandas
 urllib3==2.2.3
     # via requests
-uvicorn[standard]==0.31.1
+uvicorn[standard]==0.32.1
     # via -r requirements.in
 uvloop==0.21.0
     # via uvicorn
 validators==0.34.0
     # via -r requirements.in
-watchfiles==0.24.0
+watchfiles==1.0.0
     # via uvicorn
-websockets==13.1
+websockets==14.1
     # via uvicorn
 
 # The following packages are considered to be unsafe in a requirements file:

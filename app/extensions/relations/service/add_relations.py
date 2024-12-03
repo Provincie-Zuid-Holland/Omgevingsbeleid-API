@@ -149,7 +149,7 @@ class AddRelationsService:
             .select_from(RelationsTable)
             .join(
                 ObjectsTable,
-                ObjectsTable.Code.in_([RelationsTable.From_Code, RelationsTable.To_Code]),
+                or_(ObjectsTable.Code == RelationsTable.From_Code, ObjectsTable.Code == RelationsTable.To_Code),
             )
             .filter(
                 or_(

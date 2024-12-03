@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Dict, Optional
+from typing import Dict, List, Optional, Set
 
 import dso.models as dso_models
 from dso.act_builder.builder import Builder
@@ -7,8 +7,8 @@ from dso.act_builder.builder import Builder
 from app.core.utils.utils import serialize_data
 from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
 from app.extensions.publications.services.state.versions import ActiveState
-from app.extensions.publications.services.state.versions.v2 import models
-from app.extensions.publications.services.state.versions.v2.actions import AddPublicationAction, AddPurposeAction
+from app.extensions.publications.services.state.versions.v4 import models
+from app.extensions.publications.services.state.versions.v4.actions import AddPublicationAction, AddPurposeAction
 from app.extensions.publications.tables.tables import PublicationTable, PublicationVersionTable
 
 
@@ -27,6 +27,7 @@ class ActStatePatcher:
 
     def _patch_publication(self, state: ActiveState) -> ActiveState:
         werkingsgebieden: Dict[int, models.Werkingsgebied] = self._resolve_werkingsgebieden(state)
+        documents: Dict[int, models.Document] = self._resolve_documents(state)
         wid_data = models.WidData(
             Known_Wid_Map=self._dso_builder.get_used_wid_map(),
             Known_Wids=self._dso_builder.get_used_wids(),
@@ -78,6 +79,9 @@ class ActStatePatcher:
         if act_text is None:
             raise RuntimeError("Regeling vrijetekst bestaat niet")
 
+        used_asset_uuids: Set[str] = self._dso_builder.get_used_asset_uuids()
+        assets: Dict[str, models.Asset] = {uuidx: models.Asset(UUID=uuidx) for uuidx in used_asset_uuids}
+
         action = AddPublicationAction(
             Act_Frbr=act_frbr,
             Bill_Frbr=bill_frbr,
@@ -85,6 +89,8 @@ class ActStatePatcher:
             Document_Type=self._api_input_data.Publication_Version.Publication.Document_Type,
             Procedure_Type=self._api_input_data.Publication_Version.Publication.Procedure_Type,
             Werkingsgebieden=werkingsgebieden,
+            Documents=documents,
+            Assets=assets,
             Wid_Data=wid_data,
             Ow_Data=ow_data,
             Act_Text=act_text,
@@ -108,17 +114,59 @@ class ActStatePatcher:
                 Expression_Date=dso_frbr.Expression_Date,
                 Expression_Version=dso_frbr.Expression_Version or 0,
             )
+            locations: List[models.Location] = [
+                models.Location(
+                    UUID=str(l["UUID"]),
+                    Identifier=l["Identifier"],
+                    Gml_ID=l["Gml_ID"],
+                    Group_ID=l["Group_ID"],
+                    Title=l["Title"],
+                )
+                for l in dso_werkingsgebied["Locaties"]
+            ]
             werkingsgebied = models.Werkingsgebied(
                 UUID=str(dso_werkingsgebied["UUID"]),
+                Identifier=str(dso_werkingsgebied["Identifier"]),
                 Hash=dso_werkingsgebied["Hash"],
                 Object_ID=dso_werkingsgebied["Object_ID"],
                 Title=dso_werkingsgebied["Title"],
                 Owner_Act=dso_werkingsgebied["Geboorteregeling"],
                 Frbr=frbr,
+                Locations=locations,
             )
             werkingsgebieden[werkingsgebied.Object_ID] = werkingsgebied
 
         return werkingsgebieden
+
+    def _resolve_documents(self, state: ActiveState) -> Dict[int, models.Document]:
+        documents: Dict[int, models.Document] = {}
+
+        # We only keep the send documents, as all other should have been withdrawn
+        for dso_document in self._api_input_data.Publication_Data.documents:
+            dso_frbr: dso_models.GioFRBR = dso_document["Frbr"]
+            frbr = models.Frbr(
+                Work_Province_ID=dso_frbr.Work_Province_ID,
+                Work_Country="",
+                Work_Date=dso_frbr.Work_Date,
+                Work_Other=dso_frbr.Work_Other,
+                Expression_Language=dso_frbr.Expression_Language,
+                Expression_Date=dso_frbr.Expression_Date,
+                Expression_Version=dso_frbr.Expression_Version or 0,
+            )
+            document = models.Document(
+                UUID=str(dso_document["UUID"]),
+                Code=str(dso_document["Code"]),
+                Frbr=frbr,
+                Filename=dso_document["Filename"],
+                Title=dso_document["Title"],
+                Owner_Act=dso_document["Geboorteregeling"],
+                Content_Type=dso_document["Content_Type"],
+                Object_ID=dso_document["Object_ID"],
+                Hash=dso_document["Hash"],
+            )
+            documents[document.Object_ID] = document
+
+        return documents
 
     def _patch_consolidation_purpose(self, state: ActiveState) -> ActiveState:
         purpose: Purpose = self._api_input_data.Consolidation_Purpose

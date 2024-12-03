@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime
+from typing import Any
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
@@ -32,7 +33,7 @@ def as_datetime(value) -> datetime:
     return datetime.strptime(value, DATE_FORMAT)
 
 
-def serialize_data(obj):
+def serialize_data(obj) -> Any:
     if isinstance(obj, dict):
         return {key: serialize_data(value) for key, value in obj.items()}
     elif isinstance(obj, list):

@@ -23,7 +23,7 @@ EventType = TypeVar("EventType", bound=Event)
 
 class Listener(Generic[EventType], metaclass=ABCMeta):
     @abstractmethod
-    def handle_event(self, event: EventType) -> EventType:
+    def handle_event(self, event: EventType) -> Optional[EventType]:
         pass
 
     def description(self) -> str:

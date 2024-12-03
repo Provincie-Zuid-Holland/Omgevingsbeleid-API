@@ -1,10 +1,9 @@
 import uuid
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional
 
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import SimplePagination
 
 
 class GeometryRepository(BaseRepository, metaclass=ABCMeta):
@@ -51,16 +50,4 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
 
     @abstractmethod
     def get_onderverdelingen_for_werkingsgebied(self, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
-        pass
-
-    @abstractmethod
-    def get_werkingsgebieden_hashed(
-        self, pagination: SimplePagination, title: Optional[str], order_column: str, order_direction: str
-    ) -> Tuple[int, List[Dict[str, Any]]]:
-        pass
-
-    @abstractmethod
-    def get_werkingsgebieden_grouped_by_title(
-        self, pagination: SimplePagination, order_column: str, order_direction: str
-    ) -> Tuple[int, List[Dict[str, Any]]]:
         pass

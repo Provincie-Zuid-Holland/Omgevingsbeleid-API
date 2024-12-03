@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import ForeignKey, Uuid
 from sqlalchemy.orm import mapped_column, relationship
 
@@ -6,7 +8,7 @@ from app.dynamic.event.types import Listener
 
 
 class AddWerkingsgebiedenRelationshipListener(Listener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent:
+    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
         column = event.column
         if column.type != "werkingsgebied_uuid":
             return

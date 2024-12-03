@@ -1,4 +1,5 @@
 import io
+import re
 from abc import ABC, abstractmethod
 from base64 import b64decode
 from typing import Callable, List, Optional
@@ -64,6 +65,30 @@ class PlainTextValidator(Validator):
             return v
 
         return pydantic_plain_text_validator
+
+
+class FilenameValidator(Validator):
+    def __init__(self):
+        self._pattern = r"^[\w\-.]+$"
+
+    def get_id(self) -> str:
+        return "filename"
+
+    def get_validator_func(self, config: dict) -> Callable:
+        def pydantic_filename_validator(cls, v):
+            if v is None:
+                return None
+
+            if not isinstance(v, str):
+                raise ValueError("Value must be a string")
+
+            is_valid: bool = bool(re.match(self._pattern, v))
+            if not is_valid:
+                raise ValueError("Not a valid filename")
+
+            return v
+
+        return pydantic_filename_validator
 
 
 class HtmlValidator(Validator):
@@ -243,3 +268,64 @@ class ObjectCodeAllowedTypeValidator(Validator):
             return v
 
         return pydantic_validator_object_code_allowed_type
+
+
+class ObjectCodesExistsValidator(Validator):
+    def get_id(self) -> str:
+        return "object_codes_exists"
+
+    def get_validator_func(self, config: dict) -> Callable:
+        def pydantic_validator_object_codes_exists(cls, v):
+            if v is None:
+                return None
+
+            if not isinstance(v, list) or not all(isinstance(item, str) for item in v):
+                raise ValueError("Value must be a list of strings")
+
+            with db_in_context_manager() as db:
+                static_repository = ObjectStaticRepository(db)
+
+                for object_code in v:
+                    try:
+                        object_type, object_id = object_code.split("-", 1)
+                    except ValueError:
+                        raise ValueError("Value is not a valid Object_Code")
+
+                    object_static = static_repository.get_by_object_type_and_id(
+                        object_type,
+                        object_id,
+                    )
+                    if not object_static:
+                        raise ValueError("Object does not exist")
+
+            return v
+
+        return pydantic_validator_object_codes_exists
+
+
+class ObjectCodesAllowedTypeValidator(Validator):
+    def get_id(self) -> str:
+        return "object_codes_allowed_type"
+
+    def get_validator_func(self, config: dict) -> Callable:
+        allowed_object_types: List[str] = config.get("allowed_object_types", [])
+
+        def pydantic_validator_object_codes_allowed_type(cls, v):
+            if v is None:
+                return None
+
+            if not isinstance(v, list) or not all(isinstance(item, str) for item in v):
+                raise ValueError("Value must be a list of strings")
+
+            for object_code in v:
+                try:
+                    object_type, _ = object_code.split("-", 1)
+                except ValueError:
+                    raise ValueError("Value is not a valid Object_Code")
+
+                if object_type not in allowed_object_types:
+                    raise ValueError("Invalid object type")
+
+            return v
+
+        return pydantic_validator_object_codes_allowed_type

@@ -3,9 +3,8 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
-from sqlalchemy import and_, desc, or_, select
+from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import and_, func, or_
 
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.dependencies import FilterObjectCode

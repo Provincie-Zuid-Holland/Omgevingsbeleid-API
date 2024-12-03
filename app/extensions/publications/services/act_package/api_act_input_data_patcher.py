@@ -3,12 +3,14 @@ from typing import Optional
 from app.extensions.publications.enums import ProcedureType
 from app.extensions.publications.models.api_input_data import ApiActInputData
 from app.extensions.publications.services.state.patch_act_mutation import PatchActMutation
+from app.extensions.publications.services.state.patch_act_mutation_factory import PatchActMutationFactory
 from app.extensions.publications.services.state.versions import ActiveState
-from app.extensions.publications.services.state.versions.v2.models import ActiveAct
+from app.extensions.publications.services.state.versions.v4.models import ActiveAct
 
 
 class ApiActInputDataPatcher:
-    def __init__(self, state: ActiveState):
+    def __init__(self, mutation_factory: PatchActMutationFactory, state: ActiveState):
+        self._mutation_factory: PatchActMutationFactory = mutation_factory
         self._state: ActiveState = state
 
     def apply(self, data: ApiActInputData) -> ApiActInputData:
@@ -43,6 +45,6 @@ class ApiActInputDataPatcher:
         raise NotImplementedError("Intrekken van regeling is nog niet geimplementeerd")
 
     def _handle_mutation(self, data: ApiActInputData, active_act: ActiveAct) -> ApiActInputData:
-        mutation_patcher: PatchActMutation = PatchActMutation(active_act)
+        mutation_patcher: PatchActMutation = self._mutation_factory.create(active_act)
         data = mutation_patcher.patch(data)
         return data
