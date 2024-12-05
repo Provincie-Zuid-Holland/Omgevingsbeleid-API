@@ -39,7 +39,7 @@ api:
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: gebiedsprogramma_full
+            response_model: gebiedsprogramma_detail
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
@@ -231,6 +231,64 @@ models:
           - field_name: Public_Revisions
             model_id: public_module_object_revision
             list: true
+            optional: true
+      insert_assets:
+        fields:
+          - Description
+      get_image:
+        fields:
+          - Image
+      relations:
+        objects:
+          - object_type: maatregel
+            object_id: maatregel
+            to_field: "Maatregelen"
+            model_id: maatregel_minimal
+            wrapped_with_relation_data: true
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: user_short
+          - to_field: Modified_By
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
+  gebiedsprogramma_detail:
+    name: GebiedsprogrammaDetail
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      description:
+      start_validity:
+      end_validity:
+      image:
+        default: none
+        optional: true
+    services:
+      insert_computed_fields:
+        fields: 
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
+          - field_name: Next_Version
+            model_id: next_object_validities
+            list: false
             optional: true
       insert_assets:
         fields:
