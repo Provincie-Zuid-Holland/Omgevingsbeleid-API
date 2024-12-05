@@ -25,7 +25,7 @@ class TemplateEdit(BaseModel):
     Is_Active: Optional[bool] = Field(None, nullable=True)
     Document_Type: Optional[DocumentType] = Field(None, nullable=True)
     Field_Map: Optional[List[str]] = Field(None, nullable=True)
-    Object_Types: Optional[List[str]] = Field(None, nullable=True)
+    Object_Types: Optional[Dict[str, dict]] = Field(None, nullable=True)
     Text_Template: Optional[str] = Field(None, nullable=True)
     Object_Templates: Optional[Dict[str, str]] = Field(None, nullable=True)
 

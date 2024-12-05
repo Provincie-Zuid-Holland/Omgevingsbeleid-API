@@ -1,14 +1,20 @@
 from enum import Enum
 from typing import List
 
-from dso.services.ow.imow_waardelijsten import TypeGebiedsaanwijzingEnum as AreaDesignationTypes
-from dso.services.ow.imow_waardelijsten import get_groep_options_for_gebiedsaanwijzing_type
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
+
+
+from dso.services.ow.waardelijsten.imow_waardelijsten import (
+    TypeGebiedsaanwijzingEnum as AreaDesignationTypes,
+)
+from dso.services.ow.waardelijsten.imow_waardelijsten import (
+    get_groep_options_for_gebiedsaanwijzing_type,
+)
 
 AreaDesignationTypeEnum = Enum("AreaDesignationTypeEnum", {member.name: member.name for member in AreaDesignationTypes})
 
