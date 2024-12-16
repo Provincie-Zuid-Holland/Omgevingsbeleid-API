@@ -17,14 +17,9 @@ from app.extensions.publications.services.act_package.act_package_builder import
 from app.extensions.publications.services.act_package.act_package_builder_factory import ActPackageBuilderFactory
 
 
-def write_json_file(input_data: str, filename: str) -> None:
-    with open(filename, "w") as file:
-        file.write(input_data)
-
-
 @click.command()
 @click.option("--publication_version", default=None, help="Publication version")
-@click.option("--mutation-strategy", default=MutationStrategy.RENVOOI, help="renvooi or replace")
+@click.option("--mutation-strategy", default=MutationStrategy.RENVOOI.value, help="renvooi or replace")
 @click.pass_obj
 def create_dso_json_scenario(fastapi_app: FastAPI, publication_version, mutation_strategy) -> None:
     asyncio.run(_do_create_dso_json_scenario(fastapi_app, publication_version, mutation_strategy))
@@ -37,7 +32,7 @@ async def _do_create_dso_json_scenario(fastapi_app: FastAPI, publication_version
     try:
         mutation_strat = MutationStrategy(mutation_strategy)
     except ValueError:
-        click.error(click.style("Invalid mutation strategy, should be renvooi or replace", fg="red"))
+        click.echo(click.style("Invalid mutation strategy, should be renvooi or replace", fg="red"))
         return
 
     output_path = os.path.join(os.getcwd(), "output")

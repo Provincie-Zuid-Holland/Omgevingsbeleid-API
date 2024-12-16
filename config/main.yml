@@ -417,6 +417,9 @@ api:
         - resolver: list_area_designation_groups
           resolver_data:
             path: /area-designation-groups
+        - resolver: list_theme_values
+          resolver_data:
+            path: /theme-values
 
 columns:
   # Titel

@@ -80,6 +80,7 @@ class PublicationsExtension(Extension):
             # dso value lists
             endpoints.ListAreaDesignationTypesEndpointResolver(),
             endpoints.ListAreaDesignationGroupsEndpointResolver(),
+            endpoints.ListThemeValuesEndpointResolver(),
         ]
 
     def register_models(self, models_resolver: ModelsResolver):
