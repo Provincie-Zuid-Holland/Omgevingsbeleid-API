@@ -1,6 +1,8 @@
-from enum import Enum
 from typing import List
 
+from dso.services.ow.waardelijsten import GEBIEDSAANWIJZING_TO_GROEP_MAPPING
+from dso.services.ow.waardelijsten import TYPE_GEBIEDSAANWIJZING_VALUES as AreaDesignationTypes
+from dso.services.ow.waardelijsten.models import ValueEntry
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -9,18 +11,8 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 
 
-from dso.services.ow.waardelijsten.imow_waardelijsten import (
-    TypeGebiedsaanwijzingEnum as AreaDesignationTypes,
-)
-from dso.services.ow.waardelijsten.imow_waardelijsten import (
-    get_groep_options_for_gebiedsaanwijzing_type,
-)
-
-AreaDesignationTypeEnum = Enum("AreaDesignationTypeEnum", {member.name: member.name for member in AreaDesignationTypes})
-
-
 class AreaDesignationValueList(BaseModel):
-    Allowed_Values: List[str]
+    Allowed_Values: List[ValueEntry]
 
 
 class ListAreaDesignationGroupsEndpoint(Endpoint):
@@ -28,15 +20,32 @@ class ListAreaDesignationGroupsEndpoint(Endpoint):
         self._path: str = path
 
     def register(self, router: APIRouter) -> APIRouter:
-        def fastapi_handler(type: AreaDesignationTypeEnum) -> AreaDesignationValueList:  # type: ignore
-            enum_member = AreaDesignationTypes[type.name]
-            group_options = get_groep_options_for_gebiedsaanwijzing_type(enum_member)
-            if group_options is None:
+        def fastapi_handler(gba_type: str) -> AreaDesignationValueList:
+            # allow lookup using either term, label, or full URI for easier use
+            valid_terms = {entry.term: entry for entry in AreaDesignationTypes.waarden.waarde}
+            valid_labels = {entry.label: entry for entry in AreaDesignationTypes.waarden.waarde}
+            valid_uris = {entry.uri: entry for entry in AreaDesignationTypes.waarden.waarde}
+
+            type_entry = valid_terms.get(gba_type) or valid_labels.get(gba_type) or valid_uris.get(gba_type)
+
+            if not type_entry:
+                valid_options = (
+                    f"Terms: {', '.join(valid_terms.keys())}\n"
+                    f"Labels: {', '.join(valid_labels.keys())}\n"
+                    f"URIs: {', '.join(valid_uris.keys())}"
+                )
+                raise HTTPException(
+                    status_code=400, detail=f"Invalid area designation type. Must be one of:\n{valid_options}"
+                )
+
+            groep_value_list = GEBIEDSAANWIJZING_TO_GROEP_MAPPING.get(type_entry.uri)
+            if not groep_value_list:
                 raise HTTPException(
                     status_code=403,
-                    detail=f"Group options not found for area designation type {type.name}",
+                    detail=f"Group options not found for area designation type {gba_type}",
                 )
-            return AreaDesignationValueList(Allowed_Values=group_options)
+
+            return AreaDesignationValueList(Allowed_Values=groep_value_list.waarden.waarde)
 
         router.add_api_route(
             self._path,
@@ -44,10 +53,9 @@ class ListAreaDesignationGroupsEndpoint(Endpoint):
             methods=["GET"],
             response_model=AreaDesignationValueList,
             summary="List the allowed groups to use for this publication document_type",
-            description=None,
+            description="Accepts either term, label, or full URI as input to identify the area designation type",
             tags=["Publication Value Lists"],
         )
-
         return router
 
 
