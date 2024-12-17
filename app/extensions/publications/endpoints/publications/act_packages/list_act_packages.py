@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from typing import Optional
 
@@ -9,6 +10,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, SimplePagination
 from app.extensions.publications.dependencies import depends_publication_act_package_repository
+from app.extensions.publications.enums import PackageType 
 from app.extensions.publications.models import PublicationPackage
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.repository.publication_act_package_repository import PublicationActPackageRepository
@@ -23,6 +25,9 @@ class ListPublicationPackagesEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             version_uuid: Optional[uuid.UUID] = None,
+            package_type: Optional[PackageType] = None,
+            before_datetime: Optional[datetime.datetime] = None,
+            after_datetime: Optional[datetime.datetime] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             package_repository: PublicationActPackageRepository = Depends(depends_publication_act_package_repository),
             user: UsersTable = Depends(
@@ -34,6 +39,9 @@ class ListPublicationPackagesEndpoint(Endpoint):
             return self._handler(
                 package_repository,
                 version_uuid,
+                package_type,
+                before_datetime,
+                after_datetime,
                 pagination,
             )
 
@@ -53,10 +61,16 @@ class ListPublicationPackagesEndpoint(Endpoint):
         self,
         package_repository: PublicationActPackageRepository,
         version_uuid: Optional[uuid.UUID],
+        package_type: Optional[PackageType],
+        before_datetime: Optional[datetime.datetime],
+        after_datetime: Optional[datetime.datetime],
         pagination: SimplePagination,
     ):
         paginated_result = package_repository.get_with_filters(
             version_uuid=version_uuid,
+            package_type=package_type,
+            before_datetime=before_datetime,
+            after_datetime=after_datetime,
             offset=pagination.offset,
             limit=pagination.limit,
         )
