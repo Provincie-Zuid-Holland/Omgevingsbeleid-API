@@ -385,7 +385,7 @@ class DatabaseFixturesPublications:
                 Administrative_Borders_ID="PV28",
                 Administrative_Borders_Domain="NL.BI.BestuurlijkGebied",
                 Administrative_Borders_Date=datetime.strptime("2023-09-29", "%Y-%m-%d").date(),
-                Created_Date=self._timepoint,
+                Created_Date=self._timepoint - timedelta(days=30),
                 Created_By_UUID=self._user,
             )
         )

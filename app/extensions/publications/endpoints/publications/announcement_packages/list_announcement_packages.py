@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from typing import Optional
 
@@ -9,6 +10,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, SimplePagination
 from app.extensions.publications.dependencies import depends_publication_announcement_package_repository
+from app.extensions.publications.enums import PackageType
 from app.extensions.publications.models import PublicationPackage
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.repository.publication_announcement_package_repository import (
@@ -25,6 +27,9 @@ class ListPublicationAnnouncementPackagesEndpoint(Endpoint):
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             announcement_uuid: Optional[uuid.UUID] = None,
+            package_type: Optional[PackageType] = None,
+            before_datetime: Optional[datetime.datetime] = None,
+            after_datetime: Optional[datetime.datetime] = None,
             pagination: SimplePagination = Depends(depends_simple_pagination),
             package_repository: PublicationAnnouncementPackageRepository = Depends(
                 depends_publication_announcement_package_repository
@@ -38,6 +43,9 @@ class ListPublicationAnnouncementPackagesEndpoint(Endpoint):
             return self._handler(
                 package_repository,
                 announcement_uuid,
+                package_type,
+                before_datetime,
+                after_datetime,
                 pagination,
             )
 
@@ -57,10 +65,16 @@ class ListPublicationAnnouncementPackagesEndpoint(Endpoint):
         self,
         package_repository: PublicationAnnouncementPackageRepository,
         announcement_uuid: Optional[uuid.UUID],
+        package_type: Optional[PackageType],
+        before_datetime: Optional[datetime.datetime],
+        after_datetime: Optional[datetime.datetime],
         pagination: SimplePagination,
     ):
         paginated_result = package_repository.get_with_filters(
             announcement_uuid=announcement_uuid,
+            package_type=package_type,
+            before_datetime=before_datetime,
+            after_datetime=after_datetime,
             offset=pagination.offset,
             limit=pagination.limit,
         )
