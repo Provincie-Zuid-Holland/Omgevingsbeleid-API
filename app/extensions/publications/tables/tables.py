@@ -254,6 +254,7 @@ class PublicationVersionTable(Base, UserMetaData):
     Announcement_Date: Mapped[Optional[date]]
 
     Is_Locked: Mapped[bool] = mapped_column(default=False)
+    Deleted_At: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
