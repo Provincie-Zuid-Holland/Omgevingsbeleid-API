@@ -52,6 +52,7 @@ from .publications.versions import (
     CreatePublicationVersionEndpointResolver,
     CreatePublicationVersionPdfEndpointResolver,
     DetailPublicationVersionEndpointResolver,
+    DeletePublicationVersionEndpointResolver,
     EditPublicationVersionEndpointResolver,
     ListPublicationVersionsEndpointResolver,
     UploadPublicationVersionAttachmentEndpointResolver,

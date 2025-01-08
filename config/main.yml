@@ -348,6 +348,7 @@ api:
       endpoints:
         - resolver: edit_publication_version
         - resolver: detail_publication_version
+        - resolver: delete_publication_version
     - prefix: /publication-versions/{version_uuid}/attachments
       endpoints:
         - resolver: upload_publication_version_attachment
