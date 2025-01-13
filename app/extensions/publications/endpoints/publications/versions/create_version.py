@@ -50,6 +50,8 @@ class EndpointHandler:
         self._timepoint: datetime = datetime.utcnow()
 
     def handle(self) -> PublicationVersionCreatedResponse:
+        self._guard_locked()
+
         module_status: ModuleStatusHistoryTable = self._get_module_status()
 
         bill_metadata = self._defaults_provider.get_bill_metadata(
@@ -83,6 +85,10 @@ class EndpointHandler:
         return PublicationVersionCreatedResponse(
             UUID=version.UUID,
         )
+
+    def _guard_locked(self):
+        if not self._publication.Act.Is_Active:
+            raise HTTPException(status_code=409, detail="This act can no longer be used")
 
     def _get_module_status(self) -> ModuleStatusHistoryTable:
         module_status: Optional[ModuleStatusHistoryTable] = self._module_status_repository.get_by_id(

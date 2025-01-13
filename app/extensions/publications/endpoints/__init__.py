@@ -1,4 +1,5 @@
 from .acts import (
+    ClosePublicationActEndpointResolver,
     CreateActEndpointResolver,
     DetailPublicationActEndpointResolver,
     EditPublicationActEndpointResolver,

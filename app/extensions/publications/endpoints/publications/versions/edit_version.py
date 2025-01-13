@@ -49,6 +49,8 @@ class EndpointHandler:
         self._object_in: PublicationVersionEdit = object_in
 
     def handle(self) -> PublicationVersionEditResponse:
+        self._guard_locked()
+
         changes: dict = self._object_in.dict(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
@@ -72,6 +74,10 @@ class EndpointHandler:
             Errors=errors,
             Is_Valid=is_valid,
         )
+
+    def _guard_locked(self):
+        if not self._version.Publication.Act.Is_Active:
+            raise HTTPException(status_code=409, detail="This act can no longer be used")
 
 
 class EditPublicationVersionEndpoint(Endpoint):
