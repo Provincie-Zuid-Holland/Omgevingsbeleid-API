@@ -6,7 +6,7 @@
 #
 alembic==1.14.0
     # via -r requirements-dev.in
-astroid==3.3.5
+astroid==3.3.8
     # via pylint
 asttokens==2.4.1
     # via
@@ -14,24 +14,24 @@ asttokens==2.4.1
     #   stack-data
 autoflake==2.3.1
     # via -r requirements-dev.in
-bandit==1.8.0
+bandit==1.8.2
     # via -r requirements-dev.in
 black==24.10.0
     # via -r requirements-dev.in
-certifi==2024.8.30
+certifi==2024.12.14
     # via requests
-charset-normalizer==3.4.0
+charset-normalizer==3.4.1
     # via requests
-click==8.1.7
+click==8.1.8
     # via black
-coverage[toml]==7.6.8
+coverage[toml]==7.6.10
     # via
     #   -r requirements-dev.in
     #   coverage-badge
     #   pytest-cov
 coverage-badge==1.1.2
     # via -r requirements-dev.in
-debugpy==1.8.9
+debugpy==1.8.11
     # via -r requirements-dev.in
 decorator==5.1.1
     # via ipython
@@ -47,7 +47,7 @@ executing==2.1.0
     # via
     #   devtools
     #   stack-data
-faker==33.1.0
+faker==33.3.1
     # via -r requirements-dev.in
 flake8==7.1.1
     # via -r requirements-dev.in
@@ -59,7 +59,7 @@ idna==3.10
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==8.30.0
+ipython==8.31.0
     # via -r requirements-dev.in
 isort==5.13.2
     # via
@@ -67,7 +67,7 @@ isort==5.13.2
     #   pylint
 jedi==0.19.2
     # via ipython
-mako==1.3.7
+mako==1.3.8
     # via alembic
 markdown-it-py==3.0.0
     # via rich
@@ -81,7 +81,7 @@ mccabe==0.7.0
     #   pylint
 mdurl==0.1.2
     # via markdown-it-py
-mypy==1.13.0
+mypy==1.14.1
     # via
     #   -r requirements-dev.in
     #   sqlalchemy
@@ -119,12 +119,12 @@ pyflakes==3.2.0
     # via
     #   autoflake
     #   flake8
-pygments==2.18.0
+pygments==2.19.1
     # via
     #   devtools
     #   ipython
     #   rich
-pylint==3.3.2
+pylint==3.3.3
     # via -r requirements-dev.in
 pytest==8.3.4
     # via
@@ -147,11 +147,11 @@ requests-mock==1.12.1
     # via -r requirements-dev.in
 rich==13.9.4
     # via bandit
-six==1.16.0
+six==1.17.0
     # via
     #   asttokens
     #   python-dateutil
-sqlalchemy[mypy]==2.0.36
+sqlalchemy[mypy]==2.0.37
     # via
     #   -r requirements-dev.in
     #   alembic
@@ -184,9 +184,9 @@ typing-extensions==4.12.2
     #   mypy
     #   rich
     #   sqlalchemy
-urllib3==2.2.3
+urllib3==2.3.0
     # via requests
-vulture==2.13
+vulture==2.14
     # via -r requirements-dev.in
 wcwidth==0.2.13
     # via prompt-toolkit
