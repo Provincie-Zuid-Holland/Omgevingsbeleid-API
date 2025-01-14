@@ -78,15 +78,15 @@ class PdfExportService:
                 idx: str = response_body.get("id")
                 return idx
             case 403:
-                raise PdfExportUnauthorizedError(response.text)
+                raise PdfExportUnauthorizedError("Pdf export unauthorized")
             case 404:
-                raise PdfExportNotFoundError(response.text)
+                raise PdfExportNotFoundError("Pdf export not found")
             case 422:
-                raise PdfExportXmlError(response.text)
+                raise PdfExportXmlError("Pdf export xml")
             case 500:
-                raise PdfExportInternalServerError(response.text)
+                raise PdfExportInternalServerError("Pdf export internal server error")
             case _ as code:
-                raise PdfExportUnkownError(response.text, code)
+                raise PdfExportUnkownError("Pdf export unkown", code)
 
     def _wait_for_completion(self, api_settings: KoopSettings, idx: str):
         headers = {

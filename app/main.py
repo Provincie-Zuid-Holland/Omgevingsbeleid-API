@@ -5,6 +5,7 @@ from datetime import datetime
 import sqlalchemy.exc
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
@@ -12,6 +13,10 @@ from sqlalchemy.orm import Session
 
 from app.app import dynamic_app
 from app.core.db.session import SessionLocal
+from app.core.exceptions import LoggedHttpException
+
+# Logging
+logger = logging.getLogger(__name__)
 
 app: FastAPI = dynamic_app.run()
 build_datetime: datetime = datetime.utcnow()
@@ -40,7 +45,7 @@ async def health_check():
 
 
 @app.exception_handler(sqlalchemy.exc.IntegrityError)
-async def http_exception_handler(request, exc):  # noqa
+async def sql_exception_handler(request, exc):  # noqa
     return JSONResponse(
         {
             "msg": "Foreign key error",
@@ -48,6 +53,12 @@ async def http_exception_handler(request, exc):  # noqa
         },
         status_code=400,
     )
+
+
+@app.exception_handler(LoggedHttpException)
+async def logged_http_exception_handler(request, exc):  # noqa
+    logger.error("Unhandled HTTPException: %s, Path: %s", str(exc), request.url.path, exc_info=True)
+    return await http_exception_handler(request, exc)
 
 
 def set_operator_id_from_unique_id(app: FastAPI) -> None:
@@ -84,9 +95,6 @@ def custom_openapi():
 set_operator_id_from_unique_id(app)
 app.openapi = custom_openapi
 
-
-# Logging
-logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     # Allow starting app from main file

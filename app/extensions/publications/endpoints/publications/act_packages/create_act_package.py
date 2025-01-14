@@ -8,6 +8,7 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
+from app.core.exceptions import LoggedHttpException
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
@@ -135,9 +136,9 @@ class EndpointHandler:
         except ValidationError as e:
             raise HTTPException(status_code=441, detail=e.errors())
         except DSOConfigurationException as e:
-            raise HTTPException(status_code=442, detail=e.message)
+            raise LoggedHttpException(status_code=442, detail=e.message)
         except RenvooiError as e:
-            raise HTTPException(status_code=443, detail=e.msg)
+            raise LoggedHttpException(status_code=443, detail=e.msg)
         except Exception as e:
             # We do not know what to except here
             # This will result in a 500 server error
