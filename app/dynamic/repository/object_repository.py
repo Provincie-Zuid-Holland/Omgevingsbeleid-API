@@ -76,7 +76,7 @@ class ObjectRepository(BaseRepository):
             select(ObjectsTable)
             .options(selectinload(ObjectsTable.ObjectStatics))
             .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Object_ID == reference_obj.c.Object_ID)
+            .filter(ObjectsTable.Code == reference_obj.c.Code)
             .filter(ObjectsTable.Modified_Date > reference_obj.c.Modified_Date)
             .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
             .filter(
