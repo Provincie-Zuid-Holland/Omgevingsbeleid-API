@@ -39,6 +39,7 @@ class PublicationsExtension(Extension):
             endpoints.ListPublicationAOJEndpointResolver(),
             # Acts
             endpoints.CreateActEndpointResolver(),
+            endpoints.ClosePublicationActEndpointResolver(),
             endpoints.EditPublicationActEndpointResolver(),
             endpoints.ListPublicationActsEndpointResolver(),
             endpoints.DetailPublicationActEndpointResolver(),

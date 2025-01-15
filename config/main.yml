@@ -302,6 +302,9 @@ api:
     - prefix: /publication-acts
       endpoints:
         - resolver: create_publication_act
+        - resolver: close_publication_act
+          resolver_data:
+            path: /{act_uuid}/close
         - resolver: edit_publication_act
           resolver_data:
             path: /{act_uuid}
@@ -688,6 +691,7 @@ users_permissions:
     - can_create_publication_aoj
     - can_view_publication_aoj
     - can_create_publication_act
+    - can_close_publication_act
     - can_edit_publication_act
     - can_view_publication_act
     - can_create_publication
@@ -739,6 +743,7 @@ users_permissions:
     - can_create_publication_aoj
     - can_view_publication_aoj
     - can_create_publication_act
+    - can_close_publication_act
     - can_edit_publication_act
     - can_view_publication_act
     - can_create_publication
@@ -790,6 +795,7 @@ users_permissions:
     - can_create_publication_aoj
     - can_view_publication_aoj
     - can_create_publication_act
+    - can_close_publication_act
     - can_edit_publication_act
     - can_view_publication_act
     - can_create_publication
@@ -841,6 +847,7 @@ users_permissions:
     - can_create_publication_aoj
     - can_view_publication_aoj
     - can_create_publication_act
+    - can_close_publication_act
     - can_edit_publication_act
     - can_view_publication_act
     - can_create_publication
@@ -892,6 +899,7 @@ users_permissions:
     - can_create_publication_aoj
     - can_view_publication_aoj
     - can_create_publication_act
+    - can_close_publication_act
     - can_edit_publication_act
     - can_view_publication_act
     - can_create_publication

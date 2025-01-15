@@ -104,12 +104,12 @@ class EndpointHandler:
         return response
 
     def _guard_upload(self):
+        if not self._version.Publication.Act.Is_Active:
+            raise HTTPException(status_code=409, detail="This act can no longer be used")
         if self._version.Is_Locked:
             raise HTTPException(status_code=409, detail="This publication version is locked")
-
         if self._uploaded_file.file is None or self._uploaded_file.filename is None:
             raise HTTPException(status_code=400, detail="No file uploaded.")
-
         if self._uploaded_file.content_type != "application/pdf":
             raise HTTPException(status_code=400, detail="Unsupported file type, expected a PDF.")
 

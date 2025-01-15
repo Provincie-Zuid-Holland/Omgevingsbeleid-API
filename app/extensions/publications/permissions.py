@@ -15,6 +15,7 @@ class PublicationsPermissions(str, Enum):
 
     can_create_publication_act = "can_create_publication_act"
     can_edit_publication_act = "can_edit_publication_act"
+    can_close_publication_act = "can_close_publication_act"
     can_view_publication_act = "can_view_publication_act"
 
     can_create_publication = "can_create_publication"
