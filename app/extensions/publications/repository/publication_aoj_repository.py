@@ -36,5 +36,5 @@ class PublicationAOJRepository(BaseRepository):
             .limit(1)
         )
         if before_datetime:
-            stmt = stmt.where(PublicationAreaOfJurisdictionTable.Created_Date < before_datetime)
+            stmt = stmt.where(PublicationAreaOfJurisdictionTable.Created_Date <= before_datetime)
         return self.fetch_first(stmt)
