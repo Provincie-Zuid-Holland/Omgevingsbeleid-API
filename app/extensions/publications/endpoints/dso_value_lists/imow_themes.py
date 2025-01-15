@@ -1,7 +1,7 @@
 from typing import List
 
-from dso.services.ow.waardelijsten import THEMA_VALUES
-from dso.services.ow.waardelijsten.models import ValueEntry
+from dso.services.ow.waardelijsten.imow_value_repository import imow_value_repository
+from dso.services.ow.waardelijsten.imow_models import ThemaValue
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -11,7 +11,7 @@ from app.dynamic.models_resolver import ModelsResolver
 
 
 class ThemeValueList(BaseModel):
-    Allowed_Values: List[ValueEntry]
+    Allowed_Values: List[ThemaValue]
 
 
 class ListThemeValuesEndpoint(Endpoint):
@@ -20,7 +20,7 @@ class ListThemeValuesEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler() -> ThemeValueList:
-            return ThemeValueList(Allowed_Values=THEMA_VALUES.waarden.waarde)
+            return ThemeValueList(Allowed_Values=imow_value_repository.get_all_themas())
 
         router.add_api_route(
             self._path,

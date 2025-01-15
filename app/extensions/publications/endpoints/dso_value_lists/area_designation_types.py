@@ -1,7 +1,7 @@
 from typing import List
 
-from dso.services.ow.waardelijsten import NON_ALLOWED_DOCUMENT_TYPE_MAPPING, TYPE_GEBIEDSAANWIJZING_VALUES
-from dso.services.ow.waardelijsten.models import ValueEntry
+from dso.services.ow.waardelijsten.imow_value_repository import imow_value_repository
+from dso.services.ow.waardelijsten.imow_models import TypeGebiedsaanwijzingValue
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -12,7 +12,7 @@ from app.extensions.publications.enums import DocumentType
 
 
 class AreaDesignationValueList(BaseModel):
-    Allowed_Values: List[ValueEntry]
+    Allowed_Values: List[TypeGebiedsaanwijzingValue]
 
 
 class ListAreaDesignationTypesEndpoint(Endpoint):
@@ -21,10 +21,7 @@ class ListAreaDesignationTypesEndpoint(Endpoint):
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(document_type: DocumentType) -> AreaDesignationValueList:
-            non_allowed = NON_ALLOWED_DOCUMENT_TYPE_MAPPING.get(document_type) or []
-            allowed_types = [
-                entry for entry in TYPE_GEBIEDSAANWIJZING_VALUES.waarden.waarde if entry.uri not in non_allowed
-            ]
+            allowed_types = imow_value_repository.get_all_type_gebiedsaanwijzingen(document_type=document_type.value)
             return AreaDesignationValueList(Allowed_Values=allowed_types)
 
         router.add_api_route(
