@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import Dict, List, Optional
+from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field, validator
 
@@ -21,10 +21,10 @@ class PublicationTemplate(BaseModel):
     Description: str
     Is_Active: bool
     Document_Type: str
-    Object_Types: List[str]
+    Object_Types: Any
     Text_Template: str
-    Object_Templates: Dict[str, str]
-    Field_Map: List[str]
+    Object_Templates: Any
+    Field_Map: Any
 
     Created_Date: datetime
     Modified_Date: datetime
