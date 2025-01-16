@@ -4,8 +4,14 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from app.extensions.areas.db.tables import AreasTable  # # noqa
-from app.extensions.publications.enums import DocumentType, ProcedureType
-from app.extensions.publications.models import ActMetadata, Article, BillCompact, BillMetadata, Procedural
+from app.extensions.publications.enums import DocumentType, ProcedureType, PublicationVersionStatus
+from app.extensions.publications.models import (
+    ActMetadata,
+    Article,
+    BillCompact,
+    BillMetadata,
+    Procedural,
+)
 from app.extensions.publications.services.state.state import InitialState
 from app.extensions.publications.tables.tables import (
     PublicationActTable,
@@ -633,6 +639,7 @@ class DatabaseFixturesPublications:
                 Effective_Date=self._timepoint + timedelta(days=7),
                 Announcement_Date=self._timepoint + timedelta(days=7),
                 Is_Locked=False,
+                Status=PublicationVersionStatus.NOT_APPLICABLE,
                 Created_Date=self._timepoint,
                 Modified_Date=self._timepoint,
                 Created_By_UUID=self._user,
@@ -677,6 +684,7 @@ class DatabaseFixturesPublications:
                 Effective_Date=self._timepoint + timedelta(days=3),
                 Announcement_Date=self._timepoint + timedelta(days=3),
                 Is_Locked=False,
+                Status=PublicationVersionStatus.ACTIVE,
                 Created_Date=self._timepoint,
                 Modified_Date=self._timepoint,
                 Created_By_UUID=self._user,
@@ -721,6 +729,7 @@ class DatabaseFixturesPublications:
                 Effective_Date=self._timepoint + timedelta(days=7),
                 Announcement_Date=self._timepoint + timedelta(days=7),
                 Is_Locked=False,
+                Status=PublicationVersionStatus.ACTIVE,
                 Created_Date=self._timepoint,
                 Modified_Date=self._timepoint,
                 Created_By_UUID=self._user,
@@ -763,6 +772,7 @@ class DatabaseFixturesPublications:
                 ).dict(),
                 Announcement_Date=self._timepoint + timedelta(days=7),
                 Is_Locked=False,
+                Status=PublicationVersionStatus.ACTIVE,
                 Created_Date=self._timepoint,
                 Modified_Date=self._timepoint,
                 Created_By_UUID=self._user,
@@ -810,6 +820,7 @@ class DatabaseFixturesPublications:
                 Effective_Date=self._timepoint + timedelta(days=7),
                 Announcement_Date=self._timepoint + timedelta(days=7),
                 Is_Locked=False,
+                Status=PublicationVersionStatus.ACTIVE,
                 Created_Date=self._timepoint,
                 Modified_Date=self._timepoint,
                 Created_By_UUID=self._user,

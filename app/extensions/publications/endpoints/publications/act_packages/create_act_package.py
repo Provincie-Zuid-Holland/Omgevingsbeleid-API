@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 from dso.exceptions import RenvooiError
@@ -20,6 +20,7 @@ from app.extensions.publications.dependencies import (
 from app.extensions.publications.enums import MutationStrategy, PackageType, ReportStatusType
 from app.extensions.publications.exceptions import DSOConfigurationException
 from app.extensions.publications.models.api_input_data import Purpose
+from app.extensions.publications.enums import PublicationVersionStatus
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
 from app.extensions.publications.services.act_package.act_package_builder import ActPackageBuilder, ZipData
@@ -71,7 +72,7 @@ class EndpointHandler:
         self._publication: PublicationTable = publication_version.Publication
         self._environment: PublicationEnvironmentTable = publication_version.Publication.Environment
         self._act: PublicationActTable = publication_version.Publication.Act
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> PublicationPackageCreatedResponse:
         self._guard_validate_package_type()
@@ -121,6 +122,15 @@ class EndpointHandler:
 
             self._handle_new_state(package_builder, package)
             self._handle_bill_act_purpose(package_builder, package)
+
+            if self._publication_version != PublicationVersionStatus.NOT_APPLICABLE:
+                match self._object_in.Package_Type:
+                    case PackageType.VALIDATION:
+                        self._publication_version.Status = PublicationVersionStatus.VALIDATION
+                    case PackageType.PUBLICATION:
+                        self._publication_version.Status = PublicationVersionStatus.PUBLICATION
+                self._db.add(self._publication_version)
+                self._db.flush()
 
             self._db.commit()
 

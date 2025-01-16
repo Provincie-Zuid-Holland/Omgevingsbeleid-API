@@ -17,7 +17,7 @@ from app.extensions.publications.dependencies import (
     depends_publication_act_package,
     depends_publication_act_report_repository,
 )
-from app.extensions.publications.enums import PackageType, ReportStatusType
+from app.extensions.publications.enums import PackageType, ProcedureType, ReportStatusType, PublicationVersionStatus
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.repository.publication_act_report_repository import PublicationActReportRepository
 from app.extensions.publications.tables.tables import (
@@ -230,6 +230,15 @@ class EndpointHandler:
         self._act_package.Publication_Version.Publication.Environment.Is_Locked = False
         self._db.add(self._act_package.Publication_Version.Publication.Environment)
 
+        # Show failure in the publication version status
+        match self._act_package.Package_Type:
+            case PackageType.VALIDATION.value:
+                self._act_package.Publication_Version.Status = PublicationVersionStatus.VALIDATION_FAILED
+            case PackageType.PUBLICATION.value:
+                self._act_package.Publication_Version.Status = PublicationVersionStatus.PUBLICATION_FAILED
+
+        self._db.add(self._act_package.Publication_Version)
+
     def _handle_conclusive_valid(self):
         environment: PublicationEnvironmentTable = self._act_package.Publication_Version.Publication.Environment
         new_state: PublicationEnvironmentStateTable = self._act_package.Created_Environment_State
@@ -239,6 +248,7 @@ class EndpointHandler:
         # - Push the new state
         # - Unlock the environment
         # - Lock the Publication Version if the package was a Publication
+        # - Complete the publication version Status if the procedure type is final
         new_state.Is_Activated = True
         new_state.Activated_Datetime = self._timepoint
         self._db.add(new_state)
@@ -251,6 +261,10 @@ class EndpointHandler:
 
         if self._act_package.Package_Type == PackageType.PUBLICATION.value:
             self._act_package.Publication_Version.Is_Locked = True
+
+            if self._act_package.Publication_Version.Publication.Procedure_Type == ProcedureType.FINAL.value:
+                self._act_package.Publication_Version.Status = PublicationVersionStatus.COMPLETED
+
             self._db.add(self._act_package.Publication_Version)
 
 

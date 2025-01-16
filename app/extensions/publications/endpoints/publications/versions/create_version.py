@@ -14,6 +14,7 @@ from app.extensions.modules.db.tables import ModuleStatusHistoryTable
 from app.extensions.modules.dependencies import depends_module_status_repository
 from app.extensions.modules.repository.module_status_repository import ModuleStatusRepository
 from app.extensions.publications.dependencies import depends_publication, depends_publication_version_defaults_provider
+from app.extensions.publications.enums import PublicationVersionStatus
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.services.publication_version_defaults_provider import (
     PublicationVersionDefaultsProvider,
@@ -62,6 +63,11 @@ class EndpointHandler:
         )
         procedural = self._defaults_provider.get_procedural()
 
+        # no active status for stateless/internal publication
+        status = PublicationVersionStatus.NOT_APPLICABLE
+        if self._publication.Environment.Has_State:
+            status = PublicationVersionStatus.ACTIVE
+
         version: PublicationVersionTable = PublicationVersionTable(
             UUID=uuid.uuid4(),
             Publication_UUID=self._publication.UUID,
@@ -72,6 +78,7 @@ class EndpointHandler:
             Effective_Date=None,
             Announcement_Date=None,
             Is_Locked=False,
+            Status=status,
             Created_Date=self._timepoint,
             Modified_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,

@@ -259,6 +259,8 @@ class PublicationVersionTable(Base, UserMetaData):
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
 
+    Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+
     Publication: Mapped[PublicationTable] = relationship("PublicationTable")
     Module_Status: Mapped[ModuleStatusHistoryTable] = relationship("ModuleStatusHistoryTable")
     Attachments: Mapped[List["PublicationVersionAttachmentTable"]] = relationship(
