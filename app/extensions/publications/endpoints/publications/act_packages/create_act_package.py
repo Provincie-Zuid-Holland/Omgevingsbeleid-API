@@ -122,7 +122,7 @@ class EndpointHandler:
             self._handle_new_state(package_builder, package)
             self._handle_bill_act_purpose(package_builder, package)
 
-            if self._publication_version != PublicationVersionStatus.NOT_APPLICABLE:
+            if self._publication_version.Status != PublicationVersionStatus.NOT_APPLICABLE:
                 match self._object_in.Package_Type:
                     case PackageType.VALIDATION:
                         self._publication_version.Status = PublicationVersionStatus.VALIDATION
