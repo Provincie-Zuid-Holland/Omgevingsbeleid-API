@@ -25,6 +25,7 @@ class EndpointHandler:
         self._db: Session = db
         self._user: UsersTable = user
         self._version: PublicationVersionTable = version
+        self._timepoint: datetime = datetime.now(tz=timezone.utc)
 
     def handle(self) -> ResponseOK:
         if self._version.Deleted_At is not None:
@@ -33,9 +34,9 @@ class EndpointHandler:
         if self._version.Act_Packages:
             raise HTTPException(status_code=400, detail="Publication Version has related Act Packages, cannot delete")
 
-        self._version.Deleted_At = datetime.now(tz=timezone.utc)
+        self._version.Deleted_At = self._timepoint
         self._version.Modified_By_UUID = self._user.UUID
-        self._version.Modified_Date = datetime.now(tz=timezone.utc)
+        self._version.Modified_Date = self._timepoint
 
         self._db.add(self._version)
         self._db.commit()
@@ -73,7 +74,7 @@ class DeletePublicationVersionEndpoint(Endpoint):
             methods=["DELETE"],
             response_model=ResponseOK,
             summary="Mark a publication version as deleted",
-            description="Marks a publication version as deleted by setting its Deleted_At timestamp.",
+            description="Marks a publication version as deleted.",
             tags=["Publication Versions"],
         )
 
