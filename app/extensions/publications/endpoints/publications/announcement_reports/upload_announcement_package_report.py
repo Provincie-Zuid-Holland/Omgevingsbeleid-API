@@ -17,7 +17,7 @@ from app.extensions.publications.dependencies import (
     depends_publication_announcement_package,
     depends_publication_announcement_report_repository,
 )
-from app.extensions.publications.enums import PackageType, ReportStatusType, PublicationVersionStatus
+from app.extensions.publications.enums import PackageType, PublicationVersionStatus, ReportStatusType
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.repository.publication_announcement_report_repository import (
     PublicationAnnouncementReportRepository,
@@ -254,7 +254,9 @@ class EndpointHandler:
 
         if self._announcement_package.Package_Type == PackageType.PUBLICATION.value:
             self._announcement_package.Announcement.Is_Locked = True
-            self._announcement_package.Announcement.Act_Package.Publication_Version.Status = PublicationVersionStatus.COMPLETED
+            self._announcement_package.Announcement.Act_Package.Publication_Version.Status = (
+                PublicationVersionStatus.COMPLETED
+            )
 
             self._db.add(self._announcement_package.Announcement)
 

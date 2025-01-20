@@ -5,8 +5,8 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field, validator
 
 from app.extensions.modules.models.models import ModuleStatus
-from app.extensions.publications.waardelijsten import Bestuursorgaan, Onderwerp, Rechtsgebied
 from app.extensions.publications.enums import PublicationVersionStatus
+from app.extensions.publications.waardelijsten import Bestuursorgaan, Onderwerp, Rechtsgebied
 
 
 # This model is meant for frontend

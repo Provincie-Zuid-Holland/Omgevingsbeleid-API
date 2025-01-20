@@ -6,8 +6,8 @@ from sqlalchemy import and_, select
 
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult, SortOrder
+from app.extensions.publications.enums import PackageType
 from app.extensions.publications.tables.tables import PublicationActPackageTable
-from app.extensions.publications.enums import PackageType 
 
 
 class PublicationActPackageRepository(BaseRepository):

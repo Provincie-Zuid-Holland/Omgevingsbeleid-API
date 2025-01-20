@@ -13,7 +13,7 @@ from app.extensions.publications.dependencies import (
     depends_announcement_package_builder_factory,
     depends_publication_announcement,
 )
-from app.extensions.publications.enums import PackageType, ReportStatusType, PublicationVersionStatus
+from app.extensions.publications.enums import PackageType, PublicationVersionStatus, ReportStatusType
 from app.extensions.publications.models.api_input_data import DocFrbr
 from app.extensions.publications.models.zip import ZipData
 from app.extensions.publications.permissions import PublicationsPermissions
@@ -32,7 +32,6 @@ from app.extensions.publications.tables.tables import (
     PublicationEnvironmentTable,
     PublicationPackageZipTable,
     PublicationTable,
-    PublicationVersionTable,
 )
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried

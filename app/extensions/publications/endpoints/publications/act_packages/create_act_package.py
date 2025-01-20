@@ -17,10 +17,9 @@ from app.extensions.publications.dependencies import (
     depends_publication_version,
     depends_publication_version_validator,
 )
-from app.extensions.publications.enums import MutationStrategy, PackageType, ReportStatusType
+from app.extensions.publications.enums import MutationStrategy, PackageType, PublicationVersionStatus, ReportStatusType
 from app.extensions.publications.exceptions import DSOConfigurationException
 from app.extensions.publications.models.api_input_data import Purpose
-from app.extensions.publications.enums import PublicationVersionStatus
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
 from app.extensions.publications.services.act_package.act_package_builder import ActPackageBuilder, ZipData

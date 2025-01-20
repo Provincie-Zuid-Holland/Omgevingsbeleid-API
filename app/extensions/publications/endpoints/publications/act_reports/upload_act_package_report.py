@@ -17,7 +17,7 @@ from app.extensions.publications.dependencies import (
     depends_publication_act_package,
     depends_publication_act_report_repository,
 )
-from app.extensions.publications.enums import PackageType, ProcedureType, ReportStatusType, PublicationVersionStatus
+from app.extensions.publications.enums import PackageType, ProcedureType, PublicationVersionStatus, ReportStatusType
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.repository.publication_act_report_repository import PublicationActReportRepository
 from app.extensions.publications.tables.tables import (

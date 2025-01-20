@@ -5,13 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.extensions.areas.db.tables import AreasTable  # # noqa
 from app.extensions.publications.enums import DocumentType, ProcedureType, PublicationVersionStatus
-from app.extensions.publications.models import (
-    ActMetadata,
-    Article,
-    BillCompact,
-    BillMetadata,
-    Procedural,
-)
+from app.extensions.publications.models import ActMetadata, Article, BillCompact, BillMetadata, Procedural
 from app.extensions.publications.services.state.state import InitialState
 from app.extensions.publications.tables.tables import (
     PublicationActTable,
