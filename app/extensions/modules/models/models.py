@@ -156,3 +156,4 @@ class PublicModuleObjectRevision(BaseModel):
     Module_ID: int
     Module_Title: str
     Module_Status: str
+    Action: ModuleObjectActionFilter

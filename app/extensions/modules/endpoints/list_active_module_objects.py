@@ -7,8 +7,16 @@ from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.dependencies import depends_module_object_repository
-from app.extensions.modules.models.models import ActiveModuleObject, ModuleShort, ModuleStatusCode
-from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
+from app.extensions.modules.models.models import (
+    ActiveModuleObject,
+    ModuleObjectActionFilter,
+    ModuleShort,
+    ModuleStatusCode,
+)
+from app.extensions.modules.repository.module_object_repository import (
+    LatestObjectPerModuleResult,
+    ModuleObjectRepository,
+)
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
 
@@ -16,6 +24,7 @@ from app.extensions.users.dependencies import depends_current_active_user
 class ActiveModuleObjectWrapper(BaseModel):
     Module: ModuleShort
     Module_Object: ActiveModuleObject
+    Action: ModuleObjectActionFilter
 
 
 class ListActiveModuleObjectsEndpoint(Endpoint):
@@ -57,17 +66,20 @@ class ListActiveModuleObjectsEndpoint(Endpoint):
         module_object_repository: ModuleObjectRepository,
     ):
         code = f"{self._object_type}-{lineage_id}"
-        items = module_object_repository.get_latest_per_module(code=code, minimum_status=minimum_status, is_active=True)
-
-        rows: List[ActiveModuleObjectWrapper] = []
-        for module_object, module in items:
-            rows.append(
+        items: List[LatestObjectPerModuleResult] = module_object_repository.get_latest_per_module(
+            code=code, minimum_status=minimum_status, is_active=True
+        )
+        active_module_objects: List[ActiveModuleObjectWrapper] = []
+        for item in items:
+            active_module_objects.append(
                 ActiveModuleObjectWrapper(
-                    Module=ModuleShort.from_orm(module), Module_Object=ActiveModuleObject.from_orm(module_object)
+                    Module=ModuleShort.from_orm(item.module),
+                    Module_Object=ActiveModuleObject.from_orm(item.module_object),
+                    Action=item.context_action,
                 )
             )
 
-        return rows
+        return active_module_objects
 
 
 class ListActiveModuleObjectsEndpointResolver(EndpointResolver):
