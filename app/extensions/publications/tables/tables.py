@@ -1,10 +1,10 @@
 import uuid
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from sqlalchemy import Column, Date, DateTime, ForeignKey, LargeBinary, String, Unicode, UnicodeText, UniqueConstraint
 from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
-from sqlalchemy.sql.sqltypes import JSON, Integer
+from sqlalchemy.types import JSON, Integer
 
 from app.core.db.base import Base
 from app.core.db.mixins import UserMetaData
@@ -38,10 +38,10 @@ class PublicationTemplateTable(Base, UserMetaData):
 
     Is_Active: Mapped[bool]
     Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Object_Types: Mapped[list] = mapped_column(JSON, nullable=False)
+    Object_Types: Mapped[Any] = mapped_column(JSON, nullable=False)
     Text_Template: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Object_Templates: Mapped[dict] = mapped_column(JSON, nullable=False)
-    Field_Map: Mapped[list] = mapped_column(JSON, nullable=False)
+    Object_Templates: Mapped[Any] = mapped_column(JSON, nullable=False)
+    Field_Map: Mapped[Any] = mapped_column(JSON, nullable=False)
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
