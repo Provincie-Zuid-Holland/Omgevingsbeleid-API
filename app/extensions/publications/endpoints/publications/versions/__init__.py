@@ -1,5 +1,6 @@
 from .create_pdf import CreatePublicationVersionPdfEndpointResolver
 from .create_version import CreatePublicationVersionEndpointResolver
+from .delete_version import DeletePublicationVersionEndpointResolver
 from .detail_version import DetailPublicationVersionEndpointResolver
 from .edit_version import EditPublicationVersionEndpointResolver
 from .list_versions import ListPublicationVersionsEndpointResolver
