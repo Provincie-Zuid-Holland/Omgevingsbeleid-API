@@ -7,7 +7,7 @@ from sqlalchemy.orm.session import Session, object_session
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
-from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode, PublicModuleObjectRevision
+from app.extensions.modules.models.models import ModuleObjectActionFull, ModuleStatusCode, PublicModuleObjectRevision
 from app.extensions.modules.repository.module_object_repository import (
     ModuleObjectRepository,
 )
@@ -25,7 +25,7 @@ def get_object_public_revisions(self):
     """
     min_status_list = ModuleStatusCode.values()
     session: Session = object_session(self)
-    query: Select[Tuple[ModuleObjectsTable, ModuleTable, ModuleObjectActionFilter]] = (
+    query: Select[Tuple[ModuleObjectsTable, ModuleTable, ModuleObjectActionFull]] = (
         ModuleObjectRepository.latest_per_module_query(code=self.Code, status_filter=min_status_list, is_active=True)
     )
     rows = session.execute(query).all()

@@ -14,7 +14,7 @@ from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import SortedPagination
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
-from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode
+from app.extensions.modules.models.models import ModuleObjectActionFull, ModuleStatusCode
 
 
 @dataclass
@@ -23,7 +23,7 @@ class LatestObjectPerModuleResult:
 
     module_object: ModuleObjectsTable
     module: ModuleTable
-    context_action: ModuleObjectActionFilter
+    context_action: ModuleObjectActionFull
 
 
 class ModuleObjectRepository(BaseRepository):
@@ -100,7 +100,7 @@ class ModuleObjectRepository(BaseRepository):
         code: str,
         status_filter: Optional[List[str]] = None,
         is_active: bool = True,
-    ) -> Select[Tuple[ModuleObjectsTable, ModuleTable, ModuleObjectActionFilter]]:
+    ) -> Select[Tuple[ModuleObjectsTable, ModuleTable, ModuleObjectActionFull]]:
         """
         Fetch the latest module object versions grouped by
         every module containing it. used e.g. to list any
@@ -186,7 +186,7 @@ class ModuleObjectRepository(BaseRepository):
         minimum_status: Optional[ModuleStatusCode] = None,
         owner_uuid: Optional[UUID] = None,
         object_type: Optional[str] = None,
-        actions: List[ModuleObjectActionFilter] = [],
+        actions: List[ModuleObjectActionFull] = [],
     ):
         """
         Generic filterable module-object listing query used

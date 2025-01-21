@@ -17,7 +17,7 @@ from app.extensions.areas.repository.sqlite_area_geometry_repository import Sqli
 from app.extensions.html_assets.db.tables import AssetsTable
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
-from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode, ModuleStatusCodeInternal
+from app.extensions.modules.models.models import ModuleObjectActionFull, ModuleStatusCode, ModuleStatusCodeInternal
 from app.extensions.relations.db.tables import RelationsTable
 from app.extensions.source_werkingsgebieden.repository.mssql_geometry_repository import MssqlGeometryRepository
 from app.extensions.source_werkingsgebieden.repository.sqlite_geometry_repository import SqliteGeometryRepository
@@ -441,7 +441,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Edit,
+                Action=ModuleObjectActionFull.Edit,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
                 # Removed from module
@@ -495,7 +495,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik maken",
                 Conclusion="Geen conclusie",
             )
@@ -530,7 +530,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Terminate,
+                Action=ModuleObjectActionFull.Terminate,
                 Explanation="Deze wil ik verwijderen",
                 Conclusion="Geen conclusie",
             )
@@ -565,7 +565,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -601,7 +601,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -636,7 +636,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -669,7 +669,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -704,7 +704,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -739,7 +739,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -776,7 +776,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -811,7 +811,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -848,7 +848,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -882,7 +882,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )
@@ -918,7 +918,7 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Original_Adjust_On=None,
-                Action=ModuleObjectActionFilter.Create,
+                Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
             )

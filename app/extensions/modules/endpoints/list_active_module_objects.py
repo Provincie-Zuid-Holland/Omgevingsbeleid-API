@@ -9,7 +9,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.dependencies import depends_module_object_repository
 from app.extensions.modules.models.models import (
     ActiveModuleObject,
-    ModuleObjectActionFilter,
+    ModuleObjectActionFull,
     ModuleShort,
     ModuleStatusCode,
 )
@@ -24,7 +24,7 @@ from app.extensions.users.dependencies import depends_current_active_user
 class ActiveModuleObjectWrapper(BaseModel):
     Module: ModuleShort
     Module_Object: ActiveModuleObject
-    Action: ModuleObjectActionFilter
+    Action: ModuleObjectActionFull
 
 
 class ListActiveModuleObjectsEndpoint(Endpoint):
