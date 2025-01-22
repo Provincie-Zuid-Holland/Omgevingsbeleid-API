@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements-dev.in
 #
-alembic==1.14.0
+alembic==1.14.1
     # via -r requirements-dev.in
 astroid==3.3.8
     # via pylint
@@ -31,7 +31,7 @@ coverage[toml]==7.6.10
     #   pytest-cov
 coverage-badge==1.1.2
     # via -r requirements-dev.in
-debugpy==1.8.11
+debugpy==1.8.12
     # via -r requirements-dev.in
 decorator==5.1.1
     # via ipython
@@ -43,7 +43,7 @@ exceptiongroup==1.2.2
     # via
     #   ipython
     #   pytest
-executing==2.1.0
+executing==2.2.0
     # via
     #   devtools
     #   stack-data
@@ -107,7 +107,7 @@ platformdirs==4.3.6
     #   pylint
 pluggy==1.5.0
     # via pytest
-prompt-toolkit==3.0.48
+prompt-toolkit==3.0.50
     # via ipython
 ptyprocess==0.7.0
     # via pexpect

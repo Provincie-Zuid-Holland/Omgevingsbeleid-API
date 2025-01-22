@@ -36,7 +36,7 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.5.2
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@motivation-feature
     # via -r requirements.in
 ecdsa==0.19.0
     # via python-jose
@@ -77,7 +77,7 @@ markupsafe==3.0.2
     # via
     #   dso
     #   jinja2
-numpy==2.2.1
+numpy==2.2.2
     # via
     #   dso
     #   geopandas
@@ -174,7 +174,7 @@ typing-extensions==4.12.2
     #   pydantic
     #   sqlalchemy
     #   uvicorn
-tzdata==2024.2
+tzdata==2025.1
     # via pandas
 urllib3==2.3.0
     # via requests
@@ -186,7 +186,7 @@ validators==0.34.0
     # via -r requirements.in
 watchfiles==1.0.4
     # via uvicorn
-websockets==14.1
+websockets==14.2
     # via uvicorn
 
 # The following packages are considered to be unsafe in a requirements file:
