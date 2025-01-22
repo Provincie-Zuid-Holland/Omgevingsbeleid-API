@@ -351,6 +351,9 @@ api:
     - prefix: /publication-versions/{version_uuid}/attachments
       endpoints:
         - resolver: upload_publication_version_attachment
+    - prefix: /publication-versions/{version_uuid}/attachments/{attachment_id}
+      endpoints:
+        - resolver: delete_publication_version_attachment
     - prefix: /publication-versions/{version_uuid}/pdf_export
       endpoints:
         - resolver: create_publication_version_pdf
@@ -700,6 +703,7 @@ users_permissions:
     - can_create_publication_version
     - can_edit_publication_version
     - can_view_publication_version
+    - can_delete_publication_version_attachment
     - can_create_publication_act_package
     - can_view_publication_act_package
     - can_download_publication_act_package

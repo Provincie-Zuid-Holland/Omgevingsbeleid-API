@@ -169,10 +169,31 @@ class Appendix(BaseModel):
         orm_mode = True
 
 
+class Paragraph(BaseModel):
+    Content: str
+
+
+ParagraphClass = Paragraph
+
+
+class Closing(BaseModel):
+    ParagraphGroups: List[List[ParagraphClass]] = Field(default_factory=list)
+    Paragraph: List[ParagraphClass] = Field(default_factory=list)
+    ClosingFormulation: List[ParagraphClass] = Field(default_factory=list)
+
+    class Config:
+        orm_mode = True
+
+
+ClosingClass = Closing
+
+
 class Motivation(BaseModel):
+    Number: str
     Title: str
     Content: str
-    Appendices: List[Appendix] = Field([])
+    Closing: Optional[ClosingClass] = Field(None)
+    Appendices: List[Appendix] = Field(default_factory=list)
 
     class Config:
         orm_mode = True

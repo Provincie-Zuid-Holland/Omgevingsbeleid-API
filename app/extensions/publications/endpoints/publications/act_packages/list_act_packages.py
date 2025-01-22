@@ -9,6 +9,7 @@ from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import PagedResponse, SimplePagination
 from app.extensions.publications.dependencies import depends_publication_act_package_repository
+from app.extensions.publications.enums import PackageType
 from app.extensions.publications.models import PublicationPackage
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.repository.publication_act_package_repository import PublicationActPackageRepository

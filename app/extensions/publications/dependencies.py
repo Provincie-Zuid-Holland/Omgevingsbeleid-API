@@ -80,6 +80,7 @@ from app.extensions.publications.tables.tables import (
     PublicationEnvironmentTable,
     PublicationPackageZipTable,
     PublicationTable,
+    PublicationVersionAttachmentTable,
     PublicationVersionTable,
 )
 from app.extensions.storage_files.dependencies import depends_storage_file_repository
@@ -497,6 +498,16 @@ def depends_publication_version_attachment_repository(
     db: Session = Depends(depends_db),
 ) -> PublicationVersionAttachmentRepository:
     return PublicationVersionAttachmentRepository(db)
+
+
+def depends_publication_version_attachment(
+    attachment_id: int,
+    repository: PublicationVersionAttachmentRepository = Depends(depends_publication_version_attachment_repository),
+) -> PublicationVersionAttachmentTable:
+    maybe_attachment: Optional[PublicationVersionAttachmentTable] = repository.get_by_id(attachment_id)
+    if not maybe_attachment:
+        raise HTTPException(status_code=404, detail="Publication attachment niet gevonden")
+    return maybe_attachment
 
 
 def depends_publication_version_validator() -> PublicationVersionValidator:

@@ -25,6 +25,7 @@ class PublicationsPermissions(str, Enum):
     can_create_publication_version = "can_create_publication_version"
     can_edit_publication_version = "can_edit_publication_version"
     can_view_publication_version = "can_view_publication_version"
+    can_delete_publication_version_attachment = "can_delete_publication_version_attachment"
 
     can_create_publication_act_package = "can_create_publication_act_package"
     can_view_publication_act_package = "can_view_publication_act_package"
