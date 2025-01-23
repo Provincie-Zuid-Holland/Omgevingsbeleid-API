@@ -1,11 +1,10 @@
-import datetime
 from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
 
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import PaginatedQueryResult, SortOrder, SortedPagination
+from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination
 from app.extensions.publications.enums import PackageType
 from app.extensions.publications.tables.tables import PublicationActPackageTable
 

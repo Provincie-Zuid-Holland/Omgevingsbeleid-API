@@ -1,14 +1,13 @@
-import datetime
 import uuid
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.dependencies import depends_simple_pagination, depends_sorted_pagination_curried
+from app.dynamic.dependencies import depends_sorted_pagination_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SimplePagination, SortedPagination
+from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination
 from app.extensions.publications.dependencies import depends_publication_act_package_repository
 from app.extensions.publications.enums import PackageType
 from app.extensions.publications.models import PublicationPackage
