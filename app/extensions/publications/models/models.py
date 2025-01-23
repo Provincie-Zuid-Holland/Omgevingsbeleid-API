@@ -349,6 +349,7 @@ class PublicationVersionShort(BaseModel):
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
     Is_Locked: bool
+    Status: PublicationVersionStatus
 
     Created_Date: datetime
     Modified_Date: datetime
