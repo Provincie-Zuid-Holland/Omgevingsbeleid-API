@@ -301,7 +301,7 @@ class DsoActInputDataBuilder:
             appendices.append(bijlage)
 
         result = Motivering(
-            nummer=motivation["Number"],
+            nummer=motivation.get("Number"),
             opschrift=motivation["Title"],
             content=motivation["Content"],
             bijlagen=appendices,

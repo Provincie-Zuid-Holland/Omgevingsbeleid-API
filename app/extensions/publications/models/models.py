@@ -177,7 +177,7 @@ ParagraphClass = Paragraph
 
 
 class Motivation(BaseModel):
-    Number: str
+    Number: Optional[str] = Field(None)
     Title: str
     Content: str
     Appendices: List[Appendix] = Field(default_factory=list)
