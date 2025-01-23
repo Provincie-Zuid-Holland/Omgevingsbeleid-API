@@ -5,7 +5,7 @@ from uuid import UUID
 from sqlalchemy import and_, select
 
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import PaginatedQueryResult, SortOrder
+from app.dynamic.utils.pagination import PaginatedQueryResult, SortOrder, SortedPagination
 from app.extensions.publications.enums import PackageType
 from app.extensions.publications.tables.tables import PublicationActPackageTable
 
@@ -24,12 +24,9 @@ class PublicationActPackageRepository(BaseRepository):
 
     def get_with_filters(
         self,
+        pagination: SortedPagination,
         version_uuid: Optional[UUID] = None,
         package_type: Optional[PackageType] = None,
-        before_datetime: Optional[datetime.datetime] = None,
-        after_datetime: Optional[datetime.datetime] = None,
-        offset: int = 0,
-        limit: int = 20,
     ) -> PaginatedQueryResult:
         filters = []
         if version_uuid is not None:
@@ -38,18 +35,12 @@ class PublicationActPackageRepository(BaseRepository):
         if package_type is not None:
             filters.append(and_(PublicationActPackageTable.Package_Type == package_type.value))
 
-        if before_datetime is not None:
-            filters.append(and_(PublicationActPackageTable.Modified_Date <= before_datetime))
-
-        if after_datetime is not None:
-            filters.append(and_(PublicationActPackageTable.Modified_Date >= after_datetime))
-
         stmt = select(PublicationActPackageTable).filter(*filters)
 
         paged_result = self.fetch_paginated(
             statement=stmt,
-            offset=offset,
-            limit=limit,
-            sort=(PublicationActPackageTable.Modified_Date, SortOrder.DESC),
+            offset=pagination.offset,
+            limit=pagination.limit,
+            sort=(pagination.sort.column, pagination.sort.order),
         )
         return paged_result
