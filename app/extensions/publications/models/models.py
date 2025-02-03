@@ -72,7 +72,6 @@ class PublicationAct(BaseModel):
     Is_Active: bool
     Environment: PublicationEnvironment
     Document_Type: str
-    Procedure_Type: str
     Metadata: dict
 
     Work_Province_ID: str
@@ -93,7 +92,6 @@ class PublicationActShort(BaseModel):
     Is_Active: bool
     Environment_UUID: uuid.UUID
     Document_Type: str
-    Procedure_Type: str
 
     Work_Province_ID: str
     Work_Country: str
