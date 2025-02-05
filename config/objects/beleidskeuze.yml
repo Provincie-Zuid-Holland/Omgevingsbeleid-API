@@ -246,6 +246,10 @@ models:
       hierarchy_code:
       werkingsgebied_code:
     services:
+      join_werkingsgebieden:
+        model_id: werkingsgebied_minimal
+        to_field: Werkingsgebied
+        from_column: werkingsgebied_code
       insert_assets:
         fields:
           - Description
