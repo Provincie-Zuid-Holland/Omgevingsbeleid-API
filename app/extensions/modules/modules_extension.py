@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+from app.dynamic.converter import Converter
 import app.extensions.modules.endpoints as endpoints
 from app.dynamic.config.models import Column, ExtensionModel
 from app.dynamic.endpoints.endpoint import EndpointResolver
@@ -10,7 +11,8 @@ from app.dynamic.generate_table import generate_table
 from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.table_extensions import extend_with_attributes
-from app.extensions.modules.models.models import PublicModuleObjectRevision
+from app.extensions.modules.listeners import WerkingsgebiedRelatedObjectsListener
+from app.extensions.modules.models.models import GenericModuleObjectShort, PublicModuleObjectRevision
 
 
 class ModulesExtension(Extension):
@@ -64,3 +66,19 @@ class ModulesExtension(Extension):
                 pydantic_model=PublicModuleObjectRevision,
             )
         )
+        models_resolver.add(
+            ExtensionModel(
+                id="generic_module_object_short",
+                name="GenericModuleObjectShort",
+                pydantic_model=GenericModuleObjectShort,
+            )
+        )
+
+    def register_listeners(
+        self,
+        main_config: dict,
+        event_listeners: EventListeners,
+        converter: Converter,
+        models_resolver: ModelsResolver,
+    ):
+        event_listeners.register(WerkingsgebiedRelatedObjectsListener())
