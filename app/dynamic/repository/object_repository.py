@@ -195,3 +195,30 @@ class ObjectRepository(BaseRepository):
             limit=pagination.limit,
             sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )
+
+    def get_all_latest_by_werkingsgebied(self, werkingsgebied_code: str):
+        row_number = (
+            func.row_number()
+            .over(
+                partition_by=ObjectsTable.Code,
+                order_by=desc(ObjectsTable.Modified_Date),
+            )
+            .label("_RowNumber")
+        )
+
+        subq = select(ObjectsTable, row_number).filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+
+        subq = subq.subquery()
+        aliased_objects = aliased(ObjectsTable, subq)
+        stmt = (
+            select(aliased_objects)
+            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c.Werkingsgebied_Code == werkingsgebied_code)
+            .filter(
+                or_(
+                    subq.c.End_Validity > datetime.now(timezone.utc),
+                    subq.c.End_Validity == None,
+                )
+            )
+        )
+        return self.fetch_all(statement=stmt)
