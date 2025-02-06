@@ -307,10 +307,12 @@ class ModuleObjectRepository(BaseRepository):
                 ModuleObjectsTable,
                 ModuleTable,
                 ModuleObjectContextTable.Action.label("context_action"),
-                func.row_number().over(
+                func.row_number()
+                .over(
                     partition_by=(ModuleObjectsTable.Module_ID, ModuleObjectsTable.Code),
-                    order_by=desc(ModuleObjectsTable.Modified_Date)
-                ).label("_RowNumber")
+                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                )
+                .label("_RowNumber"),
             )
             .select_from(ModuleObjectsTable)
             .join(ModuleTable, ModuleObjectsTable.Module_ID == ModuleTable.Module_ID)
@@ -318,8 +320,8 @@ class ModuleObjectRepository(BaseRepository):
                 ModuleObjectContextTable,
                 and_(
                     ModuleObjectsTable.Module_ID == ModuleObjectContextTable.Module_ID,
-                    ModuleObjectsTable.Code == ModuleObjectContextTable.Code
-                )
+                    ModuleObjectsTable.Code == ModuleObjectContextTable.Code,
+                ),
             )
             .where(ModuleTable.Activated == 1)
             .where(ModuleTable.Closed == 0)
@@ -339,8 +341,11 @@ class ModuleObjectRepository(BaseRepository):
         )
 
         rows = self._db.execute(stmt).all()
-        return [LatestObjectPerModuleResult(
-            module_object=row[0],
-            module=row[1],
-            context_action=row[2],
-        ) for row in rows]
+        return [
+            LatestObjectPerModuleResult(
+                module_object=row[0],
+                module=row[1],
+                context_action=row[2],
+            )
+            for row in rows
+        ]

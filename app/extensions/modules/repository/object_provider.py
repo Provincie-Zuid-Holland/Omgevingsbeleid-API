@@ -4,7 +4,7 @@ from uuid import UUID
 from app.core.utils.utils import table_to_dict
 from app.dynamic.db import ObjectsTable
 from app.dynamic.repository.object_repository import ObjectRepository
-from app.extensions.modules.models.models import ModuleStatusCode, GenericModuleObjectShort
+from app.extensions.modules.models.models import GenericModuleObjectShort, ModuleStatusCode
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 
 
@@ -47,11 +47,9 @@ class ObjectProvider:
         regular_objects = self._object_repository.get_all_latest_by_werkingsgebied(werkingsgebied_code)
         related_objects.extend(
             GenericModuleObjectShort(
-                UUID=item.UUID,
-                Object_ID=item.Object_ID, 
-                Object_Type=item.Object_Type,
-                Title=item.Title
-            ) for item in regular_objects
+                UUID=item.UUID, Object_ID=item.Object_ID, Object_Type=item.Object_Type, Title=item.Title
+            )
+            for item in regular_objects
         )
 
         module_objects = self._module_object_repository.get_latest_versions_by_werkingsgebied(werkingsgebied_code)
@@ -63,7 +61,8 @@ class ObjectProvider:
                 Title=item.module_object.Title,
                 Module_ID=item.module.Module_ID,
                 Module_Title=item.module.Title,
-            ) for item in module_objects
+            )
+            for item in module_objects
         )
 
         return related_objects
