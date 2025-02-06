@@ -1,35 +1,24 @@
-from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Type
 
 from pydantic import BaseModel
-from sqlalchemy import desc, func, or_, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.dynamic.config.models import DynamicObjectModel, Model
-from app.dynamic.converter import Converter
 from app.dynamic.db import ObjectsTable
-from app.extensions.relations.db.tables import RelationsTable
-
-
-@dataclass
-class ObjectTypeDetails:
-    object_id: str
-    to_field: str
-    wrapped_with_relation_data: bool
 
 
 @dataclass
 class Config:
-    object_codes: List[str]
-    object_types: List[str]
-    object_type_details: Dict[str, ObjectTypeDetails]
+    werkingsgebied_codes: List[str]
+    from_field: str
+    to_field: str
 
 
 class JoinWerkingsgebiedenService:
     def __init__(
         self,
-        converter: Converter,
         db: Session,
         rows: List[BaseModel],
         response_model: Model,
@@ -43,58 +32,17 @@ class JoinWerkingsgebiedenService:
         if not config:
             return self._rows
 
-        relation_rows: List[dict] = self._fetch_relation_rows(config)
+        if len(config.werkingsgebied_codes) == 0:
+            return self._rows
 
-        """
-        relations=
-        {
-            # target/to (owner)
-            'ambitie-1': {
-                # object-type of the relation
-                # used to map to the right field in the target
-                'Beleidsdoelen': [
-                    {row},
-                    {row},
-                ],
-                'Beleidskeuzes': [
-                    {row},
-                    {row},
-                ],
-            }
-        }
-        """
-        relations = defaultdict(lambda: defaultdict(list))
-        for relation_row in relation_rows:
-            # Determine the owner
-            target_code: str = relation_row.get("_Relation_From_Code")
-            if relation_row.get("_Relation_From_Code") == relation_row.get("Code"):
-                target_code = relation_row["_Relation_To_Code"]
+        werkingsgebieden: Dict[str, BaseModel] = self._fetch_werkingsgebieden(config)
 
-            relation_object_type: str = relation_row.get("Object_Type")
-            object_config: ObjectTypeDetails = config.object_type_details[relation_object_type]
-
-            deserialized_relation_row: dict = self._converter.deserialize(object_config.object_id, relation_row)
-
-            # Created wrapped relation model if configures with wrapped_with_relation_data
-            field_value: dict = deserialized_relation_row
-            if object_config.wrapped_with_relation_data:
-                field_value = {
-                    "Relation": {
-                        "Object_Type": relation_row.get("Object_Type"),
-                        "Object_ID": relation_row.get("Object_ID"),
-                        "Description": relation_row.get("_Relation_Description"),
-                    },
-                    "Object": deserialized_relation_row,
-                }
-
-            relations[target_code][object_config.to_field].append(field_value)
-
-        # Now we union the relation "rows" into the event rows
-        result_rows: List[dict] = []
+        result_rows: List[BaseModel] = []
         for row in self._rows:
-            if getattr(row, "Code") in relations:
-                for field_name, content in relations[getattr(row, "Code")].items():
-                    setattr(row, field_name, content)
+            werkingsgebied_code = getattr(row, config.from_field)
+            if werkingsgebied_code in werkingsgebieden:
+                werkingsgebied = werkingsgebieden[werkingsgebied_code]
+                setattr(row, config.to_field, werkingsgebied)
             result_rows.append(row)
 
         return result_rows
@@ -102,42 +50,26 @@ class JoinWerkingsgebiedenService:
     def _collect_config(self) -> Optional[Config]:
         if not isinstance(self._response_model, DynamicObjectModel):
             return None
-        if not "relations" in self._response_model.service_config:
+        if not "join_werkingsgebieden" in self._response_model.service_config:
             return None
 
-        object_codes: List[str] = list(set([getattr(r, "Code") for r in self._rows]))
+        join_werkingsgebieden_config: dict = self._response_model.service_config.get["join_werkingsgebieden_config"]
+        to_field: str = join_werkingsgebieden_config["to_field"]
+        from_field: str = join_werkingsgebieden_config["from_field"]
 
-        relations_config: dict = self._response_model.service_config.get("relations")
-        objects_config: List[dict] = relations_config.get("objects")
-
-        to_field_map: Dict[str, ObjectTypeDetails] = {}
-        object_types: Set[str] = set()
-        for object_config in objects_config:
-            object_id: str = object_config.get("object_id")
-            object_type: str = object_config.get("object_type")
-            to_field: str = object_config.get("to_field")
-            wrapped_with_relation_data: bool = object_config.get("wrapped_with_relation_data", False)
-
-            object_types.add(object_type)
-            to_field_map[object_type] = ObjectTypeDetails(
-                object_id,
-                to_field,
-                wrapped_with_relation_data,
-            )
+        werkingsgebied_codes: List[str] = list(set([getattr(r, from_field) for r in self._rows]))
+        werkingsgebied_codes: List[str] = [c for c in werkingsgebied_codes if c is not None]
 
         return Config(
-            object_codes,
-            list(object_types),
-            to_field_map,
+            werkingsgebied_codes,
+            from_field,
+            to_field,
         )
 
-    def _fetch_relation_rows(self, config: Config) -> List[dict]:
+    def _fetch_werkingsgebieden(self, config: Config) -> Dict[str, BaseModel]:
         subq = (
             select(
                 ObjectsTable,
-                RelationsTable.From_Code.label("_Relation_From_Code"),
-                RelationsTable.To_Code.label("_Relation_To_Code"),
-                RelationsTable.Description.label("_Relation_Description"),
                 func.row_number()
                 .over(
                     partition_by=ObjectsTable.Code,
@@ -145,23 +77,17 @@ class JoinWerkingsgebiedenService:
                 )
                 .label("_RowNumber"),
             )
-            .select_from(RelationsTable)
-            .join(
-                ObjectsTable,
-                or_(ObjectsTable.Code == RelationsTable.From_Code, ObjectsTable.Code == RelationsTable.To_Code),
-            )
+            .select_from(ObjectsTable)
             .filter(
-                or_(
-                    RelationsTable.From_Code.in_(config.object_codes),
-                    RelationsTable.To_Code.in_(config.object_codes),
-                )
+                ObjectsTable.Code.in_(config.werkingsgebied_codes),
             )
-            .filter(ObjectsTable.Object_Type.in_(config.object_types))
             .subquery()
         )
 
         stmt = select(subq).filter(subq.c._RowNumber == 1)
 
         rows = self._db.execute(stmt).all()
-        dict_rows = [r._asdict() for r in rows]
-        return dict_rows
+        werkingsgebied_model: Type[BaseModel] = getattr(self._response_model.pydantic_model, config.to_field)
+        result: Dict[str, BaseModel] = {r.Code: werkingsgebied_model.from_orm(r) for r in rows}
+
+        return result

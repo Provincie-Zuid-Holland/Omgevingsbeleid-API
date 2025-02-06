@@ -2,25 +2,20 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.dynamic.converter import Converter
 from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 from app.dynamic.event.types import Listener
-from app.extensions.relations.service.add_relations import AddRelationsService
+from app.extensions.werkingsgebieden.service.join_werkingsgebieden import JoinWerkingsgebiedenService
 
 
 class RetrievedObjectsListener(Listener[RetrievedObjectsEvent]):
-    def __init__(self, converter: Converter):
-        self._converter: Converter = converter
-
     def handle_event(self, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
-        add_service: AddRelationsService = AddRelationsService(
-            self._converter,
+        add_service: JoinWerkingsgebiedenService = JoinWerkingsgebiedenService(
             event.get_db(),
             event.payload.rows,
             event.context.response_model,
         )
 
-        result_rows: List[BaseModel] = add_service.add_relations()
+        result_rows: List[BaseModel] = add_service.join_werkingsgebieden()
         event.payload.rows = result_rows
 
         return event

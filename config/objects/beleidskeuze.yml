@@ -249,7 +249,7 @@ models:
       join_werkingsgebieden:
         model_id: werkingsgebied_minimal
         to_field: Werkingsgebied
-        from_column: werkingsgebied_code
+        from_field: Werkingsgebied_Code
       insert_assets:
         fields:
           - Description
