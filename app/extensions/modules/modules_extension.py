@@ -1,8 +1,8 @@
 from typing import Dict, List
 
-from app.dynamic.converter import Converter
 import app.extensions.modules.endpoints as endpoints
 from app.dynamic.config.models import Column, ExtensionModel
+from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.event_listeners import EventListeners
