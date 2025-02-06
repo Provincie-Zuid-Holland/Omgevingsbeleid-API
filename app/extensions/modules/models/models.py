@@ -146,3 +146,12 @@ class PublicModuleObjectRevision(BaseModel):
     Module_Title: str
     Module_Status: str
     Action: ModuleObjectActionFull
+
+
+class GenericModuleObjectShort(BaseModel):
+    UUID: uuid.UUID
+    Object_ID: int
+    Object_Type: str
+    Title: str
+    Module_ID: Optional[int] = None
+    Module_Title: Optional[str] = None
