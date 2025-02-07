@@ -142,6 +142,12 @@ models:
       area_uuid:
       start_validity:
       end_validity:
+    services:
+      insert_computed_fields:
+        fields: 
+          - field_name: Next_Version
+            model_id: next_object_validities
+            optional: true
   werkingsgebied_extended:
     name: WerkingsgebiedExtended
     fields:
@@ -183,6 +189,16 @@ models:
       end_validity:
       area_uuid:
     services:
+      insert_computed_fields:
+        fields: 
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
+          - field_name: Next_Version
+            model_id: next_object_validities
+            list: false
+            optional: true
       foreign_keys_extender:
         fields_map:
           - to_field: Area

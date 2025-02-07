@@ -172,6 +172,11 @@ models:
       get_image:
         fields:
           - Image
+      insert_computed_fields:
+        fields: 
+          - field_name: Next_Version
+            model_id: next_object_validities
+            optional: true
   gebiedsprogramma_extended:
     name: GebiedsprogrammaExtended
     fields:

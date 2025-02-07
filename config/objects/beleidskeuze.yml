@@ -194,6 +194,12 @@ models:
       start_validity:
       end_validity:
       title:
+    services:
+      insert_computed_fields:
+        fields: 
+          - field_name: Next_Version
+            model_id: next_object_validities
+            optional: true
   beleidskeuze_extended:
     name: BeleidskeuzeExtended
     fields:
