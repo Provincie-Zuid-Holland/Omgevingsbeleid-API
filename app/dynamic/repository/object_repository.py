@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import aliased, selectinload
+from sqlalchemy.orm import aliased, load_only, selectinload
 from sqlalchemy.sql import and_, func, or_
 
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
@@ -190,7 +190,7 @@ class ObjectRepository(BaseRepository):
             sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )
 
-    def get_all_latest_by_werkingsgebied(self, werkingsgebied_code: str):
+    def get_all_latest_by_werkingsgebied(self, werkingsgebied_code: str) -> List[ObjectsTable]:
         row_number = (
             func.row_number()
             .over(
@@ -200,7 +200,21 @@ class ObjectRepository(BaseRepository):
             .label("_RowNumber")
         )
 
-        subq = select(ObjectsTable, row_number).filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+        subq = (
+            select(ObjectsTable, row_number)
+            .options(load_only(
+                ObjectsTable.UUID,
+                ObjectsTable.Object_ID,
+                ObjectsTable.Object_Type,
+                ObjectsTable.Title,
+                ObjectsTable.Code,
+                ObjectsTable.Werkingsgebied_Code,
+                ObjectsTable.Modified_Date,
+                ObjectsTable.Start_Validity,
+                ObjectsTable.End_Validity,
+            ))
+            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+        )
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)

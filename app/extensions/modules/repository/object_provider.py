@@ -4,8 +4,16 @@ from uuid import UUID
 from app.core.utils.utils import table_to_dict
 from app.dynamic.db import ObjectsTable
 from app.dynamic.repository.object_repository import ObjectRepository
-from app.extensions.modules.models.models import GenericModuleObjectShort, ModuleStatusCode
-from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
+from app.extensions.modules.models.models import (
+    DynamicModuleObjectShort,
+    DynamicObjectShort,
+    WerkingsgebiedRelatedObjects,
+    ModuleStatusCode,
+)
+from app.extensions.modules.repository.module_object_repository import (
+    LatestObjectPerModuleResult,
+    ModuleObjectRepository,
+)
 
 
 class ObjectProvider:
@@ -40,29 +48,12 @@ class ObjectProvider:
             code=valid_obj.Code, minimum_status=minimum_status, is_active=True
         )
 
-    def list_all_objects_related_to_werkingsgebied(self, werkingsgebied_code: str) -> List[GenericModuleObjectShort]:
+    def list_all_objects_related_to_werkingsgebied(self, werkingsgebied_code: str):
         """get all objects and latest version of active module objects related to a specified werkingsgebied."""
-        related_objects: List[GenericModuleObjectShort] = []
-
-        regular_objects = self._object_repository.get_all_latest_by_werkingsgebied(werkingsgebied_code)
-        related_objects.extend(
-            GenericModuleObjectShort(
-                UUID=item.UUID, Object_ID=item.Object_ID, Object_Type=item.Object_Type, Title=item.Title
-            )
-            for item in regular_objects
+        regular_objects: List[ObjectsTable] = self._object_repository.get_all_latest_by_werkingsgebied(
+            werkingsgebied_code
         )
-
-        module_objects = self._module_object_repository.get_latest_versions_by_werkingsgebied(werkingsgebied_code)
-        related_objects.extend(
-            GenericModuleObjectShort(
-                UUID=item.module_object.UUID,
-                Object_ID=item.module_object.Object_ID,
-                Object_Type=item.module_object.Object_Type,
-                Title=item.module_object.Title,
-                Module_ID=item.module.Module_ID,
-                Module_Title=item.module.Title,
-            )
-            for item in module_objects
+        module_objects: List[LatestObjectPerModuleResult] = (
+            self._module_object_repository.get_latest_versions_by_werkingsgebied(werkingsgebied_code)
         )
-
-        return related_objects
+        return regular_objects + module_objects
