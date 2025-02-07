@@ -182,13 +182,11 @@ models:
       start_validity:
       end_validity:
       area_uuid:
-
     services:
       insert_computed_fields:
         fields: 
           - field_name: Related_Objects
-            model_id: generic_module_object_short
-            list: true
+            model_id: werkingsgebied_related_objects
             optional: true
       foreign_keys_extender:
         fields_map:

@@ -12,7 +12,10 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.table_extensions import extend_with_attributes
 from app.extensions.modules.listeners import WerkingsgebiedRelatedObjectsListener
-from app.extensions.modules.models.models import GenericModuleObjectShort, PublicModuleObjectRevision
+from app.extensions.modules.models.models import (
+    PublicModuleObjectRevision,
+    WerkingsgebiedRelatedObjects,
+)
 
 
 class ModulesExtension(Extension):
@@ -68,9 +71,9 @@ class ModulesExtension(Extension):
         )
         models_resolver.add(
             ExtensionModel(
-                id="generic_module_object_short",
-                name="GenericModuleObjectShort",
-                pydantic_model=GenericModuleObjectShort,
+                id="werkingsgebied_related_objects",
+                name="WerkingsgebiedRelatedObjects",
+                pydantic_model=WerkingsgebiedRelatedObjects,
             )
         )
 

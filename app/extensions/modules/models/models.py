@@ -159,10 +159,18 @@ class PublicModuleObjectRevision(BaseModel):
     Action: ModuleObjectActionFull
 
 
-class GenericModuleObjectShort(BaseModel):
+class DynamicObjectShort(BaseModel):
     UUID: uuid.UUID
-    Object_ID: int
     Object_Type: str
-    Title: str
+    Object_ID: int
+    Title: Optional[str]
+
+
+class DynamicModuleObjectShort(DynamicObjectShort):
     Module_ID: Optional[int] = None
     Module_Title: Optional[str] = None
+
+
+class WerkingsgebiedRelatedObjects(BaseModel):
+    Valid_Objects: List[DynamicObjectShort]
+    Module_Objects: List[DynamicModuleObjectShort]

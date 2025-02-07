@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 from uuid import UUID, uuid4
 
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased, load_only
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import Select, and_, or_
 
@@ -19,8 +19,6 @@ from app.extensions.modules.models.models import ModuleObjectActionFull, ModuleS
 
 @dataclass
 class LatestObjectPerModuleResult:
-    """extra wrapper to type combined query result"""
-
     module_object: ModuleObjectsTable
     module: ModuleTable
     context_action: ModuleObjectActionFull
@@ -313,6 +311,21 @@ class ModuleObjectRepository(BaseRepository):
                     order_by=desc(ModuleObjectsTable.Modified_Date),
                 )
                 .label("_RowNumber"),
+            )
+            .options(
+                load_only(
+                    ModuleObjectsTable.UUID,
+                    ModuleObjectsTable.Object_ID,
+                    ModuleObjectsTable.Object_Type,
+                    ModuleObjectsTable.Title,
+                    ModuleObjectsTable.Code,
+                    ModuleObjectsTable.Werkingsgebied_Code,
+                    ModuleObjectsTable.Modified_Date,
+                ),
+                load_only(
+                    ModuleTable.Module_ID,
+                    ModuleTable.Title,
+                )
             )
             .select_from(ModuleObjectsTable)
             .join(ModuleTable, ModuleObjectsTable.Module_ID == ModuleTable.Module_ID)
