@@ -5,10 +5,6 @@ from app.dynamic.event.create_model_event import CreateModelEvent
 from app.dynamic.event.types import Listener
 from app.dynamic.models_resolver import ModelsResolver
 
-# model_id: werkingsgebied_minimal
-# to_field: Werkingsgebied
-# from_column: werkingsgebied_code
-
 
 class CreateModelListener(Listener[CreateModelEvent]):
     def __init__(self, models_resolver: ModelsResolver):

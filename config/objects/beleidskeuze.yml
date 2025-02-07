@@ -247,7 +247,7 @@ models:
       werkingsgebied_code:
     services:
       join_werkingsgebieden:
-        model_id: werkingsgebied_minimal
+        model_id: werkingsgebied_basic
         to_field: Werkingsgebied
         from_field: Werkingsgebied_Code
       insert_assets:

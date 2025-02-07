@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type, get_args
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
@@ -42,7 +42,7 @@ class JoinWerkingsgebiedenService:
             werkingsgebied_code = getattr(row, config.from_field)
             if werkingsgebied_code in werkingsgebieden:
                 werkingsgebied = werkingsgebieden[werkingsgebied_code]
-                setattr(row, config.to_field, werkingsgebied)
+                getattr(row, config.to_field).append(werkingsgebied)
             result_rows.append(row)
 
         return result_rows
@@ -53,7 +53,7 @@ class JoinWerkingsgebiedenService:
         if not "join_werkingsgebieden" in self._response_model.service_config:
             return None
 
-        join_werkingsgebieden_config: dict = self._response_model.service_config.get["join_werkingsgebieden_config"]
+        join_werkingsgebieden_config: dict = self._response_model.service_config["join_werkingsgebieden"]
         to_field: str = join_werkingsgebieden_config["to_field"]
         from_field: str = join_werkingsgebieden_config["from_field"]
 
@@ -67,6 +67,9 @@ class JoinWerkingsgebiedenService:
         )
 
     def _fetch_werkingsgebieden(self, config: Config) -> Dict[str, BaseModel]:
+        werkingsgebied_annotation = self._response_model.pydantic_model.__annotations__.get(config.to_field)
+        werkingsgebied_model: Type[BaseModel] = get_args(werkingsgebied_annotation)[0]
+
         subq = (
             select(
                 ObjectsTable,
@@ -87,7 +90,6 @@ class JoinWerkingsgebiedenService:
         stmt = select(subq).filter(subq.c._RowNumber == 1)
 
         rows = self._db.execute(stmt).all()
-        werkingsgebied_model: Type[BaseModel] = getattr(self._response_model.pydantic_model, config.to_field)
         result: Dict[str, BaseModel] = {r.Code: werkingsgebied_model.from_orm(r) for r in rows}
 
         return result
