@@ -114,7 +114,7 @@ class ModuleObjectAction(str, Enum):
     Terminate = "Terminate"
 
 
-class ModuleObjectActionFilter(str, Enum):
+class ModuleObjectActionFull(str, Enum):
     Create = "Create"
     Edit = "Edit"
     Terminate = "Terminate"
@@ -156,3 +156,4 @@ class PublicModuleObjectRevision(BaseModel):
     Module_ID: int
     Module_Title: str
     Module_Status: str
+    Action: ModuleObjectActionFull

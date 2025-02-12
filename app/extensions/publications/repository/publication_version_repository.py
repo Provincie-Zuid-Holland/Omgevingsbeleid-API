@@ -20,7 +20,7 @@ class PublicationVersionRepository(BaseRepository):
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
-        filters = []
+        filters = [PublicationVersionTable.Deleted_At.is_(None)]
         if publication_uuid is not None:
             filters.append(and_(PublicationVersionTable.Publication_UUID == publication_uuid))
 

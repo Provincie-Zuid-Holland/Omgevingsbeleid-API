@@ -10,7 +10,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination
 from app.extensions.modules.dependencies import depends_module_object_repository
 from app.extensions.modules.endpoints.module_overview import ModuleObjectShort
-from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode
+from app.extensions.modules.models.models import ModuleObjectActionFull, ModuleStatusCode
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
@@ -31,8 +31,8 @@ class ListModuleObjectsEndpoint(Endpoint):
             object_type: Optional[str] = None,
             owner_uuid: Optional[UUID] = None,
             minimum_status: Optional[ModuleStatusCode] = None,
-            actions: List[ModuleObjectActionFilter] = Query([]),
-            action: Optional[ModuleObjectActionFilter] = None,  # @deprecated @note: backwards compatible
+            actions: List[ModuleObjectActionFull] = Query([]),
+            action: Optional[ModuleObjectActionFull] = None,  # @deprecated @note: backwards compatible
             only_active_modules: bool = True,
             module_object_repository: ModuleObjectRepository = Depends(depends_module_object_repository),
             user: UsersTable = Depends(depends_current_active_user),
@@ -71,7 +71,7 @@ class ListModuleObjectsEndpoint(Endpoint):
         owner_uuid: Optional[UUID],
         object_type: Optional[str],
         only_active_modules: bool,
-        actions: List[ModuleObjectActionFilter],
+        actions: List[ModuleObjectActionFull],
     ):
         paginated_result = module_object_repository.get_all_latest(
             pagination=pagination,

@@ -232,6 +232,10 @@ models:
             model_id: public_module_object_revision
             list: true
             optional: true
+          - field_name: Next_Version
+            model_id: next_object_validities
+            list: false
+            optional: true
       insert_assets:
         fields:
           - Description

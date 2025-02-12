@@ -5,6 +5,7 @@ from typing import Any, List, Optional
 from pydantic import BaseModel, Field, validator
 
 from app.extensions.modules.models.models import ModuleStatus
+from app.extensions.publications.enums import PublicationVersionStatus
 from app.extensions.publications.waardelijsten import Bestuursorgaan, Onderwerp, Rechtsgebied
 
 
@@ -305,6 +306,7 @@ class PublicationVersion(BaseModel):
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
     Is_Locked: bool
+    Status: PublicationVersionStatus
 
     Created_Date: datetime
     Modified_Date: datetime
@@ -345,6 +347,7 @@ class PublicationVersionShort(BaseModel):
     Effective_Date: Optional[date]
     Announcement_Date: Optional[date]
     Is_Locked: bool
+    Status: PublicationVersionStatus
 
     Created_Date: datetime
     Modified_Date: datetime
