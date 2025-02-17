@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.8'
 
 services:
 
@@ -32,23 +32,42 @@ services:
     cap_add:
       - SYS_PTRACE
 
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+  falkordb:
+    image: falkordb/falkordb:latest
     ports:
-      - "11433:1433"
-    environment:
-      ACCEPT_EULA: Y
-      MSSQL_SA_PASSWORD: 'Passw0rd'
+      - "6379:6379"
     volumes:
-      - mssql:/var/opt/mssql
-      - ./docker/mssql/:/opt/sql/:ro
-    healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT 1" -b -C -o /dev/null
-      interval: 1s
-      timeout: 3s
-      retries: 10
-      start_period: 1s
-    restart: "no"
+      - falkor-data:/data
+
+  falkordb-browser:
+    image: falkordb/falkordb-browser:edge
+    ports:
+      - "3000:3000"
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - "5540:5540"
+    depends_on:
+      - falkordb
+  
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   ports:
+  #     - "11433:1433"
+  #   environment:
+  #     ACCEPT_EULA: Y
+  #     MSSQL_SA_PASSWORD: 'Passw0rd'
+  #   volumes:
+  #     - mssql:/var/opt/mssql
+  #     - ./docker/mssql/:/opt/sql/:ro
+  #   healthcheck:
+  #     test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT 1" -b -C -o /dev/null
+  #     interval: 1s
+  #     timeout: 3s
+  #     retries: 10
+  #     start_period: 1s
+  #   restart: "no"
 
   # mailhog:
   #   image: mailhog/mailhog
@@ -58,5 +77,5 @@ services:
   #   restart: "no"
 
 volumes:
+  falkor-data:
   mssql:
-

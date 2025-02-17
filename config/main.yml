@@ -32,6 +32,10 @@ sort_default_object_id: &sort_default_object_id
 
 api:
   routers:
+    - prefix: /falkor/create
+      endpoints:
+        - resolver: falkor_view
+        - resolver: falkor_create
     - prefix: /users
       endpoints:
         - resolver: list_users

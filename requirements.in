@@ -40,5 +40,7 @@ jinja2
 dicttoxml
 lxml
 
+FalkorDB
+
 # DSO
 git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.6.0
