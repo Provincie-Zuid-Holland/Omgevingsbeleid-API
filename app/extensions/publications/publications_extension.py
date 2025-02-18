@@ -52,6 +52,7 @@ class PublicationsExtension(Extension):
             endpoints.CreatePublicationVersionEndpointResolver(),
             endpoints.EditPublicationVersionEndpointResolver(),
             endpoints.DetailPublicationVersionEndpointResolver(),
+            endpoints.DeletePublicationVersionEndpointResolver(),
             endpoints.ListPublicationVersionsEndpointResolver(),
             endpoints.UploadPublicationVersionAttachmentEndpointResolver(),
             endpoints.DeletePublicationVersionAttachmentEndpointResolver(),

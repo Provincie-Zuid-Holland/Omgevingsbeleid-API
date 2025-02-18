@@ -31,3 +31,14 @@ class ReportStatusType(str, Enum):
 class MutationStrategy(str, Enum):
     RENVOOI = "renvooi"
     REPLACE = "replace"
+
+
+class PublicationVersionStatus(str, Enum):
+    NOT_APPLICABLE = "not_applicable"
+    ACTIVE = "active"
+    VALIDATION = "validation"
+    VALIDATION_FAILED = "validation_failed"
+    PUBLICATION = "publication"
+    PUBLICATION_FAILED = "publication_failed"
+    ANNOUNCEMENT = "announcement"
+    COMPLETED = "completed"

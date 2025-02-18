@@ -13,11 +13,11 @@ appdirs==1.4.4
     # via fs
 bcrypt==4.0.1
     # via -r requirements.in
-beautifulsoup4==4.12.3
+beautifulsoup4==4.13.3
     # via
     #   -r requirements.in
     #   dso
-certifi==2024.12.14
+certifi==2025.1.31
     # via
     #   dso
     #   httpcore
@@ -36,13 +36,13 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@motivation-feature
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.6.0
     # via -r requirements.in
 ecdsa==0.19.0
     # via python-jose
 exceptiongroup==1.2.2
     # via anyio
-fastapi==0.115.7
+fastapi==0.115.8
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
@@ -69,7 +69,7 @@ jinja2==3.1.5
     # via
     #   -r requirements.in
     #   dso
-lxml==5.3.0
+lxml==5.3.1
     # via
     #   -r requirements.in
     #   dso
@@ -126,7 +126,7 @@ python-jose==3.3.0
     # via -r requirements.in
 python-multipart==0.0.20
     # via -r requirements.in
-pytz==2024.2
+pytz==2025.1
     # via
     #   -r requirements.in
     #   pandas
@@ -144,7 +144,7 @@ roman==5.0
     # via dso
 rsa==4.9
     # via python-jose
-shapely==2.0.6
+shapely==2.0.7
     # via
     #   -r requirements.in
     #   dso
@@ -160,15 +160,16 @@ soupsieve==2.6
     # via
     #   beautifulsoup4
     #   dso
-sqlalchemy==2.0.37
+sqlalchemy==2.0.38
     # via -r requirements.in
-starlette==0.45.2
+starlette==0.45.3
     # via fastapi
 tomli==2.2.1
     # via dso
 typing-extensions==4.12.2
     # via
     #   anyio
+    #   beautifulsoup4
     #   dso
     #   fastapi
     #   pydantic

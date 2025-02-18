@@ -31,7 +31,7 @@ from app.extensions.modules.dependencies import (
     depends_maybe_module_status_by_id,
     depends_module_object_repository,
 )
-from app.extensions.modules.models.models import ModuleObjectActionFilter
+from app.extensions.modules.models.models import ModuleObjectActionFull
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user
@@ -315,7 +315,7 @@ h2 ins, h2 del {
         # response.append(f"<h3>Inhoud</h3>")
 
         # @todo: I'm not sure about the "" anymore
-        if module_object.ModuleObjectContext.Action in ["", ModuleObjectActionFilter.Terminate]:
+        if module_object.ModuleObjectContext.Action in ["", ModuleObjectActionFull.Terminate]:
             # It could be that there is no valid object at the moment, because it has been terminated in parallel
             if valid_object is None:
                 response.append(f'<del style="background:#FBE4D5;">[Already terminated]</del>')

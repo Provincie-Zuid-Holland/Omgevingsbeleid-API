@@ -107,15 +107,15 @@ class ValidListLineageTreeEndpoint(Endpoint):
             results=rows,
         )
 
-    def _run_events(self, items: List[ObjectsTable], event_dispatcher: EventDispatcher):
+    def _run_events(self, dynamic_objects: List[pydantic.BaseModel], event_dispatcher: EventDispatcher):
         """
         Ask extensions for more information.
         """
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
             RetrievedObjectsEvent.create(
-                items,
-                self._endpoint_id,
-                self._response_model,
+                rows=dynamic_objects,
+                endpoint_id=self._endpoint_id,
+                response_model=self._response_model,
             )
         )
         return event.payload.rows

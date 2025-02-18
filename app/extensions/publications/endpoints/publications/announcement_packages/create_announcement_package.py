@@ -13,7 +13,7 @@ from app.extensions.publications.dependencies import (
     depends_announcement_package_builder_factory,
     depends_publication_announcement,
 )
-from app.extensions.publications.enums import PackageType, ReportStatusType
+from app.extensions.publications.enums import PackageType, PublicationVersionStatus, ReportStatusType
 from app.extensions.publications.models.api_input_data import DocFrbr
 from app.extensions.publications.models.zip import ZipData
 from app.extensions.publications.permissions import PublicationsPermissions
@@ -32,7 +32,6 @@ from app.extensions.publications.tables.tables import (
     PublicationEnvironmentTable,
     PublicationPackageZipTable,
     PublicationTable,
-    PublicationVersionTable,
 )
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
@@ -60,7 +59,7 @@ class EndpointHandler:
         self._package_builder_factory: AnnouncementPackageBuilderFactory = package_builder_factory
         self._user: UsersTable = user
         self._object_in: PublicationAnnouncementPackageCreate = object_in
-        self._announcement: PublicationVersionTable = announcement
+        self._announcement: PublicationAnnouncementTable = announcement
         self._publication: PublicationTable = announcement.Publication
         self._environment: PublicationEnvironmentTable = announcement.Publication.Environment
         self._timepoint: datetime = datetime.utcnow()
@@ -111,6 +110,10 @@ class EndpointHandler:
 
             self._handle_new_state(package_builder, package)
             self._handle_frbr(package_builder, package)
+
+            # update publication version status to announcement
+            self._announcement.Act_Package.Publication_Version.Status = PublicationVersionStatus.ANNOUNCEMENT
+            self._db.add(self._announcement.Act_Package.Publication_Version)
 
             self._db.commit()
 

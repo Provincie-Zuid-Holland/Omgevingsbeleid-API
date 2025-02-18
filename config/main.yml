@@ -348,6 +348,7 @@ api:
       endpoints:
         - resolver: edit_publication_version
         - resolver: detail_publication_version
+        - resolver: delete_publication_version
     - prefix: /publication-versions/{version_uuid}/attachments
       endpoints:
         - resolver: upload_publication_version_attachment
@@ -363,6 +364,12 @@ api:
     - prefix: /publication-act-packages
       endpoints:
         - resolver: list_publication_act_packages
+          resolver_data:
+            sort:
+              <<: *sort_default_modified_date
+              allowed_columns:
+                - Modified_Date
+                - Created_Date
     - prefix: /publication-act-packages/{act_package_uuid}
       endpoints:
         - resolver: download_publication_act_package
@@ -397,6 +404,12 @@ api:
     - prefix: /publication-announcement-packages
       endpoints:
         - resolver: list_publication_announcement_packages
+          resolver_data:
+            sort:
+              <<: *sort_default_modified_date
+              allowed_columns:
+                - Modified_Date
+                - Created_Date
     - prefix: /publication-announcement-packages/{announcement_package_uuid}
       endpoints:
         - resolver: download_publication_announcement_package

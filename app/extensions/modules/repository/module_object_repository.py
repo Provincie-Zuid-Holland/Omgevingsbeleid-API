@@ -1,19 +1,29 @@
 from copy import deepcopy
 from datetime import datetime
+from dataclasses import dataclass
 from typing import List, Optional, Tuple
 from uuid import UUID, uuid4
 
-from sqlalchemy import Result, desc, func, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import make_transient
-from sqlalchemy.sql import and_, or_
+from sqlalchemy.sql import Select, and_, or_
 
 from app.dynamic.db import ObjectStaticsTable
 from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import SortedPagination
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleObjectContextTable, ModuleStatusHistoryTable, ModuleTable
-from app.extensions.modules.models.models import ModuleObjectActionFilter, ModuleStatusCode
+from app.extensions.modules.models.models import ModuleObjectActionFull, ModuleStatusCode
+
+
+@dataclass
+class LatestObjectPerModuleResult:
+    """extra wrapper to type combined query result"""
+
+    module_object: ModuleObjectsTable
+    module: ModuleTable
+    context_action: ModuleObjectActionFull
 
 
 class ModuleObjectRepository(BaseRepository):
@@ -90,7 +100,7 @@ class ModuleObjectRepository(BaseRepository):
         code: str,
         status_filter: Optional[List[str]] = None,
         is_active: bool = True,
-    ):
+    ) -> Select[Tuple[ModuleObjectsTable, ModuleTable, ModuleObjectActionFull]]:
         """
         Fetch the latest module object versions grouped by
         every module containing it. used e.g. to list any
@@ -100,6 +110,7 @@ class ModuleObjectRepository(BaseRepository):
             select(
                 ModuleObjectsTable,
                 ModuleTable,
+                ModuleObjectContextTable.Action.label("context_action"),
                 func.row_number()
                 .over(
                     partition_by=ModuleObjectsTable.Module_ID,
@@ -142,7 +153,9 @@ class ModuleObjectRepository(BaseRepository):
         aliased_objects = aliased(ModuleObjectsTable, subq)
         aliased_module = aliased(ModuleTable, subq)
         stmt = (
-            select(aliased_objects, aliased_module).filter(subq.c._RowNumber == 1).order_by(desc(subq.c.Modified_Date))
+            select(aliased_objects, aliased_module, subq.c.context_action)
+            .filter(subq.c._RowNumber == 1)
+            .order_by(desc(subq.c.Modified_Date))
         )
         return stmt
 
@@ -151,11 +164,20 @@ class ModuleObjectRepository(BaseRepository):
         code: str,
         minimum_status: Optional[ModuleStatusCode] = None,
         is_active: bool = True,
-    ) -> Result[Tuple[ModuleObjectsTable, ModuleTable]]:
+    ) -> List[LatestObjectPerModuleResult]:
         # Build minimum status list starting at given status, if provided
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
         query = self.latest_per_module_query(code=code, status_filter=status_filter, is_active=is_active)
-        return self._db.execute(query)  # execute raw to allow tuple return object + module
+        rows = self._db.execute(query).all()
+        named_results = [
+            LatestObjectPerModuleResult(
+                module_object=row[0],
+                module=row[1],
+                context_action=row[2],
+            )
+            for row in rows
+        ]
+        return named_results
 
     def get_all_latest(
         self,
@@ -164,7 +186,7 @@ class ModuleObjectRepository(BaseRepository):
         minimum_status: Optional[ModuleStatusCode] = None,
         owner_uuid: Optional[UUID] = None,
         object_type: Optional[str] = None,
-        actions: List[ModuleObjectActionFilter] = [],
+        actions: List[ModuleObjectActionFull] = [],
     ):
         """
         Generic filterable module-object listing query used
