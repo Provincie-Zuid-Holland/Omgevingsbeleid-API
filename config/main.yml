@@ -89,23 +89,24 @@ api:
                 - ID
                 - Created_Date
                 - Modified_Date
-    - prefix: /search/source-geo
+    - prefix: /search/area-geo
       endpoints:
-        - resolver: source_list_objects_in_werkingsgebieden
+        - resolver: areas_list_objects_by_areas
           resolver_data:
             sort: *sort_default_title
-    - prefix: /search/source-geometry
-      endpoints:
-        - resolver: source_list_objects_by_geometry
-          resolver_data:
-            sort: *sort_default_title
-            allowed_object_types:
-              - ambitie
-              - beleidsdoel
+            area_object_type: werkingsgebied
+            allowed_result_object_types:
               - beleidskeuze
-              - beleidsregel
               - maatregel
-              - gebiedsprogramma
+    - prefix: /search/area-geometry
+      endpoints:
+        - resolver: areas_list_objects_by_geometry
+          resolver_data:
+            sort: *sort_default_title
+            area_object_type: werkingsgebied
+            allowed_result_object_types:
+              - beleidskeuze
+              - maatregel
     - prefix: /search
       endpoints:
         - resolver: mssql_search

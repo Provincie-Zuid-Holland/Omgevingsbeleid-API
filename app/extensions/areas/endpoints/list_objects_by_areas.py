@@ -1,21 +1,21 @@
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.dependencies import depends_sorted_pagination_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, PaginatedQueryResult, SortedPagination
-from app.extensions.source_werkingsgebieden.dependencies import depends_werkingsgebieden_repository
-from app.extensions.source_werkingsgebieden.models.models import GeoSearchResult
-from app.extensions.source_werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
+from app.extensions.areas.dependencies import depends_area_repository
+from app.extensions.areas.models.models import GeoSearchResult
+from app.extensions.areas.repository.area_repository import AreaRepository
 
 
 class SearchGeoRequestData(BaseModel):
-    Object_Types: Optional[List[str]]
+    Object_Types: List[str] = Field(default_factory=list)
     Area_List: List[UUID]
 
     class Config:
@@ -29,41 +29,30 @@ class SearchGeoRequestData(BaseModel):
             raise ValueError("area_list is too large, max 300 items")
         return v
 
-    @validator("Object_Types")
-    def allowed_object_type(cls, v):
-        # TODO: Config?
-        allowed = [
-            "ambitie",
-            "beleidsdoel",
-            "beleidskeuze",
-            "beleidsregel",
-            "maatregel",
-            "gebiedsprogramma",
-        ]
 
-        for obj_type in v:
-            if obj_type not in allowed:
-                raise ValueError(f"object types allowed: {str(allowed)}")
-
-        return v
-
-
-class ListObjectsInGeoEndpoint(Endpoint):
-    def __init__(self, path: str, order_config: OrderConfig):
+class ListObjectsByAreasEndpoint(Endpoint):
+    def __init__(
+        self,
+        path: str,
+        order_config: OrderConfig,
+        area_object_type: str,
+        allowed_result_object_types: List[str],
+    ):
         self._path: str = path
+        self._area_object_type: str = area_object_type
+        self._allowed_result_object_types: List[str] = allowed_result_object_types
         self._order_config: OrderConfig = order_config
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: SearchGeoRequestData,
             pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
-            repository: WerkingsgebiedenRepository = Depends(depends_werkingsgebieden_repository),
+            repository: AreaRepository = Depends(depends_area_repository),
         ) -> PagedResponse[GeoSearchResult]:
             return self._handler(
                 repository=repository,
-                area_list=object_in.Area_List,
-                object_types=object_in.Object_Types,
                 pagination=pagination,
+                object_in=object_in,
             )
 
         router.add_api_route(
@@ -71,24 +60,25 @@ class ListObjectsInGeoEndpoint(Endpoint):
             fastapi_handler,
             methods=["POST"],
             response_model=PagedResponse[GeoSearchResult],
-            summary=f"List the objects active in werkingsgebieden",
+            summary=f"List the objects in the given areas",
             description=None,
-            tags=["Source Werkingsgebieden"],
+            tags=["Areas"],
         )
 
         return router
 
     def _handler(
         self,
-        repository: WerkingsgebiedenRepository,
-        area_list: List[UUID],
+        repository: AreaRepository,
         pagination: SortedPagination,
-        object_types: List[str] = None,
+        object_in: SearchGeoRequestData,
     ) -> PagedResponse[GeoSearchResult]:
-        # TODO: add object_type validation
-        paginated_result: PaginatedQueryResult = repository.get_latest_in_area(
-            in_area=area_list,
-            object_types=object_types,
+        self._guard(object_in)
+
+        paginated_result: PaginatedQueryResult = repository.get_latest_by_areas(
+            area_object_type=self._area_object_type,
+            areas=object_in.Area_List,
+            object_types=object_in.Object_Types,
             pagination=pagination,
         )
         object_list = []
@@ -109,10 +99,15 @@ class ListObjectsInGeoEndpoint(Endpoint):
             results=object_list,
         )
 
+    def _guard(self, object_in: SearchGeoRequestData):
+        for obj_type in object_in.Object_Types:
+            if obj_type not in self._allowed_result_object_types:
+                raise ValueError(f"object types allowed: {str(self._allowed_result_object_types)}")
 
-class ListObjectsInGeoEndpointResolver(EndpointResolver):
+
+class ListObjectsByAreasEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "source_list_objects_in_werkingsgebieden"
+        return "areas_list_objects_by_areas"
 
     def generate_endpoint(
         self,
@@ -123,8 +118,12 @@ class ListObjectsInGeoEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
+        area_object_type: str = resolver_config["area_object_type"]
+        allowed_result_object_types: List[str] = resolver_config["allowed_result_object_types"]
 
-        return ListObjectsInGeoEndpoint(
+        return ListObjectsByAreasEndpoint(
             path=path,
+            area_object_type=area_object_type,
+            allowed_result_object_types=allowed_result_object_types,
             order_config=order_config,
         )

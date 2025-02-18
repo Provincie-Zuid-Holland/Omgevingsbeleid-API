@@ -12,13 +12,6 @@ from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination,
 from app.extensions.source_werkingsgebieden.db.tables import SourceWerkingsgebiedenTable
 from app.extensions.source_werkingsgebieden.models.models import VALID_GEOMETRIES, GeometryFunctions
 
-SPATIAL_FUNCTION_MAP = {
-    GeometryFunctions.CONTAINS: "STContains",
-    GeometryFunctions.WITHIN: "STWithin",
-    GeometryFunctions.OVERLAPS: "STOverlaps",
-    GeometryFunctions.INTERSECTS: "STIntersects",
-}
-
 
 class WerkingsgebiedenRepository(BaseRepository):
     def get_by_title_paginated(self, pagination: SortedPagination, title: str) -> PaginatedQueryResult:
