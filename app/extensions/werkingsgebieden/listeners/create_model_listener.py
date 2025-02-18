@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from app.dynamic.config.models import Model
 from app.dynamic.event.create_model_event import CreateModelEvent
@@ -22,8 +22,8 @@ class CreateModelListener(Listener[CreateModelEvent]):
 
         final_model: Model = target_object_model
         event.payload.pydantic_fields[field_name] = (
-            List[final_model.pydantic_model],
-            [],
+            Optional[final_model.pydantic_model],
+            None,
         )
 
         return event

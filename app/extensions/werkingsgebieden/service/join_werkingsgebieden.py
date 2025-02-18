@@ -42,7 +42,7 @@ class JoinWerkingsgebiedenService:
             werkingsgebied_code = getattr(row, config.from_field)
             if werkingsgebied_code in werkingsgebieden:
                 werkingsgebied = werkingsgebieden[werkingsgebied_code]
-                getattr(row, config.to_field).append(werkingsgebied)
+                setattr(row, config.to_field, werkingsgebied)
             result_rows.append(row)
 
         return result_rows
