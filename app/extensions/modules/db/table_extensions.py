@@ -1,4 +1,5 @@
 from typing import Tuple
+
 from sqlalchemy import Select, String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import mapped_column
@@ -8,9 +9,7 @@ from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
 from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.models.models import ModuleObjectActionFull, ModuleStatusCode, PublicModuleObjectRevision
-from app.extensions.modules.repository.module_object_repository import (
-    ModuleObjectRepository,
-)
+from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 
 #
 #    Define extra attributes or dynamic sqlalchemy properties for tables outside of this
