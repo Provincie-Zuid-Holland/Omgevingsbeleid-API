@@ -13,7 +13,7 @@ from app.extensions.lineage_resolvers.models import NextObjectValidities
 
 
 def get_next_object_validities(self):
-    query = ObjectRepository.next_valid_by_uuid_query(object_uuid=self.UUID)
+    query = ObjectRepository.next_by_uuid_query(object_uuid=self.UUID)
     row = object_session(self).execute(query).first()
     if row is None:
         return None

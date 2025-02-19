@@ -69,7 +69,7 @@ class ObjectRepository(BaseRepository):
         return self.fetch_first(stmt)
 
     @staticmethod
-    def next_valid_by_uuid_query(object_uuid: UUID):
+    def next_by_uuid_query(object_uuid: UUID, valid_only: bool = False):
         reference_obj = (select(ObjectsTable).filter(ObjectsTable.UUID == object_uuid)).subquery()
 
         stmt = (
@@ -79,18 +79,21 @@ class ObjectRepository(BaseRepository):
             .filter(ObjectsTable.Code == reference_obj.c.Code)
             .filter(ObjectsTable.Modified_Date > reference_obj.c.Modified_Date)
             .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
-            .filter(
+            .order_by(ObjectsTable.Modified_Date.asc())
+        )
+
+        if valid_only:
+            stmt = stmt.filter(
                 or_(
                     ObjectsTable.End_Validity > datetime.now(timezone.utc),
                     ObjectsTable.End_Validity == None,
                 )
             )
-            .order_by(ObjectsTable.Modified_Date.asc())  # get the next one not the latest
-        )
+
         return stmt
 
     def get_next_valid_object(self, object_uuid: UUID) -> Optional[ObjectsTable]:
-        stmt = self.next_valid_by_uuid_query(object_uuid)
+        stmt = self.next_by_uuid_query(object_uuid, valid_only=True)
         return self.fetch_first(stmt)
 
     def get_latest_valid_by_id(self, object_type: str, object_id: int) -> Optional[ObjectsTable]:
@@ -178,16 +181,7 @@ class ObjectRepository(BaseRepository):
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
-        stmt = (
-            select(aliased_objects)
-            .filter(subq.c._RowNumber == 1)
-            .filter(
-                or_(
-                    subq.c.End_Validity > datetime.now(timezone.utc),
-                    subq.c.End_Validity == None,
-                )
-            )
-        )
+        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1)
 
         return self.fetch_paginated(
             statement=stmt,
