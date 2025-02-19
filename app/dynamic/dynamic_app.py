@@ -9,6 +9,8 @@ from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic_settings import BaseSettings
 
+from app.core.db.base import Base
+from app.dynamic.listeners.computed_fields import ComputedFieldsListener
 import app.dynamic.serializers as serializers
 from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
@@ -38,7 +40,7 @@ from .config.loader.api import api_loader
 from .config.loader.columns import columns_loader
 from .config.loader.fields import fields_loader
 from .config.loader.models import ModelsLoader
-from .config.models import Column, Field, IntermediateObject, Model
+from .config.models import Column, ComputedField, Field, IntermediateObject, Model
 
 
 class DynamicApp:
@@ -140,12 +142,16 @@ class DynamicAppBuilder:
                 self._columns,
             )
 
-        # table_metadata.drop_all(engine)
-        # table_metadata.create_all(engine)
-
         # Build extensions models
         for extension in self._extensions:
             extension.register_models(self._service_container.models_resolver)
+
+        # Build extensions computed fields
+        for extension in self._extensions:
+            computed_fields: List[ComputedField] = extension.register_computed_fields()
+            for computed_field in computed_fields:
+                self._service_container.computed_fields_resolver.add(computed_field)
+                self._set_computed_field(computed_field)
 
         # Build config intermediate data (without models)
         for config_object in self._config_objects:
@@ -159,6 +165,7 @@ class DynamicAppBuilder:
         models_loader: ModelsLoader = ModelsLoader(
             event_dispatcher,
             self._service_container.models_resolver,
+            self._service_container.computed_fields_resolver,
             self._service_container.validator_provider,
         )
         for object_intermediate in self._service_container.build_object_intermediates:
@@ -287,6 +294,7 @@ class DynamicAppBuilder:
 
     def _register_base_listeners(self):
         self._service_container.event_listeners.register(AddObjectCodeRelationshipListener())
+        self._service_container.event_listeners.register(ComputedFieldsListener())
 
     def _register_base_serializers(self):
         self._service_container.converter.register_serializer("str", serializers.serializer_str)
@@ -312,7 +320,7 @@ class DynamicAppBuilder:
         for resolver in resolvers:
             resolver_id = resolver.get_id()
             if resolver_id in self._endpoint_resolvers:
-                raise RuntimeError(f"Trying to add already existsing resolver ID '{resolver_id}'")
+                raise RuntimeError(f"Trying to add already existing resolver ID '{resolver_id}'")
             self._endpoint_resolvers[resolver_id] = resolver
 
     @staticmethod
@@ -320,4 +328,14 @@ class DynamicAppBuilder:
         return JSONResponse(
             status_code=400,
             content={"message": str(exc)},
+        )
+
+    def _set_computed_field(self, computed_field: ComputedField):
+        table_type: Type[Base] = ObjectStaticsTable if computed_field.static else ObjectsTable
+        if hasattr(table_type, computed_field.attribute_name):
+            raise RuntimeError(f"Computed field '{computed_field.attribute_name}' already exists on table")
+        setattr(
+            table_type,
+            computed_field.attribute_name,
+            computed_field.action,
         )

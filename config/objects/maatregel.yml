@@ -204,6 +204,9 @@ models:
       start_validity:
       end_validity:
       title:
+    services:
+      computed_fields:
+        - next_object_validities
   maatregel_extended:
     name: MaatregelExtended
     fields:
@@ -270,6 +273,8 @@ models:
             model_id: next_object_validities
             list: false
             optional: true
+      computed_fields:
+        - next_object_validities
       insert_assets:
         fields:
           - Description

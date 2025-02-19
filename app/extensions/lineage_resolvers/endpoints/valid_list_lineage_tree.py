@@ -3,7 +3,7 @@ from typing import List, Type
 import pydantic
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, undefer_group
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig, Model
@@ -17,6 +17,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.filters import Filters
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, SortedPagination, query_paginated
+from app.extensions.lineage_resolvers.db.next_object_version import NEXT_VERSION_COMPOSITE_GROUP
 
 
 class ValidListLineageTreeEndpoint(Endpoint):
@@ -76,6 +77,7 @@ class ValidListLineageTreeEndpoint(Endpoint):
             select(ObjectsTable)
             .filter(ObjectsTable.Object_Type == self._object_type)
             .filter(ObjectsTable.Object_ID == lineage_id)
+            .options(undefer_group(NEXT_VERSION_COMPOSITE_GROUP))
         )
 
         event: BeforeSelectExecutionEvent = event_dispatcher.dispatch(

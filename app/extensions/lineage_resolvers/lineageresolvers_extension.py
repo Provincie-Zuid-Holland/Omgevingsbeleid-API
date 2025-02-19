@@ -1,18 +1,16 @@
 from typing import List
 
 import app.extensions.lineage_resolvers.endpoints as endpoints
-from app.dynamic.config.models import ExtensionModel
+from app.dynamic.config.models import ComputedField, ExtensionModel
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_listeners import EventListeners
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.lineage_resolvers.db.table_extensions import extend_with_attributes
+from app.extensions.lineage_resolvers.db.next_object_version import build_composite_next_version
 from app.extensions.lineage_resolvers.models import NextObjectValidities
 
 
 class LineageResolversExtension(Extension):
-    def initialize(self, main_config: dict):
-        extend_with_attributes()
 
     def register_endpoint_resolvers(
         self,
@@ -37,3 +35,14 @@ class LineageResolversExtension(Extension):
                 pydantic_model=NextObjectValidities,
             )
         )
+
+    def register_computed_fields(self) -> List[ComputedField]:
+        next_validities_query = build_composite_next_version()
+        next_validities_field = ComputedField(
+            id="next_object_validities",
+            model_id="next_object_validities",
+            attribute_name="Next_Version",
+            action=next_validities_query,
+            is_optional=True,
+        )
+        return [next_validities_field]

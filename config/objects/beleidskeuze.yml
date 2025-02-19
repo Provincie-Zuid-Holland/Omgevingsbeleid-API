@@ -212,6 +212,9 @@ models:
       start_validity:
       end_validity:
       title:
+    services:
+      computed_fields:
+        - next_object_validities
   beleidskeuze_extended:
     name: BeleidskeuzeExtended
     fields:
@@ -268,22 +271,15 @@ models:
         model_id: werkingsgebied_basic
         to_field: Werkingsgebied
         from_field: Werkingsgebied_Code
+      computed_fields:
+        - next_object_validities
+        - public_revisions
       insert_assets:
         fields:
           - Description
           - Cause
           - Provincial_Interest
           - Explanation
-      insert_computed_fields:
-        fields: 
-          - field_name: Public_Revisions
-            model_id: public_module_object_revision
-            list: true
-            optional: true
-          - field_name: Next_Version
-            model_id: next_object_validities
-            list: false
-            optional: true
       foreign_keys_extender:
         fields_map:
           - to_field: Hierarchy_Statics

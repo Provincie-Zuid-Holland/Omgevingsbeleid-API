@@ -1,11 +1,12 @@
-from typing import List
+from typing import List, Dict
 
 import click
 
-from app.dynamic.config.models import IntermediateModel, IntermediateObject
+from app.dynamic.config.models import ComputedField, IntermediateModel, IntermediateObject
 from app.dynamic.converter import Converter
 from app.dynamic.event_listeners import EventListeners
 from app.dynamic.models_resolver import ModelsResolver
+from app.dynamic.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.validators.validator_provider import ValidatorProvider
 
 
@@ -19,6 +20,7 @@ class ServiceContainer:
         self.event_listeners: EventListeners = EventListeners()
         self.converter: Converter = Converter()
         self.validator_provider: ValidatorProvider = ValidatorProvider()
+        self.computed_fields_resolver: ComputedFieldResolver = ComputedFieldResolver()
 
         self.main_command_group: click.Group = self._create_main_command_group()
 

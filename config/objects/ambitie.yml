@@ -168,6 +168,9 @@ models:
       title:
       start_validity:
       end_validity:
+    services:
+      computed_fields:
+        - next_object_validities
   ambitie_extended:
     name: AmbitieExtended
     fields:
@@ -213,19 +216,11 @@ models:
       start_validity:
       end_validity:
     services:
+      computed_fields:
+        - next_object_validities
       insert_assets:
         fields:
           - Description
-      insert_computed_fields:
-        fields: 
-          - field_name: Public_Revisions
-            model_id: public_module_object_revision
-            list: true
-            optional: true
-          - field_name: Next_Version
-            model_id: next_object_validities
-            list: false
-            optional: true
       relations:
         objects:
           - object_type: beleidsdoel

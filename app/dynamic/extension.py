@@ -5,7 +5,7 @@ import click
 from fastapi import APIRouter
 from pydantic_settings import BaseSettings
 
-from app.dynamic.config.models import Column, Field
+from app.dynamic.config.models import Column, ComputedField, Field
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
@@ -35,6 +35,9 @@ class Extension(ABC):
 
     def register_commands(self, main_command_group: click.Group, main_config: dict):
         pass
+
+    def register_computed_fields(self) -> List[ComputedField]:
+        return []
 
     def migrate(self):
         # A place to create own database tables

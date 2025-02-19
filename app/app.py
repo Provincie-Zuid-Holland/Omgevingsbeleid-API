@@ -5,7 +5,6 @@ from app.extensions.areas.areas_extension import AreasExtension
 from app.extensions.atemporal.atemporal_extension import AtemporalExtension
 from app.extensions.auth.auth_extension import AuthExtension
 from app.extensions.change_logger.change_logger_extension import ChangeLoggerExtension
-from app.extensions.computed_fields.computed_fields_extension import ComputedFieldsExtension
 from app.extensions.database_migration.database_migration_extension import DatabaseMigrationExtension
 from app.extensions.extended_foreign_keys.extended_foreign_keys_extension import ExtendedForeignKeysExtension
 from app.extensions.extended_users.extended_user_extension import ExtendedUserExtension
@@ -25,7 +24,7 @@ from app.extensions.werkingsgebieden.werkingsgebieden_extension import Werkingsg
 
 app_builder = DynamicAppBuilder(core_settings.MAIN_CONFIG_FILE)
 
-app_builder.register_extension(ComputedFieldsExtension())
+# app_builder.register_extension(ComputedFieldsExtension())
 app_builder.register_extension(HierarchyExtension())
 app_builder.register_extension(AtemporalExtension())
 app_builder.register_extension(LineageResolversExtension())
