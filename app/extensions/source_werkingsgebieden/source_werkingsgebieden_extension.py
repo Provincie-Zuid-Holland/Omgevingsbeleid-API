@@ -11,7 +11,7 @@ from app.dynamic.models_resolver import ModelsResolver
 from app.extensions.source_werkingsgebieden.models.models import Werkingsgebied
 
 
-class WerkingsgebiedenExtension(Extension):
+class SourceWerkingsgebiedenExtension(Extension):
     def register_models(self, models_resolver: ModelsResolver):
         models_resolver.add(
             ExtensionModel(
