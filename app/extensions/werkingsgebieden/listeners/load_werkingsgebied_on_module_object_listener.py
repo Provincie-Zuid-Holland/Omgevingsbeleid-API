@@ -7,7 +7,7 @@ from app.extensions.modules.event.retrieved_module_objects_event import Retrieve
 from app.extensions.werkingsgebieden.service.join_werkingsgebieden import JoinWerkingsgebiedenService
 
 
-class RetrievedModuleObjectsListener(Listener[RetrievedModuleObjectsEvent]):
+class LoadWerkingsgebiedOnModuleObjectsListener(Listener[RetrievedModuleObjectsEvent]):
     def handle_event(self, event: RetrievedModuleObjectsEvent) -> Optional[RetrievedModuleObjectsEvent]:
         add_service: JoinWerkingsgebiedenService = JoinWerkingsgebiedenService(
             event.get_db(),

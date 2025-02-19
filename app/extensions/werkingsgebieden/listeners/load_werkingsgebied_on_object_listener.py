@@ -7,7 +7,7 @@ from app.dynamic.event.types import Listener
 from app.extensions.werkingsgebieden.service.join_werkingsgebieden import JoinWerkingsgebiedenService
 
 
-class RetrievedObjectsListener(Listener[RetrievedObjectsEvent]):
+class LoadWerkingsgebiedOnObjectsListener(Listener[RetrievedObjectsEvent]):
     def handle_event(self, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
         add_service: JoinWerkingsgebiedenService = JoinWerkingsgebiedenService(
             event.get_db(),

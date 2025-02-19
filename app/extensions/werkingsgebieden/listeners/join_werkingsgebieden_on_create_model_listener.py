@@ -6,7 +6,7 @@ from app.dynamic.event.types import Listener
 from app.dynamic.models_resolver import ModelsResolver
 
 
-class CreateModelListener(Listener[CreateModelEvent]):
+class JoinWerkingsgebiedenOnCreateModelListener(Listener[CreateModelEvent]):
     def __init__(self, models_resolver: ModelsResolver):
         self._models_resolver: ModelsResolver = models_resolver
 

@@ -13,6 +13,6 @@ class WerkingsgebiedenExtension(Extension):
         converter: Converter,
         models_resolver: ModelsResolver,
     ):
-        event_listeners.register(listeners.CreateModelListener(models_resolver))
-        event_listeners.register(listeners.RetrievedObjectsListener())
-        event_listeners.register(listeners.RetrievedModuleObjectsListener())
+        event_listeners.register(listeners.JoinWerkingsgebiedenOnCreateModelListener(models_resolver))
+        event_listeners.register(listeners.LoadWerkingsgebiedOnObjectsListener())
+        event_listeners.register(listeners.LoadWerkingsgebiedOnModuleObjectsListener())
