@@ -58,7 +58,6 @@ class AreaRepository(BaseRepository):
             select(aliased_werkingsgebieden)
             .filter(werkingsgebieden_subq.c.get("_RowNumber") == 1)
             .filter(werkingsgebieden_subq.c.get("Area_UUID").in_(areas))
-            # ).subquery()
         ).cte("werkingsgebieden_stmt")
 
         # Get the newest versions of all `object_types` objects
