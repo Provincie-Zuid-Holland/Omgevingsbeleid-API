@@ -2,20 +2,12 @@ from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import undefer
+from sqlalchemy.orm import aliased, undefer
 
 from app.dynamic.db.tables import ObjectsTable
 from app.dynamic.repository.repository import BaseRepository
-from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination
+from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination, query_paginated
 from app.extensions.areas.db.tables import AreasTable
-from app.extensions.areas.models.models import GeometryFunctions
-
-SPATIAL_FUNCTION_MAP = {
-    GeometryFunctions.CONTAINS: "STContains",
-    GeometryFunctions.WITHIN: "STWithin",
-    GeometryFunctions.OVERLAPS: "STOverlaps",
-    GeometryFunctions.INTERSECTS: "STIntersects",
-}
 
 
 class AreaRepository(BaseRepository):
@@ -45,6 +37,7 @@ class AreaRepository(BaseRepository):
         object_types: List[str],
         pagination: SortedPagination,
     ) -> PaginatedQueryResult:
+        # Get newest from werkingsgebieden lineage
         werkingsgebieden_subq = (
             select(
                 ObjectsTable,
@@ -57,35 +50,46 @@ class AreaRepository(BaseRepository):
             )
             .select_from(ObjectsTable)
             .filter(ObjectsTable.Object_Type == area_object_type)
-        )
+        ).subquery()
 
-        # old
-        subq = select(
-            ObjectsTable,
-            func.row_number()
-            .over(
-                partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+        # Then filter on requirements for werkingsgebieden
+        aliased_werkingsgebieden = aliased(ObjectsTable, werkingsgebieden_subq)
+        werkingsgebieden_stmt = (
+            select(aliased_werkingsgebieden)
+            .filter(werkingsgebieden_subq.c.get("_RowNumber") == 1)
+            .filter(werkingsgebieden_subq.c.get("Area_UUID").in_(areas))
+            # ).subquery()
+        ).cte("werkingsgebieden_stmt")
+
+        # Get the newest versions of all `object_types` objects
+        objects_subq = (
+            select(
+                ObjectsTable,
+                func.row_number()
+                .over(
+                    partition_by=ObjectsTable.Code,
+                    order_by=desc(ObjectsTable.Modified_Date),
+                )
+                .label("_RowNumber"),
             )
-            .label("_RowNumber"),
-        ).select_from(ObjectsTable)
+            .select_from(ObjectsTable)
+            .filter(ObjectsTable.Object_Type.in_(object_types))
+        ).subquery()
 
-        if in_area:
-            subq = subq.filter(ObjectsTable.Gebied_UUID.in_(in_area))
-
-        if object_types:
-            subq = subq.filter(ObjectsTable.Object_Type.in_(object_types))
-
-        subq = subq.subquery()
-        aliased_objects = aliased(ObjectsTable, subq)
-        stmt = select(aliased_objects).filter(subq.c.get("_RowNumber") == 1)
+        # Finally filter on the used werkingsgebieden
+        aliased_objects = aliased(ObjectsTable, objects_subq)
+        stmt = (
+            select(aliased_objects)
+            .join(werkingsgebieden_stmt, aliased_objects.Werkingsgebied_Code == werkingsgebieden_stmt.c.Code)
+            .filter(objects_subq.c.get("_RowNumber") == 1)
+        )
 
         paginated_result = query_paginated(
             query=stmt,
             session=self._db,
             offset=pagination.offset,
             limit=pagination.limit,
-            sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
+            sort=(getattr(objects_subq.c, pagination.sort.column), pagination.sort.order),
         )
 
         return paginated_result

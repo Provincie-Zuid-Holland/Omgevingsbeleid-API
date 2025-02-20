@@ -81,16 +81,16 @@ class ListObjectsByAreasEndpoint(Endpoint):
             object_types=object_in.Object_Types,
             pagination=pagination,
         )
-        object_list = []
-        for item in paginated_result.items:
-            search_result = GeoSearchResult(
-                Gebied=str(item.Gebied_UUID),
+        object_list = [
+            GeoSearchResult(
+                UUID=item.UUID,
+                Area_UUID=item.Area_UUID,
+                Object_Type=item.Object_Type,
                 Titel=item.Title,
                 Omschrijving=item.Description,
-                Type=item.Object_Type,
-                UUID=item.UUID,
             )
-            object_list.append(search_result)
+            for item in paginated_result.items
+        ]
 
         return PagedResponse(
             total=paginated_result.total_count,

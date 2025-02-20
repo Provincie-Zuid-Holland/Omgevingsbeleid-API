@@ -89,7 +89,7 @@ api:
                 - ID
                 - Created_Date
                 - Modified_Date
-    - prefix: /search/area-geo
+    - prefix: /search/by-areas
       endpoints:
         - resolver: areas_list_objects_by_areas
           resolver_data:
@@ -98,7 +98,7 @@ api:
             allowed_result_object_types:
               - beleidskeuze
               - maatregel
-    - prefix: /search/area-geometry
+    - prefix: /search/by-geometry
       endpoints:
         - resolver: areas_list_objects_by_geometry
           resolver_data:

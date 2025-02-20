@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from pydantic import BaseModel, validator
 
@@ -33,11 +33,14 @@ class WerkingsgebiedStatics(BaseModel):
 
 
 class GeoSearchResult(BaseModel):
-    UUID: Union[str, uuid.UUID]
-    Gebied: Union[str, uuid.UUID]
-    Type: str
+    UUID: str
+    Object_Type: str
     Titel: Optional[str]
     Omschrijving: Optional[str]
+
+    @validator("UUID", pre=True)
+    def convert_uuid_to_str(cls, v):
+        return str(v)
 
 
 class SearchResultWrapper(BaseModel):

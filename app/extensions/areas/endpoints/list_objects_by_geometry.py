@@ -1,3 +1,4 @@
+import uuid
 from typing import List
 
 from fastapi import APIRouter, Depends
@@ -9,15 +10,16 @@ from app.dynamic.dependencies import depends_sorted_pagination_curried
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.utils.pagination import OrderConfig, PagedResponse, PaginatedQueryResult, SortedPagination
-from app.extensions.source_werkingsgebieden.dependencies import depends_werkingsgebieden_repository
-from app.extensions.source_werkingsgebieden.models.models import VALID_GEOMETRIES, GeometryFunctions, GeoSearchResult
-from app.extensions.source_werkingsgebieden.repository.werkingsgebieden_repository import WerkingsgebiedenRepository
+from app.extensions.areas.dependencies import depends_area_geometry_repository, depends_area_repository
+from app.extensions.areas.models.models import VALID_GEOMETRIES, GeometryFunctions, GeoSearchResult
+from app.extensions.areas.repository.area_geometry_repository import AreaGeometryRepository
+from app.extensions.areas.repository.area_repository import AreaRepository
 
 
 class ListObjectsByGeometryRequestData(BaseModel):
+    Object_Types: List[str] = Field(default_factory=list)
     Geometry: str
     Function: GeometryFunctions = Field(GeometryFunctions.INTERSECTS)
-    Object_Types: List[str] = Field([])
 
     @validator("Geometry")
     def valid_area_list(cls, v):
@@ -32,23 +34,30 @@ class ListObjectsByGeometryRequestData(BaseModel):
 
 
 class ListObjectsByGeometryEndpoint(Endpoint):
-    def __init__(self, path: str, order_config: OrderConfig, allowed_object_types: List[str]):
+    def __init__(
+        self,
+        path: str,
+        order_config: OrderConfig,
+        area_object_type: str,
+        allowed_result_object_types: List[str],
+    ):
         self._path: str = path
+        self._area_object_type: str = area_object_type
+        self._allowed_result_object_types: List[str] = allowed_result_object_types
         self._order_config: OrderConfig = order_config
-        self._allowed_object_types: List[str] = allowed_object_types
 
     def register(self, router: APIRouter) -> APIRouter:
         def fastapi_handler(
             object_in: ListObjectsByGeometryRequestData,
             pagination: SortedPagination = Depends(depends_sorted_pagination_curried(self._order_config)),
-            repository: WerkingsgebiedenRepository = Depends(depends_werkingsgebieden_repository),
+            geometry_repository: AreaGeometryRepository = Depends(depends_area_geometry_repository),
+            area_repository: AreaRepository = Depends(depends_area_repository),
         ) -> PagedResponse[GeoSearchResult]:
             return self._handler(
-                repository=repository,
+                geometry_repository=geometry_repository,
+                area_repository=area_repository,
                 pagination=pagination,
                 object_in=object_in,
-                order_config=self._order_config,
-                allowed_object_types=self._allowed_object_types,
             )
 
         router.add_api_route(
@@ -58,40 +67,40 @@ class ListObjectsByGeometryEndpoint(Endpoint):
             response_model=PagedResponse[GeoSearchResult],
             summary=f"List the objects in werkingsgebieden by a geometry",
             description=None,
-            tags=["Source Werkingsgebieden"],
+            tags=["Areas"],
         )
 
         return router
 
     def _handler(
         self,
-        repository: WerkingsgebiedenRepository,
+        geometry_repository: AreaGeometryRepository,
+        area_repository: AreaRepository,
         pagination: SortedPagination,
         object_in: ListObjectsByGeometryRequestData,
-        order_config: OrderConfig,
-        allowed_object_types: List[str],
     ) -> PagedResponse[GeoSearchResult]:
-        object_types: List[str] = object_in.Object_Types or allowed_object_types
-        for object_type in object_types:
-            if object_type not in allowed_object_types:
-                raise ValueError(f"Allowed Object_Types are: {allowed_object_types}")
+        self._guard(object_in)
 
-        paginated_result: PaginatedQueryResult = repository.get_latest_by_geometry(
+        area_uuids: List[uuid.UUID] = geometry_repository.get_area_uuids_by_geometry(
             geometry=object_in.Geometry,
-            function=object_in.Function,
-            object_types=object_types,
+            geometry_func=object_in.Function,
+        )
+        paginated_result: PaginatedQueryResult = area_repository.get_latest_by_areas(
+            area_object_type=self._area_object_type,
+            areas=area_uuids,
+            object_types=object_in.Object_Types,
             pagination=pagination,
         )
-        object_list = []
-        for item in paginated_result.items:
-            search_result = GeoSearchResult(
-                Gebied=str(item.Gebied_UUID),
+        object_list = [
+            GeoSearchResult(
+                UUID=item.UUID,
+                Area_UUID=item.Area_UUID,
+                Object_Type=item.Object_Type,
                 Titel=item.Title,
                 Omschrijving=item.Description,
-                Type=item.Object_Type,
-                UUID=item.UUID,
             )
-            object_list.append(search_result)
+            for item in paginated_result.items
+        ]
 
         return PagedResponse(
             total=paginated_result.total_count,
@@ -100,10 +109,15 @@ class ListObjectsByGeometryEndpoint(Endpoint):
             results=object_list,
         )
 
+    def _guard(self, object_in: ListObjectsByGeometryRequestData):
+        for obj_type in object_in.Object_Types:
+            if obj_type not in self._allowed_result_object_types:
+                raise ValueError(f"object types allowed: {str(self._allowed_result_object_types)}")
+
 
 class ListObjectsByGeometryEndpointResolver(EndpointResolver):
     def get_id(self) -> str:
-        return "source_list_objects_by_geometry"
+        return "areas_list_objects_by_geometry"
 
     def generate_endpoint(
         self,
@@ -114,13 +128,12 @@ class ListObjectsByGeometryEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
-
-        allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
-        if not allowed_object_types:
-            raise RuntimeError("Missing required config allowed_object_types")
+        area_object_type: str = resolver_config["area_object_type"]
+        allowed_result_object_types: List[str] = resolver_config["allowed_result_object_types"]
 
         return ListObjectsByGeometryEndpoint(
             path=path,
+            area_object_type=area_object_type,
+            allowed_result_object_types=allowed_result_object_types,
             order_config=order_config,
-            allowed_object_types=allowed_object_types,
         )
