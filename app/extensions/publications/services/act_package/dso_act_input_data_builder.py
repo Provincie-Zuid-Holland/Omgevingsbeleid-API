@@ -291,9 +291,20 @@ class DsoActInputDataBuilder:
         if motivation is None:
             return None
 
+        appendices: List[Bijlage] = []
+        for appendix in motivation.get("Appendices", []):
+            bijlage = Bijlage(
+                nummer=appendix["Number"],
+                opschrift=appendix["Title"],
+                content=appendix["Content"],
+            )
+            appendices.append(bijlage)
+
         result = Motivering(
+            nummer=motivation.get("Number"),
             opschrift=motivation["Title"],
             content=motivation["Content"],
+            bijlagen=appendices,
         )
         return result
 

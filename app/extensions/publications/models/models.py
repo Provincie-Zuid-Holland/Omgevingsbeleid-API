@@ -168,10 +168,18 @@ class Appendix(BaseModel):
         orm_mode = True
 
 
+class Paragraph(BaseModel):
+    Content: str
+
+
+ParagraphClass = Paragraph
+
+
 class Motivation(BaseModel):
+    Number: Optional[str] = Field(None)
     Title: str
     Content: str
-    Appendices: List[Appendix] = Field([])
+    Appendices: List[Appendix] = Field(default_factory=list)
 
     class Config:
         orm_mode = True

@@ -18,9 +18,10 @@ from app.extensions.modules_diff.modules_diff_extension import ModulesDiffExtens
 from app.extensions.mssql_search.mssql_search_extension import MssqlSearchExtension
 from app.extensions.publications.publications_extension import PublicationsExtension
 from app.extensions.relations.relations_extension import RelationsExtension
-from app.extensions.source_werkingsgebieden.werkingsgebieden_extension import WerkingsgebiedenExtension
+from app.extensions.source_werkingsgebieden.source_werkingsgebieden_extension import SourceWerkingsgebiedenExtension
 from app.extensions.storage_files.storage_file_extension import StorageFileExtension
 from app.extensions.users.users_extension import UsersExtension
+from app.extensions.werkingsgebieden.werkingsgebieden_extension import WerkingsgebiedenExtension
 
 app_builder = DynamicAppBuilder(core_settings.MAIN_CONFIG_FILE)
 
@@ -33,7 +34,7 @@ app_builder.register_extension(AuthExtension())
 app_builder.register_extension(ExtendedForeignKeysExtension())
 app_builder.register_extension(ExtendedUserExtension())
 app_builder.register_extension(RelationsExtension())
-app_builder.register_extension(WerkingsgebiedenExtension())
+app_builder.register_extension(SourceWerkingsgebiedenExtension())
 app_builder.register_extension(MssqlSearchExtension())
 app_builder.register_extension(GraphExtension())
 app_builder.register_extension(ModulesExtension())
@@ -45,6 +46,7 @@ app_builder.register_extension(StorageFileExtension())
 app_builder.register_extension(ChangeLoggerExtension())
 app_builder.register_extension(DatabaseMigrationExtension())
 app_builder.register_extension(PublicationsExtension())
+app_builder.register_extension(WerkingsgebiedenExtension())
 
 # Register the dynamic objects
 app_builder.register_objects(core_settings.OBJECT_CONFIG_PATH)

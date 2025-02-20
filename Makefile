@@ -113,3 +113,4 @@ docker-test:
 docker-testx:
 	docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-test.sql
 	docker compose exec api python -m pytest -vv -x
+
