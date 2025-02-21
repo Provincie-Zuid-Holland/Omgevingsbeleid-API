@@ -1,3 +1,1 @@
-from .list_objects import ListObjectsInGeoEndpointResolver
-from .list_objects_by_geometry import ListObjectsByGeometryEndpointResolver
 from .list_werkingsgebieden import ListWerkingsgebiedenEndpointResolver

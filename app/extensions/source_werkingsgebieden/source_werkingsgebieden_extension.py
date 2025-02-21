@@ -28,8 +28,6 @@ class SourceWerkingsgebiedenExtension(Extension):
     ) -> List[EndpointResolver]:
         return [
             endpoints.ListWerkingsgebiedenEndpointResolver(),
-            endpoints.ListObjectsInGeoEndpointResolver(),
-            endpoints.ListObjectsByGeometryEndpointResolver(),
         ]
 
     def register_listeners(

@@ -1,5 +1,6 @@
 from typing import List
 
+import app.extensions.areas.endpoints as endpoints
 import app.extensions.areas.listeners as listeners
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.converter import Converter
@@ -34,7 +35,10 @@ class AreasExtension(Extension):
         event_listeners: EventListeners,
         models_resolver: ModelsResolver,
     ) -> List[EndpointResolver]:
-        return []
+        return [
+            endpoints.ListObjectsByAreasEndpointResolver(),
+            endpoints.ListObjectsByGeometryEndpointResolver(),
+        ]
 
     def register_listeners(
         self,
