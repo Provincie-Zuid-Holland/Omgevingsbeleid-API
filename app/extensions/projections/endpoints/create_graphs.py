@@ -87,8 +87,12 @@ class EndpointHandler:
         # object_list = get_objects(self._db, datetime(year=2023, month=6, day=8))
 
         # 2024-10-01 00:00:00
-        projection_id: str = "2"
-        object_list = get_objects(self._db, datetime(year=2024, month=10, day=1))
+        # projection_id: str = "2"
+        # object_list = get_objects(self._db, datetime(year=2024, month=10, day=1))
+
+        # 2025-02-19 00:00:00
+        projection_id: str = "3"
+        object_list = get_objects(self._db, datetime(year=2025, month=2, day=19))
 
         objects = {o.Code: o for o in object_list}
 
@@ -175,6 +179,24 @@ class EndpointHandler:
             graph.query(relation_query)
 
         return ResponseOK(message="OK")
+
+    def update_object(self, identifier: str, properties: dict):
+        set_clause = ", ".join(f"{key} = '{escape_value(value)}'" for key, value in properties.items())
+        query = f"MATCH (o:Object {{identifier: '{identifier}'}}) SET {set_clause}"
+        self.graph.query(query)
+
+    def update_object_data(self, identifier: str, properties: dict):
+        set_clause = ", ".join(f"{key} = '{escape_value(value)}'" for key, value in properties.items())
+        query = f"MATCH (d:ObjectData {{identifier: '{identifier}'}}) SET {set_clause}"
+        self.graph.query(query)
+
+    def remove_relation(self, from_identifier: str, to_identifier: str, relation_type: str):
+        query = f"MATCH (a {{identifier: '{from_identifier}'}})-[r:{relation_type}]->(b {{identifier: '{to_identifier}'}}) DELETE r"
+        self.graph.query(query)
+
+    def create_relation(self, from_identifier: str, to_identifier: str, relation_type: str):
+        query = f"MATCH (a {{identifier: '{from_identifier}'}}), (b {{identifier: '{to_identifier}'}}) CREATE (a)-[:{relation_type}]->(b)"
+        self.graph.query(query)
 
 
 class CreateGraphsEndpoint(Endpoint):

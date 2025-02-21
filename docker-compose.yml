@@ -44,13 +44,6 @@ services:
     ports:
       - "3000:3000"
 
-  redisinsight:
-    image: redislabs/redisinsight:latest
-    ports:
-      - "5540:5540"
-    depends_on:
-      - falkordb
-  
   # mssql:
   #   image: mcr.microsoft.com/mssql/server:2022-latest
   #   ports:
