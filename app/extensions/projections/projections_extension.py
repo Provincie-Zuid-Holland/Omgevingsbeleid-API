@@ -16,4 +16,5 @@ class ProjectionsExtension(Extension):
         return [
             endpoints.CreateGraphsEndpointResolver(),
             endpoints.ViewGraphEndpointResolver(),
+            endpoints.DetailObjectEndpointResolver(),
         ]

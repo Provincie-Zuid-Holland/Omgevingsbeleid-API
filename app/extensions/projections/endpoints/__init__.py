@@ -1,2 +1,3 @@
 from .create_graphs import CreateGraphsEndpointResolver
+from .detail_object import DetailObjectEndpointResolver
 from .view_graph import ViewGraphEndpointResolver

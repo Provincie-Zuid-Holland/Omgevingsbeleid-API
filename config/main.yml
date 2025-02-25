@@ -36,6 +36,9 @@ api:
       endpoints:
         - resolver: falkor_view
         - resolver: falkor_create
+    - prefix: /falkor/detail/{object_type}/{lineage_id}
+      endpoints:
+        - resolver: falkor_detail_object
     - prefix: /users
       endpoints:
         - resolver: list_users

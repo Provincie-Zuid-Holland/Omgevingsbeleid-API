@@ -148,7 +148,7 @@
 
       // Add tooltips (hover text) to nodes.
       node.append("title")
-        .text(d => d.name);
+        .text(d => "" + d.code + ": " + d.name);
 
       // Update positions on every simulation tick.
       simulation.on("tick", () => {

@@ -151,12 +151,12 @@ class EndpointHandler:
 
             # Relation: Object -> Hierarchical Object
             if obj.Hierarchy_Code is not None:
-                relation_query = f"MATCH (o:Object {{identifier: '{object_identifier}'}}), (ot:Object {{identifier: '{projection_id}:{obj.Hierarchy_Code}'}}) CREATE (o)-[:HIERARCHY]->(ot)"
+                relation_query = f"MATCH (o:Object {{identifier: '{object_identifier}'}}), (ot:Object {{identifier: '{projection_id}:{obj.Hierarchy_Code}'}}) CREATE (o)-[:HAS_HIERARCHY_CODE]->(ot), (ot)-[:REVERSE_HIERARCHY_CODE]->(o)"
                 graph_relation_queries.append(relation_query)
 
             # Relation: Object -> Werkingsgebied
             if obj.Werkingsgebied_Code is not None:
-                relation_query = f"MATCH (o:Object {{identifier: '{object_identifier}'}}), (ot:Object {{identifier: '{projection_id}:{obj.Werkingsgebied_Code}'}}) CREATE (o)-[:HAS_GEBIED]->(ot)"
+                relation_query = f"MATCH (o:Object {{identifier: '{object_identifier}'}}), (ot:Object {{identifier: '{projection_id}:{obj.Werkingsgebied_Code}'}}) CREATE (o)-[:HAS_WERKINGSGEBIED_CODE]->(ot), (ot)-[:REVERSE_WERKINGSGEBIED_CODE]->(o)"
                 graph_relation_queries.append(relation_query)
 
         print("\n\n")

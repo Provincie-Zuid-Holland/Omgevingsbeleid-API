@@ -13,6 +13,7 @@ class Node(BaseModel):
     id: str
     name: str
     object_type: str
+    code: str
 
 
 class Edge(BaseModel):
@@ -31,7 +32,9 @@ class EndpointHandler:
         red_db = FalkorDB(host="falkordb", port=6379)
         graph = red_db.select_graph("api")
 
-        query = "MATCH (n:Object) OPTIONAL MATCH (n)-[r:HIERARCHY|HAS_GEBIED]-() RETURN n, collect(r)"
+        query = (
+            "MATCH (n:Object) OPTIONAL MATCH (n)-[r:HAS_HIERARCHY_CODE|HAS_WERKINGSGEBIED_CODE]-() RETURN n, collect(r)"
+        )
         results = graph.query(query)
 
         nodes_dict: Dict[int, Node] = {}
@@ -42,6 +45,7 @@ class EndpointHandler:
                 id=node.id,
                 name=node.properties["Title"],
                 object_type=node.labels[-1],
+                code=node.properties["Code"],
             )
             for edge in edges:
                 edges_dict[edge.id] = Edge(
