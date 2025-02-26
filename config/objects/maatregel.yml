@@ -166,6 +166,20 @@ fields:
     column: client_1_uuid
     optional: true
 
+
+projection:
+  create:
+    data_fields:
+      - description:
+      - role:
+      - effect:
+    services:
+      - denormalize:
+        
+  models:
+
+
+
 models:
   maatregel_minimal:
     name: MaatregelMinimal

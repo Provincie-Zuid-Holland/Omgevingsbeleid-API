@@ -117,7 +117,6 @@ class EndpointHandler:
             "Role",
             "Effect",
         ]
-        data_properties = ["Code", "Object_Type", "Object_ID", "Title"]
 
         for code, obj in objects.items():
             # Object Node
@@ -126,7 +125,7 @@ class EndpointHandler:
             object_node_properties = {
                 prop: getattr(obj, prop) for prop in node_properties if getattr(obj, prop) is not None
             }
-            object_node_properties["identifier"] = object_identifier
+            object_node_properties["_identifier"] = object_identifier
             object_node_properties_parsed: str = ", ".join(
                 f"{key}: '{escape_value(value)}'" for key, value in object_node_properties.items()
             )
@@ -138,25 +137,25 @@ class EndpointHandler:
             data_node_properties = {
                 prop: getattr(obj, prop) for prop in data_properties if getattr(obj, prop) is not None
             }
-            data_node_properties["identifier"] = data_identifier
+            data_node_properties["_identifier"] = data_identifier
             data_node_properties_parsed: str = ", ".join(
                 f"{key}: '{escape_value(value)}'" for key, value in data_node_properties.items()
             )
-            create_node_query: str = f"(:{obj.Object_Type.capitalize()}Data {{{data_node_properties_parsed}}})"
+            create_node_query: str = f"(:ObjectData {{{data_node_properties_parsed}}})"
             graph_objects.append(create_node_query)
 
             # Relation: Object -> Data
-            relation_query = f"MATCH (o:Object {{identifier: '{object_identifier}'}}), (d:{obj.Object_Type.capitalize()}Data {{identifier: '{data_identifier}'}}) CREATE (o)-[:HAS_DATA]->(d)"
+            relation_query = f"MATCH (o:Object {{_identifier: '{object_identifier}'}}), (d:ObjectData {{_identifier: '{data_identifier}'}}) CREATE (o)-[:HAS_DATA]->(d)"
             graph_relation_queries.append(relation_query)
 
             # Relation: Object -> Hierarchical Object
             if obj.Hierarchy_Code is not None:
-                relation_query = f"MATCH (o:Object {{identifier: '{object_identifier}'}}), (ot:Object {{identifier: '{projection_id}:{obj.Hierarchy_Code}'}}) CREATE (o)-[:HAS_HIERARCHY_CODE]->(ot), (ot)-[:REVERSE_HIERARCHY_CODE]->(o)"
+                relation_query = f"MATCH (o:Object {{_identifier: '{object_identifier}'}}), (ot:Object {{_identifier: '{projection_id}:{obj.Hierarchy_Code}'}}) CREATE (o)-[:HAS_HIERARCHY_CODE]->(ot), (ot)-[:REVERSE_HIERARCHY_CODE]->(o)"
                 graph_relation_queries.append(relation_query)
 
             # Relation: Object -> Werkingsgebied
             if obj.Werkingsgebied_Code is not None:
-                relation_query = f"MATCH (o:Object {{identifier: '{object_identifier}'}}), (ot:Object {{identifier: '{projection_id}:{obj.Werkingsgebied_Code}'}}) CREATE (o)-[:HAS_WERKINGSGEBIED_CODE]->(ot), (ot)-[:REVERSE_WERKINGSGEBIED_CODE]->(o)"
+                relation_query = f"MATCH (o:Object {{_identifier: '{object_identifier}'}}), (ot:Object {{_identifier: '{projection_id}:{obj.Werkingsgebied_Code}'}}) CREATE (o)-[:HAS_WERKINGSGEBIED_CODE]->(ot), (ot)-[:REVERSE_WERKINGSGEBIED_CODE]->(o)"
                 graph_relation_queries.append(relation_query)
 
         print("\n\n")
@@ -182,20 +181,20 @@ class EndpointHandler:
 
     def update_object(self, identifier: str, properties: dict):
         set_clause = ", ".join(f"{key} = '{escape_value(value)}'" for key, value in properties.items())
-        query = f"MATCH (o:Object {{identifier: '{identifier}'}}) SET {set_clause}"
+        query = f"MATCH (o:Object {{_identifier: '{identifier}'}}) SET {set_clause}"
         self.graph.query(query)
 
     def update_object_data(self, identifier: str, properties: dict):
         set_clause = ", ".join(f"{key} = '{escape_value(value)}'" for key, value in properties.items())
-        query = f"MATCH (d:ObjectData {{identifier: '{identifier}'}}) SET {set_clause}"
+        query = f"MATCH (d:ObjectData {{_identifier: '{identifier}'}}) SET {set_clause}"
         self.graph.query(query)
 
     def remove_relation(self, from_identifier: str, to_identifier: str, relation_type: str):
-        query = f"MATCH (a {{identifier: '{from_identifier}'}})-[r:{relation_type}]->(b {{identifier: '{to_identifier}'}}) DELETE r"
+        query = f"MATCH (a {{_identifier: '{from_identifier}'}})-[r:{relation_type}]->(b {{_identifier: '{to_identifier}'}}) DELETE r"
         self.graph.query(query)
 
     def create_relation(self, from_identifier: str, to_identifier: str, relation_type: str):
-        query = f"MATCH (a {{identifier: '{from_identifier}'}}), (b {{identifier: '{to_identifier}'}}) CREATE (a)-[:{relation_type}]->(b)"
+        query = f"MATCH (a {{_identifier: '{from_identifier}'}}), (b {{_identifier: '{to_identifier}'}}) CREATE (a)-[:{relation_type}]->(b)"
         self.graph.query(query)
 
 

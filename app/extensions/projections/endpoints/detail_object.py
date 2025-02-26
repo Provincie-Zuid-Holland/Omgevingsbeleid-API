@@ -28,6 +28,7 @@ class DetailObject(BaseModel):
     End_Validity: Optional[datetime]
 
     Werkingsgebied: Optional[WerkingsgebiedBasic] = Field(None)
+    Data: Optional[dict] = Field(None)
 
 
 class DetailResponse(BaseModel):
@@ -42,23 +43,28 @@ class EndpointHandler:
     def handle(self) -> DetailResponse:
         query = """
             MATCH
-                (n:Object {identifier: $identifier})
+                (n:Object {_identifier: $identifier})
             OPTIONAL MATCH
-                (n)-[r:HAS_WERKINGSGEBIED_CODE]->(wg:Object)
-            RETURN n, wg
+                (n)-[odr:HAS_DATA]->(od:ObjectData)
+            OPTIONAL MATCH
+                (n)-[wgr:HAS_WERKINGSGEBIED_CODE]->(wg:Object)
+            RETURN n, od, wg
         """
         params = {"identifier": self._node_id}
+        # results = self._falkor.profile(query, params)
         results = self._falkor.query(query, params)
 
         if not results.result_set:
             return DetailResponse(Object=None)
 
-        node_data = results.result_set[0][0]
-        wg_data = results.result_set[0][1]
+        node = results.result_set[0][0]
+        node_data = results.result_set[0][1]
+        wg = results.result_set[0][2]
 
-        detail_object = DetailObject(**node_data.properties)
-        if wg_data:
-            detail_object.Werkingsgebied = WerkingsgebiedBasic(**wg_data.properties)
+        detail_object = DetailObject(**(node.properties | node_data.properties))
+        detail_object.Data = node.properties | node_data.properties
+        if wg:
+            detail_object.Werkingsgebied = WerkingsgebiedBasic(**wg.properties)
 
         response = DetailResponse(
             Object=detail_object,
