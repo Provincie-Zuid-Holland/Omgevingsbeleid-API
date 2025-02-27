@@ -75,7 +75,7 @@ class EditUserEndpointHandler:
         if user.Rol not in self._allowed_roles:
             raise ValueError("Invalid Rol")
 
-        user.Modified_Date = (self._timepoint,)
+        user.Modified_Date = self._timepoint
         user_after_dict: dict = user.to_dict_safe()
 
         change_log: ChangeLogTable = ChangeLogTable(
