@@ -174,10 +174,7 @@ projection:
       - role:
       - effect:
     services:
-      - denormalize:
-        
-  models:
-
+  read_models:
 
 
 models:

@@ -1,5 +1,7 @@
 from datetime import datetime
-from typing import Optional
+import itertools
+import string
+from typing import Any, Dict, Generator, List, Optional, Type
 
 from falkordb import FalkorDB
 from fastapi import APIRouter
@@ -8,6 +10,10 @@ from pydantic import BaseModel, Field
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
+
+
+
+
 
 
 class WerkingsgebiedBasic(BaseModel):
@@ -19,7 +25,7 @@ class WerkingsgebiedBasic(BaseModel):
     End_Validity: Optional[datetime]
 
 
-class DetailObject(BaseModel):
+class MaatregelFull(BaseModel):
     Object_ID: int
     Object_Type: str
     Code: str
@@ -28,11 +34,56 @@ class DetailObject(BaseModel):
     End_Validity: Optional[datetime]
 
     Werkingsgebied: Optional[WerkingsgebiedBasic] = Field(None)
-    Data: Optional[dict] = Field(None)
+
+
+
+class GraphQueryBuilder:
+    def __init__(self):
+        self._model_type: Type[MaatregelFull] = MaatregelFull
+        self._config: dict = {
+            "data_fields": ["Description", "Effect"],
+        }
+        self._node_identifier: str = "3:maatregel-6912"
+        self._node_label: str = ":".join(["Object"])
+    
+    def build_query(self) -> str:
+        key_genrator = self._key_generator()
+        used_keys: List[dict] = []
+        query_parts: List[str] = []
+
+        # Main object
+        object_key: str = next(key_genrator)
+        used_keys.append({
+            "key": object_key,
+            "target": "",
+        })
+        query_parts.append(f"MATCH ({object_key}:{self._node_label} {{_identifier: $identifier}})")
+
+        # Data node
+        data_key: str = next(key_genrator)
+        used_keys.append({
+            "key": data_key,
+            "target": "",
+        })
+        query_parts.append(f"OPTIONAL MATCH ({object_key})-[HAS_DATA]->({data_key}:ObjectData)")
+
+
+        # Werkingsgebied relation
+        query: str = "\n\t".join(query_parts)
+
+        return query
+
+    def _key_generator(self) -> Generator[str, None, None]:
+        letters = string.ascii_lowercase
+        length = 1
+        while True:
+            for combo in itertools.product(letters, repeat=length):
+                yield ''.join(combo)
+            length += 1
 
 
 class DetailResponse(BaseModel):
-    Object: Optional[DetailObject]
+    Object: Optional[MaatregelFull]
 
 
 class EndpointHandler:
