@@ -63,7 +63,7 @@ class EndpointHandler:
         )
 
     def _guard_locked(self):
-        if not self._announcement.Is_Locked:
+        if self._announcement.Is_Locked:
             raise HTTPException(status_code=409, detail="This announcement is locked")
         if not self._announcement.Publication.Act.Is_Active:
             raise HTTPException(status_code=409, detail="This act can no longer be used")
