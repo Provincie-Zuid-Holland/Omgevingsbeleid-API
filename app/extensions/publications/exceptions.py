@@ -28,7 +28,7 @@ def dso_exception_mapper(func):
             raise DSORenvooiException("Renvooi unauthorized error", e.msg) from e
         except dso_exceptions.RenvooiInternalServerError as e:
             raise DSORenvooiException("Renvooi internal server error", e.msg) from e
-        except dso_exceptions.RenvooiUnkownError as e:
+        except dso_exceptions.RenvooiUnknownError as e:
             raise DSORenvooiException("Renvooi unknown error", e.msg) from e
 
     return wrapper
