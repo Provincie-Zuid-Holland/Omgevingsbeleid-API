@@ -6,6 +6,7 @@ from typing import Optional
 from dso.act_builder.builder import Builder
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 
+from app.extensions.publications.exceptions import dso_exception_mapper
 from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
 from app.extensions.publications.models.zip import ZipData
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
@@ -28,6 +29,7 @@ class ActPackageBuilder:
         self._input_data: InputData = input_data
         self._dso_builder: Builder = Builder(input_data)
 
+    @dso_exception_mapper
     def build_publication_files(self):
         self._dso_builder.build_publication_files()
 

@@ -1,7 +1,6 @@
 from typing import List
 
 import requests
-from dso.exceptions import RenvooiError
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, ValidationError
@@ -17,7 +16,7 @@ from app.extensions.publications.dependencies import (
     depends_publication_version_validator,
 )
 from app.extensions.publications.enums import MutationStrategy, PackageType
-from app.extensions.publications.exceptions import DSOConfigurationException
+from app.extensions.publications.exceptions import DSOConfigurationException, DSORenvooiException
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.services.act_package.act_package_builder import ActPackageBuilder, ZipData
 from app.extensions.publications.services.act_package.act_package_builder_factory import ActPackageBuilderFactory
@@ -91,8 +90,8 @@ class EndpointHandler:
             raise HTTPException(status_code=441, detail=e.errors())
         except DSOConfigurationException as e:
             raise LoggedHttpException(status_code=442, detail=e.message)
-        except RenvooiError as e:
-            raise LoggedHttpException(status_code=443, detail=e.msg)
+        except DSORenvooiException as e:
+            raise LoggedHttpException(status_code=443, detail=e.message, log_message=e.internal_error)
         except PdfExportError as e:
             raise LoggedHttpException(status_code=444, detail=e.msg)
         except Exception as e:

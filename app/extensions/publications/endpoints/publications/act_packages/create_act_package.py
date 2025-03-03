@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime, timezone
 from typing import List
 
-from dso.exceptions import RenvooiError
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
@@ -18,7 +17,7 @@ from app.extensions.publications.dependencies import (
     depends_publication_version_validator,
 )
 from app.extensions.publications.enums import MutationStrategy, PackageType, PublicationVersionStatus, ReportStatusType
-from app.extensions.publications.exceptions import DSOConfigurationException
+from app.extensions.publications.exceptions import DSOConfigurationException, DSORenvooiException
 from app.extensions.publications.models.api_input_data import Purpose
 from app.extensions.publications.permissions import PublicationsPermissions
 from app.extensions.publications.services.act_frbr_provider import ActFrbr
@@ -146,8 +145,8 @@ class EndpointHandler:
             raise HTTPException(status_code=441, detail=e.errors())
         except DSOConfigurationException as e:
             raise LoggedHttpException(status_code=442, detail=e.message)
-        except RenvooiError as e:
-            raise LoggedHttpException(status_code=443, detail=e.msg)
+        except DSORenvooiException as e:
+            raise LoggedHttpException(status_code=443, detail=e.message, log_message=e.internal_error)
         except Exception as e:
             # We do not know what to except here
             # This will result in a 500 server error
