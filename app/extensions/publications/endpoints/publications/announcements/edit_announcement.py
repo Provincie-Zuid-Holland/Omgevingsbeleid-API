@@ -40,6 +40,8 @@ class EndpointHandler:
         self._object_in: PublicationAnnouncementEdit = object_in
 
     def handle(self) -> ResponseOK:
+        self._guard_locked()
+
         changes: dict = self._object_in.dict(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
@@ -59,6 +61,12 @@ class EndpointHandler:
         return ResponseOK(
             message="OK",
         )
+
+    def _guard_locked(self):
+        if not self._announcement.Is_Locked:
+            raise HTTPException(status_code=409, detail="This announcement is locked")
+        if not self._announcement.Publication.Act.Is_Active:
+            raise HTTPException(status_code=409, detail="This act can no longer be used")
 
 
 class EditPublicationAnnouncementEndpoint(Endpoint):
