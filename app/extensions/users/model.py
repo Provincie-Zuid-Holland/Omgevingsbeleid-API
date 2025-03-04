@@ -20,6 +20,15 @@ class User(BaseModel):
         orm_mode = True
 
 
+class UserLoginDetail(BaseModel):
+    UUID: UUID
+    Rol: str
+    Gebruikersnaam: str
+
+    class Config:
+        orm_mode = True
+
+
 class UserShort(BaseModel):
     UUID: UUID
     # Rol: str
