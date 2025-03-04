@@ -56,8 +56,8 @@ async def sql_exception_handler(request, exc):  # noqa
 
 
 @app.exception_handler(LoggedHttpException)
-async def logged_http_exception_handler(request, exc):  # noqa
-    logger.error("Unhandled HTTPException: %s, Path: %s", str(exc), request.url.path, exc_info=True)
+async def logged_http_exception_handler(request, exc: LoggedHttpException):  # noqa
+    logger.error("Unhandled HTTPException: %s, Path: %s", exc.get_log_message(), request.url.path, exc_info=True)
     return await http_exception_handler(request, exc)
 
 
