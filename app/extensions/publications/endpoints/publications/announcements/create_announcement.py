@@ -82,12 +82,16 @@ class EndpointHandler:
     def _guard_can_create_announcement(self):
         if not self._publication.Environment.Has_State:
             return
-        if self._act_package.Report_Status == ReportStatusType.VALID:
-            return
-
-        raise HTTPException(
-            status_code=409, detail="Can not create an announcement for act package that is not successful"
-        )
+        if self._act_package.Report_Status != ReportStatusType.VALID:
+            raise HTTPException(
+                status_code=409,
+                detail="Can not create an announcement for act package that is not successful",
+            )
+        if not self._act_package.Act_Version.Act.Is_Active:
+            raise HTTPException(
+                status_code=409,
+                detail="Can not create an announcement for act that is not active",
+            )
 
 
 class CreatePublicationAnnouncementEndpoint(Endpoint):

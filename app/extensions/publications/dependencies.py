@@ -176,6 +176,8 @@ def depends_publication_version(
     maybe_version: Optional[PublicationVersionTable] = repository.get_by_uuid(version_uuid)
     if not maybe_version:
         raise HTTPException(status_code=404, detail="Publication version niet gevonden")
+    if maybe_version.Deleted_At:
+        raise HTTPException(status_code=404, detail="Publication version is verwijderd")
     return maybe_version
 
 
