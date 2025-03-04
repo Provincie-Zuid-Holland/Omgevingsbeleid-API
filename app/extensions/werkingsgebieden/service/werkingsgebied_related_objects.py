@@ -1,11 +1,10 @@
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.dynamic.db.tables import ObjectsTable
 from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
-from app.dynamic.event.types import Listener
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.extensions.modules.models.models import DynamicModuleObjectShort, DynamicObjectShort, WerkingsgebiedRelatedObjects
 from app.extensions.modules.repository.module_object_repository import LatestObjectPerModuleResult, ModuleObjectRepository
@@ -69,22 +68,3 @@ class WerkingsgebiedRelatedObjectService:
             setattr(item, self._target_field, result_objects)
 
         return self._event_objects
-
-
-class WerkingsgebiedRelatedObjectsListener(Listener[RetrievedObjectsEvent]):
-    TARGET_FIELD: str = "Related_Objects"
-    TARGET_SERVICE: str = "insert_computed_fields"
-
-    def handle_event(self, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
-        if self.TARGET_SERVICE not in event.context.response_model.service_config:
-            return event
-
-        fields = event.context.response_model.service_config[self.TARGET_SERVICE]["fields"]
-        if not any(field.get("field_name") == self.TARGET_FIELD for field in fields):
-            return event
-
-        service = WerkingsgebiedRelatedObjectService(event, self.TARGET_FIELD)
-        result_rows = service.process()
-
-        event.payload.rows = result_rows
-        return event
