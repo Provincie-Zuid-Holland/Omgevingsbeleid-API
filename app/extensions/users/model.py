@@ -22,8 +22,8 @@ class User(BaseModel):
 
 class UserShort(BaseModel):
     UUID: UUID
-    Rol: str
-    Gebruikersnaam: str
+    # Rol: str
+    # Gebruikersnaam: str
 
     class Config:
         orm_mode = True
