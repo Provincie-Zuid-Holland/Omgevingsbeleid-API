@@ -249,7 +249,7 @@ models:
   document_static_post_validated:
     name: DocumentStaticPostValidated
     static_only: true
-    root_validators:
+    model_validators:
       - id: not_equal_root
         data:
           fields:

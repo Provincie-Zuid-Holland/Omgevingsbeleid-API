@@ -208,7 +208,7 @@ models:
   nationaal_belang_static_post_validated:
     name: NationaalBelangStaticPostValidated
     static_only: true
-    root_validators:
+    model_validators:
       - id: not_equal_root
         data:
           fields:

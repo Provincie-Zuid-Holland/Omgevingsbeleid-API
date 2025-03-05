@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class StorageFileBasic(BaseModel):
@@ -12,6 +12,4 @@ class StorageFileBasic(BaseModel):
     Size: int
     Created_Date: datetime
     Created_By_UUID: uuid.UUID
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class State(BaseModel, metaclass=ABCMeta):
@@ -20,15 +20,12 @@ class State(BaseModel, metaclass=ABCMeta):
         }
         return result
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class StateSchema(BaseModel):
     Schema_Version: int
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class InitialState(State):

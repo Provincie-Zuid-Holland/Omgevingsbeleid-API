@@ -199,7 +199,7 @@ class NotEqualRootValidator(Validator):
         allow_none: bool = config.get("allow_none", False)
         error_message: str = config["error_message"]
 
-        def pydantic_neq_root_validator(cls, values):
+        def pydantic_neq_model_validator(cls, values):
             field_values = [values[k] for k in field_keys]
             if allow_none:
                 field_values = [v for v in field_values if v is not None]
@@ -209,7 +209,7 @@ class NotEqualRootValidator(Validator):
 
             return values
 
-        return pydantic_neq_root_validator
+        return pydantic_neq_model_validator
 
 
 class ObjectCodeExistsValidator(Validator):

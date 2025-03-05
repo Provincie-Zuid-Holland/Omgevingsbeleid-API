@@ -1,6 +1,7 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
-from pydantic import BaseSettings, Field, validator
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class CoreSettings(BaseSettings):
@@ -30,20 +31,28 @@ class CoreSettings(BaseSettings):
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
     SQLALCHEMY_TEST_DATABASE_URI: Optional[str] = None
 
-    @validator("SQLALCHEMY_DATABASE_URI", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+    @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
+    def assemble_db_connection(cls, v: Optional[str], info) -> Any:
         if isinstance(v, str) and len(v):
             return v
 
-        db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
+        values = info.data
+        db_connection_settings = (
+            f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};"
+            f"DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
+        )
         return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
 
-    @validator("SQLALCHEMY_TEST_DATABASE_URI", pre=True)
-    def assemble_test_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+    @field_validator("SQLALCHEMY_TEST_DATABASE_URI", mode="before")
+    def assemble_test_db_connection(cls, v: Optional[str], info) -> Any:
         if isinstance(v, str) and len(v):
             return v
 
-        db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['TEST_DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
+        values = info.data
+        db_connection_settings = (
+            f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};"
+            f"DATABASE={values['TEST_DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
+        )
         return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
 
     # Dynamic
@@ -53,11 +62,12 @@ class CoreSettings(BaseSettings):
     # Mssql Search
     MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
     MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
-
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
-        env_nested_delimiter = "__"
+    model_config = SettingsConfigDict(
+        extra="allow",
+        case_sensitive=True,
+        env_file=".env",
+        env_nested_delimiter="__",
+    )
 
 
 core_settings = CoreSettings()

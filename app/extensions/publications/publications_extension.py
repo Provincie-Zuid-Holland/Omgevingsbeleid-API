@@ -1,7 +1,7 @@
 from typing import List, Optional, Type
 
 import click
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.endpoints.endpoint import EndpointResolver

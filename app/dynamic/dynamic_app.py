@@ -7,7 +7,7 @@ import click
 import yaml
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 import app.dynamic.serializers as serializers
 from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings

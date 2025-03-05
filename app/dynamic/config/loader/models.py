@@ -13,10 +13,6 @@ from ..models import DynamicObjectModel, Field, IntermediateModel, IntermediateO
 from .fields import field_types
 
 
-class DynamicModelPydanticConfig:
-    orm_mode: bool = True
-
-
 class ModelsLoader:
     def __init__(
         self,
@@ -27,7 +23,7 @@ class ModelsLoader:
         self._event_dispatcher: EventDispatcher = event_dispatcher
         self._models_resolver: ModelsResolver = models_resolver
         self._validator_provider: ValidatorProvider = validator_provider
-        self._root_validator_counter: int = 0
+        self._model_validator_counter: int = 0
 
         # @todo: should be injected so that extensions can also register default values
         self._defaults: Dict[str, Any] = {
@@ -63,8 +59,8 @@ class ModelsLoader:
 
                 columns.append(field.column)
 
-            root_validators_config: List[dict] = model_config.get("root_validators", [])
-            root_validators: Dict[str, Callable] = self._get_root_validators(root_validators_config)
+            model_validators_config: List[dict] = model_config.get("model_validators", [])
+            model_validators: Dict[str, Callable] = self._get_model_validators(model_validators_config)
 
             models.append(
                 IntermediateModel(
@@ -75,7 +71,7 @@ class ModelsLoader:
                     fields=fields,
                     static_fields=static_fields,
                     service_config=model_config.get("services", {}),
-                    root_validators=root_validators,
+                    model_validators=model_validators,
                 )
             )
 
@@ -113,12 +109,12 @@ class ModelsLoader:
         if static_pydantic_fields:
             # If this will be the outer model than we need to merge the root validators
             if intermediate_model.static_only:
-                static_pydantic_validators = static_pydantic_validators | intermediate_model.root_validators
+                static_pydantic_validators = {**pydantic_validators, **intermediate_model.model_validators}
 
             static_object_name = f"{intermediate_model.name}Statics"
             pydantic_static_model = pydantic.create_model(
                 static_object_name,
-                __config__=DynamicModelPydanticConfig,
+                model_config=pydantic.ConfigDict(from_attributes=True),
                 __validators__=static_pydantic_validators,
                 **static_pydantic_fields,
             )
@@ -128,10 +124,7 @@ class ModelsLoader:
             pydantic_fields["ObjectStatics"] = (
                 pydantic_static_model,
                 pydantic.Field(
-                    **{
-                        "default": None,
-                        "nullable": True,
-                    }
+                    default=None,
                 ),
             )
 
@@ -141,8 +134,8 @@ class ModelsLoader:
         else:
             pydantic_model = pydantic.create_model(
                 intermediate_model.name,
-                __config__=DynamicModelPydanticConfig,
-                __validators__=(pydantic_validators | intermediate_model.root_validators),
+                model_config=pydantic.ConfigDict(from_attributes=True),
+                __validators__={**pydantic_validators, **intermediate_model.model_validators},
                 **pydantic_fields,
             )
 
@@ -177,7 +170,7 @@ class ModelsLoader:
 
                 pydantic_validator_unique_name: str = f"{validator_prefix}-{len(pydantic_validators) + 1}"
                 # fmt: off
-                pydantic_validator_func = pydantic.validator(field.name, allow_reuse=True)(validator_func)
+                pydantic_validator_func = pydantic.field_validator(field.name)(validator_func)
                 pydantic_validators[pydantic_validator_unique_name] = pydantic_validator_func
                 # fmt: on
 
@@ -196,31 +189,26 @@ class ModelsLoader:
             pydantic_fields[field.name] = (
                 field_type,
                 pydantic.Field(
-                    **{
-                        "default": default_value,
-                        "nullable": field.optional,
-                    }
+                    default=default_value,
                 ),
             )
 
         return pydantic_fields, pydantic_validators
 
-    def _get_root_validators(self, config) -> Dict[str, Callable]:
+    def _get_model_validators(self, config) -> Dict[str, Callable]:
         if not config:
             return {}
 
-        root_validators: Dict[str, Callable] = {}
+        model_validators: Dict[str, Any] = {}
         for validator_config in config:
             validator_id: str = validator_config.get("id", "")
             validator_data: dict = validator_config.get("data", {})
             validator_func = self._validator_provider.get_validator(validator_id, validator_data)
 
-            self._root_validator_counter += 1
-            unique_name: str = f"root_validator_{self._root_validator_counter}"
+            self._model_validator_counter += 1
+            unique_name: str = f"model_validator_{self._model_validator_counter}"
 
-            # fmt: off
-            pydantic_validator_func = pydantic.root_validator(allow_reuse=True)(validator_func)
-            root_validators[unique_name] = pydantic_validator_func
-            # fmt: on
+            pydantic_validator_func = pydantic.model_validator(mode="after")(validator_func)
+            model_validators[unique_name] = pydantic_validator_func
 
-        return root_validators
+        return model_validators

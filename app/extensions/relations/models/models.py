@@ -1,12 +1,12 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class WriteRelation(BaseModel):
     Object_ID: int
     Object_Type: str
-    Description: str = Field("", nullable=True)
+    Description: str = Field("")
 
-    @validator("Description", pre=True)
+    @field_validator("Description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
@@ -18,9 +18,9 @@ class WriteRelation(BaseModel):
 class ReadRelationShort(BaseModel):
     Object_ID: int
     Object_Type: str
-    Description: str = Field("", nullable=True)
+    Description: str = Field("")
 
-    @validator("Description", pre=True)
+    @field_validator("Description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
@@ -32,10 +32,10 @@ class ReadRelationShort(BaseModel):
 class ReadRelation(BaseModel):
     Object_ID: int
     Object_Type: str
-    Description: str = Field("", nullable=True)
-    Title: str = Field("", nullable=True)
+    Description: str = Field("")
+    Title: str = Field("")
 
-    @validator("Description", "Title", pre=True)
+    @field_validator("Description", "Title", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 

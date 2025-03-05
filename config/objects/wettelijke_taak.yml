@@ -214,7 +214,7 @@ models:
   wettelijke_taak_static_post_validated:
     name: WettelijkeTaakStaticPostValidated
     static_only: true
-    root_validators:
+    model_validators:
       - id: not_equal_root
         data:
           fields:

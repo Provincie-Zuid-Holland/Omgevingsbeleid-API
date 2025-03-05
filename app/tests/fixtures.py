@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Set
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Index
 from sqlalchemy.orm import Mapped, declarative_base, relationship
 
@@ -18,10 +18,8 @@ class LocalTables(BaseModel):
     ObjectsTable: type
     ObjectStaticsTable: type
     UsersTabel: type
-    ChangeLogTable: Optional[type]
-
-    class Config:
-        arbitrary_types_allowed = True
+    ChangeLogTable: Optional[type] = None
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class LocalTableFactory:
@@ -134,20 +132,16 @@ class FakeExtension:
 
 
 class MockResponseModel(BaseModel):
-    Object_ID: Optional[str]
+    Object_ID: Optional[str] = None
     UUID: UUID
     Object_Type: str
-    Modified_Date: Optional[datetime]
+    Modified_Date: Optional[datetime] = None
     Start_Validity: datetime
-    End_Validity: Optional[datetime]
-
-    class Config:
-        orm_mode = True
+    End_Validity: Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TestDynamicApp(BaseModel):
     dynamic_app: DynamicApp
     local_tables: LocalTables
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)

@@ -19,15 +19,15 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class TemplateEdit(BaseModel):
-    Title: Optional[str] = Field(None, nullable=True)
-    Description: Optional[str] = Field(None, nullable=True)
+    Title: Optional[str] = Field(None)
+    Description: Optional[str] = Field(None)
 
-    Is_Active: Optional[bool] = Field(None, nullable=True)
-    Document_Type: Optional[DocumentType] = Field(None, nullable=True)
-    Field_Map: Optional[List[str]] = Field(None, nullable=True)
-    Object_Types: Optional[List[str]] = Field(None, nullable=True)
-    Text_Template: Optional[str] = Field(None, nullable=True)
-    Object_Templates: Optional[Dict[str, str]] = Field(None, nullable=True)
+    Is_Active: Optional[bool] = Field(None)
+    Document_Type: Optional[DocumentType] = Field(None)
+    Field_Map: Optional[List[str]] = Field(None)
+    Object_Types: Optional[List[str]] = Field(None)
+    Text_Template: Optional[str] = Field(None)
+    Object_Templates: Optional[Dict[str, str]] = Field(None)
 
 
 class EndpointHandler:

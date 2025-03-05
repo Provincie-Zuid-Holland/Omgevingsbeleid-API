@@ -2,13 +2,13 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, model_validator
 
 
 class AcknowledgedRelationBase(BaseModel):
     Object_ID: int
     Object_Type: str
-    Explanation: Optional[str]
+    Explanation: Optional[str] = Field(None)
 
     @property
     def Code(self) -> str:
@@ -20,17 +20,16 @@ class RequestAcknowledgedRelation(AcknowledgedRelationBase):
 
 
 class EditAcknowledgedRelation(AcknowledgedRelationBase):
-    Explanation: Optional[str] = Field(None, nullable=True)
-    Acknowledged: Optional[bool] = Field(None, nullable=True)
-    Denied: Optional[bool] = Field(None, nullable=True)
-    Deleted: Optional[bool] = Field(None, nullable=True)
+    Acknowledged: Optional[bool] = Field(None)
+    Denied: Optional[bool] = Field(None)
+    Deleted: Optional[bool] = Field(None)
 
-    @root_validator
+    @model_validator(mode="after")
     def validate_denied_acknowledged_deleted(cls, values):
         denied = values.get("Denied")
         acknowledged = values.get("Acknowledged")
         deleted = values.get("Deleted")
-        if sum([bool(val) for val in [denied, acknowledged, deleted]]) > 1:
+        if sum(bool(val) for val in [denied, acknowledged, deleted]) > 1:
             raise ValueError("Only one of Denied, Acknowledged, and Deleted can be set to True")
         return values
 
@@ -38,8 +37,8 @@ class EditAcknowledgedRelation(AcknowledgedRelationBase):
 class AcknowledgedRelationSide(AcknowledgedRelationBase):
     Acknowledged: Optional[datetime] = None
     Acknowledged_By_UUID: Optional[uuid.UUID] = None
-    Title: Optional[str]
-    Explanation: Optional[str]
+    Title: Optional[str] = None
+    Explanation: Optional[str] = None
 
     @property
     def Is_Acknowledged(self) -> bool:
@@ -71,8 +70,8 @@ class AcknowledgedRelation(BaseModel):
     Modified_Date: datetime
     Modified_By_UUID: uuid.UUID
 
-    Denied: Optional[datetime]
-    Deleted_At: Optional[datetime]
+    Denied: Optional[datetime] = None
+    Deleted_At: Optional[datetime] = None
 
     @property
     def Is_Acknowledged(self) -> bool:

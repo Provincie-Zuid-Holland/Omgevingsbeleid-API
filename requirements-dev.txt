@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements-dev.in
 #
-alembic==1.14.1
+alembic==1.15.1
     # via -r requirements-dev.in
 astroid==3.3.8
     # via pylint
@@ -31,7 +31,7 @@ coverage[toml]==7.6.12
     #   pytest-cov
 coverage-badge==1.1.2
     # via -r requirements-dev.in
-debugpy==1.8.12
+debugpy==1.8.13
     # via -r requirements-dev.in
 decorator==5.2.1
     # via ipython

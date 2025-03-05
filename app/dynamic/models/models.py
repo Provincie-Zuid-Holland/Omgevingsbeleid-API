@@ -1,9 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ObjectCount(BaseModel):
     Object_Type: str
     Count: int
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -28,13 +28,11 @@ class ModuleObjectContext(BaseModel):
     Explanation: str
     Conclusion: str
 
-    Original_Adjust_On: Optional[uuid.UUID]
+    Original_Adjust_On: Optional[uuid.UUID] = None
 
-    Created_By: Optional[UserShort]
-    Modified_By: Optional[UserShort]
-
-    class Config:
-        orm_mode = True
+    Created_By: Optional[UserShort] = None
+    Modified_By: Optional[UserShort] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleGetObjectContextEndpoint(Endpoint):
