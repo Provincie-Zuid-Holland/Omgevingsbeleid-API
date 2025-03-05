@@ -21,6 +21,8 @@ class User(BaseModel):
 
 class UserLoginDetail(BaseModel):
     UUID: UUID
+    Rol: str
+    Gebruikersnaam: str
     model_config = ConfigDict(from_attributes=True)
 
 
