@@ -176,9 +176,6 @@ models:
       description:
       start_validity:
       end_validity:
-    services:
-      computed_fields:
-        - next_object_validities
   beleidsdoel_extended:
     name: BeleidsdoelExtended
     fields:
@@ -227,8 +224,6 @@ models:
       end_validity:
       hierarchy_code:
     services:
-      computed_fields:
-        - next_object_validities
       insert_assets:
         fields:
           - Description

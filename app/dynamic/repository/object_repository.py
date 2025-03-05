@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import aliased, load_only, selectinload, undefer_group
+from sqlalchemy.orm import aliased, load_only, selectinload
 from sqlalchemy.sql import and_, func, or_
 
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
@@ -65,11 +65,7 @@ class ObjectRepository(BaseRepository):
         return self.fetch_first(stmt)
 
     def get_by_object_type_and_uuid(self, object_type: str, uuid: UUID) -> Optional[ObjectsTable]:
-        stmt = (
-            select(ObjectsTable)
-            .filter(ObjectsTable.UUID == uuid)
-            .filter(ObjectsTable.Object_Type == object_type)
-        )
+        stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid).filter(ObjectsTable.Object_Type == object_type)
         return self.fetch_first(stmt)
 
     @staticmethod
@@ -206,17 +202,19 @@ class ObjectRepository(BaseRepository):
 
         subq = (
             select(ObjectsTable, row_number)
-            .options(load_only(
-                ObjectsTable.UUID,
-                ObjectsTable.Object_ID,
-                ObjectsTable.Object_Type,
-                ObjectsTable.Title,
-                ObjectsTable.Code,
-                ObjectsTable.Werkingsgebied_Code,
-                ObjectsTable.Modified_Date,
-                ObjectsTable.Start_Validity,
-                ObjectsTable.End_Validity,
-            ))
+            .options(
+                load_only(
+                    ObjectsTable.UUID,
+                    ObjectsTable.Object_ID,
+                    ObjectsTable.Object_Type,
+                    ObjectsTable.Title,
+                    ObjectsTable.Code,
+                    ObjectsTable.Werkingsgebied_Code,
+                    ObjectsTable.Modified_Date,
+                    ObjectsTable.Start_Validity,
+                    ObjectsTable.End_Validity,
+                )
+            )
             .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
         )
 

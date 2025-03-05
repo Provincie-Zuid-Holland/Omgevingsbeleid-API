@@ -4,12 +4,7 @@ from uuid import UUID
 from app.core.utils.utils import table_to_dict
 from app.dynamic.db import ObjectsTable
 from app.dynamic.repository.object_repository import ObjectRepository
-from app.extensions.modules.models.models import (
-    DynamicModuleObjectShort,
-    DynamicObjectShort,
-    WerkingsgebiedRelatedObjects,
-    ModuleStatusCode,
-)
+from app.extensions.modules.models.models import ModuleStatusCode
 from app.extensions.modules.repository.module_object_repository import (
     LatestObjectPerModuleResult,
     ModuleObjectRepository,
@@ -36,6 +31,7 @@ class ObjectProvider:
 
         return None
 
+    # TODO: unused?
     def list_object_versions_in_progress(self, object_uuid: UUID):
         minimum_status = ModuleStatusCode.Ontwerp_PS
 

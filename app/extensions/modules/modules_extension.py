@@ -3,7 +3,9 @@ from typing import Dict, List
 from sqlalchemy import String
 from sqlalchemy.orm import mapped_column
 
-from app.dynamic.config.models import Column, ComputedField, ExtensionModel
+import app.extensions.modules.endpoints as endpoints
+from app.dynamic.computed_fields.models import ComputedField, ExecutionStrategy
+from app.dynamic.config.models import Column, ExtensionModel
 from app.dynamic.db.tables import ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
@@ -11,14 +13,9 @@ from app.dynamic.event_listeners import EventListeners
 from app.dynamic.extension import Extension
 from app.dynamic.generate_table import generate_table
 from app.dynamic.models_resolver import ModelsResolver
-
-import app.extensions.modules.endpoints as endpoints
 from app.extensions.modules.db.module_objects_tables import ModuleObjectsTable
-from app.extensions.modules.models.models import (
-    PublicModuleObjectRevision,
-    WerkingsgebiedRelatedObjects,
-)
 from app.extensions.modules.db.public_revisions import build_object_public_revisions_property
+from app.extensions.modules.models.models import PublicModuleObjectRevision
 
 
 class ModulesExtension(Extension):
@@ -71,13 +68,6 @@ class ModulesExtension(Extension):
                 pydantic_model=PublicModuleObjectRevision,
             )
         )
-    #     models_resolver.add(
-    #         ExtensionModel(
-    #             id="werkingsgebied_related_objects",
-    #             name="WerkingsgebiedRelatedObjects",
-    #             pydantic_model=WerkingsgebiedRelatedObjects,
-    #         )
-    #     )
 
     def register_computed_fields(self) -> List[ComputedField]:
         public_revisions_property = build_object_public_revisions_property()
@@ -85,17 +75,9 @@ class ModulesExtension(Extension):
             id="public_revisions",
             model_id="public_module_object_revision",
             attribute_name="Public_Revisions",
-            action=public_revisions_property,
+            execution_strategy=ExecutionStrategy.PROPERTY,
+            property_callable=public_revisions_property,
             is_optional=True,
             is_list=True,
         )
         return [public_revisions_field]
-
-    # def register_listeners(
-    #     self,
-    #     main_config: dict,
-    #     event_listeners: EventListeners,
-    #     converter: Converter,
-    #     models_resolver: ModelsResolver,
-    # ):
-    #     event_listeners.register(WerkingsgebiedRelatedObjectsListener())

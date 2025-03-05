@@ -214,7 +214,7 @@ models:
       title:
     services:
       computed_fields:
-        - next_object_validities
+        - batch_next_object_version
   beleidskeuze_extended:
     name: BeleidskeuzeExtended
     fields:
@@ -267,13 +267,13 @@ models:
       hierarchy_code:
       werkingsgebied_code:
     services:
+      computed_fields:
+        - next_object_version
+        - public_revisions
       join_werkingsgebieden:
         model_id: werkingsgebied_basic
         to_field: Werkingsgebied
         from_field: Werkingsgebied_Code
-      computed_fields:
-        - next_object_validities
-        - public_revisions
       insert_assets:
         fields:
           - Description

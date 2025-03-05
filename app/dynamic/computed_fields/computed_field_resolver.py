@@ -1,10 +1,12 @@
-from typing import Dict, List
-from .config.models import ComputedField
+from typing import Callable, Dict, List
+
+from app.dynamic.computed_fields.models import ComputedField
 
 
 class ComputedFieldResolver:
     def __init__(self):
         self._computed_fields: Dict[str, ComputedField] = {}
+        self._handlers: Dict[str, Callable] = {}
 
     def get(self, id: str) -> ComputedField:
         if not id in self._computed_fields:
@@ -15,6 +17,9 @@ class ComputedFieldResolver:
     def get_all(self) -> List[ComputedField]:
         return list(self._computed_fields.values())
 
+    def get_by_ids(self, ids: List[str]) -> List[ComputedField]:
+        return [field for field in self.get_all() if field.id in ids]
+
     def exists(self, id: str) -> bool:
         return id in self._computed_fields
 
@@ -24,6 +29,15 @@ class ComputedFieldResolver:
         self._computed_fields[computed_field.id] = computed_field
 
     def add_many(self, computed_fields: List[ComputedField]):
-        """Bulk add multiple computed fields at once"""
         for computed_field in computed_fields:
             self.add(computed_field)
+
+    def add_handler(self, id: str, handler: Callable):
+        if id in self._handlers:
+            raise RuntimeError(f"Handler ID '{id}' already exists")
+        self._handlers[id] = handler
+
+    def get_handler(self, id: str) -> Callable:
+        if id not in self._handlers:
+            raise RuntimeError(f"Handler ID '{id}' does not exist")
+        return self._handlers[id]

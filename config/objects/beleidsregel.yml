@@ -178,9 +178,6 @@ models:
       weblink:
       start_validity:
       end_validity:
-    services:
-      computed_fields:
-        - next_object_validities
   beleidsregel_extended:
     name: BeleidsregelExtended
     fields:
@@ -228,8 +225,6 @@ models:
       start_validity:
       end_validity:
     services:
-      computed_fields:
-        - next_object_validities
       insert_assets:
         fields:
           - Description

@@ -325,7 +325,7 @@ class ModuleObjectRepository(BaseRepository):
                 load_only(
                     ModuleTable.Module_ID,
                     ModuleTable.Title,
-                )
+                ),
             )
             .select_from(ModuleObjectsTable)
             .join(ModuleTable, ModuleObjectsTable.Module_ID == ModuleTable.Module_ID)

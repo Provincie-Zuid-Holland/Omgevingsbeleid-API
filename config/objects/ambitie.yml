@@ -168,9 +168,6 @@ models:
       title:
       start_validity:
       end_validity:
-    services:
-      computed_fields:
-        - next_object_validities
   ambitie_extended:
     name: AmbitieExtended
     fields:
@@ -216,8 +213,6 @@ models:
       start_validity:
       end_validity:
     services:
-      computed_fields:
-        - next_object_validities
       insert_assets:
         fields:
           - Description

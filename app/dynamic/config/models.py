@@ -1,9 +1,7 @@
 from abc import ABCMeta
-from typing import Any, Callable, Dict, List, Type
+from typing import Any, Dict, List, Type
 
 from pydantic import BaseModel
-
-from app.core.db.base import Base
 
 
 class Column(BaseModel):
@@ -93,13 +91,3 @@ class DynamicObjectModel(Model):
 
 class ExtensionModel(Model):
     pass
-
-
-class ComputedField(BaseModel):
-    id: str
-    static: bool = False
-    attribute_name: str
-    action: Any # TODO: fix type
-    model_id: str
-    is_optional: bool = False
-    is_list: bool = False

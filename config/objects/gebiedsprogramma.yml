@@ -179,8 +179,6 @@ models:
         default: none
         optional: true
     services:
-      computed_fields:
-        - next_object_validities
       get_image:
         fields:
           - Image
@@ -238,8 +236,6 @@ models:
         default: none
         optional: true
     services:
-      computed_fields:
-        - next_object_validities
       insert_assets:
         fields:
           - Description

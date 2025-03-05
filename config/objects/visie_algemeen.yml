@@ -145,9 +145,6 @@ models:
       title:
       start_validity:
       end_validity:
-    services:
-      computed_fields:
-        - next_object_validities
   visie_algemeen_extended:
     name: VisieAlgemeenExtended
     fields:
@@ -187,8 +184,6 @@ models:
       start_validity:
       end_validity:
     services:
-      computed_fields:
-        - next_object_validities
       insert_assets:
         fields:
           - Description

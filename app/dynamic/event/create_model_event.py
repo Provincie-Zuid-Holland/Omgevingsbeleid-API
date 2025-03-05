@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from dataclasses import dataclass
 
-from app.dynamic.computed_field_resolver import ComputedFieldResolver
+from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.models_resolver import ModelsResolver
 
 from ..config.models import IntermediateModel

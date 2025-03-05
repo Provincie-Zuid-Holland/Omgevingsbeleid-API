@@ -1,12 +1,12 @@
-from typing import List, Dict
+from typing import List
 
 import click
 
-from app.dynamic.config.models import ComputedField, IntermediateModel, IntermediateObject
+from app.dynamic.computed_fields import ComputedFieldResolver
+from app.dynamic.config.models import IntermediateModel, IntermediateObject
 from app.dynamic.converter import Converter
 from app.dynamic.event_listeners import EventListeners
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.validators.validator_provider import ValidatorProvider
 
 

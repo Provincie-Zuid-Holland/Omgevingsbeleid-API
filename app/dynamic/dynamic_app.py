@@ -9,16 +9,17 @@ from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic_settings import BaseSettings
 
-from app.core.db.base import Base
-from app.dynamic.listeners.computed_fields import ComputedFieldsListener
 import app.dynamic.serializers as serializers
 from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings
+from app.dynamic.computed_fields.models import ComputedField, ExecutionStrategy
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.generate_table import generate_table
 from app.dynamic.listeners.add_object_code_relationship import AddObjectCodeRelationshipListener
+from app.dynamic.listeners.computed_field_execution_listener import ComputedFieldExecutionListener
+from app.dynamic.listeners.computed_field_model_listener import ComputedFieldModelListener
 from app.dynamic.service_container import ServiceContainer
 from app.dynamic.validators.validator import (
     FilenameValidator,
@@ -40,7 +41,7 @@ from .config.loader.api import api_loader
 from .config.loader.columns import columns_loader
 from .config.loader.fields import fields_loader
 from .config.loader.models import ModelsLoader
-from .config.models import Column, ComputedField, Field, IntermediateObject, Model
+from .config.models import Column, Field, IntermediateObject, Model
 
 
 class DynamicApp:
@@ -149,8 +150,12 @@ class DynamicAppBuilder:
         # Build extensions computed fields
         for extension in self._extensions:
             computed_fields: List[ComputedField] = extension.register_computed_fields()
-            for computed_field in computed_fields:
-                self._service_container.computed_fields_resolver.add(computed_field)
+            self._service_container.computed_fields_resolver.add_many(computed_fields)
+            extension.register_computed_field_handlers(self._service_container.computed_fields_resolver)
+
+        # set computed fields to ORM model
+        for computed_field in self._service_container.computed_fields_resolver.get_all():
+            if computed_field.execution_strategy == ExecutionStrategy.PROPERTY:
                 self._set_computed_field(computed_field)
 
         # Build config intermediate data (without models)
@@ -249,7 +254,7 @@ class DynamicAppBuilder:
     def _build_object_api(self, fastapi_app: FastAPI, object_intermediate: IntermediateObject) -> FastAPI:
         sub_router: APIRouter = APIRouter()
         for endpoint_config in object_intermediate.api.endpoint_configs:
-            if not endpoint_config.resolver_id in self._endpoint_resolvers:
+            if endpoint_config.resolver_id not in self._endpoint_resolvers:
                 continue
 
             resolver: EndpointResolver = self._endpoint_resolvers[endpoint_config.resolver_id]
@@ -273,7 +278,7 @@ class DynamicAppBuilder:
         )
 
         for endpoint_config in main_api_config.endpoint_configs:
-            if not endpoint_config.resolver_id in self._endpoint_resolvers:
+            if endpoint_config.resolver_id not in self._endpoint_resolvers:
                 continue
 
             resolver: EndpointResolver = self._endpoint_resolvers[endpoint_config.resolver_id]
@@ -294,7 +299,10 @@ class DynamicAppBuilder:
 
     def _register_base_listeners(self):
         self._service_container.event_listeners.register(AddObjectCodeRelationshipListener())
-        self._service_container.event_listeners.register(ComputedFieldsListener())
+        self._service_container.event_listeners.register(ComputedFieldModelListener())
+        self._service_container.event_listeners.register(
+            ComputedFieldExecutionListener(self._service_container.computed_fields_resolver)
+        )
 
     def _register_base_serializers(self):
         self._service_container.converter.register_serializer("str", serializers.serializer_str)
@@ -331,11 +339,14 @@ class DynamicAppBuilder:
         )
 
     def _set_computed_field(self, computed_field: ComputedField):
-        table_type: Type[Base] = ObjectStaticsTable if computed_field.static else ObjectsTable
-        if hasattr(table_type, computed_field.attribute_name):
-            raise RuntimeError(f"Computed field '{computed_field.attribute_name}' already exists on table")
-        setattr(
-            table_type,
-            computed_field.attribute_name,
-            computed_field.action,
-        )
+        # property type computed fields need to be added to the ORM model
+        if (
+            computed_field.execution_strategy == ExecutionStrategy.PROPERTY
+            and computed_field.property_callable is not None
+        ):
+            if computed_field.static:
+                # Set on the static model TODO: check if useful or remove
+                setattr(ObjectStaticsTable, computed_field.attribute_name, computed_field.property_callable)
+            else:
+                # Set on the regular objects table
+                setattr(ObjectsTable, computed_field.attribute_name, computed_field.property_callable)

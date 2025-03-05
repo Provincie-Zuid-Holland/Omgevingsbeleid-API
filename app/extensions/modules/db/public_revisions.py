@@ -1,7 +1,7 @@
 from collections import namedtuple
 from typing import Tuple
 
-from sqlalchemy import Select, String
+from sqlalchemy import Select
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.session import Session, object_session
 
@@ -19,7 +19,7 @@ ModuleObjectDTO = namedtuple(
         "Module_Title",
         "Module_Status",
         "Action",
-    ]
+    ],
 )
 
 
