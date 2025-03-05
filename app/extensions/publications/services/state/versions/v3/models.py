@@ -35,7 +35,6 @@ class Werkingsgebied(BaseModel):
     Frbr: Frbr
 
     @model_validator(mode="before")
-    @classmethod
     def default_identifier_to_uuid(cls, values):
         if not values.get("Identifier"):
             values["Identifier"] = str(values["UUID"])

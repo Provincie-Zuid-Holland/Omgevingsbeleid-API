@@ -22,7 +22,6 @@ class ListObjectsByGeometryRequestData(BaseModel):
     Function: GeometryFunctions = Field(GeometryFunctions.INTERSECTS)
 
     @field_validator("Geometry")
-    @classmethod
     def valid_area_list(cls, v):
         try:
             geom = wkt.loads(v)

@@ -41,7 +41,6 @@ class PublicModuleObjectShort(BaseModel):
     ModuleObjectContext: Optional[PublicModuleObjectContextShort] = None
 
     @field_validator("Description", mode="before")
-    @classmethod
     def default_empty_string(cls, v):
         return v or ""
 

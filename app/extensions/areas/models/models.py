@@ -23,7 +23,6 @@ class WerkingsgebiedStatics(BaseModel):
     Cached_Title: str
 
     @field_validator("Cached_Title", mode="before")
-    @classmethod
     def default_empty_string(cls, v):
         return "" if v is None else v
 
@@ -37,7 +36,6 @@ class GeoSearchResult(BaseModel):
     Omschrijving: Optional[str] = None
 
     @field_validator("UUID", mode="before")
-    @classmethod
     def convert_uuid_to_str(cls, v):
         return str(v)
 

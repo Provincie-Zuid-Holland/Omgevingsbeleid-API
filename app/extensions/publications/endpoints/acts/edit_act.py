@@ -19,7 +19,7 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class ActEdit(BaseModel):
-    Title: Optional[str] = Field(None, nullable=True)
+    Title: Optional[str] = Field(None)
     Metadata: Optional[ActMetadata] = None
 
 

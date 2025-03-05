@@ -31,11 +31,10 @@ class ModuleAddExistingObject(BaseModel):
     Object_UUID: uuid.UUID
 
     Action: ModuleObjectAction
-    Explanation: str = Field("", nullable=True)
-    Conclusion: str = Field("", nullable=True)
+    Explanation: str = Field("")
+    Conclusion: str = Field("")
 
     @field_validator("Explanation", "Conclusion", mode="before")
-    @classmethod
     def default_empty_string(cls, v):
         return v or ""
 

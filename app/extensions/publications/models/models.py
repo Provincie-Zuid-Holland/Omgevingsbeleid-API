@@ -199,7 +199,6 @@ class Procedural(BaseModel):
     Procedural_Announcement_Date: Optional[str] = Field(None)
 
     @field_validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
-    @classmethod
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -217,7 +216,6 @@ class ProceduralValidated(BaseModel):
     Procedural_Announcement_Date: str
 
     @field_validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
-    @classmethod
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -391,7 +389,6 @@ class AnnouncementProcedural(BaseModel):
     End_Inspection_Period_Date: Optional[str] = Field(None)
 
     @field_validator("Procedural_Announcement_Date", "Begin_Inspection_Period_Date", "End_Inspection_Period_Date")
-    @classmethod
     def validate_date(cls, value):
         if value is not None:
             try:

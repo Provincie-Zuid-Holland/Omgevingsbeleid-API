@@ -20,13 +20,11 @@ class ValidSearchObject(BaseModel):
     Score: float
 
     @model_validator(mode="before")
-    @classmethod
     def generate_object_code(cls, values):
         values["Object_Code"] = f"{values['Object_Type']}-{values['Object_ID']}"
         return values
 
     @field_validator("Title", "Description", mode="before")
-    @classmethod
     def default_empty_string(cls, v):
         return v or ""
 

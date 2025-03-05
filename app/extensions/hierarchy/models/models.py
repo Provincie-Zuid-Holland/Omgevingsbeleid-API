@@ -8,7 +8,6 @@ class HierarchyStatics(BaseModel):
     Cached_Title: str
 
     @field_validator("Cached_Title", mode="before")
-    @classmethod
     def default_empty_string(cls, v):
         return "" if v is None else v
 

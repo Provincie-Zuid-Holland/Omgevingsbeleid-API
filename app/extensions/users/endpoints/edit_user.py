@@ -24,10 +24,10 @@ from app.extensions.users.repository.user_repository import UserRepository
 
 
 class EditUser(BaseModel):
-    Gebruikersnaam: Optional[str] = Field(None, nullable=True)
-    Email: Optional[str] = Field(None, nullable=True)
-    Rol: Optional[str] = Field(None, nullable=True)
-    IsActive: Optional[bool] = Field(None, nullable=True)
+    Gebruikersnaam: Optional[str] = Field(None)
+    Email: Optional[str] = Field(None)
+    Rol: Optional[str] = Field(None)
+    IsActive: Optional[bool] = Field(None)
 
 
 class EditUserEndpointHandler:

@@ -33,7 +33,6 @@ class GraphVertice(BaseModel):
     Title: str
 
     @field_validator("Title", mode="before")
-    @classmethod
     def default_empty_string(cls, v):
         return v or ""
 

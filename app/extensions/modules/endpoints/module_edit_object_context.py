@@ -27,9 +27,9 @@ from app.extensions.users.permission_service import PermissionService
 
 
 class ModuleEditObjectContext(BaseModel):
-    Action: Optional[ModuleObjectAction] = Field(None, nullable=True)
-    Explanation: Optional[str] = Field(None, nullable=True)
-    Conclusion: Optional[str] = Field(None, nullable=True)
+    Action: Optional[ModuleObjectAction] = Field(None)
+    Explanation: Optional[str] = Field(None)
+    Conclusion: Optional[str] = Field(None)
     model_config = ConfigDict(use_enum_values=True)
 
 

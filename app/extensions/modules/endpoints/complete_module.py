@@ -55,11 +55,11 @@ class ModuleObjectContext(ModuleObjectContextShort):
 class ObjectSpecifiekeGeldigheid(BaseModel):
     Object_Type: str
     Object_ID: int
-    Start_Validity: Optional[datetime] = Field(None, nullable=True)
+    Start_Validity: Optional[datetime] = Field(None)
 
 
 class CompleteModule(BaseModel):
-    Default_Start_Validity: Optional[datetime] = Field(None, nullable=True)
+    Default_Start_Validity: Optional[datetime] = Field(None)
     ObjectSpecifiekeGeldigheden: List[ObjectSpecifiekeGeldigheid] = []
 
 

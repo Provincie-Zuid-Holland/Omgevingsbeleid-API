@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from app.extensions.users.model import UserShort
 
@@ -30,7 +30,7 @@ class Module(BaseModel):
     Title: str
     Description: str
     Module_Manager_1_UUID: uuid.UUID
-    Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
+    Module_Manager_2_UUID: Optional[uuid.UUID] = None
     Status: Optional[ModuleStatus] = None
 
     Created_By: Optional[UserShort] = None
@@ -121,7 +121,6 @@ class PublicModuleShort(BaseModel):
     Status: Optional[ModuleStatus] = None
 
     @field_validator("Title", "Description", mode="before")
-    @classmethod
     def default_empty_string(cls, v):
         return v or ""
 

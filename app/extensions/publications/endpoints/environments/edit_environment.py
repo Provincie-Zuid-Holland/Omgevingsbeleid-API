@@ -18,19 +18,19 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class EnvironmentEdit(BaseModel):
-    Title: Optional[str] = Field(None, nullable=True)
-    Description: Optional[str] = Field(None, nullable=True)
+    Title: Optional[str] = Field(None)
+    Description: Optional[str] = Field(None)
 
-    Province_ID: Optional[str] = Field(None, nullable=True)
-    Authority_ID: Optional[str] = Field(None, nullable=True)
-    Submitter_ID: Optional[str] = Field(None, nullable=True)
+    Province_ID: Optional[str] = Field(None)
+    Authority_ID: Optional[str] = Field(None)
+    Submitter_ID: Optional[str] = Field(None)
 
-    Frbr_Country: Optional[str] = Field(None, nullable=True)
-    Frbr_Language: Optional[str] = Field(None, nullable=True)
+    Frbr_Country: Optional[str] = Field(None)
+    Frbr_Language: Optional[str] = Field(None)
 
-    Is_Active: Optional[bool] = Field(None, nullable=True)
-    Can_Validate: Optional[bool] = Field(None, nullable=True)
-    Can_Publicate: Optional[bool] = Field(None, nullable=True)
+    Is_Active: Optional[bool] = Field(None)
+    Can_Validate: Optional[bool] = Field(None)
+    Can_Publicate: Optional[bool] = Field(None)
 
 
 class EndpointHandler:

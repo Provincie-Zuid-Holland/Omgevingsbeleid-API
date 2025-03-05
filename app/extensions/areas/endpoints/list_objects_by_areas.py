@@ -20,7 +20,6 @@ class SearchGeoRequestData(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @field_validator("Area_List")
-    @classmethod
     def valid_area_list(cls, v):
         if len(v) < 1:
             raise ValueError("area_list requires at least 1 uuid")
