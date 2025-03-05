@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Optional, Tuple
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -44,9 +44,7 @@ class ModuleObjectContextShort(BaseModel):
     Modified_By_UUID: uuid.UUID
 
     Action: str
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleObjectContext(ModuleObjectContextShort):

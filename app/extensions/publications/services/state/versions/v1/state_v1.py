@@ -7,7 +7,7 @@ from app.extensions.publications.services.state.state import State
 
 class Purpose(BaseModel):
     Purpose_Type: str
-    Effective_Date: Optional[str]
+    Effective_Date: Optional[str] = None
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str

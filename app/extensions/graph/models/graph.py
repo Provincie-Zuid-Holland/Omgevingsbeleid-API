@@ -2,7 +2,7 @@ import uuid
 from enum import Enum
 from typing import List
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class GraphEdgeType(str, Enum):
@@ -32,13 +32,12 @@ class GraphVertice(BaseModel):
     Code: str
     Title: str
 
-    @validator("Title", pre=True)
+    @field_validator("Title", mode="before")
+    @classmethod
     def default_empty_string(cls, v):
         return v or ""
 
-    class Config:
-        orm_mode = True
-        validate_assignment = True
+    model_config = ConfigDict(from_attributes=True, validate_assignment=True)
 
 
 class GraphResponse(BaseModel):

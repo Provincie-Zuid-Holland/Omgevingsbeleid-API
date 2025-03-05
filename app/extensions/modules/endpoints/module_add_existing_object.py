@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -34,12 +34,12 @@ class ModuleAddExistingObject(BaseModel):
     Explanation: str = Field("", nullable=True)
     Conclusion: str = Field("", nullable=True)
 
-    @validator("Explanation", "Conclusion", pre=True)
+    @field_validator("Explanation", "Conclusion", mode="before")
+    @classmethod
     def default_empty_string(cls, v):
         return v or ""
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class EndpointHandler:

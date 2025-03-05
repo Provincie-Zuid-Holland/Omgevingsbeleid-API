@@ -2,7 +2,7 @@ import uuid
 from typing import List
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
@@ -22,12 +22,12 @@ class SearchObject(BaseModel):
     Title: str
     Description: str
 
-    @validator("Title", "Description", pre=True)
+    @field_validator("Title", "Description", mode="before")
+    @classmethod
     def default_empty_string(cls, v):
         return v or ""
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class EndpointHandler:

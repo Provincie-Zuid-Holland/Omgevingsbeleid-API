@@ -2,7 +2,7 @@ import uuid
 from typing import List
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from shapely import wkt
 
 from app.dynamic.config.models import Api, EndpointConfig
@@ -21,7 +21,8 @@ class ListObjectsByGeometryRequestData(BaseModel):
     Geometry: str
     Function: GeometryFunctions = Field(GeometryFunctions.INTERSECTS)
 
-    @validator("Geometry")
+    @field_validator("Geometry")
+    @classmethod
     def valid_area_list(cls, v):
         try:
             geom = wkt.loads(v)

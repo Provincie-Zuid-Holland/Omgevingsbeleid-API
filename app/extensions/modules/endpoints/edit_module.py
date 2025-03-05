@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -20,20 +20,20 @@ from app.extensions.users.permission_service import PermissionService
 
 
 class ModuleEdit(BaseModel):
-    Temporary_Locked: Optional[bool] = Field(None, nullable=True)
+    Temporary_Locked: Optional[bool] = Field(None)
 
-    Title: Optional[str] = Field(None, nullable=True, min_length=3)
-    Description: Optional[str] = Field(None, nullable=True, min_length=3)
-    Module_Manager_1_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
-    Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
+    Title: Optional[str] = Field(None, min_length=3)
+    Description: Optional[str] = Field(None, min_length=3)
+    Module_Manager_1_UUID: Optional[uuid.UUID] = Field(None)
+    Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None)
 
-    @validator("Module_Manager_2_UUID")
-    def duplicate_manager(cls, v, values):
+    @field_validator("Module_Manager_2_UUID", mode="after")
+    def duplicate_manager(cls, v, info):
         if v is None:
             return v
-        if not "Module_Manager_1_UUID" in values:
+        if "Module_Manager_1_UUID" not in info.data:
             return v
-        if v == values["Module_Manager_1_UUID"]:
+        if v == info.data["Module_Manager_1_UUID"]:
             raise ValueError("Duplicate manager")
         return v
 

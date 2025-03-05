@@ -19,11 +19,11 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class PublicationAnnouncementEdit(BaseModel):
-    Announcement_Date: Optional[date]
+    Announcement_Date: Optional[date] = None
 
-    Metadata: Optional[AnnouncementMetadata]
-    Procedural: Optional[AnnouncementProcedural]
-    Content: Optional[AnnouncementContent]
+    Metadata: Optional[AnnouncementMetadata] = None
+    Procedural: Optional[AnnouncementProcedural] = None
+    Content: Optional[AnnouncementContent] = None
 
 
 class EndpointHandler:

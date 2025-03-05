@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.extensions.users.model import UserShort
 
@@ -14,9 +14,7 @@ class ModuleStatus(BaseModel):
     Status: str
     Created_Date: datetime
     Created_By_UUID: uuid.UUID
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Module(BaseModel):
@@ -33,15 +31,13 @@ class Module(BaseModel):
     Description: str
     Module_Manager_1_UUID: uuid.UUID
     Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
-    Status: Optional[ModuleStatus]
+    Status: Optional[ModuleStatus] = None
 
-    Created_By: Optional[UserShort]
-    Modified_By: Optional[UserShort]
-    Module_Manager_1: Optional[UserShort]
-    Module_Manager_2: Optional[UserShort]
-
-    class Config:
-        orm_mode = True
+    Created_By: Optional[UserShort] = None
+    Modified_By: Optional[UserShort] = None
+    Module_Manager_1: Optional[UserShort] = None
+    Module_Manager_2: Optional[UserShort] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleShort(BaseModel):
@@ -49,22 +45,18 @@ class ModuleShort(BaseModel):
     Closed: bool
     Title: str
     Description: str
-    Status: Optional[ModuleStatus]
-    Module_Manager_1: Optional[UserShort]
-    Module_Manager_2: Optional[UserShort]
-
-    class Config:
-        orm_mode = True
+    Status: Optional[ModuleStatus] = None
+    Module_Manager_1: Optional[UserShort] = None
+    Module_Manager_2: Optional[UserShort] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ActiveModuleObject(BaseModel):
-    Module_ID: Optional[int]
+    Module_ID: Optional[int] = None
     UUID: uuid.UUID
     Modified_Date: datetime
     Title: str
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # @note: Existing but removed status codes
@@ -104,9 +96,7 @@ class ModuleStatusCodeInternal(str, Enum):
 
 class ModulePatchStatus(BaseModel):
     Status: ModuleStatusCode
-
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ModuleObjectAction(str, Enum):
@@ -128,14 +118,14 @@ class PublicModuleShort(BaseModel):
     Module_ID: int
     Title: str
     Description: str
-    Status: Optional[ModuleStatus]
+    Status: Optional[ModuleStatus] = None
 
-    @validator("Title", "Description", pre=True)
+    @field_validator("Title", "Description", mode="before")
+    @classmethod
     def default_empty_string(cls, v):
         return v or ""
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicModuleStatusCode(str, Enum):

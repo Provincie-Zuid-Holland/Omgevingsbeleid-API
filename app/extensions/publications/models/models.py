@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime
 from typing import Any, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.extensions.modules.models.models import ModuleStatus
 from app.extensions.publications.enums import PublicationVersionStatus
@@ -22,16 +22,14 @@ class PublicationTemplate(BaseModel):
     Description: str
     Is_Active: bool
     Document_Type: str
-    Object_Types: Any
+    Object_Types: Any = None
     Text_Template: str
-    Object_Templates: Any
-    Field_Map: Any
+    Object_Templates: Any = None
+    Field_Map: Any = None
 
     Created_Date: datetime
     Modified_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationEnvironment(BaseModel):
@@ -50,9 +48,7 @@ class PublicationEnvironment(BaseModel):
     Can_Publicate: bool
     Created_Date: datetime
     Modified_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationAOJ(BaseModel):
@@ -61,9 +57,7 @@ class PublicationAOJ(BaseModel):
     Administrative_Borders_Domain: str
     Administrative_Borders_Date: date
     Created_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationAct(BaseModel):
@@ -81,9 +75,7 @@ class PublicationAct(BaseModel):
 
     Created_Date: datetime
     Modified_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationActShort(BaseModel):
@@ -100,9 +92,7 @@ class PublicationActShort(BaseModel):
 
     Created_Date: datetime
     Modified_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Publication(BaseModel):
@@ -113,15 +103,13 @@ class Publication(BaseModel):
     Is_Locked: bool
     Document_Type: str
     Procedure_Type: str
-    Template_UUID: Optional[uuid.UUID]
-    Environment_UUID: Optional[uuid.UUID]
-    Act_UUID: Optional[uuid.UUID]
+    Template_UUID: Optional[uuid.UUID] = None
+    Environment_UUID: Optional[uuid.UUID] = None
+    Act_UUID: Optional[uuid.UUID] = None
 
     Created_Date: datetime
     Modified_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationShort(BaseModel):
@@ -132,15 +120,13 @@ class PublicationShort(BaseModel):
     Is_Locked: bool
     Document_Type: str
     Procedure_Type: str
-    Template_UUID: Optional[uuid.UUID]
-    Environment_UUID: Optional[uuid.UUID]
-    Act_UUID: Optional[uuid.UUID]
+    Template_UUID: Optional[uuid.UUID] = None
+    Environment_UUID: Optional[uuid.UUID] = None
+    Act_UUID: Optional[uuid.UUID] = None
 
     Created_Date: datetime
     Modified_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Article(BaseModel):
@@ -154,18 +140,14 @@ class BillMetadata(BaseModel):
     Quote_Title: str = Field("")
     Subjects: List[str] = Field([])
     Jurisdictions: List[str] = Field([])
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Appendix(BaseModel):
     Number: str
     Title: str
     Content: str
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Paragraph(BaseModel):
@@ -180,17 +162,13 @@ class Motivation(BaseModel):
     Title: str
     Content: str
     Appendices: List[Appendix] = Field(default_factory=list)
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AmendmentAppendix(BaseModel):
     Number: str
     Title: str
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 MotivationClass = Motivation
@@ -212,9 +190,7 @@ class BillCompact(BaseModel):
 
     Appendices: List[Appendix] = Field([])
     Motivation: Optional[MotivationClass] = Field(None)
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Procedural(BaseModel):
@@ -222,7 +198,8 @@ class Procedural(BaseModel):
     Signed_Date: Optional[str] = Field(None)
     Procedural_Announcement_Date: Optional[str] = Field(None)
 
-    @validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
+    @field_validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
+    @classmethod
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -231,8 +208,7 @@ class Procedural(BaseModel):
                 raise ValueError(f"Invalid date format. Expected YYYY-MM-DD, got {value}")
         return value
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ProceduralValidated(BaseModel):
@@ -240,7 +216,8 @@ class ProceduralValidated(BaseModel):
     Signed_Date: str
     Procedural_Announcement_Date: str
 
-    @validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
+    @field_validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
+    @classmethod
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -249,8 +226,7 @@ class ProceduralValidated(BaseModel):
                 raise ValueError(f"Invalid date format. Expected YYYY-MM-DD, got {value}")
         return value
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ActMetadata(BaseModel):
@@ -258,9 +234,7 @@ class ActMetadata(BaseModel):
     Quote_Title: str = Field("")
     Subjects: List[str] = Field([])
     Jurisdictions: List[str] = Field([])
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationVersionFinalValidated(BaseModel):
@@ -272,9 +246,7 @@ class PublicationVersionFinalValidated(BaseModel):
 
     Effective_Date: date
     Announcement_Date: date
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationVersionDraftValidated(BaseModel):
@@ -285,9 +257,7 @@ class PublicationVersionDraftValidated(BaseModel):
     Procedural: ProceduralValidated
 
     Announcement_Date: date
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AttachmentShort(BaseModel):
@@ -297,9 +267,7 @@ class AttachmentShort(BaseModel):
     Title: str
     Created_Date: datetime
     Modified_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationVersion(BaseModel):
@@ -311,8 +279,8 @@ class PublicationVersion(BaseModel):
     Bill_Metadata: dict
     Bill_Compact: dict
     Procedural: dict
-    Effective_Date: Optional[date]
-    Announcement_Date: Optional[date]
+    Effective_Date: Optional[date] = None
+    Announcement_Date: Optional[date] = None
     Is_Locked: bool
     Status: PublicationVersionStatus
 
@@ -322,9 +290,7 @@ class PublicationVersion(BaseModel):
     Attachments: List[AttachmentShort]
 
     Errors: List[dict] = Field([])
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationPackageShort(BaseModel):
@@ -338,10 +304,7 @@ class PublicationPackageShort(BaseModel):
     Modified_Date: datetime
     Created_By_UUID: uuid.UUID
     Modified_By_UUID: uuid.UUID
-
-    class Config:
-        orm_mode = True
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
 class PublicationVersionShort(BaseModel):
@@ -352,8 +315,8 @@ class PublicationVersionShort(BaseModel):
 
     Bill_Metadata: dict
 
-    Effective_Date: Optional[date]
-    Announcement_Date: Optional[date]
+    Effective_Date: Optional[date] = None
+    Announcement_Date: Optional[date] = None
     Is_Locked: bool
     Status: PublicationVersionStatus
 
@@ -361,9 +324,7 @@ class PublicationVersionShort(BaseModel):
     Modified_Date: datetime
 
     Act_Packages: List[PublicationPackageShort]
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationActPackageReportShort(BaseModel):
@@ -375,9 +336,7 @@ class PublicationActPackageReportShort(BaseModel):
     Main_Outcome: str
 
     Created_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationActPackageReport(BaseModel):
@@ -393,19 +352,15 @@ class PublicationActPackageReport(BaseModel):
     Sub_Outcome: str
 
     Created_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PackageZipShort(BaseModel):
     UUID: uuid.UUID
     Filename: str
-    Latest_Download_Date: Optional[datetime]
-    Latest_Download_By_UUID: Optional[uuid.UUID]
-
-    class Config:
-        orm_mode = True
+    Latest_Download_Date: Optional[datetime] = None
+    Latest_Download_By_UUID: Optional[uuid.UUID] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationPackage(BaseModel):
@@ -421,18 +376,13 @@ class PublicationPackage(BaseModel):
     Modified_By_UUID: uuid.UUID
 
     Zip: PackageZipShort
-
-    class Config:
-        orm_mode = True
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
 class AnnouncementMetadata(BaseModel):
     Official_Title: str = Field("")
     Subjects: List[str] = Field([])
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AnnouncementProcedural(BaseModel):
@@ -440,11 +390,8 @@ class AnnouncementProcedural(BaseModel):
     Begin_Inspection_Period_Date: Optional[str] = Field(None)
     End_Inspection_Period_Date: Optional[str] = Field(None)
 
-    @validator(
-        "Procedural_Announcement_Date",
-        "Begin_Inspection_Period_Date",
-        "End_Inspection_Period_Date",
-    )
+    @field_validator("Procedural_Announcement_Date", "Begin_Inspection_Period_Date", "End_Inspection_Period_Date")
+    @classmethod
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -453,8 +400,7 @@ class AnnouncementProcedural(BaseModel):
                 raise ValueError(f"Invalid date format. Expected YYYY-MM-DD, got {value}")
         return value
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AnnouncementText(BaseModel):
@@ -476,14 +422,12 @@ class PublicationAnnouncement(BaseModel):
     Procedural: dict
     Content: dict
 
-    Announcement_Date: Optional[date]
+    Announcement_Date: Optional[date] = None
     Is_Locked: bool
 
     Created_Date: datetime
     Modified_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationAnnouncementShort(BaseModel):
@@ -491,14 +435,12 @@ class PublicationAnnouncementShort(BaseModel):
 
     Metadata: dict
 
-    Announcement_Date: Optional[date]
+    Announcement_Date: Optional[date] = None
     Is_Locked: bool
 
     Created_Date: datetime
     Modified_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationAnnouncementPackageReportShort(BaseModel):
@@ -510,9 +452,7 @@ class PublicationAnnouncementPackageReportShort(BaseModel):
     Main_Outcome: str
 
     Created_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationAnnouncementPackageReport(BaseModel):
@@ -528,6 +468,4 @@ class PublicationAnnouncementPackageReport(BaseModel):
     Sub_Outcome: str
 
     Created_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

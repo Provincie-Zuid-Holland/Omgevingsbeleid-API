@@ -24,7 +24,7 @@ from .fixtures import endpoint_object_latest  # noqa
 
 
 class TestEditStaticRequest(BaseModel):
-    Test_Field: Optional[str]
+    Test_Field: Optional[str] = None
 
 
 class TestLineageResolvers:

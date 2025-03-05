@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -21,15 +21,15 @@ class ModuleCreate(BaseModel):
     Title: str = Field(..., min_length=3)
     Description: str = Field(..., min_length=3)
     Module_Manager_1_UUID: uuid.UUID
-    Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
+    Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None)
 
-    @validator("Module_Manager_2_UUID")
-    def duplicate_manager(cls, v, values):
+    @field_validator("Module_Manager_2_UUID", mode="after")
+    def duplicate_manager(cls, v, info):
         if v is None:
             return v
-        if not "Module_Manager_1_UUID" in values:
+        if "Module_Manager_1_UUID" not in info.data:
             return v
-        if v == values["Module_Manager_1_UUID"]:
+        if v == info.data["Module_Manager_1_UUID"]:
             raise ValueError("Duplicate manager")
         return v
 

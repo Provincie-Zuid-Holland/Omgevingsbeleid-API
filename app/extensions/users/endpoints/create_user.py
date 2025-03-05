@@ -5,7 +5,7 @@ from typing import List, Optional
 
 import validators
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db, depends_security
@@ -28,7 +28,8 @@ class UserCreate(BaseModel):
     Email: str
     Rol: str
 
-    @validator("Email", pre=True)
+    @field_validator("Email", mode="before")
+    @classmethod
     def valid_email(cls, v):
         if not validators.email(v):
             raise ValueError("Invalid email")

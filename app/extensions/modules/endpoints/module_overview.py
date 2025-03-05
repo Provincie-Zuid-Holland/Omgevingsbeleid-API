@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session, aliased, joinedload, load_only
 
@@ -21,22 +21,18 @@ from app.extensions.users.dependencies import depends_current_active_user
 
 
 class ObjectStaticShort(BaseModel):
-    Owner_1_UUID: Optional[uuid.UUID]
-    Owner_2_UUID: Optional[uuid.UUID]
-    Portfolio_Holder_1_UUID: Optional[uuid.UUID]
-    Portfolio_Holder_2_UUID: Optional[uuid.UUID]
-    Client_1_UUID: Optional[uuid.UUID]
-
-    class Config:
-        orm_mode = True
+    Owner_1_UUID: Optional[uuid.UUID] = None
+    Owner_2_UUID: Optional[uuid.UUID] = None
+    Portfolio_Holder_1_UUID: Optional[uuid.UUID] = None
+    Portfolio_Holder_2_UUID: Optional[uuid.UUID] = None
+    Client_1_UUID: Optional[uuid.UUID] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleObjectContextShort(BaseModel):
     Action: str
-    Original_Adjust_On: Optional[uuid.UUID]
-
-    class Config:
-        orm_mode = True
+    Original_Adjust_On: Optional[uuid.UUID] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleObjectShort(BaseModel):
@@ -49,11 +45,9 @@ class ModuleObjectShort(BaseModel):
     Modified_Date: datetime
     Title: str
 
-    ObjectStatics: Optional[ObjectStaticShort]
-    ModuleObjectContext: Optional[ModuleObjectContextShort]
-
-    class Config:
-        orm_mode = True
+    ObjectStatics: Optional[ObjectStaticShort] = None
+    ModuleObjectContext: Optional[ModuleObjectContextShort] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleOverview(BaseModel):

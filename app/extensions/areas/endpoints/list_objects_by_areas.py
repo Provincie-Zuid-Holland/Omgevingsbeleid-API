@@ -2,7 +2,7 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.dependencies import depends_sorted_pagination_curried
@@ -17,11 +17,10 @@ from app.extensions.areas.repository.area_repository import AreaRepository
 class SearchGeoRequestData(BaseModel):
     Object_Types: List[str] = Field(default_factory=list)
     Area_List: List[UUID]
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    class Config:
-        arbitrary_types_allowed = True
-
-    @validator("Area_List")
+    @field_validator("Area_List")
+    @classmethod
     def valid_area_list(cls, v):
         if len(v) < 1:
             raise ValueError("area_list requires at least 1 uuid")

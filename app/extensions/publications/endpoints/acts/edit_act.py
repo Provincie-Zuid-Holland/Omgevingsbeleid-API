@@ -20,7 +20,7 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 class ActEdit(BaseModel):
     Title: Optional[str] = Field(None, nullable=True)
-    Metadata: Optional[ActMetadata]
+    Metadata: Optional[ActMetadata] = None
 
 
 class EndpointHandler:

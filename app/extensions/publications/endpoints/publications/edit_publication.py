@@ -20,8 +20,8 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class PublicationEdit(BaseModel):
-    Template_UUID: Optional[uuid.UUID]
-    Title: Optional[str]
+    Template_UUID: Optional[uuid.UUID] = None
+    Title: Optional[str] = None
 
 
 class EndpointHandler:

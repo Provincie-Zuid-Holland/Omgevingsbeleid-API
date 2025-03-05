@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class AreaBasic(BaseModel):
@@ -13,9 +13,7 @@ class AreaBasic(BaseModel):
     Source_UUID: uuid.UUID
     Source_Title: str
     Source_Modified_Date: datetime
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WerkingsgebiedStatics(BaseModel):
@@ -24,21 +22,22 @@ class WerkingsgebiedStatics(BaseModel):
     Code: str
     Cached_Title: str
 
-    @validator("Cached_Title", pre=True)
+    @field_validator("Cached_Title", mode="before")
+    @classmethod
     def default_empty_string(cls, v):
         return "" if v is None else v
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class GeoSearchResult(BaseModel):
     UUID: str
     Object_Type: str
-    Titel: Optional[str]
-    Omschrijving: Optional[str]
+    Titel: Optional[str] = None
+    Omschrijving: Optional[str] = None
 
-    @validator("UUID", pre=True)
+    @field_validator("UUID", mode="before")
+    @classmethod
     def convert_uuid_to_str(cls, v):
         return str(v)
 

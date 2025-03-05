@@ -19,13 +19,13 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class PublicationVersionEdit(BaseModel):
-    Module_Status_ID: Optional[int]
-    Effective_Date: Optional[date]
-    Announcement_Date: Optional[date]
+    Module_Status_ID: Optional[int] = None
+    Effective_Date: Optional[date] = None
+    Announcement_Date: Optional[date] = None
 
-    Bill_Metadata: Optional[BillMetadata]
-    Bill_Compact: Optional[BillCompact]
-    Procedural: Optional[Procedural]
+    Bill_Metadata: Optional[BillMetadata] = None
+    Bill_Compact: Optional[BillCompact] = None
+    Procedural: Optional[Procedural] = None
 
 
 class PublicationVersionEditResponse(BaseModel):
