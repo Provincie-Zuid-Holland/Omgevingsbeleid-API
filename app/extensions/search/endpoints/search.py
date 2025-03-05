@@ -9,10 +9,10 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.db import ObjectsTable
-from app.dynamic.dependencies import depends_pagination
+from app.dynamic.dependencies import depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import PagedResponse, Pagination, query_paginated
+from app.dynamic.utils.pagination import PagedResponse, SimplePagination, query_paginated
 
 
 class SearchObject(BaseModel):
@@ -23,7 +23,6 @@ class SearchObject(BaseModel):
     Description: str
 
     @field_validator("Title", "Description", mode="before")
-    @classmethod
     def default_empty_string(cls, v):
         return v or ""
 
@@ -34,11 +33,11 @@ class EndpointHandler:
     def __init__(
         self,
         db: Session,
-        pagination: Pagination,
+        pagination: SimplePagination,
         query: str,
     ):
         self._db: Session = db
-        self._pagination: Pagination = pagination
+        self._pagination: SimplePagination = pagination
         self._query: str = query
 
     def handle(self) -> PagedResponse[SearchObject]:
@@ -105,7 +104,7 @@ class SearchEndpoint(Endpoint):
         def fastapi_handler(
             query: str,
             db: Session = Depends(depends_db),
-            pagination: Pagination = Depends(depends_pagination),
+            pagination: SimplePagination = Depends(depends_simple_pagination),
         ) -> PagedResponse[SearchObject]:
             handler: EndpointHandler = EndpointHandler(
                 db,

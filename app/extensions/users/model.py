@@ -13,7 +13,6 @@ class User(BaseModel):
     IsActive: bool
 
     @field_validator("Email", mode="before")
-    @classmethod
     def default_empty_string(cls, v):
         return v or "<geen email>"
 

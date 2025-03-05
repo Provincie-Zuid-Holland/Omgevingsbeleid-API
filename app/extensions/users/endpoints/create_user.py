@@ -29,7 +29,6 @@ class UserCreate(BaseModel):
     Rol: str
 
     @field_validator("Email", mode="before")
-    @classmethod
     def valid_email(cls, v):
         if not validators.email(v):
             raise ValueError("Invalid email")
