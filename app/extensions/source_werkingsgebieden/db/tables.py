@@ -1,13 +1,46 @@
 import uuid
 from datetime import datetime
+from typing import List
 
-from sqlalchemy import Unicode
-from sqlalchemy.orm import Mapped, deferred, mapped_column
+from sqlalchemy import ForeignKey, Unicode
+from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 
 from app.core.db.base import Base
 from app.extensions.source_werkingsgebieden.geometry import Geometry
 
 
+class InputGeoWerkingsgebiedenTable(Base):
+    __tablename__ = "Input_GEO_Werkingsgebieden"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Title: Mapped[str]
+    Created_Date: Mapped[datetime]
+
+    Onderverdelingen: Mapped[List["InputGeoOnderverdelingTable"]] = relationship(back_populates="Werkingsgebied")
+
+    def __repr__(self) -> str:
+        return f"InputGeoWerkingsgebiedenTable(UUID={self.UUID!r}, Title={self.Title!r})"
+
+
+class InputGeoOnderverdelingTable(Base):
+    __tablename__ = "Input_GEO_Onderverdeling"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Title: Mapped[str]
+    Created_Date: Mapped[datetime]
+
+    Geometry: Mapped[bytes] = deferred(mapped_column(Geometry()))
+    Geometry_Hash: Mapped[str] = mapped_column(Unicode(64))
+    GML: Mapped[str] = deferred(mapped_column(Unicode))
+
+    Werkingsgebied_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Input_GEO_Werkingsgebieden.UUID"))
+    Werkingsgebied: Mapped[InputGeoWerkingsgebiedenTable] = relationship(back_populates="Onderverdelingen")
+
+    def __repr__(self) -> str:
+        return f"InputGeoOnderverdelingTable(UUID={self.UUID!r}, Title={self.Title!r})"
+
+
+# @todo: Should be removed when the InputGeo is used
 class SourceWerkingsgebiedenTable(Base):
     __tablename__ = "Werkingsgebieden"
 
