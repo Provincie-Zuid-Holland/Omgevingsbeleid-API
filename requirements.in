@@ -42,4 +42,4 @@ dicttoxml
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@chore-pydantic-upgrade
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@next
