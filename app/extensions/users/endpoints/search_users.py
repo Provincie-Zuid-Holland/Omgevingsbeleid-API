@@ -50,7 +50,7 @@ class SearchUsersEndpoint(Endpoint):
         active: Optional[bool],
     ) -> PagedResponse[User]:
         paginated_result = repostiory.get_filtered(pagination, role, query, active)
-        users: List[User] = [User.from_orm(u) for u in paginated_result.items]
+        users: List[User] = [User.model_validate(u) for u in paginated_result.items]
 
         return PagedResponse[User](
             total=paginated_result.total_count,

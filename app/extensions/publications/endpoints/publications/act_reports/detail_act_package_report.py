@@ -24,7 +24,7 @@ class DetailActPackageReportEndpoint(Endpoint):
                 )
             ),
         ) -> PublicationActPackageReport:
-            result: PublicationActPackageReport = PublicationActPackageReport.from_orm(report)
+            result: PublicationActPackageReport = PublicationActPackageReport.model_validate(report)
             return result
 
         router.add_api_route(

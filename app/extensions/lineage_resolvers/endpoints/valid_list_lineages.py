@@ -117,7 +117,7 @@ class ValidListLineagesEndpoint(Endpoint):
 
         results: List[self._response_type] = []
         if paginated_result.total_count > 0:
-            results = [self._response_type.from_orm(r) for r in paginated_result.items]
+            results = [self._response_type.model_validate(r) for r in paginated_result.items]
             results = self._run_events(results, event_dispatcher)
 
         return PagedResponse[self._response_type](

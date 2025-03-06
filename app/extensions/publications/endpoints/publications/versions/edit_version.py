@@ -51,13 +51,13 @@ class EndpointHandler:
     def handle(self) -> PublicationVersionEditResponse:
         self._guard_locked()
 
-        changes: dict = self._object_in.dict(exclude_unset=True)
+        changes: dict = self._object_in.model_dump(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
 
         for key, value in changes.items():
             if isinstance(value, BaseModel):
-                value = value.dict()
+                value = value.model_dump()
             setattr(self._version, key, value)
 
         self._version.Modified_By_UUID = self._user.UUID

@@ -44,7 +44,7 @@ class ModuleGetObjectContextEndpoint(Endpoint):
             user: UsersTable = Depends(depends_current_active_user),
             object_context_table: ModuleObjectContextTable = Depends(depends_active_module_object_context),
         ) -> ModuleObjectContext:
-            response: ModuleObjectContext = ModuleObjectContext.from_orm(object_context_table)
+            response: ModuleObjectContext = ModuleObjectContext.model_validate(object_context_table)
             return response
 
         router.add_api_route(

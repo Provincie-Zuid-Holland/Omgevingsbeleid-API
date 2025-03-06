@@ -63,7 +63,7 @@ class EndpointHandler:
             Document_Type=self._object_in.Document_Type.value,
             Title=self._object_in.Title,
             Is_Active=True,
-            Metadata=metadata.dict(),
+            Metadata=metadata.model_dump(),
             Metadata_Is_Locked=False,
             Work_Province_ID=environment.Province_ID,
             Work_Country=environment.Frbr_Country,

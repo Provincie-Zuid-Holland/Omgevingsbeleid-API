@@ -54,7 +54,7 @@ class EndpointHandler:
             offset=self._pagination.offset,
         )
 
-        search_objects: List[SearchObject] = [SearchObject.parse_obj(r._asdict()) for r in table_rows]
+        search_objects: List[SearchObject] = [SearchObject.model_validate(r._asdict()) for r in table_rows]
 
         return PagedResponse[SearchObject](
             total=total_count,

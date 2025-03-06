@@ -24,7 +24,7 @@ class DetailPublicationEnvironmentEndpoint(Endpoint):
             ),
             environment: PublicationEnvironmentTable = Depends(depends_publication_environment),
         ) -> PublicationEnvironment:
-            result: PublicationEnvironment = PublicationEnvironment.from_orm(environment)
+            result: PublicationEnvironment = PublicationEnvironment.model_validate(environment)
             return result
 
         router.add_api_route(

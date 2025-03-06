@@ -248,7 +248,7 @@ class TestModulesEndpoints:
 
         # Expect module edited
         assert all(
-            getattr(existing_module, k) == v for k, v in request_obj.dict().items()
+            getattr(existing_module, k) == v for k, v in request_obj.model_dump().items()
         ), "One or more attributes of changed module do not match the request"
 
     # TODO: Permission check

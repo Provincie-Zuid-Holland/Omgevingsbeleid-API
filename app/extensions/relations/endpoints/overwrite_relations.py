@@ -58,7 +58,7 @@ class EndpointHandler:
                 raise ValueError(f"Invalid object_type for relation with '@TODO object-id'")
 
     def _log_action(self):
-        action_data: str = json.dumps([l.dict() for l in self._overwrite_list])
+        action_data: str = json.dumps([l.model_dump() for l in self._overwrite_list])
         current_relations: List[dict] = self._fetch_current_relations()
         before_data: str = json.dumps(current_relations)
 

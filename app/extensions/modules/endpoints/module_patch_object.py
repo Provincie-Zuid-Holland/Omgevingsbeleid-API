@@ -105,7 +105,7 @@ class EndpointHandler:
         self._db.flush()
         self._db.commit()
 
-        response = self._response_type.from_orm(new_record)
+        response = self._response_type.model_validate(new_record)
         return response
 
 

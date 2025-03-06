@@ -94,7 +94,7 @@ class EndpointHandler:
         )
 
         rows: List[ObjectsTable] = self._db.execute(stmt).scalars().all()
-        vertices: List[GraphVertice] = [GraphVertice.from_orm(r) for r in rows]
+        vertices: List[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
         return vertices
 
     def _get_edges(self) -> List[GraphEdge]:
@@ -282,7 +282,7 @@ class ObjectGraphEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        iterations_config = GraphIterationsConfig.parse_obj(resolver_config.get("graph_iterations"))
+        iterations_config = GraphIterationsConfig.model_validate(resolver_config.get("graph_iterations"))
 
         return ObjectGraphEndpoint(
             path=path,

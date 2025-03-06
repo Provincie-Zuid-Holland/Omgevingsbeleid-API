@@ -77,7 +77,7 @@ class EndpointHandler:
 
         # This executes the validators on the result type
         # Making sure the final object meets all validation requirements
-        result_model = self._result_type.from_orm(object_static)
+        result_model = self._result_type.model_validate(object_static)
 
         change_log: ChangeLogTable = ChangeLogTable(
             Object_Type=self._object_type,

@@ -56,7 +56,7 @@ class ListPublicationTemplatesEndpoint(Endpoint):
             limit=pagination.limit,
         )
 
-        results = [PublicationTemplate.from_orm(r) for r in paginated_result.items]
+        results = [PublicationTemplate.model_validate(r) for r in paginated_result.items]
 
         return PagedResponse[PublicationTemplate](
             total=paginated_result.total_count,

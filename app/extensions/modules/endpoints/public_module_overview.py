@@ -68,7 +68,7 @@ class EndpointHandler:
         objects: List[PublicModuleObjectShort] = self._get_snapshot_objects()
 
         response: PublicModuleOverview = PublicModuleOverview(
-            Module=PublicModuleShort.from_orm(self._module),
+            Module=PublicModuleShort.model_validate(self._module),
             Objects=objects,
         )
         return response
@@ -100,7 +100,7 @@ class EndpointHandler:
         )
 
         rows: List[ModuleObjectsTable] = self._db.execute(stmt).scalars().all()
-        snapshot_objects: List[PublicModuleObjectShort] = [PublicModuleObjectShort.from_orm(r) for r in rows]
+        snapshot_objects: List[PublicModuleObjectShort] = [PublicModuleObjectShort.model_validate(r) for r in rows]
         snapshot_objects = self._run_events(snapshot_objects)
 
         return snapshot_objects

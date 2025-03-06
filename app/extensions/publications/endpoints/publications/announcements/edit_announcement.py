@@ -48,7 +48,7 @@ class EndpointHandler:
 
         for key, value in changes.items():
             if isinstance(value, BaseModel):
-                value = value.dict()
+                value = value.model_dump()
             setattr(self._announcement, key, value)
 
         self._announcement.Modified_By_UUID = self._user.UUID

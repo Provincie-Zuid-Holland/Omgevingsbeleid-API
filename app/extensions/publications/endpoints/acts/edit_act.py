@@ -37,13 +37,13 @@ class EndpointHandler:
         self._object_in: ActEdit = object_in
 
     def handle(self) -> ResponseOK:
-        changes: dict = self._object_in.dict(exclude_unset=True)
+        changes: dict = self._object_in.model_dump(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
 
         for key, value in changes.items():
             if isinstance(value, BaseModel):
-                value = value.dict()
+                value = value.model_dump()
             setattr(self._act, key, value)
 
         self._act.Modified_By_UUID = self._user.UUID

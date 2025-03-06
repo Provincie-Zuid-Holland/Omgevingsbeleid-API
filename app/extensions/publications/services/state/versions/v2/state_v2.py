@@ -16,5 +16,5 @@ class StateV2(State):
         return 2
 
     def get_data(self) -> dict:
-        data: dict = self.dict()
+        data: dict = self.model_dump()
         return data

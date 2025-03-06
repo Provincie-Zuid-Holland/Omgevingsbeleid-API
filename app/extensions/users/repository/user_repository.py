@@ -9,8 +9,6 @@ from app.dynamic.repository.repository import BaseRepository
 from app.dynamic.utils.pagination import PaginatedQueryResult, SortedPagination
 from app.extensions.users.db.tables import IS_ACTIVE, UsersTable
 
-from ..model import User
-
 
 class UserRepository(BaseRepository):
     def __init__(self, db: Session, security: Security):
@@ -66,7 +64,7 @@ class UserRepository(BaseRepository):
         stmt = select(UsersTable).order_by(asc(UsersTable.Gebruikersnaam))
         return self.fetch_all(stmt)
 
-    def authenticate(self, username: str, password: str) -> Optional[User]:
+    def authenticate(self, username: str, password: str) -> Optional[UsersTable]:
         if not username:
             return None
         stmt = select(UsersTable).filter(UsersTable.Email == username).filter(UsersTable.Status == IS_ACTIVE)

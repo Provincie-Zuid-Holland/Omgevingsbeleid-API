@@ -60,7 +60,7 @@ class ListAllLatestObjectsEndpoint(Endpoint):
         )
 
         # Cast to pyd model
-        rows: List[GenericObjectShort] = [GenericObjectShort.from_orm(r) for r in paged_result.items]
+        rows: List[GenericObjectShort] = [GenericObjectShort.model_validate(r) for r in paged_result.items]
 
         return PagedResponse[GenericObjectShort](
             total=paged_result.total_count,

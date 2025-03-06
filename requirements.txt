@@ -67,7 +67,7 @@ idna==3.10
     #   anyio
     #   httpx
     #   requests
-jinja2==3.1.5
+jinja2==3.1.6
     # via
     #   -r requirements.in
     #   dso
@@ -197,7 +197,7 @@ validators==0.34.0
     # via -r requirements.in
 watchfiles==1.0.4
     # via uvicorn
-websockets==15.0
+websockets==15.0.1
     # via uvicorn
 
 # The following packages are considered to be unsafe in a requirements file:

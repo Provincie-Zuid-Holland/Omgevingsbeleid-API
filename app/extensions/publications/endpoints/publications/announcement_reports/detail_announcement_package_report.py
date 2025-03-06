@@ -24,7 +24,7 @@ class DetailAnnouncementPackageReportEndpoint(Endpoint):
                 )
             ),
         ) -> PublicationAnnouncementPackageReport:
-            result: PublicationAnnouncementPackageReport = PublicationAnnouncementPackageReport.from_orm(report)
+            result: PublicationAnnouncementPackageReport = PublicationAnnouncementPackageReport.model_validate(report)
             return result
 
         router.add_api_route(

@@ -112,7 +112,7 @@ class EndpointHandler:
         )
 
         rows: List[ObjectsTable] = self._db.execute(stmt).scalars().all()
-        vertices: List[GraphVertice] = [GraphVertice.from_orm(r) for r in rows]
+        vertices: List[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
         return vertices
 
 

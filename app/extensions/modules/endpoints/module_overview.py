@@ -114,7 +114,7 @@ class EndpointHandler:
         )
 
         rows: List[ModuleObjectsTable] = self._db.execute(stmt).scalars().all()
-        objects: List[ModuleObjectShort] = [ModuleObjectShort.from_orm(r) for r in rows]
+        objects: List[ModuleObjectShort] = [ModuleObjectShort.model_validate(r) for r in rows]
         return objects
 
 

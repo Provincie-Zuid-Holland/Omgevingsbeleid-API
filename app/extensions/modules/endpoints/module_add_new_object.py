@@ -94,7 +94,7 @@ class EndpointHandler:
             self._db.flush()
             self._db.commit()
 
-            response: NewObjectStaticResponse = NewObjectStaticResponse.from_orm(object_static)
+            response: NewObjectStaticResponse = NewObjectStaticResponse.model_validate(object_static)
             return response
         except Exception:
             self._db.rollback
