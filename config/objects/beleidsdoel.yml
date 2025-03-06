@@ -53,7 +53,6 @@ api:
             allowed_object_types_relations:
               - ambitie
               - beleidskeuze
-              - maatregel
     - prefix: /beleidsdoel/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
@@ -239,11 +238,6 @@ models:
             object_id: beleidskeuze
             to_field: "Beleidskeuzes"
             model_id: beleidskeuze_minimal
-            wrapped_with_relation_data: true
-          - object_type: maatregel
-            object_id: maatregel
-            to_field: "Maatregelen"
-            model_id: maatregel_minimal
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:

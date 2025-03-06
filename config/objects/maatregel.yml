@@ -55,7 +55,6 @@ api:
             allowed_object_types_relations:
               - beleidskeuze
               - gebiedsprogramma
-              - beleidsdoel
               - verplicht_programma
     - prefix: /maatregel/static/{lineage_id}
       endpoints:
@@ -268,11 +267,6 @@ models:
             object_id: gebiedsprogramma
             to_field: "Gebiedsprogrammas"
             model_id: gebiedsprogramma_minimal
-            wrapped_with_relation_data: true
-          - object_type: beleidsdoel
-            object_id: beleidsdoel
-            to_field: "Beleidsdoelen"
-            model_id: beleidsdoel_minimal
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
