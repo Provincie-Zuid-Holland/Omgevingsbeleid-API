@@ -350,7 +350,7 @@ h2 ins, h2 del {
         html_content = "".join(response)
 
         soup = BeautifulSoup(html_content, "html.parser")
-        for img in soup.find_all("img", src=re.compile("^\[ASSET")):
+        for img in soup.find_all("img", src=re.compile(r"^\[ASSET")):
             try:
                 asset_uuid = UUID(img["src"].split(":")[1][:-1])
             except ValueError:
