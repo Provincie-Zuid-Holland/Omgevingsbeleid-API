@@ -22,12 +22,12 @@
   "reportMissingImports": true,
   "reportMissingTypeStubs": false,
 
-  "pythonVersion": "3.11",
+  "pythonVersion": "3.13",
   "pythonPlatform": "Linux",
 
   "executionEnvironments": [
     {
-      "pythonVersion": "3.11",
+      "pythonVersion": "3.13",
       "pythonPlatform": "Linux",
     },
   ]

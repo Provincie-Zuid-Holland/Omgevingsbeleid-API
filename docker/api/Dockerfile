@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.11-bullseye
+FROM --platform=linux/amd64 python:3.13-bullseye
 
 WORKDIR /code
 

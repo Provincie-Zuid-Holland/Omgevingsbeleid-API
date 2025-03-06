@@ -1,4 +1,5 @@
 from typing import Any, Optional
+from urllib.parse import quote_plus
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -41,7 +42,9 @@ class CoreSettings(BaseSettings):
             f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};"
             f"DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
         )
-        return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
+        encoded_settings = quote_plus(db_connection_settings)
+
+        return "mssql+pyodbc:///?odbc_connect=%s" % encoded_settings
 
     @field_validator("SQLALCHEMY_TEST_DATABASE_URI", mode="before")
     def assemble_test_db_connection(cls, v: Optional[str], info) -> Any:
@@ -53,7 +56,9 @@ class CoreSettings(BaseSettings):
             f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};"
             f"DATABASE={values['TEST_DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
         )
-        return "mssql+pyodbc:///?odbc_connect=%s" % db_connection_settings
+        encoded_settings = quote_plus(db_connection_settings)
+
+        return "mssql+pyodbc:///?odbc_connect=%s" % encoded_settings
 
     # Dynamic
     MAIN_CONFIG_FILE: str = "./config/main.yml"
