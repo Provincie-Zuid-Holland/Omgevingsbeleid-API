@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -22,7 +22,7 @@ class TestAcknowledgedRelationsSide:
         side_a = AcknowledgedRelationSide(
             Object_ID=1,
             Object_Type="beleidskeuze",
-            Acknowledged=datetime.utcnow(),
+            Acknowledged=datetime.now(timezone.utc),
             Title="side_a title",
             Explanation="side_a expl",
         )
@@ -42,7 +42,7 @@ class TestAcknowledgedRelationsSide:
         assert side_a.Acknowledged_Date is None
 
         user_uuid = uuid4()
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         side_a.approve(user_uuid, now)
 
         assert side_a.Is_Acknowledged is True
@@ -75,9 +75,9 @@ class TestAcknowledgedRelation:
             Side_B=side_b,
             Requested_By_Code=side_a.Code,
             Created_By_UUID=user_uuid,
-            Created_Date=datetime.utcnow(),
+            Created_Date=datetime.now(timezone.utc),
             Modified_By_UUID=user_uuid,
-            Modified_Date=datetime.utcnow(),
+            Modified_Date=datetime.now(timezone.utc),
         )
 
     def test_relation_approved(self, base_relation):

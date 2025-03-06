@@ -2,7 +2,7 @@ import base64
 import difflib
 import re
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from io import BytesIO
 from os import path
@@ -168,7 +168,9 @@ class EndpointHandler:
         self._status: Optional[ModuleStatusHistoryTable] = status
         self._output_format: Format = output_format
         self._show_differences: bool = show_differences
-        self._timepoint: datetime = self._status.Created_Date if self._status is not None else datetime.utcnow()
+        self._timepoint: datetime = (
+            self._status.Created_Date if self._status is not None else datetime.now(timezone.utc)
+        )
 
     def handle(self) -> FileResponse:
         module_objects: List[ModuleObjectsTable] = self._get_module_objects()

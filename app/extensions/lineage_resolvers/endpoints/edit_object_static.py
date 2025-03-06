@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Type
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -82,7 +82,7 @@ class EndpointHandler:
         change_log: ChangeLogTable = ChangeLogTable(
             Object_Type=self._object_type,
             Object_ID=self._lineage_id,
-            Created_Date=datetime.utcnow(),
+            Created_Date=datetime.now(timezone.utc),
             Created_By_UUID=self._user.UUID,
             Action_Type="edit_object_static",
             Action_Data=self._object_in.json(),

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -52,7 +52,7 @@ class EndpointHandler:
             setattr(self._template, key, value)
 
         self._template.Modified_By_UUID = self._user.UUID
-        self._template.Modified_Date = datetime.utcnow()
+        self._template.Modified_Date = datetime.now(timezone.utc)
 
         self._db.add(self._template)
         self._db.commit()

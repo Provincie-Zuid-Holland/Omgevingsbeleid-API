@@ -1,6 +1,6 @@
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 import validators
@@ -80,7 +80,7 @@ class CreateUserEndpointHandler:
         )
 
         change_log: ChangeLogTable = ChangeLogTable(
-            Created_Date=datetime.utcnow(),
+            Created_Date=datetime.now(timezone.utc),
             Created_By_UUID=self._logged_in_user.UUID,
             Action_Type="create_user",
             Action_Data=self._object_in.json(),

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Set
 
 from fastapi import APIRouter, Depends
@@ -66,7 +66,7 @@ class EndpointHandler:
                 .label("_RowNumber"),
             )
             .select_from(ObjectsTable)
-            .filter(ObjectsTable.Start_Validity <= datetime.utcnow())
+            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
             .filter(ObjectsTable.Code.in_(codes))
             .subquery()
         )
@@ -77,7 +77,7 @@ class EndpointHandler:
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.utcnow(),
+                    subq.c.End_Validity > datetime.now(timezone.utc),
                     subq.c.End_Validity == None,
                 )
             )

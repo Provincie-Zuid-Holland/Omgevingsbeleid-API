@@ -1,6 +1,6 @@
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 import validators
@@ -46,7 +46,7 @@ class EditUserEndpointHandler:
         self._user_uuid: uuid.UUID = user_uuid
         self._allowed_roles: List[str] = allowed_roles
         self._object_in: EditUser = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self):
         changes: dict = self._object_in.dict(exclude_unset=True)

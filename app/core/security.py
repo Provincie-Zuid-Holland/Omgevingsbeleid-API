@@ -1,6 +1,6 @@
 import secrets
 import string
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Union
 
 from jose import jwt
@@ -27,7 +27,7 @@ class Security:
         if self._settings.DEBUG_MODE:
             expires_delta = timedelta(days=5)  # longer for dev
 
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
         to_encode = {"exp": expire, "sub": str(subject)}
         encoded_jwt = jwt.encode(to_encode, self._settings.SECRET_KEY, algorithm=ALGORITHM)
 

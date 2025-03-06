@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
 
@@ -22,7 +22,7 @@ from app.extensions.publications.waardelijsten import Onderwerp, Rechtsgebied
 class DatabaseFixturesPublications:
     def __init__(self, db: Session):
         self._db = db
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
         self._user: uuid.UUID = uuid.UUID("11111111-0000-0000-0000-000000000001")
 
     def create_all(self):

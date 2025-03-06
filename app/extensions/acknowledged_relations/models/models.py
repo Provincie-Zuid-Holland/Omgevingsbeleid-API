@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from pydantic import BaseModel, Field, model_validator
@@ -51,7 +51,8 @@ class AcknowledgedRelationSide(AcknowledgedRelationBase):
     def disapprove(self):
         self.Acknowledged = None
 
-    def approve(self, user_uuid: uuid.UUID, timepoint: datetime = datetime.utcnow()):
+    def approve(self, user_uuid: uuid.UUID, timepoint: Optional[datetime] = None):
+        timepoint = timepoint or datetime.now(timezone.utc)
         if self.Is_Acknowledged:
             return
 

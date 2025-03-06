@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -51,7 +51,7 @@ class EndpointHandler:
         self._module_object: ModuleObjectsTable = module_object
         self._object_context: ModuleObjectContextTable = object_context
         self._object_in: ModuleEditObjectContext = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ResponseOK:
         guard_valid_user(

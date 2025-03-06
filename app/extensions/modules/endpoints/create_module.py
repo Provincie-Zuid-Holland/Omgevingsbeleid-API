@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends
@@ -48,7 +48,7 @@ class EndpointHandler:
         self._db: Session = db
         self._user: UsersTable = user
         self._object_in: ModuleCreate = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ModuleCreatedResponse:
         module: ModuleTable = ModuleTable(

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -41,7 +41,7 @@ class EndpointHandler:
         self._module: ModuleTable = module
         self._object_context: ModuleObjectContextTable = object_context
         self._object_static: ObjectStaticsTable = object_static
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ResponseOK:
         guard_valid_user(
