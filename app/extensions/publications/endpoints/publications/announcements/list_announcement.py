@@ -61,7 +61,7 @@ class ListPublicationAnnouncementsEndpoint(Endpoint):
             limit=pagination.limit,
         )
 
-        results = [PublicationAnnouncementShort.from_orm(r) for r in paginated_result.items]
+        results = [PublicationAnnouncementShort.model_validate(r) for r in paginated_result.items]
 
         return PagedResponse[PublicationAnnouncementShort](
             total=paginated_result.total_count,

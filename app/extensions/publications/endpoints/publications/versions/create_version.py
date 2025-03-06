@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -48,7 +48,7 @@ class EndpointHandler:
         self._user: UsersTable = user
         self._publication: PublicationTable = publication
         self._object_in: PublicationVersionCreate = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> PublicationVersionCreatedResponse:
         self._guard_locked()
@@ -72,9 +72,9 @@ class EndpointHandler:
             UUID=uuid.uuid4(),
             Publication_UUID=self._publication.UUID,
             Module_Status_ID=module_status.ID,
-            Bill_Metadata=bill_metadata.dict(),
-            Bill_Compact=bill_compact.dict(),
-            Procedural=procedural.dict(),
+            Bill_Metadata=bill_metadata.model_dump(),
+            Bill_Compact=bill_compact.model_dump(),
+            Procedural=procedural.model_dump(),
             Effective_Date=None,
             Announcement_Date=None,
             Is_Locked=False,

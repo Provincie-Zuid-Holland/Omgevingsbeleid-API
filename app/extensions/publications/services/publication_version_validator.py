@@ -11,9 +11,9 @@ class PublicationVersionValidator:
     def get_errors(self, publication_version: PublicationVersionTable) -> List[dict]:
         try:
             if publication_version.Publication.Procedure_Type == ProcedureType.DRAFT.value:
-                _ = PublicationVersionDraftValidated.from_orm(publication_version)
+                _ = PublicationVersionDraftValidated.model_validate(publication_version)
             else:
-                _ = PublicationVersionFinalValidated.from_orm(publication_version)
+                _ = PublicationVersionFinalValidated.from_model_validateorm(publication_version)
 
             return []
         except ValidationError as e:

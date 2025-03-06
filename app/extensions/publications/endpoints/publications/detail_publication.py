@@ -24,7 +24,7 @@ class DetailPublicationEndpoint(Endpoint):
                 ),
             ),
         ) -> Publication:
-            result: Publication = Publication.from_orm(publication)
+            result: Publication = Publication.model_validate(publication)
             return result
 
         router.add_api_route(

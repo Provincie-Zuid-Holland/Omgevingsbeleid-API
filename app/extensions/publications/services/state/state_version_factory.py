@@ -12,12 +12,12 @@ class StateVersionFactory:
         self._upgraders: Dict[int, StateUpgrader] = {u.get_input_schema_version(): u for u in upgraders}
 
     def get_state_model(self, environment_uuid: uuid.UUID, state_dict: dict) -> ActiveState:
-        schema: StateSchema = StateSchema.parse_obj(state_dict)
+        schema: StateSchema = StateSchema.model_validate(state_dict)
         if schema.Schema_Version not in self._versions:
             raise RuntimeError(f"State schema version '{schema.Schema_Version}' is not registered")
 
         version_model: Type[State] = self._versions[schema.Schema_Version]
-        state: State = version_model.parse_obj(state_dict["Data"])
+        state: State = version_model.model_validate(state_dict["Data"])
         state = self._upgrade(environment_uuid, state)
 
         return state

@@ -22,7 +22,7 @@ class StateV4(State):
         return 4
 
     def get_data(self) -> dict:
-        data: dict = self.dict()
+        data: dict = self.model_dump()
         return data
 
     def get_act(self, document_type: str, procedure_type: str) -> Optional[Any]:

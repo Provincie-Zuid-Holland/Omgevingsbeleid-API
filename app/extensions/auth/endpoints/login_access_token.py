@@ -53,9 +53,9 @@ class LoginAccessTokenEndpoint(Endpoint):
             raise HTTPException(status_code=401, detail="Inactive user")
 
         access_token = security.create_access_token(user.UUID)
-        pydantic_user: User = User.from_orm(user)
+        pydantic_user: User = User.model_validate(user)
 
-        response = self._response_type.parse_obj(
+        response = self._response_type.model_validate(
             {
                 "access_token": access_token,
                 "token_type": "bearer",

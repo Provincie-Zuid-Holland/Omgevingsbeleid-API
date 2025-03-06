@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
 
@@ -22,7 +22,7 @@ from app.extensions.publications.waardelijsten import Onderwerp, Rechtsgebied
 class DatabaseFixturesPublications:
     def __init__(self, db: Session):
         self._db = db
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
         self._user: uuid.UUID = uuid.UUID("11111111-0000-0000-0000-000000000001")
 
     def create_all(self):
@@ -411,7 +411,7 @@ class DatabaseFixturesPublications:
                     Jurisdictions=[
                         Rechtsgebied.omgevingsrecht.name,
                     ],
-                ).dict(),
+                ).model_dump(),
                 Metadata_Is_Locked=False,
                 Work_Province_ID="pv28",
                 Work_Country="nl",
@@ -443,7 +443,7 @@ class DatabaseFixturesPublications:
                     Jurisdictions=[
                         Rechtsgebied.omgevingsrecht.name,
                     ],
-                ).dict(),
+                ).model_dump(),
                 Metadata_Is_Locked=False,
                 Work_Province_ID="pv28",
                 Work_Country="nl",
@@ -475,7 +475,7 @@ class DatabaseFixturesPublications:
                     Jurisdictions=[
                         Rechtsgebied.omgevingsrecht.name,
                     ],
-                ).dict(),
+                ).model_dump(),
                 Metadata_Is_Locked=False,
                 Work_Province_ID="pv28",
                 Work_Country="nl",
@@ -507,7 +507,7 @@ class DatabaseFixturesPublications:
                     Jurisdictions=[
                         Rechtsgebied.omgevingsrecht.name,
                     ],
-                ).dict(),
+                ).model_dump(),
                 Metadata_Is_Locked=False,
                 Work_Province_ID="pv28",
                 Work_Country="nl",
@@ -612,7 +612,7 @@ class DatabaseFixturesPublications:
                             Rechtsgebied.omgevingsrecht.name,
                         ],
                     )
-                ).dict(),
+                ).model_dump(),
                 Bill_Compact=BillCompact(
                     Preamble="<p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>",
                     Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
@@ -625,11 +625,11 @@ class DatabaseFixturesPublications:
                             Content="<p>Hierbij nog meer tekst</p>",
                         ),
                     ],
-                ).dict(),
+                ).model_dump(),
                 Procedural=Procedural(
                     Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
                     Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
-                ).dict(),
+                ).model_dump(),
                 Effective_Date=self._timepoint + timedelta(days=7),
                 Announcement_Date=self._timepoint + timedelta(days=7),
                 Is_Locked=False,
@@ -657,7 +657,7 @@ class DatabaseFixturesPublications:
                             Rechtsgebied.omgevingsrecht.name,
                         ],
                     )
-                ).dict(),
+                ).model_dump(),
                 Bill_Compact=BillCompact(
                     Preamble="<p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>",
                     Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
@@ -670,11 +670,11 @@ class DatabaseFixturesPublications:
                             Content="<p>Hierbij nog meer tekst</p>",
                         ),
                     ],
-                ).dict(),
+                ).model_dump(),
                 Procedural=Procedural(
                     Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
                     Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
-                ).dict(),
+                ).model_dump(),
                 Effective_Date=self._timepoint + timedelta(days=3),
                 Announcement_Date=self._timepoint + timedelta(days=3),
                 Is_Locked=False,
@@ -702,7 +702,7 @@ class DatabaseFixturesPublications:
                             Rechtsgebied.omgevingsrecht.name,
                         ],
                     )
-                ).dict(),
+                ).model_dump(),
                 Bill_Compact=BillCompact(
                     Preamble="<p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>",
                     Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
@@ -715,11 +715,11 @@ class DatabaseFixturesPublications:
                             Content="<p>Hierbij nog meer tekst</p>",
                         ),
                     ],
-                ).dict(),
+                ).model_dump(),
                 Procedural=Procedural(
                     Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
                     Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
-                ).dict(),
+                ).model_dump(),
                 Effective_Date=self._timepoint + timedelta(days=7),
                 Announcement_Date=self._timepoint + timedelta(days=7),
                 Is_Locked=False,
@@ -747,7 +747,7 @@ class DatabaseFixturesPublications:
                             Rechtsgebied.omgevingsrecht.name,
                         ],
                     )
-                ).dict(),
+                ).model_dump(),
                 Bill_Compact=BillCompact(
                     Preamble="<p>Ontwerp Omgevingsvisie Provincie Zuid-Holland.</p>",
                     Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
@@ -759,11 +759,11 @@ class DatabaseFixturesPublications:
                             Content="<p>Hierbij nog meer tekst</p>",
                         ),
                     ],
-                ).dict(),
+                ).model_dump(),
                 Procedural=Procedural(
                     Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
                     Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
-                ).dict(),
+                ).model_dump(),
                 Announcement_Date=self._timepoint + timedelta(days=7),
                 Is_Locked=False,
                 Status=PublicationVersionStatus.ACTIVE,
@@ -793,7 +793,7 @@ class DatabaseFixturesPublications:
                             Rechtsgebied.omgevingsrecht.name,
                         ],
                     )
-                ).dict(),
+                ).model_dump(),
                 Bill_Compact=BillCompact(
                     Preamble="<p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>",
                     Closing="<p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>",
@@ -806,11 +806,11 @@ class DatabaseFixturesPublications:
                             Content="<p>Hierbij nog meer tekst</p>",
                         ),
                     ],
-                ).dict(),
+                ).model_dump(),
                 Procedural=Procedural(
                     Signed_Date=self._timepoint.strftime("%Y-%m-%d"),
                     Procedural_Announcement_Date=self._timepoint.strftime("%Y-%m-%d"),
-                ).dict(),
+                ).model_dump(),
                 Effective_Date=self._timepoint + timedelta(days=7),
                 Announcement_Date=self._timepoint + timedelta(days=7),
                 Is_Locked=False,

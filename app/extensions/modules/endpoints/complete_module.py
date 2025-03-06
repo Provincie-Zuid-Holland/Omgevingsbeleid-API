@@ -1,10 +1,10 @@
 import uuid
 from copy import copy
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -44,9 +44,7 @@ class ModuleObjectContextShort(BaseModel):
     Modified_By_UUID: uuid.UUID
 
     Action: str
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleObjectContext(ModuleObjectContextShort):
@@ -57,11 +55,11 @@ class ModuleObjectContext(ModuleObjectContextShort):
 class ObjectSpecifiekeGeldigheid(BaseModel):
     Object_Type: str
     Object_ID: int
-    Start_Validity: Optional[datetime] = Field(None, nullable=True)
+    Start_Validity: Optional[datetime] = Field(None)
 
 
 class CompleteModule(BaseModel):
-    Default_Start_Validity: Optional[datetime] = Field(None, nullable=True)
+    Default_Start_Validity: Optional[datetime] = Field(None)
     ObjectSpecifiekeGeldigheden: List[ObjectSpecifiekeGeldigheid] = []
 
 
@@ -82,7 +80,7 @@ class EndpointHandler:
         self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_in: CompleteModule = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ResponseOK:
         guard_module_is_locked(self._module)

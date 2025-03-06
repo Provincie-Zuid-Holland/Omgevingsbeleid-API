@@ -63,7 +63,7 @@ class ObjectLatestEndpoint(Endpoint):
         if not maybe_object:
             raise ValueError("lineage_id does not exist")
 
-        row: self._response_type = self._response_type.from_orm(maybe_object)
+        row: self._response_type = self._response_type.model_validate(maybe_object)
         rows: List[self._response_type] = [row]
         rows = self._run_events(rows, event_dispatcher)
 

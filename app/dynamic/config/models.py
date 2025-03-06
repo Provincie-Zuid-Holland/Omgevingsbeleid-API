@@ -55,7 +55,7 @@ class IntermediateModel(BaseModel):
     # Services can add data to fields and columns
     service_config: dict
 
-    root_validators: dict
+    model_validators: dict
 
 
 class EndpointConfig(BaseModel):

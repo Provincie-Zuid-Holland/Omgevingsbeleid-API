@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -36,7 +36,7 @@ class EndpointHandler:
         self._lineage_id: int = lineage_id
         self._code: str = f"{self._object_type}-{self._lineage_id}"
         self._object_in: EditAcknowledgedRelation = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ResponseOK:
         relation: Optional[AcknowledgedRelationsTable] = self._repository.get_by_codes(

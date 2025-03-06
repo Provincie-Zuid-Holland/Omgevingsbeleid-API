@@ -2,7 +2,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.dependencies import depends_object_repository, depends_sorted_pagination_curried
@@ -16,10 +16,8 @@ class GenericObjectShort(BaseModel):
     Object_Type: str
     Object_ID: int
     UUID: UUID
-    Title: Optional[str]
-
-    class Config:
-        orm_mode = True
+    Title: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ListAllLatestObjectsEndpoint(Endpoint):
@@ -62,7 +60,7 @@ class ListAllLatestObjectsEndpoint(Endpoint):
         )
 
         # Cast to pyd model
-        rows: List[GenericObjectShort] = [GenericObjectShort.from_orm(r) for r in paged_result.items]
+        rows: List[GenericObjectShort] = [GenericObjectShort.model_validate(r) for r in paged_result.items]
 
         return PagedResponse[GenericObjectShort](
             total=paged_result.total_count,

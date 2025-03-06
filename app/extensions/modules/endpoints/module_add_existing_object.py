@@ -1,9 +1,9 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -31,15 +31,14 @@ class ModuleAddExistingObject(BaseModel):
     Object_UUID: uuid.UUID
 
     Action: ModuleObjectAction
-    Explanation: str = Field("", nullable=True)
-    Conclusion: str = Field("", nullable=True)
+    Explanation: str = Field("")
+    Conclusion: str = Field("")
 
-    @validator("Explanation", "Conclusion", pre=True)
+    @field_validator("Explanation", "Conclusion", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class EndpointHandler:
@@ -62,7 +61,7 @@ class EndpointHandler:
         self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_in: ModuleAddExistingObject = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self):
         guard_valid_user(

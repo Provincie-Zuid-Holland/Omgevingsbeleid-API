@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from uuid import UUID
 
@@ -196,7 +196,7 @@ def populate_statics(db: Session):
 
 @pytest.fixture(scope="class")
 def populate_objects(db: Session, local_tables):
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     five_days_ago = now - timedelta(days=5)
     five_days_later = now + timedelta(days=5)
     object_factory = ObjectFixtureFactory(db, local_tables)

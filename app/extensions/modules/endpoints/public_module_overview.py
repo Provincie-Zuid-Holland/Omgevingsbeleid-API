@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased, joinedload, load_only
 
@@ -23,10 +23,8 @@ from app.extensions.modules.repository.module_object_repository import ModuleObj
 
 class PublicModuleObjectContextShort(BaseModel):
     Action: str
-    Original_Adjust_On: Optional[uuid.UUID]
-
-    class Config:
-        orm_mode = True
+    Original_Adjust_On: Optional[uuid.UUID] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicModuleObjectShort(BaseModel):
@@ -40,14 +38,13 @@ class PublicModuleObjectShort(BaseModel):
     Modified_Date: datetime
     Title: str
 
-    ModuleObjectContext: Optional[PublicModuleObjectContextShort]
+    ModuleObjectContext: Optional[PublicModuleObjectContextShort] = None
 
-    @validator("Description", pre=True)
+    @field_validator("Description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PublicModuleOverview(BaseModel):
@@ -71,7 +68,7 @@ class EndpointHandler:
         objects: List[PublicModuleObjectShort] = self._get_snapshot_objects()
 
         response: PublicModuleOverview = PublicModuleOverview(
-            Module=PublicModuleShort.from_orm(self._module),
+            Module=PublicModuleShort.model_validate(self._module),
             Objects=objects,
         )
         return response
@@ -103,7 +100,7 @@ class EndpointHandler:
         )
 
         rows: List[ModuleObjectsTable] = self._db.execute(stmt).scalars().all()
-        snapshot_objects: List[PublicModuleObjectShort] = [PublicModuleObjectShort.from_orm(r) for r in rows]
+        snapshot_objects: List[PublicModuleObjectShort] = [PublicModuleObjectShort.model_validate(r) for r in rows]
         snapshot_objects = self._run_events(snapshot_objects)
 
         return snapshot_objects

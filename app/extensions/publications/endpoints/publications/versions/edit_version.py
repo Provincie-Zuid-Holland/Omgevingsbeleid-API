@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -19,13 +19,13 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class PublicationVersionEdit(BaseModel):
-    Module_Status_ID: Optional[int]
-    Effective_Date: Optional[date]
-    Announcement_Date: Optional[date]
+    Module_Status_ID: Optional[int] = None
+    Effective_Date: Optional[date] = None
+    Announcement_Date: Optional[date] = None
 
-    Bill_Metadata: Optional[BillMetadata]
-    Bill_Compact: Optional[BillCompact]
-    Procedural: Optional[Procedural]
+    Bill_Metadata: Optional[BillMetadata] = None
+    Bill_Compact: Optional[BillCompact] = None
+    Procedural: Optional[Procedural] = None
 
 
 class PublicationVersionEditResponse(BaseModel):
@@ -51,17 +51,17 @@ class EndpointHandler:
     def handle(self) -> PublicationVersionEditResponse:
         self._guard_locked()
 
-        changes: dict = self._object_in.dict(exclude_unset=True)
+        changes: dict = self._object_in.model_dump(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
 
         for key, value in changes.items():
             if isinstance(value, BaseModel):
-                value = value.dict()
+                value = value.model_dump()
             setattr(self._version, key, value)
 
         self._version.Modified_By_UUID = self._user.UUID
-        self._version.Modified_Date = datetime.utcnow()
+        self._version.Modified_Date = datetime.now(timezone.utc)
 
         self._db.add(self._version)
         self._db.commit()

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -19,8 +19,8 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class ActEdit(BaseModel):
-    Title: Optional[str] = Field(None, nullable=True)
-    Metadata: Optional[ActMetadata]
+    Title: Optional[str] = Field(None)
+    Metadata: Optional[ActMetadata] = None
 
 
 class EndpointHandler:
@@ -37,17 +37,17 @@ class EndpointHandler:
         self._object_in: ActEdit = object_in
 
     def handle(self) -> ResponseOK:
-        changes: dict = self._object_in.dict(exclude_unset=True)
+        changes: dict = self._object_in.model_dump(exclude_unset=True)
         if not changes:
             raise HTTPException(400, "Nothing to update")
 
         for key, value in changes.items():
             if isinstance(value, BaseModel):
-                value = value.dict()
+                value = value.model_dump()
             setattr(self._act, key, value)
 
         self._act.Modified_By_UUID = self._user.UUID
-        self._act.Modified_Date = datetime.utcnow()
+        self._act.Modified_Date = datetime.now(timezone.utc)
 
         self._db.add(self._act)
         self._db.commit()

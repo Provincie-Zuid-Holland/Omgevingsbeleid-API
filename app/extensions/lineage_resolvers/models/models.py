@@ -8,6 +8,6 @@ from pydantic import BaseModel
 class NextObjectValidities(BaseModel):
     Object_UUID: uuid.UUID
     Start_Validity: datetime
-    End_Validity: Optional[datetime]
+    End_Validity: Optional[datetime] = None
     Created_Date: datetime
     Modified_Date: datetime

@@ -1,8 +1,7 @@
 from enum import Enum
 from typing import Any, Generic, List, Optional, Tuple, TypeVar
 
-from pydantic import BaseModel, Field, validator
-from pydantic.generics import GenericModel
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import asc, desc, func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Select
@@ -61,10 +60,10 @@ class OrderConfig(BaseModel):
 
 
 class SimplePagination(BaseModel):
-    offset: int = Field(default=None)
-    limit: int = Field(default=None)
+    offset: int = Field(0)
+    limit: int = Field(20)
 
-    @validator("offset", pre=True, always=True)
+    @field_validator("offset", mode="before")
     def default_offset(cls, v):
         if v is None:
             return 0
@@ -72,7 +71,7 @@ class SimplePagination(BaseModel):
             return 0
         return v
 
-    @validator("limit", pre=True, always=True)
+    @field_validator("limit", mode="before")
     def default_limit(cls, v):
         if v is None:
             return 20
@@ -88,7 +87,7 @@ class SortedPagination(SimplePagination):
 T = TypeVar("T", bound=BaseModel)
 
 
-class PagedResponse(GenericModel, Generic[T]):
+class PagedResponse(BaseModel, Generic[T]):
     """
     Wrap any response schema and add pagination metadata.
     """

@@ -29,7 +29,7 @@ class DetailPublicationVersionEndpoint(Endpoint):
             validator: PublicationVersionValidator = Depends(depends_publication_version_validator),
         ) -> PublicationVersion:
             errors: List[dict] = validator.get_errors(publication_version)
-            result: PublicationVersion = PublicationVersion.from_orm(publication_version)
+            result: PublicationVersion = PublicationVersion.model_validate(publication_version)
             result.Errors = errors
 
             return result

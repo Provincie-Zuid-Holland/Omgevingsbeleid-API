@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
@@ -127,7 +127,7 @@ class EndpointHandler:
         self._user: UsersTable = user
         self._uploaded_files: List[UploadFile] = uploaded_files
         self._act_package: PublicationActPackageTable = act_package
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
         self._starting_status: ReportStatusType = self._act_package.Report_Status
         self._file_parser: FileParser = FileParser(
             settings=settings,

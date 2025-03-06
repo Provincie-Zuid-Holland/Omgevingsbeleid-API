@@ -2,17 +2,17 @@ import uuid
 from typing import List
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.db import ObjectsTable
-from app.dynamic.dependencies import depends_pagination
+from app.dynamic.dependencies import depends_simple_pagination
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import PagedResponse, Pagination, query_paginated
+from app.dynamic.utils.pagination import PagedResponse, SimplePagination, query_paginated
 
 
 class SearchObject(BaseModel):
@@ -22,23 +22,22 @@ class SearchObject(BaseModel):
     Title: str
     Description: str
 
-    @validator("Title", "Description", pre=True)
+    @field_validator("Title", "Description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class EndpointHandler:
     def __init__(
         self,
         db: Session,
-        pagination: Pagination,
+        pagination: SimplePagination,
         query: str,
     ):
         self._db: Session = db
-        self._pagination: Pagination = pagination
+        self._pagination: SimplePagination = pagination
         self._query: str = query
 
     def handle(self) -> PagedResponse[SearchObject]:
@@ -55,7 +54,7 @@ class EndpointHandler:
             offset=self._pagination.offset,
         )
 
-        search_objects: List[SearchObject] = [SearchObject.parse_obj(r._asdict()) for r in table_rows]
+        search_objects: List[SearchObject] = [SearchObject.model_validate(r._asdict()) for r in table_rows]
 
         return PagedResponse[SearchObject](
             total=total_count,
@@ -105,7 +104,7 @@ class SearchEndpoint(Endpoint):
         def fastapi_handler(
             query: str,
             db: Session = Depends(depends_db),
-            pagination: Pagination = Depends(depends_pagination),
+            pagination: SimplePagination = Depends(depends_simple_pagination),
         ) -> PagedResponse[SearchObject]:
             handler: EndpointHandler = EndpointHandler(
                 db,

@@ -64,7 +64,7 @@ class ObjectVersionEndpoint(Endpoint):
         if not maybe_object:
             raise ValueError("object_uuid does not exist")
 
-        row: self._response_type = self._response_type.from_orm(maybe_object)
+        row: self._response_type = self._response_type.model_validate(maybe_object)
         rows: List[self._response_type] = [row]
         rows = self._run_events(rows, event_dispatcher)
         return rows[0]

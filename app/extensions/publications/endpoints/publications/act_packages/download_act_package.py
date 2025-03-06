@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
@@ -46,7 +46,7 @@ class DownloadPackageEndpoint(Endpoint):
         return router
 
     def _handler(self, db: Session, user: UsersTable, package_zip: PublicationPackageZipTable) -> Response:
-        package_zip.Latest_Download_Date = datetime.utcnow()
+        package_zip.Latest_Download_Date = datetime.now(timezone.utc)
         package_zip.Latest_Download_By_UUID = user.UUID
 
         db.add(package_zip)

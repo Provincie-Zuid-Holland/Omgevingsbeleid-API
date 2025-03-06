@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -19,11 +19,11 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class PublicationAnnouncementEdit(BaseModel):
-    Announcement_Date: Optional[date]
+    Announcement_Date: Optional[date] = None
 
-    Metadata: Optional[AnnouncementMetadata]
-    Procedural: Optional[AnnouncementProcedural]
-    Content: Optional[AnnouncementContent]
+    Metadata: Optional[AnnouncementMetadata] = None
+    Procedural: Optional[AnnouncementProcedural] = None
+    Content: Optional[AnnouncementContent] = None
 
 
 class EndpointHandler:
@@ -48,11 +48,11 @@ class EndpointHandler:
 
         for key, value in changes.items():
             if isinstance(value, BaseModel):
-                value = value.dict()
+                value = value.model_dump()
             setattr(self._announcement, key, value)
 
         self._announcement.Modified_By_UUID = self._user.UUID
-        self._announcement.Modified_Date = datetime.utcnow()
+        self._announcement.Modified_Date = datetime.now(timezone.utc)
 
         self._db.add(self._announcement)
         self._db.commit()

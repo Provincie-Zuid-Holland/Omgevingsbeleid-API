@@ -3,7 +3,7 @@ from typing import Callable, Dict, List, Optional, Type
 
 import click
 from fastapi import APIRouter
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 from app.dynamic.config.models import Column, Field
 from app.dynamic.converter import Converter

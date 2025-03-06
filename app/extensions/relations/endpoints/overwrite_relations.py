@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 from fastapi import APIRouter, Depends
@@ -58,7 +58,7 @@ class EndpointHandler:
                 raise ValueError(f"Invalid object_type for relation with '@TODO object-id'")
 
     def _log_action(self):
-        action_data: str = json.dumps([l.dict() for l in self._overwrite_list])
+        action_data: str = json.dumps([l.model_dump() for l in self._overwrite_list])
         current_relations: List[dict] = self._fetch_current_relations()
         before_data: str = json.dumps(current_relations)
 
@@ -75,7 +75,7 @@ class EndpointHandler:
         change_log: ChangeLogTable = ChangeLogTable(
             Object_Type=self._object_type,
             Object_ID=self._object_id,
-            Created_Date=datetime.utcnow(),
+            Created_Date=datetime.now(timezone.utc),
             Created_By_UUID=self._user.UUID,
             Action_Type="overwrite_relations",
             Action_Data=action_data,

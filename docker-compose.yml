@@ -1,5 +1,3 @@
-version: '3.3'
-
 services:
 
   api:
@@ -35,7 +33,7 @@ services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
-      - "11433:1433"
+      - "1433:1433"
     environment:
       ACCEPT_EULA: Y
       MSSQL_SA_PASSWORD: 'Passw0rd'
@@ -49,13 +47,6 @@ services:
       retries: 10
       start_period: 1s
     restart: "no"
-
-  # mailhog:
-  #   image: mailhog/mailhog
-  #   ports:
-  #     - "8025:8025"
-  #     - "1025:1025"
-  #   restart: "no"
 
 volumes:
   mssql:

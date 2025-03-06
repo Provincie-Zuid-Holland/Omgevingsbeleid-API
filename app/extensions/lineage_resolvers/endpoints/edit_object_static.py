@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Type
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -77,12 +77,12 @@ class EndpointHandler:
 
         # This executes the validators on the result type
         # Making sure the final object meets all validation requirements
-        result_model = self._result_type.from_orm(object_static)
+        result_model = self._result_type.model_validate(object_static)
 
         change_log: ChangeLogTable = ChangeLogTable(
             Object_Type=self._object_type,
             Object_ID=self._lineage_id,
-            Created_Date=datetime.utcnow(),
+            Created_Date=datetime.now(timezone.utc),
             Created_By_UUID=self._user.UUID,
             Action_Type="edit_object_static",
             Action_Data=self._object_in.json(),
