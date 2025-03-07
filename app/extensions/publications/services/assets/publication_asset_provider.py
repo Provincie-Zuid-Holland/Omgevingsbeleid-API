@@ -9,7 +9,7 @@ from app.extensions.html_assets.db.tables import AssetsTable
 from app.extensions.html_assets.repository.assets_repository import AssetRepository
 from app.extensions.publications.services.assets.asset_remove_transparency import AssetRemoveTransparency
 
-asset_re = re.compile("^\[ASSET")
+asset_re = re.compile(r"^\[ASSET")
 
 
 class PublicationAssetProvider:

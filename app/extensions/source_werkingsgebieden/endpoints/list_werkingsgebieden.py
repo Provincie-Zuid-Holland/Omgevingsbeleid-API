@@ -45,7 +45,7 @@ class ListWerkingsgebiedenEndpoint(Endpoint):
         else:
             paged_results = repository.get_by_title_paginated(pagination, title)
 
-        werkingsgebieden: List[Werkingsgebied] = [Werkingsgebied.from_orm(w) for w in paged_results.items]
+        werkingsgebieden: List[Werkingsgebied] = [Werkingsgebied.model_validate(w) for w in paged_results.items]
 
         return PagedResponse[Werkingsgebied](
             total=paged_results.total_count,

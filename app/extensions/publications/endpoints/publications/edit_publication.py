@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -20,8 +20,8 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class PublicationEdit(BaseModel):
-    Template_UUID: Optional[uuid.UUID]
-    Title: Optional[str]
+    Template_UUID: Optional[uuid.UUID] = None
+    Title: Optional[str] = None
 
 
 class EndpointHandler:
@@ -51,7 +51,7 @@ class EndpointHandler:
             setattr(self._publication, key, value)
 
         self._publication.Modified_By_UUID = self._user.UUID
-        self._publication.Modified_Date = datetime.utcnow()
+        self._publication.Modified_Date = datetime.now(timezone.utc)
 
         self._db.add(self._publication)
         self._db.commit()

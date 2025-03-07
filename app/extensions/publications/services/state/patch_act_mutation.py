@@ -38,7 +38,7 @@ class PatchActMutation:
                 werkingsgebieden[index]["Geboorteregeling"] = existing_werkingsgebied.Owner_Act
 
                 # Update the locations based on the state data
-                existing_location_lookup = {loc.UUID: loc.dict() for loc in existing_werkingsgebied.Locations}
+                existing_location_lookup = {loc.UUID: loc.model_dump() for loc in existing_werkingsgebied.Locations}
                 werkingsgebieden[index]["Locaties"] = [
                     {**location, **existing_location_lookup.get(location["UUID"], {})}
                     for location in werkingsgebied["Locaties"]
@@ -138,7 +138,7 @@ class PatchActMutation:
                 "Object_ID": state_werkingsgebied.Object_ID,
                 "Owner_Act": state_werkingsgebied.Owner_Act,
                 "Title": state_werkingsgebied.Title,
-                "Frbr": state_werkingsgebied.Frbr.dict(),
+                "Frbr": state_werkingsgebied.Frbr.model_dump(),
             }
             removed_werkingsgebiedenen.append(removed_werkingsgebied)
 

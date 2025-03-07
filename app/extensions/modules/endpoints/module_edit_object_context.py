@@ -1,9 +1,9 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
@@ -27,12 +27,10 @@ from app.extensions.users.permission_service import PermissionService
 
 
 class ModuleEditObjectContext(BaseModel):
-    Action: Optional[ModuleObjectAction] = Field(None, nullable=True)
-    Explanation: Optional[str] = Field(None, nullable=True)
-    Conclusion: Optional[str] = Field(None, nullable=True)
-
-    class Config:
-        use_enum_values = True
+    Action: Optional[ModuleObjectAction] = Field(None)
+    Explanation: Optional[str] = Field(None)
+    Conclusion: Optional[str] = Field(None)
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class EndpointHandler:
@@ -53,7 +51,7 @@ class EndpointHandler:
         self._module_object: ModuleObjectsTable = module_object
         self._object_context: ModuleObjectContextTable = object_context
         self._object_in: ModuleEditObjectContext = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ResponseOK:
         guard_valid_user(

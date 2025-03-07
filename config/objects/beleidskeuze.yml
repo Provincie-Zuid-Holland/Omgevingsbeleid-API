@@ -414,7 +414,7 @@ models:
   beleidskeuze_static_post_validated:
     name: BeleidskeuzeStaticPostValidated
     static_only: true
-    root_validators:
+    model_validators:
       - id: not_equal_root
         data:
           fields:

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from app.extensions.acknowledged_relations.db.tables import AcknowledgedRelationsTable
@@ -13,7 +13,7 @@ class TestModelIntegration:
         my_side = AcknowledgedRelationSide(
             Object_ID=1,
             Object_Type="beleidskeuze",
-            Acknowledged=datetime.utcnow(),
+            Acknowledged=datetime.now(timezone.utc),
             Acknowledged_By_UUID=my_user,
             Explanation="Relatie naar beleidskeuze 1",
         )
@@ -24,9 +24,9 @@ class TestModelIntegration:
 
         ack_table: AcknowledgedRelationsTable = local_tables.AcknowledgedRelationsTable(
             Requested_By_Code=my_side.Code,
-            Created_Date=datetime.utcnow(),
+            Created_Date=datetime.now(timezone.utc),
             Created_By_UUID=my_user,
-            Modified_Date=datetime.utcnow(),
+            Modified_Date=datetime.now(timezone.utc),
             Modified_By_UUID=my_user,
         )
         ack_table.with_sides(my_side, their_side)

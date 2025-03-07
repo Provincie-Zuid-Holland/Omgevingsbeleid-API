@@ -433,7 +433,7 @@ class DsoActInputDataBuilder:
                 UUID=w["UUID"],
                 code=w["Code"],
                 object_id=w["Object_ID"],
-                frbr=dso_models.GioFRBR.parse_obj(w["Frbr"]),
+                frbr=dso_models.GioFRBR.model_validate(w["Frbr"]),
                 geboorteregeling=w["Owner_Act"],
                 titel=w["Title"],
             )

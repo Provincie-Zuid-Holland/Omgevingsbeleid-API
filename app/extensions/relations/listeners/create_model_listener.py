@@ -58,10 +58,8 @@ class CreateModelListener(Listener[CreateModelEvent]):
             name=name,
             pydantic_model=pydantic.create_model(
                 name,
-                **{
-                    "Relation": (relation_model.pydantic_model, pydantic.Field()),
-                    "Object": (target_model.pydantic_model, pydantic.Field()),
-                },
+                Relation=(relation_model.pydantic_model, pydantic.Field(default=None)),
+                Object=(target_model.pydantic_model, pydantic.Field(default=None)),
             ),
         )
 

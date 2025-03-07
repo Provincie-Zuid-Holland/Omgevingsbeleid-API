@@ -70,7 +70,7 @@ class ListAnnouncementPackageReportsEndpoint(Endpoint):
             limit=pagination.limit,
         )
 
-        results = [PublicationAnnouncementPackageReportShort.from_orm(r) for r in paginated_result.items]
+        results = [PublicationAnnouncementPackageReportShort.model_validate(r) for r in paginated_result.items]
 
         return PagedResponse[PublicationAnnouncementPackageReportShort](
             total=paginated_result.total_count,

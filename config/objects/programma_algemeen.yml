@@ -240,7 +240,7 @@ models:
   programma_algemeen_static_post_validated:
     name: ProgrammaAlgemeenStaticPostValidated
     static_only: true
-    root_validators:
+    model_validators:
       - id: not_equal_root
         data:
           fields:

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Set
 
 from fastapi import APIRouter, Depends
@@ -66,7 +66,7 @@ class EndpointHandler:
                 .label("_RowNumber"),
             )
             .select_from(ObjectsTable)
-            .filter(ObjectsTable.Start_Validity <= datetime.utcnow())
+            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
             .filter(ObjectsTable.Code.in_(codes))
             .subquery()
         )
@@ -77,7 +77,7 @@ class EndpointHandler:
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.utcnow(),
+                    subq.c.End_Validity > datetime.now(timezone.utc),
                     subq.c.End_Validity == None,
                 )
             )
@@ -94,7 +94,7 @@ class EndpointHandler:
         )
 
         rows: List[ObjectsTable] = self._db.execute(stmt).scalars().all()
-        vertices: List[GraphVertice] = [GraphVertice.from_orm(r) for r in rows]
+        vertices: List[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
         return vertices
 
     def _get_edges(self) -> List[GraphEdge]:
@@ -282,7 +282,7 @@ class ObjectGraphEndpointResolver(EndpointResolver):
         resolver_config: dict = endpoint_config.resolver_data
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
 
-        iterations_config = GraphIterationsConfig.parse_obj(resolver_config.get("graph_iterations"))
+        iterations_config = GraphIterationsConfig.model_validate(resolver_config.get("graph_iterations"))
 
         return ObjectGraphEndpoint(
             path=path,

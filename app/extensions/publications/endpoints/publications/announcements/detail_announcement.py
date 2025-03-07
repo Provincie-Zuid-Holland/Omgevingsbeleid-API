@@ -24,7 +24,7 @@ class DetailPublicationAnnouncementEndpoint(Endpoint):
                 )
             ),
         ) -> PublicationAnnouncement:
-            result: PublicationAnnouncement = PublicationAnnouncement.from_orm(announcement)
+            result: PublicationAnnouncement = PublicationAnnouncement.model_validate(announcement)
             return result
 
         router.add_api_route(

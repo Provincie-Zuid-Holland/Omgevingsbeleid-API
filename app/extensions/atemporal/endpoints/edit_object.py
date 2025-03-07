@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Type
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -62,7 +62,7 @@ class EndpointHandler:
             setattr(maybe_object, key, value)
 
         maybe_object.Modified_By_UUID = self._user.UUID
-        maybe_object.Modified_Date = datetime.utcnow()
+        maybe_object.Modified_Date = datetime.now(timezone.utc)
 
         if "Title" in changes:
             self._object_static.Cached_Title = changes["Title"]
@@ -73,7 +73,7 @@ class EndpointHandler:
         change_log: ChangeLogTable = ChangeLogTable(
             Object_Type=self._object_static.Object_Type,
             Object_ID=self._object_static.Object_ID,
-            Created_Date=datetime.utcnow(),
+            Created_Date=datetime.now(timezone.utc),
             Created_By_UUID=self._user.UUID,
             Action_Type="atemporal_edit_object",
             Action_Data=self._object_in.json(),

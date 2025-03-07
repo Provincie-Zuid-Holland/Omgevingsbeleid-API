@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict
 
 from sqlalchemy.orm import Session
@@ -62,7 +62,7 @@ class PurposeProvider:
     ) -> Purpose:
         environment: PublicationEnvironmentTable = publication_version.Publication.Environment
 
-        timepoint: datetime = datetime.utcnow()
+        timepoint: datetime = datetime.now(timezone.utc)
         purpose: Purpose = Purpose(
             Purpose_Type=purpose_type,
             Effective_Date=publication_version.Effective_Date,

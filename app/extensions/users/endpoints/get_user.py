@@ -41,7 +41,7 @@ class GetUserEndpoint(Endpoint):
         if not db_user:
             raise ValueError(f"User does not exist")
 
-        user: User = User.from_orm(db_user)
+        user: User = User.model_validate(db_user)
         return user
 
 

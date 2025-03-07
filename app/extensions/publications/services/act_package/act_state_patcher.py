@@ -35,9 +35,9 @@ class ActStatePatcher:
 
         # Serialize dso_ow_state to a simple dict for result model
         dso_ow_state: dso_models.OwData = self._dso_builder.get_ow_object_state()
-        dso_ow_state_dict: dict = dso_ow_state.dict()
+        dso_ow_state_dict: dict = dso_ow_state.model_dump()
         dso_ow_state_dict_serialized: dict = serialize_data(dso_ow_state_dict)
-        ow_data = models.OwData.parse_obj(
+        ow_data = models.OwData.model_validate(
             {
                 "Ow_Objects": dso_ow_state_dict_serialized["ow_objects"],
                 "Terminated_Ow_Ids": dso_ow_state_dict_serialized["terminated_ow_ids"],

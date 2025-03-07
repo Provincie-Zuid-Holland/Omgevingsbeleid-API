@@ -1,11 +1,11 @@
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 import validators
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db, depends_security
@@ -28,7 +28,7 @@ class UserCreate(BaseModel):
     Email: str
     Rol: str
 
-    @validator("Email", pre=True)
+    @field_validator("Email", mode="before")
     def valid_email(cls, v):
         if not validators.email(v):
             raise ValueError("Invalid email")
@@ -80,7 +80,7 @@ class CreateUserEndpointHandler:
         )
 
         change_log: ChangeLogTable = ChangeLogTable(
-            Created_Date=datetime.utcnow(),
+            Created_Date=datetime.now(timezone.utc),
             Created_By_UUID=self._logged_in_user.UUID,
             Action_Type="create_user",
             Action_Data=self._object_in.json(),

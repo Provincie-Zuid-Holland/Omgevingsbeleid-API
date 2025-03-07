@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class ValidSearchConfig(BaseModel):
@@ -19,17 +19,16 @@ class ValidSearchObject(BaseModel):
     Description: str
     Score: float
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def generate_object_code(cls, values):
         values["Object_Code"] = f"{values['Object_Type']}-{values['Object_ID']}"
         return values
 
-    @validator("Title", "Description", pre=True)
+    @field_validator("Title", "Description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
-    class Config:
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
 
 class SearchConfig(ValidSearchConfig):
@@ -37,9 +36,9 @@ class SearchConfig(ValidSearchConfig):
 
 
 class SearchObject(ValidSearchObject):
-    Module_ID: Optional[int]
+    Module_ID: Optional[int] = None
 
 
 class SearchRequestData(BaseModel):
-    Object_Types: Optional[List[str]]
+    Object_Types: Optional[List[str]] = None
     Like: bool = Field(False)

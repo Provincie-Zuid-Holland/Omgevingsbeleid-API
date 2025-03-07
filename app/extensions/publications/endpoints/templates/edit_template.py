@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -19,15 +19,15 @@ from app.extensions.users.dependencies import depends_current_active_user_with_p
 
 
 class TemplateEdit(BaseModel):
-    Title: Optional[str] = Field(None, nullable=True)
-    Description: Optional[str] = Field(None, nullable=True)
+    Title: Optional[str] = Field(None)
+    Description: Optional[str] = Field(None)
 
-    Is_Active: Optional[bool] = Field(None, nullable=True)
-    Document_Type: Optional[DocumentType] = Field(None, nullable=True)
-    Field_Map: Optional[List[str]] = Field(None, nullable=True)
-    Object_Types: Optional[List[str]] = Field(None, nullable=True)
-    Text_Template: Optional[str] = Field(None, nullable=True)
-    Object_Templates: Optional[Dict[str, str]] = Field(None, nullable=True)
+    Is_Active: Optional[bool] = Field(None)
+    Document_Type: Optional[DocumentType] = Field(None)
+    Field_Map: Optional[List[str]] = Field(None)
+    Object_Types: Optional[List[str]] = Field(None)
+    Text_Template: Optional[str] = Field(None)
+    Object_Templates: Optional[Dict[str, str]] = Field(None)
 
 
 class EndpointHandler:
@@ -52,7 +52,7 @@ class EndpointHandler:
             setattr(self._template, key, value)
 
         self._template.Modified_By_UUID = self._user.UUID
-        self._template.Modified_Date = datetime.utcnow()
+        self._template.Modified_Date = datetime.now(timezone.utc)
 
         self._db.add(self._template)
         self._db.commit()

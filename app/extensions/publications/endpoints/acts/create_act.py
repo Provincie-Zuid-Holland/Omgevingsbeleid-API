@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -49,7 +49,7 @@ class EndpointHandler:
         self._defaults_provider: ActDefaultsProvider = defaults_provider
         self._user: UsersTable = user
         self._object_in: ActCreate = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ActCreatedResponse:
         environment: PublicationEnvironmentTable = self._get_environment()
@@ -63,7 +63,7 @@ class EndpointHandler:
             Document_Type=self._object_in.Document_Type.value,
             Title=self._object_in.Title,
             Is_Active=True,
-            Metadata=metadata.dict(),
+            Metadata=metadata.model_dump(),
             Metadata_Is_Locked=False,
             Work_Province_ID=environment.Province_ID,
             Work_Country=environment.Frbr_Country,

@@ -73,8 +73,8 @@ class ListActiveModuleObjectsEndpoint(Endpoint):
         for item in items:
             active_module_objects.append(
                 ActiveModuleObjectWrapper(
-                    Module=ModuleShort.from_orm(item.module),
-                    Module_Object=ActiveModuleObject.from_orm(item.module_object),
+                    Module=ModuleShort.model_validate(item.module),
+                    Module_Object=ActiveModuleObject.model_validate(item.module_object),
                     Action=item.context_action,
                 )
             )
