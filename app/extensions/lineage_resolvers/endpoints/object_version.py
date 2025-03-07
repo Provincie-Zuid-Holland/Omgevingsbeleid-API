@@ -13,6 +13,8 @@ from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_repository import ObjectRepository
+from app.extensions.users.db.tables import UsersTable
+from app.extensions.users.dependencies import depends_optional_user
 
 
 class ObjectVersionEndpoint(Endpoint):
@@ -36,8 +38,9 @@ class ObjectVersionEndpoint(Endpoint):
             object_uuid: UUID,
             object_repository: ObjectRepository = Depends(depends_object_repository),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
+            user: Optional[UsersTable] = Depends(depends_optional_user),
         ) -> self._response_type:
-            return self._handler(object_repository, event_dispatcher, object_uuid)
+            return self._handler(object_repository, user, event_dispatcher, object_uuid)
 
         router.add_api_route(
             self._path,
@@ -54,6 +57,7 @@ class ObjectVersionEndpoint(Endpoint):
     def _handler(
         self,
         object_repository: ObjectRepository,
+        user: Optional[UsersTable],
         event_dispatcher: EventDispatcher,
         object_uuid: UUID,
     ):
@@ -64,15 +68,12 @@ class ObjectVersionEndpoint(Endpoint):
         if not maybe_object:
             raise ValueError("object_uuid does not exist")
 
-        row: self._response_type = self._response_type.model_validate(maybe_object)
+        row: self._response_type = self._response_type.model_validate(maybe_object, context={"user": user})
         rows: List[self._response_type] = [row]
         rows = self._run_events(rows, event_dispatcher)
         return rows[0]
 
     def _run_events(self, dynamic_objects: List[pydantic.BaseModel], event_dispatcher: EventDispatcher):
-        """
-        Ask extensions for more information.
-        """
         event: RetrievedObjectsEvent = event_dispatcher.dispatch(
             RetrievedObjectsEvent.create(
                 rows=dynamic_objects,

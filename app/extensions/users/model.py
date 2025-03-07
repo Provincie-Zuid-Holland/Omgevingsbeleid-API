@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, ValidationInfo, field_validator
 
 
 class User(BaseModel):
@@ -28,6 +28,17 @@ class UserLoginDetail(BaseModel):
 
 class UserShort(BaseModel):
     UUID: UUID
+    Rol: str
+    Gebruikersnaam: str
+
+    @field_validator("Rol", "Gebruikersnaam", mode="after")
+    def hide_data(cls, v: str, info: ValidationInfo) -> str:
+        if not isinstance(info.context, dict):
+            return ""
+        if not info.context.get("user"):
+            return ""
+        return v
+
     model_config = ConfigDict(from_attributes=True)
 
 
