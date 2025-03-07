@@ -58,7 +58,7 @@ def depends_current_user(
     return user
 
 
-def optional_user(
+def depends_optional_user(
     token: str = Depends(OAuth2PasswordBearer(tokenUrl="/login/access-token", auto_error=False)),
     user_repository: UserRepository = Depends(depends_user_repository),
     settings: DynamicSettings = Depends(depends_settings),
