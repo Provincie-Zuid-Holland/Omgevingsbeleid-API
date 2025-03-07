@@ -1,6 +1,6 @@
 from copy import deepcopy
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Optional
 from uuid import UUID
 
 from ..models import Field
@@ -11,7 +11,7 @@ field_types = {
     "str": str,
     "uuid": UUID,
     "datetime": datetime,
-    "list_str": List[str],
+    "list_str": Optional[List[str]],
 }
 
 
