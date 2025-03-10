@@ -6,8 +6,6 @@ from sqlalchemy.orm import Session
 from app.dynamic.computed_fields.models import ComputedField
 from app.dynamic.config.models import DynamicObjectModel
 
-T = TypeVar("T")
-
 
 class HandlerContext:
     """used as args for computed field handlers."""
@@ -28,4 +26,4 @@ class HandlerContext:
 class ComputedFieldHandlerCallable(Protocol):
     """type for computed field handlers that use HandlerContext."""
 
-    def __call__(self, context: HandlerContext) -> List[T]: ...
+    def __call__(self, context: HandlerContext) -> List[BaseModel] | BaseModel: ...

@@ -8,7 +8,7 @@ class ComputedField(BaseModel):
     model_id: str  # schema of the value to be computed
     attribute_name: str  # field added to the response model
     is_list: bool = False
-    is_optional: bool = True
+    is_optional: bool = False
     static: bool = False
 
 

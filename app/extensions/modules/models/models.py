@@ -147,6 +147,4 @@ class PublicModuleObjectRevision(BaseModel):
     Module_Status: str
     Action: ModuleObjectActionFull
 
-    class Config:
-        orm_mode = True
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type, get_args
 
 from pydantic import BaseModel
+from pydantic.fields import FieldInfo
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, selectinload
 
@@ -27,7 +28,7 @@ class NextObjectVersionService:
         self._dynamic_obj_model: DynamicObjectModel = dynamic_obj_model
         self._computed_field: ComputedField = computed_field
 
-    def process_single_item(self) -> BaseModel:
+    def process_single_item(self) -> List[BaseModel]:
         if len(self._dynamic_objects) != 1:
             raise ValueError("Trying to process a single obj but multiple rows found")
 
@@ -38,15 +39,15 @@ class NextObjectVersionService:
         next_obj = self._query_next_object_version(code, modified_date)
 
         field_name = self._computed_field.attribute_name
-        computed_field_model: Type[BaseModel] = self._dynamic_obj_model.pydantic_model.__fields__[field_name].type_
+        computed_field_model = self._extract_computed_field_model()
 
         if next_obj:
-            next_version = computed_field_model.from_orm(next_obj)
+            next_version = computed_field_model.model_validate(next_obj)
             setattr(item, field_name, next_version)
         else:
             setattr(item, field_name, None)
 
-        return item
+        return self._dynamic_objects
 
     def process_batch(self) -> List[BaseModel]:
         object_uuids = [row.UUID for row in self._dynamic_objects]
@@ -63,12 +64,12 @@ class NextObjectVersionService:
 
         # extract the computed field model
         field_name = self._computed_field.attribute_name
-        computed_field_model: Type[BaseModel] = self._dynamic_obj_model.pydantic_model.__fields__[field_name].type_
+        computed_field_model = self._extract_computed_field_model()
 
         # merge results back and convert ORM objects to Pydantic models in the same loop
         for row in self._dynamic_objects:
             orm_obj = next_versions.get(row.UUID)
-            next_version = computed_field_model.from_orm(orm_obj) if orm_obj else None
+            next_version = computed_field_model.model_validate(orm_obj) if orm_obj else None
             setattr(row, field_name, next_version)
 
         return self._dynamic_objects
@@ -156,3 +157,19 @@ class NextObjectVersionService:
                 result_map[uuid] = next_obj
 
         return result_map
+
+    def _extract_computed_field_model(self) -> Type[BaseModel]:
+        """
+        gets the computed field schema from the dynamic object response model
+        """
+        field_name = self._computed_field.attribute_name
+
+        field_info = self._dynamic_obj_model.pydantic_model.model_fields[field_name]
+        field_annotation = field_info.annotation
+        if field_annotation is None:
+            raise ValueError(f"error getting computed field schema for response model field: {field_name}")
+
+        has_type_wrapper = self._computed_field.is_list or self._computed_field.is_optional
+        computed_field_model = get_args(field_annotation)[0] if has_type_wrapper else field_annotation
+
+        return computed_field_model

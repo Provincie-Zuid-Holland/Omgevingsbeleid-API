@@ -30,7 +30,7 @@ def get_object_public_revisions(self):
     )
     rows = session.execute(query).all()
     public_revisions = [
-        PublicModuleObjectRevision.from_orm(
+        PublicModuleObjectRevision.model_validate(
             ModuleObjectDTO(
                 Module_Object_UUID=module_object.UUID,
                 Module_ID=module.Module_ID,

@@ -33,10 +33,8 @@ class ComputedFieldModelListener(Listener[CreateModelEvent]):
             event.payload.pydantic_fields[computed_field.attribute_name] = (
                 schema,
                 Field(
-                    **{
-                        "default": None,
-                        "nullable": computed_field.is_optional,
-                    }
+                    default=None,
+                    validation_alias=computed_field.attribute_name,
                 ),
             )
 
