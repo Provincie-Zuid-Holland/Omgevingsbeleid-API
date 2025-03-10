@@ -241,15 +241,15 @@ class NotEqualRootValidator(Validator):
         allow_none: bool = config.get("allow_none", False)
         error_message: str = config["error_message"]
 
-        def pydantic_neq_model_validator(cls, data, info: ValidationInfo):
-            field_values = [data[k] for k in field_keys]
+        def pydantic_neq_model_validator(self, info: ValidationInfo):
+            field_values = [getattr(self, k) for k in field_keys]
             if allow_none:
                 field_values = [v for v in field_values if v is not None]
 
             if len(field_values) != len(set(field_values)):
                 raise ValueError(error_message)
 
-            return data
+            return self
 
         return PydanticValidator(
             mode="after",
