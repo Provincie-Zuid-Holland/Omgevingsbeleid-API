@@ -168,7 +168,7 @@ class HtmlValidator(Validator):
         return "html"
 
     def get_validator_func(self, config: dict) -> PydanticValidator:
-        def pydantic_plain_text_validator(cls, value, info: ValidationInfo):
+        def pydantic_html_validator(cls, value, info: ValidationInfo):
             if value is None:
                 return None
             if not isinstance(value, str):
@@ -184,7 +184,7 @@ class HtmlValidator(Validator):
 
         return PydanticValidator(
             mode="after",
-            func=pydantic_plain_text_validator,
+            func=pydantic_html_validator,
         )
 
 
