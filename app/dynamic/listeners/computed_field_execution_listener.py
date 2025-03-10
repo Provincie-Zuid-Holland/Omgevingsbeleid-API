@@ -4,22 +4,17 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.dynamic.computed_fields.handler_context import HandlerContext
-from app.dynamic.computed_fields.models import ComputedField, ExecutionStrategy
+from app.dynamic.computed_fields.handler_context import ComputedFieldHandlerCallable, HandlerContext
+from app.dynamic.computed_fields.models import ComputedField, ServiceComputedField
 from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.config.models import DynamicObjectModel
 from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 from app.dynamic.event.types import Listener
 
 
-@dataclass
-class ComputedFieldServiceConfig:
-    computed_fields: Dict[str, ExecutionStrategy]
-
-
 class ComputedFieldExecutionListener(Listener[RetrievedObjectsEvent]):
     """
-    Listener that executes computed fields for retrieved objects
+    execute all computed fields for a retrieved object with the configured handlers
     """
 
     def __init__(self, computed_field_resolver: ComputedFieldResolver):
@@ -55,21 +50,13 @@ class ComputedFieldExecutionListener(Listener[RetrievedObjectsEvent]):
         dynamic_objects: List[BaseModel],
         computed_fields: List[ComputedField],
     ) -> List[BaseModel]:
+        # lookup correct handlers per field and give context
         for field in computed_fields:
-            # handle only service type fields since property types are triggered normally
-            if field.execution_strategy == ExecutionStrategy.SERVICE:
-                if field.handler_id is None:
-                    raise RuntimeError(f"No registered handler ID for computed field '{field.id}'")
-
+            if isinstance(field, ServiceComputedField):
                 context = HandlerContext(
-                    db=db,
-                    dynamic_objects=dynamic_objects,
-                    dynamic_obj_model=dynamic_obj_model,
-                    computed_field=field
+                    db=db, dynamic_objects=dynamic_objects, dynamic_obj_model=dynamic_obj_model, computed_field=field
                 )
-                
-                # find configured handler and execute it with context
-                handler = self._computed_field_resolver.get_handler(field.handler_id)
-                handler(context)
+                handler: ComputedFieldHandlerCallable = self._computed_field_resolver.get_handler(field.handler_id)
+                handler(context=context)
 
         return dynamic_objects

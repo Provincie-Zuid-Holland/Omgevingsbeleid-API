@@ -1,7 +1,7 @@
 from typing import List
 
 from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
-from app.dynamic.computed_fields.models import ExecutionStrategy
+from app.dynamic.computed_fields.models import ServiceComputedField
 import app.extensions.werkingsgebieden.listeners as listeners
 from app.dynamic.computed_fields import ComputedField
 from app.dynamic.config.models import ExtensionModel
@@ -41,13 +41,12 @@ class WerkingsgebiedenExtension(Extension):
 
     def register_computed_fields(self) -> List[ComputedField]:
         return [
-            ComputedField(
+            ServiceComputedField(
                 id="werkingsgebied_related_objects",
                 model_id="werkingsgebied_related_objects",
                 attribute_name="Related_Objects",
                 is_list=False,
                 is_optional=False,
-                execution_strategy=ExecutionStrategy.SERVICE,
                 handler_id="werkingsgebied_load_related_objects",
             )
         ]

@@ -11,7 +11,7 @@ from pydantic_settings import BaseSettings
 
 import app.dynamic.serializers as serializers
 from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings
-from app.dynamic.computed_fields.models import ComputedField, ExecutionStrategy
+from app.dynamic.computed_fields.models import ComputedField, PropertyComputedField, ServiceComputedField
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
@@ -153,10 +153,12 @@ class DynamicAppBuilder:
             self._service_container.computed_fields_resolver.add_many(computed_fields)
             extension.register_computed_field_handlers(self._service_container.computed_fields_resolver)
 
-        # set computed fields to ORM model
         for computed_field in self._service_container.computed_fields_resolver.get_all():
-            if computed_field.execution_strategy == ExecutionStrategy.PROPERTY:
+            if isinstance(computed_field, PropertyComputedField):
                 self._set_computed_field(computed_field)
+            elif isinstance(computed_field, ServiceComputedField):
+                if not self._service_container.computed_fields_resolver.handler_exists(computed_field.handler_id):
+                    raise RuntimeError(f"Computed field handler id '{computed_field.handler_id}' not found")
 
         # Build config intermediate data (without models)
         for config_object in self._config_objects:
@@ -338,15 +340,9 @@ class DynamicAppBuilder:
             content={"message": str(exc)},
         )
 
-    def _set_computed_field(self, computed_field: ComputedField):
-        # property type computed fields need to be added to the ORM model
-        if (
-            computed_field.execution_strategy == ExecutionStrategy.PROPERTY
-            and computed_field.property_callable is not None
-        ):
-            if computed_field.static:
-                # Set on the static model TODO: check if useful or remove
-                setattr(ObjectStaticsTable, computed_field.attribute_name, computed_field.property_callable)
-            else:
-                # Set on the regular objects table
-                setattr(ObjectsTable, computed_field.attribute_name, computed_field.property_callable)
+    def _set_computed_field(self, computed_field: PropertyComputedField):
+        if computed_field.static:
+            # TODO: check if useful or remove
+            setattr(ObjectStaticsTable, computed_field.attribute_name, computed_field.property_callable)
+        else:
+            setattr(ObjectsTable, computed_field.attribute_name, computed_field.property_callable)

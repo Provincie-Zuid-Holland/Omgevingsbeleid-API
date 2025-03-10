@@ -2,7 +2,7 @@ from typing import List
 
 from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 import app.extensions.lineage_resolvers.endpoints as endpoints
-from app.dynamic.computed_fields import ComputedField, ExecutionStrategy
+from app.dynamic.computed_fields import ComputedField, ServiceComputedField
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_listeners import EventListeners
@@ -41,27 +41,26 @@ class LineageResolversExtension(Extension):
             )
         )
 
+    def register_computed_fields(self) -> List[ComputedField]:
+        return [
+            ServiceComputedField(
+                id="next_object_version",
+                model_id="next_object_validities",
+                attribute_name="Next_Version",
+                handler_id="load_next_object_version",
+                is_optional=True,
+                is_list=False,
+            ),
+            ServiceComputedField(
+                id="batch_next_object_version",
+                model_id="next_object_validities",
+                attribute_name="Next_Version",
+                handler_id="batch_load_next_object_version",
+                is_optional=True,
+                is_list=False,
+            ),
+        ]
+
     def register_computed_field_handlers(self, computed_field_resolver: ComputedFieldResolver):
         computed_field_resolver.add_handler("load_next_object_version", load_next_object_validities)
         computed_field_resolver.add_handler("batch_load_next_object_version", batch_load_next_object_validities)
-
-    def register_computed_fields(self) -> List[ComputedField]:
-        next_validities_field = ComputedField(
-            id="next_object_version",
-            model_id="next_object_validities",
-            attribute_name="Next_Version",
-            execution_strategy=ExecutionStrategy.SERVICE,
-            handler_id="load_next_object_version",
-            is_optional=True,
-            is_list=False,
-        )
-        batch_next_validities_field = ComputedField(
-            id="batch_next_object_version",
-            model_id="next_object_validities",
-            attribute_name="Next_Version",
-            execution_strategy=ExecutionStrategy.SERVICE,
-            handler_id="batch_load_next_object_version",
-            is_optional=True,
-            is_list=False,
-        )
-        return [next_validities_field, batch_next_validities_field]

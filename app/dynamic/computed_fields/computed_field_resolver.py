@@ -42,3 +42,6 @@ class ComputedFieldResolver:
         if id not in self._handlers:
             raise RuntimeError(f"Handler ID '{id}' does not exist")
         return self._handlers[id]
+
+    def handler_exists(self, id: str) -> bool:
+        return id in self._handlers

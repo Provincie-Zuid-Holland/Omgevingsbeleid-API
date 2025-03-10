@@ -4,7 +4,7 @@ from sqlalchemy import String
 from sqlalchemy.orm import mapped_column
 
 import app.extensions.modules.endpoints as endpoints
-from app.dynamic.computed_fields.models import ComputedField, ExecutionStrategy
+from app.dynamic.computed_fields.models import ComputedField, PropertyComputedField
 from app.dynamic.config.models import Column, ExtensionModel
 from app.dynamic.db.tables import ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import EndpointResolver
@@ -70,14 +70,13 @@ class ModulesExtension(Extension):
         )
 
     def register_computed_fields(self) -> List[ComputedField]:
-        public_revisions_property = build_object_public_revisions_property()
-        public_revisions_field = ComputedField(
-            id="public_revisions",
-            model_id="public_module_object_revision",
-            attribute_name="Public_Revisions",
-            execution_strategy=ExecutionStrategy.PROPERTY,
-            property_callable=public_revisions_property,
-            is_optional=True,
-            is_list=True,
-        )
-        return [public_revisions_field]
+        return [
+            PropertyComputedField(
+                id="public_revisions",
+                model_id="public_module_object_revision",
+                attribute_name="Public_Revisions",
+                property_callable=build_object_public_revisions_property(),
+                is_optional=True,
+                is_list=True,
+            )
+        ]
