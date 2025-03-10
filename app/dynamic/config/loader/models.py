@@ -139,9 +139,6 @@ class ModelsLoader:
                 **pydantic_fields,
             )
 
-        if intermediate_model.name == "MaatregelPatch":
-            a = True
-
         return DynamicObjectModel(
             id=intermediate_model.id,
             name=intermediate_model.name,
