@@ -67,15 +67,13 @@ fields:
     type: str
     column: title
     validators:
-      -
-        id: none_to_default_value
+      - id: none_to_default_value
   weblink:
     name: Weblink
     type: str
     column: weblink
     validators:
-      -
-        id: none_to_default_value
+      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
