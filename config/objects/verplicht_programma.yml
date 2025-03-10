@@ -65,10 +65,16 @@ fields:
     name: Title
     type: str
     column: title
+    validators:
+      -
+        id: none_to_default_value
   description:
     name: Description
     type: str
     column: description
+    validators:
+      -
+        id: none_to_default_value
 
   # Statics
   owner_1_uuid:

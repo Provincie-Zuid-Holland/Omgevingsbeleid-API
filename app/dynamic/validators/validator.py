@@ -2,13 +2,24 @@ import io
 import re
 from abc import ABC, abstractmethod
 from base64 import b64decode
+from dataclasses import dataclass
 from typing import Callable, List, Optional
 
 from bs4 import BeautifulSoup
 from PIL import Image
+from pydantic import ValidationInfo
+from pydantic.functional_validators import FieldValidatorModes
+from pydantic_core import PydanticUseDefault
 
 from app.core.dependencies import db_in_context_manager
 from app.dynamic.repository.object_static_repository import ObjectStaticRepository
+
+
+# @see: Pydantic.field_validator
+@dataclass
+class PydanticValidator:
+    mode: FieldValidatorModes
+    func: Callable
 
 
 class Validator(ABC):
@@ -17,42 +28,61 @@ class Validator(ABC):
         pass
 
     @abstractmethod
-    def get_validator_func(self, config: dict) -> Callable:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
         pass
+
+
+class NoneToDefaultValueValidator(Validator):
+    def get_id(self) -> str:
+        return "none_to_default_value"
+
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        def pydantic_none_to_default_validator(cls, value, info: ValidationInfo):
+            if value is None:
+                return PydanticUseDefault()
+            return value
+
+        return PydanticValidator(
+            mode="before",
+            func=pydantic_none_to_default_validator,
+        )
 
 
 class LengthValidator(Validator):
     def get_id(self) -> str:
         return "length"
 
-    def get_validator_func(self, config: dict) -> Callable:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
         min_length: Optional[int] = config.get("min", None)
         max_length: Optional[int] = config.get("max", None)
 
-        def pydantic_length_validator(cls, v):
-            if not isinstance(v, str):
+        def pydantic_length_validator(cls, value, info: ValidationInfo):
+            if not isinstance(value, str):
                 raise ValueError("Value must be a string")
 
             if min_length is not None:
-                if len(v) < min_length:
+                if len(value) < min_length:
                     raise ValueError("Value is too small")
 
             if max_length is not None:
-                if len(v) > max_length:
+                if len(value) > max_length:
                     raise ValueError("Value is too large")
 
-            return v
+            return value
 
-        return pydantic_length_validator
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_length_validator,
+        )
 
 
 class PlainTextValidator(Validator):
     def get_id(self) -> str:
         return "plain_text"
 
-    def get_validator_func(self, config: dict) -> Callable:
-        def pydantic_plain_text_validator(cls, v):
-            if v is None:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        def pydantic_plain_text_validator(cls, value, info: ValidationInfo):
+            if value is None:
                 return None
 
             if not isinstance(v, str):
@@ -62,9 +92,12 @@ class PlainTextValidator(Validator):
             if soup.find():
                 raise ValueError("Value is not allowed to contain html")
 
-            return v
+            return value
 
-        return pydantic_plain_text_validator
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_plain_text_validator,
+        )
 
 
 class FilenameValidator(Validator):
@@ -74,21 +107,24 @@ class FilenameValidator(Validator):
     def get_id(self) -> str:
         return "filename"
 
-    def get_validator_func(self, config: dict) -> Callable:
-        def pydantic_filename_validator(cls, v):
-            if v is None:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        def pydantic_filename_validator(cls, value, info: ValidationInfo):
+            if value is None:
                 return None
 
-            if not isinstance(v, str):
+            if not isinstance(value, str):
                 raise ValueError("Value must be a string")
 
-            is_valid: bool = bool(re.match(self._pattern, v))
+            is_valid: bool = bool(re.match(self._pattern, value))
             if not is_valid:
                 raise ValueError("Not a valid filename")
 
-            return v
+            return value
 
-        return pydantic_filename_validator
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_filename_validator,
+        )
 
 
 class HtmlValidator(Validator):
@@ -131,38 +167,41 @@ class HtmlValidator(Validator):
     def get_id(self) -> str:
         return "html"
 
-    def get_validator_func(self, config: dict) -> Callable:
-        def pydantic_plain_text_validator(cls, v):
-            if v is None:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        def pydantic_plain_text_validator(cls, value, info: ValidationInfo):
+            if value is None:
                 return None
-            if not isinstance(v, str):
+            if not isinstance(value, str):
                 raise ValueError("Value must be a string")
 
-            soup: BeautifulSoup = BeautifulSoup(v, "html.parser")
+            soup: BeautifulSoup = BeautifulSoup(value, "html.parser")
             used_tags = set([tag.name for tag in soup.find_all()])
             invalid_tags = set.difference(used_tags, self._allowed_tags)
             if invalid_tags:
                 raise ValueError("Invalid html tags used")
 
-            return v
+            return value
 
-        return pydantic_plain_text_validator
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_plain_text_validator,
+        )
 
 
 class ImageValidator(Validator):
     def get_id(self) -> str:
         return "image"
 
-    def get_validator_func(self, config: dict) -> Callable:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
         max_width: int = config["max_width"]
         max_height: int = config["max_height"]
         max_kb: int = config["max_kb"]
 
-        def pydantic_image_validator(cls, v):
-            if not isinstance(v, str):
-                return v
+        def pydantic_image_validator(cls, value, info: ValidationInfo):
+            if not isinstance(value, str):
+                return value
 
-            soup: BeautifulSoup = BeautifulSoup(v, "html.parser")
+            soup: BeautifulSoup = BeautifulSoup(value, "html.parser")
             img_tags = soup.find_all("img")
 
             for tag in img_tags:
@@ -185,47 +224,53 @@ class ImageValidator(Validator):
                 if img.width > max_width or img.height > max_height:
                     raise ValueError("Image dimensions are greater than max allowed")
 
-            return v
+            return value
 
-        return pydantic_image_validator
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_image_validator,
+        )
 
 
 class NotEqualRootValidator(Validator):
     def get_id(self) -> str:
         return "not_equal_root"
 
-    def get_validator_func(self, config: dict) -> Callable:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
         field_keys: str = config["fields"]
         allow_none: bool = config.get("allow_none", False)
         error_message: str = config["error_message"]
 
-        def pydantic_neq_model_validator(cls, values):
-            field_values = [values[k] for k in field_keys]
+        def pydantic_neq_model_validator(cls, data, info: ValidationInfo):
+            field_values = [data[k] for k in field_keys]
             if allow_none:
                 field_values = [v for v in field_values if v is not None]
 
             if len(field_values) != len(set(field_values)):
                 raise ValueError(error_message)
 
-            return values
+            return data
 
-        return pydantic_neq_model_validator
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_neq_model_validator,
+        )
 
 
 class ObjectCodeExistsValidator(Validator):
     def get_id(self) -> str:
         return "object_code_exists"
 
-    def get_validator_func(self, config: dict) -> Callable:
-        def pydantic_validator_object_code_exists(cls, v):
-            if v is None:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        def pydantic_validator_object_code_exists(cls, value, info: ValidationInfo):
+            if value is None:
                 return None
 
-            if not isinstance(v, str):
+            if not isinstance(value, str):
                 raise ValueError("Value must be a string")
 
             try:
-                object_type, object_id = v.split("-", 1)
+                object_type, object_id = value.split("-", 1)
             except ValueError:
                 raise ValueError("Value is not a valid Object_Code")
 
@@ -238,54 +283,60 @@ class ObjectCodeExistsValidator(Validator):
                 if not object_static:
                     raise ValueError("Object does not exist")
 
-            return v
+            return value
 
-        return pydantic_validator_object_code_exists
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_validator_object_code_exists,
+        )
 
 
 class ObjectCodeAllowedTypeValidator(Validator):
     def get_id(self) -> str:
         return "object_code_allowed_type"
 
-    def get_validator_func(self, config: dict) -> Callable:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
         allowed_object_types: List[str] = config.get("allowed_object_types", [])
 
-        def pydantic_validator_object_code_allowed_type(cls, v):
-            if v is None:
+        def pydantic_validator_object_code_allowed_type(cls, value, info: ValidationInfo):
+            if value is None:
                 return None
 
-            if not isinstance(v, str):
+            if not isinstance(value, str):
                 raise ValueError("Value must be a string")
 
             try:
-                object_type, _ = v.split("-", 1)
+                object_type, _ = value.split("-", 1)
             except ValueError:
                 raise ValueError("Value is not a valid Object_Code")
 
             if object_type not in allowed_object_types:
                 raise ValueError("Invalid object type")
 
-            return v
+            return value
 
-        return pydantic_validator_object_code_allowed_type
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_validator_object_code_allowed_type,
+        )
 
 
 class ObjectCodesExistsValidator(Validator):
     def get_id(self) -> str:
         return "object_codes_exists"
 
-    def get_validator_func(self, config: dict) -> Callable:
-        def pydantic_validator_object_codes_exists(cls, v):
-            if v is None:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        def pydantic_validator_object_codes_exists(cls, value, info: ValidationInfo):
+            if value is None:
                 return None
 
-            if not isinstance(v, list) or not all(isinstance(item, str) for item in v):
+            if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
                 raise ValueError("Value must be a list of strings")
 
             with db_in_context_manager() as db:
                 static_repository = ObjectStaticRepository(db)
 
-                for object_code in v:
+                for object_code in value:
                     try:
                         object_type, object_id = object_code.split("-", 1)
                     except ValueError:
@@ -298,26 +349,29 @@ class ObjectCodesExistsValidator(Validator):
                     if not object_static:
                         raise ValueError("Object does not exist")
 
-            return v
+            return value
 
-        return pydantic_validator_object_codes_exists
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_validator_object_codes_exists,
+        )
 
 
 class ObjectCodesAllowedTypeValidator(Validator):
     def get_id(self) -> str:
         return "object_codes_allowed_type"
 
-    def get_validator_func(self, config: dict) -> Callable:
+    def get_validator_func(self, config: dict) -> PydanticValidator:
         allowed_object_types: List[str] = config.get("allowed_object_types", [])
 
-        def pydantic_validator_object_codes_allowed_type(cls, v):
-            if v is None:
+        def pydantic_validator_object_codes_allowed_type(cls, value, info: ValidationInfo):
+            if value is None:
                 return None
 
-            if not isinstance(v, list) or not all(isinstance(item, str) for item in v):
+            if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
                 raise ValueError("Value must be a list of strings")
 
-            for object_code in v:
+            for object_code in value:
                 try:
                     object_type, _ = object_code.split("-", 1)
                 except ValueError:
@@ -326,6 +380,9 @@ class ObjectCodesAllowedTypeValidator(Validator):
                 if object_type not in allowed_object_types:
                     raise ValueError("Invalid object type")
 
-            return v
+            return value
 
-        return pydantic_validator_object_codes_allowed_type
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_validator_object_codes_allowed_type,
+        )
