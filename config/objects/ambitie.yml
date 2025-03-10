@@ -168,6 +168,9 @@ models:
       title:
       start_validity:
       end_validity:
+    services:
+      computed_fields:
+        - batch_next_object_version
   ambitie_extended:
     name: AmbitieExtended
     fields:
@@ -213,6 +216,9 @@ models:
       start_validity:
       end_validity:
     services:
+      computed_fields:
+        - next_object_version
+        - public_revisions
       insert_assets:
         fields:
           - Description

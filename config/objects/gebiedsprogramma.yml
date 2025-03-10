@@ -179,6 +179,8 @@ models:
         default: none
         optional: true
     services:
+      computed_fields:
+        - batch_next_object_version
       get_image:
         fields:
           - Image
@@ -236,6 +238,9 @@ models:
         default: none
         optional: true
     services:
+      computed_fields:
+        - next_object_version
+        - public_revisions
       insert_assets:
         fields:
           - Description

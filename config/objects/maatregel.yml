@@ -204,6 +204,9 @@ models:
       start_validity:
       end_validity:
       title:
+    services:
+      computed_fields:
+        - batch_next_object_version
   maatregel_extended:
     name: MaatregelExtended
     fields:
@@ -256,6 +259,9 @@ models:
       hierarchy_code:
       werkingsgebied_code:
     services:
+      computed_fields:
+        - next_object_version
+        - public_revisions
       join_werkingsgebieden:
         model_id: werkingsgebied_basic
         to_field: Werkingsgebied
