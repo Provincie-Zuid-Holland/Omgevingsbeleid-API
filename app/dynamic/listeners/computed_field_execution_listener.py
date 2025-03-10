@@ -1,10 +1,12 @@
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
+
+from app.dynamic.computed_fields.handler_context import HandlerContext
 from app.dynamic.computed_fields.models import ComputedField, ExecutionStrategy
+from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.config.models import DynamicObjectModel
 from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 from app.dynamic.event.types import Listener
@@ -17,8 +19,7 @@ class ComputedFieldServiceConfig:
 
 class ComputedFieldExecutionListener(Listener[RetrievedObjectsEvent]):
     """
-    handle the execution of defined computed fields after receiving objects
-    using the execution strategy defined in config.
+    Listener that executes computed fields for retrieved objects
     """
 
     def __init__(self, computed_field_resolver: ComputedFieldResolver):
@@ -60,8 +61,15 @@ class ComputedFieldExecutionListener(Listener[RetrievedObjectsEvent]):
                 if field.handler_id is None:
                     raise RuntimeError(f"No registered handler ID for computed field '{field.id}'")
 
-                # find configured handler and execute it
+                context = HandlerContext(
+                    db=db,
+                    dynamic_objects=dynamic_objects,
+                    dynamic_obj_model=dynamic_obj_model,
+                    computed_field=field
+                )
+                
+                # find configured handler and execute it with context
                 handler = self._computed_field_resolver.get_handler(field.handler_id)
-                handler(db, dynamic_objects, dynamic_obj_model, field)
+                handler(context)
 
         return dynamic_objects

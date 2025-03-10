@@ -46,7 +46,7 @@ class WerkingsgebiedenExtension(Extension):
                 model_id="werkingsgebied_related_objects",
                 attribute_name="Related_Objects",
                 is_list=False,
-                is_optional=True,
+                is_optional=False,
                 execution_strategy=ExecutionStrategy.SERVICE,
                 handler_id="werkingsgebied_load_related_objects",
             )

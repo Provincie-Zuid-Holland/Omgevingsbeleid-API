@@ -44,7 +44,9 @@ class ObjectProvider:
             code=valid_obj.Code, minimum_status=minimum_status, is_active=True
         )
 
-    def list_all_objects_related_to_werkingsgebied(self, werkingsgebied_code: str):
+    def list_all_objects_related_to_werkingsgebied(
+        self, werkingsgebied_code: str
+    ) -> List[LatestObjectPerModuleResult | ObjectsTable]:
         """get all objects and latest version of active module objects related to a specified werkingsgebied."""
         regular_objects: List[ObjectsTable] = self._object_repository.get_all_latest_by_werkingsgebied(
             werkingsgebied_code

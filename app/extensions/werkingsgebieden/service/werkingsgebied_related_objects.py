@@ -1,15 +1,12 @@
-from typing import List, Type
+from typing import List
 
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
 
 from app.dynamic.computed_fields.models import ComputedField
 from app.dynamic.config.models import DynamicObjectModel
 from app.dynamic.db.tables import ObjectsTable
-from app.dynamic.repository.object_repository import ObjectRepository
 from app.extensions.modules.repository.module_object_repository import (
     LatestObjectPerModuleResult,
-    ModuleObjectRepository,
 )
 from app.extensions.modules.repository.object_provider import ObjectProvider
 from app.extensions.werkingsgebieden.models.models import (
@@ -37,15 +34,11 @@ class WerkingsgebiedRelatedObjectService:
             raise ValueError("Trying to process a single obj but multiple rows found")
 
         item = self._rows[0]
-        related_rows = self._object_provider.list_all_objects_related_to_werkingsgebied(
-            werkingsgebied_code=getattr(item, "Code")
+        related_rows: List[LatestObjectPerModuleResult | ObjectsTable] = (
+            self._object_provider.list_all_objects_related_to_werkingsgebied(werkingsgebied_code=getattr(item, "Code"))
         )
-
         field_name: str = self._computed_field.attribute_name
-        computed_field_model: Type[BaseModel] = self._dynamic_obj_model.pydantic_model.__fields__[field_name].type_
-
-        result = self._process_related_objects(related_rows)
-
+        result: WerkingsgebiedRelatedObjects = self._process_related_objects(related_rows)
         setattr(item, field_name, result)
 
         return item
