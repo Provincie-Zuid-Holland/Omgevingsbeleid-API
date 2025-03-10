@@ -10,7 +10,6 @@ from app.extensions.modules.db.tables import ModuleTable
 from app.extensions.modules.models.models import ModuleObjectActionFull, ModuleStatusCode, PublicModuleObjectRevision
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
 
-# data transfer object to unpack combined query into pyd schema cleaner
 ModuleObjectDTO = namedtuple(
     "ModuleObjectDTO",
     [

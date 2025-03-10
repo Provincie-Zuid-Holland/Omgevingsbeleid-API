@@ -1,8 +1,8 @@
 from typing import List
 
-from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 import app.extensions.lineage_resolvers.endpoints as endpoints
 from app.dynamic.computed_fields import ComputedField, ServiceComputedField
+from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_listeners import EventListeners

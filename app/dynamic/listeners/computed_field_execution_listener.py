@@ -1,12 +1,11 @@
-from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.computed_fields.handler_context import ComputedFieldHandlerCallable, HandlerContext
 from app.dynamic.computed_fields.models import ComputedField, ServiceComputedField
-from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.config.models import DynamicObjectModel
 from app.dynamic.event.retrieved_objects_event import RetrievedObjectsEvent
 from app.dynamic.event.types import Listener

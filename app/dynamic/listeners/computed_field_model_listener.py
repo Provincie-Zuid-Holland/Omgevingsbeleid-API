@@ -19,16 +19,11 @@ class ComputedFieldModelListener(Listener[CreateModelEvent]):
 
         computed_fields_resolver: ComputedFieldResolver = event.context.computed_fields_resolver
 
-        # process each computed field config
+        # add each computed field to the pydantic model
         for computed_field_id in computed_fields_config:
             computed_field: ComputedField = computed_fields_resolver.get(computed_field_id)
-
-            # TODO: check if static computed fields should be supported
-            if computed_field.static != event.context.intermediate_model.static_only:
-                continue
-
-            # add the field to the pydantic model
             model: Model = event.context.models_resolver.get(computed_field.model_id)
+
             schema = model.pydantic_model
             if computed_field.is_list:
                 schema = List[schema]

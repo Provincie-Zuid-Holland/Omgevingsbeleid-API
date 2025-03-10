@@ -5,9 +5,7 @@ from pydantic import BaseModel
 from app.dynamic.computed_fields.models import ComputedField
 from app.dynamic.config.models import DynamicObjectModel
 from app.dynamic.db.tables import ObjectsTable
-from app.extensions.modules.repository.module_object_repository import (
-    LatestObjectPerModuleResult,
-)
+from app.extensions.modules.repository.module_object_repository import LatestObjectPerModuleResult
 from app.extensions.modules.repository.object_provider import ObjectProvider
 from app.extensions.werkingsgebieden.models.models import (
     DynamicModuleObjectShort,

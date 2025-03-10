@@ -31,19 +31,6 @@ class ObjectProvider:
 
         return None
 
-    # TODO: unused?
-    def list_object_versions_in_progress(self, object_uuid: UUID):
-        minimum_status = ModuleStatusCode.Ontwerp_PS
-
-        valid_obj = self._object_repository.get_by_uuid(object_uuid)
-
-        if valid_obj is None:
-            raise ValueError(f"No valid object found for UUID: {object_uuid}")
-
-        return self._module_object_repository.get_latest_filtered(
-            code=valid_obj.Code, minimum_status=minimum_status, is_active=True
-        )
-
     def list_all_objects_related_to_werkingsgebied(
         self, werkingsgebied_code: str
     ) -> List[LatestObjectPerModuleResult | ObjectsTable]:

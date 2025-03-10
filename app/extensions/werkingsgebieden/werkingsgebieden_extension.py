@@ -1,17 +1,15 @@
 from typing import List
 
-from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
-from app.dynamic.computed_fields.models import ServiceComputedField
 import app.extensions.werkingsgebieden.listeners as listeners
 from app.dynamic.computed_fields import ComputedField
+from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
+from app.dynamic.computed_fields.models import ServiceComputedField
 from app.dynamic.config.models import ExtensionModel
 from app.dynamic.converter import Converter
 from app.dynamic.event_listeners import EventListeners
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.werkingsgebieden.computed_field_handlers import (
-    process_werkingsgebied_related_objects,
-)
+from app.extensions.werkingsgebieden.computed_field_handlers import process_werkingsgebied_related_objects
 from app.extensions.werkingsgebieden.models.models import WerkingsgebiedRelatedObjects
 
 

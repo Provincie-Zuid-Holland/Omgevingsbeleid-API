@@ -1,11 +1,10 @@
-from typing import List, TypeVar, Protocol
+from typing import List, Protocol, TypeVar
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.dynamic.computed_fields.models import ComputedField
 from app.dynamic.config.models import DynamicObjectModel
-
 
 T = TypeVar("T")
 

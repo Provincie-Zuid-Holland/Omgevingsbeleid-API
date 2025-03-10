@@ -1,13 +1,12 @@
-from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
 
 
 class ComputedField(BaseModel):
     id: str
     model_id: str  # schema of the value to be computed
-    attribute_name: str
+    attribute_name: str  # field added to the response model
     is_list: bool = False
     is_optional: bool = True
     static: bool = False
