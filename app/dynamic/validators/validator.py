@@ -39,7 +39,7 @@ class NoneToDefaultValueValidator(Validator):
     def get_validator_func(self, config: dict) -> PydanticValidator:
         def pydantic_none_to_default_validator(cls, value, info: ValidationInfo):
             if value is None:
-                return PydanticUseDefault()
+                raise PydanticUseDefault()
             return value
 
         return PydanticValidator(
