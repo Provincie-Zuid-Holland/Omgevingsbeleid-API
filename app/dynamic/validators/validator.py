@@ -85,10 +85,10 @@ class PlainTextValidator(Validator):
             if value is None:
                 return None
 
-            if not isinstance(v, str):
+            if not isinstance(value, str):
                 raise ValueError("Value must be a string")
 
-            soup: BeautifulSoup = BeautifulSoup(v, "html.parser")
+            soup: BeautifulSoup = BeautifulSoup(value, "html.parser")
             if soup.find():
                 raise ValueError("Value is not allowed to contain html")
 
