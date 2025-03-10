@@ -23,6 +23,7 @@ from app.dynamic.validators.validator import (
     HtmlValidator,
     ImageValidator,
     LengthValidator,
+    NoneToDefaultValueValidator,
     NotEqualRootValidator,
     ObjectCodeAllowedTypeValidator,
     ObjectCodeExistsValidator,
@@ -295,6 +296,7 @@ class DynamicAppBuilder:
         self._service_container.converter.register_serializer("json_dumps", serializers.serializer_json_dumps)
 
     def _register_base_validators(self):
+        self._service_container.validator_provider.register(NoneToDefaultValueValidator())
         self._service_container.validator_provider.register(LengthValidator())
         self._service_container.validator_provider.register(PlainTextValidator())
         self._service_container.validator_provider.register(FilenameValidator())

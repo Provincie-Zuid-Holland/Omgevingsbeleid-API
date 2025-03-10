@@ -1,22 +1,28 @@
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List
 from uuid import UUID
 
 from ..models import Field
 
-field_types = {
-    "int": int,
-    "float": float,
-    "str": str,
-    "uuid": UUID,
-    "datetime": datetime,
-    "list_str": Optional[List[str]],
-}
+
+@dataclass
+class FieldType:
+    id: str
+    field_type: Any
 
 
-field_defaults = {
-    "none": None,
+field_types: Dict[str, FieldType] = {
+    ft.id: ft
+    for ft in [
+        FieldType(id="int", field_type=int),
+        FieldType(id="float", field_type=float),
+        FieldType(id="str", field_type=str),
+        FieldType(id="uuid", field_type=UUID),
+        FieldType(id="datetime", field_type=datetime),
+        FieldType(id="list_str", field_type=List[str]),
+    ]
 }
 
 

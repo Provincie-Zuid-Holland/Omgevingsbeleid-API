@@ -101,22 +101,32 @@ fields:
     name: Title
     type: str
     column: title
+    validators:
+      - id: none_to_default_value
   description:
     name: Description
     type: str
     column: description
+    validators:
+      - id: none_to_default_value
   image:
     name: Image
     type: str
     column: image
+    validators:
+      - id: none_to_default_value
   idms_link:
     name: IDMS_Link
     type: str
     column: idms_link
+    validators:
+      - id: none_to_default_value
   decision_number:
     name: Decision_Number
     type: str
     column: decision_number
+    validators:
+      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:

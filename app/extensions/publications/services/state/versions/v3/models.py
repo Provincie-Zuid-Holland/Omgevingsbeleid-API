@@ -35,10 +35,10 @@ class Werkingsgebied(BaseModel):
     Frbr: Frbr
 
     @model_validator(mode="before")
-    def default_identifier_to_uuid(cls, values):
-        if not values.get("Identifier"):
-            values["Identifier"] = str(values["UUID"])
-        return values
+    def default_identifier_to_uuid(cls, data):
+        if not data.get("Identifier"):
+            data["Identifier"] = str(data["UUID"])
+        return data
 
 
 class Document(BaseModel):
