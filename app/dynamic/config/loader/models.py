@@ -154,7 +154,7 @@ class ModelsLoader:
         for field in fields:
             field_type = field.type
             if field_type in field_types:
-                field_type = field_types[field_type]
+                field_type = field_types[field_type].field_type
 
             if field.optional:
                 field_type = Optional[field_type]
@@ -170,21 +170,9 @@ class ModelsLoader:
 
                 pydantic_validator_unique_name: str = f"{validator_prefix}-{len(pydantic_validators) + 1}"
                 # fmt: off
-                pydantic_validator_func = pydantic.field_validator(field.name)(validator_func)
+                pydantic_validator_func = pydantic.field_validator(field.name, mode=validator_func.mode)(validator_func.func)
                 pydantic_validators[pydantic_validator_unique_name] = pydantic_validator_func
                 # fmt: on
-
-                """
-                Showing what is needed to register pydantic validators:
-                __validators__={
-                    "unique-name-1": pydantic.validator("Title", allow_reuse=True)(our_validator_func({
-                        "min": 5,
-                    })),
-                    "unique-name-2": pydantic.validator("Description", allow_reuse=True)(our_validator_func({
-                        "min": 6,
-                    }))
-                }
-                """
 
             pydantic_fields[field.name] = (
                 field_type,
@@ -208,7 +196,7 @@ class ModelsLoader:
             self._model_validator_counter += 1
             unique_name: str = f"model_validator_{self._model_validator_counter}"
 
-            pydantic_validator_func = pydantic.model_validator(mode="after")(validator_func)
+            pydantic_validator_func = pydantic.model_validator(mode=validator_func.mode)(validator_func.func)
             model_validators[unique_name] = pydantic_validator_func
 
         return model_validators
