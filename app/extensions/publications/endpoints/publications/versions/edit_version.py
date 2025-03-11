@@ -17,6 +17,8 @@ from app.extensions.publications.tables.tables import PublicationVersionTable
 from app.extensions.users.db.tables import UsersTable
 from app.extensions.users.dependencies import depends_current_active_user_with_permission_curried
 
+ProceduralClass = Procedural
+
 
 class PublicationVersionEdit(BaseModel):
     Module_Status_ID: Optional[int] = None
@@ -25,7 +27,7 @@ class PublicationVersionEdit(BaseModel):
 
     Bill_Metadata: Optional[BillMetadata] = None
     Bill_Compact: Optional[BillCompact] = None
-    Procedural: Optional[Procedural] = None
+    Procedural: Optional[ProceduralClass] = None
 
 
 class PublicationVersionEditResponse(BaseModel):
