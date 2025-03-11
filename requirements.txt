@@ -38,7 +38,7 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@main
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@e2fd09ec1c994660fd93b83afe768fe7407b7249
     # via -r requirements.in
 ecdsa==0.19.0
     # via python-jose
@@ -169,7 +169,7 @@ soupsieve==2.6
     #   dso
 sqlalchemy==2.0.38
     # via -r requirements.in
-starlette==0.46.0
+starlette==0.46.1
     # via fastapi
 tomli==2.2.1
     # via dso

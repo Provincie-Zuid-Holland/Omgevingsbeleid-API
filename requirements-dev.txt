@@ -6,7 +6,7 @@
 #
 alembic==1.15.1
     # via -r requirements-dev.in
-astroid==3.3.8
+astroid==3.3.9
     # via pylint
 asttokens==2.4.1
     # via
@@ -43,7 +43,7 @@ executing==2.2.0
     # via
     #   devtools
     #   stack-data
-faker==36.2.2
+faker==37.0.0
     # via -r requirements-dev.in
 flake8==7.1.2
     # via -r requirements-dev.in
@@ -55,7 +55,7 @@ idna==3.10
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==9.0.1
+ipython==9.0.2
     # via -r requirements-dev.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -123,7 +123,7 @@ pygments==2.19.1
     #   ipython
     #   ipython-pygments-lexers
     #   rich
-pylint==3.3.4
+pylint==3.3.5
     # via -r requirements-dev.in
 pytest==8.3.5
     # via
