@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -62,7 +62,7 @@ class EndpointHandler:
         self._announcement: PublicationAnnouncementTable = announcement
         self._publication: PublicationTable = announcement.Publication
         self._environment: PublicationEnvironmentTable = announcement.Publication.Environment
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> PublicationAnnouncementPackageCreatedResponse:
         self._guard_validate_package_type()

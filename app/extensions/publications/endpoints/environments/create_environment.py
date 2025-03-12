@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
@@ -43,7 +43,7 @@ class EndpointHandler:
         self._db: Session = db
         self._user: UsersTable = user
         self._object_in: EnvironmentCreate = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> EnvironmentCreatedResponse:
         environment: PublicationEnvironmentTable = PublicationEnvironmentTable(

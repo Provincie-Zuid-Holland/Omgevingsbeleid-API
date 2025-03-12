@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 import pytest
@@ -33,7 +33,7 @@ class TestModulesEndpoints:
     @pytest.fixture(scope="class", autouse=True)
     def setup(self, request, setup_db_once, populate_users, populate_statics, populate_objects):  # noqa
         # timestamps
-        request.cls.now = datetime.utcnow()
+        request.cls.now = datetime.now(timezone.utc)
         request.cls.five_days_ago = request.cls.now - timedelta(days=5)
         request.cls.five_days_later = request.cls.now + timedelta(days=5)
 
@@ -248,7 +248,7 @@ class TestModulesEndpoints:
 
         # Expect module edited
         assert all(
-            getattr(existing_module, k) == v for k, v in request_obj.dict().items()
+            getattr(existing_module, k) == v for k, v in request_obj.model_dump().items()
         ), "One or more attributes of changed module do not match the request"
 
     # TODO: Permission check
@@ -335,7 +335,7 @@ class TestModulesEndpoints:
         new_status = local_tables.ModuleStatusHistoryTable(
             Module_ID=existing_module.Module_ID,
             Status=ModuleStatusCode.Vastgesteld.value,
-            Created_Date=datetime.utcnow(),
+            Created_Date=datetime.now(timezone.utc),
             Created_By_UUID=self.super_user.UUID,
         )
         existing_module.status_history.append(new_status)

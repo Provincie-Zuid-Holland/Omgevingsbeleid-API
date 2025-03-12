@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.dynamic.config.models import Api, EndpointConfig
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -28,13 +28,11 @@ class ModuleObjectContext(BaseModel):
     Explanation: str
     Conclusion: str
 
-    Original_Adjust_On: Optional[uuid.UUID]
+    Original_Adjust_On: Optional[uuid.UUID] = None
 
-    Created_By: Optional[UserShort]
-    Modified_By: Optional[UserShort]
-
-    class Config:
-        orm_mode = True
+    Created_By: Optional[UserShort] = None
+    Modified_By: Optional[UserShort] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleGetObjectContextEndpoint(Endpoint):
@@ -46,7 +44,7 @@ class ModuleGetObjectContextEndpoint(Endpoint):
             user: UsersTable = Depends(depends_current_active_user),
             object_context_table: ModuleObjectContextTable = Depends(depends_active_module_object_context),
         ) -> ModuleObjectContext:
-            response: ModuleObjectContext = ModuleObjectContext.from_orm(object_context_table)
+            response: ModuleObjectContext = ModuleObjectContext.model_validate(object_context_table)
             return response
 
         router.add_api_route(

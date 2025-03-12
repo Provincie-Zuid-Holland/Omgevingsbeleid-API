@@ -44,7 +44,7 @@ class ListUsersEndpoint(Endpoint):
         pagination: SortedPagination,
     ) -> PagedResponse[User]:
         paginated_result = repostiory.get_active(pagination)
-        users: List[User] = [User.from_orm(u) for u in paginated_result.items]
+        users: List[User] = [User.model_validate(u) for u in paginated_result.items]
 
         return PagedResponse[User](
             total=paginated_result.total_count,

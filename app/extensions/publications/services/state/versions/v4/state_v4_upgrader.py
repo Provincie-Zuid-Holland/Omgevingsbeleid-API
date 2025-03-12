@@ -38,7 +38,7 @@ class StateV4Upgrader(StateUpgrader):
         purposes: Dict[str, models_v4.Purpose] = {}
 
         for key, old_purpose in old_state.Purposes.items():
-            new_purpose: models_v4.Purpose = models_v4.Purpose.parse_obj(old_purpose.dict())
+            new_purpose: models_v4.Purpose = models_v4.Purpose.model_validate(old_purpose.model_dump())
             purposes[key] = new_purpose
 
         return purposes
@@ -53,10 +53,10 @@ class StateV4Upgrader(StateUpgrader):
         return acts
 
     def _mutate_act(self, environment_uuid: uuid.UUID, old_act: state_v3.models.ActiveAct) -> models_v4.ActiveAct:
-        act_dict: dict = old_act.dict()
+        act_dict: dict = old_act.model_dump()
         act_dict["Werkingsgebieden"] = self._resolve_werkingsgebieden(old_act.Werkingsgebieden)
 
-        act: models_v4.ActiveAct = models_v4.ActiveAct.parse_obj(act_dict)
+        act: models_v4.ActiveAct = models_v4.ActiveAct.model_validate(act_dict)
         return act
 
     def _resolve_werkingsgebieden(
@@ -85,7 +85,7 @@ class StateV4Upgrader(StateUpgrader):
                 Object_ID=old_werkingsgebied.Object_ID,
                 Title=old_werkingsgebied.Title,
                 Owner_Act=old_werkingsgebied.Owner_Act,
-                Frbr=models_v4.Frbr.parse_obj(old_werkingsgebied.Frbr.dict()),
+                Frbr=models_v4.Frbr.model_validate(old_werkingsgebied.Frbr.model_dump()),
                 Locations=[location],
             )
 
@@ -95,8 +95,8 @@ class StateV4Upgrader(StateUpgrader):
         announcements: Dict[str, models_v4.ActiveAnnouncement] = {}
 
         for key, old_announcement in old_state.Announcements.items():
-            new_announcement: models_v4.ActiveAnnouncement = models_v4.ActiveAnnouncement.parse_obj(
-                old_announcement.dict()
+            new_announcement: models_v4.ActiveAnnouncement = models_v4.ActiveAnnouncement.model_validate(
+                old_announcement.model_dump()
             )
             announcements[key] = new_announcement
 

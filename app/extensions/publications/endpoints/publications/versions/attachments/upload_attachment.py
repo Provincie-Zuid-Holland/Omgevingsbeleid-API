@@ -1,7 +1,7 @@
 import hashlib
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
@@ -64,7 +64,7 @@ class EndpointHandler:
         self._uploaded_file: UploadFile = uploaded_file
         self._version: PublicationVersionTable = version
         self._title: str = title
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> UploadAttachmentResponse:
         self._guard_upload()

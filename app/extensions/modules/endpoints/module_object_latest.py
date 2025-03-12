@@ -75,7 +75,7 @@ class ModuleObjectLatestEndpoint(Endpoint):
         if not module_object:
             raise ValueError("lineage_id does not exist")
 
-        row: self._response_type = self._response_type.from_orm(module_object)
+        row: self._response_type = self._response_type.model_validate(module_object)
         rows: List[self._response_type] = [row]
 
         # Ask extensions for more information

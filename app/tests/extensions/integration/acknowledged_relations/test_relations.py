@@ -1,5 +1,5 @@
 from copy import deepcopy
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from fastapi.exceptions import HTTPException
@@ -24,7 +24,7 @@ class TestAcknowledgedRelationsEndpoint:
     @pytest.fixture(autouse=True)
     def setup(self, db, local_tables, relation_repository):  # noqa
         # timestamps
-        self.now = datetime.utcnow()
+        self.now = datetime.now(timezone.utc)
         self.five_days_ago = self.now - timedelta(days=5)
         self.five_days_later = self.now + timedelta(days=5)
 

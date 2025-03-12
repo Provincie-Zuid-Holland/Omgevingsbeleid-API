@@ -9,7 +9,7 @@ from app.dynamic.endpoints.endpoint import EndpointResolver
 from app.dynamic.event_listeners import EventListeners
 from app.dynamic.extension import Extension
 from app.dynamic.models_resolver import ModelsResolver
-from app.extensions.users.model import UserShort
+from app.extensions.users.model import UserLoginDetail, UserShort
 from app.extensions.users.permission_service import main_permission_service
 
 
@@ -24,6 +24,13 @@ class UsersExtension(Extension):
                 id="user_short",
                 name="UserShort",
                 pydantic_model=UserShort,
+            )
+        )
+        models_resolver.add(
+            ExtensionModel(
+                id="user_login_details",
+                name="UserLoginDetail",
+                pydantic_model=UserLoginDetail,
             )
         )
 

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import ForeignKey, and_
@@ -85,12 +85,12 @@ class AcknowledgedRelationColumns(AcknowledgedRelationBaseColumns):
     def deny(self):
         if self.Denied is not None:
             return
-        self.Denied = datetime.utcnow()
+        self.Denied = datetime.now(timezone.utc)
 
     def delete(self):
         if self.Is_Deleted:
             return
-        self.Deleted_At = datetime.utcnow()
+        self.Deleted_At = datetime.now(timezone.utc)
 
     # dynamic property for better ORM filtering.
     @hybrid_property

@@ -7,7 +7,7 @@ import click
 import yaml
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 import app.dynamic.serializers as serializers
 from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings
@@ -23,6 +23,7 @@ from app.dynamic.validators.validator import (
     HtmlValidator,
     ImageValidator,
     LengthValidator,
+    NoneToDefaultValueValidator,
     NotEqualRootValidator,
     ObjectCodeAllowedTypeValidator,
     ObjectCodeExistsValidator,
@@ -295,6 +296,7 @@ class DynamicAppBuilder:
         self._service_container.converter.register_serializer("json_dumps", serializers.serializer_json_dumps)
 
     def _register_base_validators(self):
+        self._service_container.validator_provider.register(NoneToDefaultValueValidator())
         self._service_container.validator_provider.register(LengthValidator())
         self._service_container.validator_provider.register(PlainTextValidator())
         self._service_container.validator_provider.register(FilenameValidator())

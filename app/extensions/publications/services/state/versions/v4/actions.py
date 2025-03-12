@@ -40,7 +40,7 @@ class AddPublicationAction(Action):
 
 class AddPurposeAction(Action):
     Purpose_Type: PurposeType
-    Effective_Date: Optional[date]
+    Effective_Date: Optional[date] = None
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str

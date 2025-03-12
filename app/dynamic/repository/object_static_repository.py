@@ -16,7 +16,9 @@ class ObjectStaticRepository(BaseRepository):
         )
         return self.fetch_first(stmt)
 
-    def get_by_type_and_owner(self, object_type: str = None, owner_uuid: UUID = None) -> List[ObjectStaticsTable]:
+    def get_by_type_and_owner(
+        self, object_type: Optional[str] = None, owner_uuid: Optional[UUID] = None
+    ) -> List[ObjectStaticsTable]:
         stmt = select(ObjectStaticsTable)
 
         if owner_uuid:

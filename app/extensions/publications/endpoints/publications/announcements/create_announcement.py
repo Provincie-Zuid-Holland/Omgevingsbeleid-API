@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -45,7 +45,7 @@ class EndpointHandler:
         self._user: UsersTable = user
         self._act_package: PublicationActPackageTable = act_package
         self._publication: PublicationTable = act_package.Publication_Version.Publication
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> AnnouncementCreatedResponse:
         self._guard_can_create_announcement()
@@ -60,9 +60,9 @@ class EndpointHandler:
             UUID=uuid.uuid4(),
             Act_Package_UUID=self._act_package.UUID,
             Publication_UUID=self._publication.UUID,
-            Metadata=metadata.dict(),
-            Procedural=procedural.dict(),
-            Content=content.dict(),
+            Metadata=metadata.model_dump(),
+            Procedural=procedural.model_dump(),
+            Content=content.model_dump(),
             Announcement_Date=None,
             Is_Locked=False,
             Created_Date=self._timepoint,

@@ -1,9 +1,9 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import String, func, insert, select
 from sqlalchemy.orm import Session
 
@@ -25,23 +25,23 @@ class ModuleAddNewObject(BaseModel):
     Object_Type: str
     Title: str = Field(..., min_length=3)
     Owner_1_UUID: uuid.UUID
-    Owner_2_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
-    Client_1_UUID: Optional[uuid.UUID] = Field(None, nullable=True)
+    Owner_2_UUID: Optional[uuid.UUID] = Field(None)
+    Client_1_UUID: Optional[uuid.UUID] = Field(None)
 
-    Explanation: str = Field("", nullable=True)
-    Conclusion: str = Field("", nullable=True)
+    Explanation: str = Field("")
+    Conclusion: str = Field("")
 
-    @validator("Explanation", "Conclusion", pre=True)
+    @field_validator("Explanation", "Conclusion", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
-    @validator("Owner_2_UUID")
-    def duplicate_owner(cls, v, values):
+    @field_validator("Owner_2_UUID", mode="after")
+    def duplicate_owner(cls, v, info):
         if v is None:
             return v
-        if not "Owner_1_UUID" in values:
+        if "Owner_1_UUID" not in info.data:
             return v
-        if v == values["Owner_1_UUID"]:
+        if v == info.data["Owner_1_UUID"]:
             raise ValueError("Duplicate owner")
         return v
 
@@ -50,9 +50,7 @@ class NewObjectStaticResponse(BaseModel):
     Object_Type: str
     Object_ID: int
     Code: str
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EndpointHandler:
@@ -71,7 +69,7 @@ class EndpointHandler:
         self._user: UsersTable = user
         self._module: ModuleTable = module
         self._object_in: ModuleAddNewObject = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> NewObjectStaticResponse:
         guard_valid_user(
@@ -96,7 +94,7 @@ class EndpointHandler:
             self._db.flush()
             self._db.commit()
 
-            response: NewObjectStaticResponse = NewObjectStaticResponse.from_orm(object_static)
+            response: NewObjectStaticResponse = NewObjectStaticResponse.model_validate(object_static)
             return response
         except Exception:
             self._db.rollback

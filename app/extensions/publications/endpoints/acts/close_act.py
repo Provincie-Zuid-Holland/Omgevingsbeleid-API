@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -28,7 +28,7 @@ class EndpointHandler:
 
     def handle(self) -> ResponseOK:
         self._act.Modified_By_UUID = self._user.UUID
-        self._act.Modified_Date = datetime.utcnow()
+        self._act.Modified_Date = datetime.now(timezone.utc)
         self._act.Is_Active = False
 
         self._db.add(self._act)

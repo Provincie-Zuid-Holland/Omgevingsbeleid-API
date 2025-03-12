@@ -52,7 +52,7 @@ class StateV2Upgrader(StateUpgrader):
         purposes: Dict[str, models_v2.Purpose] = {}
 
         for key, old_purpose in old_state.Purposes.items():
-            new_purpose: models_v2.Purpose = models_v2.Purpose.parse_obj(old_purpose.dict())
+            new_purpose: models_v2.Purpose = models_v2.Purpose.model_validate(old_purpose.model_dump())
             purposes[key] = new_purpose
 
         return purposes
@@ -77,13 +77,13 @@ class StateV2Upgrader(StateUpgrader):
         ow_data: models_v2.OwData = self._get_act_ow_data(original_data, old_act)
 
         act = models_v2.ActiveAct(
-            Act_Frbr=models_v2.Frbr.parse_obj(old_act.Act_Frbr.dict()),
-            Bill_Frbr=models_v2.Frbr.parse_obj(old_act.Bill_Frbr.dict()),
-            Consolidation_Purpose=models_v2.Purpose.parse_obj(old_act.Consolidation_Purpose.dict()),
+            Act_Frbr=models_v2.Frbr.model_validate(old_act.Act_Frbr.model_dump()),
+            Bill_Frbr=models_v2.Frbr.model_validate(old_act.Bill_Frbr.model_dump()),
+            Consolidation_Purpose=models_v2.Purpose.model_validate(old_act.Consolidation_Purpose.model_dump()),
             Document_Type=old_act.Document_Type,
             Procedure_Type=old_act.Procedure_Type,
             Werkingsgebieden=werkingsgebieden,
-            Wid_Data=models_v2.WidData.parse_obj(old_act.Wid_Data.dict()),
+            Wid_Data=models_v2.WidData.model_validate(old_act.Wid_Data.model_dump()),
             Ow_Data=ow_data,
             Act_Text=old_act.Act_Text,
             Publication_Version_UUID=str(publication_version_uuid),
@@ -104,11 +104,11 @@ class StateV2Upgrader(StateUpgrader):
                 },
             )
 
-            data_dict = old_werkingsgebied.dict()
+            data_dict = old_werkingsgebied.model_dump()
             data_dict["Title"] = original_werkingsgebied["Title"]
             data_dict["Hash"] = original_werkingsgebied["Hash"]
 
-            new_werkingsgebied = models_v2.Werkingsgebied.parse_obj(data_dict)
+            new_werkingsgebied = models_v2.Werkingsgebied.model_validate(data_dict)
             new_werkingsgebieden[key] = new_werkingsgebied
 
         return new_werkingsgebieden
@@ -169,8 +169,8 @@ class StateV2Upgrader(StateUpgrader):
         announcements: Dict[str, models_v2.ActiveAnnouncement] = {}
 
         for key, old_announcement in old_state.Announcements.items():
-            new_announcement: models_v2.ActiveAnnouncement = models_v2.ActiveAnnouncement.parse_obj(
-                old_announcement.dict()
+            new_announcement: models_v2.ActiveAnnouncement = models_v2.ActiveAnnouncement.model_validate(
+                old_announcement.model_dump()
             )
             announcements[key] = new_announcement
 

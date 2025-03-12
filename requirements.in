@@ -1,7 +1,8 @@
 # Core libraries
 fastapi
 uvicorn[standard]
-pydantic==1.*
+pydantic
+pydantic-settings
 pyodbc
 SQLAlchemy
 pyyaml
@@ -41,4 +42,4 @@ dicttoxml
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.6.1
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@main

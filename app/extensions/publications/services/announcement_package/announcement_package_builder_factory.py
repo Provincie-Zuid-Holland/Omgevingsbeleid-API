@@ -49,9 +49,9 @@ class AnnouncementPackageBuilderFactory:
             About_Act_Frbr=about_act_frbr,
             Package_Type=package_type,
             Announcement=announcement,
-            Announcement_Metadata=AnnouncementMetadata.parse_obj(announcement.Metadata),
-            Announcement_Procedural=AnnouncementProcedural.parse_obj(announcement.Procedural),
-            Announcement_Content=AnnouncementContent.parse_obj(announcement.Content),
+            Announcement_Metadata=AnnouncementMetadata.model_validate(announcement.Metadata),
+            Announcement_Procedural=AnnouncementProcedural.model_validate(announcement.Procedural),
+            Announcement_Content=AnnouncementContent.model_validate(announcement.Content),
         )
 
         state: Optional[ActiveState] = self._state_loader.load_from_environment(announcement.Publication.Environment)

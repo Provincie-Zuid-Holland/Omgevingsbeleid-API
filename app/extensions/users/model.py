@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class User(BaseModel):
@@ -12,21 +12,23 @@ class User(BaseModel):
     Status: str
     IsActive: bool
 
-    @validator("Email", pre=True)
+    @field_validator("Email", mode="before")
     def default_empty_string(cls, v):
         return v or "<geen email>"
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserLoginDetail(BaseModel):
+    UUID: UUID
+    Rol: str
+    Gebruikersnaam: str
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserShort(BaseModel):
     UUID: UUID
-    # Rol: str
-    # Gebruikersnaam: str
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TokenPayload(BaseModel):

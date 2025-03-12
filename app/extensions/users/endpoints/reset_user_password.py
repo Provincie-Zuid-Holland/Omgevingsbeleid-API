@@ -1,6 +1,6 @@
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends
@@ -41,7 +41,7 @@ class ResetUserPasswordEndpointHandler:
         self._repository: UserRepository = repository
         self._logged_in_user: UsersTable = logged_in_user
         self._user_uuid: uuid.UUID = user_uuid
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ResetPasswordResponse:
         user: Optional[UsersTable] = self._repository.get_by_uuid(self._user_uuid)

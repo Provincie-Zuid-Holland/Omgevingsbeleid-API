@@ -1,12 +1,12 @@
 import uuid
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Purpose(BaseModel):
     Purpose_Type: str
-    Effective_Date: Optional[str]
+    Effective_Date: Optional[str] = None
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str
@@ -83,9 +83,7 @@ class WidData(BaseModel):
 class OwData(BaseModel):
     Ow_Objects: Dict[str, Any] = Field({}, alias="ow_objects")
     Terminated_Ow_Ids: List[str] = Field([], alias="terminated_ow_ids")
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ActiveAct(BaseModel):

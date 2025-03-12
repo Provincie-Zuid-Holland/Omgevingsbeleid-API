@@ -92,26 +92,38 @@ fields:
     name: Title
     type: str
     column: title
+    validators:
+      - id: none_to_default_value
   description:
     name: Description
     type: str
     column: description
+    validators:
+      - id: none_to_default_value
   area_uuid:
     name: Area_UUID
     type: uuid
     column: area_uuid
+    validators:
+      - id: none_to_default_value
   onderverdelingen:
     name: Onderverdelingen
     type: list_str
     column: onderverdelingen
+    validators:
+      - id: none_to_default_value
   idms_link:
     name: IDMS_Link
     type: str
     column: idms_link
+    validators:
+      - id: none_to_default_value
   decision_number:
     name: Decision_Number
     type: str
     column: decision_number
+    validators:
+      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
@@ -238,7 +250,7 @@ models:
   werkingsgebied_static_post_validated:
     name: WerkingsgebiedStaticPostValidated
     static_only: true
-    root_validators:
+    model_validators:
       - id: not_equal_root
         data:
           fields:
