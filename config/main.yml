@@ -467,6 +467,13 @@ columns:
     serializers: []
     deserializers: []
     nullable: true
+  # Onderverdeling references
+  onderverdelingen:
+    name: Onderverdelingen
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
   # Area_UUID used to store reference to the shape
   area_uuid:
     name: Area_UUID
