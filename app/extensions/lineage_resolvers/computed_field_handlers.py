@@ -1,5 +1,7 @@
 from typing import List
+
 from pydantic.main import BaseModel
+
 from app.dynamic.computed_fields.handler_context import HandlerContext
 from app.extensions.lineage_resolvers.service.next_object_validities_service import NextObjectVersionService
 

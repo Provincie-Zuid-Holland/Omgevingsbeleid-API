@@ -1,10 +1,9 @@
-from datetime import datetime, timezone
-from typing import Dict, List, Optional, Type, get_args
+from typing import Any, Dict, List, Type, get_args
+from uuid import UUID
 
 from pydantic import BaseModel
-from pydantic.fields import FieldInfo
-from sqlalchemy import or_, select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy import Column, Select, func, select
+from sqlalchemy.orm import Session, load_only, selectinload
 
 from app.dynamic.computed_fields.models import ComputedField
 from app.dynamic.config.models import DynamicObjectModel
@@ -32,39 +31,36 @@ class NextObjectVersionService:
         if len(self._dynamic_objects) != 1:
             raise ValueError("Trying to process a single obj but multiple rows found")
 
-        item = self._dynamic_objects[0]
-        code = getattr(item, "Code")
-        modified_date = getattr(item, "Modified_Date")
+        row: BaseModel = self._dynamic_objects[0]
+        computed_field_model: Type[BaseModel] = self._extract_computed_field_model()
+        field_name: str = self._computed_field.attribute_name
 
-        next_obj = self._query_next_object_version(code, modified_date)
+        next_obj_query = self._query_next_object_version_by_uuid(
+            object_uuid=row.UUID, model_fields=computed_field_model.model_fields
+        )
+        next_obj = self._db.execute(next_obj_query).scalars().first()
 
-        field_name = self._computed_field.attribute_name
-        computed_field_model = self._extract_computed_field_model()
-
-        if next_obj:
-            next_version = computed_field_model.model_validate(next_obj)
-            setattr(item, field_name, next_version)
-        else:
-            setattr(item, field_name, None)
-
+        next_version = computed_field_model.model_validate(next_obj) if next_obj else None
+        self._dynamic_objects[0] = row.model_copy(update={field_name: next_version})
         return self._dynamic_objects
 
     def process_batch(self) -> List[BaseModel]:
-        object_uuids = [row.UUID for row in self._dynamic_objects]
-
+        object_uuids = [obj.UUID for obj in self._dynamic_objects]
         if not object_uuids:
             return self._dynamic_objects
 
-        uuid_to_code_map = {row.UUID: row.Code for row in self._dynamic_objects}
-        uuid_to_modified_date_map = {row.UUID: row.Modified_Date for row in self._dynamic_objects}
-
-        next_versions: Dict[str, ObjectsTable] = self._batch_query_next_versions(
-            uuid_to_code_map, uuid_to_modified_date_map
+        field_name: str = self._computed_field.attribute_name
+        computed_field_model: Type[BaseModel] = self._extract_computed_field_model()
+        batch_next_versions_query: Select = self._batch_next_version_query(
+            object_uuids=object_uuids, model_fields=computed_field_model.model_fields
         )
+        rows = self._db.execute(batch_next_versions_query).all()
 
-        # extract the computed field model
-        field_name = self._computed_field.attribute_name
-        computed_field_model = self._extract_computed_field_model()
+        # map the original uuids to the next versions
+        next_versions: Dict[UUID, dict] = {}
+        for row in rows:
+            ref_uuid: UUID = row._mapping["ref_uuid"]
+            next_versions[ref_uuid] = dict(row._mapping)
 
         # merge results back and convert ORM objects to Pydantic models in the same loop
         for row in self._dynamic_objects:
@@ -74,96 +70,57 @@ class NextObjectVersionService:
 
         return self._dynamic_objects
 
-    def _query_next_object_version(self, code: str, modified_date: datetime) -> Optional[ObjectsTable]:
-        # Valid next object version TODO: move to repo?
+    def _query_next_object_version_by_uuid(self, object_uuid: UUID, model_fields: Dict[str, Any]):
+        select_cols: List[Column] = self._extract_select_columns(model_fields)
+        reference_obj = (select(ObjectsTable).filter(ObjectsTable.UUID == object_uuid)).subquery()
         stmt = (
-            select(ObjectsTable)
-            .options(selectinload(ObjectsTable.ObjectStatics))
-            .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Code == code)
-            .filter(ObjectsTable.Modified_Date > modified_date)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
-            .filter(
-                or_(
-                    ObjectsTable.End_Validity > datetime.now(timezone.utc),
-                    ObjectsTable.End_Validity == None,
-                )
-            )
+            select(ObjectsTable).options(load_only(*select_cols))
+            .filter(ObjectsTable.Code == reference_obj.c.Code)
+            .filter(ObjectsTable.Modified_Date > reference_obj.c.Modified_Date)
             .order_by(ObjectsTable.Modified_Date.asc())
             .limit(1)
         )
+        return stmt
 
-        return self._db.execute(stmt).scalars().first()
-
-    def _batch_query_next_versions(
-        self, uuid_to_code_map: Dict[str, str], uuid_to_modified_date_map: Dict[str, datetime]
-    ) -> Dict[str, ObjectsTable]:
-        if not uuid_to_code_map:
-            return {}
-
-        potential_next_objects = self._query_potential_next_objects(set(uuid_to_code_map.values()))
-        return self._process_next_version_candidates(
-            potential_next_objects, uuid_to_code_map, uuid_to_modified_date_map
-        )
-
-    def _query_potential_next_objects(self, unique_codes: set) -> List[ObjectsTable]:
-        stmt = (
-            select(ObjectsTable)
-            .options(selectinload(ObjectsTable.ObjectStatics))
-            .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Code.in_(unique_codes))
-            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
-            .filter(
-                or_(
-                    ObjectsTable.End_Validity > datetime.now(timezone.utc),
-                    ObjectsTable.End_Validity == None,
-                )
-            )
-        )
-
-        return self._db.execute(stmt).scalars().all()
-
-    def _process_next_version_candidates(
+    def _batch_next_version_query(
         self,
-        candidate_objects: List[ObjectsTable],
-        uuid_to_code_map: Dict[str, str],
-        uuid_to_modified_date_map: Dict[str, datetime],
-    ) -> Dict[str, ObjectsTable]:
-        result_map = {}
+        object_uuids: List[UUID],
+        model_fields: Dict[str, Any],
+    ) -> Select:
+        # acts as context to match new versions against
+        reference_subq = (
+            select(
+                ObjectsTable.UUID.label("ref_uuid"),
+                ObjectsTable.Code.label("ref_code"),
+                ObjectsTable.Modified_Date.label("ref_modified_date"),
+            ).where(ObjectsTable.UUID.in_(object_uuids))
+        ).subquery("input_object_reference")
 
-        # group potential next version objects by code
-        objects_by_code = {}
-        for obj in candidate_objects:
-            if obj.Code not in objects_by_code:
-                objects_by_code[obj.Code] = []
-            objects_by_code[obj.Code].append(obj)
+        row_number_col = (
+            func.row_number()
+            .over(partition_by=reference_subq.c.ref_uuid, order_by=ObjectsTable.Modified_Date.asc())
+            .label("_RowNumber")
+        )
 
-        # find next version per UUID
-        for uuid, code in uuid_to_code_map.items():
-            modified_date = uuid_to_modified_date_map[uuid]
+        next_version_cols: List[Column] = self._extract_select_columns(model_fields)
+        # the actual query matching the input rows CTE -> next versions
+        next_obj_subq = (
+            select(reference_subq.c.ref_uuid, row_number_col, *next_version_cols)
+            .join(
+                ObjectsTable,
+                (ObjectsTable.Code == reference_subq.c.ref_code)
+                & (ObjectsTable.Modified_Date > reference_subq.c.ref_modified_date),
+            )
+            .subquery("next_object_versions_view")
+        )
 
-            # find same code with later modified date
-            candidates = objects_by_code.get(code, [])
-            next_obj = None
-
-            for obj in candidates:
-                if obj.UUID == uuid or obj.Modified_Date <= modified_date:
-                    continue
-
-                if next_obj is None or obj.Modified_Date < next_obj.Modified_Date:
-                    next_obj = obj
-
-            if next_obj:
-                result_map[uuid] = next_obj
-
-        return result_map
+        return select(next_obj_subq).where(next_obj_subq.c._RowNumber == 1)
 
     def _extract_computed_field_model(self) -> Type[BaseModel]:
         """
         gets the computed field schema from the dynamic object response model
         """
         field_name = self._computed_field.attribute_name
-
         field_info = self._dynamic_obj_model.pydantic_model.model_fields[field_name]
         field_annotation = field_info.annotation
         if field_annotation is None:
@@ -173,3 +130,7 @@ class NextObjectVersionService:
         computed_field_model = get_args(field_annotation)[0] if has_type_wrapper else field_annotation
 
         return computed_field_model
+
+    def _extract_select_columns(self, model_fields: Dict[str, Any]) -> List[Column]:
+        next_version_cols: List[Column] = [getattr(ObjectsTable, col_name) for col_name in model_fields.keys()]
+        return next_version_cols

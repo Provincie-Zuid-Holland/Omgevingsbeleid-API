@@ -1,4 +1,4 @@
-from typing import List, Protocol, TypeVar
+from typing import List, Protocol
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session

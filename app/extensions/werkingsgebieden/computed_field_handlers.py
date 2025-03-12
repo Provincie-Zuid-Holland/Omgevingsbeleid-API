@@ -1,4 +1,5 @@
 from pydantic.main import BaseModel
+
 from app.dynamic.computed_fields.handler_context import HandlerContext
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.extensions.modules.repository.module_object_repository import ModuleObjectRepository
