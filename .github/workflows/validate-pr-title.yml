@@ -1,0 +1,19 @@
+name: Validate PR Title for Squash Merge
+
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+
+jobs:
+  check-title:
+    if: github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $PR_TITLE"
+          if [[ ! "$PR_TITLE" =~ ^(feat:|fix:|chore:) ]]; then
+            echo "PR title must start with one of: feat:, fix:, chore: to ensure clean commit history in main"
+            exit 1
+          fi
