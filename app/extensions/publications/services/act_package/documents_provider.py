@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Set
 
 import dso.models as dso_models
@@ -69,7 +69,7 @@ class PublicationDocumentsProvider:
             Work_Date=work_date,
             Work_Other=work_identifier,
             Expression_Language=act_frbr.Expression_Language,
-            Expression_Date=datetime.utcnow().strftime("%Y-%m-%d"),
+            Expression_Date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             Expression_Version=1,
         )
 

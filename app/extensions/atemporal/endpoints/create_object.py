@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Type
 
 from fastapi import APIRouter, Depends
@@ -33,7 +33,7 @@ class EndpointHandler:
         self._response_type: Type[BaseModel] = response_type
         self._user: UsersTable = user
         self._object_in: dict = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> Type[BaseModel]:
         static_fields: dict = {}

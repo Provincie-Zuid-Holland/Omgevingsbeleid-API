@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
@@ -35,7 +35,7 @@ class EndpointHandler:
         self._db: Session = db
         self._user: UsersTable = user
         self._object_in: AOJCreate = object_in
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> AOJCreatedResponse:
         area_of_jurisdiction: PublicationAreaOfJurisdictionTable = PublicationAreaOfJurisdictionTable(

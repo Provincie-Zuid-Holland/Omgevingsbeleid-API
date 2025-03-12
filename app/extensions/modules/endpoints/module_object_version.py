@@ -76,7 +76,7 @@ class ModuleObjectVersionEndpoint(Endpoint):
         if context.Hidden:
             raise HTTPException(status_code=404, detail="Module Object Context is verwijderd")
 
-        row: self._response_type = self._response_type.from_orm(module_object)
+        row: self._response_type = self._response_type.model_validate(module_object)
         rows: List[self._response_type] = [row]
 
         # Ask extensions for more information

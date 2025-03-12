@@ -1,11 +1,11 @@
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class Purpose(BaseModel):
     Purpose_Type: str
-    Effective_Date: Optional[str]
+    Effective_Date: Optional[str] = None
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str
@@ -34,11 +34,11 @@ class Werkingsgebied(BaseModel):
     Owner_Act: str
     Frbr: Frbr
 
-    @root_validator(pre=True)
-    def default_identifier_to_uuid(cls, values):
-        if not values.get("Identifier"):
-            values["Identifier"] = str(values["UUID"])
-        return values
+    @model_validator(mode="before")
+    def default_identifier_to_uuid(cls, data):
+        if not data.get("Identifier"):
+            data["Identifier"] = str(data["UUID"])
+        return data
 
 
 class Document(BaseModel):
@@ -65,9 +65,7 @@ class WidData(BaseModel):
 class OwData(BaseModel):
     Ow_Objects: Dict[str, Any] = Field({}, alias="ow_objects")
     Terminated_Ow_Ids: List[str] = Field([], alias="terminated_ow_ids")
-
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ActiveAct(BaseModel):

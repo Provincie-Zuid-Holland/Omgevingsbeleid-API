@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -35,7 +35,7 @@ class EndpointHandler:
         self._permission_service: PermissionService = permission_service
         self._user: UsersTable = user
         self._object_static: ModuleObjectContextTable = object_static
-        self._timepoint: datetime = datetime.utcnow()
+        self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ResponseOK:
         self._permission_service.guard_valid_user(
@@ -63,7 +63,7 @@ class EndpointHandler:
         change_log: ChangeLogTable = ChangeLogTable(
             Object_Type=self._object_static.Object_Type,
             Object_ID=self._object_static.Object_ID,
-            Created_Date=datetime.utcnow(),
+            Created_Date=datetime.now(timezone.utc),
             Created_By_UUID=self._user.UUID,
             Action_Type="atemporal_edit_object",
             Before=log_before,

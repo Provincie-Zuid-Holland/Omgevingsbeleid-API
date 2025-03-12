@@ -76,7 +76,7 @@ class ListStorageFilesEndpoint(Endpoint):
             mine=filter_on_me,
         )
 
-        storage_files = [StorageFileBasic.from_orm(r) for r in paginated_result.items]
+        storage_files = [StorageFileBasic.model_validate(r) for r in paginated_result.items]
 
         return PagedResponse[StorageFileBasic](
             total=paginated_result.total_count,

@@ -16,5 +16,5 @@ class StateV3(State):
         return 3
 
     def get_data(self) -> dict:
-        data: dict = self.dict()
+        data: dict = self.model_dump()
         return data

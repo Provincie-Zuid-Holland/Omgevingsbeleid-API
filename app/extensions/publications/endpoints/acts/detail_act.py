@@ -24,7 +24,7 @@ class DetailActEndpoint(Endpoint):
                 )
             ),
         ) -> PublicationAct:
-            result: PublicationAct = PublicationAct.from_orm(act)
+            result: PublicationAct = PublicationAct.model_validate(act)
             return result
 
         router.add_api_route(

@@ -40,7 +40,7 @@ class ModuleListStatusesEndpoint(Endpoint):
     def _handler(self, status_repository: ModuleStatusRepository, module: ModuleTable) -> List[ModuleStatus]:
         statuses: List[ModuleStatusHistoryTable] = status_repository.get_all_by_module_id(module.Module_ID)
 
-        response: List[ModuleStatus] = [ModuleStatus.from_orm(r) for r in statuses]
+        response: List[ModuleStatus] = [ModuleStatus.model_validate(r) for r in statuses]
         return response
 
 

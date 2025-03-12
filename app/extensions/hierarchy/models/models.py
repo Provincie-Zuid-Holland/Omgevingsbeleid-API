@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class HierarchyStatics(BaseModel):
@@ -7,9 +7,8 @@ class HierarchyStatics(BaseModel):
     Code: str
     Cached_Title: str
 
-    @validator("Cached_Title", pre=True)
+    @field_validator("Cached_Title", mode="before")
     def default_empty_string(cls, v):
         return "" if v is None else v
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

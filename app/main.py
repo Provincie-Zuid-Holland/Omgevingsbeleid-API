@@ -1,6 +1,6 @@
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy.exc
 import uvicorn
@@ -19,7 +19,7 @@ from app.core.exceptions import LoggedHttpException
 logger = logging.getLogger(__name__)
 
 app: FastAPI = dynamic_app.run()
-build_datetime: datetime = datetime.utcnow()
+build_datetime: datetime = datetime.now(timezone.utc)
 
 
 @app.get("/health")

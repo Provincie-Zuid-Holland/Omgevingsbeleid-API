@@ -11,7 +11,7 @@ from .endpoints import LoginAccessTokenEndpoint, PasswordResetEndpoint
 
 class AuthExtension(Extension):
     def register_models(self, models_resolver: ModelsResolver):
-        identifier_model: Model = models_resolver.get("user_short")
+        identifier_model: Model = models_resolver.get("user_login_details")
         models_resolver.add(
             ExtensionModel(
                 id="auth_token",

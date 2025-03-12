@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -32,7 +32,7 @@ class EndpointHandler:
         self._lineage_id: int = lineage_id
         self._allowed_object_types: List[str] = allowed_object_types
         self._object_in: RequestAcknowledgedRelation = object_in
-        self._now: datetime = datetime.utcnow()
+        self._now: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ResponseOK:
         if self._object_in.Object_Type not in self._allowed_object_types:

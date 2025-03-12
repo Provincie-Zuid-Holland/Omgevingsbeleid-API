@@ -90,6 +90,6 @@ class JoinWerkingsgebiedenService:
         stmt = select(subq).filter(subq.c._RowNumber == 1)
 
         rows = self._db.execute(stmt).all()
-        result: Dict[str, BaseModel] = {r.Code: werkingsgebied_model.from_orm(r) for r in rows}
+        result: Dict[str, BaseModel] = {r.Code: werkingsgebied_model.model_validate(r) for r in rows}
 
         return result

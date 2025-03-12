@@ -26,7 +26,7 @@ make test
 
 
 ```
-CONFIGURE_OPTS="--enable-loadable-sqlite-extensions" pyenv install 3.10.13
+CONFIGURE_OPTS="--enable-loadable-sqlite-extensions" pyenv install 3.13.2
 ```
 
 

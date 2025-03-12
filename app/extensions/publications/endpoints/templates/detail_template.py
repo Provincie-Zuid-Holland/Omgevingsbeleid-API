@@ -24,7 +24,7 @@ class DetailPublicationTemplateEndpoint(Endpoint):
                 )
             ),
         ) -> PublicationTemplate:
-            result: PublicationTemplate = PublicationTemplate.from_orm(template)
+            result: PublicationTemplate = PublicationTemplate.model_validate(template)
             return result
 
         router.add_api_route(

@@ -104,7 +104,7 @@ class ModuleListLineageTreeEndpoint(Endpoint):
             sort=(getattr(ModuleObjectsTable, pagination.sort.column), pagination.sort.order),
         )
 
-        rows: List[self._response_type] = [self._response_type.from_orm(r) for r in paginated_result.items]
+        rows: List[self._response_type] = [self._response_type.model_validate(r) for r in paginated_result.items]
 
         # Ask extensions for more information
         rows = self._run_events(rows, event_dispatcher)

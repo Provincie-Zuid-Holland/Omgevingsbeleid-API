@@ -66,10 +66,14 @@ fields:
     name: Title
     type: str
     column: title
+    validators:
+      - id: none_to_default_value
   weblink:
     name: Weblink
     type: str
     column: weblink
+    validators:
+      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
@@ -208,7 +212,7 @@ models:
   nationaal_belang_static_post_validated:
     name: NationaalBelangStaticPostValidated
     static_only: true
-    root_validators:
+    model_validators:
       - id: not_equal_root
         data:
           fields:

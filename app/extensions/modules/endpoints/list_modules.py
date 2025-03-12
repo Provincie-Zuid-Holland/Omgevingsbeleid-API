@@ -90,7 +90,7 @@ class ListModulesEndpoint(Endpoint):
             object_code=object_code,
         )
 
-        modules = [Module.from_orm(r) for r in paginated_result.items]
+        modules = [Module.model_validate(r) for r in paginated_result.items]
 
         return PagedResponse[Module](
             total=paginated_result.total_count,

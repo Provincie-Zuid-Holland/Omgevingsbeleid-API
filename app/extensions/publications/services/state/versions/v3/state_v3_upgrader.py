@@ -40,7 +40,7 @@ class StateV3Upgrader(StateUpgrader):
         purposes: Dict[str, models_v3.Purpose] = {}
 
         for key, old_purpose in old_state.Purposes.items():
-            new_purpose: models_v3.Purpose = models_v3.Purpose.parse_obj(old_purpose.dict())
+            new_purpose: models_v3.Purpose = models_v3.Purpose.model_validate(old_purpose.model_dump())
             purposes[key] = new_purpose
 
         return purposes
@@ -55,10 +55,10 @@ class StateV3Upgrader(StateUpgrader):
         return acts
 
     def _mutate_act(self, environment_uuid: uuid.UUID, old_act: state_v2.models.ActiveAct) -> models_v3.ActiveAct:
-        act_dict: dict = old_act.dict()
+        act_dict: dict = old_act.model_dump()
         act_dict["Assets"] = self._get_assets(old_act.Act_Text)
 
-        act: models_v3.ActiveAct = models_v3.ActiveAct.parse_obj(act_dict)
+        act: models_v3.ActiveAct = models_v3.ActiveAct.model_validate(act_dict)
         return act
 
     def _get_assets(self, act_text: str) -> Dict[str, models_v3.Asset]:
@@ -72,8 +72,8 @@ class StateV3Upgrader(StateUpgrader):
         announcements: Dict[str, models_v3.ActiveAnnouncement] = {}
 
         for key, old_announcement in old_state.Announcements.items():
-            new_announcement: models_v3.ActiveAnnouncement = models_v3.ActiveAnnouncement.parse_obj(
-                old_announcement.dict()
+            new_announcement: models_v3.ActiveAnnouncement = models_v3.ActiveAnnouncement.model_validate(
+                old_announcement.model_dump()
             )
             announcements[key] = new_announcement
 

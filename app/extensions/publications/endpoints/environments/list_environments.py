@@ -58,7 +58,7 @@ class ListPublicationEnvironmentsEndpoint(Endpoint):
             limit=pagination.limit,
         )
 
-        results = [PublicationEnvironment.from_orm(r) for r in paginated_result.items]
+        results = [PublicationEnvironment.model_validate(r) for r in paginated_result.items]
 
         return PagedResponse[PublicationEnvironment](
             total=paginated_result.total_count,
