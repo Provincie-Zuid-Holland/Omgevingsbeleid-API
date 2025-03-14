@@ -146,3 +146,5 @@ class PublicModuleObjectRevision(BaseModel):
     Module_Title: str
     Module_Status: str
     Action: ModuleObjectActionFull
+
+    model_config = ConfigDict(from_attributes=True)

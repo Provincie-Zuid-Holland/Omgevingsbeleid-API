@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 from uuid import UUID, uuid4
 
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased, load_only
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import Select, and_, or_
 
@@ -19,8 +19,6 @@ from app.extensions.modules.models.models import ModuleObjectActionFull, ModuleS
 
 @dataclass
 class LatestObjectPerModuleResult:
-    """extra wrapper to type combined query result"""
-
     module_object: ModuleObjectsTable
     module: ModuleTable
     context_action: ModuleObjectActionFull
@@ -300,3 +298,67 @@ class ModuleObjectRepository(BaseRepository):
         new_record.Modified_By_UUID = by_uuid
 
         return new_record
+
+    def get_latest_versions_by_werkingsgebied(self, werkingsgebied_code: str) -> List[LatestObjectPerModuleResult]:
+        subq = (
+            select(
+                ModuleObjectsTable,
+                ModuleTable,
+                ModuleObjectContextTable.Action.label("context_action"),
+                func.row_number()
+                .over(
+                    partition_by=(ModuleObjectsTable.Module_ID, ModuleObjectsTable.Code),
+                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                )
+                .label("_RowNumber"),
+            )
+            .options(
+                load_only(
+                    ModuleObjectsTable.UUID,
+                    ModuleObjectsTable.Object_ID,
+                    ModuleObjectsTable.Object_Type,
+                    ModuleObjectsTable.Title,
+                    ModuleObjectsTable.Code,
+                    ModuleObjectsTable.Werkingsgebied_Code,
+                    ModuleObjectsTable.Modified_Date,
+                ),
+                load_only(
+                    ModuleTable.Module_ID,
+                    ModuleTable.Title,
+                ),
+            )
+            .select_from(ModuleObjectsTable)
+            .join(ModuleTable, ModuleObjectsTable.Module_ID == ModuleTable.Module_ID)
+            .join(
+                ModuleObjectContextTable,
+                and_(
+                    ModuleObjectsTable.Module_ID == ModuleObjectContextTable.Module_ID,
+                    ModuleObjectsTable.Code == ModuleObjectContextTable.Code,
+                ),
+            )
+            .where(ModuleTable.Activated == 1)
+            .where(ModuleTable.Closed == 0)
+            .where(ModuleObjectContextTable.Action != ModuleObjectActionFull.Terminate)
+            .where(ModuleObjectContextTable.Hidden == False)
+        ).subquery("LatestModuleObjects")
+
+        aliased_mo = aliased(ModuleObjectsTable, subq)
+        aliased_mod = aliased(ModuleTable, subq)
+        context_action_col = subq.c.context_action
+
+        stmt = (
+            select(aliased_mo, aliased_mod, context_action_col)
+            .where(subq.c._RowNumber == 1)
+            .where(subq.c.Werkingsgebied_Code == werkingsgebied_code)
+            .order_by(desc(subq.c.Modified_Date))
+        )
+
+        rows = self._db.execute(stmt).all()
+        return [
+            LatestObjectPerModuleResult(
+                module_object=row[0],
+                module=row[1],
+                context_action=row[2],
+            )
+            for row in rows
+        ]
