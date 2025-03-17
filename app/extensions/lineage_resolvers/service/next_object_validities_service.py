@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 from sqlalchemy import Column, Select, func, select
-from sqlalchemy.orm import Session, load_only, selectinload
+from sqlalchemy.orm import Session, load_only
 
 from app.dynamic.computed_fields.models import ComputedField
 from app.dynamic.config.models import DynamicObjectModel
@@ -72,9 +72,12 @@ class NextObjectVersionService:
 
     def _query_next_object_version_by_uuid(self, object_uuid: UUID, model_fields: Dict[str, Any]):
         select_cols: List[Column] = self._extract_select_columns(model_fields)
-        reference_obj = (select(ObjectsTable).filter(ObjectsTable.UUID == object_uuid)).subquery()
+        reference_obj = (
+            select(ObjectsTable.Code, ObjectsTable.Modified_Date).filter(ObjectsTable.UUID == object_uuid).subquery()
+        )
         stmt = (
-            select(ObjectsTable).options(load_only(*select_cols))
+            select(ObjectsTable)
+            .options(load_only(*select_cols))
             .filter(ObjectsTable.Code == reference_obj.c.Code)
             .filter(ObjectsTable.Modified_Date > reference_obj.c.Modified_Date)
             .order_by(ObjectsTable.Modified_Date.asc())

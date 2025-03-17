@@ -362,3 +362,64 @@ class ModuleObjectRepository(BaseRepository):
             )
             for row in rows
         ]
+
+    @staticmethod
+    def public_revisions_per_module_query(code: str, allowed_status_list: List[str]):
+        """
+        view of latest public revisions per module, but instead of excluding concept versions
+        it shows the last available public status.
+        """
+        # group public statuses per module
+        latest_status_subq = (
+            select(
+                ModuleStatusHistoryTable,
+                ModuleTable.Title,
+                func.row_number()
+                .over(partition_by=ModuleStatusHistoryTable.Module_ID, order_by=desc(ModuleStatusHistoryTable.ID))
+                .label("_StatusRowNumber"),
+            )
+            .join(ModuleStatusHistoryTable.Module)
+            .filter(ModuleTable.is_active, ModuleStatusHistoryTable.Status.in_(allowed_status_list))
+            .subquery("latest_status_subq")
+        )
+
+        # rank latest mod objects for this status
+        module_objects_filtered_subq = (
+            select(
+                ModuleObjectsTable.Module_ID,
+                ModuleObjectsTable.UUID,
+                ModuleObjectsTable.Code,
+                ModuleObjectsTable.Modified_Date,
+                latest_status_subq.c.Status,
+                latest_status_subq.c.Title,
+                ModuleObjectContextTable.Action,
+                func.row_number()
+                .over(partition_by=ModuleObjectsTable.Module_ID, order_by=desc(ModuleObjectsTable.Modified_Date))
+                .label("_ObjectRowNumber"),
+            )
+            .join(latest_status_subq, ModuleObjectsTable.Module_ID == latest_status_subq.c.Module_ID)
+            .join(ModuleObjectsTable.ModuleObjectContext)
+            .filter(
+                latest_status_subq.c._StatusRowNumber == 1,
+                ModuleObjectsTable.Modified_Date <= latest_status_subq.c.Created_Date,
+                ModuleObjectContextTable.Code == code,
+                ModuleObjectContextTable.Hidden == False,
+            )
+            .subquery("module_objects_filtered_subq")
+        )
+
+        # assemble query and pick the latest object for each module
+        stmt = (
+            select(
+                module_objects_filtered_subq.c.Module_ID.label("Module_ID"),
+                module_objects_filtered_subq.c.Title.label("Module_Title"),
+                module_objects_filtered_subq.c.Status.label("Module_Status"),
+                module_objects_filtered_subq.c.UUID.label("Module_Object_UUID"),
+                module_objects_filtered_subq.c.Action.label("Action"),
+            )
+            .select_from(module_objects_filtered_subq)
+            .filter(module_objects_filtered_subq.c._ObjectRowNumber == 1)
+            .order_by(desc(module_objects_filtered_subq.c.Modified_Date))
+        )
+
+        return stmt
