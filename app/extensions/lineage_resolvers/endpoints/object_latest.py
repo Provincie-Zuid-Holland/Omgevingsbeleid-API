@@ -6,12 +6,13 @@ from fastapi import APIRouter, Depends
 
 from app.dynamic.config.models import Api, EndpointConfig, Model
 from app.dynamic.db import ObjectsTable
-from app.dynamic.dependencies import depends_event_dispatcher, depends_object_repository
+from app.dynamic.dependencies import depends_event_dispatcher, depends_model_parser, depends_object_repository
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event import RetrievedObjectsEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
 from app.dynamic.repository.object_repository import ObjectRepository
+from app.dynamic.services.model_parser import ModelParser
 
 
 class ObjectLatestEndpoint(Endpoint):
@@ -35,8 +36,9 @@ class ObjectLatestEndpoint(Endpoint):
             lineage_id: int,
             object_repository: ObjectRepository = Depends(depends_object_repository),
             event_dispatcher: EventDispatcher = Depends(depends_event_dispatcher),
-        ) -> self._response_type:
-            return self._handler(object_repository, event_dispatcher, lineage_id)
+            model_parser: ModelParser = Depends(depends_model_parser),
+        ) -> pydantic.BaseModel:
+            return self._handler(object_repository, event_dispatcher, model_parser, lineage_id)
 
         router.add_api_route(
             self._path,
@@ -54,6 +56,7 @@ class ObjectLatestEndpoint(Endpoint):
         self,
         object_repository: ObjectRepository,
         event_dispatcher: EventDispatcher,
+        model_parser: ModelParser,
         lineage_id: int,
     ):
         maybe_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
@@ -63,8 +66,9 @@ class ObjectLatestEndpoint(Endpoint):
         if not maybe_object:
             raise ValueError("lineage_id does not exist")
 
-        row: self._response_type = self._response_type.model_validate(maybe_object)
-        rows: List[self._response_type] = [row]
+        # row: self._response_type = self._response_type.model_validate(maybe_object)
+        row = model_parser.parse(self._response_type, maybe_object)
+        rows: List[pydantic.BaseModel] = [row]
         rows = self._run_events(rows, event_dispatcher)
 
         return rows[0]

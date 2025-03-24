@@ -71,20 +71,7 @@ def depends_optional_user(
     if not token:
         return None
 
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
-        token_data = TokenPayload(**payload)
-    except (jwt.JWTError, ValidationError):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate authorization token",
-        )
-
-    user: Optional[UsersTable] = user_repository.get_by_uuid(UUID(token_data.sub))
-    if not user:
-        raise HTTPException(status_code=404, detail="Token valid, but no matching user found.")
-
-    return user
+    return depends_current_user(token, user_repository, settings)
 
 
 def depends_current_active_user(
@@ -122,3 +109,19 @@ def depends_current_active_user_with_permission_curried(
         return current_user
 
     return depends_current_active_user_with_permission
+
+
+# def depends_model_parser_context(
+#     user: Optional[UsersTable] = Depends(depends_optional_user),
+#     db: Session = Depends(depends_db),
+# ) -> ModelParserContext:
+#     return {
+#         "user": user,
+#         "db": db,
+#     }
+
+
+# def depends_model_parser(
+#     context: ModelParserContext = Depends(depends_model_parser_context),
+# ) -> ModelParser:
+#     return ModelParser(context)

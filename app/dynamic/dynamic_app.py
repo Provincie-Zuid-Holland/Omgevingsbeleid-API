@@ -1,15 +1,17 @@
+import inspect
 from copy import deepcopy
 from os import listdir
 from os.path import isfile, join
-from typing import Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 import click
 import yaml
-from fastapi import APIRouter, FastAPI, Request
+from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic_settings import BaseSettings
 
 import app.dynamic.serializers as serializers
+from app.core.dependencies import depends_db
 from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
@@ -31,6 +33,7 @@ from app.dynamic.validators.validator import (
     ObjectCodesExistsValidator,
     PlainTextValidator,
 )
+from app.extensions.users.dependencies import depends_optional_user
 
 from .config.base_columns import base_columns
 from .config.base_fields import base_fields
@@ -205,10 +208,37 @@ class DynamicAppBuilder:
         fastapi_app.state.event_listeners = self._service_container.event_listeners
         fastapi_app.state.settings = dynamic_settings
 
+        raw_context = {
+            "db": depends_db,
+            "user": depends_optional_user,
+        }
+
+        dynamic_context_func = self._generate_dynamic_model_parser_context(raw_context)
+        from app.dynamic.dependencies import set_global_dynamic_model_parser_context
+
+        set_global_dynamic_model_parser_context(dynamic_context_func)
+
         return DynamicApp(
             fastapi_app=fastapi_app,
             commands=self._service_container.main_command_group,
         )
+
+    def _generate_dynamic_model_parser_context(self, context: Dict[str, Any]):
+        def dependency(*args, **kwargs):
+            # kwargs now holds the resolved dependencies (e.g., {"db": <db-obj>, "user": <user-obj>})
+            return {}
+
+        dependency.__signature__ = inspect.Signature(
+            parameters=[
+                inspect.Parameter(name, inspect.Parameter.KEYWORD_ONLY, default=Depends(func))
+                for name, func in context.items()
+            ],
+            return_annotation=Dict[str, Any],
+        )
+        dependency.__annotations__ = {k: v.__annotations__["return"] for k, v in context.items()}
+        dependency.__defaults__ = tuple(Depends(v) for _, v in context.items())
+
+        return dependency
 
     def _build_settings(self) -> DynamicSettings:
         settings_classes = []

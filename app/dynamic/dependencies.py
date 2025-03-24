@@ -11,6 +11,7 @@ from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.event_listeners import EventListeners
 from app.dynamic.repository.object_repository import ObjectRepository
 from app.dynamic.repository.object_static_repository import ObjectStaticRepository
+from app.dynamic.services.model_parser import ModelParser
 
 from .utils.filters import FilterCombiner, Filters
 from .utils.pagination import OrderConfig, SimplePagination, Sort, SortedPagination, SortOrder
@@ -22,6 +23,18 @@ def depends_event_dispatcher(
 ) -> EventDispatcher:
     event_listeners: EventListeners = request.app.state.event_listeners
     return EventDispatcher(event_listeners, db)
+
+
+global_dynamic_model_parser_context = lambda: {}
+
+
+def set_global_dynamic_model_parser_context(func):
+    global global_dynamic_model_parser_context
+    global_dynamic_model_parser_context = func
+
+
+def depends_model_parser(context: dict = Depends(global_dynamic_model_parser_context)) -> ModelParser:
+    return ModelParser(context=context)
 
 
 def depends_object_repository(
