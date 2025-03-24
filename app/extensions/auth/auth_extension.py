@@ -12,23 +12,7 @@ from .endpoints import LoginAccessTokenEndpoint, PasswordResetEndpoint
 class AuthExtension(Extension):
     def register_models(self, models_resolver: ModelsResolver):
         identifier_model: Model = models_resolver.get("user_login_details")
-        models_resolver.add(
-            ExtensionModel(
-                id="auth_token",
-                name="AuthToken",
-                pydantic_model=pydantic.create_model(
-                    "AuthToken",
-                    **{
-                        "access_token": (str, pydantic.Field()),
-                        "token_type": (str, pydantic.Field()),
-                        "identifier": (
-                            identifier_model.pydantic_model,
-                            pydantic.Field(),
-                        ),
-                    },
-                ),
-            ),
-        )
+        
 
     def register_endpoints(
         self,

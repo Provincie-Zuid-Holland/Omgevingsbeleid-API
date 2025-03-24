@@ -1,6 +1,7 @@
 from typing import List
 
 import click
+import pydantic
 
 import app.extensions.users.commands as commands
 import app.extensions.users.endpoints as endpoints
@@ -32,6 +33,20 @@ class UsersExtension(Extension):
                 name="UserLoginDetail",
                 pydantic_model=UserLoginDetail,
             )
+        )
+        models_resolver.add(
+            ExtensionModel(
+                id="auth_token",
+                name="AuthToken",
+                pydantic_model=pydantic.create_model(
+                    "AuthToken",
+                    **{
+                        "access_token": (str, pydantic.Field()),
+                        "token_type": (str, pydantic.Field()),
+                        "identifier": (UserLoginDetail, pydantic.Field()),
+                    },
+                ),
+            ),
         )
 
     def register_endpoint_resolvers(

@@ -25,7 +25,7 @@ class LoginAccessTokenEndpoint(Endpoint):
             form_data: OAuth2PasswordRequestForm = Depends(),
             user_repository: UserRepository = Depends(depends_user_repository),
             security: Security = Depends(depends_security),
-        ) -> self._response_type:
+        ) -> pydantic.BaseModel:
             return self._handler(security, user_repository, form_data)
 
         router.add_api_route(
