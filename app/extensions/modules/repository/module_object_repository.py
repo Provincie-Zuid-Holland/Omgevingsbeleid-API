@@ -413,11 +413,13 @@ class ModuleObjectRepository(BaseRepository):
             select(
                 module_objects_filtered_subq.c.Module_ID.label("Module_ID"),
                 module_objects_filtered_subq.c.Title.label("Module_Title"),
-                module_objects_filtered_subq.c.Status.label("Module_Status"),
+                module_objects_filtered_subq.c.Status.label("Module_Object_Status"),
                 module_objects_filtered_subq.c.UUID.label("Module_Object_UUID"),
                 module_objects_filtered_subq.c.Action.label("Action"),
+                ModuleTable.Current_Status.label("Module_Status"),
             )
             .select_from(module_objects_filtered_subq)
+            .join(ModuleTable, module_objects_filtered_subq.c.Module_ID == ModuleTable.Module_ID)
             .filter(module_objects_filtered_subq.c._ObjectRowNumber == 1)
             .order_by(desc(module_objects_filtered_subq.c.Modified_Date))
         )
