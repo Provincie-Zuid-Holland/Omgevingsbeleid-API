@@ -11,12 +11,15 @@ from pydantic_settings import BaseSettings
 
 import app.dynamic.serializers as serializers
 from app.core.settings.dynamic_settings import DynamicSettings, create_dynamic_settings
+from app.dynamic.computed_fields.models import ComputedField, PropertyComputedField, ServiceComputedField
 from app.dynamic.db import ObjectsTable, ObjectStaticsTable
 from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.extension import Extension
 from app.dynamic.generate_table import generate_table
 from app.dynamic.listeners.add_object_code_relationship import AddObjectCodeRelationshipListener
+from app.dynamic.listeners.computed_field_execution_listener import ComputedFieldExecutionListener
+from app.dynamic.listeners.computed_field_model_listener import ComputedFieldModelListener
 from app.dynamic.service_container import ServiceContainer
 from app.dynamic.validators.validator import (
     FilenameValidator,
@@ -140,12 +143,22 @@ class DynamicAppBuilder:
                 self._columns,
             )
 
-        # table_metadata.drop_all(engine)
-        # table_metadata.create_all(engine)
-
         # Build extensions models
         for extension in self._extensions:
             extension.register_models(self._service_container.models_resolver)
+
+        # Build extensions computed fields
+        for extension in self._extensions:
+            computed_fields: List[ComputedField] = extension.register_computed_fields()
+            self._service_container.computed_fields_resolver.add_many(computed_fields)
+            extension.register_computed_field_handlers(self._service_container.computed_fields_resolver)
+
+        for computed_field in self._service_container.computed_fields_resolver.get_all():
+            if isinstance(computed_field, PropertyComputedField):
+                self._set_computed_field(computed_field)
+            elif isinstance(computed_field, ServiceComputedField):
+                if not self._service_container.computed_fields_resolver.handler_exists(computed_field.handler_id):
+                    raise RuntimeError(f"Computed field handler id '{computed_field.handler_id}' not found")
 
         # Build config intermediate data (without models)
         for config_object in self._config_objects:
@@ -159,6 +172,7 @@ class DynamicAppBuilder:
         models_loader: ModelsLoader = ModelsLoader(
             event_dispatcher,
             self._service_container.models_resolver,
+            self._service_container.computed_fields_resolver,
             self._service_container.validator_provider,
         )
         for object_intermediate in self._service_container.build_object_intermediates:
@@ -242,7 +256,7 @@ class DynamicAppBuilder:
     def _build_object_api(self, fastapi_app: FastAPI, object_intermediate: IntermediateObject) -> FastAPI:
         sub_router: APIRouter = APIRouter()
         for endpoint_config in object_intermediate.api.endpoint_configs:
-            if not endpoint_config.resolver_id in self._endpoint_resolvers:
+            if endpoint_config.resolver_id not in self._endpoint_resolvers:
                 continue
 
             resolver: EndpointResolver = self._endpoint_resolvers[endpoint_config.resolver_id]
@@ -266,7 +280,7 @@ class DynamicAppBuilder:
         )
 
         for endpoint_config in main_api_config.endpoint_configs:
-            if not endpoint_config.resolver_id in self._endpoint_resolvers:
+            if endpoint_config.resolver_id not in self._endpoint_resolvers:
                 continue
 
             resolver: EndpointResolver = self._endpoint_resolvers[endpoint_config.resolver_id]
@@ -287,6 +301,10 @@ class DynamicAppBuilder:
 
     def _register_base_listeners(self):
         self._service_container.event_listeners.register(AddObjectCodeRelationshipListener())
+        self._service_container.event_listeners.register(ComputedFieldModelListener())
+        self._service_container.event_listeners.register(
+            ComputedFieldExecutionListener(self._service_container.computed_fields_resolver)
+        )
 
     def _register_base_serializers(self):
         self._service_container.converter.register_serializer("str", serializers.serializer_str)
@@ -312,7 +330,7 @@ class DynamicAppBuilder:
         for resolver in resolvers:
             resolver_id = resolver.get_id()
             if resolver_id in self._endpoint_resolvers:
-                raise RuntimeError(f"Trying to add already existsing resolver ID '{resolver_id}'")
+                raise RuntimeError(f"Trying to add already existing resolver ID '{resolver_id}'")
             self._endpoint_resolvers[resolver_id] = resolver
 
     @staticmethod
@@ -321,3 +339,10 @@ class DynamicAppBuilder:
             status_code=400,
             content={"message": str(exc)},
         )
+
+    def _set_computed_field(self, computed_field: PropertyComputedField):
+        if computed_field.static:
+            # TODO: check if useful or remove
+            setattr(ObjectStaticsTable, computed_field.attribute_name, computed_field.property_callable)
+        else:
+            setattr(ObjectsTable, computed_field.attribute_name, computed_field.property_callable)

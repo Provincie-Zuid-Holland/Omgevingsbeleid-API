@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, get_args
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, or_, select
@@ -74,6 +74,10 @@ class AddRelationsService:
             relation_object_type: str = relation_row.get("Object_Type")
             object_config: ObjectTypeDetails = config.object_type_details[relation_object_type]
 
+            # extract the created relation-object pyd model
+            field_annotation = self._response_model.pydantic_model.model_fields[object_config.to_field].annotation
+            relation_row_model = get_args(field_annotation)[0]
+
             deserialized_relation_row: dict = self._converter.deserialize(object_config.object_id, relation_row)
 
             # Created wrapped relation model if configures with wrapped_with_relation_data
@@ -88,7 +92,8 @@ class AddRelationsService:
                     "Object": deserialized_relation_row,
                 }
 
-            relations[target_code][object_config.to_field].append(field_value)
+            field_result = relation_row_model.model_validate(field_value)
+            relations[target_code][object_config.to_field].append(field_result)
 
         # Now we union the relation "rows" into the event rows
         result_rows: List[dict] = []

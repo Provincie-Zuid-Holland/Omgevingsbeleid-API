@@ -177,7 +177,7 @@ class DsoActInputDataBuilder:
 
     def _get_regeling(self) -> Regeling:
         regeling = Regeling(
-            versienummer=self._act_frbr.Expression_Version,
+            versienummer=str(self._act_frbr.Expression_Version),
             officiele_titel=self._act.Metadata["Official_Title"],
             citeertitel=self._act.Metadata["Quote_Title"],
             is_officieel=("true" if self._publication.Procedure_Type == ProcedureType.FINAL else "false"),

@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pydantic
 
+from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.event.create_model_event import CreateModelEvent
 from app.dynamic.event_dispatcher import EventDispatcher
 from app.dynamic.models_resolver import ModelsResolver
@@ -18,10 +19,12 @@ class ModelsLoader:
         self,
         event_dispatcher: EventDispatcher,
         models_resolver: ModelsResolver,
+        computed_fields_resolver: ComputedFieldResolver,
         validator_provider: ValidatorProvider,
     ):
         self._event_dispatcher: EventDispatcher = event_dispatcher
         self._models_resolver: ModelsResolver = models_resolver
+        self._computed_fields_resolver: ComputedFieldResolver = computed_fields_resolver
         self._validator_provider: ValidatorProvider = validator_provider
         self._model_validator_counter: int = 0
 
@@ -100,6 +103,7 @@ class ModelsLoader:
                 static_pydantic_fields,
                 intermediate_model,
                 self._models_resolver,
+                self._computed_fields_resolver,
             )
         )
         pydantic_fields = event.payload.pydantic_fields

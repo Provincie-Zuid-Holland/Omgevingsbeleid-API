@@ -5,6 +5,8 @@ import click
 from fastapi import APIRouter
 from pydantic_settings import BaseSettings
 
+from app.dynamic.computed_fields import ComputedField
+from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.config.models import Column, Field
 from app.dynamic.converter import Converter
 from app.dynamic.endpoints.endpoint import EndpointResolver
@@ -34,6 +36,12 @@ class Extension(ABC):
         pass
 
     def register_commands(self, main_command_group: click.Group, main_config: dict):
+        pass
+
+    def register_computed_fields(self) -> List[ComputedField]:
+        return []
+
+    def register_computed_field_handlers(self, computed_field_resolver: ComputedFieldResolver):
         pass
 
     def migrate(self):

@@ -201,6 +201,8 @@ models:
       end_validity:
       area_uuid:
     services:
+      computed_fields:
+        - werkingsgebied_related_objects
       foreign_keys_extender:
         fields_map:
           - to_field: Area

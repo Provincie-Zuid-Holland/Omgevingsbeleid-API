@@ -141,8 +141,11 @@ class PublicModuleStatusCode(str, Enum):
 
 
 class PublicModuleObjectRevision(BaseModel):
-    Module_Object_UUID: uuid.UUID
     Module_ID: int
     Module_Title: str
-    Module_Status: str
+    Module_Status: ModuleStatusCode
+    Module_Object_UUID: uuid.UUID
+    Module_Object_Status: PublicModuleStatusCode
     Action: ModuleObjectActionFull
+
+    model_config = ConfigDict(from_attributes=True)
