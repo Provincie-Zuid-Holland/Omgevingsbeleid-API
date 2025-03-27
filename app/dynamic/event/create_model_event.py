@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from dataclasses import dataclass
 
+from app.dynamic.computed_fields.computed_field_resolver import ComputedFieldResolver
 from app.dynamic.models_resolver import ModelsResolver
 
 from ..config.models import IntermediateModel
@@ -17,6 +18,7 @@ class CreateModelEventPayload:
 class CreateModelEventContext:
     intermediate_model: IntermediateModel
     models_resolver: ModelsResolver
+    computed_fields_resolver: ComputedFieldResolver
 
 
 class CreateModelEvent(Event):
@@ -35,8 +37,9 @@ class CreateModelEvent(Event):
         static_pydantic_fields: OrderedDict,
         intermediate_model: IntermediateModel,
         models_resolver: ModelsResolver,
+        computed_fields_resolver: ComputedFieldResolver,
     ):
         return CreateModelEvent(
             payload=CreateModelEventPayload(pydantic_fields, static_pydantic_fields),
-            context=CreateModelEventContext(intermediate_model, models_resolver),
+            context=CreateModelEventContext(intermediate_model, models_resolver, computed_fields_resolver),
         )
