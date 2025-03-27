@@ -1,7 +1,7 @@
 """ Adding onderverdeling object
 
 Revision ID: b5dae5845174
-Revises: bd48c9bf106d
+Revises: d9ad1aa2d0ce
 Create Date: 2025-03-04 14:54:45.795056
 
 """
@@ -18,7 +18,7 @@ from app.core.settings import settings  ## noqa
 
 # revision identifiers, used by Alembic.
 revision = 'b5dae5845174'
-down_revision = 'bd48c9bf106d'
+down_revision = 'd9ad1aa2d0ce'
 branch_labels = None
 depends_on = None
 
