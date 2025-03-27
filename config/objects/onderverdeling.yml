@@ -1,5 +1,5 @@
-id: werkingsgebied
-object_type: werkingsgebied
+id: onderverdeling
+object_type: onderverdeling
 
 sort_allowed_columns: &sort_allowed_columns
   - Object_ID
@@ -20,70 +20,65 @@ sort_default_modified_date: &sort_default_modified_date
 
 api:
   routers:
-    - prefix: /werkingsgebieden
+    - prefix: /onderverdelingen
       endpoints:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: werkingsgebied_basic
+            response_model: onderverdeling_basic
             allowed_filter_columns:
               - Title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
-            response_model: werkingsgebied_basic
+            response_model: onderverdeling_basic
             allowed_filter_columns:
               - Title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: werkingsgebied_full
+            response_model: onderverdeling_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: werkingsgebied_full
-    - prefix: /werkingsgebied/static/{lineage_id}
+            response_model: onderverdeling_full
+    - prefix: /onderverdeling/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: werkingsgebied_static_post
-            result_model: werkingsgebied_static_post_validated
-    - prefix: /modules/{module_id}/object/werkingsgebied
+            request_model: onderverdeling_static_post
+            result_model: onderverdeling_static_post_validated
+    - prefix: /modules/{module_id}/object/onderverdeling
       endpoints:
-        - resolver: module_patch_object
-          resolver_data:
-            path: /{lineage_id}
-            request_model: werkingsgebied_patch
-            response_model: werkingsgebied_uuid
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: werkingsgebied_extended
+            response_model: onderverdeling_extended
             allowed_filter_columns:
               - Title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: werkingsgebied_full
+            response_model: onderverdeling_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: werkingsgebied_full
-    - prefix: /modules/object/werkingsgebied
+            response_model: onderverdeling_full
+    - prefix: /modules/object/onderverdeling
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: werkingsgebied_minimal
+            response_model: onderverdeling_minimal
             sort: *sort_default_title
-    - prefix: /revisions/{module_id}/werkingsgebied/version/{object_uuid}
+    - prefix: /revisions/{module_id}/onderverdeling/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
           resolver_data:
-            response_model: werkingsgebied_full
+            response_model: onderverdeling_full
             minimum_status: 'Ontwerp GS Concept'
             require_auth: False
 
@@ -92,38 +87,10 @@ fields:
     name: Title
     type: str
     column: title
-    validators:
-      - id: none_to_default_value
-  description:
-    name: Description
-    type: str
-    column: description
-    validators:
-      - id: none_to_default_value
   area_uuid:
     name: Area_UUID
     type: uuid
     column: area_uuid
-    validators:
-      - id: none_to_default_value
-  onderverdelingen:
-    name: Onderverdelingen
-    type: list_str
-    column: onderverdelingen
-    validators:
-      - id: none_to_default_value
-  idms_link:
-    name: IDMS_Link
-    type: str
-    column: idms_link
-    validators:
-      - id: none_to_default_value
-  decision_number:
-    name: Decision_Number
-    type: str
-    column: decision_number
-    validators:
-      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
@@ -138,15 +105,15 @@ fields:
     optional: true
 
 models:
-  werkingsgebied_minimal:
-    name: WerkingsgebiedMinimal
+  onderverdeling_minimal:
+    name: OnderverdelingMinimal
     fields:
       object_type:
       object_id:
       uuid:
       title:
-  werkingsgebied_basic:
-    name: WerkingsgebiedBasic
+  onderverdeling_basic:
+    name: OnderverdelingBasic
     fields:
       object_id:
       code:
@@ -156,11 +123,10 @@ models:
       modified_date:
       title:
       area_uuid:
-      onderverdelingen:
       start_validity:
       end_validity:
-  werkingsgebied_extended:
-    name: WerkingsgebiedExtended
+  onderverdeling_extended:
+    name: OnderverdelingExtended
     fields:
       object_id:
       code:
@@ -170,7 +136,6 @@ models:
       modified_date:
       title:
       area_uuid:
-      onderverdelingen:
       start_validity:
       end_validity:
     services:
@@ -186,8 +151,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  werkingsgebied_full:
-    name: WerkingsgebiedFull
+  onderverdeling_full:
+    name: OnderverdelingFull
     fields:
       object_id:
       code:
@@ -196,13 +161,20 @@ models:
       created_date:
       modified_date:
       title:
-      description:
+      area_uuid:
       start_validity:
       end_validity:
-      area_uuid:
     services:
-      computed_fields:
-        - werkingsgebied_related_objects
+      insert_computed_fields:
+        fields:
+          - field_name: Public_Revisions
+            model_id: public_module_object_revision
+            list: true
+            optional: true
+          - field_name: Next_Version
+            model_id: next_object_validities
+            list: false
+            optional: true
       foreign_keys_extender:
         fields_map:
           - to_field: Area
@@ -217,30 +189,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  werkingsgebied_patch:
-    name: WerkingsgebiedPatch
-    fields:
-      title:
-        default: none
-        optional: true
-        validators:
-          - id: length
-            data:
-              min: 3
-              max: 200
-          - id: plain_text
-      description:
-        default: none
-        optional: true
-      area_uuid:
-        default: none
-        optional: true
-    services:
-      change_area:
-        fields:
-          - Area_UUID
-  werkingsgebied_static_post:
-    name: WerkingsgebiedStaticPost
+  onderverdeling_static_post:
+    name: OnderverdelingStaticPost
     static_only: true
     fields:
       owner_1_uuid:
@@ -249,10 +199,10 @@ models:
       owner_2_uuid:
         default: none
         optional: true
-  werkingsgebied_static_post_validated:
-    name: WerkingsgebiedStaticPostValidated
+  onderverdeling_static_post_validated:
+    name: OnderverdelingStaticPostValidated
     static_only: true
-    model_validators:
+    root_validators:
       - id: not_equal_root
         data:
           fields:
@@ -265,8 +215,8 @@ models:
       owner_2_uuid:
         default: none
         optional: true
-  werkingsgebied_uuid:
-    name: WerkingsgebiedUUID
+  onderverdeling_uuid:
+    name: OnderverdelingUUID
     fields:
       object_id:
       uuid:
