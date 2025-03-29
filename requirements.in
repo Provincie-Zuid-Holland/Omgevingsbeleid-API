@@ -8,6 +8,7 @@ SQLAlchemy
 pyyaml
 requests
 requests-toolbelt
+dependency-injector[mypy]
 
 # JWT
 python-jose

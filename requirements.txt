@@ -6,7 +6,7 @@
 #
 annotated-types==0.7.0
     # via pydantic
-anyio==4.8.0
+anyio==4.9.0
     # via
     #   httpx
     #   starlette
@@ -34,15 +34,17 @@ click==8.1.8
     #   -r requirements.in
     #   dso
     #   uvicorn
+dependency-injector[mypy]==4.46.0
+    # via -r requirements.in
 dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
 dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@dafc77512cd499ce463b943c83a9f83434b215a0
     # via -r requirements.in
-ecdsa==0.19.0
+ecdsa==0.19.1
     # via python-jose
-fastapi==0.115.11
+fastapi==0.115.12
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
@@ -77,7 +79,7 @@ markupsafe==3.0.2
     # via
     #   dso
     #   jinja2
-numpy==2.2.3
+numpy==2.2.4
     # via
     #   dso
     #   geopandas
@@ -99,19 +101,19 @@ pdfkit==1.0.0
     # via -r requirements.in
 pillow==11.1.0
     # via -r requirements.in
-platformdirs==4.3.6
+platformdirs==4.3.7
     # via dso
 pyasn1==0.4.8
     # via
     #   python-jose
     #   rsa
-pydantic==2.10.6
+pydantic==2.11.0
     # via
     #   -r requirements.in
     #   dso
     #   fastapi
     #   pydantic-settings
-pydantic-core==2.27.2
+pydantic-core==2.33.0
     # via pydantic
 pydantic-settings==2.8.1
     # via -r requirements.in
@@ -125,7 +127,7 @@ pyproj==3.7.1
     #   geopandas
 python-dateutil==2.9.0.post0
     # via pandas
-python-dotenv==1.0.1
+python-dotenv==1.1.0
     # via
     #   pydantic-settings
     #   uvicorn
@@ -133,7 +135,7 @@ python-jose==3.4.0
     # via -r requirements.in
 python-multipart==0.0.20
     # via -r requirements.in
-pytz==2025.1
+pytz==2025.2
     # via
     #   -r requirements.in
     #   pandas
@@ -167,13 +169,13 @@ soupsieve==2.6
     # via
     #   beautifulsoup4
     #   dso
-sqlalchemy==2.0.39
+sqlalchemy==2.0.40
     # via -r requirements.in
 starlette==0.46.1
     # via fastapi
 tomli==2.2.1
     # via dso
-typing-extensions==4.12.2
+typing-extensions==4.13.0
     # via
     #   beautifulsoup4
     #   dso
@@ -181,7 +183,10 @@ typing-extensions==4.12.2
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
-tzdata==2025.1
+    #   typing-inspection
+typing-inspection==0.4.0
+    # via pydantic
+tzdata==2025.2
     # via pandas
 urllib3==2.3.0
     # via requests
