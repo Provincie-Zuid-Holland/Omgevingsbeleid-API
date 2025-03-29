@@ -1,4 +1,3 @@
-from re import A
 from typing import Type
 from dependency_injector.wiring import inject, Provide
 from fastapi import Depends
@@ -16,26 +15,10 @@ class ObjectLatestEndpointContext(BaseEndpointContext):
     response_type: Type[BaseModel]
 
 
-def view_endpoint(context: ObjectLatestEndpointContext):
-    @inject
-    def entry(
-        lineage_id: int,
-        db: Session = Depends(Provide[ApiContainer.db]),
-    ) -> JSONResponse:
-        # content not important for this example
-        print(str(context.response_type))
-        return JSONResponse(content={})
-
-    return entry
-
-
 @inject
-async def view_endpoint2(
+async def view_endpoint(
     lineage_id: int,
     db: Session = Depends(Provide[ApiContainer.db]),
     context: ObjectLatestEndpointContext = Depends(),
 ) -> JSONResponse:
-    # content not important for this example
-    print(str(context.response_type))
     return JSONResponse(content={})
-
