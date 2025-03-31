@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from app.core.settings import Settings
 
 
-def _enable_sqlite_load_extension(dbapi_connection, connection_record) -> None: # noqa
+def _enable_sqlite_load_extension(dbapi_connection, connection_record) -> None:  # noqa
     if isinstance(dbapi_connection, sqlite3.Connection):
         dbapi_connection.enable_load_extension(True)
         dbapi_connection.execute('SELECT load_extension("mod_spatialite")')
@@ -49,4 +49,3 @@ def init_db_session(session_factory: sessionmaker) -> Generator[sessionmaker, No
         except Exception as e:
             # Gives me a place to inspect
             raise e
-

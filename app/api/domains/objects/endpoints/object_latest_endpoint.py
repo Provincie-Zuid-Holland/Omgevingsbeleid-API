@@ -1,13 +1,13 @@
 from typing import Type
-from dependency_injector.wiring import inject, Provide
+
+from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from fastapi.responses import JSONResponse
-
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
 from app.api.endpoint import BaseEndpointContext
+from app.container import Container
 
 
 class ObjectLatestEndpointContext(BaseEndpointContext):
@@ -18,7 +18,7 @@ class ObjectLatestEndpointContext(BaseEndpointContext):
 @inject
 async def view_endpoint(
     lineage_id: int,
-    db: Session = Depends(Provide[ApiContainer.db]),
+    db: Session = Depends(Provide[Container.db]),
     context: ObjectLatestEndpointContext = Depends(),
 ) -> JSONResponse:
     return JSONResponse(content={})

@@ -1,9 +1,6 @@
-from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from functools import partial
 
-from app.api import endpoint
 from app.api.domains.objects.endpoints.object_latest_endpoint import ObjectLatestEndpointContext, view_endpoint
 from app.build.endpoint_builders.endpoint_builder import EndpointBuilder, EndpointConfig
 

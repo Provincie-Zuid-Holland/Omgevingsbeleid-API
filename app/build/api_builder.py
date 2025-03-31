@@ -1,24 +1,28 @@
-from dependency_injector.wiring import inject, Provide
-
-from app.core.settings import Settings
-from .build_container import BuilderContainer
-
 from sqlalchemy.orm import Session
+
+from app.build.objects.types import BuildData
+from app.build.services.config_parser import ConfigParser
+from app.core.settings import Settings
 
 
 
 class ApiBuilder:
-    @inject
+    
     def __init__(
         self,
-        settings: Settings = Provide[BuilderContainer.settings],
-        db: Session = Provide[BuilderContainer.db],
-        main_config: dict = Provide[BuilderContainer.main_config],
+        settings: Settings,
+        db: Session,
+        config_parser: ConfigParser,
     ):
         self._settings: Settings = settings
         self._db: Session = db
-        self._main_config: dict = main_config
+        self._config_parser: ConfigParser = config_parser
 
     def build(self):
+        build_data: BuildData = self._config_parser.parse(
+            self._settings.MAIN_CONFIG_FILE,
+            self._settings.OBJECT_CONFIG_PATH,
+        )
+        a = True
         pass
-
+        

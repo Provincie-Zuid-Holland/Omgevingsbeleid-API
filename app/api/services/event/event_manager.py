@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, List, Type
+from typing import Dict, Generic, List, Type
 
 from sqlalchemy.orm import Session
 
