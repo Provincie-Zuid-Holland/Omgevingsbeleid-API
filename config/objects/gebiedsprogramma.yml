@@ -178,6 +178,8 @@ models:
       image:
         default: none
         optional: true
+    dependency_model_ids:
+      - next_object_validities
     services:
       computed_fields:
         - batch_next_object_version
@@ -199,6 +201,8 @@ models:
       image:
         default: none
         optional: true
+    dependency_model_ids:
+      - user_short
     services:
       get_image:
         fields:
@@ -237,6 +241,12 @@ models:
       image:
         default: none
         optional: true
+    dependency_model_ids:
+      - user_short
+      - next_object_validities
+      - public_module_object_revision
+      - hierarchy_statics
+      - maatregel_minimal
     services:
       computed_fields:
         - next_object_version

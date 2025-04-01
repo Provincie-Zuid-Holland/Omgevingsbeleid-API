@@ -138,6 +138,8 @@ models:
       area_uuid:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -164,6 +166,11 @@ models:
       area_uuid:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
+      - next_object_validities
+      - public_module_object_revision
+      - area_basic
     services:
       insert_computed_fields:
         fields:

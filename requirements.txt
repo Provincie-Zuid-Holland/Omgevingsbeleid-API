@@ -107,7 +107,7 @@ pyasn1==0.4.8
     # via
     #   python-jose
     #   rsa
-pydantic==2.11.0
+pydantic==2.11.1
     # via
     #   -r requirements.in
     #   dso

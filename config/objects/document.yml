@@ -178,6 +178,8 @@ models:
       file_uuid:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -206,6 +208,12 @@ models:
       start_validity:
       end_validity:
       file_uuid:
+    dependency_model_ids:
+      - user_short
+      - next_object_validities
+      - public_module_object_revision
+      - storage_file_basic
+      - hierarchy_statics
     services:
       foreign_keys_extender:
         fields_map:

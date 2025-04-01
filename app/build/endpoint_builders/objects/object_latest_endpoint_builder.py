@@ -1,24 +1,8 @@
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from app.api.domains.objects.endpoints.object_latest_endpoint import ObjectLatestEndpointContext, view_endpoint
-from app.build.endpoint_builders.endpoint_builder import EndpointBuilder, EndpointConfig
-
-
-class AmbitieFull(BaseModel):
-    Object_ID: int
-    Object_Type: str
-    Code: str
-    UUID: str
-    Title: str
-
-
-class BeleidskeuzeFull(BaseModel):
-    Object_ID: int
-    Object_Type: str
-    Code: str
-    UUID: str
-    Title: str
+from app.api.domains.objects.endpoints.object_latest_endpoint import ObjectLatestEndpointContext, view_object_latest_endpoint
+from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder, EndpointConfig
 
 
 class ObjectLatestEndpointBuilder(EndpointBuilder):
@@ -30,7 +14,7 @@ class ObjectLatestEndpointBuilder(EndpointBuilder):
         # models_resolver: ModelsResolver,
         # endpoint_config: EndpointConfig,
         # api: Api,
-    ) -> EndpointConfig:
+    ) -> ConfiguiredFastapiEndpoint:
         data = {
             "response_type": AmbitieFull,
             "builder_data": {
@@ -42,9 +26,9 @@ class ObjectLatestEndpointBuilder(EndpointBuilder):
         # path: str = endpoint_config.prefix + resolver_config.get("path", "")
         
         context = ObjectLatestEndpointContext.model_validate(data)
-        endpoint = self._inject_context(view_endpoint, context=context)
+        endpoint = self._inject_context(view_object_latest_endpoint, context=context)
 
-        return EndpointConfig(
+        return ConfiguiredFastapiEndpoint(
             path="/ambitie/{lineage_id}/object-latest",
             endpoint=endpoint,
             methods=["GET"],

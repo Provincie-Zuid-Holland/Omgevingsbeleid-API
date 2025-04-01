@@ -7,8 +7,9 @@ from typing import Callable, List, Optional, Union
 from pydantic import BaseModel, Field
 
 
+# Used to give data to fastapi.add_api_route
 # @see: site-packages/fastapi/routing.py def add_api_route
-class EndpointConfig(BaseModel):
+class ConfiguiredFastapiEndpoint(BaseModel):
     path: str
     endpoint: Callable
     methods: list[str]
@@ -29,7 +30,7 @@ class EndpointBuilder(ABC):
         # models_resolver: ModelsResolver,
         # endpoint_config: EndpointConfig,
         # api: Api,
-    ) -> EndpointConfig:
+    ) -> ConfiguiredFastapiEndpoint:
         pass
 
     def _inject_context(self, endpoint: Callable, context: BaseModel) -> Callable:

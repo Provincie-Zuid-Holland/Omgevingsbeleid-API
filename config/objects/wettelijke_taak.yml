@@ -122,6 +122,8 @@ models:
       weblink:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -148,6 +150,12 @@ models:
       weblink:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
+      - next_object_validities
+      - public_module_object_revision
+      - hierarchy_statics
+      - verplicht_programma_minimal
     services:
       relations:
         objects:

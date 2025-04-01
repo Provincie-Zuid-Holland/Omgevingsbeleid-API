@@ -31,19 +31,18 @@ class ObjectModelsBuilder:
         return result
 
     def _sort_intermediate_objects(self, intermediate_objects: List[IntermediateModel]) -> List[IntermediateModel]:
+        """
+        Sorts intermediate objects based on their dependencies using topological sort.
+        Ensures each object appears after its dependencies.
+        """
         intermediate_objects_lookup = {o.id: o for o in intermediate_objects}
         
-        # Build the dependency mapping:
-        #   each intermediate_objects is mapped to the set of intermediate_objects it depends on.
         dependency_map = {}
         for int_obj in intermediate_objects:
-            dependencies = set()
-            for dep_id in int_obj.dependency_model_ids:
-                if dep_id in intermediate_objects_lookup:
-                    dependencies.add(intermediate_objects_lookup[dep_id])
-                else:
-                    raise ValueError(f"Dependency id '{dep_id}' not found among models.")
-            dependency_map[int_obj.id] = dependencies
+            dependency_map[int_obj.id] = {
+                dep_id for dep_id in int_obj.dependency_model_ids
+                if dep_id in intermediate_objects_lookup
+            }
         
         ts = TopologicalSorter(dependency_map)
         sorted_model_ids = list(ts.static_order())
@@ -93,7 +92,7 @@ class ObjectModelsBuilder:
             static_object_name = f"{intermediate_model.name}Statics"
             pydantic_static_model = pydantic.create_model(
                 static_object_name,
-                model_config=pydantic.ConfigDict(from_attributes=True),
+                __config__=pydantic.ConfigDict(from_attributes=True),
                 __validators__=static_pydantic_validators,
                 **static_pydantic_fields,
             )
@@ -113,7 +112,7 @@ class ObjectModelsBuilder:
         else:
             pydantic_model = pydantic.create_model(
                 intermediate_model.name,
-                model_config=pydantic.ConfigDict(from_attributes=True),
+                __config__=pydantic.ConfigDict(from_attributes=True),
                 __validators__={**pydantic_validators, **intermediate_model.model_validators},
                 **pydantic_fields,
             )

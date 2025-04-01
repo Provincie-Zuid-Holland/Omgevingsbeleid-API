@@ -16,7 +16,7 @@ class ObjectLatestEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def view_endpoint(
+async def view_object_latest_endpoint(
     lineage_id: int,
     db: Session = Depends(Provide[Container.db]),
     context: ObjectLatestEndpointContext = Depends(),

@@ -123,6 +123,7 @@ class ObjectIntermediateBuilder:
                     static_fields=static_fields,
                     service_config=model_config.get("services", {}),
                     model_validators=model_validators,
+                    dependency_model_ids=model_config.get("dependency_model_ids", []),
                 )
             )
 

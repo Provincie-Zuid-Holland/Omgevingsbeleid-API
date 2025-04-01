@@ -212,6 +212,8 @@ models:
       start_validity:
       end_validity:
       title:
+    dependency_model_ids:
+      - next_object_validities
     services:
       computed_fields:
         - batch_next_object_version
@@ -229,6 +231,8 @@ models:
       title:
       hierarchy_code:
       werkingsgebied_code:
+    dependency_model_ids:
+      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -266,6 +270,18 @@ models:
       explanation:
       hierarchy_code:
       werkingsgebied_code:
+    dependency_model_ids:
+      - user_short
+      - next_object_validities
+      - public_module_object_revision
+      - werkingsgebied_basic
+      - werkingsgebied_statics
+      - hierarchy_statics
+      - wettelijke_taak_minimal
+      - nationaal_belang_minimal
+      - beleidsdoel_minimal
+      - beleidsregel_minimal
+      - maatregel_minimal
     services:
       computed_fields:
         - next_object_version

@@ -173,6 +173,8 @@ models:
       onderverdelingen:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -200,6 +202,9 @@ models:
       start_validity:
       end_validity:
       area_uuid:
+    dependency_model_ids:
+      - user_short
+      - area_basic
     services:
       computed_fields:
         - werkingsgebied_related_objects

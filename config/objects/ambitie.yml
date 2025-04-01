@@ -168,6 +168,8 @@ models:
       title:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - next_object_validities
     services:
       computed_fields:
         - batch_next_object_version
@@ -183,6 +185,8 @@ models:
       title:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -215,6 +219,11 @@ models:
       description:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
+      - next_object_validities
+      - public_module_object_revision
+      - beleidsdoel_minimal
     services:
       computed_fields:
         - next_object_version
