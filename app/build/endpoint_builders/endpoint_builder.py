@@ -3,6 +3,7 @@ from enum import Enum
 import functools
 import inspect
 from typing import Callable, List, Optional, Type, Union
+from dependency_injector.wiring import inject
 
 from pydantic import BaseModel, Field
 
@@ -72,3 +73,5 @@ class EndpointBuilder(ABC):
         partial_func.__signature__ = new_sig
 
         return partial_func
+        # wrapped_endpoint = inject(partial_func)
+        # return wrapped_endpoint

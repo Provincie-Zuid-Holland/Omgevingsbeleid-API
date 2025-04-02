@@ -5,12 +5,21 @@ import app.build.endpoint_builders.objects as endpoint_builders_objects
 from app.build.endpoint_builders import endpoint_builder_provider
 from app.build.services import config_parser, object_intermediate_builder, validator_provider, object_models_builder
 import app.build.services.validators.validators as validators
+from app.core.db.session import create_db_engine, init_db_session
+from app.core.models_provider import ModelsProvider
+from app.core.settings import Settings
+from sqlalchemy.orm import sessionmaker
 
 
 class BuildContainer(containers.DeclarativeContainer):
-    settings = providers.Dependency()
-    db = providers.Dependency()
-    models_provider = providers.Dependency()
+    settings = providers.Singleton(Settings)
+
+    db_engine = providers.Singleton(create_db_engine, settings=settings)
+    db_session_factory = providers.Singleton(sessionmaker, bind=db_engine, autocommit=False, autoflush=False)
+    db = providers.Resource(
+        init_db_session,
+        session_factory=db_session_factory,
+    )
 
     validator_provider = providers.Singleton(
         validator_provider.ValidatorProvider,
@@ -48,6 +57,8 @@ class BuildContainer(containers.DeclarativeContainer):
         config_parser.ConfigParser,
         object_intermediate_builder=object_intermediate_builder,
     )
+
+    models_provider = providers.Singleton(ModelsProvider)
 
     api_builder = providers.Factory(
         api_builder.ApiBuilder,
