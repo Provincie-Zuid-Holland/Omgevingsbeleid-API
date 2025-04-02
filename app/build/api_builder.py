@@ -1,11 +1,14 @@
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
 
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint
+from app.api.endpoint import EndpointContextBuilderData
+from app.build.api_models import DECLARED_MODELS
+from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.endpoint_builders.endpoint_builder_provider import EndpointBuilderProvider
-from app.build.objects.types import BuildData, EndpointConfig, Model
+from app.build.objects.types import BuildData, Model
 from app.build.services.config_parser import ConfigParser
-from app.build.services.model_provider import ModelProvider
+from app.build.services.object_models_builder import ObjectModelsBuilder
+from app.core.models_provider import ModelsProvider
 from app.core.settings import Settings
 
 
@@ -15,37 +18,57 @@ class ApiBuilder:
         settings: Settings,
         db: Session,
         config_parser: ConfigParser,
+        object_models_builder: ObjectModelsBuilder,
         endpoint_builder_provider: EndpointBuilderProvider,
-        declared_models: List[Model],
+        models_provider: ModelsProvider,
     ):
         self._settings: Settings = settings
         self._db: Session = db
         self._config_parser: ConfigParser = config_parser
+        self._object_models_builder: ObjectModelsBuilder = object_models_builder
         self._endpoint_builder_provider: EndpointBuilderProvider = endpoint_builder_provider
-        self._declared_models: List[Model] = declared_models
+        
+        self._models_provider: ModelsProvider = models_provider
 
-    def build(self):
+    def build(self) -> List[ConfiguiredFastapiEndpoint]:
         build_data: BuildData = self._config_parser.parse(
             self._settings.MAIN_CONFIG_FILE,
             self._settings.OBJECT_CONFIG_PATH,
         )
-        model_provider = ModelProvider(build_data.object_models + self._declared_models)
-        object_routes = self._build_object_routes(build_data, model_provider)
+        
+        self._models_provider.add_list(DECLARED_MODELS)
+        self._object_models_builder.build_models(self._models_provider, build_data.object_intermediates)
 
-    def _build_object_routes(self, build_data: BuildData, model_provider: ModelProvider) -> List[ConfiguiredFastapiEndpoint]:
+        object_routes: List[ConfiguiredFastapiEndpoint] = self._build_object_routes(build_data)
+        return object_routes
+
+    def _build_object_routes(self, build_data: BuildData) -> List[ConfiguiredFastapiEndpoint]:
         result: List[ConfiguiredFastapiEndpoint] = []
     
         for object_intermediate in build_data.object_intermediates:
             for endpoint_config in object_intermediate.api.endpoint_configs:
-                if self._endpoint_builder_provider.has(endpoint_config.resolver_id)
-                if endpoint_config.resolver_id not in self._endpoint_resolvers:
+                endpoint_builder: Optional[EndpointBuilder] = self._endpoint_builder_provider.get_optional(
+                    endpoint_config.resolver_id
+                )
+                if endpoint_builder is None:
                     continue
+                    # @todo:
+                    # raise ValueError(f"EndpointBuilder with id '{endpoint_config.resolver_id}' does not exist.")
 
-                resolver: EndpointResolver = self._endpoint_resolvers[endpoint_config.resolver_id]
-                endpoint: Endpoint = resolver.generate_endpoint(
-                    self._service_container.models_resolver,
+                # Convience which happens in every endpoint builder
+                resolver_config: dict = endpoint_config.resolver_data
+                path: str = endpoint_config.prefix + resolver_config.get("path", "")
+                builder_data: EndpointContextBuilderData = EndpointContextBuilderData(
+                    endpoint_id=endpoint_config.resolver_id,
+                    path=path,
+                )
+
+                configured_endpoint: ConfiguiredFastapiEndpoint = endpoint_builder.build_endpoint(
+                    self._models_provider,
+                    builder_data,
                     endpoint_config,
                     object_intermediate.api,
                 )
+                result.append(configured_endpoint)
 
         return result

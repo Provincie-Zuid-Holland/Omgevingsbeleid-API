@@ -1,23 +1,13 @@
-from abc import ABCMeta
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List
 from pydantic import BaseModel
 from pydantic import Field as PydanticField
+
+from app.core.types import Column, Model
 
 
 class FieldType(BaseModel):
     id: str
     field_type: Any
-
-
-class Column(BaseModel):
-    id: str
-    name: str
-    type: str
-    type_data: dict = {}
-    nullable: bool = False
-    static: bool = False
-    serializers: List[str] = PydanticField(default_factory=list)
-    deserializers: List[str] = PydanticField(default_factory=list)
 
 
 class Field(BaseModel):
@@ -76,20 +66,8 @@ class IntermediateObject(BaseModel):
     intermediate_models: List[IntermediateModel]
 
 
-class Model(BaseModel, metaclass=ABCMeta):
-    id: str
-    name: str
-    pydantic_model: Type[BaseModel]
-
-
-class DynamicObjectModel(Model):
-    service_config: dict
-    columns: List[Column]
-
-
 class BuildData(BaseModel):
     main_config: dict
     object_configs: List[dict]
     columns: Dict[str, Column]
     object_intermediates: List[IntermediateObject]
-    object_models: List[Model]

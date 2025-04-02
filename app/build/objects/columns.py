@@ -1,4 +1,4 @@
-from .types import Column
+from app.core.types import Column
 
 
 BASE_COLUMNS = [

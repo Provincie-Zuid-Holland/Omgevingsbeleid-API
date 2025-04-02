@@ -2,9 +2,13 @@ from abc import ABC, abstractmethod
 from enum import Enum
 import functools
 import inspect
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
+
+from app.api.endpoint import EndpointContextBuilderData
+from app.build.objects.types import EndpointConfig, ObjectApi
+from app.core.models_provider import ModelsProvider
 
 
 # Used to give data to fastapi.add_api_route
@@ -13,7 +17,7 @@ class ConfiguiredFastapiEndpoint(BaseModel):
     path: str
     endpoint: Callable
     methods: list[str]
-    response_class: type
+    response_type: Union[Type[BaseModel], type]
     summary: Optional[str] = None
     description: Optional[str] = None
     tags: List[Union[str, Enum]] = Field(default_factory=list)
@@ -25,11 +29,12 @@ class EndpointBuilder(ABC):
         pass
 
     @abstractmethod
-    def build_endpoint_config(
+    def build_endpoint(
         self,
-        # models_resolver: ModelsResolver,
-        # endpoint_config: EndpointConfig,
-        # api: Api,
+        models_provider: ModelsProvider,
+        builder_data: EndpointContextBuilderData,
+        endpoint_config: EndpointConfig,
+        api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
         pass
 

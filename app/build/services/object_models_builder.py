@@ -5,30 +5,34 @@ from typing import Any, Dict, List, Optional, OrderedDict, Tuple
 import pydantic
 
 from app.build.objects.fields import FIELD_TYPES
-from app.build.objects.types import DynamicObjectModel, Field, IntermediateModel, IntermediateObject, Model
+from app.build.objects.types import Field, IntermediateModel, IntermediateObject
 from app.build.services.validator_provider import ValidatorProvider
+from app.core.models_provider import ModelsProvider
+from app.core.types import Model, DynamicObjectModel
 
 
 class ObjectModelsBuilder:
     def __init__(self, validator_provider: ValidatorProvider):
         self._validator_provider: ValidatorProvider = validator_provider
+
         self._field_defaults: Dict[str, Any] = {
             "none": None,
         }
 
-    def build(self, intermediate_objects: List[IntermediateObject]) -> List[Model]:
+    def build_models(
+            self,
+            models_provider: ModelsProvider,
+            intermediate_objects: List[IntermediateObject],
+        ):
         intermediate_models: List[IntermediateModel] = [
             i_model for i_object in intermediate_objects
             for i_model in i_object.intermediate_models
         ]
         intermediate_models = self._sort_intermediate_objects(intermediate_models)
 
-        result: List[Model] = []
         for intermediate_model in intermediate_models:
             model: Model = self._build_model(intermediate_model)
-            result.append(model)
-
-        return result
+            models_provider.add(model)
 
     def _sort_intermediate_objects(self, intermediate_objects: List[IntermediateModel]) -> List[IntermediateModel]:
         """

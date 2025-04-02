@@ -3,9 +3,8 @@ Contains hardcoded pydantic models that
     can be used by the fastapi endpoints.
 """
 
-from app.build.objects.types import Model
-
 from app.build.api_models import user
+from app.core.types import Model
 
 
 DECLARED_MODELS = [

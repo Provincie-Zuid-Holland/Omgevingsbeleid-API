@@ -3,8 +3,9 @@ from typing import Any, Callable, Dict, List
 import pydantic
 
 from app.build.objects.fields import BASE_FIELDS
-from app.build.objects.types import Column, EndpointConfig, Field, IntermediateModel, IntermediateObject, ObjectApi
+from app.build.objects.types import EndpointConfig, Field, IntermediateModel, IntermediateObject, ObjectApi
 from app.build.services.validator_provider import ValidatorProvider
+from app.core.types import Column
 
 
 class ObjectIntermediateBuilder:

@@ -2,23 +2,21 @@ from typing import Type
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.endpoint import BaseEndpointContext
-from app.container import Container
 
 
 class ObjectLatestEndpointContext(BaseEndpointContext):
-    # response_config_model: Model
-    response_type: Type[BaseModel]
+    response_model: Type[BaseModel]
 
 
 @inject
 async def view_object_latest_endpoint(
     lineage_id: int,
-    db: Session = Depends(Provide[Container.db]),
+    db: Session = Depends(Provide[["app.container.Container.db"]]),
     context: ObjectLatestEndpointContext = Depends(),
-) -> JSONResponse:
-    return JSONResponse(content={})
+):
+    result: BaseModel = context.response_model.model_validate({})
+    return result

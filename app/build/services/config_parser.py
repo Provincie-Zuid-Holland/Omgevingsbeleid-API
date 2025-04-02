@@ -4,20 +4,16 @@ from os.path import isfile, join
 from typing import Dict, List
 import yaml
 
-from app.build.objects.types import BuildData, Column, IntermediateObject, Model
+from app.build.objects.types import BuildData, IntermediateObject
 from app.build.objects.columns import BASE_COLUMNS
 from app.build.services.object_intermediate_builder import ObjectIntermediateBuilder
 from app.build.services.object_models_builder import ObjectModelsBuilder
+from app.core.types import Column, Model
 
 
 class ConfigParser:
-    def __init__(
-            self,
-            object_intermediate_builder: ObjectIntermediateBuilder,
-            object_models_builder: ObjectModelsBuilder,
-        ):
+    def __init__(self, object_intermediate_builder: ObjectIntermediateBuilder):
         self._object_intermediate_builder: ObjectIntermediateBuilder = object_intermediate_builder
-        self._object_models_builder: ObjectModelsBuilder = object_models_builder
 
     def parse(self, main_config_path: str, object_config_path: str):
         main_config: dict = self._load_yaml(main_config_path)
@@ -27,14 +23,12 @@ class ConfigParser:
             columns,
             object_configs,
         )
-        object_models: List[Model] = self._object_models_builder.build(object_intermediates)
 
         return BuildData(
             main_config=main_config,
             object_configs=object_configs,
             columns=columns,
             object_intermediates=object_intermediates,
-            object_models=object_models,
         )
 
     def _load_yaml(self, file_path: str) -> dict:

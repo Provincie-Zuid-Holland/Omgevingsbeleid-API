@@ -1,37 +1,41 @@
-from fastapi.responses import JSONResponse
+from typing import Type
 from pydantic import BaseModel
 
 from app.api.domains.objects.endpoints.object_latest_endpoint import ObjectLatestEndpointContext, view_object_latest_endpoint
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder, EndpointConfig
+from app.api.endpoint import EndpointContextBuilderData
+from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.objects.types import EndpointConfig, ObjectApi
+from app.core.models_provider import ModelsProvider
 
 
 class ObjectLatestEndpointBuilder(EndpointBuilder):
     def get_id(self) -> str:
         return "object_latest"
 
-    def build_endpoint_config(
+    def build_endpoint(
         self,
-        # models_resolver: ModelsResolver,
-        # endpoint_config: EndpointConfig,
-        # api: Api,
+        models_provider: ModelsProvider,
+        builder_data: EndpointContextBuilderData,
+        endpoint_config: EndpointConfig,
+        api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        data = {
-            "response_type": AmbitieFull,
-            "builder_data": {
-                "endpoint_id": "object_latest",
-                "path": "/ambitie/{lineage_id}/object-latest",
-            }
-        }
-        # resolver_config: dict = endpoint_config.resolver_data
-        # path: str = endpoint_config.prefix + resolver_config.get("path", "")
-        
-        context = ObjectLatestEndpointContext.model_validate(data)
+        if not "{lineage_id}" in builder_data.path:
+            raise RuntimeError("Missing {lineage_id} argument in path")
+
+        resolver_config: dict = endpoint_config.resolver_data
+        response_model: Type[BaseModel] = models_provider.get_pydantic_model(resolver_config["response_model"])
+
+        context: ObjectLatestEndpointContext = ObjectLatestEndpointContext(
+            response_model=response_model,
+            builder_data=builder_data,
+        )
         endpoint = self._inject_context(view_object_latest_endpoint, context=context)
 
         return ConfiguiredFastapiEndpoint(
-            path="/ambitie/{lineage_id}/object-latest",
+            path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_class=JSONResponse,
-            summary=f"View latest valid record for an Ambitie lineage id",
+            response_type=response_model,
+            summary=f"View latest valid record for an {api.object_type} lineage id",
+            tags=[api.object_type],
         )

@@ -1,9 +1,8 @@
 from dependency_injector import containers, providers
 
 from app.build import api_builder
-from app.build.api_models import DECLARED_MODELS
 import app.build.endpoint_builders.objects as endpoint_builders_objects
-from app.build.endpoint_builders import endpoint_builder, endpoint_builder_provider
+from app.build.endpoint_builders import endpoint_builder_provider
 from app.build.services import config_parser, object_intermediate_builder, validator_provider, object_models_builder
 import app.build.services.validators.validators as validators
 
@@ -11,6 +10,7 @@ import app.build.services.validators.validators as validators
 class BuildContainer(containers.DeclarativeContainer):
     settings = providers.Dependency()
     db = providers.Dependency()
+    models_provider = providers.Dependency()
 
     validator_provider = providers.Singleton(
         validator_provider.ValidatorProvider,
@@ -32,7 +32,7 @@ class BuildContainer(containers.DeclarativeContainer):
     endpoint_builder_provider = providers.Singleton(
         endpoint_builder_provider.EndpointBuilderProvider,
         endpoint_builders=providers.List(
-            providers.Factory(endpoint_builders_objects.ObjectLatestEndpointBuilder)
+            providers.Factory(endpoint_builders_objects.ObjectLatestEndpointBuilder),
         )
     )
 
@@ -47,7 +47,6 @@ class BuildContainer(containers.DeclarativeContainer):
     config_parser = providers.Factory(
         config_parser.ConfigParser,
         object_intermediate_builder=object_intermediate_builder,
-        object_models_builder=object_models_builder,
     )
 
     api_builder = providers.Factory(
@@ -55,6 +54,7 @@ class BuildContainer(containers.DeclarativeContainer):
         settings=settings,
         db=db,
         config_parser=config_parser,
+        object_models_builder=object_models_builder,
         endpoint_builder_provider=endpoint_builder_provider,
-        declared_models=providers.List(DECLARED_MODELS),
+        models_provider=models_provider,
     )
