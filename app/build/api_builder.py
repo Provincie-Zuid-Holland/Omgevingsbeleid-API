@@ -5,7 +5,7 @@ from app.api.endpoint import EndpointContextBuilderData
 from app.build.api_models import DECLARED_MODELS
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.endpoint_builders.endpoint_builder_provider import EndpointBuilderProvider
-from app.build.objects.types import BuildData, Model
+from app.build.objects.types import BuildData
 from app.build.services.config_parser import ConfigParser
 from app.build.services.object_models_builder import ObjectModelsBuilder
 from app.core.models_provider import ModelsProvider

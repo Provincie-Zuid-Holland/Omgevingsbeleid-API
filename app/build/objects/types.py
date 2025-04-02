@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 from pydantic import BaseModel
 from pydantic import Field as PydanticField
 
-from app.core.types import Column, Model
+from app.core.types import Column
 
 
 class FieldType(BaseModel):

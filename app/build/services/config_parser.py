@@ -7,8 +7,7 @@ import yaml
 from app.build.objects.types import BuildData, IntermediateObject
 from app.build.objects.columns import BASE_COLUMNS
 from app.build.services.object_intermediate_builder import ObjectIntermediateBuilder
-from app.build.services.object_models_builder import ObjectModelsBuilder
-from app.core.types import Column, Model
+from app.core.types import Column
 
 
 class ConfigParser:

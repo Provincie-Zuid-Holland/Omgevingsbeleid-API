@@ -1,4 +1,4 @@
-import asyncio # noqa
+import asyncio  # noqa
 
 from fastapi import APIRouter, FastAPI
 from fastapi.openapi.utils import get_openapi
@@ -7,7 +7,6 @@ from pydantic import BaseModel
 from app.api.api_container import ApiContainer
 from app.build.api_builder import ApiBuilder
 from app.build.build_container import BuildContainer
-from app.build.endpoint_builders.objects.object_latest_endpoint_builder import ObjectLatestEndpointBuilder
 
 build_container = BuildContainer()
 build_container.wire(modules=["app.build"])

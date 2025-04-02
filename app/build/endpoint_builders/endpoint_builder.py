@@ -3,7 +3,6 @@ from enum import Enum
 import functools
 import inspect
 from typing import Callable, List, Optional, Type, Union
-from dependency_injector.wiring import inject
 
 from pydantic import BaseModel, Field
 

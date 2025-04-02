@@ -1,18 +1,12 @@
-from dependency_injector.wiring import Provide, inject
 from sqlalchemy import Select
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
 from app.core.utils.pagination import PaginatedQueryResult, add_pagination, query_paginated, query_total_count
 
 
 class BaseRepository:
-    @inject
-    def __init__(
-        self,
-        db: Session = Provide[ApiContainer.db],
-    ):
-        self._db = db
+    def __init__(self, db: Session):
+        self._db: Session = db
 
     def fetch_first(self, statement: Select):
         return self._db.scalars(statement).first()

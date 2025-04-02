@@ -26,6 +26,7 @@ class ObjectLatestEndpointBuilder(EndpointBuilder):
         response_model: Type[BaseModel] = models_provider.get_pydantic_model(resolver_config["response_model"])
 
         context: ObjectLatestEndpointContext = ObjectLatestEndpointContext(
+            object_type=api.object_type,
             response_model=response_model,
             builder_data=builder_data,
         )

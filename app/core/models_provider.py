@@ -2,7 +2,7 @@ from typing import Dict, List, Type
 
 from pydantic import BaseModel
 
-from app.build.objects.types import Model
+from app.core.types import Model
 
 
 class ModelsProvider:
