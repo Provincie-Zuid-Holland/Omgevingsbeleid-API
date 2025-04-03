@@ -9,7 +9,7 @@ from app.build.api_builder import ApiBuilder
 from app.build.build_container import BuildContainer
 
 build_container = BuildContainer()
-build_container.wire(modules=["app.build"])
+build_container.wire(packages=["app.build"])
 
 api_container = ApiContainer()
 api_container.wire(packages=["app.core", "app.api"])
@@ -36,30 +36,10 @@ for endpoint_config in routes:
 
     router.add_api_route(**route_kwargs)
 
-# endpoints = [
-#     ObjectLatestEndpointBuilder().build_endpoint_config()
-# ]
-# container.wire(modules=[__name__])
-
 
 app = FastAPI()
 app.container = api_container
 app.include_router(router)
-
-
-# router = APIRouter()
-# for endpoint_config in endpoints:
-#     router.add_api_route(
-#         endpoint_config.path,
-#         endpoint_config.endpoint,
-#         methods=endpoint_config.methods,
-#         response_class=endpoint_config.response_class,
-#         summary=endpoint_config.summary,
-#         description=endpoint_config.description,
-#         tags=endpoint_config.tags,
-#     )
-
-# app.include_router(router)
 
 
 def custom_openapi():

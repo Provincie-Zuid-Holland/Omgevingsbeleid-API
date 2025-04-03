@@ -3,14 +3,14 @@ from dependency_injector import containers, providers
 from app.build import api_builder
 import app.build.endpoint_builders.objects as endpoint_builders_objects
 from app.build.endpoint_builders import endpoint_builder_provider
-from app.build.services import config_parser, object_intermediate_builder, validator_provider, object_models_builder
+from app.build.services import config_parser, object_intermediate_builder, tables_builder, validator_provider, object_models_builder
 import app.build.services.validators.validators as validators
 from app.core.db.session import create_db_engine, init_db_session
 from app.core.models_provider import ModelsProvider
 from app.core.services.event import event_manager
 from app.core.settings import Settings
 from sqlalchemy.orm import sessionmaker
-import app.build.events.create_model_event_listeners as create_model_event_listeners
+from app.build.events import create_model_event_listeners, generate_table_event_listeners
 
 
 class BuildContainer(containers.DeclarativeContainer):
@@ -43,6 +43,13 @@ class BuildContainer(containers.DeclarativeContainer):
     build_event_listeners = providers.Factory(
         event_manager.EventListeners,
         listeners=providers.List(
+            # GenerateTableEvent
+            providers.Factory(generate_table_event_listeners.AddObjectCodeRelationshipListener),
+            providers.Factory(generate_table_event_listeners.AddAreasRelationshipListener),
+            providers.Factory(generate_table_event_listeners.AddUserRelationshipListener),
+            providers.Factory(generate_table_event_listeners.AddWerkingsgebiedenRelationshipListener),
+            providers.Factory(generate_table_event_listeners.AddStoreageFileRelationshipListener),
+            # CreateModelEvent
             providers.Factory(create_model_event_listeners.ObjectsExtenderListener),
             providers.Factory(create_model_event_listeners.ObjectStaticsExtenderListener),
             providers.Factory(create_model_event_listeners.AddRelationsListener),
@@ -76,6 +83,11 @@ class BuildContainer(containers.DeclarativeContainer):
         object_intermediate_builder=object_intermediate_builder,
     )
 
+    tables_builder = providers.Factory(
+        tables_builder.TablesBuilder,
+        event_manager=build_event_manager,
+    )
+
     models_provider = providers.Singleton(ModelsProvider)
 
     api_builder = providers.Factory(
@@ -84,6 +96,7 @@ class BuildContainer(containers.DeclarativeContainer):
         db=db,
         config_parser=config_parser,
         object_models_builder=object_models_builder,
+        tables_builder=tables_builder,
         endpoint_builder_provider=endpoint_builder_provider,
         models_provider=models_provider,
     )

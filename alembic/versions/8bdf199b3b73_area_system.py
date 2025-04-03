@@ -11,9 +11,7 @@ import sqlalchemy as sa
 # We need these to load all sqlalchemy tables
 from app.main import app  ## noqa 
 from app.core.db import table_metadata  ## noqa 
-from app.core.settings import settings  ## noqa 
-from app.extensions.source_werkingsgebieden.geometry import Geometry  ## noqa
-
+from app.core.db.geometry import Geometry  ## noqa
 
 
 # revision identifiers, used by Alembic.
