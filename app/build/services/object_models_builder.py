@@ -4,16 +4,23 @@ from typing import Any, Dict, List, Optional, OrderedDict, Tuple
 
 import pydantic
 
+from app.build.events.create_model_event import CreateModelEvent
 from app.build.objects.fields import FIELD_TYPES
 from app.build.objects.types import Field, IntermediateModel, IntermediateObject
 from app.build.services.validator_provider import ValidatorProvider
 from app.core.models_provider import ModelsProvider
+from app.core.services.event.event_manager import EventManager
 from app.core.types import Model, DynamicObjectModel
 
 
 class ObjectModelsBuilder:
-    def __init__(self, validator_provider: ValidatorProvider):
+    def __init__(
+            self,
+            validator_provider: ValidatorProvider,
+            event_manager: EventManager,
+        ):
         self._validator_provider: ValidatorProvider = validator_provider
+        self._event_manager: EventManager = event_manager
 
         self._field_defaults: Dict[str, Any] = {
             "none": None,
@@ -31,7 +38,7 @@ class ObjectModelsBuilder:
         intermediate_models = self._sort_intermediate_objects(intermediate_models)
 
         for intermediate_model in intermediate_models:
-            model: Model = self._build_model(intermediate_model)
+            model: Model = self._build_model(models_provider, intermediate_model)
             models_provider.add(model)
 
     def _sort_intermediate_objects(self, intermediate_objects: List[IntermediateModel]) -> List[IntermediateModel]:
@@ -57,7 +64,11 @@ class ObjectModelsBuilder:
 
         return sorted_models
 
-    def _build_model(self, intermediate_model: IntermediateModel) -> DynamicObjectModel:
+    def _build_model(
+            self,
+            models_provider: ModelsProvider,
+            intermediate_model: IntermediateModel,
+        ) -> DynamicObjectModel:
         # If we requested a static object and we have lineage fields then we have a configuration error
         if intermediate_model.static_only and intermediate_model.fields:
             raise RuntimeError(f"Can not configure lineage fields for static only model '{intermediate_model.name}")
@@ -73,19 +84,16 @@ class ObjectModelsBuilder:
             f"{intermediate_model.name}-static",
         )
 
-        # Ask extensions for more information
-        # @TODO: Executre those listeners
-        # event: CreateModelEvent = self._event_dispatcher.dispatch(
-        #     CreateModelEvent.create(
-        #         pydantic_fields,
-        #         static_pydantic_fields,
-        #         intermediate_model,
-        #         self._models_resolver,
-        #         self._computed_fields_resolver,
-        #     )
-        # )
-        # pydantic_fields = event.payload.pydantic_fields
-        # static_pydantic_fields = event.payload.static_pydantic_fields
+        event: CreateModelEvent = self._event_manager.dispatch(
+            CreateModelEvent.create(
+                pydantic_fields,
+                static_pydantic_fields,
+                intermediate_model,
+                models_provider,
+            )
+        )
+        pydantic_fields = event.payload.pydantic_fields
+        static_pydantic_fields = event.payload.static_pydantic_fields
 
         # If we have static fields then we need to make a static wrapper object
         if static_pydantic_fields:

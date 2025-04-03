@@ -7,8 +7,10 @@ from app.build.services import config_parser, object_intermediate_builder, valid
 import app.build.services.validators.validators as validators
 from app.core.db.session import create_db_engine, init_db_session
 from app.core.models_provider import ModelsProvider
+from app.core.services.event import event_manager
 from app.core.settings import Settings
 from sqlalchemy.orm import sessionmaker
+import app.build.events.create_model_event_listeners as create_model_event_listeners
 
 
 class BuildContainer(containers.DeclarativeContainer):
@@ -38,6 +40,21 @@ class BuildContainer(containers.DeclarativeContainer):
         ),
     )
 
+    build_event_listeners = providers.Factory(
+        event_manager.EventListeners,
+        listeners=providers.List(
+            providers.Factory(create_model_event_listeners.ObjectsExtenderListener),
+            providers.Factory(create_model_event_listeners.ObjectStaticsExtenderListener),
+            providers.Factory(create_model_event_listeners.AddRelationsListener),
+            providers.Factory(create_model_event_listeners.JoinWerkingsgebiedenListener),
+        ),
+    )
+    build_event_manager = providers.Singleton(
+        event_manager.EventManager,
+        db=db,
+        event_listeners=build_event_listeners,
+    )
+
     endpoint_builder_provider = providers.Singleton(
         endpoint_builder_provider.EndpointBuilderProvider,
         endpoint_builders=providers.List(
@@ -52,6 +69,7 @@ class BuildContainer(containers.DeclarativeContainer):
     object_models_builder = providers.Factory(
         object_models_builder.ObjectModelsBuilder,
         validator_provider=validator_provider,
+        event_manager=build_event_manager,
     )
     config_parser = providers.Factory(
         config_parser.ConfigParser,

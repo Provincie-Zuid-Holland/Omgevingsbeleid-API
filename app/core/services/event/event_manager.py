@@ -6,8 +6,11 @@ from .types import EventType, Listener
 
 
 class EventListeners(Generic[EventType]):
-    def __init__(self):
+    def __init__(self, listeners: List[Listener] = []):
         self._listeners: Dict[Type[EventType], List[Listener]] = {}
+
+        for listener in listeners:
+            self.register(listener)
 
     def register(self, listener: Listener):
         event_type: Type[EventType] = listener.get_event_type()
@@ -24,11 +27,11 @@ class EventListeners(Generic[EventType]):
 class EventManager(Generic[EventType]):
     def __init__(
         self,
-        event_listeners: EventListeners,
         db: Session,
+        event_listeners: EventListeners,
     ):
-        self._event_listeners: EventListeners = event_listeners
         self._db: Session = db
+        self._event_listeners: EventListeners = event_listeners
 
     def dispatch(self, event: EventType) -> EventType:
         listeners: List[Listener] = self._event_listeners.get_listeners(event)

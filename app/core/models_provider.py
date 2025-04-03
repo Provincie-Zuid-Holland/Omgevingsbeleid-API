@@ -26,3 +26,6 @@ class ModelsProvider:
     def get_pydantic_model(self, model_id: str) -> Type[BaseModel]:
         model: Model = self.get_model(model_id)
         return model.pydantic_model
+
+    def exists(self, model_id: str) -> bool:
+        return model_id in self._models
