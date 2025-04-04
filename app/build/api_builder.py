@@ -10,7 +10,6 @@ from app.build.services.config_parser import ConfigParser
 from app.build.services.object_models_builder import ObjectModelsBuilder
 from app.build.services.tables_builder import TablesBuilder
 from app.core.services.models_provider import ModelsProvider
-from app.core.settings import Settings
 
 
 class ApiBuilder:
@@ -39,6 +38,8 @@ class ApiBuilder:
         self._object_models_builder.build_models(self._models_provider, build_data.object_intermediates)
 
         object_routes: List[ConfiguiredFastapiEndpoint] = self._build_object_routes(build_data)
+        object_routes.sort(key=lambda o: o.tags)
+
         return object_routes
 
     def _build_object_routes(self, build_data: BuildData) -> List[ConfiguiredFastapiEndpoint]:

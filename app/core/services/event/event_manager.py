@@ -39,6 +39,7 @@ class EventManager(Generic[EventType]):
         if not listeners:
             return event
 
+        # @todo: remove
         if self._db:
             event.provide_db(self._db)
 

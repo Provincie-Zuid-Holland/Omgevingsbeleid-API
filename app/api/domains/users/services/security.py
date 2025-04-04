@@ -6,16 +6,15 @@ from typing import Any, Optional, Union
 from jose import jwt
 from passlib.context import CryptContext
 
-
 ALGORITHM = "HS256"
 
 
 class Security:
     def __init__(
-            self,
-            secret_key: str,
-            token_lifetime: timedelta,
-        ):
+        self,
+        secret_key: str,
+        token_lifetime: timedelta,
+    ):
         self._secret_key: str = secret_key
         self._token_lifetime: timedelta = token_lifetime
         self._pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")

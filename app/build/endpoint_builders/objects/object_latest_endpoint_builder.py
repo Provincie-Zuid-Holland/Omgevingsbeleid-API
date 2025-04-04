@@ -1,11 +1,10 @@
-from typing import Type
-from pydantic import BaseModel
 
 from app.api.domains.objects.endpoints.object_latest_endpoint import ObjectLatestEndpointContext, view_object_latest_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
+from app.core.types import Model
 
 
 class ObjectLatestEndpointBuilder(EndpointBuilder):
@@ -23,11 +22,11 @@ class ObjectLatestEndpointBuilder(EndpointBuilder):
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         resolver_config: dict = endpoint_config.resolver_data
-        response_model: Type[BaseModel] = models_provider.get_pydantic_model(resolver_config["response_model"])
+        response_model: Model = models_provider.get_model(resolver_config["response_model"])
 
         context: ObjectLatestEndpointContext = ObjectLatestEndpointContext(
             object_type=api.object_type,
-            response_model=response_model,
+            response_config_model=response_model,
             builder_data=builder_data,
         )
         endpoint = self._inject_context(view_object_latest_endpoint, context=context)
@@ -36,7 +35,7 @@ class ObjectLatestEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_type=response_model,
+            response_type=response_model.pydantic_model,
             summary=f"View latest valid record for an {api.object_type} lineage id",
             tags=[api.object_type],
         )

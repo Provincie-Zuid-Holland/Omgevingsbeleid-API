@@ -1,1 +1,1 @@
-from .database_commands import initdb, dropdb, load_fixtures
+from .database_commands import dropdb, initdb, load_fixtures

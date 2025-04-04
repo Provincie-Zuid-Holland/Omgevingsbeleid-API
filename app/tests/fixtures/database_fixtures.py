@@ -12,7 +12,7 @@ from app.api.domains.werkingsgebieden.repositories.area_geometry_repository impo
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
 from app.core.tables.acknowledged_relations import AcknowledgedRelationsTable
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
-from app.core.tables.objects import ObjectStaticsTable, ObjectsTable
+from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.others import AssetsTable, RelationsTable, StorageFileTable
 from app.core.tables.users import IS_ACTIVE, UsersTable
 from app.core.utils.utils import DATE_FORMAT

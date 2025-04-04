@@ -1,13 +1,17 @@
 from datetime import timedelta
+
 from dependency_injector import containers, providers
 from sqlalchemy.orm import sessionmaker
 
+import app.api.domains.objects.services as object_services
+import app.api.domains.users.services as user_services
 import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_repositories
+import app.api.domains.werkingsgebieden.services as werkingsgebied_services
+import app.api.events.retrieved_objects_event_listeners as retrieved_objects_event_listeners
 from app.api.domains.objects import object_repository
 from app.core.db.session import create_db_engine, init_db_session
-from app.core.settings import Settings
-import app.api.domains.users.services as user_services
 from app.core.services.event import event_manager
+from app.core.settings import Settings
 
 
 class ApiContainer(containers.DeclarativeContainer):
@@ -58,10 +62,26 @@ class ApiContainer(containers.DeclarativeContainer):
         token_lifetime=access_token_lifetime,
     )
 
+    add_relations_service_factory = providers.Singleton(
+        object_services.AddRelationsServiceFactory,
+        db=db,
+    )
+    join_werkingsgebieden_service_factory = providers.Singleton(
+        werkingsgebied_services.JoinWerkingsgebiedenServiceFactory,
+        db=db,
+    )
+
     event_listeners = providers.Factory(
         event_manager.EventListeners,
         listeners=providers.List(
-            
+            providers.Factory(
+                retrieved_objects_event_listeners.AddRelationsToObjectsListener,
+                relations_factory=add_relations_service_factory,
+            ),
+            providers.Factory(
+                retrieved_objects_event_listeners.JoinWerkingsgebeidenToObjectsListener,
+                service_factory=join_werkingsgebieden_service_factory,
+            ),
         ),
     )
     event_manager = providers.Singleton(

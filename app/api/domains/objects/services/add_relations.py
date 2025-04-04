@@ -1,26 +1,31 @@
 from collections import defaultdict
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Union, get_args
+from typing import Any, Dict, List, Optional, Union, get_args
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, or_, select
 from sqlalchemy.orm import Session
 
+from app.core.tables.objects import ObjectsTable
+from app.core.tables.others import RelationsTable
 from app.core.types import DynamicObjectModel, Model
 
 
-@dataclass
-class ObjectTypeDetails:
+class ObjectRelationConfig(BaseModel):
+    object_type: str
     object_id: str
     to_field: str
-    wrapped_with_relation_data: bool
+    model_id: str
+    wrapped_with_relation_data: bool = False
 
 
-@dataclass
-class Config:
+class RelationsConfig(BaseModel):
+    objects: List[ObjectRelationConfig]
+
+
+class Config(BaseModel):
     object_codes: List[str]
     object_types: List[str]
-    object_type_details: Dict[str, ObjectTypeDetails]
+    object_type_details: Dict[str, ObjectRelationConfig]
 
 
 class AddRelationsService:
@@ -39,7 +44,7 @@ class AddRelationsService:
         if not config:
             return self._rows
 
-        relation_rows: List[dict] = self._fetch_relation_rows(config)
+        relation_rows: List[Dict[str, Any]] = self._fetch_relation_rows(config)
 
         """
         relations=
@@ -62,21 +67,19 @@ class AddRelationsService:
         relations = defaultdict(lambda: defaultdict(list))
         for relation_row in relation_rows:
             # Determine the owner
-            target_code: str = relation_row.get("_Relation_From_Code")
-            if relation_row.get("_Relation_From_Code") == relation_row.get("Code"):
+            target_code: str = relation_row["_Relation_From_Code"]
+            if relation_row["_Relation_From_Code"] == relation_row["Code"]:
                 target_code = relation_row["_Relation_To_Code"]
 
-            relation_object_type: str = relation_row.get("Object_Type")
-            object_config: ObjectTypeDetails = config.object_type_details[relation_object_type]
+            relation_object_type: str = relation_row["Object_Type"]
+            object_config: ObjectRelationConfig = config.object_type_details[relation_object_type]
 
-            # extract the created relation-object pyd model
+            # extract the created relation-object pydantic model
             field_annotation = self._response_model.pydantic_model.model_fields[object_config.to_field].annotation
             relation_row_model = get_args(field_annotation)[0]
 
-            deserialized_relation_row: dict = self._converter.deserialize(object_config.object_id, relation_row)
-
             # Created wrapped relation model if configures with wrapped_with_relation_data
-            field_value: dict = deserialized_relation_row
+            field_value: dict = relation_row
             if object_config.wrapped_with_relation_data:
                 field_value = {
                     "Relation": {
@@ -84,14 +87,14 @@ class AddRelationsService:
                         "Object_ID": relation_row.get("Object_ID"),
                         "Description": relation_row.get("_Relation_Description"),
                     },
-                    "Object": deserialized_relation_row,
+                    "Object": relation_row,
                 }
 
-            field_result = relation_row_model.model_validate(field_value)
+            field_result: BaseModel = relation_row_model.model_validate(field_value)
             relations[target_code][object_config.to_field].append(field_result)
 
         # Now we union the relation "rows" into the event rows
-        result_rows: List[dict] = []
+        result_rows: List[BaseModel] = []
         for row in self._rows:
             if getattr(row, "Code") in relations:
                 for field_name, content in relations[getattr(row, "Code")].items():
@@ -100,39 +103,7 @@ class AddRelationsService:
 
         return result_rows
 
-    def _collect_config(self) -> Optional[Config]:
-        if not isinstance(self._response_model, DynamicObjectModel):
-            return None
-        if not "relations" in self._response_model.service_config:
-            return None
-
-        object_codes: List[str] = list(set([getattr(r, "Code") for r in self._rows]))
-
-        relations_config: dict = self._response_model.service_config["relations"]
-        objects_config: List[dict] = relations_config["objects"]
-
-        to_field_map: Dict[str, ObjectTypeDetails] = {}
-        object_types: Set[str] = set()
-        for object_config in objects_config:
-            object_id: str = object_config.get("object_id")
-            object_type: str = object_config.get("object_type")
-            to_field: str = object_config.get("to_field")
-            wrapped_with_relation_data: bool = object_config.get("wrapped_with_relation_data", False)
-
-            object_types.add(object_type)
-            to_field_map[object_type] = ObjectTypeDetails(
-                object_id,
-                to_field,
-                wrapped_with_relation_data,
-            )
-
-        return Config(
-            object_codes,
-            list(object_types),
-            to_field_map,
-        )
-
-    def _fetch_relation_rows(self, config: Config) -> List[dict]:
+    def _fetch_relation_rows(self, config: Config) -> List[Dict[str, Any]]:
         subq = (
             select(
                 ObjectsTable,
@@ -166,6 +137,25 @@ class AddRelationsService:
         rows = self._db.execute(stmt).all()
         dict_rows = [r._asdict() for r in rows]
         return dict_rows
+
+    def _collect_config(self) -> Optional[Config]:
+        if not isinstance(self._response_model, DynamicObjectModel):
+            return None
+        if not "relations" in self._response_model.service_config:
+            return None
+
+        object_codes = list({getattr(r, "Code") for r in self._rows})
+
+        relations_config = RelationsConfig.model_validate(self._response_model.service_config["relations"])
+
+        object_types = {relation.object_type for relation in relations_config.objects}
+        object_type_details = {relation.object_type: relation for relation in relations_config.objects}
+
+        return Config(
+            object_codes=object_codes,
+            object_types=list(object_types),
+            object_type_details=object_type_details,
+        )
 
 
 class AddRelationsServiceFactory:

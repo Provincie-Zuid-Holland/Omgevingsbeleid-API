@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 
 class Event(ABC):
+    # @todo: Remove DB from here and inject it in the listeners that need it
     def __init__(self):
         self._db: Optional[Session] = None
 

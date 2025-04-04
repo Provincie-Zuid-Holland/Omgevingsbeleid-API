@@ -44,7 +44,7 @@ def load_fixtures(
         security,
     )
     loader.create_all()
-    
+
     db.flush()
     db.commit()
     click.echo("Done")
