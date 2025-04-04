@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from app.api.api_container import ApiContainer
 from app.api.domains.objects.object_repository import ObjectRepository
 from app.api.endpoint import BaseEndpointContext
+from app.core.services.models_provider import ModelsProvider
 from app.core.tables.objects import ObjectsTable
 
 

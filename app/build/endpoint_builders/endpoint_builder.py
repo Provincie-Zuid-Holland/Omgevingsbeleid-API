@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.objects.types import EndpointConfig, ObjectApi
-from app.core.models_provider import ModelsProvider
+from app.core.services.models_provider import ModelsProvider
 
 
 # Used to give data to fastapi.add_api_route

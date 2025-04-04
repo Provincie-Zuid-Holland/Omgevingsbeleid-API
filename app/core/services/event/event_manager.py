@@ -30,6 +30,7 @@ class EventManager(Generic[EventType]):
         db: Session,
         event_listeners: EventListeners,
     ):
+        # @todo: remove DB, inject it in the listeners via the container that need it
         self._db: Session = db
         self._event_listeners: EventListeners = event_listeners
 

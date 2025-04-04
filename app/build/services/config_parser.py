@@ -11,12 +11,19 @@ from app.core.types import Column
 
 
 class ConfigParser:
-    def __init__(self, object_intermediate_builder: ObjectIntermediateBuilder):
+    def __init__(
+            self,
+            main_config_path: str,
+            object_config_path: str,
+            object_intermediate_builder: ObjectIntermediateBuilder,
+        ):
+        self._main_config_path: str = main_config_path
+        self._object_config_path: str = object_config_path
         self._object_intermediate_builder: ObjectIntermediateBuilder = object_intermediate_builder
 
-    def parse(self, main_config_path: str, object_config_path: str):
-        main_config: dict = self._load_yaml(main_config_path)
-        object_configs: List[dict] = self._load_object_configs(object_config_path)
+    def parse(self):
+        main_config: dict = self._load_yaml(self._main_config_path)
+        object_configs: List[dict] = self._load_object_configs(self._object_config_path)
         columns: Dict[str, Column] = self._gather_columns(main_config)
         object_intermediates: List[IntermediateObject] = self._object_intermediate_builder.build(
             columns,

@@ -6,7 +6,7 @@ from app.build.endpoint_builders import endpoint_builder_provider
 from app.build.services import config_parser, object_intermediate_builder, tables_builder, validator_provider, object_models_builder
 import app.build.services.validators.validators as validators
 from app.core.db.session import create_db_engine, init_db_session
-from app.core.models_provider import ModelsProvider
+from app.core.services.models_provider import ModelsProvider
 from app.core.services.event import event_manager
 from app.core.settings import Settings
 from sqlalchemy.orm import sessionmaker
@@ -14,9 +14,13 @@ from app.build.events import create_model_event_listeners, generate_table_event_
 
 
 class BuildContainer(containers.DeclarativeContainer):
-    settings = providers.Singleton(Settings)
+    config = providers.Configuration(pydantic_settings=[Settings()])
 
-    db_engine = providers.Singleton(create_db_engine, settings=settings)
+    db_engine = providers.Singleton(
+        create_db_engine,
+        uri=config.SQLALCHEMY_DATABASE_URI,
+        echo=config.SQLALCHEMY_ECHO,
+    )
     db_session_factory = providers.Singleton(sessionmaker, bind=db_engine, autocommit=False, autoflush=False)
     db = providers.Resource(
         init_db_session,
@@ -80,6 +84,8 @@ class BuildContainer(containers.DeclarativeContainer):
     )
     config_parser = providers.Factory(
         config_parser.ConfigParser,
+        main_config_path=config.MAIN_CONFIG_FILE,
+        object_config_path=config.OBJECT_CONFIG_PATH,
         object_intermediate_builder=object_intermediate_builder,
     )
 
@@ -92,7 +98,6 @@ class BuildContainer(containers.DeclarativeContainer):
 
     api_builder = providers.Factory(
         api_builder.ApiBuilder,
-        settings=settings,
         db=db,
         config_parser=config_parser,
         object_models_builder=object_models_builder,

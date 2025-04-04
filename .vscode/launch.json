@@ -53,5 +53,13 @@
             ],
             "justMyCode": false
         },
+        {
+            "name": "Debug: app.cmds load-fixtures",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "app.cmds",
+            "args": ["load-fixtures"],
+            "justMyCode": true
+        }
     ]
 }

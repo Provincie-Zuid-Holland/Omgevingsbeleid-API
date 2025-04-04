@@ -8,7 +8,7 @@ from app.build.events.create_model_event import CreateModelEvent
 from app.build.objects.fields import FIELD_TYPES
 from app.build.objects.types import Field, IntermediateModel, IntermediateObject
 from app.build.services.validator_provider import ValidatorProvider
-from app.core.models_provider import ModelsProvider
+from app.core.services.models_provider import ModelsProvider
 from app.core.services.event.event_manager import EventManager
 from app.core.types import Model, DynamicObjectModel
 

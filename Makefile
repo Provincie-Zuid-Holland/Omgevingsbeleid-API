@@ -27,13 +27,13 @@ pip-upgrade:
 	pip-compile --upgrade requirements-dev.in
 
 drop-database:
-	python cmds.py drop-db
+	python -m app.cmds dropdb
 
 init-database:
-	python cmds.py init-db
+	python -m app.cmds initdb
 
 load-fixtures:
-	python cmds.py load-fixtures
+	python -m app.cmds load-fixtures
 
 reset-test-database: drop-database init-database load-fixtures
 

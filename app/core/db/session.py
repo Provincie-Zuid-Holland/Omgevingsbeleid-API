@@ -14,11 +14,11 @@ def _enable_sqlite_load_extension(dbapi_connection, connection_record) -> None: 
         dbapi_connection.load_extension("mod_spatialite")
 
 
-def create_db_engine(settings: Settings) -> Engine:
+def create_db_engine(uri: str, echo: str) -> Engine:
     engine = create_engine(
-        settings.SQLALCHEMY_DATABASE_URI,
+        uri,
         pool_pre_ping=True,
-        echo=settings.SQLALCHEMY_ECHO,
+        echo=echo,
     )
     if engine.dialect.name == "sqlite":
         event.listen(engine, "connect", _enable_sqlite_load_extension)

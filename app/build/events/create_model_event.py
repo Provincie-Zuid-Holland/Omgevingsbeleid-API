@@ -2,7 +2,7 @@ from collections import OrderedDict
 from dataclasses import dataclass
 
 from app.build.objects.types import IntermediateModel
-from app.core.models_provider import ModelsProvider
+from app.core.services.models_provider import ModelsProvider
 from app.core.services.event.types import Event
 
 

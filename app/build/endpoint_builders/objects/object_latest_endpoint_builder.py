@@ -5,7 +5,7 @@ from app.api.domains.objects.endpoints.object_latest_endpoint import ObjectLates
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
-from app.core.models_provider import ModelsProvider
+from app.core.services.models_provider import ModelsProvider
 
 
 class ObjectLatestEndpointBuilder(EndpointBuilder):

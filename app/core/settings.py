@@ -1,12 +1,13 @@
-from typing import Any, Optional
+import re
+from typing import Any, Optional, Self
 from urllib.parse import quote_plus
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    PROJECT_VERSION: str = "4.7.2"
+    PROJECT_VERSION: str = "5.0.0"
     DEBUG_MODE: bool = False
     LOCAL_DEVELOPMENT_MODE: bool = False
 
@@ -67,6 +68,18 @@ class Settings(BaseSettings):
     # Mssql Search
     MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
     MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
+
+    # @note: These will be overwritten and based on earlier input
+    # These are for the Depedency Injector library
+
+    DB_TYPE: str = Field("")
+    DEBUG_MODE_STR: str = Field("")
+
+    @model_validator(mode="after")
+    def set_values_for_containers(self) -> Self:
+        self.DEBUG_MODE_STR = "yes" if self.DEBUG_MODE else "no"
+        self.DB_TYPE = self.SQLALCHEMY_DATABASE_URI.split("+")[0]
+        return self
 
     model_config = SettingsConfigDict(
         extra="allow",

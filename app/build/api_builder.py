@@ -9,14 +9,13 @@ from app.build.objects.types import BuildData
 from app.build.services.config_parser import ConfigParser
 from app.build.services.object_models_builder import ObjectModelsBuilder
 from app.build.services.tables_builder import TablesBuilder
-from app.core.models_provider import ModelsProvider
+from app.core.services.models_provider import ModelsProvider
 from app.core.settings import Settings
 
 
 class ApiBuilder:
     def __init__(
         self,
-        settings: Settings,
         db: Session,
         config_parser: ConfigParser,
         object_models_builder: ObjectModelsBuilder,
@@ -24,7 +23,6 @@ class ApiBuilder:
         endpoint_builder_provider: EndpointBuilderProvider,
         models_provider: ModelsProvider,
     ):
-        self._settings: Settings = settings
         self._db: Session = db
         self._config_parser: ConfigParser = config_parser
         self._object_models_builder: ObjectModelsBuilder = object_models_builder
@@ -33,10 +31,7 @@ class ApiBuilder:
         self._models_provider: ModelsProvider = models_provider
 
     def build(self) -> List[ConfiguiredFastapiEndpoint]:
-        build_data: BuildData = self._config_parser.parse(
-            self._settings.MAIN_CONFIG_FILE,
-            self._settings.OBJECT_CONFIG_PATH,
-        )
+        build_data: BuildData = self._config_parser.parse()
 
         self._tables_builder.build_tables(build_data.columns)
         
