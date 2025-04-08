@@ -1,4 +1,5 @@
 from typing import Annotated, Optional
+from uuid import UUID
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException
@@ -13,24 +14,24 @@ from app.core.tables.objects import ObjectsTable
 from app.core.types import Model
 
 
-class ObjectLatestEndpointContext(BaseEndpointContext):
+class ObjectVersionEndpointContext(BaseEndpointContext):
     object_type: str
     response_config_model: Model
 
 
 @inject
-def view_object_latest_endpoint(
-    lineage_id: int,
+def view_object_version_endpoint(
+    object_uuid: UUID,
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
-    context: ObjectLatestEndpointContext = Depends(),
+    context: ObjectVersionEndpointContext = Depends(),
 ) -> BaseModel:
-    maybe_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
+    maybe_object: Optional[ObjectsTable] = object_repository.get_by_object_type_and_uuid(
         context.object_type,
-        lineage_id,
+        object_uuid,
     )
     if not maybe_object:
-        raise HTTPException(status_code=404, detail="lineage_id does not exist")
+        raise HTTPException(status_code=404, detail="object_uuid does not exist")
 
     result: BaseModel = context.response_config_model.pydantic_model.model_validate(maybe_object)
 

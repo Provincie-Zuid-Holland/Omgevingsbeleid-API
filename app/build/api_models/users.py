@@ -1,5 +1,4 @@
 from uuid import UUID
-from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
@@ -15,7 +14,3 @@ class UserLoginDetail(BaseModel):
     Gebruikersnaam: str
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class TokenPayload(BaseModel):
-    sub: Optional[str] = None

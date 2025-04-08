@@ -7,7 +7,7 @@ from sqlalchemy.orm import aliased, load_only, selectinload
 from sqlalchemy.sql import and_, func, or_
 
 from app.api.base_repository import BaseRepository
-from app.api.types import ObjectCount
+from app.api.domains.objects.types import ObjectCount
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.utils.pagination import PaginatedQueryResult, SortedPagination
 

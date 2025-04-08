@@ -1,1 +1,3 @@
 from .add_relations import AddRelationsService, AddRelationsServiceFactory
+from .column_image_inserter import ColumnImageInserterFactory
+from .html_images_inserter import HtmlImagesInserterFactory

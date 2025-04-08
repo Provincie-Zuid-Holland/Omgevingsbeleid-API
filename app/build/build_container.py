@@ -70,6 +70,8 @@ class BuildContainer(containers.DeclarativeContainer):
         endpoint_builder_provider.EndpointBuilderProvider,
         endpoint_builders=providers.List(
             providers.Factory(endpoint_builders_objects.ObjectLatestEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.ObjectVersionEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.ObjectCountsEndpointBuilder),
         )
     )
 

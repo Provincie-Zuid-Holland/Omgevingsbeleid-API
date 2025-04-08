@@ -3,13 +3,17 @@ import string
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Union
 
-from jose import jwt
+from fastapi import HTTPException, status
+from jose import JWTError, jwt
 from passlib.context import CryptContext
+from pydantic import ValidationError
 
-ALGORITHM = "HS256"
+from app.api.domains.users.types import TokenPayload
 
 
 class Security:
+    ALGORITHM = "HS256"
+
     def __init__(
         self,
         secret_key: str,
@@ -19,13 +23,24 @@ class Security:
         self._token_lifetime: timedelta = token_lifetime
         self._pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+    def decode_token(self, token: str) -> TokenPayload:
+        try:
+            payload = jwt.decode(token, self._secret_key, algorithms=[self.ALGORITHM])
+            token_data = TokenPayload(**payload)
+        except (JWTError, ValidationError):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Could not validate authorization token",
+            )
+        return token_data
+
     def create_access_token(
         self,
         subject: Union[str, Any],
     ) -> str:
         expire = datetime.now(timezone.utc) + self._token_lifetime
         to_encode = {"exp": expire, "sub": str(subject)}
-        encoded_jwt = jwt.encode(to_encode, self._secret_key, algorithm=ALGORITHM)
+        encoded_jwt = jwt.encode(to_encode, self._secret_key, algorithm=self.ALGORITHM)
 
         return encoded_jwt
 

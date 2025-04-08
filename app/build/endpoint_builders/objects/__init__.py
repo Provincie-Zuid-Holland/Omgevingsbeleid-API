@@ -1,1 +1,3 @@
 from .object_latest_endpoint_builder import ObjectLatestEndpointBuilder
+from .object_version_endpoint_builder import ObjectVersionEndpointBuilder
+from .object_counts_endpoint_builder import ObjectCountsEndpointBuilder
