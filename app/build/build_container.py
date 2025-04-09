@@ -1,5 +1,6 @@
 from dependency_injector import containers, providers
 
+import app.api.services as api_services
 from app.build import api_builder
 import app.build.endpoint_builders.objects as endpoint_builders_objects
 from app.build.endpoint_builders import endpoint_builder_provider
@@ -66,6 +67,8 @@ class BuildContainer(containers.DeclarativeContainer):
         event_listeners=build_event_listeners,
     )
 
+    permission_service = providers.Singleton(api_services.PermissionService)
+
     endpoint_builder_provider = providers.Singleton(
         endpoint_builder_provider.EndpointBuilderProvider,
         endpoint_builders=providers.List(
@@ -75,6 +78,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_objects.ObjectCountsEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectListValidLineagesEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectListValidLineageTreeEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.EditObjectStaticEndpointBuilder),
         )
     )
 
@@ -109,4 +113,5 @@ class BuildContainer(containers.DeclarativeContainer):
         tables_builder=tables_builder,
         endpoint_builder_provider=endpoint_builder_provider,
         models_provider=models_provider,
+        permission_service=permission_service,
     )

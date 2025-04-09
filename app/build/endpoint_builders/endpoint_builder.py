@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 import functools
 import inspect
-from typing import Callable, List, Optional, Type, Union
+from typing import Any, Callable, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
@@ -61,7 +61,7 @@ class EndpointBuilder(ABC):
         partial_func = functools.partial(endpoint, context=context)
         functools.update_wrapper(partial_func, endpoint)
         
-        # Adjust the signature to remove the "context" parameter.
+        # Adjust th_overwrite_argumente signature to remove the "context" parameter.
         original_sig = inspect.signature(endpoint)
         new_params = [
             param for name, param in original_sig.parameters.items()
@@ -72,5 +72,27 @@ class EndpointBuilder(ABC):
         partial_func.__signature__ = new_sig
 
         return partial_func
-        # wrapped_endpoint = inject(partial_func)
-        # return wrapped_endpoint
+
+    def _overwrite_argument_type(self, endpoint: Callable, name: str, value_type: Type[Any]) -> Callable:
+        """
+        Dynamically replaces the type annotation of a specific parameter in a function's signature.
+        
+        For example in the endpoint we wont know which pydantic model will be used.
+        In the endpoint we would then define the argument as BaseModel.
+        But we would like to have the correct type in the OpenAPI documentation.
+        This function allows us to replace the type annotation of the parameter with
+        the correct type.
+        """
+        sig = inspect.signature(endpoint)
+        new_params = []
+
+        for param_name, param in sig.parameters.items():
+            if param_name == name:
+                new_param = param.replace(annotation=value_type)
+                new_params.append(new_param)
+            else:
+                new_params.append(param)
+
+        new_sig = sig.replace(parameters=new_params)
+        endpoint.__signature__ = new_sig
+        return endpoint

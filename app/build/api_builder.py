@@ -1,7 +1,8 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 from sqlalchemy.orm import Session
 
 from app.api.endpoint import EndpointContextBuilderData
+from app.api.services.permission_service import PermissionService
 from app.build.api_models import DECLARED_MODELS
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.endpoint_builders.endpoint_builder_provider import EndpointBuilderProvider
@@ -21,6 +22,7 @@ class ApiBuilder:
         tables_builder: TablesBuilder,
         endpoint_builder_provider: EndpointBuilderProvider,
         models_provider: ModelsProvider,
+        permission_service: PermissionService,
     ):
         self._db: Session = db
         self._config_parser: ConfigParser = config_parser
@@ -28,10 +30,12 @@ class ApiBuilder:
         self._tables_builder: TablesBuilder = tables_builder
         self._endpoint_builder_provider: EndpointBuilderProvider = endpoint_builder_provider
         self._models_provider: ModelsProvider = models_provider
+        self._permission_service: PermissionService = permission_service
 
     def build(self) -> List[ConfiguiredFastapiEndpoint]:
         build_data: BuildData = self._config_parser.parse()
 
+        self._build_permissions(build_data.main_config)
         self._tables_builder.build_tables(build_data.columns)
         
         self._models_provider.add_list(DECLARED_MODELS)
@@ -41,6 +45,11 @@ class ApiBuilder:
         object_routes.sort(key=lambda o: o.tags)
 
         return object_routes
+
+    def _build_permissions(self, main_config: dict):
+        config_permissions: Dict[str, List[str]] = main_config.get("permissions", {})
+        for role, permissions in config_permissions.items():
+            self._permission_service.overwrite_role(role, permissions)
 
     def _build_object_routes(self, build_data: BuildData) -> List[ConfiguiredFastapiEndpoint]:
         result: List[ConfiguiredFastapiEndpoint] = []

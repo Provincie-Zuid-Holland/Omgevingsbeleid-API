@@ -10,7 +10,10 @@ from app.build.fastapi_builder import FastAPIBuilder
 build_container = BuildContainer()
 build_container.wire(packages=["app.build"])
 
-api_container = ApiContainer(models_provider=build_container.models_provider)
+api_container = ApiContainer(
+    models_provider=build_container.models_provider,
+    permission_service=build_container.permission_service,
+)
 api_container.wire(packages=["app.core", "app.api"])
 api_container.init_resources()
 

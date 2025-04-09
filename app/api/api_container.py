@@ -16,6 +16,7 @@ from app.core.settings import Settings
 
 class ApiContainer(containers.DeclarativeContainer):
     models_provider = providers.Dependency()
+    permission_service = providers.Dependency()
 
     config = providers.Configuration(pydantic_settings=[Settings()])
 
@@ -31,6 +32,7 @@ class ApiContainer(containers.DeclarativeContainer):
     )
 
     object_repository = providers.Factory(object_repositories.ObjectRepository, db=db)
+    object_static_repository = providers.Factory(object_repositories.ObjectStaticRepository, db=db)
     asset_repository = providers.Factory(object_repositories.AssetRepository, db=db)
     werkingsgebieden_repository = providers.Factory(werkingsgebieden_repositories.WerkingsgebiedenRepository, db=db)
     sqlite_geometry_repository = providers.Factory(werkingsgebieden_repositories.SqliteGeometryRepository, db=db)
