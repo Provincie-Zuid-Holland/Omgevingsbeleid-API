@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.users.services.security import Security
+from app.api.utils.pagination import PaginatedQueryResult, SortedPagination
 from app.core.tables.users import IS_ACTIVE, UsersTable
-from app.core.utils.pagination import PaginatedQueryResult, SortedPagination
 
 
 class UserRepository(BaseRepository):

@@ -8,8 +8,7 @@ import app.api.domains.objects.services as object_services
 import app.api.domains.users as user_domain
 import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_repositories
 import app.api.domains.werkingsgebieden.services as werkingsgebied_services
-import app.api.events.listeners.retrieved_module_objects_event_listeners as retrieved_module_objects_event_listeners
-import app.api.events.listeners.retrieved_objects_event_listeners as retrieved_objects_event_listeners
+import app.api.events.listeners as event_listeners
 from app.core.db.session import create_db_engine, init_db_session
 from app.core.services.event import event_manager
 from app.core.settings import Settings
@@ -87,30 +86,32 @@ class ApiContainer(containers.DeclarativeContainer):
         listeners=providers.List(
             # RetrievedObjectsEvent
             providers.Factory(
-                retrieved_objects_event_listeners.AddRelationsToObjectsListener,
+                event_listeners.AddRelationsToObjectsListener,
                 relations_factory=add_relations_service_factory,
             ),
             providers.Factory(
-                retrieved_objects_event_listeners.JoinWerkingsgebeidenToObjectsListener,
+                event_listeners.JoinWerkingsgebeidenToObjectsListener,
                 service_factory=join_werkingsgebieden_service_factory,
             ),
             providers.Factory(
-                retrieved_objects_event_listeners.InsertHtmlImagesForObjectListener,
+                event_listeners.InsertHtmlImagesForObjectListener,
                 service_factory=html_images_inserter_factory,
             ),
             providers.Factory(
-                retrieved_objects_event_listeners.GetColumnImagesForObjectListener,
+                event_listeners.GetColumnImagesForObjectListener,
                 service_factory=column_image_inserter_factory,
             ),
             # RetrievedModuleObjectsEvent
             providers.Factory(
-                retrieved_module_objects_event_listeners.InsertHtmlImagesForModuleListener,
+                event_listeners.InsertHtmlImagesForModuleListener,
                 service_factory=html_images_inserter_factory,
             ),
             providers.Factory(
-                retrieved_module_objects_event_listeners.GetColumnImagesForModuleObjectListener,
+                event_listeners.GetColumnImagesForModuleObjectListener,
                 service_factory=column_image_inserter_factory,
             ),
+            # BeforeSelectExecutionEvent
+            providers.Factory(event_listeners.OptimizeSelectQueryListener),
         ),
     )
     event_manager = providers.Singleton(

@@ -8,8 +8,9 @@ from sqlalchemy.sql import and_, func, or_
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.objects.types import ObjectCount
+from app.api.types import PreparedQuery
+from app.api.utils.pagination import PaginatedQueryResult, SortedPagination
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
-from app.core.utils.pagination import PaginatedQueryResult, SortedPagination
 
 
 class ObjectRepository(BaseRepository):
@@ -232,3 +233,48 @@ class ObjectRepository(BaseRepository):
             )
         )
         return self.fetch_all(statement=stmt)
+
+    def prepare_list_valid_lineages(self, object_type: str) -> PreparedQuery:
+        subq = (
+            select(
+                ObjectsTable,
+                func.row_number()
+                .over(
+                    partition_by=ObjectsTable.Code,
+                    order_by=desc(ObjectsTable.Modified_Date),
+                )
+                .label("_RowNumber"),
+            )
+            .select_from(ObjectsTable)
+            .filter(ObjectsTable.Object_Type == object_type)
+            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+            .subquery()
+        )
+
+        aliased_objects = aliased(ObjectsTable, subq)
+        stmt = (
+            select(aliased_objects)
+            .filter(subq.c._RowNumber == 1)
+            .filter(
+                or_(
+                    subq.c.End_Validity > datetime.now(timezone.utc),
+                    subq.c.End_Validity == None,
+                )
+            )
+        )
+
+        return PreparedQuery(
+            query=stmt,
+            aliased_ref=aliased_objects,
+        )
+
+    def prepare_list_valid_lineage_tree(self, object_type: str, lineage_id: int) -> PreparedQuery:
+        stmt = (
+            select(ObjectsTable)
+            .filter(ObjectsTable.Object_Type == object_type)
+            .filter(ObjectsTable.Object_ID == lineage_id)
+        )
+        return PreparedQuery(
+            query=stmt,
+            aliased_ref=ObjectsTable,
+        )

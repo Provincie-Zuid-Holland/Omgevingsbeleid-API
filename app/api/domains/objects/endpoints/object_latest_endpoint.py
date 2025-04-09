@@ -23,7 +23,7 @@ def view_object_latest_endpoint(
     lineage_id: int,
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
-    context: ObjectLatestEndpointContext = Depends(),
+    context: Annotated[ObjectLatestEndpointContext, Depends()],
 ) -> BaseModel:
     maybe_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
         context.object_type,

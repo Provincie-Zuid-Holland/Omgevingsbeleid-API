@@ -69,9 +69,12 @@ class BuildContainer(containers.DeclarativeContainer):
     endpoint_builder_provider = providers.Singleton(
         endpoint_builder_provider.EndpointBuilderProvider,
         endpoint_builders=providers.List(
+            # Objects domain
             providers.Factory(endpoint_builders_objects.ObjectLatestEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectVersionEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectCountsEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.ObjectListValidLineagesEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.ObjectListValidLineageTreeEndpointBuilder),
         )
     )
 

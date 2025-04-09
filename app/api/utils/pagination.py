@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Generic, List, Optional, Tuple, TypeVar
+from typing import Any, Generic, List, Optional, Sequence, Tuple, TypeVar
 
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import asc, desc, func, select
@@ -17,29 +17,38 @@ class Sort(BaseModel):
     order: SortOrder
 
 
+class OptionalSort(BaseModel):
+    """
+    Represents an optional sorting configuration for pagination.
+
+    This class is named `OptionalSort` instead of using `Optional[Sort]` because it is designed to be part of
+    `OptionalSortedPagination`. The main purpose of `OptionalSort` is to allow the client to provide partial
+    sorting information (or none at all), while deferring the responsibility of filling in missing data with
+    sensible defaults to the endpoint. At the time of constructing this class, sensible defaults are not yet
+    available, so the endpoint must convert an `OptionalSort` instance into a fully defined `Sort` instance
+    with default values.
+    """
+
+    column: Optional[str] = None
+    order: Optional[SortOrder] = None
+
+
 class OrderConfig(BaseModel):
     default_column: str
     default_order: SortOrder
     allowed_columns: List[str]
 
-    def get_sort(self, given_column: Optional[str], given_order: Optional[SortOrder]) -> Sort:
-        sort_column: str = self._validate_column(given_column)
-        sort_order: SortOrder = given_order or self.default_order
-
-        result = Sort(
-            column=sort_column,
-            order=sort_order,
-        )
-        return result
+    def get_sort(self, given_sort: OptionalSort) -> Sort:
+        sort_column = self._validate_column(given_sort.column)
+        sort_order = given_sort.order or self.default_order
+        return Sort(column=sort_column, order=sort_order)
 
     def _validate_column(self, column: Optional[str]) -> str:
         if column is None:
             return self.default_column
-
         if column in self.allowed_columns:
             return column
-        else:
-            raise ValueError("invalid sort column")
+        raise ValueError("Invalid sort column")
 
     @staticmethod
     def from_dict(data: dict) -> "OrderConfig":
@@ -84,14 +93,21 @@ class SortedPagination(SimplePagination):
     sort: Sort
 
 
+class OptionalSortedPagination(SimplePagination):
+    sort: OptionalSort
+
+    def with_sort(self, sort: Sort) -> SortedPagination:
+        return SortedPagination(
+            offset=self.offset,
+            limit=self.limit,
+            sort=sort,
+        )
+
+
 T = TypeVar("T", bound=BaseModel)
 
 
 class PagedResponse(BaseModel, Generic[T]):
-    """
-    Wrap any response schema and add pagination metadata.
-    """
-
     total: int
     offset: int = 0
     limit: int = -1
@@ -99,7 +115,7 @@ class PagedResponse(BaseModel, Generic[T]):
 
 
 class PaginatedQueryResult(BaseModel):
-    items: List[Any] = Field(...)
+    items: Sequence[Any] = Field(default_factory=list)
     total_count: int = Field(0)
 
 
@@ -121,9 +137,9 @@ def query_paginated(
     where `sort_direction` is either 'asc' or 'desc'
     and `column` is the sqlalch column object.
     """
-    paginated = add_pagination(query, limit, offset, sort)
-    results = session.execute(paginated).scalars().all()
-    total_count = query_total_count(query, session)
+    paginated: Select = add_pagination(query, limit, offset, sort)
+    results: Sequence[Any] = session.execute(paginated).scalars().all()
+    total_count: int = query_total_count(query, session)
     return PaginatedQueryResult(items=list(results), total_count=total_count)
 
 
@@ -132,10 +148,7 @@ def add_pagination(
     limit: int = -1,
     offset: int = 0,
     sort: Optional[Tuple] = None,
-):
-    """
-    Add pagination splits and sorting to a base query
-    """
+) -> Select:
     if sort is not None:
         column, sort_direction = sort
         if sort_direction == SortOrder.DESC:
@@ -143,14 +156,11 @@ def add_pagination(
         else:
             query = query.order_by(asc(column))
 
-    paginated = query.limit(limit).offset(offset)
-    return paginated
+    result: Select = query.limit(limit).offset(offset)
+    return result
 
 
-def query_total_count(query: Select, session: Session):
-    """
-    Seperate query executed for getting the total count
-    """
-    count_stmt = select(func.count()).select_from(query.alias())
-    total_count = session.execute(count_stmt).scalar_one()
+def query_total_count(query: Select, session: Session) -> int:
+    count_stmt: Select = select(func.count()).select_from(query.alias())
+    total_count: int = session.execute(count_stmt).scalar_one()
     return total_count

@@ -3,8 +3,8 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
 
 from app.api.base_repository import BaseRepository
+from app.api.utils.pagination import PaginatedQueryResult, SortedPagination
 from app.core.tables.werkingsgebieden import SourceWerkingsgebiedenTable
-from app.core.utils.pagination import PaginatedQueryResult, SortedPagination
 
 
 class WerkingsgebiedenRepository(BaseRepository):

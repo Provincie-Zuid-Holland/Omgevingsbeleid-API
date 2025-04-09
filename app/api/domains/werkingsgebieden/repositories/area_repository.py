@@ -6,9 +6,9 @@ from sqlalchemy import desc, func, select
 from sqlalchemy.orm import aliased, undefer
 
 from app.api.base_repository import BaseRepository
+from app.api.utils.pagination import PaginatedQueryResult, SortedPagination, query_paginated
 from app.core.tables.objects import ObjectsTable
 from app.core.tables.others import AreasTable
-from app.core.utils.pagination import PaginatedQueryResult, SortedPagination, query_paginated
 
 VALID_GEOMETRIES = ["Polygon", "Point"]
 

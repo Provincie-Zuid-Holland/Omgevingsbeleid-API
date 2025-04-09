@@ -24,7 +24,7 @@ class ObjectLatestEndpointBuilder(EndpointBuilder):
         resolver_config: dict = endpoint_config.resolver_data
         response_model: Model = models_provider.get_model(resolver_config["response_model"])
 
-        context: ObjectLatestEndpointContext = ObjectLatestEndpointContext(
+        context = ObjectLatestEndpointContext(
             object_type=api.object_type,
             response_config_model=response_model,
             builder_data=builder_data,
