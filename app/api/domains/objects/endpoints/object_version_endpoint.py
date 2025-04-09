@@ -24,7 +24,7 @@ def view_object_version_endpoint(
     object_uuid: UUID,
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
-    context: ObjectVersionEndpointContext = Depends(),
+    context: Annotated[ObjectVersionEndpointContext, Depends()],
 ) -> BaseModel:
     maybe_object: Optional[ObjectsTable] = object_repository.get_by_object_type_and_uuid(
         context.object_type,
