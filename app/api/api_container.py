@@ -64,7 +64,11 @@ class ApiContainer(containers.DeclarativeContainer):
         secret_key=config.SECRET_KEY,
         token_lifetime=access_token_lifetime,
     )
-    user_repository = providers.Factory(user_domain.UserRepository, db=db)
+    user_repository = providers.Factory(
+        user_domain.UserRepository,
+        db=db,
+        security=security,
+    )
 
     add_relations_service_factory = providers.Singleton(
         object_services.AddRelationsServiceFactory,

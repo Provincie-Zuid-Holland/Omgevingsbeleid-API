@@ -78,7 +78,11 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_objects.ObjectCountsEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectListValidLineagesEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectListValidLineageTreeEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.ObjectListAllLatestEndpointBuilder),
             providers.Factory(endpoint_builders_objects.EditObjectStaticEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.AtemporalCreateObjectEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.AtemporalEditObjectEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.AtemporalDeleteObjectEndpointBuilder),
         )
     )
 

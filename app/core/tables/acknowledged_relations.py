@@ -6,7 +6,7 @@ from sqlalchemy import ForeignKey, and_
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.api.domains.objects.endpoints.models import AcknowledgedRelationSide
+from app.api.domains.objects.endpoints.types import AcknowledgedRelationSide
 from app.core.db.base import Base
 from app.core.db.mixins import TimeStamped, UserMetaData
 

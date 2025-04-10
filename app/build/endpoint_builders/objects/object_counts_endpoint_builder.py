@@ -1,7 +1,6 @@
 
-from typing import List
 from app.api.domains.objects.endpoints import view_object_counts_endpoint
-from app.api.domains.objects.types import ObjectCount
+from app.api.domains.objects.types import ObjectCountResponse
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
@@ -23,7 +22,7 @@ class ObjectCountsEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=view_object_counts_endpoint,
             methods=["GET"],
-            response_type=List[ObjectCount],
+            response_type=ObjectCountResponse,
             summary=f"List object types with counts for loggedin user",
             tags=["Objects"],
         )

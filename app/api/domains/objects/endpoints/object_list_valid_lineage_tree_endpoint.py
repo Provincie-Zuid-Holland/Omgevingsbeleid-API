@@ -34,7 +34,7 @@ class ObjectListValidLineageTreeEndpointContext(BaseEndpointContext):
 
 
 @inject
-def list_valid_lineage_tree_endpoint(
+async def list_valid_lineage_tree_endpoint(
     lineage_id: int,
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],

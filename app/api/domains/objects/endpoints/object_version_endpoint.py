@@ -20,7 +20,7 @@ class ObjectVersionEndpointContext(BaseEndpointContext):
 
 
 @inject
-def view_object_version_endpoint(
+async def view_object_version_endpoint(
     object_uuid: UUID,
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],

@@ -23,6 +23,7 @@ class ConfiguiredFastapiEndpoint(BaseModel):
     tags: List[Union[str, Enum]] = Field(default_factory=list)
 
 
+
 class EndpointBuilder(ABC):
     @abstractmethod
     def get_id(self) -> str:

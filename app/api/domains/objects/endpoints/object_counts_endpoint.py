@@ -5,15 +5,16 @@ from fastapi import Depends
 
 from app.api.api_container import ApiContainer
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
-from app.api.domains.objects.types import ObjectCount
+from app.api.domains.objects.types import ObjectCount, ObjectCountResponse
 from app.api.domains.users.dependencies import depends_current_user
 from app.core.tables.users import UsersTable
 
 
 @inject
-def view_object_counts_endpoint(
+async def view_object_counts_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
-) -> List[ObjectCount]:
+) -> ObjectCountResponse:
     rows: List[ObjectCount] = object_repository.get_valid_counts(user.UUID)
-    return rows
+    response = ObjectCountResponse(rows)
+    return response

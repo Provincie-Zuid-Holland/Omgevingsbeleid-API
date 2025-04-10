@@ -26,7 +26,7 @@ class GenericObjectShort(BaseModel):
 
 
 @inject
-def list_all_latest_endpoint(
+async def list_all_latest_endpoint(
     owner_uuid: Annotated[Optional[uuid.UUID], Depends()],
     object_type: Annotated[Optional[str], Depends()],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
