@@ -32,7 +32,7 @@ class AtemporalDeleteObjectEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["DELETE"],
-            response_type=ResponseOK,
+            response_model=ResponseOK,
             summary=f"Delete atemporal object",
             tags=[api.object_type],
         )

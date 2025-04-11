@@ -42,7 +42,7 @@ class ObjectListValidLineageTreeEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_type=PagedResponse[response_model.pydantic_model],
+            response_model=PagedResponse[response_model.pydantic_model],
             summary=f"Get all the valid {api.object_type} of a single lineage",
             tags=[api.object_type],
         )

@@ -35,7 +35,7 @@ class ObjectLatestEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_type=response_model.pydantic_model,
+            response_model=response_model.pydantic_model,
             summary=f"Get latest lineage record for {api.object_type} by their lineage id",
             tags=[api.object_type],
         )

@@ -32,7 +32,7 @@ class ObjectListAllLatestEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_type=PagedResponse[GenericObjectShort],
+            response_model=PagedResponse[GenericObjectShort],
             summary=f"List all objects filterable in short format",
             tags=["Search"],
         )

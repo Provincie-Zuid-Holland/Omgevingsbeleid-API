@@ -2,7 +2,6 @@ from typing import List
 from fastapi import APIRouter, FastAPI
 from fastapi.openapi.utils import get_openapi
 
-from pydantic import BaseModel
 
 from app.api.api_container import ApiContainer
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint
@@ -56,15 +55,11 @@ class FastAPIBuilder:
                 "path": endpoint_config.path,
                 "endpoint": endpoint_config.endpoint,
                 "methods": endpoint_config.methods,
+                "response_model": endpoint_config.response_model,
                 "summary": endpoint_config.summary,
                 "description": endpoint_config.description,
                 "tags": endpoint_config.tags,
             }
-
-            if isinstance(endpoint_config.response_type, type) and issubclass(endpoint_config.response_type, BaseModel):
-                route_kwargs["response_model"] = endpoint_config.response_type
-            else:
-                route_kwargs["response_type"] = endpoint_config.response_type
 
             router.add_api_route(**route_kwargs)
 

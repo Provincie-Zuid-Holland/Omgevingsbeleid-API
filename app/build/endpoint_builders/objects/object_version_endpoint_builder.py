@@ -34,7 +34,7 @@ class ObjectVersionEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_type=response_model.pydantic_model,
+            response_model=response_model.pydantic_model,
             summary=f"Get specific {api.object_type} by uuid",
             tags=[api.object_type],
         )

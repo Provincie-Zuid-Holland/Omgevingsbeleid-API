@@ -38,7 +38,7 @@ class AtemporalCreateObjectEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["POST"],
-            response_type=response_type,
+            response_model=response_type,
             summary=f"Add new object",
             tags=[api.object_type],
         )

@@ -1,3 +1,0 @@
-from .create_object import CreateObjectEndpointResolver
-from .delete_object import DeleteObjectEndpointResolver
-from .edit_object import EditObjectEndpointResolver

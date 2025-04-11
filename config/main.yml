@@ -32,6 +32,12 @@ sort_default_object_id: &sort_default_object_id
 
 api:
   routers:
+    - prefix: /login/access-token
+      endpoints:
+        - resolver: auth_login_access_token
+    - prefix: /password-reset
+      endpoints:
+        - resolver: auth_reset_password
     - prefix: /users
       endpoints:
         - resolver: list_users

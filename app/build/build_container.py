@@ -3,6 +3,7 @@ from dependency_injector import containers, providers
 import app.api.services as api_services
 from app.build import api_builder
 import app.build.endpoint_builders.objects as endpoint_builders_objects
+import app.build.endpoint_builders.users as endpoint_builders_users
 from app.build.endpoint_builders import endpoint_builder_provider
 from app.build.services import config_parser, object_intermediate_builder, tables_builder, validator_provider, object_models_builder
 import app.build.services.validators.validators as validators
@@ -83,6 +84,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_objects.AtemporalCreateObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalEditObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalDeleteObjectEndpointBuilder),
+            # Users domain
+            providers.Factory(endpoint_builders_users.AuthLoginAccessTokenEndpointBuilder),
+            providers.Factory(endpoint_builders_users.AuthResetPasswordEndpointBuilder),
         )
     )
 

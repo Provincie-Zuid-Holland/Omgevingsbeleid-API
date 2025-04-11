@@ -17,7 +17,7 @@ class ConfiguiredFastapiEndpoint(BaseModel):
     path: str
     endpoint: Callable
     methods: list[str]
-    response_type: Union[Type[BaseModel], type]
+    response_model: Any
     summary: Optional[str] = None
     description: Optional[str] = None
     tags: List[Union[str, Enum]] = Field(default_factory=list)

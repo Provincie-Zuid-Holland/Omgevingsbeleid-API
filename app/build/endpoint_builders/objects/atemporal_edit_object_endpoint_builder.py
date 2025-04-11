@@ -40,7 +40,7 @@ class AtemporalEditObjectEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["POST"],
-            response_type=ResponseOK,
+            response_model=ResponseOK,
             summary=f"Edit atemporal object",
             tags=[api.object_type],
         )
