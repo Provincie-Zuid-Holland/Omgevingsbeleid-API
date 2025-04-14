@@ -1,3 +1,4 @@
+import uuid
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict
@@ -52,3 +53,35 @@ class ModuleObjectActionFull(str, Enum):
     Create = "Create"
     Edit = "Edit"
     Terminate = "Terminate"
+
+
+class FilterObjectCode(BaseModel):
+    object_type: str
+    lineage_id: int
+
+    def get_code(self) -> str:
+        return f"{self.object_type}-{self.lineage_id}"
+
+
+class PublicModuleStatusCode(str, Enum):
+    Ter_Inzage = ModuleStatusCode.Ter_Inzage.value
+    Ontwerp_GS = ModuleStatusCode.Ontwerp_GS.value
+    Definitief_Ontwerp_GS = ModuleStatusCode.Definitief_Ontwerp_GS.value
+    Ontwerp_PS = ModuleStatusCode.Ontwerp_PS.value
+    Definitief_Ontwerp_PS = ModuleStatusCode.Definitief_Ontwerp_PS.value
+    Vastgesteld = ModuleStatusCode.Vastgesteld.value
+
+    @staticmethod
+    def values():
+        return [status.value for status in PublicModuleStatusCode]
+
+
+class PublicModuleObjectRevision(BaseModel):
+    Module_ID: int
+    Module_Title: str
+    Module_Status: ModuleStatusCode
+    Module_Object_UUID: uuid.UUID
+    Module_Object_Status: PublicModuleStatusCode
+    Action: ModuleObjectActionFull
+
+    model_config = ConfigDict(from_attributes=True)

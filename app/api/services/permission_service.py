@@ -28,10 +28,10 @@ class PermissionService:
         whitelisted_uuids: List[Optional[uuid.UUID]] = [],
     ):
         if user is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user role")
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid user role")
 
         if user.UUID in whitelisted_uuids:
             return
 
         if not self.has_permission(permission, user):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user role")
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid user role")

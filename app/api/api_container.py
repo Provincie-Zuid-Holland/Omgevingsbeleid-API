@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import api.domains.modules as module_domain
 from dependency_injector import containers, providers
 from sqlalchemy.orm import sessionmaker
 
@@ -42,6 +43,10 @@ class ApiContainer(containers.DeclarativeContainer):
     )
     mssql_geometry_repository = providers.Factory(werkingsgebieden_repositories.MssqlGeometryRepository, db=db)
     mssql_area_geometry_repository = providers.Factory(werkingsgebieden_repositories.MssqlAreaGeometryRepository, db=db)
+    module_object_context_repository = providers.Factory(module_domain.ModuleObjectContextRepository, db=db)
+    module_object_repository = providers.Factory(module_domain.ModuleObjectRepository, db=db)
+    module_repository = providers.Factory(module_domain.ModuleRepository, db=db)
+    module_status_repository = providers.Factory(module_domain.ModuleStatusRepository, db=db)
 
     geometry_repository = providers.Selector(
         config.DB_TYPE,

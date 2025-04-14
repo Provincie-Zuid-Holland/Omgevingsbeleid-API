@@ -32,9 +32,18 @@ class WerkingsgebiedRelatedObjectService:
             raise ValueError("Trying to process a single obj but multiple rows found")
 
         item = self._rows[0]
-        related_rows: List[LatestObjectPerModuleResult | ObjectsTable] = (
-            self._object_provider.list_all_objects_related_to_werkingsgebied(werkingsgebied_code=getattr(item, "Code"))
-        )
+        
+        
+        # @todo: refactor
+        # regular_objects: List[ObjectsTable] = self._object_repository.get_all_latest_by_werkingsgebied(
+        #     werkingsgebied_code
+        # )
+        # module_objects: List[LatestObjectPerModuleResult] = (
+        #     self._module_object_repository.get_latest_versions_by_werkingsgebied(werkingsgebied_code)
+        # )
+        # return regular_objects + module_objects
+        related_rows = []
+
         field_name: str = self._computed_field.attribute_name
         result: WerkingsgebiedRelatedObjects = self._process_related_objects(related_rows)
         setattr(item, field_name, result)
