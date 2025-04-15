@@ -12,4 +12,4 @@ class PreparedQuery:
 
 
 class ResponseOK(BaseModel):
-    message: str
+    message: str = "OK"

@@ -4,3 +4,4 @@ from .repositories import (
     ModuleRepository,
     ModuleStatusRepository,
 )
+from .services import ObjectProvider

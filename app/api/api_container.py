@@ -1,15 +1,16 @@
 from datetime import timedelta
 
-import api.domains.modules as module_domain
 from dependency_injector import containers, providers
 from sqlalchemy.orm import sessionmaker
 
+import app.api.domains.modules as module_domain
 import app.api.domains.objects.repositories as object_repositories
 import app.api.domains.objects.services as object_services
 import app.api.domains.users as user_domain
 import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_repositories
 import app.api.domains.werkingsgebieden.services as werkingsgebied_services
 import app.api.events.listeners as event_listeners
+from app.api.domains.modules.services.object_provider import ObjectProvider
 from app.core.db.session import create_db_engine, init_db_session
 from app.core.services.event import event_manager
 from app.core.settings import Settings
@@ -90,6 +91,12 @@ class ApiContainer(containers.DeclarativeContainer):
     column_image_inserter_factory = providers.Singleton(
         object_services.ColumnImageInserterFactory,
         asset_repository=asset_repository,
+    )
+
+    object_provider = providers.Factory(
+        ObjectProvider,
+        object_repository=object_repository,
+        module_object_repository=module_object_repository,
     )
 
     event_listeners = providers.Factory(

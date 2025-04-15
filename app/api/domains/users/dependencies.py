@@ -21,21 +21,15 @@ def depends_current_user(
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
 ) -> UsersTable:
     if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
 
     token_data: TokenPayload = security.decode_token(token)
 
-    try:
-        user: Optional[UsersTable] = user_repository.get_by_uuid(UUID(token_data.sub))
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Token valid, but no matching user found."
-            )
-    except HTTPException as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-
+    user: Optional[UsersTable] = user_repository.get_by_uuid(UUID(token_data.sub))
+    if not user:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Token valid, but no matching user found.")
     if not user.IsActive:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Inactive user")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Inactive user")
 
     return user
 

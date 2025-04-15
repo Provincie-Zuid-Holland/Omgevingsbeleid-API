@@ -1,7 +1,11 @@
 import uuid
+from datetime import datetime
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
+
+from app.api.domains.users.types import UserShort
 
 
 # @note: Existing but removed status codes
@@ -55,14 +59,6 @@ class ModuleObjectActionFull(str, Enum):
     Terminate = "Terminate"
 
 
-class FilterObjectCode(BaseModel):
-    object_type: str
-    lineage_id: int
-
-    def get_code(self) -> str:
-        return f"{self.object_type}-{self.lineage_id}"
-
-
 class PublicModuleStatusCode(str, Enum):
     Ter_Inzage = ModuleStatusCode.Ter_Inzage.value
     Ontwerp_GS = ModuleStatusCode.Ontwerp_GS.value
@@ -84,4 +80,85 @@ class PublicModuleObjectRevision(BaseModel):
     Module_Object_Status: PublicModuleStatusCode
     Action: ModuleObjectActionFull
 
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleStatus(BaseModel):
+    ID: int
+    Module_ID: int
+    Status: str
+    Created_Date: datetime
+    Created_By_UUID: uuid.UUID
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleShort(BaseModel):
+    Module_ID: int
+    Closed: bool
+    Title: str
+    Description: str
+    Status: Optional[ModuleStatus] = None
+    Module_Manager_1: Optional[UserShort] = None
+    Module_Manager_2: Optional[UserShort] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ActiveModuleObject(BaseModel):
+    Module_ID: Optional[int] = None
+    UUID: uuid.UUID
+    Modified_Date: datetime
+    Title: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ObjectStaticShort(BaseModel):
+    Owner_1_UUID: Optional[uuid.UUID] = None
+    Owner_2_UUID: Optional[uuid.UUID] = None
+    Portfolio_Holder_1_UUID: Optional[uuid.UUID] = None
+    Portfolio_Holder_2_UUID: Optional[uuid.UUID] = None
+    Client_1_UUID: Optional[uuid.UUID] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleObjectContextShort(BaseModel):
+    Action: str
+    Original_Adjust_On: Optional[uuid.UUID] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleObjectShort(BaseModel):
+    Module_ID: int
+    Object_Type: str
+    Object_ID: int
+    Code: str
+    UUID: uuid.UUID
+
+    Modified_Date: datetime
+    Title: str
+
+    ObjectStatics: Optional[ObjectStaticShort] = None
+    ModuleObjectContext: Optional[ModuleObjectContextShort] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Module(BaseModel):
+    Module_ID: int
+    Created_Date: datetime
+    Modified_Date: datetime
+    Created_By_UUID: uuid.UUID
+    Modified_By_UUID: uuid.UUID
+    Activated: bool
+    Closed: bool
+    Successful: bool
+    Temporary_Locked: bool
+    Title: str
+    Description: str
+    Module_Manager_1_UUID: uuid.UUID
+    Module_Manager_2_UUID: Optional[uuid.UUID] = None
+    Status: Optional[ModuleStatus] = None
+
+    Created_By: Optional[UserShort] = None
+    Modified_By: Optional[UserShort] = None
+    Module_Manager_1: Optional[UserShort] = None
+    Module_Manager_2: Optional[UserShort] = None
     model_config = ConfigDict(from_attributes=True)

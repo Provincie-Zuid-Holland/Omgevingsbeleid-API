@@ -1,30 +1,14 @@
-from enum import Enum
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
 from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.orm import aliased
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.modules.types import FilterObjectCode, PublicModuleStatusCode
-from app.api.utils.pagination import PaginatedQueryResult, SimplePagination, SortOrder
+from app.api.utils.pagination import PaginatedQueryResult, SimplePagination, SortedPagination
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
 from app.core.tables.objects import ObjectStaticsTable
-
-
-class ModuleSortColumn(str, Enum):
-    Created_Date = "Created_Date"
-    Modified_Date = "Modified_Date"
-
-
-class ModuleSort(BaseModel):
-    column: ModuleSortColumn
-    order: SortOrder
-
-
-class ModuleSortedPagination(SimplePagination):
-    sort: ModuleSort
 
 
 class ModuleRepository(BaseRepository):
@@ -87,7 +71,7 @@ class ModuleRepository(BaseRepository):
 
     def get_with_filters(
         self,
-        pagination: ModuleSortedPagination,
+        pagination: SortedPagination,
         filter_activated: Optional[bool] = None,
         filter_closed: Optional[bool] = None,
         filter_successful: Optional[bool] = None,

@@ -68,3 +68,11 @@ class HierarchyStatics(BaseModel):
         return "" if v is None else v
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class FilterObjectCode(BaseModel):
+    object_type: str
+    lineage_id: int
+
+    def get_code(self) -> str:
+        return f"{self.object_type}-{self.lineage_id}"

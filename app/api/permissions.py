@@ -17,6 +17,7 @@ class Permissions(str, Enum):
     module_can_close_module = "module_can_close_module"
     module_can_edit_module = "module_can_edit_module"
     module_can_activate_module = "module_can_activate_module"
+    module_can_complete_module = "module_can_complete_module"
     module_can_patch_module_status = "module_can_patch_module_status"
     module_can_add_new_object_to_module = "module_can_add_new_object_to_module"
     module_can_add_existing_object_to_module = "module_can_add_existing_object_to_module"

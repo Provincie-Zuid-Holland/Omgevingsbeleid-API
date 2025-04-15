@@ -42,16 +42,12 @@ class Filters:
         for item in list(reader)[0]:
             pieces = item.split(":", 1)
             if len(pieces) != 2:
-                raise ValueError("Filter does not have a key and a value")
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, "Filter does not have a key and a value")
             result_items.append(Filter(key=pieces[0], value=pieces[1]))
 
         self._append_clause(combiner, result_items)
 
     def add_from_dict(self, combiner: FilterCombiner, filters: dict):
-        """
-        Build filter clauses from dictionaries in
-        Attribute : Value format.
-        """
         result_items: List[Filter] = []
 
         for key, value in filters.items():
@@ -72,14 +68,11 @@ class Filters:
         self._clauses.append(clause)
 
     def guard_keys(self, allowed_keys: List[str]):
-        """
-        Raises exception if a key is used for filtering which is not in the allowed list
-        """
         allowed_set = set(allowed_keys)
         for clause in self._clauses:
             for filter in clause.items:
                 if not filter.key in allowed_set:
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid filter")
+                    raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid filter")
 
     def get_clauses(self) -> List[FilterClause]:
         return self._clauses
