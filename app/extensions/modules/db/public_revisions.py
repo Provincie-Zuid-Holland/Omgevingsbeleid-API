@@ -1,4 +1,3 @@
-
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.session import Session, object_session
 
