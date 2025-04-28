@@ -13,7 +13,7 @@ class PublicationVersionValidator:
             if publication_version.Publication.Procedure_Type == ProcedureType.DRAFT.value:
                 _ = PublicationVersionDraftValidated.model_validate(publication_version)
             else:
-                _ = PublicationVersionFinalValidated.from_model_validateorm(publication_version)
+                _ = PublicationVersionFinalValidated.model_validate(publication_version)
 
             return []
         except ValidationError as e:
