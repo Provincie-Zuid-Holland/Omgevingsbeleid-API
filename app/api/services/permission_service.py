@@ -1,5 +1,5 @@
 import uuid
-from typing import Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 
 from fastapi import HTTPException, status
 
@@ -7,11 +7,12 @@ from app.core.tables.users import UsersTable
 
 
 class PermissionService:
-    def __init__(self):
+    def __init__(self, main_config: Dict[str, Any]):
         self._permissions_per_role: Dict[str, Set[str]] = {}
 
-    def overwrite_role(self, role: str, permissions: List[str]):
-        self._permissions_per_role[role] = set(permissions)
+        config_permissions: Dict[str, List[str]] = main_config.get("users_permissions", {})
+        for role, permissions in config_permissions.items():
+            self._permissions_per_role[role] = set(permissions)
 
     def has_permission(self, permission: str, user: UsersTable) -> bool:
         role: Optional[str] = user.Rol

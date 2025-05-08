@@ -1,8 +1,14 @@
-from typing import Any, Optional, Self
+from typing import Any, Dict, Optional, Self
 from urllib.parse import quote_plus
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class KoopSettings(BaseModel):
+    API_KEY: str
+    RENVOOI_API_URL: str
+    PREVIEW_API_URL: str
 
 
 class Settings(BaseSettings):
@@ -67,6 +73,8 @@ class Settings(BaseSettings):
     # Mssql Search
     MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
     MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
+
+    PUBLICATION_KOOP: Dict[str, KoopSettings] = Field({})
 
     # @note: These will be overwritten and based on earlier input
     # These are for the Depedency Injector library

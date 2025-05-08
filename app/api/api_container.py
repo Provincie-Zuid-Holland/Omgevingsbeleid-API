@@ -11,16 +11,20 @@ import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_reposit
 import app.api.domains.werkingsgebieden.services as werkingsgebied_services
 import app.api.events.listeners as event_listeners
 from app.api.domains.modules.services.object_provider import ObjectProvider
+from app.api.domains.others import storage_file_repository
+from app.api.domains.publications.publication_container import PublicationContainer
+from app.api.services import permission_service
 from app.core.db.session import create_db_engine, init_db_session
 from app.core.services.event import event_manager
+from app.core.services.main_config import MainConfig
 from app.core.settings import Settings
 
 
 class ApiContainer(containers.DeclarativeContainer):
     models_provider = providers.Dependency()
-    permission_service = providers.Dependency()
 
     config = providers.Configuration(pydantic_settings=[Settings()])
+    main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
 
     db_engine = providers.Singleton(
         create_db_engine,
@@ -33,6 +37,15 @@ class ApiContainer(containers.DeclarativeContainer):
         session_factory=db_session_factory,
     )
 
+    permission_service = providers.Singleton(
+        permission_service.PermissionService,
+        main_config=main_config,
+    )
+
+    storage_file_repository = providers.Factory(
+        storage_file_repository.StorageFileRepository,
+        db=db,
+    )
     object_repository = providers.Factory(object_repositories.ObjectRepository, db=db)
     object_static_repository = providers.Factory(object_repositories.ObjectStaticRepository, db=db)
     asset_repository = providers.Factory(object_repositories.AssetRepository, db=db)
@@ -136,4 +149,13 @@ class ApiContainer(containers.DeclarativeContainer):
         event_manager.EventManager,
         db=db,
         event_listeners=event_listeners,
+    )
+
+    publication = providers.Container(
+        PublicationContainer,
+        config=config,
+        main_config=main_config,
+        db=db,
+        area_geometry_repository=area_geometry_repository,
+        storage_file_repository=storage_file_repository,
     )

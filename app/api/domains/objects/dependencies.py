@@ -2,7 +2,7 @@ from typing import Optional
 
 from fastapi import HTTPException, status
 
-from app.api.domains.modules.types import FilterObjectCode
+from app.api.domains.objects.types import FilterObjectCode
 
 
 def depends_filter_object_code(

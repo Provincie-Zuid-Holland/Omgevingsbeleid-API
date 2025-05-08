@@ -7,22 +7,23 @@ import yaml
 from app.build.objects.types import BuildData, IntermediateObject
 from app.build.objects.columns import BASE_COLUMNS
 from app.build.services.object_intermediate_builder import ObjectIntermediateBuilder
+from app.core.services.main_config import MainConfig
 from app.core.types import Column
 
 
 class ConfigParser:
     def __init__(
             self,
-            main_config_path: str,
+            main_config: MainConfig,
             object_config_path: str,
             object_intermediate_builder: ObjectIntermediateBuilder,
         ):
-        self._main_config_path: str = main_config_path
+        self._main_config: MainConfig = main_config
         self._object_config_path: str = object_config_path
         self._object_intermediate_builder: ObjectIntermediateBuilder = object_intermediate_builder
 
     def parse(self):
-        main_config: dict = self._load_yaml(self._main_config_path)
+        main_config: dict = self._main_config.get_main_config()
         object_configs: List[dict] = self._load_object_configs(self._object_config_path)
         columns: Dict[str, Column] = self._gather_columns(main_config)
         object_intermediates: List[IntermediateObject] = self._object_intermediate_builder.build(

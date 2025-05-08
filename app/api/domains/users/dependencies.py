@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated, Callable, Optional
 from uuid import UUID
 
 from dependency_injector.wiring import Provide, inject
@@ -9,6 +9,7 @@ from app.api.api_container import ApiContainer
 from app.api.domains.users.services.security import Security
 from app.api.domains.users.types import TokenPayload
 from app.api.domains.users.user_repository import UserRepository
+from app.api.services.permission_service import PermissionService
 from app.core.tables.users import UsersTable
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login/access-token", auto_error=False)
@@ -44,3 +45,18 @@ def depends_optional_current_user(
         return depends_current_user(token, user_repository, security)
     except HTTPException:
         return None
+
+
+def depends_current_user_with_permission_curried(
+    required_permission: str,
+) -> Callable:
+    @inject
+    def depends_active_user_with_permission(
+        current_user: Annotated[UsersTable, Depends(depends_current_user)],
+        permission: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
+    ):
+        if not permission.has_permission(required_permission, current_user):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid user role")
+        return current_user
+
+    return depends_active_user_with_permission

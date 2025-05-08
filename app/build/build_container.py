@@ -8,7 +8,7 @@ from app.build.endpoint_builders import endpoint_builder_provider
 from app.build.services import config_parser, object_intermediate_builder, tables_builder, validator_provider, object_models_builder
 import app.build.services.validators.validators as validators
 from app.core.db.session import create_db_engine, init_db_session
-from app.core.services.models_provider import ModelsProvider
+from app.core.services import MainConfig, ModelsProvider
 from app.core.services.event import event_manager
 from app.core.settings import Settings
 from sqlalchemy.orm import sessionmaker
@@ -99,9 +99,11 @@ class BuildContainer(containers.DeclarativeContainer):
         validator_provider=validator_provider,
         event_manager=build_event_manager,
     )
+
+    main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
     config_parser = providers.Factory(
         config_parser.ConfigParser,
-        main_config_path=config.MAIN_CONFIG_FILE,
+        main_config=main_config,
         object_config_path=config.OBJECT_CONFIG_PATH,
         object_intermediate_builder=object_intermediate_builder,
     )
@@ -121,5 +123,4 @@ class BuildContainer(containers.DeclarativeContainer):
         tables_builder=tables_builder,
         endpoint_builder_provider=endpoint_builder_provider,
         models_provider=models_provider,
-        permission_service=permission_service,
     )

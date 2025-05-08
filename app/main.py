@@ -12,7 +12,6 @@ build_container.wire(packages=["app.build"])
 
 api_container = ApiContainer(
     models_provider=build_container.models_provider,
-    permission_service=build_container.permission_service,
 )
 api_container.wire(packages=["app.core", "app.api"])
 api_container.init_resources()
