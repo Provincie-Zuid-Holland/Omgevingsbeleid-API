@@ -116,6 +116,7 @@ api:
               - ambitie
               - beleidsdoel
               - beleidskeuze
+              - document
               - maatregel
               - beleidsregel
               - gebiedsprogramma
@@ -134,6 +135,7 @@ api:
               - ambitie
               - beleidsdoel
               - beleidskeuze
+              - document
               - maatregel
               - beleidsregel
               - gebiedsprogramma
