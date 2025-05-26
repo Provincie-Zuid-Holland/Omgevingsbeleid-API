@@ -172,6 +172,9 @@ api:
       endpoints:
         - resolver: list_storage_files
         - resolver: storage_file_upload_file
+    - prefix: /storage-files/{file_uuid}
+      endpoints:
+        - resolver: detail_storage_file
     - prefix: /modules
       endpoints:
         - resolver: create_module

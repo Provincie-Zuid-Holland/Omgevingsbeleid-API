@@ -30,6 +30,7 @@ class StorageFileExtension(Extension):
         return [
             endpoints.StorageFileUploadFileEndpointResolver(),
             endpoints.ListStorageFilesEndpointResolver(),
+            endpoints.DetailStorageFileEndpointResolver(),
         ]
 
     def register_listeners(

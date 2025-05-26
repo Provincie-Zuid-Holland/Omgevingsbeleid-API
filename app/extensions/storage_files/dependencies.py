@@ -1,10 +1,12 @@
+import uuid
 from typing import Callable, Optional
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import depends_db
 from app.dynamic.utils.pagination import SortOrder
+from app.extensions.storage_files.db.tables import StorageFileTable
 from app.extensions.storage_files.repository.storage_file_repository import (
     StorageFileSort,
     StorageFileSortColumn,
@@ -18,6 +20,16 @@ def depends_storage_file_repository(
     db: Session = Depends(depends_db),
 ) -> StorageFileRepository:
     return StorageFileRepository(db)
+
+
+def depends_storage_file(
+    file_uuid: uuid.UUID,
+    repository: StorageFileRepository = Depends(depends_storage_file_repository),
+) -> StorageFileTable:
+    maybe_file: Optional[StorageFileTable] = repository.get_by_uuid(file_uuid)
+    if not maybe_file:
+        raise HTTPException(status_code=404, detail="Storage file niet gevonden")
+    return maybe_file
 
 
 def depends_storage_file_sorted_pagination_curried(
