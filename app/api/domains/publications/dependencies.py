@@ -43,7 +43,7 @@ from app.core.tables.publications import (
 
 @inject
 def depends_publication_template(
-    template_uuid: Annotated[uuid.UUID, Depends()],
+    template_uuid: uuid.UUID,
     repository: Annotated[
         PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])
     ],
@@ -56,7 +56,7 @@ def depends_publication_template(
 
 @inject
 def depends_publication(
-    publication_uuid: Annotated[uuid.UUID, Depends()],
+    publication_uuid: uuid.UUID,
     repository: Annotated[PublicationRepository, Depends(Provide[ApiContainer.publication.publication_repository])],
 ) -> PublicationTable:
     maybe_publication: Optional[PublicationTable] = repository.get_by_uuid(publication_uuid)
@@ -67,7 +67,7 @@ def depends_publication(
 
 @inject
 def depends_publication_version(
-    version_uuid: Annotated[uuid.UUID, Depends()],
+    version_uuid: uuid.UUID,
     repository: Annotated[PublicationVersionRepository, Depends(Provide[ApiContainer.publication.version_repository])],
 ) -> PublicationVersionTable:
     maybe_version: Optional[PublicationVersionTable] = repository.get_by_uuid(version_uuid)
@@ -80,7 +80,7 @@ def depends_publication_version(
 
 @inject
 def depends_publication_version_attachment(
-    attachment_id: Annotated[int, Depends()],
+    attachment_id: int,
     repository: Annotated[
         PublicationVersionAttachmentRepository, Depends(Provide[ApiContainer.publication.version_attachment_repository])
     ],
@@ -93,7 +93,7 @@ def depends_publication_version_attachment(
 
 @inject
 def depends_publication_act_package(
-    act_package_uuid: Annotated[uuid.UUID, Depends()],
+    act_package_uuid: uuid.UUID,
     package_repository: Annotated[
         PublicationActPackageRepository, Depends(Provide[ApiContainer.publication.act_package_repository])
     ],
@@ -106,7 +106,7 @@ def depends_publication_act_package(
 
 @inject
 def depends_publication_announcement(
-    announcement_uuid: Annotated[uuid.UUID, Depends()],
+    announcement_uuid: uuid.UUID,
     repository: Annotated[
         PublicationAnnouncementRepository, Depends(Provide[ApiContainer.publication.announcement_repository])
     ],
@@ -119,7 +119,7 @@ def depends_publication_announcement(
 
 @inject
 def depends_publication_announcement_package(
-    announcement_package_uuid: Annotated[uuid.UUID, Depends()],
+    announcement_package_uuid: uuid.UUID,
     package_repository: Annotated[
         PublicationAnnouncementPackageRepository,
         Depends(Provide[ApiContainer.publication.announcement_package_repository]),
@@ -133,7 +133,7 @@ def depends_publication_announcement_package(
 
 @inject
 def depends_publication_announcement_report(
-    announcement_report_uuid: Annotated[uuid.UUID, Depends()],
+    announcement_report_uuid: uuid.UUID,
     repository: Annotated[
         PublicationAnnouncementReportRepository,
         Depends(Provide[ApiContainer.publication.announcement_report_repository]),
@@ -147,7 +147,7 @@ def depends_publication_announcement_report(
 
 @inject
 def depends_publication_zip_by_act_package(
-    act_package_uuid: Annotated[uuid.UUID, Depends()],
+    act_package_uuid: uuid.UUID,
     repository: Annotated[PublicationZipRepository, Depends(Provide[ApiContainer.publication.zip_repository])],
 ) -> PublicationPackageZipTable:
     package_zip: Optional[PublicationPackageZipTable] = repository.get_by_act_package_uuid(act_package_uuid)
@@ -158,7 +158,7 @@ def depends_publication_zip_by_act_package(
 
 @inject
 def depends_publication_zip_by_announcement_package(
-    announcement_package_uuid: Annotated[uuid.UUID, Depends()],
+    announcement_package_uuid: uuid.UUID,
     repository: Annotated[PublicationZipRepository, Depends(Provide[ApiContainer.publication.zip_repository])],
 ) -> PublicationPackageZipTable:
     package_zip: Optional[PublicationPackageZipTable] = repository.get_by_announcement_package_uuid(
@@ -171,7 +171,7 @@ def depends_publication_zip_by_announcement_package(
 
 @inject
 def depends_publication_act_report(
-    act_report_uuid: Annotated[uuid.UUID, Depends()],
+    act_report_uuid: uuid.UUID,
     repository: Annotated[
         PublicationActReportRepository, Depends(Provide[ApiContainer.publication.act_report_repository])
     ],
@@ -184,7 +184,7 @@ def depends_publication_act_report(
 
 @inject
 def depends_publication_environment(
-    environment_uuid: Annotated[uuid.UUID, Depends()],
+    environment_uuid: uuid.UUID,
     repository: Annotated[
         PublicationEnvironmentRepository, Depends(Provide[ApiContainer.publication.environment_repository])
     ],
@@ -197,7 +197,7 @@ def depends_publication_environment(
 
 @inject
 def depends_publication_act(
-    act_uuid: Annotated[uuid.UUID, Depends()],
+    act_uuid: uuid.UUID,
     repository: Annotated[PublicationActRepository, Depends(Provide[ApiContainer.publication.act_repository])],
 ) -> PublicationActTable:
     maybe_act: Optional[PublicationActTable] = repository.get_by_uuid(act_uuid)

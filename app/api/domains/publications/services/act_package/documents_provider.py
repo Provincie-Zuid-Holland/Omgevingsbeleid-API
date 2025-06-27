@@ -3,7 +3,7 @@ from typing import List, Optional, Set
 
 import dso.models as dso_models
 
-from app.api.domains.others.storage_file_repository import StorageFileRepository
+from app.api.domains.others.repositories.storage_file_repository import StorageFileRepository
 from app.api.domains.publications.types.api_input_data import ActFrbr
 from app.core.tables.others import StorageFileTable
 

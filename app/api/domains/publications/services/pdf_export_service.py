@@ -43,7 +43,10 @@ class PdfExportUnkownError(PdfExportError):
 
 class PdfExportService:
     def __init__(self, koop_settings: Dict[str, KoopSettings]):
-        self._koop_settings: Dict[str, KoopSettings] = koop_settings
+        # @todo: should be parsed by the Settings
+        self._koop_settings: Dict[str, KoopSettings] = {
+            k: KoopSettings(**v) if not isinstance(v, KoopSettings) else v for k, v in koop_settings.items()
+        }
 
     def create_pdf(self, environment_code: str, zip_data: ZipData) -> requests.Response:
         api_settings: KoopSettings = self._get_api_settings(environment_code)

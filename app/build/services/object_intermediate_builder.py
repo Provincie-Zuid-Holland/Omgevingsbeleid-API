@@ -37,13 +37,11 @@ class ObjectIntermediateBuilder:
                 intermediate_models=intermediate_models,
             )
             result.append(object_data)
-        
+
         return result
 
     def _load_object_fields(self, config: dict) -> Dict[str, Field]:
-        fields: Dict[str, Field] = {
-            f.id: f for f in deepcopy(BASE_FIELDS)
-        }
+        fields: Dict[str, Field] = {f.id: f for f in deepcopy(BASE_FIELDS)}
 
         for field_id, data in config.items():
             if field_id in fields:
@@ -85,11 +83,11 @@ class ObjectIntermediateBuilder:
         )
 
     def _build_intermediate_models_per_object(
-            self,
-            all_columns: Dict[str, Column],
-            all_fields: Dict[str, Field],
-            models_config: Dict[str, Dict[str, Any]],
-        ) -> List[IntermediateModel]:
+        self,
+        all_columns: Dict[str, Column],
+        all_fields: Dict[str, Field],
+        models_config: Dict[str, Dict[str, Any]],
+    ) -> List[IntermediateModel]:
         result: List[IntermediateModel] = []
 
         for model_id, model_config in models_config.items():
@@ -132,7 +130,7 @@ class ObjectIntermediateBuilder:
 
     def _build_model_validators(self, model_validators_config: List[dict]) -> Dict[str, Callable]:
         result: Dict[str, Callable] = {}
-        
+
         for validator_config in model_validators_config:
             validator_id: str = validator_config["id"]
             validator_data: dict = validator_config.get("data", {})
@@ -140,7 +138,7 @@ class ObjectIntermediateBuilder:
 
             unique_name: str = f"model_validator_{validator_unique_counter}"
 
-            pydantic_validator_func = pydantic.model_validator(mode=validator_func.mode)(validator_func.func) # type: ignore
+            pydantic_validator_func = pydantic.model_validator(mode=validator_func.mode)(validator_func.func)  # type: ignore
             result[unique_name] = pydantic_validator_func
 
         return result

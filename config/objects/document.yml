@@ -81,8 +81,6 @@ api:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: document_minimal
-            sort: *sort_default_title
     - prefix: /revisions/{module_id}/document/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
@@ -210,8 +208,6 @@ models:
       file_uuid:
     dependency_model_ids:
       - user_short
-      - next_object_validities
-      - public_module_object_revision
       - storage_file_basic
       - hierarchy_statics
     services:

@@ -3,9 +3,19 @@ from dependency_injector import containers, providers
 import app.api.services as api_services
 from app.build import api_builder
 import app.build.endpoint_builders.objects as endpoint_builders_objects
+import app.build.endpoint_builders.modules as endpoint_builders_modules
 import app.build.endpoint_builders.users as endpoint_builders_users
+import app.build.endpoint_builders.others as endpoint_builders_others
+import app.build.endpoint_builders.werkingsgebieden as endpoint_builders_werkingsgebieden
+import app.build.endpoint_builders.publications as endpoint_builders_publications
 from app.build.endpoint_builders import endpoint_builder_provider
-from app.build.services import config_parser, object_intermediate_builder, tables_builder, validator_provider, object_models_builder
+from app.build.services import (
+    config_parser,
+    object_intermediate_builder,
+    tables_builder,
+    validator_provider,
+    object_models_builder,
+)
 import app.build.services.validators.validators as validators
 from app.core.db.session import create_db_engine, init_db_session
 from app.core.services import MainConfig, ModelsProvider
@@ -60,6 +70,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(create_model_event_listeners.ObjectStaticsExtenderListener),
             providers.Factory(create_model_event_listeners.AddRelationsListener),
             providers.Factory(create_model_event_listeners.JoinWerkingsgebiedenListener),
+            providers.Factory(create_model_event_listeners.AddPublicRevisionsToObjectModelListener),
+            providers.Factory(create_model_event_listeners.AddNextObjectVersionToObjectModelListener),
+            providers.Factory(create_model_event_listeners.AddRelatedObjectsToWerkingsgebiedObjectModelListener),
         ),
     )
     build_event_manager = providers.Singleton(
@@ -73,6 +86,7 @@ class BuildContainer(containers.DeclarativeContainer):
     endpoint_builder_provider = providers.Singleton(
         endpoint_builder_provider.EndpointBuilderProvider,
         endpoint_builders=providers.List(
+            # fmt: off
             # Objects domain
             providers.Factory(endpoint_builders_objects.ObjectLatestEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectVersionEndpointBuilder),
@@ -84,10 +98,109 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_objects.AtemporalCreateObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalEditObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalDeleteObjectEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.AcknowledgedRelationEditEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.AcknowledgedRelationListEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.AcknowledgedRelationRequestEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.RelationsListEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.RelationsOverwriteEndpointBuilder),
+            # Publications domain
+            #   Acts
+            providers.Factory(endpoint_builders_publications.acts.ClosePublicationActEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.acts.CreateActEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.acts.DetailActEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.acts.EditPublicationActEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.acts.ListPublicationActsEndpointBuilder),
+            #   Area of jurisdictions
+            providers.Factory(endpoint_builders_publications.area_of_jurisdictions.CreatePublicationAOJEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.area_of_jurisdictions.ListPublicationAOJEndpointBuilder),
+            #   DSO values
+            providers.Factory(endpoint_builders_publications.dso_values.ListAreaDesignationGroupsEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.dso_values.ListAreaDesignationTypesEndpointBuilder),
+            #   Templates
+            providers.Factory(endpoint_builders_publications.templates.CreatePublicationTemplateEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.templates.DetailPublicationTemplateEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.templates.EditPublicationTemplateEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.templates.ListPublicationTemplatesEndpointBuilder),
+            #   Environments
+            providers.Factory(endpoint_builders_publications.environments.CreatePublicationEnvironmentEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.environments.DetailPublicationEnvironmentEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.environments.EditPublicationEnvironmentEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.environments.ListPublicationEnvironmentsEndpointBuilder),
+            #   Publications
+            #       Act Packages
+            providers.Factory(endpoint_builders_publications.publications.act_packages.CreatePublicationPackageEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.act_packages.DownloadPackageEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.act_packages.ListPublicationPackagesEndpointBuilder),
+            #       Act Reports
+            providers.Factory(endpoint_builders_publications.publications.act_reports.DetailActPackageReportEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.act_reports.DownloadActPackageReportEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.act_reports.ListActPackageReportsEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.act_reports.UploadActPackageReportEndpointBuilder),
+            #       Announcement Packages
+            providers.Factory(endpoint_builders_publications.publications.announcement_packages.CreatePublicationAnnouncementPackageEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.announcement_packages.DownloadPublicationAnnouncementPackageEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.announcement_packages.ListPublicationAnnouncementPackagesEndpointBuilder),
+            #       Announcement Reports
+            providers.Factory(endpoint_builders_publications.publications.announcement_reports.DetailAnnouncementPackageReportEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.announcement_reports.DownloadAnnouncementPackageReportEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.announcement_reports.ListAnnouncementPackageReportsEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.announcement_reports.UploadAnnouncementPackageReportEndpointBuilder),
+            #       Announcement
+            providers.Factory(endpoint_builders_publications.publications.announcements.CreatePublicationAnnouncementEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.announcements.DetailPublicationAnnouncementEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.announcements.EditPublicationAnnouncementEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.announcements.ListPublicationAnnouncementsEndpointBuilder),
+            #       Versions
+            providers.Factory(endpoint_builders_publications.publications.versions.CreatePublicationVersionPdfEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.versions.CreatePublicationVersionEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.versions.DeletePublicationVersionEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.versions.DetailPublicationVersionEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.versions.EditPublicationVersionEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.versions.ListPublicationVersionsEndpointBuilder),
+            #           Attachments
+            providers.Factory(endpoint_builders_publications.publications.versions.attachments.DeletePublicationVersionAttachmentEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.versions.attachments.UploadPublicationVersionAttachmentEndpointBuilder),
             # Users domain
             providers.Factory(endpoint_builders_users.AuthLoginAccessTokenEndpointBuilder),
             providers.Factory(endpoint_builders_users.AuthResetPasswordEndpointBuilder),
-        )
+            providers.Factory(endpoint_builders_users.CreateUserEndpointBuilder),
+            providers.Factory(endpoint_builders_users.EditUserEndpointBuilder),
+            providers.Factory(endpoint_builders_users.GetUserEndpointBuilder),
+            providers.Factory(endpoint_builders_users.ListUsersEndpointBuilder),
+            providers.Factory(endpoint_builders_users.ResetUserPasswordEndpointBuilder),
+            providers.Factory(endpoint_builders_users.SearchUsersEndpointBuilder),
+            # Module domain
+            providers.Factory(endpoint_builders_modules.ActivateModuleEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.CloseModuleEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.CompleteModuleEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.CreateModuleEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.EditModuleEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ListActiveModuleObjectsEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ListModuleObjectsEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ListModulesEndpointResolverBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleAddExistingObjectEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleAddNewObjectEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleEditObjectContextEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleGetObjectContextEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleListLineageTreeEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleListStatusesEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleObjectLatestEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleObjectVersionEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleOverviewEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModulePatchObjectEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModulePatchStatusEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleRemoveObjectEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleSnapshotEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.PublicListModulesEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.PublicModuleOverviewEndpointBuilder),
+            # Werkingsgebieden domain
+            providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByAreasEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByGeometryEndpointBuilder),
+            # Others
+            providers.Factory(endpoint_builders_others.ListStorageFilesEndpointBuilder),
+            providers.Factory(endpoint_builders_others.StorageFileUploadFileEndpointBuilder),
+            # fmt: on
+        ),
     )
 
     object_intermediate_builder = providers.Factory(

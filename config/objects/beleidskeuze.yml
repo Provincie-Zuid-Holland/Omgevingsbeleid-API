@@ -99,8 +99,6 @@ api:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: beleidskeuze_minimal
-            sort: *sort_default_title
     - prefix: /revisions/{module_id}/beleidskeuze/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
@@ -212,11 +210,9 @@ models:
       start_validity:
       end_validity:
       title:
-    dependency_model_ids:
-      - next_object_validities
     services:
-      computed_fields:
-        - batch_next_object_version
+      next_object_version:
+        to_field: Next_Version
   beleidskeuze_extended:
     name: BeleidskeuzeExtended
     fields:
@@ -272,8 +268,6 @@ models:
       werkingsgebied_code:
     dependency_model_ids:
       - user_short
-      - next_object_validities
-      - public_module_object_revision
       - werkingsgebied_basic
       - werkingsgebied_statics
       - hierarchy_statics
@@ -283,9 +277,10 @@ models:
       - beleidsregel_minimal
       - maatregel_minimal
     services:
-      computed_fields:
-        - next_object_version
-        - public_revisions
+      next_object_version:
+        to_field: Next_Version
+      public_revisions:
+        to_field: Public_Revisions
       join_werkingsgebieden:
         model_id: werkingsgebied_basic
         to_field: Werkingsgebied

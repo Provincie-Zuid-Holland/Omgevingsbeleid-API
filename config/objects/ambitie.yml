@@ -85,8 +85,6 @@ api:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: ambitie_minimal
-            sort: *sort_default_title
     - prefix: /revisions/{module_id}/ambitie/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
@@ -168,11 +166,9 @@ models:
       title:
       start_validity:
       end_validity:
-    dependency_model_ids:
-      - next_object_validities
     services:
-      computed_fields:
-        - batch_next_object_version
+      next_object_version:
+        to_field: Next_Version
   ambitie_extended:
     name: AmbitieExtended
     fields:
@@ -221,13 +217,12 @@ models:
       end_validity:
     dependency_model_ids:
       - user_short
-      - next_object_validities
-      - public_module_object_revision
       - beleidsdoel_minimal
     services:
-      computed_fields:
-        - next_object_version
-        - public_revisions
+      next_object_version:
+        to_field: Next_Version
+      public_revisions:
+        to_field: Public_Revisions
       insert_assets:
         fields:
           - Description

@@ -7,7 +7,8 @@ from app.api.api_container import ApiContainer
 from app.api.domains.modules.repositories.module_object_context_repository import ModuleObjectContextRepository
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.repositories.module_repository import ModuleRepository
-from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleTable
+from app.api.domains.modules.repositories.module_status_repository import ModuleStatusRepository
+from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
 
 
 @inject
@@ -65,3 +66,15 @@ def depends_active_module_object_context(
     if maybe_context.Hidden:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object context is verwijderd")
     return maybe_context
+
+
+@inject
+def depends_module_status_by_id(
+    status_id: int,
+    module: Annotated[ModuleTable, Depends(depends_module)],
+    repository: Annotated[ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])],
+) -> ModuleStatusHistoryTable:
+    maybe_status: Optional[ModuleStatusHistoryTable] = repository.get_by_id(module.Module_ID, status_id)
+    if not maybe_status:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Module status niet gevonden")
+    return maybe_status

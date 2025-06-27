@@ -117,8 +117,6 @@ models:
       created_date:
       modified_date:
       title:
-    dependency_model_ids:
-      - next_object_validities
     services:
       foreign_keys_extender:
         fields_map:

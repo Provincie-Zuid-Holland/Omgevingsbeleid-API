@@ -33,7 +33,7 @@ class ApiBuilder:
         build_data: BuildData = self._config_parser.parse()
 
         self._tables_builder.build_tables(build_data.columns)
-        
+
         self._models_provider.add_list(DECLARED_MODELS)
         self._object_models_builder.build_models(self._models_provider, build_data.object_intermediates)
 
@@ -45,7 +45,7 @@ class ApiBuilder:
 
     def _build_object_routes(self, build_data: BuildData) -> List[ConfiguiredFastapiEndpoint]:
         result: List[ConfiguiredFastapiEndpoint] = []
-    
+
         for object_intermediate in build_data.object_intermediates:
             for endpoint_config in object_intermediate.api.endpoint_configs:
                 endpoint_builder: Optional[EndpointBuilder] = self._endpoint_builder_provider.get_optional(
@@ -77,7 +77,9 @@ class ApiBuilder:
     def _build_main_routes(self, build_data: BuildData) -> List[ConfiguiredFastapiEndpoint]:
         result: List[ConfiguiredFastapiEndpoint] = []
 
-        main_endpoint_configs: List[EndpointConfig] = self._parse_main_api_endpoint_configs(build_data.main_config.get("api", {}))
+        main_endpoint_configs: List[EndpointConfig] = self._parse_main_api_endpoint_configs(
+            build_data.main_config.get("api", {})
+        )
         # @todo: Its a bit weird that its called Object here
         # And object_id and object_type are not needed
         api = ObjectApi(
@@ -112,7 +114,7 @@ class ApiBuilder:
             result.append(configured_endpoint)
 
         return result
-    
+
     def _parse_main_api_endpoint_configs(self, api_config: dict) -> List[EndpointConfig]:
         endpoints: List[EndpointConfig] = []
 
@@ -129,5 +131,5 @@ class ApiBuilder:
                         resolver_data=resolver_data,
                     )
                 )
-        
+
         return endpoints

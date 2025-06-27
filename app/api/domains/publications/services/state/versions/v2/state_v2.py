@@ -3,7 +3,7 @@ from typing import Dict
 from pydantic import Field
 
 import app.api.domains.publications.services.state.versions.v2.models as models
-from app.api.domains.publications.services.state import State
+from app.api.domains.publications.services.state.state import State
 
 
 class StateV2(State):

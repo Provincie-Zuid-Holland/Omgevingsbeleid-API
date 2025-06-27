@@ -74,7 +74,7 @@ class Settings(BaseSettings):
     MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
     MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
 
-    PUBLICATION_KOOP: Dict[str, KoopSettings] = Field({})
+    PUBLICATION_KOOP: Dict[str, KoopSettings] = Field(default_factory=dict)
 
     # @note: These will be overwritten and based on earlier input
     # These are for the Depedency Injector library

@@ -7,10 +7,9 @@ from dso.services.ow.imow_waardelijsten import get_groep_options_for_gebiedsaanw
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 
-
-class AreaDesignationTypeEnum(str, Enum):
-    for member in AreaDesignationTypes:
-        locals()[member.name] = member.name
+AreaDesignationTypeEnum = Enum(
+    "AreaDesignationTypeEnum", {member.name: member.value for member in AreaDesignationTypes}, type=str
+)
 
 
 class AreaDesignationValueList(BaseModel):

@@ -1,4 +1,6 @@
-from typing import List
+import uuid
+from datetime import datetime
+from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel, field_validator
 
@@ -76,3 +78,15 @@ class FilterObjectCode(BaseModel):
 
     def get_code(self) -> str:
         return f"{self.object_type}-{self.lineage_id}"
+
+
+class NextObjectVersion(BaseModel):
+    UUID: uuid.UUID
+    Title: str
+    Start_Validity: datetime
+    End_Validity: Optional[datetime] = None
+    Created_Date: datetime
+    Modified_Date: datetime
+    Previous_UUID: uuid.UUID
+
+    model_config = ConfigDict(from_attributes=True)

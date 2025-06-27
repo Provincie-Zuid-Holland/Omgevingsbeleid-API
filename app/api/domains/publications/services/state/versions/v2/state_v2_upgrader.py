@@ -5,7 +5,7 @@ import app.api.domains.publications.services.state.versions.v2.models as models_
 from app.api.domains.publications.repository.publication_act_package_repository import PublicationActPackageRepository
 from app.api.domains.publications.repository.publication_act_version_repository import PublicationActVersionRepository
 from app.api.domains.publications.services.act_package.act_publication_data_provider import ActPublicationDataProvider
-from app.api.domains.publications.services.state import State
+from app.api.domains.publications.services.state.state import State
 from app.api.domains.publications.services.state.state_upgrader import StateUpgrader
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, PublicationData
 from app.core.tables.publications import PublicationActPackageTable, PublicationActVersionTable

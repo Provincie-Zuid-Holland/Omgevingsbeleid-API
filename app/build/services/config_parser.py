@@ -13,11 +13,11 @@ from app.core.types import Column
 
 class ConfigParser:
     def __init__(
-            self,
-            main_config: MainConfig,
-            object_config_path: str,
-            object_intermediate_builder: ObjectIntermediateBuilder,
-        ):
+        self,
+        main_config: MainConfig,
+        object_config_path: str,
+        object_intermediate_builder: ObjectIntermediateBuilder,
+    ):
         self._main_config: MainConfig = main_config
         self._object_config_path: str = object_config_path
         self._object_intermediate_builder: ObjectIntermediateBuilder = object_intermediate_builder
@@ -54,13 +54,11 @@ class ConfigParser:
         for file_path in file_paths:
             object_config: dict = self._load_yaml(file_path)
             object_configs.append(object_config)
-        
+
         return object_configs
 
     def _gather_columns(self, main_config: dict) -> Dict[str, Column]:
-        columns: Dict[str, Column] = {
-            c.id: c for c in deepcopy(BASE_COLUMNS)
-        }
+        columns: Dict[str, Column] = {c.id: c for c in deepcopy(BASE_COLUMNS)}
 
         config_columns = main_config.get("columns", [])
         for column_id, data in config_columns.items():

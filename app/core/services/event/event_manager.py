@@ -39,10 +39,6 @@ class EventManager(Generic[EventType]):
         if not listeners:
             return event
 
-        # @todo: remove
-        if self._db:
-            event.provide_db(self._db)
-
         for listener in listeners:
             response = listener.handle_event(event)
             if response is not None:

@@ -1,2 +1,0 @@
-from .list_objects_by_areas import ListObjectsByAreasEndpointResolver
-from .list_objects_by_geometry import ListObjectsByGeometryEndpointResolver

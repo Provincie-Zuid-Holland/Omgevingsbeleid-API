@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated, List, Optional
 
-from dependency_injector.wiring import inject
+from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Query
 
 from app.api.api_container import ApiContainer
@@ -29,16 +29,16 @@ class ListModulesEndpointContext(BaseEndpointContext):
 
 @inject
 async def get_list_modules_endpoint(
-    only_mine: Annotated[bool, Query(default=False)],
-    filter_activated: Annotated[Optional[bool], Query(default=None)],
-    filter_closed: Annotated[Optional[bool], Query(default=None)],
-    filter_successful: Annotated[Optional[bool], Query(default=None)],
-    filter_title: Annotated[Optional[str], Query(default=None)],
     filter_object_code: Annotated[Optional[FilterObjectCode], Depends(depends_filter_object_code)],
-    module_repository: Annotated[ModuleRepository, Depends(ApiContainer.module_repository)],
+    module_repository: Annotated[ModuleRepository, Depends(Provide[ApiContainer.module_repository])],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     context: Annotated[ListModulesEndpointContext, Depends()],
+    only_mine: Annotated[bool, Query] = False,
+    filter_activated: Optional[bool] = None,
+    filter_closed: Optional[bool] = None,
+    filter_successful: Optional[bool] = None,
+    filter_title: Optional[str] = None,
 ) -> PagedResponse[Module]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)

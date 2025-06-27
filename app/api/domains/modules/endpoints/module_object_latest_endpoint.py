@@ -18,13 +18,12 @@ from app.core.types import Model
 
 class ModuleObjectLatestEndpointContext(BaseEndpointContext):
     object_type: str
-    endpoint_id: str
     response_config_model: Model
 
 
 @inject
 async def view_module_object_latest_endpoint(
-    lineage_id: Annotated[int, Depends()],
+    lineage_id: int,
     _: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     module_object_repository: Annotated[
@@ -46,7 +45,7 @@ async def view_module_object_latest_endpoint(
     event: RetrievedModuleObjectsEvent = event_manager.dispatch(
         RetrievedModuleObjectsEvent.create(
             [row],
-            context.endpoint_id,
+            context.builder_data.endpoint_id,
             context.response_config_model,
         )
     )

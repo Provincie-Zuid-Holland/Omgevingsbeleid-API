@@ -254,7 +254,7 @@ class ObjectCodeExistsValidator(Validator):
                 raise ValueError("Value is not a valid Object_Code")
 
             # @todo: fix
-            # 
+            #
             # with db_in_context_manager() as db:
             #     static_repository = ObjectStaticRepository(db)
             #     object_static = static_repository.get_by_object_type_and_id(
@@ -315,7 +315,7 @@ class ObjectCodesExistsValidator(Validator):
                 raise ValueError("Value must be a list of strings")
 
             # @todo: fix
-            # 
+            #
             # with db_in_context_manager() as db:
             #     static_repository = ObjectStaticRepository(db)
 

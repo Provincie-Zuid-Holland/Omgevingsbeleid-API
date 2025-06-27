@@ -3,6 +3,7 @@ from typing import Optional
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 from sqlalchemy.orm import Session
 
+from app.api.domains.publications.exceptions import DSOConfigurationException
 from app.api.domains.publications.services.act_frbr_provider import ActFrbrProvider
 from app.api.domains.publications.services.act_package.act_package_builder import ActPackageBuilder
 from app.api.domains.publications.services.act_package.act_publication_data_provider import ActPublicationDataProvider

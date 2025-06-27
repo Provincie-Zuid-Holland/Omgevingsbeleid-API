@@ -1,5 +1,7 @@
-
-from app.api.domains.objects.endpoints.object_latest_endpoint import ObjectLatestEndpointContext, view_object_latest_endpoint
+from app.api.domains.objects.endpoints.object_latest_endpoint import (
+    ObjectLatestEndpointContext,
+    view_object_latest_endpoint,
+)
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi

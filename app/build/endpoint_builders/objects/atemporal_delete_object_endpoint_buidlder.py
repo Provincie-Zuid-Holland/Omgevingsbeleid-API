@@ -1,5 +1,3 @@
-
-
 from app.api.domains.objects.endpoints import AtemporalDeleteObjectEndpointContext, atemporal_delete_object_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK

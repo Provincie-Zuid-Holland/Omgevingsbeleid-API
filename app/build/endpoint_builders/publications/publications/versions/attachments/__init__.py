@@ -1,0 +1,2 @@
+from .delete_attachment_endpoint_builder import DeletePublicationVersionAttachmentEndpointBuilder
+from .upload_attachment_endpoint_builder import UploadPublicationVersionAttachmentEndpointBuilder

@@ -1,0 +1,5 @@
+from .close_act_endpoint_builder import ClosePublicationActEndpointBuilder
+from .create_act_endpoint_builder import CreateActEndpointBuilder
+from .detail_act_endpoint_builder import DetailActEndpointBuilder
+from .edit_act_endpoint_builder import EditPublicationActEndpointBuilder
+from .list_acts_endpoint_builder import ListPublicationActsEndpointBuilder

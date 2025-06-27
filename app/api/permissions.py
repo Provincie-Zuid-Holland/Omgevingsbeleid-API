@@ -2,6 +2,11 @@ from enum import Enum
 
 
 class Permissions(str, Enum):
+    # User
+    user_can_create_user = "user_can_create_user"
+    user_can_edit_user = "user_can_edit_user"
+    user_can_reset_user_password = "user_can_reset_user_password"
+
     # Object
 
     # Object Static
@@ -78,3 +83,6 @@ class Permissions(str, Enum):
     publication_can_download_publication_announcement_package_report = (
         "publication_can_download_publication_announcement_package_report"
     )
+
+    # Storage files
+    storage_file_can_upload_files = "storage_file_can_upload_files"

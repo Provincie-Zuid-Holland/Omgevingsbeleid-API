@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import Select
 
 
@@ -12,4 +12,4 @@ class PreparedQuery:
 
 
 class ResponseOK(BaseModel):
-    message: str = "OK"
+    message: str = Field("OK")

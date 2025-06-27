@@ -83,4 +83,4 @@ async def post_module_edit_object_context_endpoint(
     db.flush()
     db.commit()
 
-    return ResponseOK()
+    return ResponseOK(message="OK")

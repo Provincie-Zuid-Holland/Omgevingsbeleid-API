@@ -1,5 +1,8 @@
-
-from app.api.domains.objects.endpoints import ObjectListAllLatestEndpointContext, GenericObjectShort, list_all_latest_endpoint
+from app.api.domains.objects.endpoints import (
+    ObjectListAllLatestEndpointContext,
+    GenericObjectShort,
+    list_all_latest_endpoint,
+)
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import OrderConfig, PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder

@@ -1,6 +1,6 @@
 from typing import Annotated, List
 
-from dependency_injector.wiring import inject
+from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from pydantic import BaseModel
 
@@ -21,18 +21,17 @@ class ActiveModuleObjectsResponse(BaseModel):
     action: ModuleObjectActionFull
 
 
-# ListActiveModuleObjectsResponse = RootModel[List[ActiveModuleObjectsResponse]]
-
-
 class ListActiveModuleObjectsEndpointContext(BaseEndpointContext):
     object_type: str
 
 
 @inject
 async def get_list_active_module_objects_endpoint(
-    lineage_id: Annotated[int, Depends()],
+    lineage_id: int,
     minimum_status: Annotated[ModuleStatusCode, ModuleStatusCode.Ontwerp_PS],
-    module_object_repository: Annotated[ModuleObjectRepository, Depends(ApiContainer.module_object_repository)],
+    module_object_repository: Annotated[
+        ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
+    ],
     _: Annotated[UsersTable, Depends(depends_current_user)],
     context: Annotated[ListActiveModuleObjectsEndpointContext, Depends()],
 ) -> List[ActiveModuleObjectsResponse]:

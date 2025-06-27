@@ -50,14 +50,14 @@ def post_create_publication(
             )
         ),
     ],
-    module_repository: Annotated[ModuleRepository, Depends(ApiContainer.publication.module_repository)],
+    module_repository: Annotated[ModuleRepository, Depends(Provide[ApiContainer.module_repository])],
     template_repository: Annotated[
-        PublicationTemplateRepository, Depends(ApiContainer.publication.template_repository)
+        PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])
     ],
     environment_repository: Annotated[
-        PublicationEnvironmentRepository, Depends(ApiContainer.publication.environment_repository)
+        PublicationEnvironmentRepository, Depends(Provide[ApiContainer.publication.environment_repository])
     ],
-    act_repository: Annotated[PublicationActRepository, Depends(ApiContainer.publication.act_repository)],
+    act_repository: Annotated[PublicationActRepository, Depends(Provide[ApiContainer.publication.act_repository])],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],
 ) -> PublicationCreatedResponse:
     timepoint: datetime = datetime.now(timezone.utc)

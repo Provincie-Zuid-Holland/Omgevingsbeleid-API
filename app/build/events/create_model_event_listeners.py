@@ -2,8 +2,10 @@ from typing import List, Optional
 
 import pydantic
 
+from app.api.domains.modules.types import PublicModuleObjectRevision
+from app.api.domains.objects.types import NextObjectVersion
 from app.core.services.event.types import Listener
-from app.core.types import Model
+from app.core.types import Model, WerkingsgebiedRelatedObjects
 
 from .create_model_event import CreateModelEvent
 
@@ -124,6 +126,57 @@ class JoinWerkingsgebiedenListener(Listener[CreateModelEvent]):
 
         event.payload.pydantic_fields[field_name] = (
             Optional[target_object_model.pydantic_model],
+            None,
+        )
+
+        return event
+
+
+class AddPublicRevisionsToObjectModelListener(Listener[CreateModelEvent]):
+    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+        service_config: dict = event.context.intermediate_model.service_config
+        if not "public_revisions" in service_config:
+            return event
+
+        config: dict = service_config["public_revisions"]
+        field_name: str = config["to_field"]
+
+        event.payload.pydantic_fields[field_name] = (
+            List[PublicModuleObjectRevision],
+            [],
+        )
+
+        return event
+
+
+class AddNextObjectVersionToObjectModelListener(Listener[CreateModelEvent]):
+    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+        service_config: dict = event.context.intermediate_model.service_config
+        if not "next_object_version" in service_config:
+            return event
+
+        config: dict = service_config["next_object_version"]
+        field_name: str = config["to_field"]
+
+        event.payload.pydantic_fields[field_name] = (
+            Optional[NextObjectVersion],
+            None,
+        )
+
+        return event
+
+
+class AddRelatedObjectsToWerkingsgebiedObjectModelListener(Listener[CreateModelEvent]):
+    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+        service_config: dict = event.context.intermediate_model.service_config
+        if not "werkingsgebied_related_objects" in service_config:
+            return event
+
+        config: dict = service_config["werkingsgebied_related_objects"]
+        field_name: str = config["to_field"]
+
+        event.payload.pydantic_fields[field_name] = (
+            Optional[WerkingsgebiedRelatedObjects],
             None,
         )
 

@@ -1,4 +1,3 @@
-
 from graphlib import TopologicalSorter
 from typing import Any, Dict, List, Optional, OrderedDict, Tuple
 
@@ -15,10 +14,10 @@ from app.core.types import Model, DynamicObjectModel
 
 class ObjectModelsBuilder:
     def __init__(
-            self,
-            validator_provider: ValidatorProvider,
-            event_manager: EventManager,
-        ):
+        self,
+        validator_provider: ValidatorProvider,
+        event_manager: EventManager,
+    ):
         self._validator_provider: ValidatorProvider = validator_provider
         self._event_manager: EventManager = event_manager
 
@@ -27,13 +26,12 @@ class ObjectModelsBuilder:
         }
 
     def build_models(
-            self,
-            models_provider: ModelsProvider,
-            intermediate_objects: List[IntermediateObject],
-        ):
+        self,
+        models_provider: ModelsProvider,
+        intermediate_objects: List[IntermediateObject],
+    ):
         intermediate_models: List[IntermediateModel] = [
-            i_model for i_object in intermediate_objects
-            for i_model in i_object.intermediate_models
+            i_model for i_object in intermediate_objects for i_model in i_object.intermediate_models
         ]
         intermediate_models = self._sort_intermediate_objects(intermediate_models)
 
@@ -47,14 +45,13 @@ class ObjectModelsBuilder:
         Ensures each object appears after its dependencies.
         """
         intermediate_objects_lookup = {o.id: o for o in intermediate_objects}
-        
+
         dependency_map = {}
         for int_obj in intermediate_objects:
             dependency_map[int_obj.id] = {
-                dep_id for dep_id in int_obj.dependency_model_ids
-                if dep_id in intermediate_objects_lookup
+                dep_id for dep_id in int_obj.dependency_model_ids if dep_id in intermediate_objects_lookup
             }
-        
+
         ts = TopologicalSorter(dependency_map)
         sorted_model_ids = list(ts.static_order())
 
@@ -65,10 +62,10 @@ class ObjectModelsBuilder:
         return sorted_models
 
     def _build_model(
-            self,
-            models_provider: ModelsProvider,
-            intermediate_model: IntermediateModel,
-        ) -> DynamicObjectModel:
+        self,
+        models_provider: ModelsProvider,
+        intermediate_model: IntermediateModel,
+    ) -> DynamicObjectModel:
         # If we requested a static object and we have lineage fields then we have a configuration error
         if intermediate_model.static_only and intermediate_model.fields:
             raise RuntimeError(f"Can not configure lineage fields for static only model '{intermediate_model.name}")
@@ -120,7 +117,7 @@ class ObjectModelsBuilder:
 
         # If we have a static_only model then we use the "ObjectStatics" as the main model
         if intermediate_model.static_only:
-            pydantic_model = pydantic_static_model # type: ignore
+            pydantic_model = pydantic_static_model  # type: ignore
         else:
             pydantic_model = pydantic.create_model(
                 intermediate_model.name,
@@ -159,7 +156,9 @@ class ObjectModelsBuilder:
                 unique_counter, validator_func = self._validator_provider.get(validator_id, validator_data)
 
                 pydantic_validator_unique_name: str = f"{validator_prefix}-{unique_counter}"
-                pydantic_validator_func = pydantic.field_validator(field.name, mode=validator_func.mode)(validator_func.func)
+                pydantic_validator_func = pydantic.field_validator(field.name, mode=validator_func.mode)(
+                    validator_func.func
+                )
                 pydantic_validators[pydantic_validator_unique_name] = pydantic_validator_func
 
             pydantic_fields[field.name] = (

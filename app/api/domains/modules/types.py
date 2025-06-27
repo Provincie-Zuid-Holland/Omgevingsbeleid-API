@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from app.api.domains.users.types import UserShort
 
@@ -43,11 +43,6 @@ class ModuleStatusCodeInternal(str, Enum):
     Module_afgerond = "Module afgerond"
 
 
-class ModulePatchStatus(BaseModel):
-    Status: ModuleStatusCode
-    model_config = ConfigDict(use_enum_values=True)
-
-
 class ModuleObjectAction(str, Enum):
     Edit = "Edit"
     Terminate = "Terminate"
@@ -77,6 +72,7 @@ class PublicModuleObjectRevision(BaseModel):
     Module_Title: str
     Module_Status: ModuleStatusCode
     Module_Object_UUID: uuid.UUID
+    Module_Object_Code: str
     Module_Object_Status: PublicModuleStatusCode
     Action: ModuleObjectActionFull
 
@@ -161,4 +157,17 @@ class Module(BaseModel):
     Modified_By: Optional[UserShort] = None
     Module_Manager_1: Optional[UserShort] = None
     Module_Manager_2: Optional[UserShort] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PublicModuleShort(BaseModel):
+    Module_ID: int
+    Title: str
+    Description: str
+    Status: Optional[ModuleStatus] = None
+
+    @field_validator("Title", "Description", mode="before")
+    def default_empty_string(cls, v):
+        return v or ""
+
     model_config = ConfigDict(from_attributes=True)

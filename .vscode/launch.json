@@ -15,7 +15,8 @@
                 "PYTHONWARNINGS": "default"
             },
             "jinja": true,
-            "justMyCode": false
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env"
         },
         {
             "name": "API: Remote Debug",
@@ -39,7 +40,8 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": false
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env"
         },
         {
             "name": "API: Command create-dso-json-scenario",
@@ -51,7 +53,8 @@
                 "--publication_version",
                 "90000006-0000-0000-0000-000000000003",
             ],
-            "justMyCode": false
+            "justMyCode": false,
+            "envFile": "${workspaceFolder}/.env"
         },
         {
             "name": "Debug: app.cmds load-fixtures",
@@ -59,7 +62,8 @@
             "request": "launch",
             "module": "app.cmds",
             "args": ["load-fixtures"],
-            "justMyCode": true
-        }
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env"
+        },
     ]
 }

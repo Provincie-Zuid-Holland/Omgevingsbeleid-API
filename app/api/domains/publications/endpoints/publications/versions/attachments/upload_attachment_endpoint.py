@@ -40,7 +40,6 @@ class FileData(BaseModel):
 @inject
 def post_upload_attachment_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
-    uploaded_file: Annotated[UploadFile, Depends(File(...))],
     user: Annotated[
         UsersTable,
         Depends(
@@ -53,7 +52,8 @@ def post_upload_attachment_endpoint(
         PublicationStorageFileRepository, Depends(Provide[ApiContainer.publication.storage_file_repository])
     ],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],
-    title: Annotated[str, Depends(Form(...))],
+    title: str = Form(...),
+    uploaded_file: UploadFile = File(...),
 ) -> UploadAttachmentResponse:
     _guard_upload(version, uploaded_file)
     timepoint: datetime = datetime.now(timezone.utc)

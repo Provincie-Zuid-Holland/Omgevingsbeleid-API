@@ -1,1 +1,0 @@
-from .endpoints import object_latest_endpoint

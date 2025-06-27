@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional
 
 from pydantic import Field
 
-from app.api.domains.publications.services.state import State
+from app.api.domains.publications.services.state.state import State
 from app.api.domains.publications.services.state.versions.v4 import models
 from app.api.domains.publications.services.state.versions.v4.actions import (
     Action,

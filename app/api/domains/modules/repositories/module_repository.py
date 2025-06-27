@@ -5,7 +5,8 @@ from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.orm import aliased
 
 from app.api.base_repository import BaseRepository
-from app.api.domains.modules.types import FilterObjectCode, PublicModuleStatusCode
+from app.api.domains.modules.types import PublicModuleStatusCode
+from app.api.domains.objects.types import FilterObjectCode
 from app.api.utils.pagination import PaginatedQueryResult, SimplePagination, SortedPagination
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
 from app.core.tables.objects import ObjectStaticsTable

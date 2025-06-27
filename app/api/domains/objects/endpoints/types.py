@@ -1,60 +1,10 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel
 
-
-class AcknowledgedRelationBase(BaseModel):
-    Object_ID: int
-    Object_Type: str
-    Explanation: Optional[str] = Field(None)
-
-    @property
-    def Code(self) -> str:
-        return f"{self.Object_Type}-{self.Object_ID}"
-
-
-class RequestAcknowledgedRelation(AcknowledgedRelationBase):
-    pass
-
-
-class EditAcknowledgedRelation(AcknowledgedRelationBase):
-    Acknowledged: Optional[bool] = Field(None)
-    Denied: Optional[bool] = Field(None)
-    Deleted: Optional[bool] = Field(None)
-
-    @model_validator(mode="after")
-    def validate_denied_acknowledged_deleted(self):
-        if sum(bool(val) for val in [self.Acknowledged, self.Denied, self.Deleted]) > 1:
-            raise ValueError("Only one of Denied, Acknowledged, and Deleted can be set to True")
-        return self
-
-
-class AcknowledgedRelationSide(AcknowledgedRelationBase):
-    Acknowledged: Optional[datetime] = None
-    Acknowledged_By_UUID: Optional[uuid.UUID] = None
-    Title: Optional[str] = None
-    Explanation: Optional[str] = None
-
-    @property
-    def Is_Acknowledged(self) -> bool:
-        return self.Acknowledged is not None
-
-    @property
-    def Acknowledged_Date(self) -> datetime:
-        return self.Acknowledged
-
-    def disapprove(self):
-        self.Acknowledged = None
-
-    def approve(self, user_uuid: uuid.UUID, timepoint: Optional[datetime] = None):
-        timepoint = timepoint or datetime.now(timezone.utc)
-        if self.Is_Acknowledged:
-            return
-
-        self.Acknowledged_By_UUID = user_uuid
-        self.Acknowledged = timepoint
+from app.core.types import AcknowledgedRelationSide
 
 
 class AcknowledgedRelation(BaseModel):

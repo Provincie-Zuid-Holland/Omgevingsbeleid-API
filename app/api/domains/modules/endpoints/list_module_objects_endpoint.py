@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated, List, Optional
 
-from dependency_injector.wiring import inject
+from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Query
 
 from app.api.api_container import ApiContainer
@@ -28,12 +28,14 @@ async def get_list_module_objects_endpoint(
     object_type: Annotated[Optional[str], None],
     owner_uuid: Annotated[Optional[uuid.UUID], None],
     minimum_status: Annotated[Optional[ModuleStatusCode], None],
-    actions: Annotated[List[ModuleObjectActionFull], Query([])],
     only_active_modules: Annotated[bool, True],
-    module_object_repository: Annotated[ModuleObjectRepository, Depends(ApiContainer.module_object_repository)],
+    module_object_repository: Annotated[
+        ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
+    ],
     _: Annotated[UsersTable, Depends(depends_current_user)],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     context: Annotated[ListModuleObjectsEndpointContext, Depends()],
+    actions: Annotated[List[ModuleObjectActionFull], Query] = [],
 ) -> PagedResponse[ModuleObjectsResponse]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)

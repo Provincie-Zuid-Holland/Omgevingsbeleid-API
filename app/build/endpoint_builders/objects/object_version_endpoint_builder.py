@@ -1,4 +1,7 @@
-from app.api.domains.objects.endpoints.object_version_endpoint import ObjectVersionEndpointContext, view_object_version_endpoint
+from app.api.domains.objects.endpoints.object_version_endpoint import (
+    ObjectVersionEndpointContext,
+    view_object_version_endpoint,
+)
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi

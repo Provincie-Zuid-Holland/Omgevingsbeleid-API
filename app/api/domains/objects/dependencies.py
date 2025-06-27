@@ -1,8 +1,12 @@
-from typing import Optional
+from typing import Annotated, Optional
 
-from fastapi import HTTPException, status
+from dependency_injector.wiring import Provide, inject
+from fastapi import Depends, HTTPException, status
 
+from app.api.api_container import ApiContainer
+from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.api.domains.objects.types import FilterObjectCode
+from app.core.tables.objects import ObjectStaticsTable
 
 
 def depends_filter_object_code(
@@ -21,3 +25,18 @@ def depends_filter_object_code(
         object_type=object_type,
         lineage_id=lineage_id,
     )
+
+
+@inject
+def depends_object_static_by_object_type_and_id(
+    object_type: str,
+    lineage_id: int,
+    repository: Annotated[ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])],
+):
+    maybe_static: Optional[ObjectStaticsTable] = repository.get_by_object_type_and_id(
+        object_type,
+        lineage_id,
+    )
+    if not maybe_static:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Object static niet gevonden")
+    return maybe_static

@@ -8,12 +8,12 @@ from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpo
 
 
 def configure_openapi(
-        app: FastAPI,
-        project_version: str,
-        project_name: str,
-        project_description: str,
-        openapi_logo: str,
-    ):
+    app: FastAPI,
+    project_version: str,
+    project_name: str,
+    project_description: str,
+    openapi_logo: str,
+):
     def custom_openapi():
         if app.openapi_schema:
             return app.openapi_schema
@@ -28,7 +28,7 @@ def configure_openapi(
         openapi_schema["info"]["x-logo"] = {"url": openapi_logo}
         app.openapi_schema = openapi_schema
         return app.openapi_schema
-    
+
     return custom_openapi
 
 

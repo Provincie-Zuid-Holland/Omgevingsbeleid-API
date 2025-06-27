@@ -1,4 +1,3 @@
-
 from typing import Dict, List, Tuple
 
 from app.build.services.validators.types import PydanticValidator, Validator
@@ -6,11 +5,8 @@ from app.build.services.validators.types import PydanticValidator, Validator
 
 class ValidatorProvider:
     def __init__(self, validators: List[Validator]):
-        self._validators: Dict[str, Validator] = {
-            v.get_id(): v for v in validators
-        }
+        self._validators: Dict[str, Validator] = {v.get_id(): v for v in validators}
         self._unique_counter: int = 0
-        
 
     def get(self, validator_id: str, config: dict) -> Tuple[int, PydanticValidator]:
         if validator_id not in self._validators:

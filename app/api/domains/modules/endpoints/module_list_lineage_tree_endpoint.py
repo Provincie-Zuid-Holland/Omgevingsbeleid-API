@@ -29,7 +29,6 @@ from app.core.types import Model
 
 class ModuleListLineageTreeEndpointContext(BaseEndpointContext):
     object_type: str
-    endpoint_id: str
     response_config_model: Model
     order_config: OrderConfig
     allowed_filter_columns: List[str]
@@ -77,7 +76,7 @@ async def get_module_list_lineage_tree_endpoint(
     rows_event: RetrievedModuleObjectsEvent = event_manager.dispatch(
         RetrievedModuleObjectsEvent.create(
             rows,
-            context.endpoint_id,
+            context.builder_data.endpoint_id,
             context.response_config_model,
         )
     )

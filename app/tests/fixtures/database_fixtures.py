@@ -6,7 +6,6 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.api.domains.modules.types import ModuleObjectActionFull, ModuleStatusCode, ModuleStatusCodeInternal
-from app.api.domains.objects.endpoints.types import AcknowledgedRelationSide
 from app.api.domains.users.services.security import Security
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
@@ -15,6 +14,7 @@ from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.others import AssetsTable, RelationsTable, StorageFileTable
 from app.core.tables.users import IS_ACTIVE, UsersTable
+from app.core.types import AcknowledgedRelationSide
 from app.core.utils.utils import DATE_FORMAT
 
 

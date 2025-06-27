@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-from app.api.domains.publications.services.state import State
+from app.api.domains.publications.services.state.state import State
 
 
 class Purpose(BaseModel):

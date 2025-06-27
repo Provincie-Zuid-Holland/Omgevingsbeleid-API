@@ -4,9 +4,9 @@
 #
 #    pip-compile requirements-dev.in
 #
-alembic==1.15.2
+alembic==1.16.1
     # via -r requirements-dev.in
-astroid==3.3.9
+astroid==3.3.10
     # via pylint
 asttokens==2.4.1
     # via
@@ -20,11 +20,11 @@ black==25.1.0
     # via -r requirements-dev.in
 certifi==2025.4.26
     # via requests
-charset-normalizer==3.4.1
+charset-normalizer==3.4.2
     # via requests
-click==8.1.8
+click==8.2.1
     # via black
-coverage[toml]==7.8.0
+coverage[toml]==7.8.2
     # via
     #   -r requirements-dev.in
     #   coverage-badge
@@ -43,19 +43,19 @@ executing==2.2.0
     # via
     #   devtools
     #   stack-data
-faker==37.1.0
+faker==37.3.0
     # via -r requirements-dev.in
 flake8==7.2.0
     # via -r requirements-dev.in
-freezegun==1.5.1
+freezegun==1.5.2
     # via -r requirements-dev.in
-greenlet==3.2.1
+greenlet==3.2.2
     # via sqlalchemy
 idna==3.10
     # via requests
 iniconfig==2.1.0
     # via pytest
-ipython==9.2.0
+ipython==9.3.0
     # via -r requirements-dev.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -79,7 +79,7 @@ mccabe==0.7.0
     #   pylint
 mdurl==0.1.2
     # via markdown-it-py
-mypy==1.15.0
+mypy==1.16.0
     # via
     #   -r requirements-dev.in
     #   sqlalchemy
@@ -94,16 +94,18 @@ packaging==25.0
 parso==0.8.4
     # via jedi
 pathspec==0.12.1
-    # via black
+    # via
+    #   black
+    #   mypy
 pbr==6.1.1
     # via stevedore
 pexpect==4.9.0
     # via ipython
-platformdirs==4.3.7
+platformdirs==4.3.8
     # via
     #   black
     #   pylint
-pluggy==1.5.0
+pluggy==1.6.0
     # via pytest
 prompt-toolkit==3.0.51
     # via ipython
@@ -122,17 +124,18 @@ pygments==2.19.1
     #   devtools
     #   ipython
     #   ipython-pygments-lexers
+    #   pytest
     #   rich
-pylint==3.3.6
+pylint==3.3.7
     # via -r requirements-dev.in
-pytest==8.3.5
+pytest==8.4.0
     # via
     #   -r requirements-dev.in
     #   pytest-cov
     #   pytest-mock
 pytest-cov==6.1.1
     # via -r requirements-dev.in
-pytest-mock==3.14.0
+pytest-mock==3.14.1
     # via -r requirements-dev.in
 python-dateutil==2.9.0.post0
     # via freezegun
@@ -148,7 +151,7 @@ six==1.17.0
     # via
     #   asttokens
     #   python-dateutil
-sqlalchemy[mypy]==2.0.40
+sqlalchemy[mypy]==2.0.41
     # via
     #   -r requirements-dev.in
     #   alembic
@@ -162,7 +165,7 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.13.2
+typing-extensions==4.14.0
     # via
     #   alembic
     #   mypy

@@ -23,7 +23,6 @@ class ConfiguiredFastapiEndpoint(BaseModel):
     tags: List[Union[str, Enum]] = Field(default_factory=list)
 
 
-
 class EndpointBuilder(ABC):
     @abstractmethod
     def get_id(self) -> str:
@@ -61,13 +60,10 @@ class EndpointBuilder(ABC):
         """
         partial_func = functools.partial(endpoint, context=context)
         functools.update_wrapper(partial_func, endpoint)
-        
+
         # Adjust th_overwrite_argumente signature to remove the "context" parameter.
         original_sig = inspect.signature(endpoint)
-        new_params = [
-            param for name, param in original_sig.parameters.items()
-            if name != "context"
-        ]
+        new_params = [param for name, param in original_sig.parameters.items() if name != "context"]
 
         new_sig = original_sig.replace(parameters=new_params)
         partial_func.__signature__ = new_sig
@@ -77,7 +73,7 @@ class EndpointBuilder(ABC):
     def _overwrite_argument_type(self, endpoint: Callable, name: str, value_type: Type[Any]) -> Callable:
         """
         Dynamically replaces the type annotation of a specific parameter in a function's signature.
-        
+
         For example in the endpoint we wont know which pydantic model will be used.
         In the endpoint we would then define the argument as BaseModel.
         But we would like to have the correct type in the OpenAPI documentation.

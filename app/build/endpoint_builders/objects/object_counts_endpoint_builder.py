@@ -1,4 +1,3 @@
-
 from app.api.domains.objects.endpoints import view_object_counts_endpoint
 from app.api.domains.objects.types import ObjectCountResponse
 from app.api.endpoint import EndpointContextBuilderData

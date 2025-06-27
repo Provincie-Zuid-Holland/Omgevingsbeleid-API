@@ -1,6 +1,8 @@
-
 from typing import List
-from app.api.domains.objects.endpoints import ObjectListValidLineageTreeEndpointContext, list_valid_lineage_tree_endpoint
+from app.api.domains.objects.endpoints import (
+    ObjectListValidLineageTreeEndpointContext,
+    list_valid_lineage_tree_endpoint,
+)
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import OrderConfig, PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder

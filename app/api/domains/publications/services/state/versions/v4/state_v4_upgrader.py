@@ -3,7 +3,7 @@ from typing import Dict
 
 import app.api.domains.publications.services.state.versions.v3.models as models_v3
 import app.api.domains.publications.services.state.versions.v4.models as models_v4
-from app.api.domains.publications.services.state import State
+from app.api.domains.publications.services.state.state import State
 from app.api.domains.publications.services.state.state_upgrader import StateUpgrader
 
 from ..v3 import state_v3

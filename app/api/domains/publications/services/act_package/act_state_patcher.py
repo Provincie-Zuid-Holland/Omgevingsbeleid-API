@@ -4,12 +4,12 @@ from typing import Dict, List, Optional, Set
 import dso.models as dso_models
 from dso.act_builder.builder import Builder
 
-from app.core_old.utils.utils import serialize_data
-from app.extensions.publications.models.api_input_data import ApiActInputData, Purpose
-from app.extensions.publications.services.state.versions import ActiveState
-from app.extensions.publications.services.state.versions.v4 import models
-from app.extensions.publications.services.state.versions.v4.actions import AddPublicationAction, AddPurposeAction
-from app.extensions.publications.tables.tables import PublicationTable, PublicationVersionTable
+from app.api.domains.publications.services.state.versions import ActiveState
+from app.api.domains.publications.services.state.versions.v4 import models
+from app.api.domains.publications.services.state.versions.v4.actions import AddPublicationAction, AddPurposeAction
+from app.api.domains.publications.types.api_input_data import ApiActInputData, Purpose
+from app.core.tables.publications import PublicationTable, PublicationVersionTable
+from app.core.utils.utils import serialize_data
 
 
 class ActStatePatcher:

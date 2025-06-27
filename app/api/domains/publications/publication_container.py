@@ -5,15 +5,16 @@ import app.api.domains.publications.services as services
 import app.api.domains.publications.services.act_package as act_package_services
 import app.api.domains.publications.services.announcement_package as announcement_package_services
 import app.api.domains.publications.services.assets as assets_services
+import app.api.domains.publications.services.assets as publication_asset_services
 import app.api.domains.publications.services.state as state_services
 import app.api.domains.publications.services.state.versions as state_versions
-from app.api.domains.publications.services.assets import publication_asset_provider
 
 
 class PublicationContainer(containers.DeclarativeContainer):
-    config = providers.Dependency()
+    config = providers.Configuration()
     db = providers.Dependency()
     main_config = providers.Dependency()
+    area_repository = providers.Dependency()
     area_geometry_repository = providers.Dependency()
     storage_file_repository = providers.Dependency()
     asset_repository = providers.Dependency()
@@ -73,7 +74,7 @@ class PublicationContainer(containers.DeclarativeContainer):
         main_config=main_config,
     )
     version_validator = providers.Singleton(services.PublicationVersionValidator)
-    purpose_provider = providers.Singleton(db=db)
+    purpose_provider = providers.Singleton(services.PurposeProvider, db=db)
     template_parser = providers.Singleton(services.TemplateParser)
 
     documents_provider = providers.Singleton(
@@ -82,13 +83,13 @@ class PublicationContainer(containers.DeclarativeContainer):
     )
     werkingsgebieden_provider = providers.Singleton(
         act_package_services.PublicationWerkingsgebiedenProvider,
-        area_geometry_repository=area_geometry_repository,
+        area_repository=area_repository,
     )
 
     asset_remove_transparency = providers.Singleton(assets_services.AssetRemoveTransparency)
 
-    asset_provider = providers.Singleton(
-        publication_asset_provider.PublicationAssetProvider,
+    publication_asset_provider = providers.Singleton(
+        publication_asset_services.PublicationAssetProvider,
         asset_repository=asset_repository,
         asset_remove_transparency=asset_remove_transparency,
     )
@@ -113,7 +114,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     )
     patch_act_mutation_factory = providers.Singleton(
         state_services.PatchActMutationFactory,
-        asset_provider=asset_provider,
+        asset_provider=publication_asset_provider,
     )
     api_act_input_data_patcher_factory = providers.Singleton(
         act_package_services.ApiActInputDataPatcherFactory,
@@ -126,7 +127,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     act_publication_data_provider = providers.Factory(
         act_package_services.ActPublicationDataProvider,
         publication_object_repository=object_repository,
-        publication_asset_provider=asset_provider,
+        publication_asset_provider=publication_asset_provider,
         publication_werkingsgebieden_provider=werkingsgebieden_provider,
         publication_documents_provider=documents_provider,
         publication_aoj_repository=aoj_repository,

@@ -1,1 +1,2 @@
+from .add_public_revisions_service import AddPublicRevisionsServiceFactory
 from .object_provider import ObjectProvider

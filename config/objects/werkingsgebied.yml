@@ -77,8 +77,6 @@ api:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: werkingsgebied_minimal
-            sort: *sort_default_title
     - prefix: /revisions/{module_id}/werkingsgebied/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
@@ -206,8 +204,8 @@ models:
       - user_short
       - area_basic
     services:
-      computed_fields:
-        - werkingsgebied_related_objects
+      werkingsgebied_related_objects:
+        to_field: Related_Objects
       foreign_keys_extender:
         fields_map:
           - to_field: Area

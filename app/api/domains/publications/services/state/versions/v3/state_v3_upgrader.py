@@ -4,7 +4,7 @@ from typing import Dict, Set
 
 from lxml import etree
 
-from app.api.domains.publications.services.state import State
+from app.api.domains.publications.services.state.state import State
 from app.api.domains.publications.services.state.state_upgrader import StateUpgrader
 from app.api.domains.publications.services.state.versions.v3 import models as models_v3
 
