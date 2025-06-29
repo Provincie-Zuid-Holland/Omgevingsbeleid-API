@@ -108,35 +108,33 @@ class FilenameValidator(Validator):
 
 class HtmlValidator(Validator):
     def __init__(self):
-        self._allowed_tags = set(
-            [
-                "h1",
-                "h2",
-                "h3",
-                "h4",
-                "h5",
-                "p",
-                "b",
-                "i",
-                "a",
-                "strong",
-                "li",
-                "ol",
-                "ul",
-                "img",
-                "br",
-                "u",
-                "em",
-                "span",
-                "sub",
-                "sup",
-                "table",
-                "tbody",
-                "tr",
-                "td",
-                "th",
-            ]
-        )
+        self._allowed_tags = set([
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "p",
+            "b",
+            "i",
+            "a",
+            "strong",
+            "li",
+            "ol",
+            "ul",
+            "img",
+            "br",
+            "u",
+            "em",
+            "span",
+            "sub",
+            "sup",
+            "table",
+            "tbody",
+            "tr",
+            "td",
+            "th",
+        ])
 
         # @todo: validate these
         self._allowed_attrs = set(["src", "alt", "rel", "target", "href"])

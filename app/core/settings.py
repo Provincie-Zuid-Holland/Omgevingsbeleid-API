@@ -44,10 +44,7 @@ class Settings(BaseSettings):
             return v
 
         values = info.data
-        db_connection_settings = (
-            f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};"
-            f"DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
-        )
+        db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
         encoded_settings = quote_plus(db_connection_settings)
 
         return "mssql+pyodbc:///?odbc_connect=%s" % encoded_settings

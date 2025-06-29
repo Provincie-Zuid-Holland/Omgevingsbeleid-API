@@ -150,9 +150,7 @@ class DsoAnnouncementInputDataBuilder:
 
     def _get_akn_filename(self) -> str:
         package_type: str = (self._api_input_data.Package_Type[:3]).lower()
-        filename: str = (
-            f"akn_nl_doc_{self._environment.Province_ID}-{package_type}-{self._doc_frbr.Work_Date}-{self._doc_frbr.Work_Other}-{self._doc_frbr.Expression_Version}.xml"
-        )
+        filename: str = f"akn_nl_doc_{self._environment.Province_ID}-{package_type}-{self._doc_frbr.Work_Date}-{self._doc_frbr.Work_Other}-{self._doc_frbr.Expression_Version}.xml"
         return filename
 
     def _get_kennisgeving_tekst(self) -> str:
