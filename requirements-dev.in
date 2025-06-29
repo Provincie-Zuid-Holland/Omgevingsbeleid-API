@@ -1,15 +1,7 @@
 # Development Environment
+ruff
 Faker
-pytest
-black
-mypy
-sqlalchemy[mypy]
-pylint
-flake8
 devtools
-autoflake
-freezegun
-bandit
 coverage
 coverage-badge
 pytest
@@ -20,5 +12,3 @@ freezegun
 debugpy
 ipython
 alembic
-vulture
-isort
