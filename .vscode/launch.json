@@ -2,68 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "API: Debug LAN exposed",
-            "type": "debugpy",
+            "name": "Debug",
+            "type": "python",
             "request": "launch",
             "module": "uvicorn",
             "args": [
                 "app.main:app",
+                "--reload",
                 "--host",
-                "0.0.0.0",
+                "0.0.0.0"
             ],
-            "env": {
-                "PYTHONWARNINGS": "default"
-            },
-            "jinja": true,
-            "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env"
-        },
-        {
-            "name": "API: Remote Debug",
-            "type": "debugpy",
-            "request": "attach",
-            "justMyCode": false,
-            "connect": {
-                "host": "localhost",
-                "port": 5678
-            },
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}",
-                    "remoteRoot": "/code"
-                }
-            ]
-        },
-        {
-            "name": "API: Current File",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env"
-        },
-        {
-            "name": "API: Command create-dso-json-scenario",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "cmds.py",
-            "args": [
-                "create-dso-json-scenario",
-                "--publication_version",
-                "90000006-0000-0000-0000-000000000003",
-            ],
-            "justMyCode": false,
-            "envFile": "${workspaceFolder}/.env"
-        },
-        {
-            "name": "Debug: app.cmds load-fixtures",
-            "type": "debugpy",
-            "request": "launch",
-            "module": "app.cmds",
-            "args": ["load-fixtures"],
-            "justMyCode": true,
-            "envFile": "${workspaceFolder}/.env"
-        },
+            "python": "${workspaceFolder}/.venv/bin/python"
+        }
     ]
 }

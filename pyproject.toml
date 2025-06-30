@@ -27,6 +27,10 @@ ignore = [
   "ERA",      # Allow commented-out code
   "COM812",   # Formatter conflict (trailing commas)
   "UP007",    # Prevents rewriting Optional[...] to X | None
+  "UP045",
+  "I001",
+  "PLR0913",
+  "PLR0917",
 ]
 fixable = ["ALL"]
 unfixable = []

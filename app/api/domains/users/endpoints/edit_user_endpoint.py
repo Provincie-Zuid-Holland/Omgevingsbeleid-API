@@ -61,9 +61,9 @@ async def post_edit_user_endpoint(
 
     # We handle IsActive separately as that is not really a column
     handle_is_active: Optional[bool] = changes.pop("IsActive", None)
-    if handle_is_active == True:
+    if handle_is_active:
         user.Status = IS_ACTIVE
-    elif handle_is_active == False:
+    elif handle_is_active:
         user.Status = ""
 
     for key, value in changes.items():

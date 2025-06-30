@@ -5,6 +5,22 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 
+.PHONY: prepare-env
+VENV   := .venv
+PYTHON := $(shell pyenv which python)
+
+prepare-env:
+	@echo "→ Creating virtualenv at $(VENV)/…"
+	@$(PYTHON) -m venv $(VENV)
+	@echo "→ Activating $(VENV) and upgrading pip…"
+	@. $(VENV)/bin/activate && pip install --upgrade pip
+	@echo "→ Installing runtime dependencies…"
+	@. $(VENV)/bin/activate && pip install -r requirements.txt
+	@echo "→ Installing development dependencies…"
+	@. $(VENV)/bin/activate && pip install -r requirements-dev.txt
+	@echo "✅ Environment ready! Activate with: source $(VENV)/bin/activate"
+
+
 # Commands justs for local env development
 run:
 	uvicorn app.main:app --reload
