@@ -1,18 +1,16 @@
 import uuid
-from typing import List
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
+from dependency_injector.wiring import Provide, inject
 
-from app.core_old.dependencies import depends_db
-from app.dynamic.config.models import Api, EndpointConfig
-from app.dynamic.db import ObjectsTable
-from app.dynamic.dependencies import depends_simple_pagination
-from app.dynamic.endpoints.endpoint import Endpoint, EndpointResolver
-from app.dynamic.models_resolver import ModelsResolver
-from app.dynamic.utils.pagination import PagedResponse, SimplePagination, query_paginated
+from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_simple_pagination
+from app.api.utils.pagination import PagedResponse, SimplePagination, query_paginated
+from app.core.tables.objects import ObjectsTable
 
 
 class SearchObject(BaseModel):
@@ -96,47 +94,16 @@ class EndpointHandler:
         return stmt
 
 
-class SearchEndpoint(Endpoint):
-    def __init__(self, path: str):
-        self._path: str = path
 
-    def register(self, router: APIRouter) -> APIRouter:
-        def fastapi_handler(
-            query: str,
-            db: Session = Depends(depends_db),
-            pagination: SimplePagination = Depends(depends_simple_pagination),
-        ) -> PagedResponse[SearchObject]:
-            handler: EndpointHandler = EndpointHandler(
-                db,
-                pagination,
-                query,
-            )
-            return handler.handle()
-
-        router.add_api_route(
-            self._path,
-            fastapi_handler,
-            methods=["GET"],
-            response_model=PagedResponse[SearchObject],
-            summary=f"Search for objects",
-            description=None,
-            tags=["Search"],
-        )
-
-        return router
-
-
-class SearchEndpointResolver(EndpointResolver):
-    def get_id(self) -> str:
-        return "search"
-
-    def generate_endpoint(
-        self,
-        models_resolver: ModelsResolver,
-        endpoint_config: EndpointConfig,
-        api: Api,
-    ) -> Endpoint:
-        resolver_config: dict = endpoint_config.resolver_data
-        path: str = endpoint_config.prefix + resolver_config.get("path", "")
-
-        return SearchEndpoint(path)
+@inject
+async def get_search_objects_endpoint(
+    query: str,
+    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
+) -> PagedResponse[SearchObject]:
+    handler: EndpointHandler = EndpointHandler(
+        db,
+        pagination,
+        query,
+    )
+    return handler.handle()

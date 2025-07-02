@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Annotated, List, Optional
 
-from dependency_injector.wiring import inject
 from dso.services.ow.imow_waardelijsten import TypeGebiedsaanwijzingEnum as AreaDesignationTypes
 from dso.services.ow.imow_waardelijsten import get_groep_options_for_gebiedsaanwijzing_type
 from fastapi import Depends, HTTPException, status
@@ -16,8 +15,7 @@ class AreaDesignationValueList(BaseModel):
     Allowed_Values: List[str]
 
 
-@inject
-def get_area_designation_groups_endpoint(
+async def get_area_designation_groups_endpoint(
     type: Annotated[AreaDesignationTypeEnum, Depends()],
 ) -> AreaDesignationValueList:
     enum_member: AreaDesignationTypes = AreaDesignationTypes[type.name]

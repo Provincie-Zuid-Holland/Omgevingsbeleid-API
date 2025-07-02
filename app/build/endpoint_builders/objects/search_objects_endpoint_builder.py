@@ -1,13 +1,9 @@
-
-
-
 from app.api.domains.objects.endpoints.object_latest_endpoint import (
     ObjectLatestEndpointContext,
     view_object_latest_endpoint,
 )
-from app.api.domains.others.endpoints.mssql_search_endpoint import MssqlSearchEndpointContext, get_mssql_search_endpoint
-from app.api.domains.others.endpoints.mssql_valid_search_endpoint import MssqlValidSearchEndpointContext, get_mssql_valid_search_endpoint
-from app.api.domains.others.types import SearchObject, ValidSearchConfig, ValidSearchObject
+from app.api.domains.objects.endpoints.search_objects_endpoint import get_search_objects_endpoint
+from app.api.domains.others.types import SearchObject
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
@@ -17,13 +13,9 @@ from app.core.types import Model
 
 
 
-
-
-
-
-class MssqlSearchEndpointBuilder(EndpointBuilder):
+class SearchObjectsEndpointBuilder(EndpointBuilder):
     def get_id(self) -> str:
-        return "mssql_search"
+        return "search"
 
     def build_endpoint(
         self,
@@ -32,21 +24,15 @@ class MssqlSearchEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        resolver_config: dict = endpoint_config.resolver_data
-        search_config: ValidSearchConfig = ValidSearchConfig(**resolver_config)
-
-        context = MssqlSearchEndpointContext(
-            search_config=search_config,
-            builder_data=builder_data,
-        )
-        endpoint = self._inject_context(get_mssql_search_endpoint, context)
-
         return ConfiguiredFastapiEndpoint(
             path=builder_data.path,
-            endpoint=endpoint,
-            methods=["POST"],
+            endpoint=get_search_objects_endpoint,
+            methods=["GET"],
             response_model=PagedResponse[SearchObject],
             summary=f"Search for objects",
             description=None,
             tags=["Search"],
         )
+
+
+

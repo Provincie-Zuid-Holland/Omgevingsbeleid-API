@@ -202,7 +202,7 @@ class EndpointHandler:
 
 
 @inject
-def post_create_announcement_package_endpoint(
+async def post_create_announcement_package_endpoint(
     object_in: Annotated[PublicationAnnouncementPackageCreate, Depends()],
     announcement: Annotated[PublicationAnnouncementTable, Depends(depends_publication_announcement)],
     user: Annotated[

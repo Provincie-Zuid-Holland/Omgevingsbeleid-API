@@ -30,7 +30,7 @@ class PublicationVersionCreatedResponse(BaseModel):
 
 
 @inject
-def post_create_version_endpoint(
+async def post_create_version_endpoint(
     object_in: Annotated[PublicationVersionCreate, Depends()],
     publication: Annotated[PublicationTable, Depends(depends_publication)],
     module_status_repository: Annotated[

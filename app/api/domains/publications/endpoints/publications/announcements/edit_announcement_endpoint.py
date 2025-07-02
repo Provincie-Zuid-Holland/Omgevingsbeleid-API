@@ -25,7 +25,7 @@ class PublicationAnnouncementEdit(BaseModel):
 
 
 @inject
-def post_edit_announcement_endpoint(
+async def post_edit_announcement_endpoint(
     object_in: Annotated[PublicationAnnouncementEdit, Depends()],
     user: Annotated[
         UsersTable,

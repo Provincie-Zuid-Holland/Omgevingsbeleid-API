@@ -256,7 +256,7 @@ class EndpointHandler:
 
 
 @inject
-def post_upload_announcement_package_report_endpoint(
+async def post_upload_announcement_package_report_endpoint(
     announcement_package: Annotated[
         PublicationAnnouncementPackageTable, Depends(depends_publication_announcement_package)
     ],

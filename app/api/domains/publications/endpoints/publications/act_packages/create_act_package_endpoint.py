@@ -263,7 +263,7 @@ class EndpointHandler:
 
 
 @inject
-def post_create_act_package_endpoint(
+async def post_create_act_package_endpoint(
     object_in: Annotated[PublicationPackageCreate, Depends()],
     publication_version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     publication_version_validator: Annotated[

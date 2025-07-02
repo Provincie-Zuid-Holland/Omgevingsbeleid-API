@@ -2,13 +2,13 @@ import uuid
 from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, Optional
 
-from dependency_injector.wiring import Provide
+from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.domains.publications.dependencies import depends_publication, depends_publication_template
+from app.api.domains.publications.dependencies import depends_publication
 from app.api.domains.publications.repository.publication_template_repository import PublicationTemplateRepository
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
@@ -22,7 +22,8 @@ class PublicationEdit(BaseModel):
     Title: Optional[str] = None
 
 
-def post_edit_publication_endpoint(
+@inject
+async def post_edit_publication_endpoint(
     object_in: Annotated[PublicationEdit, Depends()],
     user: Annotated[
         UsersTable,
@@ -33,7 +34,7 @@ def post_edit_publication_endpoint(
         ),
     ],
     publication: Annotated[PublicationTable, Depends(depends_publication)],
-    template_repository: Annotated[PublicationTemplateRepository, Depends(depends_publication_template)],
+    template_repository: Annotated[PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],
 ) -> ResponseOK:
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)

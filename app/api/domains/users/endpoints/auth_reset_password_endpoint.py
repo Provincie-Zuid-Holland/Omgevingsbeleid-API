@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from dependency_injector.wiring import Provide
+from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 
@@ -17,7 +17,8 @@ class PasswordUpdate(BaseModel):
     new_password: str
 
 
-def post_auth_reset_password_endpoint(
+@inject
+async def post_auth_reset_password_endpoint(
     password_in: Annotated[PasswordUpdate, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],

@@ -47,7 +47,6 @@ def depends_optional_current_user(
         return None
 
 
-@inject
 def depends_current_user_with_permission_curried(
     required_permission: str,
 ) -> Callable:

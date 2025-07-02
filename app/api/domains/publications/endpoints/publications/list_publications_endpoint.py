@@ -15,7 +15,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_list_publications_endpoint(
+async def get_list_publications_endpoint(
     document_type: Annotated[Optional[DocumentType], None],
     module_id: Annotated[Optional[int], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],

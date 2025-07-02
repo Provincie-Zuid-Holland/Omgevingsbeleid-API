@@ -30,7 +30,7 @@ class ActCreatedResponse(BaseModel):
 
 
 @inject
-def post_create_act_endpoint(
+async def post_create_act_endpoint(
     object_in: Annotated[ActCreate, Depends()],
     environment_repository: Annotated[
         PublicationEnvironmentRepository, Depends(Provide[ApiContainer.publication.environment_repository])

@@ -40,7 +40,7 @@ class PublicationCreatedResponse(BaseModel):
 
 
 @inject
-def post_create_publication(
+async def post_create_publication(
     object_in: Annotated[PublicationCreate, Depends()],
     user: Annotated[
         UsersTable,

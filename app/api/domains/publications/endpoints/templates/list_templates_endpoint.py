@@ -15,7 +15,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_list_templates_endpoint(
+async def get_list_templates_endpoint(
     is_active: Annotated[Optional[bool], None],
     document_type: Annotated[Optional[DocumentType], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],

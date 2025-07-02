@@ -25,7 +25,7 @@ class AOJCreatedResponse(BaseModel):
 
 
 @inject
-def post_create_aoj_endpoint(
+async def post_create_aoj_endpoint(
     object_in: Annotated[AOJCreate, Depends()],
     user: Annotated[
         UsersTable,

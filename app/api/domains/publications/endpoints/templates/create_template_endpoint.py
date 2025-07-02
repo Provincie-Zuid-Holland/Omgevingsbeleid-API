@@ -30,7 +30,7 @@ class TemplateCreatedResponse(BaseModel):
 
 
 @inject
-def post_create_template_endpoint(
+async def post_create_template_endpoint(
     object_in: Annotated[TemplateCreate, Depends()],
     user: Annotated[
         UsersTable,

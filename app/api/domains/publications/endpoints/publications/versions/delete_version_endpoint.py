@@ -15,7 +15,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def post_delete_version_endpoint(
+async def post_delete_version_endpoint(
     user: Annotated[
         UsersTable,
         Depends(

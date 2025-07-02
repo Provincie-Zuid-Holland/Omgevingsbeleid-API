@@ -1,6 +1,5 @@
 from typing import Annotated, List
 
-from dependency_injector.wiring import inject
 from dso.services.ow.imow_waardelijsten import NON_ALLOWED_DOCUMENT_TYPE_MAPPING
 from dso.services.ow.imow_waardelijsten import TypeGebiedsaanwijzingEnum as AreaDesignationTypes
 from fastapi import Depends
@@ -13,8 +12,7 @@ class AreaDesignationValueList(BaseModel):
     Allowed_Values: List[str]
 
 
-@inject
-def get_area_designation_types_endpoint(
+async def get_area_designation_types_endpoint(
     document_type: Annotated[DocumentType, Depends()],
 ) -> AreaDesignationValueList:
     non_allowed: List[AreaDesignationTypes] = NON_ALLOWED_DOCUMENT_TYPE_MAPPING.get(document_type, [])

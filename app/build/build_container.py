@@ -103,6 +103,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_objects.AcknowledgedRelationRequestEndpointBuilder),
             providers.Factory(endpoint_builders_objects.RelationsListEndpointBuilder),
             providers.Factory(endpoint_builders_objects.RelationsOverwriteEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.SearchObjectsEndpointBuilder),
             # Publications domain
             #   Acts
             providers.Factory(endpoint_builders_publications.acts.ClosePublicationActEndpointBuilder),
@@ -246,6 +247,7 @@ class BuildContainer(containers.DeclarativeContainer):
             # Werkingsgebieden domain
             providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByAreasEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByGeometryEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.ListWerkingsgebiedenEndpointBuilder),
             # Others
             providers.Factory(endpoint_builders_others.ListStorageFilesEndpointBuilder),
             providers.Factory(endpoint_builders_others.StorageFileUploadFileEndpointBuilder),

@@ -206,7 +206,6 @@ def depends_publication_act(
     return maybe_act
 
 
-@inject
 def depends_publication_act_active(
     act: Annotated[PublicationActTable, Depends(depends_publication_act)],
 ) -> PublicationActTable:

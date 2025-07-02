@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime
 from typing import Annotated, Optional
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel, ConfigDict
 
@@ -33,7 +32,6 @@ class ModuleObjectContext(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-@inject
 async def get_module_get_object_context_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
     object_context: Annotated[ModuleObjectContextTable, Depends(depends_active_module_object_context)],

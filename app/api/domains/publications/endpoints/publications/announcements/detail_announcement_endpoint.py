@@ -1,6 +1,5 @@
 from typing import Annotated
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 
 from app.api.domains.publications.dependencies import depends_publication_announcement
@@ -11,8 +10,7 @@ from app.core.tables.publications import PublicationAnnouncementTable
 from app.core.tables.users import UsersTable
 
 
-@inject
-def get_detail_announcement_endpoint(
+async def get_detail_announcement_endpoint(
     announcement: Annotated[PublicationAnnouncementTable, Depends(depends_publication_announcement)],
     user: Annotated[
         UsersTable,

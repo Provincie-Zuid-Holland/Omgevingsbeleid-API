@@ -17,7 +17,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_list_announcements_endpoint(
+async def get_list_announcements_endpoint(
     act_package_uuid: Annotated[Optional[uuid.UUID], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     repository: Annotated[

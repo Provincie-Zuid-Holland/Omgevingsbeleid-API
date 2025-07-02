@@ -3,3 +3,4 @@ from .list_objects_by_geometry_endpoint import (
     ListObjectByGeometryEndpointContext,
     get_list_objects_by_geometry_endpoint,
 )
+from .list_werkingsgebieden_endpoint import get_list_werkingsgebieden_endpoint

@@ -1,6 +1,5 @@
 from typing import Annotated
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, Response
 from lxml import etree
 
@@ -11,8 +10,7 @@ from app.core.tables.publications import PublicationAnnouncementPackageReportTab
 from app.core.tables.users import UsersTable
 
 
-@inject
-def get_download_announcement_package_report_endpoint(
+async def get_download_announcement_package_report_endpoint(
     report: Annotated[PublicationAnnouncementPackageReportTable, Depends(depends_publication_announcement_report)],
     user: Annotated[
         UsersTable,

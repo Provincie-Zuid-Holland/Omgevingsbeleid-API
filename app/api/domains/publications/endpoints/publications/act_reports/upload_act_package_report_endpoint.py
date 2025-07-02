@@ -272,7 +272,7 @@ class EndpointHandler:
 
 
 @inject
-def post_upload_act_package_report_endpoint(
+async def post_upload_act_package_report_endpoint(
     act_package: Annotated[PublicationActPackageTable, Depends(depends_publication_act_package)],
     uploaded_files: Annotated[List[UploadFile], Depends()],
     user: Annotated[

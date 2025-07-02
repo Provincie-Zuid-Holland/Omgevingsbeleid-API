@@ -14,7 +14,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_list_environments_endpoint(
+async def get_list_environments_endpoint(
     is_active: Annotated[Optional[bool], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     user: Annotated[

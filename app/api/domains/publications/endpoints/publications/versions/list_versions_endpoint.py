@@ -15,7 +15,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_list_versions_endpoint(
+async def get_list_versions_endpoint(
     publication_uuid: Annotated[Optional[uuid.UUID], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     version_repository: Annotated[

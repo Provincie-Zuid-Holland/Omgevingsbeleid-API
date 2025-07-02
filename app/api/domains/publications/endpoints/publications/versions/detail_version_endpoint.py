@@ -14,7 +14,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_detail_version_endpoint(
+async def get_detail_version_endpoint(
     user: Annotated[
         UsersTable,
         Depends(

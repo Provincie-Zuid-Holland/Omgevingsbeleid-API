@@ -1,6 +1,6 @@
 from typing import Annotated, Optional
 
-from dependency_injector.wiring import Provide
+from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -11,7 +11,8 @@ from app.api.domains.users.user_repository import UserRepository
 from app.core.tables.users import UsersTable
 
 
-def post_auth_login_access_token_endpoint(
+@inject
+async def post_auth_login_access_token_endpoint(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],

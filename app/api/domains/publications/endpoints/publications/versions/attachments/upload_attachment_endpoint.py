@@ -38,7 +38,7 @@ class FileData(BaseModel):
 
 
 @inject
-def post_upload_attachment_endpoint(
+async def post_upload_attachment_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     user: Annotated[
         UsersTable,

@@ -22,7 +22,7 @@ class ActEdit(BaseModel):
 
 
 @inject
-def post_edit_act_endpoint(
+async def post_edit_act_endpoint(
     object_in: Annotated[ActEdit, Depends()],
     user: Annotated[
         UsersTable,

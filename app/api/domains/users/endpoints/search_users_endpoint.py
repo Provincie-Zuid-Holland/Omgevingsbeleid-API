@@ -1,6 +1,6 @@
 from typing import Annotated, List, Optional
 
-from dependency_injector.wiring import Provide
+from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 
 from app.api.api_container import ApiContainer
@@ -17,7 +17,8 @@ class SearchUsersEndpointContext(BaseEndpointContext):
     order_config: OrderConfig
 
 
-def get_search_users_endpoint(
+@inject
+async def get_search_users_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
