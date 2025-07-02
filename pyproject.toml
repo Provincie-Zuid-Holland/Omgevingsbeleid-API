@@ -2,7 +2,6 @@
 line-length = 120
 target-version = "py313"
 src = ["app"]
-ignore = ["B009", "N802"]
 exclude = [
   "__old",
   "alembic",
@@ -33,6 +32,7 @@ ignore = [
   "PLR0913",
   "PLR0917",
   "SIM300",   # Disable “yoda-conditions” (swapping == operands)
+  "B009",     # So getattr isn’t rewritten
 ]
 fixable = ["ALL"]
 unfixable = []
