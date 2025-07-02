@@ -2,6 +2,7 @@
 line-length = 120
 target-version = "py313"
 src = ["app"]
+ignore = ["B009"]
 exclude = [
   "__old",
   "alembic",
@@ -36,5 +37,5 @@ fixable = ["ALL"]
 unfixable = []
 
 [tool.ruff.lint.per-file-ignores]
-"app/extensions/mssql_search/endpoints/search.py" = ["S608"]
-"app/extensions/mssql_search/endpoints/valid_search.py" = ["S608"]
+"app/api/domains/others/endpoints/mssql_search_endpoint.py" = ["S608"]
+"app/api/domains/others/endpoints/mssql_valid_search_endpoint.py" = ["S608"]
