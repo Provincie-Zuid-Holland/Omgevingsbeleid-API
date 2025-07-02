@@ -32,6 +32,7 @@ ignore = [
   "I001",
   "PLR0913",
   "PLR0917",
+  "SIM300",   # Disable “yoda-conditions” (swapping == operands)
 ]
 fixable = ["ALL"]
 unfixable = []
