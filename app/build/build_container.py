@@ -249,6 +249,10 @@ class BuildContainer(containers.DeclarativeContainer):
             # Others
             providers.Factory(endpoint_builders_others.ListStorageFilesEndpointBuilder),
             providers.Factory(endpoint_builders_others.StorageFileUploadFileEndpointBuilder),
+            providers.Factory(endpoint_builders_others.FullGraphEndpointBuilder),
+            providers.Factory(endpoint_builders_others.ObjectGraphEndpointBuilder),
+            providers.Factory(endpoint_builders_others.MssqlSearchEndpointBuilder),
+            providers.Factory(endpoint_builders_others.MssqlValidSearchEndpointBuilder),
             # fmt: on
         ),
     )

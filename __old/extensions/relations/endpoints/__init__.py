@@ -1,2 +1,0 @@
-from .list_relations import ListRelationsEndpointResolver
-from .overwrite_relations import OverwriteRelationsEndpointResolver

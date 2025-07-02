@@ -34,7 +34,7 @@ click==8.2.1
     #   -r requirements.in
     #   dso
     #   uvicorn
-dependency-injector[mypy]==4.48.1
+dependency-injector==4.48.1
     # via -r requirements.in
 dicttoxml==1.7.16
     # via -r requirements.in
@@ -99,7 +99,7 @@ pathspec==0.12.1
     # via dso
 pdfkit==1.0.0
     # via -r requirements.in
-pillow==11.2.1
+pillow==11.3.0
     # via -r requirements.in
 platformdirs==4.3.8
     # via dso

@@ -19,5 +19,7 @@ api_builder: ApiBuilder = build_container.api_builder()
 routes = api_builder.build()
 
 fastapi_builder: FastAPIBuilder = FastAPIBuilder()
+
+# @todo
 print(Settings().SQLALCHEMY_DATABASE_URI)
 app: FastAPI = fastapi_builder.build(api_container, routes)

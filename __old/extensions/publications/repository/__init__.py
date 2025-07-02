@@ -1,3 +1,0 @@
-from .publication_object_repository import PublicationObjectRepository
-from .publication_repository import PublicationRepository
-from .publication_template_repository import PublicationTemplateRepository

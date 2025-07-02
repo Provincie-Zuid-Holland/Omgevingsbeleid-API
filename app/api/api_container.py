@@ -136,6 +136,12 @@ class ApiContainer(containers.DeclarativeContainer):
         object_services.AddWerkingsgebiedRelatedObjectsServiceFactory,
         db=db,
     )
+    area_processor_service_factory = providers.Singleton(
+        werkingsgebied_services.AreaProcessorServiceFactory,
+        source_geometry_repository=geometry_repository,
+        area_repository=area_repository,
+        area_geometry_repository=area_geometry_repository,
+    )
 
     object_provider = providers.Factory(
         module_services.ObjectProvider,
@@ -196,6 +202,10 @@ class ApiContainer(containers.DeclarativeContainer):
                 event_listeners.GetImagesForModuleListener,
                 service_factory=image_inserter_factory,
             ),
+            providers.Factory(
+                event_listeners.AddRelationsToModuleObjectsListener,
+                service_factory=add_relations_service_factory,
+            ),
             # BeforeSelectExecutionEvent
             providers.Factory(event_listeners.OptimizeSelectQueryListener),
             # ModuleObjectPatchedEvent
@@ -206,6 +216,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.ExtractHtmlImagesListener,
                 extractor_factory=html_images_extractor_factory,
+            ),
+            providers.Factory(
+                event_listeners.ChangeAreaListener,
+                service_factory=area_processor_service_factory,
             ),
         ),
     )

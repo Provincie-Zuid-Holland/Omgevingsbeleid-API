@@ -44,3 +44,15 @@ class GeoSearchResult(BaseModel):
 class SearchResultWrapper(BaseModel):
     Total: int = 0
     Results: List[GeoSearchResult] = Field(default_factory=list)
+
+
+class Werkingsgebied(BaseModel):
+    ID: Optional[int] = None
+    UUID: uuid.UUID
+    Created_Date: datetime
+    Modified_Date: datetime
+    Title: str
+    Start_Validity: Optional[datetime] = Field(None)
+    End_Validity: Optional[datetime] = Field(None)
+    Geometry_Hash: Optional[str] = Field(None)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)

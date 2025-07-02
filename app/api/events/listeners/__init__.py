@@ -14,6 +14,7 @@ from .images import (
 from .retrieved_module_objects_event_listeners import (
     GetColumnImagesForModuleObjectListener,
     JoinWerkingsgebiedToModuleObjectsListener,
+    AddRelationsToModuleObjectsListener,
 )
 from .retrieved_objects_event_listeners import (
     AddNextObjectVersionToObjectsListener,
@@ -23,3 +24,4 @@ from .retrieved_objects_event_listeners import (
     GetColumnImagesForObjectListener,
     JoinWerkingsgebiedenToObjectsListener,
 )
+from .module_object_patched_event_listeners import ChangeAreaListener

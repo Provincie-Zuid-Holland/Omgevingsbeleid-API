@@ -1,5 +1,9 @@
 # Development Environment
+python-lsp-ruff
+python-lsp-server
+python-lsp-server[rope]
 ruff
+
 Faker
 devtools
 coverage
