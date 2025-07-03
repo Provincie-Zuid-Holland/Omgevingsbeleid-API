@@ -1,42 +1,16 @@
-[tool.ruff]
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 120
+
+[tool.black]
 line-length = 120
-target-version = "py313"
-src = ["app"]
-exclude = [
-  "__old",
-  "alembic",
-  "**/node_modules",
-  "**/__pycache__",
-  "docker",
-  ".venv",
-  "*.venv",
-  "app/tests",
-  ".pytest_cache",
-]
 
-[tool.ruff.format]
-quote-style = "double"
-preview = true
+[tool.pytest.ini_options]
+norecursedirs = "*venv* *.venv* *.pytest_cache*"
+testpaths = "app/tests"
 
-[tool.ruff.lint]
-select = ["ALL"]
-ignore = [
-  "D",        # Ignore docstring style
-  "PGH",      # Ignore pygrep-hooks (e.g. noqa w/o explanation)
-  "T20",      # Allow print statements
-  "ERA",      # Allow commented-out code
-  "COM812",   # Formatter conflict (trailing commas)
-  "UP007",    # Prevents rewriting Optional[...] to X | None
-  "UP045",
-  "I001",
-  "PLR0913",
-  "PLR0917",
-  "SIM300",   # Disable “yoda-conditions” (swapping == operands)
-  "B009",     # So getattr isn’t rewritten
-]
-fixable = ["ALL"]
-unfixable = []
-
-[tool.ruff.lint.per-file-ignores]
-"app/api/domains/others/endpoints/mssql_search_endpoint.py" = ["S608"]
-"app/api/domains/others/endpoints/mssql_valid_search_endpoint.py" = ["S608"]
+[tool.mypy]
+files = ["app"]

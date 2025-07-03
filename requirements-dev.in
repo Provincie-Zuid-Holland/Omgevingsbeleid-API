@@ -1,8 +1,14 @@
 # Development Environment
-python-lsp-ruff
-python-lsp-server
-python-lsp-server[rope]
-ruff
+pytest
+black
+mypy
+sqlalchemy[mypy]
+pylint
+flake8
+autoflake
+freezegun
+bandit
+isort
 
 Faker
 devtools

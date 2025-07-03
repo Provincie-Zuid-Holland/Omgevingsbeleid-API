@@ -1,0 +1,34 @@
+{
+  "include": [
+    "app",
+	"main.py",
+	"cmds.py",
+	"run.py",
+  ],
+  
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "docker",
+  ],
+
+  "defineConstant": {
+    "DEBUG": true
+  },
+
+  "venvPath": ".",
+  "venv": ".venv",
+
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+
+  "pythonVersion": "3.13",
+  "pythonPlatform": "Linux",
+
+  "executionEnvironments": [
+    {
+      "pythonVersion": "3.13",
+      "pythonPlatform": "Linux",
+    },
+  ]
+}
