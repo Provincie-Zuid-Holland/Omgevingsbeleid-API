@@ -34,7 +34,9 @@ async def post_edit_publication_endpoint(
         ),
     ],
     publication: Annotated[PublicationTable, Depends(depends_publication)],
-    template_repository: Annotated[PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])],
+    template_repository: Annotated[
+        PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])
+    ],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],
 ) -> ResponseOK:
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)

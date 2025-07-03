@@ -1,9 +1,8 @@
 from datetime import datetime, timezone
 from typing import Annotated, List, Set
 
-
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.orm import Session, aliased, load_only

@@ -1,10 +1,12 @@
-
-
 from typing import List, Optional, Set
-from app.api.domains.werkingsgebieden.services.change_area_processor import AreaProcessorService, AreaProcessorConfig, AreaProcessorServiceFactory
+
+from app.api.domains.werkingsgebieden.services.change_area_processor import (
+    AreaProcessorConfig,
+    AreaProcessorService,
+    AreaProcessorServiceFactory,
+)
 from app.api.events.module_object_patched_event import ModuleObjectPatchedEvent
 from app.core.services.event.types import Listener
-from app.core.tables.modules import ModuleObjectsTable
 from app.core.types import DynamicObjectModel, Model
 
 
@@ -41,7 +43,7 @@ class ChangeAreaListener(Listener[ModuleObjectPatchedEvent]):
             fields.append(field)
         if not fields:
             return None
-        
+
         changed_fields: Set[str] = set(event.context.changes.keys())
         interested_fields: Set[str] = set.intersection(fields, changed_fields)
         if not interested_fields:

@@ -1,20 +1,9 @@
 import uuid
 from datetime import datetime
-
-from pydantic import BaseModel, ConfigDict
-
-
-import uuid
 from enum import Enum
-from typing import List
-
-from pydantic import BaseModel, ConfigDict, field_validator
-
-import uuid
 from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-
 
 
 class StorageFileBasic(BaseModel):
@@ -27,7 +16,6 @@ class StorageFileBasic(BaseModel):
     Created_By_UUID: uuid.UUID
 
     model_config = ConfigDict(from_attributes=True)
-
 
 
 class GraphEdgeType(str, Enum):
@@ -67,8 +55,6 @@ class GraphVertice(BaseModel):
 class GraphResponse(BaseModel):
     Vertices: List[GraphVertice]
     Edges: List[GraphEdge]
-
-
 
 
 class ValidSearchConfig(BaseModel):

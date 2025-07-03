@@ -1,16 +1,16 @@
-import asyncio
 import os
 from typing import Annotated
 from uuid import UUID
 
-from dependency_injector.wiring import Provide, inject
 import click
+from dependency_injector.wiring import Provide, inject
+from dso.act_builder.state_manager.input_data.input_data_loader import InputData, InputDataExporter
+
 from app.api.api_container import ApiContainer
 from app.api.domains.publications.repository.publication_version_repository import PublicationVersionRepository
 from app.api.domains.publications.services.act_package.act_package_builder import ActPackageBuilder
 from app.api.domains.publications.services.act_package.act_package_builder_factory import ActPackageBuilderFactory
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType
-from dso.act_builder.state_manager.input_data.input_data_loader import InputData, InputDataExporter
 
 
 @click.command()
@@ -21,8 +21,12 @@ from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 def create_dso_json_scenario(
     publication_version,
     mutation_strategy,
-    publication_version_repository: Annotated[PublicationVersionRepository, Provide[ApiContainer.publication.version_repository]],
-    act_package_builder_factory: Annotated[ActPackageBuilderFactory, Provide[ApiContainer.publication.act_package_builder_factory]],
+    publication_version_repository: Annotated[
+        PublicationVersionRepository, Provide[ApiContainer.publication.version_repository]
+    ],
+    act_package_builder_factory: Annotated[
+        ActPackageBuilderFactory, Provide[ApiContainer.publication.act_package_builder_factory]
+    ],
 ) -> None:
     if not publication_version:
         publication_version = click.prompt("Please enter the publication_version UUID:", type=str)

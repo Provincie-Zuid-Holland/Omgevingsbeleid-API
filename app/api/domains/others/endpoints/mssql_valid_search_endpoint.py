@@ -2,10 +2,10 @@ import json
 from typing import Annotated, List, Optional
 
 from bs4 import BeautifulSoup
-from fastapi import APIRouter, Depends
+from dependency_injector.wiring import Provide, inject
+from fastapi import Depends
 from sqlalchemy import TextClause, text
 from sqlalchemy.orm import Session
-from dependency_injector.wiring import Provide, inject
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_simple_pagination
@@ -163,12 +163,8 @@ class EndpointHandler:
         return stmt
 
 
-
-
-
 class MssqlValidSearchEndpointContext(BaseEndpointContext):
     search_config: ValidSearchConfig
-
 
 
 @inject

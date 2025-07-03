@@ -148,7 +148,9 @@ class DsoActInputDataBuilder:
 
     def _get_akn_filename(self) -> str:
         package_type: str = (self._package_type[:3]).lower()
-        filename: str = f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
+        filename: str = (
+            f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
+        )
         return filename
 
     def _get_besluit(self) -> Besluit:
@@ -466,12 +468,14 @@ class DsoActInputDataBuilder:
         if self._act_mutation is None:
             return "nieuweregeling"
 
-        key: str = "_".join([
-            str(self._act_frbr.Work_Province_ID),
-            str(self._act_frbr.Work_Other),
-            str(self._act_frbr.Expression_Version),
-            str(self._act_mutation.Consolidated_Act_Frbr.Expression_Version),
-        ]).replace("-", "_")
+        key: str = "_".join(
+            [
+                str(self._act_frbr.Work_Province_ID),
+                str(self._act_frbr.Work_Other),
+                str(self._act_frbr.Expression_Version),
+                str(self._act_mutation.Consolidated_Act_Frbr.Expression_Version),
+            ]
+        ).replace("-", "_")
         return key
 
     def _get_ow_data(self) -> dso_models.OwData:

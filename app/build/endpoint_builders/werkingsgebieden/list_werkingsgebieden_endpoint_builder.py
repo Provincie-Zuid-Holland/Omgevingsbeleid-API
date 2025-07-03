@@ -1,7 +1,3 @@
-from app.api.domains.objects.endpoints.object_latest_endpoint import (
-    ObjectLatestEndpointContext,
-    view_object_latest_endpoint,
-)
 from app.api.domains.werkingsgebieden.endpoints.list_werkingsgebieden_endpoint import ListWerkingsgebiedenEndpointContext, get_list_werkingsgebieden_endpoint
 from app.api.domains.werkingsgebieden.types import Werkingsgebied
 from app.api.endpoint import EndpointContextBuilderData
@@ -9,7 +5,6 @@ from app.api.utils.pagination import OrderConfig, PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
-from app.core.types import Model
 
 
 

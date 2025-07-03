@@ -1,15 +1,11 @@
 from typing import Annotated, Set
 
 import click
+from dependency_injector.wiring import Provide, inject
 from sqlalchemy import DDL, inspect, text
 from sqlalchemy.orm import Session
-from dependency_injector.wiring import Provide, inject
-
-
-from typing import Set
 
 from app.api.api_container import ApiContainer
-
 
 stopwords: Set[str] = set(
     [
@@ -166,11 +162,7 @@ def mssql_setup_search_database(
     click.echo(mssql_search_stoplist_name)
 
     # Create stoplist
-    result = db.execute(
-        text(
-            f"SELECT name FROM sys.fulltext_stoplists WHERE name = '{mssql_search_stoplist_name}';"
-        )
-    )
+    result = db.execute(text(f"SELECT name FROM sys.fulltext_stoplists WHERE name = '{mssql_search_stoplist_name}';"))
     exists = bool(result.all())
     if not exists:
         print("Create fulltext stoplist")
@@ -195,25 +187,15 @@ def mssql_setup_search_database(
     # Add new words to stoplist
     words_to_add: Set[str] = set.difference(stopwords, words_in_stoplist)
     for word in words_to_add:
-        db.execute(
-            DDL(
-                f"ALTER FULLTEXT STOPLIST {mssql_search_stoplist_name} ADD '{word}' LANGUAGE 1043;"
-            )
-        )
+        db.execute(DDL(f"ALTER FULLTEXT STOPLIST {mssql_search_stoplist_name} ADD '{word}' LANGUAGE 1043;"))
 
     # Remove words that no longer exist
     words_to_remove: Set[str] = set.difference(words_in_stoplist, stopwords)
     for word in words_to_remove:
-        db.execute(
-            DDL(
-                f"ALTER FULLTEXT STOPLIST {mssql_search_stoplist_name} DROP '{word}' LANGUAGE 1043;"
-            )
-        )
+        db.execute(DDL(f"ALTER FULLTEXT STOPLIST {mssql_search_stoplist_name} DROP '{word}' LANGUAGE 1043;"))
 
     # Create the catalog
-    result = db.execute(
-        text(f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{mssql_search_ftc_name}';")
-    )
+    result = db.execute(text(f"SELECT name FROM sys.fulltext_catalogs WHERE name = '{mssql_search_ftc_name}';"))
     exists = bool(result.all())
     if not exists:
         print("Create fulltext catalog")
@@ -221,9 +203,7 @@ def mssql_setup_search_database(
 
     for search_config in main_config.get("mssql_search", []):
         table_name = search_config.get("table_name")
-        columns = search_config.get("searchable_columns_low", []) + search_config.get(
-            "searchable_columns_high", []
-        )
+        columns = search_config.get("searchable_columns_low", []) + search_config.get("searchable_columns_high", [])
         _reset_fulltext_index(
             db,
             mssql_search_ftc_name,

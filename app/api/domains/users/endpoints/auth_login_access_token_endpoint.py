@@ -26,9 +26,11 @@ async def post_auth_login_access_token_endpoint(
     access_token: str = security.create_access_token(user.UUID)
     user_login_detail: UserLoginDetail = UserLoginDetail.model_validate(user)
 
-    response: AuthToken = AuthToken.model_validate({
-        "access_token": access_token,
-        "token_type": "bearer",
-        "identifier": user_login_detail,
-    })
+    response: AuthToken = AuthToken.model_validate(
+        {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "identifier": user_login_detail,
+        }
+    )
     return response

@@ -44,11 +44,13 @@ class PurposeProvider:
         act_frbr: ActFrbr,
         purpose_type: PurposeType,
     ) -> Purpose:
-        work_other: str = "-".join([
-            TYPE_MAP[purpose_type],
-            act_frbr.Work_Other.lower(),
-            str(act_frbr.Expression_Version),
-        ])
+        work_other: str = "-".join(
+            [
+                TYPE_MAP[purpose_type],
+                act_frbr.Work_Other.lower(),
+                str(act_frbr.Expression_Version),
+            ]
+        )
         result: Purpose = self._create(publication_version, purpose_type, work_other)
         return result
 

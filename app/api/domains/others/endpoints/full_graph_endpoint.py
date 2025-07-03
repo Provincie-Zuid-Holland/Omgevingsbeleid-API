@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 from typing import Annotated, List
 
-from dependency_injector.wiring import inject, Provide
-from fastapi import APIRouter, Depends
+from dependency_injector.wiring import Provide, inject
+from fastapi import Depends
 from sqlalchemy import desc, func, or_, select
 from sqlalchemy.orm import Session, aliased, load_only
 

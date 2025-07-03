@@ -1,7 +1,7 @@
-from typing import Annotated, Optional
 import uuid
+from typing import Annotated, Optional
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import Provide
 from fastapi import Depends, HTTPException, status
 
 from app.api.api_container import ApiContainer

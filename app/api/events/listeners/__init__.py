@@ -11,10 +11,11 @@ from .images import (
     StoreImagesExtractorFactory,
     StoreImagesListener,
 )
+from .module_object_patched_event_listeners import ChangeAreaListener
 from .retrieved_module_objects_event_listeners import (
+    AddRelationsToModuleObjectsListener,
     GetColumnImagesForModuleObjectListener,
     JoinWerkingsgebiedToModuleObjectsListener,
-    AddRelationsToModuleObjectsListener,
 )
 from .retrieved_objects_event_listeners import (
     AddNextObjectVersionToObjectsListener,
@@ -24,4 +25,3 @@ from .retrieved_objects_event_listeners import (
     GetColumnImagesForObjectListener,
     JoinWerkingsgebiedenToObjectsListener,
 )
-from .module_object_patched_event_listeners import ChangeAreaListener

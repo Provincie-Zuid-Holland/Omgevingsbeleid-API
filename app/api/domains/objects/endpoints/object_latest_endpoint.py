@@ -44,4 +44,3 @@ async def view_object_latest_endpoint(
     result = event.payload.rows[0]
 
     return result
-

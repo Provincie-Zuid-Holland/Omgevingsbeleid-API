@@ -1,8 +1,7 @@
 import uuid
-from typing import List, Optional, Set
+from typing import Optional, Set
 
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
 
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
@@ -31,10 +30,12 @@ class AreaProcessorService:
     def process(self, old_recold: ModuleObjectsTable, new_record: ModuleObjectsTable) -> ModuleObjectsTable:
         for field_key in self._config.fields:
             new_record = self._process_field(old_recold, new_record, field_key)
-        
+
         return new_record
 
-    def _process_field(self, old_recold: ModuleObjectsTable, new_record: ModuleObjectsTable, field_key: str) -> ModuleObjectsTable:
+    def _process_field(
+        self, old_recold: ModuleObjectsTable, new_record: ModuleObjectsTable, field_key: str
+    ) -> ModuleObjectsTable:
         old_field_value = getattr(old_recold, field_key)
         new_field_value = getattr(new_record, field_key)
 
@@ -93,7 +94,7 @@ class AreaProcessorService:
 
 class AreaProcessorServiceFactory:
     def __init__(
-        self, 
+        self,
         source_geometry_repository: GeometryRepository,
         area_repository: AreaRepository,
         area_geometry_repository: AreaGeometryRepository,

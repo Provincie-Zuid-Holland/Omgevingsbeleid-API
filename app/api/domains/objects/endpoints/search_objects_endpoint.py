@@ -1,11 +1,11 @@
 import uuid
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends
+from dependency_injector.wiring import Provide, inject
+from fastapi import Depends
 from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
-from dependency_injector.wiring import Provide, inject
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_simple_pagination
@@ -92,7 +92,6 @@ class EndpointHandler:
             .order_by(desc(ObjectsTable.Modified_Date))
         )
         return stmt
-
 
 
 @inject
