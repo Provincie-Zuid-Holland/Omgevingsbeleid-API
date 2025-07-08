@@ -14,7 +14,7 @@ from app.api.domains.objects.services.add_next_object_version_service import (
     AddNextObjectVersionService,
     AddNextObjectVersionServiceFactory,
 )
-from app.api.domains.objects.services.add_relations import AddRelationsService, AddRelationsServiceFactory
+from app.api.domains.objects.services.add_relations_service import AddRelationsService, AddRelationsServiceFactory
 from app.api.domains.objects.services.add_werkingsgebied_related_objects_service import (
     AddWerkingsgebiedRelatedObjectsConfig,
     AddWerkingsgebiedRelatedObjectsService,

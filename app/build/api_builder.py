@@ -52,9 +52,7 @@ class ApiBuilder:
                     endpoint_config.resolver_id
                 )
                 if endpoint_builder is None:
-                    continue
-                    # @todo:
-                    # raise ValueError(f"EndpointBuilder with id '{endpoint_config.resolver_id}' does not exist.")
+                    raise ValueError(f"EndpointBuilder with id '{endpoint_config.resolver_id}' does not exist.")
 
                 # Convience which happens in every endpoint builder
                 resolver_config: dict = endpoint_config.resolver_data
@@ -93,9 +91,7 @@ class ApiBuilder:
                 endpoint_config.resolver_id
             )
             if endpoint_builder is None:
-                continue
-                # @todo:
-                # raise ValueError(f"EndpointBuilder with id '{endpoint_config.resolver_id}' does not exist.")
+                raise ValueError(f"EndpointBuilder with id '{endpoint_config.resolver_id}' does not exist.")
 
             # Convience which happens in every endpoint builder
             resolver_config: dict = endpoint_config.resolver_data

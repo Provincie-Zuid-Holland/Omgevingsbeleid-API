@@ -18,7 +18,7 @@ def _format_rows(object_code: str, table_rows: Sequence[RelationsTable]) -> List
         # Need to determine which the relation is based on my_code
         title: str = row.FromObjectStatics.Cached_Title
         relation_code: str = row.From_Code
-        if relation_code == self._object_code:
+        if relation_code == object_code:
             relation_code = row.To_Code
             title = row.ToObjectStatics.Cached_Title
 

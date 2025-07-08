@@ -1,3 +1,4 @@
+from .files_detail_endpoint_builder import DetailStorageFilesEndpointBuilder
 from .files_list_endpoint_builder import ListStorageFilesEndpointBuilder
 from .files_upload_endpoint_builder import StorageFileUploadFileEndpointBuilder
 from .full_graph_endpoint_builder import FullGraphEndpointBuilder

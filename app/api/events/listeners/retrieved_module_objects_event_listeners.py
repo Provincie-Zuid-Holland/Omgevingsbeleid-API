@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.api.domains.objects.services.add_relations import AddRelationsService, AddRelationsServiceFactory
+from app.api.domains.objects.services.add_relations_service import AddRelationsService, AddRelationsServiceFactory
 from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
     JoinWerkingsgebiedenService,
     JoinWerkingsgebiedenServiceFactory,

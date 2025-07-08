@@ -64,7 +64,7 @@ class ModuleTable(Base, TimeStamped, UserMetaData):
 
     @is_active.expression
     def is_active(cls):
-        return cls.Activated.is_(True) & cls.Closed.is_(False)  # type: ignore
+        return (cls.Activated == True) & (cls.Closed == False)  # type: ignore
 
     status_history: Mapped[List["ModuleStatusHistoryTable"]] = relationship(
         back_populates="Module", order_by="asc(ModuleStatusHistoryTable.ID)"

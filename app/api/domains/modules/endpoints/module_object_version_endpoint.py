@@ -27,7 +27,6 @@ class ModuleObjectVersionEndpointContext(BaseEndpointContext):
 
 @inject
 async def view_module_object_version_endpoint(
-    object_uuid: Annotated[uuid.UUID, Depends()],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
@@ -35,6 +34,7 @@ async def view_module_object_version_endpoint(
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
     user: Annotated[Optional[UsersTable], Depends(depends_optional_current_user)],
     context: Annotated[ModuleObjectVersionEndpointContext, Depends()],
+    object_uuid: uuid.UUID,
 ) -> BaseModel:
     if context.require_auth:
         if not user:

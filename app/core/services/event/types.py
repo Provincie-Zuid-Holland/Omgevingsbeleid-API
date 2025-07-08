@@ -2,21 +2,9 @@ from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import dataclass
 from typing import Generic, Optional, Type, TypeVar
 
-from sqlalchemy.orm import Session
-
 
 class Event(ABC):
-    # @todo: Remove DB from here and inject it in the listeners that need it
-    def __init__(self):
-        self._db: Optional[Session] = None
-
-    def provide_db(self, db: Optional[Session]):
-        self._db = db
-
-    def get_db(self) -> Session:
-        if self._db is None:
-            raise RuntimeError("db not set for event")
-        return self._db
+    pass
 
 
 EventType = TypeVar("EventType", bound=Event)

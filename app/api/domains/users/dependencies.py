@@ -21,6 +21,14 @@ def depends_current_user(
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
 ) -> UsersTable:
+    return _do_depends_current_user(token, user_repository, security)
+
+
+def _do_depends_current_user(
+    token: Optional[str],
+    user_repository: UserRepository,
+    security: Security,
+) -> UsersTable:
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
 
@@ -42,7 +50,7 @@ def depends_optional_current_user(
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
 ) -> Optional[UsersTable]:
     try:
-        return depends_current_user(token, user_repository, security)
+        return _do_depends_current_user(token, user_repository, security)
     except HTTPException:
         return None
 

@@ -19,7 +19,7 @@ from .object_latest_endpoint import ObjectLatestEndpointContext, view_object_lat
 from .object_list_all_latest_endpoint import (
     GenericObjectShort,
     ObjectListAllLatestEndpointContext,
-    list_all_latest_endpoint,
+    do_list_all_latest_endpoint,
 )
 from .object_list_valid_lineage_tree_endpoint import (
     ObjectListValidLineageTreeEndpointContext,

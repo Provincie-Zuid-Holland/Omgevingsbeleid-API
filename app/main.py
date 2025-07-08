@@ -21,5 +21,6 @@ routes = api_builder.build()
 fastapi_builder: FastAPIBuilder = FastAPIBuilder()
 
 # @todo
-print(Settings().SQLALCHEMY_DATABASE_URI)
+print(Settings().SQLALCHEMY_DATABASE_URI[:20])
+
 app: FastAPI = fastapi_builder.build(api_container, routes)

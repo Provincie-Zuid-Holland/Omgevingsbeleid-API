@@ -2,7 +2,7 @@ import sqlite3
 from typing import Generator
 
 from sqlalchemy import Engine, create_engine, event, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.settings import Settings
 
@@ -39,7 +39,7 @@ def create_db_engine_with_autocommit(settings: Settings) -> Engine:
     return engine
 
 
-def init_db_session(session_factory: sessionmaker) -> Generator[sessionmaker, None]:
+def init_db_session(session_factory: sessionmaker) -> Generator[Session, None]:
     with session_factory() as db:
         try:
             if db.bind.dialect.name == "sqlite":

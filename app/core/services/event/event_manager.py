@@ -1,7 +1,5 @@
 from typing import Dict, Generic, List, Type
 
-from sqlalchemy.orm import Session
-
 from .types import EventType, Listener
 
 
@@ -27,11 +25,8 @@ class EventListeners(Generic[EventType]):
 class EventManager(Generic[EventType]):
     def __init__(
         self,
-        db: Session,
         event_listeners: EventListeners,
     ):
-        # @todo: remove DB, inject it in the listeners via the container that need it
-        self._db: Session = db
         self._event_listeners: EventListeners = event_listeners
 
     def dispatch(self, event: EventType) -> EventType:

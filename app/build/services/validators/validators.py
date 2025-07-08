@@ -8,6 +8,8 @@ from PIL import Image
 from pydantic import ValidationInfo
 from pydantic_core import PydanticUseDefault
 
+from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
+
 from .types import PydanticValidator, Validator
 
 
@@ -235,6 +237,9 @@ class NotEqualRootValidator(Validator):
 
 
 class ObjectCodeExistsValidator(Validator):
+    def __init__(self, object_static_repository: ObjectStaticRepository):
+        self._object_static_repository: ObjectStaticRepository = object_static_repository
+
     def get_id(self) -> str:
         return "object_code_exists"
 
@@ -251,16 +256,12 @@ class ObjectCodeExistsValidator(Validator):
             except ValueError:
                 raise ValueError("Value is not a valid Object_Code")
 
-            # @todo: fix
-            #
-            # with db_in_context_manager() as db:
-            #     static_repository = ObjectStaticRepository(db)
-            #     object_static = static_repository.get_by_object_type_and_id(
-            #         object_type,
-            #         object_id,
-            #     )
-            #     if not object_static:
-            #         raise ValueError("Object does not exist")
+            object_static = self._object_static_repository.get_by_object_type_and_id(
+                object_type,
+                object_id,
+            )
+            if not object_static:
+                raise ValueError("Object does not exist")
 
             return value
 
@@ -301,6 +302,9 @@ class ObjectCodeAllowedTypeValidator(Validator):
 
 
 class ObjectCodesExistsValidator(Validator):
+    def __init__(self, object_static_repository: ObjectStaticRepository):
+        self._object_static_repository: ObjectStaticRepository = object_static_repository
+
     def get_id(self) -> str:
         return "object_codes_exists"
 
@@ -312,23 +316,18 @@ class ObjectCodesExistsValidator(Validator):
             if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
                 raise ValueError("Value must be a list of strings")
 
-            # @todo: fix
-            #
-            # with db_in_context_manager() as db:
-            #     static_repository = ObjectStaticRepository(db)
+            for object_code in value:
+                try:
+                    object_type, object_id = object_code.split("-", 1)
+                except ValueError:
+                    raise ValueError("Value is not a valid Object_Code")
 
-            #     for object_code in value:
-            #         try:
-            #             object_type, object_id = object_code.split("-", 1)
-            #         except ValueError:
-            #             raise ValueError("Value is not a valid Object_Code")
-
-            #         object_static = static_repository.get_by_object_type_and_id(
-            #             object_type,
-            #             object_id,
-            #         )
-            #         if not object_static:
-            #             raise ValueError("Object does not exist")
+                object_static = self._object_static_repository.get_by_object_type_and_id(
+                    object_type,
+                    object_id,
+                )
+                if not object_static:
+                    raise ValueError("Object does not exist")
 
             return value
 

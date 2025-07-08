@@ -8,7 +8,7 @@ from app.api.dependencies import depends_optional_sorted_pagination
 from app.api.domains.werkingsgebieden.repositories.werkingsgebieden_repository import WerkingsgebiedenRepository
 from app.api.domains.werkingsgebieden.types import Werkingsgebied
 from app.api.endpoint import BaseEndpointContext
-from app.api.utils.pagination import OptionalSortedPagination, OrderConfig, PagedResponse, SortedPagination
+from app.api.utils.pagination import OptionalSortedPagination, OrderConfig, PagedResponse, Sort, SortedPagination
 
 
 class ListWerkingsgebiedenEndpointContext(BaseEndpointContext):
@@ -22,7 +22,8 @@ async def get_list_werkingsgebieden_endpoint(
     context: Annotated[ListWerkingsgebiedenEndpointContext, Depends()],
     title: Optional[str] = None,
 ) -> PagedResponse[Werkingsgebied]:
-    pagination: SortedPagination = optional_pagination.with_sort(context.order_config)
+    sort: Sort = context.order_config.get_sort(optional_pagination.sort)
+    pagination: SortedPagination = optional_pagination.with_sort(sort)
 
     if title is None:
         paged_results = repository.get_unique_paginated(pagination)

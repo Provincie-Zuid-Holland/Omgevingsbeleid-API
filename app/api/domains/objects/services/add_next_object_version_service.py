@@ -39,7 +39,7 @@ class AddNextObjectVersionService:
         # acts as context to match new versions against
         reference_subq = (
             select(
-                ObjectsTable.UUID.label("ref_uuid"),
+                ObjectsTable.UUID.label("Previous_UUID"),
                 ObjectsTable.Code.label("ref_code"),
                 ObjectsTable.Modified_Date.label("ref_modified_date"),
             ).where(ObjectsTable.UUID.in_(self._config.object_uuids))
@@ -47,14 +47,14 @@ class AddNextObjectVersionService:
 
         row_number_col = (
             func.row_number()
-            .over(partition_by=reference_subq.c.ref_uuid, order_by=ObjectsTable.Modified_Date.asc())
+            .over(partition_by=reference_subq.c.Previous_UUID, order_by=ObjectsTable.Modified_Date.asc())
             .label("_RowNumber")
         )
 
         # the actual query matching the input rows CTE -> next versions
         next_obj_subq = (
             select(
-                reference_subq.c.ref_uuid,
+                reference_subq.c.Previous_UUID,
                 row_number_col,
                 ObjectsTable.UUID,
                 ObjectsTable.Title,

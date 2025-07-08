@@ -1,5 +1,6 @@
 from dependency_injector import containers, providers
 
+from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 import app.api.services as api_services
 from app.build import api_builder
 import app.build.endpoint_builders.objects as endpoint_builders_objects
@@ -39,6 +40,8 @@ class BuildContainer(containers.DeclarativeContainer):
         session_factory=db_session_factory,
     )
 
+    object_static_repository = providers.Singleton(ObjectStaticRepository, db=db)
+
     validator_provider = providers.Singleton(
         validator_provider.ValidatorProvider,
         validators=providers.List(
@@ -49,9 +52,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(validators.HtmlValidator),
             providers.Factory(validators.ImageValidator),
             providers.Factory(validators.NotEqualRootValidator),
-            providers.Factory(validators.ObjectCodeExistsValidator),
+            providers.Factory(validators.ObjectCodeExistsValidator, object_static_repository=object_static_repository),
             providers.Factory(validators.ObjectCodeAllowedTypeValidator),
-            providers.Factory(validators.ObjectCodesExistsValidator),
+            providers.Factory(validators.ObjectCodesExistsValidator, object_static_repository=object_static_repository),
             providers.Factory(validators.ObjectCodesAllowedTypeValidator),
         ),
     )
@@ -77,7 +80,6 @@ class BuildContainer(containers.DeclarativeContainer):
     )
     build_event_manager = providers.Singleton(
         event_manager.EventManager,
-        db=db,
         event_listeners=build_event_listeners,
     )
 
@@ -185,6 +187,11 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(
                 endpoint_builders_publications.publications.announcements.ListPublicationAnnouncementsEndpointBuilder
             ),
+            #       Publications
+            providers.Factory(endpoint_builders_publications.publications.CreatePublicationEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.DetailPublicationEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.EditPublicationEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.ListPublicationsEndpointBuilder),
             #       Versions
             providers.Factory(
                 endpoint_builders_publications.publications.versions.CreatePublicationVersionPdfEndpointBuilder
@@ -250,6 +257,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_werkingsgebieden.ListWerkingsgebiedenEndpointBuilder),
             # Others
             providers.Factory(endpoint_builders_others.ListStorageFilesEndpointBuilder),
+            providers.Factory(endpoint_builders_others.DetailStorageFilesEndpointBuilder),
             providers.Factory(endpoint_builders_others.StorageFileUploadFileEndpointBuilder),
             providers.Factory(endpoint_builders_others.FullGraphEndpointBuilder),
             providers.Factory(endpoint_builders_others.ObjectGraphEndpointBuilder),
