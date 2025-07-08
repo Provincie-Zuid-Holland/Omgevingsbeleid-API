@@ -44,7 +44,7 @@ dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@5df8
     # via -r requirements.in
 ecdsa==0.19.1
     # via python-jose
-fastapi==0.115.14
+fastapi==0.116.0
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
@@ -91,7 +91,7 @@ packaging==25.0
     #   dso
     #   geopandas
     #   pyogrio
-pandas==2.3.0
+pandas==2.3.1
     # via geopandas
 passlib==1.7.4
     # via -r requirements.in
@@ -175,7 +175,7 @@ starlette==0.46.2
     # via fastapi
 tomli==2.2.1
     # via dso
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   beautifulsoup4
     #   dso

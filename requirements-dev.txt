@@ -14,7 +14,7 @@ asttokens==2.4.1
     #   stack-data
 autoflake==2.3.1
     # via -r requirements-dev.in
-bandit==1.8.5
+bandit==1.8.6
     # via -r requirements-dev.in
 black==25.1.0
     # via -r requirements-dev.in
@@ -24,7 +24,7 @@ charset-normalizer==3.4.2
     # via requests
 click==8.2.1
     # via black
-coverage[toml]==7.9.1
+coverage[toml]==7.9.2
     # via
     #   -r requirements-dev.in
     #   coverage-badge
@@ -167,7 +167,7 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   alembic
     #   mypy
