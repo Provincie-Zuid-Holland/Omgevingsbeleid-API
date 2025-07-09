@@ -225,7 +225,6 @@ class ApiContainer(containers.DeclarativeContainer):
     )
     event_manager = providers.Singleton(
         event_manager.EventManager,
-        db=db,
         event_listeners=event_listeners,
     )
 
