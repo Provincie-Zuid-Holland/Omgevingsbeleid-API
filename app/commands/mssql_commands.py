@@ -6,6 +6,7 @@ from sqlalchemy import DDL, inspect, text
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.core.services.main_config import MainConfig
 
 stopwords: Set[str] = set(
     [
@@ -156,7 +157,7 @@ def mssql_setup_search_database(
     db: Annotated[Session, Provide[ApiContainer.db]],
     mssql_search_ftc_name: Annotated[str, Provide[ApiContainer.config.MSSQL_SEARCH_FTC_NAME]],
     mssql_search_stoplist_name: Annotated[str, Provide[ApiContainer.config.MSSQL_SEARCH_STOPLIST_NAME]],
-    main_config: Annotated[dict, Provide[ApiContainer.main_config]],
+    main_config: Annotated[MainConfig, Provide[ApiContainer.main_config]],
 ):
     click.echo("Initialized search tables")
     click.echo(mssql_search_stoplist_name)
@@ -201,7 +202,8 @@ def mssql_setup_search_database(
         print("Create fulltext catalog")
         db.execute(DDL(f"CREATE FULLTEXT CATALOG {mssql_search_ftc_name};"))
 
-    for search_config in main_config.get("mssql_search", []):
+    main_config_dict: dict = main_config.get_main_config()
+    for search_config in main_config_dict.get("mssql_search", []):
         table_name = search_config.get("table_name")
         columns = search_config.get("searchable_columns_low", []) + search_config.get("searchable_columns_high", [])
         _reset_fulltext_index(

@@ -1,7 +1,6 @@
 from dependency_injector import containers, providers
 
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
-import app.api.services as api_services
 from app.build import api_builder
 import app.build.endpoint_builders.objects as endpoint_builders_objects
 import app.build.endpoint_builders.modules as endpoint_builders_modules
@@ -82,8 +81,6 @@ class BuildContainer(containers.DeclarativeContainer):
         event_manager.EventManager,
         event_listeners=build_event_listeners,
     )
-
-    permission_service = providers.Singleton(api_services.PermissionService)
 
     endpoint_builder_provider = providers.Singleton(
         endpoint_builder_provider.EndpointBuilderProvider,
