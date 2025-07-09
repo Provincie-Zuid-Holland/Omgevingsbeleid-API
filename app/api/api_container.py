@@ -26,12 +26,12 @@ class ApiContainer(containers.DeclarativeContainer):
     config = providers.Configuration(pydantic_settings=[Settings()])
     main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
 
-    db_engine = providers.Singleton(
+    db_engine = providers.Factory(
         create_db_engine,
         uri=config.SQLALCHEMY_DATABASE_URI,
         echo=config.SQLALCHEMY_ECHO,
     )
-    db_session_factory = providers.Singleton(sessionmaker, bind=db_engine, autocommit=False, autoflush=False)
+    db_session_factory = providers.Factory(sessionmaker, bind=db_engine, autocommit=False, autoflush=False)
     db = providers.Resource(
         init_db_session,
         session_factory=db_session_factory,
