@@ -33,6 +33,7 @@ sort_default_object_id: &sort_default_object_id
 sort_allowed_module_columns: &sort_allowed_module_columns
   - Title
   - Created_Date
+  - Modified_Date
 
 sort_default_module_created_date: &sort_default_module_created_date
   default:
