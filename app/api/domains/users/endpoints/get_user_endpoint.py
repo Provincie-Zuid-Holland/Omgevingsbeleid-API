@@ -12,7 +12,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def view_get_user_endpoint(
+def view_get_user_endpoint(
     user_uuid: uuid.UUID,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],

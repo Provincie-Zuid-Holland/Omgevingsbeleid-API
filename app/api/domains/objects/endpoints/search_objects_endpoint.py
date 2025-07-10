@@ -95,7 +95,7 @@ class EndpointHandler:
 
 
 @inject
-async def get_search_objects_endpoint(
+def get_search_objects_endpoint(
     query: str,
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],

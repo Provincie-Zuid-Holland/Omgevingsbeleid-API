@@ -38,7 +38,7 @@ class ModuleCreatedResponse(BaseModel):
 
 
 @inject
-async def post_create_module_endpoint(
+def post_create_module_endpoint(
     object_in: Annotated[ModuleCreate, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],

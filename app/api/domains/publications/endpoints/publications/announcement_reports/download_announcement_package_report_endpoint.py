@@ -10,7 +10,7 @@ from app.core.tables.publications import PublicationAnnouncementPackageReportTab
 from app.core.tables.users import UsersTable
 
 
-async def get_download_announcement_package_report_endpoint(
+def get_download_announcement_package_report_endpoint(
     report: Annotated[PublicationAnnouncementPackageReportTable, Depends(depends_publication_announcement_report)],
     user: Annotated[
         UsersTable,

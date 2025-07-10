@@ -112,7 +112,7 @@ class EndpointHandler:
 
 
 @inject
-async def get_full_graph_endpoint(
+def get_full_graph_endpoint(
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],
 ) -> GraphResponse:
     handler = EndpointHandler(db)

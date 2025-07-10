@@ -17,7 +17,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def post_delete_attachment_endpoint(
+def post_delete_attachment_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     attachment: Annotated[PublicationVersionAttachmentTable, Depends(depends_publication_version_attachment)],
     user: Annotated[

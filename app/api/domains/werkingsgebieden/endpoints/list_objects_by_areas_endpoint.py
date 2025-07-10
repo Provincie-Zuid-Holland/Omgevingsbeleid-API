@@ -41,7 +41,7 @@ class ListObjectByAreasEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_list_objects_by_areas_endpoint(
+def get_list_objects_by_areas_endpoint(
     object_in: SearchGeoRequestData,
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     area_repository: Annotated[AreaRepository, Depends(Provide[ApiContainer.area_repository])],

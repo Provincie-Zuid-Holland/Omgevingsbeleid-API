@@ -26,7 +26,7 @@ class GenericObjectShort(BaseModel):
 
 
 @inject
-async def do_list_all_latest_endpoint(
+def do_list_all_latest_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     context: Annotated[ObjectListAllLatestEndpointContext, Depends()],

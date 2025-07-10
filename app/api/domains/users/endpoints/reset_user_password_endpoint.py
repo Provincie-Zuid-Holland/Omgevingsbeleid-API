@@ -24,7 +24,7 @@ class ResetPasswordResponse(BaseModel):
 
 
 @inject
-async def post_reset_user_password_endpoint(
+def post_reset_user_password_endpoint(
     user_uuid: uuid.UUID,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],

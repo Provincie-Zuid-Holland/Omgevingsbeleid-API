@@ -10,7 +10,7 @@ from app.core.tables.publications import PublicationAnnouncementTable
 from app.core.tables.users import UsersTable
 
 
-async def get_detail_announcement_endpoint(
+def get_detail_announcement_endpoint(
     announcement: Annotated[PublicationAnnouncementTable, Depends(depends_publication_announcement)],
     user: Annotated[
         UsersTable,

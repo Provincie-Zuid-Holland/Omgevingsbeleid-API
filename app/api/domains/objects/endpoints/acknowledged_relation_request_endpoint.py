@@ -25,7 +25,7 @@ class AcknowledgedRelationRequestEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_acknowledged_relation_request_endpoint(
+def get_acknowledged_relation_request_endpoint(
     lineage_id: int,
     object_in: RequestAcknowledgedRelation,
     user: Annotated[UsersTable, Depends(depends_current_user)],

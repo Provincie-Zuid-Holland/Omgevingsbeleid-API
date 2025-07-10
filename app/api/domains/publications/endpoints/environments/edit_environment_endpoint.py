@@ -32,7 +32,7 @@ class EnvironmentEdit(BaseModel):
 
 
 @inject
-async def post_edit_environment_endpoint(
+def post_edit_environment_endpoint(
     object_in: Annotated[EnvironmentEdit, Depends()],
     user: Annotated[
         UsersTable,

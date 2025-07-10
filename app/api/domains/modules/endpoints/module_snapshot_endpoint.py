@@ -18,7 +18,7 @@ class ModuleSnapshot(BaseModel):
 
 
 @inject
-async def get_module_snapshot_endpoint(
+def get_module_snapshot_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_module)],
     status: Annotated[ModuleStatusHistoryTable, Depends(depends_module_status_by_id)],

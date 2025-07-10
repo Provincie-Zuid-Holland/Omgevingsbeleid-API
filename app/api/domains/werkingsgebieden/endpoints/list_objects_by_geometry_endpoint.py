@@ -50,7 +50,7 @@ class ListObjectByGeometryEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_list_objects_by_geometry_endpoint(
+def get_list_objects_by_geometry_endpoint(
     object_in: ListObjectsByGeometryRequestData,
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     geometry_repository: Annotated[AreaGeometryRepository, Depends(Provide[ApiContainer.area_geometry_repository])],

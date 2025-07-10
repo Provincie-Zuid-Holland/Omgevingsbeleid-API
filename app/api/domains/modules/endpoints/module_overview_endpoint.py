@@ -54,7 +54,7 @@ class ModuleOverview(BaseModel):
 
 
 @inject
-async def view_module_overview_endpoint(
+def view_module_overview_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],

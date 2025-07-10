@@ -168,7 +168,7 @@ class MssqlValidSearchEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_mssql_valid_search_endpoint(
+def get_mssql_valid_search_endpoint(
     query: str,
     object_in: SearchRequestData,
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],

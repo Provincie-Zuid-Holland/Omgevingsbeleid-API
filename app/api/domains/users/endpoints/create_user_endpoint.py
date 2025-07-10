@@ -44,7 +44,7 @@ class CreateUserEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def post_create_user_endpoint(
+def post_create_user_endpoint(
     object_in: UserCreate,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],

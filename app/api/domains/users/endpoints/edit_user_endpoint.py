@@ -32,7 +32,7 @@ class EditUserEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def post_edit_user_endpoint(
+def post_edit_user_endpoint(
     user_uuid: uuid.UUID,
     object_in: EditUser,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],

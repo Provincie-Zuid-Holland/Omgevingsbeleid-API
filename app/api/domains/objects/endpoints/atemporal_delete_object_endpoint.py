@@ -23,7 +23,7 @@ class AtemporalDeleteObjectEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def atemporal_delete_object_endpoint(
+def atemporal_delete_object_endpoint(
     lineage_id: int,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],

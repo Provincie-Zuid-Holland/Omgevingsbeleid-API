@@ -41,7 +41,7 @@ class RelationsListEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_relations_list_endpoint(
+def get_relations_list_endpoint(
     lineage_id: int,
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],
     context: Annotated[RelationsListEndpointContext, Depends()],

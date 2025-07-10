@@ -28,7 +28,7 @@ class TemplateEdit(BaseModel):
 
 
 @inject
-async def post_edit_template_endpoint(
+def post_edit_template_endpoint(
     object_in: Annotated[TemplateEdit, Depends()],
     user: Annotated[
         UsersTable,

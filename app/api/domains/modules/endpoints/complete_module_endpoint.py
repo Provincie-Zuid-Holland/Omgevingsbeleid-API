@@ -105,7 +105,7 @@ def _create_objects(
 
 
 @inject
-async def post_complete_module_endpoint(
+def post_complete_module_endpoint(
     object_in: Annotated[CompleteModule, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],

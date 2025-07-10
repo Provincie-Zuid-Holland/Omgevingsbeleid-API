@@ -114,7 +114,7 @@ class EndpointHandler:
 
 
 @inject
-async def post_files_upload_endpoint(
+def post_files_upload_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     storage_repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],

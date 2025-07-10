@@ -31,7 +31,7 @@ class ModuleEditObjectContext(BaseModel):
 
 
 @inject
-async def post_module_edit_object_context_endpoint(
+def post_module_edit_object_context_endpoint(
     object_in: Annotated[ModuleEditObjectContext, Depends()],
     _: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],

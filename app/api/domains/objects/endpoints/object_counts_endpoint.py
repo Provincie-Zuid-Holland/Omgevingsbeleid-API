@@ -11,7 +11,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def view_object_counts_endpoint(
+def view_object_counts_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
 ) -> ObjectCountResponse:

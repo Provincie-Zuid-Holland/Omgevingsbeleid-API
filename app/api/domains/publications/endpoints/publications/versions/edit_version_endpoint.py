@@ -34,7 +34,7 @@ class PublicationVersionEditResponse(BaseModel):
 
 
 @inject
-async def post_edit_version_endpoint(
+def post_edit_version_endpoint(
     object_in: Annotated[PublicationVersionEdit, Depends()],
     user: Annotated[
         UsersTable,

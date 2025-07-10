@@ -121,7 +121,7 @@ class RelationsOverwriteEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def post_relations_overwrite_endpoint(
+def post_relations_overwrite_endpoint(
     lineage_id: int,
     overwrite_list: List[WriteRelation],
     user: Annotated[UsersTable, Depends(depends_current_user)],

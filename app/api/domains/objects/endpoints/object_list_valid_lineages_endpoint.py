@@ -34,7 +34,7 @@ class ObjectListValidLineagesEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def list_valid_lineages_endpoint(
+def list_valid_lineages_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],

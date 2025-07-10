@@ -13,7 +13,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def view_module_list_statuses_endpoint(
+def view_module_list_statuses_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     status_repository: Annotated[ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])],

@@ -56,7 +56,7 @@ def _create_new_static_object(
 
 
 @inject
-async def atemporal_create_object_endpoint(
+def atemporal_create_object_endpoint(
     object_in: BaseModel,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],

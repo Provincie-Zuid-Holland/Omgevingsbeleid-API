@@ -247,7 +247,7 @@ class EndpointHandler:
 
 
 @inject
-async def get_object_graph_endpoint(
+def get_object_graph_endpoint(
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],
     object_table: Annotated[ObjectsTable, Depends(depends_object_by_uuid)],
     context: Annotated[ObjectGraphEndpointContext, Depends()],

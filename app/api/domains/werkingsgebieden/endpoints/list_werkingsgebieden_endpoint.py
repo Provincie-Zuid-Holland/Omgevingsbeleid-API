@@ -16,7 +16,7 @@ class ListWerkingsgebiedenEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_list_werkingsgebieden_endpoint(
+def get_list_werkingsgebieden_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     repository: Annotated[WerkingsgebiedenRepository, Depends(Provide[ApiContainer.werkingsgebieden_repository])],
     context: Annotated[ListWerkingsgebiedenEndpointContext, Depends()],

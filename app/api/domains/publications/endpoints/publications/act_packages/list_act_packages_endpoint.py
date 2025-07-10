@@ -21,7 +21,7 @@ class ListActPackagesEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_list_act_packages_endpoint(
+def get_list_act_packages_endpoint(
     version_uuid: Annotated[Optional[uuid.UUID], None],
     package_type: Annotated[Optional[PackageType], None],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],

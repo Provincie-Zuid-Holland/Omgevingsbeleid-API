@@ -15,7 +15,7 @@ class AreaDesignationValueList(BaseModel):
     Allowed_Values: List[str]
 
 
-async def get_area_designation_groups_endpoint(
+def get_area_designation_groups_endpoint(
     type: Annotated[AreaDesignationTypeEnum, Depends()],
 ) -> AreaDesignationValueList:
     enum_member: AreaDesignationTypes = AreaDesignationTypes[type.name]

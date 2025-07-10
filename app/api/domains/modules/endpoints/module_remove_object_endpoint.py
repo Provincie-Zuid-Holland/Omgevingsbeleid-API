@@ -20,7 +20,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def post_module_remove_object_endpoint(
+def post_module_remove_object_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     object_context: Annotated[ModuleObjectContextTable, Depends(depends_active_module_object_context)],

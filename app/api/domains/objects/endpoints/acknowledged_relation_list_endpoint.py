@@ -17,7 +17,7 @@ class AcknowledgedRelationListEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_acknowledged_relation_list_endpoint(
+def get_acknowledged_relation_list_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     repository: Annotated[
         AcknowledgedRelationsRepository, Depends(Provide[ApiContainer.acknowledged_relations_repository])

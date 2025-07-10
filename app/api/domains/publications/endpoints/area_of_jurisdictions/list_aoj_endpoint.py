@@ -14,7 +14,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def get_list_aoj_endpoint(
+def get_list_aoj_endpoint(
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     user: Annotated[
         UsersTable,

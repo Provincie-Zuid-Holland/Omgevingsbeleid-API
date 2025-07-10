@@ -309,7 +309,7 @@ class MssqlSearchEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_mssql_search_endpoint(
+def get_mssql_search_endpoint(
     query: str,
     object_in: SearchRequestData,
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],

@@ -25,7 +25,7 @@ class AtemporalEditObjectEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def atemporal_edit_object_endpoint(
+def atemporal_edit_object_endpoint(
     lineage_id: int,
     object_in: BaseModel,
     user: Annotated[UsersTable, Depends(depends_current_user)],

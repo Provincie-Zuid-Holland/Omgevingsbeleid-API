@@ -16,7 +16,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def get_list_act_package_reports_endpoint(
+def get_list_act_package_reports_endpoint(
     act_package_uuid: Annotated[Optional[uuid.UUID], None],
     report_status: Annotated[Optional[ReportStatusType], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],

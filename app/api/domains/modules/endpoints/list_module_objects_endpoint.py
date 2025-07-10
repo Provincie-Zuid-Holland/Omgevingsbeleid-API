@@ -24,7 +24,7 @@ class ListModuleObjectsEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_list_module_objects_endpoint(
+def get_list_module_objects_endpoint(
     object_type: Annotated[Optional[str], None],
     owner_uuid: Annotated[Optional[uuid.UUID], None],
     minimum_status: Annotated[Optional[ModuleStatusCode], None],

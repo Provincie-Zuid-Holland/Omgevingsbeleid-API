@@ -18,7 +18,7 @@ class SearchUsersEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_search_users_endpoint(
+def get_search_users_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],

@@ -12,7 +12,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def post_auth_login_access_token_endpoint(
+def post_auth_login_access_token_endpoint(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],

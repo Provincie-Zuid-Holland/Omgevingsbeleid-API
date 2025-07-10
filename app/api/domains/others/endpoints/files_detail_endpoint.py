@@ -11,7 +11,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def get_files_detail_endpoint(
+def get_files_detail_endpoint(
     storage_file: Annotated[StorageFileTable, Depends(depends_storage_file)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
 ) -> StorageFileBasic:

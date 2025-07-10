@@ -33,7 +33,7 @@ class AcknowledgedRelationEditEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def post_acknowledged_relation_edit_endpoint(
+def post_acknowledged_relation_edit_endpoint(
     lineage_id: int,
     object_in: EditAcknowledgedRelation,
     user: Annotated[UsersTable, Depends(depends_current_user)],

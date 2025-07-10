@@ -10,7 +10,7 @@ from app.core.tables.publications import PublicationEnvironmentTable
 from app.core.tables.users import UsersTable
 
 
-async def get_detail_environment_endpoint(
+def get_detail_environment_endpoint(
     environment: Annotated[PublicationEnvironmentTable, Depends(depends_publication_environment)],
     user: Annotated[
         UsersTable,

@@ -14,7 +14,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def get_download_announcement_package_endpoint(
+def get_download_announcement_package_endpoint(
     package_zip: Annotated[PublicationPackageZipTable, Depends(depends_publication_zip_by_announcement_package)],
     user: Annotated[
         UsersTable,

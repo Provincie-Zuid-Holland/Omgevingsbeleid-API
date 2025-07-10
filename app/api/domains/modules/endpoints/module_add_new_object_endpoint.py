@@ -149,7 +149,7 @@ class ModuleAddNewObjectService:
 
 
 @inject
-async def post_module_add_new_object_endpoint(
+def post_module_add_new_object_endpoint(
     object_in: Annotated[ModuleAddNewObject, Depends()],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],

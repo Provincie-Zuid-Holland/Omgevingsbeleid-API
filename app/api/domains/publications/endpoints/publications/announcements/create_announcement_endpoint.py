@@ -24,7 +24,7 @@ class AnnouncementCreatedResponse(BaseModel):
 
 
 @inject
-async def post_create_announcement_endpoint(
+def post_create_announcement_endpoint(
     act_package: Annotated[PublicationActPackageTable, Depends(depends_publication_act_package)],
     user: Annotated[
         UsersTable,

@@ -26,7 +26,7 @@ class EditObjectStaticEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def edit_object_static_endpoint(
+def edit_object_static_endpoint(
     lineage_id: int,
     object_in: BaseModel,
     user: Annotated[UsersTable, Depends(depends_current_user)],

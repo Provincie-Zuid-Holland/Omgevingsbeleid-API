@@ -33,7 +33,7 @@ class EnvironmentCreatedResponse(BaseModel):
 
 
 @inject
-async def post_create_environment_endpoint(
+def post_create_environment_endpoint(
     object_in: Annotated[EnvironmentCreate, Depends()],
     user: Annotated[
         UsersTable,

@@ -30,7 +30,7 @@ class ModulePatchObjectContext(BaseEndpointContext):
 
 
 @inject
-async def post_module_patch_object_endpoint(
+def post_module_patch_object_endpoint(
     lineage_id: int,
     object_in: Annotated[BaseModel, Depends()],
     module: Annotated[ModuleTable, Depends(depends_active_module)],

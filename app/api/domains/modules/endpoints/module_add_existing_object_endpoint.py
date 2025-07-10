@@ -144,7 +144,7 @@ class ModuleAddExistingObjectService:
 
 
 @inject
-async def post_module_add_existing_object_endpoint(
+def post_module_add_existing_object_endpoint(
     object_in: Annotated[ModuleAddExistingObject, Depends()],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],

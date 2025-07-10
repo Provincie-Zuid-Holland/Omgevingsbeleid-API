@@ -17,7 +17,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def post_activate_module_endpoint(
+def post_activate_module_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],

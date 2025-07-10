@@ -23,7 +23,7 @@ class PublicationEdit(BaseModel):
 
 
 @inject
-async def post_edit_publication_endpoint(
+def post_edit_publication_endpoint(
     object_in: Annotated[PublicationEdit, Depends()],
     user: Annotated[
         UsersTable,

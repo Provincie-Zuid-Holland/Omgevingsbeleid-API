@@ -21,7 +21,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def get_files_list_endpoint(
+def get_files_list_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     storage_file_repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],

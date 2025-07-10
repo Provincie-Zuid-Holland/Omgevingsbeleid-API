@@ -18,7 +18,7 @@ class PasswordUpdate(BaseModel):
 
 
 @inject
-async def post_auth_reset_password_endpoint(
+def post_auth_reset_password_endpoint(
     password_in: Annotated[PasswordUpdate, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],

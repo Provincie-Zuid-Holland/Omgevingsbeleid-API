@@ -15,7 +15,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def post_close_act_endpoint(
+def post_close_act_endpoint(
     user: Annotated[
         UsersTable,
         Depends(

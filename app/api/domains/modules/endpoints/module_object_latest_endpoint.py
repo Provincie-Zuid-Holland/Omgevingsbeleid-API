@@ -22,7 +22,7 @@ class ModuleObjectLatestEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def view_module_object_latest_endpoint(
+def view_module_object_latest_endpoint(
     lineage_id: int,
     _: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],

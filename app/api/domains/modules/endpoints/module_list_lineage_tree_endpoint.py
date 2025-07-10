@@ -35,7 +35,7 @@ class ModuleListLineageTreeEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_module_list_lineage_tree_endpoint(
+def get_module_list_lineage_tree_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
     lineage_id: int,
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],

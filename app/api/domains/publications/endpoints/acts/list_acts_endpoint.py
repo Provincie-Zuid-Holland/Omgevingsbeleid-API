@@ -16,7 +16,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-async def get_list_acts_endpoint(
+def get_list_acts_endpoint(
     is_active: Annotated[Optional[bool], None],
     environment_uuid: Annotated[Optional[uuid.UUID], None],
     document_type: Annotated[Optional[DocumentType], None],

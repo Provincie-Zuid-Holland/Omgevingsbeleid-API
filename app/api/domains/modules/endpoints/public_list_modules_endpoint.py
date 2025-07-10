@@ -11,7 +11,7 @@ from app.api.utils.pagination import PagedResponse, SimplePagination
 
 
 @inject
-async def get_public_list_modules_endpoint(
+def get_public_list_modules_endpoint(
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     module_repository: Annotated[ModuleRepository, Depends(Provide[ApiContainer.module_repository])],
 ) -> PagedResponse[PublicModuleShort]:

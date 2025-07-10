@@ -26,7 +26,7 @@ class ModuleObjectVersionEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def view_module_object_version_endpoint(
+def view_module_object_version_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])

@@ -28,7 +28,7 @@ class ListModulesEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_list_modules_endpoint(
+def get_list_modules_endpoint(
     filter_object_code: Annotated[Optional[FilterObjectCode], Depends(depends_filter_object_code)],
     module_repository: Annotated[ModuleRepository, Depends(Provide[ApiContainer.module_repository])],
     user: Annotated[UsersTable, Depends(depends_current_user)],

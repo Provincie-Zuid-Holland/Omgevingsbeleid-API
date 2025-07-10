@@ -24,7 +24,7 @@ class ModulePatchStatus(BaseModel):
 
 
 @inject
-async def post_module_patch_status_endpoint(
+def post_module_patch_status_endpoint(
     object_in: ModulePatchStatus,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_and_activated_module)],

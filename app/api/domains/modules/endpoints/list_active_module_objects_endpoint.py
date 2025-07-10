@@ -26,7 +26,7 @@ class ListActiveModuleObjectsEndpointContext(BaseEndpointContext):
 
 
 @inject
-async def get_list_active_module_objects_endpoint(
+def get_list_active_module_objects_endpoint(
     lineage_id: int,
     minimum_status: Annotated[ModuleStatusCode, ModuleStatusCode.Ontwerp_PS],
     module_object_repository: Annotated[

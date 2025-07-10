@@ -50,7 +50,7 @@ class PublicModuleOverview(BaseModel):
 
 
 @inject
-async def get_public_module_overview_endpoint(
+def get_public_module_overview_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     db: Annotated[Session, Depends(Provide[ApiContainer.db])],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],

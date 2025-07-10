@@ -12,7 +12,7 @@ class AreaDesignationValueList(BaseModel):
     Allowed_Values: List[str]
 
 
-async def get_area_designation_types_endpoint(
+def get_area_designation_types_endpoint(
     document_type: Annotated[DocumentType, Depends()],
 ) -> AreaDesignationValueList:
     non_allowed: List[AreaDesignationTypes] = NON_ALLOWED_DOCUMENT_TYPE_MAPPING.get(document_type, [])
