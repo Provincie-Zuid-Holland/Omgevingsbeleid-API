@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.repositories.module_object_context_repository import ModuleObjectContextRepository
 from app.api.domains.modules.services.object_provider import ObjectProvider
@@ -44,7 +45,7 @@ class ModuleAddExistingObjectEndpointContext(BaseEndpointContext):
 class ModuleAddExistingObjectService:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         object_provider: ObjectProvider,
         object_context_repository: ModuleObjectContextRepository,
         module: ModuleTable,
@@ -52,7 +53,7 @@ class ModuleAddExistingObjectService:
         object_in: ModuleAddExistingObject,
         context: ModuleAddExistingObjectEndpointContext,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._object_provider: ObjectProvider = object_provider
         self._object_context_repository: ModuleObjectContextRepository = object_context_repository
         self._module: ModuleTable = module
@@ -62,7 +63,7 @@ class ModuleAddExistingObjectService:
         self._timepoint: datetime = datetime.now(timezone.utc)
 
     def process(self):
-        object_data: Optional[dict] = self._object_provider.get_by_uuid(self._object_in.Object_UUID)
+        object_data: Optional[dict] = self._object_provider.get_by_uuid(self._session, self._object_in.Object_UUID)
         if object_data is None:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unknown object for uuid")
 
@@ -76,6 +77,7 @@ class ModuleAddExistingObjectService:
             )
 
         maybe_object_context: Optional[ModuleObjectContextTable] = self._object_context_repository.get_by_ids(
+            self._session,
             self._module.Module_ID,
             object_type,
             object_id,
@@ -96,10 +98,10 @@ class ModuleAddExistingObjectService:
 
             self._create_object(object_data)
 
-            self._db.flush()
-            self._db.commit()
+            self._session.flush()
+            self._session.commit()
         except Exception:
-            self._db.rollback()
+            self._session.rollback()
             raise
 
     def _create_object_context(self, object_data: dict):
@@ -117,7 +119,7 @@ class ModuleAddExistingObjectService:
             Explanation=self._object_in.Explanation,
             Conclusion=self._object_in.Conclusion,
         )
-        self._db.add(object_context)
+        self._session.add(object_context)
 
     def _update_object_context(self, object_context: ModuleObjectContextTable, object_data: dict):
         object_context.Hidden = False
@@ -126,7 +128,7 @@ class ModuleAddExistingObjectService:
         object_context.Original_Adjust_On = object_data["UUID"]
         object_context.Explanation = self._object_in.Explanation
         object_context.Conclusion = self._object_in.Conclusion
-        self._db.add(object_context)
+        self._session.add(object_context)
 
     def _create_object(self, object_data: dict):
         module_object = ModuleObjectsTable()
@@ -140,7 +142,7 @@ class ModuleAddExistingObjectService:
         module_object.Modified_Date = self._timepoint
         module_object.Modified_By_UUID = self._user.UUID
 
-        self._db.add(module_object)
+        self._session.add(module_object)
 
 
 @inject
@@ -148,7 +150,7 @@ def post_module_add_existing_object_endpoint(
     object_in: Annotated[ModuleAddExistingObject, Depends()],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     object_provider: Annotated[ObjectProvider, Depends(Provide[ApiContainer.object_provider])],
     object_context_repository: Annotated[
@@ -164,7 +166,7 @@ def post_module_add_existing_object_endpoint(
     guard_module_not_locked(module)
 
     service = ModuleAddExistingObjectService(
-        db,
+        session,
         object_provider,
         object_context_repository,
         module,

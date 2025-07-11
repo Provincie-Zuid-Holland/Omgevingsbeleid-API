@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 from uuid import UUID, uuid4
 
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import Select, and_, or_
 
@@ -24,20 +24,26 @@ class LatestObjectPerModuleResult:
 
 
 class ModuleObjectRepository(BaseRepository):
-    def get_by_uuid(self, uuid: UUID) -> Optional[ModuleObjectsTable]:
+    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[ModuleObjectsTable]:
         stmt = select(ModuleObjectsTable).filter(ModuleObjectsTable.UUID == uuid)
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
-    def get_by_object_type_and_uuid(self, object_type: str, uuid: UUID) -> Optional[ModuleObjectsTable]:
+    def get_by_object_type_and_uuid(
+        self, session: Session, object_type: str, uuid: UUID
+    ) -> Optional[ModuleObjectsTable]:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.UUID == uuid)
             .filter(ModuleObjectsTable.Object_Type == object_type)
         )
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
     def get_by_module_id_object_type_and_uuid(
-        self, module_id: int, object_type: str, uuid: UUID
+        self,
+        session: Session,
+        module_id: int,
+        object_type: str,
+        uuid: UUID,
     ) -> Optional[ModuleObjectsTable]:
         stmt = (
             select(ModuleObjectsTable)
@@ -45,9 +51,15 @@ class ModuleObjectRepository(BaseRepository):
             .filter(ModuleObjectsTable.Module_ID == module_id)
             .filter(ModuleObjectsTable.Object_Type == object_type)
         )
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
-    def get_latest_by_id(self, module_id: int, object_type: str, object_id: int) -> Optional[ModuleObjectsTable]:
+    def get_latest_by_id(
+        self,
+        session: Session,
+        module_id: int,
+        object_type: str,
+        object_id: int,
+    ) -> Optional[ModuleObjectsTable]:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.Module_ID == module_id)
@@ -55,10 +67,9 @@ class ModuleObjectRepository(BaseRepository):
             .filter(ModuleObjectsTable.Object_ID == object_id)
             .order_by(desc(ModuleObjectsTable.Modified_Date))
         )
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
-    @staticmethod
-    def _build_snapshot_objects_query(module_id: int, before: datetime):
+    def _build_snapshot_objects_query(self, module_id: int, before: datetime):
         return (
             select(
                 ModuleObjectsTable,
@@ -76,24 +87,24 @@ class ModuleObjectRepository(BaseRepository):
             .filter(ModuleObjectContextTable.Hidden == False)
         )
 
-    def get_objects_in_time(self, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
+    def get_objects_in_time(self, session: Session, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
         subq = self._build_snapshot_objects_query(module_id, before).subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
         stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).filter(subq.c.Deleted == False)
 
-        objects: List[ModuleObjectsTable] = self._db.execute(stmt).scalars()
+        objects: List[ModuleObjectsTable] = session.execute(stmt).scalars()
         return objects
 
-    def get_all_objects_in_time(self, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
+    def get_all_objects_in_time(self, session: Session, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
         subq = self._build_snapshot_objects_query(module_id, before).subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
         stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).filter(subq.c.Deleted == False)
 
-        objects: List[ModuleObjectsTable] = self._db.execute(stmt).all()
+        objects: List[ModuleObjectsTable] = session.execute(stmt).all()
         return objects
 
-    @staticmethod
-    def latest_per_module_query(
+    def _latest_per_module_query(
+        self,
         code: str,
         status_filter: Optional[List[str]] = None,
         is_active: bool = True,
@@ -158,14 +169,15 @@ class ModuleObjectRepository(BaseRepository):
 
     def get_latest_per_module(
         self,
+        session: Session,
         code: str,
         minimum_status: Optional[ModuleStatusCode] = None,
         is_active: bool = True,
     ) -> List[LatestObjectPerModuleResult]:
         # Build minimum status list starting at given status, if provided
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
-        query = self.latest_per_module_query(code=code, status_filter=status_filter, is_active=is_active)
-        rows = self._db.execute(query).all()
+        query = self._latest_per_module_query(code=code, status_filter=status_filter, is_active=is_active)
+        rows = session.execute(query).all()
         named_results = [
             LatestObjectPerModuleResult(
                 module_object=row[0],
@@ -178,6 +190,7 @@ class ModuleObjectRepository(BaseRepository):
 
     def get_all_latest(
         self,
+        session: Session,
         pagination: SortedPagination,
         only_active_modules: bool = True,
         minimum_status: Optional[ModuleStatusCode] = None,
@@ -243,6 +256,7 @@ class ModuleObjectRepository(BaseRepository):
         stmt = select(aliased_objects, subq.c.Latest_Status).filter(subq.c._RowNumber == 1)
 
         return self.fetch_paginated_no_scalars(
+            session=session,
             statement=stmt,
             limit=pagination.limit,
             offset=pagination.offset,
@@ -251,6 +265,7 @@ class ModuleObjectRepository(BaseRepository):
 
     def patch_latest_module_object(
         self,
+        session: Session,
         module_id: int,
         object_type: str,
         object_id: int,
@@ -259,6 +274,7 @@ class ModuleObjectRepository(BaseRepository):
         by_uuid: UUID,
     ) -> Tuple[ModuleObjectsTable, ModuleObjectsTable]:
         old_record: Optional[ModuleObjectsTable] = self.get_latest_by_id(
+            session,
             module_id,
             object_type,
             object_id,
@@ -267,6 +283,7 @@ class ModuleObjectRepository(BaseRepository):
             raise ValueError(f"lineage_id does not exist in this module")
 
         new_record: ModuleObjectsTable = self.patch_module_object(
+            session,
             old_record,
             changes,
             timepoint,
@@ -276,6 +293,7 @@ class ModuleObjectRepository(BaseRepository):
 
     def patch_module_object(
         self,
+        session: Session,
         record: ModuleObjectsTable,
         changes: dict,
         timepoint: datetime,
@@ -284,7 +302,7 @@ class ModuleObjectRepository(BaseRepository):
         previous_uuid: UUID = deepcopy(record.UUID)
 
         # Release the object from sqlalchemy so we can use it as the base of a new object
-        self._db.expunge(record)
+        session.expunge(record)
         make_transient(record)
 
         new_record = deepcopy(record)

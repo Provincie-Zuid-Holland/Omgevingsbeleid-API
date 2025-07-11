@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.types import ModuleStatusCodeInternal
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.permissions import Permissions
@@ -41,7 +42,7 @@ class ModuleCreatedResponse(BaseModel):
 def post_create_module_endpoint(
     object_in: Annotated[ModuleCreate, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
 ) -> ModuleCreatedResponse:
     permission_service.guard_valid_user(Permissions.module_can_close_module, user)
@@ -70,11 +71,11 @@ def post_create_module_endpoint(
     )
     module.status_history.append(status)
 
-    db.add(module)
-    db.add(status)
+    session.add(module)
+    session.add(status)
 
-    db.flush()
-    db.commit()
+    session.flush()
+    session.commit()
 
     return ModuleCreatedResponse(
         Module_ID=module.Module_ID,

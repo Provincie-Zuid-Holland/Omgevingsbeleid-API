@@ -1,4 +1,5 @@
 # from datetime import datetime, timezone
+from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, Optional
 
 from dependency_injector.wiring import Provide, inject
@@ -7,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.utils import guard_module_not_locked
@@ -36,7 +38,7 @@ def post_module_patch_object_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     context: Annotated[ModulePatchObjectContext, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     object_static_repository: Annotated[
         ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])
     ],
@@ -47,6 +49,7 @@ def post_module_patch_object_endpoint(
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
 ) -> BaseModel:
     object_static: Optional[ObjectStaticsTable] = object_static_repository.get_by_object_type_and_id(
+        session,
         context.object_type,
         lineage_id,
     )
@@ -66,6 +69,7 @@ def post_module_patch_object_endpoint(
 
     timepoint: datetime = datetime.now(timezone.utc)
     old_record, new_record = module_object_repository.patch_latest_module_object(
+        session,
         module.Module_ID,
         context.object_type,
         lineage_id,
@@ -75,6 +79,7 @@ def post_module_patch_object_endpoint(
     )
 
     event: ModuleObjectPatchedEvent = event_manager.dispatch(
+        session,
         ModuleObjectPatchedEvent.create(
             user,
             changes,
@@ -82,20 +87,20 @@ def post_module_patch_object_endpoint(
             context.response_config_model,
             old_record,
             new_record,
-        )
+        ),
     )
     new_record = event.payload.new_record
 
     # cache statics title if needed
     if "Title" in changes:
-        valid_version = db.query(ObjectsTable).filter(ObjectsTable.Code == new_record.Code).first()
+        valid_version = session.query(ObjectsTable).filter(ObjectsTable.Code == new_record.Code).first()
         if valid_version is None:
             object_static.Cached_Title = changes["Title"]
-            db.add(object_static)
+            session.add(object_static)
 
-    db.add(new_record)
-    db.flush()
-    db.commit()
+    session.add(new_record)
+    session.flush()
+    session.commit()
 
     response: BaseModel = context.response_config_model.model_validate(new_record)
     return response

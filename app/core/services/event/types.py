@@ -2,6 +2,8 @@ from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import dataclass
 from typing import Generic, Optional, Type, TypeVar
 
+from sqlalchemy.orm import Session
+
 
 class Event(ABC):
     pass
@@ -12,7 +14,7 @@ EventType = TypeVar("EventType", bound=Event)
 
 class Listener(Generic[EventType], metaclass=ABCMeta):
     @abstractmethod
-    def handle_event(self, event: EventType) -> Optional[EventType]:
+    def handle_event(self, session: Session, event: EventType) -> Optional[EventType]:
         pass
 
     def description(self) -> str:

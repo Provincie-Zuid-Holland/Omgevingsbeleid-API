@@ -5,8 +5,10 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, ValidationError
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_version
 from app.api.domains.publications.exceptions import DSOConfigurationException, DSORenvooiException
 from app.api.domains.publications.services.act_package.act_package_builder import ActPackageBuilder
@@ -39,6 +41,7 @@ def post_create_pdf_endpoint(
             )
         ),
     ],
+    session: Annotated[Session, Depends(depends_db_session)],
     package_builder_factory: Annotated[
         ActPackageBuilderFactory, Depends(Provide[ApiContainer.publication.act_package_builder_factory])
     ],
@@ -48,6 +51,7 @@ def post_create_pdf_endpoint(
 
     try:
         package_builder: ActPackageBuilder = package_builder_factory.create_builder(
+            session,
             version,
             PackageType.VALIDATION,
             object_in.Mutation,

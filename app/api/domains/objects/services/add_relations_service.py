@@ -31,11 +31,11 @@ class Config(BaseModel):
 class AddRelationsService:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         rows: List[BaseModel],
         response_model: Model,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._rows: List[BaseModel] = rows
         self._response_model: Union[DynamicObjectModel, Model] = response_model
 
@@ -134,7 +134,7 @@ class AddRelationsService:
 
         stmt = select(subq).filter(subq.c._RowNumber == 1)
 
-        rows = self._db.execute(stmt).all()
+        rows = self._session.execute(stmt).all()
         dict_rows = [r._asdict() for r in rows]
         return dict_rows
 
@@ -159,16 +159,14 @@ class AddRelationsService:
 
 
 class AddRelationsServiceFactory:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
     def create_service(
         self,
+        session: Session,
         rows: List[BaseModel],
         response_model: Model,
     ) -> AddRelationsService:
         return AddRelationsService(
-            db=self._db,
+            session=session,
             rows=rows,
             response_model=response_model,
         )

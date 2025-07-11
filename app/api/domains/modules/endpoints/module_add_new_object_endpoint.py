@@ -9,6 +9,7 @@ from sqlalchemy import String, func, insert, select
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.types import ModuleObjectActionFull
 from app.api.domains.modules.utils import guard_module_not_locked
@@ -61,12 +62,12 @@ class ModuleAddNewObjectEndpointContext(BaseEndpointContext):
 class ModuleAddNewObjectService:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         module: ModuleTable,
         user: UsersTable,
         object_in: ModuleAddNewObject,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._module: ModuleTable = module
         self._user: UsersTable = user
         self._object_in: ModuleAddNewObject = object_in
@@ -78,12 +79,12 @@ class ModuleAddNewObjectService:
             self._create_object_context(object_static)
             self._create_object(object_static)
 
-            self._db.flush()
-            self._db.commit()
+            self._session.flush()
+            self._session.commit()
 
             return NewObjectStaticResponse.model_validate(object_static)
         except Exception:
-            self._db.rollback
+            self._session.rollback
             raise
 
     def _create_new_object_static(self) -> ObjectStaticsTable:
@@ -109,7 +110,7 @@ class ModuleAddNewObjectService:
             .returning(ObjectStaticsTable)
         )
 
-        response: Optional[ObjectStaticsTable] = self._db.execute(stmt).scalars().first()
+        response: Optional[ObjectStaticsTable] = self._session.execute(stmt).scalars().first()
         if response is None:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to create new object static")
 
@@ -130,7 +131,7 @@ class ModuleAddNewObjectService:
             Explanation=self._object_in.Explanation,
             Conclusion=self._object_in.Conclusion,
         )
-        self._db.add(object_context)
+        self._session.add(object_context)
 
     def _create_object(self, object_static: ObjectStaticsTable):
         module_object: ModuleObjectsTable = ModuleObjectsTable(
@@ -145,7 +146,7 @@ class ModuleAddNewObjectService:
             Created_By_UUID=self._user.UUID,
             Modified_By_UUID=self._user.UUID,
         )
-        self._db.add(module_object)
+        self._session.add(module_object)
 
 
 @inject
@@ -153,7 +154,7 @@ def post_module_add_new_object_endpoint(
     object_in: Annotated[ModuleAddNewObject, Depends()],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     context: Annotated[ModuleAddNewObjectEndpointContext, Depends()],
 ) -> NewObjectStaticResponse:
@@ -171,7 +172,7 @@ def post_module_add_new_object_endpoint(
         )
 
     service = ModuleAddNewObjectService(
-        db,
+        session,
         module,
         user,
         object_in,

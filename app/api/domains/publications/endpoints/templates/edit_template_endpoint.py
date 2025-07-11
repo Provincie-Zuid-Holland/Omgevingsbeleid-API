@@ -1,12 +1,12 @@
 from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, List, Optional
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_template
 from app.api.domains.publications.types.enums import DocumentType
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
@@ -39,7 +39,7 @@ def post_edit_template_endpoint(
         ),
     ],
     template: Annotated[PublicationTemplateTable, Depends(depends_publication_template)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> ResponseOK:
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
@@ -51,8 +51,8 @@ def post_edit_template_endpoint(
     template.Modified_By_UUID = user.UUID
     template.Modified_Date = datetime.now(timezone.utc)
 
-    db.add(template)
-    db.commit()
-    db.flush()
+    session.add(template)
+    session.commit()
+    session.flush()
 
-    return ResponseOK()
+    return ResponseOK(message="OK")

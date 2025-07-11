@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 
 from sqlalchemy import case, desc, select
-from sqlalchemy.orm import aliased, selectinload
+from sqlalchemy.orm import Session, aliased, selectinload
 from sqlalchemy.sql import func, literal, or_, union_all
 
 from app.api.base_repository import BaseRepository
@@ -13,6 +13,7 @@ from app.core.tables.objects import ObjectsTable
 class PublicationObjectRepository(BaseRepository):
     def fetch_objects(
         self,
+        session: Session,
         module_id: int,
         timepoint: datetime,
         object_types: List[str],
@@ -20,7 +21,7 @@ class PublicationObjectRepository(BaseRepository):
     ) -> List[dict]:
         query = self._get_full_query(module_id, timepoint, object_types, field_map)
 
-        result = self._db.execute(query)
+        result = session.execute(query)
         rows = [row._asdict() for row in result]
         return rows
 

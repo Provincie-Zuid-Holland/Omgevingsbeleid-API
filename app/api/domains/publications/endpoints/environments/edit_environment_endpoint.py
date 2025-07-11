@@ -1,12 +1,12 @@
 from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, Optional
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_environment
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
@@ -43,7 +43,7 @@ def post_edit_environment_endpoint(
         ),
     ],
     environment: Annotated[PublicationEnvironmentTable, Depends(depends_publication_environment)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> ResponseOK:
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
@@ -55,8 +55,8 @@ def post_edit_environment_endpoint(
     environment.Modified_By_UUID = user.UUID
     environment.Modified_Date = datetime.now(timezone.utc)
 
-    db.add(environment)
-    db.flush()
-    db.commit()
+    session.add(environment)
+    session.flush()
+    session.commit()
 
-    return ResponseOK()
+    return ResponseOK(message="OK")

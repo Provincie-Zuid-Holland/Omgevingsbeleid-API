@@ -2,22 +2,25 @@ from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import or_, select
+from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
 from app.core.tables.objects import ObjectStaticsTable
 
 
 class ObjectStaticRepository(BaseRepository):
-    def get_by_object_type_and_id(self, object_type: str, object_id: int) -> Optional[ObjectStaticsTable]:
+    def get_by_object_type_and_id(
+        self, session: Session, object_type: str, object_id: int
+    ) -> Optional[ObjectStaticsTable]:
         stmt = (
             select(ObjectStaticsTable)
             .filter(ObjectStaticsTable.Object_Type == object_type)
             .filter(ObjectStaticsTable.Object_ID == object_id)
         )
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
     def get_by_type_and_owner(
-        self, object_type: Optional[str] = None, owner_uuid: Optional[UUID] = None
+        self, session: Session, object_type: Optional[str] = None, owner_uuid: Optional[UUID] = None
     ) -> List[ObjectStaticsTable]:
         stmt = select(ObjectStaticsTable)
 
@@ -31,4 +34,4 @@ class ObjectStaticRepository(BaseRepository):
         if object_type:
             stmt = stmt.filter(ObjectStaticsTable.Object_Type == object_type)
 
-        return self.fetch_all(stmt)
+        return self.fetch_all(session, stmt)

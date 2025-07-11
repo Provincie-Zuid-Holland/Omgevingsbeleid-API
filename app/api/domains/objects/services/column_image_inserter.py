@@ -2,6 +2,7 @@ from typing import List, Optional, Set
 from uuid import UUID
 
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.core.tables.others import AssetsTable
@@ -14,10 +15,12 @@ class GetImagesConfig(BaseModel):
 class ColumnImageInserter:
     def __init__(
         self,
+        session: Session,
         asset_repository: AssetRepository,
         rows: List[BaseModel],
         config: GetImagesConfig,
     ):
+        self._session: Session = session
         self._config: GetImagesConfig = config
         self._rows: List[BaseModel] = rows
         self._asset_repository: AssetRepository = asset_repository
@@ -37,7 +40,7 @@ class ColumnImageInserter:
                 except ValueError:
                     continue
 
-                asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(image_uuid)
+                asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(self._session, image_uuid)
                 if not asset:
                     continue
 
@@ -52,10 +55,12 @@ class ColumnImageInserterFactory:
 
     def create_service(
         self,
+        session: Session,
         rows: List[BaseModel],
         config: GetImagesConfig,
     ) -> ColumnImageInserter:
         return ColumnImageInserter(
+            session=session,
             asset_repository=self._asset_repository,
             rows=rows,
             config=config,

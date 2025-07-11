@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.repositories.module_repository import ModuleRepository
 from app.api.domains.publications.repository.publication_act_repository import PublicationActRepository
 from app.api.domains.publications.repository.publication_environment_repository import PublicationEnvironmentRepository
@@ -58,16 +59,18 @@ def post_create_publication(
         PublicationEnvironmentRepository, Depends(Provide[ApiContainer.publication.environment_repository])
     ],
     act_repository: Annotated[PublicationActRepository, Depends(Provide[ApiContainer.publication.act_repository])],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> PublicationCreatedResponse:
     timepoint: datetime = datetime.now(timezone.utc)
 
-    module: ModuleTable = _get_module(module_repository, object_in.Module_ID)
+    module: ModuleTable = _get_module(session, module_repository, object_in.Module_ID)
     template: PublicationTemplateTable = _get_template(
-        template_repository, object_in.Template_UUID, object_in.Document_Type
+        session, template_repository, object_in.Template_UUID, object_in.Document_Type
     )
-    environment: PublicationEnvironmentTable = _get_environment(environment_repository, object_in.Environment_UUID)
-    act: PublicationActTable = _get_act(act_repository, object_in)
+    environment: PublicationEnvironmentTable = _get_environment(
+        session, environment_repository, object_in.Environment_UUID
+    )
+    act: PublicationActTable = _get_act(session, act_repository, object_in)
 
     publication = PublicationTable(
         UUID=uuid.uuid4(),
@@ -85,17 +88,17 @@ def post_create_publication(
         Modified_By_UUID=user.UUID,
     )
 
-    db.add(publication)
-    db.commit()
-    db.flush()
+    session.add(publication)
+    session.commit()
+    session.flush()
 
     return PublicationCreatedResponse(
         UUID=publication.UUID,
     )
 
 
-def _get_module(repository: ModuleRepository, module_id: int) -> ModuleTable:
-    module: Optional[ModuleTable] = repository.get_by_id(module_id)
+def _get_module(session: Session, repository: ModuleRepository, module_id: int) -> ModuleTable:
+    module: Optional[ModuleTable] = repository.get_by_id(session, module_id)
     if module is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module niet gevonden")
     if module.Closed:
@@ -105,11 +108,12 @@ def _get_module(repository: ModuleRepository, module_id: int) -> ModuleTable:
 
 
 def _get_template(
+    session: Session,
     repository: PublicationTemplateRepository,
     template_uuid: uuid.UUID,
     document_type: DocumentType,
 ) -> PublicationTemplateTable:
-    template: Optional[PublicationTemplateTable] = repository.get_by_uuid(template_uuid)
+    template: Optional[PublicationTemplateTable] = repository.get_by_uuid(session, template_uuid)
     if template is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template niet gevonden")
     if not template.Is_Active:
@@ -120,9 +124,10 @@ def _get_template(
 
 
 def _get_environment(
-    repository: PublicationEnvironmentRepository, environment_uuid: uuid.UUID
+    session: Session, repository: PublicationEnvironmentRepository, environment_uuid: uuid.UUID
 ) -> PublicationEnvironmentTable:
     environment: Optional[PublicationEnvironmentTable] = repository.get_by_uuid(
+        session,
         environment_uuid,
     )
     if environment is None:
@@ -132,8 +137,10 @@ def _get_environment(
     return environment
 
 
-def _get_act(repository: PublicationActRepository, object_in: PublicationCreate) -> PublicationActTable:
-    act: Optional[PublicationActTable] = repository.get_by_uuid(object_in.Act_UUID)
+def _get_act(
+    session: Session, repository: PublicationActRepository, object_in: PublicationCreate
+) -> PublicationActTable:
+    act: Optional[PublicationActTable] = repository.get_by_uuid(session, object_in.Act_UUID)
     if act is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Act niet gevonden")
     if not act.Is_Active:

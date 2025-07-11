@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.types import ModuleObjectAction, ModuleStatusCode, ModuleStatusCodeInternal
@@ -60,7 +61,7 @@ def _get_validities(
 
 
 def _create_objects(
-    db: Session,
+    session: Session,
     module_object_repository: ModuleObjectRepository,
     user: UsersTable,
     module: ModuleTable,
@@ -68,6 +69,7 @@ def _create_objects(
     timepoint: datetime,
 ) -> None:
     module_objects: List[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
+        session,
         module.Module_ID,
         timepoint,
     )
@@ -97,11 +99,11 @@ def _create_objects(
         new_object.End_Validity = end_validity
 
         statics: ObjectStaticsTable = (
-            db.query(ObjectStaticsTable).filter(ObjectStaticsTable.Code == new_object.Code).one()
+            session.query(ObjectStaticsTable).filter(ObjectStaticsTable.Code == new_object.Code).one()
         )
         statics.Cached_Title = new_object.Title
-        db.add(new_object)
-        db.add(statics)
+        session.add(new_object)
+        session.add(statics)
 
 
 @inject
@@ -109,7 +111,7 @@ def post_complete_module_endpoint(
     object_in: Annotated[CompleteModule, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
@@ -132,21 +134,21 @@ def post_complete_module_endpoint(
             Created_Date=timepoint,
             Created_By_UUID=user.UUID,
         )
-        db.add(status)
+        session.add(status)
 
-        _create_objects(db, module_object_repository, user, module, object_in, timepoint)
+        _create_objects(session, module_object_repository, user, module, object_in, timepoint)
 
         module.Closed = True
         module.Successful = True
         module.Modified_By_UUID = user.UUID
         module.Modified_Date = timepoint
-        db.add(module)
+        session.add(module)
 
-        db.flush()
-        db.commit()
+        session.flush()
+        session.commit()
 
     except Exception as e:
-        db.rollback()
+        session.rollback()
         raise e
 
     return ResponseOK(message="OK")

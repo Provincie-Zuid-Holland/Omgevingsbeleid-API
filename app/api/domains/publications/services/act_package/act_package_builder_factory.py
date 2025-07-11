@@ -34,7 +34,6 @@ from app.core.tables.publications import PublicationActTable, PublicationTable, 
 class ActPackageBuilderFactory:
     def __init__(
         self,
-        db: Session,
         dso_builder_factory: DsoActInputDataBuilderFactory,
         bill_frbr_provider: BillFrbrProvider,
         act_frbr_provider: ActFrbrProvider,
@@ -44,7 +43,6 @@ class ActPackageBuilderFactory:
         data_patcher_factory: ApiActInputDataPatcherFactory,
     ):
         self._dso_builder_factory: DsoActInputDataBuilderFactory = dso_builder_factory
-        self._db: Session = db
         self._bill_frbr_provider: BillFrbrProvider = bill_frbr_provider
         self._act_frbr_provider: ActFrbrProvider = act_frbr_provider
         self._purpose_provider: PurposeProvider = purpose_provider
@@ -54,6 +52,7 @@ class ActPackageBuilderFactory:
 
     def create_builder(
         self,
+        session: Session,
         publication_version: PublicationVersionTable,
         package_type: PackageType,
         mutation_strategy: MutationStrategy,
@@ -61,14 +60,15 @@ class ActPackageBuilderFactory:
         publication: PublicationTable = publication_version.Publication
         act: PublicationActTable = publication.Act
 
-        act_frbr: ActFrbr = self._act_frbr_provider.generate_frbr(act)
-        bill_frbr: BillFrbr = self._bill_frbr_provider.generate_frbr(publication.Environment, act_frbr)
+        act_frbr: ActFrbr = self._act_frbr_provider.generate_frbr(session, act)
+        bill_frbr: BillFrbr = self._bill_frbr_provider.generate_frbr(session, publication.Environment, act_frbr)
         purpose: Purpose = self._purpose_provider.generate_purpose(
             publication_version,
             act_frbr,
             PurposeType.CONSOLIDATION,
         )
         publication_data: PublicationData = self._publication_data_provider.fetch_data(
+            session,
             publication_version,
             bill_frbr,
             act_frbr,
@@ -86,10 +86,10 @@ class ActPackageBuilderFactory:
             Mutation_Strategy=mutation_strategy,
         )
 
-        state: Optional[ActiveState] = self._state_loader.load_from_publication_version(publication_version)
+        state: Optional[ActiveState] = self._state_loader.load_from_publication_version(session, publication_version)
         if state is not None:
             data_patcher: ApiActInputDataPatcher = self._data_patcher_factory.create(state)
-            api_input_data = data_patcher.apply(api_input_data)
+            api_input_data = data_patcher.apply(session, api_input_data)
 
         input_data_builder: DsoActInputDataBuilder = self._dso_builder_factory.create(
             api_input_data,

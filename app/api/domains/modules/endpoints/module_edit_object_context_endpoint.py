@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import (
     depends_active_module,
     depends_active_module_object_context,
@@ -37,7 +38,7 @@ def post_module_edit_object_context_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module_object: Annotated[ModuleObjectsTable, Depends(depends_module_object_latest_by_id)],
     object_context: Annotated[ModuleObjectContextTable, Depends(depends_active_module_object_context)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
 ) -> ResponseOK:
     permission_service.guard_valid_user(
@@ -66,7 +67,7 @@ def post_module_edit_object_context_endpoint(
     object_context.Modified_By_UUID = user.UUID
     object_context.Modified_Date = timepoint
 
-    db.add(object_context)
+    session.add(object_context)
 
     change_log = ChangeLogTable(
         Object_Type=object_context.Object_Type,
@@ -78,9 +79,9 @@ def post_module_edit_object_context_endpoint(
         Before=log_before,
         After=json.dumps(object_context.to_dict()),
     )
-    db.add(change_log)
+    session.add(change_log)
 
-    db.flush()
-    db.commit()
+    session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

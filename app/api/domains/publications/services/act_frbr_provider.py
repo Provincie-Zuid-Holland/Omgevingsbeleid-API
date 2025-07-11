@@ -9,11 +9,8 @@ from app.core.tables.publications import PublicationActTable, PublicationActVers
 
 
 class ActFrbrProvider:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
-    def generate_frbr(self, act: PublicationActTable) -> ActFrbr:
-        expression_version: int = self._get_next_expression_version(act.UUID)
+    def generate_frbr(self, session: Session, act: PublicationActTable) -> ActFrbr:
+        expression_version: int = self._get_next_expression_version(session, act.UUID)
 
         timepoint: datetime = datetime.now(timezone.utc)
         frbr: ActFrbr = ActFrbr(
@@ -28,11 +25,11 @@ class ActFrbrProvider:
         )
         return frbr
 
-    def _get_next_expression_version(self, act_uuid: uuid.UUID) -> int:
+    def _get_next_expression_version(self, session: Session, act_uuid: uuid.UUID) -> int:
         stmt = (
             select(func.count())
             .select_from(PublicationActVersionTable)
             .filter(PublicationActVersionTable.Act_UUID == act_uuid)
         )
-        next_expression_version: int = self._db.execute(stmt).scalar() + 1
+        next_expression_version: int = session.execute(stmt).scalar() + 1
         return next_expression_version

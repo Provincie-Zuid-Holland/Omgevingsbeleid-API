@@ -3,8 +3,10 @@ from typing import Annotated, Optional
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.users.dependencies import depends_current_user
@@ -30,9 +32,11 @@ def view_module_object_latest_endpoint(
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
+    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ModuleObjectLatestEndpointContext, Depends()],
 ) -> BaseModel:
     module_object: Optional[ModuleObjectsTable] = module_object_repository.get_latest_by_id(
+        session,
         module.Module_ID,
         context.object_type,
         lineage_id,
@@ -43,11 +47,12 @@ def view_module_object_latest_endpoint(
     row: BaseModel = context.response_config_model.pydantic_model.model_validate(module_object)
 
     event: RetrievedModuleObjectsEvent = event_manager.dispatch(
+        session,
         RetrievedModuleObjectsEvent.create(
             [row],
             context.builder_data.endpoint_id,
             context.response_config_model,
-        )
+        ),
     )
     row = event.payload.rows[0]
 

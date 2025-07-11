@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.domains.users.services.security import Security
 from app.api.domains.users.user_repository import UserRepository
@@ -27,14 +28,14 @@ class ResetPasswordResponse(BaseModel):
 def post_reset_user_password_endpoint(
     user_uuid: uuid.UUID,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
 ) -> ResetPasswordResponse:
     permission_service.guard_valid_user(Permissions.user_can_reset_user_password, logged_in_user)
 
-    user: Optional[UsersTable] = repository.get_by_uuid(user_uuid)
+    user: Optional[UsersTable] = repository.get_by_uuid(session, user_uuid)
     if not user:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "User does not exist")
     if not user.IsActive:
@@ -52,10 +53,10 @@ def post_reset_user_password_endpoint(
         Action_Data=json.dumps({"UUID": str(user.UUID)}),
     )
 
-    db.add(change_log)
-    db.add(user)
-    db.flush()
-    db.commit()
+    session.add(change_log)
+    session.add(user)
+    session.flush()
+    session.commit()
 
     return ResetPasswordResponse(
         UUID=user.UUID,

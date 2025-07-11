@@ -4,9 +4,10 @@ from uuid import UUID
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_optional_sorted_pagination
+from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
 from app.api.domains.werkingsgebieden.types import GeoSearchResult
 from app.api.endpoint import BaseEndpointContext
@@ -44,6 +45,7 @@ class ListObjectByAreasEndpointContext(BaseEndpointContext):
 def get_list_objects_by_areas_endpoint(
     object_in: SearchGeoRequestData,
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
+    session: Annotated[Session, Depends(depends_db_session)],
     area_repository: Annotated[AreaRepository, Depends(Provide[ApiContainer.area_repository])],
     context: Annotated[ListObjectByAreasEndpointContext, Depends()],
 ) -> PagedResponse[GeoSearchResult]:
@@ -56,6 +58,7 @@ def get_list_objects_by_areas_endpoint(
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
     paginated_result: PaginatedQueryResult = area_repository.get_latest_by_areas(
+        session=session,
         area_object_type=context.area_object_type,
         areas=object_in.Area_List,
         object_types=object_in.Object_Types,

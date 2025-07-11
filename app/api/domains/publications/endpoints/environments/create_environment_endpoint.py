@@ -2,12 +2,12 @@ import uuid
 from datetime import datetime, timezone
 from typing import Annotated
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.services.state.state import InitialState
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
@@ -43,7 +43,7 @@ def post_create_environment_endpoint(
             )
         ),
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> EnvironmentCreatedResponse:
     timepoint: datetime = datetime.now(timezone.utc)
 
@@ -67,8 +67,8 @@ def post_create_environment_endpoint(
         Created_By_UUID=user.UUID,
         Modified_By_UUID=user.UUID,
     )
-    db.add(environment)
-    db.flush()
+    session.add(environment)
+    session.flush()
 
     if environment.Has_State:
         initial_state = PublicationEnvironmentStateTable(
@@ -81,14 +81,14 @@ def post_create_environment_endpoint(
             Created_Date=timepoint,
             Created_By_UUID=user.UUID,
         )
-        db.add(initial_state)
-        db.flush()
+        session.add(initial_state)
+        session.flush()
 
         environment.Active_State_UUID = initial_state.UUID
-        db.add(environment)
+        session.add(environment)
 
-    db.flush()
-    db.commit()
+    session.flush()
+    session.commit()
 
     return EnvironmentCreatedResponse(
         UUID=environment.UUID,

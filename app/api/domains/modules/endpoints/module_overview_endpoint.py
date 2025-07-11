@@ -2,13 +2,13 @@ import uuid
 from datetime import datetime
 from typing import Annotated, List, Optional, Sequence
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session, aliased, joinedload, load_only
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.types import Module as ModuleClass
 from app.api.domains.modules.types import ModuleStatus
@@ -57,7 +57,7 @@ class ModuleOverview(BaseModel):
 def view_module_overview_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> ModuleOverview:
     subq = (
         select(
@@ -94,7 +94,7 @@ def view_module_overview_endpoint(
         )
     )
 
-    rows: Sequence[ModuleObjectsTable] = db.execute(stmt).scalars().all()
+    rows: Sequence[ModuleObjectsTable] = session.execute(stmt).scalars().all()
     objects: List[ModuleObjectShort] = [ModuleObjectShort.model_validate(r) for r in rows]
     status_history: List[ModuleStatus] = [ModuleStatus.model_validate(s) for s in module.status_history]
 

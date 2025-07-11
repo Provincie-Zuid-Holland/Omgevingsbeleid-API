@@ -1,11 +1,11 @@
 from typing import Annotated, List, Sequence
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.objects.types import ReadRelation
 from app.api.endpoint import BaseEndpointContext
 from app.core.tables.others import RelationsTable
@@ -43,7 +43,7 @@ class RelationsListEndpointContext(BaseEndpointContext):
 @inject
 def get_relations_list_endpoint(
     lineage_id: int,
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[RelationsListEndpointContext, Depends()],
 ) -> List[ReadRelation]:
     object_code: str = f"{context.object_type}-{lineage_id}"
@@ -61,7 +61,7 @@ def get_relations_list_endpoint(
             selectinload(RelationsTable.ToObjectStatics),
         )
     )
-    table_rows: Sequence[RelationsTable] = db.scalars(stmt).all()
+    table_rows: Sequence[RelationsTable] = session.scalars(stmt).all()
 
     response: List[ReadRelation] = _format_rows(object_code, table_rows)
     return response

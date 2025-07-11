@@ -4,6 +4,7 @@ import uuid
 from typing import List, Sequence, Set
 
 from bs4 import BeautifulSoup
+from sqlalchemy.orm import Session
 
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.domains.publications.services.assets.asset_remove_transparency import AssetRemoveTransparency
@@ -21,14 +22,14 @@ class PublicationAssetProvider:
         self._asset_repository: AssetRepository = asset_repository
         self._asset_remove_transparency: AssetRemoveTransparency = asset_remove_transparency
 
-    def get_assets(self, objects: List[dict]) -> List[dict]:
+    def get_assets(self, session: Session, objects: List[dict]) -> List[dict]:
         asset_uuids: List[uuid.UUID] = self._calculate_asset_uuids(objects)
-        dso_assets: List[dict] = self.get_assets_by_uuids(asset_uuids)
+        dso_assets: List[dict] = self.get_assets_by_uuids(session, asset_uuids)
 
         return dso_assets
 
-    def get_assets_by_uuids(self, uuids: List[uuid.UUID]) -> List[dict]:
-        assets: Sequence[AssetsTable] = self._asset_repository.get_by_uuids(uuids)
+    def get_assets_by_uuids(self, session: Session, uuids: List[uuid.UUID]) -> List[dict]:
+        assets: Sequence[AssetsTable] = self._asset_repository.get_by_uuids(session, uuids)
         dso_assets: List[dict] = self._as_dso_assets(assets)
 
         return dso_assets

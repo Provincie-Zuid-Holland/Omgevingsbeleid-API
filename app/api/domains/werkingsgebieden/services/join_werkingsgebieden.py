@@ -17,11 +17,11 @@ class Config(BaseModel):
 class JoinWerkingsgebiedenService:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         rows: List[BaseModel],
         response_model: Model,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._rows: List[BaseModel] = rows
         self._response_model: Model = response_model
 
@@ -68,7 +68,7 @@ class JoinWerkingsgebiedenService:
 
         stmt = select(subq).filter(subq.c._RowNumber == 1)
 
-        rows = self._db.execute(stmt).all()
+        rows = self._session.execute(stmt).all()
         result: Dict[str, BaseModel] = {r.Code: werkingsgebied_model.model_validate(r) for r in rows}
 
         return result
@@ -94,16 +94,14 @@ class JoinWerkingsgebiedenService:
 
 
 class JoinWerkingsgebiedenServiceFactory:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
     def create_service(
         self,
+        session: Session,
         rows: List[BaseModel],
         response_model: Model,
     ) -> JoinWerkingsgebiedenService:
         return JoinWerkingsgebiedenService(
-            db=self._db,
+            session=session,
             rows=rows,
             response_model=response_model,
         )

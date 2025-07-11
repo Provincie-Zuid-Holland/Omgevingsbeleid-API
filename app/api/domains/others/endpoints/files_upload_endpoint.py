@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.others.repositories.storage_file_repository import StorageFileRepository
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.permissions import Permissions
@@ -36,13 +37,13 @@ class FileData(BaseModel):
 class EndpointHandler:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         storage_repository: StorageFileRepository,
         user: UsersTable,
         uploaded_file: UploadFile,
         title: str,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._storage_repository: StorageFileRepository = storage_repository
         self._user: UsersTable = user
         self._uploaded_file: UploadFile = uploaded_file
@@ -67,8 +68,8 @@ class EndpointHandler:
         )
 
         file_table: StorageFileTable = self._store_file(file_data)
-        self._db.commit()
-        self._db.flush()
+        self._session.commit()
+        self._session.flush()
 
         response: UploadFileResponse = UploadFileResponse(
             UUID=file_table.UUID,
@@ -92,7 +93,8 @@ class EndpointHandler:
 
     def _store_file(self, file_data: FileData) -> StorageFileTable:
         existing_file_table: Optional[StorageFileTable] = self._storage_repository.get_by_checksum_uuid(
-            file_data.Checksum
+            self._session,
+            file_data.Checksum,
         )
         if existing_file_table is not None:
             return existing_file_table
@@ -108,8 +110,8 @@ class EndpointHandler:
             Created_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
         )
-        self._db.add(file_table)
-        self._db.flush()
+        self._session.add(file_table)
+        self._session.flush()
         return file_table
 
 
@@ -117,7 +119,7 @@ class EndpointHandler:
 def post_files_upload_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     storage_repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     title: str = Form(...),
     uploaded_file: UploadFile = File(...),
@@ -125,7 +127,7 @@ def post_files_upload_endpoint(
     permission_service.guard_valid_user(Permissions.storage_file_can_upload_files, user)
 
     handler: EndpointHandler = EndpointHandler(
-        db,
+        session,
         storage_repository,
         user,
         uploaded_file,

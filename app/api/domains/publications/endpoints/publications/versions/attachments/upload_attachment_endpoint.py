@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_version
 from app.api.domains.publications.repository.publication_storage_file_repository import PublicationStorageFileRepository
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
@@ -51,7 +52,7 @@ def post_upload_attachment_endpoint(
     storage_repository: Annotated[
         PublicationStorageFileRepository, Depends(Provide[ApiContainer.publication.storage_file_repository])
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     title: str = Form(...),
     uploaded_file: UploadFile = File(...),
 ) -> UploadAttachmentResponse:
@@ -71,9 +72,15 @@ def post_upload_attachment_endpoint(
         Filename=original_filename,
         Checksum=checksum,
     )
-    file_table: PublicationStorageFileTable = _store_file(storage_repository, timepoint, user.UUID, file_data)
-    db.add(file_table)
-    db.flush()
+    file_table: PublicationStorageFileTable = _store_file(
+        session,
+        storage_repository,
+        timepoint,
+        user.UUID,
+        file_data,
+    )
+    session.add(file_table)
+    session.flush()
 
     attachment = PublicationVersionAttachmentTable(
         Publication_Version_UUID=version.UUID,
@@ -85,9 +92,9 @@ def post_upload_attachment_endpoint(
         Modified_Date=timepoint,
         Modified_By_UUID=user.UUID,
     )
-    db.add(attachment)
-    db.commit()
-    db.flush()
+    session.add(attachment)
+    session.commit()
+    session.flush()
 
     response: UploadAttachmentResponse = UploadAttachmentResponse(
         ID=attachment.ID,
@@ -117,12 +124,14 @@ def _normalize_filename(filename: Optional[str]) -> str:
 
 
 def _store_file(
+    session: Session,
     repository: PublicationStorageFileRepository,
     timepoint: datetime,
     user_uuid: uuid.UUID,
     file_data: FileData,
 ) -> PublicationStorageFileTable:
     existing_file_table: Optional[PublicationStorageFileTable] = repository.get_by_checksum_uuid(
+        session,
         file_data.Checksum,
     )
     if existing_file_table is not None:

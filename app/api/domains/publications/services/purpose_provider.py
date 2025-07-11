@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 from typing import Dict
 
-from sqlalchemy.orm import Session
-
 from app.api.domains.publications.types.api_input_data import ActFrbr, Purpose
 from app.api.domains.publications.types.enums import PurposeType
 from app.core.tables.publications import PublicationEnvironmentTable, PublicationVersionTable
@@ -14,9 +12,6 @@ TYPE_MAP: Dict[str, str] = {
 
 
 class PurposeProvider:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
     def generate_purpose(
         self,
         publication_version: PublicationVersionTable,

@@ -3,9 +3,10 @@ from typing import Annotated, List, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_simple_pagination
+from app.api.dependencies import depends_db_session, depends_simple_pagination
 from app.api.domains.publications.repository.publication_act_repository import PublicationActRepository
 from app.api.domains.publications.types.enums import DocumentType, ProcedureType
 from app.api.domains.publications.types.models import PublicationActShort
@@ -30,9 +31,11 @@ def get_list_acts_endpoint(
             )
         ),
     ],
+    session: Annotated[Session, Depends(depends_db_session)],
     act_repository: Annotated[PublicationActRepository, Depends(Provide[ApiContainer.publication.act_repository])],
 ) -> PagedResponse[PublicationActShort]:
     paginated_result = act_repository.get_with_filters(
+        session=session,
         is_active=is_active,
         environment_uuid=environment_uuid,
         document_type=document_type,

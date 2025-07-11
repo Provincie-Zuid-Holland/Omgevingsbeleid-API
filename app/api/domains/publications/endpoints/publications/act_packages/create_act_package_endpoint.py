@@ -8,6 +8,7 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_version
 from app.api.domains.publications.exceptions import DSOConfigurationException, DSORenvooiException
 from app.api.domains.publications.services.act_package.act_package_builder import ActPackageBuilder
@@ -52,14 +53,14 @@ class PublicationPackageCreatedResponse(BaseModel):
 class EndpointHandler:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         validator: PublicationVersionValidator,
         package_builder_factory: ActPackageBuilderFactory,
         user: UsersTable,
         object_in: PublicationPackageCreate,
         publication_version: PublicationVersionTable,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._validator: PublicationVersionValidator = validator
         self._package_builder_factory: ActPackageBuilderFactory = package_builder_factory
         self._user: UsersTable = user
@@ -77,6 +78,7 @@ class EndpointHandler:
 
         try:
             package_builder: ActPackageBuilder = self._package_builder_factory.create_builder(
+                self._session,
                 self._publication_version,
                 self._object_in.Package_Type,
                 MutationStrategy.RENVOOI,
@@ -98,8 +100,8 @@ class EndpointHandler:
                 Created_Date=self._timepoint,
                 Created_By_UUID=self._user.UUID,
             )
-            self._db.add(package_zip)
-            self._db.flush()
+            self._session.add(package_zip)
+            self._session.flush()
 
             package = PublicationActPackageTable(
                 UUID=uuid.uuid4(),
@@ -113,8 +115,8 @@ class EndpointHandler:
                 Created_By_UUID=self._user.UUID,
                 Modified_By_UUID=self._user.UUID,
             )
-            self._db.add(package)
-            self._db.flush()
+            self._session.add(package)
+            self._session.flush()
 
             self._handle_new_state(package_builder, package)
             self._handle_bill_act_purpose(package_builder, package)
@@ -125,10 +127,10 @@ class EndpointHandler:
                         self._publication_version.Status = PublicationVersionStatus.VALIDATION
                     case PackageType.PUBLICATION:
                         self._publication_version.Status = PublicationVersionStatus.PUBLICATION
-                self._db.add(self._publication_version)
-                self._db.flush()
+                self._session.add(self._publication_version)
+                self._session.flush()
 
-            self._db.commit()
+            self._session.commit()
 
             response = PublicationPackageCreatedResponse(
                 Package_UUID=package.UUID,
@@ -181,17 +183,17 @@ class EndpointHandler:
         new_state: PublicationEnvironmentStateTable = package_builder.create_new_state()
         new_state.Created_Date = self._timepoint
         new_state.Created_By_UUID = self._user.UUID
-        self._db.add(new_state)
-        self._db.flush()
+        self._session.add(new_state)
+        self._session.flush()
 
         package.Used_Environment_State_UUID = self._environment.Active_State_UUID
         package.Created_Environment_State_UUID = new_state.UUID
-        self._db.add(package)
-        self._db.flush()
+        self._session.add(package)
+        self._session.flush()
 
         environment: PublicationEnvironmentTable = self._environment
         environment.Is_Locked = True
-        self._db.add(environment)
+        self._session.add(environment)
 
     def _handle_bill_act_purpose(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
         if not self._environment.Has_State:
@@ -211,8 +213,8 @@ class EndpointHandler:
             Created_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
         )
-        self._db.add(purpose_table)
-        self._db.flush()
+        self._session.add(purpose_table)
+        self._session.flush()
 
         bill_frbr: BillFrbr = package_builder.get_bill_frbr()
         bill = PublicationBillTable(
@@ -228,8 +230,8 @@ class EndpointHandler:
             Created_By_UUID=self._user.UUID,
             Modified_By_UUID=self._user.UUID,
         )
-        self._db.add(bill)
-        self._db.flush()
+        self._session.add(bill)
+        self._session.flush()
 
         bill_version = PublicationBillVersionTable(
             UUID=uuid.uuid4(),
@@ -240,7 +242,7 @@ class EndpointHandler:
             Created_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
         )
-        self._db.add(bill_version)
+        self._session.add(bill_version)
 
         act_frbr: ActFrbr = package_builder.get_act_frbr()
         act_version = PublicationActVersionTable(
@@ -253,13 +255,13 @@ class EndpointHandler:
             Created_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
         )
-        self._db.add(act_version)
-        self._db.flush()
+        self._session.add(act_version)
+        self._session.flush()
 
         package.Bill_Version_UUID = bill_version.UUID
         package.Act_Version_UUID = act_version.UUID
-        self._db.add(package)
-        self._db.flush()
+        self._session.add(package)
+        self._session.flush()
 
 
 @inject
@@ -280,10 +282,10 @@ def post_create_act_package_endpoint(
     package_builder_factory: Annotated[
         ActPackageBuilderFactory, Depends(Provide[ApiContainer.publication.act_package_builder_factory])
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> PublicationPackageCreatedResponse:
     handler: EndpointHandler = EndpointHandler(
-        db,
+        session,
         publication_version_validator,
         package_builder_factory,
         user,

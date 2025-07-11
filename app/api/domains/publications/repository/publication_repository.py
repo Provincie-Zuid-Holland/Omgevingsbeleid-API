@@ -2,6 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
+from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.publications.types.enums import DocumentType
@@ -10,12 +11,13 @@ from app.core.tables.publications import PublicationTable
 
 
 class PublicationRepository(BaseRepository):
-    def get_by_uuid(self, uuid: UUID) -> Optional[PublicationTable]:
+    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[PublicationTable]:
         stmt = select(PublicationTable).where(PublicationTable.UUID == uuid)
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
     def get_with_filters(
         self,
+        session: Session,
         document_type: Optional[DocumentType] = None,
         module_id: Optional[int] = None,
         offset: int = 0,
@@ -30,6 +32,7 @@ class PublicationRepository(BaseRepository):
         stmt = select(PublicationTable).filter(*filters)
 
         paged_result = self.fetch_paginated(
+            session=session,
             statement=stmt,
             offset=offset,
             limit=limit,

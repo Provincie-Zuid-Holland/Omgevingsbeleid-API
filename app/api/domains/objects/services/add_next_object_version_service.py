@@ -17,11 +17,11 @@ class AddNextObjectVersionConfig(BaseModel):
 class AddNextObjectVersionService:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         config: AddNextObjectVersionConfig,
         rows: List[BaseModel],
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._config: AddNextObjectVersionConfig = config
         self._rows: List[BaseModel] = rows
 
@@ -73,7 +73,7 @@ class AddNextObjectVersionService:
 
         stmt = select(next_obj_subq).where(next_obj_subq.c._RowNumber == 1)
 
-        db_result = self._db.execute(stmt).all()
+        db_result = self._session.execute(stmt).all()
         next_version_map: Dict[uuid.UUID, NextObjectVersion] = {}
         for db_row in db_result:
             next_version: NextObjectVersion = NextObjectVersion.model_validate(db_row)
@@ -83,16 +83,14 @@ class AddNextObjectVersionService:
 
 
 class AddNextObjectVersionServiceFactory:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
     def create_service(
         self,
+        session: Session,
         config: AddNextObjectVersionConfig,
         rows: List[BaseModel],
     ) -> AddNextObjectVersionService:
         return AddNextObjectVersionService(
-            db=self._db,
+            session=session,
             config=config,
             rows=rows,
         )

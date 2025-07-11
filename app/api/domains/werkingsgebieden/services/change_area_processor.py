@@ -2,6 +2,7 @@ import uuid
 from typing import Optional, Set
 
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
@@ -17,11 +18,13 @@ class AreaProcessorConfig(BaseModel):
 class AreaProcessorService:
     def __init__(
         self,
+        session: Session,
         source_geometry_repository: GeometryRepository,
         area_repository: AreaRepository,
         area_geometry_repository: AreaGeometryRepository,
         config: AreaProcessorConfig,
     ):
+        self._session: Session = session
         self._source_geometry_repository: GeometryRepository = source_geometry_repository
         self._area_repository: AreaRepository = area_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
@@ -55,7 +58,7 @@ class AreaProcessorService:
         # And finally store the Area UUID back in to the record
 
         # The Area check
-        area_table: Optional[AreasTable] = self._area_repository.get_by_uuid(new_field_value)
+        area_table: Optional[AreasTable] = self._area_repository.get_by_uuid(self._session, new_field_value)
         if area_table is not None:
             return new_record
 
@@ -68,7 +71,8 @@ class AreaProcessorService:
 
     def _get_werkingsgebied(self, werkingsgebied_uuid: uuid.UUID) -> dict:
         selected_werkingsgebied: Optional[dict] = self._source_geometry_repository.get_werkingsgebied_optional(
-            werkingsgebied_uuid
+            self._session,
+            werkingsgebied_uuid,
         )
         if selected_werkingsgebied is None:
             raise ValueError("Invalid UUID for Werkingsgebied")
@@ -77,12 +81,15 @@ class AreaProcessorService:
 
     def _get_or_create_area(self, new_record: ModuleObjectsTable, werkingsgebied: dict) -> uuid.UUID:
         werkingsgebied_uuid: uuid.UUID = uuid.UUID(werkingsgebied["UUID"])
-        existing_area: Optional[AreasTable] = self._area_repository.get_by_werkingsgebied_uuid(werkingsgebied_uuid)
+        existing_area: Optional[AreasTable] = self._area_repository.get_by_werkingsgebied_uuid(
+            self._session, werkingsgebied_uuid
+        )
         if existing_area is not None:
             return existing_area.UUID
 
         area_uuid: uuid.UUID = uuid.uuid4()
         self._area_geometry_repository.create_area(
+            session=self._session,
             uuidx=area_uuid,
             werkingsgebied=werkingsgebied,
             created_date=new_record.Modified_Date,
@@ -105,9 +112,11 @@ class AreaProcessorServiceFactory:
 
     def create_service(
         self,
+        session: Session,
         config: AreaProcessorConfig,
     ) -> AreaProcessorService:
         return AreaProcessorService(
+            session,
             self._source_geometry_repository,
             self._area_repository,
             self._area_geometry_repository,

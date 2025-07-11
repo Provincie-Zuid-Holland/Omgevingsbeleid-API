@@ -7,10 +7,7 @@ from app.core.tables.acknowledged_relations import AcknowledgedRelationsTable
 
 
 class AcknowledgedRelationsRepository:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
-    def get_by_codes(self, code_a: str, code_b: str) -> Optional[AcknowledgedRelationsTable]:
+    def get_by_codes(self, session: Session, code_a: str, code_b: str) -> Optional[AcknowledgedRelationsTable]:
         from_code, to_code = sorted([code_a, code_b])
         stmt = select(AcknowledgedRelationsTable).filter(
             and_(
@@ -20,10 +17,11 @@ class AcknowledgedRelationsRepository:
                 AcknowledgedRelationsTable.Denied == None,
             )
         )
-        return self._db.scalars(stmt).first()
+        return session.scalars(stmt).first()
 
     def get_with_filters(
         self,
+        session: Session,
         code: str,
         requested_by_me: bool,
         acknowledged: Optional[bool],
@@ -61,5 +59,5 @@ class AcknowledgedRelationsRepository:
             )
 
         stmt = select(AcknowledgedRelationsTable).filter(*filters)
-        rows: List[AcknowledgedRelationsTable] = list(self._db.scalars(stmt).all())
+        rows: List[AcknowledgedRelationsTable] = list(session.scalars(stmt).all())
         return rows

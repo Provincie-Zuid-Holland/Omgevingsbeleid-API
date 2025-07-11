@@ -8,10 +8,11 @@ from app.core.services.event.types import Listener
 from app.core.types import Model, WerkingsgebiedRelatedObjects
 
 from .create_model_event import CreateModelEvent
+from sqlalchemy.orm import Session
 
 
 class ObjectsExtenderListener(Listener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
         if not "foreign_keys_extender" in service_config:
             return event
@@ -34,7 +35,7 @@ class ObjectsExtenderListener(Listener[CreateModelEvent]):
 
 
 class ObjectStaticsExtenderListener(Listener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
         if not "static_foreign_keys_extender" in service_config:
             return event
@@ -59,7 +60,7 @@ class ObjectStaticsExtenderListener(Listener[CreateModelEvent]):
 class AddRelationsListener(Listener[CreateModelEvent]):
     RELATION_MODEL_ID: str = "read_relation_short"
 
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
         if not "relations" in service_config:
             return event
@@ -114,7 +115,7 @@ class AddRelationsListener(Listener[CreateModelEvent]):
 
 
 class JoinWerkingsgebiedenListener(Listener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
         if not "join_werkingsgebieden" in service_config:
             return event
@@ -133,7 +134,7 @@ class JoinWerkingsgebiedenListener(Listener[CreateModelEvent]):
 
 
 class AddPublicRevisionsToObjectModelListener(Listener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
         if not "public_revisions" in service_config:
             return event
@@ -150,7 +151,7 @@ class AddPublicRevisionsToObjectModelListener(Listener[CreateModelEvent]):
 
 
 class AddNextObjectVersionToObjectModelListener(Listener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
         if not "next_object_version" in service_config:
             return event
@@ -167,7 +168,7 @@ class AddNextObjectVersionToObjectModelListener(Listener[CreateModelEvent]):
 
 
 class AddRelatedObjectsToWerkingsgebiedObjectModelListener(Listener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
         if not "werkingsgebied_related_objects" in service_config:
             return event

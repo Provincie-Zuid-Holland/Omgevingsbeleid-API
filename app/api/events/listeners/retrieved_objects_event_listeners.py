@@ -2,6 +2,7 @@ import uuid
 from typing import Generic, List, Optional, TypeVar, Union
 
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.api.domains.modules.services.add_public_revisions_service import (
     AddPublicRevisionsConfig,
@@ -39,8 +40,9 @@ class AddRelationsToObjectsListener(Listener[RetrievedObjectsEvent]):
     def __init__(self, relations_factory: AddRelationsServiceFactory):
         self._relations_factory: AddRelationsServiceFactory = relations_factory
 
-    def handle_event(self, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
         add_service: AddRelationsService = self._relations_factory.create_service(
+            session,
             event.payload.rows,
             event.context.response_model,
         )
@@ -55,7 +57,7 @@ class JoinWerkingsgebiedenToObjectsListener(Listener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: JoinWerkingsgebiedenServiceFactory):
         self._service_factory: JoinWerkingsgebiedenServiceFactory = service_factory
 
-    def handle_event(self, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
         join_service: JoinWerkingsgebiedenService = self._service_factory.create_service(
             event.payload.rows,
             event.context.response_model,
@@ -71,12 +73,13 @@ class AddPublicRevisionsToObjectsListener(Listener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: AddPublicRevisionsServiceFactory):
         self._service_factory: AddPublicRevisionsServiceFactory = service_factory
 
-    def handle_event(self, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
         config: Optional[AddPublicRevisionsConfig] = self._collect_config(event)
         if not config:
             return event
 
         service: AddPublicRevisionsService = self._service_factory.create_service(
+            session,
             config,
             event.payload.rows,
         )
@@ -108,12 +111,13 @@ class AddNextObjectVersionToObjectsListener(Listener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: AddNextObjectVersionServiceFactory):
         self._service_factory: AddNextObjectVersionServiceFactory = service_factory
 
-    def handle_event(self, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
         config: Optional[AddNextObjectVersionConfig] = self._collect_config(event)
         if not config:
             return event
 
         service: AddNextObjectVersionService = self._service_factory.create_service(
+            session,
             config,
             event.payload.rows,
         )
@@ -144,12 +148,13 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(Listener[RetrievedObjects
     def __init__(self, service_factory: AddWerkingsgebiedRelatedObjectsServiceFactory):
         self._service_factory: AddWerkingsgebiedRelatedObjectsServiceFactory = service_factory
 
-    def handle_event(self, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
         config: Optional[AddWerkingsgebiedRelatedObjectsConfig] = self._collect_config(event)
         if not config:
             return event
 
         service: AddWerkingsgebiedRelatedObjectsService = self._service_factory.create_service(
+            session,
             config,
             event.payload.rows,
         )
@@ -183,7 +188,7 @@ class GetColumnImagesListenerBase(Listener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: ColumnImageInserterFactory):
         self._service_factory: ColumnImageInserterFactory = service_factory
 
-    def handle_event(self, event: EventRMO) -> Optional[EventRMO]:
+    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
         config: Optional[GetImagesConfig] = self._collect_config(event.context.response_model)
         if not config:
             return event
@@ -191,6 +196,7 @@ class GetColumnImagesListenerBase(Listener[EventRMO], Generic[EventRMO]):
             return event
 
         inserter: ColumnImageInserter = self._service_factory.create_service(
+            session,
             event.payload.rows,
             config,
         )

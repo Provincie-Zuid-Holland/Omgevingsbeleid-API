@@ -2,6 +2,7 @@ import uuid
 from typing import Optional
 
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
 from app.core.tables.publications import PublicationActTable, PublicationActVersionTable
@@ -10,6 +11,7 @@ from app.core.tables.publications import PublicationActTable, PublicationActVers
 class PublicationActVersionRepository(BaseRepository):
     def get_by_work_expression(
         self,
+        session: Session,
         environment_uuid: uuid.UUID,
         document_type: str,
         procedure_type: str,
@@ -36,5 +38,5 @@ class PublicationActVersionRepository(BaseRepository):
             .filter(PublicationActVersionTable.Expression_Version == expression_version)
         )
 
-        result: Optional[PublicationActVersionTable] = self.fetch_first(stmt)
+        result: Optional[PublicationActVersionTable] = self.fetch_first(session, stmt)
         return result

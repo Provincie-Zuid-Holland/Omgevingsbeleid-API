@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.repositories.module_status_repository import ModuleStatusRepository
 from app.api.domains.publications.dependencies import depends_publication
 from app.api.domains.publications.services.publication_version_defaults_provider import (
@@ -47,12 +48,15 @@ def post_create_version_endpoint(
     defaults_provider: Annotated[
         PublicationVersionDefaultsProvider, Depends(Provide[ApiContainer.publication.version_defaults_provider])
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> PublicationVersionCreatedResponse:
     _guard_locked(publication)
 
     module_status: ModuleStatusHistoryTable = _get_module_status(
-        module_status_repository, publication.Module_ID, object_in.Module_Status_ID
+        session,
+        module_status_repository,
+        publication.Module_ID,
+        object_in.Module_Status_ID,
     )
 
     bill_metadata = defaults_provider.get_bill_metadata(publication.Document_Type, publication.Procedure_Type)
@@ -82,9 +86,9 @@ def post_create_version_endpoint(
         Modified_By_UUID=user.UUID,
     )
 
-    db.add(version)
-    db.commit()
-    db.flush()
+    session.add(version)
+    session.commit()
+    session.flush()
 
     return PublicationVersionCreatedResponse(
         UUID=version.UUID,
@@ -97,9 +101,10 @@ def _guard_locked(publication: PublicationTable):
 
 
 def _get_module_status(
-    module_status_repository: ModuleStatusRepository, module_id: int, status_id: int
+    session: Session, module_status_repository: ModuleStatusRepository, module_id: int, status_id: int
 ) -> ModuleStatusHistoryTable:
     module_status: Optional[ModuleStatusHistoryTable] = module_status_repository.get_by_id(
+        session,
         module_id,
         status_id,
     )

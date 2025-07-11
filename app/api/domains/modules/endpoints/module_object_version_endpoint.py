@@ -4,8 +4,10 @@ from typing import Annotated, List, Optional
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.types import ModuleStatusCode
@@ -33,6 +35,7 @@ def view_module_object_version_endpoint(
     ],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
     user: Annotated[Optional[UsersTable], Depends(depends_optional_current_user)],
+    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ModuleObjectVersionEndpointContext, Depends()],
     object_uuid: uuid.UUID,
 ) -> BaseModel:
@@ -45,6 +48,7 @@ def view_module_object_version_endpoint(
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "module objects lacks the minimum status for view.")
 
     module_object: Optional[ModuleObjectsTable] = module_object_repository.get_by_module_id_object_type_and_uuid(
+        session,
         module.Module_ID,
         context.object_type,
         object_uuid,
@@ -61,11 +65,12 @@ def view_module_object_version_endpoint(
 
     # Ask extensions for more information
     event: RetrievedModuleObjectsEvent = event_manager.dispatch(
+        session,
         RetrievedModuleObjectsEvent.create(
             rows,
             context.builder_data.endpoint_id,
             context.response_config_model,
-        )
+        ),
     )
     rows = event.payload.rows
 

@@ -1,6 +1,8 @@
 import uuid
 from typing import Any, Dict, Optional, Tuple
 
+from sqlalchemy.orm import Session
+
 import app.api.domains.publications.services.state.versions.v2.models as models_v2
 from app.api.domains.publications.repository.publication_act_package_repository import PublicationActPackageRepository
 from app.api.domains.publications.repository.publication_act_version_repository import PublicationActVersionRepository
@@ -29,7 +31,7 @@ class StateV2Upgrader(StateUpgrader):
     def get_input_schema_version() -> int:
         return state_v1.StateV1.get_schema_version()
 
-    def upgrade(self, environment_uuid: uuid.UUID, old_state: State) -> State:
+    def upgrade(self, session: Session, environment_uuid: uuid.UUID, old_state: State) -> State:
         if old_state.get_schema_version() != state_v1.StateV1.get_schema_version():
             raise RuntimeError("Unexpected state provided")
 
@@ -37,7 +39,7 @@ class StateV2Upgrader(StateUpgrader):
             raise RuntimeError("Unexpected state provided")
 
         purposes = self._mutate_purposes(old_state)
-        acts = self._mutate_acts(environment_uuid, old_state)
+        acts = self._mutate_acts(session, environment_uuid, old_state)
         announcements = self._mutate_announcements(old_state)
 
         new_state = state_v2.StateV2(
@@ -57,17 +59,21 @@ class StateV2Upgrader(StateUpgrader):
 
         return purposes
 
-    def _mutate_acts(self, environment_uuid: uuid.UUID, old_state: state_v1.StateV1) -> Dict[str, models_v2.ActiveAct]:
+    def _mutate_acts(
+        self, session: Session, environment_uuid: uuid.UUID, old_state: state_v1.StateV1
+    ) -> Dict[str, models_v2.ActiveAct]:
         acts: Dict[str, models_v2.ActiveAct] = {}
 
         for key, old_act in old_state.Acts.items():
-            new_act: models_v2.ActiveAct = self._mutate_act(environment_uuid, old_act)
+            new_act: models_v2.ActiveAct = self._mutate_act(session, environment_uuid, old_act)
             acts[key] = new_act
 
         return acts
 
-    def _mutate_act(self, environment_uuid: uuid.UUID, old_act: state_v1.ActiveAct) -> models_v2.ActiveAct:
-        original_data, publication_version_uuid = self._get_original_input_data(environment_uuid, old_act)
+    def _mutate_act(
+        self, session: Session, environment_uuid: uuid.UUID, old_act: state_v1.ActiveAct
+    ) -> models_v2.ActiveAct:
+        original_data, publication_version_uuid = self._get_original_input_data(session, environment_uuid, old_act)
 
         werkingsgebieden: Dict[int, models_v2.Werkingsgebied] = self._get_act_werkingsgebieden(
             original_data,
@@ -114,9 +120,13 @@ class StateV2Upgrader(StateUpgrader):
         return new_werkingsgebieden
 
     def _get_original_input_data(
-        self, environment_uuid: uuid.UUID, old_act: state_v1.ActiveAct
+        self,
+        session: Session,
+        environment_uuid: uuid.UUID,
+        old_act: state_v1.ActiveAct,
     ) -> Tuple[PublicationData, uuid.UUID]:
         act_version: Optional[PublicationActVersionTable] = self._act_version_repository.get_by_work_expression(
+            session,
             environment_uuid,
             old_act.Document_Type,
             old_act.Procedure_Type,
@@ -132,6 +142,7 @@ class StateV2Upgrader(StateUpgrader):
             raise RuntimeError("PublicationActVersionTable not found while upgrading state1 to state2")
 
         act_package: Optional[PublicationActPackageTable] = self._act_package_repository.get_by_act_version(
+            session,
             act_version.UUID,
         )
         if act_package is None:
@@ -158,6 +169,7 @@ class StateV2Upgrader(StateUpgrader):
         )
 
         publication_data: PublicationData = self._act_data_provider.fetch_data(
+            session,
             act_package.Publication_Version,
             fake_bill,
             fake_act,

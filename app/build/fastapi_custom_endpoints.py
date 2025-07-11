@@ -16,6 +16,7 @@ async def health_check(
         "build": str(build_datetime),
     }
 
+    # @todo
     # try:
     #     session: Session = init_db_session(db_session_factory)
     #     session.close()

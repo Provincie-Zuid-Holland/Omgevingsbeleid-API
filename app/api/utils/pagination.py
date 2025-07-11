@@ -125,7 +125,7 @@ def query_paginated(
     limit: int = -1,
     offset: int = 0,
     sort: Optional[Tuple] = None,
-):
+) -> PaginatedQueryResult:
     """
     Extend a query with pagination and wrap the query results
     in a generic response containing pagination meta data.

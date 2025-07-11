@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
@@ -31,7 +32,7 @@ def atemporal_edit_object_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[AtemporalEditObjectEndpointContext, Depends()],
 ) -> ResponseOK:
     permission_service.guard_valid_user(
@@ -40,6 +41,7 @@ def atemporal_edit_object_endpoint(
     )
 
     maybe_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
+        session,
         context.object_type,
         lineage_id,
     )
@@ -58,11 +60,11 @@ def atemporal_edit_object_endpoint(
     timepoint: datetime = datetime.now(timezone.utc)
     maybe_object.Modified_By_UUID = user.UUID
     maybe_object.Modified_Date = timepoint
-    db.add(maybe_object)
+    session.add(maybe_object)
 
     if "Title" in changes:
         maybe_object.ObjectStatics.Cached_Title = changes["Title"]
-        db.add(maybe_object.ObjectStatics)
+        session.add(maybe_object.ObjectStatics)
 
     change_log: ChangeLogTable = ChangeLogTable(
         Object_Type=context.object_type,
@@ -74,9 +76,9 @@ def atemporal_edit_object_endpoint(
         Before=log_before,
         After=json.dumps(maybe_object.to_dict()),
     )
-    db.add(change_log)
+    session.add(change_log)
 
-    db.flush()
-    db.commit()
+    session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

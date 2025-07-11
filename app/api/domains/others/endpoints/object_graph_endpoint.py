@@ -1,13 +1,13 @@
 from datetime import datetime, timezone
 from typing import Annotated, List, Set
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.orm import Session, aliased, load_only
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.others.dependencies import depends_object_by_uuid
 from app.api.domains.others.types import GraphEdge, GraphEdgeType, GraphResponse, GraphVertice
 from app.api.endpoint import BaseEndpointContext
@@ -32,11 +32,11 @@ class ObjectGraphEndpointContext(BaseEndpointContext):
 class EndpointHandler:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         iterations_config: GraphIterationsConfig,
         object_table: ObjectsTable,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._iterations_config: GraphIterationsConfig = iterations_config
         self._object = object_table
 
@@ -96,7 +96,7 @@ class EndpointHandler:
             )
         )
 
-        rows: List[ObjectsTable] = self._db.execute(stmt).scalars().all()
+        rows: List[ObjectsTable] = self._session.execute(stmt).scalars().all()
         vertices: List[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
         return vertices
 
@@ -146,7 +146,7 @@ class EndpointHandler:
                 .filter(RelationsTable.From_Code.not_in(ignore_codes))
                 .filter(RelationsTable.To_Code.not_in(ignore_codes))
             )
-            rows: List[RelationsTable] = self._db.execute(stmt).scalars().all()
+            rows: List[RelationsTable] = self._session.execute(stmt).scalars().all()
 
             # Update the search and ignore codes for the next iteration
             ignore_codes = set.union(ignore_codes, search_codes)
@@ -220,7 +220,7 @@ class EndpointHandler:
                 )
             )
 
-            rows: List[AcknowledgedRelationsTable] = self._db.execute(stmt).scalars().all()
+            rows: List[AcknowledgedRelationsTable] = self._session.execute(stmt).scalars().all()
 
             # Update the search and ignore codes for the next iteration
             ignore_codes = set.union(ignore_codes, search_codes)
@@ -248,9 +248,9 @@ class EndpointHandler:
 
 @inject
 def get_object_graph_endpoint(
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     object_table: Annotated[ObjectsTable, Depends(depends_object_by_uuid)],
     context: Annotated[ObjectGraphEndpointContext, Depends()],
 ) -> GraphResponse:
-    handler = EndpointHandler(db, context.graph_iterations, object_table)
+    handler = EndpointHandler(session, context.graph_iterations, object_table)
     return handler.handle()

@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.domains.users.user_repository import UserRepository
 from app.api.endpoint import BaseEndpointContext
@@ -36,7 +37,7 @@ def post_edit_user_endpoint(
     user_uuid: uuid.UUID,
     object_in: EditUser,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     context: Annotated[EditUserEndpointContext, Depends()],
@@ -47,12 +48,12 @@ def post_edit_user_endpoint(
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
-    user: Optional[UsersTable] = repository.get_by_uuid(user_uuid)
+    user: Optional[UsersTable] = repository.get_by_uuid(session, user_uuid)
     if not user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "User does not exist")
 
     if object_in.Email:
-        same_email_user: Optional[UsersTable] = repository.get_by_email(object_in.Email)
+        same_email_user: Optional[UsersTable] = repository.get_by_email(session, object_in.Email)
         if same_email_user and same_email_user.UUID != user.UUID:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already in use")
 
@@ -85,9 +86,9 @@ def post_edit_user_endpoint(
         After=json.dumps(user_after_dict),
     )
 
-    db.add(change_log)
-    db.add(user)
-    db.flush()
-    db.commit()
+    session.add(change_log)
+    session.add(user)
+    session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

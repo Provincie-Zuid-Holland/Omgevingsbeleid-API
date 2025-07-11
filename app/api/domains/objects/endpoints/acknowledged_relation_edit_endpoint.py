@@ -7,6 +7,7 @@ from pydantic import Field, model_validator
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.objects.repositories.acknowledged_relations_repository import AcknowledgedRelationsRepository
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
@@ -40,13 +41,14 @@ def post_acknowledged_relation_edit_endpoint(
     repository: Annotated[
         AcknowledgedRelationsRepository, Depends(Provide[ApiContainer.acknowledged_relations_repository])
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[AcknowledgedRelationEditEndpointContext, Depends()],
 ) -> ResponseOK:
     object_code: str = f"{context.object_type}-{lineage_id}"
     timepoint: datetime = datetime.now(timezone.utc)
 
     relation: Optional[AcknowledgedRelationsTable] = repository.get_by_codes(
+        session,
         object_code,
         object_in.Code,
     )
@@ -72,8 +74,8 @@ def post_acknowledged_relation_edit_endpoint(
     if object_in.Deleted == True:
         relation.delete()
 
-    db.add(relation)
-    db.flush()
-    db.commit()
+    session.add(relation)
+    session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

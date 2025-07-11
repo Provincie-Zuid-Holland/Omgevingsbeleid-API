@@ -3,9 +3,10 @@ from typing import Annotated, List, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_simple_pagination
+from app.api.dependencies import depends_db_session, depends_simple_pagination
 from app.api.domains.publications.repository.publication_announcement_repository import (
     PublicationAnnouncementRepository,
 )
@@ -20,6 +21,7 @@ from app.core.tables.users import UsersTable
 def get_list_announcements_endpoint(
     act_package_uuid: Annotated[Optional[uuid.UUID], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
+    session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[
         PublicationAnnouncementRepository, Depends(Provide[ApiContainer.publication.announcement_repository])
     ],
@@ -33,6 +35,7 @@ def get_list_announcements_endpoint(
     ],
 ) -> PagedResponse[PublicationAnnouncementShort]:
     paginated_result = repository.get_with_filters(
+        session=session,
         act_package_uuid=act_package_uuid,
         offset=pagination.offset,
         limit=pagination.limit,

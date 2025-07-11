@@ -7,7 +7,7 @@ from sqlalchemy import Select
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_optional_sorted_pagination
+from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
 from app.api.endpoint import BaseEndpointContext
 from app.api.events.before_select_execution_event import BeforeSelectExecutionEvent
@@ -38,7 +38,7 @@ def list_valid_lineages_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ObjectListValidLineagesEndpointContext, Depends()],
 ) -> PagedResponse[BaseModel]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
@@ -46,16 +46,17 @@ def list_valid_lineages_endpoint(
 
     prepared_query: PreparedQuery = object_repository.prepare_list_valid_lineages(context.object_type)
     prepare_query_event: BeforeSelectExecutionEvent = event_manager.dispatch(
+        session,
         BeforeSelectExecutionEvent.create(
             query=prepared_query.query,
             response_model=context.response_config_model,
             objects_table_ref=prepared_query.aliased_ref,
-        )
+        ),
     )
     stmt: Select = prepare_query_event.payload.query
     paginated_result: PaginatedQueryResult = query_paginated(
         query=stmt,
-        session=db,
+        session=session,
         limit=pagination.limit,
         offset=pagination.offset,
         sort=(getattr(prepared_query.aliased_ref, pagination.sort.column), pagination.sort.order),
@@ -65,11 +66,12 @@ def list_valid_lineages_endpoint(
         context.response_config_model.pydantic_model.model_validate(r) for r in paginated_result.items
     ]
     retrieved_objects_event: RetrievedObjectsEvent = event_manager.dispatch(
+        session,
         RetrievedObjectsEvent.create(
             rows=rows,
             endpoint_id=context.builder_data.endpoint_id,
             response_model=context.response_config_model,
-        )
+        ),
     )
 
     return PagedResponse[BaseModel](

@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_act_package
 from app.api.domains.publications.repository.publication_act_report_repository import PublicationActReportRepository
 from app.api.domains.publications.types.enums import (
@@ -116,14 +117,14 @@ class FileParser:
 class EndpointHandler:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         debug: bool,
         report_repository: PublicationActReportRepository,
         user: UsersTable,
         uploaded_files: List[UploadFile],
         act_package: PublicationActPackageTable,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._report_repository: PublicationActReportRepository = report_repository
         self._user: UsersTable = user
         self._uploaded_files: List[UploadFile] = uploaded_files
@@ -150,6 +151,7 @@ class EndpointHandler:
         )
         for file in self._uploaded_files:
             existing_data: PaginatedQueryResult = self._report_repository.get_with_filters(
+                session=self._session,
                 act_package_uuid=self._act_package.UUID,
                 filename=file.filename,
                 limit=1,
@@ -159,7 +161,7 @@ class EndpointHandler:
                 continue
 
             report: PublicationActPackageReportTable = self._file_parser.parse(file)
-            self._db.add(report)
+            self._session.add(report)
             running_status = self._update_running_status(running_status, report)
 
         self._handle_conclusive_status(running_status)
@@ -167,9 +169,9 @@ class EndpointHandler:
         self._act_package.Modified_By_UUID = self._user.UUID
         self._act_package.Modified_Date = self._timepoint
 
-        self._db.add(self._act_package)
-        self._db.flush()
-        self._db.commit()
+        self._session.add(self._act_package)
+        self._session.flush()
+        self._session.commit()
 
         response: UploadPackageReportResponse = UploadPackageReportResponse(
             Status=ReportStatusType(self._act_package.Report_Status),
@@ -231,7 +233,7 @@ class EndpointHandler:
     def _handle_conclusive_failed(self):
         # On failed we just unlock the environment
         self._act_package.Publication_Version.Publication.Environment.Is_Locked = False
-        self._db.add(self._act_package.Publication_Version.Publication.Environment)
+        self._session.add(self._act_package.Publication_Version.Publication.Environment)
 
         # Show failure in the publication version status
         match self._act_package.Package_Type:
@@ -240,7 +242,7 @@ class EndpointHandler:
             case PackageType.PUBLICATION.value:
                 self._act_package.Publication_Version.Status = PublicationVersionStatus.PUBLICATION_FAILED
 
-        self._db.add(self._act_package.Publication_Version)
+        self._session.add(self._act_package.Publication_Version)
 
     def _handle_conclusive_valid(self):
         environment: PublicationEnvironmentTable = self._act_package.Publication_Version.Publication.Environment
@@ -254,13 +256,13 @@ class EndpointHandler:
         # - Complete the publication version Status if the procedure type is final
         new_state.Is_Activated = True
         new_state.Activated_Datetime = self._timepoint
-        self._db.add(new_state)
+        self._session.add(new_state)
 
         environment.Active_State_UUID = new_state.UUID
         environment.Is_Locked = False
         environment.Modified_Date = self._timepoint
         environment.Modified_By_UUID = self._user.UUID
-        self._db.add(environment)
+        self._session.add(environment)
 
         if self._act_package.Package_Type == PackageType.PUBLICATION.value:
             self._act_package.Publication_Version.Is_Locked = True
@@ -268,7 +270,7 @@ class EndpointHandler:
             if self._act_package.Publication_Version.Publication.Procedure_Type == ProcedureType.FINAL.value:
                 self._act_package.Publication_Version.Status = PublicationVersionStatus.COMPLETED
 
-            self._db.add(self._act_package.Publication_Version)
+            self._session.add(self._act_package.Publication_Version)
 
 
 @inject
@@ -289,11 +291,11 @@ def post_upload_act_package_report_endpoint(
             Provide[ApiContainer.publication.act_report_repository],
         ),
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     debug: Annotated[bool, Depends(Provide[ApiContainer.config.DEBUG_MODE])],
 ) -> UploadPackageReportResponse:
     handler: EndpointHandler = EndpointHandler(
-        db,
+        session,
         debug,
         report_repository,
         user,

@@ -5,6 +5,7 @@ from typing import Dict, List, Optional
 
 from shapely import wkt
 from sqlalchemy import select, text
+from sqlalchemy.orm import Session
 
 from app.api.domains.werkingsgebieden.repositories.area_repository import (
     VALID_GEOMETRIES,
@@ -32,7 +33,9 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
     def get_spatial_function(self, func: GeometryFunctions) -> str:
         pass
 
-    def get_area_uuids_by_geometry(self, geometry: str, geometry_func: GeometryFunctions) -> List[uuid.UUID]:
+    def get_area_uuids_by_geometry(
+        self, session: Session, geometry: str, geometry_func: GeometryFunctions
+    ) -> List[uuid.UUID]:
         # Validating the geometry should have been done already
         # But I do it again here because we insert it as plain text into sql.
         # Better be safe
@@ -55,12 +58,13 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
                 polygon=geometry,
             )
         )
-        rows = self._db.execute(areas_stmt).fetchall()
+        rows = session.execute(areas_stmt).fetchall()
 
         return [row.UUID for row in rows]
 
     def create_area(
         self,
+        session: Session,
         uuidx: uuid.UUID,
         created_date: datetime,
         created_by_uuid: uuid.UUID,
@@ -81,8 +85,8 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             Source_Created_Date=as_datetime(werkingsgebied.get("Created_Date")),
             Source_Modified_Date=as_datetime(werkingsgebied.get("Modified_Date")),
         )
-        self._db.add(area)
-        self._db.flush()
+        session.add(area)
+        session.flush()
 
         params = {
             "uuid": self._format_uuid(uuidx),
@@ -96,16 +100,16 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             WHERE
                 UUID = :uuid
             """
-        self._db.execute(text(sql), params)
-        self._db.commit()
+        session.execute(text(sql), params)
+        session.commit()
 
-    def get_area(self, uuidx: uuid.UUID) -> dict:
-        row = self.get_area_optional(uuidx)
+    def get_area(self, session: Session, uuidx: uuid.UUID) -> dict:
+        row = self.get_area_optional(session, uuidx)
         if row is None:
             raise RuntimeError(f"Area with UUID {uuidx} does not exist")
         return row
 
-    def get_area_optional(self, uuidx: uuid.UUID) -> Optional[dict]:
+    def get_area_optional(self, session: Session, uuidx: uuid.UUID) -> Optional[dict]:
         params = {
             "uuid": self._format_uuid(uuidx),
         }
@@ -119,7 +123,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             WHERE
                 UUID = :uuid
             """
-        row = self._db.execute(text(sql), params).fetchone()
+        row = session.execute(text(sql), params).fetchone()
         if row is None:
             return None
 
@@ -127,7 +131,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         return row_dict
 
     # TODO: WIP - not used yet. combine query for multiple areas for performance
-    def get_areas(self, uuids: List[uuid.UUID]) -> Dict[uuid.UUID, dict]:
+    def get_areas(self, session: Session, uuids: List[uuid.UUID]) -> Dict[uuid.UUID, dict]:
         placeholders = ", ".join(f":uuid{i}" for i in range(len(uuids)))
         params = {f"uuid{i}": uuid for i, uuid in enumerate(uuids)}
         sql = f"""
@@ -140,5 +144,5 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             WHERE
                 UUID IN ({placeholders})
             """
-        rows = self._db.execute(text(sql), params).fetchall()
+        rows = session.execute(text(sql), params).fetchall()
         return {row.UUID: row._asdict() for row in rows}

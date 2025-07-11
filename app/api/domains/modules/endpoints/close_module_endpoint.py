@@ -6,6 +6,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.types import ModuleStatusCodeInternal
 from app.api.domains.users.dependencies import depends_current_user
@@ -20,7 +21,7 @@ from app.core.tables.users import UsersTable
 def post_close_module_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
 ) -> ResponseOK:
     permission_service.guard_valid_user(
@@ -34,7 +35,7 @@ def post_close_module_endpoint(
     module.Closed = True
     module.Modified_By_UUID = user.UUID
     module.Modified_Date = timepoint
-    db.add(module)
+    session.add(module)
 
     status = ModuleStatusHistoryTable(
         Module_ID=module.Module_ID,
@@ -42,9 +43,9 @@ def post_close_module_endpoint(
         Created_Date=timepoint,
         Created_By_UUID=user.UUID,
     )
-    db.add(status)
+    session.add(status)
 
-    db.flush()
-    db.commit()
+    session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

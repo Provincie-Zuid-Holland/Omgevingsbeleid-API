@@ -2,8 +2,10 @@ from typing import Annotated, List, Optional, Sequence
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.objects.endpoints.types import AcknowledgedRelation, build_from_orm
 from app.api.domains.objects.repositories.acknowledged_relations_repository import AcknowledgedRelationsRepository
 from app.api.domains.users.dependencies import depends_current_user
@@ -19,6 +21,7 @@ class AcknowledgedRelationListEndpointContext(BaseEndpointContext):
 @inject
 def get_acknowledged_relation_list_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
+    session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[
         AcknowledgedRelationsRepository, Depends(Provide[ApiContainer.acknowledged_relations_repository])
     ],
@@ -30,6 +33,7 @@ def get_acknowledged_relation_list_endpoint(
 ) -> List[AcknowledgedRelation]:
     object_code: str = f"{context.object_type}-{lineage_id}"
     table_rows: Sequence[AcknowledgedRelationsTable] = repository.get_with_filters(
+        session=session,
         code=object_code,
         requested_by_me=requested_by_us,
         acknowledged=acknowledged,

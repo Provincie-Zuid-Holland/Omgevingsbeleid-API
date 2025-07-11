@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.api.events.before_select_execution_event import BeforeSelectExecutionEvent
@@ -24,7 +24,7 @@ class OptimizeSelectQueryListener(Listener[BeforeSelectExecutionEvent]):
     This will make sure that sqlalchemy is not going to run seperate queries for each row
     """
 
-    def handle_event(self, event: BeforeSelectExecutionEvent) -> Optional[BeforeSelectExecutionEvent]:
+    def handle_event(self, session: Session, event: BeforeSelectExecutionEvent) -> Optional[BeforeSelectExecutionEvent]:
         if not event.context.response_model:
             return event
 

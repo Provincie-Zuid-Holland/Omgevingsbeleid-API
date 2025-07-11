@@ -18,11 +18,11 @@ class AddPublicRevisionsConfig(BaseModel):
 class AddPublicRevisionsService:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         config: AddPublicRevisionsConfig,
         rows: List[BaseModel],
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._config: AddPublicRevisionsConfig = config
         self._rows: List[BaseModel] = rows
 
@@ -98,7 +98,7 @@ class AddPublicRevisionsService:
         )
 
         public_revisions_map: Dict[str, List[PublicModuleObjectRevision]] = defaultdict(list)
-        db_result = self._db.execute(stmt).all()
+        db_result = self._session.execute(stmt).all()
         for db_row in db_result:
             public_revision: PublicModuleObjectRevision = PublicModuleObjectRevision.model_validate(db_row)
             public_revisions_map[public_revision.Module_Object_Code].append(public_revision)
@@ -107,16 +107,14 @@ class AddPublicRevisionsService:
 
 
 class AddPublicRevisionsServiceFactory:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
     def create_service(
         self,
+        session: Session,
         config: AddPublicRevisionsConfig,
         rows: List[BaseModel],
     ) -> AddPublicRevisionsService:
         return AddPublicRevisionsService(
-            db=self._db,
+            session=session,
             config=config,
             rows=rows,
         )

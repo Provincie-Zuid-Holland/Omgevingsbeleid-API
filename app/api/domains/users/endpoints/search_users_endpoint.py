@@ -2,9 +2,10 @@ from typing import Annotated, List, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_optional_sorted_pagination
+from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.domains.users.types import User
 from app.api.domains.users.user_repository import UserRepository
@@ -21,6 +22,7 @@ class SearchUsersEndpointContext(BaseEndpointContext):
 def get_search_users_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
+    session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     context: Annotated[SearchUsersEndpointContext, Depends()],
     role: Optional[str] = None,
@@ -30,7 +32,7 @@ def get_search_users_endpoint(
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    paginated_result = repository.get_filtered(pagination, role, query, active)
+    paginated_result = repository.get_filtered(session, pagination, role, query, active)
     users: List[User] = [User.model_validate(u) for u in paginated_result.items]
 
     return PagedResponse[User](

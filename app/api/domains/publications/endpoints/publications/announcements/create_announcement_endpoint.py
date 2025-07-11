@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_act_package
 from app.api.domains.publications.services.publication_announcement_defaults_provider import (
     PublicationAnnouncementDefaultsProvider,
@@ -38,7 +39,7 @@ def post_create_announcement_endpoint(
         PublicationAnnouncementDefaultsProvider,
         Depends(Provide[ApiContainer.publication.announcement_defaults_provider]),
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> AnnouncementCreatedResponse:
     _guard_can_create_announcement(act_package)
 
@@ -63,9 +64,9 @@ def post_create_announcement_endpoint(
         Modified_By_UUID=user.UUID,
     )
 
-    db.add(announcement)
-    db.commit()
-    db.flush()
+    session.add(announcement)
+    session.commit()
+    session.flush()
 
     return AnnouncementCreatedResponse(
         UUID=announcement.UUID,

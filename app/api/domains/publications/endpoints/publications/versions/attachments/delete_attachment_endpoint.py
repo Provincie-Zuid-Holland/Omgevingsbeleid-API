@@ -1,10 +1,10 @@
 from typing import Annotated
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import (
     depends_publication_version,
     depends_publication_version_attachment,
@@ -28,7 +28,7 @@ def post_delete_attachment_endpoint(
             )
         ),
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> ResponseOK:
     return ResponseOK(message="OK")
     # _guard(version, attachment)
@@ -39,7 +39,7 @@ def post_delete_attachment_endpoint(
     # db.commit()
     # db.flush()
 
-    # return ResponseOK()
+    # return ResponseOK(message="OK")
 
 
 def _guard(version: PublicationVersionTable, attachment: PublicationVersionAttachmentTable) -> None:

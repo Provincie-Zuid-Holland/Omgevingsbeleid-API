@@ -9,6 +9,7 @@ from pydantic import ValidationInfo
 from pydantic_core import PydanticUseDefault
 
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
+from app.core.db.session import SessionFactoryType, session_scope
 
 from .types import PydanticValidator, Validator
 
@@ -237,7 +238,8 @@ class NotEqualRootValidator(Validator):
 
 
 class ObjectCodeExistsValidator(Validator):
-    def __init__(self, object_static_repository: ObjectStaticRepository):
+    def __init__(self, session_factory: SessionFactoryType, object_static_repository: ObjectStaticRepository):
+        self._session_factory: SessionFactoryType = session_factory
         self._object_static_repository: ObjectStaticRepository = object_static_repository
 
     def get_id(self) -> str:
@@ -256,12 +258,14 @@ class ObjectCodeExistsValidator(Validator):
             except ValueError:
                 raise ValueError("Value is not a valid Object_Code")
 
-            object_static = self._object_static_repository.get_by_object_type_and_id(
-                object_type,
-                object_id,
-            )
-            if not object_static:
-                raise ValueError("Object does not exist")
+            with session_scope(self._session_factory) as session:
+                object_static = self._object_static_repository.get_by_object_type_and_id(
+                    session,
+                    object_type,
+                    object_id,
+                )
+                if not object_static:
+                    raise ValueError("Object does not exist")
 
             return value
 
@@ -302,7 +306,8 @@ class ObjectCodeAllowedTypeValidator(Validator):
 
 
 class ObjectCodesExistsValidator(Validator):
-    def __init__(self, object_static_repository: ObjectStaticRepository):
+    def __init__(self, session_factory: SessionFactoryType, object_static_repository: ObjectStaticRepository):
+        self._session_factory: SessionFactoryType = session_factory
         self._object_static_repository: ObjectStaticRepository = object_static_repository
 
     def get_id(self) -> str:
@@ -322,12 +327,14 @@ class ObjectCodesExistsValidator(Validator):
                 except ValueError:
                     raise ValueError("Value is not a valid Object_Code")
 
-                object_static = self._object_static_repository.get_by_object_type_and_id(
-                    object_type,
-                    object_id,
-                )
-                if not object_static:
-                    raise ValueError("Object does not exist")
+                with session_scope(self._session_factory) as session:
+                    object_static = self._object_static_repository.get_by_object_type_and_id(
+                        session,
+                        object_type,
+                        object_id,
+                    )
+                    if not object_static:
+                        raise ValueError("Object does not exist")
 
             return value
 

@@ -10,6 +10,7 @@ from app.build.services.validator_provider import ValidatorProvider
 from app.core.services.models_provider import ModelsProvider
 from app.core.services.event.event_manager import EventManager
 from app.core.types import Model, DynamicObjectModel
+from sqlalchemy.orm import Session
 
 
 class ObjectModelsBuilder:
@@ -27,6 +28,7 @@ class ObjectModelsBuilder:
 
     def build_models(
         self,
+        session: Session,
         models_provider: ModelsProvider,
         intermediate_objects: List[IntermediateObject],
     ):
@@ -36,7 +38,7 @@ class ObjectModelsBuilder:
         intermediate_models = self._sort_intermediate_objects(intermediate_models)
 
         for intermediate_model in intermediate_models:
-            model: Model = self._build_model(models_provider, intermediate_model)
+            model: Model = self._build_model(session, models_provider, intermediate_model)
             models_provider.add(model)
 
     def _sort_intermediate_objects(self, intermediate_objects: List[IntermediateModel]) -> List[IntermediateModel]:
@@ -63,6 +65,7 @@ class ObjectModelsBuilder:
 
     def _build_model(
         self,
+        session: Session,
         models_provider: ModelsProvider,
         intermediate_model: IntermediateModel,
     ) -> DynamicObjectModel:
@@ -82,6 +85,7 @@ class ObjectModelsBuilder:
         )
 
         event: CreateModelEvent = self._event_manager.dispatch(
+            session,
             CreateModelEvent.create(
                 pydantic_fields,
                 static_pydantic_fields,

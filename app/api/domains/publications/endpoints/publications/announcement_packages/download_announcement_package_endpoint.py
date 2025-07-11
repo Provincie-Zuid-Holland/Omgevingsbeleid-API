@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
 from typing import Annotated
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends, Response
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_zip_by_announcement_package
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
@@ -24,14 +24,14 @@ def get_download_announcement_package_endpoint(
             )
         ),
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> Response:
     package_zip.Latest_Download_Date = datetime.now(timezone.utc)
     package_zip.Latest_Download_By_UUID = user.UUID
 
-    db.add(package_zip)
-    db.commit()
-    db.flush()
+    session.add(package_zip)
+    session.commit()
+    session.flush()
 
     return Response(
         content=package_zip.Binary,

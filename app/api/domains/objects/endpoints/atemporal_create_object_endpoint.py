@@ -9,6 +9,7 @@ from sqlalchemy import String, func, insert, select
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.api.permissions import Permissions
@@ -24,7 +25,7 @@ class AtemporalCreateObjectEndpointContext(BaseEndpointContext):
 
 
 def _create_new_static_object(
-    db: Session,
+    session: Session,
     static_fields: Dict[str, Any],
     object_type: str,
     title: str,
@@ -49,7 +50,7 @@ def _create_new_static_object(
         .returning(ObjectStaticsTable)
     )
 
-    result: Optional[ObjectStaticsTable] = db.execute(stmt).scalars().first()
+    result: Optional[ObjectStaticsTable] = session.execute(stmt).scalars().first()
     if result is None:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create static object")
     return result
@@ -60,7 +61,7 @@ def atemporal_create_object_endpoint(
     object_in: BaseModel,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[AtemporalCreateObjectEndpointContext, Depends()],
 ) -> BaseModel:
     permission_service.guard_valid_user(Permissions.atemporal_can_create_object, user)
@@ -74,7 +75,7 @@ def atemporal_create_object_endpoint(
 
     try:
         object_static: ObjectStaticsTable = _create_new_static_object(
-            db,
+            session,
             static_fields,
             context.object_type,
             object_in_data.get("Title", ""),
@@ -94,12 +95,12 @@ def atemporal_create_object_endpoint(
             # Unpack object_in fields
             **(object_in_data),
         )
-        db.add(new_object)
-        db.flush()
-        db.commit()
+        session.add(new_object)
+        session.flush()
+        session.commit()
 
         response: BaseModel = context.response_type.model_validate(new_object)
         return response
     except Exception as e:
-        db.rollback()
+        session.rollback()
         raise e

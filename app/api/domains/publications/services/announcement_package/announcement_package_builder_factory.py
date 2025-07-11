@@ -25,20 +25,19 @@ from app.core.tables.publications import (
 class AnnouncementPackageBuilderFactory:
     def __init__(
         self,
-        db: Session,
         doc_frbr_provider: DocFrbrProvider,
         state_loader: StateLoader,
     ):
-        self._db: Session = db
         self._doc_frbr_provider: DocFrbrProvider = doc_frbr_provider
         self._state_loader: StateLoader = state_loader
 
     def create_builder(
         self,
+        session: Session,
         announcement: PublicationAnnouncementTable,
         package_type: PackageType,
     ) -> AnnouncementPackageBuilder:
-        doc_frbr: DocFrbr = self._doc_frbr_provider.generate_frbr(announcement)
+        doc_frbr: DocFrbr = self._doc_frbr_provider.generate_frbr(session, announcement)
         about_act_frbr: ActFrbr = self._get_about_act_frbr(announcement)
         about_bill_frbr: BillFrbr = self._get_about_bill_frbr(announcement)
 
@@ -53,7 +52,9 @@ class AnnouncementPackageBuilderFactory:
             Announcement_Content=AnnouncementContent.model_validate(announcement.Content),
         )
 
-        state: Optional[ActiveState] = self._state_loader.load_from_environment(announcement.Publication.Environment)
+        state: Optional[ActiveState] = self._state_loader.load_from_environment(
+            session, announcement.Publication.Environment
+        )
 
         input_data_builder = DsoAnnouncementInputDataBuilder(api_input_data)
         input_data: InputData = input_data_builder.build()

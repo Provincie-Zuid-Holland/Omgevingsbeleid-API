@@ -2,9 +2,10 @@ from typing import Annotated, List, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_simple_pagination
+from app.api.dependencies import depends_db_session, depends_simple_pagination
 from app.api.domains.publications.repository.publication_repository import PublicationRepository
 from app.api.domains.publications.types.enums import DocumentType
 from app.api.domains.publications.types.models import Publication
@@ -27,11 +28,13 @@ def get_list_publications_endpoint(
             )
         ),
     ],
+    session: Annotated[Session, Depends(depends_db_session)],
     publication_repository: Annotated[
         PublicationRepository, Depends(Provide[ApiContainer.publication.publication_repository])
     ],
 ) -> PagedResponse[Publication]:
     paginated_result: PaginatedQueryResult = publication_repository.get_with_filters(
+        session=session,
         document_type=document_type,
         module_id=module_id,
         offset=pagination.offset,

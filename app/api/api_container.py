@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 from dependency_injector import containers, providers
-from sqlalchemy.orm import sessionmaker
 
 import app.api.domains.modules as module_domain
 import app.api.domains.modules.services as module_services
@@ -14,57 +13,35 @@ import app.api.events.listeners as event_listeners
 from app.api.domains.others.repositories import storage_file_repository
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.services import permission_service
-from app.core.db.session import create_db_engine, init_db_session
 from app.core.services.event import event_manager
-from app.core.services.main_config import MainConfig
-from app.core.settings import Settings
 
 
 class ApiContainer(containers.DeclarativeContainer):
+    db_session_factory = providers.Dependency()
+    config = providers.Dependency()
+    main_config = providers.Dependency()
     models_provider = providers.Dependency()
-
-    config = providers.Configuration(pydantic_settings=[Settings()])
-    main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
-
-    db_engine = providers.Factory(
-        create_db_engine,
-        uri=config.SQLALCHEMY_DATABASE_URI,
-        echo=config.SQLALCHEMY_ECHO,
-    )
-    db_session_factory = providers.Factory(sessionmaker, bind=db_engine, autocommit=False, autoflush=False)
-    db = providers.Resource(
-        init_db_session,
-        session_factory=db_session_factory,
-    )
 
     permission_service = providers.Singleton(
         permission_service.PermissionService,
         main_config=main_config,
     )
 
-    storage_file_repository = providers.Singleton(
-        storage_file_repository.StorageFileRepository,
-        db=db,
-    )
-    object_repository = providers.Singleton(object_repositories.ObjectRepository, db=db)
-    object_static_repository = providers.Singleton(object_repositories.ObjectStaticRepository, db=db)
-    asset_repository = providers.Singleton(object_repositories.AssetRepository, db=db)
-    werkingsgebieden_repository = providers.Singleton(werkingsgebieden_repositories.WerkingsgebiedenRepository, db=db)
-    sqlite_geometry_repository = providers.Singleton(werkingsgebieden_repositories.SqliteGeometryRepository, db=db)
-    sqlite_area_geometry_repository = providers.Singleton(
-        werkingsgebieden_repositories.SqliteAreaGeometryRepository,
-        db=db,
-    )
-    mssql_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlGeometryRepository, db=db)
-    mssql_area_geometry_repository = providers.Singleton(
-        werkingsgebieden_repositories.MssqlAreaGeometryRepository, db=db
-    )
-    area_repository = providers.Singleton(werkingsgebieden_repositories.AreaRepository, db=db)
-    module_object_context_repository = providers.Singleton(module_domain.ModuleObjectContextRepository, db=db)
-    module_object_repository = providers.Singleton(module_domain.ModuleObjectRepository, db=db)
-    module_repository = providers.Singleton(module_domain.ModuleRepository, db=db)
-    module_status_repository = providers.Singleton(module_domain.ModuleStatusRepository, db=db)
-    acknowledged_relations_repository = providers.Singleton(object_repositories.AcknowledgedRelationsRepository, db=db)
+    storage_file_repository = providers.Singleton(storage_file_repository.StorageFileRepository)
+    object_repository = providers.Singleton(object_repositories.ObjectRepository)
+    object_static_repository = providers.Singleton(object_repositories.ObjectStaticRepository)
+    asset_repository = providers.Singleton(object_repositories.AssetRepository)
+    werkingsgebieden_repository = providers.Singleton(werkingsgebieden_repositories.WerkingsgebiedenRepository)
+    sqlite_geometry_repository = providers.Singleton(werkingsgebieden_repositories.SqliteGeometryRepository)
+    sqlite_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.SqliteAreaGeometryRepository)
+    mssql_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlGeometryRepository)
+    mssql_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlAreaGeometryRepository)
+    area_repository = providers.Singleton(werkingsgebieden_repositories.AreaRepository)
+    module_object_context_repository = providers.Singleton(module_domain.ModuleObjectContextRepository)
+    module_object_repository = providers.Singleton(module_domain.ModuleObjectRepository)
+    module_repository = providers.Singleton(module_domain.ModuleRepository)
+    module_status_repository = providers.Singleton(module_domain.ModuleStatusRepository)
+    acknowledged_relations_repository = providers.Singleton(object_repositories.AcknowledgedRelationsRepository)
 
     geometry_repository = providers.Selector(
         config.DB_TYPE,
@@ -80,7 +57,6 @@ class ApiContainer(containers.DeclarativeContainer):
     html_images_extractor_factory = providers.Factory(
         event_listeners.HtmlImagesExtractorFactory,
         asset_repository=asset_repository,
-        db=db,
     )
     image_inserter_factory = providers.Factory(
         event_listeners.ImageInserterFactory,
@@ -93,7 +69,6 @@ class ApiContainer(containers.DeclarativeContainer):
     store_images_extractor_factory = providers.Factory(
         event_listeners.StoreImagesExtractorFactory,
         asset_repository=asset_repository,
-        db=db,
     )
 
     access_token_lifetime = providers.Selector(
@@ -106,35 +81,20 @@ class ApiContainer(containers.DeclarativeContainer):
         secret_key=config.SECRET_KEY,
         token_lifetime=access_token_lifetime,
     )
-    user_repository = providers.Factory(
-        user_domain.UserRepository,
-        db=db,
-        security=security,
-    )
+    user_repository = providers.Factory(user_domain.UserRepository, security=security)
 
-    add_relations_service_factory = providers.Singleton(
-        object_services.AddRelationsServiceFactory,
-        db=db,
-    )
+    add_relations_service_factory = providers.Singleton(object_services.AddRelationsServiceFactory)
     join_werkingsgebieden_service_factory = providers.Singleton(
-        werkingsgebied_services.JoinWerkingsgebiedenServiceFactory,
-        db=db,
+        werkingsgebied_services.JoinWerkingsgebiedenServiceFactory
     )
     column_image_inserter_factory = providers.Singleton(
         object_services.ColumnImageInserterFactory,
         asset_repository=asset_repository,
     )
-    add_public_revisions_service_factory = providers.Singleton(
-        module_services.AddPublicRevisionsServiceFactory,
-        db=db,
-    )
-    add_next_object_versions_service_factory = providers.Singleton(
-        object_services.AddNextObjectVersionServiceFactory,
-        db=db,
-    )
+    add_public_revisions_service_factory = providers.Singleton(module_services.AddPublicRevisionsServiceFactory)
+    add_next_object_versions_service_factory = providers.Singleton(object_services.AddNextObjectVersionServiceFactory)
     add_werkingsgebied_related_objects_service_factory = providers.Singleton(
-        object_services.AddWerkingsgebiedRelatedObjectsServiceFactory,
-        db=db,
+        object_services.AddWerkingsgebiedRelatedObjectsServiceFactory
     )
     area_processor_service_factory = providers.Singleton(
         werkingsgebied_services.AreaProcessorServiceFactory,
@@ -232,7 +192,6 @@ class ApiContainer(containers.DeclarativeContainer):
         PublicationContainer,
         config=config,
         main_config=main_config,
-        db=db,
         area_repository=area_repository,
         area_geometry_repository=area_geometry_repository,
         storage_file_repository=storage_file_repository,

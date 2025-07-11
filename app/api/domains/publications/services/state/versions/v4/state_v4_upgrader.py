@@ -1,6 +1,8 @@
 import uuid
 from typing import Dict
 
+from sqlalchemy.orm import Session
+
 import app.api.domains.publications.services.state.versions.v3.models as models_v3
 import app.api.domains.publications.services.state.versions.v4.models as models_v4
 from app.api.domains.publications.services.state.state import State
@@ -15,7 +17,7 @@ class StateV4Upgrader(StateUpgrader):
     def get_input_schema_version() -> int:
         return state_v3.StateV3.get_schema_version()
 
-    def upgrade(self, environment_uuid: uuid.UUID, old_state: State) -> State:
+    def upgrade(self, session: Session, environment_uuid: uuid.UUID, old_state: State) -> State:
         if old_state.get_schema_version() != state_v3.StateV3.get_schema_version():
             raise RuntimeError("Unexpected state provided")
 

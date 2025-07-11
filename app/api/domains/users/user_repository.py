@@ -11,20 +11,20 @@ from app.core.tables.users import IS_ACTIVE, UsersTable
 
 
 class UserRepository(BaseRepository):
-    def __init__(self, db: Session, security: Security):
-        self._db = db
+    def __init__(self, security: Security):
         self._security: Security = security
 
-    def get_by_uuid(self, uuid: UUID) -> Optional[UsersTable]:
+    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[UsersTable]:
         stmt = select(UsersTable).where(UsersTable.UUID == uuid)
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
-    def get_by_email(self, email: str) -> Optional[UsersTable]:
+    def get_by_email(self, session: Session, email: str) -> Optional[UsersTable]:
         stmt = select(UsersTable).where(UsersTable.Email == email)
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
     def get_filtered(
         self,
+        session: Session,
         pagination: SortedPagination,
         role: Optional[str],
         query: Optional[str],
@@ -45,39 +45,43 @@ class UserRepository(BaseRepository):
                 stmt = stmt.filter(UsersTable.Status != IS_ACTIVE)
 
         return self.fetch_paginated(
+            session=session,
             statement=stmt,
             offset=pagination.offset,
             limit=pagination.limit,
             sort=(getattr(UsersTable, pagination.sort.column), pagination.sort.order),
         )
 
-    def get_active(self, pagination: SortedPagination) -> PaginatedQueryResult:
+    def get_active(self, session: Session, pagination: SortedPagination) -> PaginatedQueryResult:
         stmt = select(UsersTable).filter(UsersTable.Status == IS_ACTIVE)
         return self.fetch_paginated(
+            session=session,
             statement=stmt,
             offset=pagination.offset,
             limit=pagination.limit,
             sort=(getattr(UsersTable, pagination.sort.column), pagination.sort.order),
         )
 
-    def get_all(self) -> List[UsersTable]:
+    def get_all(self, session: Session) -> List[UsersTable]:
         stmt = select(UsersTable).order_by(asc(UsersTable.Gebruikersnaam))
-        return self.fetch_all(stmt)
+        return self.fetch_all(session, stmt)
 
-    def authenticate(self, username: str, password: str) -> Optional[UsersTable]:
+    def authenticate(self, session: Session, username: str, password: str) -> Optional[UsersTable]:
         if not username:
             return None
+
         stmt = select(UsersTable).filter(UsersTable.Email == username).filter(UsersTable.Status == IS_ACTIVE)
-        maybe_user: Optional[UsersTable] = self.fetch_first(stmt)
+        maybe_user: Optional[UsersTable] = self.fetch_first(session, stmt)
+
         if not maybe_user:
             return None
         if not self._security.verify_password(password, maybe_user.Wachtwoord):
             return None
         return maybe_user
 
-    def change_password(self, user: UsersTable, new_password: str):
+    def change_password(self, session: Session, user: UsersTable, new_password: str):
         new_hash = self._security.get_password_hash(new_password)
         user.Wachtwoord = new_hash
-        self._db.add(user)
-        self._db.flush()
-        self._db.commit()
+        session.add(user)
+        session.flush()
+        session.commit()

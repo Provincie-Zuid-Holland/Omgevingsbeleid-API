@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased, joinedload, load_only
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.types import PublicModuleShort, PublicModuleStatusCode
@@ -52,7 +53,7 @@ class PublicModuleOverview(BaseModel):
 @inject
 def get_public_module_overview_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
@@ -84,10 +85,11 @@ def get_public_module_overview_endpoint(
         )
     )
 
-    rows: Sequence[ModuleObjectsTable] = db.execute(stmt).scalars().all()
+    rows: Sequence[ModuleObjectsTable] = session.execute(stmt).scalars().all()
     snapshot_objects: List[PublicModuleObjectShort] = [PublicModuleObjectShort.model_validate(r) for r in rows]
 
     event: RetrievedObjectsEvent = event_manager.dispatch(
+        session,
         RetrievedObjectsEvent.create(
             snapshot_objects,
             "deprecated",
@@ -96,7 +98,7 @@ def get_public_module_overview_endpoint(
                 name="PublicModuleOverview",
                 pydantic_model=PublicModuleObjectShort,
             ),
-        )
+        ),
     )
     objects: List[PublicModuleObjectShort] = event.payload.rows
 

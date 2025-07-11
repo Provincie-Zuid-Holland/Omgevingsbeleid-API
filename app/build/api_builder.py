@@ -15,27 +15,25 @@ from app.core.services.models_provider import ModelsProvider
 class ApiBuilder:
     def __init__(
         self,
-        db: Session,
         config_parser: ConfigParser,
         object_models_builder: ObjectModelsBuilder,
         tables_builder: TablesBuilder,
         endpoint_builder_provider: EndpointBuilderProvider,
         models_provider: ModelsProvider,
     ):
-        self._db: Session = db
         self._config_parser: ConfigParser = config_parser
         self._object_models_builder: ObjectModelsBuilder = object_models_builder
         self._tables_builder: TablesBuilder = tables_builder
         self._endpoint_builder_provider: EndpointBuilderProvider = endpoint_builder_provider
         self._models_provider: ModelsProvider = models_provider
 
-    def build(self) -> List[ConfiguiredFastapiEndpoint]:
+    def build(self, session: Session) -> List[ConfiguiredFastapiEndpoint]:
         build_data: BuildData = self._config_parser.parse()
 
-        self._tables_builder.build_tables(build_data.columns)
+        self._tables_builder.build_tables(session, build_data.columns)
 
         self._models_provider.add_list(DECLARED_MODELS)
-        self._object_models_builder.build_models(self._models_provider, build_data.object_intermediates)
+        self._object_models_builder.build_models(session, self._models_provider, build_data.object_intermediates)
 
         object_routes: List[ConfiguiredFastapiEndpoint] = self._build_object_routes(build_data)
         object_routes = object_routes + self._build_main_routes(build_data)

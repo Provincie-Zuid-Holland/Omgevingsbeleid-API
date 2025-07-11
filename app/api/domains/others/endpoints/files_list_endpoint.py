@@ -3,9 +3,10 @@ from uuid import UUID
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_optional_sorted_pagination
+from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.others.repositories.storage_file_repository import StorageFileRepository, StorageFileSortColumn
 from app.api.domains.others.types import StorageFileBasic
 from app.api.domains.users.dependencies import depends_current_user
@@ -24,6 +25,7 @@ from app.core.tables.users import UsersTable
 def get_files_list_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
+    session: Annotated[Session, Depends(depends_db_session)],
     storage_file_repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],
     only_mine: bool = False,
     filter_filename: Optional[str] = None,
@@ -40,6 +42,7 @@ def get_files_list_endpoint(
         filter_on_me = user.UUID
 
     paginated_result: PaginatedQueryResult = storage_file_repository.get_with_filters(
+        session=session,
         pagination=pagination,
         filter_filename=filter_filename,
         mine=filter_on_me,

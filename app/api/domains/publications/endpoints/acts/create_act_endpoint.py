@@ -9,6 +9,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.repository.publication_environment_repository import PublicationEnvironmentRepository
 from app.api.domains.publications.services.act_defaults_provider import ActDefaultsProvider
 from app.api.domains.publications.types.enums import DocumentType, ProcedureType
@@ -44,12 +45,14 @@ def post_create_act_endpoint(
         ),
     ],
     defaults_provider: Annotated[ActDefaultsProvider, Depends(Provide[ApiContainer.publication.act_defaults_provider])],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> ActCreatedResponse:
-    environment: PublicationEnvironmentTable = _get_environment(environment_repository, object_in.Environment_UUID)
+    environment: PublicationEnvironmentTable = _get_environment(
+        session, environment_repository, object_in.Environment_UUID
+    )
 
     metadata = defaults_provider.get_metadata(object_in.Document_Type.value)
-    work_other: str = object_in.Work_Other or _get_work_other(db, object_in)
+    work_other: str = object_in.Work_Other or _get_work_other(session, object_in)
 
     timepoint: datetime = datetime.now(timezone.utc)
     act: PublicationActTable = PublicationActTable(
@@ -71,9 +74,9 @@ def post_create_act_endpoint(
         Modified_By_UUID=user.UUID,
     )
 
-    db.add(act)
-    db.commit()
-    db.flush()
+    session.add(act)
+    session.commit()
+    session.flush()
 
     return ActCreatedResponse(
         UUID=act.UUID,
@@ -81,10 +84,12 @@ def post_create_act_endpoint(
 
 
 def _get_environment(
+    session: Session,
     repository: PublicationEnvironmentRepository,
     environment_uuid: uuid.UUID,
 ) -> PublicationEnvironmentTable:
     environment: Optional[PublicationEnvironmentTable] = repository.get_by_uuid(
+        session,
         environment_uuid,
     )
     if environment is None:
@@ -96,7 +101,7 @@ def _get_environment(
 
 
 def _get_work_other(
-    db: Session,
+    session: Session,
     object_in: ActCreate,
 ) -> str:
     stmt = (
@@ -111,7 +116,7 @@ def _get_work_other(
             ).self_group()
         )
     )
-    count: int = (db.execute(stmt).scalar() or 0) + 1
+    count: int = (session.execute(stmt).scalar() or 0) + 1
     id_suffix: str = f"{count}"
 
     work_other: str = f"{object_in.Document_Type.value.lower()}-{id_suffix}"

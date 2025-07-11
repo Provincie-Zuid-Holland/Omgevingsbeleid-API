@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_announcement_package
 from app.api.domains.publications.repository.publication_announcement_report_repository import (
     PublicationAnnouncementReportRepository,
@@ -109,14 +110,14 @@ class FileParser:
 class EndpointHandler:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         debug: bool,
         report_repository: PublicationAnnouncementReportRepository,
         user: UsersTable,
         uploaded_files: List[UploadFile],
         announcement_package: PublicationAnnouncementPackageTable,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._report_repository: PublicationAnnouncementReportRepository = report_repository
         self._user: UsersTable = user
         self._uploaded_files: List[UploadFile] = uploaded_files
@@ -143,6 +144,7 @@ class EndpointHandler:
         )
         for file in self._uploaded_files:
             existing_data: PaginatedQueryResult = self._report_repository.get_with_filters(
+                self._session,
                 announcement_package_uuid=self._announcement_package.UUID,
                 filename=file.filename,
                 limit=1,
@@ -152,7 +154,7 @@ class EndpointHandler:
                 continue
 
             report: PublicationAnnouncementPackageReportTable = self._file_parser.parse(file)
-            self._db.add(report)
+            self._session.add(report)
             running_status = self._update_running_status(running_status, report)
 
         self._handle_conclusive_status(running_status)
@@ -160,9 +162,9 @@ class EndpointHandler:
         self._announcement_package.Modified_By_UUID = self._user.UUID
         self._announcement_package.Modified_Date = self._timepoint
 
-        self._db.add(self._announcement_package)
-        self._db.flush()
-        self._db.commit()
+        self._session.add(self._announcement_package)
+        self._session.flush()
+        self._session.commit()
 
         response: UploadPackageReportResponse = UploadPackageReportResponse(
             Status=ReportStatusType(self._announcement_package.Report_Status),
@@ -224,7 +226,7 @@ class EndpointHandler:
     def _handle_conclusive_failed(self):
         # On failed we just unlock the environment
         self._announcement_package.Announcement.Publication.Environment.Is_Locked = False
-        self._db.add(self._announcement_package.Announcement.Publication.Environment)
+        self._session.add(self._announcement_package.Announcement.Publication.Environment)
 
     def _handle_conclusive_valid(self):
         environment: PublicationEnvironmentTable = self._announcement_package.Announcement.Publication.Environment
@@ -238,13 +240,13 @@ class EndpointHandler:
         # - Complete the publication version Status
         new_state.Is_Activated = True
         new_state.Activated_Datetime = self._timepoint
-        self._db.add(new_state)
+        self._session.add(new_state)
 
         environment.Active_State_UUID = new_state.UUID
         environment.Is_Locked = False
         environment.Modified_Date = self._timepoint
         environment.Modified_By_UUID = self._user.UUID
-        self._db.add(environment)
+        self._session.add(environment)
 
         if self._announcement_package.Package_Type == PackageType.PUBLICATION.value:
             self._announcement_package.Announcement.Is_Locked = True
@@ -252,7 +254,7 @@ class EndpointHandler:
                 PublicationVersionStatus.COMPLETED
             )
 
-            self._db.add(self._announcement_package.Announcement)
+            self._session.add(self._announcement_package.Announcement)
 
 
 @inject
@@ -274,12 +276,12 @@ def post_upload_announcement_package_report_endpoint(
             Provide[ApiContainer.publication.announcement_report_repository],
         ),
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     debug: Annotated[bool, Depends(Provide[ApiContainer.config.DEBUG_MODE])],
     uploaded_files: Annotated[List[UploadFile], File(...)],
 ) -> UploadPackageReportResponse:
     handler = EndpointHandler(
-        db=db,
+        session=session,
         debug=debug,
         report_repository=report_repository,
         user=user,

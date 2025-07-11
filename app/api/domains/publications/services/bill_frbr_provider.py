@@ -9,26 +9,25 @@ from app.core.tables.publications import PublicationBillTable, PublicationEnviro
 
 
 class BillFrbrProvider:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
     def generate_frbr(
         self,
+        session: Session,
         environment: PublicationEnvironmentTable,
         act_frbr: ActFrbr,
     ) -> BillFrbr:
         if environment.Has_State:
-            return self._create_real(environment, act_frbr)
+            return self._create_real(session, environment, act_frbr)
 
         return self._create_fake(environment, act_frbr)
 
     def _create_real(
         self,
+        session: Session,
         environment: PublicationEnvironmentTable,
         act_frbr: ActFrbr,
     ) -> BillFrbr:
         stmt = select(func.count()).select_from(PublicationBillTable)
-        count: int = (self._db.execute(stmt).scalar()) + 1
+        count: int = (session.execute(stmt).scalar()) + 1
         id_suffix: str = f"{count}"
         result: BillFrbr = self._create(environment, act_frbr, id_suffix)
         return result

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication
 from app.api.domains.publications.repository.publication_template_repository import PublicationTemplateRepository
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
@@ -37,14 +38,14 @@ def post_edit_publication_endpoint(
     template_repository: Annotated[
         PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> ResponseOK:
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
     if object_in.Template_UUID is not None:
-        _guard_template(template_repository, publication.Document_Type, object_in.Template_UUID)
+        _guard_template(session, template_repository, publication.Document_Type, object_in.Template_UUID)
 
     for key, value in changes.items():
         setattr(publication, key, value)
@@ -52,19 +53,20 @@ def post_edit_publication_endpoint(
     publication.Modified_By_UUID = user.UUID
     publication.Modified_Date = datetime.now(timezone.utc)
 
-    db.add(publication)
-    db.commit()
-    db.flush()
+    session.add(publication)
+    session.commit()
+    session.flush()
 
-    return ResponseOK()
+    return ResponseOK(message="OK")
 
 
 def _guard_template(
+    session: Session,
     template_repository: PublicationTemplateRepository,
     document_type: str,
     template_uuid: uuid.UUID,
 ) -> None:
-    template: Optional[PublicationTemplateTable] = template_repository.get_by_uuid(template_uuid)
+    template: Optional[PublicationTemplateTable] = template_repository.get_by_uuid(session, template_uuid)
     if template is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template niet gevonden")
     if not template.Is_Active:

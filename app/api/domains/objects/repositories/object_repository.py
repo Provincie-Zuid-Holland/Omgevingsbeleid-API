@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import aliased, selectinload
+from sqlalchemy.orm import Session, aliased, selectinload
 from sqlalchemy.sql import and_, func, or_
 
 from app.api.base_repository import BaseRepository
@@ -14,7 +14,7 @@ from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 
 
 class ObjectRepository(BaseRepository):
-    def get_valid_counts(self, user_uuid: UUID) -> List[ObjectCount]:
+    def get_valid_counts(self, session: Session, user_uuid: UUID) -> List[ObjectCount]:
         row_number = (
             func.row_number()
             .over(
@@ -56,19 +56,19 @@ class ObjectRepository(BaseRepository):
 
         final_query = select(main_query.c.Object_Type, func.count()).group_by(main_query.c.Object_Type)
 
-        rows = self._db.execute(final_query).fetchall()
+        rows = session.execute(final_query).fetchall()
         result = [ObjectCount(object_type=r[0], count=r[1]) for r in rows]
         return result
 
-    def get_by_uuid(self, uuid: UUID) -> Optional[ObjectsTable]:
+    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[ObjectsTable]:
         stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid)
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
-    def get_by_object_type_and_uuid(self, object_type: str, uuid: UUID) -> Optional[ObjectsTable]:
+    def get_by_object_type_and_uuid(self, session: Session, object_type: str, uuid: UUID) -> Optional[ObjectsTable]:
         stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid).filter(ObjectsTable.Object_Type == object_type)
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
-    def get_next_valid_object(self, object_uuid: UUID) -> Optional[ObjectsTable]:
+    def get_next_valid_object(self, session: Session, object_uuid: UUID) -> Optional[ObjectsTable]:
         reference_obj = (select(ObjectsTable).filter(ObjectsTable.UUID == object_uuid)).subquery()
 
         stmt = (
@@ -87,9 +87,9 @@ class ObjectRepository(BaseRepository):
             )
         )
 
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
-    def get_latest_valid_by_id(self, object_type: str, object_id: int) -> Optional[ObjectsTable]:
+    def get_latest_valid_by_id(self, session: Session, object_type: str, object_id: int) -> Optional[ObjectsTable]:
         row_number = (
             func.row_number()
             .over(
@@ -121,20 +121,21 @@ class ObjectRepository(BaseRepository):
             )
             .order_by(desc(subq.c.Modified_Date))
         )
-        result = self.fetch_first(stmt)
+        result = self.fetch_first(session, stmt)
         return result
 
-    def get_latest_by_id(self, object_type: str, object_id: int) -> Optional[ObjectsTable]:
+    def get_latest_by_id(self, session: Session, object_type: str, object_id: int) -> Optional[ObjectsTable]:
         stmt = (
             select(ObjectsTable)
             .filter(ObjectsTable.Object_Type == object_type)
             .filter(ObjectsTable.Object_ID == object_id)
             .order_by(desc(ObjectsTable.Modified_Date))
         )
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
     def get_latest_filtered(
         self,
+        session: Session,
         pagination: SortedPagination,
         owner_uuid: Optional[UUID] = None,
         object_type: Optional[str] = None,
@@ -177,6 +178,7 @@ class ObjectRepository(BaseRepository):
         stmt = select(aliased_objects).filter(subq.c._RowNumber == 1)
 
         return self.fetch_paginated(
+            session=session,
             statement=stmt,
             offset=pagination.offset,
             limit=pagination.limit,

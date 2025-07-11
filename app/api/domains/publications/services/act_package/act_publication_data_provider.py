@@ -3,6 +3,7 @@ from typing import List, Optional, Set
 
 import dso.models as dso_models
 from bs4 import BeautifulSoup
+from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_aoj_repository import PublicationAOJRepository
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
@@ -37,31 +38,34 @@ class ActPublicationDataProvider:
 
     def fetch_data(
         self,
+        session: Session,
         publication_version: PublicationVersionTable,
         bill_frbr: BillFrbr,
         act_frbr: ActFrbr,
         all_data: bool = False,
     ) -> PublicationData:
-        objects: List[dict] = self._get_objects(publication_version)
+        objects: List[dict] = self._get_objects(session, publication_version)
         parsed_template = self._template_parser.get_parsed_template(
             publication_version.Publication.Template.Text_Template,
             objects,
         )
         used_object_codes: Set[str] = self._get_used_object_codes(parsed_template)
         used_objects: List[dict] = self._get_used_objects(objects, used_object_codes)
-        assets: List[dict] = self._publication_asset_provider.get_assets(used_objects)
+        assets: List[dict] = self._publication_asset_provider.get_assets(session, used_objects)
         werkingsgebieden: List[dict] = self._publication_werkingsgebieden_provider.get_werkingsgebieden(
+            session,
             act_frbr,
             objects,
             used_objects,
             all_data,
         )
         documents: List[dict] = self._publication_documents_provider.get_documents(
+            session,
             act_frbr,
             objects,
             used_objects,
         )
-        area_of_jurisdiction: dict = self._get_aoj(before_datetime=publication_version.Created_Date)
+        area_of_jurisdiction: dict = self._get_aoj(session, publication_version.Created_Date)
         bill_attachments: List[dict] = self._get_bill_attachments(publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
@@ -75,8 +79,9 @@ class ActPublicationDataProvider:
         )
         return result
 
-    def _get_objects(self, publication_version: PublicationVersionTable) -> List[dict]:
+    def _get_objects(self, session: Session, publication_version: PublicationVersionTable) -> List[dict]:
         objects: List[dict] = self._publication_object_repository.fetch_objects(
+            session,
             publication_version.Publication.Module_ID,
             publication_version.Module_Status.Created_Date,
             publication_version.Publication.Template.Object_Types,
@@ -95,9 +100,10 @@ class ActPublicationDataProvider:
         results: List[dict] = [o for o in objects if o["Code"] in used_object_codes]
         return results
 
-    def _get_aoj(self, before_datetime: Optional[datetime] = None) -> dict:
+    def _get_aoj(self, session: Session, before_datetime: Optional[datetime] = None) -> dict:
         aoj: Optional[PublicationAreaOfJurisdictionTable] = self._publication_aoj_repository.get_latest(
-            before_datetime=before_datetime,
+            session,
+            before_datetime,
         )
         if aoj is None:
             raise RuntimeError("There needs to be an area of jurisdiction")

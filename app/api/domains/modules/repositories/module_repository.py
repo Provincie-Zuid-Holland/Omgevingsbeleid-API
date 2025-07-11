@@ -2,7 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, desc, func, or_, select
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import Session, aliased
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.modules.types import PublicModuleStatusCode
@@ -13,9 +13,9 @@ from app.core.tables.objects import ObjectStaticsTable
 
 
 class ModuleRepository(BaseRepository):
-    def get_by_id(self, id: int) -> Optional[ModuleTable]:
+    def get_by_id(self, session: Session, id: int) -> Optional[ModuleTable]:
         stmt = select(ModuleTable).where(ModuleTable.Module_ID == id)
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
     def get_filtered_query(
         self,
@@ -72,6 +72,7 @@ class ModuleRepository(BaseRepository):
 
     def get_with_filters(
         self,
+        session: Session,
         pagination: SortedPagination,
         filter_activated: Optional[bool] = None,
         filter_closed: Optional[bool] = None,
@@ -89,6 +90,7 @@ class ModuleRepository(BaseRepository):
             object_code,
         )
         paged_result = self.fetch_paginated(
+            session,
             statement=stmt,
             offset=pagination.offset,
             limit=pagination.limit,
@@ -96,7 +98,7 @@ class ModuleRepository(BaseRepository):
         )
         return paged_result
 
-    def get_public_modules(self, pagination: SimplePagination):
+    def get_public_modules(self, session: Session, pagination: SimplePagination):
         subq = select(
             ModuleStatusHistoryTable,
             func.row_number()
@@ -119,6 +121,7 @@ class ModuleRepository(BaseRepository):
         )
 
         paged_result = self.fetch_paginated_no_scalars(
+            session=session,
             statement=stmt,
             offset=pagination.offset,
             limit=pagination.limit,

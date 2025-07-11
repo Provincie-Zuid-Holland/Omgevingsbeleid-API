@@ -21,6 +21,7 @@
 
   "reportMissingImports": true,
   "reportMissingTypeStubs": false,
+  "reportAttributeAccessIssue": false,
 
   "pythonVersion": "3.13",
   "pythonPlatform": "Linux",

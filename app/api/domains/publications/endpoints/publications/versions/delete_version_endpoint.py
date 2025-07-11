@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
 from typing import Annotated
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_version
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
@@ -25,7 +25,7 @@ def post_delete_version_endpoint(
         ),
     ],
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> ResponseOK:
     if version.Deleted_At is not None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Publication Version already deleted")
@@ -38,8 +38,8 @@ def post_delete_version_endpoint(
     version.Modified_By_UUID = user.UUID
     version.Modified_Date = timepoint
 
-    db.add(version)
-    db.commit()
-    db.flush()
+    session.add(version)
+    session.commit()
+    session.flush()
 
-    return ResponseOK()
+    return ResponseOK(message="OK")

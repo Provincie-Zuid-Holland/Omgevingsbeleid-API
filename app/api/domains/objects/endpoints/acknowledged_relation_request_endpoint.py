@@ -1,12 +1,12 @@
 from datetime import datetime, timezone
 from typing import Annotated, List, Optional
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.api.types import ResponseOK
@@ -29,7 +29,7 @@ def get_acknowledged_relation_request_endpoint(
     lineage_id: int,
     object_in: RequestAcknowledgedRelation,
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[AcknowledgedRelationRequestEndpointContext, Depends()],
 ) -> ResponseOK:
     if object_in.Object_Type not in context.allowed_object_types:
@@ -59,7 +59,7 @@ def get_acknowledged_relation_request_endpoint(
     ack_table.with_sides(my_side, their_side)
 
     existing_request: Optional[AcknowledgedRelationsTable] = (
-        db.query(AcknowledgedRelationsTable)
+        session.query(AcknowledgedRelationsTable)
         .filter(
             and_(
                 AcknowledgedRelationsTable.From_Code == ack_table.From_Code,
@@ -83,14 +83,14 @@ def get_acknowledged_relation_request_endpoint(
         existing_request.Modified_Date = timepoint
         existing_request.Modified_By_UUID = user.UUID
 
-        db.add(existing_request)
-        db.flush()
-        db.commit()
+        session.add(existing_request)
+        session.flush()
+        session.commit()
         return ResponseOK(message="Updated existing request")
 
     # Query for max version so we can increment by 1
     max_version = (
-        db.query(func.max(AcknowledgedRelationsTable.Version))
+        session.query(func.max(AcknowledgedRelationsTable.Version))
         .filter(
             and_(
                 AcknowledgedRelationsTable.From_Code == ack_table.From_Code,
@@ -103,8 +103,8 @@ def get_acknowledged_relation_request_endpoint(
     if max_version is not None:
         ack_table.Version = max_version + 1
 
-    db.add(ack_table)
-    db.flush()
-    db.commit()
+    session.add(ack_table)
+    session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

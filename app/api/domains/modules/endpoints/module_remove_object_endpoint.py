@@ -6,6 +6,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module, depends_active_module_object_context
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.utils import guard_module_not_locked
@@ -30,7 +31,7 @@ def post_module_remove_object_endpoint(
             depends_object_static_by_object_type_and_id,
         ),
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
@@ -50,9 +51,10 @@ def post_module_remove_object_endpoint(
     object_context.Hidden = True
     object_context.Modified_By_UUID = user.UUID
     object_context.Modified_Date = timepoint
-    db.add(object_context)
+    session.add(object_context)
 
     _, new_record = module_object_repository.patch_latest_module_object(
+        session,
         object_context.Module_ID,
         object_context.Object_Type,
         object_context.Object_ID,
@@ -62,8 +64,8 @@ def post_module_remove_object_endpoint(
         timepoint,
         user.UUID,
     )
-    db.add(new_record)
-    db.flush()
-    db.commit()
+    session.add(new_record)
+    session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

@@ -2,12 +2,12 @@ import uuid
 from datetime import datetime, timezone
 from typing import Annotated, Dict, List
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.types.enums import DocumentType
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
@@ -40,7 +40,7 @@ def post_create_template_endpoint(
             )
         ),
     ],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> TemplateCreatedResponse:
     timepoint: datetime = datetime.now(timezone.utc)
 
@@ -60,9 +60,9 @@ def post_create_template_endpoint(
         Modified_By_UUID=user.UUID,
     )
 
-    db.add(template)
-    db.flush()
-    db.commit()
+    session.add(template)
+    session.flush()
+    session.commit()
 
     return TemplateCreatedResponse(
         UUID=template.UUID,

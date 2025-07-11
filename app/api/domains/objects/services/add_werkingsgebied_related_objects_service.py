@@ -25,11 +25,11 @@ class AddWerkingsgebiedRelatedObjectsConfig(BaseModel):
 class AddWerkingsgebiedRelatedObjectsService:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         config: AddWerkingsgebiedRelatedObjectsConfig,
         rows: List[BaseModel],
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._config: AddWerkingsgebiedRelatedObjectsConfig = config
         self._rows: List[BaseModel] = rows
 
@@ -101,7 +101,7 @@ class AddWerkingsgebiedRelatedObjectsService:
             )
         )
 
-        db_result = self._db.execute(stmt).mappings().all()
+        db_result = self._session.execute(stmt).mappings().all()
         valid_objects_map: Dict[str, List[WerkingsgebiedRelatedObjectShort]] = defaultdict(list)
         for db_row in db_result:
             valid_object: WerkingsgebiedRelatedObjectShort = WerkingsgebiedRelatedObjectShort.model_validate(db_row)
@@ -159,7 +159,7 @@ class AddWerkingsgebiedRelatedObjectsService:
             .order_by(desc(subq.c.Modified_Date))
         )
 
-        db_result = self._db.execute(stmt).mappings().all()
+        db_result = self._session.execute(stmt).mappings().all()
         module_objects_map: Dict[str, List[WerkingsgebiedRelatedModuleObjectShort]] = defaultdict(list)
         for db_row in db_result:
             module_object: WerkingsgebiedRelatedModuleObjectShort = (
@@ -171,16 +171,14 @@ class AddWerkingsgebiedRelatedObjectsService:
 
 
 class AddWerkingsgebiedRelatedObjectsServiceFactory:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
     def create_service(
         self,
+        session: Session,
         config: AddWerkingsgebiedRelatedObjectsConfig,
         rows: List[BaseModel],
     ) -> AddWerkingsgebiedRelatedObjectsService:
         return AddWerkingsgebiedRelatedObjectsService(
-            db=self._db,
+            session=session,
             config=config,
             rows=rows,
         )

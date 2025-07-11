@@ -2,13 +2,12 @@ import json
 from typing import Annotated, List, Optional
 
 from bs4 import BeautifulSoup
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends
 from sqlalchemy import TextClause, text
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_simple_pagination
+from app.api.dependencies import depends_db_session, depends_simple_pagination
 from app.api.domains.others.types import SearchRequestData, ValidSearchConfig, ValidSearchObject
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import PagedResponse, SimplePagination
@@ -18,13 +17,13 @@ from app.core.tables.objects import ObjectsTable
 class EndpointHandler:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         search_config: ValidSearchConfig,
         pagination: SimplePagination,
         query: str,
         object_types: Optional[List[str]] = None,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._search_config: ValidSearchConfig = search_config
         self._pagination: SimplePagination = pagination
         self._query: str = query
@@ -63,7 +62,7 @@ class EndpointHandler:
 
         stmt = stmt.bindparams(**bindparams_dict)
 
-        results = self._db.execute(stmt)
+        results = self._session.execute(stmt)
         search_objects: List[ValidSearchObject] = []
         total_count: int = 0
 
@@ -171,12 +170,12 @@ class MssqlValidSearchEndpointContext(BaseEndpointContext):
 def get_mssql_valid_search_endpoint(
     query: str,
     object_in: SearchRequestData,
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     context: Annotated[MssqlValidSearchEndpointContext, Depends()],
 ) -> PagedResponse[ValidSearchObject]:
     handler = EndpointHandler(
-        db,
+        session,
         context.search_config,
         pagination,
         query,

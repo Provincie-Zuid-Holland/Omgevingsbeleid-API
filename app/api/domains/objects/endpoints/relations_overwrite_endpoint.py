@@ -2,12 +2,12 @@ import json
 from datetime import datetime, timezone
 from typing import Annotated, List, Sequence
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import delete, or_, select
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.objects.types import WriteRelation
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
@@ -19,14 +19,14 @@ from app.core.tables.users import UsersTable
 class EndpointHandler:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         user: UsersTable,
         allowed_object_types_relations: List[str],
         object_type: str,
         object_id: int,
         overwrite_list: List[WriteRelation],
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._user: UsersTable = user
         self._object_type: str = object_type
         self._object_id: int = object_id
@@ -41,11 +41,11 @@ class EndpointHandler:
 
             self._remove_current_relations()
             self._create_relations()
-            self._db.commit()
+            self._session.commit()
 
             return ResponseOK(message="OK")
         except Exception as e:
-            self._db.rollback()
+            self._session.rollback()
             raise e
 
     def _guard_invalid_relations(self):
@@ -80,7 +80,7 @@ class EndpointHandler:
             Before=before_data,
             After=after_data,
         )
-        self._db.add(change_log)
+        self._session.add(change_log)
 
     def _fetch_current_relations(self):
         stmt = select(RelationsTable).filter(
@@ -89,7 +89,7 @@ class EndpointHandler:
                 RelationsTable.To_Code == self._object_code,
             )
         )
-        rows: Sequence[RelationsTable] = self._db.scalars(stmt).all()
+        rows: Sequence[RelationsTable] = self._session.scalars(stmt).all()
         dict_rows: List[dict] = [r.to_dict() for r in rows]
         return dict_rows
 
@@ -100,7 +100,7 @@ class EndpointHandler:
                 RelationsTable.To_Code == self._object_code,
             )
         )
-        self._db.execute(stmt)
+        self._session.execute(stmt)
 
     def _create_relations(self):
         if not self._overwrite_list:
@@ -112,7 +112,7 @@ class EndpointHandler:
                 self._object_code,
                 data.Code,
             )
-            self._db.add(relation)
+            self._session.add(relation)
 
 
 class RelationsOverwriteEndpointContext(BaseEndpointContext):
@@ -125,11 +125,11 @@ def post_relations_overwrite_endpoint(
     lineage_id: int,
     overwrite_list: List[WriteRelation],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[RelationsOverwriteEndpointContext, Depends()],
 ) -> ResponseOK:
     handler: EndpointHandler = EndpointHandler(
-        db,
+        session,
         user,
         context.allowed_object_types_relations,
         context.object_type,

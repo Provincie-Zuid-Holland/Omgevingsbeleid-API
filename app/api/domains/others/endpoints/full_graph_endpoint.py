@@ -1,12 +1,12 @@
 from datetime import datetime, timezone
 from typing import Annotated, List
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends
 from sqlalchemy import desc, func, or_, select
 from sqlalchemy.orm import Session, aliased, load_only
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.others.types import GraphEdge, GraphEdgeType, GraphResponse, GraphVertice
 from app.core.tables.acknowledged_relations import AcknowledgedRelationsTable
 from app.core.tables.objects import ObjectsTable
@@ -14,8 +14,8 @@ from app.core.tables.others import RelationsTable
 
 
 class EndpointHandler:
-    def __init__(self, db: Session):
-        self._db: Session = db
+    def __init__(self, session: Session):
+        self._session: Session = session
 
     def handle(self) -> GraphResponse:
         vertices: List[GraphVertice] = self._get_all_valid_objects_as_vertices()
@@ -34,7 +34,7 @@ class EndpointHandler:
 
     def _get_all_relations(self) -> List[GraphEdge]:
         stmt = select(RelationsTable)
-        rows: List[RelationsTable] = self._db.execute(stmt).scalars().all()
+        rows: List[RelationsTable] = self._session.execute(stmt).scalars().all()
         edges: List[GraphEdge] = [
             GraphEdge(
                 Type=GraphEdgeType.relation,
@@ -57,7 +57,7 @@ class EndpointHandler:
                 )
             )
         )
-        rows: List[AcknowledgedRelationsTable] = self._db.execute(stmt).scalars().all()
+        rows: List[AcknowledgedRelationsTable] = self._session.execute(stmt).scalars().all()
         edges: List[GraphEdge] = [
             GraphEdge(
                 Type=GraphEdgeType.acknowledged_relation,
@@ -106,14 +106,14 @@ class EndpointHandler:
             )
         )
 
-        rows: List[ObjectsTable] = self._db.execute(stmt).scalars().all()
+        rows: List[ObjectsTable] = self._session.execute(stmt).scalars().all()
         vertices: List[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
         return vertices
 
 
 @inject
 def get_full_graph_endpoint(
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> GraphResponse:
-    handler = EndpointHandler(db)
+    handler = EndpointHandler(session)
     return handler.handle()

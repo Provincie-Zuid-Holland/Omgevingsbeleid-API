@@ -12,55 +12,36 @@ import app.api.domains.publications.services.state.versions as state_versions
 
 class PublicationContainer(containers.DeclarativeContainer):
     config = providers.Configuration()
-    db = providers.Dependency()
     main_config = providers.Dependency()
     area_repository = providers.Dependency()
     area_geometry_repository = providers.Dependency()
     storage_file_repository = providers.Dependency()
     asset_repository = providers.Dependency()
 
-    act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository, db=db)
-    act_report_repository = providers.Singleton(
-        repositories.PublicationActReportRepository,
-        db=db,
-    )
-    act_repository = providers.Singleton(
-        repositories.PublicationActRepository,
-        db=db,
-    )
-    act_version_repository = providers.Singleton(
-        repositories.PublicationActVersionRepository,
-        db=db,
-    )
-    announcement_package_repository = providers.Singleton(repositories.PublicationAnnouncementPackageRepository, db=db)
-    announcement_report_repository = providers.Singleton(repositories.PublicationAnnouncementReportRepository, db=db)
-    announcement_repository = providers.Singleton(repositories.PublicationAnnouncementRepository, db=db)
-    aoj_repository = providers.Singleton(repositories.PublicationAOJRepository, db=db)
-    environment_repository = providers.Singleton(repositories.PublicationEnvironmentRepository, db=db)
-    object_repository = providers.Singleton(repositories.PublicationObjectRepository, db=db)
-    publication_repository = providers.Singleton(repositories.PublicationRepository, db=db)
-    storage_file_repository = providers.Singleton(repositories.PublicationStorageFileRepository, db=db)
-    template_repository = providers.Singleton(repositories.PublicationTemplateRepository, db=db)
-    version_attachment_repository = providers.Singleton(repositories.PublicationVersionAttachmentRepository, db=db)
-    version_repository = providers.Singleton(repositories.PublicationVersionRepository, db=db)
-    zip_repository = providers.Singleton(repositories.PublicationZipRepository, db=db)
+    act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository)
+    act_report_repository = providers.Singleton(repositories.PublicationActReportRepository)
+    act_repository = providers.Singleton(repositories.PublicationActRepository)
+    act_version_repository = providers.Singleton(repositories.PublicationActVersionRepository)
+    announcement_package_repository = providers.Singleton(repositories.PublicationAnnouncementPackageRepository)
+    announcement_report_repository = providers.Singleton(repositories.PublicationAnnouncementReportRepository)
+    announcement_repository = providers.Singleton(repositories.PublicationAnnouncementRepository)
+    aoj_repository = providers.Singleton(repositories.PublicationAOJRepository)
+    environment_repository = providers.Singleton(repositories.PublicationEnvironmentRepository)
+    object_repository = providers.Singleton(repositories.PublicationObjectRepository)
+    publication_repository = providers.Singleton(repositories.PublicationRepository)
+    storage_file_repository = providers.Singleton(repositories.PublicationStorageFileRepository)
+    template_repository = providers.Singleton(repositories.PublicationTemplateRepository)
+    version_attachment_repository = providers.Singleton(repositories.PublicationVersionAttachmentRepository)
+    version_repository = providers.Singleton(repositories.PublicationVersionRepository)
+    zip_repository = providers.Singleton(repositories.PublicationZipRepository)
 
     act_defaults_provider = providers.Factory(
         services.ActDefaultsProvider,
         main_config=main_config,
     )
-    act_frbr_provider = providers.Singleton(
-        services.ActFrbrProvider,
-        db=db,
-    )
-    bill_frbr_provider = providers.Singleton(
-        services.BillFrbrProvider,
-        db=db,
-    )
-    doc_frbr_provider = providers.Singleton(
-        services.DocFrbrProvider,
-        db=db,
-    )
+    act_frbr_provider = providers.Singleton(services.ActFrbrProvider)
+    bill_frbr_provider = providers.Singleton(services.BillFrbrProvider)
+    doc_frbr_provider = providers.Singleton(services.DocFrbrProvider)
     pdf_export_service = providers.Singleton(
         services.PdfExportService,
         koop_settings=config.PUBLICATION_KOOP,
@@ -74,7 +55,7 @@ class PublicationContainer(containers.DeclarativeContainer):
         main_config=main_config,
     )
     version_validator = providers.Singleton(services.PublicationVersionValidator)
-    purpose_provider = providers.Singleton(services.PurposeProvider, db=db)
+    purpose_provider = providers.Singleton(services.PurposeProvider)
     template_parser = providers.Singleton(services.TemplateParser)
 
     documents_provider = providers.Singleton(
@@ -135,7 +116,6 @@ class PublicationContainer(containers.DeclarativeContainer):
     )
     act_package_builder_factory = providers.Singleton(
         act_package_services.ActPackageBuilderFactory,
-        db=db,
         dso_builder_factory=dso_act_input_data_builder_factory,
         bill_frbr_provider=bill_frbr_provider,
         act_frbr_provider=act_frbr_provider,
@@ -146,7 +126,6 @@ class PublicationContainer(containers.DeclarativeContainer):
     )
     announcement_package_builder_factory = providers.Singleton(
         announcement_package_services.AnnouncementPackageBuilderFactory,
-        db=db,
         doc_frbr_provider=doc_frbr_provider,
         state_loader=state_loader,
     )

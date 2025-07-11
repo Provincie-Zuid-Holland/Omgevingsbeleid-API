@@ -1,12 +1,12 @@
 from datetime import date, datetime, timezone
 from typing import Annotated, Any, Dict, Optional
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_announcement
 from app.api.domains.publications.types.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
@@ -36,7 +36,7 @@ def post_edit_announcement_endpoint(
         ),
     ],
     announcement: Annotated[PublicationAnnouncementTable, Depends(depends_publication_announcement)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> ResponseOK:
     _guard_locked(announcement)
 
@@ -52,11 +52,11 @@ def post_edit_announcement_endpoint(
     announcement.Modified_By_UUID = user.UUID
     announcement.Modified_Date = datetime.now(timezone.utc)
 
-    db.add(announcement)
-    db.commit()
-    db.flush()
+    session.add(announcement)
+    session.commit()
+    session.flush()
 
-    return ResponseOK()
+    return ResponseOK(message="OK")
 
 
 def _guard_locked(announcement: PublicationAnnouncementTable) -> None:

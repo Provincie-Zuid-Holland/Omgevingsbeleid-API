@@ -1,5 +1,7 @@
 from typing import List, Optional, Set
 
+from sqlalchemy.orm import Session
+
 from app.api.domains.werkingsgebieden.services.change_area_processor import (
     AreaProcessorConfig,
     AreaProcessorService,
@@ -14,12 +16,12 @@ class ChangeAreaListener(Listener[ModuleObjectPatchedEvent]):
     def __init__(self, service_factory: AreaProcessorServiceFactory):
         self._service_factory: AreaProcessorServiceFactory = service_factory
 
-    def handle_event(self, event: ModuleObjectPatchedEvent) -> Optional[ModuleObjectPatchedEvent]:
+    def handle_event(self, session: Session, event: ModuleObjectPatchedEvent) -> Optional[ModuleObjectPatchedEvent]:
         config: Optional[AreaProcessorConfig] = self._collect_config(event.context.request_model)
         if not config:
             return event
 
-        area_processor: AreaProcessorService = self._service_factory.create_service(config)
+        area_processor: AreaProcessorService = self._service_factory.create_service(session, config)
         new_record = area_processor.process(
             event.context.old_record,
             event.payload.new_record,

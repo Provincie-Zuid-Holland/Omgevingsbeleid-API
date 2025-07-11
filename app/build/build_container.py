@@ -17,7 +17,7 @@ from app.build.services import (
     object_models_builder,
 )
 import app.build.services.validators.validators as validators
-from app.core.db.session import create_db_engine, init_db_session
+from app.core.db.session import create_db_engine
 from app.core.services import MainConfig, ModelsProvider
 from app.core.services.event import event_manager
 from app.core.settings import Settings
@@ -33,13 +33,9 @@ class BuildContainer(containers.DeclarativeContainer):
         uri=config.SQLALCHEMY_DATABASE_URI,
         echo=config.SQLALCHEMY_ECHO,
     )
-    db_session_factory = providers.Singleton(sessionmaker, bind=db_engine, autocommit=False, autoflush=False)
-    db = providers.Resource(
-        init_db_session,
-        session_factory=db_session_factory,
-    )
+    db_session_factory = providers.Singleton(sessionmaker, bind=db_engine, autocommit=False, autoflush=False, expire_on_commit=False)
 
-    object_static_repository = providers.Singleton(ObjectStaticRepository, db=db)
+    object_static_repository = providers.Singleton(ObjectStaticRepository)
 
     validator_provider = providers.Singleton(
         validator_provider.ValidatorProvider,
@@ -51,9 +47,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(validators.HtmlValidator),
             providers.Factory(validators.ImageValidator),
             providers.Factory(validators.NotEqualRootValidator),
-            providers.Factory(validators.ObjectCodeExistsValidator, object_static_repository=object_static_repository),
+            providers.Factory(validators.ObjectCodeExistsValidator, session_factory=db_session_factory, object_static_repository=object_static_repository),
             providers.Factory(validators.ObjectCodeAllowedTypeValidator),
-            providers.Factory(validators.ObjectCodesExistsValidator, object_static_repository=object_static_repository),
+            providers.Factory(validators.ObjectCodesExistsValidator, session_factory=db_session_factory, object_static_repository=object_static_repository),
             providers.Factory(validators.ObjectCodesAllowedTypeValidator),
         ),
     )
@@ -291,7 +287,6 @@ class BuildContainer(containers.DeclarativeContainer):
 
     api_builder = providers.Factory(
         api_builder.ApiBuilder,
-        db=db,
         config_parser=config_parser,
         object_models_builder=object_models_builder,
         tables_builder=tables_builder,

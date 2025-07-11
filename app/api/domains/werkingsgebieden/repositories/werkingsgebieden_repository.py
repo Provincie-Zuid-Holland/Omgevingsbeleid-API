@@ -1,5 +1,5 @@
 from sqlalchemy import desc, select
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import func
 
 from app.api.base_repository import BaseRepository
@@ -8,16 +8,19 @@ from app.core.tables.werkingsgebieden import SourceWerkingsgebiedenTable
 
 
 class WerkingsgebiedenRepository(BaseRepository):
-    def get_by_title_paginated(self, pagination: SortedPagination, title: str) -> PaginatedQueryResult:
+    def get_by_title_paginated(
+        self, session: Session, pagination: SortedPagination, title: str
+    ) -> PaginatedQueryResult:
         stmt = select(SourceWerkingsgebiedenTable).filter(SourceWerkingsgebiedenTable.Title == title)
         return self.fetch_paginated(
+            session=session,
             statement=stmt,
             offset=pagination.offset,
             limit=pagination.limit,
             sort=(getattr(SourceWerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
         )
 
-    def get_unique_paginated(self, pagination: SortedPagination) -> PaginatedQueryResult:
+    def get_unique_paginated(self, session: Session, pagination: SortedPagination) -> PaginatedQueryResult:
         row_number = (
             func.row_number()
             .over(
@@ -44,6 +47,7 @@ class WerkingsgebiedenRepository(BaseRepository):
         sort_column = getattr(subq.c, pagination.sort.column)
 
         return self.fetch_paginated(
+            session=session,
             statement=stmt,
             offset=pagination.offset,
             limit=pagination.limit,

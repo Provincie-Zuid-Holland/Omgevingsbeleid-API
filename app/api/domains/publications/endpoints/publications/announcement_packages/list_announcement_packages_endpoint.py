@@ -3,9 +3,10 @@ from typing import Annotated, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_optional_sorted_pagination
+from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.publications.repository.publication_announcement_package_repository import (
     PublicationAnnouncementPackageRepository,
 )
@@ -27,6 +28,7 @@ def get_list_announcement_packages_endpoint(
     announcement_uuid: Annotated[Optional[uuid.UUID], None],
     package_type: Annotated[Optional[PackageType], None],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
+    session: Annotated[Session, Depends(depends_db_session)],
     package_repository: Annotated[
         PublicationAnnouncementPackageRepository,
         Depends(Provide[ApiContainer.publication.announcement_package_repository]),
@@ -45,6 +47,7 @@ def get_list_announcement_packages_endpoint(
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
     paginated_result = package_repository.get_with_filters(
+        session=session,
         announcement_uuid=announcement_uuid,
         package_type=package_type,
         pagination=pagination,

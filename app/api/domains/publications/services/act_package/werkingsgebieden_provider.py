@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import List, Optional, Set
 
 import dso.models as dso_models
+from sqlalchemy.orm import Session
 
 from app.api.domains.publications.types.api_input_data import ActFrbr
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
@@ -17,6 +18,7 @@ class PublicationWerkingsgebiedenProvider:
 
     def get_werkingsgebieden(
         self,
+        session: Session,
         act_frbr: ActFrbr,
         all_objects: List[dict],
         used_objects: List[dict],
@@ -29,6 +31,7 @@ class PublicationWerkingsgebiedenProvider:
         ]
 
         werkingsgebieden: List[dict] = self._get_werkingsgebieden_with_areas(
+            session,
             act_frbr,
             used_werkingsgebieden_objects,
         )
@@ -36,6 +39,7 @@ class PublicationWerkingsgebiedenProvider:
 
     def _get_werkingsgebieden_with_areas(
         self,
+        session: Session,
         act_frbr: ActFrbr,
         werkingsgebieden_objects: List[dict],
     ) -> List[dict]:
@@ -47,7 +51,7 @@ class PublicationWerkingsgebiedenProvider:
             if area_uuid is None:
                 raise RuntimeError(f"Missing area for werkingsgebied with code: {code}")
 
-            area: Optional[AreasTable] = self._area_repository.get_with_gml(area_uuid)
+            area: Optional[AreasTable] = self._area_repository.get_with_gml(session, area_uuid)
             if area is None:
                 raise RuntimeError(f"Area UUID does not exists for code: {code}")
 

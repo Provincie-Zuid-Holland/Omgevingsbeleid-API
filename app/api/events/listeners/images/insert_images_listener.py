@@ -4,6 +4,7 @@ from uuid import UUID
 
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
@@ -20,10 +21,12 @@ class InsertHtmlImagesConfig(BaseModel):
 class HtmlImagesInserter:
     def __init__(
         self,
+        session: Session,
         asset_repository: AssetRepository,
         rows: List[BaseModel],
         config: InsertHtmlImagesConfig,
     ):
+        self._session: Session = session
         self._config: InsertHtmlImagesConfig = config
         self._rows: List[BaseModel] = rows
         self._asset_repository: AssetRepository = asset_repository
@@ -46,7 +49,7 @@ class HtmlImagesInserter:
                     except ValueError:
                         continue
 
-                    asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(asset_uuid)
+                    asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(self._session, asset_uuid)
                     if not asset:
                         continue
 
@@ -63,10 +66,12 @@ class HtmlImagesInserterFactory:
 
     def create(
         self,
+        session: Session,
         rows: List[BaseModel],
         config: InsertHtmlImagesConfig,
     ) -> HtmlImagesInserter:
         return HtmlImagesInserter(
+            session=session,
             asset_repository=self._asset_repository,
             rows=rows,
             config=config,
@@ -80,12 +85,12 @@ class InsertHtmlImagesListenerBase(Listener[EventT], Generic[EventT]):
     def __init__(self, service_factory: HtmlImagesInserterFactory):
         self._service_factory: HtmlImagesInserterFactory = service_factory
 
-    def handle_event(self, event: EventT) -> Optional[EventT]:
+    def handle_event(self, session: Session, event: EventT) -> Optional[EventT]:
         config: Optional[InsertHtmlImagesConfig] = self._collect_config(event.context.response_model)
         if not config or not config.fields:
             return event
 
-        inserter: HtmlImagesInserter = self._service_factory.create(event.payload.rows, config)
+        inserter: HtmlImagesInserter = self._service_factory.create(session, event.payload.rows, config)
         result_rows = inserter.process()
 
         event.payload.rows = result_rows

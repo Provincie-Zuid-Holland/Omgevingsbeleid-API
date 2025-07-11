@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.domains.users.services.security import Security
 from app.api.domains.users.user_repository import UserRepository
@@ -47,7 +48,7 @@ class CreateUserEndpointContext(BaseEndpointContext):
 def post_create_user_endpoint(
     object_in: UserCreate,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
@@ -58,7 +59,7 @@ def post_create_user_endpoint(
     if object_in.Rol not in context.allowed_roles:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Rol")
 
-    same_email_user: Optional[UsersTable] = repository.get_by_email(object_in.Email)
+    same_email_user: Optional[UsersTable] = repository.get_by_email(session, object_in.Email)
     if same_email_user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already in use")
 
@@ -78,14 +79,14 @@ def post_create_user_endpoint(
         Created_Date=datetime.now(timezone.utc),
         Created_By_UUID=logged_in_user.UUID,
         Action_Type="create_user",
-        Action_Data=object_in.json(),
+        Action_Data=object_in.model_dump_json(),
         After=json.dumps(user.to_dict_safe()),
     )
 
-    db.add(change_log)
-    db.add(user)
-    db.flush()
-    db.commit()
+    session.add(change_log)
+    session.add(user)
+    session.flush()
+    session.commit()
 
     return UserCreateResponse(
         UUID=user.UUID,

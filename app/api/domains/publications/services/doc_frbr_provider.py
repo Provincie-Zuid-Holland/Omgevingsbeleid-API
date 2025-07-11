@@ -15,18 +15,15 @@ from app.core.tables.publications import (
 
 
 class DocFrbrProvider:
-    def __init__(self, db: Session):
-        self._db: Session = db
-
-    def generate_frbr(self, announcement: PublicationAnnouncementTable) -> DocFrbr:
+    def generate_frbr(self, session: Session, announcement: PublicationAnnouncementTable) -> DocFrbr:
         if announcement.Publication.Environment.Has_State:
-            return self._create_real(announcement)
+            return self._create_real(session, announcement)
 
         return self._create_fake(announcement)
 
-    def _create_real(self, announcement: PublicationAnnouncementTable) -> DocFrbr:
+    def _create_real(self, session: Session, announcement: PublicationAnnouncementTable) -> DocFrbr:
         stmt = select(func.count()).select_from(PublicationDocTable)
-        count: int = self._db.execute(stmt).scalar() + 1
+        count: int = session.execute(stmt).scalar() + 1
         id_suffix: str = f"{count}"
         result: DocFrbr = self._create(announcement, id_suffix)
         return result

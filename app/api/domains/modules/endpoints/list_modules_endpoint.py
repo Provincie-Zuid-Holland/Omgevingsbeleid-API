@@ -3,9 +3,10 @@ from typing import Annotated, List, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Query
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_optional_sorted_pagination
+from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.modules.repositories.module_repository import ModuleRepository
 from app.api.domains.modules.types import Module
 from app.api.domains.objects.dependencies import depends_filter_object_code
@@ -33,6 +34,7 @@ def get_list_modules_endpoint(
     module_repository: Annotated[ModuleRepository, Depends(Provide[ApiContainer.module_repository])],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
+    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ListModulesEndpointContext, Depends()],
     only_mine: Annotated[bool, Query] = False,
     filter_activated: Optional[bool] = None,
@@ -48,6 +50,7 @@ def get_list_modules_endpoint(
         filter_on_me = user.UUID
 
     paginated_result: PaginatedQueryResult = module_repository.get_with_filters(
+        session=session,
         pagination=pagination,
         filter_activated=filter_activated,
         filter_closed=filter_closed,

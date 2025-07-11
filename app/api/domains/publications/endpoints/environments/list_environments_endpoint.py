@@ -2,9 +2,10 @@ from typing import Annotated, List, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.dependencies import depends_simple_pagination
+from app.api.dependencies import depends_db_session, depends_simple_pagination
 from app.api.domains.publications.repository.publication_environment_repository import PublicationEnvironmentRepository
 from app.api.domains.publications.types.models import PublicationEnvironment
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
@@ -25,11 +26,13 @@ def get_list_environments_endpoint(
             )
         ),
     ],
+    session: Annotated[Session, Depends(depends_db_session)],
     environment_repository: Annotated[
         PublicationEnvironmentRepository, Depends(Provide[ApiContainer.publication.environment_repository])
     ],
 ) -> PagedResponse[PublicationEnvironment]:
     paginated_result = environment_repository.get_with_filters(
+        session=session,
         is_active=is_active,
         offset=pagination.offset,
         limit=pagination.limit,

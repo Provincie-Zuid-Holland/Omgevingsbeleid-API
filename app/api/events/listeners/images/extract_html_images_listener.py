@@ -29,13 +29,13 @@ class HtmlImagesExtractor:
     def __init__(
         self,
         asset_repository: AssetRepository,
-        db: Session,
+        session: Session,
         event: ModuleObjectPatchedEvent,
         config: ExtractHtmlImagesConfig,
         interested_fields: Set[str],
     ):
         self._asset_repository: AssetRepository = asset_repository
-        self._db: Session = db
+        self._session: Session = session
         self._config: ExtractHtmlImagesConfig = config
         self._interested_fields: Set[str] = interested_fields
         self._module_object: ModuleObjectsTable = event.payload.new_record
@@ -74,7 +74,9 @@ class HtmlImagesExtractor:
         # First check if the image already exists
         # if so; then we do not need to parse the image to gain the meta
         image_hash: str = sha256(image_data.encode("utf-8")).hexdigest()
-        image_table: Optional[AssetsTable] = self._asset_repository.get_by_hash_and_content(image_hash, image_data)
+        image_table: Optional[AssetsTable] = self._asset_repository.get_by_hash_and_content(
+            self._session, image_hash, image_data
+        )
         if image_table is not None:
             return image_table
 
@@ -101,24 +103,24 @@ class HtmlImagesExtractor:
             Meta=json.dumps(meta.to_dict()),
             Content=image_data,
         )
-        self._db.add(image_table)
+        self._session.add(image_table)
         return image_table
 
 
 class HtmlImagesExtractorFactory:
-    def __init__(self, asset_repository: AssetRepository, db: Session):
+    def __init__(self, asset_repository: AssetRepository):
         self._asset_repository: AssetRepository = asset_repository
-        self._db: Session = db
 
     def create(
         self,
+        session: Session,
         event: ModuleObjectPatchedEvent,
         config: ExtractHtmlImagesConfig,
         interested_fields: Set[str],
     ) -> HtmlImagesExtractor:
         return HtmlImagesExtractor(
             self._asset_repository,
-            self._db,
+            session,
             event,
             config,
             interested_fields,
@@ -129,7 +131,7 @@ class ExtractHtmlImagesListener(Listener[ModuleObjectPatchedEvent]):
     def __init__(self, extractor_factory: HtmlImagesExtractorFactory):
         self._extractor_factory: HtmlImagesExtractorFactory = extractor_factory
 
-    def handle_event(self, event: ModuleObjectPatchedEvent) -> Optional[ModuleObjectPatchedEvent]:
+    def handle_event(self, session: Session, event: ModuleObjectPatchedEvent) -> Optional[ModuleObjectPatchedEvent]:
         config: Optional[ExtractHtmlImagesConfig] = self._collect_config(event.context.request_model)
         if not config:
             return event
@@ -139,7 +141,7 @@ class ExtractHtmlImagesListener(Listener[ModuleObjectPatchedEvent]):
         if not interested_fields:
             return event
 
-        extractor: HtmlImagesExtractor = self._extractor_factory.create(event, config, interested_fields)
+        extractor: HtmlImagesExtractor = self._extractor_factory.create(session, event, config, interested_fields)
         result_object = extractor.process()
 
         event.payload.new_record = result_object

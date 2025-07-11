@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_version
 from app.api.domains.publications.services.publication_version_validator import PublicationVersionValidator
 from app.api.domains.publications.types.models import BillCompact, BillMetadata, Procedural
@@ -46,7 +47,7 @@ def post_edit_version_endpoint(
     ],
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     validator: Annotated[PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
 ) -> PublicationVersionEditResponse:
     _guard_locked(version)
 
@@ -62,9 +63,9 @@ def post_edit_version_endpoint(
     version.Modified_By_UUID = user.UUID
     version.Modified_Date = datetime.now(timezone.utc)
 
-    db.add(version)
-    db.commit()
-    db.flush()
+    session.add(version)
+    session.commit()
+    session.flush()
 
     errors: List[dict] = validator.get_errors(version)
     is_valid: bool = len(errors) == 0

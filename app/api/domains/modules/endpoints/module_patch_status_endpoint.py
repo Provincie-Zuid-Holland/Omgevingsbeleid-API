@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_and_activated_module
 from app.api.domains.modules.types import ModuleStatusCode
 from app.api.domains.modules.utils import guard_module_is_locked
@@ -28,7 +29,7 @@ def post_module_patch_status_endpoint(
     object_in: ModulePatchStatus,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_and_activated_module)],
-    db: Annotated[Session, Depends(Provide[ApiContainer.db])],
+    session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
 ) -> ResponseOK:
     permission_service.guard_valid_user(
@@ -47,8 +48,8 @@ def post_module_patch_status_endpoint(
         Created_Date=datetime.now(timezone.utc),
         Created_By_UUID=user.UUID,
     )
-    db.add(status)
-    db.flush()
-    db.commit()
+    session.add(status)
+    session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

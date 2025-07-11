@@ -1,6 +1,8 @@
 from typing import Dict, List, Optional, Set
 from uuid import UUID
 
+from sqlalchemy.orm import Session
+
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.api.domains.publications.services.state.versions.v4 import models
 from app.api.domains.publications.types.api_input_data import ActFrbr, ActMutation, ApiActInputData, OwData
@@ -11,10 +13,10 @@ class PatchActMutation:
         self._asset_provider: PublicationAssetProvider = asset_provider
         self._active_act: models.ActiveAct = active_act
 
-    def patch(self, data: ApiActInputData) -> ApiActInputData:
+    def patch(self, session: Session, data: ApiActInputData) -> ApiActInputData:
         data = self._patch_werkingsgebieden(data)
         data = self._patch_documents(data)
-        data = self._patch_assets(data)
+        data = self._patch_assets(session, data)
         data = self._patch_act_mutation(data)
         data = self._patch_ow_data(data)
         return data
@@ -108,7 +110,7 @@ class PatchActMutation:
 
         return data
 
-    def _patch_assets(self, data: ApiActInputData) -> ApiActInputData:
+    def _patch_assets(self, session: Session, data: ApiActInputData) -> ApiActInputData:
         state_assets: Dict[str, models.Asset] = self._active_act.Assets
 
         fetched_assets_uuids: Set[str] = set([a["UUID"] for a in data.Publication_Data.assets])
@@ -116,7 +118,7 @@ class PatchActMutation:
             [sa.UUID for _, sa in state_assets.items() if sa.UUID not in fetched_assets_uuids]
         )
         additional_asset_uuids: List[UUID] = [UUID(uuid_str) for uuid_str in additional_asset_uuids_str]
-        additional_assets: List[dict] = self._asset_provider.get_assets_by_uuids(additional_asset_uuids)
+        additional_assets: List[dict] = self._asset_provider.get_assets_by_uuids(session, additional_asset_uuids)
 
         data.Publication_Data.assets = data.Publication_Data.assets + additional_assets
 

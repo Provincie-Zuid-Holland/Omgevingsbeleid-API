@@ -1,5 +1,7 @@
 from typing import Dict, Generic, List, Type
 
+from sqlalchemy.orm import Session
+
 from .types import EventType, Listener
 
 
@@ -29,13 +31,13 @@ class EventManager(Generic[EventType]):
     ):
         self._event_listeners: EventListeners = event_listeners
 
-    def dispatch(self, event: EventType) -> EventType:
+    def dispatch(self, session: Session, event: EventType) -> EventType:
         listeners: List[Listener] = self._event_listeners.get_listeners(event)
         if not listeners:
             return event
 
         for listener in listeners:
-            response = listener.handle_event(event)
+            response = listener.handle_event(session, event)
             if response is not None:
                 event = response
 

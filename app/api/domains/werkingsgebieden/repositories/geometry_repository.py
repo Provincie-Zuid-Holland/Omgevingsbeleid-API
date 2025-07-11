@@ -3,6 +3,8 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from typing import List, Optional
 
+from sqlalchemy.orm import Session
+
 from app.api.base_repository import BaseRepository
 
 
@@ -10,6 +12,7 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
     @abstractmethod
     def add_onderverdeling(
         self,
+        session: Session,
         uuidx: uuid.UUID,
         idx: int,
         title: str,
@@ -27,6 +30,7 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
     @abstractmethod
     def add_werkingsgebied(
         self,
+        session: Session,
         uuidx: uuid.UUID,
         idx: int,
         title: str,
@@ -41,13 +45,13 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_werkingsgebied(self, uuidx: uuid.UUID) -> dict:
+    def get_werkingsgebied(self, session: Session, uuidx: uuid.UUID) -> dict:
         pass
 
     @abstractmethod
-    def get_werkingsgebied_optional(self, uuidx: uuid.UUID) -> Optional[dict]:
+    def get_werkingsgebied_optional(self, session: Session, uuidx: uuid.UUID) -> Optional[dict]:
         pass
 
     @abstractmethod
-    def get_onderverdelingen_for_werkingsgebied(self, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
+    def get_onderverdelingen_for_werkingsgebied(self, session: Session, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
         pass

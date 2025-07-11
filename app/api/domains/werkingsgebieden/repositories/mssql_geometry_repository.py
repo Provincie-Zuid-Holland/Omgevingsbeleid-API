@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
 from app.core.utils.utils import DATE_FORMAT
@@ -11,6 +12,7 @@ from app.core.utils.utils import DATE_FORMAT
 class MssqlGeometryRepository(GeometryRepository):
     def add_onderverdeling(
         self,
+        session: Session,
         uuidx: uuid.UUID,
         idx: int,
         title: str,
@@ -52,10 +54,11 @@ class MssqlGeometryRepository(GeometryRepository):
                         :created_date, :modified_date, :start_validity, :end_validity
                     )
             """
-        self._db.execute(text(sql), params)
+        session.execute(text(sql), params)
 
     def add_werkingsgebied(
         self,
+        session: Session,
         uuidx: uuid.UUID,
         idx: int,
         title: str,
@@ -95,15 +98,15 @@ class MssqlGeometryRepository(GeometryRepository):
                         :created_date, :modified_date, :start_validity, :end_validity
                     )
             """
-        self._db.execute(text(sql), params)
+        session.execute(text(sql), params)
 
-    def get_werkingsgebied(self, uuidx: uuid.UUID) -> dict:
-        row = self.get_werkingsgebied_optional(uuidx)
+    def get_werkingsgebied(self, session: Session, uuidx: uuid.UUID) -> dict:
+        row = self.get_werkingsgebied_optional(session, uuidx)
         if row is None:
             raise RuntimeError(f"Werkingsgebied with UUID {uuidx} does not exist")
         return row
 
-    def get_werkingsgebied_optional(self, uuidx: uuid.UUID) -> Optional[dict]:
+    def get_werkingsgebied_optional(self, session: Session, uuidx: uuid.UUID) -> Optional[dict]:
         params = {
             "uuid": str(uuidx),
         }
@@ -118,14 +121,14 @@ class MssqlGeometryRepository(GeometryRepository):
             WHERE
                 UUID = :uuid
             """
-        row = self._db.execute(text(sql), params).fetchone()
+        row = session.execute(text(sql), params).fetchone()
         if row is None:
             return None
 
         row_dict = row._asdict()
         return row_dict
 
-    def get_onderverdelingen_for_werkingsgebied(self, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
+    def get_onderverdelingen_for_werkingsgebied(self, session: Session, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
         params = {
             "uuid": str(werkingsgebied_uuid),
         }
@@ -138,7 +141,7 @@ class MssqlGeometryRepository(GeometryRepository):
             WHERE
                 UUID_Werkingsgebied = :uuid
             """
-        rows = self._db.execute(text(sql), params).all()
+        rows = session.execute(text(sql), params).all()
 
         dict_rows = [row._asdict() for row in rows]
         return dict_rows

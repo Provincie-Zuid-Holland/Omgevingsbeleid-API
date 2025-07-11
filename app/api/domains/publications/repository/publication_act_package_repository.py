@@ -2,6 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
+from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.publications.types.enums import PackageType
@@ -10,19 +11,20 @@ from app.core.tables.publications import PublicationActPackageTable
 
 
 class PublicationActPackageRepository(BaseRepository):
-    def get_by_uuid(self, uuid: UUID) -> Optional[PublicationActPackageTable]:
+    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[PublicationActPackageTable]:
         stmt = select(PublicationActPackageTable).filter(PublicationActPackageTable.UUID == uuid)
-        return self.fetch_first(stmt)
+        return self.fetch_first(session, stmt)
 
-    def get_by_act_version(self, act_version_uuid: UUID) -> Optional[PublicationActPackageTable]:
+    def get_by_act_version(self, session: Session, act_version_uuid: UUID) -> Optional[PublicationActPackageTable]:
         stmt = select(PublicationActPackageTable).filter(
             PublicationActPackageTable.Act_Version_UUID == act_version_uuid
         )
-        result: Optional[PublicationActPackageTable] = self.fetch_first(stmt)
+        result: Optional[PublicationActPackageTable] = self.fetch_first(session, stmt)
         return result
 
     def get_with_filters(
         self,
+        session: Session,
         pagination: SortedPagination,
         version_uuid: Optional[UUID] = None,
         package_type: Optional[PackageType] = None,
@@ -37,6 +39,7 @@ class PublicationActPackageRepository(BaseRepository):
         stmt = select(PublicationActPackageTable).filter(*filters)
 
         paged_result = self.fetch_paginated(
+            session=session,
             statement=stmt,
             offset=pagination.offset,
             limit=pagination.limit,

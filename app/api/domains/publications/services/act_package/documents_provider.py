@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import List, Optional, Set
 
 import dso.models as dso_models
+from sqlalchemy.orm import Session
 
 from app.api.domains.others.repositories.storage_file_repository import StorageFileRepository
 from app.api.domains.publications.types.api_input_data import ActFrbr
@@ -14,12 +15,14 @@ class PublicationDocumentsProvider:
 
     def get_documents(
         self,
+        session: Session,
         act_frbr: ActFrbr,
         all_objects: List[dict],
         used_objects: List[dict],
     ) -> List[dict]:
         used_documents_objects: List[dict] = self._calculate_used_documents(all_objects, used_objects)
         result: List[dict] = self._resolve_files(
+            session,
             act_frbr,
             used_documents_objects,
         )
@@ -33,6 +36,7 @@ class PublicationDocumentsProvider:
 
     def _resolve_files(
         self,
+        session: Session,
         act_frbr: ActFrbr,
         documents_objects: List[dict],
     ) -> List[dict]:
@@ -44,7 +48,7 @@ class PublicationDocumentsProvider:
             if file_uuid is None:
                 raise RuntimeError(f"Missing file for document with code: {code}")
 
-            storage_file: Optional[StorageFileTable] = self._file_repostiory.get_by_uuid(file_uuid)
+            storage_file: Optional[StorageFileTable] = self._file_repostiory.get_by_uuid(session, file_uuid)
             if storage_file is None:
                 raise RuntimeError(f"File UUID does not exists for code: {code}")
 

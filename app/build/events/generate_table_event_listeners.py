@@ -7,10 +7,11 @@ from app.build.events.generate_table_event import GenerateTableEvent
 from app.core.services.event.types import Listener
 from app.core.tables.others import AreasTable, StorageFileTable
 from app.core.tables.users import UsersTable
+from sqlalchemy.orm import Session
 
 
 class AddObjectCodeRelationshipListener(Listener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, session: Session, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
         column = event.column
         if column.type != "object_code":
             return
@@ -38,7 +39,7 @@ class AddObjectCodeRelationshipListener(Listener[GenerateTableEvent]):
 
 
 class AddAreasRelationshipListener(Listener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, session: Session, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
         column = event.column
         if column.type != "area_uuid":
             return
@@ -66,7 +67,7 @@ class AddAreasRelationshipListener(Listener[GenerateTableEvent]):
 
 
 class AddUserRelationshipListener(Listener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, session: Session, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
         column = event.column
         if column.type != "user_uuid":
             return
@@ -94,7 +95,7 @@ class AddUserRelationshipListener(Listener[GenerateTableEvent]):
 
 
 class AddWerkingsgebiedenRelationshipListener(Listener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, session: Session, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
         column = event.column
         if column.type != "werkingsgebied_uuid":
             return
@@ -122,7 +123,7 @@ class AddWerkingsgebiedenRelationshipListener(Listener[GenerateTableEvent]):
 
 
 class AddStoreageFileRelationshipListener(Listener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, session: Session, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
         column = event.column
         if column.type != "file_uuid":
             return

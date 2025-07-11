@@ -1,10 +1,11 @@
 import sqlite3
-from typing import Generator
+from contextlib import AbstractContextManager, contextmanager
+from typing import Callable
 
 from sqlalchemy import Engine, create_engine, event, text
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session
 
-from app.core.settings import Settings
+SessionFactoryType = Callable[..., AbstractContextManager[Session]]
 
 
 def _enable_sqlite_load_extension(dbapi_connection, connection_record) -> None:  # noqa
@@ -26,26 +27,16 @@ def create_db_engine(uri: str, echo: str) -> Engine:
     return engine
 
 
-def create_db_engine_with_autocommit(settings: Settings) -> Engine:
-    engine = create_engine(
-        settings.SQLALCHEMY_DATABASE_URI,
-        pool_pre_ping=True,
-        echo=settings.SQLALCHEMY_ECHO,
-        isolation_level="AUTOCOMMIT",
-    )
-    if engine.dialect.name == "sqlite":
-        event.listen(engine, "connect", _enable_sqlite_load_extension)
-
-    return engine
-
-
-def init_db_session(session_factory: sessionmaker) -> Generator[Session, None]:
-    with session_factory() as db:
+@contextmanager
+def session_scope(session_factory: SessionFactoryType):
+    with session_factory() as session:
         try:
-            if db.bind.dialect.name == "sqlite":
-                db.execute(text("pragma foreign_keys=on"))
-                db.execute(text("SELECT load_extension('mod_spatialite')"))
-            yield db
-        except Exception as e:
-            # Gives me a place to inspect
-            raise e
+            # when using SQLite, ensure FK constraints and load Spatialite
+            if session.bind.dialect.name == "sqlite":
+                session.execute(text("PRAGMA foreign_keys = ON"))
+                session.execute(text("SELECT load_extension('mod_spatialite')"))
+            yield session
+            # commit happens automatically when exiting the 'with' block
+        except Exception:
+            session.rollback()
+            raise

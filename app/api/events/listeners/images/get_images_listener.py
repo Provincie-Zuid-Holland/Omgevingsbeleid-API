@@ -2,6 +2,7 @@ from typing import List, Optional, Set, Union
 from uuid import UUID
 
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
@@ -18,10 +19,12 @@ class GetImagesConfig(BaseModel):
 class ImageInserter:
     def __init__(
         self,
+        session: Session,
         asset_repository: AssetRepository,
         event: Union[RetrievedModuleObjectsEvent, RetrievedObjectsEvent],
         config: GetImagesConfig,
     ):
+        self._session: Session = session
         self._asset_repository: AssetRepository = asset_repository
         self._config: GetImagesConfig = config
         self._rows: List[BaseModel] = event.payload.rows
@@ -41,7 +44,7 @@ class ImageInserter:
                 except ValueError:
                     continue
 
-                asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(image_uuid)
+                asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(self._session, image_uuid)
                 if not asset:
                     continue
 
@@ -56,10 +59,12 @@ class ImageInserterFactory:
 
     def create(
         self,
+        session: Session,
         event: Union[RetrievedModuleObjectsEvent, RetrievedObjectsEvent],
         config: GetImagesConfig,
     ) -> ImageInserter:
         return ImageInserter(
+            session,
             self._asset_repository,
             event,
             config,
@@ -70,14 +75,16 @@ class GetImagesForModuleListener(Listener[RetrievedModuleObjectsEvent]):
     def __init__(self, service_factory: ImageInserterFactory):
         self._service_factory: ImageInserterFactory = service_factory
 
-    def handle_event(self, event: RetrievedModuleObjectsEvent) -> Optional[RetrievedModuleObjectsEvent]:
+    def handle_event(
+        self, session: Session, event: RetrievedModuleObjectsEvent
+    ) -> Optional[RetrievedModuleObjectsEvent]:
         config: Optional[GetImagesConfig] = self._collect_config(event.context.response_model)
         if not config:
             return event
         if not config.fields:
             return event
 
-        inserter: ImageInserter = self._service_factory.create(event, config)
+        inserter: ImageInserter = self._service_factory.create(session, event, config)
         result_rows = inserter.process()
 
         event.payload.rows = result_rows
@@ -106,14 +113,14 @@ class GetImagesForObjectListener(Listener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: ImageInserterFactory):
         self._service_factory: ImageInserterFactory = service_factory
 
-    def handle_event(self, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
         config: Optional[GetImagesConfig] = self._collect_config(event.context.response_model)
         if not config:
             return event
         if not config.fields:
             return event
 
-        inserter: ImageInserter = self._service_factory.create(event, config)
+        inserter: ImageInserter = self._service_factory.create(session, event, config)
         result_rows = inserter.process()
 
         event.payload.rows = result_rows
