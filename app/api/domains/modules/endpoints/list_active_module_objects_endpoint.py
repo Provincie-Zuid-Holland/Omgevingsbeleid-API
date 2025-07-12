@@ -18,9 +18,9 @@ from app.core.tables.users import UsersTable
 
 
 class ActiveModuleObjectsResponse(BaseModel):
-    module: ModuleShort
-    module_object: ActiveModuleObject
-    action: ModuleObjectActionFull
+    Module: ModuleShort
+    Module_Object: ActiveModuleObject
+    Action: ModuleObjectActionFull
 
 
 class ListActiveModuleObjectsEndpointContext(BaseEndpointContext):

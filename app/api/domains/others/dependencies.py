@@ -3,6 +3,7 @@ from typing import Annotated, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -10,8 +11,6 @@ from app.api.domains.objects.repositories.object_repository import ObjectReposit
 from app.api.domains.others.repositories.storage_file_repository import StorageFileRepository
 from app.core.tables.objects import ObjectsTable
 from app.core.tables.others import StorageFileTable
-
-from sqlalchemy.orm import Session
 
 
 @inject
