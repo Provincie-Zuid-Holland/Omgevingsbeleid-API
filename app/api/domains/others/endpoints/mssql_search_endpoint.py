@@ -2,7 +2,6 @@ import json
 from typing import Annotated, List, Optional
 
 from bs4 import BeautifulSoup
-from dependency_injector.wiring import inject
 from fastapi import Depends
 from sqlalchemy import TextClause, text
 from sqlalchemy.orm import Session
@@ -307,7 +306,6 @@ class MssqlSearchEndpointContext(BaseEndpointContext):
     search_config: ValidSearchConfig
 
 
-@inject
 def get_mssql_search_endpoint(
     query: str,
     object_in: SearchRequestData,

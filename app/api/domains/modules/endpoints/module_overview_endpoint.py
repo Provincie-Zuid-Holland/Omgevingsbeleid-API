@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime
 from typing import Annotated, List, Optional, Sequence
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import desc, func, select
@@ -53,7 +52,6 @@ class ModuleOverview(BaseModel):
     Objects: List[ModuleObjectShort]
 
 
-@inject
 def view_module_overview_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],

@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -14,7 +13,6 @@ from app.core.tables.publications import PublicationVersionTable
 from app.core.tables.users import UsersTable
 
 
-@inject
 def post_delete_version_endpoint(
     user: Annotated[
         UsersTable,

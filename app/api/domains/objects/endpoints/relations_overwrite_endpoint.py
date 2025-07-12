@@ -2,7 +2,6 @@ import json
 from datetime import datetime, timezone
 from typing import Annotated, List, Sequence
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import delete, or_, select
 from sqlalchemy.orm import Session
@@ -120,7 +119,6 @@ class RelationsOverwriteEndpointContext(BaseEndpointContext):
     allowed_object_types_relations: List[str]
 
 
-@inject
 def post_relations_overwrite_endpoint(
     lineage_id: int,
     overwrite_list: List[WriteRelation],

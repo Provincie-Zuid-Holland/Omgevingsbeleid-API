@@ -21,12 +21,12 @@ from app.core.utils.utils import DATE_FORMAT
 class DatabaseFixtures:
     def __init__(
         self,
-        db: Session,
+        session: Session,
         geometry_repository: GeometryRepository,
         area_geometry_repository: AreaGeometryRepository,
         security: Security,
     ):
-        self._db: Session = db
+        self._session: Session = session
         self._geometry_repository: GeometryRepository = geometry_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
         self._security: Security = security
@@ -45,7 +45,7 @@ class DatabaseFixtures:
         self.create_visie_algemeen()
 
     def create_users(self):
-        self._db.add(
+        self._session.add(
             UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Gebruikersnaam="Anton",
@@ -55,7 +55,7 @@ class DatabaseFixtures:
                 Wachtwoord=self._security.get_password_hash("password"),
             )
         )
-        self._db.add(
+        self._session.add(
             UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
                 Gebruikersnaam="Bert",
@@ -65,7 +65,7 @@ class DatabaseFixtures:
                 Wachtwoord=self._security.get_password_hash("password"),
             )
         )
-        self._db.add(
+        self._session.add(
             UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000003"),
                 Gebruikersnaam="Cees",
@@ -75,7 +75,7 @@ class DatabaseFixtures:
                 Wachtwoord=self._security.get_password_hash("password"),
             )
         )
-        self._db.add(
+        self._session.add(
             UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000004"),
                 Gebruikersnaam="Daniel",
@@ -85,7 +85,7 @@ class DatabaseFixtures:
                 Wachtwoord=self._security.get_password_hash("password"),
             )
         )
-        self._db.add(
+        self._session.add(
             UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000005"),
                 Gebruikersnaam="Emma",
@@ -95,7 +95,7 @@ class DatabaseFixtures:
                 Wachtwoord=self._security.get_password_hash("password"),
             )
         )
-        self._db.add(
+        self._session.add(
             UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000006"),
                 Gebruikersnaam="Fred",
@@ -105,7 +105,7 @@ class DatabaseFixtures:
                 Wachtwoord=self._security.get_password_hash("password"),
             )
         )
-        self._db.add(
+        self._session.add(
             UsersTable(
                 UUID=uuid.UUID("11111111-0000-0000-0000-000000000007"),
                 Gebruikersnaam="Gerald",
@@ -115,10 +115,11 @@ class DatabaseFixtures:
                 Wachtwoord=self._security.get_password_hash("password"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
     def create_source_werkingsgebieden(self):
         self._geometry_repository.add_werkingsgebied(
+            session=self._session,
             uuidx=uuid.UUID("00000000-0009-0000-0000-000000000001"),
             idx=1,
             title="Maatwerkgebied glastuinbouw",
@@ -130,10 +131,11 @@ class DatabaseFixtures:
             start_validity=datetime(2023, 2, 2, 2, 2, 2),
             end_validity=datetime(2099, 2, 2, 2, 2, 2),
         )
-        self._db.commit()
+        self._session.commit()
 
     def create_areas(self):
         self._area_geometry_repository.create_area(
+            session=self._session,
             uuidx=uuid.UUID("00000000-0009-0000-0001-000000000001"),
             created_date=datetime(2023, 2, 2, 2, 2, 2),
             created_by_uuid=uuid.UUID("11111111-0000-0000-0000-000000000001"),
@@ -150,7 +152,7 @@ class DatabaseFixtures:
                 "Modified_Date": datetime(2023, 2, 2, 2, 2, 2).strftime(DATE_FORMAT)[:23],
             },
         )
-        self._db.commit()
+        self._session.commit()
 
     def create_storage_files(self):
         with open("./app/tests/fixtures/files/document-1.pdf", "rb") as file:
@@ -158,7 +160,7 @@ class DatabaseFixtures:
             file_size = len(file_binary)
             checksum = hashlib.sha256(file_binary).hexdigest()
             lookup = checksum[0:10]
-            self._db.add(
+            self._session.add(
                 StorageFileTable(
                     UUID=uuid.UUID("00000000-0011-0000-0001-000000000001"),
                     Lookup=lookup,
@@ -176,7 +178,7 @@ class DatabaseFixtures:
             file_size = len(file_binary)
             checksum = hashlib.sha256(file_binary).hexdigest()
             lookup = checksum[0:10]
-            self._db.add(
+            self._session.add(
                 StorageFileTable(
                     UUID=uuid.UUID("00000000-0011-0000-0001-000000000002"),
                     Lookup=lookup,
@@ -189,10 +191,10 @@ class DatabaseFixtures:
                     Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 )
             )
-        self._db.commit()
+        self._session.commit()
 
     def create_assets(self):
-        self._db.add(
+        self._session.add(
             AssetsTable(
                 UUID=uuid.UUID("00000000-AAAA-0000-0000-000000000001"),
                 Created_Date=datetime(2023, 2, 2, 2, 2, 2),
@@ -205,7 +207,7 @@ class DatabaseFixtures:
         )
 
     def create_object_statics(self):
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="ambitie",
                 Object_ID=1,
@@ -214,7 +216,7 @@ class DatabaseFixtures:
                 Cached_Title="Titel van ambitie 1",
             )
         )
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="ambitie",
                 Object_ID=2,
@@ -222,7 +224,7 @@ class DatabaseFixtures:
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="ambitie",
                 Object_ID=3,
@@ -230,7 +232,7 @@ class DatabaseFixtures:
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="ambitie",
                 Object_ID=4,
@@ -238,7 +240,7 @@ class DatabaseFixtures:
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="ambitie",
                 Object_ID=5,
@@ -247,7 +249,7 @@ class DatabaseFixtures:
             )
         )
 
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="beleidsdoel",
                 Object_ID=1,
@@ -256,7 +258,7 @@ class DatabaseFixtures:
                 Cached_Title="Titel van beleidsdoel 1",
             )
         )
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="beleidsdoel",
                 Object_ID=2,
@@ -265,7 +267,7 @@ class DatabaseFixtures:
             )
         )
 
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="beleidskeuze",
                 Object_ID=1,
@@ -273,7 +275,7 @@ class DatabaseFixtures:
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="beleidskeuze",
                 Object_ID=2,
@@ -282,7 +284,7 @@ class DatabaseFixtures:
             )
         )
 
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="maatregel",
                 Object_ID=1,
@@ -290,7 +292,7 @@ class DatabaseFixtures:
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="maatregel",
                 Object_ID=2,
@@ -299,7 +301,7 @@ class DatabaseFixtures:
             )
         )
 
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="werkingsgebied",
                 Object_ID=1,
@@ -308,7 +310,7 @@ class DatabaseFixtures:
             )
         )
 
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="document",
                 Object_ID=1,
@@ -317,7 +319,7 @@ class DatabaseFixtures:
                 Cached_Title="Titel van document 1",
             )
         )
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="document",
                 Object_ID=2,
@@ -327,10 +329,10 @@ class DatabaseFixtures:
             )
         )
 
-        self._db.commit()
+        self._session.commit()
 
     def existing_objects(self):
-        self._db.add(
+        self._session.add(
             ObjectsTable(
                 Object_Type="ambitie",
                 Object_ID=1,
@@ -345,7 +347,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.add(
+        self._session.add(
             ObjectsTable(
                 Object_Type="ambitie",
                 Object_ID=3,
@@ -360,7 +362,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
     def create_modules(self):
         module: ModuleTable = ModuleTable(
@@ -398,12 +400,12 @@ class DatabaseFixtures:
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.add(module)
-        self._db.commit()
+        self._session.add(module)
+        self._session.commit()
 
         # Ambitie
         # Ambitie-1: Add and remove from module, should use Vigerend in Publication
-        self._db.add(
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -421,8 +423,8 @@ class DatabaseFixtures:
                 Hidden=True,
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -437,7 +439,7 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.add(
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -454,10 +456,10 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
         # Ambitie-2: New ambitie, should be in publication
-        self._db.add(
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -473,8 +475,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -489,10 +491,10 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
         # Adding ambitie-3 to be widrawn. Should NOT be in Publication
-        self._db.add(
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -508,8 +510,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -524,10 +526,10 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
         # Ambitie-4: New ambitie, Should be in Publication
-        self._db.add(
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -543,8 +545,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -559,11 +561,11 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
         # Ambitie 5: Should be in Module Status 3 (not 2)
         # Which allows testing a second publication
-        self._db.add(
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -579,8 +581,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="ambitie",
@@ -595,10 +597,10 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
         # Beleidsdoel
-        self._db.add(
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="beleidsdoel",
@@ -614,8 +616,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="beleidsdoel",
@@ -630,8 +632,8 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="beleidsdoel",
@@ -647,8 +649,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="beleidsdoel",
@@ -663,10 +665,10 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
         # Beleidskeuze
-        self._db.add(
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="beleidskeuze",
@@ -682,8 +684,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="beleidskeuze",
@@ -700,8 +702,8 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="beleidskeuze",
@@ -717,8 +719,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="beleidskeuze",
@@ -735,10 +737,10 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
         # Maatregel
-        self._db.add(
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="maatregel",
@@ -754,8 +756,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="maatregel",
@@ -772,8 +774,8 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="maatregel",
@@ -789,8 +791,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="maatregel",
@@ -807,10 +809,10 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
         # Document
-        self._db.add(
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="document",
@@ -826,8 +828,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="document",
@@ -843,8 +845,8 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="document",
@@ -860,8 +862,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="document",
@@ -877,10 +879,10 @@ class DatabaseFixtures:
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
         # Werkingsgebied
-        self._db.add(
+        self._session.add(
             ModuleObjectContextTable(
                 Module_ID=module.Module_ID,
                 Object_Type="werkingsgebied",
@@ -896,8 +898,8 @@ class DatabaseFixtures:
                 Conclusion="Geen conclusie",
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ModuleObjectsTable(
                 Module_ID=module.Module_ID,
                 Object_Type="werkingsgebied",
@@ -912,33 +914,33 @@ class DatabaseFixtures:
                 Area_UUID=uuid.UUID("00000000-0009-0000-0001-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
     def create_relations(self):
         # Ambitie <-> Beleidsdoel
         a = RelationsTable(Description="Ambitie 1 <-> Beleidsdoel 1")
         a.set_codes("ambitie-1", "beleidsdoel-1")
-        self._db.add(a)
+        self._session.add(a)
         b = RelationsTable(Description="Ambitie 2 <-> Beleidsdoel 2")
         b.set_codes("ambitie-2", "beleidsdoel-2")
-        self._db.add(b)
+        self._session.add(b)
 
         # Beleidsdoel <-> Beleidskeuze
         c = RelationsTable(Description="Beleidsdoel 1 <-> Beleidskeuze 1")
         c.set_codes("beleidsdoel-1", "beleidskeuze-1")
-        self._db.add(c)
+        self._session.add(c)
         d = RelationsTable(Description="Beleidsdoel 2 <-> Beleidskeuze 2")
         d.set_codes("beleidsdoel-2", "beleidskeuze-2")
-        self._db.add(d)
+        self._session.add(d)
 
         # Beleidskeuze <-> Maatregel
         c = RelationsTable(Description="Beleidskeuze 1 <-> Maatregel 1")
         c.set_codes("beleidskeuze-1", "maatregel-1")
-        self._db.add(c)
+        self._session.add(c)
         d = RelationsTable(Description="Beleidskeuze 2 <-> Maatregel 2")
         d.set_codes("beleidskeuze-2", "maatregel-2")
-        self._db.add(d)
-        self._db.commit()
+        self._session.add(d)
+        self._session.commit()
 
     def create_acknowledged_relations(self):
         ack_table: AcknowledgedRelationsTable = AcknowledgedRelationsTable(
@@ -964,11 +966,11 @@ class DatabaseFixtures:
                 Explanation="Relatie naar beleidskeuze 1",
             ),
         )
-        self._db.add(ack_table)
-        self._db.commit()
+        self._session.add(ack_table)
+        self._session.commit()
 
     def create_visie_algemeen(self):
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="visie_algemeen",
                 Object_ID=1,
@@ -976,8 +978,8 @@ class DatabaseFixtures:
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ObjectsTable(
                 Object_Type="visie_algemeen",
                 Object_ID=1,
@@ -1020,7 +1022,7 @@ daarvoor levert.</p>""",
             )
         )
 
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="visie_algemeen",
                 Object_ID=2,
@@ -1028,8 +1030,8 @@ daarvoor levert.</p>""",
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ObjectsTable(
                 Object_Type="visie_algemeen",
                 Object_ID=2,
@@ -1056,9 +1058,9 @@ haar partners, als waarborg voor de kwaliteit van de fysieke leefomgeving.</p>""
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()
 
-        self._db.add(
+        self._session.add(
             ObjectStaticsTable(
                 Object_Type="visie_algemeen",
                 Object_ID=3,
@@ -1066,8 +1068,8 @@ haar partners, als waarborg voor de kwaliteit van de fysieke leefomgeving.</p>""
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
             )
         )
-        self._db.commit()
-        self._db.add(
+        self._session.commit()
+        self._session.add(
             ObjectsTable(
                 Object_Type="visie_algemeen",
                 Object_ID=3,
@@ -1100,4 +1102,4 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
-        self._db.commit()
+        self._session.commit()

@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, List, Optional
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -27,7 +26,6 @@ class TemplateEdit(BaseModel):
     Object_Templates: Optional[Dict[str, str]] = None
 
 
-@inject
 def post_edit_template_endpoint(
     object_in: Annotated[TemplateEdit, Depends()],
     user: Annotated[

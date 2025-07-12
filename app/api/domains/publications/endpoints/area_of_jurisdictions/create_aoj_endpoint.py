@@ -2,7 +2,6 @@ import uuid
 from datetime import date, datetime, timezone
 from typing import Annotated
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -24,7 +23,6 @@ class AOJCreatedResponse(BaseModel):
     UUID: uuid.UUID
 
 
-@inject
 def post_create_aoj_endpoint(
     object_in: Annotated[AOJCreate, Depends()],
     user: Annotated[

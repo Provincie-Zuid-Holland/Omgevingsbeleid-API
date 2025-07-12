@@ -59,6 +59,7 @@ class JoinWerkingsgebiedenToObjectsListener(Listener[RetrievedObjectsEvent]):
 
     def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
         join_service: JoinWerkingsgebiedenService = self._service_factory.create_service(
+            session,
             event.payload.rows,
             event.context.response_model,
         )

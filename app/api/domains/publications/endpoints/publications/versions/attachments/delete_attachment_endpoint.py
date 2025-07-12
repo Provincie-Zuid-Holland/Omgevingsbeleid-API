@@ -1,6 +1,5 @@
 from typing import Annotated
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -16,7 +15,6 @@ from app.core.tables.publications import PublicationVersionAttachmentTable, Publ
 from app.core.tables.users import UsersTable
 
 
-@inject
 def post_delete_attachment_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     attachment: Annotated[PublicationVersionAttachmentTable, Depends(depends_publication_version_attachment)],

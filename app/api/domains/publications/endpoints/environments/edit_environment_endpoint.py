@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, Optional
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -31,7 +30,6 @@ class EnvironmentEdit(BaseModel):
     Can_Publicate: Optional[bool] = Field(None)
 
 
-@inject
 def post_edit_environment_endpoint(
     object_in: Annotated[EnvironmentEdit, Depends()],
     user: Annotated[

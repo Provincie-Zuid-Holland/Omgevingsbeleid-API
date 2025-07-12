@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated, List, Set
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy import and_, desc, func, or_, select
@@ -246,7 +245,6 @@ class EndpointHandler:
         return edges
 
 
-@inject
 def get_object_graph_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_table: Annotated[ObjectsTable, Depends(depends_object_by_uuid)],

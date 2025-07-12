@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated, List, Optional
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
@@ -24,7 +23,6 @@ class AcknowledgedRelationRequestEndpointContext(BaseEndpointContext):
     allowed_object_types: List[str]
 
 
-@inject
 def get_acknowledged_relation_request_endpoint(
     lineage_id: int,
     object_in: RequestAcknowledgedRelation,

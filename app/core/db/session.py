@@ -28,7 +28,7 @@ def create_db_engine(uri: str, echo: str) -> Engine:
 
 
 @contextmanager
-def session_scope(session_factory: SessionFactoryType):
+def session_scope_with_context(session_factory: SessionFactoryType):
     with session_factory() as session:
         try:
             # when using SQLite, ensure FK constraints and load Spatialite

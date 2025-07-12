@@ -1,7 +1,6 @@
 import uuid
 from typing import Annotated, List
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import desc, select
@@ -93,7 +92,6 @@ class EndpointHandler:
         return stmt
 
 
-@inject
 def get_search_objects_endpoint(
     query: str,
     session: Annotated[Session, Depends(depends_db_session)],

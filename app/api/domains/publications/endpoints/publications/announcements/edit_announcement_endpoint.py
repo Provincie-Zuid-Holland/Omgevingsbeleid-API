@@ -1,7 +1,6 @@
 from datetime import date, datetime, timezone
 from typing import Annotated, Any, Dict, Optional
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -24,7 +23,6 @@ class PublicationAnnouncementEdit(BaseModel):
     Content: Optional[AnnouncementContent] = None
 
 
-@inject
 def post_edit_announcement_endpoint(
     object_in: Annotated[PublicationAnnouncementEdit, Depends()],
     user: Annotated[

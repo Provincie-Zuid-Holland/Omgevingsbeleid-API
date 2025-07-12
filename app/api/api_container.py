@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from dependency_injector import containers, providers
+from sqlalchemy.orm import sessionmaker
 
 import app.api.domains.modules as module_domain
 import app.api.domains.modules.services as module_services
@@ -13,14 +14,26 @@ import app.api.events.listeners as event_listeners
 from app.api.domains.others.repositories import storage_file_repository
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.services import permission_service
+from app.core.db.session import create_db_engine
 from app.core.services.event import event_manager
+from app.core.services.main_config import MainConfig
+from app.core.settings import Settings
 
 
 class ApiContainer(containers.DeclarativeContainer):
-    db_session_factory = providers.Dependency()
-    config = providers.Dependency()
-    main_config = providers.Dependency()
     models_provider = providers.Dependency()
+
+    config = providers.Configuration(pydantic_settings=[Settings()])
+    main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
+
+    db_engine = providers.Singleton(
+        create_db_engine,
+        uri=config.SQLALCHEMY_DATABASE_URI,
+        echo=config.SQLALCHEMY_ECHO,
+    )
+    db_session_factory = providers.Singleton(
+        sessionmaker, bind=db_engine, autocommit=False, autoflush=False, expire_on_commit=False
+    )
 
     permission_service = providers.Singleton(
         permission_service.PermissionService,

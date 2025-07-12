@@ -9,7 +9,7 @@ from pydantic import ValidationInfo
 from pydantic_core import PydanticUseDefault
 
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
-from app.core.db.session import SessionFactoryType, session_scope
+from app.core.db.session import SessionFactoryType, session_scope_with_context
 
 from .types import PydanticValidator, Validator
 
@@ -258,7 +258,7 @@ class ObjectCodeExistsValidator(Validator):
             except ValueError:
                 raise ValueError("Value is not a valid Object_Code")
 
-            with session_scope(self._session_factory) as session:
+            with session_scope_with_context(self._session_factory) as session:
                 object_static = self._object_static_repository.get_by_object_type_and_id(
                     session,
                     object_type,
@@ -327,7 +327,7 @@ class ObjectCodesExistsValidator(Validator):
                 except ValueError:
                     raise ValueError("Value is not a valid Object_Code")
 
-                with session_scope(self._session_factory) as session:
+                with session_scope_with_context(self._session_factory) as session:
                     object_static = self._object_static_repository.get_by_object_type_and_id(
                         session,
                         object_type,

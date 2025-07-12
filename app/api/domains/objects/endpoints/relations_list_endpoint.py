@@ -1,6 +1,5 @@
 from typing import Annotated, List, Sequence
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, selectinload
@@ -40,7 +39,6 @@ class RelationsListEndpointContext(BaseEndpointContext):
     object_type: str
 
 
-@inject
 def get_relations_list_endpoint(
     lineage_id: int,
     session: Annotated[Session, Depends(depends_db_session)],

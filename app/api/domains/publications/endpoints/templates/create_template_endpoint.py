@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime, timezone
 from typing import Annotated, Dict, List
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -29,7 +28,6 @@ class TemplateCreatedResponse(BaseModel):
     UUID: uuid.UUID
 
 
-@inject
 def post_create_template_endpoint(
     object_in: Annotated[TemplateCreate, Depends()],
     user: Annotated[

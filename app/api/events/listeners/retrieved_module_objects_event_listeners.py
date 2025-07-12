@@ -25,6 +25,7 @@ class JoinWerkingsgebiedToModuleObjectsListener(Listener[RetrievedModuleObjectsE
         self, session: Session, event: RetrievedModuleObjectsEvent
     ) -> Optional[RetrievedModuleObjectsEvent]:
         join_service: JoinWerkingsgebiedenService = self._service_factory.create_service(
+            session,
             event.payload.rows,
             event.context.response_model,
         )

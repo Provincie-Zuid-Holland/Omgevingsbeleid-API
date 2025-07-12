@@ -1,20 +1,25 @@
-from typing import Annotated, Generator, Optional
+from typing import Optional
 
-from dependency_injector.wiring import Provide, inject
-from fastapi import Depends
-from sqlalchemy.orm import Session
+from fastapi import Request
+from sqlalchemy import text
 
-from app.api.api_container import ApiContainer
 from app.api.utils.pagination import OptionalSort, OptionalSortedPagination, SimplePagination, SortOrder
-from app.core.db.session import SessionFactoryType, session_scope
 
 
-@inject
-def depends_db_session(
-    session_factory: Annotated[SessionFactoryType, Depends(Provide[ApiContainer.db_session_factory])],
-) -> Generator[Session, None]:
-    with session_scope(session_factory) as session:
-        yield session
+def depends_db_session(request: Request):
+    db_sessionmaker = request.app.state.db_sessionmaker
+
+    with db_sessionmaker.begin() as session:
+        try:
+            # when using SQLite, ensure FK constraints and load Spatialite
+            if session.bind.dialect.name == "sqlite":
+                session.execute(text("PRAGMA foreign_keys = ON"))
+                session.execute(text("SELECT load_extension('mod_spatialite')"))
+            yield session
+            # commit happens automatically when exiting the 'with' block
+        except Exception:
+            session.rollback()
+            raise
 
 
 def depends_simple_pagination(

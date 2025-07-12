@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, Optional
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -21,7 +20,6 @@ class ActEdit(BaseModel):
     Metadata: Optional[ActMetadata] = None
 
 
-@inject
 def post_edit_act_endpoint(
     object_in: Annotated[ActEdit, Depends()],
     user: Annotated[

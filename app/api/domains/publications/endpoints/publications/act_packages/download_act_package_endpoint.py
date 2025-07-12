@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, Response
 from sqlalchemy.orm import Session
 
@@ -13,7 +12,6 @@ from app.core.tables.publications import PublicationPackageZipTable
 from app.core.tables.users import UsersTable
 
 
-@inject
 def get_download_act_package_endpoint(
     package_zip: Annotated[PublicationPackageZipTable, Depends(depends_publication_zip_by_act_package)],
     user: Annotated[

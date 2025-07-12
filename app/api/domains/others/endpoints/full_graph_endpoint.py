@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated, List
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 from sqlalchemy import desc, func, or_, select
 from sqlalchemy.orm import Session, aliased, load_only
@@ -111,7 +110,6 @@ class EndpointHandler:
         return vertices
 
 
-@inject
 def get_full_graph_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
 ) -> GraphResponse:

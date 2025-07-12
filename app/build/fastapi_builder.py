@@ -10,8 +10,8 @@ import logging
 from fastapi.exception_handlers import http_exception_handler
 from app.api.api_container import ApiContainer
 from app.api.exceptions import LoggedHttpException
+from app.api.health_endpoint import health_check
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint
-from app.build.fastapi_custom_endpoints import health_check
 
 
 logger = logging.getLogger(__name__)
@@ -34,6 +34,8 @@ class FastAPIBuilder:
         self._configure_exception_handlers(app)
         self._configure_operation_ids(app)
         app.add_api_route("/health", health_check)
+
+        app.state.db_sessionmaker = container.db_session_factory()
 
         return app
 

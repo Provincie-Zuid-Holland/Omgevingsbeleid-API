@@ -4,6 +4,7 @@ from app.api.api_container import ApiContainer
 from app.build.api_builder import ApiBuilder
 from app.build.build_container import BuildContainer
 from app.commands import database_commands, mssql_commands, publication_commands
+from app.core.db.session import session_scope_with_context
 
 
 @click.group()
@@ -27,6 +28,9 @@ if __name__ == "__main__":
     api_container.init_resources()
 
     api_builder: ApiBuilder = build_container.api_builder()
-    routes = api_builder.build()
+
+    session_maker = build_container.db_session_factory()
+    with session_scope_with_context(session_maker) as session:
+        routes = api_builder.build(session)
 
     cli()

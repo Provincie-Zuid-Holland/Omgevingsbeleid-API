@@ -4,7 +4,6 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy import Select
-from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -38,8 +37,8 @@ def list_valid_lineages_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
-    session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ObjectListValidLineagesEndpointContext, Depends()],
+    session=Depends(depends_db_session),
 ) -> PagedResponse[BaseModel]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)

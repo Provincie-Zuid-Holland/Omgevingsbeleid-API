@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime, timezone
 from typing import Annotated
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -32,7 +31,6 @@ class EnvironmentCreatedResponse(BaseModel):
     UUID: uuid.UUID
 
 
-@inject
 def post_create_environment_endpoint(
     object_in: Annotated[EnvironmentCreate, Depends()],
     user: Annotated[
