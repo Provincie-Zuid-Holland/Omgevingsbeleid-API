@@ -48,9 +48,9 @@ def get_list_active_module_objects_endpoint(
 
     result: List[ActiveModuleObjectsResponse] = [
         ActiveModuleObjectsResponse(
-            module=ModuleShort.model_validate(item.module),
-            module_object=ActiveModuleObject.model_validate(item.module_object),
-            action=item.context_action,
+            Module=ModuleShort.model_validate(item.module),
+            Module_Object=ActiveModuleObject.model_validate(item.module_object),
+            Action=item.context_action,
         )
         for item in items
     ]
