@@ -33,7 +33,7 @@ class AddWerkingsgebiedRelatedObjectsService:
         self._config: AddWerkingsgebiedRelatedObjectsConfig = config
         self._rows: List[BaseModel] = rows
 
-    def add_next_versions(self) -> List[BaseModel]:
+    def add_related_objects(self) -> List[BaseModel]:
         related_objects_map: Dict[str, WerkingsgebiedRelatedObjects] = self._fetch()
 
         for row in self._rows:

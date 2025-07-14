@@ -160,7 +160,7 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(Listener[RetrievedObjects
             event.payload.rows,
         )
 
-        result_rows: List[BaseModel] = service.add_next_versions()
+        result_rows: List[BaseModel] = service.add_related_objects()
         event.payload.rows = result_rows
 
         return event

@@ -28,12 +28,12 @@ class PermissionService:
         self,
         permission: str,
         user: Optional[UsersTable],
-        whitelisted_uuids: List[Optional[uuid.UUID]] = [],
+        whitelisted_uuids: Optional[List[uuid.UUID]] = None,
     ):
         if user is None:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid user role")
 
-        if user.UUID in whitelisted_uuids:
+        if whitelisted_uuids and user.UUID in whitelisted_uuids:
             return
 
         if not self.has_permission(permission, user):
