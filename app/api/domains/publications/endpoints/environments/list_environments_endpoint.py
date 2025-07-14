@@ -16,7 +16,6 @@ from app.core.tables.users import UsersTable
 
 @inject
 def get_list_environments_endpoint(
-    is_active: Annotated[Optional[bool], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     user: Annotated[
         UsersTable,
@@ -30,6 +29,7 @@ def get_list_environments_endpoint(
     environment_repository: Annotated[
         PublicationEnvironmentRepository, Depends(Provide[ApiContainer.publication.environment_repository])
     ],
+    is_active: Optional[bool] = None,
 ) -> PagedResponse[PublicationEnvironment]:
     paginated_result = environment_repository.get_with_filters(
         session=session,

@@ -26,10 +26,6 @@ class ListModuleObjectsEndpointContext(BaseEndpointContext):
 
 @inject
 def get_list_module_objects_endpoint(
-    object_type: Annotated[Optional[str], None],
-    owner_uuid: Annotated[Optional[uuid.UUID], None],
-    minimum_status: Annotated[Optional[ModuleStatusCode], None],
-    only_active_modules: Annotated[bool, True],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
@@ -37,7 +33,11 @@ def get_list_module_objects_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     context: Annotated[ListModuleObjectsEndpointContext, Depends()],
-    actions: Annotated[List[ModuleObjectActionFull], Query] = [],
+    object_type: Optional[str] = None,
+    owner_uuid: Optional[uuid.UUID] = None,
+    minimum_status: Optional[ModuleStatusCode] = None,
+    only_active_modules: bool = True,
+    actions: Annotated[List[ModuleObjectActionFull], Query(default_factory=list)] = [],
 ) -> PagedResponse[ModuleObjectsResponse]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)

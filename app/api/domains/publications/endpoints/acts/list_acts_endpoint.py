@@ -18,10 +18,6 @@ from app.core.tables.users import UsersTable
 
 @inject
 def get_list_acts_endpoint(
-    is_active: Annotated[Optional[bool], None],
-    environment_uuid: Annotated[Optional[uuid.UUID], None],
-    document_type: Annotated[Optional[DocumentType], None],
-    procedure_type: Annotated[Optional[ProcedureType], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     user: Annotated[
         UsersTable,
@@ -33,6 +29,10 @@ def get_list_acts_endpoint(
     ],
     session: Annotated[Session, Depends(depends_db_session)],
     act_repository: Annotated[PublicationActRepository, Depends(Provide[ApiContainer.publication.act_repository])],
+    is_active: Optional[bool] = None,
+    environment_uuid: Optional[uuid.UUID] = None,
+    document_type: Optional[DocumentType] = None,
+    procedure_type: Optional[ProcedureType] = None,
 ) -> PagedResponse[PublicationActShort]:
     paginated_result = act_repository.get_with_filters(
         session=session,

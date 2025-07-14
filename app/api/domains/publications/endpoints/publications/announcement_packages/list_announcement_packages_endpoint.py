@@ -25,8 +25,6 @@ class ListAnnouncementPackagesEndpointContext(BaseEndpointContext):
 
 @inject
 def get_list_announcement_packages_endpoint(
-    announcement_uuid: Annotated[Optional[uuid.UUID], None],
-    package_type: Annotated[Optional[PackageType], None],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     session: Annotated[Session, Depends(depends_db_session)],
     package_repository: Annotated[
@@ -42,6 +40,8 @@ def get_list_announcement_packages_endpoint(
         ),
     ],
     context: Annotated[ListAnnouncementPackagesEndpointContext, Depends()],
+    announcement_uuid: Optional[uuid.UUID] = None,
+    package_type: Optional[PackageType] = None,
 ) -> PagedResponse[PublicationPackage]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)

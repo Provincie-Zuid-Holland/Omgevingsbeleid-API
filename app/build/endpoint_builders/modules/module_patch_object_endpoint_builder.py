@@ -36,6 +36,7 @@ class ModulePatchObjectEndpointBuilder(EndpointBuilder):
             builder_data=builder_data,
         )
         endpoint = self._inject_context(post_module_patch_object_endpoint, context)
+        endpoint = self._overwrite_argument_type(endpoint, "object_in", request_model.pydantic_model)
 
         return ConfiguiredFastapiEndpoint(
             path=builder_data.path,

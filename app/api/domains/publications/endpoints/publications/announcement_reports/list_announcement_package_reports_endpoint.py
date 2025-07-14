@@ -20,8 +20,6 @@ from app.core.tables.users import UsersTable
 
 @inject
 def get_list_annnouncement_package_reports_endpoint(
-    announcement_package_uuid: Annotated[Optional[uuid.UUID], None],
-    report_status: Annotated[Optional[ReportStatusType], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     session: Annotated[Session, Depends(depends_db_session)],
     report_repository: Annotated[
@@ -36,6 +34,8 @@ def get_list_annnouncement_package_reports_endpoint(
             )
         ),
     ],
+    announcement_package_uuid: Optional[uuid.UUID] = None,
+    report_status: Optional[ReportStatusType] = None,
 ) -> PagedResponse[PublicationAnnouncementPackageReportShort]:
     paginated_result = report_repository.get_with_filters(
         session=session,

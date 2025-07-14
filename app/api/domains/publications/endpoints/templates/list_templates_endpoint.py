@@ -17,8 +17,6 @@ from app.core.tables.users import UsersTable
 
 @inject
 def get_list_templates_endpoint(
-    is_active: Annotated[Optional[bool], None],
-    document_type: Annotated[Optional[DocumentType], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     session: Annotated[Session, Depends(depends_db_session)],
     user: Annotated[
@@ -32,6 +30,8 @@ def get_list_templates_endpoint(
     template_repository: Annotated[
         PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])
     ],
+    is_active: Optional[bool] = None,
+    document_type: Optional[DocumentType] = None,
 ) -> PagedResponse[PublicationTemplate]:
     paginated_result = template_repository.get_with_filters(
         session=session,

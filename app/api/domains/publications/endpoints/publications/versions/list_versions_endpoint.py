@@ -17,7 +17,6 @@ from app.core.tables.users import UsersTable
 
 @inject
 def get_list_versions_endpoint(
-    publication_uuid: Annotated[Optional[uuid.UUID], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     session: Annotated[Session, Depends(depends_db_session)],
     version_repository: Annotated[
@@ -31,6 +30,7 @@ def get_list_versions_endpoint(
             )
         ),
     ],
+    publication_uuid: Optional[uuid.UUID] = None,
 ) -> PagedResponse[PublicationVersionShort]:
     paginated_result = version_repository.get_with_filters(
         session=session,

@@ -17,8 +17,6 @@ from app.core.tables.users import UsersTable
 
 @inject
 def get_list_publications_endpoint(
-    document_type: Annotated[Optional[DocumentType], None],
-    module_id: Annotated[Optional[int], None],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     user: Annotated[
         UsersTable,
@@ -32,6 +30,8 @@ def get_list_publications_endpoint(
     publication_repository: Annotated[
         PublicationRepository, Depends(Provide[ApiContainer.publication.publication_repository])
     ],
+    document_type: Optional[DocumentType] = None,
+    module_id: Optional[int] = None,
 ) -> PagedResponse[Publication]:
     paginated_result: PaginatedQueryResult = publication_repository.get_with_filters(
         session=session,

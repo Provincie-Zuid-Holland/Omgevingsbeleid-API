@@ -309,7 +309,7 @@ api:
           resolver_data:
             path: /{environment_uuid}
         - resolver: list_publication_environments
-    - prefix: /publication-environments
+    - prefix: /publication-aoj
       endpoints:
         - resolver: create_publication_area_of_jurisdictions
         - resolver: list_publication_area_of_jurisdictions
