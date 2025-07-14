@@ -205,7 +205,6 @@ class EndpointHandler:
 
 @inject
 def post_create_announcement_package_endpoint(
-    object_in: Annotated[PublicationAnnouncementPackageCreate, Depends()],
     announcement: Annotated[PublicationAnnouncementTable, Depends(depends_publication_announcement)],
     user: Annotated[
         UsersTable,
@@ -222,6 +221,7 @@ def post_create_announcement_package_endpoint(
         ),
     ],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: PublicationAnnouncementPackageCreate,
 ) -> PublicationAnnouncementPackageCreatedResponse:
     handler: EndpointHandler = EndpointHandler(
         session,

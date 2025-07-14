@@ -21,7 +21,6 @@ class ActEdit(BaseModel):
 
 
 def post_edit_act_endpoint(
-    object_in: Annotated[ActEdit, Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -32,6 +31,7 @@ def post_edit_act_endpoint(
     ],
     act: Annotated[PublicationActTable, Depends(depends_publication_act_active)],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: ActEdit,
 ) -> ResponseOK:
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:

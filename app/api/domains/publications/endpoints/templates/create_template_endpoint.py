@@ -29,7 +29,6 @@ class TemplateCreatedResponse(BaseModel):
 
 
 def post_create_template_endpoint(
-    object_in: Annotated[TemplateCreate, Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -39,6 +38,7 @@ def post_create_template_endpoint(
         ),
     ],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: TemplateCreate,
 ) -> TemplateCreatedResponse:
     timepoint: datetime = datetime.now(timezone.utc)
 

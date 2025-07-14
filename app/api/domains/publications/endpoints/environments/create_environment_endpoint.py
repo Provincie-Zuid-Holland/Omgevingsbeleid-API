@@ -32,7 +32,6 @@ class EnvironmentCreatedResponse(BaseModel):
 
 
 def post_create_environment_endpoint(
-    object_in: Annotated[EnvironmentCreate, Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -42,6 +41,7 @@ def post_create_environment_endpoint(
         ),
     ],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: EnvironmentCreate,
 ) -> EnvironmentCreatedResponse:
     timepoint: datetime = datetime.now(timezone.utc)
 

@@ -34,7 +34,6 @@ class ModulePatchObjectContext(BaseEndpointContext):
 @inject
 def post_module_patch_object_endpoint(
     lineage_id: int,
-    object_in: Annotated[BaseModel, Depends()],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     context: Annotated[ModulePatchObjectContext, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
@@ -47,6 +46,7 @@ def post_module_patch_object_endpoint(
     ],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
+    object_in: BaseModel,
 ) -> BaseModel:
     object_static: Optional[ObjectStaticsTable] = object_static_repository.get_by_object_type_and_id(
         session,

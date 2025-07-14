@@ -40,10 +40,10 @@ class ModuleCreatedResponse(BaseModel):
 
 @inject
 def post_create_module_endpoint(
-    object_in: Annotated[ModuleCreate, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
+    object_in: ModuleCreate,
 ) -> ModuleCreatedResponse:
     permission_service.guard_valid_user(Permissions.module_can_close_module, user)
 

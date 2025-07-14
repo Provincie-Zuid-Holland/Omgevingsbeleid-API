@@ -147,7 +147,6 @@ class ModuleAddExistingObjectService:
 
 @inject
 def post_module_add_existing_object_endpoint(
-    object_in: Annotated[ModuleAddExistingObject, Depends()],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
@@ -157,6 +156,7 @@ def post_module_add_existing_object_endpoint(
         ModuleObjectContextRepository, Depends(Provide[ApiContainer.module_object_context_repository])
     ],
     context: Annotated[ModuleAddExistingObjectEndpointContext, Depends()],
+    object_in: ModuleAddExistingObject,
 ) -> ResponseOK:
     permission_service.guard_valid_user(
         Permissions.module_can_add_existing_object_to_module,

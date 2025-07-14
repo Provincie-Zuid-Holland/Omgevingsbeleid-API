@@ -32,7 +32,6 @@ class PublicationVersionCreatedResponse(BaseModel):
 
 @inject
 def post_create_version_endpoint(
-    object_in: Annotated[PublicationVersionCreate, Depends()],
     publication: Annotated[PublicationTable, Depends(depends_publication)],
     module_status_repository: Annotated[
         ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])
@@ -49,6 +48,7 @@ def post_create_version_endpoint(
         PublicationVersionDefaultsProvider, Depends(Provide[ApiContainer.publication.version_defaults_provider])
     ],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: PublicationVersionCreate,
 ) -> PublicationVersionCreatedResponse:
     _guard_locked(publication)
 

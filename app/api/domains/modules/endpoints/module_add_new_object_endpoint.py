@@ -151,12 +151,12 @@ class ModuleAddNewObjectService:
 
 @inject
 def post_module_add_new_object_endpoint(
-    object_in: Annotated[ModuleAddNewObject, Depends()],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     context: Annotated[ModuleAddNewObjectEndpointContext, Depends()],
+    object_in: ModuleAddNewObject,
 ) -> NewObjectStaticResponse:
     permission_service.guard_valid_user(
         Permissions.module_can_add_new_object_to_module,

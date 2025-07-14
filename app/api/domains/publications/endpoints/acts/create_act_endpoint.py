@@ -32,7 +32,6 @@ class ActCreatedResponse(BaseModel):
 
 @inject
 def post_create_act_endpoint(
-    object_in: Annotated[ActCreate, Depends()],
     environment_repository: Annotated[
         PublicationEnvironmentRepository, Depends(Provide[ApiContainer.publication.environment_repository])
     ],
@@ -46,6 +45,7 @@ def post_create_act_endpoint(
     ],
     defaults_provider: Annotated[ActDefaultsProvider, Depends(Provide[ApiContainer.publication.act_defaults_provider])],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: ActCreate,
 ) -> ActCreatedResponse:
     environment: PublicationEnvironmentTable = _get_environment(
         session, environment_repository, object_in.Environment_UUID
