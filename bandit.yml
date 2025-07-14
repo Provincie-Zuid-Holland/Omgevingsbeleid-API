@@ -2,5 +2,6 @@ exclude_dirs: ['app/tests**', './.pytest_cache/**']
 
 skips:
   B608:
-    - 'app/extensions/mssql_search/endpoints/search.py'
-    - 'app/extensions/mssql_search/endpoints/valid_search.py'
+    - 'app/api/domains/others/endpoints/mssql_search_endpoint.py'
+    - 'app/api/domains/others/endpoints/mssql_valid_search_endpoint.py'
+  

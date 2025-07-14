@@ -90,8 +90,6 @@ api:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: maatregel_minimal
-            sort: *sort_default_title
     - prefix: /revisions/{module_id}/maatregel/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
@@ -205,8 +203,8 @@ models:
       end_validity:
       title:
     services:
-      computed_fields:
-        - batch_next_object_version
+      next_object_version:
+        to_field: Next_Version
   maatregel_extended:
     name: MaatregelExtended
     fields:
@@ -221,6 +219,8 @@ models:
       title:
       hierarchy_code:
       werkingsgebied_code:
+    dependency_model_ids:
+      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -258,10 +258,18 @@ models:
       effect:
       hierarchy_code:
       werkingsgebied_code:
+    dependency_model_ids:
+      - user_short
+      - hierarchy_statics
+      - beleidskeuze_minimal
+      - gebiedsprogramma_minimal
+      - werkingsgebied_basic
+      - werkingsgebied_statics
     services:
-      computed_fields:
-        - next_object_version
-        - public_revisions
+      next_object_version:
+        to_field: Next_Version
+      public_revisions:
+        to_field: Public_Revisions
       join_werkingsgebieden:
         model_id: werkingsgebied_basic
         to_field: Werkingsgebied

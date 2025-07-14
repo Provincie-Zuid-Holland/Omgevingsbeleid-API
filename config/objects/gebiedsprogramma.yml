@@ -85,8 +85,6 @@ api:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: gebiedsprogramma_minimal
-            sort: *sort_default_title
     - prefix: /revisions/{module_id}/gebiedsprogramma/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
@@ -179,8 +177,8 @@ models:
         default: none
         optional: true
     services:
-      computed_fields:
-        - batch_next_object_version
+      next_object_version:
+        to_field: Next_Version
       get_image:
         fields:
           - Image
@@ -199,6 +197,8 @@ models:
       image:
         default: none
         optional: true
+    dependency_model_ids:
+      - user_short
     services:
       get_image:
         fields:
@@ -237,10 +237,15 @@ models:
       image:
         default: none
         optional: true
+    dependency_model_ids:
+      - user_short
+      - hierarchy_statics
+      - maatregel_minimal
     services:
-      computed_fields:
-        - next_object_version
-        - public_revisions
+      next_object_version:
+        to_field: Next_Version
+      public_revisions:
+        to_field: Public_Revisions
       insert_assets:
         fields:
           - Description

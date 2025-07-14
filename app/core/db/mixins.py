@@ -7,10 +7,6 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import Mapped, mapped_column
 
 
-class HasUUID:
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-
-
 class TimeStamped:
     Created_Date: Mapped[Optional[datetime]]
     Modified_Date: Mapped[Optional[datetime]]

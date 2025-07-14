@@ -1,0 +1,83 @@
+from typing import Annotated, List
+from uuid import UUID
+
+from dependency_injector.wiring import Provide, inject
+from fastapi import Depends, HTTPException, status
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from sqlalchemy.orm import Session
+
+from app.api.api_container import ApiContainer
+from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
+from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
+from app.api.domains.werkingsgebieden.types import GeoSearchResult
+from app.api.endpoint import BaseEndpointContext
+from app.api.utils.pagination import (
+    OptionalSortedPagination,
+    OrderConfig,
+    PagedResponse,
+    PaginatedQueryResult,
+    Sort,
+    SortedPagination,
+)
+
+
+class SearchGeoRequestData(BaseModel):
+    Object_Types: List[str] = Field(default_factory=list)
+    Area_List: List[UUID]
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    @field_validator("Area_List")
+    def valid_area_list(cls, v):
+        if len(v) < 1:
+            raise ValueError("area_list requires at least 1 uuid")
+        if len(v) > 300:
+            raise ValueError("area_list is too large, max 300 items")
+        return v
+
+
+class ListObjectByAreasEndpointContext(BaseEndpointContext):
+    area_object_type: str
+    allowed_result_object_types: List[str]
+    order_config: OrderConfig
+
+
+@inject
+def get_list_objects_by_areas_endpoint(
+    object_in: SearchGeoRequestData,
+    optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
+    session: Annotated[Session, Depends(depends_db_session)],
+    area_repository: Annotated[AreaRepository, Depends(Provide[ApiContainer.area_repository])],
+    context: Annotated[ListObjectByAreasEndpointContext, Depends()],
+) -> PagedResponse[GeoSearchResult]:
+    for obj_type in object_in.Object_Types:
+        if obj_type not in context.allowed_result_object_types:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, f"object types allowed: {str(context.allowed_result_object_types)}"
+            )
+
+    sort: Sort = context.order_config.get_sort(optional_pagination.sort)
+    pagination: SortedPagination = optional_pagination.with_sort(sort)
+    paginated_result: PaginatedQueryResult = area_repository.get_latest_by_areas(
+        session=session,
+        area_object_type=context.area_object_type,
+        areas=object_in.Area_List,
+        object_types=object_in.Object_Types,
+        pagination=pagination,
+    )
+    object_list = [
+        GeoSearchResult(
+            UUID=item.UUID,
+            Area_UUID=item.Area_UUID,
+            Object_Type=item.Object_Type,
+            Titel=item.Title,
+            Omschrijving=item.Description,
+        )
+        for item in paginated_result.items
+    ]
+
+    return PagedResponse(
+        total=paginated_result.total_count,
+        limit=pagination.limit,
+        offset=pagination.offset,
+        results=object_list,
+    )

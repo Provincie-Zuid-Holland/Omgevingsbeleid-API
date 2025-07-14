@@ -121,6 +121,8 @@ models:
       modified_date:
       title:
       weblink:
+    dependency_model_ids:
+      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -147,6 +149,9 @@ models:
       weblink:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
+      - beleidskeuze_minimal
     services:
       relations:
         objects:

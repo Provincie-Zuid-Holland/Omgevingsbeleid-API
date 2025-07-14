@@ -72,8 +72,6 @@ api:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: onderverdeling_minimal
-            sort: *sort_default_title
     - prefix: /revisions/{module_id}/onderverdeling/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
@@ -138,6 +136,8 @@ models:
       area_uuid:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -164,17 +164,14 @@ models:
       area_uuid:
       start_validity:
       end_validity:
+    dependency_model_ids:
+      - user_short
+      - area_basic
     services:
-      insert_computed_fields:
-        fields:
-          - field_name: Public_Revisions
-            model_id: public_module_object_revision
-            list: true
-            optional: true
-          - field_name: Next_Version
-            model_id: next_object_validities
-            list: false
-            optional: true
+      next_object_version:
+        to_field: Next_Version
+      public_revisions:
+        to_field: Public_Revisions
       foreign_keys_extender:
         fields_map:
           - to_field: Area

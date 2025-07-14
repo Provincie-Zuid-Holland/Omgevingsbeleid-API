@@ -86,8 +86,6 @@ api:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-            response_model: beleidsdoel_minimal
-            sort: *sort_default_title
     - prefix: /revisions/{module_id}/beleidsdoel/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
@@ -177,8 +175,8 @@ models:
       start_validity:
       end_validity:
     services:
-      computed_fields:
-        - batch_next_object_version
+      next_object_version:
+        to_field: Next_Version
   beleidsdoel_extended:
     name: BeleidsdoelExtended
     fields:
@@ -193,6 +191,8 @@ models:
       start_validity:
       end_validity:
       hierarchy_code:
+    dependency_model_ids:
+      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -226,10 +226,16 @@ models:
       start_validity:
       end_validity:
       hierarchy_code:
+    dependency_model_ids:
+      - user_short
+      - ambitie_minimal
+      - beleidskeuze_minimal
+      - hierarchy_statics
     services:
-      computed_fields:
-        - next_object_version
-        - public_revisions
+      next_object_version:
+        to_field: Next_Version
+      public_revisions:
+        to_field: Public_Revisions
       insert_assets:
         fields:
           - Description

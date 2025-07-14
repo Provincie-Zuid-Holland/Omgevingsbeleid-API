@@ -7,14 +7,10 @@ Create Date: 2024-05-05 15:26:31.306739
 """
 from alembic import op
 import sqlalchemy as sa
-from app.extensions.source_werkingsgebieden import geometry  ## noqa
-from app.extensions.source_werkingsgebieden.geometry import Geometry  ## noqa
 
 # We need these to load all sqlalchemy tables
 from app.main import app  ## noqa 
-from app.core.db import table_metadata  ## noqa 
-from app.core.settings import settings  ## noqa 
-
+from app.core.db import table_metadata  ## noqa
 
 
 # revision identifiers, used by Alembic.

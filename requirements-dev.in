@@ -1,15 +1,17 @@
 # Development Environment
-Faker
 pytest
 black
 mypy
 sqlalchemy[mypy]
 pylint
 flake8
-devtools
 autoflake
 freezegun
 bandit
+isort
+
+Faker
+devtools
 coverage
 coverage-badge
 pytest
@@ -20,5 +22,3 @@ freezegun
 debugpy
 ipython
 alembic
-vulture
-isort

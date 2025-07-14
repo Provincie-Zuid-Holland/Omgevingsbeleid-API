@@ -5,6 +5,22 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 
+.PHONY: prepare-env
+VENV   := .venv
+PYTHON := $(shell pyenv which python)
+
+prepare-env:
+	@echo "→ Creating virtualenv at $(VENV)/…"
+	@$(PYTHON) -m venv $(VENV)
+	@echo "→ Activating $(VENV) and upgrading pip…"
+	@. $(VENV)/bin/activate && pip install --upgrade pip
+	@echo "→ Installing runtime dependencies…"
+	@. $(VENV)/bin/activate && pip install -r requirements.txt
+	@echo "→ Installing development dependencies…"
+	@. $(VENV)/bin/activate && pip install -r requirements-dev.txt
+	@echo "✅ Environment ready! Activate with: source $(VENV)/bin/activate"
+
+
 # Commands justs for local env development
 run:
 	uvicorn app.main:app --reload
@@ -27,13 +43,13 @@ pip-upgrade:
 	pip-compile --upgrade requirements-dev.in
 
 drop-database:
-	python cmds.py drop-db
+	python -m app.cmds dropdb
 
 init-database:
-	python cmds.py init-db
+	python -m app.cmds initdb
 
 load-fixtures:
-	python cmds.py load-fixtures
+	python -m app.cmds load-fixtures
 
 reset-test-database: drop-database init-database load-fixtures
 

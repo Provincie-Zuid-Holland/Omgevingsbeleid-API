@@ -8,6 +8,7 @@ SQLAlchemy
 pyyaml
 requests
 requests-toolbelt
+dependency-injector
 
 # JWT
 python-jose
@@ -42,4 +43,4 @@ dicttoxml
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@dafc77512cd499ce463b943c83a9f83434b215a0
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@5df8e7be4ee08708fe904b7f83506248fa6a92d4
