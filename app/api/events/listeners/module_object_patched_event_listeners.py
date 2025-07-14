@@ -17,7 +17,7 @@ class ChangeAreaListener(Listener[ModuleObjectPatchedEvent]):
         self._service_factory: AreaProcessorServiceFactory = service_factory
 
     def handle_event(self, session: Session, event: ModuleObjectPatchedEvent) -> Optional[ModuleObjectPatchedEvent]:
-        config: Optional[AreaProcessorConfig] = self._collect_config(event.context.request_model)
+        config: Optional[AreaProcessorConfig] = self._collect_config(event)
         if not config:
             return event
 
