@@ -19,7 +19,7 @@ beautifulsoup4==4.13.4
     # via
     #   -r requirements.in
     #   dso
-certifi==2025.6.15
+certifi==2025.7.14
     # via
     #   dso
     #   httpcore
@@ -44,7 +44,7 @@ dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@5df8
     # via -r requirements.in
 ecdsa==0.19.1
     # via python-jose
-fastapi==0.116.0
+fastapi==0.116.1
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
@@ -171,7 +171,7 @@ soupsieve==2.7
     #   dso
 sqlalchemy==2.0.41
     # via -r requirements.in
-starlette==0.46.2
+starlette==0.47.1
     # via fastapi
 tomli==2.2.1
     # via dso

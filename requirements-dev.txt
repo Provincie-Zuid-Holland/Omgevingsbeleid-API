@@ -4,9 +4,9 @@
 #
 #    pip-compile requirements-dev.in
 #
-alembic==1.16.2
+alembic==1.16.4
     # via -r requirements-dev.in
-astroid==3.3.10
+astroid==3.3.11
     # via pylint
 asttokens==2.4.1
     # via
@@ -18,7 +18,7 @@ bandit==1.8.6
     # via -r requirements-dev.in
 black==25.1.0
     # via -r requirements-dev.in
-certifi==2025.6.15
+certifi==2025.7.14
     # via requests
 charset-normalizer==3.4.2
     # via requests
@@ -47,7 +47,7 @@ faker==37.4.0
     # via -r requirements-dev.in
 flake8==7.3.0
     # via -r requirements-dev.in
-freezegun==1.5.2
+freezegun==1.5.3
     # via -r requirements-dev.in
 greenlet==3.2.3
     # via sqlalchemy
