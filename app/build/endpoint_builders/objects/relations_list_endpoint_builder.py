@@ -24,8 +24,6 @@ class RelationsListEndpointBuilder(EndpointBuilder):
         if "{lineage_id}" not in builder_data.path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
-        resolver_config: dict = endpoint_config.resolver_data
-
         context = RelationsListEndpointContext(
             object_type=api.object_type,
             builder_data=builder_data,

@@ -43,7 +43,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             geom = wkt.loads(geometry)
             if geom.geom_type not in VALID_GEOMETRIES:
                 raise RuntimeError("Geometry is not a valid shape")
-        except Exception as e:
+        except Exception:
             raise RuntimeError("Geometry is not a valid shape")
 
         spatial_function = self.get_spatial_function(geometry_func)

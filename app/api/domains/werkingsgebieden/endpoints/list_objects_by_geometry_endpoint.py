@@ -40,7 +40,7 @@ class ListObjectsByGeometryRequestData(BaseModel):
                 return v
 
             raise ValueError("Geometry is not a valid shape")
-        except Exception as e:
+        except Exception:
             raise ValueError("Geometry is not a valid shape")
 
 
