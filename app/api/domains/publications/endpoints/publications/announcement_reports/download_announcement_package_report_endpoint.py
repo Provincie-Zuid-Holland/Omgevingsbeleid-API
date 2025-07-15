@@ -22,6 +22,7 @@ def get_download_announcement_package_report_endpoint(
     ],
 ) -> Response:
     content = report.Source_Document
+    filename = report.Filename
 
     try:
         # We try to make it pretty, but its not required for the response to work
@@ -31,11 +32,11 @@ def get_download_announcement_package_report_endpoint(
         pass
 
     response = Response(
-        content=report.Source_Document,
+        content=content,
         media_type="application/xml",
         headers={
             "Access-Control-Expose-Headers": "Content-Disposition",
-            "Content-Disposition": f"attachment; filename={report.Filename}",
+            "Content-Disposition": f"attachment; filename={filename}",
         },
     )
     return response
