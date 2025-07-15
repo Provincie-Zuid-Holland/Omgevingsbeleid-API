@@ -60,7 +60,7 @@ class PublicationObjectRepository(BaseRepository):
             .filter(
                 or_(
                     subq.c.End_Validity >= timepoint,
-                    subq.c.End_Validity == None,
+                    subq.c.End_Validity.is_(None),
                 )
             )
             .order_by(desc(subq.c.Modified_Date))

@@ -80,7 +80,7 @@ class EndpointHandler:
             .filter(
                 or_(
                     subq.c.End_Validity > datetime.now(timezone.utc),
-                    subq.c.End_Validity == None,
+                    subq.c.End_Validity.is_(None),
                 )
             )
             .order_by(desc(subq.c.Modified_Date))
@@ -209,8 +209,8 @@ class EndpointHandler:
                 )
                 .filter(AcknowledgedRelationsTable.From_Code.not_in(ignore_codes))
                 .filter(AcknowledgedRelationsTable.To_Code.not_in(ignore_codes))
-                .filter(AcknowledgedRelationsTable.From_Acknowledged != None)
-                .filter(AcknowledgedRelationsTable.To_Acknowledged != None)
+                .filter(AcknowledgedRelationsTable.From_Acknowledged.is_not(None))
+                .filter(AcknowledgedRelationsTable.To_Acknowledged.is_not(None))
                 .options(
                     load_only(
                         AcknowledgedRelationsTable.From_Code,

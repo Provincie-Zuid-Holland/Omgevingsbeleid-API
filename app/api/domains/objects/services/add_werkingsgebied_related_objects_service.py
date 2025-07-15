@@ -96,7 +96,7 @@ class AddWerkingsgebiedRelatedObjectsService:
             .filter(
                 or_(
                     subq.c.End_Validity > datetime.now(timezone.utc),
-                    subq.c.End_Validity == None,
+                    subq.c.End_Validity.is_(None),
                 )
             )
         )
