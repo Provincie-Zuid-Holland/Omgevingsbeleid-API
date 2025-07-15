@@ -53,17 +53,16 @@ load-fixtures:
 
 reset-test-database: drop-database init-database load-fixtures
 
-check:
+check: ## Ruff check without fixing
 	python -m ruff check ./app/
 
-format:
+check-fix: ## Ruff fix
+	python -m ruff check --fix ./app/
+
+format: ## Format code
 	python -m ruff format ./app/
 
-
-fix:
-	python -m isort app/
-	python -m black app/ stubs/
-	python -m autoflake -ri --exclude=__init__.py --remove-all-unused-imports app/ stubs/
+fix: check-fix format
 
 test:
 	python -m pytest
