@@ -1,15 +1,6 @@
 # Development Environment
-pytest
-black
-mypy
-sqlalchemy[mypy]
-pylint
-flake8
-autoflake
+ruff
 freezegun
-bandit
-isort
-
 Faker
 devtools
 coverage
@@ -18,7 +9,6 @@ pytest
 pytest-cov
 pytest-mock
 requests-mock
-freezegun
 debugpy
 ipython
 alembic

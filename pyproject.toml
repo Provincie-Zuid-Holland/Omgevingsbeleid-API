@@ -1,16 +1,12 @@
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-line_length = 120
+[project]
+requires-python = ">=3.13"
 
-[tool.black]
+[tool.ruff]
 line-length = 120
+
+[tool.ruff.lint]
+ignore = []
 
 [tool.pytest.ini_options]
 norecursedirs = "*venv* *.venv* *.pytest_cache*"
 testpaths = "app/tests"
-
-[tool.mypy]
-files = ["app"]
