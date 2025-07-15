@@ -45,8 +45,8 @@ class HtmlImagesExtractor:
             content: str = getattr(self._module_object, field_name)
             try:
                 soup = BeautifulSoup(content, "html.parser")
-            except:
-                continue
+            except Exception:
+                return self._module_object
 
             for img in soup.find_all("img", src=re.compile("^data:image/")):
                 self._handle_image(img)
