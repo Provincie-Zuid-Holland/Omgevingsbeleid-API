@@ -100,15 +100,15 @@ class FastAPIBuilder:
             return await http_exception_handler(request, exc)
 
     def _configure_operation_ids(self, app: FastAPI) -> None:
-        """
-        The prefix of the operator_id is currently the function name of the route,
-        which is undesirable for the Frontend as it results in cluttered auto-generated names.
-        As a temporary solution, we are generating the operation_id from the unique_id and
-        eliminating the function name. However, this approach is not sustainable if
-        we transition to an open-source platform.
+        used_operation_ids = set()
 
-        @todo: we should use the generate_unique_id_function in adding the endpoint instead
-        """
         for route in app.routes:
             if isinstance(route, APIRoute):
-                route.operation_id = route.unique_id.replace("fastapi_handler_", "", 1)
+                operation_id = route.name
+                if operation_id in used_operation_ids:
+                    logger.warning(
+                        "Duplicate operation id detected: %s. This may cause issues with operation IDs.",
+                        operation_id,
+                    )
+                used_operation_ids.add(operation_id)
+                route.operation_id = operation_id

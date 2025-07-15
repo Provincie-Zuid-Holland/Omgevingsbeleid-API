@@ -1,6 +1,6 @@
 from app.api.domains.publications.endpoints.publications.create_publication_endpoint import (
     PublicationCreatedResponse,
-    post_create_publication,
+    post_create_publication_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
@@ -21,7 +21,7 @@ class CreatePublicationEndpointBuilder(EndpointBuilder):
     ) -> ConfiguiredFastapiEndpoint:
         return ConfiguiredFastapiEndpoint(
             path=builder_data.path,
-            endpoint=post_create_publication,
+            endpoint=post_create_publication_endpoint,
             methods=["POST"],
             response_model=PublicationCreatedResponse,
             summary="Create a new publication",
