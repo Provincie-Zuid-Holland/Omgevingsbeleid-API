@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Set
 
 from sqlalchemy import case, desc, select
 from sqlalchemy.orm import Session, aliased, selectinload
@@ -17,8 +17,25 @@ class PublicationObjectRepository(BaseRepository):
         module_id: int,
         timepoint: datetime,
         object_types: List[str],
-        field_map: List[str],
+        requested_field_map: List[str],
     ) -> List[dict]:
+        required_fields: Set[str] = set(
+            [
+                "UUID",
+                "Object_Type",
+                "Object_ID",
+                "Code",
+                "Hierarchy_Code",
+                "Werkingsgebied_Code",
+                "Title",
+                "Description",
+                "Area_UUID",
+                "Created_Date",
+                "Modified_Date",
+            ]
+        )
+        field_map: Set[str] = required_fields.union(set(requested_field_map))
+
         query = self._get_full_query(module_id, timepoint, object_types, field_map)
 
         result = session.execute(query)
@@ -29,7 +46,7 @@ class PublicationObjectRepository(BaseRepository):
         self,
         timepoint: datetime,
         object_types: List[str],
-        field_map: List[str],
+        field_map: Set[str],
     ):
         row_number = (
             func.row_number()
@@ -72,7 +89,7 @@ class PublicationObjectRepository(BaseRepository):
         module_id: int,
         timepoint: datetime,
         object_types: List[str],
-        field_map: List[str],
+        field_map: Set[str],
     ):
         subq = (
             select(
@@ -110,7 +127,7 @@ class PublicationObjectRepository(BaseRepository):
         module_id: int,
         timepoint: datetime,
         object_types: List[str],
-        field_map: List[str],
+        field_map: Set[str],
     ):
         object_query = self._get_object_query(timepoint, object_types, field_map)
         module_query = self._get_module_object_query(module_id, timepoint, object_types, field_map)
