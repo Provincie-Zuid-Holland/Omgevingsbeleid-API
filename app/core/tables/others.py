@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 
 from app.core.db.base import Base
 from app.core.db.mixins import SerializerMixin
+from app.core.tables.objects import ObjectStaticsTable
 
 
 class AreasTable(Base):
@@ -39,13 +40,13 @@ class RelationsTable(Base, SerializerMixin):
     To_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
     Description: Mapped[str]
 
-    FromObjectStatics: Mapped["ObjectStaticsTable"] = relationship(
-        "ObjectStaticsTable",
+    FromObjectStatics: Mapped[ObjectStaticsTable] = relationship(
+        ObjectStaticsTable,
         foreign_keys=[From_Code],
     )
 
-    ToObjectStatics: Mapped["ObjectStaticsTable"] = relationship(
-        "ObjectStaticsTable",
+    ToObjectStatics: Mapped[ObjectStaticsTable] = relationship(
+        ObjectStaticsTable,
         foreign_keys=[To_Code],
     )
 
