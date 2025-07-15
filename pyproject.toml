@@ -9,6 +9,9 @@ ignore = [
     "E712", # true-false-comparison: Which is unreadable in sqlalchemy filters
 ]
 
+[tool.ruff.lint.extend-per-file-ignores]
+"__init__.py" = ["F401"] # unused-import: Which is oke for __init__.py files
+
 [tool.pytest.ini_options]
 norecursedirs = "*venv* *.venv* *.pytest_cache*"
 testpaths = "app/tests"
