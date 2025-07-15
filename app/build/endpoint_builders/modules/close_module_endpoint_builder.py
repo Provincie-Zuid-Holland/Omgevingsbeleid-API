@@ -25,7 +25,7 @@ class CloseModuleEndpointBuilder(EndpointBuilder):
             endpoint=post_close_module_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Close a module (Unsuccessful)",
+            summary="Close a module (Unsuccessful)",
             description=None,
             tags=["Modules"],
         )

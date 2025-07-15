@@ -27,6 +27,6 @@ class DetailPublicationVersionEndpointBuilder(EndpointBuilder):
             endpoint=get_detail_version_endpoint,
             methods=["GET"],
             response_model=PublicationVersion,
-            summary=f"Get details of a publication version",
+            summary="Get details of a publication version",
             tags=["Publication Versions"],
         )

@@ -25,7 +25,7 @@ class DownloadAnnouncementPackageReportEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=get_download_announcement_package_report_endpoint,
             methods=["GET"],
-            summary=f"Download publication announcement package report",
+            summary="Download publication announcement package report",
             description=None,
             response_model=None,
             tags=["Publication Announcement Reports"],

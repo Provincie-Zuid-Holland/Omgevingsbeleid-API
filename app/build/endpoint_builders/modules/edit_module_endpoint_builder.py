@@ -25,7 +25,7 @@ class EditModuleEndpointBuilder(EndpointBuilder):
             endpoint=post_edit_module_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Edit module",
+            summary="Edit module",
             description=None,
             tags=["Modules"],
         )

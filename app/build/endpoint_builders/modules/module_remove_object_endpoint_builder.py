@@ -29,7 +29,7 @@ class ModuleRemoveObjectEndpointBuilder(EndpointBuilder):
             endpoint=post_module_remove_object_endpoint,
             methods=["DELETE"],
             response_model=ResponseOK,
-            summary=f"Remove object from the module",
+            summary="Remove object from the module",
             description=None,
             tags=["Modules"],
         )

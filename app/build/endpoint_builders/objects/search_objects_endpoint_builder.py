@@ -23,7 +23,7 @@ class SearchObjectsEndpointBuilder(EndpointBuilder):
             endpoint=get_search_objects_endpoint,
             methods=["GET"],
             response_model=PagedResponse[SearchObject],
-            summary=f"Search for objects",
+            summary="Search for objects",
             description=None,
             tags=["Search"],
         )

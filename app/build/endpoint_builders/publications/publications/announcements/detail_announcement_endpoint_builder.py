@@ -27,7 +27,7 @@ class DetailPublicationAnnouncementEndpointBuilder(EndpointBuilder):
             endpoint=get_detail_announcement_endpoint,
             methods=["GET"],
             response_model=PublicationAnnouncement,
-            summary=f"Get details of a publication announcement",
+            summary="Get details of a publication announcement",
             description=None,
             tags=["Publication Announcements"],
         )

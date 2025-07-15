@@ -22,6 +22,6 @@ class AuthResetPasswordEndpointBuilder(EndpointBuilder):
             endpoint=post_auth_reset_password_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Changes password for a user",
+            summary="Changes password for a user",
             tags=["Authentication"],
         )

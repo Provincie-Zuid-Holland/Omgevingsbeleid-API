@@ -28,7 +28,7 @@ class UploadActPackageReportEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=post_upload_act_package_report_endpoint,
             methods=["POST"],
-            summary=f"Record the submission response from lvbb of a publication package",
+            summary="Record the submission response from lvbb of a publication package",
             response_model=UploadPackageReportResponse,
             description=None,
             tags=["Publication Act Reports"],

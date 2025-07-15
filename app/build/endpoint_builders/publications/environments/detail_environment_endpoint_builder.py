@@ -27,7 +27,7 @@ class DetailPublicationEnvironmentEndpointBuilder(EndpointBuilder):
             endpoint=get_detail_environment_endpoint,
             methods=["GET"],
             response_model=PublicationEnvironment,
-            summary=f"Get details of a publication environment",
+            summary="Get details of a publication environment",
             description=None,
             tags=["Publication Environments"],
         )

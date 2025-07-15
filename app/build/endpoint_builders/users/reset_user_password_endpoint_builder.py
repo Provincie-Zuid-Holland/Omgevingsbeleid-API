@@ -24,7 +24,7 @@ class ResetUserPasswordEndpointBuilder(EndpointBuilder):
             endpoint=post_reset_user_password_endpoint,
             methods=["POST"],
             response_model=ResetPasswordResponse,
-            summary=f"Reset user password",
+            summary="Reset user password",
             description=None,
             tags=["User"],
         )

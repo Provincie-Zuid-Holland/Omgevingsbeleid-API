@@ -20,7 +20,7 @@ class StorageFileUploadFileEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=post_files_upload_endpoint,
             methods=["POST"],
-            summary=f"Upload an File",
+            summary="Upload an File",
             response_model=UploadFileResponse,
             description=None,
             tags=["Storage File"],

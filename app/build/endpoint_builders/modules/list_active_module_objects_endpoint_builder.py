@@ -35,7 +35,7 @@ class ListActiveModuleObjectsEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["GET"],
             response_model=List[ActiveModuleObjectsResponse],
-            summary=f"List the last modified module object grouped per module ID",
+            summary="List the last modified module object grouped per module ID",
             description=None,
             tags=[api.object_type],
         )

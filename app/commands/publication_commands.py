@@ -63,6 +63,6 @@ def create_dso_json_scenario(
         click.echo(click.style(f"DSO JSON scenario saved in: {output_path}", fg="green"))
         click.echo(click.style("---finished---", fg="green"))
     except Exception as e:
-        click.echo(click.style(f"Error while exporting DSO JSON scenario:", fg="red"))
+        click.echo(click.style("Error while exporting DSO JSON scenario:", fg="red"))
         click.echo(click.style(f"{e}", fg="red"))
         return

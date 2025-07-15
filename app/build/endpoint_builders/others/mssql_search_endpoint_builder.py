@@ -32,7 +32,7 @@ class MssqlSearchEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=PagedResponse[SearchObject],
-            summary=f"Search for objects",
+            summary="Search for objects",
             description=None,
             tags=["Search"],
         )

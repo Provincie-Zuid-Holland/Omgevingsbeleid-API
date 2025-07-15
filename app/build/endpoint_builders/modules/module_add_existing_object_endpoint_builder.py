@@ -41,7 +41,7 @@ class ModuleAddExistingObjectEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Add existing object to the module",
+            summary="Add existing object to the module",
             description=None,
             tags=["Modules"],
         )

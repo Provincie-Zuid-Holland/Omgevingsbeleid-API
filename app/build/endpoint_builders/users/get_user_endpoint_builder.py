@@ -22,7 +22,7 @@ class GetUserEndpointBuilder(EndpointBuilder):
             endpoint=view_get_user_endpoint,
             methods=["GET"],
             response_model=User,
-            summary=f"Get a user",
+            summary="Get a user",
             description=None,
             tags=["User"],
         )

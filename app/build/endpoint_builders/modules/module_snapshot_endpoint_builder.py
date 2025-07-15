@@ -21,7 +21,7 @@ class ModuleSnapshotEndpointBuilder(EndpointBuilder):
             endpoint=get_module_snapshot_endpoint,
             methods=["GET"],
             response_model=ModuleSnapshot,
-            summary=f"Get snapshot of a module by status id",
+            summary="Get snapshot of a module by status id",
             description=None,
             tags=["Modules"],
         )

@@ -23,6 +23,6 @@ class ListPublicationTemplatesEndpointBuilder(EndpointBuilder):
             endpoint=get_list_templates_endpoint,
             methods=["GET"],
             response_model=PagedResponse[PublicationTemplate],
-            summary=f"List the publication templates",
+            summary="List the publication templates",
             tags=["Publication Templates"],
         )

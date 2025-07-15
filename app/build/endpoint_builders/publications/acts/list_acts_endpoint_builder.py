@@ -23,7 +23,7 @@ class ListPublicationActsEndpointBuilder(EndpointBuilder):
             endpoint=get_list_acts_endpoint,
             methods=["GET"],
             response_model=PagedResponse[PublicationActShort],
-            summary=f"List the publication acts",
+            summary="List the publication acts",
             description=None,
             tags=["Publication Acts"],
         )

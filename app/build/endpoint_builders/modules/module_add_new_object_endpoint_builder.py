@@ -43,7 +43,7 @@ class ModuleAddNewObjectEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=NewObjectStaticResponse,
-            summary=f"Add new object to the module",
+            summary="Add new object to the module",
             description=None,
             tags=["Modules"],
         )

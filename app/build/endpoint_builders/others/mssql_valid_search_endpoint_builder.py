@@ -35,7 +35,7 @@ class MssqlValidSearchEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=PagedResponse[ValidSearchObject],
-            summary=f"Search for valid objects",
+            summary="Search for valid objects",
             description=None,
             tags=["Search"],
         )

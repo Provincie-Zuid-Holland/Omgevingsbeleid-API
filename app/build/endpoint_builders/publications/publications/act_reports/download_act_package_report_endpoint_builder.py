@@ -25,7 +25,7 @@ class DownloadActPackageReportEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=get_download_act_package_report_endpoint,
             methods=["GET"],
-            summary=f"Download publication package report",
+            summary="Download publication package report",
             description=None,
             tags=["Publication Act Reports"],
             response_model=None,

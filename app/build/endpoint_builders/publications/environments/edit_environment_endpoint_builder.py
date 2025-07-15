@@ -25,7 +25,7 @@ class EditPublicationEnvironmentEndpointBuilder(EndpointBuilder):
             endpoint=post_edit_environment_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Edit publication environment",
+            summary="Edit publication environment",
             description=None,
             tags=["Publication Environments"],
         )

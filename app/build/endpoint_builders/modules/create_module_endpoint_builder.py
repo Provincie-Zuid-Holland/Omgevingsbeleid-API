@@ -21,7 +21,7 @@ class CreateModuleEndpointBuilder(EndpointBuilder):
             endpoint=post_create_module_endpoint,
             methods=["POST"],
             response_model=ModuleCreatedResponse,
-            summary=f"Create new module",
+            summary="Create new module",
             description=None,
             tags=["Modules"],
         )

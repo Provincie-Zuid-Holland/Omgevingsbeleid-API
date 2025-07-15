@@ -25,7 +25,7 @@ class CompleteModuleEndpointBuilder(EndpointBuilder):
             endpoint=post_complete_module_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Complete a module (Successful)",
+            summary="Complete a module (Successful)",
             description=None,
             tags=["Modules"],
         )

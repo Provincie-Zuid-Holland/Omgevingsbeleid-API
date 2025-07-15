@@ -24,7 +24,7 @@ class ModuleOverviewEndpointBuilder(EndpointBuilder):
             endpoint=view_module_overview_endpoint,
             methods=["GET"],
             response_model=ModuleOverview,
-            summary=f"Get overview of a module",
+            summary="Get overview of a module",
             description=None,
             tags=["Modules"],
         )

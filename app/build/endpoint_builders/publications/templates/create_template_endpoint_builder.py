@@ -24,6 +24,6 @@ class CreatePublicationTemplateEndpointBuilder(EndpointBuilder):
             endpoint=post_create_template_endpoint,
             methods=["POST"],
             response_model=TemplateCreatedResponse,
-            summary=f"Create new publication template",
+            summary="Create new publication template",
             tags=["Publication Templates"],
         )

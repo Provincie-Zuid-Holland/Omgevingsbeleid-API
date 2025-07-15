@@ -38,7 +38,7 @@ class AcknowledgedRelationRequestEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Request an acknowledged relation to another object",
+            summary="Request an acknowledged relation to another object",
             description=None,
             tags=[api.object_type],
         )

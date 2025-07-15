@@ -31,6 +31,6 @@ class AtemporalDeleteObjectEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["DELETE"],
             response_model=ResponseOK,
-            summary=f"Delete atemporal object",
+            summary="Delete atemporal object",
             tags=[api.object_type],
         )

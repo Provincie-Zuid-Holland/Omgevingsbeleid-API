@@ -41,7 +41,7 @@ class ListObjectsByGeometryEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=PagedResponse[GeoSearchResult],
-            summary=f"List the objects in werkingsgebieden by a geometry",
+            summary="List the objects in werkingsgebieden by a geometry",
             description=None,
             tags=["Areas"],
         )

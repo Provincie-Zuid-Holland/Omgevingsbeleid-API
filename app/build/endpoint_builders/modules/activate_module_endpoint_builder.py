@@ -25,7 +25,7 @@ class ActivateModuleEndpointBuilder(EndpointBuilder):
             endpoint=post_activate_module_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Activate a module",
+            summary="Activate a module",
             description=None,
             tags=["Modules"],
         )

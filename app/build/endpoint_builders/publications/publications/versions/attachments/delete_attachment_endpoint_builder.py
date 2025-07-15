@@ -28,7 +28,7 @@ class DeletePublicationVersionAttachmentEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=post_delete_attachment_endpoint,
             methods=["DELETE"],
-            summary=f"Delete a publication version attachment",
+            summary="Delete a publication version attachment",
             response_model=ResponseOK,
             tags=["Publication Versions"],
         )

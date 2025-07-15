@@ -25,7 +25,7 @@ class DownloadPackageEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=get_download_act_package_endpoint,
             methods=["GET"],
-            summary=f"Download a generated publication act package ZIP file",
+            summary="Download a generated publication act package ZIP file",
             description=None,
             tags=["Publication Act Packages"],
             response_model=None,

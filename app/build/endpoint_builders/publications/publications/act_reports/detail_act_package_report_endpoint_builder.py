@@ -27,7 +27,7 @@ class DetailActPackageReportEndpointBuilder(EndpointBuilder):
             endpoint=get_detail_act_package_report_endpoint,
             methods=["GET"],
             response_model=PublicationActPackageReport,
-            summary=f"Get details of a publication report",
+            summary="Get details of a publication report",
             description=None,
             tags=["Publication Act Reports"],
         )

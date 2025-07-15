@@ -42,6 +42,6 @@ class EditObjectStaticEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Edit static data of an object",
+            summary="Edit static data of an object",
             tags=[api.object_type],
         )

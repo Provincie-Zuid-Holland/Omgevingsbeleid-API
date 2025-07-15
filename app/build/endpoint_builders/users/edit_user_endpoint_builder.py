@@ -35,7 +35,7 @@ class EditUserEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Edit user",
+            summary="Edit user",
             description=None,
             tags=["User"],
         )

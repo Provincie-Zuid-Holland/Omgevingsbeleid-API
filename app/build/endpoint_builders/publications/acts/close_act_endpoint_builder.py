@@ -25,7 +25,7 @@ class ClosePublicationActEndpointBuilder(EndpointBuilder):
             endpoint=post_close_act_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Close publication act",
+            summary="Close publication act",
             description=None,
             tags=["Publication Acts"],
         )

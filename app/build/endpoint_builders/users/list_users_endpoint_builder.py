@@ -32,7 +32,7 @@ class ListUsersEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["GET"],
             response_model=PagedResponse[User],
-            summary=f"List the users",
+            summary="List the users",
             description=None,
             tags=["User"],
         )

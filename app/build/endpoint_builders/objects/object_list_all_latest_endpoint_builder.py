@@ -36,6 +36,6 @@ class ObjectListAllLatestEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["GET"],
             response_model=PagedResponse[GenericObjectShort],
-            summary=f"List all objects filterable in short format",
+            summary="List all objects filterable in short format",
             tags=["Search"],
         )

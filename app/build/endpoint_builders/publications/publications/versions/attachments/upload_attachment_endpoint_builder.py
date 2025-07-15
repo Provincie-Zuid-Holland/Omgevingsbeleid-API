@@ -26,7 +26,7 @@ class UploadPublicationVersionAttachmentEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=post_upload_attachment_endpoint,
             methods=["POST"],
-            summary=f"Upload an attachment for a Publication Version",
+            summary="Upload an attachment for a Publication Version",
             response_model=UploadAttachmentResponse,
             description=None,
             tags=["Publication Versions"],

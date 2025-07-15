@@ -35,7 +35,7 @@ class ObjectGraphEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["GET"],
             response_model=GraphResponse,
-            summary=f"A graph representation of an object",
+            summary="A graph representation of an object",
             description=None,
             tags=["Graph"],
         )

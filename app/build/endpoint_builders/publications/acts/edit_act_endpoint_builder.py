@@ -25,7 +25,7 @@ class EditPublicationActEndpointBuilder(EndpointBuilder):
             endpoint=post_edit_act_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Edit publication act",
+            summary="Edit publication act",
             description=None,
             tags=["Publication Acts"],
         )

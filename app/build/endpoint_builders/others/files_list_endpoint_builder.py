@@ -23,7 +23,7 @@ class ListStorageFilesEndpointBuilder(EndpointBuilder):
             endpoint=get_files_list_endpoint,
             methods=["GET"],
             response_model=PagedResponse[StorageFileBasic],
-            summary=f"List the storage files",
+            summary="List the storage files",
             description=None,
             tags=["Storage File"],
         )

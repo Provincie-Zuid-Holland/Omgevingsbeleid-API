@@ -31,7 +31,7 @@ class ModuleEditObjectContextEndpointBuilder(EndpointBuilder):
             endpoint=post_module_edit_object_context_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Edit context of object in the module",
+            summary="Edit context of object in the module",
             description=None,
             tags=["Modules"],
         )

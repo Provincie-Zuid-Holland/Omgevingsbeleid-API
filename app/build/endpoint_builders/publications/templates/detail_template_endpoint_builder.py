@@ -25,6 +25,6 @@ class DetailPublicationTemplateEndpointBuilder(EndpointBuilder):
             endpoint=get_detail_template_endpoint,
             methods=["GET"],
             response_model=PublicationTemplate,
-            summary=f"Get details of a publication template",
+            summary="Get details of a publication template",
             tags=["Publication Templates"],
         )

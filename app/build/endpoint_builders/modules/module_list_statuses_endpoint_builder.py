@@ -26,7 +26,7 @@ class ModuleListStatusesEndpointBuilder(EndpointBuilder):
             endpoint=view_module_list_statuses_endpoint,
             methods=["GET"],
             response_model=List[ModuleStatus],
-            summary=f"Get status history of the module",
+            summary="Get status history of the module",
             description=None,
             tags=["Modules"],
         )

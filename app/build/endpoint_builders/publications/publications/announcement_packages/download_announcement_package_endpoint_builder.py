@@ -25,7 +25,7 @@ class DownloadPublicationAnnouncementPackageEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=get_download_announcement_package_endpoint,
             methods=["GET"],
-            summary=f"Download a generated publication announcement package ZIP file",
+            summary="Download a generated publication announcement package ZIP file",
             description=None,
             tags=["Publication Announcement Packages"],
             response_model=None,

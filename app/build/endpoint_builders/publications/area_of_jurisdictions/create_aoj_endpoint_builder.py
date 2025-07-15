@@ -24,7 +24,7 @@ class CreatePublicationAOJEndpointBuilder(EndpointBuilder):
             endpoint=post_create_aoj_endpoint,
             methods=["POST"],
             response_model=AOJCreatedResponse,
-            summary=f"Create new publication area of jurisdictions",
+            summary="Create new publication area of jurisdictions",
             description=None,
             tags=["Publication AOJ"],
         )
