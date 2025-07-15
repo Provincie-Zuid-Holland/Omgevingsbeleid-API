@@ -105,6 +105,8 @@ class FastAPIBuilder:
         for route in app.routes:
             if isinstance(route, APIRoute):
                 operation_id = route.name
+                if operation_id.endswith("_endpoint"):
+                    operation_id = operation_id[:-9]
                 if operation_id in used_operation_ids:
                     logger.warning(
                         "Duplicate operation id detected: %s. This may cause issues with operation IDs.",
