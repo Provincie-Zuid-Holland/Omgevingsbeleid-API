@@ -5,7 +5,7 @@ from typing import Dict, List, Set
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import and_, func, or_
+from sqlalchemy.sql import and_, or_
 
 from app.api.domains.modules.types import ModuleObjectActionFull
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleTable
