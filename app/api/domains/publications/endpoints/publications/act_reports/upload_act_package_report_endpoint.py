@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Annotated, Dict, List
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends, HTTPException, UploadFile, status
+from fastapi import Depends, File, HTTPException, UploadFile, status
 from lxml import etree
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -276,7 +276,6 @@ class EndpointHandler:
 @inject
 def post_upload_act_package_report_endpoint(
     act_package: Annotated[PublicationActPackageTable, Depends(depends_publication_act_package)],
-    uploaded_files: Annotated[List[UploadFile], Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -293,6 +292,7 @@ def post_upload_act_package_report_endpoint(
     ],
     session: Annotated[Session, Depends(depends_db_session)],
     debug: Annotated[bool, Depends(Provide[ApiContainer.config.DEBUG_MODE])],
+    uploaded_files: Annotated[List[UploadFile], File(...)],
 ) -> UploadPackageReportResponse:
     handler: EndpointHandler = EndpointHandler(
         session,

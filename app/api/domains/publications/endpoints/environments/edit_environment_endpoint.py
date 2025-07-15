@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, Optional
 
 from fastapi import Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import depends_db_session
@@ -15,23 +15,22 @@ from app.core.tables.users import UsersTable
 
 
 class EnvironmentEdit(BaseModel):
-    Title: Optional[str] = Field(None)
-    Description: Optional[str] = Field(None)
+    Title: Optional[str] = None
+    Description: Optional[str] = None
 
-    Province_ID: Optional[str] = Field(None)
-    Authority_ID: Optional[str] = Field(None)
-    Submitter_ID: Optional[str] = Field(None)
+    Province_ID: Optional[str] = None
+    Authority_ID: Optional[str] = None
+    Submitter_ID: Optional[str] = None
 
-    Frbr_Country: Optional[str] = Field(None)
-    Frbr_Language: Optional[str] = Field(None)
+    Frbr_Country: Optional[str] = None
+    Frbr_Language: Optional[str] = None
 
-    Is_Active: Optional[bool] = Field(None)
-    Can_Validate: Optional[bool] = Field(None)
-    Can_Publicate: Optional[bool] = Field(None)
+    Is_Active: Optional[bool] = None
+    Can_Validate: Optional[bool] = None
+    Can_Publicate: Optional[bool] = None
 
 
 def post_edit_environment_endpoint(
-    object_in: Annotated[EnvironmentEdit, Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -42,6 +41,7 @@ def post_edit_environment_endpoint(
     ],
     environment: Annotated[PublicationEnvironmentTable, Depends(depends_publication_environment)],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: EnvironmentEdit,
 ) -> ResponseOK:
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:

@@ -25,7 +25,6 @@ class PublicationEdit(BaseModel):
 
 @inject
 def post_edit_publication_endpoint(
-    object_in: Annotated[PublicationEdit, Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -39,6 +38,7 @@ def post_edit_publication_endpoint(
         PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])
     ],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: PublicationEdit,
 ) -> ResponseOK:
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:

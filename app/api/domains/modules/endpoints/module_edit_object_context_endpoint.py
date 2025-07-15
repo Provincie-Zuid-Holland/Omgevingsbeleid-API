@@ -33,13 +33,13 @@ class ModuleEditObjectContext(BaseModel):
 
 @inject
 def post_module_edit_object_context_endpoint(
-    object_in: Annotated[ModuleEditObjectContext, Depends()],
     _: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module_object: Annotated[ModuleObjectsTable, Depends(depends_module_object_latest_by_id)],
     object_context: Annotated[ModuleObjectContextTable, Depends(depends_active_module_object_context)],
     session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
+    object_in: ModuleEditObjectContext,
 ) -> ResponseOK:
     permission_service.guard_valid_user(
         Permissions.module_can_edit_module_object_context,

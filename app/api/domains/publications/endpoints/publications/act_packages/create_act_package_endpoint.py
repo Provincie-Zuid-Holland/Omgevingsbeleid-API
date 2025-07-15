@@ -266,7 +266,6 @@ class EndpointHandler:
 
 @inject
 def post_create_act_package_endpoint(
-    object_in: Annotated[PublicationPackageCreate, Depends()],
     publication_version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     publication_version_validator: Annotated[
         PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])
@@ -283,6 +282,7 @@ def post_create_act_package_endpoint(
         ActPackageBuilderFactory, Depends(Provide[ApiContainer.publication.act_package_builder_factory])
     ],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: PublicationPackageCreate,
 ) -> PublicationPackageCreatedResponse:
     handler: EndpointHandler = EndpointHandler(
         session,

@@ -30,7 +30,6 @@ class PublicationPackagePdf(BaseModel):
 
 @inject
 def post_create_pdf_endpoint(
-    object_in: Annotated[PublicationPackagePdf, Depends()],
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     validator: Annotated[PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])],
     user: Annotated[
@@ -46,6 +45,7 @@ def post_create_pdf_endpoint(
         ActPackageBuilderFactory, Depends(Provide[ApiContainer.publication.act_package_builder_factory])
     ],
     pdf_export_service: Annotated[PdfExportService, Depends(Provide[ApiContainer.publication.pdf_export_service])],
+    object_in: PublicationPackagePdf,
 ) -> StreamingResponse:
     _guard_valid_publication_version(validator, version)
 

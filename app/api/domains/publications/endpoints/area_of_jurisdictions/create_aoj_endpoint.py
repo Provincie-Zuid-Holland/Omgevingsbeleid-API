@@ -24,7 +24,6 @@ class AOJCreatedResponse(BaseModel):
 
 
 def post_create_aoj_endpoint(
-    object_in: Annotated[AOJCreate, Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -34,6 +33,7 @@ def post_create_aoj_endpoint(
         ),
     ],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: AOJCreate,
 ) -> AOJCreatedResponse:
     area_of_jurisdiction = PublicationAreaOfJurisdictionTable(
         UUID=uuid.uuid4(),

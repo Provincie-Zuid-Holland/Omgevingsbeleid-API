@@ -39,11 +39,11 @@ class ModuleEdit(BaseModel):
 
 @inject
 def post_edit_module_endpoint(
-    object_in: Annotated[ModuleEdit, Depends()],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
+    object_in: ModuleEdit,
 ) -> ResponseOK:
     permission_service.guard_valid_user(
         Permissions.module_can_edit_module,

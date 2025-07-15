@@ -64,7 +64,7 @@ def post_edit_user_endpoint(
     handle_is_active: Optional[bool] = changes.pop("IsActive", None)
     if handle_is_active:
         user.Status = IS_ACTIVE
-    elif handle_is_active:
+    else:
         user.Status = ""
 
     for key, value in changes.items():

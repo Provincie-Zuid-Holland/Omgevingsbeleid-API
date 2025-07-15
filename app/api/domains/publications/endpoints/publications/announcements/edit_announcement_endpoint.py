@@ -24,7 +24,6 @@ class PublicationAnnouncementEdit(BaseModel):
 
 
 def post_edit_announcement_endpoint(
-    object_in: Annotated[PublicationAnnouncementEdit, Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -35,6 +34,7 @@ def post_edit_announcement_endpoint(
     ],
     announcement: Annotated[PublicationAnnouncementTable, Depends(depends_publication_announcement)],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: PublicationAnnouncementEdit,
 ) -> ResponseOK:
     _guard_locked(announcement)
 

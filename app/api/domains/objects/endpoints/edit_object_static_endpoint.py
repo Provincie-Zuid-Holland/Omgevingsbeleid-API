@@ -77,7 +77,7 @@ def edit_object_static_endpoint(
         Created_Date=datetime.now(timezone.utc),
         Created_By_UUID=user.UUID,
         Action_Type="edit_object_static",
-        Action_Data=object_in.model_dump(),
+        Action_Data=object_in.model_dump_json(),
         Before=log_before,
         After=json.dumps(object_static.to_dict()),
     )

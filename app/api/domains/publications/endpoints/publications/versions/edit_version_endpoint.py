@@ -36,7 +36,6 @@ class PublicationVersionEditResponse(BaseModel):
 
 @inject
 def post_edit_version_endpoint(
-    object_in: Annotated[PublicationVersionEdit, Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -48,6 +47,7 @@ def post_edit_version_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     validator: Annotated[PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: PublicationVersionEdit,
 ) -> PublicationVersionEditResponse:
     _guard_locked(version)
 

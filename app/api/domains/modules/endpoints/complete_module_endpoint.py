@@ -108,7 +108,6 @@ def _create_objects(
 
 @inject
 def post_complete_module_endpoint(
-    object_in: Annotated[CompleteModule, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     session: Annotated[Session, Depends(depends_db_session)],
@@ -116,6 +115,7 @@ def post_complete_module_endpoint(
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
+    object_in: CompleteModule,
 ) -> ResponseOK:
     permission_service.guard_valid_user(
         Permissions.module_can_activate_module,

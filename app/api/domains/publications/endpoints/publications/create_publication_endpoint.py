@@ -42,7 +42,6 @@ class PublicationCreatedResponse(BaseModel):
 
 @inject
 def post_create_publication(
-    object_in: Annotated[PublicationCreate, Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -60,6 +59,7 @@ def post_create_publication(
     ],
     act_repository: Annotated[PublicationActRepository, Depends(Provide[ApiContainer.publication.act_repository])],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: PublicationCreate,
 ) -> PublicationCreatedResponse:
     timepoint: datetime = datetime.now(timezone.utc)
 

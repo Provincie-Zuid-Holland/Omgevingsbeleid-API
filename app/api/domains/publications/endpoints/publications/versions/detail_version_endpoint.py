@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, Any, List
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -26,7 +26,7 @@ def get_detail_version_endpoint(
     publication_version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     validator: Annotated[PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])],
 ) -> PublicationVersion:
-    errors: List[dict] = validator.get_errors(publication_version)
+    errors: List[Any] = validator.get_errors(publication_version)
     result: PublicationVersion = PublicationVersion.model_validate(publication_version)
     result.Errors = errors
 

@@ -27,7 +27,6 @@ class TemplateEdit(BaseModel):
 
 
 def post_edit_template_endpoint(
-    object_in: Annotated[TemplateEdit, Depends()],
     user: Annotated[
         UsersTable,
         Depends(
@@ -38,6 +37,7 @@ def post_edit_template_endpoint(
     ],
     template: Annotated[PublicationTemplateTable, Depends(depends_publication_template)],
     session: Annotated[Session, Depends(depends_db_session)],
+    object_in: TemplateEdit,
 ) -> ResponseOK:
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
