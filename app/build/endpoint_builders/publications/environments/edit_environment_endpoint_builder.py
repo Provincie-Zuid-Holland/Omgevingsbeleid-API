@@ -17,7 +17,7 @@ class EditPublicationEnvironmentEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{environment_uuid}" in builder_data.path:
+        if "{environment_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {environment_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(
@@ -25,7 +25,7 @@ class EditPublicationEnvironmentEndpointBuilder(EndpointBuilder):
             endpoint=post_edit_environment_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Edit publication environment",
+            summary="Edit publication environment",
             description=None,
             tags=["Publication Environments"],
         )

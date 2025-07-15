@@ -53,24 +53,16 @@ load-fixtures:
 
 reset-test-database: drop-database init-database load-fixtures
 
-fix:
-	python -m isort app/
-	python -m black app/ stubs/
-	python -m autoflake -ri --exclude=__init__.py --remove-all-unused-imports app/ stubs/
+check: ## Check without fixing via Ruff Lint
+	python -m ruff check ./app/
 
-check-security:
-	python -m bandit --configfile bandit.yml -r app/
+check-fix: ## Fix issues found by Ruff Lint
+	python -m ruff check --fix ./app/
 
-check-venture:
-	python -m vulture app/ --exclude app/tests/ --min-confidence 100
+format: ## Format code via Ruff Format
+	python -m ruff format ./app/
 
-check-lint:
-	python -m pylint -j 0 app/
-
-check-types:
-	python -m mypy --check app/
-
-check: check-venture check-security
+fix: check-fix format ## Fix and Format the code via Ruff
 
 test:
 	python -m pytest

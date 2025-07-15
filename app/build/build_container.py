@@ -33,7 +33,13 @@ class BuildContainer(containers.DeclarativeContainer):
         uri=config.SQLALCHEMY_DATABASE_URI,
         echo=config.SQLALCHEMY_ECHO,
     )
-    db_session_factory = providers.Singleton(sessionmaker, bind=db_engine, autocommit=False, autoflush=False, expire_on_commit=False)
+    db_session_factory = providers.Singleton(
+        sessionmaker,
+        bind=db_engine,
+        autocommit=False,
+        autoflush=False,
+        expire_on_commit=False,
+    )
 
     object_static_repository = providers.Singleton(ObjectStaticRepository)
 
@@ -47,9 +53,17 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(validators.HtmlValidator),
             providers.Factory(validators.ImageValidator),
             providers.Factory(validators.NotEqualRootValidator),
-            providers.Factory(validators.ObjectCodeExistsValidator, session_factory=db_session_factory, object_static_repository=object_static_repository),
+            providers.Factory(
+                validators.ObjectCodeExistsValidator,
+                session_factory=db_session_factory,
+                object_static_repository=object_static_repository,
+            ),
             providers.Factory(validators.ObjectCodeAllowedTypeValidator),
-            providers.Factory(validators.ObjectCodesExistsValidator, session_factory=db_session_factory, object_static_repository=object_static_repository),
+            providers.Factory(
+                validators.ObjectCodesExistsValidator,
+                session_factory=db_session_factory,
+                object_static_repository=object_static_repository,
+            ),
             providers.Factory(validators.ObjectCodesAllowedTypeValidator),
         ),
     )

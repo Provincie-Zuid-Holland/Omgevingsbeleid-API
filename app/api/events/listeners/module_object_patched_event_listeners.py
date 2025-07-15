@@ -34,7 +34,7 @@ class ChangeAreaListener(Listener[ModuleObjectPatchedEvent]):
         request_model: Model = event.context.request_model
         if not isinstance(request_model, DynamicObjectModel):
             return None
-        if not "change_area" in request_model.service_config:
+        if "change_area" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("change_area", {})

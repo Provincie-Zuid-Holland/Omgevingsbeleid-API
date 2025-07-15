@@ -70,7 +70,6 @@ class FileParser:
         """
         try:
             root = etree.fromstring(content, None)
-            root_element_name = etree.QName(root).localname
 
             # We require these to exists, so we fetch them unsafely. If they do not exists, then the format is wrong and the file should fail
             main_outcome = root.xpath("//lvbb:uitkomst/text()", namespaces=self._namespaces)[0]
@@ -97,7 +96,7 @@ class FileParser:
                 Created_By_UUID=self._created_by_uuid,
             )
             return report_table
-        except Exception as e:
+        except Exception:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Invalid file uploaded for filename: {filename}")
 
     def _xml_get(self, root, path: str, index: int = 0, default=""):

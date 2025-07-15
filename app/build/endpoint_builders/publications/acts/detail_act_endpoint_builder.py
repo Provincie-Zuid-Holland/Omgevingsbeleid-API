@@ -17,7 +17,7 @@ class DetailActEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{act_uuid}" in builder_data.path:
+        if "{act_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {act_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(
@@ -25,7 +25,7 @@ class DetailActEndpointBuilder(EndpointBuilder):
             endpoint=get_detail_act_endpoint,
             methods=["GET"],
             response_model=PublicationAct,
-            summary=f"Get details of a publication act",
+            summary="Get details of a publication act",
             description=None,
             tags=["Publication Acts"],
         )

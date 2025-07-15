@@ -6,10 +6,6 @@ from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
 
-
-
-
-
 class FullGraphEndpointBuilder(EndpointBuilder):
     def get_id(self) -> str:
         return "full_graph"
@@ -26,7 +22,7 @@ class FullGraphEndpointBuilder(EndpointBuilder):
             endpoint=get_full_graph_endpoint,
             methods=["GET"],
             response_model=GraphResponse,
-            summary=f"A graph representation",
+            summary="A graph representation",
             description=None,
             tags=["Graph"],
         )

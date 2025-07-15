@@ -41,7 +41,7 @@ class ListObjectsByAreasEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=PagedResponse[GeoSearchResult],
-            summary=f"List the objects in the given areas",
+            summary="List the objects in the given areas",
             description=None,
             tags=["Areas"],
         )

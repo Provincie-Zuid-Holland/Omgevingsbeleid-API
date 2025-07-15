@@ -21,7 +21,7 @@ class ModuleAddExistingObjectEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{module_id}" in builder_data.path:
+        if "{module_id}" not in builder_data.path:
             raise RuntimeError("Missing {module_id} argument in path")
 
         resolver_config: dict = endpoint_config.resolver_data
@@ -41,7 +41,7 @@ class ModuleAddExistingObjectEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Add existing object to the module",
+            summary="Add existing object to the module",
             description=None,
             tags=["Modules"],
         )

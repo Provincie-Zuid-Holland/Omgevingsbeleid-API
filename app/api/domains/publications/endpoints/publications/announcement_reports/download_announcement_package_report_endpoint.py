@@ -27,7 +27,7 @@ def get_download_announcement_package_report_endpoint(
         # We try to make it pretty, but its not required for the response to work
         xml_tree = etree.fromstring(content, None)
         content = etree.tostring(xml_tree, pretty_print=True).decode()
-    except:
+    except Exception:
         pass
 
     response = Response(

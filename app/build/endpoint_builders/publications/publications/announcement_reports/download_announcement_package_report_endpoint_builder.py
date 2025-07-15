@@ -18,14 +18,14 @@ class DownloadAnnouncementPackageReportEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{announcement_report_uuid}" in builder_data.path:
+        if "{announcement_report_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {announcement_report_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(
             path=builder_data.path,
             endpoint=get_download_announcement_package_report_endpoint,
             methods=["GET"],
-            summary=f"Download publication announcement package report",
+            summary="Download publication announcement package report",
             description=None,
             response_model=None,
             tags=["Publication Announcement Reports"],

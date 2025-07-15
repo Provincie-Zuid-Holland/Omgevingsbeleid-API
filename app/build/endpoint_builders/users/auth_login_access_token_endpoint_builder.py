@@ -22,6 +22,6 @@ class AuthLoginAccessTokenEndpointBuilder(EndpointBuilder):
             endpoint=post_auth_login_access_token_endpoint,
             methods=["POST"],
             response_model=AuthToken,
-            summary=f"Login an user and receive a JWT token",
+            summary="Login an user and receive a JWT token",
             tags=["Authentication"],
         )

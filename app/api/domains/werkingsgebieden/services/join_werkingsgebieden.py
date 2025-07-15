@@ -76,7 +76,7 @@ class JoinWerkingsgebiedenService:
     def _collect_config(self) -> Optional[Config]:
         if not isinstance(self._response_model, DynamicObjectModel):
             return None
-        if not "join_werkingsgebieden" in self._response_model.service_config:
+        if "join_werkingsgebieden" not in self._response_model.service_config:
             return None
 
         join_werkingsgebieden_config: dict = self._response_model.service_config["join_werkingsgebieden"]

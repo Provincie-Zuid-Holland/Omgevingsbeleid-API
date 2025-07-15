@@ -19,7 +19,7 @@ class DetailPublicationEnvironmentEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{environment_uuid}" in builder_data.path:
+        if "{environment_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {environment_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(
@@ -27,7 +27,7 @@ class DetailPublicationEnvironmentEndpointBuilder(EndpointBuilder):
             endpoint=get_detail_environment_endpoint,
             methods=["GET"],
             response_model=PublicationEnvironment,
-            summary=f"Get details of a publication environment",
+            summary="Get details of a publication environment",
             description=None,
             tags=["Publication Environments"],
         )

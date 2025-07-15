@@ -45,8 +45,8 @@ class HtmlImagesExtractor:
             content: str = getattr(self._module_object, field_name)
             try:
                 soup = BeautifulSoup(content, "html.parser")
-            except:
-                continue
+            except Exception:
+                return self._module_object
 
             for img in soup.find_all("img", src=re.compile("^data:image/")):
                 self._handle_image(img)
@@ -150,7 +150,7 @@ class ExtractHtmlImagesListener(Listener[ModuleObjectPatchedEvent]):
     def _collect_config(self, request_model: Model) -> Optional[ExtractHtmlImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
-        if not "extract_assets" in request_model.service_config:
+        if "extract_assets" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("extract_assets", {})

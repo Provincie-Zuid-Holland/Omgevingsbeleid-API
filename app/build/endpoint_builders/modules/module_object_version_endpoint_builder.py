@@ -22,9 +22,9 @@ class ModuleObjectVersionEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{module_id}" in builder_data.path:
+        if "{module_id}" not in builder_data.path:
             raise RuntimeError("Missing {module_id} argument in path")
-        if not "{object_uuid}" in builder_data.path:
+        if "{object_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {object_uuid} argument in path")
 
         resolver_config: dict = endpoint_config.resolver_data

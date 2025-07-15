@@ -1,7 +1,0 @@
-exclude_dirs: ['app/tests**', './.pytest_cache/**']
-
-skips:
-  B608:
-    - 'app/api/domains/others/endpoints/mssql_search_endpoint.py'
-    - 'app/api/domains/others/endpoints/mssql_valid_search_endpoint.py'
-  

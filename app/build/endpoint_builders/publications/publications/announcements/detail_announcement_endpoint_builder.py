@@ -19,7 +19,7 @@ class DetailPublicationAnnouncementEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{announcement_uuid}" in builder_data.path:
+        if "{announcement_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {announcement_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(
@@ -27,7 +27,7 @@ class DetailPublicationAnnouncementEndpointBuilder(EndpointBuilder):
             endpoint=get_detail_announcement_endpoint,
             methods=["GET"],
             response_model=PublicationAnnouncement,
-            summary=f"Get details of a publication announcement",
+            summary="Get details of a publication announcement",
             description=None,
             tags=["Publication Announcements"],
         )

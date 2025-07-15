@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 class ObjectsExtenderListener(Listener[CreateModelEvent]):
     def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
-        if not "foreign_keys_extender" in service_config:
+        if "foreign_keys_extender" not in service_config:
             return event
 
         config: dict = service_config["foreign_keys_extender"]
@@ -37,7 +37,7 @@ class ObjectsExtenderListener(Listener[CreateModelEvent]):
 class ObjectStaticsExtenderListener(Listener[CreateModelEvent]):
     def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
-        if not "static_foreign_keys_extender" in service_config:
+        if "static_foreign_keys_extender" not in service_config:
             return event
 
         config: dict = service_config["static_foreign_keys_extender"]
@@ -62,7 +62,7 @@ class AddRelationsListener(Listener[CreateModelEvent]):
 
     def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
-        if not "relations" in service_config:
+        if "relations" not in service_config:
             return event
 
         config: dict = service_config["relations"]
@@ -117,7 +117,7 @@ class AddRelationsListener(Listener[CreateModelEvent]):
 class JoinWerkingsgebiedenListener(Listener[CreateModelEvent]):
     def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
-        if not "join_werkingsgebieden" in service_config:
+        if "join_werkingsgebieden" not in service_config:
             return event
 
         config: dict = service_config["join_werkingsgebieden"]
@@ -136,7 +136,7 @@ class JoinWerkingsgebiedenListener(Listener[CreateModelEvent]):
 class AddPublicRevisionsToObjectModelListener(Listener[CreateModelEvent]):
     def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
-        if not "public_revisions" in service_config:
+        if "public_revisions" not in service_config:
             return event
 
         config: dict = service_config["public_revisions"]
@@ -153,7 +153,7 @@ class AddPublicRevisionsToObjectModelListener(Listener[CreateModelEvent]):
 class AddNextObjectVersionToObjectModelListener(Listener[CreateModelEvent]):
     def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
-        if not "next_object_version" in service_config:
+        if "next_object_version" not in service_config:
             return event
 
         config: dict = service_config["next_object_version"]
@@ -170,7 +170,7 @@ class AddNextObjectVersionToObjectModelListener(Listener[CreateModelEvent]):
 class AddRelatedObjectsToWerkingsgebiedObjectModelListener(Listener[CreateModelEvent]):
     def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
-        if not "werkingsgebied_related_objects" in service_config:
+        if "werkingsgebied_related_objects" not in service_config:
             return event
 
         config: dict = service_config["werkingsgebied_related_objects"]

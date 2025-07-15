@@ -35,7 +35,7 @@ class CreateUserEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=UserCreateResponse,
-            summary=f"Create new user",
+            summary="Create new user",
             description=None,
             tags=["User"],
         )

@@ -24,7 +24,7 @@ class CreatePublicationEnvironmentEndpointBuilder(EndpointBuilder):
             endpoint=post_create_environment_endpoint,
             methods=["POST"],
             response_model=EnvironmentCreatedResponse,
-            summary=f"Create new publication environment",
+            summary="Create new publication environment",
             description=None,
             tags=["Publication Environments"],
         )

@@ -17,7 +17,7 @@ class ClosePublicationActEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{act_uuid}" in builder_data.path:
+        if "{act_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {act_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(
@@ -25,7 +25,7 @@ class ClosePublicationActEndpointBuilder(EndpointBuilder):
             endpoint=post_close_act_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Close publication act",
+            summary="Close publication act",
             description=None,
             tags=["Publication Acts"],
         )

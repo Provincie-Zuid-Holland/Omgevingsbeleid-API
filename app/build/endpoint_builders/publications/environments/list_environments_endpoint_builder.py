@@ -25,7 +25,7 @@ class ListPublicationEnvironmentsEndpointBuilder(EndpointBuilder):
             endpoint=get_list_environments_endpoint,
             methods=["GET"],
             response_model=PagedResponse[PublicationEnvironment],
-            summary=f"List the publication environments",
+            summary="List the publication environments",
             description=None,
             tags=["Publication Environments"],
         )

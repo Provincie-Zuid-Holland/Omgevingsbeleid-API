@@ -13,8 +13,8 @@ class AcknowledgedRelationsRepository:
             and_(
                 AcknowledgedRelationsTable.From_Code == from_code,
                 AcknowledgedRelationsTable.To_Code == to_code,
-                AcknowledgedRelationsTable.Deleted_At == None,
-                AcknowledgedRelationsTable.Denied == None,
+                AcknowledgedRelationsTable.Deleted_At.is_(None),
+                AcknowledgedRelationsTable.Denied.is_(None),
             )
         )
         return session.scalars(stmt).first()
@@ -45,16 +45,16 @@ class AcknowledgedRelationsRepository:
             else:
                 filters.append(
                     or_(
-                        AcknowledgedRelationsTable.From_Acknowledged == None,
-                        AcknowledgedRelationsTable.To_Acknowledged == None,
+                        AcknowledgedRelationsTable.From_Acknowledged.is_(None),
+                        AcknowledgedRelationsTable.To_Acknowledged.is_(None),
                     )
                 )
 
         if show_inactive is False:
             filters.append(
                 and_(
-                    AcknowledgedRelationsTable.Deleted_At == None,
-                    AcknowledgedRelationsTable.Denied == None,
+                    AcknowledgedRelationsTable.Deleted_At.is_(None),
+                    AcknowledgedRelationsTable.Denied.is_(None),
                 )
             )
 

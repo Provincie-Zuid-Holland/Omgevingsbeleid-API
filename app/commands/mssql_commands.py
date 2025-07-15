@@ -143,7 +143,7 @@ def _reset_fulltext_index(
 
     query = f"""
         CREATE FULLTEXT INDEX ON {table_name} (
-            {', '.join(languages_columns)}
+            {", ".join(languages_columns)}
         )
         KEY INDEX {primary_key_name}
         ON {mssql_search_ftc_name}

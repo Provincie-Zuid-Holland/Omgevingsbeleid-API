@@ -9,6 +9,7 @@ from sqlalchemy.sql.expression import or_, select
 
 from app.core.db.base import Base
 from app.core.db.mixins import SerializerMixin, TimeStamped, UserMetaData
+from app.core.tables.objects import ObjectStaticsTable
 from app.core.tables.users import UsersTable
 
 
@@ -111,7 +112,7 @@ class ModuleObjectsTable(Base):
     Deleted: Mapped[bool] = mapped_column(default=False)
 
     ModuleObjectContext: Mapped["ModuleObjectContextTable"] = relationship()
-    ObjectStatics: Mapped["ObjectStaticsTable"] = relationship(
+    ObjectStatics: Mapped[ObjectStaticsTable] = relationship(
         primaryjoin="ModuleObjectsTable.Code == ObjectStaticsTable.Code",
         viewonly=True,
     )

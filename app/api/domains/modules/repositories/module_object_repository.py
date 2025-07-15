@@ -280,7 +280,7 @@ class ModuleObjectRepository(BaseRepository):
             object_id,
         )
         if not old_record:
-            raise ValueError(f"lineage_id does not exist in this module")
+            raise ValueError("lineage_id does not exist in this module")
 
         new_record: ModuleObjectsTable = self.patch_module_object(
             session,

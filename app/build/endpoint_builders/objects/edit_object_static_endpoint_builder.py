@@ -20,7 +20,7 @@ class EditObjectStaticEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{lineage_id}" in builder_data.path:
+        if "{lineage_id}" not in builder_data.path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         resolver_config: dict = endpoint_config.resolver_data
@@ -42,6 +42,6 @@ class EditObjectStaticEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Edit static data of an object",
+            summary="Edit static data of an object",
             tags=[api.object_type],
         )

@@ -91,7 +91,7 @@ class ObjectModelsBuilder:
                 static_pydantic_fields,
                 intermediate_model,
                 models_provider,
-            )
+            ),
         )
         pydantic_fields = event.payload.pydantic_fields
         static_pydantic_fields = event.payload.static_pydantic_fields

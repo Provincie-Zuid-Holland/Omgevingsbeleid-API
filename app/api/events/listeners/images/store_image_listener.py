@@ -138,7 +138,7 @@ class StoreImagesListener(Listener[ModuleObjectPatchedEvent]):
     def _collect_config(self, request_model: Model) -> Optional[StoreImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
-        if not "store_image" in request_model.service_config:
+        if "store_image" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("store_image", {})

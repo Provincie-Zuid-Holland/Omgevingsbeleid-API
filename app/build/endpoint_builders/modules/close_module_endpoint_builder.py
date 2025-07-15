@@ -17,7 +17,7 @@ class CloseModuleEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{module_id}" in builder_data.path:
+        if "{module_id}" not in builder_data.path:
             raise RuntimeError("Missing {module_id} argument in path")
 
         return ConfiguiredFastapiEndpoint(
@@ -25,7 +25,7 @@ class CloseModuleEndpointBuilder(EndpointBuilder):
             endpoint=post_close_module_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Close a module (Unsuccessful)",
+            summary="Close a module (Unsuccessful)",
             description=None,
             tags=["Modules"],
         )

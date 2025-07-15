@@ -22,7 +22,7 @@ class ModulePatchStatusEndpointBuilder(EndpointBuilder):
             endpoint=post_module_patch_status_endpoint,
             methods=["PATCH"],
             response_model=ResponseOK,
-            summary=f"Patch the status of the module",
+            summary="Patch the status of the module",
             description=None,
             tags=["Modules"],
         )

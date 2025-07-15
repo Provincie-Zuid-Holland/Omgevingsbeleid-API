@@ -31,7 +31,7 @@ class AcknowledgedRelationEditEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=ResponseOK,
-            summary=f"Edit an acknowledged relation",
+            summary="Edit an acknowledged relation",
             description=None,
             tags=[api.object_type],
         )

@@ -24,7 +24,7 @@ class ModuleAddNewObjectEndpointBuilder(EndpointBuilder):
         resolver_config: dict = endpoint_config.resolver_data
 
         path: str = endpoint_config.prefix + resolver_config.get("path", "")
-        if not "{module_id}" in path:
+        if "{module_id}" not in path:
             raise RuntimeError("Missing {module_id} argument in path")
 
         allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
@@ -43,7 +43,7 @@ class ModuleAddNewObjectEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["POST"],
             response_model=NewObjectStaticResponse,
-            summary=f"Add new object to the module",
+            summary="Add new object to the module",
             description=None,
             tags=["Modules"],
         )

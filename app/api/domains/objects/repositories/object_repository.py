@@ -48,7 +48,7 @@ class ObjectRepository(BaseRepository):
             .filter(
                 or_(
                     subq.c.End_Validity > datetime.now(timezone.utc),
-                    subq.c.End_Validity == None,
+                    subq.c.End_Validity.is_(None),
                 )
             )
         )
@@ -83,7 +83,7 @@ class ObjectRepository(BaseRepository):
         stmt = stmt.filter(
             or_(
                 ObjectsTable.End_Validity > datetime.now(timezone.utc),
-                ObjectsTable.End_Validity == None,
+                ObjectsTable.End_Validity.is_(None),
             )
         )
 
@@ -116,7 +116,7 @@ class ObjectRepository(BaseRepository):
             .filter(
                 or_(
                     subq.c.End_Validity > datetime.now(timezone.utc),
-                    subq.c.End_Validity == None,
+                    subq.c.End_Validity.is_(None),
                 )
             )
             .order_by(desc(subq.c.Modified_Date))
@@ -209,7 +209,7 @@ class ObjectRepository(BaseRepository):
             .filter(
                 or_(
                     subq.c.End_Validity > datetime.now(timezone.utc),
-                    subq.c.End_Validity == None,
+                    subq.c.End_Validity.is_(None),
                 )
             )
         )

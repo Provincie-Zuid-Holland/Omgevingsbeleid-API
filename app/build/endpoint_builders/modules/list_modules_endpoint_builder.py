@@ -35,7 +35,7 @@ class ListModulesEndpointResolverBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["GET"],
             response_model=PagedResponse[Module],
-            summary=f"List the modules",
+            summary="List the modules",
             description=None,
             tags=["Modules"],
         )

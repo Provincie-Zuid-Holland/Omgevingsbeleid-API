@@ -24,7 +24,7 @@ class ModuleGetObjectContextEndpointBuilder(EndpointBuilder):
             endpoint=get_module_get_object_context_endpoint,
             methods=["GET"],
             response_model=ModuleObjectContext,
-            summary=f"Get context of object in the module",
+            summary="Get context of object in the module",
             description=None,
             tags=["Modules"],
         )

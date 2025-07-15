@@ -22,7 +22,7 @@ class DetailStorageFilesEndpointBuilder(EndpointBuilder):
             endpoint=get_files_detail_endpoint,
             methods=["GET"],
             response_model=StorageFileBasic,
-            summary=f"Get storage file details",
+            summary="Get storage file details",
             description=None,
             tags=["Storage File"],
         )

@@ -23,7 +23,7 @@ class PublicListModulesEndpointBuilder(EndpointBuilder):
             endpoint=get_public_list_modules_endpoint,
             methods=["GET"],
             response_model=PagedResponse[PublicModuleShort],
-            summary=f"List the public modules",
+            summary="List the public modules",
             description=None,
             tags=["Public Modules"],
         )

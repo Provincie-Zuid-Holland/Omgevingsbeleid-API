@@ -71,7 +71,7 @@ class Filters:
         allowed_set = set(allowed_keys)
         for clause in self._clauses:
             for filter in clause.items:
-                if not filter.key in allowed_set:
+                if filter.key not in allowed_set:
                     raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid filter")
 
     def get_clauses(self) -> List[FilterClause]:

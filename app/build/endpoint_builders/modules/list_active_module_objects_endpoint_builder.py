@@ -21,7 +21,7 @@ class ListActiveModuleObjectsEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{lineage_id}" in builder_data.path:
+        if "{lineage_id}" not in builder_data.path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         context = ListActiveModuleObjectsEndpointContext(
@@ -35,7 +35,7 @@ class ListActiveModuleObjectsEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["GET"],
             response_model=List[ActiveModuleObjectsResponse],
-            summary=f"List the last modified module object grouped per module ID",
+            summary="List the last modified module object grouped per module ID",
             description=None,
             tags=[api.object_type],
         )

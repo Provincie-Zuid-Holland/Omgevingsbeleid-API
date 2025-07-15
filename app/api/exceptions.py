@@ -9,4 +9,4 @@ class LoggedHttpException(HTTPException):
         self._log_message: Optional[str] = log_message
 
     def get_log_message(self) -> str:
-        return f"%s. %s" % (self.detail, self._log_message or "")
+        return "%s. %s" % (self.detail, self._log_message or "")

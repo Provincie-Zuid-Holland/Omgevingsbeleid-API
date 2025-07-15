@@ -26,7 +26,7 @@ def get_download_act_package_report_endpoint(
     try:
         xml_tree = etree.fromstring(content, None)
         content = etree.tostring(xml_tree, pretty_print=True).decode()
-    except:
+    except Exception:
         pass
 
     response = Response(

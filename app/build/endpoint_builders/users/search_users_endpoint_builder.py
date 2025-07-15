@@ -32,7 +32,7 @@ class SearchUsersEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["GET"],
             response_model=PagedResponse[User],
-            summary=f"Search the users",
+            summary="Search the users",
             description=None,
             tags=["User"],
         )

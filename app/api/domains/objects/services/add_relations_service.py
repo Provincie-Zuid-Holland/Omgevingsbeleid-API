@@ -141,7 +141,7 @@ class AddRelationsService:
     def _collect_config(self) -> Optional[Config]:
         if not isinstance(self._response_model, DynamicObjectModel):
             return None
-        if not "relations" in self._response_model.service_config:
+        if "relations" not in self._response_model.service_config:
             return None
 
         object_codes = list({getattr(r, "Code") for r in self._rows})

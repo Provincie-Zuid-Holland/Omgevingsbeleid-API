@@ -22,6 +22,6 @@ class ObjectCountsEndpointBuilder(EndpointBuilder):
             endpoint=view_object_counts_endpoint,
             methods=["GET"],
             response_model=ObjectCountResponse,
-            summary=f"List object types with counts for loggedin user",
+            summary="List object types with counts for loggedin user",
             tags=["Objects"],
         )

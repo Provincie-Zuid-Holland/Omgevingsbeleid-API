@@ -1,5 +1,8 @@
-
-from app.api.domains.others.endpoints.object_graph_endpoint import GraphIterationsConfig, ObjectGraphEndpointContext, get_object_graph_endpoint
+from app.api.domains.others.endpoints.object_graph_endpoint import (
+    GraphIterationsConfig,
+    ObjectGraphEndpointContext,
+    get_object_graph_endpoint,
+)
 from app.api.domains.others.types import GraphResponse
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
@@ -32,7 +35,7 @@ class ObjectGraphEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["GET"],
             response_model=GraphResponse,
-            summary=f"A graph representation of an object",
+            summary="A graph representation of an object",
             description=None,
             tags=["Graph"],
         )

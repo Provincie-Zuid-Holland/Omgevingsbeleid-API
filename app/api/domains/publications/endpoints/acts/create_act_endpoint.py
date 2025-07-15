@@ -112,7 +112,7 @@ def _get_work_other(
         .filter(
             or_(
                 PublicationActTable.Procedure_Type == ProcedureType.FINAL,
-                PublicationActTable.Procedure_Type == None,
+                PublicationActTable.Procedure_Type.is_(None),
             ).self_group()
         )
     )

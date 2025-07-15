@@ -59,7 +59,7 @@ def get_public_module_overview_endpoint(
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
 ) -> PublicModuleOverview:
-    if not module.Current_Status in PublicModuleStatusCode.values():
+    if module.Current_Status not in PublicModuleStatusCode.values():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid status for module")
 
     status_snapshot_date = module.Status.Created_Date

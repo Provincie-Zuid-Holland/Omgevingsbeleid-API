@@ -18,7 +18,7 @@ class ModuleListStatusesEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{module_id}" in builder_data.path:
+        if "{module_id}" not in builder_data.path:
             raise RuntimeError("Missing {module_id} argument in path")
 
         return ConfiguiredFastapiEndpoint(
@@ -26,7 +26,7 @@ class ModuleListStatusesEndpointBuilder(EndpointBuilder):
             endpoint=view_module_list_statuses_endpoint,
             methods=["GET"],
             response_model=List[ModuleStatus],
-            summary=f"Get status history of the module",
+            summary="Get status history of the module",
             description=None,
             tags=["Modules"],
         )

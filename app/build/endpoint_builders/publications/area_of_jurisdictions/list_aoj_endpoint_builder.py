@@ -23,7 +23,7 @@ class ListPublicationAOJEndpointBuilder(EndpointBuilder):
             endpoint=get_list_aoj_endpoint,
             methods=["GET"],
             response_model=PagedResponse[PublicationAOJ],
-            summary=f"List the publication area of jurisdictions",
+            summary="List the publication area of jurisdictions",
             description=None,
             tags=["Publication AOJ"],
         )

@@ -19,7 +19,7 @@ class DetailPublicationVersionEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{version_uuid}" in builder_data.path:
+        if "{version_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {version_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(
@@ -27,6 +27,6 @@ class DetailPublicationVersionEndpointBuilder(EndpointBuilder):
             endpoint=get_detail_version_endpoint,
             methods=["GET"],
             response_model=PublicationVersion,
-            summary=f"Get details of a publication version",
+            summary="Get details of a publication version",
             tags=["Publication Versions"],
         )

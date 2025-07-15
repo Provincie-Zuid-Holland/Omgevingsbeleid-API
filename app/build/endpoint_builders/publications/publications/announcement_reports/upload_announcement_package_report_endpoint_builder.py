@@ -21,14 +21,14 @@ class UploadAnnouncementPackageReportEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{announcement_package_uuid}" in builder_data.path:
+        if "{announcement_package_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {announcement_package_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(
             path=builder_data.path,
             endpoint=post_upload_announcement_package_report_endpoint,
             methods=["POST"],
-            summary=f"Record the submission response from lvbb of a publication announcement package",
+            summary="Record the submission response from lvbb of a publication announcement package",
             response_model=UploadPackageReportResponse,
             description=None,
             tags=["Publication Announcement Reports"],
