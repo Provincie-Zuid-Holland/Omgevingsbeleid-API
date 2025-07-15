@@ -1,6 +1,3 @@
-
-
-
 from app.api.domains.others.endpoints.mssql_search_endpoint import MssqlSearchEndpointContext, get_mssql_search_endpoint
 from app.api.domains.others.types import SearchObject, ValidSearchConfig
 from app.api.endpoint import EndpointContextBuilderData
@@ -8,11 +5,6 @@ from app.api.utils.pagination import PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
-
-
-
-
-
 
 
 class MssqlSearchEndpointBuilder(EndpointBuilder):

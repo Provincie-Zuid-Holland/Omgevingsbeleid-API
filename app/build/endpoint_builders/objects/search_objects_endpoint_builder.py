@@ -7,7 +7,6 @@ from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
 
-
 class SearchObjectsEndpointBuilder(EndpointBuilder):
     def get_id(self) -> str:
         return "search"
@@ -28,6 +27,3 @@ class SearchObjectsEndpointBuilder(EndpointBuilder):
             description=None,
             tags=["Search"],
         )
-
-
-

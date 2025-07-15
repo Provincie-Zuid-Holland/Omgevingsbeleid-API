@@ -1,5 +1,8 @@
-
-from app.api.domains.others.endpoints.object_graph_endpoint import GraphIterationsConfig, ObjectGraphEndpointContext, get_object_graph_endpoint
+from app.api.domains.others.endpoints.object_graph_endpoint import (
+    GraphIterationsConfig,
+    ObjectGraphEndpointContext,
+    get_object_graph_endpoint,
+)
 from app.api.domains.others.types import GraphResponse
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder

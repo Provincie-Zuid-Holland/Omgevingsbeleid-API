@@ -30,7 +30,7 @@ class FastAPIBuilder:
             container.config.PROJECT_DESC(),
             container.config.OPENAPI_LOGO(),
         )
-        
+
         self._configure_exception_handlers(app)
         self._configure_operation_ids(app)
         app.add_api_route("/health", health_check)

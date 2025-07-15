@@ -1,15 +1,13 @@
-
-
-
-from app.api.domains.others.endpoints.mssql_valid_search_endpoint import MssqlValidSearchEndpointContext, get_mssql_valid_search_endpoint
+from app.api.domains.others.endpoints.mssql_valid_search_endpoint import (
+    MssqlValidSearchEndpointContext,
+    get_mssql_valid_search_endpoint,
+)
 from app.api.domains.others.types import ValidSearchConfig, ValidSearchObject
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
-
-
 
 
 class MssqlValidSearchEndpointBuilder(EndpointBuilder):

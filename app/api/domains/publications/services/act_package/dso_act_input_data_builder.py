@@ -148,9 +148,7 @@ class DsoActInputDataBuilder:
 
     def _get_akn_filename(self) -> str:
         package_type: str = (self._package_type[:3]).lower()
-        filename: str = (
-            f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
-        )
+        filename: str = f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
         return filename
 
     def _get_besluit(self) -> Besluit:
