@@ -17,7 +17,7 @@ class EditPublicationTemplateEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{template_uuid}" in builder_data.path:
+        if "{template_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {template_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(

@@ -99,7 +99,7 @@ class InsertHtmlImagesListenerBase(Listener[EventT], Generic[EventT]):
     def _collect_config(self, request_model: Model) -> Optional[InsertHtmlImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
-        if not "insert_assets" in request_model.service_config:
+        if "insert_assets" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("insert_assets", {})

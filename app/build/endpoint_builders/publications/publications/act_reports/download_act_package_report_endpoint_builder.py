@@ -18,7 +18,7 @@ class DownloadActPackageReportEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{act_report_uuid}" in builder_data.path:
+        if "{act_report_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {act_report_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(

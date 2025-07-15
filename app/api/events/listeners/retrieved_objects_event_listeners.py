@@ -93,7 +93,7 @@ class AddPublicRevisionsToObjectsListener(Listener[RetrievedObjectsEvent]):
     def _collect_config(self, event: RetrievedObjectsEvent) -> Optional[AddPublicRevisionsConfig]:
         if not isinstance(event.context.response_model, DynamicObjectModel):
             return None
-        if not "public_revisions" in event.context.response_model.service_config:
+        if "public_revisions" not in event.context.response_model.service_config:
             return None
 
         service_config: dict = event.context.response_model.service_config["public_revisions"]
@@ -131,7 +131,7 @@ class AddNextObjectVersionToObjectsListener(Listener[RetrievedObjectsEvent]):
     def _collect_config(self, event: RetrievedObjectsEvent) -> Optional[AddNextObjectVersionConfig]:
         if not isinstance(event.context.response_model, DynamicObjectModel):
             return None
-        if not "next_object_version" in event.context.response_model.service_config:
+        if "next_object_version" not in event.context.response_model.service_config:
             return None
 
         service_config: dict = event.context.response_model.service_config["next_object_version"]
@@ -168,7 +168,7 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(Listener[RetrievedObjects
     def _collect_config(self, event: RetrievedObjectsEvent) -> Optional[AddWerkingsgebiedRelatedObjectsConfig]:
         if not isinstance(event.context.response_model, DynamicObjectModel):
             return None
-        if not "werkingsgebied_related_objects" in event.context.response_model.service_config:
+        if "werkingsgebied_related_objects" not in event.context.response_model.service_config:
             return None
 
         service_config: dict = event.context.response_model.service_config["werkingsgebied_related_objects"]
@@ -209,7 +209,7 @@ class GetColumnImagesListenerBase(Listener[EventRMO], Generic[EventRMO]):
     def _collect_config(self, request_model: Model) -> Optional[GetImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
-        if not "get_image" in request_model.service_config:
+        if "get_image" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("get_image", {})

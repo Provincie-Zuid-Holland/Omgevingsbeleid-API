@@ -93,7 +93,7 @@ class GetImagesForModuleListener(Listener[RetrievedModuleObjectsEvent]):
     def _collect_config(self, request_model: Model) -> Optional[GetImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
-        if not "get_image" in request_model.service_config:
+        if "get_image" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("get_image", {})
@@ -129,7 +129,7 @@ class GetImagesForObjectListener(Listener[RetrievedObjectsEvent]):
     def _collect_config(self, request_model: Model) -> Optional[GetImagesConfig]:
         if not isinstance(request_model, DynamicObjectModel):
             return None
-        if not "get_image" in request_model.service_config:
+        if "get_image" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("get_image", {})

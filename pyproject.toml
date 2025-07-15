@@ -5,7 +5,9 @@ requires-python = ">=3.13"
 line-length = 120
 
 [tool.ruff.lint]
-ignore = []
+ignore = [
+    "E712", # true-false-comparison: Which is unreadable in sqlalchemy filters
+]
 
 [tool.pytest.ini_options]
 norecursedirs = "*venv* *.venv* *.pytest_cache*"

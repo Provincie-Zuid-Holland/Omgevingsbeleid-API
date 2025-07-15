@@ -14,7 +14,7 @@ class EventListeners(Generic[EventType]):
 
     def register(self, listener: Listener):
         event_type: Type[EventType] = listener.get_event_type()
-        if not event_type in self._listeners:
+        if event_type not in self._listeners:
             self._listeners[event_type] = []
 
         self._listeners[event_type].append(listener)

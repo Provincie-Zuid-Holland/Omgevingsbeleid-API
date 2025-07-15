@@ -17,11 +17,11 @@ class ModuleRemoveObjectEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{module_id}" in builder_data.path:
+        if "{module_id}" not in builder_data.path:
             raise RuntimeError("Missing {module_id} argument in path")
-        if not "{object_type}" in builder_data.path:
+        if "{object_type}" not in builder_data.path:
             raise RuntimeError("Missing {object_type} argument in path")
-        if not "{lineage_id}" in builder_data.path:
+        if "{lineage_id}" not in builder_data.path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         return ConfiguiredFastapiEndpoint(

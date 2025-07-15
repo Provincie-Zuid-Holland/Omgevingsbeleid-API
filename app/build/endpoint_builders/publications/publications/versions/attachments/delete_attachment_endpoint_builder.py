@@ -19,9 +19,9 @@ class DeletePublicationVersionAttachmentEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{version_uuid}" in builder_data.path:
+        if "{version_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {version_uuid} argument in path")
-        if not "{attachment_id}" in builder_data.path:
+        if "{attachment_id}" not in builder_data.path:
             raise RuntimeError("Missing {attachment_id} argument in path")
 
         return ConfiguiredFastapiEndpoint(

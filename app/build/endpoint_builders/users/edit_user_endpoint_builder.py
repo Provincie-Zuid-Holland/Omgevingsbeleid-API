@@ -18,7 +18,7 @@ class EditUserEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{user_uuid}" in builder_data.path:
+        if "{user_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {user_uuid} argument in path")
 
         resolver_config: dict = endpoint_config.resolver_data

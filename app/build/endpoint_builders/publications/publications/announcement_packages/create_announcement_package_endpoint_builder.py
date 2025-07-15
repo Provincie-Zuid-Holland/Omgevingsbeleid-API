@@ -19,7 +19,7 @@ class CreatePublicationAnnouncementPackageEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguiredFastapiEndpoint:
-        if not "{announcement_uuid}" in builder_data.path:
+        if "{announcement_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {announcement_uuid} argument in path")
 
         return ConfiguiredFastapiEndpoint(
