@@ -55,7 +55,7 @@ class EndpointHandler:
                 )
 
     def _log_action(self):
-        action_data: str = json.dumps([l.model_dump() for l in self._overwrite_list])
+        action_data: str = json.dumps([write_relation.model_dump() for write_relation in self._overwrite_list])
         current_relations: List[dict] = self._fetch_current_relations()
         before_data: str = json.dumps(current_relations)
 

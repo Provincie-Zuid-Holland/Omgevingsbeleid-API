@@ -116,13 +116,13 @@ class ActStatePatcher:
             )
             locations: List[models.Location] = [
                 models.Location(
-                    UUID=str(l["UUID"]),
-                    Identifier=l["Identifier"],
-                    Gml_ID=l["Gml_ID"],
-                    Group_ID=l["Group_ID"],
-                    Title=l["Title"],
+                    UUID=str(location["UUID"]),
+                    Identifier=location["Identifier"],
+                    Gml_ID=location["Gml_ID"],
+                    Group_ID=location["Group_ID"],
+                    Title=location["Title"],
                 )
-                for l in dso_werkingsgebied["Locaties"]
+                for location in dso_werkingsgebied["Locaties"]
             ]
             werkingsgebied = models.Werkingsgebied(
                 UUID=str(dso_werkingsgebied["UUID"]),
