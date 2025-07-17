@@ -171,3 +171,14 @@ class PublicModuleShort(BaseModel):
         return v or ""
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleSortColumn(str, Enum):
+    Module_ID = "Module_ID"
+    Title = "Title"
+    Created_Date = "Created_Date"
+    Modified_Date = "Modified_Date"
+    Activated = "Activated"
+    Closed = "Closed"
+    Successful = "Successful"
+    Temporary_Locked = "Temporary_Locked"

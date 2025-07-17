@@ -15,10 +15,10 @@ from app.core.tables.users import UsersTable
 
 @inject
 def post_auth_login_access_token_endpoint(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: Annotated[Session, Depends(depends_db_session)],
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
-    form_data: OAuth2PasswordRequestForm,
 ) -> AuthToken:
     user: Optional[UsersTable] = user_repository.authenticate(session, form_data.username, form_data.password)
     if not user:
