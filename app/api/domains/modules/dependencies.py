@@ -10,6 +10,8 @@ from app.api.domains.modules.repositories.module_object_context_repository impor
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.repositories.module_repository import ModuleRepository
 from app.api.domains.modules.repositories.module_status_repository import ModuleStatusRepository
+from app.api.domains.modules.types import ModuleSortColumn
+from app.api.utils.pagination import OptionalSort, OptionalSortedPagination, SortOrder
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
 
 
@@ -88,3 +90,21 @@ def depends_module_status_by_id(
     if not maybe_status:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module status niet gevonden")
     return maybe_status
+
+
+def depends_optional_module_sorted_pagination(
+    offset: Optional[int] = None,
+    limit: Optional[int] = None,
+    sort_column: Optional[ModuleSortColumn] = None,
+    sort_order: Optional[SortOrder] = None,
+) -> OptionalSortedPagination:
+    optional_sort = OptionalSort(
+        column=sort_column.value if sort_column else None,
+        order=sort_order,
+    )
+    pagination = OptionalSortedPagination(
+        offset=offset,
+        limit=limit,
+        sort=optional_sort,
+    )
+    return pagination

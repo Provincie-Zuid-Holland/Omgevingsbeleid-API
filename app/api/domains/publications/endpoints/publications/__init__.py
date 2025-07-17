@@ -1,4 +1,4 @@
-from .create_publication_endpoint import post_create_publication
+from .create_publication_endpoint import post_create_publication_endpoint
 from .detail_publication_endpoint import get_detail_publication_endpoint
 from .edit_publication_endpoint import post_edit_publication_endpoint
 from .list_publications_endpoint import get_list_publications_endpoint

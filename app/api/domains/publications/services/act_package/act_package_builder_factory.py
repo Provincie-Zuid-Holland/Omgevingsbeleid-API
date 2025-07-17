@@ -98,7 +98,7 @@ class ActPackageBuilderFactory:
         try:
             input_data: InputData = input_data_builder.build()
         except Exception as e:
-            raise DSOConfigurationException(str(e))
+            raise DSOConfigurationException(str(e)) from e
 
         builder: ActPackageBuilder = ActPackageBuilder(
             api_input_data,

@@ -1,4 +1,4 @@
-from app.api.domains.publications.endpoints.publications.edit_publication_endpoint import post_edit_publication_endpoint
+from app.api.domains.publications.endpoints.templates.edit_template_endpoint import post_edit_template_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK
 from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
@@ -22,7 +22,7 @@ class EditPublicationTemplateEndpointBuilder(EndpointBuilder):
 
         return ConfiguiredFastapiEndpoint(
             path=builder_data.path,
-            endpoint=post_edit_publication_endpoint,
+            endpoint=post_edit_template_endpoint,
             methods=["POST"],
             response_model=ResponseOK,
             summary="Edit publication template",

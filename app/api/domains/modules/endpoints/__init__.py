@@ -8,7 +8,7 @@ from .list_active_module_objects_endpoint import (
     get_list_active_module_objects_endpoint,
 )
 from .list_module_objects_endpoint import ListModuleObjectsEndpointContext, get_list_module_objects_endpoint
-from .list_modules_endpoint import ListModulesEndpointContext, get_list_modules_endpoint
+from .list_modules_endpoint import get_list_modules_endpoint
 from .module_add_existing_object_endpoint import (
     ModuleAddExistingObjectEndpointContext,
     post_module_add_existing_object_endpoint,

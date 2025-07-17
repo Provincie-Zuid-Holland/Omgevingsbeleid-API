@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
@@ -17,9 +17,20 @@ from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpo
 logger = logging.getLogger(__name__)
 
 
+def _generate_unique_id_function(route: APIRoute) -> str:
+    operation_id = route.name
+    if operation_id.endswith("_endpoint"):
+        operation_id = operation_id[:-9]
+    if len(route.tags) == 1:
+        operation_id = f"{route.tags[0].lower()}_{operation_id}"
+    return operation_id
+
+
 class FastAPIBuilder:
     def build(self, container: ApiContainer, routes: List[ConfiguiredFastapiEndpoint]) -> FastAPI:
-        app: FastAPI = FastAPI()
+        app: FastAPI = FastAPI(
+            generate_unique_id_function=_generate_unique_id_function,
+        )
         app.container = container
 
         self._add_routes(app, routes)
@@ -51,6 +62,8 @@ class FastAPIBuilder:
                 "description": endpoint_config.description,
                 "tags": endpoint_config.tags,
             }
+            if endpoint_config.operation_id:
+                route_kwargs["operation_id"] = endpoint_config.operation_id
 
             router.add_api_route(**route_kwargs)
 
@@ -100,15 +113,16 @@ class FastAPIBuilder:
             return await http_exception_handler(request, exc)
 
     def _configure_operation_ids(self, app: FastAPI) -> None:
-        """
-        The prefix of the operator_id is currently the function name of the route,
-        which is undesirable for the Frontend as it results in cluttered auto-generated names.
-        As a temporary solution, we are generating the operation_id from the unique_id and
-        eliminating the function name. However, this approach is not sustainable if
-        we transition to an open-source platform.
+        used_operation_ids: Set[str] = set()
 
-        @todo: we should use the generate_unique_id_function in adding the endpoint instead
-        """
         for route in app.routes:
             if isinstance(route, APIRoute):
-                route.operation_id = route.unique_id.replace("fastapi_handler_", "", 1)
+                operation_id = route.unique_id
+                if operation_id in used_operation_ids:
+                    raise RuntimeError(
+                        "Duplicate operation id detected: %s. This may cause issues with operation IDs.",
+                        operation_id,
+                    )
+
+                used_operation_ids.add(operation_id)
+                route.operation_id = operation_id

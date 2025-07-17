@@ -56,4 +56,5 @@ class ModuleObjectVersionEndpointBuilder(EndpointBuilder):
             summary=f"Get specific {api.object_type} by uuid in a module",
             description=None,
             tags=[api.object_type],
+            operation_id=self._to_operation_id(builder_data.path, "get"),
         )
