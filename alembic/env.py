@@ -6,9 +6,10 @@ from sqlalchemy import pool
 from alembic import context
 
 # We need these to load all sqlalchemy tables
+from app.core import settings
 from app.main import app  ## noqa
 from app.core.db import table_metadata  ## noqa
-from app.core.settings import settings  ## noqa
+from app.core.settings import Settings  ## noqa
 
 
 # this is the Alembic Config object, which provides
@@ -45,6 +46,7 @@ def run_migrations_offline() -> None:
 
     """
     # url = config.get_main_option("sqlalchemy.url")
+    settings = Settings()
     uri = settings.SQLALCHEMY_DATABASE_URI
     context.configure(
         url=uri,
@@ -65,6 +67,7 @@ def run_migrations_online() -> None:
 
     """
     # overwrite alembic.ini connection string with app settings URI
+    settings = Settings()
     uri = settings.SQLALCHEMY_DATABASE_URI
     conn = config.get_section(config.config_ini_section)
     conn["sqlalchemy.url"] = uri
