@@ -1,14 +1,13 @@
 from enum import Enum
-from typing import Annotated, List, Optional
+from typing import List, Optional
 
 from dso.services.ow.imow_waardelijsten import TypeGebiedsaanwijzingEnum as AreaDesignationTypes
 from dso.services.ow.imow_waardelijsten import get_groep_options_for_gebiedsaanwijzing_type
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from pydantic import BaseModel
 
-AreaDesignationTypeEnum = Enum(
-    "AreaDesignationTypeEnum", {member.name: member.value for member in AreaDesignationTypes}, type=str
-)
+
+AreaDesignationTypeEnum = Enum("AreaDesignationTypeEnum", {member.name: member.name for member in AreaDesignationTypes})
 
 
 class AreaDesignationValueList(BaseModel):
@@ -16,7 +15,7 @@ class AreaDesignationValueList(BaseModel):
 
 
 def get_area_designation_groups_endpoint(
-    type: Annotated[AreaDesignationTypeEnum, Depends()],
+    type: AreaDesignationTypeEnum,
 ) -> AreaDesignationValueList:
     enum_member: AreaDesignationTypes = AreaDesignationTypes[type.name]
     group_options: Optional[List[str]] = get_groep_options_for_gebiedsaanwijzing_type(enum_member)

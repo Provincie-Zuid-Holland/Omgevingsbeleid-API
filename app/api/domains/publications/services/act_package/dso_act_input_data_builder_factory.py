@@ -7,7 +7,12 @@ from app.core.settings import KoopSettings
 
 class DsoActInputDataBuilderFactory:
     def __init__(self, koop_settings: Dict[str, KoopSettings]):
-        self._koop_settings: Dict[str, KoopSettings] = koop_settings
+        # @todo: The Dependency Injector config only support flat dicts
+        # So we need to convert the KoopSettings to a dict
+        # But we should just update the containers that we have pydantic settings instead of DI config
+        self._koop_settings: Dict[str, KoopSettings] = {
+            key: KoopSettings.model_validate(settings) for key, settings in koop_settings.items()
+        }
 
     def create(self, api_input_data: ApiActInputData) -> DsoActInputDataBuilder:
         return DsoActInputDataBuilder(

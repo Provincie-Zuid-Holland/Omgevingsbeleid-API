@@ -30,7 +30,7 @@ class ApiActInputDataPatcher:
         # Therefor I did not take the time to fix it here
         active_act: Optional[ActiveAct] = self._state.get_act(
             data.Publication_Version.Publication.Document_Type,
-            ProcedureType.FINAL,
+            ProcedureType.FINAL.value,
         )
 
         # If there is not act for this setup

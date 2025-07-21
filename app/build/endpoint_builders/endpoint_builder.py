@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 import functools
 import inspect
+import re
 from typing import Any, Callable, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
@@ -21,6 +22,7 @@ class ConfiguiredFastapiEndpoint(BaseModel):
     summary: Optional[str] = None
     description: Optional[str] = None
     tags: List[Union[str, Enum]] = Field(default_factory=list)
+    operation_id: Optional[str] = None
 
 
 class EndpointBuilder(ABC):
@@ -93,3 +95,12 @@ class EndpointBuilder(ABC):
         new_sig = sig.replace(parameters=new_params)
         endpoint.__signature__ = new_sig
         return endpoint
+
+    def _to_operation_id(self, path: str, method: str) -> str:
+        # Removes {object_uuid} etc
+        operation_id = f"{method.lower()}_{path.lower()}"
+        operation_id = re.sub(r"\{[^}]*\}", "", operation_id)
+        operation_id = re.sub(r"\W", "_", operation_id)
+        # Remove duplicate underscores
+        operation_id = re.sub(r"_+", "_", operation_id).strip("_")
+        return operation_id

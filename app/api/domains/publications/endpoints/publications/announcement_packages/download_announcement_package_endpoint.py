@@ -27,15 +27,18 @@ def get_download_announcement_package_endpoint(
     package_zip.Latest_Download_Date = datetime.now(timezone.utc)
     package_zip.Latest_Download_By_UUID = user.UUID
 
+    content = package_zip.Binary
+    filename = package_zip.Filename
+
     session.add(package_zip)
     session.commit()
     session.flush()
 
     return Response(
-        content=package_zip.Binary,
+        content=content,
         media_type="application/x-zip-compressed",
         headers={
             "Access-Control-Expose-Headers": "Content-Disposition",
-            "Content-Disposition": f"attachment; filename={package_zip.Filename}",
+            "Content-Disposition": f"attachment; filename={filename}",
         },
     )

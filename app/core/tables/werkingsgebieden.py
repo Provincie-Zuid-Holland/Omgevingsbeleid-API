@@ -25,7 +25,7 @@ class InputGeoWerkingsgebiedenTable(Base):
     Created_Date: Mapped[datetime]
 
     Onderverdelingen: Mapped[List["InputGeoOnderverdelingTable"]] = relationship(
-        secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc, back_populates="Werkingsgebied"
+        secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc, back_populates="Werkingsgebieden"
     )
 
     def __repr__(self) -> str:

@@ -30,17 +30,6 @@ sort_default_object_id: &sort_default_object_id
     order: asc
   allowed_columns: *sort_allowed_object_columns
 
-sort_allowed_module_columns: &sort_allowed_module_columns
-  - Title
-  - Created_Date
-  - Modified_Date
-
-sort_default_module_created_date: &sort_default_module_created_date
-  default:
-    column: Created_Date
-    order: desc
-  allowed_columns: *sort_allowed_module_columns
-
 api:
   routers:
     - prefix: /login/access-token
@@ -198,8 +187,6 @@ api:
       endpoints:
         - resolver: create_module
         - resolver: list_modules
-          resolver_data:
-            sort: *sort_default_module_created_date
     - prefix: /modules/{module_id}
       endpoints:
         - resolver: module_overview
@@ -309,10 +296,6 @@ api:
           resolver_data:
             path: /{environment_uuid}
         - resolver: list_publication_environments
-    - prefix: /publication-aoj
-      endpoints:
-        - resolver: create_publication_area_of_jurisdictions
-        - resolver: list_publication_area_of_jurisdictions
     - prefix: /publications
       endpoints:
         - resolver: list_publications

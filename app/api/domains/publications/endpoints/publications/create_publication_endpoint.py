@@ -41,7 +41,7 @@ class PublicationCreatedResponse(BaseModel):
 
 
 @inject
-def post_create_publication(
+def post_create_publication_endpoint(
     user: Annotated[
         UsersTable,
         Depends(

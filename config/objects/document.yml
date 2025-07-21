@@ -162,6 +162,9 @@ models:
       file_uuid:
       start_validity:
       end_validity:
+    services:
+      next_object_version:
+        to_field: Next_Version
   document_extended:
     name: DocumentExtended
     fields:
@@ -211,6 +214,10 @@ models:
       - storage_file_basic
       - hierarchy_statics
     services:
+      next_object_version:
+        to_field: Next_Version
+      public_revisions:
+        to_field: Public_Revisions
       foreign_keys_extender:
         fields_map:
           - to_field: File
