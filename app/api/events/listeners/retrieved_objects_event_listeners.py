@@ -1,5 +1,5 @@
 import uuid
-from typing import Generic, List, Optional, TypeVar, Union
+from typing import Generic, List, Optional, Set, TypeVar, Union
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -25,6 +25,11 @@ from app.api.domains.objects.services.column_image_inserter import (
     ColumnImageInserter,
     ColumnImageInserterFactory,
     GetImagesConfig,
+)
+from app.api.domains.werkingsgebieden.services.join_onderverdelingen import (
+    JoinOnderverdelingenConfig,
+    JoinOnderverdelingenService,
+    JoinOnderverdelingenServiceFactory,
 )
 from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
     JoinWerkingsgebiedenService,
@@ -228,4 +233,50 @@ class GetColumnImagesListenerBase(Listener[EventRMO], Generic[EventRMO]):
 
 
 class GetColumnImagesForObjectListener(GetColumnImagesListenerBase[RetrievedObjectsEvent]):
+    pass
+
+
+class JoinOnderverdelingenBaseListener(Listener[EventRMO], Generic[EventRMO]):
+    def __init__(self, service_factory: JoinOnderverdelingenServiceFactory):
+        self._service_factory: JoinOnderverdelingenServiceFactory = service_factory
+
+    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
+        config: Optional[JoinOnderverdelingenConfig] = self._collect_config(event)
+        if not config:
+            return event
+        if not config.onderverdelingen_codes:
+            return event
+
+        service: JoinOnderverdelingenService = self._service_factory.create_service(
+            session,
+            config,
+        )
+        result_rows = service.join_onderverdelingen(event.payload.rows)
+
+        event.payload.rows = result_rows
+        return event
+
+    def _collect_config(self, event: EventRMO) -> Optional[JoinOnderverdelingenConfig]:
+        response_model: Model = event.context.response_model
+        if not isinstance(response_model, DynamicObjectModel):
+            return None
+        if "join_onderverdelingen" not in response_model.service_config:
+            return None
+
+        config_dict: dict = response_model.service_config.get("join_onderverdelingen", {})
+        to_field: str = config_dict["to_field"]
+        from_field: str = config_dict["from_field"]
+
+        codes_per_row: List[List[str]] = [getattr(r, from_field) or [] for r in event.payload.rows]
+        onderverdelingen_codes: Set[str] = set([code for codes in codes_per_row for code in codes if code is not None])
+
+        return JoinOnderverdelingenConfig(
+            onderverdelingen_codes=onderverdelingen_codes,
+            response_model=response_model,
+            from_field=from_field,
+            to_field=to_field,
+        )
+
+
+class JoinOnderverdelingenForObjectListener(JoinOnderverdelingenBaseListener[RetrievedObjectsEvent]):
     pass

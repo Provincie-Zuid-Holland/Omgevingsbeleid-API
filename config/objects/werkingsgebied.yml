@@ -200,10 +200,16 @@ models:
       start_validity:
       end_validity:
       area_uuid:
+      onderverdelingen:
     dependency_model_ids:
       - user_short
       - area_basic
+      - onderverdeling_basic
     services:
+      join_onderverdelingen:
+        model_id: onderverdeling_basic
+        to_field: Onderverdelingen_Objects
+        from_field: Onderverdelingen
       werkingsgebied_related_objects:
         to_field: Related_Objects
       foreign_keys_extender:

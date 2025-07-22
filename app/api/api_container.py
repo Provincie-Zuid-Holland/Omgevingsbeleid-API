@@ -40,6 +40,9 @@ class ApiContainer(containers.DeclarativeContainer):
         main_config=main_config,
     )
 
+    input_geo_werkingsgebieden_repository = providers.Singleton(
+        werkingsgebieden_repositories.InputGeoWerkingsgebiedenRepository
+    )
     storage_file_repository = providers.Singleton(storage_file_repository.StorageFileRepository)
     object_repository = providers.Singleton(object_repositories.ObjectRepository)
     object_static_repository = providers.Singleton(object_repositories.ObjectStaticRepository)
@@ -100,6 +103,10 @@ class ApiContainer(containers.DeclarativeContainer):
     join_werkingsgebieden_service_factory = providers.Singleton(
         werkingsgebied_services.JoinWerkingsgebiedenServiceFactory
     )
+    join_onderverdelingen_service_factory = providers.Singleton(
+        werkingsgebied_services.JoinOnderverdelingenServiceFactory,
+        object_repository=object_repository,
+    )
     column_image_inserter_factory = providers.Singleton(
         object_services.ColumnImageInserterFactory,
         asset_repository=asset_repository,
@@ -133,6 +140,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.JoinWerkingsgebiedenToObjectsListener,
                 service_factory=join_werkingsgebieden_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinOnderverdelingenForObjectListener,
+                service_factory=join_onderverdelingen_service_factory,
             ),
             providers.Factory(
                 event_listeners.InsertHtmlImagesForObjectListener,
@@ -170,6 +181,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.JoinWerkingsgebiedToModuleObjectsListener,
                 service_factory=join_werkingsgebieden_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinOnderverdelingenForModuleObjectListener,
+                service_factory=join_onderverdelingen_service_factory,
             ),
             providers.Factory(
                 event_listeners.GetImagesForModuleListener,

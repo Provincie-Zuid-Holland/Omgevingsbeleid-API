@@ -403,6 +403,18 @@ api:
         - resolver: list_area_designation_groups
           resolver_data:
             path: /area-designation-groups
+    # Input GEO
+    - prefix: /input-geo/werkingsgbieden
+      endpoints:
+        - resolver: input_geo_latest_werkingsgebieden
+          resolver_data:
+            path: /latest
+        - resolver: input_geo_werkingsgebieden_history
+          resolver_data:
+            path: /history
+        - resolver: input_geo_werkingsgebieden_detail
+          resolver_data:
+            path: /detail/{input_geo_werkingsgebied_uuid}
 
 columns:
   # Titel

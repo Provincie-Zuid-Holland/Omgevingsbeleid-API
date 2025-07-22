@@ -8,12 +8,19 @@ from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
     JoinWerkingsgebiedenService,
     JoinWerkingsgebiedenServiceFactory,
 )
-from app.api.events.listeners.retrieved_objects_event_listeners import GetColumnImagesListenerBase
+from app.api.events.listeners.retrieved_objects_event_listeners import (
+    GetColumnImagesListenerBase,
+    JoinOnderverdelingenBaseListener,
+)
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.core.services.event.types import Listener
 
 
 class GetColumnImagesForModuleObjectListener(GetColumnImagesListenerBase[RetrievedModuleObjectsEvent]):
+    pass
+
+
+class JoinOnderverdelingenForModuleObjectListener(JoinOnderverdelingenBaseListener[RetrievedModuleObjectsEvent]):
     pass
 
 

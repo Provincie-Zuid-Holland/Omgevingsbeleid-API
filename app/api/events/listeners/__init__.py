@@ -16,6 +16,7 @@ from .retrieved_module_objects_event_listeners import (
     AddRelationsToModuleObjectsListener,
     GetColumnImagesForModuleObjectListener,
     JoinWerkingsgebiedToModuleObjectsListener,
+    JoinOnderverdelingenForModuleObjectListener,
 )
 from .retrieved_objects_event_listeners import (
     AddNextObjectVersionToObjectsListener,
@@ -24,4 +25,5 @@ from .retrieved_objects_event_listeners import (
     AddWerkingsgebiedRelatedObjectsToObjectsListener,
     GetColumnImagesForObjectListener,
     JoinWerkingsgebiedenToObjectsListener,
+    JoinOnderverdelingenForObjectListener,
 )
