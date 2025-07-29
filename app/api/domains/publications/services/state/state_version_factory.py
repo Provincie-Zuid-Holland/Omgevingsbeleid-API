@@ -32,7 +32,11 @@ class StateVersionFactory:
             if upgrader is None:
                 raise RuntimeError(f"No upgrader created for old state with version {state.get_schema_version()}")
 
-            state = upgrader.upgrade(session, environment_uuid, state)
+            state = upgrader.upgrade(
+                session=session,
+                environment_uuid=environment_uuid,
+                old_state=state,
+            )
 
             if guard_counter < 0:
                 raise RuntimeError(

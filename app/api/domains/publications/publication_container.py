@@ -75,24 +75,6 @@ class PublicationContainer(containers.DeclarativeContainer):
         asset_remove_transparency=asset_remove_transparency,
     )
 
-    state_version_factory = providers.Factory(
-        state_services.StateVersionFactory,
-        versions=[
-            state_versions.StateV1,
-            state_versions.StateV2,
-            state_versions.StateV3,
-            state_versions.StateV4,
-        ],
-        upgraders=providers.List(
-            state_versions.StateV2Upgrader,
-            state_versions.StateV3Upgrader,
-            state_versions.StateV4Upgrader,
-        ),
-    )
-    state_loader = providers.Singleton(
-        state_services.StateLoader,
-        state_version_factory=state_version_factory,
-    )
     patch_act_mutation_factory = providers.Singleton(
         state_services.PatchActMutationFactory,
         asset_provider=publication_asset_provider,
@@ -114,6 +96,33 @@ class PublicationContainer(containers.DeclarativeContainer):
         publication_aoj_repository=aoj_repository,
         template_parser=template_parser,
     )
+
+    state_version_factory = providers.Factory(
+        state_services.StateVersionFactory,
+        versions=[
+            state_versions.StateV1,
+            state_versions.StateV2,
+            state_versions.StateV3,
+            state_versions.StateV4,
+            state_versions.StateV5,
+        ],
+        upgraders=providers.List(
+            providers.Factory(
+                state_versions.StateV2Upgrader,
+                act_version_repository=act_version_repository,
+                act_package_repository=act_package_repository,
+                act_data_provider=act_publication_data_provider,
+            ),
+            providers.Factory(state_versions.StateV3Upgrader),
+            providers.Factory(state_versions.StateV4Upgrader),
+            providers.Factory(state_versions.StateV5Upgrader),
+        ),
+    )
+    state_loader = providers.Singleton(
+        state_services.StateLoader,
+        state_version_factory=state_version_factory,
+    )
+
     act_package_builder_factory = providers.Singleton(
         act_package_services.ActPackageBuilderFactory,
         dso_builder_factory=dso_act_input_data_builder_factory,

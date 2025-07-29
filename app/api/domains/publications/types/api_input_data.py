@@ -89,12 +89,6 @@ class Purpose:
 
 
 @dataclass
-class OwData:
-    ow_objects: Dict[str, Any] = field(default_factory=dict)
-    terminated_ow_ids: List[str] = field(default_factory=list)
-
-
-@dataclass
 class PublicationData:
     objects: List[dict]
     documents: List[dict]
@@ -123,7 +117,7 @@ class ApiActInputData:
     Package_Type: PackageType
     Publication_Version: PublicationVersionTable
     Act_Mutation: Optional[ActMutation]
-    Ow_Data: OwData
+    Ow_State: str
     Mutation_Strategy: MutationStrategy
 
 

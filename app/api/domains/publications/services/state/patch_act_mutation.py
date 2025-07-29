@@ -4,8 +4,8 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
-from app.api.domains.publications.services.state.versions.v4 import models
-from app.api.domains.publications.types.api_input_data import ActFrbr, ActMutation, ApiActInputData, OwData
+from app.api.domains.publications.services.state.versions.v5 import models
+from app.api.domains.publications.types.api_input_data import ActFrbr, ActMutation, ApiActInputData
 
 
 class PatchActMutation:
@@ -18,7 +18,7 @@ class PatchActMutation:
         data = self._patch_documents(data)
         data = self._patch_assets(session, data)
         data = self._patch_act_mutation(data)
-        data = self._patch_ow_data(data)
+        data = self._patch_ow_state(data)
         return data
 
     def _patch_werkingsgebieden(self, data: ApiActInputData) -> ApiActInputData:
@@ -166,9 +166,6 @@ class PatchActMutation:
         )
         return data
 
-    def _patch_ow_data(self, data: ApiActInputData) -> ApiActInputData:
-        data.Ow_Data = OwData(
-            ow_objects=self._active_act.Ow_Data.Ow_Objects,
-            terminated_ow_ids=self._active_act.Ow_Data.Terminated_Ow_Ids,
-        )
+    def _patch_ow_state(self, data: ApiActInputData) -> ApiActInputData:
+        data.Ow_State = self._active_act.Ow_State.model_dump_json()
         return data

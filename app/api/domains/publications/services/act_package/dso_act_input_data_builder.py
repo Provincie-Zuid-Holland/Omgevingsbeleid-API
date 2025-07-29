@@ -3,6 +3,7 @@ from datetime import date, datetime
 from typing import Dict, List, Optional
 
 import dso.models as dso_models
+from dso.act_builder.services.ow.state.ow_state import OwState
 from dso.act_builder.state_manager.input_data.ambtsgebied import Ambtsgebied
 from dso.act_builder.state_manager.input_data.besluit import Artikel, Besluit, Bijlage, Motivering, WijzigBijlage
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData
@@ -26,7 +27,6 @@ from app.api.domains.publications.types.api_input_data import (
     ActMutation,
     ApiActInputData,
     BillFrbr,
-    OwData,
     PublicationData,
     Purpose,
 )
@@ -41,17 +41,17 @@ from app.core.tables.publications import (
     PublicationVersionTable,
 )
 
-DOCUMENT_TYPE_MAP = {
-    DocumentType.VISION: "OMGEVINGSVISIE",
-    DocumentType.PROGRAM: "PROGRAMMA",
+DOCUMENT_TYPE_MAP: Dict[str, dso_models.DocumentType] = {
+    DocumentType.VISION.value: dso_models.DocumentType.OMGEVINGSVISIE,
+    DocumentType.PROGRAM.value: dso_models.DocumentType.PROGRAMMA,
 }
 
-OPDRACHT_TYPE_MAP = {
+OPDRACHT_TYPE_MAP: Dict[PackageType, str] = {
     PackageType.VALIDATION: "VALIDATIE",
     PackageType.PUBLICATION: "PUBLICATIE",
 }
 
-PROCEDURE_TYPE_MAP = {
+PROCEDURE_TYPE_MAP: Dict[ProcedureType, str] = {
     ProcedureType.DRAFT: "Ontwerpbesluit",
     ProcedureType.FINAL: "Definitief_besluit",
 }
@@ -86,8 +86,8 @@ class DsoActInputDataBuilder:
         self._act: PublicationActTable = api_input_data.Publication_Version.Publication.Act
         self._template: PublicationTemplateTable = self._publication.Template
         self._act_mutation: Optional[ActMutation] = api_input_data.Act_Mutation
-        self._ow_data: OwData = api_input_data.Ow_Data
         self._mutation_strategy: MutationStrategy = api_input_data.Mutation_Strategy
+        self._ow_state_json: str = api_input_data.Ow_State
 
     def build(self) -> InputData:
         input_data: InputData = InputData(
@@ -100,12 +100,14 @@ class DsoActInputDataBuilder:
             object_template_repository=self._get_object_template_repository(),
             ambtsgebied=self._get_ambtsgebied(),
             regeling_mutatie=self._get_regeling_mutatie(),
-            ow_data=self._get_ow_data(),
+            ow_state=self._get_ow_state(),
+            ow_dataset="provincie Zuid-holland", # @TODO
+            ow_gebied="provincie Zuid-holland", # @TODO
         )
         return input_data
 
     def _get_publication_settings(self) -> dso_models.PublicationSettings:
-        dso_document_type: str = DOCUMENT_TYPE_MAP[self._publication.Document_Type]
+        dso_document_type: dso_models.DocumentType = DOCUMENT_TYPE_MAP[self._publication.Document_Type]
         dso_opdracht_type: str = OPDRACHT_TYPE_MAP[self._package_type]
 
         publication_settings = dso_models.PublicationSettings(
@@ -476,8 +478,6 @@ class DsoActInputDataBuilder:
         ).replace("-", "_")
         return key
 
-    def _get_ow_data(self) -> dso_models.OwData:
-        # @todo
-        ow_data_dict = self._ow_data.__dict__
-        result = dso_models.OwData.from_dict(ow_data_dict)
-        return result
+    def _get_ow_state(self) -> OwState:
+        ow_state: OwState = OwState.model_validate_json(self._ow_state_json)
+        return ow_state

@@ -23,7 +23,6 @@ from app.api.domains.publications.types.api_input_data import (
     ActFrbr,
     ApiActInputData,
     BillFrbr,
-    OwData,
     PublicationData,
     Purpose,
 )
@@ -74,7 +73,7 @@ class ActPackageBuilderFactory:
             act_frbr,
         )
 
-        api_input_data: ApiActInputData = ApiActInputData(
+        api_input_data = ApiActInputData(
             Bill_Frbr=bill_frbr,
             Act_Frbr=act_frbr,
             Consolidation_Purpose=purpose,
@@ -82,7 +81,7 @@ class ActPackageBuilderFactory:
             Package_Type=package_type,
             Publication_Version=publication_version,
             Act_Mutation=None,
-            Ow_Data=OwData(),
+            Ow_State={},
             Mutation_Strategy=mutation_strategy,
         )
 
