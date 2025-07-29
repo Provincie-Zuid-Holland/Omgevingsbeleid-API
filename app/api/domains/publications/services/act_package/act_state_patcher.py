@@ -2,11 +2,12 @@ from copy import deepcopy
 from typing import Dict, List, Optional, Set
 
 import dso.models as dso_models
+from dso.act_builder.services.ow.state.ow_state import OwState as DsoOwState
 from dso.act_builder.builder import Builder
 
 from app.api.domains.publications.services.state.versions import ActiveState
-from app.api.domains.publications.services.state.versions.v4 import models
-from app.api.domains.publications.services.state.versions.v4.actions import AddPublicationAction, AddPurposeAction
+from app.api.domains.publications.services.state.versions.v5 import models
+from app.api.domains.publications.services.state.versions.v5.actions import AddPublicationAction, AddPurposeAction
 from app.api.domains.publications.types.api_input_data import ApiActInputData, Purpose
 from app.core.tables.publications import PublicationTable, PublicationVersionTable
 from app.core.utils.utils import serialize_data
@@ -34,15 +35,9 @@ class ActStatePatcher:
         )
 
         # Serialize dso_ow_state to a simple dict for result model
-        dso_ow_state: dso_models.OwData = self._dso_builder.get_ow_object_state()
-        dso_ow_state_dict: dict = dso_ow_state.model_dump()
-        dso_ow_state_dict_serialized: dict = serialize_data(dso_ow_state_dict)
-        ow_data = models.OwData.model_validate(
-            {
-                "Ow_Objects": dso_ow_state_dict_serialized["ow_objects"],
-                "Terminated_Ow_Ids": dso_ow_state_dict_serialized["terminated_ow_ids"],
-            }
-        )
+        dso_ow_state: DsoOwState = self._dso_builder.get_ow_state()
+        dso_ow_state_json: str = dso_ow_state.model_dump_json()
+        ow_state = models.OwState.model_validate_json(dso_ow_state_json)
 
         input_purpose = self._api_input_data.Consolidation_Purpose
         effective_date: Optional[str] = None
@@ -92,7 +87,7 @@ class ActStatePatcher:
             Documents=documents,
             Assets=assets,
             Wid_Data=wid_data,
-            Ow_Data=ow_data,
+            Ow_State=ow_state,
             Act_Text=act_text,
             Publication_Version_UUID=str(self._publication_version.UUID),
         )
