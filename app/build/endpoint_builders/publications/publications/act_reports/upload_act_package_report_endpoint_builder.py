@@ -1,7 +1,7 @@
-from app.api.domains.publications.endpoints.publications.act_reports.upload_act_package_report_endpoint import (
+from app.api.domains.publications.endpoints.publications.reports.act.upload_act_package_report_endpoint import (
     post_upload_act_package_report_endpoint,
 )
-from app.api.domains.publications.endpoints.publications.announcement_reports.upload_announcement_package_report_endpoint import (
+from app.api.domains.publications.endpoints.publications.reports.announcement.upload_announcement_package_report_endpoint import (
     UploadPackageReportResponse,
 )
 from app.api.endpoint import EndpointContextBuilderData

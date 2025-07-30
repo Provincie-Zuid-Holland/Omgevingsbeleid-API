@@ -300,6 +300,16 @@ api:
       endpoints:
         - resolver: list_publications
         - resolver: create_publication
+        - resolver: list_packages
+          resolver_data:
+            path: /packages
+            sort:
+              default:
+                column: Created_Date
+                order: DESC
+              allowed_columns:
+                - Created_Date
+                - Modified_Date
     - prefix: /publications/{publication_uuid}
       endpoints:
         - resolver: detail_publication

@@ -1,4 +1,4 @@
-from app.api.domains.publications.endpoints.publications.act_packages.create_act_package_endpoint import (
+from app.api.domains.publications.endpoints.publications.packages.act.create_act_package_endpoint import (
     PublicationPackageCreatedResponse,
     post_create_act_package_endpoint,
 )

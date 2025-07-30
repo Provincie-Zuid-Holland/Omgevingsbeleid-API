@@ -1,4 +1,4 @@
-from app.api.domains.publications.endpoints.publications.act_reports.download_act_package_report_endpoint import (
+from app.api.domains.publications.endpoints.publications.reports.act.download_act_package_report_endpoint import (
     get_download_act_package_report_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData

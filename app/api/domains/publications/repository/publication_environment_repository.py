@@ -14,6 +14,13 @@ class PublicationEnvironmentRepository(BaseRepository):
         stmt = select(PublicationEnvironmentTable).where(PublicationEnvironmentTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
+    def get_active(self, session: Session, uuidx: uuid.UUID) -> Optional[PublicationEnvironmentTable]:
+        stmt = select(PublicationEnvironmentTable).where(
+            PublicationEnvironmentTable.UUID == uuidx,
+            PublicationEnvironmentTable.Is_Active == True,
+        )
+        return self.fetch_first(session, stmt)
+
     def get_with_filters(
         self,
         session: Session,

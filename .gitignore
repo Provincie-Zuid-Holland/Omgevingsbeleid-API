@@ -24,3 +24,6 @@ notes.md
 .python-version
 temp/
 tmp/
+node_modules/
+package.json
+package-lock.json
