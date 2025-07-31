@@ -23,11 +23,12 @@ class PublicationPackageListItem(BaseModel):
     UUID: uuid.UUID
     Package_Type: str
     Report_Status: str
-    Delivery_ID: str
     Created_Date: datetime
+    Document_Type: DocumentType
     Package_Category: PackageFilterType
     Module_ID: int
     Module_Title: str
+    Publication_Environment_UUID: uuid.UUID
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 

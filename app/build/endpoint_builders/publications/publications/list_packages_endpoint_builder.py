@@ -38,4 +38,4 @@ class ListPackagesEndpointBuilder(EndpointBuilder):
             summary="Generic overview of publication packages with filtering",
             description=None,
             tags=["Publication Packages"],
-        ) 
+        )

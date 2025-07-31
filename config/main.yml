@@ -300,16 +300,6 @@ api:
       endpoints:
         - resolver: list_publications
         - resolver: create_publication
-        - resolver: list_packages
-          resolver_data:
-            path: /packages
-            sort:
-              default:
-                column: Created_Date
-                order: DESC
-              allowed_columns:
-                - Created_Date
-                - Modified_Date
     - prefix: /publications/{publication_uuid}
       endpoints:
         - resolver: detail_publication
@@ -413,6 +403,21 @@ api:
         - resolver: list_area_designation_groups
           resolver_data:
             path: /area-designation-groups
+    - prefix: /publication-packages
+      endpoints:
+        - resolver: list_packages
+          resolver_data:
+            sort:
+              default:
+                column: Created_Date
+                order: DESC
+              allowed_columns:
+                - Created_Date
+                - Package_Type
+                - Module_Title
+        - resolver: detail_package
+          resolver_data:
+            path: /{package_uuid}
 
 columns:
   # Titel

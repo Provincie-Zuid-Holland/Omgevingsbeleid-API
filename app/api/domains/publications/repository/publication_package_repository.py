@@ -1,6 +1,6 @@
 from typing import Optional
 import uuid
-from sqlalchemy import and_, literal, select
+from sqlalchemy import CompoundSelect, and_, literal, or_, select
 from sqlalchemy.orm import Session, aliased
 
 from app.api.base_repository import BaseRepository
@@ -14,10 +14,17 @@ from app.core.tables.publications import (
     PublicationTable,
     PublicationVersionTable,
     PublicationAnnouncementTable,
+    PublicationPackageZipTable,
 )
 
 
 class PublicationPackageRepository(BaseRepository):
+    def get_package_details_by_uuid(self, session: Session, package_uuid: uuid.UUID):
+        act_query = self._build_act_packages_query(package_uuid=package_uuid)
+        announcement_query = self._build_announcement_packages_query(package_uuid=package_uuid)
+        union_query = act_query.union_all(announcement_query)
+        return session.execute(union_query).first()
+
     def get_act_packages(
         self,
         session: Session,
@@ -25,7 +32,7 @@ class PublicationPackageRepository(BaseRepository):
         document_type: Optional[DocumentType] = None,
         package_type: Optional[PackageType] = None,
         status_filter: Optional[ReportStatusType] = None,
-        environment_uuid: Optional[uuid.UUID] = None
+        environment_uuid: Optional[uuid.UUID] = None,
     ) -> PaginatedQueryResult:
         query = self._build_act_packages_query(document_type, package_type, status_filter, environment_uuid)
 
@@ -46,7 +53,7 @@ class PublicationPackageRepository(BaseRepository):
         document_type: Optional[DocumentType] = None,
         package_type: Optional[PackageType] = None,
         status_filter: Optional[ReportStatusType] = None,
-        environment_uuid: Optional[uuid.UUID] = None
+        environment_uuid: Optional[uuid.UUID] = None,
     ) -> PaginatedQueryResult:
         query = self._build_announcement_packages_query(document_type, package_type, status_filter, environment_uuid)
 
@@ -67,12 +74,14 @@ class PublicationPackageRepository(BaseRepository):
         document_type: Optional[DocumentType] = None,
         package_type: Optional[PackageType] = None,
         status_filter: Optional[ReportStatusType] = None,
-        environment_uuid: Optional[uuid.UUID] = None
+        environment_uuid: Optional[uuid.UUID] = None,
     ) -> PaginatedQueryResult:
         act_query = self._build_act_packages_query(document_type, package_type, status_filter, environment_uuid)
-        announcement_query = self._build_announcement_packages_query(document_type, package_type, status_filter, environment_uuid)
+        announcement_query = self._build_announcement_packages_query(
+            document_type, package_type, status_filter, environment_uuid
+        )
 
-        query: Selectable = act_query.union(announcement_query)
+        query: CompoundSelect = act_query.union(announcement_query)
 
         paged_result = self.fetch_paginated_no_scalars(
             session=session,
@@ -93,6 +102,7 @@ class PublicationPackageRepository(BaseRepository):
         package_type: Optional[PackageType] = None,
         status_filter: Optional[ReportStatusType] = None,
         environment_uuid: Optional[uuid.UUID] = None,
+        package_uuid: Optional[uuid.UUID] = None,
     ) -> Selectable:
         filter_conditions = []
 
@@ -108,6 +118,9 @@ class PublicationPackageRepository(BaseRepository):
         if environment_uuid:
             filter_conditions.append(publication_alias.Environment_UUID == environment_uuid)
 
+        if package_uuid:
+            filter_conditions.append(package_alias.UUID == package_uuid)
+
         if filter_conditions:
             query = query.filter(and_(*filter_conditions))
 
@@ -119,11 +132,13 @@ class PublicationPackageRepository(BaseRepository):
         package_type: Optional[PackageType] = None,
         status_filter: Optional[ReportStatusType] = None,
         environment_uuid: Optional[uuid.UUID] = None,
+        package_uuid: Optional[uuid.UUID] = None,
     ) -> Selectable:
         actp = aliased(PublicationActPackageTable)
         pv = aliased(PublicationVersionTable)
         p = aliased(PublicationTable)
         m = aliased(ModuleTable)
+        z = aliased(PublicationPackageZipTable)
 
         query = (
             select(
@@ -132,18 +147,25 @@ class PublicationPackageRepository(BaseRepository):
                 actp.Report_Status.label("Report_Status"),
                 actp.Delivery_ID.label("Delivery_ID"),
                 actp.Created_Date.label("Created_Date"),
+                actp.Created_By_UUID.label("Created_By_UUID"),
                 p.Document_Type.label("Document_Type"),
                 m.Module_ID.label("Module_ID"),
                 m.Title.label("Module_Title"),
                 literal("act").label("Package_Category"),
+                p.Environment_UUID.label("Publication_Environment_UUID"),
+                actp.Zip_UUID.label("Zip_UUID"),
+                z.Filename.label("Filename"),
             )
             .select_from(actp)
             .join(pv, actp.Publication_Version_UUID == pv.UUID)
             .join(p, pv.Publication_UUID == p.UUID)
             .join(m, p.Module_ID == m.Module_ID)
+            .join(z, actp.Zip_UUID == z.UUID)
         )
 
-        return self._apply_package_filters(query, p, actp, document_type, package_type, status_filter, environment_uuid)
+        return self._apply_package_filters(
+            query, p, actp, document_type, package_type, status_filter, environment_uuid, package_uuid
+        )
 
     def _build_announcement_packages_query(
         self,
@@ -151,11 +173,13 @@ class PublicationPackageRepository(BaseRepository):
         package_type: Optional[PackageType] = None,
         status_filter: Optional[ReportStatusType] = None,
         environment_uuid: Optional[uuid.UUID] = None,
+        package_uuid: Optional[uuid.UUID] = None,
     ) -> Selectable:
         anp = aliased(PublicationAnnouncementPackageTable)
         pa = aliased(PublicationAnnouncementTable)
         p = aliased(PublicationTable)
         m = aliased(ModuleTable)
+        z = aliased(PublicationPackageZipTable)
 
         query = (
             select(
@@ -164,15 +188,22 @@ class PublicationPackageRepository(BaseRepository):
                 anp.Report_Status.label("Report_Status"),
                 anp.Delivery_ID.label("Delivery_ID"),
                 anp.Created_Date.label("Created_Date"),
+                anp.Created_By_UUID.label("Created_By_UUID"),
                 p.Document_Type.label("Document_Type"),
                 m.Module_ID.label("Module_ID"),
                 m.Title.label("Module_Title"),
                 literal("announcement").label("Package_Category"),
+                p.Environment_UUID.label("Publication_Environment_UUID"),
+                anp.Zip_UUID.label("Zip_UUID"),
+                z.Filename.label("Filename"),
             )
             .select_from(anp)
             .join(pa, anp.Announcement_UUID == pa.UUID)
             .join(p, pa.Publication_UUID == p.UUID)
             .join(m, p.Module_ID == m.Module_ID)
+            .join(z, anp.Zip_UUID == z.UUID)
         )
 
-        return self._apply_package_filters(query, p, anp, document_type, package_type, status_filter, environment_uuid)
+        return self._apply_package_filters(
+            query, p, anp, document_type, package_type, status_filter, environment_uuid, package_uuid
+        )

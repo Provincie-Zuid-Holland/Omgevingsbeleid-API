@@ -43,6 +43,7 @@ class PublicationVersionStatus(str, Enum):
     ANNOUNCEMENT = "announcement"
     COMPLETED = "completed"
 
+
 class PackageFilterType(str, Enum):
     ACT = "act"
     ANNOUNCEMENT = "announcement"
