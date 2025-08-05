@@ -90,13 +90,13 @@ def _create_objects(
         new_object.Modified_By_UUID = user.UUID
         new_object.Modified_Date = timepoint
 
-        start_validity, end_validity = _get_validities(
+        validities: ObjectValidities = _get_validities(
             object_in,
             module_object_table.ModuleObjectContext,
             timepoint,
         )
-        new_object.Start_Validity = start_validity
-        new_object.End_Validity = end_validity
+        new_object.Start_Validity = validities.start
+        new_object.End_Validity = validities.end
 
         statics: ObjectStaticsTable = (
             session.query(ObjectStaticsTable).filter(ObjectStaticsTable.Code == new_object.Code).one()
