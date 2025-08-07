@@ -101,8 +101,8 @@ class DsoActInputDataBuilder:
             ambtsgebied=self._get_ambtsgebied(),
             regeling_mutatie=self._get_regeling_mutatie(),
             ow_state=self._get_ow_state(),
-            ow_dataset="provincie Zuid-holland", # @TODO
-            ow_gebied="provincie Zuid-holland", # @TODO
+            ow_dataset="provincie Zuid-holland",  # @TODO
+            ow_gebied="provincie Zuid-holland",  # @TODO
         )
         return input_data
 

@@ -1,6 +1,6 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType, PurposeType
 from app.api.domains.publications.types.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural

@@ -27,7 +27,7 @@ class StateV5Upgrader(StateUpgrader):
         purposes = self._mutate_purposes(old_state)
         acts = self._mutate_acts(old_state)
         announcements = self._mutate_announcements(old_state)
-        
+
         new_state = state_v5.StateV5(
             Purposes=purposes,
             Acts=acts,
@@ -114,9 +114,6 @@ class StateV5Upgrader(StateUpgrader):
                     )
                 case "OWGebied":
                     gio_ref = ow_object.get("gio_ref") or ow_object.get("mapped_uuid")
-                    if gio_ref is None:
-                        a = True
-
                     gebieden.add(
                         models_v5.OwGebied(
                             object_status=models_v5.OwObjectStatus.unchanged,
@@ -130,9 +127,6 @@ class StateV5Upgrader(StateUpgrader):
                     )
                 case "OWGebiedenGroep":
                     gio_ref = ow_object.get("gio_ref") or ow_object.get("mapped_uuid")
-                    if gio_ref is None:
-                        a = True
-
                     gebieden_ref = models_v5.GebiedRef(
                         target_code=f"{ow_object['mapped_geo_code']}-0",
                         ref=ow_object["gebieden"][0],
@@ -164,13 +158,23 @@ class StateV5Upgrader(StateUpgrader):
                         target_wid=ow_objects[ow_object["divisie"]]["wid"],
                         ref=ow_object["divisie"],
                     )
-                    location_refs: List[models_v5.LocationRefUnion] = [
-                        models_v5.GebiedengroepRef(
-                            target_code=ow_objects[l_ref]["mapped_geo_code"],
-                            ref=l_ref,
-                        )
-                        for l_ref in ow_object["locaties"]
-                    ]
+                    try:
+                        location_refs: List[models_v5.LocationRefUnion] = []
+                        for l_ref in ow_object["locaties"]:
+                            if "ambtsgebied" in l_ref:
+                                location_refs.append(
+                                    models_v5.AmbtsgebiedRef(
+                                        ref=l_ref,
+                                    )
+                                )
+                            else:
+                                models_v5.GebiedengroepRef(
+                                    target_code=ow_objects[l_ref]["mapped_geo_code"],
+                                    ref=l_ref,
+                                )
+
+                    except Exception as e:
+                        raise e
                     tekstdelen.add(
                         models_v5.OwTekstdeel(
                             object_status=models_v5.OwObjectStatus.unchanged,
@@ -201,4 +205,4 @@ class StateV5Upgrader(StateUpgrader):
             divisieteksten=divisieteksten,
             tekstdelen=tekstdelen,
         )
-        return result#
+        return result

@@ -1,13 +1,10 @@
 import uuid
-from typing import Any, Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from abc import abstractmethod
 from enum import Enum
-from typing import Annotated, List, Literal, Optional, Union
-
-from pydantic import BaseModel, Field
+from typing import Annotated, Literal, Union
 
 
 class Purpose(BaseModel):
@@ -127,14 +124,15 @@ class GebiedengroepRef(UnresolvedGebiedengroepRef):
 LocationRefUnion = Annotated[
     Union[
         AmbtsgebiedRef,
-        UnresolvedAmbtsgebiedRef, 
+        UnresolvedAmbtsgebiedRef,
         GebiedRef,
         UnresolvedGebiedRef,
         GebiedengroepRef,
         UnresolvedGebiedengroepRef,
     ],
-    Field(discriminator='ref_type')
+    Field(discriminator="ref_type"),
 ]
+
 
 class AbstractWidRef(AbstractRef):
     ref_type: str = Field(..., description="Type discriminator")
@@ -167,8 +165,9 @@ WidRefUnion = Annotated[
         DivisietekstRef,
         UnresolvedDivisietekstRef,
     ],
-    Field(discriminator='ref_type')
+    Field(discriminator="ref_type"),
 ]
+
 
 class OwObjectStatus(str, Enum):
     new = "new"
@@ -191,14 +190,15 @@ class OwAmbtsgebied(BaseOwObject):
     valid_on: str
     title: str
     model_config = ConfigDict(from_attributes=True)
+
     def __hash__(self):
         return hash(("ambtsgebied",))
-
 
 
 class OwRegelingsgebied(BaseOwObject):
     source_uuid: str
     locatie_ref: LocationRefUnion
+
     def __hash__(self):
         return hash(("regelingsgebied",))
 
@@ -208,6 +208,7 @@ class OwGebied(BaseOwObject):
     source_code: str
     title: str
     geometry_ref: str
+
     def __hash__(self):
         return hash((self.source_code,))
 
@@ -217,6 +218,7 @@ class OwGebiedengroep(BaseOwObject):
     source_code: str
     title: str
     gebieden_refs: List[LocationRefUnion] = Field(default_factory=list)
+
     def __hash__(self):
         return hash((self.source_code,))
 
@@ -225,6 +227,7 @@ class OwDivisie(BaseOwObject):
     source_uuid: str
     source_code: str
     wid: str
+
     def __hash__(self):
         return hash((self.wid,))
 
@@ -233,6 +236,7 @@ class OwDivisietekst(BaseOwObject):
     source_uuid: str
     source_code: str
     wid: str
+
     def __hash__(self):
         return hash((self.wid,))
 
@@ -243,6 +247,7 @@ class OwGebiedsaanwijzing(BaseOwObject):
     indication_type: str
     indication_group: str
     location_refs: List[LocationRefUnion] = Field(default_factory=list)
+
     def __hash__(self):
         return hash((self.source_code,))
 
@@ -253,6 +258,7 @@ class OwTekstdeel(BaseOwObject):
     idealization: str
     text_ref: WidRefUnion
     location_refs: List[LocationRefUnion] = Field(default_factory=list)
+
     def __hash__(self):
         return hash((self.source_code,))
 

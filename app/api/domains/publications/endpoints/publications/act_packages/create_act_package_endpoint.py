@@ -86,9 +86,6 @@ class EndpointHandler:
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()
 
-            a = True
-            raise RuntimeError("Stopped")
-
             report_status: ReportStatusType = ReportStatusType.NOT_APPLICABLE
             if self._environment.Has_State:
                 report_status = ReportStatusType.PENDING

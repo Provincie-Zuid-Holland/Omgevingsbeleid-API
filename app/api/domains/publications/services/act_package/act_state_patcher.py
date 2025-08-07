@@ -10,7 +10,6 @@ from app.api.domains.publications.services.state.versions.v5 import models
 from app.api.domains.publications.services.state.versions.v5.actions import AddPublicationAction, AddPurposeAction
 from app.api.domains.publications.types.api_input_data import ApiActInputData, Purpose
 from app.core.tables.publications import PublicationTable, PublicationVersionTable
-from app.core.utils.utils import serialize_data
 
 
 class ActStatePatcher:
