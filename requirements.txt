@@ -40,7 +40,7 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@5df8e7be4ee08708fe904b7f83506248fa6a92d4
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@05eea2f4c7108078eeb383051630f23e87706d9b
     # via -r requirements.in
 ecdsa==0.19.1
     # via python-jose
@@ -79,7 +79,7 @@ markupsafe==3.0.2
     # via
     #   dso
     #   jinja2
-numpy==2.3.1
+numpy==2.3.2
     # via
     #   dso
     #   geopandas
@@ -149,7 +149,7 @@ requests==2.32.4
     #   requests-toolbelt
 requests-toolbelt==1.0.0
     # via -r requirements.in
-roman==5.0
+roman==5.1
     # via dso
 rsa==4.9.1
     # via python-jose
@@ -169,9 +169,9 @@ soupsieve==2.7
     # via
     #   beautifulsoup4
     #   dso
-sqlalchemy==2.0.41
+sqlalchemy==2.0.42
     # via -r requirements.in
-starlette==0.47.1
+starlette==0.47.2
     # via fastapi
 tomli==2.2.1
     # via dso
