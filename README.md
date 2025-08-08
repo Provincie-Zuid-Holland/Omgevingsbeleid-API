@@ -1,176 +1,260 @@
+# Omgevingsbeleid API
 
-### Example `.env`
+<p align="center">
+   <img src="https://avatars.githubusercontent.com/u/60095455?s=400&u=72f83477004260f0a11c119f40f27f30c6e4a12c&v=4" alt="Provincie Zuid-Holland" width="400">
+</p>
+
+## Overview
+
+The Omgevingsbeleid API is a comprehensive policy management system developed for the Province of Zuid-Holland, Netherlands. This system facilitates the digital management and publication of environmental policies in compliance with the Dutch Environmental Act (Omgevingswet) and integrates with the national Digital System for Environmental Law (DSO - Digitaal Stelsel Omgevingswet).
+
+### Key Features
+
+- **Policy Object Management**: Comprehensive versioning and lifecycle management of policy objects
+- **Module System**: Structured workflows for policy development and approval processes  
+- **DSO Integration**: Compliance with national publication standards for environmental policies
+- **Document Management**: Integrated asset and document handling with version control
+- **Publication Pipeline**: Automated generation of DSO-compliant publication packages
+
+## System Requirements
+
+- Python 3.13+
+- SQLite (development) or Microsoft SQL Server (production)
+- Unix-based operating system (Linux/macOS)
+
+## Quick Start
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-API.git
+   cd Omgevingsbeleid-API
+   ```
+
+2. **Set up Python environment**
+   
+   Ensure you have Python 3.13 installed. We recommend using `pyenv` for version management:
+   ```bash
+   # If using pyenv
+   pyenv install 3.13.2
+   pyenv local 3.13.2
+   ```
+
+3. **Create virtual environment**
+   ```bash
+   make prepare-env
+   ```
+   
+   Or manually:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
+   ```
+
+4. **Configure environment**
+   
+   Copy the example environment file and configure:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit `.env` with your configuration. For development with SQLite:
+   ```env
+   DEBUG_MODE=True
+   LOCAL_DEVELOPMENT_MODE=True
+   SQLALCHEMY_DATABASE_URI="sqlite+pysqlite:///api.db"
+   SECRET_KEY="your-secret-key-here"
+   ```
+
+5. **Initialize database**
+   ```bash
+   # Run migrations
+   python -m alembic upgrade head
+   
+   # Or use the make command
+   make init-database
+   
+   # Optionally load sample data
+   make load-fixtures
+   ```
+
+6. **Run the application**
+   ```bash
+   make run
+   ```
+   
+   Or directly with uvicorn:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+
+   The API will be available at `http://localhost:8000`
+
+## Development
+
+### Project Structure
 
 ```
+Omgevingsbeleid-API/
+├── app/
+│   ├── api/                   # API layer
+│   │   ├── domains/           # Domain-driven modules
+│   │   │   ├── modules/       # Policy module management
+│   │   │   ├── objects/       # Policy objects
+│   │   │   ├── publications/  # DSO publication system
+│   │   │   ├── users/         # Authentication & authorization
+│   │   │   ├── werkingsgebieden/ # Geographic areas
+│   │   │   └── others/        # Supporting features
+│   │   ├── events/           # Event system
+│   │   └── services/         # Cross-cutting services
+│   ├── core/                 # Core functionality
+│   │   ├── db/              # Database configuration
+│   │   ├── tables/          # SQLAlchemy models
+│   │   └── settings.py      # Application settings
+│   ├── commands/            # CLI commands
+│   └── tests/              # Test suite
+├── alembic/                # Database migrations
+├── config/                 # Configuration files
+│   ├── main.yml           # Main configuration
+│   └── objects/           # Object type definitions
+├── requirements.txt       # Production dependencies
+└── requirements-dev.txt   # Development dependencies
+```
+
+### Available Commands
+
+```bash
+# Development
+make run                # Start the development server
+make debug             # Start with debugging enabled
+make format            # Format code with Ruff
+make check             # Lint code without fixing
+make fix              # Fix linting issues and format
+
+# Database Management
+make init-database     # Initialize database schema
+make drop-database     # Drop all database tables
+make load-fixtures     # Load sample data
+make reset-test-database  # Reset database with fixtures
+
+# Dependency Management
+make pip-sync         # Sync dependencies with lock files
+make pip-compile      # Regenerate lock files
+make pip-upgrade      # Upgrade all dependencies
+
+# Environment Setup
+make prepare-env      # Create and setup virtual environment
+```
+
+### API Documentation
+
+Once the application is running, you can access:
+- **Interactive API Documentation**: `http://localhost:8000/docs` (Swagger UI)
+- **Alternative API Documentation**: `http://localhost:8000/redoc` (ReDoc)
+
+### VS Code Integration
+
+The project includes VS Code launch configurations for debugging:
+
+1. **API: Debug LAN exposed** - Run the API with debugging, accessible from local network
+2. **API: Remote Debug** - Attach to a running debug session
+3. **API: Current File** - Debug the currently open Python file
+
+To use these, open the project in VS Code and use the Run and Debug panel (F5).
+
+## Configuration
+
+### Environment Variables
+
+Key environment variables (see `app/core/settings.py` for full list):
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DEBUG_MODE` | Enable debug mode | `False` |
+| `LOCAL_DEVELOPMENT_MODE` | Enable local development features | `False` |
+| `SQLALCHEMY_DATABASE_URI` | Database connection string | - |
+| `SECRET_KEY` | JWT secret key for authentication | - |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | JWT token expiration time | `240` |
+| `MAIN_CONFIG_FILE` | Path to main configuration | `./config/main.yml` |
+| `OBJECT_CONFIG_PATH` | Path to object configurations | `./config/objects/` |
+
+### Database Configuration
+
+The system supports both SQLite (development) and Microsoft SQL Server (production):
+
+**SQLite (Development)**:
+```env
 SQLALCHEMY_DATABASE_URI="sqlite+pysqlite:///api.db"
 ```
 
-### Running tests
-
-Have .env with test database:
-```
-SQLALCHEMY_TEST_DATABASE_URI="sqlite+pysqlite:///api.db"
-```
-
-Go into pyenv and then install dependencies:
-```
-make local-env
+**SQL Server (Production)**:
+```env
+DB_HOST=your-server-host
+DB_NAME=your-database-name
+DB_USER=your-username
+DB_PASS=your-password
+DB_DRIVER="ODBC Driver 17 for SQL Server"
 ```
 
-Then run:
-```
-make test
-```
+### DSO Integration
 
-### sqlite
-
-
-```
-CONFIGURE_OPTS="--enable-loadable-sqlite-extensions" pyenv install 3.13.2
+For DSO publication features, configure the KOOP services:
+```env
+PUBLICATION_KOOP__PRE__API_KEY="your-api-key"
+PUBLICATION_KOOP__PRE__RENVOOI_API_URL="https://renvooiservice-eto.overheid.nl"
+PUBLICATION_KOOP__PRE__PREVIEW_API_URL="https://besluitpreviewservice-eto.overheid.nl"
 ```
 
+## Architecture
 
-# @TODO: Fix below this
+### Technology Stack
 
+- **Framework**: FastAPI (Python 3.13)
+- **ORM**: SQLAlchemy 2.0
+- **Database**: SQLite/Microsoft SQL Server
+- **Validation**: Pydantic 2.0
+- **Authentication**: JWT (python-jose)
+- **Geospatial**: GeoPandas, Shapely
+- **Code Quality**: Ruff (linting & formatting)
 
+### Design Patterns
 
+- **Domain-Driven Design**: Clear separation of business domains
+- **Repository Pattern**: Abstracted data access layer
+- **Dependency Injection**: IoC container for loose coupling
+- **Event-Driven**: Event system for cross-domain communication
+- **RESTful API**: Following REST principles and OpenAPI specification
 
+## Testing
 
-<img src="https://omgevingsbeleid.zuid-holland.nl/static/media/PZH_Basislogo.36627253.svg" alt="Provincie Zuid-Holland logo" width="500px">
-
-# Omgevingsbeleid API · ![License](https://img.shields.io/github/license/Provincie-Zuid-Holland/Omgevingsbeleid-API)
-
-[OpenAPI Specification](https://provincie-zuid-holland.github.io/Omgevingsbeleid-API/) 
-
-Omgevingsbeleid API was originally created in early 2018 in order to meet the requirements
-given by the new 'Omgevingswet' from the dutch national government.
-
-## Stack
-- Python
-    + [Flask](http://flask.pocoo.org/)
-    + [Flask-restful](https://github.com/flask-restful/flask-restful)
-    + [Marshmallow](http://marshmallow.readthedocs.io/en/3.0/)
-    + [PyODBC](https://github.com/mkleehammer/pyodbc)
-    + [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy)
-- Microsoft SQL Server
-
-## Setup
-
-For development we currently support two setups:
-- [Manual installation](#manual-installation)
-- [Running in docker](#running-in-docker)
-
-## Manual Installation
-
-## Dependencies
-
-### Ubuntu
-
-Ubuntu users need `unixodbc-dev` to use the PyODBC package"
-```
-apt install unixodbc-dev
-```
-
-## Installation
-This project utilizes [venv](https://docs.python.org/3/tutorial/venv.html). Create a new venv.
-```shell
-python -m venv .venv
-```
-activate your new venv.
-```shell
-.venv/Scripts/activate
-```
-install the required packages.
-```shell
-pip install -r requirements.txt
-```
-
-## Environment Variables
-This application requires the following variables to be available
-``` bash
-DB_USER= Database user that the application can use
-DB_PASS= Password of the database user
-DB_HOST= SQL-server host URI
-DB_PORT= Port to use for connection to SQL-server (1433 default)
-DB_NAME= Name of the database to use
-DB_DRIVER= Database driver name to use
-FLASK_APP= application.py
-JWT_SECRET= 1234abahsge (random string)
-```
-When developing it is convencient to set the FLASK_ENV variable to enable auto reload debugging mode.
-
+Run the test suite:
 ```bash
-FLASK_ENV=development
-```
-To run the tests, the application requires a database with a test user in its user table.
-Ass the following variables
-```bash
-TEST_MAIL= Email address of the test user (in user table, optional)
-TEST_PASS= Password of the test user (optional)
-TEST_UUID= UUID of the test user (optional)
+make test                    # Run all tests
+make testx                   # Run with verbose output and stop on first failure
+make testcase case=test_name # Run specific test case
 ```
 
-## Running locally and running tests
-In order to run your local project (requires a valid .env file).
-```bash
-flask run
-```
+## License
 
-To run the tests.
-```bash
-pytest
-```
+This project is licensed under the European Union Public Licence (EUPL) v1.2. See [LICENSE.md](LICENSE.md) for details.
 
-## Running in docker
+## Contributing
 
-### Dependencies for docker
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-- minimum docker version 17.06.0+
-- minimum docker-compose version 1.27.0
+## Support
 
-To initialise the project you can run:
-```bash
-make init
-```
+For issues, questions, or contributions, please use the [GitHub Issues](https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-API/issues) page.
 
-This will start this python project as api, and it will also start the mssql database and frontend application.
-Goto [localhost:8888](http://localhost:8888) to view all the services working together.
+## Authors
 
-Note: it can take a while to start as the frontend will be build in development mode.
+See [AUTHORS](AUTHORS) file for the list of contributors.
 
-### Commonly used commands
+---
 
-```bash
-make help # Shows the commonly used make commands with a small description
-make init # The entrypoint: Starts docker, loads database and fills database with fixtures
-
-make info # Shows information where all the applications can me accessed.
-make api  # Sends you in the api container
-make logs # Tails the docker-compose logs
-make restart # Restarts the docker services and executes `init` afterwards
-make restart-hard # Same as restart, but will also remove the current volumes
-make test # Run the tests inside the docker container
-```
-
-### Frontend Font Awesome dependency
-
-In the frontend we currently have Font Awesome pro installed. To build the frontend you should provide a valid Font Awesome secret.
-The environment variable `PZH_FONTAWESOME_SECRET` should be known to docker-compose.
-This can be done by setting `PZH_FONTAWESOME_SECRET` in the `.env` file.
-
-For example in the .env file:
-```bash
-PZH_FONTAWESOME_SECRET=font-awesome-secret-here
-```
-
-### Use a different frontend branch
-
-By default the `dev` branch of the frontend application will be used.
-You can overwrite the branch by setting the environment variable FRONTEND_BRANCH.
-
-For example in the .env file:
-```bash
-FRONTEND_BRANCH=main
-```
-
-
+**Provincie Zuid-Holland**  
+*Building sustainable environmental policies for the future*
