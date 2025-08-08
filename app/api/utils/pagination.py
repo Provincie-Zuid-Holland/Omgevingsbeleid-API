@@ -6,6 +6,8 @@ from sqlalchemy import asc, desc, func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Select
 
+from app.api.types import Selectable
+
 
 class SortOrder(str, Enum):
     ASC = "ASC"
@@ -120,7 +122,7 @@ class PaginatedQueryResult(BaseModel):
 
 
 def query_paginated(
-    query: Select,
+    query: Selectable,
     session: Session,
     limit: int = -1,
     offset: int = 0,
@@ -137,18 +139,18 @@ def query_paginated(
     where `sort_direction` is either 'asc' or 'desc'
     and `column` is the sqlalch column object.
     """
-    paginated: Select = add_pagination(query, limit, offset, sort)
+    paginated = add_pagination(query, limit, offset, sort)
     results: Sequence[Any] = session.execute(paginated).scalars().all()
     total_count: int = query_total_count(query, session)
     return PaginatedQueryResult(items=list(results), total_count=total_count)
 
 
 def add_pagination(
-    query: Select,
+    query: Selectable,
     limit: int = -1,
     offset: int = 0,
     sort: Optional[Tuple] = None,
-) -> Select:
+) -> Selectable:
     if sort is not None:
         column, sort_direction = sort
         if sort_direction == SortOrder.DESC:
@@ -156,11 +158,10 @@ def add_pagination(
         else:
             query = query.order_by(asc(column))
 
-    result: Select = query.limit(limit).offset(offset)
-    return result
+    return query.limit(limit).offset(offset)
 
 
-def query_total_count(query: Select, session: Session) -> int:
+def query_total_count(query: Selectable, session: Session) -> int:
     count_stmt: Select = select(func.count()).select_from(query.alias())
     total_count: int = session.execute(count_stmt).scalar_one()
     return total_count

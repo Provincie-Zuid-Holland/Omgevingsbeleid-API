@@ -1,6 +1,7 @@
 from sqlalchemy import Select
 from sqlalchemy.orm import Session
 
+from app.api.types import Selectable
 from app.api.utils.pagination import PaginatedQueryResult, add_pagination, query_paginated, query_total_count
 
 
@@ -17,7 +18,7 @@ class BaseRepository:
         return query_paginated(query=statement, session=session, limit=limit, offset=offset, sort=sort)
 
     def fetch_paginated_no_scalars(
-        self, session: Session, statement: Select, offset: int, limit: int, sort=None
+        self, session: Session, statement: Selectable, offset: int, limit: int, sort=None
     ) -> PaginatedQueryResult:
         """
         Same as fetch_paginated without calling scalars() on results

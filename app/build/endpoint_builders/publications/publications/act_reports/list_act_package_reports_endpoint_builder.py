@@ -1,4 +1,4 @@
-from app.api.domains.publications.endpoints.publications.act_reports.list_act_package_reports_endpoint import (
+from app.api.domains.publications.endpoints.publications.reports.act.list_act_package_reports_endpoint import (
     get_list_act_package_reports_endpoint,
 )
 from app.api.domains.publications.types.models import PublicationActPackageReportShort

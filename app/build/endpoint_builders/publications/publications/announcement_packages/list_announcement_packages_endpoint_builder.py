@@ -1,4 +1,4 @@
-from app.api.domains.publications.endpoints.publications.announcement_packages.list_announcement_packages_endpoint import (
+from app.api.domains.publications.endpoints.publications.packages.announcement.list_announcement_packages_endpoint import (
     ListAnnouncementPackagesEndpointContext,
     get_list_announcement_packages_endpoint,
 )

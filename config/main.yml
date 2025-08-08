@@ -403,6 +403,21 @@ api:
         - resolver: list_area_designation_groups
           resolver_data:
             path: /area-designation-groups
+    - prefix: /publication-packages
+      endpoints:
+        - resolver: list_packages
+          resolver_data:
+            sort:
+              default:
+                column: Created_Date
+                order: DESC
+              allowed_columns:
+                - Created_Date
+                - Package_Type
+                - Module_Title
+        - resolver: detail_package
+          resolver_data:
+            path: /{package_uuid}
 
 columns:
   # Titel
