@@ -14,7 +14,7 @@ from app.core.services.models_provider import ModelsProvider
 
 # Used to give data to fastapi.add_api_route
 # @see: site-packages/fastapi/routing.py def add_api_route
-class ConfiguiredFastapiEndpoint(BaseModel):
+class ConfiguredFastapiEndpoint(BaseModel):
     path: str
     endpoint: Callable
     methods: list[str]
@@ -37,7 +37,7 @@ class EndpointBuilder(ABC):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         pass
 
     def _inject_context(self, endpoint: Callable, context: BaseModel) -> Callable:

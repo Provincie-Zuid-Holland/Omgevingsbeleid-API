@@ -3,7 +3,7 @@ from app.api.domains.publications.endpoints.dso_value_lists.area_designation_typ
     get_area_designation_types_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -18,8 +18,8 @@ class ListAreaDesignationTypesEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
-        return ConfiguiredFastapiEndpoint(
+    ) -> ConfiguredFastapiEndpoint:
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=get_area_designation_types_endpoint,
             methods=["GET"],

@@ -5,7 +5,7 @@ from app.api.domains.others.endpoints.object_graph_endpoint import (
 )
 from app.api.domains.others.types import GraphResponse
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -20,7 +20,7 @@ class ObjectGraphEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
         graph_iterations = GraphIterationsConfig.model_validate(resolver_config.get("graph_iterations"))
 
@@ -30,7 +30,7 @@ class ObjectGraphEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(get_object_graph_endpoint, context)
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],

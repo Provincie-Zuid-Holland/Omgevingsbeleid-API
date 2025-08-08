@@ -3,7 +3,7 @@ from app.api.domains.publications.endpoints.publications.versions.attachments.de
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -18,13 +18,13 @@ class DeletePublicationVersionAttachmentEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         if "{version_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {version_uuid} argument in path")
         if "{attachment_id}" not in builder_data.path:
             raise RuntimeError("Missing {attachment_id} argument in path")
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=post_delete_attachment_endpoint,
             methods=["DELETE"],

@@ -1,7 +1,7 @@
 from app.api.domains.users.endpoints import post_auth_login_access_token_endpoint
 from app.api.domains.users.types import AuthToken
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -16,8 +16,8 @@ class AuthLoginAccessTokenEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
-        return ConfiguiredFastapiEndpoint(
+    ) -> ConfiguredFastapiEndpoint:
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=post_auth_login_access_token_endpoint,
             methods=["POST"],

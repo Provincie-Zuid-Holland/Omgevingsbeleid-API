@@ -5,7 +5,7 @@ from app.api.domains.modules.endpoints.list_active_module_objects_endpoint impor
     get_list_active_module_objects_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -20,7 +20,7 @@ class ListActiveModuleObjectsEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         if "{lineage_id}" not in builder_data.path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
@@ -30,7 +30,7 @@ class ListActiveModuleObjectsEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(get_list_active_module_objects_endpoint, context)
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],

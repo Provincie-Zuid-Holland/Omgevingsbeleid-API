@@ -5,7 +5,7 @@ from app.api.domains.objects.endpoints import (
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import OrderConfig, PagedResponse
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 from app.core.types import Model
@@ -21,7 +21,7 @@ class ObjectListValidLineageTreeEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         if "{lineage_id}" not in builder_data.path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
@@ -40,7 +40,7 @@ class ObjectListValidLineageTreeEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(list_valid_lineage_tree_endpoint, context)
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],

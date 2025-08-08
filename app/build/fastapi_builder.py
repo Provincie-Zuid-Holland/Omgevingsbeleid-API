@@ -11,7 +11,7 @@ from fastapi.exception_handlers import http_exception_handler
 from app.api.api_container import ApiContainer
 from app.api.exceptions import LoggedHttpException
 from app.api.health_endpoint import health_check
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def _generate_unique_id_function(route: APIRoute) -> str:
 
 
 class FastAPIBuilder:
-    def build(self, container: ApiContainer, routes: List[ConfiguiredFastapiEndpoint]) -> FastAPI:
+    def build(self, container: ApiContainer, routes: List[ConfiguredFastapiEndpoint]) -> FastAPI:
         app: FastAPI = FastAPI(
             generate_unique_id_function=_generate_unique_id_function,
         )
@@ -50,7 +50,7 @@ class FastAPIBuilder:
 
         return app
 
-    def _add_routes(self, app: FastAPI, routes: List[ConfiguiredFastapiEndpoint]):
+    def _add_routes(self, app: FastAPI, routes: List[ConfiguredFastapiEndpoint]):
         router = APIRouter()
         for endpoint_config in routes:
             route_kwargs = {

@@ -1,7 +1,7 @@
 from app.api.domains.objects.endpoints import AtemporalDeleteObjectEndpointContext, atemporal_delete_object_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -16,7 +16,7 @@ class AtemporalDeleteObjectEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         if "{lineage_id}" not in builder_data.path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
@@ -26,7 +26,7 @@ class AtemporalDeleteObjectEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(atemporal_delete_object_endpoint, context)
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["DELETE"],

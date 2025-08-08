@@ -3,7 +3,7 @@ from app.api.domains.publications.endpoints.publications.detail_publication_endp
 )
 from app.api.domains.publications.types.models import Publication
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -18,11 +18,11 @@ class DetailPublicationEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         if "{publication_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {publication_uuid} argument in path")
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=get_detail_publication_endpoint,
             methods=["GET"],

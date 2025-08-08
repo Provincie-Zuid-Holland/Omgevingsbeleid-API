@@ -3,7 +3,7 @@ from app.api.domains.publications.endpoints.publications.create_publication_endp
     post_create_publication_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -18,8 +18,8 @@ class CreatePublicationEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
-        return ConfiguiredFastapiEndpoint(
+    ) -> ConfiguredFastapiEndpoint:
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=post_create_publication_endpoint,
             methods=["POST"],

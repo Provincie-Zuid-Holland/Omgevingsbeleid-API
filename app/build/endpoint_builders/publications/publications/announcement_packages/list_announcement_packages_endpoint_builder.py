@@ -5,7 +5,7 @@ from app.api.domains.publications.endpoints.publications.announcement_packages.l
 from app.api.domains.publications.types.models import PublicationPackage
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import OrderConfig, PagedResponse
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -20,7 +20,7 @@ class ListPublicationAnnouncementPackagesEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
@@ -30,7 +30,7 @@ class ListPublicationAnnouncementPackagesEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(get_list_announcement_packages_endpoint, context)
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],

@@ -3,7 +3,7 @@ from app.api.domains.publications.endpoints.publications.announcement_packages.c
     post_create_announcement_package_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -18,11 +18,11 @@ class CreatePublicationAnnouncementPackageEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         if "{announcement_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {announcement_uuid} argument in path")
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=post_create_announcement_package_endpoint,
             methods=["POST"],
