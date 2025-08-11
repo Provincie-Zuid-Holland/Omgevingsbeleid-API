@@ -72,6 +72,14 @@ class Settings(BaseSettings):
     MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
 
     PUBLICATION_KOOP: Dict[str, KoopSettings] = Field(default_factory=dict)
+    PUBLICATION_OW_DATASET: str = Field(
+        "provincie Zuid-holland",
+        description="Dataset identifier for OW (Omgevingswet) publications",
+    )
+    PUBLICATION_OW_GEBIED: str = Field(
+        "provincie Zuid-holland",
+        description="Area identifier for OW (Omgevingswet) publications",
+    )
 
     # @note: These will be overwritten and based on earlier input
     # These are for the Depedency Injector library

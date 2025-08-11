@@ -73,8 +73,16 @@ DUTCH_MONTHS = {
 
 
 class DsoActInputDataBuilder:
-    def __init__(self, koop_settings: Dict[str, KoopSettings], api_input_data: ApiActInputData):
+    def __init__(
+        self,
+        koop_settings: Dict[str, KoopSettings],
+        ow_dataset: str,
+        ow_gebied: str,
+        api_input_data: ApiActInputData,
+    ):
         self._koop_settings: Dict[str, KoopSettings] = koop_settings
+        self._ow_dataset: str = ow_dataset
+        self._ow_gebied: str = ow_gebied
         self._publication_version: PublicationVersionTable = api_input_data.Publication_Version
         self._package_type: PackageType = api_input_data.Package_Type
         self._bill_frbr: BillFrbr = api_input_data.Bill_Frbr
@@ -101,8 +109,8 @@ class DsoActInputDataBuilder:
             ambtsgebied=self._get_ambtsgebied(),
             regeling_mutatie=self._get_regeling_mutatie(),
             ow_state=self._get_ow_state(),
-            ow_dataset="provincie Zuid-holland",  # @TODO
-            ow_gebied="provincie Zuid-holland",  # @TODO
+            ow_dataset=self._ow_dataset,
+            ow_gebied=self._ow_gebied,
         )
         return input_data
 

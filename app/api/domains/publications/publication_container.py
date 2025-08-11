@@ -86,6 +86,8 @@ class PublicationContainer(containers.DeclarativeContainer):
     dso_act_input_data_builder_factory = providers.Singleton(
         act_package_services.DsoActInputDataBuilderFactory,
         koop_settings=config.PUBLICATION_KOOP.provided,
+        ow_dataset=config.PUBLICATION_OW_DATASET,
+        ow_gebied=config.PUBLICATION_OW_GEBIED,
     )
     act_publication_data_provider = providers.Factory(
         act_package_services.ActPublicationDataProvider,
