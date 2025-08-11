@@ -87,7 +87,7 @@ class DsoActInputDataBuilder:
         self._template: PublicationTemplateTable = self._publication.Template
         self._act_mutation: Optional[ActMutation] = api_input_data.Act_Mutation
         self._mutation_strategy: MutationStrategy = api_input_data.Mutation_Strategy
-        self._ow_state_json: str = api_input_data.Ow_State
+        self._ow_state_json: Optional[str] = api_input_data.Ow_State
 
     def build(self) -> InputData:
         input_data: InputData = InputData(
@@ -479,5 +479,8 @@ class DsoActInputDataBuilder:
         return key
 
     def _get_ow_state(self) -> OwState:
+        if self._ow_state_json is None:
+            return OwState()
+
         ow_state: OwState = OwState.model_validate_json(self._ow_state_json)
         return ow_state

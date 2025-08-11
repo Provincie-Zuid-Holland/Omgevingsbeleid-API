@@ -81,7 +81,7 @@ class ActPackageBuilderFactory:
             Package_Type=package_type,
             Publication_Version=publication_version,
             Act_Mutation=None,
-            Ow_State={},
+            Ow_State=None,
             Mutation_Strategy=mutation_strategy,
         )
 

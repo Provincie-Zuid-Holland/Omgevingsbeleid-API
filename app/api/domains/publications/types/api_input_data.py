@@ -117,7 +117,7 @@ class ApiActInputData:
     Package_Type: PackageType
     Publication_Version: PublicationVersionTable
     Act_Mutation: Optional[ActMutation]
-    Ow_State: str
+    Ow_State: Optional[str]
     Mutation_Strategy: MutationStrategy
 
 
