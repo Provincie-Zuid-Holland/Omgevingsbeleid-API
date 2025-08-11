@@ -2,7 +2,7 @@ from app.api.domains.publications.endpoints.area_of_jurisdictions.list_aoj_endpo
 from app.api.domains.publications.types.models import PublicationAOJ
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import PagedResponse
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -17,8 +17,8 @@ class ListPublicationAOJEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
-        return ConfiguiredFastapiEndpoint(
+    ) -> ConfiguredFastapiEndpoint:
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=get_list_aoj_endpoint,
             methods=["GET"],
