@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_aoj_repository import PublicationAOJRepository
-from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
+from app.api.domains.publications.services.publication_object_provider import PublicationObjectProvider
 from app.api.domains.publications.services.act_package.documents_provider import PublicationDocumentsProvider
 from app.api.domains.publications.services.act_package.werkingsgebieden_provider import (
     PublicationWerkingsgebiedenProvider,
@@ -20,14 +20,14 @@ from app.core.tables.publications import PublicationAreaOfJurisdictionTable, Pub
 class ActPublicationDataProvider:
     def __init__(
         self,
-        publication_object_repository: PublicationObjectRepository,
+        publication_object_provider: PublicationObjectProvider,
         publication_asset_provider: PublicationAssetProvider,
         publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider,
         publication_documents_provider: PublicationDocumentsProvider,
         publication_aoj_repository: PublicationAOJRepository,
         template_parser: TemplateParser,
     ):
-        self._publication_object_repository: PublicationObjectRepository = publication_object_repository
+        self._publication_object_provider: PublicationObjectProvider = publication_object_provider
         self._publication_asset_provider: PublicationAssetProvider = publication_asset_provider
         self._publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider = (
             publication_werkingsgebieden_provider
@@ -44,7 +44,7 @@ class ActPublicationDataProvider:
         act_frbr: ActFrbr,
         all_data: bool = False,
     ) -> PublicationData:
-        objects: List[dict] = self._get_objects(session, publication_version)
+        objects: List[dict] = self._publication_object_provider.get_objects(session, publication_version)
         parsed_template = self._template_parser.get_parsed_template(
             publication_version.Publication.Template.Text_Template,
             objects,
@@ -79,20 +79,10 @@ class ActPublicationDataProvider:
         )
         return result
 
-    def _get_objects(self, session: Session, publication_version: PublicationVersionTable) -> List[dict]:
-        objects: List[dict] = self._publication_object_repository.fetch_objects(
-            session,
-            publication_version.Publication.Module_ID,
-            publication_version.Module_Status.Created_Date,
-            publication_version.Publication.Template.Object_Types,
-            publication_version.Publication.Template.Field_Map,
-        )
-        return objects
-
     def _get_used_object_codes(self, text_template: str) -> Set[str]:
         soup = BeautifulSoup(text_template, "html.parser")
         objects = soup.find_all("object")
-        codes: List[str] = [obj.get("code") for obj in objects]
+        codes: List[str] = [obj.get("code") for obj in objects if obj.get("code")]
         result: Set[str] = set(codes)
         return result
 

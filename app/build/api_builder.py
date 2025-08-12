@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Set
 from sqlalchemy.orm import Session
 
 from app.api.endpoint import EndpointContextBuilderData
@@ -10,6 +10,7 @@ from app.build.services.config_parser import ConfigParser
 from app.build.services.object_models_builder import ObjectModelsBuilder
 from app.build.services.tables_builder import TablesBuilder
 from app.core.services.models_provider import ModelsProvider
+from app.core.services.object_field_mapping_provider import ObjectFieldMappingProvider
 
 
 class ApiBuilder:
@@ -20,12 +21,14 @@ class ApiBuilder:
         tables_builder: TablesBuilder,
         endpoint_builder_provider: EndpointBuilderProvider,
         models_provider: ModelsProvider,
+        object_field_mapping_provider: ObjectFieldMappingProvider,
     ):
         self._config_parser: ConfigParser = config_parser
         self._object_models_builder: ObjectModelsBuilder = object_models_builder
         self._tables_builder: TablesBuilder = tables_builder
         self._endpoint_builder_provider: EndpointBuilderProvider = endpoint_builder_provider
         self._models_provider: ModelsProvider = models_provider
+        self._object_field_mapping_provider: ObjectFieldMappingProvider = object_field_mapping_provider
 
     def build(self, session: Session) -> List[ConfiguiredFastapiEndpoint]:
         build_data: BuildData = self._config_parser.parse()
@@ -35,11 +38,18 @@ class ApiBuilder:
         self._models_provider.add_list(DECLARED_MODELS)
         self._object_models_builder.build_models(session, self._models_provider, build_data.object_intermediates)
 
+        self._populate_field_mappings(build_data)
+
         object_routes: List[ConfiguiredFastapiEndpoint] = self._build_object_routes(build_data)
         object_routes = object_routes + self._build_main_routes(build_data)
         object_routes.sort(key=lambda o: o.tags)
 
         return object_routes
+
+    def _populate_field_mappings(self, build_data: BuildData) -> None:
+        for object_intermediate in build_data.object_intermediates:
+            field_names: Set[str] = {field.name for field in object_intermediate.fields.values()}
+            self._object_field_mapping_provider.add_object_field_mapping(object_intermediate.object_type, field_names)
 
     def _build_object_routes(self, build_data: BuildData) -> List[ConfiguiredFastapiEndpoint]:
         result: List[ConfiguiredFastapiEndpoint] = []

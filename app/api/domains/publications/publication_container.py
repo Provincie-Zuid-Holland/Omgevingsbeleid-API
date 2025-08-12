@@ -17,6 +17,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     area_geometry_repository = providers.Dependency()
     storage_file_repository = providers.Dependency()
     asset_repository = providers.Dependency()
+    object_field_mapping_provider = providers.Dependency()
 
     act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository)
     act_report_repository = providers.Singleton(repositories.PublicationActReportRepository)
@@ -67,6 +68,12 @@ class PublicationContainer(containers.DeclarativeContainer):
         area_repository=area_repository,
     )
 
+    publication_object_provider = providers.Factory(
+        services.PublicationObjectProvider,
+        publication_object_repository=object_repository,
+        object_field_mapping_provider=object_field_mapping_provider,
+    )
+
     asset_remove_transparency = providers.Singleton(assets_services.AssetRemoveTransparency)
 
     publication_asset_provider = providers.Singleton(
@@ -91,7 +98,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     )
     act_publication_data_provider = providers.Factory(
         act_package_services.ActPublicationDataProvider,
-        publication_object_repository=object_repository,
+        publication_object_provider=publication_object_provider,
         publication_asset_provider=publication_asset_provider,
         publication_werkingsgebieden_provider=werkingsgebieden_provider,
         publication_documents_provider=documents_provider,

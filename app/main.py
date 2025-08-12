@@ -14,6 +14,7 @@ build_container.wire(packages=["app.build"])
 
 api_container = ApiContainer(
     models_provider=build_container.models_provider,
+    object_field_mapping_provider=build_container.object_field_mapping_provider,
 )
 api_container.wire(packages=["app.core", "app.api"])
 api_container.init_resources()

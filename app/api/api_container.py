@@ -22,6 +22,7 @@ from app.core.settings import Settings
 
 class ApiContainer(containers.DeclarativeContainer):
     models_provider = providers.Dependency()
+    object_field_mapping_provider = providers.Dependency()
 
     config = providers.Configuration(pydantic_settings=[Settings()])
     main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
@@ -209,4 +210,5 @@ class ApiContainer(containers.DeclarativeContainer):
         area_geometry_repository=area_geometry_repository,
         storage_file_repository=storage_file_repository,
         asset_repository=asset_repository,
+        object_field_mapping_provider=object_field_mapping_provider,
     )
