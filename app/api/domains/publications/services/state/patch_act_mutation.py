@@ -33,18 +33,36 @@ class PatchActMutation:
 
             # If the Hash are the same, then we use the state data
             # and define the werkingsgebied as not new
+            #
+            # @note:
+            # This is a bit of an unfortunate situation because the Location is not
+            #   stored in our database yet. So we dont have a fixed UUID for it.
+            #   Something that will get fixed when we introduce "Onderverdelingen"
+            # Until we have to deal with that we dont have a unique key to lookup the old state
+            # And we need to be certain because the used (in the state) Identifier is used for OW
+            # So we need to reuse that Identifier (and probably all other UUID's)
+            #
+            # Luckily we only support 1 Location (which is het Werkingsgebied himself)
+            # So we could just blindly pick the Location from the state
+            # (As by the time you get there, we already confirmed that the Gml did not change)
+            #
+            # To make this a bit more future proof we test for the lenght of Locations first
+            #   if the location length changed then we will force this as a new version
+            # These checks are handled in _werkingsgebied_is_same
             if self._werkingsgebied_is_same(existing_werkingsgebied, werkingsgebied):
                 werkingsgebieden[index]["New"] = False
                 werkingsgebieden[index]["UUID"] = existing_werkingsgebied.UUID
                 werkingsgebieden[index]["Identifier"] = existing_werkingsgebied.Identifier
                 werkingsgebieden[index]["Geboorteregeling"] = existing_werkingsgebied.Owner_Act
 
-                # Update the locations based on the state data
-                existing_location_lookup = {loc.UUID: loc.model_dump() for loc in existing_werkingsgebied.Locations}
-                werkingsgebieden[index]["Locaties"] = [
-                    {**location, **existing_location_lookup.get(location["UUID"], {})}
-                    for location in werkingsgebied["Locaties"]
-                ]
+                # Pick the ids from the locations
+                # @see note above
+                if len(existing_werkingsgebied.Locations) != 1:
+                    raise RuntimeError("Merging werkingsgebieden.Locations is not implemented yet")
+                werkingsgebieden[index]["Locaties"][0]["UUID"] = existing_werkingsgebied.Locations[0].UUID
+                werkingsgebieden[index]["Locaties"][0]["Identifier"] = existing_werkingsgebied.Locations[0].Identifier
+                werkingsgebieden[index]["Locaties"][0]["Gml_ID"] = existing_werkingsgebied.Locations[0].Gml_ID
+                werkingsgebieden[index]["Locaties"][0]["Group_ID"] = existing_werkingsgebied.Locations[0].Group_ID
 
                 # Keep the same FRBR
                 werkingsgebieden[index]["Frbr"].Work_Province_ID = existing_werkingsgebied.Frbr.Work_Province_ID
@@ -69,6 +87,9 @@ class PatchActMutation:
 
     def _werkingsgebied_is_same(self, existing: models.Werkingsgebied, werkingsgebied: dict) -> bool:
         if not existing.is_still_valid():
+            return False
+        
+        if len(existing.Locations) != len(werkingsgebied["Locaties"]):
             return False
 
         return str(werkingsgebied["Hash"]) == existing.Hash
