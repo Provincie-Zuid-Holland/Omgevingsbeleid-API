@@ -107,7 +107,7 @@ class PublicationAnnouncementPackageRepository(BaseRepository):
                 anp.Created_Date.label("Created_Date"),
                 anp.Created_By_UUID.label("Created_By_UUID"),
                 p.Document_Type.label("Document_Type"),
-                m.Module_ID.label("Mocould we make it a but cooler by also addeing the package_filter thats not in the filters depedency yet to it, or maybe subclassing the @PublicationPackageFilters , or maybe when passing it to the repositories for dule_ID"),
+                m.Module_ID.label("Module_ID"),
                 m.Title.label("Module_Title"),
                 p.Environment_UUID.label("Publication_Environment_UUID"),
                 anp.Zip_UUID.label("Zip_UUID"),
