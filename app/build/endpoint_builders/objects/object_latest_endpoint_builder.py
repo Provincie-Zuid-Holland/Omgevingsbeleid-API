@@ -3,7 +3,7 @@ from app.api.domains.objects.endpoints.object_latest_endpoint import (
     view_object_latest_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 from app.core.types import Model
@@ -19,7 +19,7 @@ class ObjectLatestEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         if "{lineage_id}" not in builder_data.path:
             raise RuntimeError("Missing {lineage_id} argument in path")
 
@@ -33,7 +33,7 @@ class ObjectLatestEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(view_object_latest_endpoint, context)
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],

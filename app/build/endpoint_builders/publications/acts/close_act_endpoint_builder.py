@@ -1,7 +1,7 @@
 from app.api.domains.publications.endpoints.acts.close_act_endpoint import post_close_act_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -16,11 +16,11 @@ class ClosePublicationActEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         if "{act_uuid}" not in builder_data.path:
             raise RuntimeError("Missing {act_uuid} argument in path")
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=post_close_act_endpoint,
             methods=["POST"],
