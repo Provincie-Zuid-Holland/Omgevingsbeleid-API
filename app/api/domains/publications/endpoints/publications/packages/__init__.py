@@ -1,2 +1,1 @@
-from .detail_package_endpoint import get_detail_package_endpoint
 from .list_packages_endpoint import get_list_packages_endpoint

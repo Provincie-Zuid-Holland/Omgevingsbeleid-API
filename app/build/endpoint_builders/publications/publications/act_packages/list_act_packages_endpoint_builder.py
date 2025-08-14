@@ -1,4 +1,4 @@
-from app.api.domains.publications.endpoints.publications.packages.act.list_act_packages_endpoint import (
+from app.api.domains.publications.endpoints.publications.act_packages.list_act_packages_endpoint import (
     ListActPackagesEndpointContext,
     get_list_act_packages_endpoint,
 )

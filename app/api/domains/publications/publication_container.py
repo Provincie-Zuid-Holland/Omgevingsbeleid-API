@@ -23,7 +23,6 @@ class PublicationContainer(containers.DeclarativeContainer):
     act_repository = providers.Singleton(repositories.PublicationActRepository)
     act_version_repository = providers.Singleton(repositories.PublicationActVersionRepository)
     announcement_package_repository = providers.Singleton(repositories.PublicationAnnouncementPackageRepository)
-    package_repository = providers.Singleton(repositories.PublicationPackageRepository)
     announcement_report_repository = providers.Singleton(repositories.PublicationAnnouncementReportRepository)
     announcement_repository = providers.Singleton(repositories.PublicationAnnouncementRepository)
     aoj_repository = providers.Singleton(repositories.PublicationAOJRepository)

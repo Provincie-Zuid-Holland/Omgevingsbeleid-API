@@ -1,4 +1,4 @@
-from app.api.domains.publications.endpoints.publications.packages.announcement.download_announcement_package_endpoint import (
+from app.api.domains.publications.endpoints.publications.announcement_packages.download_announcement_package_endpoint import (
     get_download_announcement_package_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData

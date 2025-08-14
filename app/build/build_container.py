@@ -200,7 +200,8 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_publications.publications.EditPublicationEndpointBuilder),
             providers.Factory(endpoint_builders_publications.publications.ListPublicationsEndpointBuilder),
             providers.Factory(endpoint_builders_publications.publications.ListPackagesEndpointBuilder),
-            providers.Factory(endpoint_builders_publications.publications.DetailPackageEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.DetailActPackageEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.publications.DetailAnnouncementPackageEndpointBuilder),
             #       Versions
             providers.Factory(
                 endpoint_builders_publications.publications.versions.CreatePublicationVersionPdfEndpointBuilder

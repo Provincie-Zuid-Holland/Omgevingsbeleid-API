@@ -1,4 +1,4 @@
-from app.api.domains.publications.endpoints.publications.reports.announcement.list_announcement_package_reports_endpoint import (
+from app.api.domains.publications.endpoints.publications.announcement_reports.list_announcement_package_reports_endpoint import (
     get_list_annnouncement_package_reports_endpoint,
 )
 from app.api.domains.publications.types.models import PublicationAnnouncementPackageReportShort

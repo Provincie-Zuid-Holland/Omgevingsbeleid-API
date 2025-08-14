@@ -1,4 +1,4 @@
-from app.api.domains.publications.endpoints.publications.packages.announcement.create_announcement_package_endpoint import (
+from app.api.domains.publications.endpoints.publications.announcement_packages.create_announcement_package_endpoint import (
     PublicationAnnouncementPackageCreatedResponse,
     post_create_announcement_package_endpoint,
 )
