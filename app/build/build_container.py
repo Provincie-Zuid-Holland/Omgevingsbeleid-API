@@ -145,6 +145,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(
                 endpoint_builders_publications.publications.act_packages.ListPublicationPackagesEndpointBuilder
             ),
+            providers.Factory(endpoint_builders_publications.publications.act_packages.DetailActPackageEndpointBuilder),
             #       Act Reports
             providers.Factory(
                 endpoint_builders_publications.publications.act_reports.DetailActPackageReportEndpointBuilder
@@ -168,6 +169,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(
                 endpoint_builders_publications.publications.announcement_packages.ListPublicationAnnouncementPackagesEndpointBuilder
             ),
+            providers.Factory(endpoint_builders_publications.publications.announcement_packages.DetailAnnouncementPackageEndpointBuilder),
             #       Announcement Reports
             providers.Factory(
                 endpoint_builders_publications.publications.announcement_reports.DetailAnnouncementPackageReportEndpointBuilder
@@ -200,8 +202,6 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_publications.publications.EditPublicationEndpointBuilder),
             providers.Factory(endpoint_builders_publications.publications.ListPublicationsEndpointBuilder),
             providers.Factory(endpoint_builders_publications.publications.ListPackagesEndpointBuilder),
-            providers.Factory(endpoint_builders_publications.publications.DetailActPackageEndpointBuilder),
-            providers.Factory(endpoint_builders_publications.publications.DetailAnnouncementPackageEndpointBuilder),
             #       Versions
             providers.Factory(
                 endpoint_builders_publications.publications.versions.CreatePublicationVersionPdfEndpointBuilder
