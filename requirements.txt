@@ -40,7 +40,7 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@807a6db4d40ec5c962b0460976efb58d3bdf58d8
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.8.0
     # via -r requirements.in
 ecdsa==0.19.1
     # via python-jose
