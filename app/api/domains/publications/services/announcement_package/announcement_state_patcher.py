@@ -3,8 +3,8 @@ from copy import deepcopy
 from dso.announcement_builder.builder import Builder
 
 from app.api.domains.publications.services.state.versions import ActiveState
-from app.api.domains.publications.services.state.versions.v4 import models
-from app.api.domains.publications.services.state.versions.v4.actions import AddAnnouncementAction
+from app.api.domains.publications.services.state.versions.v5 import models
+from app.api.domains.publications.services.state.versions.v5.actions import AddAnnouncementAction
 from app.api.domains.publications.types.api_input_data import ApiAnnouncementInputData
 from app.core.tables.publications import PublicationAnnouncementTable, PublicationTable
 

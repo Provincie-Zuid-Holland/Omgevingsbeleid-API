@@ -1,6 +1,6 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType, PurposeType
 from app.api.domains.publications.types.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
@@ -89,12 +89,6 @@ class Purpose:
 
 
 @dataclass
-class OwData:
-    ow_objects: Dict[str, Any] = field(default_factory=dict)
-    terminated_ow_ids: List[str] = field(default_factory=list)
-
-
-@dataclass
 class PublicationData:
     objects: List[dict]
     documents: List[dict]
@@ -123,7 +117,7 @@ class ApiActInputData:
     Package_Type: PackageType
     Publication_Version: PublicationVersionTable
     Act_Mutation: Optional[ActMutation]
-    Ow_Data: OwData
+    Ow_State: Optional[str]
     Mutation_Strategy: MutationStrategy
 
 

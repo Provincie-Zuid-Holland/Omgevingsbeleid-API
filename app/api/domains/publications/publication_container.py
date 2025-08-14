@@ -17,6 +17,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     area_geometry_repository = providers.Dependency()
     storage_file_repository = providers.Dependency()
     asset_repository = providers.Dependency()
+    object_field_mapping_provider = providers.Dependency()
 
     act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository)
     act_report_repository = providers.Singleton(repositories.PublicationActReportRepository)
@@ -67,6 +68,12 @@ class PublicationContainer(containers.DeclarativeContainer):
         area_repository=area_repository,
     )
 
+    publication_object_provider = providers.Factory(
+        services.PublicationObjectProvider,
+        publication_object_repository=object_repository,
+        object_field_mapping_provider=object_field_mapping_provider,
+    )
+
     asset_remove_transparency = providers.Singleton(assets_services.AssetRemoveTransparency)
 
     publication_asset_provider = providers.Singleton(
@@ -75,24 +82,6 @@ class PublicationContainer(containers.DeclarativeContainer):
         asset_remove_transparency=asset_remove_transparency,
     )
 
-    state_version_factory = providers.Factory(
-        state_services.StateVersionFactory,
-        versions=[
-            state_versions.StateV1,
-            state_versions.StateV2,
-            state_versions.StateV3,
-            state_versions.StateV4,
-        ],
-        upgraders=providers.List(
-            state_versions.StateV2Upgrader,
-            state_versions.StateV3Upgrader,
-            state_versions.StateV4Upgrader,
-        ),
-    )
-    state_loader = providers.Singleton(
-        state_services.StateLoader,
-        state_version_factory=state_version_factory,
-    )
     patch_act_mutation_factory = providers.Singleton(
         state_services.PatchActMutationFactory,
         asset_provider=publication_asset_provider,
@@ -104,16 +93,45 @@ class PublicationContainer(containers.DeclarativeContainer):
     dso_act_input_data_builder_factory = providers.Singleton(
         act_package_services.DsoActInputDataBuilderFactory,
         koop_settings=config.PUBLICATION_KOOP.provided,
+        ow_dataset=config.PUBLICATION_OW_DATASET,
+        ow_gebied=config.PUBLICATION_OW_GEBIED,
     )
     act_publication_data_provider = providers.Factory(
         act_package_services.ActPublicationDataProvider,
-        publication_object_repository=object_repository,
+        publication_object_provider=publication_object_provider,
         publication_asset_provider=publication_asset_provider,
         publication_werkingsgebieden_provider=werkingsgebieden_provider,
         publication_documents_provider=documents_provider,
         publication_aoj_repository=aoj_repository,
         template_parser=template_parser,
     )
+
+    state_version_factory = providers.Factory(
+        state_services.StateVersionFactory,
+        versions=[
+            state_versions.StateV1,
+            state_versions.StateV2,
+            state_versions.StateV3,
+            state_versions.StateV4,
+            state_versions.StateV5,
+        ],
+        upgraders=providers.List(
+            providers.Factory(
+                state_versions.StateV2Upgrader,
+                act_version_repository=act_version_repository,
+                act_package_repository=act_package_repository,
+                act_data_provider=act_publication_data_provider,
+            ),
+            providers.Factory(state_versions.StateV3Upgrader),
+            providers.Factory(state_versions.StateV4Upgrader),
+            providers.Factory(state_versions.StateV5Upgrader),
+        ),
+    )
+    state_loader = providers.Singleton(
+        state_services.StateLoader,
+        state_version_factory=state_version_factory,
+    )
+
     act_package_builder_factory = providers.Singleton(
         act_package_services.ActPackageBuilderFactory,
         dso_builder_factory=dso_act_input_data_builder_factory,
