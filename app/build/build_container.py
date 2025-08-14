@@ -23,7 +23,6 @@ from app.core.services.event import event_manager
 from app.core.settings import Settings
 from sqlalchemy.orm import sessionmaker
 from app.build.events import create_model_event_listeners, generate_table_event_listeners
-from app.core.services.object_field_mapping_provider import ObjectFieldMappingProvider
 
 
 class BuildContainer(containers.DeclarativeContainer):
@@ -300,9 +299,6 @@ class BuildContainer(containers.DeclarativeContainer):
 
     models_provider = providers.Singleton(ModelsProvider)
 
-    # This will be filled by the ApiBuilder and a reference will be given to the ApiContainer
-    object_field_mapping_provider = providers.Singleton(ObjectFieldMappingProvider)
-
     api_builder = providers.Factory(
         api_builder.ApiBuilder,
         config_parser=config_parser,
@@ -310,5 +306,4 @@ class BuildContainer(containers.DeclarativeContainer):
         tables_builder=tables_builder,
         endpoint_builder_provider=endpoint_builder_provider,
         models_provider=models_provider,
-        object_field_mapping_provider=object_field_mapping_provider,
     )

@@ -88,7 +88,7 @@ class PatchActMutation:
     def _werkingsgebied_is_same(self, existing: models.Werkingsgebied, werkingsgebied: dict) -> bool:
         if not existing.is_still_valid():
             return False
-        
+
         if len(existing.Locations) != len(werkingsgebied["Locaties"]):
             return False
 

@@ -1,4 +1,5 @@
-from typing import List, Optional, Set
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Set
 from sqlalchemy.orm import Session
 
 from app.api.endpoint import EndpointContextBuilderData
@@ -13,6 +14,12 @@ from app.core.services.models_provider import ModelsProvider
 from app.core.services.object_field_mapping_provider import ObjectFieldMappingProvider
 
 
+@dataclass
+class ApiBuilderResult:
+    object_field_mapping_provider: ObjectFieldMappingProvider
+    routes: List[ConfiguiredFastapiEndpoint]
+
+
 class ApiBuilder:
     def __init__(
         self,
@@ -21,16 +28,14 @@ class ApiBuilder:
         tables_builder: TablesBuilder,
         endpoint_builder_provider: EndpointBuilderProvider,
         models_provider: ModelsProvider,
-        object_field_mapping_provider: ObjectFieldMappingProvider,
     ):
         self._config_parser: ConfigParser = config_parser
         self._object_models_builder: ObjectModelsBuilder = object_models_builder
         self._tables_builder: TablesBuilder = tables_builder
         self._endpoint_builder_provider: EndpointBuilderProvider = endpoint_builder_provider
         self._models_provider: ModelsProvider = models_provider
-        self._object_field_mapping_provider: ObjectFieldMappingProvider = object_field_mapping_provider
 
-    def build(self, session: Session) -> List[ConfiguiredFastapiEndpoint]:
+    def build(self, session: Session) -> ApiBuilderResult:
         build_data: BuildData = self._config_parser.parse()
 
         self._tables_builder.build_tables(session, build_data.columns)
@@ -38,18 +43,25 @@ class ApiBuilder:
         self._models_provider.add_list(DECLARED_MODELS)
         self._object_models_builder.build_models(session, self._models_provider, build_data.object_intermediates)
 
-        self._populate_field_mappings(build_data)
+        object_field_mapping_provider: ObjectFieldMappingProvider = self._build_object_field_mapping_provider(
+            build_data
+        )
 
         object_routes: List[ConfiguiredFastapiEndpoint] = self._build_object_routes(build_data)
         object_routes = object_routes + self._build_main_routes(build_data)
         object_routes.sort(key=lambda o: o.tags)
 
-        return object_routes
+        return ApiBuilderResult(
+            object_field_mapping_provider=object_field_mapping_provider,
+            routes=object_routes,
+        )
 
-    def _populate_field_mappings(self, build_data: BuildData) -> None:
+    def _build_object_field_mapping_provider(self, build_data: BuildData) -> ObjectFieldMappingProvider:
+        object_field_mappings: Dict[str, Set[str]] = {}
         for object_intermediate in build_data.object_intermediates:
             field_names: Set[str] = {field.name for field in object_intermediate.fields.values()}
-            self._object_field_mapping_provider.add_object_field_mapping(object_intermediate.object_type, field_names)
+            object_field_mappings[object_intermediate.object_type] = field_names
+        return ObjectFieldMappingProvider(object_field_mappings)
 
     def _build_object_routes(self, build_data: BuildData) -> List[ConfiguiredFastapiEndpoint]:
         result: List[ConfiguiredFastapiEndpoint] = []
