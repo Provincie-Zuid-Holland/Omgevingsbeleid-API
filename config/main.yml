@@ -396,6 +396,22 @@ api:
         - resolver: download_publication_announcement_package_report
           resolver_data:
             path: /download
+    # Unified packages (both act and announcement)
+    - prefix: /publication-packages
+      endpoints:
+        - resolver: list_unified_publication_packages
+          resolver_data:
+            sort:
+              default:
+                column: Created_Date
+                order: DESC
+              allowed_columns:
+                - Created_Date
+                - Modified_Date
+                - Package_Type
+                - Report_Status
+                - Module_ID
+                - Publication_Type
     # DSO value list getters
     - prefix: /publication-dso-value-lists
       endpoints:
@@ -645,6 +661,7 @@ users_permissions:
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
     - publication_can_create_publication_announcement
     - publication_can_edit_publication_announcement
     - publication_can_view_publication_announcement
@@ -692,10 +709,11 @@ users_permissions:
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
-    - can_delete_publication_version_attachment
+    - publication_can_delete_publication_version_attachment
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
@@ -748,6 +766,7 @@ users_permissions:
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
@@ -800,6 +819,7 @@ users_permissions:
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
@@ -852,6 +872,7 @@ users_permissions:
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
@@ -904,6 +925,7 @@ users_permissions:
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report

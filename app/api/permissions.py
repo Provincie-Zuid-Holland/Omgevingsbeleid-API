@@ -83,6 +83,7 @@ class Permissions(str, Enum):
     publication_can_download_publication_announcement_package_report = (
         "publication_can_download_publication_announcement_package_report"
     )
+    publication_can_view_unified_packages = "publication_can_view_unified_packages"
 
     # Storage files
     storage_file_can_upload_files = "storage_file_can_upload_files"

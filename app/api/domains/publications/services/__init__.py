@@ -9,3 +9,4 @@ from .publication_version_defaults_provider import PublicationVersionDefaultsPro
 from .publication_version_validator import PublicationVersionValidator
 from .purpose_provider import PurposeProvider
 from .template_parser import TemplateParser
+from .unified_packages_provider import UnifiedPackagesProvider
