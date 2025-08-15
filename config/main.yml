@@ -339,6 +339,7 @@ api:
                 - Created_Date
     - prefix: /publication-act-packages/{act_package_uuid}
       endpoints:
+        - resolver: detail_publication_act_package
         - resolver: download_publication_act_package
           resolver_data:
             path: /download
@@ -379,6 +380,7 @@ api:
                 - Created_Date
     - prefix: /publication-announcement-packages/{announcement_package_uuid}
       endpoints:
+        - resolver: detail_publication_announcement_package
         - resolver: download_publication_announcement_package
           resolver_data:
             path: /download
