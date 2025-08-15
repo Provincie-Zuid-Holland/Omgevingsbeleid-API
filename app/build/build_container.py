@@ -164,6 +164,9 @@ class BuildContainer(containers.DeclarativeContainer):
                 endpoint_builders_publications.publications.announcement_packages.CreatePublicationAnnouncementPackageEndpointBuilder
             ),
             providers.Factory(
+                endpoint_builders_publications.publications.announcement_packages.DetailAnnouncementPackageEndpointBuilder
+            ),
+            providers.Factory(
                 endpoint_builders_publications.publications.announcement_packages.DownloadPublicationAnnouncementPackageEndpointBuilder
             ),
             providers.Factory(

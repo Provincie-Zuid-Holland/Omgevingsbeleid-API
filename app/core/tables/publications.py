@@ -478,10 +478,10 @@ class PublicationAnnouncementPackageTable(Base, UserMetaData):
 
     Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
 
-    Used_Environment_State_UUID: Mapped[Optional[PublicationEnvironmentStateTable]] = mapped_column(
+    Used_Environment_State_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
-    Created_Environment_State_UUID: Mapped[Optional[PublicationEnvironmentStateTable]] = mapped_column(
+    Created_Environment_State_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
 
