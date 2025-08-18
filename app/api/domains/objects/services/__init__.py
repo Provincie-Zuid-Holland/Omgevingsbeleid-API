@@ -2,3 +2,4 @@ from .add_next_object_version_service import AddNextObjectVersionServiceFactory
 from .add_relations_service import AddRelationsService, AddRelationsServiceFactory
 from .add_werkingsgebied_related_objects_service import AddWerkingsgebiedRelatedObjectsServiceFactory
 from .column_image_inserter import ColumnImageInserterFactory
+from .join_documents_service import JoinDocumentsServiceFactory

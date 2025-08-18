@@ -82,6 +82,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(create_model_event_listeners.ObjectStaticsExtenderListener),
             providers.Factory(create_model_event_listeners.AddRelationsListener),
             providers.Factory(create_model_event_listeners.JoinWerkingsgebiedenListener),
+            providers.Factory(create_model_event_listeners.AddJoinDocumentsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddPublicRevisionsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddNextObjectVersionToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddRelatedObjectsToWerkingsgebiedObjectModelListener),

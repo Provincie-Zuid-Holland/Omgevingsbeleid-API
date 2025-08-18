@@ -1,5 +1,5 @@
 import uuid
-from typing import Generic, List, Optional, TypeVar, Union
+from typing import Generic, List, Optional, Set, TypeVar, Union
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -25,6 +25,11 @@ from app.api.domains.objects.services.column_image_inserter import (
     ColumnImageInserter,
     ColumnImageInserterFactory,
     GetImagesConfig,
+)
+from app.api.domains.objects.services.join_documents_service import (
+    JoinDocumentsConfig,
+    JoinDocumentsService,
+    JoinDocumentsServiceFactory,
 )
 from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
     JoinWerkingsgebiedenService,
@@ -228,4 +233,48 @@ class GetColumnImagesListenerBase(Listener[EventRMO], Generic[EventRMO]):
 
 
 class GetColumnImagesForObjectListener(GetColumnImagesListenerBase[RetrievedObjectsEvent]):
+    pass
+
+
+class JoinDocumentsListenerBase(Listener[EventRMO], Generic[EventRMO]):
+    def __init__(self, service_factory: JoinDocumentsServiceFactory):
+        self._service_factory: JoinDocumentsServiceFactory = service_factory
+
+    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
+        config: Optional[JoinDocumentsConfig] = self._collect_config(event)
+        if not config:
+            return event
+
+        service: JoinDocumentsService = self._service_factory.create_service(
+            session,
+            config,
+        )
+
+        result_rows: List[BaseModel] = service.join_documents(event.payload.rows)
+        event.payload.rows = result_rows
+
+        return event
+
+    def _collect_config(self, event: EventRMO) -> Optional[JoinDocumentsConfig]:
+        if not isinstance(event.context.response_model, DynamicObjectModel):
+            return None
+        if "join_documents" not in event.context.response_model.service_config:
+            return None
+
+        service_config: dict = event.context.response_model.service_config["join_documents"]
+
+        all_document_codes: Set[str] = set()
+        for row in event.payload.rows:
+            documents = getattr(row, service_config["from_field"], None) or []
+            all_document_codes.update(documents)
+
+        return JoinDocumentsConfig(
+            to_field=service_config["to_field"],
+            from_field=service_config["from_field"],
+            model_id=service_config["model_id"],
+            document_codes=all_document_codes,
+        )
+
+
+class JoinDocumentsToObjectsListener(JoinDocumentsListenerBase[RetrievedObjectsEvent]):
     pass
