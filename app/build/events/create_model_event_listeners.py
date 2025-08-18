@@ -182,3 +182,22 @@ class AddRelatedObjectsToWerkingsgebiedObjectModelListener(Listener[CreateModelE
         )
 
         return event
+
+
+class AddJoinDocumentsToObjectModelListener(Listener[CreateModelEvent]):
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+        service_config: dict = event.context.intermediate_model.service_config
+        if "join_documents" not in service_config:
+            return event
+
+        config: dict = service_config["join_documents"]
+        field_name: str = config["to_field"]
+        model_id: str = config["model_id"]
+        target_object_model: Model = event.context.models_provider.get_model(model_id)
+
+        event.payload.pydantic_fields[field_name] = (
+            List[target_object_model.pydantic_model],
+            [],
+        )
+
+        return event

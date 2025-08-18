@@ -110,6 +110,10 @@ class ApiContainer(containers.DeclarativeContainer):
     add_werkingsgebied_related_objects_service_factory = providers.Singleton(
         object_services.AddWerkingsgebiedRelatedObjectsServiceFactory
     )
+    join_documents_service_factory = providers.Singleton(
+        object_services.JoinDocumentsServiceFactory,
+        models_provider=models_provider,
+    )
     area_processor_service_factory = providers.Singleton(
         werkingsgebied_services.AreaProcessorServiceFactory,
         source_geometry_repository=geometry_repository,
@@ -159,6 +163,10 @@ class ApiContainer(containers.DeclarativeContainer):
                 event_listeners.AddWerkingsgebiedRelatedObjectsToObjectsListener,
                 service_factory=add_werkingsgebied_related_objects_service_factory,
             ),
+            providers.Factory(
+                event_listeners.JoinDocumentsToObjectsListener,
+                service_factory=join_documents_service_factory,
+            ),
             # RetrievedModuleObjectsEvent
             providers.Factory(
                 event_listeners.InsertHtmlImagesForModuleListener,
@@ -179,6 +187,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.AddRelationsToModuleObjectsListener,
                 service_factory=add_relations_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinDocumentsToModuleObjectsListener,
+                service_factory=join_documents_service_factory,
             ),
             # BeforeSelectExecutionEvent
             providers.Factory(event_listeners.OptimizeSelectQueryListener),
