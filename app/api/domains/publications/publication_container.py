@@ -74,6 +74,8 @@ class PublicationContainer(containers.DeclarativeContainer):
         object_field_mapping_provider=object_field_mapping_provider,
     )
 
+    unified_packages_provider = providers.Singleton(services.UnifiedPackagesProvider)
+
     asset_remove_transparency = providers.Singleton(assets_services.AssetRemoveTransparency)
 
     publication_asset_provider = providers.Singleton(

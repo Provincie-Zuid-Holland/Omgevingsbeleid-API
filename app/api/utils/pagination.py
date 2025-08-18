@@ -143,6 +143,23 @@ def query_paginated(
     return PaginatedQueryResult(items=list(results), total_count=total_count)
 
 
+def query_paginated_no_scalars(
+    query: Select,
+    session: Session,
+    limit: int = -1,
+    offset: int = 0,
+    sort: Optional[Tuple] = None,
+) -> PaginatedQueryResult:
+    """
+    Same as fetch_paginated without calling scalars() on results
+    to allow custom query results.
+    """
+    paginated = add_pagination(query, limit, offset, sort)
+    results = session.execute(paginated).all()
+    total_count = query_total_count(query, session)
+    return PaginatedQueryResult(items=list(results), total_count=total_count)
+
+
 def add_pagination(
     query: Select,
     limit: int = -1,

@@ -172,6 +172,8 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(
                 endpoint_builders_publications.publications.announcement_packages.ListPublicationAnnouncementPackagesEndpointBuilder
             ),
+            #       Unified Packages
+            providers.Factory(endpoint_builders_publications.packages.ListUnifiedPackagesEndpointBuilder),
             #       Announcement Reports
             providers.Factory(
                 endpoint_builders_publications.publications.announcement_reports.DetailAnnouncementPackageReportEndpointBuilder

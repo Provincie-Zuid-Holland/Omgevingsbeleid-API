@@ -42,3 +42,8 @@ class PublicationVersionStatus(str, Enum):
     PUBLICATION_FAILED = "publication_failed"
     ANNOUNCEMENT = "announcement"
     COMPLETED = "completed"
+
+
+class PublicationType(str, Enum):
+    ACT = "act"
+    ANNOUNCEMENT = "announcement"
