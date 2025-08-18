@@ -185,7 +185,7 @@ class ObjectRepository(BaseRepository):
             sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )
 
-    def prepare_list_valid_lineages(self, object_type: str) -> PreparedQuery:
+    def prepare_list_valid_lineages(self, object_type: str, filter_title: Optional[str] = None) -> PreparedQuery:
         subq = (
             select(
                 ObjectsTable,
@@ -213,6 +213,8 @@ class ObjectRepository(BaseRepository):
                 )
             )
         )
+        if filter_title:
+            stmt = stmt.filter(subq.c.Title.like(filter_title))
 
         return PreparedQuery(
             query=stmt,

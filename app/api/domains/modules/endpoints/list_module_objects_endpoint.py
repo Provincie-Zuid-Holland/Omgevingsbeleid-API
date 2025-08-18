@@ -37,6 +37,7 @@ def get_list_module_objects_endpoint(
     owner_uuid: Optional[uuid.UUID] = None,
     minimum_status: Optional[ModuleStatusCode] = None,
     only_active_modules: bool = True,
+    title: Optional[str] = None,
     actions: Annotated[List[ModuleObjectActionFull], Query(default_factory=list)] = [],
 ) -> PagedResponse[ModuleObjectsResponse]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
@@ -49,6 +50,7 @@ def get_list_module_objects_endpoint(
         minimum_status=minimum_status,
         owner_uuid=owner_uuid,
         object_type=object_type,
+        title=title,
         actions=actions,
     )
 

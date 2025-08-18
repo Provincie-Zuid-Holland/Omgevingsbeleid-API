@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -39,11 +39,15 @@ def list_valid_lineages_endpoint(
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
     context: Annotated[ObjectListValidLineagesEndpointContext, Depends()],
     session=Depends(depends_db_session),
+    filter_title: Optional[str] = None,
 ) -> PagedResponse[BaseModel]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    prepared_query: PreparedQuery = object_repository.prepare_list_valid_lineages(context.object_type)
+    prepared_query: PreparedQuery = object_repository.prepare_list_valid_lineages(
+        context.object_type,
+        filter_title,
+    )
     prepare_query_event: BeforeSelectExecutionEvent = event_manager.dispatch(
         session,
         BeforeSelectExecutionEvent.create(
