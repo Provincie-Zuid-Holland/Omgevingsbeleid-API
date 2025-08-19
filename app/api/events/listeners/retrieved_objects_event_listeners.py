@@ -271,7 +271,6 @@ class JoinDocumentsListenerBase(Listener[EventRMO], Generic[EventRMO]):
         return JoinDocumentsConfig(
             to_field=service_config["to_field"],
             from_field=service_config["from_field"],
-            model_id=service_config["model_id"],
             document_codes=all_document_codes,
         )
 

@@ -110,10 +110,7 @@ class ApiContainer(containers.DeclarativeContainer):
     add_werkingsgebied_related_objects_service_factory = providers.Singleton(
         object_services.AddWerkingsgebiedRelatedObjectsServiceFactory
     )
-    join_documents_service_factory = providers.Singleton(
-        object_services.JoinDocumentsServiceFactory,
-        models_provider=models_provider,
-    )
+    join_documents_service_factory = providers.Singleton(object_services.JoinDocumentsServiceFactory)
     area_processor_service_factory = providers.Singleton(
         werkingsgebied_services.AreaProcessorServiceFactory,
         source_geometry_repository=geometry_repository,

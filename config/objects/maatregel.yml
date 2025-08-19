@@ -265,7 +265,6 @@ models:
       - gebiedsprogramma_minimal
       - werkingsgebied_basic
       - werkingsgebied_statics
-      - document_basic
     services:
       next_object_version:
         to_field: Next_Version
@@ -276,8 +275,7 @@ models:
         to_field: Werkingsgebied
         from_field: Werkingsgebied_Code
       join_documents:
-        model_id: document_basic
-        to_field: Documents_Objects
+        to_field: Documents_Statics
         from_field: Documents
       insert_assets:
         fields:
