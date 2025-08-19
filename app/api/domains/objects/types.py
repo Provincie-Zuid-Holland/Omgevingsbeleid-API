@@ -59,7 +59,7 @@ class ReadRelation(BaseModel):
         return f"{self.Object_Type}-{self.Object_ID}"
 
 
-class HierarchyStatics(BaseModel):
+class ObjectStatics(BaseModel):
     Object_Type: str
     Object_ID: int
     Code: str
@@ -70,6 +70,10 @@ class HierarchyStatics(BaseModel):
         return "" if v is None else v
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class HierarchyStatics(ObjectStatics):
+    pass
 
 
 class FilterObjectCode(BaseModel):
