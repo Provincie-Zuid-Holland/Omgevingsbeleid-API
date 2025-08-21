@@ -98,7 +98,7 @@ class StateV5Upgrader(StateUpgrader):
                             ],
                             domain=ow_object["bestuurlijke_grenzen_verwijzing"]["domein"],
                             valid_on=ow_object["bestuurlijke_grenzen_verwijzing"]["geldig_op"],
-                            title=ow_object["noemer"],
+                            title="",
                         )
                     )
                 case "OWRegelingsgebied":
