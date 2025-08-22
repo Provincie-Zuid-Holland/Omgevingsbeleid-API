@@ -1,5 +1,5 @@
 import uuid
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -264,14 +264,15 @@ class OwTekstdeel(BaseOwObject):
 
 
 class OwState(BaseModel):
-    ambtsgebieden: Set[OwAmbtsgebied] = Field(default_factory=set)
-    regelingsgebieden: Set[OwRegelingsgebied] = Field(default_factory=set)
-    gebieden: Set[OwGebied] = Field(default_factory=set)
-    gebiedengroepen: Set[OwGebiedengroep] = Field(default_factory=set)
-    gebiedsaanwijzingen: Set[OwGebiedsaanwijzing] = Field(default_factory=set)
-    divisies: Set[OwDivisie] = Field(default_factory=set)
-    divisieteksten: Set[OwDivisietekst] = Field(default_factory=set)
-    tekstdelen: Set[OwTekstdeel] = Field(default_factory=set)
+    ambtsgebieden: List[OwAmbtsgebied] = Field(default_factory=list)
+    regelingsgebieden: List[OwRegelingsgebied] = Field(default_factory=list)
+    gebieden: List[OwGebied] = Field(default_factory=list)
+    gebiedengroepen: List[OwGebiedengroep] = Field(default_factory=list)
+    gebiedsaanwijzingen: List[OwGebiedsaanwijzing] = Field(default_factory=list)
+    divisies: List[OwDivisie] = Field(default_factory=list)
+    divisieteksten: List[OwDivisietekst] = Field(default_factory=list)
+    tekstdelen: List[OwTekstdeel] = Field(default_factory=list)
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Acts
@@ -288,6 +289,7 @@ class ActiveAct(BaseModel):
     Ow_State: OwState
     Act_Text: str
     Publication_Version_UUID: str
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ActiveAnnouncement(BaseModel):

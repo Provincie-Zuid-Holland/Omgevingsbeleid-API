@@ -130,7 +130,8 @@ class EndpointHandler:
                 self._session.add(self._publication_version)
                 self._session.flush()
 
-            self._session.commit()
+            raise RuntimeError("done")
+            # self._session.commit()
 
             response = PublicationPackageCreatedResponse(
                 Package_UUID=package.UUID,
