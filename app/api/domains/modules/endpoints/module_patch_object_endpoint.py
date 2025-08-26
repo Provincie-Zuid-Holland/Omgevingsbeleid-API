@@ -84,7 +84,7 @@ def post_module_patch_object_endpoint(
             user,
             changes,
             timepoint,
-            context.response_config_model,
+            context.request_config_model,
             old_record,
             new_record,
         ),
