@@ -196,13 +196,13 @@ class StateV5Upgrader(StateUpgrader):
                     raise RuntimeError(f"Unknown `ow_type` '{ow_type}'")
 
         result = models_v5.OwState(
-            ambtsgebieden=ambtsgebieden,
-            regelingsgebieden=regelingsgebieden,
-            gebieden=gebieden,
-            gebiedengroepen=gebiedengroepen,
-            gebiedsaanwijzingen=gebiedsaanwijzingen,
-            divisies=divisies,
-            divisieteksten=divisieteksten,
-            tekstdelen=tekstdelen,
+            ambtsgebieden=list(ambtsgebieden),
+            regelingsgebieden=list(regelingsgebieden),
+            gebieden=list(gebieden),
+            gebiedengroepen=list(gebiedengroepen),
+            gebiedsaanwijzingen=list(gebiedsaanwijzingen),
+            divisies=list(divisies),
+            divisieteksten=list(divisieteksten),
+            tekstdelen=list(tekstdelen),
         )
         return result
