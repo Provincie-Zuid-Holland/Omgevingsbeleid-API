@@ -47,7 +47,7 @@ class ChangeAreaListener(Listener[ModuleObjectPatchedEvent]):
             return None
 
         changed_fields: Set[str] = set(event.context.changes.keys())
-        interested_fields: Set[str] = set.intersection(fields, changed_fields)
+        interested_fields: Set[str] = set.intersection(set(fields), changed_fields)
         if not interested_fields:
             return None
 
