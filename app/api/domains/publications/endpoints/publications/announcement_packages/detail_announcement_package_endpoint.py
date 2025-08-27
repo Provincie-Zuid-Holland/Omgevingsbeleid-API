@@ -6,9 +6,16 @@ from fastapi import Depends
 from pydantic import BaseModel, ConfigDict
 
 from app.api.domains.publications.dependencies import depends_publication_announcement_package
+from app.api.domains.publications.types.models import PackageZipShort
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
-from app.core.tables.publications import PublicationAnnouncementPackageTable
+from app.core.tables.modules import ModuleStatusHistoryTable, ModuleTable
+from app.core.tables.publications import (
+    PublicationActPackageTable,
+    PublicationAnnouncementPackageTable,
+    PublicationEnvironmentTable,
+    PublicationVersionTable,
+)
 from app.core.tables.users import UsersTable
 
 
@@ -17,10 +24,11 @@ class PublicationAnnouncementPackageDetailResponse(BaseModel):
     Package_Type: str
     Report_Status: str
     Delivery_ID: str
+    Document_Type: str
 
     Announcement_UUID: uuid.UUID
     Doc_Version_UUID: Optional[uuid.UUID]
-    Zip_UUID: uuid.UUID
+    Zip: PackageZipShort
     Created_Environment_State_UUID: Optional[uuid.UUID]
     Used_Environment_State_UUID: Optional[uuid.UUID]
 
@@ -52,20 +60,22 @@ def get_detail_announcement_package_endpoint(
         ),
     ],
 ) -> PublicationAnnouncementPackageDetailResponse:
-    act_package = announcement_package.Announcement.Act_Package
-    publication_version = act_package.Publication_Version
-    module = publication_version.Publication.Module
-    module_status = publication_version.Module_Status
-    environment = publication_version.Publication.Environment
+    act_package: PublicationActPackageTable = announcement_package.Announcement.Act_Package
+    publication_version: PublicationVersionTable = act_package.Publication_Version
+    module: ModuleTable = publication_version.Publication.Module
+    module_status: ModuleStatusHistoryTable = publication_version.Module_Status
+    environment: PublicationEnvironmentTable = publication_version.Publication.Environment
+    zip: PackageZipShort = PackageZipShort.model_validate(announcement_package.Zip)
 
     result = PublicationAnnouncementPackageDetailResponse(
         UUID=announcement_package.UUID,
         Package_Type=announcement_package.Package_Type,
         Report_Status=announcement_package.Report_Status,
         Delivery_ID=announcement_package.Delivery_ID,
+        Document_Type=publication_version.Publication.Document_Type,
         Announcement_UUID=announcement_package.Announcement_UUID,
         Doc_Version_UUID=announcement_package.Doc_Version_UUID,
-        Zip_UUID=announcement_package.Zip_UUID,
+        Zip=zip,
         Created_Environment_State_UUID=announcement_package.Created_Environment_State_UUID,
         Used_Environment_State_UUID=announcement_package.Used_Environment_State_UUID,
         Created_Date=announcement_package.Created_Date,
