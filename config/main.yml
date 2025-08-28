@@ -412,6 +412,8 @@ api:
                 - Report_Status
                 - Module_ID
                 - Publication_Type
+                - Document_Type
+                - Module_Title
     # DSO value list getters
     - prefix: /publication-dso-value-lists
       endpoints:
