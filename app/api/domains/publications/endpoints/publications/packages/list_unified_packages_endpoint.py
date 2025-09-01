@@ -56,8 +56,8 @@ def get_list_unified_packages_endpoint(
     context: Annotated[ListUnifiedPackagesEndpointContext, Depends()],
     environment_uuid: Optional[uuid.UUID] = None,
     module_id: Optional[int] = None,
-    report_status: Optional[ReportStatusType] = ReportStatusType.VALID,
-    package_type: Optional[PackageType] = PackageType.PUBLICATION,
+    report_status: Optional[ReportStatusType] = None,
+    package_type: Optional[PackageType] = None,
     document_type: Optional[DocumentType] = None,
     publication_type: Optional[PublicationType] = None,
 ) -> PagedResponse[UnifiedPackage]:
