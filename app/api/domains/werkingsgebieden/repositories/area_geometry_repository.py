@@ -101,7 +101,6 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
                 UUID = :uuid
             """
         session.execute(text(sql), params)
-        session.commit()
 
     def get_area(self, session: Session, uuidx: uuid.UUID) -> dict:
         row = self.get_area_optional(session, uuidx)
