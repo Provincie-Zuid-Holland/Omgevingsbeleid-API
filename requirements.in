@@ -11,7 +11,7 @@ requests-toolbelt
 dependency-injector
 
 # JWT
-python-jose
+pyjwt
 passlib
 python-multipart
 bcrypt==4.0.1
