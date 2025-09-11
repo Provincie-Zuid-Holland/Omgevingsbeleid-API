@@ -61,7 +61,7 @@ def post_edit_user_endpoint(
     log_before: str = json.dumps(user_before_dict)
 
     # We handle IsActive separately as that is not really a column
-    handle_is_active: Optional[bool] = changes.pop("IsActive", None)
+    handle_is_active: Optional[bool] = changes.pop("IsActive", user.IsActive)
     if handle_is_active:
         user.Status = IS_ACTIVE
     else:
