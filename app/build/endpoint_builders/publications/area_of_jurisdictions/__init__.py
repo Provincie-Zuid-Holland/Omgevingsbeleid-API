@@ -1,2 +1,4 @@
 from .create_aoj_endpoint_builder import CreatePublicationAOJEndpointBuilder
+from .detail_aoj_endpoint_builder import DetailPublicationAOJEndpointBuilder
+from .edit_aoj_endpoint_builder import EditPublicationAOJEndpointBuilder
 from .list_aoj_endpoint_builder import ListPublicationAOJEndpointBuilder
