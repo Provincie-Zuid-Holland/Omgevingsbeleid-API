@@ -40,6 +40,7 @@ class Permissions(str, Enum):
     publication_can_view_publication_environment = "publication_can_view_publication_environment"
 
     publication_can_create_publication_aoj = "publication_can_create_publication_aoj"
+    publication_can_edit_publication_aoj = "publication_can_edit_publication_aoj"
     publication_can_view_publication_aoj = "publication_can_view_publication_aoj"
 
     publication_can_create_publication_act = "publication_can_create_publication_act"

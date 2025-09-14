@@ -34,6 +34,7 @@ from app.core.tables.publications import (
     PublicationAnnouncementPackageReportTable,
     PublicationAnnouncementPackageTable,
     PublicationAnnouncementTable,
+    PublicationAreaOfJurisdictionTable,
     PublicationEnvironmentTable,
     PublicationPackageZipTable,
     PublicationTable,
@@ -232,3 +233,16 @@ def depends_publication_act_active(
     if not act.Is_Active:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publicatie regeling is gesloten")
     return act
+
+@inject
+def depends_publication_area_of_jurisdiction(
+    area_of_jurisdiction_uuid: uuid.UUID,
+    session: Annotated[Session, Depends(depends_db_session)],
+    repository: Annotated[
+        PublicationAreaOfJurisdictionTable, Depends(Provide[ApiContainer.publication.aoj_repository])
+    ],
+) -> PublicationAreaOfJurisdictionTable:
+    maybe_area_of_jurisdiction: Optional[PublicationAreaOfJurisdictionTable] = repository.get_by_uuid(session, area_of_jurisdiction_uuid)
+    if not maybe_area_of_jurisdiction:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication area of jurisdiction niet gevonden")
+    return maybe_area_of_jurisdiction
