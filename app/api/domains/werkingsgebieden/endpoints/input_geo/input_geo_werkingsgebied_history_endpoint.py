@@ -23,6 +23,12 @@ def get_input_geo_werkingsgebieden_history_endpoint(
     title: str,
     from_date: Optional[date] = None,
 ) -> List[InputGeoWerkingsgebied]:
+    """
+    Retrieves version history of an external InputGeo werkingsgebied by title.
+    
+    Shows all versions of a werkingsgebied with the same title from the external 
+    InputGeo tables.
+    """
     werkingsgebieden: Sequence[InputGeoWerkingsgebiedenTable] = repository.get_by_title_paginated(
         session, title, from_date
     )
