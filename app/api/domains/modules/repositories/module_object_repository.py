@@ -196,6 +196,7 @@ class ModuleObjectRepository(BaseRepository):
         minimum_status: Optional[ModuleStatusCode] = None,
         owner_uuid: Optional[UUID] = None,
         object_type: Optional[str] = None,
+        title: Optional[str] = None,
         actions: List[ModuleObjectActionFull] = [],
     ):
         """
@@ -245,6 +246,7 @@ class ModuleObjectRepository(BaseRepository):
                 else None
             ),
             ModuleObjectsTable.Object_Type == object_type if object_type is not None else None,
+            ModuleObjectsTable.Title.like(title) if title is not None else None,
             ModuleObjectContextTable.Action.in_(actions) if actions else None,
         ]
 

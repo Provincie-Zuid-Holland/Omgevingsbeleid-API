@@ -3,8 +3,9 @@ import string
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Union
 
+import jwt
 from fastapi import HTTPException, status
-from jose import JWTError, jwt
+from jwt import PyJWTError
 from passlib.context import CryptContext
 from pydantic import ValidationError
 
@@ -27,7 +28,7 @@ class Security:
         try:
             payload = jwt.decode(token, self._secret_key, algorithms=[self.ALGORITHM])
             token_data = TokenPayload(**payload)
-        except (JWTError, ValidationError):
+        except (PyJWTError, ValidationError):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Could not validate authorization token",

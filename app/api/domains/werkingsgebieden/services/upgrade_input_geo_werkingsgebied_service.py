@@ -1,5 +1,3 @@
-
-
 from typing import Optional
 import uuid
 
@@ -14,7 +12,6 @@ class UpgradePlan(BaseModel):
     input_geo_werkingsgebied_uuid: uuid.UUID
 
 
-
 class SelectInputGeoWerkingsgebiedService:
     def __init__(
         self,
@@ -24,11 +21,9 @@ class SelectInputGeoWerkingsgebiedService:
         igw_uuid: uuid.UUID,
     ):
         pass
-    
+
     def plan(self) -> Optional[UpgradePlan]:
-
         pass
-
 
 
 class SelectInputGeoWerkingsgebiedFactory:
@@ -50,4 +45,3 @@ class SelectInputGeoWerkingsgebiedFactory:
             module_id,
             igw_uuid,
         )
-

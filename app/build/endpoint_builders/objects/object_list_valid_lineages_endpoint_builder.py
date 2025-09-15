@@ -2,7 +2,7 @@ from typing import List
 from app.api.domains.objects.endpoints import ObjectListValidLineagesEndpointContext, list_valid_lineages_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import OrderConfig, PagedResponse
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 from app.core.types import Model
@@ -18,7 +18,7 @@ class ObjectListValidLineagesEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
         response_model: Model = models_provider.get_model(resolver_config["response_model"])
 
@@ -34,7 +34,7 @@ class ObjectListValidLineagesEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(list_valid_lineages_endpoint, context)
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],

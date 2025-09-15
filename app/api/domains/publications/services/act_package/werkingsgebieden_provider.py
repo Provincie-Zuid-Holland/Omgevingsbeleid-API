@@ -53,7 +53,7 @@ class PublicationWerkingsgebiedenProvider:
 
             area: Optional[AreasTable] = self._area_repository.get_with_gml(session, area_uuid)
             if area is None:
-                raise RuntimeError(f"Area UUID does not exists for code: {code}")
+                raise RuntimeError(f"Area UUID does not exist for code: {code}")
 
             dso_werkingsgebied: dict = self._as_dso_werkingsgebied(act_frbr, werkingsgebied, area)
             result.append(dso_werkingsgebied)

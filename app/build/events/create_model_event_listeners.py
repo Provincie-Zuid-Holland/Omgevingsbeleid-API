@@ -3,7 +3,7 @@ from typing import List, Optional
 import pydantic
 
 from app.api.domains.modules.types import PublicModuleObjectRevision
-from app.api.domains.objects.types import NextObjectVersion
+from app.api.domains.objects.types import NextObjectVersion, ObjectStatics
 from app.core.services.event.types import Listener
 from app.core.types import Model, WerkingsgebiedRelatedObjects
 
@@ -198,6 +198,23 @@ class AddRelatedObjectsToWerkingsgebiedObjectModelListener(Listener[CreateModelE
         event.payload.pydantic_fields[field_name] = (
             Optional[WerkingsgebiedRelatedObjects],
             None,
+        )
+
+        return event
+
+
+class AddJoinDocumentsToObjectModelListener(Listener[CreateModelEvent]):
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+        service_config: dict = event.context.intermediate_model.service_config
+        if "join_documents" not in service_config:
+            return event
+
+        config: dict = service_config["join_documents"]
+        field_name: str = config["to_field"]
+
+        event.payload.pydantic_fields[field_name] = (
+            List[ObjectStatics],
+            [],
         )
 
         return event

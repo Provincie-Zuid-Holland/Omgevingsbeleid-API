@@ -2,7 +2,7 @@ from app.api.domains.others.endpoints.files_list_endpoint import get_files_list_
 from app.api.domains.others.types import StorageFileBasic
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import PagedResponse
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -17,8 +17,8 @@ class ListStorageFilesEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
-        return ConfiguiredFastapiEndpoint(
+    ) -> ConfiguredFastapiEndpoint:
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=get_files_list_endpoint,
             methods=["GET"],

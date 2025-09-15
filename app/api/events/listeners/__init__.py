@@ -15,6 +15,7 @@ from .module_object_patched_event_listeners import ChangeAreaListener
 from .retrieved_module_objects_event_listeners import (
     AddRelationsToModuleObjectsListener,
     GetColumnImagesForModuleObjectListener,
+    JoinDocumentsToModuleObjectsListener,
     JoinWerkingsgebiedToModuleObjectsListener,
     JoinOnderverdelingenForModuleObjectListener,
 )
@@ -24,6 +25,7 @@ from .retrieved_objects_event_listeners import (
     AddRelationsToObjectsListener,
     AddWerkingsgebiedRelatedObjectsToObjectsListener,
     GetColumnImagesForObjectListener,
+    JoinDocumentsToObjectsListener,
     JoinWerkingsgebiedenToObjectsListener,
     JoinOnderverdelingenForObjectListener,
 )

@@ -274,6 +274,9 @@ models:
         model_id: werkingsgebied_basic
         to_field: Werkingsgebied
         from_field: Werkingsgebied_Code
+      join_documents:
+        to_field: Documents_Statics
+        from_field: Documents
       insert_assets:
         fields:
           - Description

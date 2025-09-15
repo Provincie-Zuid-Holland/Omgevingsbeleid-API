@@ -83,6 +83,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(create_model_event_listeners.AddRelationsListener),
             providers.Factory(create_model_event_listeners.JoinWerkingsgebiedenListener),
             providers.Factory(create_model_event_listeners.JoinOnderverdelingenListener),
+            providers.Factory(create_model_event_listeners.AddJoinDocumentsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddPublicRevisionsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddNextObjectVersionToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddRelatedObjectsToWerkingsgebiedObjectModelListener),
@@ -142,6 +143,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(
                 endpoint_builders_publications.publications.act_packages.CreatePublicationPackageEndpointBuilder
             ),
+            providers.Factory(endpoint_builders_publications.publications.act_packages.DetailActPackageEndpointBuilder),
             providers.Factory(endpoint_builders_publications.publications.act_packages.DownloadPackageEndpointBuilder),
             providers.Factory(
                 endpoint_builders_publications.publications.act_packages.ListPublicationPackagesEndpointBuilder
@@ -164,11 +166,16 @@ class BuildContainer(containers.DeclarativeContainer):
                 endpoint_builders_publications.publications.announcement_packages.CreatePublicationAnnouncementPackageEndpointBuilder
             ),
             providers.Factory(
+                endpoint_builders_publications.publications.announcement_packages.DetailAnnouncementPackageEndpointBuilder
+            ),
+            providers.Factory(
                 endpoint_builders_publications.publications.announcement_packages.DownloadPublicationAnnouncementPackageEndpointBuilder
             ),
             providers.Factory(
                 endpoint_builders_publications.publications.announcement_packages.ListPublicationAnnouncementPackagesEndpointBuilder
             ),
+            #       Unified Packages
+            providers.Factory(endpoint_builders_publications.packages.ListUnifiedPackagesEndpointBuilder),
             #       Announcement Reports
             providers.Factory(
                 endpoint_builders_publications.publications.announcement_reports.DetailAnnouncementPackageReportEndpointBuilder

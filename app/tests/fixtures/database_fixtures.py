@@ -14,7 +14,6 @@ from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.others import AssetsTable, RelationsTable, StorageFileTable
 from app.core.tables.users import IS_ACTIVE, UsersTable
-from app.core.tables.werkingsgebieden import InputGeoOnderverdelingTable, InputGeoWerkingsgebiedenTable
 from app.core.types import AcknowledgedRelationSide
 from app.core.utils.utils import DATE_FORMAT
 
@@ -135,40 +134,38 @@ class DatabaseFixtures:
         )
         self._session.commit()
 
-    def create_geo_input(self):
-        w_grasvelden_v1 = InputGeoWerkingsgebiedenTable(
-            UUID=uuid.UUID("00000500-0000-0000-0000-000000000001"),
-            Title="Grasvelden",
-            Created_Date=datetime(2025, 1, 1, 0, 0, 0),
-        )
-        w_grasvelden_v2 = InputGeoWerkingsgebiedenTable(
-            UUID=uuid.UUID("00000500-0000-0000-0000-000000000002"),
-            Title="Grasvelden",
-            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
-        )
+    # def create_geo_input(self):
+    #     w_grasvelden_v1 = InputGeoWerkingsgebiedenTable(
+    #         UUID=uuid.UUID("00000500-0000-0000-0000-000000000001"),
+    #         Title="Grasvelden",
+    #         Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+    #     )
+    #     w_grasvelden_v2 = InputGeoWerkingsgebiedenTable(
+    #         UUID=uuid.UUID("00000500-0000-0000-0000-000000000002"),
+    #         Title="Grasvelden",
+    #         Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+    #     )
 
-        o_grasveld_a_1 = InputGeoOnderverdelingTable(
-            UUID=uuid.UUID("00000600-0000-0000-0000-100000000001"),
-            Title="Grasveld A",
-            Created_Date=datetime(2025, 1, 1, 0, 0, 0),
-        )
-        o_grasveld_a_2 = InputGeoOnderverdelingTable(
-            UUID=uuid.UUID("00000600-0000-0000-0000-100000000002"),
-            Title="Grasveld A",
-            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
-        )
-        o_grasveld_b_1 = InputGeoOnderverdelingTable(
-            UUID=uuid.UUID("00000600-0000-0000-0000-200000000001"),
-            Title="Grasveld B",
-            Created_Date=datetime(2025, 1, 1, 0, 0, 0),
-        )
-        o_grasveld_c_1 = InputGeoOnderverdelingTable(
-            UUID=uuid.UUID("00000600-0000-0000-0000-300000000002"),
-            Title="Grasveld D",
-            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
-        )
-
-        w
+    #     o_grasveld_a_1 = InputGeoOnderverdelingTable(
+    #         UUID=uuid.UUID("00000600-0000-0000-0000-100000000001"),
+    #         Title="Grasveld A",
+    #         Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+    #     )
+    #     o_grasveld_a_2 = InputGeoOnderverdelingTable(
+    #         UUID=uuid.UUID("00000600-0000-0000-0000-100000000002"),
+    #         Title="Grasveld A",
+    #         Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+    #     )
+    #     o_grasveld_b_1 = InputGeoOnderverdelingTable(
+    #         UUID=uuid.UUID("00000600-0000-0000-0000-200000000001"),
+    #         Title="Grasveld B",
+    #         Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+    #     )
+    #     o_grasveld_c_1 = InputGeoOnderverdelingTable(
+    #         UUID=uuid.UUID("00000600-0000-0000-0000-300000000002"),
+    #         Title="Grasveld D",
+    #         Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+    #     )
 
     def create_areas(self):
         self._area_geometry_repository.create_area(

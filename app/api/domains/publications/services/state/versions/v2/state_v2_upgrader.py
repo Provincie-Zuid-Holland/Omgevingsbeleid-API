@@ -1,12 +1,11 @@
 import uuid
-from typing import Any, Dict, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
 from sqlalchemy.orm import Session
 
 import app.api.domains.publications.services.state.versions.v2.models as models_v2
 from app.api.domains.publications.repository.publication_act_package_repository import PublicationActPackageRepository
 from app.api.domains.publications.repository.publication_act_version_repository import PublicationActVersionRepository
-from app.api.domains.publications.services.act_package.act_publication_data_provider import ActPublicationDataProvider
 from app.api.domains.publications.services.state.state import State
 from app.api.domains.publications.services.state.state_upgrader import StateUpgrader
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, PublicationData
@@ -15,13 +14,19 @@ from app.core.tables.publications import PublicationActPackageTable, Publication
 from ..v1 import state_v1
 from ..v2 import state_v2
 
+if TYPE_CHECKING:
+    # Circular dependency issue, bit special case that this upgrader needs the ActPublicationDataProvider because we did not store enough data
+    from app.api.domains.publications.services.act_package.act_publication_data_provider import (
+        ActPublicationDataProvider,
+    )
+
 
 class StateV2Upgrader(StateUpgrader):
     def __init__(
         self,
         act_version_repository: PublicationActVersionRepository,
         act_package_repository: PublicationActPackageRepository,
-        act_data_provider: ActPublicationDataProvider,
+        act_data_provider: "ActPublicationDataProvider",
     ):
         self._act_version_repository: PublicationActVersionRepository = act_version_repository
         self._act_package_repository: PublicationActPackageRepository = act_package_repository

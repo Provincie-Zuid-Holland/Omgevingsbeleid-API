@@ -3,7 +3,7 @@ from typing import Type
 from pydantic import BaseModel
 from app.api.domains.objects.endpoints import AtemporalCreateObjectEndpointContext, atemporal_create_object_endpoint
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -18,7 +18,7 @@ class AtemporalCreateObjectEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
 
         request_type: Type[BaseModel] = models_provider.get_pydantic_model(resolver_config["request_model"])
@@ -33,7 +33,7 @@ class AtemporalCreateObjectEndpointBuilder(EndpointBuilder):
         endpoint = self._inject_context(atemporal_create_object_endpoint, context)
         endpoint = self._overwrite_argument_type(endpoint, "object_in", request_type)
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["POST"],

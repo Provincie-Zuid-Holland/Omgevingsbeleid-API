@@ -1,7 +1,9 @@
 import uuid
 
 
-from app.api.domains.werkingsgebieden.repositories.input_geo.input_geo_onderverdeling_repository import InputGeoOnderverdelingRepository
+from app.api.domains.werkingsgebieden.repositories.input_geo.input_geo_onderverdeling_repository import (
+    InputGeoOnderverdelingRepository,
+)
 
 
 class MssqlInputGeoOnderverdelingRepository(InputGeoOnderverdelingRepository):

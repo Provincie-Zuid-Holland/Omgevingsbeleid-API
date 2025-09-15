@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.api.domains.publications.services.state.patch_act_mutation import PatchActMutation
 from app.api.domains.publications.services.state.patch_act_mutation_factory import PatchActMutationFactory
 from app.api.domains.publications.services.state.versions import ActiveState
-from app.api.domains.publications.services.state.versions.v4.models import ActiveAct
+from app.api.domains.publications.services.state.versions.v5.models import ActiveAct
 from app.api.domains.publications.types.api_input_data import ApiActInputData
 from app.api.domains.publications.types.enums import ProcedureType
 

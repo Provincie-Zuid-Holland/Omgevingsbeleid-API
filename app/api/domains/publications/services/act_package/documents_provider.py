@@ -50,7 +50,7 @@ class PublicationDocumentsProvider:
 
             storage_file: Optional[StorageFileTable] = self._file_repostiory.get_by_uuid(session, file_uuid)
             if storage_file is None:
-                raise RuntimeError(f"File UUID does not exists for code: {code}")
+                raise RuntimeError(f"File UUID does not exist for code: {code}")
 
             dso_document: dict = self._as_dso_document(act_frbr, document, storage_file)
             result.append(dso_document)

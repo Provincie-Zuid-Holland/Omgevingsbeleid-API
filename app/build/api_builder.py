@@ -1,15 +1,23 @@
-from typing import List, Optional
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Set
 from sqlalchemy.orm import Session
 
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.api_models import DECLARED_MODELS
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.endpoint_builders.endpoint_builder_provider import EndpointBuilderProvider
 from app.build.objects.types import BuildData, EndpointConfig, ObjectApi
 from app.build.services.config_parser import ConfigParser
 from app.build.services.object_models_builder import ObjectModelsBuilder
 from app.build.services.tables_builder import TablesBuilder
 from app.core.services.models_provider import ModelsProvider
+from app.core.services.object_field_mapping_provider import ObjectFieldMappingProvider
+
+
+@dataclass
+class ApiBuilderResult:
+    object_field_mapping_provider: ObjectFieldMappingProvider
+    routes: List[ConfiguredFastapiEndpoint]
 
 
 class ApiBuilder:
@@ -27,7 +35,7 @@ class ApiBuilder:
         self._endpoint_builder_provider: EndpointBuilderProvider = endpoint_builder_provider
         self._models_provider: ModelsProvider = models_provider
 
-    def build(self, session: Session) -> List[ConfiguiredFastapiEndpoint]:
+    def build(self, session: Session) -> ApiBuilderResult:
         build_data: BuildData = self._config_parser.parse()
 
         self._tables_builder.build_tables(session, build_data.columns)
@@ -35,14 +43,28 @@ class ApiBuilder:
         self._models_provider.add_list(DECLARED_MODELS)
         self._object_models_builder.build_models(session, self._models_provider, build_data.object_intermediates)
 
-        object_routes: List[ConfiguiredFastapiEndpoint] = self._build_object_routes(build_data)
+        object_field_mapping_provider: ObjectFieldMappingProvider = self._build_object_field_mapping_provider(
+            build_data
+        )
+
+        object_routes: List[ConfiguredFastapiEndpoint] = self._build_object_routes(build_data)
         object_routes = object_routes + self._build_main_routes(build_data)
         object_routes.sort(key=lambda o: o.tags)
 
-        return object_routes
+        return ApiBuilderResult(
+            object_field_mapping_provider=object_field_mapping_provider,
+            routes=object_routes,
+        )
 
-    def _build_object_routes(self, build_data: BuildData) -> List[ConfiguiredFastapiEndpoint]:
-        result: List[ConfiguiredFastapiEndpoint] = []
+    def _build_object_field_mapping_provider(self, build_data: BuildData) -> ObjectFieldMappingProvider:
+        object_field_mappings: Dict[str, Set[str]] = {}
+        for object_intermediate in build_data.object_intermediates:
+            field_names: Set[str] = {field.name for field in object_intermediate.fields.values()}
+            object_field_mappings[object_intermediate.object_type] = field_names
+        return ObjectFieldMappingProvider(object_field_mappings)
+
+    def _build_object_routes(self, build_data: BuildData) -> List[ConfiguredFastapiEndpoint]:
+        result: List[ConfiguredFastapiEndpoint] = []
 
         for object_intermediate in build_data.object_intermediates:
             for endpoint_config in object_intermediate.api.endpoint_configs:
@@ -60,7 +82,7 @@ class ApiBuilder:
                     path=path,
                 )
 
-                configured_endpoint: ConfiguiredFastapiEndpoint = endpoint_builder.build_endpoint(
+                configured_endpoint: ConfiguredFastapiEndpoint = endpoint_builder.build_endpoint(
                     self._models_provider,
                     builder_data,
                     endpoint_config,
@@ -70,8 +92,8 @@ class ApiBuilder:
 
         return result
 
-    def _build_main_routes(self, build_data: BuildData) -> List[ConfiguiredFastapiEndpoint]:
-        result: List[ConfiguiredFastapiEndpoint] = []
+    def _build_main_routes(self, build_data: BuildData) -> List[ConfiguredFastapiEndpoint]:
+        result: List[ConfiguredFastapiEndpoint] = []
 
         main_endpoint_configs: List[EndpointConfig] = self._parse_main_api_endpoint_configs(
             build_data.main_config.get("api", {})
@@ -99,7 +121,7 @@ class ApiBuilder:
                 path=path,
             )
 
-            configured_endpoint: ConfiguiredFastapiEndpoint = endpoint_builder.build_endpoint(
+            configured_endpoint: ConfiguredFastapiEndpoint = endpoint_builder.build_endpoint(
                 self._models_provider,
                 builder_data,
                 endpoint_config,

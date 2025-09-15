@@ -5,7 +5,7 @@ from app.api.domains.objects.endpoints.acknowledged_relation_request_endpoint im
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -20,7 +20,7 @@ class AcknowledgedRelationRequestEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
+    ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
         allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
         if not allowed_object_types:
@@ -33,7 +33,7 @@ class AcknowledgedRelationRequestEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(get_acknowledged_relation_request_endpoint, context)
 
-        return ConfiguiredFastapiEndpoint(
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["POST"],
