@@ -22,6 +22,7 @@ pytz
 validators
 shapely
 geopandas
+python-slugify
 
 # Command
 Click

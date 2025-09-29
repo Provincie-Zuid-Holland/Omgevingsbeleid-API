@@ -35,3 +35,10 @@ class ObjectStaticRepository(BaseRepository):
             stmt = stmt.filter(ObjectStaticsTable.Object_Type == object_type)
 
         return self.fetch_all(session, stmt)
+
+    def get_by_source(self, session: Session, source_key: str) -> Optional[ObjectStaticsTable]:
+        stmt = (
+            select(ObjectStaticsTable)
+            .filter(ObjectStaticsTable.Source_Identifier == source_key)
+        )
+        return self.fetch_first(session, stmt)

@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements-dev.in
 #
-alembic==1.16.4
+alembic==1.16.5
     # via -r requirements-dev.in
 asttokens==2.4.1
     # via
@@ -14,24 +14,24 @@ certifi==2025.8.3
     # via requests
 charset-normalizer==3.4.3
     # via requests
-coverage[toml]==7.10.5
+coverage[toml]==7.10.7
     # via
     #   -r requirements-dev.in
     #   coverage-badge
     #   pytest-cov
 coverage-badge==1.1.2
     # via -r requirements-dev.in
-debugpy==1.8.16
+debugpy==1.8.17
     # via -r requirements-dev.in
 decorator==5.2.1
     # via ipython
 devtools==0.12.2
     # via -r requirements-dev.in
-executing==2.2.0
+executing==2.2.1
     # via
     #   devtools
     #   stack-data
-faker==37.5.3
+faker==37.8.0
     # via -r requirements-dev.in
 freezegun==1.5.5
     # via -r requirements-dev.in
@@ -41,7 +41,7 @@ idna==3.10
     # via requests
 iniconfig==2.1.0
     # via pytest
-ipython==9.4.0
+ipython==9.5.0
     # via -r requirements-dev.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -63,7 +63,7 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-prompt-toolkit==3.0.51
+prompt-toolkit==3.0.52
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
@@ -75,14 +75,14 @@ pygments==2.19.2
     #   ipython
     #   ipython-pygments-lexers
     #   pytest
-pytest==8.4.1
+pytest==8.4.2
     # via
     #   -r requirements-dev.in
     #   pytest-cov
     #   pytest-mock
-pytest-cov==6.2.1
+pytest-cov==7.0.0
     # via -r requirements-dev.in
-pytest-mock==3.14.1
+pytest-mock==3.15.1
     # via -r requirements-dev.in
 python-dateutil==2.9.0.post0
     # via freezegun
@@ -90,7 +90,7 @@ requests==2.32.5
     # via requests-mock
 requests-mock==1.12.1
     # via -r requirements-dev.in
-ruff==0.12.10
+ruff==0.13.2
     # via -r requirements-dev.in
 six==1.17.0
     # via
@@ -104,7 +104,7 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via
     #   alembic
     #   sqlalchemy
@@ -112,7 +112,7 @@ tzdata==2025.2
     # via faker
 urllib3==2.5.0
     # via requests
-wcwidth==0.2.13
+wcwidth==0.2.14
     # via prompt-toolkit
 
 # The following packages are considered to be unsafe in a requirements file:

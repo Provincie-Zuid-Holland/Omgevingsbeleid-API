@@ -81,7 +81,7 @@ class AreaProcessorService:
 
     def _get_or_create_area(self, new_record: ModuleObjectsTable, werkingsgebied: dict) -> uuid.UUID:
         werkingsgebied_uuid: uuid.UUID = uuid.UUID(werkingsgebied["UUID"])
-        existing_area: Optional[AreasTable] = self._area_repository.get_by_werkingsgebied_uuid(
+        existing_area: Optional[AreasTable] = self._area_repository.get_by_source_uuid(
             self._session, werkingsgebied_uuid
         )
         if existing_area is not None:
