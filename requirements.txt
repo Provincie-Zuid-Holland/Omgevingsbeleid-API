@@ -40,7 +40,7 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@1e6a5e5921e35e067faebebaf55304adf8d9d2f7
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.8.2
     # via -r requirements.in
 fastapi==0.118.0
     # via -r requirements.in
@@ -89,7 +89,7 @@ packaging==25.0
     #   dso
     #   geopandas
     #   pyogrio
-pandas==2.3.2
+pandas==2.3.3
     # via geopandas
 passlib==1.7.4
     # via -r requirements.in
