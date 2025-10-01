@@ -53,7 +53,9 @@ class ApiBuilder:
         object_routes = object_routes + self._build_main_routes(build_data)
         object_routes.sort(key=lambda o: o.tags)
 
-        required_object_fields_rule_mapping: Dict[str, Type[BaseModel]] = self._build_object_fields_rule_mapping(build_data, self._models_provider)
+        required_object_fields_rule_mapping: Dict[str, Type[BaseModel]] = self._build_object_fields_rule_mapping(
+            build_data, self._models_provider
+        )
 
         return ApiBuilderResult(
             object_field_mapping_provider=object_field_mapping_provider,
@@ -61,7 +63,9 @@ class ApiBuilder:
             required_object_fields_rule_mapping=required_object_fields_rule_mapping,
         )
 
-    def _build_object_fields_rule_mapping(self, build_data: BuildData, model_provider: ModelsProvider) -> Dict[str, Type[BaseModel]]:
+    def _build_object_fields_rule_mapping(
+        self, build_data: BuildData, model_provider: ModelsProvider
+    ) -> Dict[str, Type[BaseModel]]:
         rule_mapping: Dict[str, Type[BaseModel]] = {}
         rule_config: Dict[str, str] = build_data.main_config["required_object_fields_rule"]
         for object_type, model_name in rule_config.items():

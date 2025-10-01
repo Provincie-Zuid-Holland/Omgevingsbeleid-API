@@ -133,9 +133,11 @@ class ApiContainer(containers.DeclarativeContainer):
     validate_module_service = providers.Singleton(
         module_services.ValidateModuleService,
         rules=providers.List(
-            providers.Singleton(module_services.RequiredObjectFieldsRule, object_map=required_object_fields_rule_mapping),
+            providers.Singleton(
+                module_services.RequiredObjectFieldsRule, object_map=required_object_fields_rule_mapping
+            ),
             providers.Singleton(module_services.RequiredHierarchyCodeRule, repository=publication.object_repository),
-        )
+        ),
     )
 
     object_provider = providers.Factory(

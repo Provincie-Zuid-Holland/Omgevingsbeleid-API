@@ -94,7 +94,18 @@ class RequiredHierarchyCodeRule(ValidationRule):
         errors: List[ValidateModuleError] = []
 
         for object_in in objects:
-            pass
+            target_code = object_in.get("Hierarchy_Code")
+            if target_code is None:
+                continue
+
+            if target_code not in existing_object_codes:
+                errors.append(
+                    ValidateModuleError(
+                        rule="RequiredHierarchyCodeRule",
+                        object_code=object_in.get("Code"),
+                        messages=[f"Hierarchy code {target_code} does not exist"],
+                    )
+                )
 
         # @todo: iterate over module_objects
         # check if Hierarchy_Code is not empty
