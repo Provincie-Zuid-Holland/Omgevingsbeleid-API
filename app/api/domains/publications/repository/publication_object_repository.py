@@ -17,7 +17,7 @@ class PublicationObjectRepository(BaseRepository):
         module_id: int,
         timepoint: datetime,
         object_types: List[str] = [],
-        requested_field_map: Optional[List[str]] = None,
+        requested_fields: List[str] = [],
     ) -> List[dict]:
         # @TODO: fix imports/optionals
         # @Todo: make sure we do not filter on object_types if the list is empty
@@ -36,9 +36,9 @@ class PublicationObjectRepository(BaseRepository):
                 "Modified_Date",
             ]
         )
-        field_map: Set[str] = required_fields.union(set(requested_field_map or {}))
+        fields: Set[str] = required_fields.union(set(requested_fields))
 
-        query = self._get_full_query(module_id, timepoint, object_types, field_map)
+        query = self._get_full_query(module_id, timepoint, object_types, fields)
 
         result = session.execute(query)
         rows = [row._asdict() for row in result]
@@ -110,9 +110,11 @@ class PublicationObjectRepository(BaseRepository):
             .join(ModuleObjectsTable.ModuleObjectContext)
             .filter(ModuleObjectsTable.Module_ID == module_id)
             .filter(ModuleObjectsTable.Modified_Date < timepoint)
-            .filter(ModuleObjectsTable.Object_Type.in_(object_types))
             .filter(ModuleObjectContextTable.Hidden == False)
         ).subquery()
+
+        if object_types:
+            subq = subq.filter(ModuleObjectsTable.Object_Type.in_(object_types))
 
         aliased_objects = aliased(ModuleObjectsTable, subq)
         stmt = (

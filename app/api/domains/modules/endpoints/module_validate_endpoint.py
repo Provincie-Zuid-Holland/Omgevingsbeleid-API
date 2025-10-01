@@ -9,7 +9,8 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
-from app.api.domains.modules.services.validate_module_service import ValidateModuleError, ValidateModuleResult, ValidateModuleService
+from app.api.domains.modules.services.validate_module_service import ValidateModuleResult, ValidateModuleService, \
+    ValidateModuleRequest
 from app.api.domains.users.dependencies import depends_current_user
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.users import UsersTable
@@ -30,6 +31,7 @@ def get_module_validate_endpoint(
         module.Module_ID,
         datetime.now(timezone.utc),
     )
+    request = ValidateModuleRequest(module_id=module.Module_ID, module_objects=module_objects)
 
-    result: ValidateModuleResult = validate_module_service.validate(session, module_objects)
+    result: ValidateModuleResult = validate_module_service.validate(session, request)
     return result

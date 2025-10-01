@@ -69,6 +69,17 @@ class ApiContainer(containers.DeclarativeContainer):
         mssql=mssql_area_geometry_repository,
     )
 
+    publication = providers.Container(
+        PublicationContainer,
+        config=config,
+        main_config=main_config,
+        area_repository=area_repository,
+        area_geometry_repository=area_geometry_repository,
+        storage_file_repository=storage_file_repository,
+        asset_repository=asset_repository,
+        object_field_mapping_provider=object_field_mapping_provider,
+    )
+
     html_images_extractor_factory = providers.Factory(
         event_listeners.HtmlImagesExtractorFactory,
         asset_repository=asset_repository,
@@ -123,6 +134,7 @@ class ApiContainer(containers.DeclarativeContainer):
         module_services.ValidateModuleService,
         rules=providers.List(
             providers.Singleton(module_services.RequiredObjectFieldsRule, object_map=required_object_fields_rule_mapping),
+            providers.Singleton(module_services.RequiredHierarchyCodeRule, repository=publication.object_repository),
         )
     )
 
@@ -217,15 +229,4 @@ class ApiContainer(containers.DeclarativeContainer):
     event_manager = providers.Singleton(
         event_manager.EventManager,
         event_listeners=event_listeners,
-    )
-
-    publication = providers.Container(
-        PublicationContainer,
-        config=config,
-        main_config=main_config,
-        area_repository=area_repository,
-        area_geometry_repository=area_geometry_repository,
-        storage_file_repository=storage_file_repository,
-        asset_repository=asset_repository,
-        object_field_mapping_provider=object_field_mapping_provider,
     )
