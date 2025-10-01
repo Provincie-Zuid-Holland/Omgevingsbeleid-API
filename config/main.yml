@@ -30,6 +30,10 @@ sort_default_object_id: &sort_default_object_id
     order: asc
   allowed_columns: *sort_allowed_object_columns
 
+required_object_fields_rule:
+  maatregel: maatregel_module_validate
+  ambitie: ambitie_patch
+
 api:
   routers:
     - prefix: /login/access-token
@@ -191,6 +195,9 @@ api:
       endpoints:
         - resolver: module_overview
         - resolver: edit_module
+        - resolver: validate_module
+          resolver_data:
+            path: /validate
         - resolver: activate_module
           resolver_data:
             path: /activate

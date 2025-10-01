@@ -23,6 +23,7 @@ from app.core.settings import Settings
 class ApiContainer(containers.DeclarativeContainer):
     models_provider = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
+    required_object_fields_rule_mapping = providers.Dependency()
 
     config = providers.Configuration(pydantic_settings=[Settings()])
     main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
@@ -116,6 +117,13 @@ class ApiContainer(containers.DeclarativeContainer):
         source_geometry_repository=geometry_repository,
         area_repository=area_repository,
         area_geometry_repository=area_geometry_repository,
+    )
+
+    validate_module_service = providers.Singleton(
+        module_services.ValidateModuleService,
+        rules=providers.List(
+            providers.Singleton(module_services.RequiredObjectFieldsRule, object_map=required_object_fields_rule_mapping),
+        )
     )
 
     object_provider = providers.Factory(

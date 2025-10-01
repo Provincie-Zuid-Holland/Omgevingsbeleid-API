@@ -16,9 +16,11 @@ class PublicationObjectRepository(BaseRepository):
         session: Session,
         module_id: int,
         timepoint: datetime,
-        object_types: List[str],
-        requested_field_map: List[str],
+        object_types: List[str] = [],
+        requested_field_map: Optional[List[str]] = None,
     ) -> List[dict]:
+        # @TODO: fix imports/optionals
+        # @Todo: make sure we do not filter on object_types if the list is empty
         required_fields: Set[str] = set(
             [
                 "UUID",
@@ -34,7 +36,7 @@ class PublicationObjectRepository(BaseRepository):
                 "Modified_Date",
             ]
         )
-        field_map: Set[str] = required_fields.union(set(requested_field_map))
+        field_map: Set[str] = required_fields.union(set(requested_field_map or {}))
 
         query = self._get_full_query(module_id, timepoint, object_types, field_map)
 
@@ -61,9 +63,11 @@ class PublicationObjectRepository(BaseRepository):
             select(ObjectsTable, row_number)
             .options(selectinload(ObjectsTable.ObjectStatics))
             .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Object_Type.in_(object_types))
             .filter(ObjectsTable.Start_Validity < timepoint)
         )
+
+        if object_types:
+            subq = subq.filter(ObjectsTable.Object_Type.in_(object_types))
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
