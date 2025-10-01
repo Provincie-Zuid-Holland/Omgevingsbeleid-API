@@ -67,7 +67,7 @@ api:
         - resolver: module_patch_object
           resolver_data:
             path: /{lineage_id}
-            request_model: maatregel_module_validate
+            request_model: maatregel_patch
             response_model: maatregel_uuid
         - resolver: module_list_lineage_tree
           resolver_data:
@@ -315,62 +315,6 @@ models:
             model_id: user_short
           - to_field: Client_1
             model_id: user_short
-  maatregel_module_validate:
-    name: MaatregelModuleValidate
-    fields:
-      title:
-        validators:
-          - id: length
-            data:
-              min: 3
-              max: 200
-          - id: plain_text
-      description:
-        validators:
-          - id: html
-          - id: image
-            data:
-              max_width: 1500
-              max_height: 2500
-              max_kb: 800
-      role:
-        validators:
-          - id: length
-            data:
-              min: 3
-      effect:
-        validators:
-          - id: html
-          - id: image
-            data:
-              max_width: 1500
-              max_height: 2500
-              max_kb: 800
-      hierarchy_code:
-        validators:
-          - id: object_code_allowed_type
-            data:
-              allowed_object_types:
-                - beleidskeuze
-          - id: object_code_exists
-      documents:
-        default: none
-        optional: true
-        validators:
-          - id: object_codes_allowed_type
-            data:
-              allowed_object_types:
-                - document
-          - id: object_codes_exists
-      werkingsgebied_code:
-        default: none
-        optional: true
-        validators:
-          - id: object_code_allowed_type
-            data:
-              allowed_object_types:
-                - werkingsgebied
-          - id: object_code_exists
   maatregel_patch:
     name: MaatregelPatch
     fields:
@@ -494,3 +438,55 @@ models:
     fields:
       object_id:
       uuid:
+  maatregel_module_validate:
+    name: MaatregelModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html
+      role:
+        validators:
+          - id: length
+            data:
+              min: 3
+      effect:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html
+      hierarchy_code:
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - beleidskeuze
+          - id: object_code_exists
+      documents:
+        default: none
+        optional: true
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - document
+          - id: object_codes_exists
+      werkingsgebied_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - werkingsgebied
+          - id: object_code_exists
