@@ -19,8 +19,6 @@ class PublicationObjectRepository(BaseRepository):
         object_types: List[str] = [],
         requested_fields: List[str] = [],
     ) -> List[dict]:
-        # @TODO: fix imports/optionals
-        # @Todo: make sure we do not filter on object_types if the list is empty
         required_fields: Set[str] = set(
             [
                 "UUID",

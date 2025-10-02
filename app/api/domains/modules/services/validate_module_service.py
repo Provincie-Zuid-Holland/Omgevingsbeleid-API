@@ -43,7 +43,6 @@ class ValidateModuleService:
     def __init__(self, rules: List[ValidationRule]):
         self._rules: List[ValidationRule] = rules
 
-    # @todo: make "input" class for module_objects and module (ModuleTable) as 1 input class for this service
     def validate(self, db: Session, request: ValidateModuleRequest) -> ValidateModuleResult:
         errors: List[ValidateModuleError] = []
         for rule in self._rules:
@@ -106,9 +105,4 @@ class RequiredHierarchyCodeRule(ValidationRule):
                         messages=[f"Hierarchy code {target_code} does not exist"],
                     )
                 )
-
-        # @todo: iterate over module_objects
-        # check if Hierarchy_Code is not empty
-        # if not empty, check if exists in existing_object_codes
-        # if not exists = dangling obejct, create error to return
         return errors
