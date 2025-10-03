@@ -20,6 +20,12 @@ class WerkingsgebiedenRepository(BaseRepository):
             sort=(getattr(SourceWerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
         )
 
+    def get_latest_by_title(
+        self, session: Session, title: str
+    ) -> SourceWerkingsgebiedenTable:
+        # @todo
+        ...
+
     def get_unique_paginated(self, session: Session, pagination: SortedPagination) -> PaginatedQueryResult:
         row_number = (
             func.row_number()
