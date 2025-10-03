@@ -473,3 +473,55 @@ models:
     fields:
       object_id:
       uuid:
+  beleidskeuze_module_validate:
+    name: BeleidskeuzeModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html
+      cause:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html
+      provincial_interest:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html
+      explanation:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html
+      hierarchy_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - beleidsdoel
+          - id: object_code_exists
+      werkingsgebied_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - werkingsgebied
+          - id: object_code_exists

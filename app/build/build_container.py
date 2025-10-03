@@ -246,6 +246,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.CloseModuleEndpointBuilder),
             providers.Factory(endpoint_builders_modules.CompleteModuleEndpointBuilder),
             providers.Factory(endpoint_builders_modules.CreateModuleEndpointBuilder),
+            providers.Factory(endpoint_builders_modules.ModuleValidateEndpointBuilder),
             providers.Factory(endpoint_builders_modules.EditModuleEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ListActiveModuleObjectsEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ListModuleObjectsEndpointBuilder),

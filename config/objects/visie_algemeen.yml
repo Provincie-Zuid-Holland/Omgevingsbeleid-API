@@ -266,3 +266,19 @@ models:
     fields:
       object_id:
       uuid:
+  visie_algemeen_module_validate:
+    name: VisieModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html

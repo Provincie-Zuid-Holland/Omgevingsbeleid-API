@@ -273,3 +273,15 @@ models:
     fields:
       object_id:
       uuid:
+  werkingsgebied_module_validate:
+    name: WerkingsgebiedModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      area_uuid:
+  

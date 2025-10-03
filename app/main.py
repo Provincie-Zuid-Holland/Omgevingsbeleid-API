@@ -20,6 +20,7 @@ with session_scope_with_context(session_maker) as session:
 api_container = ApiContainer(
     models_provider=build_container.models_provider,
     object_field_mapping_provider=build_result.object_field_mapping_provider,
+    required_object_fields_rule_mapping=build_result.required_object_fields_rule_mapping,
 )
 api_container.wire(packages=["app.core", "app.api"])
 api_container.init_resources()
