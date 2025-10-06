@@ -47,6 +47,10 @@ class PublicationContainer(containers.DeclarativeContainer):
         services.PdfExportService,
         koop_settings=config.PUBLICATION_KOOP,
     )
+    pdf_meta_service = providers.Singleton(
+        services.PdfMetaService,
+        main_config=main_config,
+    )
     announcement_defaults_provider = providers.Factory(
         services.PublicationAnnouncementDefaultsProvider,
         main_config=main_config,

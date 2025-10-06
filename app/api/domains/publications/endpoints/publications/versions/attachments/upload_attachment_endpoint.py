@@ -2,7 +2,7 @@ import hashlib
 import re
 import uuid
 from datetime import datetime, timezone
-from typing import Annotated, Optional
+from typing import Annotated, Optional, List
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, File, Form, HTTPException, UploadFile, status
@@ -13,6 +13,8 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_version
 from app.api.domains.publications.repository.publication_storage_file_repository import PublicationStorageFileRepository
+from app.api.domains.publications.services import PdfMetaService
+from app.api.domains.publications.services.pdf_meta_service import PdfMetaReport
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
 from app.core.tables.publications import (
@@ -24,7 +26,8 @@ from app.core.tables.users import UsersTable
 
 
 class UploadAttachmentResponse(BaseModel):
-    ID: int
+    ID: Optional[int] = None,
+    PDFMetaReport: List[PdfMetaReport]
 
 
 class FileData(BaseModel):
@@ -52,19 +55,29 @@ def post_upload_attachment_endpoint(
     storage_repository: Annotated[
         PublicationStorageFileRepository, Depends(Provide[ApiContainer.publication.storage_file_repository])
     ],
+    pdf_meta_service: Annotated[PdfMetaService, Depends(Provide[ApiContainer.publication.pdf_meta_service])],
     session: Annotated[Session, Depends(depends_db_session)],
     title: str = Form(...),
     uploaded_file: UploadFile = File(...),
+    ignore_report: bool = Form(...),
 ) -> UploadAttachmentResponse:
     _guard_upload(version, uploaded_file)
-    timepoint: datetime = datetime.now(timezone.utc)
 
     file_binary = uploaded_file.file.read()
+    pdf_meta_report = pdf_meta_service.report_banned_meta(file_binary)
+
+    if not ignore_report and len(pdf_meta_report) > 0:
+        response: UploadAttachmentResponse = UploadAttachmentResponse(
+            PDFMetaReport=pdf_meta_report,
+        )
+        return response
+
     file_size = len(file_binary)
     content_type = uploaded_file.content_type
     original_filename = _normalize_filename(uploaded_file.filename)
     checksum = hashlib.sha256(file_binary).hexdigest()
 
+    timepoint: datetime = datetime.now(timezone.utc)
     file_data: FileData = FileData(
         Binary=file_binary,
         Size=file_size,
@@ -98,6 +111,7 @@ def post_upload_attachment_endpoint(
 
     response: UploadAttachmentResponse = UploadAttachmentResponse(
         ID=attachment.ID,
+        PDFMetaReport=pdf_meta_report,
     )
     return response
 
