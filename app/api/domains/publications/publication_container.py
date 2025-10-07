@@ -15,7 +15,6 @@ class PublicationContainer(containers.DeclarativeContainer):
     main_config = providers.Dependency()
     area_repository = providers.Dependency()
     area_geometry_repository = providers.Dependency()
-    storage_file_repository = providers.Dependency()
     asset_repository = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
 
@@ -46,10 +45,6 @@ class PublicationContainer(containers.DeclarativeContainer):
     pdf_export_service = providers.Singleton(
         services.PdfExportService,
         koop_settings=config.PUBLICATION_KOOP,
-    )
-    pdf_meta_service = providers.Singleton(
-        services.PdfMetaService,
-        main_config=main_config,
     )
     announcement_defaults_provider = providers.Factory(
         services.PublicationAnnouncementDefaultsProvider,

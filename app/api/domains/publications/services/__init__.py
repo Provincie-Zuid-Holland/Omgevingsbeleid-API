@@ -3,7 +3,6 @@ from .act_frbr_provider import ActFrbrProvider
 from .bill_frbr_provider import BillFrbrProvider
 from .doc_frbr_provider import DocFrbrProvider
 from .pdf_export_service import PdfExportService
-from .pdf_meta_service import PdfMetaService
 from .publication_announcement_defaults_provider import PublicationAnnouncementDefaultsProvider
 from .publication_object_provider import PublicationObjectProvider
 from .publication_version_defaults_provider import PublicationVersionDefaultsProvider
