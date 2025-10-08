@@ -4,3 +4,4 @@ from .full_graph_endpoint import get_full_graph_endpoint
 from .mssql_search_endpoint import get_mssql_search_endpoint
 from .mssql_valid_search_endpoint import get_mssql_valid_search_endpoint
 from .object_graph_endpoint import get_object_graph_endpoint
+from .files_download_endpoint import get_files_download_endpoint
