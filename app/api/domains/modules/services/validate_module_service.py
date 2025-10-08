@@ -1,12 +1,15 @@
 from abc import ABC, ABCMeta, abstractmethod
 from datetime import timezone, datetime
+import hashlib
 from typing import Dict, List, Optional, Type, Set
 
 from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
+from app.api.domains.werkingsgebieden.repositories.werkingsgebieden_repository import WerkingsgebiedenRepository
 from app.core.tables.modules import ModuleObjectsTable
+from app.core.tables.others import AreasTable
 
 
 class ValidateModuleError(BaseModel, metaclass=ABCMeta):
@@ -106,3 +109,27 @@ class RequiredHierarchyCodeRule(ValidationRule):
                     )
                 )
         return errors
+
+
+class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
+    def __init__(self, source_repository: WerkingsgebiedenRepository):
+        self._source_repository: WerkingsgebiedenRepository = source_repository
+
+    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
+        for object_in in request.module_objects:
+            area: Optional[AreasTable] = object_in.Area
+            if area is None:
+                continue
+            
+            if area.Shape is None:
+                # @todo: error in result
+                continue
+
+            used_hash = hashlib.sha256(area.Shape)
+            a = True
+            # @todo fetch latest from source werkingsgebied for this area
+            # And compare hashes
+            # if different -> add error
+
+
+        return []
