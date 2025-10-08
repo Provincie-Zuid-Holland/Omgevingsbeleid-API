@@ -193,6 +193,9 @@ api:
     - prefix: /storage-files/{file_uuid}
       endpoints:
         - resolver: detail_storage_file
+    - prefix: /storage-files/{file_uuid}/download
+      endpoints:
+        - resolver: download_storage_file
     - prefix: /modules
       endpoints:
         - resolver: create_module
@@ -1360,4 +1363,3 @@ publication:
           - Title: Ontwerp Programma Zuid-Holland
             Description: |
               <p>Tekst</p>
-  

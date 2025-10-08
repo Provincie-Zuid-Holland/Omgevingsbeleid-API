@@ -273,6 +273,7 @@ class BuildContainer(containers.DeclarativeContainer):
             # Others
             providers.Factory(endpoint_builders_others.ListStorageFilesEndpointBuilder),
             providers.Factory(endpoint_builders_others.DetailStorageFilesEndpointBuilder),
+            providers.Factory(endpoint_builders_others.DownloadStorageFilesEndpointBuilder),
             providers.Factory(endpoint_builders_others.StorageFileUploadFileEndpointBuilder),
             providers.Factory(endpoint_builders_others.FullGraphEndpointBuilder),
             providers.Factory(endpoint_builders_others.ObjectGraphEndpointBuilder),
