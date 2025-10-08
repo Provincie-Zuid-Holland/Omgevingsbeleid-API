@@ -35,6 +35,9 @@ beautifulsoup4
 # Image information
 Pillow
 
+# PDF information
+pikepdf
+
 # Exporting xml and pdf
 fs
 pdfkit

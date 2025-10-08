@@ -1,16 +1,17 @@
-import hashlib
-import re
 import uuid
 from datetime import datetime, timezone
 from typing import Annotated, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, File, Form, HTTPException, UploadFile, status
+from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
+from app.api.domains.others.services import PdfMetaService
+from app.api.domains.others.types import FileData
 from app.api.domains.publications.dependencies import depends_publication_version
 from app.api.domains.publications.repository.publication_storage_file_repository import PublicationStorageFileRepository
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
@@ -27,17 +28,6 @@ class UploadAttachmentResponse(BaseModel):
     ID: int
 
 
-class FileData(BaseModel):
-    Binary: bytes
-    Size: int
-    Content_Type: str
-    Filename: str
-    Checksum: str
-
-    def get_lookup(self) -> str:
-        return self.Checksum[0:10]
-
-
 @inject
 def post_upload_attachment_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
@@ -52,26 +42,25 @@ def post_upload_attachment_endpoint(
     storage_repository: Annotated[
         PublicationStorageFileRepository, Depends(Provide[ApiContainer.publication.storage_file_repository])
     ],
+    pdf_meta_service: Annotated[PdfMetaService, Depends(Provide[ApiContainer.pdf_meta_service])],
     session: Annotated[Session, Depends(depends_db_session)],
     title: str = Form(...),
     uploaded_file: UploadFile = File(...),
+    ignore_report: bool = Form(...),
 ) -> UploadAttachmentResponse:
     _guard_upload(version, uploaded_file)
-    timepoint: datetime = datetime.now(timezone.utc)
-
-    file_binary = uploaded_file.file.read()
-    file_size = len(file_binary)
-    content_type = uploaded_file.content_type
-    original_filename = _normalize_filename(uploaded_file.filename)
-    checksum = hashlib.sha256(file_binary).hexdigest()
 
     file_data: FileData = FileData(
-        Binary=file_binary,
-        Size=file_size,
-        Content_Type=content_type or "",
-        Filename=original_filename,
-        Checksum=checksum,
+        File=uploaded_file,
     )
+
+    if not ignore_report:
+        pdf_meta_report = pdf_meta_service.report_banned_meta(file_data.get_binary())
+        if len(pdf_meta_report) > 0:
+            raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
+
+    timepoint: datetime = datetime.now(timezone.utc)
+
     file_table: PublicationStorageFileTable = _store_file(
         session,
         storage_repository,
@@ -85,7 +74,7 @@ def post_upload_attachment_endpoint(
     attachment = PublicationVersionAttachmentTable(
         Publication_Version_UUID=version.UUID,
         File_UUID=file_table.UUID,
-        Filename=original_filename,
+        Filename=file_data.normalize_filename(),
         Title=title,
         Created_Date=timepoint,
         Created_By_UUID=user.UUID,
@@ -96,9 +85,7 @@ def post_upload_attachment_endpoint(
     session.commit()
     session.flush()
 
-    response: UploadAttachmentResponse = UploadAttachmentResponse(
-        ID=attachment.ID,
-    )
+    response: UploadAttachmentResponse = UploadAttachmentResponse(ID=attachment.ID)
     return response
 
 
@@ -111,16 +98,6 @@ def _guard_upload(version: PublicationVersionTable, uploaded_file: UploadFile):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "No file uploaded.")
     if uploaded_file.content_type != "application/pdf":
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unsupported file type, expected a PDF.")
-
-
-def _normalize_filename(filename: Optional[str]) -> str:
-    if filename is None:
-        return "file.pdf"
-    filename = filename.lower()
-    filename = re.sub(r"[^a-z0-9\.]+", "-", filename)
-    filename = re.sub(r"-+", "-", filename)
-    filename = filename.strip("-")
-    return filename
 
 
 def _store_file(
@@ -140,11 +117,11 @@ def _store_file(
     file_table: PublicationStorageFileTable = PublicationStorageFileTable(
         UUID=uuid.uuid4(),
         Lookup=file_data.get_lookup(),
-        Checksum=file_data.Checksum,
-        Filename=file_data.Filename,
-        Content_Type=file_data.Content_Type,
-        Size=file_data.Size,
-        Binary=file_data.Binary,
+        Checksum=file_data.get_checksum(),
+        Filename=file_data.normalize_filename(),
+        Content_Type=file_data.get_content_type() or "",
+        Size=file_data.get_size(),
+        Binary=file_data.get_binary(),
         Created_Date=timepoint,
         Created_By_UUID=user_uuid,
     )

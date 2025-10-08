@@ -12,6 +12,7 @@ import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_reposit
 import app.api.domains.werkingsgebieden.services as werkingsgebied_services
 import app.api.events.listeners as event_listeners
 from app.api.domains.others.repositories import storage_file_repository
+from app.api.domains.others.services import PdfMetaService
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.services import permission_service
 from app.core.db.session import create_db_engine
@@ -40,6 +41,8 @@ class ApiContainer(containers.DeclarativeContainer):
         permission_service.PermissionService,
         main_config=main_config,
     )
+
+    pdf_meta_service = providers.Singleton(PdfMetaService)
 
     storage_file_repository = providers.Singleton(storage_file_repository.StorageFileRepository)
     object_repository = providers.Singleton(object_repositories.ObjectRepository)
