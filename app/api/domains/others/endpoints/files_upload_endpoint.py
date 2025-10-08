@@ -48,10 +48,10 @@ class EndpointHandler:
     def handle(self) -> UploadFileResponse:
         self._guard_upload()
 
-        pdf_meta_report = self._pdf_meta_service.report_banned_meta(self._file_data.get_binary())
-
-        if not self._ignore_report and len(pdf_meta_report) > 0:
-            raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
+        if not self._ignore_report:
+            pdf_meta_report = self._pdf_meta_service.report_banned_meta(self._file_data.get_binary())
+            if len(pdf_meta_report) > 0:
+                raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
 
         file_table: StorageFileTable = self._store_file()
         self._session.commit()

@@ -53,10 +53,11 @@ def post_upload_attachment_endpoint(
     file_data: FileData = FileData(
         File=uploaded_file,
     )
-    pdf_meta_report = pdf_meta_service.report_banned_meta(file_data.get_binary())
 
-    if not ignore_report and len(pdf_meta_report) > 0:
-        raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
+    if not ignore_report:
+        pdf_meta_report = pdf_meta_service.report_banned_meta(file_data.get_binary())
+        if len(pdf_meta_report) > 0:
+            raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
 
     timepoint: datetime = datetime.now(timezone.utc)
 
