@@ -75,6 +75,7 @@ def patch_input_geo_use_werkingsgebied(
 
     patch_service: PatchInputGeoService = patch_input_geo_service_factory.create_service(
         session,
+        module,
         input_geo_werkingsgebied,
     )
     result = patch_service.patch(old_record)

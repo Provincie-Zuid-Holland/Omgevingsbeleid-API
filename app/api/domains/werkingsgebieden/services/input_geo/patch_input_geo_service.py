@@ -4,6 +4,8 @@ import uuid
 from fastapi import HTTPException, status
 from sqlalchemy import String, func, insert, select
 from sqlalchemy.orm import Session
+from app.api.domains.modules.repositories.module_object_context_repository import ModuleObjectContextRepository
+from app.api.domains.modules.types import ModuleObjectActionFull
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
 from app.core.tables.others import AreasTable
@@ -12,7 +14,7 @@ from slugify import slugify
 
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
-from app.core.tables.modules import ModuleObjectsTable
+from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectStaticsTable
 from app.core.tables.werkingsgebieden import InputGeoOnderverdelingTable, InputGeoWerkingsgebiedenTable
 
@@ -22,6 +24,7 @@ class PatchInputGeoService:
         self,
         object_static_repository: ObjectStaticRepository,
         module_object_repository: ModuleObjectRepository,
+        object_context_repository: ModuleObjectContextRepository,
         area_repository: AreaRepository,
         area_geometry_repository: AreaGeometryRepository,
         session: Session,
@@ -31,6 +34,7 @@ class PatchInputGeoService:
     ):
         self._object_static_repository: ObjectStaticRepository = object_static_repository
         self._module_object_repository: ModuleObjectRepository = module_object_repository
+        self._object_context_repository: ModuleObjectContextRepository = object_context_repository
         self._area_repository: AreaRepository = area_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
         self._session: Session = session
@@ -41,12 +45,13 @@ class PatchInputGeoService:
 
     def patch(self, main_obj: ModuleObjectsTable):
         for onderverdeling in self._input_geo_werkingsgebied.Onderverdelingen:
-            obj_static: ObjectStaticsTable = self._ensure_static_object(
+            sub_object_static: ObjectStaticsTable = self._ensure_static_object(
                 main_obj,
                 onderverdeling,
             )
             area_uuid: uuid.UUID = self._ensure_area(onderverdeling)
-            # @todo: continue here
+            sub_object_context: ModuleObjectContextTable = self._ensure_object_context(sub_object_static, main_obj.Module_ID)
+            sub_object: ModuleObjectsTable = self._ensure_object_newest_area(sub_object_static, main_obj.Module_ID, area_uuid)
 
 
     def _ensure_static_object(self, main_obj: ModuleObjectsTable, onderverdeling: InputGeoOnderverdelingTable) -> ObjectStaticsTable:
@@ -106,6 +111,54 @@ class PatchInputGeoService:
             onderverdeling,
         )
         return area_uuid
+        
+    def _ensure_object_context(self, sub_object_static: ObjectStaticsTable, module_id: int) -> ModuleObjectContextTable:
+        existing_object_context: Optional[ModuleObjectContextTable] = self._object_context_repository.get_by_ids(
+            self._session,
+            module_id,
+            sub_object_static.Object_Type,
+            sub_object_static.Object_ID,
+        )
+        if existing_object_context:
+            return existing_object_context
+
+        object_context: ModuleObjectContextTable = ModuleObjectContextTable(
+            Module_ID=module_id,
+            Object_Type=sub_object_static.Object_Type,
+            Object_ID=sub_object_static.Object_ID,
+            Code=sub_object_static.Code,
+            Created_Date=self._timepoint,
+            Modified_Date=self._timepoint,
+            Created_By_UUID=self._user.UUID,
+            Modified_By_UUID=self._user.UUID,
+            Original_Adjust_On=None,
+            Action=ModuleObjectActionFull.Create,
+            Explanation="",
+            Conclusion="",
+        )
+        self._session.add(object_context)
+        return object_context
+    
+    def _ensure_object_newest_area(self, sub_object_static: ObjectStaticsTable, module_id: int, area_uuid: uuid.UUID) -> ModuleObjectsTable:
+        existing_object: Optional[ModuleObjectsTable] = self._module_object_repository.get_latest_by_module_id_object_code(
+            self._session,
+            module_id,
+            sub_object_static.Code,
+        )
+        if existing_object is None:
+            return self._create_sub_object(sub_object_static, module_id, area_uuid)
+        
+        if existing_object.Area_UUID != area_uuid:
+            return self._modify_sub_object(sub_object_static, module_id, area_uuid, existing_object.UUID)
+
+        return existing_object
+    
+    def _create_sub_object(self, sub_object_static: ObjectStaticsTable, module_id: int, area_uuid: uuid.UUID, adjusted_on: Optional[uuid.UUID] = None) -> ModuleObjectsTable:
+
+        pass
+
+
+
 
 
 class PatchInputGeoServiceFactory:
@@ -113,11 +166,13 @@ class PatchInputGeoServiceFactory:
         self,
         object_static_repository: ObjectStaticRepository,
         module_object_repository: ModuleObjectRepository,
+        object_context_repository: ModuleObjectContextRepository,
         area_repository: AreaRepository,
         area_geometry_repository: AreaGeometryRepository,
     ):
         self._object_static_repository: ObjectStaticRepository = object_static_repository
         self._module_object_repository: ModuleObjectRepository = module_object_repository
+        self._object_context_repository: ModuleObjectContextRepository = object_context_repository
         self._area_repository: AreaRepository = area_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
 
@@ -132,6 +187,7 @@ class PatchInputGeoServiceFactory:
         return PatchInputGeoService(
             self._object_static_repository,
             self._module_object_repository,
+            self._object_context_repository,
             self._area_repository,
             self._area_geometry_repository,
             session,
