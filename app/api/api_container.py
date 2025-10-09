@@ -137,10 +137,17 @@ class ApiContainer(containers.DeclarativeContainer):
         module_services.ValidateModuleService,
         rules=providers.List(
             providers.Singleton(
-                module_services.RequiredObjectFieldsRule, object_map=required_object_fields_rule_mapping
+                module_services.RequiredObjectFieldsRule,
+                object_map=required_object_fields_rule_mapping,
             ),
-            providers.Singleton(module_services.RequiredHierarchyCodeRule, repository=publication.object_repository),
-            providers.Singleton(module_services.NewestSourceWerkingsgebiedUsedRule, source_repository=werkingsgebieden_repository),
+            providers.Singleton(
+                module_services.RequiredHierarchyCodeRule,
+                repository=publication.object_repository,
+            ),
+            providers.Singleton(
+                module_services.NewestSourceWerkingsgebiedUsedRule,
+                source_repository=werkingsgebieden_repository,
+            ),
         ),
     )
 

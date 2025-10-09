@@ -6,9 +6,10 @@ from typing import Dict, List, Optional, Type, Set
 from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
+from app.api.domains.modules import ModuleRepository
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.api.domains.werkingsgebieden.repositories.werkingsgebieden_repository import WerkingsgebiedenRepository
-from app.core.tables.modules import ModuleObjectsTable
+from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.others import AreasTable
 
 
@@ -73,7 +74,7 @@ class RequiredObjectFieldsRule(ValidationRule):
             except ValidationError as e:
                 errors.append(
                     ValidateModuleError(
-                        rule="RequiredObjectFieldsRule",
+                        rule="required_object_fields_rule",
                         object_code=object_table.Code,
                         messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
                     )
@@ -103,7 +104,7 @@ class RequiredHierarchyCodeRule(ValidationRule):
             if target_code not in existing_object_codes:
                 errors.append(
                     ValidateModuleError(
-                        rule="RequiredHierarchyCodeRule",
+                        rule="required_hierarchy_code_rule",
                         object_code=object_in.get("Code"),
                         messages=[f"Hierarchy code {target_code} does not exist"],
                     )
@@ -116,20 +117,37 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
         self._source_repository: WerkingsgebiedenRepository = source_repository
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
-        for object_in in request.module_objects:
-            area: Optional[AreasTable] = object_in.Area
-            if area is None:
-                continue
-            
-            if area.Shape is None:
-                # @todo: error in result
+        errors: List[ValidateModuleError] = []
+
+        for module_object in request.module_objects:
+            area_current: Optional[AreasTable] = module_object.Area
+            if area_current is None:
                 continue
 
-            used_hash = hashlib.sha256(area.Shape)
-            a = True
-            # @todo fetch latest from source werkingsgebied for this area
-            # And compare hashes
-            # if different -> add error
+            if area_current.Shape is None:
+                errors.append(
+                    ValidateModuleError(
+                        rule="newest_source_werkingsgebied_used_rule",
+                        object_code=module_object.Code,
+                        messages=[f"Area {area_current.UUID} does not have a shape"],
+                    )
+                )
+                continue
 
+            area_title = area_current.Source_Title
+            area_latest = self._source_repository.get_latest_by_title(db, area_title)
 
-        return []
+            hash_current = hashlib.sha256(area_current.Shape).hexdigest()
+            hash_latest = hashlib.sha256(area_latest.SHAPE).hexdigest()
+
+            if hash_current != hash_latest:
+                errors.append(
+                    ValidateModuleError(
+                        rule="newest_source_werkingsgebied_used_rule",
+                        object_code=module_object.Code,
+                        messages=[f"Area {area_current.UUID} does not use the latest known shape {area_latest.UUID}"],
+                    )
+                )
+                continue
+
+        return errors
