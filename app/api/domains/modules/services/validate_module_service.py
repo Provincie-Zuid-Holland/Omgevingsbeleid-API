@@ -6,10 +6,9 @@ from typing import Dict, List, Optional, Type, Set
 from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
-from app.api.domains.modules import ModuleRepository
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.api.domains.werkingsgebieden.repositories.werkingsgebieden_repository import WerkingsgebiedenRepository
-from app.core.tables.modules import ModuleObjectsTable, ModuleTable
+from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
 
 
