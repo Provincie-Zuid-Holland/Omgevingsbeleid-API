@@ -95,8 +95,8 @@ class RequiredHierarchyCodeRule(ValidationRule):
 
         errors: List[ValidateModuleError] = []
 
-        for object_in in objects:
-            target_code = object_in.get("Hierarchy_Code")
+        for object_info in objects:
+            target_code = object_info.get("Hierarchy_Code")
             if target_code is None:
                 continue
 
@@ -104,7 +104,7 @@ class RequiredHierarchyCodeRule(ValidationRule):
                 errors.append(
                     ValidateModuleError(
                         rule="required_hierarchy_code_rule",
-                        object_code=object_in.get("Code"),
+                        object_code=object_info.get("Code"),
                         messages=[f"Hierarchy code {target_code} does not exist"],
                     )
                 )
@@ -118,8 +118,8 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
 
-        for module_object in request.module_objects:
-            area_current: Optional[AreasTable] = module_object.Area
+        for object_table in request.module_objects:
+            area_current: Optional[AreasTable] = object_table.Area
             if area_current is None:
                 continue
 
@@ -127,7 +127,7 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
-                        object_code=module_object.Code,
+                        object_code=object_table.Code,
                         messages=[f"Area {area_current.UUID} does not have a shape"],
                     )
                 )
@@ -143,7 +143,7 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
-                        object_code=module_object.Code,
+                        object_code=object_table.Code,
                         messages=[f"Area {area_current.UUID} does not use the latest known shape {area_latest.UUID}"],
                     )
                 )
