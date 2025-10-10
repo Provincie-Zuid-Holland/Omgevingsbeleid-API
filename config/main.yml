@@ -30,6 +30,16 @@ sort_default_object_id: &sort_default_object_id
     order: asc
   allowed_columns: *sort_allowed_object_columns
 
+required_object_fields_rule:
+  ambitie: ambitie_module_validate
+  beleidsdoel: beleidsdoel_module_validate
+  beleidskeuze: beleidskeuze_module_validate
+  document: document_module_validate
+  maatregel: maatregel_module_validate
+  programma_algemeen: programma_module_validate
+  visie_algemeen: visie_algemeen_module_validate
+  werkingsgebied: werkingsgebied_module_validate
+
 api:
   routers:
     - prefix: /login/access-token
@@ -194,6 +204,9 @@ api:
       endpoints:
         - resolver: module_overview
         - resolver: edit_module
+        - resolver: validate_module
+          resolver_data:
+            path: /validate
         - resolver: activate_module
           resolver_data:
             path: /activate

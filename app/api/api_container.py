@@ -24,6 +24,7 @@ from app.core.settings import Settings
 class ApiContainer(containers.DeclarativeContainer):
     models_provider = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
+    required_object_fields_rule_mapping = providers.Dependency()
 
     config = providers.Configuration(pydantic_settings=[Settings()])
     main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
@@ -69,6 +70,17 @@ class ApiContainer(containers.DeclarativeContainer):
         config.DB_TYPE,
         sqlite=sqlite_area_geometry_repository,
         mssql=mssql_area_geometry_repository,
+    )
+
+    publication = providers.Container(
+        PublicationContainer,
+        config=config,
+        main_config=main_config,
+        area_repository=area_repository,
+        area_geometry_repository=area_geometry_repository,
+        storage_file_repository=storage_file_repository,
+        asset_repository=asset_repository,
+        object_field_mapping_provider=object_field_mapping_provider,
     )
 
     html_images_extractor_factory = providers.Factory(
@@ -119,6 +131,24 @@ class ApiContainer(containers.DeclarativeContainer):
         source_geometry_repository=geometry_repository,
         area_repository=area_repository,
         area_geometry_repository=area_geometry_repository,
+    )
+
+    validate_module_service = providers.Singleton(
+        module_services.ValidateModuleService,
+        rules=providers.List(
+            providers.Singleton(
+                module_services.RequiredObjectFieldsRule,
+                object_map=required_object_fields_rule_mapping,
+            ),
+            providers.Singleton(
+                module_services.RequiredHierarchyCodeRule,
+                repository=publication.object_repository,
+            ),
+            providers.Singleton(
+                module_services.NewestSourceWerkingsgebiedUsedRule,
+                source_repository=werkingsgebieden_repository,
+            ),
+        ),
     )
 
     object_provider = providers.Factory(
@@ -212,15 +242,4 @@ class ApiContainer(containers.DeclarativeContainer):
     event_manager = providers.Singleton(
         event_manager.EventManager,
         event_listeners=event_listeners,
-    )
-
-    publication = providers.Container(
-        PublicationContainer,
-        config=config,
-        main_config=main_config,
-        area_repository=area_repository,
-        area_geometry_repository=area_geometry_repository,
-        storage_file_repository=storage_file_repository,
-        asset_repository=asset_repository,
-        object_field_mapping_provider=object_field_mapping_provider,
     )
