@@ -1,4 +1,3 @@
-
 class TestUsers:
     def test_users_list(self, client, test_super_user_access_auth_header):
         response = client.get("/users", headers=test_super_user_access_auth_header)

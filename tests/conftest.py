@@ -9,7 +9,7 @@ from app.api.domains.users.services.security import Security
 from app.api.domains.werkingsgebieden.repositories import SqliteGeometryRepository, SqliteAreaGeometryRepository
 from app.core.settings import Settings
 from app.main import app
-from app.tests.fixtures.database_fixtures import DatabaseFixtures
+from app.tests.fixtures.database_fixtures import Fixtures
 
 
 @pytest.fixture(scope="session")
@@ -52,9 +52,9 @@ def fixtures(engine, settings, db_session):
 
     geo_repo = SqliteGeometryRepository()
     area_repo = SqliteAreaGeometryRepository()
-    sec = Security(settings.SECRET_KEY, timedelta(days=5))
-    df = DatabaseFixtures(db_session, geo_repo, area_repo, sec)
-    df.create_all()
+    security = Security(settings.SECRET_KEY, timedelta(days=5))
+    fixtures = Fixtures(db_session, geo_repo, area_repo, security)
+    fixtures.load()
     db_session.close()
 
 @pytest.fixture
@@ -85,7 +85,7 @@ def client(db_session_transaction):
 
 @pytest.fixture
 def test_super_user():
-    return {"username": "test@example.com", "password": "password", "grant_type": "password"}
+    return {"username": "superuser@example.com", "password": "password", "grant_type": "password"}
 
 @pytest.fixture
 def test_super_user_access_auth_header(client, test_super_user):
