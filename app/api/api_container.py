@@ -133,6 +133,11 @@ class ApiContainer(containers.DeclarativeContainer):
         area_geometry_repository=area_geometry_repository,
     )
 
+    module_objects_to_models_caster = providers.Singleton(
+        module_services.ModuleObjectsToModelsCaster,
+        models_provider=models_provider,
+    )
+
     validate_module_service = providers.Singleton(
         module_services.ValidateModuleService,
         rules=providers.List(
