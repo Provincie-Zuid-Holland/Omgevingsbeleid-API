@@ -10,7 +10,7 @@ from app.api.domains.werkingsgebieden.repositories.area_geometry_repository impo
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
 from app.core.db import table_metadata
 from app.core.db.session import SessionFactoryType, session_scope_with_context
-from app.tests.fixtures.database_fixtures import DatabaseFixtures
+from app.tests.fixtures.database_fixtures_old import DatabaseFixturesOld
 
 
 @click.command()
@@ -38,7 +38,7 @@ def load_fixtures(
     security: Annotated[Security, Provide[ApiContainer.security]],
 ):
     with session_scope_with_context(db_session_factory) as session:
-        loader: DatabaseFixtures = DatabaseFixtures(
+        loader: DatabaseFixturesOld = DatabaseFixturesOld(
             session,
             geometry_repository,
             area_geometry_repository,

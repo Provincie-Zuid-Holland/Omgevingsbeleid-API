@@ -72,7 +72,7 @@ class PublicationEnvironmentTable(Base, UserMetaData):
     Is_Locked: Mapped[bool]
 
     Active_State_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey("publication_environment_states.UUID"), nullable=True
+        ForeignKey("publication_environment_states.UUID", use_alter=True), nullable=True
     )
     Active_State: Mapped[Optional["PublicationEnvironmentStateTable"]] = relationship(
         "PublicationEnvironmentStateTable",
