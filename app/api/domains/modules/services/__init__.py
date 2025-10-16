@@ -6,4 +6,3 @@ from .validate_module_service import (
     RequiredHierarchyCodeRule,
     NewestSourceWerkingsgebiedUsedRule,
 )
-from .module_objects_to_models_caster import ModuleObjectsToModelsCaster

@@ -23,6 +23,7 @@ from app.core.settings import Settings
 
 class ApiContainer(containers.DeclarativeContainer):
     models_provider = providers.Dependency()
+    module_objects_to_models_parser = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
     required_object_fields_rule_mapping = providers.Dependency()
 
@@ -131,11 +132,6 @@ class ApiContainer(containers.DeclarativeContainer):
         source_geometry_repository=geometry_repository,
         area_repository=area_repository,
         area_geometry_repository=area_geometry_repository,
-    )
-
-    module_objects_to_models_caster = providers.Singleton(
-        module_services.ModuleObjectsToModelsCaster,
-        models_provider=models_provider,
     )
 
     validate_module_service = providers.Singleton(
