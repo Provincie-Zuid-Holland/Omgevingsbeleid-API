@@ -198,7 +198,7 @@ class ModuleObjectRepository(BaseRepository):
         object_type: Optional[str] = None,
         title: Optional[str] = None,
         actions: List[ModuleObjectActionFull] = [],
-    ):
+    ) ->  
         """
         Generic filterable module-object listing query used
         for listing objects in draft or if object type is unknown.
@@ -216,6 +216,8 @@ class ModuleObjectRepository(BaseRepository):
         subq = (
             select(
                 ModuleObjectsTable,
+                ModuleObjectContextTable,
+                ObjectStaticsTable,
                 func.row_number()
                 .over(
                     partition_by=ModuleObjectsTable.Code,
@@ -252,10 +254,15 @@ class ModuleObjectRepository(BaseRepository):
 
         # Applying your filters and making it a subquery
         subq = subq.filter(and_(*[f for f in filters if f is not None])).subquery()
-        aliased_objects = aliased(ModuleObjectsTable, subq)
+        # aliased_objects = aliased(ModuleObjectsTable, subq)
 
         # Outer query to select all fields including the latest status
-        stmt = select(aliased_objects, subq.c.Latest_Status).filter(subq.c._RowNumber == 1)
+        # @TODO: Select the 4 types (see the caller)
+        stmt = select(ModuleObjectsTable, ObjectStaticsTable, ModuleObjectContextTable, subq.c.Latest_Status).filter(subq.c._RowNumber == 1)
+
+        print("\n\n\n")
+        print(stmt)
+        print("\n\n\n")
 
         return self.fetch_paginated_no_scalars(
             session=session,
