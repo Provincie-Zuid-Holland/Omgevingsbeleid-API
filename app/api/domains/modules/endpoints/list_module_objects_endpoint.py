@@ -88,7 +88,7 @@ def get_list_module_objects_endpoint(
 
     rows: List[response_model] = []
     for object_table, object_static, module_object_context, module_status in paginated_items:
-        parsed_model: BaseModel = module_objects_to_models_parser.cast(object_table, context.model_map)
+        parsed_model: BaseModel = module_objects_to_models_parser.parse(object_table, context.model_map)
         response = response_model(
             Module_ID=module_object_context.Module_ID,
             Module_Latest_Status=module_status,
