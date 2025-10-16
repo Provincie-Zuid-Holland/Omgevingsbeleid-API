@@ -38,9 +38,8 @@ class ListModuleObjectsEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(get_list_module_objects_endpoint, context)
 
-        dynamic_types = self._module_objects_to_models_parser.get_types(context.model_map)
-        response_model = self._module_objects_to_models_parser.update_response_model(
-            "ModuleObjectsResponse", ModuleObjectsResponseBase, dynamic_types
+        response_model = self._module_objects_to_models_parser.enrich_with_dynamic_model_types(
+            "ModuleObjectsResponse", ModuleObjectsResponseBase, context.model_map
         )
 
         return ConfiguredFastapiEndpoint(

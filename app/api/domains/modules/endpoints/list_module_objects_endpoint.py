@@ -82,9 +82,8 @@ def get_list_module_objects_endpoint(
         paginated_result.items
     )
 
-    dynamic_types = module_objects_to_models_parser.get_types(context.model_map)
-    response_model = module_objects_to_models_parser.update_response_model(
-        "ModuleObjectsResponse", ModuleObjectsResponseBase, dynamic_types
+    response_model = module_objects_to_models_parser.enrich_with_dynamic_model_types(
+        "ModuleObjectsResponse", ModuleObjectsResponseBase, context.model_map
     )
 
     rows: List[response_model] = []

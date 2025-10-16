@@ -20,15 +20,12 @@ class ModuleObjectsToModelsParser:
         model_instance: BaseModel = pydantic_model.model_validate(module_object)
         return model_instance
 
-    def get_types(self, model_map: Dict[str, str]) -> List[Type[BaseModel]]:
-        result: List[Type[BaseModel]] = []
+    def enrich_with_dynamic_model_types(
+        self, model_name: str, base_model: ModelT, model_map: Dict[str, str]
+    ) -> Type[ModelT]:
+        dynamic_types: List[Type[BaseModel]] = []
         for model_id in model_map.values():
             pydantic_model: Type[BaseModel] = self._models_provider.get_pydantic_model(model_id)
-            result.append(pydantic_model)
-        return result
-
-    @staticmethod
-    def update_response_model(name: str, base: ModelT, dynamic_models: List[Type[BaseModel]]) -> Type[ModelT]:
-        model_type = Union[tuple(dynamic_models)]
-
-        return pydantic.create_model(name, __base__=base, Model=(model_type, ...))
+            dynamic_types.append(pydantic_model)
+        model_type = Union[tuple(dynamic_types)]
+        return pydantic.create_model(model_name, __base__=base_model, Model=(model_type, ...))
