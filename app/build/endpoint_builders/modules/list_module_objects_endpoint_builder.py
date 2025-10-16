@@ -28,7 +28,6 @@ class ListModuleObjectsEndpointBuilder(EndpointBuilder):
         model_map: Dict[str, str] = resolver_config["model_map"]
 
         context = ListModuleObjectsEndpointContext(
-            object_type=api.object_type,
             order_config=order_config,
             builder_data=builder_data,
             model_map=model_map,
