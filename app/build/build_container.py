@@ -190,6 +190,9 @@ class BuildContainer(containers.DeclarativeContainer):
             ),
             #       Announcement
             providers.Factory(
+                endpoint_builders_publications.publications.announcements.CreateAnnouncementPdfEndpointBuilder
+            ),
+            providers.Factory(
                 endpoint_builders_publications.publications.announcements.CreatePublicationAnnouncementEndpointBuilder
             ),
             providers.Factory(

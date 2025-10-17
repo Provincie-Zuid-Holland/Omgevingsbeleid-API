@@ -382,6 +382,9 @@ api:
       endpoints:
         - resolver: edit_publication_announcement
         - resolver: detail_publication_announcement
+    - prefix: /publication-announcements/{announcement_uuid}/pdf_export
+      endpoints:
+        - resolver: create_announcement_pdf
     - prefix: /publication-announcements/{announcement_uuid}/packages
       endpoints:
         - resolver: create_publication_announcement_package
