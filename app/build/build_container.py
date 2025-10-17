@@ -17,6 +17,7 @@ from app.build.services import (
     object_models_builder,
 )
 import app.build.services.validators.validators as validators
+from app.build.services.model_dynamic_type_enricher import ModelDynamicTypeEnricher
 from app.core.db.session import create_db_engine
 from app.core.services import MainConfig, ModelsProvider
 from app.core.services.event import event_manager
@@ -91,6 +92,12 @@ class BuildContainer(containers.DeclarativeContainer):
     build_event_manager = providers.Singleton(
         event_manager.EventManager,
         event_listeners=build_event_listeners,
+    )
+
+    models_provider = providers.Singleton(ModelsProvider)
+    model_dynamic_type_enricher = providers.Singleton(
+        ModelDynamicTypeEnricher,
+        models_provider=models_provider,
     )
 
     endpoint_builder_provider = providers.Singleton(
@@ -249,7 +256,10 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.ModuleValidateEndpointBuilder),
             providers.Factory(endpoint_builders_modules.EditModuleEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ListActiveModuleObjectsEndpointBuilder),
-            providers.Factory(endpoint_builders_modules.ListModuleObjectsEndpointBuilder),
+            providers.Factory(
+                endpoint_builders_modules.ListModuleObjectsEndpointBuilder,
+                model_dynamic_type_enricher=model_dynamic_type_enricher,
+            ),
             providers.Factory(endpoint_builders_modules.ListModulesEndpointResolverBuilder),
             providers.Factory(endpoint_builders_modules.ModuleAddExistingObjectEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleAddNewObjectEndpointBuilder),
@@ -305,8 +315,6 @@ class BuildContainer(containers.DeclarativeContainer):
         tables_builder.TablesBuilder,
         event_manager=build_event_manager,
     )
-
-    models_provider = providers.Singleton(ModelsProvider)
 
     api_builder = providers.Factory(
         api_builder.ApiBuilder,
