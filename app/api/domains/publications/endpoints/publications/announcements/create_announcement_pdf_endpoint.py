@@ -34,7 +34,7 @@ def post_create_announcement_pdf_endpoint(
         UsersTable,
         Depends(
             depends_current_user_with_permission_curried(
-                Permissions.publication_can_create_publication_act_package,
+                Permissions.publication_can_create_publication_announcement_package,
             )
         ),
     ],
