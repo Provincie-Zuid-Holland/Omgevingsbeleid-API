@@ -1,4 +1,6 @@
-from app.api.domains.publications.endpoints.publications.versions.create_pdf_endpoint import post_create_pdf_endpoint
+from app.api.domains.publications.endpoints.publications.versions.create_version_pdf_endpoint import (
+    post_create_version_pdf_endpoint,
+)
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
@@ -21,7 +23,7 @@ class CreatePublicationVersionPdfEndpointBuilder(EndpointBuilder):
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
-            endpoint=post_create_pdf_endpoint,
+            endpoint=post_create_version_pdf_endpoint,
             methods=["POST"],
             response_model=None,
             summary="Download Publication Version as Pdf",

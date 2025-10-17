@@ -29,7 +29,7 @@ class PublicationPackagePdf(BaseModel):
 
 
 @inject
-def post_create_pdf_endpoint(
+def post_create_version_pdf_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     validator: Annotated[PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])],
     user: Annotated[
