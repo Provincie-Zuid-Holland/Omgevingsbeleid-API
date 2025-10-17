@@ -254,12 +254,15 @@ class ModuleObjectRepository(BaseRepository):
 
         # Applying your filters and making it a subquery
         subq = subq.filter(and_(*[f for f in filters if f is not None])).subquery()
+        aliased_objects = aliased(ModuleObjectsTable, subq)
+        aliased_object_statics = aliased(ObjectStaticsTable, subq)
+        aliased_module_object_context = aliased(ModuleObjectContextTable, subq)
 
         # Outer query to select all fields including the latest status
         stmt = select(
-            ModuleObjectsTable,
-            ObjectStaticsTable,
-            ModuleObjectContextTable,
+            aliased_objects,
+            aliased_object_statics,
+            aliased_module_object_context,
             subq.c.Latest_Status,
         ).filter(subq.c._RowNumber == 1)
 

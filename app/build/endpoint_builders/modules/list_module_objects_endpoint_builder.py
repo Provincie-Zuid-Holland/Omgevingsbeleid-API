@@ -9,13 +9,13 @@ from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import OrderConfig, PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
-from app.build.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
+from app.build.services.model_dynamic_type_enricher import ModelDynamicTypeEnricher
 from app.core.services.models_provider import ModelsProvider
 
 
 class ListModuleObjectsEndpointBuilder(EndpointBuilder):
-    def __init__(self, module_objects_to_models_parser: ModuleObjectsToModelsParser):
-        self._module_objects_to_models_parser = module_objects_to_models_parser
+    def __init__(self, model_dynamic_type_enricher: ModelDynamicTypeEnricher):
+        self._model_dynamic_type_enricher = model_dynamic_type_enricher
 
     def get_id(self) -> str:
         return "list_module_objects"
@@ -38,7 +38,7 @@ class ListModuleObjectsEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(get_list_module_objects_endpoint, context)
 
-        response_model = self._module_objects_to_models_parser.enrich_with_dynamic_model_types(
+        response_model = self._model_dynamic_type_enricher.enrich(
             "ModuleObjectsResponse", ModuleObjectsResponseBase, context.model_map
         )
 

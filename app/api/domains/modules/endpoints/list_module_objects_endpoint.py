@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
+from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.modules.types import (
     ModuleObjectActionFull,
     ModuleObjectContextShort,
@@ -25,7 +26,7 @@ from app.api.utils.pagination import (
     Sort,
     SortedPagination,
 )
-from app.build.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
+from app.build.services.model_dynamic_type_enricher import ModelDynamicTypeEnricher
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectStaticsTable
 from app.core.tables.users import UsersTable
@@ -36,6 +37,7 @@ class ModuleObjectsResponseBase(BaseModel):
     Module_Latest_Status: str
 
     ObjectStatics: ObjectStaticShort
+    Object_Type: str
     ModuleObjectContext: ModuleObjectContextShort
 
     model_config = ConfigDict(from_attributes=True)
@@ -57,6 +59,9 @@ def get_list_module_objects_endpoint(
     context: Annotated[ListModuleObjectsEndpointContext, Depends()],
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
+    ],
+    model_dynamic_type_enricher: Annotated[
+        ModelDynamicTypeEnricher, Depends(Provide[ApiContainer.model_dynamic_type_enricher])
     ],
     object_type: Optional[str] = None,
     owner_uuid: Optional[uuid.UUID] = None,
@@ -82,7 +87,7 @@ def get_list_module_objects_endpoint(
         paginated_result.items
     )
 
-    response_model = module_objects_to_models_parser.enrich_with_dynamic_model_types(
+    response_model = model_dynamic_type_enricher.enrich(
         "ModuleObjectsResponse", ModuleObjectsResponseBase, context.model_map
     )
 
@@ -95,6 +100,7 @@ def get_list_module_objects_endpoint(
             Model=parsed_model,
             ObjectStatics=ObjectStaticShort.model_validate(object_static),
             ModuleObjectContext=ModuleObjectContextShort.model_validate(module_object_context),
+            Object_Type=object_table.Object_Type,
         )
         rows.append(response)
 
