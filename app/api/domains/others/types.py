@@ -108,24 +108,19 @@ class FileData(BaseModel):
         self._binary = self.File.file.read()
         self._checksum = hashlib.sha256(self._binary).hexdigest()
 
-    @property
-    def binary(self) -> bytes:
+    def get_binary(self) -> bytes:
         return self._binary
 
-    @property
-    def checksum(self) -> str:
+    def get_checksum(self) -> str:
         return self._checksum
 
-    @property
-    def content_type(self) -> Optional[str]:
+    def get_content_type(self) -> Optional[str]:
         return self.File.content_type
 
-    @property
-    def size(self) -> int:
+    def get_size(self) -> int:
         return len(self._binary)
 
-    @property
-    def lookup(self) -> str:
+    def get_lookup(self) -> str:
         return self._checksum[0:10]
 
     def normalize_filename(self) -> str:
