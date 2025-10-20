@@ -24,7 +24,6 @@ from app.core.settings import Settings
 
 class ApiContainer(containers.DeclarativeContainer):
     models_provider = providers.Dependency()
-    model_dynamic_type_enricher = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
     required_object_fields_rule_mapping = providers.Dependency()
 
