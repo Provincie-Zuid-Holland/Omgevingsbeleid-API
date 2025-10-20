@@ -258,7 +258,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.ListActiveModuleObjectsEndpointBuilder),
             providers.Factory(
                 endpoint_builders_modules.ListModuleObjectsEndpointBuilder,
-                model_dynamic_type_enricher=model_dynamic_type_builder,
+                model_dynamic_type_builder=model_dynamic_type_builder,
             ),
             providers.Factory(endpoint_builders_modules.ListModulesEndpointResolverBuilder),
             providers.Factory(endpoint_builders_modules.ModuleAddExistingObjectEndpointBuilder),
