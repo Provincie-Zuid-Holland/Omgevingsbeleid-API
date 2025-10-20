@@ -55,7 +55,7 @@ def post_upload_attachment_endpoint(
     )
 
     if not ignore_report:
-        pdf_meta_report = pdf_meta_service.report_banned_meta(file_data.get_binary())
+        pdf_meta_report = pdf_meta_service.report_banned_meta(file_data.binary)
         if len(pdf_meta_report) > 0:
             raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
 
@@ -109,19 +109,19 @@ def _store_file(
 ) -> PublicationStorageFileTable:
     existing_file_table: Optional[PublicationStorageFileTable] = repository.get_by_checksum_uuid(
         session,
-        file_data.Checksum,
+        file_data.checksum,
     )
     if existing_file_table is not None:
         return existing_file_table
 
     file_table: PublicationStorageFileTable = PublicationStorageFileTable(
         UUID=uuid.uuid4(),
-        Lookup=file_data.get_lookup(),
-        Checksum=file_data.get_checksum(),
+        Lookup=file_data.lookup,
+        Checksum=file_data.checksum,
         Filename=file_data.normalize_filename(),
-        Content_Type=file_data.get_content_type() or "",
-        Size=file_data.get_size(),
-        Binary=file_data.get_binary(),
+        Content_Type=file_data.content_type or "",
+        Size=file_data.size,
+        Binary=file_data.binary,
         Created_Date=timepoint,
         Created_By_UUID=user_uuid,
     )

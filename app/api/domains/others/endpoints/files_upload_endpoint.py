@@ -49,7 +49,7 @@ class EndpointHandler:
         self._guard_upload()
 
         if not self._ignore_report:
-            pdf_meta_report = self._pdf_meta_service.report_banned_meta(self._file_data.get_binary())
+            pdf_meta_report = self._pdf_meta_service.report_banned_meta(self._file_data.binary)
             if len(pdf_meta_report) > 0:
                 raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
 
@@ -72,19 +72,19 @@ class EndpointHandler:
     def _store_file(self) -> StorageFileTable:
         existing_file_table: Optional[StorageFileTable] = self._storage_repository.get_by_checksum_uuid(
             self._session,
-            self._file_data.Checksum,
+            self._file_data.checksum,
         )
         if existing_file_table is not None:
             return existing_file_table
 
         file_table = StorageFileTable(
             UUID=uuid.uuid4(),
-            Lookup=self._file_data.get_lookup(),
-            Checksum=self._file_data.get_checksum(),
+            Lookup=self._file_data.lookup,
+            Checksum=self._file_data.checksum,
             Filename=self._file_data.normalize_filename(),
-            Content_Type=self._file_data.get_content_type(),
-            Size=self._file_data.get_size(),
-            Binary=self._file_data.get_binary(),
+            Content_Type=self._file_data.content_type,
+            Size=self._file_data.size,
+            Binary=self._file_data.binary,
             Created_Date=self._timepoint,
             Created_By_UUID=self._user.UUID,
         )

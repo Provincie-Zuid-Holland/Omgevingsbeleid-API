@@ -106,21 +106,27 @@ class FileData(BaseModel):
     def __init__(self, /, **data: Any):
         super().__init__(**data)
         self._binary = self.File.file.read()
+        self._checksum = hashlib.sha256(self._binary).hexdigest()
 
-    def get_binary(self) -> bytes:
+    @property
+    def binary(self) -> bytes:
         return self._binary
 
-    def get_checksum(self) -> str:
-        return hashlib.sha256(self._binary).hexdigest()
+    @property
+    def checksum(self) -> str:
+        return self._checksum
 
-    def get_content_type(self) -> Optional[str]:
+    @property
+    def content_type(self) -> Optional[str]:
         return self.File.content_type
 
-    def get_size(self) -> int:
+    @property
+    def size(self) -> int:
         return len(self._binary)
 
-    def get_lookup(self) -> str:
-        return self.Checksum[0:10]
+    @property
+    def lookup(self) -> str:
+        return self._checksum[0:10]
 
     def normalize_filename(self) -> str:
         normalized_filename = self.File.filename.lower()
