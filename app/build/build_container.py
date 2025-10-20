@@ -17,7 +17,7 @@ from app.build.services import (
     object_models_builder,
 )
 import app.build.services.validators.validators as validators
-from app.build.services.model_dynamic_type_enricher import ModelDynamicTypeEnricher
+from app.build.services.model_dynamic_type_builder import ModelDynamicTypeBuilder
 from app.core.db.session import create_db_engine
 from app.core.services import MainConfig, ModelsProvider
 from app.core.services.event import event_manager
@@ -95,8 +95,8 @@ class BuildContainer(containers.DeclarativeContainer):
     )
 
     models_provider = providers.Singleton(ModelsProvider)
-    model_dynamic_type_enricher = providers.Singleton(
-        ModelDynamicTypeEnricher,
+    model_dynamic_type_builder = providers.Singleton(
+        ModelDynamicTypeBuilder,
         models_provider=models_provider,
     )
 
@@ -258,7 +258,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.ListActiveModuleObjectsEndpointBuilder),
             providers.Factory(
                 endpoint_builders_modules.ListModuleObjectsEndpointBuilder,
-                model_dynamic_type_enricher=model_dynamic_type_enricher,
+                model_dynamic_type_enricher=model_dynamic_type_builder,
             ),
             providers.Factory(endpoint_builders_modules.ListModulesEndpointResolverBuilder),
             providers.Factory(endpoint_builders_modules.ModuleAddExistingObjectEndpointBuilder),

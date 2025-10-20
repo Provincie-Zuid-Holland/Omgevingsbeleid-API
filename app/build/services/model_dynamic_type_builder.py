@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from app.core.services import ModelsProvider
 
 
-class ModelDynamicTypeEnricher:
+class ModelDynamicTypeBuilder:
     def __init__(self, models_provider: ModelsProvider):
         self._models_provider: ModelsProvider = models_provider
 
