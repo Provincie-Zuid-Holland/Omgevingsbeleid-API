@@ -72,7 +72,7 @@ class EndpointHandler:
     def _store_file(self) -> StorageFileTable:
         existing_file_table: Optional[StorageFileTable] = self._storage_repository.get_by_checksum_uuid(
             self._session,
-            self._file_data.Checksum,
+            self._file_data.get_checksum(),
         )
         if existing_file_table is not None:
             return existing_file_table

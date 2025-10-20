@@ -109,7 +109,7 @@ def _store_file(
 ) -> PublicationStorageFileTable:
     existing_file_table: Optional[PublicationStorageFileTable] = repository.get_by_checksum_uuid(
         session,
-        file_data.Checksum,
+        file_data.get_checksum(),
     )
     if existing_file_table is not None:
         return existing_file_table
