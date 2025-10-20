@@ -40,7 +40,6 @@ class ListModuleObjectsEndpointBuilder(EndpointBuilder):
 
         union_object_type = self._model_dynamic_type_enricher.build_object_union_type(model_map)
         response_type = ModuleObjectsResponse[union_object_type]
-        response_type.__name__ = "ModuleObjectsResponse[list_module_objects]"
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
