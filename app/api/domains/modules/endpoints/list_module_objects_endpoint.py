@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, List, Optional, Dict, Sequence, Tuple
+from typing import Annotated, Generic, List, Optional, Dict, Sequence, Tuple, TypeVar
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Query
@@ -26,19 +26,22 @@ from app.api.utils.pagination import (
     Sort,
     SortedPagination,
 )
-from app.build.services.model_dynamic_type_enricher import ModelDynamicTypeEnricher
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectStaticsTable
 from app.core.tables.users import UsersTable
 
 
-class ModuleObjectsResponseBase(BaseModel):
+TModel = TypeVar("TModel", bound=BaseModel)
+
+
+class ModuleObjectsResponse(BaseModel, Generic[TModel]):
     Module_ID: int
     Module_Latest_Status: str
 
     ObjectStatics: ObjectStaticShort
     Object_Type: str
     ModuleObjectContext: ModuleObjectContextShort
+    Model: TModel
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -60,16 +63,13 @@ def get_list_module_objects_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-    model_dynamic_type_enricher: Annotated[
-        ModelDynamicTypeEnricher, Depends(Provide[ApiContainer.model_dynamic_type_enricher])
-    ],
     object_type: Optional[str] = None,
     owner_uuid: Optional[uuid.UUID] = None,
     minimum_status: Optional[ModuleStatusCode] = None,
     only_active_modules: bool = True,
     title: Optional[str] = None,
     actions: Annotated[List[ModuleObjectActionFull], Query(default_factory=list)] = [],
-) -> PagedResponse[ModuleObjectsResponseBase]:
+) -> PagedResponse[ModuleObjectsResponse]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
@@ -87,14 +87,10 @@ def get_list_module_objects_endpoint(
         paginated_result.items
     )
 
-    response_model = model_dynamic_type_enricher.enrich(
-        "ModuleObjectsResponse", ModuleObjectsResponseBase, context.model_map
-    )
-
-    rows: List[response_model] = []
+    rows: List[ModuleObjectsResponse] = []
     for object_table, object_static, module_object_context, module_status in paginated_items:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_table, context.model_map)
-        response = response_model(
+        response = ModuleObjectsResponse(
             Module_ID=module_object_context.Module_ID,
             Module_Latest_Status=module_status,
             Model=parsed_model,
