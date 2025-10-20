@@ -163,7 +163,10 @@ class DsoAnnouncementInputDataBuilder:
             description = self._replace_placeholders(description)
 
             # @todo: parse dates and other placeholders
-            html = f"""<div data-hint-element="divisietekst"><h1>{data.Title}</h1>{description}</div>"""
+            title_placeholder: str = ""
+            if data.Title is not None and len(data.Title):
+                title_placeholder = f"<h1>{data.Title}</h1>"
+            html = f"""<div data-hint-element="divisietekst">{title_placeholder}{description}</div>"""
             pieces.append(html)
         result: str = "\n".join(pieces)
 
