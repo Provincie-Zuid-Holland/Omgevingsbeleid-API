@@ -2,7 +2,7 @@ from typing import Dict
 
 from app.api.domains.modules.endpoints.list_module_objects_endpoint import (
     ListModuleObjectsEndpointContext,
-    ModuleObjectsResponseBase,
+    ModuleObjectsResponse,
     get_list_module_objects_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
@@ -39,7 +39,7 @@ class ListModuleObjectsEndpointBuilder(EndpointBuilder):
         endpoint = self._inject_context(get_list_module_objects_endpoint, context)
 
         response_model = self._model_dynamic_type_enricher.enrich(
-            "ModuleObjectsResponse", ModuleObjectsResponseBase, context.model_map
+            "ModuleObjectsResponse", ModuleObjectsResponse, context.model_map
         )
 
         return ConfiguredFastapiEndpoint(
