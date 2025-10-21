@@ -5,4 +5,5 @@ from .validate_module_service import (
     RequiredObjectFieldsRule,
     RequiredHierarchyCodeRule,
     NewestSourceWerkingsgebiedUsedRule,
+    ForbidEmptyHtmlNodesRule,
 )
