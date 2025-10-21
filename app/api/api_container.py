@@ -11,6 +11,7 @@ import app.api.domains.users as user_domain
 import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_repositories
 import app.api.domains.werkingsgebieden.services as werkingsgebied_services
 import app.api.events.listeners as event_listeners
+from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.others.repositories import storage_file_repository
 from app.api.domains.others.services import PdfMetaService
 from app.api.domains.publications.publication_container import PublicationContainer
@@ -131,6 +132,11 @@ class ApiContainer(containers.DeclarativeContainer):
         source_geometry_repository=geometry_repository,
         area_repository=area_repository,
         area_geometry_repository=area_geometry_repository,
+    )
+
+    module_objects_to_models_parser = providers.Singleton(
+        ModuleObjectsToModelsParser,
+        models_provider=models_provider,
     )
 
     validate_module_service = providers.Singleton(
