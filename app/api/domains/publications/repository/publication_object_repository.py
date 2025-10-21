@@ -93,7 +93,7 @@ class PublicationObjectRepository(BaseRepository):
         object_types: List[str],
         field_map: Set[str],
     ):
-        subq = (
+        query = (
             select(
                 ModuleObjectsTable,
                 func.row_number()
@@ -109,10 +109,12 @@ class PublicationObjectRepository(BaseRepository):
             .filter(ModuleObjectsTable.Module_ID == module_id)
             .filter(ModuleObjectsTable.Modified_Date < timepoint)
             .filter(ModuleObjectContextTable.Hidden == False)
-        ).subquery()
+        )
 
         if object_types:
-            subq = subq.filter(ModuleObjectsTable.Object_Type.in_(object_types))
+            query = query.filter(ModuleObjectsTable.Object_Type.in_(object_types))
+
+        subq = query.subquery()
 
         aliased_objects = aliased(ModuleObjectsTable, subq)
         stmt = (
