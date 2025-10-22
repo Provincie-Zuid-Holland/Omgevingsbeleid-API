@@ -2,6 +2,7 @@ from abc import ABC, ABCMeta, abstractmethod
 from datetime import timezone, datetime
 import hashlib
 from typing import Dict, List, Optional, Type, Set
+from bs4 import BeautifulSoup
 
 from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
@@ -150,3 +151,41 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 continue
 
         return errors
+
+
+class ForbidEmptyHtmlNodesRule(ValidationRule):
+    def __init__(self):
+        # @todo: move these to the config
+        self._fields: List[str] = [
+            "Description",
+            "Cause",
+            "Provincial_Interest",
+            "Explanation",
+            "Role",
+            "Effect",
+        ]
+
+    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
+        errors: List[ValidateModuleError] = []
+
+        for object_table in request.module_objects:
+            for field_name in self._fields:
+                value: str = str(getattr(object_table, field_name, ""))
+                if self._has_empty_nodes(value):
+                    ValidateModuleError(
+                        rule="forbid_empty_html_nodes_rule",
+                        object_code=object_table.Code,
+                        messages=[f"Empty html node found in '{field_name}' for object {object_table.Code}"],
+                    )
+
+        return errors
+
+    def _has_empty_nodes(self, text: str) -> bool:
+        soup = BeautifulSoup(text, "html.parser")
+
+        empty_tags = [
+            tag
+            for tag in soup.find_all(True)
+            if not tag.get_text(strip=True) and not any(child.name for child in tag.children)
+        ]
+        return bool(empty_tags)

@@ -154,6 +154,9 @@ class ApiContainer(containers.DeclarativeContainer):
                 module_services.NewestSourceWerkingsgebiedUsedRule,
                 source_repository=werkingsgebieden_repository,
             ),
+            providers.Singleton(
+                module_services.ForbidEmptyHtmlNodesRule,
+            ),
         ),
     )
 
