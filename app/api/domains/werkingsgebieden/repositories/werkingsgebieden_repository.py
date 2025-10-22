@@ -1,5 +1,5 @@
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session, aliased, undefer
 from sqlalchemy.sql import func
 
 from app.api.base_repository import BaseRepository
@@ -18,6 +18,18 @@ class WerkingsgebiedenRepository(BaseRepository):
             offset=pagination.offset,
             limit=pagination.limit,
             sort=(getattr(SourceWerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
+        )
+
+    def get_latest_by_title(self, session: Session, title: str) -> SourceWerkingsgebiedenTable:
+        stmt = (
+            select(SourceWerkingsgebiedenTable)
+            .filter(SourceWerkingsgebiedenTable.Title == title)
+            .options(undefer(SourceWerkingsgebiedenTable.SHAPE))
+            .order_by(desc(SourceWerkingsgebiedenTable.Created_Date))
+        )
+        return self.fetch_first(
+            session=session,
+            statement=stmt,
         )
 
     def get_unique_paginated(self, session: Session, pagination: SortedPagination) -> PaginatedQueryResult:

@@ -362,3 +362,28 @@ models:
     fields:
       object_id:
       uuid:
+  beleidsdoel_module_validate:
+    name: BeleidsdoelModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html
+      hierarchy_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - ambitie
+          - id: object_code_exists

@@ -30,6 +30,16 @@ sort_default_object_id: &sort_default_object_id
     order: asc
   allowed_columns: *sort_allowed_object_columns
 
+required_object_fields_rule:
+  ambitie: ambitie_module_validate
+  beleidsdoel: beleidsdoel_module_validate
+  beleidskeuze: beleidskeuze_module_validate
+  document: document_module_validate
+  maatregel: maatregel_module_validate
+  programma_algemeen: programma_module_validate
+  visie_algemeen: visie_algemeen_module_validate
+  werkingsgebied: werkingsgebied_module_validate
+
 api:
   routers:
     - prefix: /login/access-token
@@ -183,6 +193,9 @@ api:
     - prefix: /storage-files/{file_uuid}
       endpoints:
         - resolver: detail_storage_file
+    - prefix: /storage-files/{file_uuid}/download
+      endpoints:
+        - resolver: download_storage_file
     - prefix: /modules
       endpoints:
         - resolver: create_module
@@ -191,6 +204,9 @@ api:
       endpoints:
         - resolver: module_overview
         - resolver: edit_module
+        - resolver: validate_module
+          resolver_data:
+            path: /validate
         - resolver: activate_module
           resolver_data:
             path: /activate
@@ -251,6 +267,21 @@ api:
         - resolver: list_module_objects
           resolver_data:
             sort: *sort_default_modified_date
+            model_map:
+              ambitie: ambitie_basic
+              beleidsdoel: beleidsdoel_basic
+              beleidskeuze: beleidskeuze_basic
+              beleidsregel: beleidsregel_basic
+              document: document_basic
+              gebiedsprogramma: gebiedsprogramma_basic
+              maatregel: maatregel_basic
+              nationaal_belang: nationaal_belang_basic
+              onderverdeling: onderverdeling_basic
+              programma_algemeen: programma_algemeen_basic
+              verplicht_programma: verplicht_programma_basic
+              visie_algemeen: visie_algemeen_basic
+              werkingsgebied: werkingsgebied_basic
+              wettelijke_taak: wettelijke_taak_basic
     - prefix: /objects/valid
       endpoints:
         - resolver: object_counts
@@ -1350,4 +1381,3 @@ publication:
           - Title: Ontwerp Programma Zuid-Holland
             Description: |
               <p>Tekst</p>
-  

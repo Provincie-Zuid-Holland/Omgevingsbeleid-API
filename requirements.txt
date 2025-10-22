@@ -36,13 +36,15 @@ click==8.3.0
     #   uvicorn
 dependency-injector==4.48.2
     # via -r requirements.in
+deprecated==1.2.18
+    # via pikepdf
 dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
 dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.8.4
     # via -r requirements.in
-fastapi==0.119.0
+fastapi==0.119.1
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
@@ -73,6 +75,7 @@ lxml==6.0.2
     # via
     #   -r requirements.in
     #   dso
+    #   pikepdf
 markupsafe==3.0.3
     # via
     #   dso
@@ -88,6 +91,7 @@ packaging==25.0
     # via
     #   dso
     #   geopandas
+    #   pikepdf
     #   pyogrio
 pandas==2.3.3
     # via geopandas
@@ -97,8 +101,12 @@ pathspec==0.12.1
     # via dso
 pdfkit==1.0.0
     # via -r requirements.in
-pillow==12.0.0
+pikepdf==9.11.0
     # via -r requirements.in
+pillow==12.0.0
+    # via
+    #   -r requirements.in
+    #   pikepdf
 platformdirs==4.5.0
     # via dso
 pydantic==2.12.3
@@ -193,6 +201,8 @@ watchfiles==1.1.1
     # via uvicorn
 websockets==15.0.1
     # via uvicorn
+wrapt==1.17.3
+    # via deprecated
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
