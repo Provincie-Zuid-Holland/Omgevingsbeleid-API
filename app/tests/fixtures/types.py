@@ -1,4 +1,5 @@
 import base64
+from dataclasses import dataclass
 import hashlib
 import json
 import os
@@ -6,23 +7,15 @@ import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, List, Optional, Tuple, TypeVar, Union
 
 from pydantic import BaseModel
 
 from app.api.domains.users import Security
+from app.core.db.base import Base
 from app.core.tables.objects import ObjectStaticsTable
 from app.core.tables.others import StorageFileTable, AssetsTable
 from app.core.tables.users import UsersTable
-
-
-class FixtureContext:
-    def __init__(self, security: Security):
-        self._security = security
-
-    @property
-    def security(self):
-        return self._security
 
 
 class TypeEnum(Enum):
@@ -33,12 +26,22 @@ class TypeEnum(Enum):
 
 class Factory(ABC, BaseModel):
     @abstractmethod
-    def create(self) -> Any:
+    def create(self) -> Base:
         pass
 
     @staticmethod
     def get_uuid_from_id(the_type: TypeEnum, the_id: int) -> uuid.UUID:
         return uuid.UUID(f"00000000-0000-0000-{str(the_type.value).zfill(4)}-{str(the_id).zfill(12)}")
+
+
+FactoryT = TypeVar("FactoryT", bound=Factory)
+FixtureType = Union[Tuple[str, FactoryT], FactoryT]
+FixturesType = List[FixtureType]
+
+
+@dataclass
+class FixtureContext:
+    security: Security
 
 
 class UserFactory(Factory):
