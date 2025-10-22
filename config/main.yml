@@ -290,6 +290,20 @@ api:
         - resolver: list_all_latest_objects
           resolver_data:
             sort: *sort_default_object_id
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - document
+              - maatregel
+              - beleidsregel
+              - gebiedsprogramma
+              - wettelijke_taak
+              - nationaal_belang
+              - verplicht_programma
+              - visie_algemeen
+              - programma_algemeen
+              - werkingsgebied
     - prefix: /publication-aoj
       endpoints:
         - resolver: create_publication_area_of_jurisdictions

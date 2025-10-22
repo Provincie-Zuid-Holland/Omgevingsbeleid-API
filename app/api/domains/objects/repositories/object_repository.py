@@ -138,7 +138,7 @@ class ObjectRepository(BaseRepository):
         session: Session,
         pagination: SortedPagination,
         owner_uuid: Optional[UUID] = None,
-        object_type: Optional[str] = None,
+        object_types: List[str] = [],
     ) -> PaginatedQueryResult:
         row_number = (
             func.row_number()
@@ -167,8 +167,8 @@ class ObjectRepository(BaseRepository):
             )
             filters.append(owner_filter)
 
-        if object_type is not None:
-            filters.append(or_(ObjectsTable.Object_Type == object_type))
+        if object_types:
+            filters.append(or_(ObjectsTable.Object_Type.in_(object_types)))
 
         if len(filters) > 0:
             subq = subq.filter(and_(*filters))

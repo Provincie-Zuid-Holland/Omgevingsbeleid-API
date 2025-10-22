@@ -28,6 +28,7 @@ class ObjectListAllLatestEndpointBuilder(EndpointBuilder):
             object_type=api.object_type,
             order_config=order_config,
             builder_data=builder_data,
+            allowed_object_types=resolver_config["allowed_object_types"],
         )
         endpoint = self._inject_context(do_list_all_latest_endpoint, context)
 
