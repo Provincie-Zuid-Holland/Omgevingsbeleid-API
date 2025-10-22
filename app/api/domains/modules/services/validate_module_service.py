@@ -10,6 +10,7 @@ from app.api.domains.publications.repository.publication_object_repository impor
 from app.api.domains.werkingsgebieden.repositories.werkingsgebieden_repository import WerkingsgebiedenRepository
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
+from app.core.tables.werkingsgebieden import SourceWerkingsgebiedenTable
 
 
 class ValidateModuleError(BaseModel, metaclass=ABCMeta):
@@ -133,11 +134,11 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 )
                 continue
 
-            area_title = area_current.Source_Title
-            area_latest = self._source_repository.get_latest_by_title(db, area_title)
+            area_title: str = area_current.Source_Title
+            area_latest: SourceWerkingsgebiedenTable = self._source_repository.get_latest_by_title(db, area_title)
 
-            hash_current = hashlib.sha256(area_current.Shape).hexdigest()
-            hash_latest = hashlib.sha256(area_latest.SHAPE).hexdigest()
+            hash_current: str = hashlib.sha256(area_current.Shape).hexdigest()
+            hash_latest: str = hashlib.sha256(area_latest.SHAPE).hexdigest()
 
             if hash_current != hash_latest:
                 errors.append(
