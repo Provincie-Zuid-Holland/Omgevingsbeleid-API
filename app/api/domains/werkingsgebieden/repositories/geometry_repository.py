@@ -3,10 +3,16 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from typing import List, Optional
 
+from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
+
+
+class WerkingsgebiedHash(BaseModel):
+    UUID: uuid.UUID
+    hash: str
 
 
 class GeometryRepository(BaseRepository, metaclass=ABCMeta):
@@ -61,7 +67,7 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
     def _calculate_hex(self, column: str) -> str:
         pass
 
-    def get_latest_shape_hash_by_title(self, session: Session, title: str) -> Optional[dict]:
+    def get_latest_shape_hash_by_title(self, session: Session, title: str) -> Optional[WerkingsgebiedHash]:
         params = {
             "title": title,
         }
@@ -81,5 +87,9 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         if row is None:
             return None
 
-        row_dict = row._asdict()
-        return row_dict
+        werkingsgebied_hash = WerkingsgebiedHash(
+            UUID=uuid.UUID(row["uuid"]),
+            hash=row["shape_hash"],
+        )
+
+        return werkingsgebied_hash

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
-from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
+from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository, WerkingsgebiedHash
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
 
@@ -137,16 +137,18 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 )
                 continue
 
-            area_title = area_current.Source_Title
-            shape_hash_latest = self._geometry_repository.get_latest_shape_hash_by_title(db, area_title)
+            area_title: str = area_current.Source_Title
+            werkingsgebied_latest: WerkingsgebiedHash = self._geometry_repository.get_latest_shape_hash_by_title(
+                db, area_title
+            )
 
-            if area_current_shape_hash != shape_hash_latest["shape_hash"]:
+            if area_current_shape_hash != werkingsgebied_latest.hash:
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
                         object_code=object_table.Code,
                         messages=[
-                            f"Area {area_current.UUID} does not use the latest known Werkingsgebieden shape {shape_hash_latest['uuid']}"
+                            f"Area {area_current.UUID} - '{area_current.Source_Title}' does not use the latest known Werkingsgebieden shape {werkingsgebied_latest.UUID}"
                         ],
                     )
                 )
