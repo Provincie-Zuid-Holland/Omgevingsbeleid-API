@@ -138,9 +138,20 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 continue
 
             area_title: str = area_current.Source_Title
-            werkingsgebied_latest: WerkingsgebiedHash = self._geometry_repository.get_latest_shape_hash_by_title(
+            werkingsgebied_latest: Optional[WerkingsgebiedHash] = self._geometry_repository.get_latest_shape_hash_by_title(
                 db, area_title
             )
+            if werkingsgebied_latest is None:
+                errors.append(
+                    ValidateModuleError(
+                        rule="newest_source_werkingsgebied_used_rule",
+                        object_code=object_table.Code,
+                        messages=[
+                            f"Area {area_current.UUID} - '{area_current.Source_Title}' does not have a Werkingsgebieden shape"
+                        ],
+                    )
+                )
+                continue
 
             if area_current_shape_hash != werkingsgebied_latest.hash:
                 errors.append(
