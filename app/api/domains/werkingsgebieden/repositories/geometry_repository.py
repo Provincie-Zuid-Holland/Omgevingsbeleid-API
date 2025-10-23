@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from typing import List, Optional
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
@@ -55,3 +56,30 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
     @abstractmethod
     def get_onderverdelingen_for_werkingsgebied(self, session: Session, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
         pass
+
+    @abstractmethod
+    def _calculate_hex(self, column: str) -> str:
+        pass
+
+    def get_latest_shape_hash_by_title(self, session: Session, title: str) -> Optional[dict]:
+        params = {
+            "title": title,
+        }
+        sql = f"""
+            SELECT
+                UUID AS uuid,
+                {self._calculate_hex("Shape")} AS shape_hash
+            FROM
+                Werkingsgebieden
+            WHERE
+                Werkingsgebied = :title
+            ORDER BY
+                Created_Date DESC
+            """
+
+        row = session.execute(text(sql), params).fetchone()
+        if row is None:
+            return None
+
+        row_dict = row._asdict()
+        return row_dict
