@@ -145,3 +145,6 @@ class MssqlGeometryRepository(GeometryRepository):
 
         dict_rows = [row._asdict() for row in rows]
         return dict_rows
+
+    def _calculate_hex(self, column: str) -> str:
+        return f"CONVERT(varchar(max), {column}.STAsBinary(), 2)"

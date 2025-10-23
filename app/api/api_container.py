@@ -152,7 +152,8 @@ class ApiContainer(containers.DeclarativeContainer):
             ),
             providers.Singleton(
                 module_services.NewestSourceWerkingsgebiedUsedRule,
-                source_repository=werkingsgebieden_repository,
+                geometry_repository=geometry_repository,
+                area_geometry_repository=area_geometry_repository,
             ),
         ),
     )

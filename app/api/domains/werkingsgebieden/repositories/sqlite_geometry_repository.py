@@ -146,3 +146,6 @@ class SqliteGeometryRepository(GeometryRepository):
 
         dict_rows = [row._asdict() for row in rows]
         return dict_rows
+
+    def _calculate_hex(self, column: str) -> str:
+        return f"hex({column})"
