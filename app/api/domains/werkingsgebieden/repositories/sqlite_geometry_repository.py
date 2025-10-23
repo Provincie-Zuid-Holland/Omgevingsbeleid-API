@@ -101,18 +101,6 @@ class SqliteGeometryRepository(GeometryRepository):
             """
         session.execute(text(sql), params)
 
-    def get_latest_by_title(self, session: Session, title: str) -> SourceWerkingsgebiedenTable:
-        stmt = (
-            select(SourceWerkingsgebiedenTable)
-            .filter(SourceWerkingsgebiedenTable.Title == title)
-            .options(undefer(SourceWerkingsgebiedenTable.SHAPE))
-            .order_by(desc(SourceWerkingsgebiedenTable.Created_Date))
-        )
-        return self.fetch_first(
-            session=session,
-            statement=stmt,
-        )
-
     def get_werkingsgebied(self, session: Session, uuidx: uuid.UUID) -> dict:
         row = self.get_werkingsgebied_optional(session, uuidx)
         if row is None:

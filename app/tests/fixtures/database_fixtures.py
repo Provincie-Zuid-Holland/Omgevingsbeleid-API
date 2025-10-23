@@ -1,7 +1,6 @@
 import glob
 import importlib
 import os
-from typing import List
 import uuid
 from datetime import datetime
 
@@ -11,15 +10,7 @@ from app.api.domains.users import Security
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
 from app.core.utils.utils import DATE_FORMAT
-from app.tests.fixtures.types import FixtureContext, FixtureType
-
-
-class CollectedFixtures:
-    def __init__(self):
-        self._fixtures: List[FixtureType] = []
-
-    def add(self, fixtures: List[FixtureType]):
-        self._fixtures = self._fixtures + fixtures
+from app.tests.fixtures.types import FixtureContext
 
 
 class Fixtures:
@@ -32,7 +23,7 @@ class Fixtures:
     ):
         self._session: Session = session
         self._security: Security = security
-        self._context: FixtureContext = FixtureContext(security=security)
+        self._context: FixtureContext = FixtureContext(security)
         self._geometry_repository: GeometryRepository = geometry_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
 
@@ -40,18 +31,14 @@ class Fixtures:
         fixture_dir = os.path.join(os.path.dirname(__file__), "data")
         fixture_files = sorted(glob.glob(os.path.join(fixture_dir, "*.py")))
 
-        fixture_collection: CollectedFixtures = CollectedFixtures()
-
         for path in fixture_files:
             mod = self._import_fixture_module(path)
             data = self._extract_fixture_data(mod, self._context)
             if not data:
                 continue
 
-            fixture_collection.add(data)
-
-            # self._session.add_all(data)
-            # self._session.commit()
+            self._session.add_all(data)
+            self._session.commit()
 
         self._create_source_werkingsgebieden()
         self._create_areas()
@@ -93,13 +80,15 @@ class Fixtures:
         )
         self._session.commit()
 
-    def _import_fixture_module(self, path: str):
+    @staticmethod
+    def _import_fixture_module(path: str):
         spec = importlib.util.spec_from_file_location("fixture_module", path)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         return mod
 
-    def _extract_fixture_data(self, module, context: FixtureContext):
+    @staticmethod
+    def _extract_fixture_data(module, context: FixtureContext):
         if hasattr(module, "fixtures"):
             return module.fixtures(context)
         return None

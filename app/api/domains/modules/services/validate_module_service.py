@@ -123,9 +123,6 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
             if area_current is None:
                 continue
 
-            # @todo
-            # shape_hash: Optional[str] = self._geometry_repository
-
             if area_current.Shape is None:
                 errors.append(
                     ValidateModuleError(
