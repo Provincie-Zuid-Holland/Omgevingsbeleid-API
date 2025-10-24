@@ -1,9 +1,9 @@
-from typing import Dict
+from typing import Dict, List
 
 from app.api.domains.modules.endpoints.module_overview_endpoint import (
-    ModuleOverview,
     view_module_overview_endpoint,
     ViewModuleOverviewEndpointContext,
+    ModuleObjectsResponse,
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
@@ -38,7 +38,7 @@ class ModuleOverviewEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_model=ModuleOverview,
+            response_model=List[ModuleObjectsResponse],
             summary="Get overview of a module",
             description=None,
             tags=["Modules"],

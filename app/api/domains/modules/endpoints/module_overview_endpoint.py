@@ -1,6 +1,5 @@
 import uuid
-from datetime import datetime
-from typing import Annotated, List, Optional, Sequence, Dict, TypeVar
+from typing import Annotated, List, Optional, Sequence, Dict, Generic
 
 from dependency_injector.wiring import Provide
 from fastapi import Depends
@@ -12,8 +11,7 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
-from app.api.domains.modules.types import Module as ModuleClass
-from app.api.domains.modules.types import ModuleStatus
+from app.api.domains.modules.types import TModel
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
@@ -35,32 +33,15 @@ class ModuleObjectContextShort(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-TModel = TypeVar("TModel", bound=BaseModel)
-
-
-class ModuleObjectShort(BaseModel):
+class ModuleObjectsResponse(BaseModel, Generic[TModel]):
     Module_ID: int
+
     Object_Type: str
-    Object_ID: int
-    Code: str
-    UUID: uuid.UUID
-
-    Modified_Date: datetime
-    Title: str
-
-    ObjectStatics: Optional[ObjectStaticShort] = None
-    ModuleObjectContext: Optional[ModuleObjectContextShort] = None
-    model_config = ConfigDict(from_attributes=True)
-
-
-class ModuleObjectShortWithModel(ModuleObjectShort):
+    ObjectStatics: ObjectStaticShort
+    ModuleObjectContext: ModuleObjectContextShort
     Model: TModel
 
-
-class ModuleOverview(BaseModel):
-    Module: ModuleClass
-    StatusHistory: List[ModuleStatus]
-    Objects: List[ModuleObjectShortWithModel]
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ViewModuleOverviewEndpointContext(BaseEndpointContext):
@@ -75,7 +56,7 @@ def view_module_overview_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-) -> ModuleOverview:
+) -> List[ModuleObjectsResponse]:
     subq = (
         select(
             ModuleObjectsTable,
@@ -112,20 +93,15 @@ def view_module_overview_endpoint(
     )
 
     rows: Sequence[ModuleObjectsTable] = session.execute(stmt).scalars().all()
-    status_history: List[ModuleStatus] = [ModuleStatus.model_validate(s) for s in module.status_history]
-    objects: List[ModuleObjectShortWithModel] = []
-    for row in rows:
-        object_current: ModuleObjectShort = ModuleObjectShort.model_validate(row)
-        parsed_model: BaseModel = module_objects_to_models_parser.parse(row, context.model_map)
-        object_with_model: ModuleObjectShortWithModel = ModuleObjectShortWithModel(
-            **object_current.model_dump(),
+    response_list: List[ModuleObjectsResponse] = []
+    for object_current in rows:
+        parsed_model: BaseModel = module_objects_to_models_parser.parse(object_current, context.model_map)
+        response: ModuleObjectsResponse = ModuleObjectsResponse(
+            Module_ID=object_current.Module_ID,
+            Object_Type=object_current.Object_Type,
+            ObjectStatics=object_current.ObjectStatics,
+            ModuleObjectContext=object_current.ModuleObjectContext,
             Model=parsed_model,
         )
-        objects.append(object_with_model)
-
-    response = ModuleOverview(
-        Module=ModuleClass.model_validate(module),
-        StatusHistory=status_history,
-        Objects=objects,
-    )
-    return response
+        response_list.append(response)
+    return response_list
