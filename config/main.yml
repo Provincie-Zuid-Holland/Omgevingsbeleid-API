@@ -340,6 +340,9 @@ api:
     - prefix: /publication-act-packages/{act_package_uuid}
       endpoints:
         - resolver: detail_publication_act_package
+        - resolver: abort_publication_act_package
+          resolver_data:
+            path: /abort
         - resolver: download_publication_act_package
           resolver_data:
             path: /download
@@ -716,6 +719,7 @@ users_permissions:
     - publication_can_view_publication_version
     - publication_can_delete_publication_version_attachment
     - publication_can_create_publication_act_package
+    - publication_can_abort_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
     - publication_can_view_unified_packages
@@ -769,6 +773,7 @@ users_permissions:
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
     - publication_can_create_publication_act_package
+    - publication_can_abort_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
     - publication_can_view_unified_packages

@@ -142,6 +142,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(
                 endpoint_builders_publications.publications.act_packages.CreatePublicationPackageEndpointBuilder
             ),
+            providers.Factory(
+                endpoint_builders_publications.publications.act_packages.AbortPublicationPackageEndpointBuilder
+            ),
             providers.Factory(endpoint_builders_publications.publications.act_packages.DetailActPackageEndpointBuilder),
             providers.Factory(endpoint_builders_publications.publications.act_packages.DownloadPackageEndpointBuilder),
             providers.Factory(
