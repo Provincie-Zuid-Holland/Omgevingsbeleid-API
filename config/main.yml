@@ -40,6 +40,22 @@ required_object_fields_rule:
   visie_algemeen: visie_algemeen_module_validate
   werkingsgebied: werkingsgebied_module_validate
 
+model_map: &model_map
+  ambitie: ambitie_basic
+  beleidsdoel: beleidsdoel_basic
+  beleidskeuze: beleidskeuze_basic
+  beleidsregel: beleidsregel_basic
+  document: document_basic
+  gebiedsprogramma: gebiedsprogramma_basic
+  maatregel: maatregel_basic
+  nationaal_belang: nationaal_belang_basic
+  onderverdeling: onderverdeling_basic
+  programma_algemeen: programma_algemeen_basic
+  verplicht_programma: verplicht_programma_basic
+  visie_algemeen: visie_algemeen_basic
+  werkingsgebied: werkingsgebied_basic
+  wettelijke_taak: wettelijke_taak_basic
+
 api:
   routers:
     - prefix: /login/access-token
@@ -203,6 +219,8 @@ api:
     - prefix: /modules/{module_id}
       endpoints:
         - resolver: module_overview
+          resolver_data:
+            model_map: *model_map
         - resolver: edit_module
         - resolver: validate_module
           resolver_data:
@@ -267,21 +285,7 @@ api:
         - resolver: list_module_objects
           resolver_data:
             sort: *sort_default_modified_date
-            model_map:
-              ambitie: ambitie_basic
-              beleidsdoel: beleidsdoel_basic
-              beleidskeuze: beleidskeuze_basic
-              beleidsregel: beleidsregel_basic
-              document: document_basic
-              gebiedsprogramma: gebiedsprogramma_basic
-              maatregel: maatregel_basic
-              nationaal_belang: nationaal_belang_basic
-              onderverdeling: onderverdeling_basic
-              programma_algemeen: programma_algemeen_basic
-              verplicht_programma: verplicht_programma_basic
-              visie_algemeen: visie_algemeen_basic
-              werkingsgebied: werkingsgebied_basic
-              wettelijke_taak: wettelijke_taak_basic
+            model_map: *model_map
     - prefix: /objects/valid
       endpoints:
         - resolver: object_counts
