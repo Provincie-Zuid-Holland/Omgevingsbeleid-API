@@ -87,9 +87,10 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         if row is None:
             return None
 
+        row_dict = row._asdict()
         werkingsgebied_hash = WerkingsgebiedHash(
-            UUID=uuid.UUID(row["uuid"]),
-            hash=row["shape_hash"],
+            UUID=uuid.UUID(row_dict["uuid"]),
+            hash=row_dict["shape_hash"],
         )
 
         return werkingsgebied_hash
