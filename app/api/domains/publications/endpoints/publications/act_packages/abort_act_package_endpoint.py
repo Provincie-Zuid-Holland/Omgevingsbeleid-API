@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from dependency_injector.wiring import inject
@@ -55,6 +55,12 @@ def post_abort_act_package_endpoint(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="We do not know what to do if we do not have state uuids",
         )
+    timepoint: datetime = datetime.now(timezone.utc)
+    since_creation: timedelta = timepoint.date() - act_package.Created_Date.date()
+    if since_creation.days > 30:
+        raise HTTPException(
+            452, "Too many days has passed since creation of the package. Its unlikely that you want to abort this"
+        )
 
     # We can only abort the latest package in the chain:
     # That is, we can only revert the package that caused the current state.
@@ -64,7 +70,6 @@ def post_abort_act_package_endpoint(
     if environment.Active_State_UUID != act_package.Created_Environment_State_UUID:
         raise HTTPException(452, "We can only abort the latest package in the state chain")
 
-    timepoint: datetime = datetime.now(timezone.utc)
     act_package.Report_Status = ReportStatusType.ABORTED
     act_package.Modified_Date = timepoint
     act_package.Modified_By_UUID = user.UUID

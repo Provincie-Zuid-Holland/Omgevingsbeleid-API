@@ -1,8 +1,6 @@
 from app.api.domains.publications.endpoints.publications.act_packages.abort_act_package_endpoint import (
+    AbortResponse,
     post_abort_act_package_endpoint,
-)
-from app.api.domains.publications.endpoints.publications.act_packages.create_act_package_endpoint import (
-    PublicationPackageCreatedResponse,
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
@@ -28,7 +26,7 @@ class AbortPublicationPackageEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=post_abort_act_package_endpoint,
             methods=["POST"],
-            response_model=PublicationPackageCreatedResponse,
+            response_model=AbortResponse,
             summary="ABORT an Publication Act Package",
             tags=["Publication Act Packages"],
         )
