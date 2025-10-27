@@ -78,6 +78,7 @@ def post_abort_act_package_endpoint(
     publication_version.Status = PublicationVersionStatus.PUBLICATION_ABORTED
     publication_version.Modified_Date = timepoint
     publication_version.Modified_By_UUID = user.UUID
+    publication_version.Is_Locked = False
     session.add(publication_version)
 
     environment.Active_State_UUID = act_package.Used_Environment_State_UUID
