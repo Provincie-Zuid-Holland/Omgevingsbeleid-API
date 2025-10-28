@@ -187,6 +187,11 @@ class EndpointHandler:
         running_status: RunningStatus,
         report: PublicationActPackageReportTable,
     ):
+        if self._act_package.Report_Status == ReportStatusType.ABORTED:
+            running_status.Status = ReportStatusType.ABORTED
+            running_status.Is_Conclusive = True
+            return running_status
+
         if self._act_package.Report_Status == ReportStatusType.FAILED:
             running_status.Status = ReportStatusType.FAILED
             running_status.Is_Conclusive = True

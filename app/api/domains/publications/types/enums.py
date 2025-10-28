@@ -26,6 +26,7 @@ class ReportStatusType(str, Enum):
     PENDING = "pending"
     VALID = "valid"
     FAILED = "failed"
+    ABORTED = "aborted"
 
 
 class MutationStrategy(str, Enum):
@@ -40,6 +41,7 @@ class PublicationVersionStatus(str, Enum):
     VALIDATION_FAILED = "validation_failed"
     PUBLICATION = "publication"
     PUBLICATION_FAILED = "publication_failed"
+    PUBLICATION_ABORTED = "publication_aborted"
     ANNOUNCEMENT = "announcement"
     COMPLETED = "completed"
 
