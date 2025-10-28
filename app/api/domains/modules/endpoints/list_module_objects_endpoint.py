@@ -38,8 +38,8 @@ class ModuleObjectsResponse(BaseModel, Generic[TModel]):
     Module_ID: int
     Module_Latest_Status: str
 
-    ObjectStatics: ObjectStaticShort
     Object_Type: str
+    ObjectStatics: ObjectStaticShort
     ModuleObjectContext: ModuleObjectContextShort
     Model: TModel
 
@@ -90,7 +90,7 @@ def get_list_module_objects_endpoint(
     rows: List[ModuleObjectsResponse] = []
     for object_table, object_static, module_object_context, module_status in paginated_items:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_table, context.model_map)
-        response = ModuleObjectsResponse(
+        response: ModuleObjectsResponse = ModuleObjectsResponse(
             Module_ID=module_object_context.Module_ID,
             Module_Latest_Status=module_status,
             Model=parsed_model,
