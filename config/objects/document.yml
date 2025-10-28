@@ -290,3 +290,21 @@ models:
     fields:
       object_id:
       uuid:
+  document_module_validate:
+    name: DocumentModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      filename:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: filename
+      file_uuid:

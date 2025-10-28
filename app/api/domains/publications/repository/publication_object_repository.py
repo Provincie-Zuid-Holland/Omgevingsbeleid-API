@@ -16,8 +16,8 @@ class PublicationObjectRepository(BaseRepository):
         session: Session,
         module_id: int,
         timepoint: datetime,
-        object_types: List[str],
-        requested_field_map: List[str],
+        object_types: List[str] = [],
+        requested_fields: List[str] = [],
     ) -> List[dict]:
         required_fields: Set[str] = set(
             [
@@ -34,9 +34,9 @@ class PublicationObjectRepository(BaseRepository):
                 "Modified_Date",
             ]
         )
-        field_map: Set[str] = required_fields.union(set(requested_field_map))
+        fields: Set[str] = required_fields.union(set(requested_fields))
 
-        query = self._get_full_query(module_id, timepoint, object_types, field_map)
+        query = self._get_full_query(module_id, timepoint, object_types, fields)
 
         result = session.execute(query)
         rows = [row._asdict() for row in result]
@@ -61,9 +61,11 @@ class PublicationObjectRepository(BaseRepository):
             select(ObjectsTable, row_number)
             .options(selectinload(ObjectsTable.ObjectStatics))
             .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Object_Type.in_(object_types))
             .filter(ObjectsTable.Start_Validity < timepoint)
         )
+
+        if object_types:
+            subq = subq.filter(ObjectsTable.Object_Type.in_(object_types))
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
@@ -91,7 +93,7 @@ class PublicationObjectRepository(BaseRepository):
         object_types: List[str],
         field_map: Set[str],
     ):
-        subq = (
+        query = (
             select(
                 ModuleObjectsTable,
                 func.row_number()
@@ -106,9 +108,13 @@ class PublicationObjectRepository(BaseRepository):
             .join(ModuleObjectsTable.ModuleObjectContext)
             .filter(ModuleObjectsTable.Module_ID == module_id)
             .filter(ModuleObjectsTable.Modified_Date < timepoint)
-            .filter(ModuleObjectsTable.Object_Type.in_(object_types))
             .filter(ModuleObjectContextTable.Hidden == False)
-        ).subquery()
+        )
+
+        if object_types:
+            query = query.filter(ModuleObjectsTable.Object_Type.in_(object_types))
+
+        subq = query.subquery()
 
         aliased_objects = aliased(ModuleObjectsTable, subq)
         stmt = (
