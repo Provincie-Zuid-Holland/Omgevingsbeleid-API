@@ -40,6 +40,9 @@ def post_edit_publication_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_in: PublicationEdit,
 ) -> ResponseOK:
+    if not publication.Module.is_active:
+        raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
+
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
