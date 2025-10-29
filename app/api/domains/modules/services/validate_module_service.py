@@ -138,8 +138,8 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 continue
 
             area_title: str = area_current.Source_Title
-            werkingsgebied_latest: Optional[WerkingsgebiedHash] = self._geometry_repository.get_latest_shape_hash_by_title(
-                db, area_title
+            werkingsgebied_latest: Optional[WerkingsgebiedHash] = (
+                self._geometry_repository.get_latest_shape_hash_by_title(db, area_title)
             )
             if werkingsgebied_latest is None:
                 errors.append(

@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
-from dependency_injector.wiring import inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -28,7 +27,6 @@ class AbortResponse(BaseModel):
     new_state_uuid: uuid.UUID
 
 
-@inject
 def post_abort_act_package_endpoint(
     act_package: Annotated[PublicationActPackageTable, Depends(depends_publication_act_package)],
     user: Annotated[
