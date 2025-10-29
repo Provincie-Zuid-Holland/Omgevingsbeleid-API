@@ -1,8 +1,7 @@
-from typing import Annotated
+from typing import Annotated, Sequence
 
 import click
 from dependency_injector.wiring import inject, Provide
-from jedi.inference.value.iterable import Sequence
 
 from app.api.api_container import ApiContainer
 from app.api.domains.others.repositories import StorageFileRepository
