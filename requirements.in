@@ -9,6 +9,7 @@ pyyaml
 requests
 requests-toolbelt
 dependency-injector
+FalkorDB
 
 # JWT
 pyjwt
@@ -22,6 +23,7 @@ pytz
 validators
 shapely
 geopandas
+rich
 
 # Command
 Click

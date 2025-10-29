@@ -58,6 +58,15 @@ model_map: &model_map
 
 api:
   routers:
+    - prefix: /graph
+      endpoints:
+        - resolver: graph_view
+    - prefix: /graph/create
+      endpoints:
+        - resolver: graph_create
+    - prefix: /graph/detail/{object_type}/{lineage_id}
+      endpoints:
+        - resolver: graph_detail_object
     - prefix: /login/access-token
       endpoints:
         - resolver: auth_login_access_token

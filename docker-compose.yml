@@ -1,53 +1,66 @@
 services:
 
-  api:
-    build:
-      context: ./
-      dockerfile: ./docker/api/Dockerfile
-    ports:
-      - "8000:80"
-      - "5678:5678" # Debug app port
-      - "5679:5679" # Debug DAP adapter port
-    volumes:
-      - ./:/code
-    environment:
-      DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASS}
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_NAME: ${DB_NAME}
-      DB_DRIVER: ODBC Driver 17 for SQL Server
-      JWT_SECRET: secret
-      DEBUG_MODE: True
-      SQLALCHEMY_DATABASE_URI: ""
-      PYTHONPATH: "/code"
-      PUBLICATION_KOOP__PROD__API_KEY: ""
-      PUBLICATION_KOOP__PROD__RENVOOI_API_URL: "https://renvooiservice-eto.overheid.nl"
-      PUBLICATION_KOOP__PROD__PREVIEW_API_URL: "https://besluitpreviewservice-eto.overheid.nl"
-    restart: "no"
-    security_opt:
-      - seccomp:unconfined
-    cap_add:
-      - SYS_PTRACE
+  # api:
+  #   build:
+  #     context: ./
+  #     dockerfile: ./docker/api/Dockerfile
+  #   ports:
+  #     - "8000:80"
+  #     - "5678:5678" # Debug app port
+  #     - "5679:5679" # Debug DAP adapter port
+  #   volumes:
+  #     - ./:/code
+  #   environment:
+  #     DB_USER: ${DB_USER}
+  #     DB_PASS: ${DB_PASS}
+  #     DB_HOST: ${DB_HOST}
+  #     DB_PORT: ${DB_PORT}
+  #     DB_NAME: ${DB_NAME}
+  #     DB_DRIVER: ODBC Driver 17 for SQL Server
+  #     JWT_SECRET: secret
+  #     DEBUG_MODE: True
+  #     SQLALCHEMY_DATABASE_URI: ""
+  #     PYTHONPATH: "/code"
+  #     PUBLICATION_KOOP__PROD__API_KEY: ""
+  #     PUBLICATION_KOOP__PROD__RENVOOI_API_URL: "https://renvooiservice-eto.overheid.nl"
+  #     PUBLICATION_KOOP__PROD__PREVIEW_API_URL: "https://besluitpreviewservice-eto.overheid.nl"
+  #   restart: "no"
+  #   security_opt:
+  #     - seccomp:unconfined
+  #   cap_add:
+  #     - SYS_PTRACE
 
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   ports:
+  #     - "1433:1433"
+  #   environment:
+  #     ACCEPT_EULA: Y
+  #     MSSQL_SA_PASSWORD: 'Passw0rd'
+  #   volumes:
+  #     - mssql:/var/opt/mssql
+  #     - ./docker/mssql/:/opt/sql/:ro
+  #   healthcheck:
+  #     test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT 1" -b -C -o /dev/null
+  #     interval: 1s
+  #     timeout: 3s
+  #     retries: 10
+  #     start_period: 1s
+  #   restart: "no"
+
+  falkordb:
+    image: falkordb/falkordb:latest
     ports:
-      - "1433:1433"
-    environment:
-      ACCEPT_EULA: Y
-      MSSQL_SA_PASSWORD: 'Passw0rd'
+      - "6379:6379"
     volumes:
-      - mssql:/var/opt/mssql
-      - ./docker/mssql/:/opt/sql/:ro
-    healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT 1" -b -C -o /dev/null
-      interval: 1s
-      timeout: 3s
-      retries: 10
-      start_period: 1s
-    restart: "no"
+      - falkor-data:/data
+
+  falkordb-browser:
+    image: falkordb/falkordb-browser:edge
+    ports:
+      - "3000:3000"
 
 volumes:
-  mssql:
+  falkor-data:
+  # mssql:
 

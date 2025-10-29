@@ -7,6 +7,7 @@ import app.build.endpoint_builders.modules as endpoint_builders_modules
 import app.build.endpoint_builders.users as endpoint_builders_users
 import app.build.endpoint_builders.others as endpoint_builders_others
 import app.build.endpoint_builders.werkingsgebieden as endpoint_builders_werkingsgebieden
+import app.build.endpoint_builders.graph as endpoint_builders_graph
 import app.build.endpoint_builders.publications as endpoint_builders_publications
 from app.build.endpoint_builders import endpoint_builder_provider
 from app.build.services import (
@@ -286,6 +287,10 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByAreasEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByGeometryEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListWerkingsgebiedenEndpointBuilder),
+            # Graph domain
+            providers.Factory(endpoint_builders_graph.GraphCreateEndpointBuilder),
+            providers.Factory(endpoint_builders_graph.GraphDetailObjectEndpointBuilder),
+            providers.Factory(endpoint_builders_graph.GraphViewEndpointBuilder),
             # Others
             providers.Factory(endpoint_builders_others.ListStorageFilesEndpointBuilder),
             providers.Factory(endpoint_builders_others.DetailStorageFilesEndpointBuilder),
