@@ -24,6 +24,7 @@ class StorageFileBasic(BaseModel):
 class GraphEdgeType(str, Enum):
     relation = "relation"
     acknowledged_relation = "acknowledged_relation"
+    hierarchy_code = "hierarchy_code"
 
 
 class GraphEdge(BaseModel):
