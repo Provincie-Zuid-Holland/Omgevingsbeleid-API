@@ -17,7 +17,7 @@ from .retrieved_module_objects_event_listeners import (
     GetColumnImagesForModuleObjectListener,
     JoinDocumentsToModuleObjectsListener,
     JoinWerkingsgebiedToModuleObjectsListener,
-    ResolveChildObjectsViaHierarchyToModuleObjectsListener,
+    ModuleObjectResolveChildObjectsViaHierarchyListener,
 )
 from .retrieved_objects_event_listeners import (
     AddNextObjectVersionToObjectsListener,
@@ -27,5 +27,5 @@ from .retrieved_objects_event_listeners import (
     GetColumnImagesForObjectListener,
     JoinDocumentsToObjectsListener,
     JoinWerkingsgebiedenToObjectsListener,
-    ResolveChildObjectsViaHierarchyListener,
+    ObjectResolveChildObjectsViaHierarchyListener,
 )

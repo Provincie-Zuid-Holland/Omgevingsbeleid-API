@@ -288,18 +288,17 @@ class ResolveChildObjectsViaHierarchyListenerBase(Listener[EventRMO], Generic[Ev
     def __init__(self, service_factory: ResolveChildObjectsViaHierarchyServiceFactory):
         self._service_factory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
+    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
         config: Optional[ResolveChildObjectsViaHierarchyConfig] = self._collect_config(event)
         if not config:
             return event
 
         service: ResolveChildObjectsViaHierarchyService = self._service_factory.create_service(
             session,
-            event.payload.rows,
             config,
         )
 
-        result_rows: List[BaseModel] = service.resolve_child_objects()
+        result_rows: List[BaseModel] = service.resolve_child_objects(event.payload.rows)
         event.payload.rows = result_rows
 
         return event
@@ -319,5 +318,5 @@ class ResolveChildObjectsViaHierarchyListenerBase(Listener[EventRMO], Generic[Ev
         )
 
 
-class ResolveChildObjectsViaHierarchyListener(ResolveChildObjectsViaHierarchyListenerBase[RetrievedObjectsEvent]):
+class ObjectResolveChildObjectsViaHierarchyListener(ResolveChildObjectsViaHierarchyListenerBase[RetrievedObjectsEvent]):
     pass

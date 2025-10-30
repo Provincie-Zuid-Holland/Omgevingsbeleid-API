@@ -2,7 +2,8 @@ from typing import List, Optional
 
 import pydantic
 
-from app.api.domains.modules.types import PublicModuleObjectRevision, GenericObjectShort
+from app.api.domains.modules.types import PublicModuleObjectRevision
+from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_service import HierachyReference
 from app.api.domains.objects.types import NextObjectVersion, ObjectStatics
 from app.core.services.event.types import Listener
 from app.core.types import Model, WerkingsgebiedRelatedObjects
@@ -211,7 +212,7 @@ class AddResolveChildObjectsViaHierarchyListener(Listener[CreateModelEvent]):
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            List[GenericObjectShort],
+            List[HierachyReference],
             [],
         )
 

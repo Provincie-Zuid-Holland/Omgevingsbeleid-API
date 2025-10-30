@@ -208,7 +208,7 @@ class ApiContainer(containers.DeclarativeContainer):
                 service_factory=join_documents_service_factory,
             ),
             providers.Factory(
-                event_listeners.ResolveChildObjectsViaHierarchyListener,
+                event_listeners.ObjectResolveChildObjectsViaHierarchyListener,
                 service_factory=resolve_child_objects_via_hierarchy_service_factory,
             ),
             # RetrievedModuleObjectsEvent
@@ -237,7 +237,7 @@ class ApiContainer(containers.DeclarativeContainer):
                 service_factory=join_documents_service_factory,
             ),
             providers.Factory(
-                event_listeners.ResolveChildObjectsViaHierarchyToModuleObjectsListener,
+                event_listeners.ModuleObjectResolveChildObjectsViaHierarchyListener,
                 service_factory=resolve_child_objects_via_hierarchy_service_factory,
             ),
             # BeforeSelectExecutionEvent
