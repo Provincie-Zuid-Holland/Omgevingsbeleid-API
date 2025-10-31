@@ -3,6 +3,7 @@ from typing import List, Optional
 import pydantic
 
 from app.api.domains.modules.types import PublicModuleObjectRevision
+from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_service import HierachyReference
 from app.api.domains.objects.types import NextObjectVersion, ObjectStatics
 from app.core.services.event.types import Listener
 from app.core.types import Model, WerkingsgebiedRelatedObjects
@@ -195,6 +196,23 @@ class AddJoinDocumentsToObjectModelListener(Listener[CreateModelEvent]):
 
         event.payload.pydantic_fields[field_name] = (
             List[ObjectStatics],
+            [],
+        )
+
+        return event
+
+
+class AddResolveChildObjectsViaHierarchyListener(Listener[CreateModelEvent]):
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+        service_config: dict = event.context.intermediate_model.service_config
+        if "resolve_child_objects_via_hierarchy_listener" not in service_config:
+            return event
+
+        config: dict = service_config["resolve_child_objects_via_hierarchy_listener"]
+        field_name: str = config["to_field"]
+
+        event.payload.pydantic_fields[field_name] = (
+            List[HierachyReference],
             [],
         )
 
