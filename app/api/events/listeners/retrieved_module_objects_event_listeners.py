@@ -63,7 +63,7 @@ class JoinDocumentsToModuleObjectsListener(JoinDocumentsListenerBase[RetrievedMo
     pass
 
 
-class ModuleObjectResolveChildObjectsViaHierarchyListener(
+class ResolveChildObjectsViaHierarchyToModuleObjectListener(
     ResolveChildObjectsViaHierarchyListenerBase[RetrievedModuleObjectsEvent]
 ):
     pass

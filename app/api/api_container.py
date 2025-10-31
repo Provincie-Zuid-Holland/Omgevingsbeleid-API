@@ -237,7 +237,7 @@ class ApiContainer(containers.DeclarativeContainer):
                 service_factory=join_documents_service_factory,
             ),
             providers.Factory(
-                event_listeners.ModuleObjectResolveChildObjectsViaHierarchyListener,
+                event_listeners.ResolveChildObjectsViaHierarchyToModuleObjectListener,
                 service_factory=resolve_child_objects_via_hierarchy_service_factory,
             ),
             # BeforeSelectExecutionEvent
