@@ -1,2 +1,3 @@
 from .add_public_revisions_service import AddPublicRevisionsServiceFactory
 from .object_provider import ObjectProvider
+from .manage_object_context_service import ManageObjectContextService

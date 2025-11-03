@@ -3,7 +3,7 @@ from app.api.domains.werkingsgebieden.endpoints.input_geo.input_geo_werkingsgebi
 )
 from app.api.domains.werkingsgebieden.types import InputGeoWerkingsgebiedDetailed
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import ConfiguiredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
 
@@ -18,8 +18,8 @@ class InputGeoWerkingsgebiedenDetailEndpointBuilder(EndpointBuilder):
         builder_data: EndpointContextBuilderData,
         endpoint_config: EndpointConfig,
         api: ObjectApi,
-    ) -> ConfiguiredFastapiEndpoint:
-        return ConfiguiredFastapiEndpoint(
+    ) -> ConfiguredFastapiEndpoint:
+        return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=get_input_geo_werkingsgebieden_detail_endpoint,
             methods=["GET"],

@@ -1,3 +1,4 @@
 from .change_area_processor import AreaProcessorService, AreaProcessorServiceFactory
 from .join_werkingsgebieden import JoinWerkingsgebiedenService, JoinWerkingsgebiedenServiceFactory
 from .join_onderverdelingen import JoinOnderverdelingenService, JoinOnderverdelingenServiceFactory
+from .input_geo import PatchGebiedengroepInputGeoServiceFactory, PatchGebiedengroepInputGeoService

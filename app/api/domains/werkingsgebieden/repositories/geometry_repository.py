@@ -1,57 +1,46 @@
 import uuid
 from abc import ABCMeta, abstractmethod
-from datetime import datetime
-from typing import List, Optional
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingTable
 
 
 class GeometryRepository(BaseRepository, metaclass=ABCMeta):
     @abstractmethod
-    def add_onderverdeling(
+    def _text_to_shape(self, key: str) -> str:
+        pass
+
+    @abstractmethod
+    def _shape_to_text(self, column: str) -> str:
+        pass
+
+    @abstractmethod
+    def _format_uuid(self, uuidx: uuid.UUID) -> str:
+        pass
+
+    def create_onderverdeling(
         self,
         session: Session,
-        uuidx: uuid.UUID,
-        idx: int,
-        title: str,
-        text_shape: str,
-        symbol: str,
-        werkingsgebied_title: str,
-        werkingsgebied_uuid: uuid.UUID,
-        created_date: datetime,
-        modified_date: datetime,
-        start_validity: datetime,
-        end_validity: Optional[datetime],
+        onderverdeling: InputGeoOnderverdelingTable,
+        geometry: str,
     ):
-        pass
+        session.add(onderverdeling)
+        session.flush()
+        session.commit()
 
-    @abstractmethod
-    def add_werkingsgebied(
-        self,
-        session: Session,
-        uuidx: uuid.UUID,
-        idx: int,
-        title: str,
-        text_shape: str,
-        gml: str,
-        symbol: str,
-        created_date: datetime,
-        modified_date: datetime,
-        start_validity: datetime,
-        end_validity: Optional[datetime],
-    ):
-        pass
-
-    @abstractmethod
-    def get_werkingsgebied(self, session: Session, uuidx: uuid.UUID) -> dict:
-        pass
-
-    @abstractmethod
-    def get_werkingsgebied_optional(self, session: Session, uuidx: uuid.UUID) -> Optional[dict]:
-        pass
-
-    @abstractmethod
-    def get_onderverdelingen_for_werkingsgebied(self, session: Session, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
-        pass
+        params = {
+            "uuid": self._format_uuid(onderverdeling.UUID),
+            "geometry": geometry,
+        }
+        sql = f"""
+            UPDATE
+                Input_GEO_Onderverdeling
+            SET
+                Geometry = {self._text_to_shape("geometry")}
+            WHERE
+                UUID = :uuid
+            """
+        session.execute(text(sql), params)

@@ -1,0 +1,252 @@
+id: gebiedengroep
+object_type: gebiedengroep
+
+sort_allowed_columns: &sort_allowed_columns
+  - Object_ID
+  - Title
+  - Modified_Date
+
+sort_default_title: &sort_default_title
+  default:
+    column: Title
+    order: asc
+  allowed_columns: *sort_allowed_columns
+
+sort_default_modified_date: &sort_default_modified_date
+  default:
+    column: Modified_Date
+    order: desc
+  allowed_columns: *sort_allowed_columns
+
+api:
+  routers:
+    - prefix: /gebiedengroepen
+      endpoints:
+        - resolver: valid_list_lineages
+          resolver_data:
+            path: /valid
+            response_model: gebiedengroep_basic
+            allowed_filter_columns:
+              - Title
+            sort: *sort_default_title
+        - resolver: valid_list_lineage_tree
+          resolver_data:
+            path: /valid/{lineage_id}
+            response_model: gebiedengroep_basic
+            allowed_filter_columns:
+              - Title
+            sort: *sort_default_modified_date
+        - resolver: object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: gebiedengroep_full
+        - resolver: object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: gebiedengroep_full
+    - prefix: /gebiedengroep/static/{lineage_id}
+      endpoints:
+        - resolver: edit_object_static
+          resolver_data:
+            request_model: gebiedengroep_static_post
+            result_model: gebiedengroep_static_post_validated
+    - prefix: /modules/{module_id}/object/gebiedengroep
+      endpoints:
+        - resolver: module_patch_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: gebiedengroep_patch
+            response_model: gebiedengroep_uuid
+        - resolver: input_geo_use_werkingsgebied
+          resolver_data:
+            path: /{lineage_id}/use/{input_geo_werkingsgebied_uuid}
+            target_object_type: gebied
+        - resolver: module_list_lineage_tree
+          resolver_data:
+            path: /{lineage_id}
+            response_model: gebiedengroep_extended
+            allowed_filter_columns:
+              - Title
+            sort: *sort_default_modified_date
+        - resolver: module_object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: gebiedengroep_full
+        - resolver: module_object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: gebiedengroep_full
+    - prefix: /modules/object/gebiedengroep
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+    - prefix: /revisions/{module_id}/gebiedengroep/version/{object_uuid}
+      endpoints:
+        - resolver: module_object_version
+          resolver_data:
+            response_model: gebiedengroep_full
+            minimum_status: 'Ontwerp GS Concept'
+            require_auth: False
+
+fields:
+  title:
+    name: Title
+    type: str
+    column: title
+    validators:
+      - id: none_to_default_value
+  description:
+    name: Description
+    type: str
+    column: description
+    validators:
+      - id: none_to_default_value
+  gebieden:
+    name: Gebieden
+    type: list_str
+    column: gebieden
+    validators:
+      - id: none_to_default_value
+
+  # Statics
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    column: owner_1_uuid
+    optional: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    column: owner_2_uuid
+    optional: true
+
+models:
+  gebiedengroep_minimal:
+    name: GebiedengroepMinimal
+    fields:
+      object_type:
+      object_id:
+      uuid:
+      title:
+  gebiedengroep_basic:
+    name: GebiedengroepBasic
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      gebieden:
+      start_validity:
+      end_validity:
+  gebiedengroep_extended:
+    name: GebiedengroepExtended
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      gebieden:
+      start_validity:
+      end_validity:
+    dependency_model_ids:
+      - user_short
+    services:
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: user_short
+          - to_field: Modified_By
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+  gebiedengroep_full:
+    name: GebiedengroepFull
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      description:
+      start_validity:
+      end_validity:
+      gebieden:
+    dependency_model_ids:
+      - user_short
+      - gebieden_basic
+    services:
+      join_gebieden:
+        model_id: gebied_basic
+        to_field: Gebieden_Objects
+        from_field: Gebieden
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: user_short
+          - to_field: Modified_By
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+  gebiedengroep_patch:
+    name: GebiedengroepPatch
+    fields:
+      title:
+        default: none
+        optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        default: none
+        optional: true
+  gebiedengroep_static_post:
+    name: GebiedengroepStaticPost
+    static_only: true
+    fields:
+      owner_1_uuid:
+        default: none
+        optional: true
+      owner_2_uuid:
+        default: none
+        optional: true
+  gebiedengroep_static_post_validated:
+    name: GebiedengroepStaticPostValidated
+    static_only: true
+    model_validators:
+      - id: not_equal_root
+        data:
+          fields:
+            - Owner_1_UUID
+            - Owner_2_UUID
+          allow_none: True
+          error_message: Owners should vary
+    fields:
+      owner_1_uuid:
+      owner_2_uuid:
+        default: none
+        optional: true
+  gebiedengroep_uuid:
+    name: GebiedengroepUUID
+    fields:
+      object_id:
+      uuid:

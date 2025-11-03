@@ -1,6 +1,5 @@
 from typing import Annotated
 
-from dependency_injector.wiring import inject
 from fastapi import Depends
 
 from app.api.domains.werkingsgebieden.dependencies import depends_input_geo_werkingsgebied
@@ -8,7 +7,6 @@ from app.api.domains.werkingsgebieden.types import InputGeoWerkingsgebiedDetaile
 from app.core.tables.werkingsgebieden import InputGeoWerkingsgebiedenTable
 
 
-@inject
 def get_input_geo_werkingsgebieden_detail_endpoint(
     input_geo_werkingsgebied: Annotated[InputGeoWerkingsgebiedenTable, Depends(depends_input_geo_werkingsgebied)],
 ) -> InputGeoWerkingsgebiedDetailed:

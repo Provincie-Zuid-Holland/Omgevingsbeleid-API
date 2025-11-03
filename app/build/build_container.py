@@ -271,6 +271,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByGeometryEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListWerkingsgebiedenEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.InputGeoListLatestWerkingsgebiedenEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.InputGeoUseWerkingsgebiedenEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.InputGeoWerkingsgebiedenHistoryEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.InputGeoWerkingsgebiedenDetailEndpointBuilder),
             # Others

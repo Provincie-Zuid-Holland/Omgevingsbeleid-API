@@ -1,12 +1,11 @@
 import uuid
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
-from sqlalchemy import ForeignKey, Unicode, Table, Column
+from sqlalchemy import ForeignKey, LargeBinary, Unicode, Table, Column
 from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 
 from app.core.db.base import Base
-from app.core.db.geometry import Geometry
 
 
 Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc = Table(
@@ -39,7 +38,7 @@ class InputGeoOnderverdelingTable(Base):
     Title: Mapped[str]
     Created_Date: Mapped[datetime]
 
-    Geometry: Mapped[bytes] = deferred(mapped_column(Geometry()))
+    Geometry: Mapped[Optional[bytes]] = deferred(mapped_column(LargeBinary(), nullable=True))
     Geometry_Hash: Mapped[str] = mapped_column(Unicode(64))
     GML: Mapped[str] = deferred(mapped_column(Unicode))
 
@@ -65,7 +64,7 @@ class SourceWerkingsgebiedenTable(Base):
     End_Validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
 
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
-    SHAPE: Mapped[bytes] = deferred(mapped_column(Geometry()))
+    SHAPE: Mapped[Optional[bytes]] = deferred(mapped_column(LargeBinary(), nullable=True))
     Geometry_Hash: Mapped[str] = mapped_column(Unicode(64), nullable=True)
     GML: Mapped[str] = deferred(mapped_column(Unicode))
     symbol: Mapped[str] = mapped_column(Unicode(265))
@@ -81,7 +80,7 @@ class OnderverdelingTable(Base):
     ID: Mapped[int]
 
     Title: Mapped[str] = mapped_column(name="Onderverdeling")
-    SHAPE: Mapped[bytes] = deferred(mapped_column(Geometry()))
+    SHAPE: Mapped[Optional[bytes]] = deferred(mapped_column(LargeBinary(), nullable=True))
     symbol: Mapped[str]
     Werkingsgebied: Mapped[str] = mapped_column(Unicode(265))
     UUID_Werkingsgebied: Mapped[uuid.UUID]

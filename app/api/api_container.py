@@ -125,10 +125,23 @@ class ApiContainer(containers.DeclarativeContainer):
         area_geometry_repository=area_geometry_repository,
     )
 
+    manage_object_context_service = providers.Factory(
+        module_services.ManageObjectContextService,
+        module_object_context_repository=module_object_context_repository,
+    )
     object_provider = providers.Factory(
         module_services.ObjectProvider,
         object_repository=object_repository,
         module_object_repository=module_object_repository,
+    )
+
+    patch_gebiedengroep_input_geo_service_factory = providers.Singleton(
+        werkingsgebied_services.PatchGebiedengroepInputGeoServiceFactory,
+        object_static_repository=object_static_repository,
+        module_object_repository=module_object_repository,
+        object_context_service=manage_object_context_service,
+        area_repository=area_repository,
+        area_geometry_repository=area_geometry_repository,
     )
 
     event_listeners = providers.Factory(
