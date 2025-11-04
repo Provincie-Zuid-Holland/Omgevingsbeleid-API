@@ -36,6 +36,9 @@ beautifulsoup4
 # Image information
 Pillow
 
+# PDF information
+pikepdf
+
 # Exporting xml and pdf
 fs
 pdfkit
@@ -44,4 +47,4 @@ dicttoxml
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.8.1
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.8.4

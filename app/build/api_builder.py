@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Type
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.api_models import DECLARED_MODELS
-from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import EndpointBuilder
 from app.build.endpoint_builders.endpoint_builder_provider import EndpointBuilderProvider
 from app.build.objects.types import BuildData, EndpointConfig, ObjectApi
 from app.build.services.config_parser import ConfigParser
@@ -18,6 +19,7 @@ from app.core.services.object_field_mapping_provider import ObjectFieldMappingPr
 class ApiBuilderResult:
     object_field_mapping_provider: ObjectFieldMappingProvider
     routes: List[ConfiguredFastapiEndpoint]
+    required_object_fields_rule_mapping: Dict[str, Type[BaseModel]]
 
 
 class ApiBuilder:
@@ -51,10 +53,25 @@ class ApiBuilder:
         object_routes = object_routes + self._build_main_routes(build_data)
         object_routes.sort(key=lambda o: o.tags)
 
+        required_object_fields_rule_mapping: Dict[str, Type[BaseModel]] = self._build_object_fields_rule_mapping(
+            build_data, self._models_provider
+        )
+
         return ApiBuilderResult(
             object_field_mapping_provider=object_field_mapping_provider,
             routes=object_routes,
+            required_object_fields_rule_mapping=required_object_fields_rule_mapping,
         )
+
+    def _build_object_fields_rule_mapping(
+        self, build_data: BuildData, model_provider: ModelsProvider
+    ) -> Dict[str, Type[BaseModel]]:
+        rule_mapping: Dict[str, Type[BaseModel]] = {}
+        rule_config: Dict[str, str] = build_data.main_config["required_object_fields_rule"]
+        for object_type, model_name in rule_config.items():
+            model_type: Type[BaseModel] = model_provider.get_pydantic_model(model_name)
+            rule_mapping[object_type] = model_type
+        return rule_mapping
 
     def _build_object_field_mapping_provider(self, build_data: BuildData) -> ObjectFieldMappingProvider:
         object_field_mappings: Dict[str, Set[str]] = {}

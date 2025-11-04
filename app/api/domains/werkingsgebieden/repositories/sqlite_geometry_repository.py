@@ -14,6 +14,9 @@ class SqliteGeometryRepository(GeometryRepository):
     def _format_uuid(self, uuidx: uuid.UUID) -> str:
         return uuidx.hex
 
+    def _calculate_hex(self, column: str) -> str:
+        return f"hex({column})"
+
     # def create_onderverdeling(
     #     self,
     #     session: Session,

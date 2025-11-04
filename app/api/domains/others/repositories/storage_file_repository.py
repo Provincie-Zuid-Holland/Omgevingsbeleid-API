@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Sequence
 from uuid import UUID
 
 from sqlalchemy import and_, select
@@ -54,3 +54,7 @@ class StorageFileRepository(BaseRepository):
             sort=(getattr(StorageFileTable, pagination.sort.column), pagination.sort.order),
         )
         return paged_result
+
+    def get_all(self, session: Session) -> Sequence[StorageFileTable]:
+        stmt = select(StorageFileTable)
+        return self.fetch_all(session, stmt)

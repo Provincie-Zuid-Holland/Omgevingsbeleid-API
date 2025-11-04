@@ -18,3 +18,7 @@ class PublicationVersionAttachmentRepository(BaseRepository):
             PublicationVersionAttachmentTable.Publication_Version_UUID == version_uuid
         )
         return self.fetch_all(session, stmt)
+
+    def get_all(self, session: Session):
+        stmt = select(PublicationVersionAttachmentTable)
+        return self.fetch_all(session, stmt)

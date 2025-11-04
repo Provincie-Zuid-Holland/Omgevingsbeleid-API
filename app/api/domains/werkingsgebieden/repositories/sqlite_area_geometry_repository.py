@@ -23,3 +23,6 @@ class SqliteAreaGeometryRepository(AreaGeometryRepository):
 
     def get_spatial_function(self, func: GeometryFunctions) -> str:
         return SQLITE_SPATIAL_FUNCTION_MAP[func]
+
+    def _calculate_hex(self, column: str) -> str:
+        return f"hex({column})"

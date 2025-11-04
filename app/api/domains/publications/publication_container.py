@@ -15,7 +15,6 @@ class PublicationContainer(containers.DeclarativeContainer):
     main_config = providers.Dependency()
     area_repository = providers.Dependency()
     area_geometry_repository = providers.Dependency()
-    storage_file_repository = providers.Dependency()
     asset_repository = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
 

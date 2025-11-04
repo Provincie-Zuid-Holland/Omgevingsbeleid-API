@@ -226,6 +226,8 @@ models:
       insert_assets:
         fields:
           - Description
+      resolve_child_objects_via_hierarchy_listener:
+        to_field: Hierarchy_Children
       relations:
         objects:
           - object_type: beleidsdoel
@@ -333,3 +335,19 @@ models:
     fields:
       object_id:
       uuid:
+  ambitie_module_validate:
+    name: AmbitieModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html

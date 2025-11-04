@@ -168,9 +168,11 @@ class StateV5Upgrader(StateUpgrader):
                                     )
                                 )
                             else:
-                                models_v5.GebiedengroepRef(
-                                    target_code=ow_objects[l_ref]["mapped_geo_code"],
-                                    ref=l_ref,
+                                location_refs.append(
+                                    models_v5.GebiedengroepRef(
+                                        target_code=ow_objects[l_ref]["mapped_geo_code"],
+                                        ref=l_ref,
+                                    )
                                 )
 
                     except Exception as e:

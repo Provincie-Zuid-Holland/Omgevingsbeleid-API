@@ -283,13 +283,13 @@ models:
         model_id: werkingsgebied_basic
         to_field: Werkingsgebied
         from_field: Werkingsgebied_Code
+      join_documents:
+        to_field: Documents_Statics
+        from_field: Documents
       join_gebiedengroepen:
         model_id: gebiedengroep_basic
         to_field: Gebiedengroep
         from_field: gebiedengroep_code
-      join_documents:
-        to_field: Documents_Statics
-        from_field: Documents
       insert_assets:
         fields:
           - Description
@@ -460,3 +460,55 @@ models:
     fields:
       object_id:
       uuid:
+  maatregel_module_validate:
+    name: MaatregelModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html
+      role:
+        validators:
+          - id: length
+            data:
+              min: 3
+      effect:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html
+      hierarchy_code:
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - beleidskeuze
+          - id: object_code_exists
+      documents:
+        default: none
+        optional: true
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - document
+          - id: object_codes_exists
+      werkingsgebied_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - werkingsgebied
+          - id: object_code_exists

@@ -402,7 +402,7 @@ class AnnouncementProcedural(BaseModel):
 
 
 class AnnouncementText(BaseModel):
-    Title: str
+    Title: Optional[str]
     Description: str
 
 

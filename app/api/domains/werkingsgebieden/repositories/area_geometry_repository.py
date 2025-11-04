@@ -33,6 +33,28 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
     def get_spatial_function(self, func: GeometryFunctions) -> str:
         pass
 
+    @abstractmethod
+    def _calculate_hex(self, column: str) -> str:
+        pass
+
+    def get_shape_hash(self, session: Session, uuidx: uuid.UUID) -> Optional[str]:
+        params = {
+            "uuid": self._format_uuid(uuidx),
+        }
+        sql = f"""
+            SELECT
+                {self._calculate_hex("Shape")}
+            FROM
+                areas
+            WHERE
+                UUID = :uuid
+            """
+
+        row = session.execute(text(sql), params).fetchone()
+        if row is None:
+            return None
+        return row[0]
+
     def get_area_uuids_by_geometry(
         self, session: Session, geometry: str, geometry_func: GeometryFunctions
     ) -> List[uuid.UUID]:
