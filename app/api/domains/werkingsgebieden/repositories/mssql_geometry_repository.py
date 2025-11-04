@@ -1,12 +1,7 @@
 import uuid
-from datetime import datetime
-from typing import List, Optional
 
-from sqlalchemy import text
-from sqlalchemy.orm import Session
 
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
-from app.core.utils.utils import DATE_FORMAT
 
 
 class MssqlGeometryRepository(GeometryRepository):
@@ -21,6 +16,7 @@ class MssqlGeometryRepository(GeometryRepository):
 
     def _calculate_hex(self, column: str) -> str:
         return f"CONVERT(varchar(max), {column}.STAsBinary(), 2)"
+
 
 #     def add_onderverdeling(
 #         self,

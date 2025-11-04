@@ -5,7 +5,6 @@ import pydantic
 from app.api.domains.modules.types import PublicModuleObjectRevision
 from app.api.domains.objects.types import NextObjectVersion, ObjectStatics
 from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_service import HierachyReference
-from app.api.domains.objects.types import NextObjectVersion, ObjectStatics
 from app.core.services.event.types import Listener
 from app.core.types import Model, WerkingsgebiedRelatedObjects
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.api_models import DECLARED_MODELS
-from app.build.endpoint_builders.endpoint_builder import EndpointBuilder
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.endpoint_builders.endpoint_builder_provider import EndpointBuilderProvider
 from app.build.objects.types import BuildData, EndpointConfig, ObjectApi
 from app.build.services.config_parser import ConfigParser
