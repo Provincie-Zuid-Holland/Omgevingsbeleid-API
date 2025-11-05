@@ -170,18 +170,23 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
         return errors
 
 
+class ForbidEmptyHtmlNodesRuleConfig(BaseModel):
+    fields: List[str]
+    html_void_elements: List[str]
+
+
 class ForbidEmptyHtmlNodesRule(ValidationRule):
     def __init__(self, main_config: MainConfig):
-        self._fields: List[str] = main_config.get_string_list_or_fail("forbid_empty_html_nodes_rule.fields")
-        self._html_void_elements: List[str] = main_config.get_string_list_or_fail(
-            "forbid_empty_html_nodes_rule.html_void_elements"
+        self._config: ForbidEmptyHtmlNodesRuleConfig = main_config.get_as_model(
+            "forbid_empty_html_nodes_rule",
+            ForbidEmptyHtmlNodesRuleConfig,
         )
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
 
         for object_table in request.module_objects:
-            for field_name in self._fields:
+            for field_name in self._config.fields:
                 value: str = str(getattr(object_table, field_name, ""))
                 if self._has_empty_nodes(value):
                     errors.append(
@@ -200,7 +205,7 @@ class ForbidEmptyHtmlNodesRule(ValidationRule):
         empty_tags = [
             tag
             for tag in soup.find_all(True)
-            if tag.name not in self._html_void_elements
+            if tag.name not in self._config.html_void_elements
             and not tag.get_text(strip=True)
             and not any(child.name for child in tag.children)
         ]
