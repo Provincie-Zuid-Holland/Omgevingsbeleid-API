@@ -31,10 +31,10 @@ from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_servic
     ResolveChildObjectsViaHierarchyConfig,
     ResolveChildObjectsViaHierarchyService,
 )
-from app.api.domains.werkingsgebieden.services.join_onderverdelingen import (
-    JoinOnderverdelingenConfig,
-    JoinOnderverdelingenService,
-    JoinOnderverdelingenServiceFactory,
+from app.api.domains.werkingsgebieden.services.join_gebieden import (
+    JoinGebiedenConfig,
+    JoinGebiedenService,
+    JoinGebiedenServiceFactory,
 )
 from app.api.domains.objects.services.join_documents_service import (
     JoinDocumentsConfig,
@@ -327,47 +327,47 @@ class ObjectResolveChildObjectsViaHierarchyListener(ResolveChildObjectsViaHierar
     pass
 
 
-class JoinOnderverdelingenBaseListener(Listener[EventRMO], Generic[EventRMO]):
-    def __init__(self, service_factory: JoinOnderverdelingenServiceFactory):
-        self._service_factory: JoinOnderverdelingenServiceFactory = service_factory
+class JoinGebiedenBaseListener(Listener[EventRMO], Generic[EventRMO]):
+    def __init__(self, service_factory: JoinGebiedenServiceFactory):
+        self._service_factory: JoinGebiedenServiceFactory = service_factory
 
     def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
-        config: Optional[JoinOnderverdelingenConfig] = self._collect_config(event)
+        config: Optional[JoinGebiedenConfig] = self._collect_config(event)
         if not config:
             return event
-        if not config.onderverdelingen_codes:
+        if not config.gebieden_codes:
             return event
 
-        service: JoinOnderverdelingenService = self._service_factory.create_service(
+        service: JoinGebiedenService = self._service_factory.create_service(
             session,
             config,
         )
-        result_rows = service.join_onderverdelingen(event.payload.rows)
+        result_rows = service.join_gebieden(event.payload.rows)
 
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, event: EventRMO) -> Optional[JoinOnderverdelingenConfig]:
+    def _collect_config(self, event: EventRMO) -> Optional[JoinGebiedenConfig]:
         response_model: Model = event.context.response_model
         if not isinstance(response_model, DynamicObjectModel):
             return None
-        if "join_onderverdelingen" not in response_model.service_config:
+        if "join_gebieden" not in response_model.service_config:
             return None
 
-        config_dict: dict = response_model.service_config.get("join_onderverdelingen", {})
+        config_dict: dict = response_model.service_config.get("join_gebieden", {})
         to_field: str = config_dict["to_field"]
         from_field: str = config_dict["from_field"]
 
         codes_per_row: List[List[str]] = [getattr(r, from_field) or [] for r in event.payload.rows]
-        onderverdelingen_codes: Set[str] = set([code for codes in codes_per_row for code in codes if code is not None])
+        gebieden_codes: Set[str] = set([code for codes in codes_per_row for code in codes if code is not None])
 
-        return JoinOnderverdelingenConfig(
-            onderverdelingen_codes=onderverdelingen_codes,
+        return JoinGebiedenConfig(
+            gebieden_codes=gebieden_codes,
             response_model=response_model,
             from_field=from_field,
             to_field=to_field,
         )
 
 
-class JoinOnderverdelingenForObjectListener(JoinOnderverdelingenBaseListener[RetrievedObjectsEvent]):
+class JoinGebiedenForObjectListener(JoinGebiedenBaseListener[RetrievedObjectsEvent]):
     pass

@@ -85,7 +85,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(create_model_event_listeners.JoinWerkingsgebiedenListener),
             providers.Factory(create_model_event_listeners.AddJoinDocumentsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddResolveChildObjectsViaHierarchyListener),
-            providers.Factory(create_model_event_listeners.JoinOnderverdelingenListener),
+            providers.Factory(create_model_event_listeners.JoinGebiedenListener),
             providers.Factory(create_model_event_listeners.AddPublicRevisionsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddNextObjectVersionToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddRelatedObjectsToWerkingsgebiedObjectModelListener),

@@ -1,6 +1,9 @@
+import hashlib
 import uuid
 from datetime import date, datetime
 from typing import Any
+from shapely import wkt
+
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
@@ -46,3 +49,26 @@ def serialize_data(obj) -> Any:
         return str(obj)
     else:
         return obj
+
+
+def calculate_geometry_hash(self, wkt_text: str) -> str:
+    """
+    Calculate SHA-256 hash of normalized WKT geometry text.
+
+    Args:
+        wkt_text: WKT format geometry string
+
+    Returns:
+        SHA-256 hash as hexadecimal string
+    """
+    try:
+        # Parse and normalize the WKT to ensure consistent formatting
+        geom = wkt.loads(wkt_text)
+        # Use normalized WKT for consistent hashing
+        normalized_wkt = geom.wkt
+
+        # Calculate SHA-256 hash
+        hash_obj = hashlib.sha256(normalized_wkt.encode("utf-8"))
+        return hash_obj.hexdigest()
+    except Exception as e:
+        raise ValueError(f"Invalid WKT geometry: {e}")

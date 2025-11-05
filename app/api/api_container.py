@@ -59,6 +59,20 @@ class ApiContainer(containers.DeclarativeContainer):
     mssql_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlGeometryRepository)
     mssql_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlAreaGeometryRepository)
     area_repository = providers.Singleton(werkingsgebieden_repositories.AreaRepository)
+
+    input_geo_werkingsgebieden_repository = providers.Singleton(
+        werkingsgebieden_repositories.InputGeoWerkingsgebiedenRepository
+    )
+    input_geo_onderverdeling_repository_base = providers.Singleton(
+        werkingsgebieden_repositories.InputGeoOnderverdelingRepository
+    )
+    mssql_input_geo_onderverdeling_repository = providers.Singleton(
+        werkingsgebieden_repositories.MssqlInputGeoOnderverdelingRepository
+    )
+    sqlite_input_geo_onderverdeling_repository = providers.Singleton(
+        werkingsgebieden_repositories.SqliteInputGeoOnderverdelingRepository
+    )
+
     module_object_context_repository = providers.Singleton(module_domain.ModuleObjectContextRepository)
     module_object_repository = providers.Singleton(module_domain.ModuleObjectRepository)
     module_repository = providers.Singleton(module_domain.ModuleRepository)
@@ -74,6 +88,11 @@ class ApiContainer(containers.DeclarativeContainer):
         config.DB_TYPE,
         sqlite=sqlite_area_geometry_repository,
         mssql=mssql_area_geometry_repository,
+    )
+    input_geo_onderverdeling_repository = providers.Selector(
+        config.DB_TYPE,
+        sqlite=sqlite_input_geo_onderverdeling_repository,
+        mssql=mssql_input_geo_onderverdeling_repository,
     )
 
     publication = providers.Container(
@@ -120,8 +139,8 @@ class ApiContainer(containers.DeclarativeContainer):
     join_werkingsgebieden_service_factory = providers.Singleton(
         werkingsgebied_services.JoinWerkingsgebiedenServiceFactory
     )
-    join_onderverdelingen_service_factory = providers.Singleton(
-        werkingsgebied_services.JoinOnderverdelingenServiceFactory,
+    join_gebieden_service_factory = providers.Singleton(
+        werkingsgebied_services.JoinGebiedenServiceFactory,
         object_repository=object_repository,
     )
     column_image_inserter_factory = providers.Singleton(
@@ -139,7 +158,7 @@ class ApiContainer(containers.DeclarativeContainer):
     )
     area_processor_service_factory = providers.Singleton(
         werkingsgebied_services.AreaProcessorServiceFactory,
-        source_geometry_repository=geometry_repository,
+        onderverdeling_repository=input_geo_onderverdeling_repository,
         area_repository=area_repository,
         area_geometry_repository=area_geometry_repository,
     )
@@ -201,8 +220,8 @@ class ApiContainer(containers.DeclarativeContainer):
                 service_factory=join_werkingsgebieden_service_factory,
             ),
             providers.Factory(
-                event_listeners.JoinOnderverdelingenForObjectListener,
-                service_factory=join_onderverdelingen_service_factory,
+                event_listeners.JoinGebiedenForObjectListener,
+                service_factory=join_gebieden_service_factory,
             ),
             providers.Factory(
                 event_listeners.InsertHtmlImagesForObjectListener,
@@ -250,8 +269,8 @@ class ApiContainer(containers.DeclarativeContainer):
                 service_factory=join_werkingsgebieden_service_factory,
             ),
             providers.Factory(
-                event_listeners.JoinOnderverdelingenForModuleObjectListener,
-                service_factory=join_onderverdelingen_service_factory,
+                event_listeners.JoinGebiedenForModuleObjectListener,
+                service_factory=join_gebieden_service_factory,
             ),
             providers.Factory(
                 event_listeners.GetImagesForModuleListener,

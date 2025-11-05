@@ -104,12 +104,6 @@ fields:
     column: area_uuid
     validators:
       - id: none_to_default_value
-  onderverdelingen:
-    name: Onderverdelingen
-    type: list_str
-    column: onderverdelingen
-    validators:
-      - id: none_to_default_value
   idms_link:
     name: IDMS_Link
     type: str
@@ -154,7 +148,6 @@ models:
       modified_date:
       title:
       area_uuid:
-      onderverdelingen:
       start_validity:
       end_validity:
   werkingsgebied_extended:
@@ -168,7 +161,6 @@ models:
       modified_date:
       title:
       area_uuid:
-      onderverdelingen:
       start_validity:
       end_validity:
     dependency_model_ids:
@@ -200,16 +192,10 @@ models:
       start_validity:
       end_validity:
       area_uuid:
-      onderverdelingen:
     dependency_model_ids:
       - user_short
       - area_basic
-      - onderverdeling_basic
     services:
-      join_onderverdelingen:
-        model_id: onderverdeling_basic
-        to_field: Onderverdelingen_Objects
-        from_field: Onderverdelingen
       werkingsgebied_related_objects:
         to_field: Related_Objects
       foreign_keys_extender:

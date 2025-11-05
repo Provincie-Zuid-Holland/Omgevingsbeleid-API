@@ -28,6 +28,10 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
     def _format_uuid(self, uuidx: uuid.UUID) -> str:
         pass
 
+    @abstractmethod
+    def _calculate_hex(self, column: str) -> str:
+        pass
+
     def create_onderverdeling(
         self,
         session: Session,
@@ -51,10 +55,6 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
                 UUID = :uuid
             """
         session.execute(text(sql), params)
-
-    @abstractmethod
-    def _calculate_hex(self, column: str) -> str:
-        pass
 
     def get_latest_shape_hash_by_title(self, session: Session, title: str) -> Optional[WerkingsgebiedHash]:
         params = {

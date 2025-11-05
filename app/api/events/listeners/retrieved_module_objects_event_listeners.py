@@ -12,7 +12,7 @@ from app.api.events.listeners.retrieved_objects_event_listeners import (
     GetColumnImagesListenerBase,
     JoinDocumentsListenerBase,
     ResolveChildObjectsViaHierarchyListenerBase,
-    JoinOnderverdelingenBaseListener,
+    JoinGebiedenBaseListener,
 )
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.core.services.event.types import Listener
@@ -22,7 +22,7 @@ class GetColumnImagesForModuleObjectListener(GetColumnImagesListenerBase[Retriev
     pass
 
 
-class JoinOnderverdelingenForModuleObjectListener(JoinOnderverdelingenBaseListener[RetrievedModuleObjectsEvent]):
+class JoinGebiedenForModuleObjectListener(JoinGebiedenBaseListener[RetrievedModuleObjectsEvent]):
     pass
 
 

@@ -52,6 +52,7 @@ class InputGeoOnderverdelingTable(Base):
 
 
 # @todo: Should be removed when the InputGeo is used
+# @deprecated
 class SourceWerkingsgebiedenTable(Base):
     __tablename__ = "Werkingsgebieden"
 
@@ -73,6 +74,7 @@ class SourceWerkingsgebiedenTable(Base):
         return f"SourceWerkingsgebiedenTable(UUID={self.UUID!r}, Title={self.Title!r})"
 
 
+# @deprecated
 class OnderverdelingTable(Base):
     __tablename__ = "Onderverdeling"
 

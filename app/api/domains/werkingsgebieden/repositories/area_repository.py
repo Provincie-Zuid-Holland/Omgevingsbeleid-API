@@ -34,6 +34,9 @@ class AreaRepository(BaseRepository):
         return self.fetch_first(session, stmt)
 
     def get_by_source_hash(self, session: Session, source_hash: str) -> Optional[AreasTable]:
+        if not source_hash:
+            return None
+
         lookup: str = source_hash[0:10]
         stmt = (
             select(AreasTable)

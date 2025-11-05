@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.werkingsgebieden.dependencies import depends_optional_input_geo_werkingsgebieden_sorted_pagination
-from app.api.domains.werkingsgebieden.repositories.input_geo_werkingsgebieden_repository import (
+from app.api.domains.werkingsgebieden.repositories.input_geo.input_geo_werkingsgebieden_repository import (
     InputGeoWerkingsgebiedenRepository,
 )
 from app.api.domains.werkingsgebieden.types import InputGeoWerkingsgebied
