@@ -23,6 +23,7 @@ from .retrieved_module_objects_event_listeners import (
 from .retrieved_objects_event_listeners import (
     AddNextObjectVersionToObjectsListener,
     AddPublicRevisionsToObjectsListener,
+    JoinGebiedengroepenListener,
     AddRelationsToObjectsListener,
     AddWerkingsgebiedRelatedObjectsToObjectsListener,
     GetColumnImagesForObjectListener,

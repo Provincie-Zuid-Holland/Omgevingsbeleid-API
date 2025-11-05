@@ -14,7 +14,7 @@ class AreaBasic(BaseModel):
     Created_By_UUID: uuid.UUID
     Source_UUID: uuid.UUID
     Source_Title: str
-    Source_Modified_Date: datetime
+    Source_Created_Date: datetime
 
     model_config = ConfigDict(from_attributes=True)
 

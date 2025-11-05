@@ -472,7 +472,7 @@ api:
           resolver_data:
             path: /area-designation-groups
     # Input GEO
-    - prefix: /input-geo/werkingsgbieden
+    - prefix: /input-geo/werkingsgebieden
       endpoints:
         - resolver: input_geo_latest_werkingsgebieden
           resolver_data:
