@@ -47,7 +47,7 @@ def post_create_version_pdf_endpoint(
     pdf_export_service: Annotated[PdfExportService, Depends(Provide[ApiContainer.publication.pdf_export_service])],
     object_in: PublicationPackagePdf,
 ) -> StreamingResponse:
-    _guard_valid_publication_version(validator, version)
+    _guard_publication(validator, version)
 
     try:
         package_builder: ActPackageBuilder = package_builder_factory.create_builder(
@@ -93,10 +93,13 @@ def post_create_version_pdf_endpoint(
         raise e
 
 
-def _guard_valid_publication_version(
+def _guard_publication(
     validator: PublicationVersionValidator,
     version: PublicationVersionTable,
 ) -> None:
+    if not version.Publication.Module.is_active:
+        raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
+
     errors: List[dict] = validator.get_errors(version)
     if len(errors) != 0:
         raise HTTPException(status.HTTP_409_CONFLICT, errors)

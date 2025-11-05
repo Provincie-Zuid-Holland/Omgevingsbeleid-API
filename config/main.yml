@@ -40,13 +40,45 @@ required_object_fields_rule:
   visie_algemeen: visie_algemeen_module_validate
   werkingsgebied: werkingsgebied_module_validate
 
-forbid_empty_html_nodes_rule_fields:
-  - Description
-  - Cause
-  - Provincial_Interest
-  - Explanation
-  - Role
-  - Effect
+forbid_empty_html_nodes_rule:
+  fields:
+    - Description
+    - Cause
+    - Provincial_Interest
+    - Explanation
+    - Role
+    - Effect
+  html_void_elements:
+    - area
+    - base
+    - br
+    - col
+    - embed
+    - hr
+    - img
+    - input
+    - link
+    - meta
+    - param
+    - source
+    - track
+    - wbr
+
+model_map: &model_map
+  ambitie: ambitie_basic
+  beleidsdoel: beleidsdoel_basic
+  beleidskeuze: beleidskeuze_basic
+  beleidsregel: beleidsregel_basic
+  document: document_basic
+  gebiedsprogramma: gebiedsprogramma_basic
+  maatregel: maatregel_basic
+  nationaal_belang: nationaal_belang_basic
+  onderverdeling: onderverdeling_basic
+  programma_algemeen: programma_algemeen_basic
+  verplicht_programma: verplicht_programma_basic
+  visie_algemeen: visie_algemeen_basic
+  werkingsgebied: werkingsgebied_basic
+  wettelijke_taak: wettelijke_taak_basic
 
 api:
   routers:
@@ -211,6 +243,8 @@ api:
     - prefix: /modules/{module_id}
       endpoints:
         - resolver: module_overview
+          resolver_data:
+            model_map: *model_map
         - resolver: edit_module
         - resolver: validate_module
           resolver_data:
@@ -275,21 +309,8 @@ api:
         - resolver: list_module_objects
           resolver_data:
             sort: *sort_default_modified_date
-            model_map:
-              ambitie: ambitie_basic
-              beleidsdoel: beleidsdoel_basic
-              beleidskeuze: beleidskeuze_basic
-              beleidsregel: beleidsregel_basic
-              document: document_basic
-              gebiedsprogramma: gebiedsprogramma_basic
-              maatregel: maatregel_basic
-              nationaal_belang: nationaal_belang_basic
-              onderverdeling: onderverdeling_basic
-              programma_algemeen: programma_algemeen_basic
-              verplicht_programma: verplicht_programma_basic
-              visie_algemeen: visie_algemeen_basic
-              werkingsgebied: werkingsgebied_basic
-              wettelijke_taak: wettelijke_taak_basic
+            model_map: *model_map
+            response_model_name: ListModuleObjectsResponse
     - prefix: /objects/valid
       endpoints:
         - resolver: object_counts
@@ -379,6 +400,9 @@ api:
     - prefix: /publication-act-packages/{act_package_uuid}
       endpoints:
         - resolver: detail_publication_act_package
+        - resolver: abort_publication_act_package
+          resolver_data:
+            path: /abort
         - resolver: download_publication_act_package
           resolver_data:
             path: /download
@@ -755,6 +779,7 @@ users_permissions:
     - publication_can_view_publication_version
     - publication_can_delete_publication_version_attachment
     - publication_can_create_publication_act_package
+    - publication_can_abort_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
     - publication_can_view_unified_packages
@@ -808,6 +833,7 @@ users_permissions:
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
     - publication_can_create_publication_act_package
+    - publication_can_abort_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
     - publication_can_view_unified_packages

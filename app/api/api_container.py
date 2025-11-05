@@ -127,6 +127,9 @@ class ApiContainer(containers.DeclarativeContainer):
         object_services.AddWerkingsgebiedRelatedObjectsServiceFactory
     )
     join_documents_service_factory = providers.Singleton(object_services.JoinDocumentsServiceFactory)
+    resolve_child_objects_via_hierarchy_service_factory = providers.Singleton(
+        object_services.ResolveChildObjectsViaHierarchyServiceFactory
+    )
     area_processor_service_factory = providers.Singleton(
         werkingsgebied_services.AreaProcessorServiceFactory,
         source_geometry_repository=geometry_repository,
@@ -152,7 +155,8 @@ class ApiContainer(containers.DeclarativeContainer):
             ),
             providers.Singleton(
                 module_services.NewestSourceWerkingsgebiedUsedRule,
-                source_repository=werkingsgebieden_repository,
+                geometry_repository=geometry_repository,
+                area_geometry_repository=area_geometry_repository,
             ),
             providers.Singleton(
                 module_services.ForbidEmptyHtmlNodesRule,
@@ -207,6 +211,10 @@ class ApiContainer(containers.DeclarativeContainer):
                 event_listeners.JoinDocumentsToObjectsListener,
                 service_factory=join_documents_service_factory,
             ),
+            providers.Factory(
+                event_listeners.ObjectResolveChildObjectsViaHierarchyListener,
+                service_factory=resolve_child_objects_via_hierarchy_service_factory,
+            ),
             # RetrievedModuleObjectsEvent
             providers.Factory(
                 event_listeners.InsertHtmlImagesForModuleListener,
@@ -231,6 +239,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.JoinDocumentsToModuleObjectsListener,
                 service_factory=join_documents_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.ResolveChildObjectsViaHierarchyToModuleObjectListener,
+                service_factory=resolve_child_objects_via_hierarchy_service_factory,
             ),
             # BeforeSelectExecutionEvent
             providers.Factory(event_listeners.OptimizeSelectQueryListener),

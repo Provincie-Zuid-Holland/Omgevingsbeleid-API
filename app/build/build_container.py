@@ -84,6 +84,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(create_model_event_listeners.AddRelationsListener),
             providers.Factory(create_model_event_listeners.JoinWerkingsgebiedenListener),
             providers.Factory(create_model_event_listeners.AddJoinDocumentsToObjectModelListener),
+            providers.Factory(create_model_event_listeners.AddResolveChildObjectsViaHierarchyListener),
             providers.Factory(create_model_event_listeners.AddPublicRevisionsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddNextObjectVersionToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddRelatedObjectsToWerkingsgebiedObjectModelListener),
@@ -148,6 +149,9 @@ class BuildContainer(containers.DeclarativeContainer):
             #       Act Packages
             providers.Factory(
                 endpoint_builders_publications.publications.act_packages.CreatePublicationPackageEndpointBuilder
+            ),
+            providers.Factory(
+                endpoint_builders_publications.publications.act_packages.AbortPublicationPackageEndpointBuilder
             ),
             providers.Factory(endpoint_builders_publications.publications.act_packages.DetailActPackageEndpointBuilder),
             providers.Factory(endpoint_builders_publications.publications.act_packages.DownloadPackageEndpointBuilder),

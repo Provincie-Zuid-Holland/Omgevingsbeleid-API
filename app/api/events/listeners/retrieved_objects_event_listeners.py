@@ -10,6 +10,7 @@ from app.api.domains.modules.services.add_public_revisions_service import (
     AddPublicRevisionsServiceFactory,
 )
 from app.api.domains.modules.types import PublicModuleStatusCode
+from app.api.domains.objects.services import ResolveChildObjectsViaHierarchyServiceFactory
 from app.api.domains.objects.services.add_next_object_version_service import (
     AddNextObjectVersionConfig,
     AddNextObjectVersionService,
@@ -30,6 +31,10 @@ from app.api.domains.objects.services.join_documents_service import (
     JoinDocumentsConfig,
     JoinDocumentsService,
     JoinDocumentsServiceFactory,
+)
+from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_service import (
+    ResolveChildObjectsViaHierarchyConfig,
+    ResolveChildObjectsViaHierarchyService,
 )
 from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
     JoinWerkingsgebiedenService,
@@ -276,4 +281,42 @@ class JoinDocumentsListenerBase(Listener[EventRMO], Generic[EventRMO]):
 
 
 class JoinDocumentsToObjectsListener(JoinDocumentsListenerBase[RetrievedObjectsEvent]):
+    pass
+
+
+class ResolveChildObjectsViaHierarchyListenerBase(Listener[EventRMO], Generic[EventRMO]):
+    def __init__(self, service_factory: ResolveChildObjectsViaHierarchyServiceFactory):
+        self._service_factory = service_factory
+
+    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
+        config: Optional[ResolveChildObjectsViaHierarchyConfig] = self._collect_config(event)
+        if not config:
+            return event
+
+        service: ResolveChildObjectsViaHierarchyService = self._service_factory.create_service(
+            session,
+            config,
+        )
+
+        result_rows: List[BaseModel] = service.resolve_child_objects(event.payload.rows)
+        event.payload.rows = result_rows
+
+        return event
+
+    def _collect_config(self, event: EventRMO) -> Optional[ResolveChildObjectsViaHierarchyConfig]:
+        if not isinstance(event.context.response_model, DynamicObjectModel):
+            return None
+        if "resolve_child_objects_via_hierarchy_listener" not in event.context.response_model.service_config:
+            return None
+
+        service_config: dict = event.context.response_model.service_config[
+            "resolve_child_objects_via_hierarchy_listener"
+        ]
+        return ResolveChildObjectsViaHierarchyConfig(
+            to_field=service_config["to_field"],
+            response_model=event.context.response_model,
+        )
+
+
+class ObjectResolveChildObjectsViaHierarchyListener(ResolveChildObjectsViaHierarchyListenerBase[RetrievedObjectsEvent]):
     pass

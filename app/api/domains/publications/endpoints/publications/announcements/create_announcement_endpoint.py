@@ -74,6 +74,8 @@ def post_create_announcement_endpoint(
 
 
 def _guard_can_create_announcement(act_package: PublicationActPackageTable):
+    if not act_package.Publication_Version.Publication.Module.is_active:
+        raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
     if not act_package.Publication_Version.Publication.Environment.Has_State:
         return
     if act_package.Report_Status != ReportStatusType.VALID:

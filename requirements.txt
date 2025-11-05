@@ -4,6 +4,8 @@
 #
 #    pip-compile requirements.in
 #
+annotated-doc==0.0.3
+    # via fastapi
 annotated-types==0.7.0
     # via pydantic
 anyio==4.11.0
@@ -44,7 +46,7 @@ diff-match-patch==20241021
     # via -r requirements.in
 dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.8.4
     # via -r requirements.in
-fastapi==0.119.1
+fastapi==0.120.1
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
@@ -101,7 +103,7 @@ pathspec==0.12.1
     # via dso
 pdfkit==1.0.0
     # via -r requirements.in
-pikepdf==9.11.0
+pikepdf==10.0.0
     # via -r requirements.in
 pillow==12.0.0
     # via
@@ -131,7 +133,7 @@ pyproj==3.7.2
     #   geopandas
 python-dateutil==2.9.0.post0
     # via pandas
-python-dotenv==1.1.1
+python-dotenv==1.2.1
     # via
     #   pydantic-settings
     #   uvicorn
@@ -170,7 +172,7 @@ soupsieve==2.8
     #   dso
 sqlalchemy==2.0.44
     # via -r requirements.in
-starlette==0.48.0
+starlette==0.49.0
     # via fastapi
 tomli==2.3.0
     # via dso

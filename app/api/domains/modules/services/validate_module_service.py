@@ -1,6 +1,5 @@
 from abc import ABC, ABCMeta, abstractmethod
 from datetime import timezone, datetime
-import hashlib
 from typing import Dict, List, Optional, Type, Set
 from bs4 import BeautifulSoup
 
@@ -8,8 +7,9 @@ from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
-from app.api.domains.werkingsgebieden.repositories.werkingsgebieden_repository import WerkingsgebiedenRepository
 from app.core.services import MainConfig
+from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
+from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository, WerkingsgebiedHash
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
 
@@ -114,8 +114,9 @@ class RequiredHierarchyCodeRule(ValidationRule):
 
 
 class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
-    def __init__(self, source_repository: WerkingsgebiedenRepository):
-        self._source_repository: WerkingsgebiedenRepository = source_repository
+    def __init__(self, geometry_repository: GeometryRepository, area_geometry_repository: AreaGeometryRepository):
+        self._geometry_repository: GeometryRepository = geometry_repository
+        self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
@@ -125,7 +126,10 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
             if area_current is None:
                 continue
 
-            if area_current.Shape is None:
+            area_current_shape_hash: Optional[str] = self._area_geometry_repository.get_shape_hash(
+                db, area_current.UUID
+            )
+            if area_current_shape_hash is None:
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
@@ -135,18 +139,30 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 )
                 continue
 
-            area_title = area_current.Source_Title
-            area_latest = self._source_repository.get_latest_by_title(db, area_title)
-
-            hash_current = hashlib.sha256(area_current.Shape).hexdigest()
-            hash_latest = hashlib.sha256(area_latest.SHAPE).hexdigest()
-
-            if hash_current != hash_latest:
+            area_title: str = area_current.Source_Title
+            werkingsgebied_latest: Optional[WerkingsgebiedHash] = (
+                self._geometry_repository.get_latest_shape_hash_by_title(db, area_title)
+            )
+            if werkingsgebied_latest is None:
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
                         object_code=object_table.Code,
-                        messages=[f"Area {area_current.UUID} does not use the latest known shape {area_latest.UUID}"],
+                        messages=[
+                            f"Area {area_current.UUID} - '{area_current.Source_Title}' does not have a Werkingsgebieden shape"
+                        ],
+                    )
+                )
+                continue
+
+            if area_current_shape_hash != werkingsgebied_latest.hash:
+                errors.append(
+                    ValidateModuleError(
+                        rule="newest_source_werkingsgebied_used_rule",
+                        object_code=object_table.Code,
+                        messages=[
+                            f"Area {area_current.UUID} - '{area_current.Source_Title}' does not use the latest known Werkingsgebieden shape {werkingsgebied_latest.UUID}"
+                        ],
                     )
                 )
                 continue
@@ -156,11 +172,8 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
 
 class ForbidEmptyHtmlNodesRule(ValidationRule):
     def __init__(self, main_config: MainConfig):
-        main_config_dict: dict = main_config.get_main_config()
-        if main_config_dict.get("forbid_empty_html_nodes_rule_fields") is None:
-            raise RuntimeError("'forbid_empty_html_nodes_rule_fields' is not set in main config")
-
-        self._fields: List[str] = main_config_dict.get("forbid_empty_html_nodes_rule_fields")
+        self._fields: List[str] = main_config.get_element_or_fail("forbid_empty_html_nodes_rule.fields")
+        self._html_void_elements: List[str] = main_config.get_element_or_fail("forbid_empty_html_nodes_rule.other")
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
@@ -183,8 +196,9 @@ class ForbidEmptyHtmlNodesRule(ValidationRule):
         soup = BeautifulSoup(text, "html.parser")
 
         empty_tags = [
-            tag
-            for tag in soup.find_all(True)
-            if not tag.get_text(strip=True) and not any(child.name for child in tag.children)
+            tag for tag in soup.find_all(True)
+            if tag.name not in self._html_void_elements
+               and not tag.get_text(strip=True)
+               and not any(child.name for child in tag.children)
         ]
         return bool(empty_tags)

@@ -17,7 +17,6 @@ from .edit_object_static_endpoint import EditObjectStaticEndpointContext, edit_o
 from .object_counts_endpoint import view_object_counts_endpoint
 from .object_latest_endpoint import ObjectLatestEndpointContext, view_object_latest_endpoint
 from .object_list_all_latest_endpoint import (
-    GenericObjectShort,
     ObjectListAllLatestEndpointContext,
     do_list_all_latest_endpoint,
 )

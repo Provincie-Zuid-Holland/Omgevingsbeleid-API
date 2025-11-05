@@ -239,6 +239,8 @@ models:
       insert_assets:
         fields:
           - Description
+      resolve_child_objects_via_hierarchy_listener:
+        to_field: Hierarchy_Children
       relations:
         objects:
           - object_type: ambitie

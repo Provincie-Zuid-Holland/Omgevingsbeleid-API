@@ -21,3 +21,7 @@ class PublicationStorageFileRepository(BaseRepository):
             .filter(PublicationStorageFileTable.Checksum == checksum)
         )
         return self.fetch_first(session, stmt)
+
+    def get_all(self, session: Session):
+        stmt = select(PublicationStorageFileTable)
+        return self.fetch_all(session, stmt)

@@ -313,6 +313,8 @@ models:
             model_id: user_short
           - to_field: Client_1
             model_id: user_short
+      resolve_child_objects_via_hierarchy_listener:
+        to_field: Hierarchy_Children
       relations:
         objects:
           - object_type: wettelijke_taak
