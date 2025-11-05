@@ -30,6 +30,7 @@ class ListModuleObjectsEndpointBuilder(EndpointBuilder):
         resolver_config: dict = endpoint_config.resolver_data
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
         model_map: Dict[str, str] = resolver_config["model_map"]
+        response_model_name: str = resolver_config["response_model_name"]
 
         context = ListModuleObjectsEndpointContext(
             order_config=order_config,
@@ -39,7 +40,10 @@ class ListModuleObjectsEndpointBuilder(EndpointBuilder):
         endpoint = self._inject_context(get_list_module_objects_endpoint, context)
 
         union_object_type = self._model_dynamic_type_builder.build_object_union_type(model_map)
-        response_type = ModuleObjectsResponse[union_object_type]
+        union_response_type = ModuleObjectsResponse[union_object_type]
+        response_type = union_response_type
+        if not response_model_name == "":
+            response_type = type(response_model_name, (union_response_type,), {})
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
