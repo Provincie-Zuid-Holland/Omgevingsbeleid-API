@@ -156,6 +156,7 @@ class ApiContainer(containers.DeclarativeContainer):
             ),
             providers.Singleton(
                 module_services.ForbidEmptyHtmlNodesRule,
+                main_config=main_config,
             ),
         ),
     )

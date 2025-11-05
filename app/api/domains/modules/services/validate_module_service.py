@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.api.domains.werkingsgebieden.repositories.werkingsgebieden_repository import WerkingsgebiedenRepository
+from app.core.services import MainConfig
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
 
@@ -154,16 +155,12 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
 
 
 class ForbidEmptyHtmlNodesRule(ValidationRule):
-    def __init__(self):
-        # @todo: move these to the config
-        self._fields: List[str] = [
-            "Description",
-            "Cause",
-            "Provincial_Interest",
-            "Explanation",
-            "Role",
-            "Effect",
-        ]
+    def __init__(self, main_config: MainConfig):
+        main_config_dict: dict = main_config.get_main_config()
+        if main_config_dict.get("forbid_empty_html_nodes_rule_fields") is None:
+            raise RuntimeError("'forbid_empty_html_nodes_rule_fields' is not set in main config")
+
+        self._fields: List[str] = main_config_dict.get("forbid_empty_html_nodes_rule_fields")
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
@@ -172,10 +169,12 @@ class ForbidEmptyHtmlNodesRule(ValidationRule):
             for field_name in self._fields:
                 value: str = str(getattr(object_table, field_name, ""))
                 if self._has_empty_nodes(value):
-                    ValidateModuleError(
-                        rule="forbid_empty_html_nodes_rule",
-                        object_code=object_table.Code,
-                        messages=[f"Empty html node found in '{field_name}' for object {object_table.Code}"],
+                    errors.append(
+                        ValidateModuleError(
+                            rule="forbid_empty_html_nodes_rule",
+                            object_code=object_table.Code,
+                            messages=[f"Empty html node found in '{field_name}' for object {object_table.Code}"],
+                        )
                     )
 
         return errors

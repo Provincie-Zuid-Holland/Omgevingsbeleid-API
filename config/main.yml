@@ -40,6 +40,14 @@ required_object_fields_rule:
   visie_algemeen: visie_algemeen_module_validate
   werkingsgebied: werkingsgebied_module_validate
 
+forbid_empty_html_nodes_rule_fields:
+  - Description
+  - Cause
+  - Provincial_Interest
+  - Explanation
+  - Role
+  - Effect
+
 api:
   routers:
     - prefix: /login/access-token
