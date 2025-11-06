@@ -42,7 +42,7 @@ class ModuleOverviewObject(BaseModel, Generic[TModel]):
     ModuleObjectContext: ModuleObjectContextShort
     Model: TModel
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, title="ModuleOverviewObject")
 
 
 class ModuleOverviewResponse(BaseModel, Generic[TModel]):

@@ -36,9 +36,8 @@ class ModuleOverviewEndpointBuilder(EndpointBuilder):
         response_model_name: str = resolver_config["response_model_name"]
 
         union_object_type: Union[BaseModel] = self._model_dynamic_type_builder.build_object_union_type(model_map)
-        merged_object_type: BaseModel = self._model_dynamic_type_builder.merge_union_models(
-            union_object_type, response_model_name
-        )
+        response_type = ModuleOverviewResponse[union_object_type]
+        response_type.__name__ = response_model_name
 
         context = ViewModuleOverviewEndpointContext(
             builder_data=builder_data,
@@ -50,7 +49,7 @@ class ModuleOverviewEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_model=ModuleOverviewResponse[merged_object_type],
+            response_model=response_type,
             summary="Get overview of a module",
             description=None,
             tags=["Modules"],
