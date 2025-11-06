@@ -11,11 +11,12 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
-from app.api.domains.modules.types import TModel
+from app.api.domains.modules.types import TModel, ModuleStatus
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.users import UsersTable
+from app.api.domains.modules.types import Module as ModuleClass
 
 
 class ObjectStaticShort(BaseModel):
@@ -33,7 +34,7 @@ class ModuleObjectContextShort(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class ModuleObjectsResponse(BaseModel, Generic[TModel]):
+class ModuleOverviewObject(BaseModel, Generic[TModel]):
     Module_ID: int
 
     Object_Type: str
@@ -42,6 +43,12 @@ class ModuleObjectsResponse(BaseModel, Generic[TModel]):
     Model: TModel
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleOverviewResponse(BaseModel, Generic[TModel]):
+    Module: ModuleClass
+    StatusHistory: List[ModuleStatus]
+    Objects: List[ModuleOverviewObject[TModel]]
 
 
 class ViewModuleOverviewEndpointContext(BaseEndpointContext):
@@ -56,7 +63,7 @@ def view_module_overview_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-) -> List[ModuleObjectsResponse]:
+) -> ModuleOverviewResponse:
     subq = (
         select(
             ModuleObjectsTable,
@@ -93,15 +100,20 @@ def view_module_overview_endpoint(
     )
 
     rows: Sequence[ModuleObjectsTable] = session.execute(stmt).scalars().all()
-    response_list: List[ModuleObjectsResponse] = []
+    status_history: List[ModuleStatus] = [ModuleStatus.model_validate(s) for s in module.status_history]
+    response = ModuleOverviewResponse(
+        Module=ModuleClass.model_validate(module),
+        StatusHistory=status_history,
+        Objects=[],
+    )
     for object_current in rows:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_current, context.model_map)
-        response: ModuleObjectsResponse = ModuleObjectsResponse(
+        response_object: ModuleOverviewObject = ModuleOverviewObject(
             Module_ID=object_current.Module_ID,
             Object_Type=object_current.Object_Type,
             ObjectStatics=object_current.ObjectStatics,
             ModuleObjectContext=object_current.ModuleObjectContext,
             Model=parsed_model,
         )
-        response_list.append(response)
-    return response_list
+        response.Objects.append(response_object)
+    return response
