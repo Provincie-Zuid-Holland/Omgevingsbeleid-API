@@ -1,6 +1,6 @@
-from typing import Dict, get_type_hints, Union
+from typing import Dict, Union
 
-from pydantic import create_model, BaseModel
+from pydantic import BaseModel
 
 from app.api.domains.modules.endpoints.module_overview_endpoint import (
     view_module_overview_endpoint,
