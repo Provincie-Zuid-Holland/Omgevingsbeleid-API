@@ -289,7 +289,7 @@ models:
       join_gebiedengroepen:
         model_id: gebiedengroep_basic
         to_field: Gebiedengroep
-        from_field: gebiedengroep_code
+        from_field: Gebiedengroep_Code
       insert_assets:
         fields:
           - Description

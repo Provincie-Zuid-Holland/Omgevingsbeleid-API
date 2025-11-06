@@ -41,6 +41,11 @@ from app.api.domains.objects.services.join_documents_service import (
     JoinDocumentsService,
     JoinDocumentsServiceFactory,
 )
+from app.api.domains.werkingsgebieden.services.join_gebiedengroepen import (
+    JoinGebiedenGroepenConfig,
+    JoinGebiedenGroepenService,
+    JoinGebiedenGroepenServiceFactory,
+)
 from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
     JoinWerkingsgebiedenService,
     JoinWerkingsgebiedenServiceFactory,
@@ -370,4 +375,51 @@ class JoinGebiedenBaseListener(Listener[EventRMO], Generic[EventRMO]):
 
 
 class JoinGebiedenForObjectListener(JoinGebiedenBaseListener[RetrievedObjectsEvent]):
+    pass
+
+
+class JoinGebiedenGroepBaseListener(Listener[EventRMO], Generic[EventRMO]):
+    def __init__(self, service_factory: JoinGebiedenGroepenServiceFactory):
+        self._service_factory: JoinGebiedenGroepenServiceFactory = service_factory
+
+    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
+        config: Optional[JoinGebiedenGroepenConfig] = self._collect_config(event)
+        if not config:
+            return event
+        if not config.gebiedengroepen_codes:
+            return event
+
+        service: JoinGebiedenGroepenService = self._service_factory.create_service(
+            session,
+            config,
+        )
+        result_rows = service.join_gebiedengroepen(event.payload.rows)
+
+        event.payload.rows = result_rows
+        return event
+
+    def _collect_config(self, event: EventRMO) -> Optional[JoinGebiedenGroepenConfig]:
+        response_model: Model = event.context.response_model
+        if not isinstance(response_model, DynamicObjectModel):
+            return None
+        if "join_gebiedengroepen" not in response_model.service_config:
+            return None
+
+        config_dict: dict = response_model.service_config.get("join_gebiedengroepen", {})
+        to_field: str = config_dict["to_field"]
+        from_field: str = config_dict["from_field"]
+
+        gebiedengroepen_codes: Set[str] = {
+            getattr(r, from_field) for r in event.payload.rows if getattr(r, from_field) is not None
+        }
+
+        return JoinGebiedenGroepenConfig(
+            gebiedengroepen_codes=gebiedengroepen_codes,
+            response_model=response_model,
+            from_field=from_field,
+            to_field=to_field,
+        )
+
+
+class JoinGebiedenGroepForObjectListener(JoinGebiedenGroepBaseListener[RetrievedObjectsEvent]):
     pass

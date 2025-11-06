@@ -11,6 +11,7 @@ from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
 from app.api.events.listeners.retrieved_objects_event_listeners import (
     GetColumnImagesListenerBase,
     JoinDocumentsListenerBase,
+    JoinGebiedenGroepBaseListener,
     ResolveChildObjectsViaHierarchyListenerBase,
     JoinGebiedenBaseListener,
 )
@@ -71,4 +72,8 @@ class JoinDocumentsToModuleObjectsListener(JoinDocumentsListenerBase[RetrievedMo
 class ResolveChildObjectsViaHierarchyToModuleObjectListener(
     ResolveChildObjectsViaHierarchyListenerBase[RetrievedModuleObjectsEvent]
 ):
+    pass
+
+
+class JoinGebiedenGroepForModuleObjectListener(JoinGebiedenGroepBaseListener[RetrievedModuleObjectsEvent]):
     pass

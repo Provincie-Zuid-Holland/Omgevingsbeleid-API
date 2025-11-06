@@ -143,6 +143,10 @@ class ApiContainer(containers.DeclarativeContainer):
         werkingsgebied_services.JoinGebiedenServiceFactory,
         object_repository=object_repository,
     )
+    join_gebiedengroepen_service_factory = providers.Singleton(
+        werkingsgebied_services.JoinGebiedenGroepenServiceFactory,
+        object_repository=object_repository,
+    )
     column_image_inserter_factory = providers.Singleton(
         object_services.ColumnImageInserterFactory,
         asset_repository=asset_repository,
@@ -224,6 +228,10 @@ class ApiContainer(containers.DeclarativeContainer):
                 service_factory=join_gebieden_service_factory,
             ),
             providers.Factory(
+                event_listeners.JoinGebiedenGroepForObjectListener,
+                service_factory=join_gebiedengroepen_service_factory,
+            ),
+            providers.Factory(
                 event_listeners.InsertHtmlImagesForObjectListener,
                 service_factory=html_images_inserter_factory,
             ),
@@ -271,6 +279,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.JoinGebiedenForModuleObjectListener,
                 service_factory=join_gebieden_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinGebiedenGroepForModuleObjectListener,
+                service_factory=join_gebiedengroepen_service_factory,
             ),
             providers.Factory(
                 event_listeners.GetImagesForModuleListener,

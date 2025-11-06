@@ -19,11 +19,11 @@ from .retrieved_module_objects_event_listeners import (
     JoinWerkingsgebiedToModuleObjectsListener,
     ResolveChildObjectsViaHierarchyToModuleObjectListener,
     JoinGebiedenForModuleObjectListener,
+    JoinGebiedenGroepForModuleObjectListener,
 )
 from .retrieved_objects_event_listeners import (
     AddNextObjectVersionToObjectsListener,
     AddPublicRevisionsToObjectsListener,
-    JoinGebiedengroepenListener,
     AddRelationsToObjectsListener,
     AddWerkingsgebiedRelatedObjectsToObjectsListener,
     GetColumnImagesForObjectListener,
@@ -31,4 +31,5 @@ from .retrieved_objects_event_listeners import (
     JoinWerkingsgebiedenToObjectsListener,
     ObjectResolveChildObjectsViaHierarchyListener,
     JoinGebiedenForObjectListener,
+    JoinGebiedenGroepForObjectListener,
 )
