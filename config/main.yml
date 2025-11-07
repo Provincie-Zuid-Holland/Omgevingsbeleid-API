@@ -182,6 +182,7 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
+            model_map: *model_map
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
@@ -201,6 +202,7 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
+            model_map: *model_map
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph

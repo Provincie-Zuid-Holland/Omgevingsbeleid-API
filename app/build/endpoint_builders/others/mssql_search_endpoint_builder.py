@@ -1,3 +1,5 @@
+from typing import Dict
+
 from app.api.domains.others.endpoints.mssql_search_endpoint import MssqlSearchEndpointContext, get_mssql_search_endpoint
 from app.api.domains.others.types import SearchObject, ValidSearchConfig
 from app.api.endpoint import EndpointContextBuilderData
@@ -20,10 +22,12 @@ class MssqlSearchEndpointBuilder(EndpointBuilder):
     ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
         search_config: ValidSearchConfig = ValidSearchConfig(**resolver_config)
+        model_map: Dict[str, str] = resolver_config["model_map"]
 
         context = MssqlSearchEndpointContext(
             search_config=search_config,
             builder_data=builder_data,
+            model_map=model_map,
         )
         endpoint = self._inject_context(get_mssql_search_endpoint, context)
 

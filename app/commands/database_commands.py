@@ -51,8 +51,6 @@ def load_fixtures(
     database_uri: Annotated[str, Provide[ApiContainer.config.SQLALCHEMY_DATABASE_URI]],
 ):
     click.echo("Loading fixtures")
-    if database_uri[0:6] != "sqlite":
-        raise RuntimeError("Can only run `load_fixtures` for sqlite")
 
     with session_scope_with_context(db_session_factory) as session:
         loader: DatabaseFixtures = DatabaseFixtures(

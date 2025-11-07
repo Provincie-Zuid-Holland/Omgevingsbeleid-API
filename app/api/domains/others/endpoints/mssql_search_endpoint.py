@@ -1,15 +1,20 @@
 import json
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Dict, Set, Type
 
 from bs4 import BeautifulSoup
+from dependency_injector.wiring import Provide
 from fastapi import Depends
+from pydantic import BaseModel
 from sqlalchemy import TextClause, text
 from sqlalchemy.orm import Session
 
+from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
+from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.others.types import SearchConfig, SearchObject, SearchRequestData, ValidSearchConfig
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import PagedResponse, SimplePagination
+from app.core.services import ModelsProvider
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.objects import ObjectsTable
 
@@ -18,6 +23,8 @@ class EndpointHandler:
     def __init__(
         self,
         session: Session,
+        models_provider: ModelsProvider,
+        model_map: Dict[str, str],
         search_config: SearchConfig,
         pagination: SimplePagination,
         query: str,
@@ -25,6 +32,8 @@ class EndpointHandler:
         as_like: bool = False,
     ):
         self._session: Session = session
+        self._model_map: Dict[str, str] = model_map
+        self._models_provider: ModelsProvider = models_provider
         self._search_config: SearchConfig = search_config
         self._pagination: SimplePagination = pagination
         self._query: str = query
@@ -74,6 +83,9 @@ class EndpointHandler:
 
         for row in results:
             row = row._asdict()
+            model_id = self._model_map.get(row["Object_Type"])
+            pydantic_model: Type[BaseModel] = self._models_provider.get_pydantic_model(model_id)
+            model_instance: BaseModel = pydantic_model.model_validate(row)
 
             description: str = ""
             if row["Description"] and isinstance(row["Description"], str):
@@ -88,6 +100,7 @@ class EndpointHandler:
                 Title=row["Title"],
                 Description=description,
                 Score=row["_Rank"],
+                Model=model_instance,
             )
             search_objects.append(search_object)
             total_count = row["_Total_Count"]
@@ -100,26 +113,26 @@ class EndpointHandler:
         )
 
     def _get_query(self, object_type_filter) -> TextClause:
+        objects_fields = [c.name for c in ObjectsTable.__table__.columns]
+        module_objects_fields = [c.name for c in ModuleObjectsTable.__table__.columns]
+        fields: Set[str] = set()
+        for objects_field in objects_fields:
+            for module_objects_field in module_objects_fields:
+                if objects_field != module_objects_field:
+                    continue
+                fields.add(objects_field)
+
         stmt = text(
             f"""
-                WITH valid_uuids (Module_ID, UUID, Object_Type, Object_ID, Title, Description)
+                WITH valid_uuids
                 AS
                 (
                     SELECT
                         0 AS Module_ID,
-                        UUID,
-                        Object_Type,
-                        Object_ID,
-                        Title,
-                        Description
+                        {", ".join(fields)}
                     FROM (
                         SELECT
-                            UUID,
-                            Object_Type,
-                            Object_ID,
-                            Title,
-                            Description,
-                            End_Validity,
+                            *,
                             ROW_NUMBER() OVER (
                                 PARTITION BY
                                     Code
@@ -130,7 +143,7 @@ class EndpointHandler:
                             {ObjectsTable.__table__}
                         WHERE
                             Start_Validity <= GETDATE()
-                    ) AS valid_subquery
+                    ) AS valid_objects
                     WHERE
                         _RowNumber = 1
                         AND (End_Validity > GETDATE() OR End_Validity IS NULL)
@@ -139,19 +152,10 @@ class EndpointHandler:
 
                     SELECT
                         Module_ID,
-                        UUID,
-                        Object_Type,
-                        Object_ID,
-                        Title,
-                        Description
+                        {", ".join(fields)}
                     FROM (
                         SELECT
-                            mo.Module_ID,
-                            mo.UUID,
-                            mo.Object_Type,
-                            mo.Object_ID,
-                            mo.Title,
-                            mo.Description,
+                            mo.*,
                             ROW_NUMBER() OVER (
                                 PARTITION BY
                                     mo.Code
@@ -163,18 +167,14 @@ class EndpointHandler:
                             INNER JOIN {ModuleTable.__table__} AS m ON mo.Module_ID = m.Module_ID
                         WHERE
                             m.Closed = 0
-                    ) AS module_subquery
+                    ) AS module_objects
                     WHERE
                         _RowNumber = 1
                 )
 
                 SELECT
                     v.Module_ID,
-                    v.UUID,
-                    v.Object_Type,
-                    v.Object_ID,
-                    v.Title,
-                    v.Description,
+                    {", ".join(f"v.{f}" for f in fields)},
                     s.WeightedRank AS _Rank,
                     COUNT(*) OVER() AS _Total_Count
                 FROM valid_uuids AS v
@@ -189,7 +189,6 @@ class EndpointHandler:
                             UNION
                         SELECT Rank * 0.5 as Rank, [KEY] from CONTAINSTABLE({ObjectsTable.__table__}, ({", ".join(self._search_config.searchable_columns_low)}), :query)
                             UNION
-
                         SELECT Rank * 1 as Rank, [KEY] from CONTAINSTABLE({ModuleObjectsTable.__table__}, ({", ".join(self._search_config.searchable_columns_high)}), :query)
                             UNION
                         SELECT Rank * 0.5 as Rank, [KEY] from CONTAINSTABLE({ModuleObjectsTable.__table__}, ({", ".join(self._search_config.searchable_columns_low)}), :query)
@@ -254,12 +253,7 @@ class EndpointHandler:
                         Description
                     FROM (
                         SELECT
-                            mo.Module_ID,
-                            mo.UUID,
-                            mo.Object_Type,
-                            mo.Object_ID,
-                            mo.Title,
-                            mo.Description,
+                            mo.*,
                             ROW_NUMBER() OVER (
                                 PARTITION BY
                                     mo.Code
@@ -304,6 +298,7 @@ class EndpointHandler:
 
 class MssqlSearchEndpointContext(BaseEndpointContext):
     search_config: ValidSearchConfig
+    model_map: Dict[str, str]
 
 
 def get_mssql_search_endpoint(
@@ -312,13 +307,20 @@ def get_mssql_search_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     context: Annotated[MssqlSearchEndpointContext, Depends()],
+    module_objects_to_models_parser: Annotated[
+        ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
+    ],
+    models_provider: Annotated[ModelsProvider, Depends(Provide[ApiContainer.models_provider])],
 ) -> PagedResponse[SearchObject]:
     handler: EndpointHandler = EndpointHandler(
         session,
+        models_provider,
+        context.model_map,
         context.search_config,
         pagination,
         query,
         object_in.Object_Types,
         object_in.Like,
     )
-    return handler.handle()
+    results: PagedResponse[SearchObject] = handler.handle()
+    return results
