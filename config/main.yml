@@ -311,7 +311,7 @@ api:
           resolver_data:
             sort: *sort_default_modified_date
             model_map: *model_map
-            response_model_name: ListModuleObjectsResponse
+            response_model_name: PagedListModuleObjectsResponse
     - prefix: /objects/valid
       endpoints:
         - resolver: object_counts
