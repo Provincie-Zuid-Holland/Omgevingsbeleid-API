@@ -276,7 +276,10 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.ModuleListStatusesEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleObjectLatestEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleObjectVersionEndpointBuilder),
-            providers.Factory(endpoint_builders_modules.ModuleOverviewEndpointBuilder),
+            providers.Factory(
+                endpoint_builders_modules.ModuleOverviewEndpointBuilder,
+                model_dynamic_type_builder=model_dynamic_type_builder,
+            ),
             providers.Factory(endpoint_builders_modules.ModulePatchObjectEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModulePatchStatusEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleRemoveObjectEndpointBuilder),

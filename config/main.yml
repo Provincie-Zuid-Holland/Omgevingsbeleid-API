@@ -245,6 +245,7 @@ api:
         - resolver: module_overview
           resolver_data:
             model_map: *model_map
+            response_model_name: ModuleOverviewResponse
         - resolver: edit_module
         - resolver: validate_module
           resolver_data:
