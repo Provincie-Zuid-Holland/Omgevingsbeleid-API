@@ -11,12 +11,12 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
+from app.api.domains.modules.types import Module as ModuleClass
 from app.api.domains.modules.types import TModel, ModuleStatus
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.users import UsersTable
-from app.api.domains.modules.types import Module as ModuleClass
 
 
 class ObjectStaticShort(BaseModel):
@@ -101,11 +101,7 @@ def view_module_overview_endpoint(
 
     rows: Sequence[ModuleObjectsTable] = session.execute(stmt).scalars().all()
     status_history: List[ModuleStatus] = [ModuleStatus.model_validate(s) for s in module.status_history]
-    response = ModuleOverviewResponse(
-        Module=ModuleClass.model_validate(module),
-        StatusHistory=status_history,
-        Objects=[],
-    )
+    response_object_list: List[ModuleOverviewObject] = []
     for object_current in rows:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_current, context.model_map)
         response_object: ModuleOverviewObject = ModuleOverviewObject(
@@ -115,5 +111,11 @@ def view_module_overview_endpoint(
             ModuleObjectContext=object_current.ModuleObjectContext,
             Model=parsed_model,
         )
-        response.Objects.append(response_object)
+        response_object_list.append(response_object)
+
+    response = ModuleOverviewResponse(
+        Module=ModuleClass.model_validate(module),
+        StatusHistory=status_history,
+        Objects=response_object_list,
+    )
     return response

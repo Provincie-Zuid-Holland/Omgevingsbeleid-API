@@ -43,7 +43,7 @@ class ModuleObjectsResponse(BaseModel, Generic[TModel]):
     ModuleObjectContext: ModuleObjectContextShort
     Model: TModel
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, title="ModuleObjectsResponse")
 
 
 class ListModuleObjectsEndpointContext(BaseEndpointContext):

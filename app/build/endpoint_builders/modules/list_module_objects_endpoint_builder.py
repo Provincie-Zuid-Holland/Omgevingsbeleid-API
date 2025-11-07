@@ -41,15 +41,13 @@ class ListModuleObjectsEndpointBuilder(EndpointBuilder):
         endpoint = self._inject_context(get_list_module_objects_endpoint, context)
 
         union_object_type: Union[BaseModel] = self._model_dynamic_type_builder.build_object_union_type(model_map)
-        merged_object_type: BaseModel = self._model_dynamic_type_builder.merge_union_models(
-            union_object_type, response_model_name
-        )
+        union_object_type.__name__ = response_model_name
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_model=PagedResponse[merged_object_type],
+            response_model=PagedResponse[union_object_type],
             summary="List latest module objects filtered by e.g. owner uuid, object type or minimum status",
             description=None,
             tags=["Modules"],
