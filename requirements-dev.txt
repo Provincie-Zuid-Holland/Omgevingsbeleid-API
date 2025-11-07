@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements-dev.in
 #
-alembic==1.17.0
+alembic==1.17.1
     # via -r requirements-dev.in
 asttokens==2.4.1
     # via
@@ -41,7 +41,7 @@ idna==3.11
     # via requests
 iniconfig==2.3.0
     # via pytest
-ipython==9.6.0
+ipython==9.7.0
     # via -r requirements-dev.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -90,7 +90,7 @@ requests==2.32.5
     # via requests-mock
 requests-mock==1.12.1
     # via -r requirements-dev.in
-ruff==0.14.2
+ruff==0.14.3
     # via -r requirements-dev.in
 six==1.17.0
     # via
