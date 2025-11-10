@@ -1,4 +1,6 @@
-from typing import Dict
+from typing import Dict, Union
+
+from pydantic import BaseModel
 
 from app.api.domains.others.endpoints.mssql_search_endpoint import MssqlSearchEndpointContext, get_mssql_search_endpoint
 from app.api.domains.others.types import SearchObject, ValidSearchConfig
@@ -6,10 +8,14 @@ from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
+from app.build.services.model_dynamic_type_builder import ModelDynamicTypeBuilder
 from app.core.services.models_provider import ModelsProvider
 
 
 class MssqlSearchEndpointBuilder(EndpointBuilder):
+    def __init__(self, model_dynamic_type_builder: ModelDynamicTypeBuilder):
+        self._model_dynamic_type_builder: ModelDynamicTypeBuilder = model_dynamic_type_builder
+
     def get_id(self) -> str:
         return "mssql_search"
 
@@ -23,6 +29,7 @@ class MssqlSearchEndpointBuilder(EndpointBuilder):
         resolver_config: dict = endpoint_config.resolver_data
         search_config: ValidSearchConfig = ValidSearchConfig(**resolver_config)
         model_map: Dict[str, str] = resolver_config["model_map"]
+        response_model_name: str = resolver_config["response_model_name"]
 
         context = MssqlSearchEndpointContext(
             search_config=search_config,
@@ -31,11 +38,15 @@ class MssqlSearchEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(get_mssql_search_endpoint, context)
 
+        union_object_type: Union[BaseModel] = self._model_dynamic_type_builder.build_object_union_type(model_map)
+        response_type = PagedResponse[SearchObject[union_object_type]]
+        response_type.__name__ = response_model_name
+
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
             methods=["POST"],
-            response_model=PagedResponse[SearchObject],
+            response_model=response_type,
             summary="Search for objects",
             description=None,
             tags=["Search"],

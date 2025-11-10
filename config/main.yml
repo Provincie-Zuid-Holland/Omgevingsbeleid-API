@@ -183,6 +183,7 @@ api:
               - programma_algemeen
               - werkingsgebied
             model_map: *model_map
+            response_model_name: PagedSearchObjectResponse
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
