@@ -53,6 +53,20 @@ class ModuleObjectRepository(BaseRepository):
         )
         return self.fetch_first(session, stmt)
 
+    def get_latest_by_module_id_object_code(
+        self,
+        session: Session,
+        module_id: int,
+        object_code: str,
+    ) -> Optional[ModuleObjectsTable]:
+        stmt = (
+            select(ModuleObjectsTable)
+            .filter(ModuleObjectsTable.Module_ID == module_id)
+            .filter(ModuleObjectsTable.Code == object_code)
+            .order_by(desc(ModuleObjectsTable.Modified_Date))
+        )
+        return self.fetch_first(session, stmt)
+
     def get_latest_by_id(
         self,
         session: Session,
@@ -216,6 +230,8 @@ class ModuleObjectRepository(BaseRepository):
         subq = (
             select(
                 ModuleObjectsTable,
+                ModuleObjectContextTable,
+                ObjectStaticsTable,
                 func.row_number()
                 .over(
                     partition_by=ModuleObjectsTable.Code,
@@ -253,9 +269,16 @@ class ModuleObjectRepository(BaseRepository):
         # Applying your filters and making it a subquery
         subq = subq.filter(and_(*[f for f in filters if f is not None])).subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
+        aliased_object_statics = aliased(ObjectStaticsTable, subq)
+        aliased_module_object_context = aliased(ModuleObjectContextTable, subq)
 
         # Outer query to select all fields including the latest status
-        stmt = select(aliased_objects, subq.c.Latest_Status).filter(subq.c._RowNumber == 1)
+        stmt = select(
+            aliased_objects,
+            aliased_object_statics,
+            aliased_module_object_context,
+            subq.c.Latest_Status,
+        ).filter(subq.c._RowNumber == 1)
 
         return self.fetch_paginated_no_scalars(
             session=session,

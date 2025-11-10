@@ -78,6 +78,11 @@ class FileParser:
             maybe_sub_progress: str = self._xml_get(root, "//lvbb:verslag/lvbb:voortgang/text()")
             maybe_sub_outcome: str = self._xml_get(root, "//lvbb:verslag/lvbb:uitkomst/text()")
 
+            # This code is used by LVBB to indicate that the publication was a success
+            is_published = root.xpath("//stop:code[text()='DL-0005']", namespaces=self._namespaces)
+            if is_published:
+                maybe_sub_outcome = maybe_sub_outcome or "Received code DL-0005"
+
             report_status = ReportStatusType.FAILED
             if main_outcome == "succes":
                 report_status = ReportStatusType.VALID
@@ -180,6 +185,11 @@ class EndpointHandler:
         running_status: RunningStatus,
         report: PublicationAnnouncementPackageReportTable,
     ):
+        if self._announcement_package.Report_Status == ReportStatusType.ABORTED:
+            running_status.Status = ReportStatusType.ABORTED
+            running_status.Is_Conclusive = True
+            return running_status
+
         if self._announcement_package.Report_Status == ReportStatusType.FAILED:
             running_status.Status = ReportStatusType.FAILED
             running_status.Is_Conclusive = True

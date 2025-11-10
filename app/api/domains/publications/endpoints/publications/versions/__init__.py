@@ -1,5 +1,5 @@
 from .attachments import post_delete_attachment_endpoint, post_upload_attachment_endpoint
-from .create_pdf_endpoint import post_create_pdf_endpoint
+from .create_version_pdf_endpoint import post_create_version_pdf_endpoint
 from .create_version_endpoint import post_create_version_endpoint
 from .delete_version_endpoint import post_delete_version_endpoint
 from .detail_version_endpoint import get_detail_version_endpoint

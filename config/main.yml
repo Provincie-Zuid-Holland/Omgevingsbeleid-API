@@ -40,6 +40,47 @@ required_object_fields_rule:
   visie_algemeen: visie_algemeen_module_validate
   werkingsgebied: werkingsgebied_module_validate
 
+forbid_empty_html_nodes_rule:
+  fields:
+    - Description
+    - Cause
+    - Provincial_Interest
+    - Explanation
+    - Role
+    - Effect
+  html_void_elements:
+    - area
+    - base
+    - br
+    - col
+    - embed
+    - hr
+    - img
+    - input
+    - link
+    - meta
+    - param
+    - source
+    - track
+    - wbr
+
+model_map: &model_map
+  ambitie: ambitie_basic
+  beleidsdoel: beleidsdoel_basic
+  beleidskeuze: beleidskeuze_basic
+  beleidsregel: beleidsregel_basic
+  document: document_basic
+  gebiedsprogramma: gebiedsprogramma_basic
+  maatregel: maatregel_basic
+  nationaal_belang: nationaal_belang_basic
+  gebiedengroep: gebiedengroep_basic
+  gebied: gebied_basic
+  programma_algemeen: programma_algemeen_basic
+  verplicht_programma: verplicht_programma_basic
+  visie_algemeen: visie_algemeen_basic
+  werkingsgebied: werkingsgebied_basic
+  wettelijke_taak: wettelijke_taak_basic
+
 api:
   routers:
     - prefix: /login/access-token
@@ -142,6 +183,8 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
+              - gebiedengroep
+              - gebied
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
@@ -161,6 +204,8 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
+              - gebiedengroep
+              - gebied
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
@@ -203,6 +248,9 @@ api:
     - prefix: /modules/{module_id}
       endpoints:
         - resolver: module_overview
+          resolver_data:
+            model_map: *model_map
+            response_model_name: ModuleOverviewResponse
         - resolver: edit_module
         - resolver: validate_module
           resolver_data:
@@ -236,6 +284,7 @@ api:
               - programma_algemeen
               - werkingsgebied
               - document
+              - gebiedengroep
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -250,6 +299,7 @@ api:
               - programma_algemeen
               - werkingsgebied
               - document
+              - gebiedengroep
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
@@ -267,6 +317,8 @@ api:
         - resolver: list_module_objects
           resolver_data:
             sort: *sort_default_modified_date
+            model_map: *model_map
+            response_model_name: PagedListModuleObjectsResponse
     - prefix: /objects/valid
       endpoints:
         - resolver: object_counts
@@ -356,6 +408,9 @@ api:
     - prefix: /publication-act-packages/{act_package_uuid}
       endpoints:
         - resolver: detail_publication_act_package
+        - resolver: abort_publication_act_package
+          resolver_data:
+            path: /abort
         - resolver: download_publication_act_package
           resolver_data:
             path: /download
@@ -382,6 +437,9 @@ api:
       endpoints:
         - resolver: edit_publication_announcement
         - resolver: detail_publication_announcement
+    - prefix: /publication-announcements/{announcement_uuid}/pdf_export
+      endpoints:
+        - resolver: create_announcement_pdf
     - prefix: /publication-announcements/{announcement_uuid}/packages
       endpoints:
         - resolver: create_publication_announcement_package
@@ -439,6 +497,18 @@ api:
         - resolver: list_area_designation_groups
           resolver_data:
             path: /area-designation-groups
+    # Input GEO
+    - prefix: /input-geo/werkingsgebieden
+      endpoints:
+        - resolver: input_geo_latest_werkingsgebieden
+          resolver_data:
+            path: /latest
+        - resolver: input_geo_werkingsgebieden_history
+          resolver_data:
+            path: /history
+        - resolver: input_geo_werkingsgebieden_detail
+          resolver_data:
+            path: /detail/{input_geo_werkingsgebied_uuid}
 
 columns:
   # Titel
@@ -469,9 +539,16 @@ columns:
     serializers: []
     deserializers: []
     nullable: true
-  # Onderverdeling references
+  # Onderverdeling references @deprecated
   onderverdelingen:
     name: Onderverdelingen
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
+  # Gebieden references
+  gebieden:
+    name: Gebieden
     type: json
     serializers: []
     deserializers: []
@@ -580,6 +657,14 @@ columns:
     type: object_code
     type_data:
       relation_field: Werkingsgebied_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  gebiedengroep_code:
+    name: Gebiedengroep_Code
+    type: object_code
+    type_data:
+      relation_field: Gebiedengroep_Statics
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
@@ -729,6 +814,7 @@ users_permissions:
     - publication_can_view_publication_version
     - publication_can_delete_publication_version_attachment
     - publication_can_create_publication_act_package
+    - publication_can_abort_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
     - publication_can_view_unified_packages
@@ -782,6 +868,7 @@ users_permissions:
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
     - publication_can_create_publication_act_package
+    - publication_can_abort_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
     - publication_can_view_unified_packages

@@ -66,6 +66,8 @@ class JoinWerkingsgebiedenService:
             .subquery()
         )
 
+        # TODO check of het niet verlopen is
+
         stmt = select(subq).filter(subq.c._RowNumber == 1)
 
         rows = self._session.execute(stmt).all()

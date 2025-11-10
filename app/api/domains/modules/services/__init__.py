@@ -5,4 +5,6 @@ from .validate_module_service import (
     RequiredObjectFieldsRule,
     RequiredHierarchyCodeRule,
     NewestSourceWerkingsgebiedUsedRule,
+    ForbidEmptyHtmlNodesRule,
 )
+from .manage_object_context_service import ManageObjectContextService

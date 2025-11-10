@@ -11,12 +11,19 @@ from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
 from app.api.events.listeners.retrieved_objects_event_listeners import (
     GetColumnImagesListenerBase,
     JoinDocumentsListenerBase,
+    JoinGebiedenGroepBaseListener,
+    ResolveChildObjectsViaHierarchyListenerBase,
+    JoinGebiedenBaseListener,
 )
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.core.services.event.types import Listener
 
 
 class GetColumnImagesForModuleObjectListener(GetColumnImagesListenerBase[RetrievedModuleObjectsEvent]):
+    pass
+
+
+class JoinGebiedenForModuleObjectListener(JoinGebiedenBaseListener[RetrievedModuleObjectsEvent]):
     pass
 
 
@@ -59,4 +66,14 @@ class AddRelationsToModuleObjectsListener(Listener[RetrievedModuleObjectsEvent])
 
 
 class JoinDocumentsToModuleObjectsListener(JoinDocumentsListenerBase[RetrievedModuleObjectsEvent]):
+    pass
+
+
+class ResolveChildObjectsViaHierarchyToModuleObjectListener(
+    ResolveChildObjectsViaHierarchyListenerBase[RetrievedModuleObjectsEvent]
+):
+    pass
+
+
+class JoinGebiedenGroepForModuleObjectListener(JoinGebiedenGroepBaseListener[RetrievedModuleObjectsEvent]):
     pass

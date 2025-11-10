@@ -23,3 +23,6 @@ class MssqlAreaGeometryRepository(AreaGeometryRepository):
 
     def get_spatial_function(self, func: GeometryFunctions) -> str:
         return MSSQL_SPATIAL_FUNCTION_MAP[func]
+
+    def _calculate_hex(self, column: str) -> str:
+        return f"CONVERT(varchar(max), {column}.STAsBinary(), 2)"

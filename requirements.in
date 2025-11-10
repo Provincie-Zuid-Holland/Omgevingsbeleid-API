@@ -22,6 +22,7 @@ pytz
 validators
 shapely
 geopandas
+python-slugify
 
 # Command
 Click
@@ -46,4 +47,4 @@ dicttoxml
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.8.3
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.8.4

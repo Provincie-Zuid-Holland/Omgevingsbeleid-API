@@ -11,7 +11,6 @@ import sqlalchemy as sa
 # We need these to load all sqlalchemy tables
 from app.main import app  ## noqa 
 from app.core.db import table_metadata  ## noqa 
-from app.core.db.geometry import Geometry
 
 
 # revision identifiers, used by Alembic.
@@ -33,7 +32,7 @@ def upgrade() -> None:
         sa.Column('UUID', sa.Uuid(), nullable=False),
         sa.Column('Title', sa.String(), nullable=False),
         sa.Column('Created_Date', sa.DateTime(), nullable=False),
-        sa.Column('Geometry', Geometry(), nullable=True),
+        sa.Column('Geometry', sa.LargeBinary(), nullable=True),
         sa.Column('Geometry_Hash', sa.Unicode(length=64), nullable=False),
         sa.Column('GML', sa.Unicode(), nullable=True),
         sa.Column('Werkingsgebied_UUID', sa.Uuid(), nullable=False),

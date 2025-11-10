@@ -24,6 +24,7 @@ class StorageFileBasic(BaseModel):
 class GraphEdgeType(str, Enum):
     relation = "relation"
     acknowledged_relation = "acknowledged_relation"
+    hierarchy_code = "hierarchy_code"
 
 
 class GraphEdge(BaseModel):
@@ -106,12 +107,13 @@ class FileData(BaseModel):
     def __init__(self, /, **data: Any):
         super().__init__(**data)
         self._binary = self.File.file.read()
+        self._checksum = hashlib.sha256(self._binary).hexdigest()
 
     def get_binary(self) -> bytes:
         return self._binary
 
     def get_checksum(self) -> str:
-        return hashlib.sha256(self._binary).hexdigest()
+        return self._checksum
 
     def get_content_type(self) -> Optional[str]:
         return self.File.content_type
@@ -120,7 +122,7 @@ class FileData(BaseModel):
         return len(self._binary)
 
     def get_lookup(self) -> str:
-        return self.Checksum[0:10]
+        return self._checksum[0:10]
 
     def normalize_filename(self) -> str:
         normalized_filename = self.File.filename.lower()

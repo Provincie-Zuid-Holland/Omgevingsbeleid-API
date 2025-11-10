@@ -162,6 +162,8 @@ class EndpointHandler:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Publication for this environment")
 
     def _guard_locked(self):
+        if not self._publication.Module.is_active:
+            raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
         if self._publication_version.Is_Locked:
             raise HTTPException(status.HTTP_409_CONFLICT, "This publication version is locked")
         if self._environment.Is_Locked:

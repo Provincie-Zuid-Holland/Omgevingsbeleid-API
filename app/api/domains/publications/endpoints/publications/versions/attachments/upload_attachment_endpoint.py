@@ -39,7 +39,7 @@ def post_upload_attachment_endpoint(
             )
         ),
     ],
-    storage_repository: Annotated[
+    storage_file_repository: Annotated[
         PublicationStorageFileRepository, Depends(Provide[ApiContainer.publication.storage_file_repository])
     ],
     pdf_meta_service: Annotated[PdfMetaService, Depends(Provide[ApiContainer.pdf_meta_service])],
@@ -63,7 +63,7 @@ def post_upload_attachment_endpoint(
 
     file_table: PublicationStorageFileTable = _store_file(
         session,
-        storage_repository,
+        storage_file_repository,
         timepoint,
         user.UUID,
         file_data,
@@ -109,7 +109,7 @@ def _store_file(
 ) -> PublicationStorageFileTable:
     existing_file_table: Optional[PublicationStorageFileTable] = repository.get_by_checksum_uuid(
         session,
-        file_data.Checksum,
+        file_data.get_checksum(),
     )
     if existing_file_table is not None:
         return existing_file_table

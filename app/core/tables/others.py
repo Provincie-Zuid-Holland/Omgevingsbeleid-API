@@ -24,10 +24,12 @@ class AreasTable(Base):
     Source_ID: Mapped[Optional[int]]
     Source_Title: Mapped[str]
     Source_Symbol: Mapped[Optional[str]]
-    Source_Start_Validity: Mapped[datetime]
-    Source_End_Validity: Mapped[datetime]
+    Source_Start_Validity: Mapped[Optional[datetime]]
+    Source_End_Validity: Mapped[Optional[datetime]]
     Source_Created_Date: Mapped[datetime]
-    Source_Modified_Date: Mapped[datetime]
+    Source_Modified_Date: Mapped[Optional[datetime]]
+    Source_Geometry_Index: Mapped[Optional[str]] = mapped_column(Unicode(10), index=True, nullable=True)
+    Source_Geometry_Hash: Mapped[Optional[str]] = mapped_column(Unicode(64), nullable=True)
 
     def __repr__(self) -> str:
         return f"AreasTable(UUID={self.UUID!r}, Title={self.Source_Title!r})"

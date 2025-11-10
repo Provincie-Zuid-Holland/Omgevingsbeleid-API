@@ -17,6 +17,7 @@ from app.build.services import (
     object_models_builder,
 )
 import app.build.services.validators.validators as validators
+from app.build.services.model_dynamic_type_builder import ModelDynamicTypeBuilder
 from app.core.db.session import create_db_engine
 from app.core.services import MainConfig, ModelsProvider
 from app.core.services.event import event_manager
@@ -83,6 +84,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(create_model_event_listeners.AddRelationsListener),
             providers.Factory(create_model_event_listeners.JoinWerkingsgebiedenListener),
             providers.Factory(create_model_event_listeners.AddJoinDocumentsToObjectModelListener),
+            providers.Factory(create_model_event_listeners.AddResolveChildObjectsViaHierarchyListener),
+            providers.Factory(create_model_event_listeners.JoinGebiedenListener),
+            providers.Factory(create_model_event_listeners.JoinGebiedengroepenListener),
             providers.Factory(create_model_event_listeners.AddPublicRevisionsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddNextObjectVersionToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddRelatedObjectsToWerkingsgebiedObjectModelListener),
@@ -91,6 +95,12 @@ class BuildContainer(containers.DeclarativeContainer):
     build_event_manager = providers.Singleton(
         event_manager.EventManager,
         event_listeners=build_event_listeners,
+    )
+
+    models_provider = providers.Singleton(ModelsProvider)
+    model_dynamic_type_builder = providers.Singleton(
+        ModelDynamicTypeBuilder,
+        models_provider=models_provider,
     )
 
     endpoint_builder_provider = providers.Singleton(
@@ -142,6 +152,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(
                 endpoint_builders_publications.publications.act_packages.CreatePublicationPackageEndpointBuilder
             ),
+            providers.Factory(
+                endpoint_builders_publications.publications.act_packages.AbortPublicationPackageEndpointBuilder
+            ),
             providers.Factory(endpoint_builders_publications.publications.act_packages.DetailActPackageEndpointBuilder),
             providers.Factory(endpoint_builders_publications.publications.act_packages.DownloadPackageEndpointBuilder),
             providers.Factory(
@@ -189,6 +202,9 @@ class BuildContainer(containers.DeclarativeContainer):
                 endpoint_builders_publications.publications.announcement_reports.UploadAnnouncementPackageReportEndpointBuilder
             ),
             #       Announcement
+            providers.Factory(
+                endpoint_builders_publications.publications.announcements.CreateAnnouncementPdfEndpointBuilder
+            ),
             providers.Factory(
                 endpoint_builders_publications.publications.announcements.CreatePublicationAnnouncementEndpointBuilder
             ),
@@ -249,7 +265,10 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.ModuleValidateEndpointBuilder),
             providers.Factory(endpoint_builders_modules.EditModuleEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ListActiveModuleObjectsEndpointBuilder),
-            providers.Factory(endpoint_builders_modules.ListModuleObjectsEndpointBuilder),
+            providers.Factory(
+                endpoint_builders_modules.ListModuleObjectsEndpointBuilder,
+                model_dynamic_type_builder=model_dynamic_type_builder,
+            ),
             providers.Factory(endpoint_builders_modules.ListModulesEndpointResolverBuilder),
             providers.Factory(endpoint_builders_modules.ModuleAddExistingObjectEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleAddNewObjectEndpointBuilder),
@@ -259,7 +278,10 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.ModuleListStatusesEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleObjectLatestEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleObjectVersionEndpointBuilder),
-            providers.Factory(endpoint_builders_modules.ModuleOverviewEndpointBuilder),
+            providers.Factory(
+                endpoint_builders_modules.ModuleOverviewEndpointBuilder,
+                model_dynamic_type_builder=model_dynamic_type_builder,
+            ),
             providers.Factory(endpoint_builders_modules.ModulePatchObjectEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModulePatchStatusEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleRemoveObjectEndpointBuilder),
@@ -270,6 +292,10 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByAreasEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByGeometryEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListWerkingsgebiedenEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.InputGeoListLatestWerkingsgebiedenEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.InputGeoUseWerkingsgebiedenEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.InputGeoWerkingsgebiedenHistoryEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.InputGeoWerkingsgebiedenDetailEndpointBuilder),
             # Others
             providers.Factory(endpoint_builders_others.ListStorageFilesEndpointBuilder),
             providers.Factory(endpoint_builders_others.DetailStorageFilesEndpointBuilder),
@@ -305,8 +331,6 @@ class BuildContainer(containers.DeclarativeContainer):
         tables_builder.TablesBuilder,
         event_manager=build_event_manager,
     )
-
-    models_provider = providers.Singleton(ModelsProvider)
 
     api_builder = providers.Factory(
         api_builder.ApiBuilder,

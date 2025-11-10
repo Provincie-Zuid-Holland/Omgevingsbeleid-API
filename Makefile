@@ -29,16 +29,16 @@ debug:
 	python app/main.py localhost 8000 8001
 
 pip-sync:
-	pip install -U pip pip-tools
+	pip install -U "pip==25.2" pip-tools
 	pip-sync requirements.txt requirements-dev.txt
 
 pip-compile:
-	pip install -U pip pip-tools
+	pip install -U "pip==25.2" pip-tools
 	pip-compile requirements.in
 	pip-compile requirements-dev.in
 
 pip-upgrade:
-	pip install -U pip pip-tools
+	pip install -U "pip==25.2" pip-tools
 	pip-compile --upgrade requirements.in
 	pip-compile --upgrade requirements-dev.in
 

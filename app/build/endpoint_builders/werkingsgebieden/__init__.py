@@ -1,3 +1,9 @@
 from .list_objects_by_areas_endpoint_builder import ListObjectsByAreasEndpointBuilder
 from .list_objects_by_geometry_endpoint_builder import ListObjectsByGeometryEndpointBuilder
 from .list_werkingsgebieden_endpoint_builder import ListWerkingsgebiedenEndpointBuilder
+from .input_geo import (
+    InputGeoListLatestWerkingsgebiedenEndpointBuilder,
+    InputGeoUseWerkingsgebiedenEndpointBuilder,
+    InputGeoWerkingsgebiedenHistoryEndpointBuilder,
+    InputGeoWerkingsgebiedenDetailEndpointBuilder,
+)
