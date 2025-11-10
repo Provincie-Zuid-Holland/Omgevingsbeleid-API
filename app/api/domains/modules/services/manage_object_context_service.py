@@ -54,7 +54,7 @@ class ManageObjectContextService:
 
         # It could be that the object context exists but is hidden
         # This means that the object previously lived in the module but was removed
-        # In that case we must active the object context again
+        # In that case we must activate the object context again
         match existing_object_context:
             case None:
                 # Create
