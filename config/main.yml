@@ -73,8 +73,8 @@ model_map: &model_map
   gebiedsprogramma: gebiedsprogramma_basic
   maatregel: maatregel_basic
   nationaal_belang: nationaal_belang_basic
-  gebiedengroep_basic: gebiedengroep_basic
-  gebied_basic: gebied_basic
+  gebiedengroep: gebiedengroep_basic
+  gebied: gebied_basic
   programma_algemeen: programma_algemeen_basic
   verplicht_programma: verplicht_programma_basic
   visie_algemeen: visie_algemeen_basic
