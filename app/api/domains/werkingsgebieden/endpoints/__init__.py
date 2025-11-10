@@ -4,3 +4,4 @@ from .list_objects_by_geometry_endpoint import (
     get_list_objects_by_geometry_endpoint,
 )
 from .list_werkingsgebieden_endpoint import get_list_werkingsgebieden_endpoint
+from .input_geo import get_input_geo_list_latest_werkingsgebieden_endpoint

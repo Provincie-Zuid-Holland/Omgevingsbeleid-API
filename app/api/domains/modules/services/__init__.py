@@ -7,3 +7,4 @@ from .validate_module_service import (
     NewestSourceWerkingsgebiedUsedRule,
     ForbidEmptyHtmlNodesRule,
 )
+from .manage_object_context_service import ManageObjectContextService

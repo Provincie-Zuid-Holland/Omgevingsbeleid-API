@@ -162,6 +162,12 @@ fields:
     column: werkingsgebied_code
     validators:
       - id: none_to_default_value
+  gebiedengroep_code:
+    name: Gebiedengroep_Code
+    type: str
+    column: gebiedengroep_code
+    validators:
+      - id: none_to_default_value
   
   # Statics
   owner_1_uuid:
@@ -227,6 +233,7 @@ models:
       title:
       hierarchy_code:
       werkingsgebied_code:
+      gebiedengroep_code:
     dependency_model_ids:
       - user_short
     services:
@@ -266,10 +273,12 @@ models:
       explanation:
       hierarchy_code:
       werkingsgebied_code:
+      gebiedengroep_code:
     dependency_model_ids:
       - user_short
       - werkingsgebied_basic
       - werkingsgebied_statics
+      - gebiedengroep_basic
       - hierarchy_statics
       - wettelijke_taak_minimal
       - nationaal_belang_minimal
@@ -285,6 +294,10 @@ models:
         model_id: werkingsgebied_basic
         to_field: Werkingsgebied
         from_field: Werkingsgebied_Code
+      join_gebiedengroepen:
+        model_id: gebiedengroep_basic
+        to_field: Gebiedengroep
+        from_field: Gebiedengroep_Code
       insert_assets:
         fields:
           - Description
@@ -411,6 +424,15 @@ models:
             data:
               allowed_object_types:
                 - werkingsgebied
+          - id: object_code_exists
+      gebiedengroep_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - gebiedengroep
           - id: object_code_exists
     services:
       extract_assets:

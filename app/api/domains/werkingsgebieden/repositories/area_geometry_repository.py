@@ -13,7 +13,7 @@ from app.api.domains.werkingsgebieden.repositories.area_repository import (
     GeometryFunctions,
 )
 from app.core.tables.others import AreasTable
-from app.core.utils.utils import as_datetime
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingTable
 
 
 class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
@@ -90,29 +90,26 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         uuidx: uuid.UUID,
         created_date: datetime,
         created_by_uuid: uuid.UUID,
-        werkingsgebied: dict,
+        onderverdeling: InputGeoOnderverdelingTable,
     ):
         area = AreasTable(
             UUID=uuidx,
             Created_Date=created_date,
             Created_By_UUID=created_by_uuid,
             Shape=None,
-            Gml=werkingsgebied.get("GML"),
-            Source_UUID=uuid.UUID(werkingsgebied.get("UUID")),
-            Source_ID=werkingsgebied.get("ID"),
-            Source_Title=werkingsgebied.get("Title"),
-            Source_Symbol=werkingsgebied.get("Symbol"),
-            Source_Start_Validity=as_datetime(werkingsgebied.get("Start_Validity")),
-            Source_End_Validity=as_datetime(werkingsgebied.get("End_Validity")),
-            Source_Created_Date=as_datetime(werkingsgebied.get("Created_Date")),
-            Source_Modified_Date=as_datetime(werkingsgebied.get("Modified_Date")),
+            Gml=onderverdeling.GML,
+            Source_Geometry_Index=onderverdeling.Geometry_Hash[0:10],
+            Source_Geometry_Hash=onderverdeling.Geometry_Hash,
+            Source_UUID=onderverdeling.UUID,
+            Source_Title=onderverdeling.Title,
+            Source_Created_Date=onderverdeling.Created_Date,
         )
         session.add(area)
         session.flush()
 
         params = {
             "uuid": self._format_uuid(uuidx),
-            "shape": werkingsgebied.get("Geometry"),
+            "shape": onderverdeling.Geometry,
         }
         sql = f"""
             UPDATE

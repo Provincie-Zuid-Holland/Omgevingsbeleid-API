@@ -73,7 +73,8 @@ model_map: &model_map
   gebiedsprogramma: gebiedsprogramma_basic
   maatregel: maatregel_basic
   nationaal_belang: nationaal_belang_basic
-  onderverdeling: onderverdeling_basic
+  gebiedengroep: gebiedengroep_basic
+  gebied: gebied_basic
   programma_algemeen: programma_algemeen_basic
   verplicht_programma: verplicht_programma_basic
   visie_algemeen: visie_algemeen_basic
@@ -182,6 +183,8 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
+              - gebiedengroep
+              - gebied
             model_map: *model_map
             response_model_name: PagedSearchObjectResponse
     - prefix: /search/valid
@@ -203,6 +206,8 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
+              - gebiedengroep
+              - gebied
             model_map: *model_map
     - prefix: /full-graph
       endpoints:
@@ -282,6 +287,7 @@ api:
               - programma_algemeen
               - werkingsgebied
               - document
+              - gebiedengroep
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -296,6 +302,7 @@ api:
               - programma_algemeen
               - werkingsgebied
               - document
+              - gebiedengroep
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
@@ -493,6 +500,18 @@ api:
         - resolver: list_area_designation_groups
           resolver_data:
             path: /area-designation-groups
+    # Input GEO
+    - prefix: /input-geo/werkingsgebieden
+      endpoints:
+        - resolver: input_geo_latest_werkingsgebieden
+          resolver_data:
+            path: /latest
+        - resolver: input_geo_werkingsgebieden_history
+          resolver_data:
+            path: /history
+        - resolver: input_geo_werkingsgebieden_detail
+          resolver_data:
+            path: /detail/{input_geo_werkingsgebied_uuid}
 
 columns:
   # Titel
@@ -523,9 +542,16 @@ columns:
     serializers: []
     deserializers: []
     nullable: true
-  # Onderverdeling references
+  # Onderverdeling references @deprecated
   onderverdelingen:
     name: Onderverdelingen
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
+  # Gebieden references
+  gebieden:
+    name: Gebieden
     type: json
     serializers: []
     deserializers: []
@@ -634,6 +660,14 @@ columns:
     type: object_code
     type_data:
       relation_field: Werkingsgebied_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  gebiedengroep_code:
+    name: Gebiedengroep_Code
+    type: object_code
+    type_data:
+      relation_field: Gebiedengroep_Statics
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true

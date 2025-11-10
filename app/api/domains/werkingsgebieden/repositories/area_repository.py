@@ -29,8 +29,20 @@ class AreaRepository(BaseRepository):
         stmt = select(AreasTable).filter(AreasTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
-    def get_by_werkingsgebied_uuid(self, session: Session, werkingsgebied_uuid: UUID) -> Optional[AreasTable]:
+    def get_by_source_uuid(self, session: Session, werkingsgebied_uuid: UUID) -> Optional[AreasTable]:
         stmt = select(AreasTable).filter(AreasTable.Source_UUID == werkingsgebied_uuid)
+        return self.fetch_first(session, stmt)
+
+    def get_by_source_hash(self, session: Session, source_hash: str) -> Optional[AreasTable]:
+        if not source_hash:
+            return None
+
+        lookup: str = source_hash[0:10]
+        stmt = (
+            select(AreasTable)
+            .filter(AreasTable.Source_Geometry_Index == lookup)
+            .filter(AreasTable.Source_Geometry_Hash == source_hash)
+        )
         return self.fetch_first(session, stmt)
 
     def get_with_gml(self, session: Session, uuidx: UUID) -> Optional[AreasTable]:

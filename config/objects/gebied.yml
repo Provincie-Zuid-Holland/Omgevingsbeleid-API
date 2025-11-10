@@ -1,5 +1,6 @@
-id: onderverdeling
-object_type: onderverdeling
+
+id: gebied
+object_type: gebied
 
 sort_allowed_columns: &sort_allowed_columns
   - Object_ID
@@ -20,63 +21,68 @@ sort_default_modified_date: &sort_default_modified_date
 
 api:
   routers:
-    - prefix: /onderverdelingen
+    - prefix: /gebieden
       endpoints:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: onderverdeling_basic
+            response_model: gebied_basic
             allowed_filter_columns:
               - Title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
-            response_model: onderverdeling_basic
+            response_model: gebied_basic
             allowed_filter_columns:
               - Title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: onderverdeling_full
+            response_model: gebied_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: onderverdeling_full
-    - prefix: /onderverdeling/static/{lineage_id}
+            response_model: gebied_full
+    - prefix: /gebied/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: onderverdeling_static_post
-            result_model: onderverdeling_static_post_validated
-    - prefix: /modules/{module_id}/object/onderverdeling
+            request_model: gebied_static_post
+            result_model: gebied_static_post_validated
+    - prefix: /modules/{module_id}/object/gebied
       endpoints:
+        - resolver: module_patch_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: gebied_patch
+            response_model: gebied_uuid
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: onderverdeling_extended
+            response_model: gebied_extended
             allowed_filter_columns:
               - Title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: onderverdeling_full
+            response_model: gebied_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: onderverdeling_full
-    - prefix: /modules/object/onderverdeling
+            response_model: gebied_full
+    - prefix: /modules/object/gebied
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-    - prefix: /revisions/{module_id}/onderverdeling/version/{object_uuid}
+    - prefix: /revisions/{module_id}/gebied/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
           resolver_data:
-            response_model: onderverdeling_full
+            response_model: gebied_full
             minimum_status: 'Ontwerp GS Concept'
             require_auth: False
 
@@ -103,15 +109,15 @@ fields:
     optional: true
 
 models:
-  onderverdeling_minimal:
-    name: OnderverdelingMinimal
+  gebied_minimal:
+    name: GebiedMinimal
     fields:
       object_type:
       object_id:
       uuid:
       title:
-  onderverdeling_basic:
-    name: OnderverdelingBasic
+  gebied_basic:
+    name: GebiedBasic
     fields:
       object_id:
       code:
@@ -123,8 +129,8 @@ models:
       area_uuid:
       start_validity:
       end_validity:
-  onderverdeling_extended:
-    name: OnderverdelingExtended
+  gebied_extended:
+    name: GebiedExtended
     fields:
       object_id:
       code:
@@ -151,8 +157,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  onderverdeling_full:
-    name: OnderverdelingFull
+  gebied_full:
+    name: GebiedFull
     fields:
       object_id:
       code:
@@ -186,8 +192,20 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  onderverdeling_static_post:
-    name: OnderverdelingStaticPost
+  gebied_patch:
+    name: GebiedPatch
+    fields:
+      title:
+        default: none
+        optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+  gebied_static_post:
+    name: GebiedStaticPost
     static_only: true
     fields:
       owner_1_uuid:
@@ -196,8 +214,8 @@ models:
       owner_2_uuid:
         default: none
         optional: true
-  onderverdeling_static_post_validated:
-    name: OnderverdelingStaticPostValidated
+  gebied_static_post_validated:
+    name: GebiedStaticPostValidated
     static_only: true
     root_validators:
       - id: not_equal_root
@@ -212,8 +230,8 @@ models:
       owner_2_uuid:
         default: none
         optional: true
-  onderverdeling_uuid:
-    name: OnderverdelingUUID
+  gebied_uuid:
+    name: GebiedUUID
     fields:
       object_id:
       uuid:
