@@ -1,11 +1,13 @@
 from abc import ABC, ABCMeta, abstractmethod
 from datetime import timezone, datetime
 from typing import Dict, List, Optional, Type, Set
+from bs4 import BeautifulSoup
 
 from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
+from app.core.services import MainConfig
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository, WerkingsgebiedHash
 from app.core.tables.modules import ModuleObjectsTable
@@ -166,3 +168,45 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 continue
 
         return errors
+
+
+class ForbidEmptyHtmlNodesRuleConfig(BaseModel):
+    fields: List[str]
+    html_void_elements: List[str]
+
+
+class ForbidEmptyHtmlNodesRule(ValidationRule):
+    def __init__(self, main_config: MainConfig):
+        self._config: ForbidEmptyHtmlNodesRuleConfig = main_config.get_as_model(
+            "forbid_empty_html_nodes_rule",
+            ForbidEmptyHtmlNodesRuleConfig,
+        )
+
+    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
+        errors: List[ValidateModuleError] = []
+
+        for object_table in request.module_objects:
+            for field_name in self._config.fields:
+                value: str = str(getattr(object_table, field_name, ""))
+                if self._has_empty_nodes(value):
+                    errors.append(
+                        ValidateModuleError(
+                            rule="forbid_empty_html_nodes_rule",
+                            object_code=object_table.Code,
+                            messages=[f"Empty html node found in '{field_name}' for object {object_table.Code}"],
+                        )
+                    )
+
+        return errors
+
+    def _has_empty_nodes(self, text: str) -> bool:
+        soup = BeautifulSoup(text, "html.parser")
+
+        empty_tags = [
+            tag
+            for tag in soup.find_all(True)
+            if tag.name not in self._config.html_void_elements
+            and not tag.get_text(strip=True)
+            and not any(child.name for child in tag.children)
+        ]
+        return bool(empty_tags)

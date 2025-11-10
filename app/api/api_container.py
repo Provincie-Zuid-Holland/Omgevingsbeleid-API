@@ -193,6 +193,10 @@ class ApiContainer(containers.DeclarativeContainer):
                 geometry_repository=geometry_repository,
                 area_geometry_repository=area_geometry_repository,
             ),
+            providers.Singleton(
+                module_services.ForbidEmptyHtmlNodesRule,
+                main_config=main_config,
+            ),
         ),
     )
 

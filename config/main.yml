@@ -40,6 +40,30 @@ required_object_fields_rule:
   visie_algemeen: visie_algemeen_module_validate
   werkingsgebied: werkingsgebied_module_validate
 
+forbid_empty_html_nodes_rule:
+  fields:
+    - Description
+    - Cause
+    - Provincial_Interest
+    - Explanation
+    - Role
+    - Effect
+  html_void_elements:
+    - area
+    - base
+    - br
+    - col
+    - embed
+    - hr
+    - img
+    - input
+    - link
+    - meta
+    - param
+    - source
+    - track
+    - wbr
+
 model_map: &model_map
   ambitie: ambitie_basic
   beleidsdoel: beleidsdoel_basic
@@ -226,6 +250,7 @@ api:
         - resolver: module_overview
           resolver_data:
             model_map: *model_map
+            response_model_name: ModuleOverviewResponse
         - resolver: edit_module
         - resolver: validate_module
           resolver_data:
@@ -293,6 +318,7 @@ api:
           resolver_data:
             sort: *sort_default_modified_date
             model_map: *model_map
+            response_model_name: PagedListModuleObjectsResponse
     - prefix: /objects/valid
       endpoints:
         - resolver: object_counts
