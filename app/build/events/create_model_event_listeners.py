@@ -3,8 +3,8 @@ from typing import List, Optional
 import pydantic
 
 from app.api.domains.modules.types import PublicModuleObjectRevision
-from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_service import HierachyReference
 from app.api.domains.objects.types import NextObjectVersion, ObjectStatics
+from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_service import HierachyReference
 from app.core.services.event.types import Listener
 from app.core.types import Model, WerkingsgebiedRelatedObjects
 
@@ -122,6 +122,44 @@ class JoinWerkingsgebiedenListener(Listener[CreateModelEvent]):
             return event
 
         config: dict = service_config["join_werkingsgebieden"]
+        field_name: str = config["to_field"]
+        model_id: str = config["model_id"]
+        target_object_model: Model = event.context.models_provider.get_model(model_id)
+
+        event.payload.pydantic_fields[field_name] = (
+            Optional[target_object_model.pydantic_model],
+            None,
+        )
+
+        return event
+
+
+class JoinGebiedenListener(Listener[CreateModelEvent]):
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+        service_config: dict = event.context.intermediate_model.service_config
+        if "join_gebieden" not in service_config:
+            return event
+
+        config: dict = service_config["join_gebieden"]
+        field_name: str = config["to_field"]
+        model_id: str = config["model_id"]
+        target_object_model: Model = event.context.models_provider.get_model(model_id)
+
+        event.payload.pydantic_fields[field_name] = (
+            List[target_object_model.pydantic_model],
+            None,
+        )
+
+        return event
+
+
+class JoinGebiedengroepenListener(Listener[CreateModelEvent]):
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+        service_config: dict = event.context.intermediate_model.service_config
+        if "join_gebiedengroepen" not in service_config:
+            return event
+
+        config: dict = service_config["join_gebiedengroepen"]
         field_name: str = config["to_field"]
         model_id: str = config["model_id"]
         target_object_model: Model = event.context.models_provider.get_model(model_id)

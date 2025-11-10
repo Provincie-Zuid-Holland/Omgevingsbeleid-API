@@ -96,7 +96,7 @@ class SortedPagination(SimplePagination):
 class OptionalSortedPagination(SimplePagination):
     sort: OptionalSort
 
-    def with_sort(self, sort: Sort) -> SortedPagination:
+    def with_sort(self, sort: Sort) -> "SortedPagination":
         return SortedPagination(
             offset=self.offset,
             limit=self.limit,

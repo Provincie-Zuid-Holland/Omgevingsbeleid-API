@@ -1,5 +1,6 @@
-id: werkingsgebied
-object_type: werkingsgebied
+
+id: gebied
+object_type: gebied
 
 sort_allowed_columns: &sort_allowed_columns
   - Object_ID
@@ -20,68 +21,68 @@ sort_default_modified_date: &sort_default_modified_date
 
 api:
   routers:
-    - prefix: /werkingsgebieden
+    - prefix: /gebieden
       endpoints:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: werkingsgebied_basic
+            response_model: gebied_basic
             allowed_filter_columns:
               - Title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
-            response_model: werkingsgebied_basic
+            response_model: gebied_basic
             allowed_filter_columns:
               - Title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: werkingsgebied_full
+            response_model: gebied_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: werkingsgebied_full
-    - prefix: /werkingsgebied/static/{lineage_id}
+            response_model: gebied_full
+    - prefix: /gebied/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: werkingsgebied_static_post
-            result_model: werkingsgebied_static_post_validated
-    - prefix: /modules/{module_id}/object/werkingsgebied
+            request_model: gebied_static_post
+            result_model: gebied_static_post_validated
+    - prefix: /modules/{module_id}/object/gebied
       endpoints:
         - resolver: module_patch_object
           resolver_data:
             path: /{lineage_id}
-            request_model: werkingsgebied_patch
-            response_model: werkingsgebied_uuid
+            request_model: gebied_patch
+            response_model: gebied_uuid
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: werkingsgebied_extended
+            response_model: gebied_extended
             allowed_filter_columns:
               - Title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: werkingsgebied_full
+            response_model: gebied_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: werkingsgebied_full
-    - prefix: /modules/object/werkingsgebied
+            response_model: gebied_full
+    - prefix: /modules/object/gebied
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-    - prefix: /revisions/{module_id}/werkingsgebied/version/{object_uuid}
+    - prefix: /revisions/{module_id}/gebied/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
           resolver_data:
-            response_model: werkingsgebied_full
+            response_model: gebied_full
             minimum_status: 'Ontwerp GS Concept'
             require_auth: False
 
@@ -90,32 +91,10 @@ fields:
     name: Title
     type: str
     column: title
-    validators:
-      - id: none_to_default_value
-  description:
-    name: Description
-    type: str
-    column: description
-    validators:
-      - id: none_to_default_value
   area_uuid:
     name: Area_UUID
     type: uuid
     column: area_uuid
-    validators:
-      - id: none_to_default_value
-  idms_link:
-    name: IDMS_Link
-    type: str
-    column: idms_link
-    validators:
-      - id: none_to_default_value
-  decision_number:
-    name: Decision_Number
-    type: str
-    column: decision_number
-    validators:
-      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
@@ -130,15 +109,15 @@ fields:
     optional: true
 
 models:
-  werkingsgebied_minimal:
-    name: WerkingsgebiedMinimal
+  gebied_minimal:
+    name: GebiedMinimal
     fields:
       object_type:
       object_id:
       uuid:
       title:
-  werkingsgebied_basic:
-    name: WerkingsgebiedBasic
+  gebied_basic:
+    name: GebiedBasic
     fields:
       object_id:
       code:
@@ -150,8 +129,8 @@ models:
       area_uuid:
       start_validity:
       end_validity:
-  werkingsgebied_extended:
-    name: WerkingsgebiedExtended
+  gebied_extended:
+    name: GebiedExtended
     fields:
       object_id:
       code:
@@ -178,8 +157,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  werkingsgebied_full:
-    name: WerkingsgebiedFull
+  gebied_full:
+    name: GebiedFull
     fields:
       object_id:
       code:
@@ -188,16 +167,17 @@ models:
       created_date:
       modified_date:
       title:
-      description:
+      area_uuid:
       start_validity:
       end_validity:
-      area_uuid:
     dependency_model_ids:
       - user_short
       - area_basic
     services:
-      werkingsgebied_related_objects:
-        to_field: Related_Objects
+      next_object_version:
+        to_field: Next_Version
+      public_revisions:
+        to_field: Public_Revisions
       foreign_keys_extender:
         fields_map:
           - to_field: Area
@@ -212,8 +192,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  werkingsgebied_patch:
-    name: WerkingsgebiedPatch
+  gebied_patch:
+    name: GebiedPatch
     fields:
       title:
         default: none
@@ -224,18 +204,8 @@ models:
               min: 3
               max: 200
           - id: plain_text
-      description:
-        default: none
-        optional: true
-      area_uuid:
-        default: none
-        optional: true
-    services:
-      change_area:
-        fields:
-          - Area_UUID
-  werkingsgebied_static_post:
-    name: WerkingsgebiedStaticPost
+  gebied_static_post:
+    name: GebiedStaticPost
     static_only: true
     fields:
       owner_1_uuid:
@@ -244,10 +214,10 @@ models:
       owner_2_uuid:
         default: none
         optional: true
-  werkingsgebied_static_post_validated:
-    name: WerkingsgebiedStaticPostValidated
+  gebied_static_post_validated:
+    name: GebiedStaticPostValidated
     static_only: true
-    model_validators:
+    root_validators:
       - id: not_equal_root
         data:
           fields:
@@ -260,20 +230,8 @@ models:
       owner_2_uuid:
         default: none
         optional: true
-  werkingsgebied_uuid:
-    name: WerkingsgebiedUUID
+  gebied_uuid:
+    name: GebiedUUID
     fields:
       object_id:
       uuid:
-  werkingsgebied_module_validate:
-    name: WerkingsgebiedModuleValidate
-    fields:
-      title:
-        validators:
-          - id: length
-            data:
-              min: 3
-              max: 200
-          - id: plain_text
-      area_uuid:
-  

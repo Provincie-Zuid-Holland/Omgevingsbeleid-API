@@ -1,5 +1,5 @@
-id: onderverdeling
-object_type: onderverdeling
+id: gebiedengroep
+object_type: gebiedengroep
 
 sort_allowed_columns: &sort_allowed_columns
   - Object_ID
@@ -20,63 +20,72 @@ sort_default_modified_date: &sort_default_modified_date
 
 api:
   routers:
-    - prefix: /onderverdelingen
+    - prefix: /gebiedengroepen
       endpoints:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: onderverdeling_basic
+            response_model: gebiedengroep_basic
             allowed_filter_columns:
               - Title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
-            response_model: onderverdeling_basic
+            response_model: gebiedengroep_basic
             allowed_filter_columns:
               - Title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: onderverdeling_full
+            response_model: gebiedengroep_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: onderverdeling_full
-    - prefix: /onderverdeling/static/{lineage_id}
+            response_model: gebiedengroep_full
+    - prefix: /gebiedengroep/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: onderverdeling_static_post
-            result_model: onderverdeling_static_post_validated
-    - prefix: /modules/{module_id}/object/onderverdeling
+            request_model: gebiedengroep_static_post
+            result_model: gebiedengroep_static_post_validated
+    - prefix: /modules/{module_id}/object/gebiedengroep
       endpoints:
+        - resolver: module_patch_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: gebiedengroep_patch
+            response_model: gebiedengroep_uuid
+        - resolver: input_geo_use_werkingsgebied
+          resolver_data:
+            path: /{lineage_id}/use/{input_geo_werkingsgebied_uuid}
+            target_object_type: gebied
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: onderverdeling_extended
+            response_model: gebiedengroep_extended
             allowed_filter_columns:
               - Title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: onderverdeling_full
+            response_model: gebiedengroep_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: onderverdeling_full
-    - prefix: /modules/object/onderverdeling
+            response_model: gebiedengroep_full
+    - prefix: /modules/object/gebiedengroep
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-    - prefix: /revisions/{module_id}/onderverdeling/version/{object_uuid}
+    - prefix: /revisions/{module_id}/gebiedengroep/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
           resolver_data:
-            response_model: onderverdeling_full
+            response_model: gebiedengroep_full
             minimum_status: 'Ontwerp GS Concept'
             require_auth: False
 
@@ -85,10 +94,20 @@ fields:
     name: Title
     type: str
     column: title
-  area_uuid:
-    name: Area_UUID
-    type: uuid
-    column: area_uuid
+    validators:
+      - id: none_to_default_value
+  description:
+    name: Description
+    type: str
+    column: description
+    validators:
+      - id: none_to_default_value
+  gebieden:
+    name: Gebieden
+    type: list_str
+    column: gebieden
+    validators:
+      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
@@ -103,15 +122,15 @@ fields:
     optional: true
 
 models:
-  onderverdeling_minimal:
-    name: OnderverdelingMinimal
+  gebiedengroep_minimal:
+    name: GebiedengroepMinimal
     fields:
       object_type:
       object_id:
       uuid:
       title:
-  onderverdeling_basic:
-    name: OnderverdelingBasic
+  gebiedengroep_basic:
+    name: GebiedengroepBasic
     fields:
       object_id:
       code:
@@ -120,11 +139,11 @@ models:
       created_date:
       modified_date:
       title:
-      area_uuid:
+      gebieden:
       start_validity:
       end_validity:
-  onderverdeling_extended:
-    name: OnderverdelingExtended
+  gebiedengroep_extended:
+    name: GebiedengroepExtended
     fields:
       object_id:
       code:
@@ -133,7 +152,7 @@ models:
       created_date:
       modified_date:
       title:
-      area_uuid:
+      gebieden:
       start_validity:
       end_validity:
     dependency_model_ids:
@@ -151,8 +170,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  onderverdeling_full:
-    name: OnderverdelingFull
+  gebiedengroep_full:
+    name: GebiedengroepFull
     fields:
       object_id:
       code:
@@ -161,21 +180,20 @@ models:
       created_date:
       modified_date:
       title:
-      area_uuid:
+      description:
       start_validity:
       end_validity:
+      gebieden:
     dependency_model_ids:
       - user_short
-      - area_basic
+      - gebieden_basic
     services:
-      next_object_version:
-        to_field: Next_Version
-      public_revisions:
-        to_field: Public_Revisions
+      join_gebieden:
+        model_id: gebied_basic
+        to_field: Gebieden_Objects
+        from_field: Gebieden
       foreign_keys_extender:
         fields_map:
-          - to_field: Area
-            model_id: area_basic
           - to_field: Created_By
             model_id: user_short
           - to_field: Modified_By
@@ -186,8 +204,23 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  onderverdeling_static_post:
-    name: OnderverdelingStaticPost
+  gebiedengroep_patch:
+    name: GebiedengroepPatch
+    fields:
+      title:
+        default: none
+        optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        default: none
+        optional: true
+  gebiedengroep_static_post:
+    name: GebiedengroepStaticPost
     static_only: true
     fields:
       owner_1_uuid:
@@ -196,10 +229,10 @@ models:
       owner_2_uuid:
         default: none
         optional: true
-  onderverdeling_static_post_validated:
-    name: OnderverdelingStaticPostValidated
+  gebiedengroep_static_post_validated:
+    name: GebiedengroepStaticPostValidated
     static_only: true
-    root_validators:
+    model_validators:
       - id: not_equal_root
         data:
           fields:
@@ -212,8 +245,8 @@ models:
       owner_2_uuid:
         default: none
         optional: true
-  onderverdeling_uuid:
-    name: OnderverdelingUUID
+  gebiedengroep_uuid:
+    name: GebiedengroepUUID
     fields:
       object_id:
       uuid:

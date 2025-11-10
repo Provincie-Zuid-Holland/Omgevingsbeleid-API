@@ -1,13 +1,13 @@
+from typing import Optional
 import uuid
 from abc import ABCMeta, abstractmethod
-from datetime import datetime
-from typing import List, Optional
 
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingTable
 
 
 class WerkingsgebiedHash(BaseModel):
@@ -17,55 +17,44 @@ class WerkingsgebiedHash(BaseModel):
 
 class GeometryRepository(BaseRepository, metaclass=ABCMeta):
     @abstractmethod
-    def add_onderverdeling(
-        self,
-        session: Session,
-        uuidx: uuid.UUID,
-        idx: int,
-        title: str,
-        text_shape: str,
-        symbol: str,
-        werkingsgebied_title: str,
-        werkingsgebied_uuid: uuid.UUID,
-        created_date: datetime,
-        modified_date: datetime,
-        start_validity: datetime,
-        end_validity: Optional[datetime],
-    ):
+    def _text_to_shape(self, key: str) -> str:
         pass
 
     @abstractmethod
-    def add_werkingsgebied(
-        self,
-        session: Session,
-        uuidx: uuid.UUID,
-        idx: int,
-        title: str,
-        text_shape: str,
-        gml: str,
-        symbol: str,
-        created_date: datetime,
-        modified_date: datetime,
-        start_validity: datetime,
-        end_validity: Optional[datetime],
-    ):
+    def _shape_to_text(self, column: str) -> str:
         pass
 
     @abstractmethod
-    def get_werkingsgebied(self, session: Session, uuidx: uuid.UUID) -> dict:
-        pass
-
-    @abstractmethod
-    def get_werkingsgebied_optional(self, session: Session, uuidx: uuid.UUID) -> Optional[dict]:
-        pass
-
-    @abstractmethod
-    def get_onderverdelingen_for_werkingsgebied(self, session: Session, werkingsgebied_uuid: uuid.UUID) -> List[dict]:
+    def _format_uuid(self, uuidx: uuid.UUID) -> str:
         pass
 
     @abstractmethod
     def _calculate_hex(self, column: str) -> str:
         pass
+
+    def create_onderverdeling(
+        self,
+        session: Session,
+        onderverdeling: InputGeoOnderverdelingTable,
+        geometry: str,
+    ):
+        session.add(onderverdeling)
+        session.flush()
+        session.commit()
+
+        params = {
+            "uuid": self._format_uuid(onderverdeling.UUID),
+            "geometry": geometry,
+        }
+        sql = f"""
+            UPDATE
+                Input_GEO_Onderverdeling
+            SET
+                Geometry = {self._text_to_shape("geometry")}
+            WHERE
+                UUID = :uuid
+            """
+        session.execute(text(sql), params)
 
     def get_latest_shape_hash_by_title(self, session: Session, title: str) -> Optional[WerkingsgebiedHash]:
         params = {
