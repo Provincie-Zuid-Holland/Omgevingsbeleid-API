@@ -46,7 +46,7 @@ def upgrade() -> None:
     # Source identifier system
     op.add_column('object_statics', sa.Column('Source_Identifier', sa.Unicode(length=255), nullable=True))
 
-    # Backfill hashes & lookup from existing geometry ---
+    # Backfill hashes & lookup from existing geometry
     op.execute("""
         UPDATE a
         SET
