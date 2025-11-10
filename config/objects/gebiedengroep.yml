@@ -187,6 +187,7 @@ models:
     dependency_model_ids:
       - user_short
       - gebieden_basic
+      - gebied_basic
     services:
       join_gebieden:
         model_id: gebied_basic
