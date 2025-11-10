@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from app.api.domains.modules.endpoints.list_module_objects_endpoint import (
     ListModuleObjectsEndpointContext,
     get_list_module_objects_endpoint,
+    ModuleObjectsResponse,
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import OrderConfig, PagedResponse
@@ -41,7 +42,7 @@ class ListModuleObjectsEndpointBuilder(EndpointBuilder):
         endpoint = self._inject_context(get_list_module_objects_endpoint, context)
 
         union_object_type: Union[BaseModel] = self._model_dynamic_type_builder.build_object_union_type(model_map)
-        response_type = PagedResponse[union_object_type]
+        response_type = PagedResponse[ModuleObjectsResponse[union_object_type]]
         response_type.__name__ = response_model_name
 
         return ConfiguredFastapiEndpoint(
