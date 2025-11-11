@@ -11,6 +11,9 @@ import sqlalchemy as sa
 # We need these to load all sqlalchemy tables
 from app.main import app  ## noqa 
 from app.core.db import table_metadata  ## noqa 
+from app.core.settings import Settings  ## noqa
+
+settings = Settings()
 
 
 # revision identifiers, used by Alembic.
@@ -39,6 +42,11 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint('UUID'),
         sa.UniqueConstraint('Source_UUID')
     )
+
+    # Local env hack
+    # @Todo: should be removed
+    if settings.DB_NAME == "db_dev":
+        op.execute("ALTER TABLE areas ALTER COLUMN [Shape] geometry;")
 
     op.add_column('module_objects', sa.Column('Area_UUID', sa.Uuid(), nullable=True))
     op.add_column('module_objects', sa.Column('Werkingsgebied_Code', sa.Unicode(length=35), nullable=True))
