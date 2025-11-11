@@ -14,6 +14,7 @@ from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.others import AssetsTable, RelationsTable, StorageFileTable
 from app.core.tables.users import IS_ACTIVE, UsersTable
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingTable, InputGeoWerkingsgebiedenTable
 from app.core.types import AcknowledgedRelationSide
 from app.core.utils.utils import DATE_FORMAT
 
@@ -33,7 +34,7 @@ class DatabaseFixturesOld:
 
     def create_all(self):
         self.create_users()
-        self.create_source_werkingsgebieden()
+        self.create_geo_input()
         self.create_areas()
         self.create_storage_files()
         self.create_assets()
@@ -115,6 +116,91 @@ class DatabaseFixturesOld:
                 Wachtwoord=self._security.get_password_hash("password"),
             )
         )
+        self._session.commit()
+
+    def create_geo_input(self):
+        # Input Geo Onderverdeling
+        default_geometry: str = """
+            POLYGON((
+                74567.3476 443493.9189,
+                74700.3257 444274.7429,
+                74620.0000 443900.0000,
+                74567.3476 443493.9189
+            ))"""
+        default_hash: str = "fake-hash"
+        default_gml: str = """<gml:Surface xmlns:gml="http://www.opengis.net/gml/3.2" gml:id="id-1191eed9-d9ab-4184-a6a1-056c13752390-1" srsName="urn:ogc:def:crs:EPSG::28992"  srsDimension="2"><gml:patches><gml:PolygonPatch><gml:exterior><gml:LinearRing><gml:posList>74567.348 443493.919 74700.326 444274.743 74567.347600001842 443493.918</gml:posList></gml:LinearRing></gml:exterior></gml:PolygonPatch></gml:patches></gml:Surface>"""
+
+        # Version 1
+        o_grasveld_1_a = InputGeoOnderverdelingTable(
+            UUID=uuid.UUID("00000600-0000-0000-0000-100000000001"),
+            Title="Grasveld A",
+            Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+            Geometry_Hash=default_hash + "-1",
+            GML=default_gml,
+        )
+        self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_a, default_geometry)
+
+        o_grasveld_1_b = InputGeoOnderverdelingTable(
+            UUID=uuid.UUID("00000600-0000-0000-0000-100000000002"),
+            Title="Grasveld B",
+            Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+            Geometry_Hash=default_hash + "-2",
+            GML=default_gml,
+        )
+        self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_b, default_geometry)
+
+        o_grasveld_1_c = InputGeoOnderverdelingTable(
+            UUID=uuid.UUID("00000600-0000-0000-0000-100000000003"),
+            Title="Grasveld C",
+            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+            Geometry_Hash=default_hash + "-3",
+            GML=default_gml,
+        )
+        self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_c, default_geometry)
+
+        # Version 2
+        o_grasveld_2_a = InputGeoOnderverdelingTable(
+            UUID=uuid.UUID("00000600-0000-0000-0000-100000000011"),
+            Title="Grasveld A",
+            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+            Geometry_Hash=default_hash,
+            GML=default_gml,
+        )
+        self._geometry_repository.create_onderverdeling(self._session, o_grasveld_2_a, default_geometry)
+
+        o_grasveld_2_d = InputGeoOnderverdelingTable(
+            UUID=uuid.UUID("00000600-0000-0000-0000-100000000012"),
+            Title="Grasveld D",
+            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+            Geometry_Hash=default_hash + "-4",
+            GML=default_gml,
+        )
+        self._geometry_repository.create_onderverdeling(self._session, o_grasveld_2_d, default_geometry)
+
+        # Input Geo Werkingsgebieden
+        w_grasvelden_v1 = InputGeoWerkingsgebiedenTable(
+            UUID=uuid.UUID("00000500-0000-0000-0000-200000000001"),
+            Title="Grasvelden",
+            Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+            Onderverdelingen=[
+                o_grasveld_1_a,
+                o_grasveld_1_b,
+                o_grasveld_1_c,
+            ],
+        )
+        self._session.add(w_grasvelden_v1)
+
+        w_grasvelden_v2 = InputGeoWerkingsgebiedenTable(
+            UUID=uuid.UUID("00000500-0000-0000-0000-200000000002"),
+            Title="Grasvelden",
+            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+            Onderverdelingen=[
+                o_grasveld_2_a,
+                o_grasveld_1_b,
+                o_grasveld_2_d,
+            ],
+        )
+        self._session.add(w_grasvelden_v2)
         self._session.commit()
 
     def create_source_werkingsgebieden(self):
