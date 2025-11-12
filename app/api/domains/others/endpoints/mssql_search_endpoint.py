@@ -62,18 +62,13 @@ class EndpointHandler:
             "limit": self._pagination.limit,
         }
 
-        objects_fields = [c.name for c in ObjectsTable.__table__.columns]
-        module_objects_fields = [c.name for c in ModuleObjectsTable.__table__.columns]
-        fields: Set[str] = set()
-        for objects_field in objects_fields:
-            for module_objects_field in module_objects_fields:
-                if objects_field != module_objects_field:
-                    continue
-                fields.add(objects_field)
+        objects_field_set: Set[str] = set([c.name for c in ObjectsTable.__table__.columns])
+        module_objects_field_set: Set[str] = set([c.name for c in ModuleObjectsTable.__table__.columns])
+        fields: Set[str] = objects_field_set.intersection(module_objects_field_set)
 
         if self._as_like:
             stmt = self._get_like_query(object_type_filter, fields)
-            bindparams_dict["query"] = f"%{self._query}%"
+            bindparams_dict["query"] = f'%{self._query}%'
         else:
             stmt = self._get_query(object_type_filter, fields)
             bindparams_dict["query"] = f'"{self._query}"'
