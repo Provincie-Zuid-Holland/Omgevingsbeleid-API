@@ -185,6 +185,8 @@ api:
               - werkingsgebied
               - gebiedengroep
               - gebied
+            model_map: *model_map
+            response_model_name: PagedSearchObjectResponse
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search

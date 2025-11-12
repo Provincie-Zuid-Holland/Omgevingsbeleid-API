@@ -1,14 +1,17 @@
 from dependency_injector import containers, providers
+from sqlalchemy.orm import sessionmaker
 
+import app.build.endpoint_builders.modules as endpoint_builders_modules
+import app.build.endpoint_builders.objects as endpoint_builders_objects
+import app.build.endpoint_builders.others as endpoint_builders_others
+import app.build.endpoint_builders.publications as endpoint_builders_publications
+import app.build.endpoint_builders.users as endpoint_builders_users
+import app.build.endpoint_builders.werkingsgebieden as endpoint_builders_werkingsgebieden
+import app.build.services.validators.validators as validators
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.build import api_builder
-import app.build.endpoint_builders.objects as endpoint_builders_objects
-import app.build.endpoint_builders.modules as endpoint_builders_modules
-import app.build.endpoint_builders.users as endpoint_builders_users
-import app.build.endpoint_builders.others as endpoint_builders_others
-import app.build.endpoint_builders.werkingsgebieden as endpoint_builders_werkingsgebieden
-import app.build.endpoint_builders.publications as endpoint_builders_publications
 from app.build.endpoint_builders import endpoint_builder_provider
+from app.build.events import create_model_event_listeners, generate_table_event_listeners
 from app.build.services import (
     config_parser,
     object_intermediate_builder,
@@ -16,14 +19,11 @@ from app.build.services import (
     validator_provider,
     object_models_builder,
 )
-import app.build.services.validators.validators as validators
 from app.build.services.model_dynamic_type_builder import ModelDynamicTypeBuilder
 from app.core.db.session import create_db_engine
 from app.core.services import MainConfig, ModelsProvider
 from app.core.services.event import event_manager
 from app.core.settings import Settings
-from sqlalchemy.orm import sessionmaker
-from app.build.events import create_model_event_listeners, generate_table_event_listeners
 
 
 class BuildContainer(containers.DeclarativeContainer):
@@ -303,7 +303,10 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_others.StorageFileUploadFileEndpointBuilder),
             providers.Factory(endpoint_builders_others.FullGraphEndpointBuilder),
             providers.Factory(endpoint_builders_others.ObjectGraphEndpointBuilder),
-            providers.Factory(endpoint_builders_others.MssqlSearchEndpointBuilder),
+            providers.Factory(
+                endpoint_builders_others.MssqlSearchEndpointBuilder,
+                model_dynamic_type_builder=model_dynamic_type_builder,
+            ),
             providers.Factory(endpoint_builders_others.MssqlValidSearchEndpointBuilder),
             # fmt: on
         ),

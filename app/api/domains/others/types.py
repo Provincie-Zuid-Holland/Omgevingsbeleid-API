@@ -3,10 +3,12 @@ import re
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Generic
 
 from fastapi import UploadFile
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from app.api.domains.modules.types import TModel
 
 
 class StorageFileBasic(BaseModel):
@@ -92,8 +94,11 @@ class SearchConfig(ValidSearchConfig):
     pass
 
 
-class SearchObject(ValidSearchObject):
+class SearchObject(ValidSearchObject, Generic[TModel]):
     Module_ID: Optional[int] = None
+    Model: TModel
+
+    model_config = ConfigDict(from_attributes=True, title="SearchObject")
 
 
 class SearchRequestData(BaseModel):
