@@ -11,6 +11,9 @@ import sqlalchemy as sa
 # We need these to load all sqlalchemy tables
 from app.main import app  ## noqa 
 from app.core.db import table_metadata  ## noqa 
+from app.core.settings import Settings  ## noqa
+
+settings = Settings()
 
 
 # revision identifiers, used by Alembic.
@@ -39,6 +42,12 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['Werkingsgebied_UUID'], ['Input_GEO_Werkingsgebieden.UUID'], ),
         sa.PrimaryKeyConstraint('UUID')
     )
+
+    # Local env hack
+    # @Todo: should be removed
+    if settings.DB_NAME == "db_dev":
+        op.execute("ALTER TABLE Input_GEO_Onderverdeling ALTER COLUMN [Geometry] geometry;")
+
     # ### end Alembic commands ###
 
 
