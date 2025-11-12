@@ -208,7 +208,6 @@ api:
               - werkingsgebied
               - gebiedengroep
               - gebied
-            model_map: *model_map
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
