@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
-from app.api.domains.others.types import SearchConfig, SearchObject, SearchRequestData, ValidSearchConfig
+from app.api.domains.others.types import SearchConfig, SearchObject, ValidSearchConfig, SearchRequestDataWithLike
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import PagedResponse, SimplePagination
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
@@ -68,7 +68,7 @@ class EndpointHandler:
 
         if self._as_like:
             stmt = self._get_like_query(object_type_filter, fields)
-            bindparams_dict["query"] = f'%{self._query}%'
+            bindparams_dict["query"] = f"%{self._query}%"
         else:
             stmt = self._get_query(object_type_filter, fields)
             bindparams_dict["query"] = f'"{self._query}"'
@@ -282,7 +282,7 @@ class MssqlSearchEndpointContext(BaseEndpointContext):
 
 def get_mssql_search_endpoint(
     query: str,
-    object_in: SearchRequestData,
+    object_in: SearchRequestDataWithLike,
     session: Annotated[Session, Depends(depends_db_session)],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     context: Annotated[MssqlSearchEndpointContext, Depends()],

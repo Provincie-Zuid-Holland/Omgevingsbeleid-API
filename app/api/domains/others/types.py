@@ -69,7 +69,7 @@ class ValidSearchConfig(BaseModel):
     allowed_object_types: List[str]
 
 
-class ValidSearchObject(BaseModel):
+class ValidSearchObject(BaseModel, Generic[TModel]):
     UUID: uuid.UUID
     Object_Type: str
     Object_ID: int
@@ -77,6 +77,7 @@ class ValidSearchObject(BaseModel):
     Title: str
     Description: str
     Score: float
+    Model: TModel
 
     @model_validator(mode="before")
     def generate_object_code(cls, data):
@@ -103,6 +104,9 @@ class SearchObject(ValidSearchObject, Generic[TModel]):
 
 class SearchRequestData(BaseModel):
     Object_Types: Optional[List[str]] = None
+
+
+class SearchRequestDataWithLike(SearchRequestData):
     Like: bool = Field(False)
 
 
