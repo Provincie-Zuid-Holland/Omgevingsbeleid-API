@@ -70,21 +70,12 @@ class ValidSearchConfig(BaseModel):
 
 
 class ValidSearchObject(BaseModel, Generic[TModel]):
-    UUID: uuid.UUID
     Object_Type: str
-    Object_ID: int
-    Object_Code: str
-    Title: str
     Description: str
     Score: float
     Model: TModel
 
-    @model_validator(mode="before")
-    def generate_object_code(cls, data):
-        data["Object_Code"] = f"{data['Object_Type']}-{data['Object_ID']}"
-        return data
-
-    @field_validator("Title", "Description", mode="before")
+    @field_validator("Description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 

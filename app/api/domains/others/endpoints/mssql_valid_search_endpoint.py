@@ -87,10 +87,7 @@ class EndpointHandler:
                 description = soup.get_text()
 
             search_object: ValidSearchObject = ValidSearchObject(
-                UUID=row["UUID"],
                 Object_Type=row["Object_Type"],
-                Object_ID=row["Object_ID"],
-                Title=row["Title"],
                 Description=description,
                 Score=row["_Rank"],
                 Model=parsed_model,

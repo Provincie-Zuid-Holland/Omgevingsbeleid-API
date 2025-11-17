@@ -49,7 +49,7 @@ class MssqlValidSearchEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["POST"],
-            response_model=PagedResponse[ValidSearchObject],
+            response_model=response_type,
             summary="Search for valid objects",
             description=None,
             tags=["Search"],
