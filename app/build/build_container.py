@@ -307,7 +307,10 @@ class BuildContainer(containers.DeclarativeContainer):
                 endpoint_builders_others.MssqlSearchEndpointBuilder,
                 model_dynamic_type_builder=model_dynamic_type_builder,
             ),
-            providers.Factory(endpoint_builders_others.MssqlValidSearchEndpointBuilder),
+            providers.Factory(
+                endpoint_builders_others.MssqlValidSearchEndpointBuilder,
+                model_dynamic_type_builder=model_dynamic_type_builder,
+            ),
             # fmt: on
         ),
     )
