@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, Generic, List, Optional, Dict, Sequence, Tuple, TypeVar
+from typing import Annotated, Generic, List, Optional, Dict, Sequence, Tuple
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Query
@@ -15,6 +15,7 @@ from app.api.domains.modules.types import (
     ModuleObjectContextShort,
     ModuleStatusCode,
     ObjectStaticShort,
+    TModel,
 )
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
@@ -29,9 +30,6 @@ from app.api.utils.pagination import (
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectStaticsTable
 from app.core.tables.users import UsersTable
-
-
-TModel = TypeVar("TModel", bound=BaseModel)
 
 
 class ModuleObjectsResponse(BaseModel, Generic[TModel]):

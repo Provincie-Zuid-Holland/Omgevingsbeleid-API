@@ -55,7 +55,7 @@ class EndpointHandler:
             self._object_types = self._search_config.allowed_object_types
 
         placeholders = ",".join([f":object_type{i}" for i in range(len(self._object_types))])
-        object_type_filter = f" AND v.Object_Type IN ( {placeholders})"
+        object_type_filter = f" AND v.Object_Type IN ({placeholders})"
 
         bindparams_dict = {
             "offset": self._pagination.offset,

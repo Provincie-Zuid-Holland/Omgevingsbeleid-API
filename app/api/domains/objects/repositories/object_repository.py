@@ -138,7 +138,7 @@ class ObjectRepository(BaseRepository):
         session: Session,
         pagination: SortedPagination,
         owner_uuid: Optional[UUID] = None,
-        object_type: Optional[str] = None,
+        object_types: List[Optional[str]] = None,
     ) -> PaginatedQueryResult:
         row_number = (
             func.row_number()
@@ -150,8 +150,11 @@ class ObjectRepository(BaseRepository):
         )
 
         subq = (
-            select(ObjectsTable, row_number)
-            .options(selectinload(ObjectsTable.ObjectStatics))
+            select(
+                ObjectsTable,
+                ObjectStaticsTable,
+                row_number,
+            )
             .join(ObjectsTable.ObjectStatics)
             .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
         )
@@ -167,21 +170,25 @@ class ObjectRepository(BaseRepository):
             )
             filters.append(owner_filter)
 
-        if object_type is not None:
-            filters.append(or_(ObjectsTable.Object_Type == object_type))
+        if len(object_types) > 0:
+            filters.append(ObjectsTable.Object_Type.in_(object_types))
 
         if len(filters) > 0:
             subq = subq.filter(and_(*filters))
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
-        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1)
+        aliased_object_statics = aliased(ObjectStaticsTable, subq)
+        stmt = select(
+            aliased_objects,
+            aliased_object_statics,
+        ).filter(subq.c._RowNumber == 1)
 
-        return self.fetch_paginated(
+        return self.fetch_paginated_no_scalars(
             session=session,
             statement=stmt,
-            offset=pagination.offset,
             limit=pagination.limit,
+            offset=pagination.offset,
             sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )
 
