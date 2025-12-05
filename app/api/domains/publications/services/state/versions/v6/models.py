@@ -37,7 +37,21 @@ class Gebied(BaseModel):
     code: str
     hash: str
     geboorteregeling: str
+    achtergrond_verwijzing: str
+    achtergrond_actualiteit: str
     frbr: Frbr
+
+    def is_still_valid(self) -> bool:
+        # If the object id is invalid then this Gebied is from the old Werkingsgebied system and should be phased out
+        if self.object_id < 1:
+            return False
+        # We are going to store these from now on aswell
+        # As we should be able to recall what we specified to the DSO
+        if self.achtergrond_verwijzing == "":
+            return False
+        if self.achtergrond_actualiteit == "":
+            return False
+        return True
 
 
 class Gebiedengroep(BaseModel):

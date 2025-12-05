@@ -100,6 +100,8 @@ class StateV6Upgrader(StateUpgrader):
                     code=gebied_code,
                     hash=old_werkingsgebied.Hash,
                     geboorteregeling=old_werkingsgebied.Owner_Act,
+                    achtergrond_actualiteit="",
+                    achtergrond_verwijzing="",
                     frbr=models_v6.Frbr.model_validate(old_werkingsgebied.Frbr.model_dump()),
                 )
 

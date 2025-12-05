@@ -197,6 +197,7 @@ class PublicationGebiedenProvider:
             "achtergrond_actualiteit": str(gebied["Modified_Date"])[:10],
             "gml_id": str(uuid.uuid4()),
             "gml": area.Gml,
+            "hash": gml_hash,
         }
         return result
 
@@ -227,7 +228,6 @@ class PublicationGebiedenProvider:
             "uuid": gebiedengroep["UUID"],
             "identifier": str(uuid.uuid4()),
             "code": gebiedengroep["Code"],
-            "new": True,  # Will be updated by state system if existing
             "title": gebiedengroep["Title"],
             "area_codes": gebieden_codes,
         }
