@@ -15,9 +15,7 @@ class PatchActMutation:
 
     def patch(self, session: Session, data: ApiActInputData) -> ApiActInputData:
         data = self._patch_gebieden(data)
-        # @note: I dont think we have to patch gebiedengroepen
-        # As they are only "consolidated" in the OwData
-        # But the OwData manages itself
+        data = self._patch_gebiedengroepen(data)
         data = self._patch_documents(data)
         data = self._patch_assets(session, data)
         data = self._patch_act_mutation(data)
@@ -72,6 +70,26 @@ class PatchActMutation:
 
         return str(gebied["hash"]) == existing.hash
 
+    def _patch_gebiedengroepen(self, data: ApiActInputData) -> ApiActInputData:
+        """
+        These needs to be patched to reuse the `identifier` as that the the OW Identifier
+        """
+        state_gebiedengroepen: Dict[str, models.Gebiedengroep] = self._active_act.Gebiedengroepen
+
+        gebiedengroepen: List[dict] = data.Publication_Data.gebiedengroepen
+        for index, gebiedengroep in enumerate(gebiedengroepen):
+            object_code: str = gebiedengroep["code"]
+            existing_gebiedengroep: Optional[models.Gebiedengroep] = state_gebiedengroepen.get(object_code)
+            if existing_gebiedengroep is None:
+                continue
+
+            if self._gebiedengroep_is_same(existing_gebiedengroep, gebiedengroep):
+                gebiedengroepen[index]["identifier"] = existing_gebiedengroep.identifier
+
+        data.Publication_Data.gebiedengroepen = gebiedengroepen
+
+        return data
+
     def _patch_documents(self, data: ApiActInputData) -> ApiActInputData:
         state_documents: Dict[int, models.Document] = self._active_act.Documents
 
@@ -108,6 +126,9 @@ class PatchActMutation:
         data.Publication_Data.documents = documents
 
         return data
+
+    def _gebiedengroep_is_same(self, existing: models.Gebiedengroep, gebiedengroep: dict) -> bool:
+        return gebiedengroep["code"] == existing.code
 
     def _patch_assets(self, session: Session, data: ApiActInputData) -> ApiActInputData:
         state_assets: Dict[str, models.Asset] = self._active_act.Assets

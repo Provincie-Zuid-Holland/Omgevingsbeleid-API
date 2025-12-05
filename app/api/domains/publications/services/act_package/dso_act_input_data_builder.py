@@ -18,8 +18,11 @@ from dso.act_builder.state_manager.input_data.resource.policy_object.policy_obje
     PolicyObjectRepository,
 )
 from dso.act_builder.state_manager.input_data.resource.resources import Resources
-from dso.act_builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied_repository import (
-    WerkingsgebiedRepository,
+from dso.act_builder.state_manager.input_data.resource.gebieden.gebied_repository import (
+    GebiedRepository,
+)
+from dso.act_builder.state_manager.input_data.resource.gebieden.gebiedengroep_repository import (
+    GebiedengroepRepository,
 )
 
 from app.api.domains.publications.types.api_input_data import (
@@ -319,7 +322,8 @@ class DsoActInputDataBuilder:
         resources = Resources(
             policy_object_repository=self._get_policy_object_repository(),
             asset_repository=self._get_asset_repository(),
-            werkingsgebied_repository=self._get_werkingsgebied_repository(),
+            gebied_repository=self._get_gebied_repository(),
+            gebiedengroep_repository=self._get_gebiedengroep_repository(),
             besluit_pdf_repository=self._get_pdf_repository(),
             document_repository=self._get_document_repository(),
         )
@@ -337,9 +341,15 @@ class DsoActInputDataBuilder:
             repository.add(a)
         return repository
 
-    def _get_werkingsgebied_repository(self) -> WerkingsgebiedRepository:
-        repository = WerkingsgebiedRepository()
-        for w in self._publication_data.werkingsgebieden:
+    def _get_gebied_repository(self) -> GebiedRepository:
+        repository = GebiedRepository()
+        for w in self._publication_data.gebieden:
+            repository.add(w)
+        return repository
+
+    def _get_gebiedengroep_repository(self) -> GebiedengroepRepository:
+        repository = GebiedengroepRepository()
+        for w in self._publication_data.gebiedengroepen:
             repository.add(w)
         return repository
 
@@ -435,16 +445,16 @@ class DsoActInputDataBuilder:
             Expression_Version=self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
         )
 
-        te_verwijderden_werkingsgebieden = [
-            dso_models.VerwijderdWerkingsgebied(
-                UUID=w["UUID"],
-                code=w["Code"],
-                object_id=w["Object_ID"],
-                frbr=dso_models.GioFRBR.model_validate(w["Frbr"]),
-                geboorteregeling=w["Owner_Act"],
-                titel=w["Title"],
+        te_verwijderden_gebieden = [
+            dso_models.VerwijderdGebied(
+                uuid=w["uuid"],
+                code=w["code"],
+                object_id=w["object_id"],
+                frbr=dso_models.GioFRBR.model_validate(w["frbr"]),
+                geboorteregeling=w["geboorteregeling"],
+                titel=w["titel"],
             )
-            for w in self._act_mutation.Removed_Werkingsgebieden
+            for w in self._act_mutation.Removed_Gebieden
         ]
 
         match self._mutation_strategy:
@@ -453,7 +463,7 @@ class DsoActInputDataBuilder:
                     was_regeling_frbr=frbr,
                     bekend_wid_map=self._act_mutation.Known_Wid_Map,
                     bekend_wids=self._act_mutation.Known_Wids,
-                    te_verwijderden_werkingsgebieden=te_verwijderden_werkingsgebieden,
+                    te_verwijderden_gebieden=te_verwijderden_gebieden,
                 )
                 return result
 
@@ -463,7 +473,7 @@ class DsoActInputDataBuilder:
                     was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
                     bekend_wid_map=self._act_mutation.Known_Wid_Map,
                     bekend_wids=self._act_mutation.Known_Wids,
-                    te_verwijderden_werkingsgebieden=te_verwijderden_werkingsgebieden,
+                    te_verwijderden_gebieden=te_verwijderden_gebieden,
                     renvooi_api_key=renvooi.API_KEY,
                     renvooi_api_url=renvooi.RENVOOI_API_URL,
                 )
