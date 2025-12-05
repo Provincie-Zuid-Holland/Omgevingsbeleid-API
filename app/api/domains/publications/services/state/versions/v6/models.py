@@ -1,0 +1,288 @@
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from enum import Enum
+from typing import Annotated, Literal, Union
+
+
+class Purpose(BaseModel):
+    Purpose_Type: str
+    Effective_Date: Optional[str] = None
+    Work_Province_ID: str
+    Work_Date: str
+    Work_Other: str
+
+    def get_frbr_work(self) -> str:
+        result: str = f"/join/id/proces/{self.Work_Province_ID}/{self.Work_Date}/{self.Work_Other}"
+        return result
+
+
+class Frbr(BaseModel):
+    Work_Province_ID: str
+    Work_Country: str
+    Work_Date: str
+    Work_Other: str
+    Expression_Language: str
+    Expression_Date: str
+    Expression_Version: int
+
+
+class Gebied(BaseModel):
+    uuid: str
+    identifier: str  # basisgeo:id - also used in ow
+    gml_id: str
+    title: str
+    object_id: int
+    code: str
+    hash: str
+    geboorteregeling: str
+    frbr: Frbr
+
+
+class Gebiedengroep(BaseModel):
+    uuid: str
+    identifier: str
+    code: str
+    object_id: int
+    title: str
+    gebied_codes: List[str] = Field(default_factory=list)
+
+
+class Document(BaseModel):
+    UUID: str
+    Code: str
+    Frbr: Frbr
+    Filename: str
+    Title: str
+    Owner_Act: str
+    Content_Type: str
+    Object_ID: int
+    Hash: str
+
+
+class Asset(BaseModel):
+    UUID: str
+
+
+class WidData(BaseModel):
+    Known_Wid_Map: Dict[str, str]
+    Known_Wids: List[str]
+
+
+# OwState
+class AbstractRef(BaseModel):
+    pass
+
+
+class AbstractLocationRef(AbstractRef):
+    ref_type: str = Field(..., description="Type discriminator")
+
+
+class UnresolvedAmbtsgebiedRef(AbstractLocationRef):
+    ref_type: Literal["unresolved_ambtsgebied"] = "unresolved_ambtsgebied"
+
+
+class AmbtsgebiedRef(AbstractLocationRef):
+    ref_type: Literal["ambtsgebied"] = "ambtsgebied"
+    ref: str
+
+
+class UnresolvedGebiedRef(AbstractLocationRef):
+    ref_type: Literal["unresolved_gebied"] = "unresolved_gebied"
+    target_code: str
+
+
+class GebiedRef(UnresolvedGebiedRef):
+    ref_type: Literal["gebied"] = "gebied"
+    ref: str
+
+
+class UnresolvedGebiedengroepRef(AbstractLocationRef):
+    ref_type: Literal["unresolved_gebiedengroep"] = "unresolved_gebiedengroep"
+    target_code: str
+
+
+class GebiedengroepRef(UnresolvedGebiedengroepRef):
+    ref_type: Literal["gebiedengroep"] = "gebiedengroep"
+    ref: str
+
+
+LocationRefUnion = Annotated[
+    Union[
+        AmbtsgebiedRef,
+        UnresolvedAmbtsgebiedRef,
+        GebiedRef,
+        UnresolvedGebiedRef,
+        GebiedengroepRef,
+        UnresolvedGebiedengroepRef,
+    ],
+    Field(discriminator="ref_type"),
+]
+
+
+class AbstractWidRef(AbstractRef):
+    ref_type: str = Field(..., description="Type discriminator")
+
+
+class UnresolvedDivisieRef(AbstractWidRef):
+    ref_type: Literal["unresolved_divisie"] = "unresolved_divisie"
+    target_wid: str
+
+
+class DivisieRef(UnresolvedDivisieRef):
+    ref_type: Literal["divisie"] = "divisie"
+    ref: str
+
+
+class UnresolvedDivisietekstRef(AbstractWidRef):
+    ref_type: Literal["unresolved_divisietekst"] = "unresolved_divisietekst"
+    target_wid: str
+
+
+class DivisietekstRef(UnresolvedDivisietekstRef):
+    ref_type: Literal["divisietekst"] = "divisietekst"
+    ref: str
+
+
+WidRefUnion = Annotated[
+    Union[
+        DivisieRef,
+        UnresolvedDivisieRef,
+        DivisietekstRef,
+        UnresolvedDivisietekstRef,
+    ],
+    Field(discriminator="ref_type"),
+]
+
+
+class OwObjectStatus(str, Enum):
+    new = "new"
+    changed = "changed"
+    unchanged = "unchanged"
+    deleted = "deleted"
+
+
+class BaseOwObject(BaseModel):
+    identification: str
+    object_status: OwObjectStatus = Field(OwObjectStatus.unchanged)
+    procedure_status: Optional[str] = Field(None)
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OwAmbtsgebied(BaseOwObject):
+    source_uuid: str
+    administrative_borders_id: str
+    domain: str
+    valid_on: str
+    title: str
+    model_config = ConfigDict(from_attributes=True)
+
+    def __hash__(self):
+        return hash(("ambtsgebied",))
+
+
+class OwRegelingsgebied(BaseOwObject):
+    source_uuid: str
+    locatie_ref: LocationRefUnion
+
+    def __hash__(self):
+        return hash(("regelingsgebied",))
+
+
+class OwGebied(BaseOwObject):
+    source_uuid: str
+    source_code: str
+    title: str
+    geometry_ref: str
+
+    def __hash__(self):
+        return hash((self.source_code,))
+
+
+class OwGebiedengroep(BaseOwObject):
+    source_uuid: str
+    source_code: str
+    title: str
+    gebieden_refs: List[LocationRefUnion] = Field(default_factory=list)
+
+    def __hash__(self):
+        return hash((self.source_code,))
+
+
+class OwDivisie(BaseOwObject):
+    source_uuid: str
+    source_code: str
+    wid: str
+
+    def __hash__(self):
+        return hash((self.wid,))
+
+
+class OwDivisietekst(BaseOwObject):
+    source_uuid: str
+    source_code: str
+    wid: str
+
+    def __hash__(self):
+        return hash((self.wid,))
+
+
+class OwGebiedsaanwijzing(BaseOwObject):
+    source_code: str
+    title: str
+    indication_type: str
+    indication_group: str
+    location_refs: List[LocationRefUnion] = Field(default_factory=list)
+
+    def __hash__(self):
+        return hash((self.source_code,))
+
+
+class OwTekstdeel(BaseOwObject):
+    source_uuid: str
+    source_code: str
+    idealization: str
+    text_ref: WidRefUnion
+    location_refs: List[LocationRefUnion] = Field(default_factory=list)
+
+    def __hash__(self):
+        return hash((self.source_code,))
+
+
+class OwState(BaseModel):
+    ambtsgebieden: List[OwAmbtsgebied] = Field(default_factory=list)
+    regelingsgebieden: List[OwRegelingsgebied] = Field(default_factory=list)
+    gebieden: List[OwGebied] = Field(default_factory=list)
+    gebiedengroepen: List[OwGebiedengroep] = Field(default_factory=list)
+    gebiedsaanwijzingen: List[OwGebiedsaanwijzing] = Field(default_factory=list)
+    divisies: List[OwDivisie] = Field(default_factory=list)
+    divisieteksten: List[OwDivisietekst] = Field(default_factory=list)
+    tekstdelen: List[OwTekstdeel] = Field(default_factory=list)
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Acts
+class ActiveAct(BaseModel):
+    Act_Frbr: Frbr
+    Bill_Frbr: Frbr
+    Consolidation_Purpose: Purpose
+    Document_Type: str
+    Procedure_Type: str
+    Gebieden: Dict[str, Gebied]  # Code: Object
+    Gebiedengroepen: Dict[str, Gebiedengroep]
+    Documents: Dict[int, Document] = Field({})
+    Assets: Dict[str, Asset]
+    Wid_Data: WidData
+    Ow_State: OwState
+    Act_Text: str
+    Publication_Version_UUID: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ActiveAnnouncement(BaseModel):
+    Doc_Frbr: Frbr
+    About_Act_Frbr: Frbr
+    About_Bill_Frbr: Frbr
+    Document_Type: str
+    Procedure_Type: str

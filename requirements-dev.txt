@@ -4,17 +4,17 @@
 #
 #    pip-compile requirements-dev.in
 #
-alembic==1.17.1
+alembic==1.17.2
     # via -r requirements-dev.in
 asttokens==2.4.1
     # via
     #   devtools
     #   stack-data
-certifi==2025.10.5
+certifi==2025.11.12
     # via requests
 charset-normalizer==3.4.4
     # via requests
-coverage[toml]==7.11.0
+coverage[toml]==7.12.0
     # via
     #   -r requirements-dev.in
     #   coverage-badge
@@ -31,7 +31,7 @@ executing==2.2.1
     # via
     #   devtools
     #   stack-data
-faker==37.12.0
+faker==38.2.0
     # via -r requirements-dev.in
 freezegun==1.5.5
     # via -r requirements-dev.in
@@ -75,7 +75,7 @@ pygments==2.19.2
     #   ipython
     #   ipython-pygments-lexers
     #   pytest
-pytest==8.4.2
+pytest==9.0.1
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -90,7 +90,7 @@ requests==2.32.5
     # via requests-mock
 requests-mock==1.12.1
     # via -r requirements-dev.in
-ruff==0.14.3
+ruff==0.14.7
     # via -r requirements-dev.in
 six==1.17.0
     # via

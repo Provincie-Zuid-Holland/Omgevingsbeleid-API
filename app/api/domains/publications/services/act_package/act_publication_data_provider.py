@@ -1,6 +1,10 @@
 from datetime import datetime
 from typing import List, Optional, Set
 
+from app.api.domains.publications.services.act_package.publication_gebieden_provider import (
+    GebiedenData,
+    PublicationGebiedenProvider,
+)
 import dso.models as dso_models
 from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
@@ -8,9 +12,6 @@ from sqlalchemy.orm import Session
 from app.api.domains.publications.repository.publication_aoj_repository import PublicationAOJRepository
 from app.api.domains.publications.services.publication_object_provider import PublicationObjectProvider
 from app.api.domains.publications.services.act_package.documents_provider import PublicationDocumentsProvider
-from app.api.domains.publications.services.act_package.werkingsgebieden_provider import (
-    PublicationWerkingsgebiedenProvider,
-)
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.api.domains.publications.services.template_parser import TemplateParser
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, PublicationData
@@ -22,16 +23,14 @@ class ActPublicationDataProvider:
         self,
         publication_object_provider: PublicationObjectProvider,
         publication_asset_provider: PublicationAssetProvider,
-        publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider,
+        publication_gebieden_provider: PublicationGebiedenProvider,
         publication_documents_provider: PublicationDocumentsProvider,
         publication_aoj_repository: PublicationAOJRepository,
         template_parser: TemplateParser,
     ):
         self._publication_object_provider: PublicationObjectProvider = publication_object_provider
         self._publication_asset_provider: PublicationAssetProvider = publication_asset_provider
-        self._publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider = (
-            publication_werkingsgebieden_provider
-        )
+        self._publication_gebieden_provider: PublicationGebiedenProvider = publication_gebieden_provider
         self._publication_documents_provider: PublicationDocumentsProvider = publication_documents_provider
         self._publication_aoj_repository: PublicationAOJRepository = publication_aoj_repository
         self._template_parser: TemplateParser = template_parser
@@ -52,7 +51,7 @@ class ActPublicationDataProvider:
         used_object_codes: Set[str] = self._get_used_object_codes(parsed_template)
         used_objects: List[dict] = self._get_used_objects(objects, used_object_codes)
         assets: List[dict] = self._publication_asset_provider.get_assets(session, used_objects)
-        werkingsgebieden: List[dict] = self._publication_werkingsgebieden_provider.get_werkingsgebieden(
+        gebieden_data: GebiedenData = self._publication_gebieden_provider.get_gebieden_data(
             session,
             act_frbr,
             objects,
@@ -72,7 +71,8 @@ class ActPublicationDataProvider:
             objects=used_objects,
             documents=documents,
             assets=assets,
-            werkingsgebieden=werkingsgebieden,
+            gebieden=gebieden_data.gebieden,
+            gebiedengroepen=gebieden_data.gebiedengroepen,
             bill_attachments=bill_attachments,
             area_of_jurisdiction=area_of_jurisdiction,
             parsed_template=parsed_template,

@@ -93,7 +93,8 @@ class PublicationData:
     objects: List[dict]
     documents: List[dict]
     assets: List[dict]
-    werkingsgebieden: List[dict]
+    gebieden: List[dict]
+    gebiedengroepen: List[dict]
     bill_attachments: List[Dict]
     area_of_jurisdiction: dict
     parsed_template: str
