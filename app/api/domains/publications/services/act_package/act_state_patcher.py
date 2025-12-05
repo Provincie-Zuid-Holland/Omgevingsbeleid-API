@@ -1,13 +1,13 @@
 from copy import deepcopy
-from typing import Dict, List, Optional, Set
+from typing import Dict, Optional, Set
 
 import dso.models as dso_models
 from dso.act_builder.services.ow.state.ow_state import OwState as DsoOwState
 from dso.act_builder.builder import Builder
 
 from app.api.domains.publications.services.state.versions import ActiveState
-from app.api.domains.publications.services.state.versions.v5 import models
-from app.api.domains.publications.services.state.versions.v5.actions import AddPublicationAction, AddPurposeAction
+from app.api.domains.publications.services.state.versions.v6 import models
+from app.api.domains.publications.services.state.versions.v6.actions import AddPublicationAction, AddPurposeAction
 from app.api.domains.publications.types.api_input_data import ApiActInputData, Purpose
 from app.core.tables.publications import PublicationTable, PublicationVersionTable
 
@@ -26,7 +26,8 @@ class ActStatePatcher:
         return state
 
     def _patch_publication(self, state: ActiveState) -> ActiveState:
-        werkingsgebieden: Dict[int, models.Werkingsgebied] = self._resolve_werkingsgebieden(state)
+        gebieden: Dict[str, models.Gebied] = self._resolve_gebieden(state)
+        gebiedengroepen: Dict[str, models.Gebiedengroep] = self._resolve_gebiedengroepen(state)
         documents: Dict[int, models.Document] = self._resolve_documents(state)
         wid_data = models.WidData(
             Known_Wid_Map=self._dso_builder.get_used_wid_map(),
@@ -82,7 +83,8 @@ class ActStatePatcher:
             Consolidation_Purpose=purpose,
             Document_Type=self._api_input_data.Publication_Version.Publication.Document_Type,
             Procedure_Type=self._api_input_data.Publication_Version.Publication.Procedure_Type,
-            Werkingsgebieden=werkingsgebieden,
+            Gebieden=gebieden,
+            Gebiedengroepen=gebiedengroepen,
             Documents=documents,
             Assets=assets,
             Wid_Data=wid_data,
@@ -93,12 +95,12 @@ class ActStatePatcher:
         state.handle_action(action)
         return state
 
-    def _resolve_werkingsgebieden(self, state: ActiveState) -> Dict[int, models.Werkingsgebied]:
-        werkingsgebieden: Dict[int, models.Werkingsgebied] = {}
+    def _resolve_gebieden(self, state: ActiveState) -> Dict[str, models.Gebied]:
+        gebieden: Dict[str, models.Gebied] = {}
 
-        # We only keep the send werkingsgebieden, as all other should have been withdrawn
-        for dso_werkingsgebied in self._api_input_data.Publication_Data.werkingsgebieden:
-            dso_frbr: dso_models.GioFRBR = dso_werkingsgebied["Frbr"]
+        # We only keep the send gebieden, as all other should have been withdrawn
+        for dso_gebied in self._api_input_data.Publication_Data.gebieden:
+            dso_frbr: dso_models.GioFRBR = dso_gebied["frbr"]
             frbr = models.Frbr(
                 Work_Province_ID=dso_frbr.Work_Province_ID,
                 Work_Country="",
@@ -108,29 +110,39 @@ class ActStatePatcher:
                 Expression_Date=dso_frbr.Expression_Date,
                 Expression_Version=dso_frbr.Expression_Version or 0,
             )
-            locations: List[models.Location] = [
-                models.Location(
-                    UUID=str(location["UUID"]),
-                    Identifier=location["Identifier"],
-                    Gml_ID=location["Gml_ID"],
-                    Group_ID=location["Group_ID"],
-                    Title=location["Title"],
-                )
-                for location in dso_werkingsgebied["Locaties"]
-            ]
-            werkingsgebied = models.Werkingsgebied(
-                UUID=str(dso_werkingsgebied["UUID"]),
-                Identifier=str(dso_werkingsgebied["Identifier"]),
-                Hash=dso_werkingsgebied["Hash"],
-                Object_ID=dso_werkingsgebied["Object_ID"],
-                Title=dso_werkingsgebied["Title"],
-                Owner_Act=dso_werkingsgebied["Geboorteregeling"],
-                Frbr=frbr,
-                Locations=locations,
+            gebied = models.Gebied(
+                uuid=str(dso_gebied["uuid"]),
+                identifier=dso_gebied["identfier"],
+                gml_id=dso_gebied["gml_id"],
+                title=dso_gebied["title"],
+                object_id=dso_gebied["object_id"],
+                code=dso_gebied["code"],
+                hash=dso_gebied["hash"],
+                geboorteregeling=dso_gebied["geboorteregeling"],
+                achtergrond_verwijzing=dso_gebied["achtergrond_verwijzing"],
+                achtergrond_actualiteit=dso_gebied["achtergrond_actualiteit"],
+                frbr=frbr,
             )
-            werkingsgebieden[werkingsgebied.Object_ID] = werkingsgebied
+            gebieden[gebied.code] = gebied
 
-        return werkingsgebieden
+        return gebieden
+
+    def _resolve_gebiedengroepen(self, state: ActiveState) -> Dict[str, models.Gebiedengroep]:
+        gebiedengroepen: Dict[str, models.Gebiedengroep] = {}
+
+        # We only keep the send gebiedengroepen, as all other should have been withdrawn
+        for dso_gebiedengroep in self._api_input_data.Publication_Data.gebiedengroepen:
+            gebiedengroep = models.Gebiedengroep(
+                uuid=str(dso_gebiedengroep["uuid"]),
+                identifier=dso_gebiedengroep["identfier"],
+                object_id=dso_gebiedengroep["object_id"],
+                code=dso_gebiedengroep["code"],
+                title=dso_gebiedengroep["title"],
+                gebied_codes=dso_gebiedengroep["gebied_codes"],
+            )
+            gebiedengroepen[gebiedengroep.code] = gebiedengroep
+
+        return gebiedengroepen
 
     def _resolve_documents(self, state: ActiveState) -> Dict[int, models.Document]:
         documents: Dict[int, models.Document] = {}
