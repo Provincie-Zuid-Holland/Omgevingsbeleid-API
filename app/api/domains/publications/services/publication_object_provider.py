@@ -1,8 +1,11 @@
-from typing import Any, Dict, List, Set
+from typing import Dict, List, Set
 
 from sqlalchemy.orm import Session
 
-from app.api.domains.publications.repository.publication_object_repository import PUBLICATION_BASE_FIELDS, PublicationObjectRepository
+from app.api.domains.publications.repository.publication_object_repository import (
+    PUBLICATION_BASE_FIELDS,
+    PublicationObjectRepository,
+)
 from app.core.services.object_field_mapping_provider import ObjectFieldMappingProvider
 from app.core.tables.publications import ObjectFieldMapTypeAdapter, PublicationTemplateTable, PublicationVersionTable
 

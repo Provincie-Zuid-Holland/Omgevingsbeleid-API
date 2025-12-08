@@ -1,12 +1,13 @@
 import hashlib
-import re
 import uuid
 from datetime import datetime, timezone
 from typing import List, Optional, Set
 
 from pydantic import BaseModel, Field
-from bs4 import BeautifulSoup
 
+from app.api.domains.publications.services.act_package.publication_gebiedsaanwijzing_provider import (
+    GebiedsaanwijzingData,
+)
 import dso.models as dso_models
 from sqlalchemy.orm import Session
 
@@ -15,21 +16,9 @@ from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRe
 from app.core.tables.others import AreasTable
 
 
-class GebiedsaanwijzingData(BaseModel):
-    title: str
-    target_codes: Set[str] = Field(default_factory=set)
-
-
-class GebiedsaanwijzingDataBag(BaseModel):
-    items: List[GebiedsaanwijzingData] = Field(default_factory=list)
-
-
-
-
 class GebiedenData(BaseModel):
     gebieden: List[dict] = Field(default_factory=list)
     gebiedengroepen: List[dict] = Field(default_factory=list)
-    gebiedsaanwijzingen: List[GebiedsaanwijzingData] = Field(default_factory=list)
 
 
 class PublicationGebiedenProvider:
@@ -42,19 +31,23 @@ class PublicationGebiedenProvider:
         act_frbr: ActFrbr,
         all_objects: List[dict],
         used_objects: List[dict],
+        gebiedsaanwijzingen: List[GebiedsaanwijzingData],
         all_data: bool = False,
     ) -> GebiedenData:
-        gebiedsaanwijzingen: List[GebiedsaanwijzingData] = self._extract_gebiedsaanwijzingen(used_objects)
-
-        gebiedengroep_codes: Set[str] = self._calculate_gebiedengroep_codes(used_objects)
+        gebiedengroep_codes: Set[str] = self._calculate_gebiedengroep_codes(
+            used_objects,
+            gebiedsaanwijzingen,
+        )
         used_gebiedengroep_objects: List[dict] = self._filter_gebiedengroep_objects(
             all_objects,
             gebiedengroep_codes,
             all_data,
         )
 
-        gebied_codes: Set[str] = self._extract_gebied_codes_from_groepen(used_gebiedengroep_objects)
-
+        gebied_codes: Set[str] = self._extract_gebied_codes_from_groepen(
+            used_gebiedengroep_objects,
+            gebiedsaanwijzingen,
+        )
         gebieden: List[dict] = self._get_gebieden_with_areas(
             session,
             act_frbr,
@@ -69,36 +62,18 @@ class PublicationGebiedenProvider:
             gebiedengroepen=gebiedengroepen,
         )
 
-    def _extract_gebiedsaanwijzingen(self, used_objects: List[dict]) -> List[GebiedsaanwijzingData]:
-        """
-        Extract gebiedengroep codes from HTML gebiedsaanwijzingen.
-
-        HTML pattern:
-            <a data-type="gebiedsaanwijzing" data-aanwijzing-type="water" data-aanwijzing-group="bodem" 
-                data-target-codes="gebied-1 gebiedengroep-15 gebiedengroep-1" href="#">Malieveld</a>
-        """
-
-        result: List[GebiedsaanwijzingData] = []
-        for obj in used_objects:
-            for field_name, field_value in obj.items():
-                if not isinstance(field_value, str):
-                    continue
-
-                soup = BeautifulSoup(field_value, "html.parser")
-                for aanwijzing in soup.select('a[data-type="gebiedsaanwijzing"]'):
-                    result.append()
-
-
-        return result
-
-    def _calculate_gebiedengroep_codes(self, used_objects: List[dict]) -> Set[str]:
+    def _calculate_gebiedengroep_codes(
+        self, used_objects: List[dict], gebiedsaanwijzingen: List[GebiedsaanwijzingData]
+    ) -> Set[str]:
         direct_codes: Set[str] = set(
             [o.get("Gebiedengroep_Code") for o in used_objects if o.get("Gebiedengroep_Code", None) is not None]
         )  # type: ignore
 
-        html_codes: Set[str] = self._resolve_gebiedsaanwijzingen(used_objects)
+        codes_from_gebiedsaanwijzing: Set[str] = {
+            code for gebiedsaanwijzing in gebiedsaanwijzingen for code in gebiedsaanwijzing.get_gebiedengroep_codes()
+        }
 
-        return direct_codes.union(html_codes)
+        return direct_codes.union(codes_from_gebiedsaanwijzing)
 
     def _filter_gebiedengroep_objects(
         self,
@@ -116,6 +91,7 @@ class PublicationGebiedenProvider:
     def _extract_gebied_codes_from_groepen(
         self,
         gebiedengroep_objects: List[dict],
+        gebiedsaanwijzingen: List[GebiedsaanwijzingData],
     ) -> Set[str]:
         gebied_codes: Set[str] = set()
         for groep in gebiedengroep_objects:
@@ -125,7 +101,11 @@ class PublicationGebiedenProvider:
 
             gebied_codes.update(gebieden_list)
 
-        return gebied_codes
+        codes_from_gebiedsaanwijzing: Set[str] = {
+            code for gebiedsaanwijzing in gebiedsaanwijzingen for code in gebiedsaanwijzing.get_gebieden_codes()
+        }
+
+        return gebied_codes.union(codes_from_gebiedsaanwijzing)
 
     def _get_gebieden_with_areas(
         self,

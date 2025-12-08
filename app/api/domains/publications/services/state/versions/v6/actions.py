@@ -1,14 +1,14 @@
 import uuid
 from abc import ABCMeta
 from datetime import date
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
 from app.api.domains.publications.types.api_input_data import ActFrbr
 from app.api.domains.publications.types.enums import PurposeType
 
-from .models import Asset, Document, Frbr, Purpose, Gebied, Gebiedengroep, WidData, OwState
+from .models import Asset, Document, Frbr, Purpose, Gebied, Gebiedengroep, Gebiedsaanwijzing, WidData, OwState
 
 
 class Action(BaseModel, metaclass=ABCMeta):
@@ -31,6 +31,7 @@ class AddPublicationAction(Action):
     Procedure_Type: str
     Gebieden: Dict[str, Gebied]
     Gebiedengroepen: Dict[str, Gebiedengroep]
+    Gebiedsaanwijzingen: List[Gebiedsaanwijzing]
     Documents: Dict[int, Document]
     Assets: Dict[str, Asset]
     Wid_Data: WidData

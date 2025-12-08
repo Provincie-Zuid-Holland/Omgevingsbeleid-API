@@ -32,6 +32,7 @@ class PublicationStorageFileTable(Base):
 
 ObjectFieldMapTypeAdapter = TypeAdapter(Dict[str, List[str]])
 
+
 class PublicationTemplateTable(Base, UserMetaData):
     __tablename__ = "publication_templates"
 

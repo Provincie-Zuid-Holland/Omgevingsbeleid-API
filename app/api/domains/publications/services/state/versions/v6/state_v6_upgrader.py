@@ -73,6 +73,7 @@ class StateV6Upgrader(StateUpgrader):
         act_dict: dict = old_act.model_dump()
         act_dict["Gebieden"] = self._resolve_gebieden(old_act)
         act_dict["Gebiedengroepen"] = self._resolve_gebiedengroepen(old_act)
+        act_dict["Gebiedsaanwijzingen"] = []
 
         act: models_v6.ActiveAct = models_v6.ActiveAct.model_validate(act_dict)
         return act

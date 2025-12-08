@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Dict, Optional, Set
+from typing import Dict, List, Optional, Set
 
 import dso.models as dso_models
 from dso.act_builder.services.ow.state.ow_state import OwState as DsoOwState
@@ -28,6 +28,7 @@ class ActStatePatcher:
     def _patch_publication(self, state: ActiveState) -> ActiveState:
         gebieden: Dict[str, models.Gebied] = self._resolve_gebieden(state)
         gebiedengroepen: Dict[str, models.Gebiedengroep] = self._resolve_gebiedengroepen(state)
+        gebiedsaanwijzingen: List[models.Gebiedsaanwijzing] = self._resolve_gebiedsaanwijzingen(state)
         documents: Dict[int, models.Document] = self._resolve_documents(state)
         wid_data = models.WidData(
             Known_Wid_Map=self._dso_builder.get_used_wid_map(),
@@ -85,6 +86,7 @@ class ActStatePatcher:
             Procedure_Type=self._api_input_data.Publication_Version.Publication.Procedure_Type,
             Gebieden=gebieden,
             Gebiedengroepen=gebiedengroepen,
+            Gebiedsaanwijzingen=gebiedsaanwijzingen,
             Documents=documents,
             Assets=assets,
             Wid_Data=wid_data,
@@ -126,6 +128,23 @@ class ActStatePatcher:
             gebieden[gebied.code] = gebied
 
         return gebieden
+
+    def _resolve_gebiedsaanwijzingen(self, state: ActiveState) -> List[models.Gebiedsaanwijzing]:
+        aanwijzingen: List[models.Gebiedsaanwijzing] = []
+
+        # We only keep the send gebiedsaanwijzingen, as all other should have been withdrawn from the ow state
+        for dso_aanwijzing in self._api_input_data.Publication_Data.gebiedsaanwijzingen:
+            aanwijzing = models.Gebiedsaanwijzing(
+                uuid=dso_aanwijzing.uuid,
+                ow_identifier=dso_aanwijzing.ow_identifier,
+                aanwijzing_type=dso_aanwijzing.aanwijzing_type,
+                aanwijzing_group=dso_aanwijzing.aanwijzing_group,
+                title=dso_aanwijzing.title,
+                target_codes=dso_aanwijzing.target_codes,
+            )
+            aanwijzingen.append(aanwijzing)
+
+        return aanwijzingen
 
     def _resolve_gebiedengroepen(self, state: ActiveState) -> Dict[str, models.Gebiedengroep]:
         gebiedengroepen: Dict[str, models.Gebiedengroep] = {}

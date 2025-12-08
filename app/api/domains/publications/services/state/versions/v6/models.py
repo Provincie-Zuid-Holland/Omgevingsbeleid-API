@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -61,6 +61,15 @@ class Gebiedengroep(BaseModel):
     object_id: int
     title: str
     gebied_codes: List[str] = Field(default_factory=list)
+
+
+class Gebiedsaanwijzing(BaseModel):
+    uuid: str
+    ow_identifier: str
+    aanwijzing_type: str
+    aanwijzing_group: str
+    title: str
+    target_codes: Set[str]
 
 
 class Document(BaseModel):
@@ -285,6 +294,7 @@ class ActiveAct(BaseModel):
     Procedure_Type: str
     Gebieden: Dict[str, Gebied]  # Code: Object
     Gebiedengroepen: Dict[str, Gebiedengroep]
+    Gebiedsaanwijzingen: List[Gebiedsaanwijzing]
     Documents: Dict[int, Document] = Field({})
     Assets: Dict[str, Asset]
     Wid_Data: WidData

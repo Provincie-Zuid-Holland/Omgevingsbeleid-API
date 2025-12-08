@@ -3,6 +3,9 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from app.api.domains.publications.services.act_package.publication_gebiedsaanwijzing_provider import (
+    GebiedsaanwijzingData,
+)
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.api.domains.publications.services.state.versions.v6 import models
 from app.api.domains.publications.types.api_input_data import ActFrbr, ActMutation, ApiActInputData
@@ -16,6 +19,7 @@ class PatchActMutation:
     def patch(self, session: Session, data: ApiActInputData) -> ApiActInputData:
         data = self._patch_gebieden(data)
         data = self._patch_gebiedengroepen(data)
+        data = self._patch_gebiedsaanwijzingen(data)
         data = self._patch_documents(data)
         data = self._patch_assets(session, data)
         data = self._patch_act_mutation(data)
@@ -89,6 +93,42 @@ class PatchActMutation:
         data.Publication_Data.gebiedengroepen = gebiedengroepen
 
         return data
+
+    def _patch_gebiedsaanwijzingen(self, data: ApiActInputData) -> ApiActInputData:
+        """
+        What we want to do here is use existing ow_identifiers if the data combination is already known
+        """
+        state_aanwijzingen: List[models.Gebiedsaanwijzing] = self._active_act.Gebiedsaanwijzingen
+
+        aanwijzingen: List[GebiedsaanwijzingData] = data.Publication_Data.gebiedsaanwijzingen
+        for index, aanwijzing in enumerate(aanwijzingen):
+            # Here we try to find a match from the state
+            state_aanwijzing: Optional[models.Gebiedsaanwijzing] = self._find_matching_gebiedsaanwijzing(
+                state_aanwijzingen,
+                aanwijzing,
+            )
+            if state_aanwijzing is not None:
+                aanwijzingen[index].ow_identifier = state_aanwijzing.ow_identifier
+                continue
+
+        data.Publication_Data.gebiedsaanwijzingen = aanwijzingen
+
+        return data
+
+    def _find_matching_gebiedsaanwijzing(
+        self, state_aanwijzingen: List[models.Gebiedsaanwijzing], aanwijzingen: GebiedsaanwijzingData
+    ) -> Optional[models.Gebiedsaanwijzing]:
+        for state_aanwijzing in state_aanwijzingen:
+            if all(
+                [
+                    aanwijzingen.aanwijzing_type == state_aanwijzing.aanwijzing_type,
+                    aanwijzingen.aanwijzing_group == state_aanwijzing.aanwijzing_group,
+                    aanwijzingen.title == state_aanwijzing.title,
+                    aanwijzingen.target_codes == state_aanwijzing.target_codes,
+                ]
+            ):
+                return state_aanwijzing
+        return None
 
     def _patch_documents(self, data: ApiActInputData) -> ApiActInputData:
         state_documents: Dict[int, models.Document] = self._active_act.Documents

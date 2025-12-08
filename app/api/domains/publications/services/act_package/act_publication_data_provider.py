@@ -5,6 +5,10 @@ from app.api.domains.publications.services.act_package.publication_gebieden_prov
     GebiedenData,
     PublicationGebiedenProvider,
 )
+from app.api.domains.publications.services.act_package.publication_gebiedsaanwijzing_provider import (
+    GebiedsaanwijzingData,
+    PublicationGebiedsaanwijzingProvider,
+)
 import dso.models as dso_models
 from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
@@ -23,6 +27,7 @@ class ActPublicationDataProvider:
         self,
         publication_object_provider: PublicationObjectProvider,
         publication_asset_provider: PublicationAssetProvider,
+        publication_gebiedsaanwijzingen_provider: PublicationGebiedsaanwijzingProvider,
         publication_gebieden_provider: PublicationGebiedenProvider,
         publication_documents_provider: PublicationDocumentsProvider,
         publication_aoj_repository: PublicationAOJRepository,
@@ -30,6 +35,9 @@ class ActPublicationDataProvider:
     ):
         self._publication_object_provider: PublicationObjectProvider = publication_object_provider
         self._publication_asset_provider: PublicationAssetProvider = publication_asset_provider
+        self._publication_gebiedsaanwijzingen_provider: PublicationGebiedsaanwijzingProvider = (
+            publication_gebiedsaanwijzingen_provider
+        )
         self._publication_gebieden_provider: PublicationGebiedenProvider = publication_gebieden_provider
         self._publication_documents_provider: PublicationDocumentsProvider = publication_documents_provider
         self._publication_aoj_repository: PublicationAOJRepository = publication_aoj_repository
@@ -51,11 +59,16 @@ class ActPublicationDataProvider:
         used_object_codes: Set[str] = self._get_used_object_codes(parsed_template)
         used_objects: List[dict] = self._get_used_objects(objects, used_object_codes)
         assets: List[dict] = self._publication_asset_provider.get_assets(session, used_objects)
+        gebiedsaanwijzingen: List[GebiedsaanwijzingData] = []
+        used_objects, gebiedsaanwijzingen = self._publication_gebiedsaanwijzingen_provider.get_gebiedsaanwijzingen(
+            used_objects,
+        )
         gebieden_data: GebiedenData = self._publication_gebieden_provider.get_gebieden_data(
             session,
             act_frbr,
             objects,
             used_objects,
+            gebiedsaanwijzingen,
             all_data,
         )
         documents: List[dict] = self._publication_documents_provider.get_documents(
@@ -73,6 +86,7 @@ class ActPublicationDataProvider:
             assets=assets,
             gebieden=gebieden_data.gebieden,
             gebiedengroepen=gebieden_data.gebiedengroepen,
+            gebiedsaanwijzingen=gebiedsaanwijzingen,
             bill_attachments=bill_attachments,
             area_of_jurisdiction=area_of_jurisdiction,
             parsed_template=parsed_template,
