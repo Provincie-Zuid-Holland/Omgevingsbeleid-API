@@ -82,7 +82,7 @@ class ActPublicationDataProvider:
     def _get_used_object_codes(self, text_template: str) -> Set[str]:
         soup = BeautifulSoup(text_template, "html.parser")
         objects = soup.find_all("object")
-        codes: List[str] = [obj.get("code") for obj in objects if obj.get("code")]
+        codes: List[str] = [obj("code") for obj in objects if obj.get("code")]
         result: Set[str] = set(codes)
         return result
 

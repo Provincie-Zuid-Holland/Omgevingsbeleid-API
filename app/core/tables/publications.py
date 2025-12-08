@@ -1,7 +1,8 @@
 import uuid
 from datetime import date, datetime
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
+from pydantic import TypeAdapter
 from sqlalchemy import Column, Date, DateTime, ForeignKey, LargeBinary, String, Unicode, UnicodeText, UniqueConstraint
 from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 from sqlalchemy.types import JSON, Integer
@@ -29,6 +30,8 @@ class PublicationStorageFileTable(Base):
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
+ObjectFieldMapTypeAdapter = TypeAdapter(Dict[str, List[str]])
+
 class PublicationTemplateTable(Base, UserMetaData):
     __tablename__ = "publication_templates"
 
@@ -41,7 +44,8 @@ class PublicationTemplateTable(Base, UserMetaData):
     Object_Types: Mapped[Any] = mapped_column(JSON, nullable=False)
     Text_Template: Mapped[str] = mapped_column(Unicode, nullable=False)
     Object_Templates: Mapped[Any] = mapped_column(JSON, nullable=False)
-    Field_Map: Mapped[Any] = mapped_column(JSON, nullable=False)
+    Field_Map: Mapped[Any] = mapped_column(JSON, nullable=True)
+    Object_Field_Map: Mapped[Any] = mapped_column(JSON, nullable=False)
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]

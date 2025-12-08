@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import List, Optional, Set
 
 from pydantic import BaseModel, Field
+from bs4 import BeautifulSoup
 
 import dso.models as dso_models
 from sqlalchemy.orm import Session
@@ -14,9 +15,21 @@ from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRe
 from app.core.tables.others import AreasTable
 
 
+class GebiedsaanwijzingData(BaseModel):
+    title: str
+    target_codes: Set[str] = Field(default_factory=set)
+
+
+class GebiedsaanwijzingDataBag(BaseModel):
+    items: List[GebiedsaanwijzingData] = Field(default_factory=list)
+
+
+
+
 class GebiedenData(BaseModel):
     gebieden: List[dict] = Field(default_factory=list)
     gebiedengroepen: List[dict] = Field(default_factory=list)
+    gebiedsaanwijzingen: List[GebiedsaanwijzingData] = Field(default_factory=list)
 
 
 class PublicationGebiedenProvider:
@@ -31,6 +44,8 @@ class PublicationGebiedenProvider:
         used_objects: List[dict],
         all_data: bool = False,
     ) -> GebiedenData:
+        gebiedsaanwijzingen: List[GebiedsaanwijzingData] = self._extract_gebiedsaanwijzingen(used_objects)
+
         gebiedengroep_codes: Set[str] = self._calculate_gebiedengroep_codes(used_objects)
         used_gebiedengroep_objects: List[dict] = self._filter_gebiedengroep_objects(
             all_objects,
@@ -39,7 +54,6 @@ class PublicationGebiedenProvider:
         )
 
         gebied_codes: Set[str] = self._extract_gebied_codes_from_groepen(used_gebiedengroep_objects)
-        # @todo: Here we should also resolve gebiedsaanwijzingen for `gebied`!
 
         gebieden: List[dict] = self._get_gebieden_with_areas(
             session,
@@ -55,6 +69,28 @@ class PublicationGebiedenProvider:
             gebiedengroepen=gebiedengroepen,
         )
 
+    def _extract_gebiedsaanwijzingen(self, used_objects: List[dict]) -> List[GebiedsaanwijzingData]:
+        """
+        Extract gebiedengroep codes from HTML gebiedsaanwijzingen.
+
+        HTML pattern:
+            <a data-type="gebiedsaanwijzing" data-aanwijzing-type="water" data-aanwijzing-group="bodem" 
+                data-target-codes="gebied-1 gebiedengroep-15 gebiedengroep-1" href="#">Malieveld</a>
+        """
+
+        result: List[GebiedsaanwijzingData] = []
+        for obj in used_objects:
+            for field_name, field_value in obj.items():
+                if not isinstance(field_value, str):
+                    continue
+
+                soup = BeautifulSoup(field_value, "html.parser")
+                for aanwijzing in soup.select('a[data-type="gebiedsaanwijzing"]'):
+                    result.append()
+
+
+        return result
+
     def _calculate_gebiedengroep_codes(self, used_objects: List[dict]) -> Set[str]:
         direct_codes: Set[str] = set(
             [o.get("Gebiedengroep_Code") for o in used_objects if o.get("Gebiedengroep_Code", None) is not None]
@@ -63,39 +99,6 @@ class PublicationGebiedenProvider:
         html_codes: Set[str] = self._resolve_gebiedsaanwijzingen(used_objects)
 
         return direct_codes.union(html_codes)
-
-    def _resolve_gebiedsaanwijzingen(self, used_objects: List[dict]) -> Set[str]:
-        """
-        Extract gebiedengroep codes from HTML gebiedsaanwijzingen.
-
-        HTML pattern:
-            <a data-type="gebiedsaanwijzing" data-aanwijzing-type="water"
-                data-aanwijzing-group="bodem" href="#"
-                data-target-code="gebiedengroep-15" data-target-type="gebiedengroep">Malieveld</a>
-
-        @TODO: This implementation looks at ALL fields and objects, but this is wrong.
-        For example in Programma objects, it also scans Beleidskeuze references but
-        doesn't use their text. So when a Beleidskeuze.Description has a
-        gebiedsaanwijzing, it will be resolved but not actually used.
-        This should be updated to only check fields from types that are actually
-        used in the template output.
-        """
-
-        # @TODO: this implementation is incorrect, it should probably just parse the html
-        # and then filter all a tags which has `data-target-type="gebiedengroep"`
-        # And of those, get all the values in data-target-code
-        values: Set[str] = set()
-        pattern = r'<a[^>]*data-target-code="(.*?)"[^>]*>'
-
-        for obj in used_objects:
-            for _, value in obj.items():
-                if not isinstance(value, str):
-                    continue
-
-                matches = re.findall(pattern, value)
-                values.update(matches)
-
-        return values
 
     def _filter_gebiedengroep_objects(
         self,
@@ -107,7 +110,6 @@ class PublicationGebiedenProvider:
 
         if all_data:
             return groep_objects
-
         # Otherwise, filter to only used codes
         return [g for g in groep_objects if g["Code"] in used_codes]
 
