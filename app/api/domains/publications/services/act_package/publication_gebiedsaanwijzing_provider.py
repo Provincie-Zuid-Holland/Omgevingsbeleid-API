@@ -47,12 +47,12 @@ class PublicationGebiedsaanwijzingProcessor:
         Extract gebiedengroep codes from HTML gebiedsaanwijzingen.
 
         HTML pattern:
-            <a data-type="gebiedsaanwijzing" data-aanwijzing-type="water" data-aanwijzing-group="bodem"
+            <a data-hint-type="gebiedsaanwijzing" data-aanwijzing-type="water" data-aanwijzing-group="bodem"
                 data-target-codes="gebied-1 gebiedengroep-15 gebiedengroep-1" href="#">Malieveld</a>
         """
 
         soup = BeautifulSoup(html, "html.parser")
-        for aanwijzing_html in soup.select('a[data-type="gebiedsaanwijzing"]'):
+        for aanwijzing_html in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
             aanwijzing_type: str = str(aanwijzing_html.get("data-aanwijzing-type", ""))
             aanwijzing_group: str = str(aanwijzing_html.get("data-aanwijzing-group", ""))
             aanwijzing_target_codes: Set[str] = set(str(aanwijzing_html.get("data-target_codes", "")).split(" "))
