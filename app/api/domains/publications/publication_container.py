@@ -62,10 +62,6 @@ class PublicationContainer(containers.DeclarativeContainer):
         act_package_services.PublicationDocumentsProvider,
         file_repostiory=storage_file_repository,
     )
-    werkingsgebieden_provider = providers.Singleton(
-        act_package_services.PublicationWerkingsgebiedenProvider,
-        area_repository=area_repository,
-    )
 
     publication_object_provider = providers.Factory(
         services.PublicationObjectProvider,
@@ -97,11 +93,22 @@ class PublicationContainer(containers.DeclarativeContainer):
         ow_dataset=config.PUBLICATION_OW_DATASET,
         ow_gebied=config.PUBLICATION_OW_GEBIED,
     )
+    publication_gebieden_provider = providers.Factory(
+        act_package_services.PublicationGebiedenProvider,
+    )
+    publication_gebiedsaanwijzingen_provider = providers.Factory(
+        act_package_services.PublicationGebiedsaanwijzingProvider,
+    )
+    publication_geogios_provider_factory = providers.Factory(
+        act_package_services.PublicationGeoGiosProviderFactory,
+    )
     act_publication_data_provider = providers.Factory(
         act_package_services.ActPublicationDataProvider,
         publication_object_provider=publication_object_provider,
         publication_asset_provider=publication_asset_provider,
-        publication_werkingsgebieden_provider=werkingsgebieden_provider,
+        publication_gebiedsaanwijzingen_provider=publication_gebiedsaanwijzingen_provider,
+        publication_gebieden_provider=publication_gebieden_provider,
+        publication_geogios_provider=publication_geogios_provider_factory,
         publication_documents_provider=documents_provider,
         publication_aoj_repository=aoj_repository,
         template_parser=template_parser,
@@ -115,6 +122,7 @@ class PublicationContainer(containers.DeclarativeContainer):
             state_versions.StateV3,
             state_versions.StateV4,
             state_versions.StateV5,
+            state_versions.StateV6,
         ],
         upgraders=providers.List(
             providers.Factory(
@@ -126,6 +134,7 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Factory(state_versions.StateV3Upgrader),
             providers.Factory(state_versions.StateV4Upgrader),
             providers.Factory(state_versions.StateV5Upgrader),
+            providers.Factory(state_versions.StateV6Upgrader),
         ),
     )
     state_loader = providers.Singleton(

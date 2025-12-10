@@ -2,6 +2,9 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Dict, List, Optional
 
+from app.api.domains.publications.services.act_package.publication_gebiedsaanwijzing_provider import (
+    GebiedsaanwijzingData,
+)
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType, PurposeType
 from app.api.domains.publications.types.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
 from app.core.tables.publications import PublicationAnnouncementTable, PublicationVersionTable
@@ -93,7 +96,9 @@ class PublicationData:
     objects: List[dict]
     documents: List[dict]
     assets: List[dict]
-    werkingsgebieden: List[dict]
+    gebieden: List[dict]
+    gebiedengroepen: List[dict]
+    gebiedsaanwijzingen: List[GebiedsaanwijzingData]
     bill_attachments: List[Dict]
     area_of_jurisdiction: dict
     parsed_template: str
@@ -105,7 +110,7 @@ class ActMutation:
     Consolidated_Act_Text: str
     Known_Wid_Map: Dict[str, str]
     Known_Wids: List[str]
-    Removed_Werkingsgebieden: List[dict]
+    Removed_Gebieden: List[dict]
 
 
 @dataclass

@@ -3,8 +3,11 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from app.api.domains.publications.services.act_package.publication_gebiedsaanwijzing_provider import (
+    GebiedsaanwijzingData,
+)
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
-from app.api.domains.publications.services.state.versions.v5 import models
+from app.api.domains.publications.services.state.versions.v6 import models
 from app.api.domains.publications.types.api_input_data import ActFrbr, ActMutation, ApiActInputData
 
 
@@ -14,85 +17,119 @@ class PatchActMutation:
         self._active_act: models.ActiveAct = active_act
 
     def patch(self, session: Session, data: ApiActInputData) -> ApiActInputData:
-        data = self._patch_werkingsgebieden(data)
+        data = self._patch_geogios(data)
+        data = self._patch_gebieden(data)
+        data = self._patch_gebiedengroepen(data)
+        data = self._patch_gebiedsaanwijzingen(data)
         data = self._patch_documents(data)
         data = self._patch_assets(session, data)
         data = self._patch_act_mutation(data)
         data = self._patch_ow_state(data)
         return data
 
-    def _patch_werkingsgebieden(self, data: ApiActInputData) -> ApiActInputData:
-        state_werkingsgebieden: Dict[int, models.Werkingsgebied] = self._active_act.Werkingsgebieden
+    def _patch_gebieden(self, data: ApiActInputData) -> ApiActInputData:
+        state_gebieden: Dict[str, models.Gebied] = self._active_act.Gebieden
 
-        werkingsgebieden: List[dict] = data.Publication_Data.werkingsgebieden
-        for index, werkingsgebied in enumerate(werkingsgebieden):
-            object_id: int = werkingsgebied["Object_ID"]
-            existing_werkingsgebied: Optional[models.Werkingsgebied] = state_werkingsgebieden.get(object_id)
-            if existing_werkingsgebied is None:
+        gebieden: List[dict] = data.Publication_Data.gebieden
+        for index, gebied in enumerate(gebieden):
+            object_code: str = gebied["code"]
+            existing_gebied: Optional[models.Gebied] = state_gebieden.get(object_code)
+            if existing_gebied is None:
                 continue
 
-            # If the Hash are the same, then we use the state data
-            # and define the werkingsgebied as not new
-            #
-            # @note:
-            # This is a bit of an unfortunate situation because the Location is not
-            #   stored in our database yet. So we dont have a fixed UUID for it.
-            #   Something that will get fixed when we introduce "Onderverdelingen"
-            # Until we have to deal with that we dont have a unique key to lookup the old state
-            # And we need to be certain because the used (in the state) Identifier is used for OW
-            # So we need to reuse that Identifier (and probably all other UUID's)
-            #
-            # Luckily we only support 1 Location (which is het Werkingsgebied himself)
-            # So we could just blindly pick the Location from the state
-            # (As by the time you get there, we already confirmed that the Gml did not change)
-            #
-            # To make this a bit more future proof we test for the lenght of Locations first
-            #   if the location length changed then we will force this as a new version
-            # These checks are handled in _werkingsgebied_is_same
-            if self._werkingsgebied_is_same(existing_werkingsgebied, werkingsgebied):
-                werkingsgebieden[index]["New"] = False
-                werkingsgebieden[index]["UUID"] = existing_werkingsgebied.UUID
-                werkingsgebieden[index]["Identifier"] = existing_werkingsgebied.Identifier
-                werkingsgebieden[index]["Geboorteregeling"] = existing_werkingsgebied.Owner_Act
-
-                # Pick the ids from the locations
-                # @see note above
-                if len(existing_werkingsgebied.Locations) != 1:
-                    raise RuntimeError("Merging werkingsgebieden.Locations is not implemented yet")
-                werkingsgebieden[index]["Locaties"][0]["UUID"] = existing_werkingsgebied.Locations[0].UUID
-                werkingsgebieden[index]["Locaties"][0]["Identifier"] = existing_werkingsgebied.Locations[0].Identifier
-                werkingsgebieden[index]["Locaties"][0]["Gml_ID"] = existing_werkingsgebied.Locations[0].Gml_ID
-                werkingsgebieden[index]["Locaties"][0]["Group_ID"] = existing_werkingsgebied.Locations[0].Group_ID
+            # If gebied is the same, then we use the state data
+            # and define the gebied as not new
+            if self._gebied_is_same(existing_gebied, gebied):
+                gebieden[index]["new"] = False
+                gebieden[index]["uuid"] = existing_gebied.uuid
+                gebieden[index]["identifier"] = existing_gebied.identifier
+                gebieden[index]["geboorteregeling"] = existing_gebied.geboorteregeling
+                gebieden[index]["achtergrond_verwijzing"] = existing_gebied.achtergrond_verwijzing
+                gebieden[index]["achtergrond_actualiteit"] = existing_gebied.achtergrond_actualiteit
+                gebieden[index]["gml_id"] = existing_gebied.gml_id
 
                 # Keep the same FRBR
-                werkingsgebieden[index]["Frbr"].Work_Province_ID = existing_werkingsgebied.Frbr.Work_Province_ID
-                werkingsgebieden[index]["Frbr"].Work_Date = existing_werkingsgebied.Frbr.Work_Date
-                werkingsgebieden[index]["Frbr"].Work_Other = existing_werkingsgebied.Frbr.Work_Other
-                werkingsgebieden[index]["Frbr"].Expression_Language = existing_werkingsgebied.Frbr.Expression_Language
-                werkingsgebieden[index]["Frbr"].Expression_Date = existing_werkingsgebied.Frbr.Expression_Date
-                werkingsgebieden[index]["Frbr"].Expression_Version = existing_werkingsgebied.Frbr.Expression_Version
+                gebieden[index]["frbr"].Work_Province_ID = existing_gebied.frbr.Work_Province_ID
+                gebieden[index]["frbr"].Work_Date = existing_gebied.frbr.Work_Date
+                gebieden[index]["frbr"].Work_Other = existing_gebied.frbr.Work_Other
+                gebieden[index]["frbr"].Expression_Language = existing_gebied.frbr.Expression_Language
+                gebieden[index]["frbr"].Expression_Date = existing_gebied.frbr.Expression_Date
+                gebieden[index]["frbr"].Expression_Version = existing_gebied.frbr.Expression_Version
             else:
                 # If the hash are different that we will publish this as a new version
-                werkingsgebieden[index]["New"] = True
-                werkingsgebieden[index]["Geboorteregeling"] = existing_werkingsgebied.Owner_Act
+                gebieden[index]["new"] = True
+                gebieden[index]["geboorteregeling"] = existing_gebied.geboorteregeling
                 # Keep the same FRBR Work, but new expression
-                werkingsgebieden[index]["Frbr"].Work_Province_ID = existing_werkingsgebied.Frbr.Work_Province_ID
-                werkingsgebieden[index]["Frbr"].Work_Date = existing_werkingsgebied.Frbr.Work_Date
-                werkingsgebieden[index]["Frbr"].Work_Other = existing_werkingsgebied.Frbr.Work_Other
-                werkingsgebieden[index]["Frbr"].Expression_Version = existing_werkingsgebied.Frbr.Expression_Version + 1
+                gebieden[index]["frbr"].Work_Province_ID = existing_gebied.frbr.Work_Province_ID
+                gebieden[index]["frbr"].Work_Date = existing_gebied.frbr.Work_Date
+                gebieden[index]["frbr"].Work_Other = existing_gebied.frbr.Work_Other
+                gebieden[index]["frbr"].Expression_Version = existing_gebied.frbr.Expression_Version + 1
 
-        data.Publication_Data.werkingsgebieden = werkingsgebieden
+        data.Publication_Data.gebieden = gebieden
 
         return data
 
-    def _werkingsgebied_is_same(self, existing: models.Werkingsgebied, werkingsgebied: dict) -> bool:
+    def _gebied_is_same(self, existing: models.Gebied, gebied: dict) -> bool:
         if not existing.is_still_valid():
             return False
 
-        if len(existing.Locations) != len(werkingsgebied["Locaties"]):
-            return False
+        return str(gebied["hash"]) == existing.hash
 
-        return str(werkingsgebied["Hash"]) == existing.Hash
+    def _patch_gebiedengroepen(self, data: ApiActInputData) -> ApiActInputData:
+        """
+        These needs to be patched to reuse the `identifier` as that the the OW Identifier
+        """
+        state_gebiedengroepen: Dict[str, models.Gebiedengroep] = self._active_act.Gebiedengroepen
+
+        gebiedengroepen: List[dict] = data.Publication_Data.gebiedengroepen
+        for index, gebiedengroep in enumerate(gebiedengroepen):
+            object_code: str = gebiedengroep["code"]
+            existing_gebiedengroep: Optional[models.Gebiedengroep] = state_gebiedengroepen.get(object_code)
+            if existing_gebiedengroep is None:
+                continue
+
+            if self._gebiedengroep_is_same(existing_gebiedengroep, gebiedengroep):
+                gebiedengroepen[index]["identifier"] = existing_gebiedengroep.identifier
+
+        data.Publication_Data.gebiedengroepen = gebiedengroepen
+
+        return data
+
+    def _patch_gebiedsaanwijzingen(self, data: ApiActInputData) -> ApiActInputData:
+        """
+        What we want to do here is use existing ow_identifiers if the data combination is already known
+        """
+        state_aanwijzingen: List[models.Gebiedsaanwijzing] = self._active_act.Gebiedsaanwijzingen
+
+        aanwijzingen: List[GebiedsaanwijzingData] = data.Publication_Data.gebiedsaanwijzingen
+        for index, aanwijzing in enumerate(aanwijzingen):
+            # Here we try to find a match from the state
+            state_aanwijzing: Optional[models.Gebiedsaanwijzing] = self._find_matching_gebiedsaanwijzing(
+                state_aanwijzingen,
+                aanwijzing,
+            )
+            if state_aanwijzing is not None:
+                aanwijzingen[index].ow_identifier = state_aanwijzing.ow_identifier
+                continue
+
+        data.Publication_Data.gebiedsaanwijzingen = aanwijzingen
+
+        return data
+
+    def _find_matching_gebiedsaanwijzing(
+        self, state_aanwijzingen: List[models.Gebiedsaanwijzing], aanwijzingen: GebiedsaanwijzingData
+    ) -> Optional[models.Gebiedsaanwijzing]:
+        for state_aanwijzing in state_aanwijzingen:
+            if all(
+                [
+                    aanwijzingen.aanwijzing_type == state_aanwijzing.aanwijzing_type,
+                    aanwijzingen.aanwijzing_group == state_aanwijzing.aanwijzing_group,
+                    aanwijzingen.title == state_aanwijzing.title,
+                    aanwijzingen.target_codes == state_aanwijzing.target_codes,
+                ]
+            ):
+                return state_aanwijzing
+        return None
 
     def _patch_documents(self, data: ApiActInputData) -> ApiActInputData:
         state_documents: Dict[int, models.Document] = self._active_act.Documents
@@ -130,6 +167,9 @@ class PatchActMutation:
         data.Publication_Data.documents = documents
 
         return data
+
+    def _gebiedengroep_is_same(self, existing: models.Gebiedengroep, gebiedengroep: dict) -> bool:
+        return gebiedengroep["code"] == existing.code
 
     def _patch_assets(self, session: Session, data: ApiActInputData) -> ApiActInputData:
         state_assets: Dict[str, models.Asset] = self._active_act.Assets
@@ -183,9 +223,31 @@ class PatchActMutation:
             Consolidated_Act_Text=self._active_act.Act_Text,
             Known_Wid_Map=self._active_act.Wid_Data.Known_Wid_Map,
             Known_Wids=self._active_act.Wid_Data.Known_Wids,
-            Removed_Werkingsgebieden=self._get_removed_werkingsgebieden(data),
+            Removed_Gebieden=self._get_removed_gebieden(data),
         )
         return data
+
+    def _get_removed_gebieden(self, data: ApiActInputData) -> List[dict]:
+        used_gebieden_codes: Set[str] = set([w["code"] for w in data.Publication_Data.gebieden])
+
+        state_gebieden: Dict[str, models.Gebied] = self._active_act.Gebieden
+        removed_gebiedenen: List[dict] = []
+
+        for gebied_code, state_gebied in state_gebieden.items():
+            if gebied_code in used_gebieden_codes:
+                continue
+
+            removed_gebied: dict = {
+                "uuid": state_gebied.uuid,
+                "code": state_gebied.code,
+                "object_id": state_gebied.object_id,
+                "geboorteregeling": state_gebied.geboorteregeling,
+                "titel": state_gebied.title,
+                "frbr": state_gebied.frbr.model_dump(),
+            }
+            removed_gebiedenen.append(removed_gebied)
+
+        return removed_gebiedenen
 
     def _patch_ow_state(self, data: ApiActInputData) -> ApiActInputData:
         data.Ow_State = self._active_act.Ow_State.model_dump_json()
