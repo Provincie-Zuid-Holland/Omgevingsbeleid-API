@@ -17,6 +17,7 @@ class PatchActMutation:
         self._active_act: models.ActiveAct = active_act
 
     def patch(self, session: Session, data: ApiActInputData) -> ApiActInputData:
+        data = self._patch_geogios(data)
         data = self._patch_gebieden(data)
         data = self._patch_gebiedengroepen(data)
         data = self._patch_gebiedsaanwijzingen(data)

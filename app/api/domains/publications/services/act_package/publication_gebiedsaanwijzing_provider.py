@@ -1,32 +1,32 @@
+from datetime import datetime, timezone
 from uuid import uuid4
-from typing import List, Set, Tuple
+from typing import Dict, List, Set, Tuple
 
 from pydantic import BaseModel, Field
 from bs4 import BeautifulSoup
 
 
 class GebiedsaanwijzingData(BaseModel):
-    uuid: str
-    # `ow_identifier` This is used for the OW registration
-    # And this is deliberately another UUID
-    # So we might store these objects as the UUID in our database at some point
-    # And not have conflicts that we cant change the `ow_identifier`
-    # All in all its way saver to store them separately
-    ow_identifier: str
+    text_uuid: str # Used in the html so we can find this config later
     aanwijzing_type: str
     aanwijzing_group: str
     title: str
-    target_codes: Set[str] = Field(default_factory=set)
-
-    def get_gebiedengroep_codes(self) -> Set[str]:
-        return {code for code in self.target_codes if code.startswith("gebiedengroep-")}
-
-    def get_gebieden_codes(self) -> Set[str]:
-        return {code for code in self.target_codes if code.startswith("gebied-")}
+    gebied_codes: Set[str]
+    source_target_codes: Set[str]
+    # This is used in the GIO as for `achtergrond_actualiteit`
+    # We dont really know this so we just make it now
+    modified_date: datetime
 
 
 class PublicationGebiedsaanwijzingProcessor:
-    def __init__(self):
+    def __init__(self, all_objects: List[dict]):
+        # Used to convert gebiedengroep-x to its used gebied-x list
+        self._gebiedengroep_map: Dict[str, Set[str]] = {
+            obj["Code"]: set(obj["Gebieden"])
+            for obj in all_objects
+            if obj.get("Object_Type") == "gebiedengroep"
+            and isinstance(obj.get("Gebieden"), list)
+        }
         self._gebiedsaanwijzingen: List[GebiedsaanwijzingData] = []
 
     def process(self, used_objects: List[dict]) -> Tuple[List[dict], List[GebiedsaanwijzingData]]:
@@ -55,16 +55,37 @@ class PublicationGebiedsaanwijzingProcessor:
         for aanwijzing_html in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
             aanwijzing_type: str = str(aanwijzing_html.get("data-aanwijzing-type", ""))
             aanwijzing_group: str = str(aanwijzing_html.get("data-aanwijzing-group", ""))
-            aanwijzing_target_codes: Set[str] = set(str(aanwijzing_html.get("data-target_codes", "")).split(" "))
             aanwijzing_title: str = aanwijzing_html.get_text(strip=True)
+
+            data_target_codes: Set[str] = set(str(aanwijzing_html.get("data-target_codes", "")).split(" "))
+            # We need to convert gebiedengroep-x to [gebied-x, gebied-y, ...]
+            # As we can not really do anything with a gebiedengroep.
+            # An gebiedengroep code does not tell me if the gebieden inside has changed (like the count of them)
+            aanwijzing_gebied_codes: Set[str] = set()
+            for target_code in data_target_codes:
+                if target_code.startswith("gebiedengroep-"):
+                    if target_code not in self._gebiedengroep_map:
+                        raise RuntimeError(f"Targetted gebiedengroep `{target_code}` does not exist")
+                    gebied_codes: Set[str] = self._gebiedengroep_map[target_code]
+                    if len(gebied_codes) == 0:
+                        raise RuntimeError(f"Used gebiedengroep `{target_code}` has no Gebieden")
+                    aanwijzing_gebied_codes = aanwijzing_gebied_codes.union(gebied_codes)
+                elif target_code.startswith("gebied-"):
+                    aanwijzing_gebied_codes.add(target_code)
+                else:
+                    raise RuntimeError(f"Using invalid object in Gebiedengroep.Gebieden")
 
             aanwijzing_data: GebiedsaanwijzingData = self._resolve_data(
                 aanwijzing_type,
                 aanwijzing_group,
-                aanwijzing_target_codes,
+                aanwijzing_gebied_codes,
                 aanwijzing_title,
+                data_target_codes,
             )
-            aanwijzing_html["data-gebiedsaanwijzing-uuid"] = str(aanwijzing_data.uuid)
+            aanwijzing_html["data-hint-uuid"] = str(aanwijzing_data.text_uuid)
+            del aanwijzing_html["data-aanwijzing-type"]
+            del aanwijzing_html["data-aanwijzing-group"]
+            del aanwijzing_html["data-target-codes"]
 
         return str(soup)
 
@@ -72,8 +93,9 @@ class PublicationGebiedsaanwijzingProcessor:
         self,
         aanwijzing_type: str,
         aanwijzing_group: str,
-        aanwijzing_target_codes: Set[str],
+        aanwijzing_gebied_codes: Set[str],
         aanwijzing_title: str,
+        source_target_codes: Set[str],
     ) -> GebiedsaanwijzingData:
         # Reuse if we already have a Gebiedsaanwijzing with the same data
         for aanwijzing in self._gebiedsaanwijzingen:
@@ -81,19 +103,20 @@ class PublicationGebiedsaanwijzingProcessor:
                 [
                     aanwijzing.aanwijzing_type == aanwijzing_type,
                     aanwijzing.aanwijzing_group == aanwijzing_group,
-                    aanwijzing.target_codes == aanwijzing_target_codes,
+                    aanwijzing.gebied_codes == aanwijzing_gebied_codes,
                     aanwijzing.title == aanwijzing_title,
                 ]
             ):
                 return aanwijzing
 
         aanwijzing = GebiedsaanwijzingData(
-            uuid=str(uuid4()),
-            ow_identifier=str(uuid4()),
+            text_uuid=str(uuid4()),
             aanwijzing_type=aanwijzing_type,
             aanwijzing_group=aanwijzing_group,
             title=aanwijzing_title,
-            target_codes=aanwijzing_target_codes,
+            gebied_codes=aanwijzing_gebied_codes,
+            source_target_codes=source_target_codes,
+            modified_date=datetime.now(timezone.utc),
         )
         self._gebiedsaanwijzingen.append(aanwijzing)
         return aanwijzing
@@ -102,7 +125,8 @@ class PublicationGebiedsaanwijzingProcessor:
 class PublicationGebiedsaanwijzingProvider:
     def get_gebiedsaanwijzingen(
         self,
+        all_objects: List[dict],
         used_objects: List[dict],
     ) -> Tuple[List[dict], List[GebiedsaanwijzingData]]:
-        processor: PublicationGebiedsaanwijzingProcessor = PublicationGebiedsaanwijzingProcessor()
+        processor: PublicationGebiedsaanwijzingProcessor = PublicationGebiedsaanwijzingProcessor(all_objects)
         return processor.process(used_objects)

@@ -9,6 +9,7 @@ from app.api.domains.publications.services.act_package.publication_gebiedsaanwij
     GebiedsaanwijzingData,
     PublicationGebiedsaanwijzingProvider,
 )
+from app.api.domains.publications.services.act_package.publication_geogios_provider import PublicationGeoData, PublicationGeoGiosProviderFactory
 import dso.models as dso_models
 from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
@@ -29,16 +30,19 @@ class ActPublicationDataProvider:
         publication_asset_provider: PublicationAssetProvider,
         publication_gebiedsaanwijzingen_provider: PublicationGebiedsaanwijzingProvider,
         publication_gebieden_provider: PublicationGebiedenProvider,
+        publication_geogios_provider: PublicationGeoGiosProviderFactory,
         publication_documents_provider: PublicationDocumentsProvider,
         publication_aoj_repository: PublicationAOJRepository,
         template_parser: TemplateParser,
     ):
         self._publication_object_provider: PublicationObjectProvider = publication_object_provider
         self._publication_asset_provider: PublicationAssetProvider = publication_asset_provider
+        self._publication_asset_provider: PublicationAssetProvider = publication_asset_provider
         self._publication_gebiedsaanwijzingen_provider: PublicationGebiedsaanwijzingProvider = (
             publication_gebiedsaanwijzingen_provider
         )
         self._publication_gebieden_provider: PublicationGebiedenProvider = publication_gebieden_provider
+        self._publication_geogios_provider: PublicationGeoGiosProviderFactory = publication_geogios_provider
         self._publication_documents_provider: PublicationDocumentsProvider = publication_documents_provider
         self._publication_aoj_repository: PublicationAOJRepository = publication_aoj_repository
         self._template_parser: TemplateParser = template_parser
@@ -59,18 +63,24 @@ class ActPublicationDataProvider:
         used_object_codes: Set[str] = self._get_used_object_codes(parsed_template)
         used_objects: List[dict] = self._get_used_objects(objects, used_object_codes)
         assets: List[dict] = self._publication_asset_provider.get_assets(session, used_objects)
+
+        # The gebiedsaanwijzingen service mutates the objects therefor we get the used objects back
         gebiedsaanwijzingen: List[GebiedsaanwijzingData] = []
         used_objects, gebiedsaanwijzingen = self._publication_gebiedsaanwijzingen_provider.get_gebiedsaanwijzingen(
+            objects,
             used_objects,
         )
         gebieden_data: GebiedenData = self._publication_gebieden_provider.get_gebieden_data(
-            session,
-            act_frbr,
             objects,
             used_objects,
-            gebiedsaanwijzingen,
-            all_data,
         )
+        geo_gios: PublicationGeoData = self._publication_geogios_provider.process(
+            session,
+            act_frbr,
+            gebieden_data,
+            gebiedsaanwijzingen,
+        )
+
         documents: List[dict] = self._publication_documents_provider.get_documents(
             session,
             act_frbr,
@@ -84,6 +94,7 @@ class ActPublicationDataProvider:
             objects=used_objects,
             documents=documents,
             assets=assets,
+            # @TODO
             gebieden=gebieden_data.gebieden,
             gebiedengroepen=gebieden_data.gebiedengroepen,
             gebiedsaanwijzingen=gebiedsaanwijzingen,

@@ -1,3 +1,4 @@
+from abc import ABCMeta
 from typing import Dict, List, Optional, Set
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -28,48 +29,89 @@ class Frbr(BaseModel):
     Expression_Version: int
 
 
-class Gebied(BaseModel):
-    uuid: str
-    identifier: str  # basisgeo:id - also used in ow
-    gml_id: str
+class GioLocatie(BaseModel):
     title: str
-    object_id: int
-    code: str
-    hash: str
+    basisgeo_id: str # Also used in OW as the link from OW to GIO
+    source_hash: str # Hash of the GML/Geometry so we wont need to store the GML
+    source_code: str # This always is a gebied code like `gebied-1`
+
+
+class GeoGio(BaseModel):
+    """
+    The class is called GeoGio because DSO also knows PdfGio's
+    We actually use PdfGio's already but they are managed by the `Document` system
+    As the GeoGio was managed by the Werkingsgebied before this transition.
+    """
     geboorteregeling: str
     achtergrond_verwijzing: str
     achtergrond_actualiteit: str
     frbr: Frbr
+    # Used on top of the GeoInformatieObjectVaststelling and Aanlevering
+    # If there is only 1 `locatie` then its probably the same title as the locatie.title
+    # If there is more then 1 locatie, then its probably the name of the Gebiedengroep Or Gebiedsaanwijzing
+    title: str
+    # These are the <geo:locaties> in <geo:GeoInformatieObjectVaststelling>
+    # These are represent gebied in ow
+    locaties: List[GioLocatie] = Field(default_factory=list)
+    # This is to determine what and whos this is
+    # For a simple Gebied this will be ["gebied-1"]
+    # But for a composite GIO like for an gebiedsaanwijzing, this could be ["gebied-1", "gebied-2", "gebied-3"]
+    # Eventhough the gebiedsaanwijzing might actually point to a Gebiedengroep.
+    # But a gebiedengroep is unreliable as the code of a gebiedengroep does not tell us if gebieden got added or removed.
+    source_codes: Set[str] = Field(default_factory=set)
+
+    # We are using the set source_codes as our reference key
+    # But we convert it to a string for convenience, mainly because our DSO OW system
+    # uses source_code as a string
+    def key(self) -> str:
+        return ",".join(sorted(self.source_codes))
+    
+    def get_code(self) -> str:
+        return self.key()
+
+
+class Gebied(BaseModel):
+    # This is our gebied
+    # Which will always represent a GeoGio with 1 locatie
+    # And in turn only is an ow_gebied
+    uuid: str
+    title: str # @note: I do not think we need to title here anymore
+    object_id: int
+    code: str # The code is the main glue/lineage
+    source_hash: str # The hash represents the `areas.Source_Geometry_Hash` and helps us determine if this shape has changed
+    # identifier: str  # basisgeo:id - also used in ow
+    # gml_id: str
+    # geboorteregeling: str
+    # achtergrond_verwijzing: str
+    # achtergrond_actualiteit: str
+    # frbr: Frbr
+    geo_gio_code: str
 
     def is_still_valid(self) -> bool:
         # If the object id is invalid then this Gebied is from the old Werkingsgebied system and should be phased out
-        if self.object_id < 1:
-            return False
-        # We are going to store these from now on aswell
-        # As we should be able to recall what we specified to the DSO
-        if self.achtergrond_verwijzing == "":
-            return False
-        if self.achtergrond_actualiteit == "":
-            return False
-        return True
+        return self.object_id > 0
 
 
 class Gebiedengroep(BaseModel):
     uuid: str
+    # @note: not sure if we still need `identifier` here
+    # But i'm unsure so i wont delete it from the state at the moment
     identifier: str
     code: str
     object_id: int
     title: str
-    gebied_codes: List[str] = Field(default_factory=list)
+    gebied_codes: Set[str]
 
 
 class Gebiedsaanwijzing(BaseModel):
-    uuid: str
-    ow_identifier: str
+    text_uuid: str
     aanwijzing_type: str
     aanwijzing_group: str
     title: str
-    target_codes: Set[str]
+    # Used to determine reuse and target to geo_gio
+    source_target_codes: Set[str]
+    source_gebied_codes: Set[str]
+    geo_gio_key: str
 
 
 class Document(BaseModel):
@@ -292,11 +334,12 @@ class ActiveAct(BaseModel):
     Consolidation_Purpose: Purpose
     Document_Type: str
     Procedure_Type: str
-    Gebieden: Dict[str, Gebied]  # Code: Object
-    Gebiedengroepen: Dict[str, Gebiedengroep]
-    Gebiedsaanwijzingen: List[Gebiedsaanwijzing]
-    Documents: Dict[int, Document] = Field({})
-    Assets: Dict[str, Asset]
+    GeoGios: List[GeoGio] = Field(default_factory=list)
+    Gebieden: Dict[str, Gebied] = Field(default_factory=dict) # {Code: Object}
+    Gebiedengroepen: Dict[str, Gebiedengroep] = Field(default_factory=dict)
+    Gebiedsaanwijzingen: List[Gebiedsaanwijzing] = Field(default_factory=list)
+    Documents: Dict[int, Document] = Field(default_factory=dict)
+    Assets: Dict[str, Asset] = Field(default_factory=dict)
     Wid_Data: WidData
     Ow_State: OwState
     Act_Text: str

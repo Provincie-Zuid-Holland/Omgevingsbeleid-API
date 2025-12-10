@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import Dict
+from typing import Dict, Tuple
 
 from sqlalchemy.orm import Session
 
@@ -71,15 +71,20 @@ class StateV6Upgrader(StateUpgrader):
 
     def _mutate_act(self, old_act: models_v5.ActiveAct) -> models_v6.ActiveAct:
         act_dict: dict = old_act.model_dump()
-        act_dict["Gebieden"] = self._resolve_gebieden(old_act)
+        resolved_gios: Dict[str, models_v6.GeoGio] = {}
+        resolved_gebieden: Dict[str, models_v6.Gebied] = {}
+        resolved_gios, resolved_gebieden = self._resolve_gebieden(old_act)
+        act_dict["GeoGios"] = resolved_gios
+        act_dict["Gebieden"] = resolved_gebieden
         act_dict["Gebiedengroepen"] = self._resolve_gebiedengroepen(old_act)
         act_dict["Gebiedsaanwijzingen"] = []
 
         act: models_v6.ActiveAct = models_v6.ActiveAct.model_validate(act_dict)
         return act
 
-    def _resolve_gebieden(self, old_act: models_v5.ActiveAct) -> Dict[str, models_v6.Gebied]:
-        result: Dict[str, models_v6.Gebied] = {}
+    def _resolve_gebieden(self, old_act: models_v5.ActiveAct) -> Tuple[Dict[str, models_v6.GeoGio], Dict[str, models_v6.Gebied]]:
+        result_gios: Dict[str, models_v6.GeoGio] = {}
+        result_gebieden: Dict[str, models_v6.Gebied] = {}
         for old_werkingsgebied in old_act.Werkingsgebieden.values():
             """
             In the old werkingsgebieden system an Object Werkingsgebied
@@ -92,21 +97,42 @@ class StateV6Upgrader(StateUpgrader):
                 # This actually works fine, as this code will not exists in the next publication
                 # Therefor the dso objects will be removed with the next publication
                 gebied_code: str = f"werkingsgebied-{old_werkingsgebied.Object_ID}-{index + 1}"
-                result[gebied_code] = models_v6.Gebied(
-                    uuid=old_location.UUID,
-                    identifier=old_location.Identifier,
-                    gml_id=old_location.Gml_ID,
+
+                # Now in the new system with Gebiedsaanwijzingen, we can have an Gebiedsaanwijzing
+                # to more then one Gebied. But then that whole collection must be registered as
+                # a GIO.
+                # If the "whole collection" of a gebiedsaanwijzing is just a Gebied that
+                # we are already sending, then we would create the GIO twice which is not allowed.
+                # So we have to extract the GIO from the Gebied.
+                # So both the Gebied and Gebiedsaanwijzing can point to a GIO
+                # And the GIO must be kept alive as long as at least one things references the GIO
+                gio_locatie: models_v6.GioLocatie = models_v6.GioLocatie(
                     title=old_location.Title,
-                    object_id=-1,
-                    code=gebied_code,
-                    hash=old_werkingsgebied.Hash,
+                    basisgeo_id=old_location.Identifier,
+                    source_hash=old_werkingsgebied.Hash,
+                    source_code=gebied_code,
+                )
+                gio: models_v6.GeoGio = models_v6.GeoGio(
                     geboorteregeling=old_werkingsgebied.Owner_Act,
                     achtergrond_actualiteit="",
                     achtergrond_verwijzing="",
                     frbr=models_v6.Frbr.model_validate(old_werkingsgebied.Frbr.model_dump()),
+                    title=old_location.Title,
+                    locaties=[gio_locatie],
+                    source_codes={gebied_code},
+                )
+                result_gios[gio.get_code()] = gio
+
+                result_gebieden[gebied_code] = models_v6.Gebied(
+                    uuid=old_location.UUID,
+                    title=old_location.Title,
+                    object_id=-1,
+                    code=gebied_code,
+                    source_hash=old_werkingsgebied.Hash,
+                    geo_gio_code=gio.get_code(),
                 )
 
-        return result
+        return result_gios, result_gebieden
 
     def _resolve_gebiedengroepen(self, old_act: models_v5.ActiveAct) -> Dict[str, models_v6.Gebiedengroep]:
         result: Dict[str, models_v6.Gebiedengroep] = {}
@@ -120,7 +146,7 @@ class StateV6Upgrader(StateUpgrader):
                 code=werkingsgebied_code,
                 object_id=-1,  # We abuse this field to mark it stale
                 title=old_werkingsgebied.Title,
-                gebied_codes=[gebied_code],
+                gebied_codes=set([gebied_code]),
             )
 
         return result
