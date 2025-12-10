@@ -82,7 +82,7 @@ class PublicationGebiedsaanwijzingProcessor:
                 aanwijzing_title,
                 data_target_codes,
             )
-            aanwijzing_html["data-hint-uuid"] = str(aanwijzing_data.text_uuid)
+            aanwijzing_html["data-hint-gebiedsaanwijzing-uuid"] = str(aanwijzing_data.text_uuid)
             del aanwijzing_html["data-aanwijzing-type"]
             del aanwijzing_html["data-aanwijzing-group"]
             del aanwijzing_html["data-target-codes"]
