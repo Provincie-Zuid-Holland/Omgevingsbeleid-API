@@ -3,7 +3,7 @@ from .object_provider import ObjectProvider
 from .validate_module_service import (
     ValidateModuleService,
     RequiredObjectFieldsRule,
-    RequiredHierarchyCodeRule,
+    RequireExistingHierarchyCodeRule,
     NewestSourceWerkingsgebiedUsedRule,
     ForbidEmptyHtmlNodesRule,
 )
