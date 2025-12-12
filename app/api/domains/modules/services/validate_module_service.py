@@ -1,22 +1,28 @@
-from abc import ABC, ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from datetime import timezone, datetime
 from typing import Dict, List, Optional, Type, Set
-from bs4 import BeautifulSoup
 
+from bs4 import BeautifulSoup
 from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
-from app.core.services import MainConfig
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository, WerkingsgebiedHash
+from app.core.services import MainConfig
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
 
 
-class ValidateModuleError(BaseModel, metaclass=ABCMeta):
+class ValidateObject(BaseModel):
+    code: str
+    type: str
+    title: str
+
+
+class ValidateModuleError(BaseModel):
     rule: str
-    object_code: str
+    object: ValidateObject
     messages: List[str]
 
 
@@ -39,7 +45,7 @@ class ValidateModuleResult(BaseModel):
     @computed_field
     @property
     def status(self) -> str:
-        if self.errors == []:
+        if not self.errors:
             return "OK"
         return "Failed"
 
@@ -76,14 +82,18 @@ class RequiredObjectFieldsRule(ValidationRule):
                 errors.append(
                     ValidateModuleError(
                         rule="required_object_fields_rule",
-                        object_code=object_table.Code,
+                        object=ValidateObject(
+                            code=object_table.Code,
+                            type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
                         messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
                     )
                 )
         return errors
 
 
-class RequiredHierarchyCodeRule(ValidationRule):
+class RequireExistingHierarchyCodeRule(ValidationRule):
     def __init__(self, repository: PublicationObjectRepository):
         self._repository: PublicationObjectRepository = repository
 
@@ -105,8 +115,12 @@ class RequiredHierarchyCodeRule(ValidationRule):
             if target_code not in existing_object_codes:
                 errors.append(
                     ValidateModuleError(
-                        rule="required_hierarchy_code_rule",
-                        object_code=object_info.get("Code"),
+                        rule="require_existing_hierarchy_code_rule",
+                        object=ValidateObject(
+                            code=object_info.get("Code"),
+                            type=object_info.get("Object_Type"),
+                            title=object_info.get("Title"),
+                        ),
                         messages=[f"Hierarchy code {target_code} does not exist"],
                     )
                 )
@@ -127,13 +141,18 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 continue
 
             area_current_shape_hash: Optional[str] = self._area_geometry_repository.get_shape_hash(
-                db, area_current.UUID
+                db,
+                area_current.UUID,
             )
             if area_current_shape_hash is None:
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
-                        object_code=object_table.Code,
+                        object=ValidateObject(
+                            code=object_table.Code,
+                            type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
                         messages=[f"Area {area_current.UUID} does not have a shape"],
                     )
                 )
@@ -147,7 +166,11 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
-                        object_code=object_table.Code,
+                        object=ValidateObject(
+                            code=object_table.Code,
+                            type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
                         messages=[
                             f"Area {area_current.UUID} - '{area_current.Source_Title}' does not have a Werkingsgebieden shape"
                         ],
@@ -159,7 +182,11 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
-                        object_code=object_table.Code,
+                        object=ValidateObject(
+                            code=object_table.Code,
+                            type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
                         messages=[
                             f"Area {area_current.UUID} - '{area_current.Source_Title}' does not use the latest known Werkingsgebieden shape {werkingsgebied_latest.UUID}"
                         ],
@@ -192,7 +219,11 @@ class ForbidEmptyHtmlNodesRule(ValidationRule):
                     errors.append(
                         ValidateModuleError(
                             rule="forbid_empty_html_nodes_rule",
-                            object_code=object_table.Code,
+                            object=ValidateObject(
+                                code=object_table.Code,
+                                type=object_table.Object_Type,
+                                title=object_table.Title,
+                            ),
                             messages=[f"Empty html node found in '{field_name}' for object {object_table.Code}"],
                         )
                     )

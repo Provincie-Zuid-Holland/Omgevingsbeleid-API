@@ -185,7 +185,7 @@ class ApiContainer(containers.DeclarativeContainer):
                 object_map=required_object_fields_rule_mapping,
             ),
             providers.Singleton(
-                module_services.RequiredHierarchyCodeRule,
+                module_services.RequireExistingHierarchyCodeRule,
                 repository=publication.object_repository,
             ),
             providers.Singleton(
