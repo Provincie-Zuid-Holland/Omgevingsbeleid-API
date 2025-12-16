@@ -2,17 +2,19 @@ from datetime import datetime, timezone
 from uuid import uuid4
 from typing import Dict, List, Set, Tuple
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from bs4 import BeautifulSoup
 
 
 class GebiedsaanwijzingData(BaseModel):
-    text_uuid: str # Used in the html so we can find this config later
+    uuid: str  # Used in the html so we can find this config later
     aanwijzing_type: str
     aanwijzing_group: str
     title: str
-    gebied_codes: Set[str]
+    # This is what the gebiedsaanwijzing in the html actually targets
     source_target_codes: Set[str]
+    # This is all the targets resolved to gebied-codes
+    gebied_codes: Set[str]
     # This is used in the GIO as for `achtergrond_actualiteit`
     # We dont really know this so we just make it now
     modified_date: datetime
@@ -24,8 +26,7 @@ class PublicationGebiedsaanwijzingProcessor:
         self._gebiedengroep_map: Dict[str, Set[str]] = {
             obj["Code"]: set(obj["Gebieden"])
             for obj in all_objects
-            if obj.get("Object_Type") == "gebiedengroep"
-            and isinstance(obj.get("Gebieden"), list)
+            if obj.get("Object_Type") == "gebiedengroep" and isinstance(obj.get("Gebieden"), list)
         }
         self._gebiedsaanwijzingen: List[GebiedsaanwijzingData] = []
 
@@ -73,7 +74,7 @@ class PublicationGebiedsaanwijzingProcessor:
                 elif target_code.startswith("gebied-"):
                     aanwijzing_gebied_codes.add(target_code)
                 else:
-                    raise RuntimeError(f"Using invalid object in Gebiedengroep.Gebieden")
+                    raise RuntimeError("Using invalid object in Gebiedengroep.Gebieden")
 
             aanwijzing_data: GebiedsaanwijzingData = self._resolve_data(
                 aanwijzing_type,
@@ -82,7 +83,7 @@ class PublicationGebiedsaanwijzingProcessor:
                 aanwijzing_title,
                 data_target_codes,
             )
-            aanwijzing_html["data-hint-gebiedsaanwijzing-uuid"] = str(aanwijzing_data.text_uuid)
+            aanwijzing_html["data-hint-gebiedsaanwijzing-uuid"] = str(aanwijzing_data.uuid)
             del aanwijzing_html["data-aanwijzing-type"]
             del aanwijzing_html["data-aanwijzing-group"]
             del aanwijzing_html["data-target-codes"]
@@ -110,7 +111,7 @@ class PublicationGebiedsaanwijzingProcessor:
                 return aanwijzing
 
         aanwijzing = GebiedsaanwijzingData(
-            text_uuid=str(uuid4()),
+            uuid=str(uuid4()),
             aanwijzing_type=aanwijzing_type,
             aanwijzing_group=aanwijzing_group,
             title=aanwijzing_title,

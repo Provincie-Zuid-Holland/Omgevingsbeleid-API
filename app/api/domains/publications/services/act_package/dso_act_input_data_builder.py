@@ -18,12 +18,8 @@ from dso.act_builder.state_manager.input_data.resource.policy_object.policy_obje
     PolicyObjectRepository,
 )
 from dso.act_builder.state_manager.input_data.resource.resources import Resources
-from dso.act_builder.state_manager.input_data.resource.gebieden.gebied_repository import (
-    GebiedRepository,
-)
-from dso.act_builder.state_manager.input_data.resource.gebieden.gebiedengroep_repository import (
-    GebiedengroepRepository,
-)
+
+import dso.act_builder.state_manager.input_data.resource.gebieden as dso_gebieden
 
 from app.api.domains.publications.types.api_input_data import (
     ActFrbr,
@@ -322,8 +318,9 @@ class DsoActInputDataBuilder:
         resources = Resources(
             policy_object_repository=self._get_policy_object_repository(),
             asset_repository=self._get_asset_repository(),
-            gebied_repository=self._get_gebied_repository(),
+            gio_repository=self._get_gio_repository(),
             gebiedengroep_repository=self._get_gebiedengroep_repository(),
+            gebiedsaanwijzingen_repository=self._get_gebiedsaanwijzingen_repository(),
             besluit_pdf_repository=self._get_pdf_repository(),
             document_repository=self._get_document_repository(),
         )
@@ -341,16 +338,22 @@ class DsoActInputDataBuilder:
             repository.add(a)
         return repository
 
-    def _get_gebied_repository(self) -> GebiedRepository:
-        repository = GebiedRepository()
+    def _get_gio_repository(self) -> dso_gebieden.GioRepository:
+        repository = dso_gebieden.GioRepository()
         for w in self._publication_data.gebieden:
             repository.add(w)
         return repository
 
-    def _get_gebiedengroep_repository(self) -> GebiedengroepRepository:
-        repository = GebiedengroepRepository()
+    def _get_gebiedengroep_repository(self) -> dso_gebieden.GebiedengroepRepository:
+        repository = dso_gebieden.GebiedengroepRepository()
         for w in self._publication_data.gebiedengroepen:
             repository.add(w)
+        return repository
+
+    def _get_gebiedsaanwijzingen_repository(self) -> dso_gebieden.GebiedsaanwijzingRepository:
+        repository = dso_gebieden.GebiedsaanwijzingRepository()
+        for w in self._publication_data.gebiedsaanwijzingen:
+            repository.add(w.model_dump())
         return repository
 
     def _get_pdf_repository(self) -> BesluitPdfRepository:

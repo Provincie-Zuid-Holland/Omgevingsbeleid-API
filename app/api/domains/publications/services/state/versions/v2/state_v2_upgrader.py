@@ -173,12 +173,13 @@ class StateV2Upgrader(StateUpgrader):
             Expression_Version=old_act.Act_Frbr.Expression_Version,
         )
 
+        # @todo, this does not work. The state manager should not use external services that are not locked
+        raise RuntimeError("Upgrade v2 called which is not correctly implemented")
         publication_data: PublicationData = self._act_data_provider.fetch_data(
             session,
             act_package.Publication_Version,
             fake_bill,
             fake_act,
-            all_data=True,
         )
         return publication_data, act_package.Publication_Version.UUID
 

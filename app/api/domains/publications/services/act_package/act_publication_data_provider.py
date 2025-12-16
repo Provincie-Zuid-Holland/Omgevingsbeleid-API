@@ -9,7 +9,10 @@ from app.api.domains.publications.services.act_package.publication_gebiedsaanwij
     GebiedsaanwijzingData,
     PublicationGebiedsaanwijzingProvider,
 )
-from app.api.domains.publications.services.act_package.publication_geogios_provider import PublicationGeoData, PublicationGeoGiosProviderFactory
+from app.api.domains.publications.services.act_package.publication_geogios_provider import (
+    PublicationGeoData,
+    PublicationGeoGiosProviderFactory,
+)
 import dso.models as dso_models
 from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
@@ -53,7 +56,6 @@ class ActPublicationDataProvider:
         publication_version: PublicationVersionTable,
         bill_frbr: BillFrbr,
         act_frbr: ActFrbr,
-        all_data: bool = False,
     ) -> PublicationData:
         objects: List[dict] = self._publication_object_provider.get_objects(session, publication_version)
         parsed_template = self._template_parser.get_parsed_template(
@@ -74,7 +76,7 @@ class ActPublicationDataProvider:
             objects,
             used_objects,
         )
-        geo_gios: PublicationGeoData = self._publication_geogios_provider.process(
+        geo_data: PublicationGeoData = self._publication_geogios_provider.process(
             session,
             act_frbr,
             gebieden_data,
@@ -94,10 +96,9 @@ class ActPublicationDataProvider:
             objects=used_objects,
             documents=documents,
             assets=assets,
-            # @TODO
-            gebieden=gebieden_data.gebieden,
-            gebiedengroepen=gebieden_data.gebiedengroepen,
-            gebiedsaanwijzingen=gebiedsaanwijzingen,
+            gios=geo_data.gios,
+            gebiedengroepen=geo_data.gebiedengroepen,
+            gebiedsaanwijzingen=geo_data.gebiedsaanwijzingen,
             bill_attachments=bill_attachments,
             area_of_jurisdiction=area_of_jurisdiction,
             parsed_template=parsed_template,

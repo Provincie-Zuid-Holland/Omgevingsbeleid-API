@@ -71,19 +71,22 @@ class StateV6Upgrader(StateUpgrader):
 
     def _mutate_act(self, old_act: models_v5.ActiveAct) -> models_v6.ActiveAct:
         act_dict: dict = old_act.model_dump()
-        resolved_gios: Dict[str, models_v6.GeoGio] = {}
+        resolved_gios: Dict[str, models_v6.Gio] = {}
         resolved_gebieden: Dict[str, models_v6.Gebied] = {}
         resolved_gios, resolved_gebieden = self._resolve_gebieden(old_act)
         act_dict["GeoGios"] = resolved_gios
         act_dict["Gebieden"] = resolved_gebieden
         act_dict["Gebiedengroepen"] = self._resolve_gebiedengroepen(old_act)
         act_dict["Gebiedsaanwijzingen"] = []
+        act_dict["Ow_State"] = self._resolve_ow_state(old_act)
 
         act: models_v6.ActiveAct = models_v6.ActiveAct.model_validate(act_dict)
         return act
 
-    def _resolve_gebieden(self, old_act: models_v5.ActiveAct) -> Tuple[Dict[str, models_v6.GeoGio], Dict[str, models_v6.Gebied]]:
-        result_gios: Dict[str, models_v6.GeoGio] = {}
+    def _resolve_gebieden(
+        self, old_act: models_v5.ActiveAct
+    ) -> Tuple[Dict[str, models_v6.Gio], Dict[str, models_v6.Gebied]]:
+        result_gios: Dict[str, models_v6.Gio] = {}
         result_gebieden: Dict[str, models_v6.Gebied] = {}
         for old_werkingsgebied in old_act.Werkingsgebieden.values():
             """
@@ -112,7 +115,7 @@ class StateV6Upgrader(StateUpgrader):
                     source_hash=old_werkingsgebied.Hash,
                     source_code=gebied_code,
                 )
-                gio: models_v6.GeoGio = models_v6.GeoGio(
+                gio: models_v6.Gio = models_v6.Gio(
                     geboorteregeling=old_werkingsgebied.Owner_Act,
                     achtergrond_actualiteit="",
                     achtergrond_verwijzing="",
@@ -149,4 +152,19 @@ class StateV6Upgrader(StateUpgrader):
                 gebied_codes=set([gebied_code]),
             )
 
+        return result
+
+    def _resolve_ow_state(self, old_act: models_v5.ActiveAct) -> models_v6.OwState:
+        result: models_v6.OwState = models_v6.OwState(
+            ambtsgebieden=[models_v6.OwAmbtsgebied.model_validate(o) for o in old_act.Ow_State.ambtsgebieden],
+            regelingsgebieden=[
+                models_v6.OwRegelingsgebied.model_validate(o) for o in old_act.Ow_State.regelingsgebieden
+            ],
+            gebieden=[models_v6.OwGebied.model_validate(o) for o in old_act.Ow_State.gebieden],
+            gebiedengroepen=[models_v6.OwGebiedengroep.model_validate(o) for o in old_act.Ow_State.gebiedengroepen],
+            gebiedsaanwijzingen=[],
+            divisies=[models_v6.OwDivisie.model_validate(o) for o in old_act.Ow_State.divisies],
+            divisieteksten=[models_v6.OwDivisietekst.model_validate(o) for o in old_act.Ow_State.divisieteksten],
+            tekstdelen=[models_v6.OwTekstdeel.model_validate(o) for o in old_act.Ow_State.tekstdelen],
+        )
         return result

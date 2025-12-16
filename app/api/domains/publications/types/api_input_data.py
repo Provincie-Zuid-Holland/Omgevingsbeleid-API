@@ -2,8 +2,10 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Dict, List, Optional
 
-from app.api.domains.publications.services.act_package.publication_gebiedsaanwijzing_provider import (
-    GebiedsaanwijzingData,
+from app.api.domains.publications.services.act_package.publication_geogios_provider import (
+    PublicationGebiedengroep,
+    PublicationGebiedsaanwijzing,
+    PublicationGio,
 )
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType, PurposeType
 from app.api.domains.publications.types.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
@@ -96,9 +98,9 @@ class PublicationData:
     objects: List[dict]
     documents: List[dict]
     assets: List[dict]
-    gebieden: List[dict]
-    gebiedengroepen: List[dict]
-    gebiedsaanwijzingen: List[GebiedsaanwijzingData]
+    gios: Dict[str, PublicationGio]
+    gebiedengroepen: Dict[str, PublicationGebiedengroep]
+    gebiedsaanwijzingen: Dict[str, PublicationGebiedsaanwijzing]
     bill_attachments: List[Dict]
     area_of_jurisdiction: dict
     parsed_template: str

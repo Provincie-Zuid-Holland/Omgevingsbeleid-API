@@ -1,24 +1,14 @@
-import hashlib
-from re import M
-from uuid import UUID, uuid4
-from datetime import datetime, timezone
+from uuid import UUID
+from datetime import datetime
 from typing import Dict, List, Optional, Set
 
-from pydantic import BaseModel, Field
-
-from app.api.domains.publications.services.act_package.publication_gebiedsaanwijzing_provider import (
-    GebiedsaanwijzingData,
-)
-import dso.models as dso_models
-from sqlalchemy.orm import Session
-
-from app.api.domains.publications.types.api_input_data import ActFrbr
-from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
-from app.core.tables.others import AreasTable
+from pydantic import BaseModel
 
 
 class InputGebied(BaseModel):
+    # Represents an Object_Type=gebied and which convert to a DSO.GioLocatie
     uuid: UUID
+    object_id: int
     code: str
     area_uuid: UUID
     # We overwrite this with the area.Title at the moment
@@ -27,20 +17,6 @@ class InputGebied(BaseModel):
     title: str
     # These are used in the FRBR
     modified_date: datetime
-    object_id: int
-
-    # "uuid": gebied["UUID"],
-    # "code": gebied["Code"],
-    # "identifier": str(uuid.uuid4()),
-    # "new": True,  # Will be updated by state system if existing
-    # "title": area.Source_Title,
-    # "frbr": frbr,
-    # "geboorteregeling": act_frbr.get_work(),
-    # "achtergrond_verwijzing": "TOP10NL",
-    # "achtergrond_actualiteit": str(gebied["Modified_Date"])[:10],
-    # "gml_id": str(uuid.uuid4()),
-    # "gml": area.Gml,
-    # "hash": gml_hash,
 
 
 class InputGebiedengroep(BaseModel):
@@ -51,11 +27,6 @@ class InputGebiedengroep(BaseModel):
     # See how weird it is that we dont use the Gebied.Title
     title: str
     gebied_codes: Set[str]
-    # "uuid": gebiedengroep["UUID"],
-    # "identifier": str(uuid.uuid4()),
-    # "code": gebiedengroep["Code"],
-    # "title": gebiedengroep["Title"],
-    # "area_codes": gebieden_codes,
 
 
 class GebiedenData(BaseModel):
@@ -78,10 +49,7 @@ class PublicationGebiedenProvider:
         )
         used_gebied_codes: Set[str] = self._extract_gebied_codes(used_gebiedengroep_objects)
         all_gebied_objects: Dict[str, InputGebied] = self._get_gebied_objects(all_objects)
-        used_gebied_objects: List[InputGebied] = [
-            g for g in all_gebied_objects.values()
-            if g.code in used_gebied_codes
-        ]
+        used_gebied_objects: List[InputGebied] = [g for g in all_gebied_objects.values() if g.code in used_gebied_codes]
 
         return GebiedenData(
             all_gebieden=all_gebied_objects,
@@ -125,9 +93,7 @@ class PublicationGebiedenProvider:
         return gebied_codes
 
     def _get_gebied_objects(self, all_objects: List[dict]) -> Dict[str, InputGebied]:
-        gebied_objects: List[dict] = [
-            o for o in all_objects if o["Object_Type"] == "gebied"
-        ]
+        gebied_objects: List[dict] = [o for o in all_objects if o["Object_Type"] == "gebied"]
 
         result: Dict[str, InputGebied] = {}
         for gebied in gebied_objects:
@@ -147,84 +113,3 @@ class PublicationGebiedenProvider:
             result[code] = input_gebied
 
         return result
-
-    # def _as_dso_gebied(
-    #     self,
-    #     act_frbr: ActFrbr,
-    #     gebied: dict,
-    #     area: AreasTable,
-    # ) -> dict:
-    #     """
-    #     Transform gebied object to DSO Gebied format.
-
-    #     This matches the structure expected by:
-    #     dso.act_builder.state_manager.input_data.resource.gebieden.types.Gebied
-
-    #     Note: Gebieden are consolidated per Act, so we use the Act's Work_Date
-    #     and make their identifier unique with act data.
-    #     """
-    #     work_date: str = act_frbr.Work_Date
-    #     work_identifier = f"{act_frbr.Act_ID}-{act_frbr.Expression_Version}-{gebied['Object_ID']}"
-
-    #     # Create GIO FRBR
-    #     # Expression values are set as if this is the first version
-    #     # They will be overwritten by the state system if already published
-    #     frbr = dso_models.GioFRBR(
-    #         Work_Province_ID=act_frbr.Work_Province_ID,
-    #         Work_Date=work_date,
-    #         Work_Other=work_identifier,
-    #         Expression_Language=act_frbr.Expression_Language,
-    #         Expression_Date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-    #         Expression_Version=1,
-    #     )
-
-    #     gml_hash = hashlib.sha512()
-    #     gml_hash.update(area.Gml.encode())
-
-    #     result = {
-    #         "uuid": gebied["UUID"],
-    #         "code": gebied["Code"],
-    #         "identifier": str(uuid4()),
-    #         "new": True,  # Will be updated by state system if existing
-    #         "title": area.Source_Title,
-    #         "frbr": frbr,
-    #         "geboorteregeling": act_frbr.get_work(),
-    #         "achtergrond_verwijzing": "TOP10NL",
-    #         "achtergrond_actualiteit": str(gebied["Modified_Date"])[:10],
-    #         "gml_id": str(uuid4()),
-    #         "gml": area.Gml,
-    #         "hash": gml_hash,
-    #     }
-    #     return result
-
-    # def _transform_gebiedengroepen(
-    #     self,
-    #     gebiedengroep_objects: List[dict],
-    # ) -> List[dict]:
-    #     result: List[dict] = []
-    #     for groep in gebiedengroep_objects:
-    #         dso_groep = self._as_dso_gebiedengroep(groep)
-    #         result.append(dso_groep)
-
-    #     return result
-
-    # def _as_dso_gebiedengroep(
-    #     self,
-    #     gebiedengroep: dict,
-    # ) -> dict:
-    #     """
-    #     Transform gebiedengroep object to DSO GebiedenGroep format.
-
-    #     This matches the structure expected by:
-    #     dso.act_builder.state_manager.input_data.resource.gebieden.types.GebiedenGroep
-    #     """
-    #     gebieden_codes: List[str] = gebiedengroep["Gebieden"]
-
-    #     result = {
-    #         "uuid": gebiedengroep["UUID"],
-    #         "identifier": str(uuid4()),
-    #         "code": gebiedengroep["Code"],
-    #         "title": gebiedengroep["Title"],
-    #         "area_codes": gebieden_codes,
-    #     }
-    #     return result
