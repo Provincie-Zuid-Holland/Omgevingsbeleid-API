@@ -13,6 +13,10 @@ from ..v5 import state_v5
 
 
 class StateV5Upgrader(StateUpgrader):
+    """
+    Patches the state for the new OWState system
+    """
+
     @staticmethod
     def get_input_schema_version() -> int:
         return state_v4.StateV4.get_schema_version()
