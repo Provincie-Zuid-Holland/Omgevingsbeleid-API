@@ -16,7 +16,8 @@ from app.core.tables.others import AreasTable
 
 class ValidateObject(BaseModel):
     code: str
-    type: str
+    object_id: int
+    object_type: str
     title: str
 
 
@@ -84,7 +85,8 @@ class RequiredObjectFieldsRule(ValidationRule):
                         rule="required_object_fields_rule",
                         object=ValidateObject(
                             code=object_table.Code,
-                            type=object_table.Object_Type,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
                             title=object_table.Title,
                         ),
                         messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
@@ -118,7 +120,8 @@ class RequireExistingHierarchyCodeRule(ValidationRule):
                         rule="require_existing_hierarchy_code_rule",
                         object=ValidateObject(
                             code=object_info.get("Code"),
-                            type=object_info.get("Object_Type"),
+                            object_id=object_info.get("Object_ID"),
+                            object_type=object_info.get("Object_Type"),
                             title=object_info.get("Title"),
                         ),
                         messages=[f"Hierarchy code {target_code} does not exist"],
@@ -150,7 +153,8 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                         rule="newest_source_werkingsgebied_used_rule",
                         object=ValidateObject(
                             code=object_table.Code,
-                            type=object_table.Object_Type,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
                             title=object_table.Title,
                         ),
                         messages=[f"Area {area_current.UUID} does not have a shape"],
@@ -168,7 +172,8 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                         rule="newest_source_werkingsgebied_used_rule",
                         object=ValidateObject(
                             code=object_table.Code,
-                            type=object_table.Object_Type,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
                             title=object_table.Title,
                         ),
                         messages=[
@@ -184,7 +189,8 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                         rule="newest_source_werkingsgebied_used_rule",
                         object=ValidateObject(
                             code=object_table.Code,
-                            type=object_table.Object_Type,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
                             title=object_table.Title,
                         ),
                         messages=[
@@ -221,7 +227,8 @@ class ForbidEmptyHtmlNodesRule(ValidationRule):
                             rule="forbid_empty_html_nodes_rule",
                             object=ValidateObject(
                                 code=object_table.Code,
-                                type=object_table.Object_Type,
+                                object_id=object_table.Object_ID,
+                                object_type=object_table.Object_Type,
                                 title=object_table.Title,
                             ),
                             messages=[f"Empty html node found in '{field_name}' for object {object_table.Code}"],
