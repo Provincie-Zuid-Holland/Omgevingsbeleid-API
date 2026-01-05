@@ -97,37 +97,37 @@ class ActStatePatcher:
         state.handle_action(action)
         return state
 
-    def _resolve_gebieden(self, state: ActiveState) -> Dict[str, models.Gebied]:
-        gebieden: Dict[str, models.Gebied] = {}
+    # def _resolve_gebieden(self, state: ActiveState) -> Dict[str, models.Gebied]:
+    #     gebieden: Dict[str, models.Gebied] = {}
 
-        # We only keep the send gebieden, as all other should have been withdrawn
-        for dso_gebied in self._api_input_data.Publication_Data.gebieden:
-            dso_frbr: dso_models.GioFRBR = dso_gebied["frbr"]
-            frbr = models.Frbr(
-                Work_Province_ID=dso_frbr.Work_Province_ID,
-                Work_Country="",
-                Work_Date=dso_frbr.Work_Date,
-                Work_Other=dso_frbr.Work_Other,
-                Expression_Language=dso_frbr.Expression_Language,
-                Expression_Date=dso_frbr.Expression_Date,
-                Expression_Version=dso_frbr.Expression_Version or 0,
-            )
-            gebied = models.Gebied(
-                uuid=str(dso_gebied["uuid"]),
-                identifier=dso_gebied["identfier"],
-                gml_id=dso_gebied["gml_id"],
-                title=dso_gebied["title"],
-                object_id=dso_gebied["object_id"],
-                code=dso_gebied["code"],
-                hash=dso_gebied["hash"],
-                geboorteregeling=dso_gebied["geboorteregeling"],
-                achtergrond_verwijzing=dso_gebied["achtergrond_verwijzing"],
-                achtergrond_actualiteit=dso_gebied["achtergrond_actualiteit"],
-                frbr=frbr,
-            )
-            gebieden[gebied.code] = gebied
+    #     # We only keep the send gebieden, as all other should have been withdrawn
+    #     for dso_gebied in self._api_input_data.Publication_Data.gebieden:
+    #         dso_frbr: dso_models.GioFRBR = dso_gebied["frbr"]
+    #         frbr = models.Frbr(
+    #             Work_Province_ID=dso_frbr.Work_Province_ID,
+    #             Work_Country="",
+    #             Work_Date=dso_frbr.Work_Date,
+    #             Work_Other=dso_frbr.Work_Other,
+    #             Expression_Language=dso_frbr.Expression_Language,
+    #             Expression_Date=dso_frbr.Expression_Date,
+    #             Expression_Version=dso_frbr.Expression_Version or 0,
+    #         )
+    #         gebied = models.Gebied(
+    #             uuid=str(dso_gebied["uuid"]),
+    #             identifier=dso_gebied["identfier"],
+    #             gml_id=dso_gebied["gml_id"],
+    #             title=dso_gebied["title"],
+    #             object_id=dso_gebied["object_id"],
+    #             code=dso_gebied["code"],
+    #             hash=dso_gebied["hash"],
+    #             geboorteregeling=dso_gebied["geboorteregeling"],
+    #             achtergrond_verwijzing=dso_gebied["achtergrond_verwijzing"],
+    #             achtergrond_actualiteit=dso_gebied["achtergrond_actualiteit"],
+    #             frbr=frbr,
+    #         )
+    #         gebieden[gebied.code] = gebied
 
-        return gebieden
+    #     return gebieden
 
     def _resolve_gebiedsaanwijzingen(self, state: ActiveState) -> List[models.Gebiedsaanwijzing]:
         aanwijzingen: List[models.Gebiedsaanwijzing] = []

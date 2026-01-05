@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from app.api.domains.publications.types.api_input_data import ActFrbr
 from app.api.domains.publications.types.enums import PurposeType
 
-from .models import Asset, Document, Frbr, Purpose, Gebied, Gebiedengroep, Gebiedsaanwijzing, WidData, OwState
+from .models import Asset, Document, Frbr, Purpose, Gebiedengroep, Gebiedsaanwijzing, WidData, OwState
 
 
 class Action(BaseModel, metaclass=ABCMeta):
@@ -29,7 +29,8 @@ class AddPublicationAction(Action):
     Consolidation_Purpose: Purpose
     Document_Type: str
     Procedure_Type: str
-    Gebieden: Dict[str, Gebied]
+    # @todo
+    # Gebieden: Dict[str, Gebied]
     Gebiedengroepen: Dict[str, Gebiedengroep]
     Gebiedsaanwijzingen: List[Gebiedsaanwijzing]
     Documents: Dict[int, Document]

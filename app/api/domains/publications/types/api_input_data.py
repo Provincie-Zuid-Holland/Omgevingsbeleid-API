@@ -2,14 +2,13 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Dict, List, Optional
 
-from app.api.domains.publications.services.act_package.publication_geogios_provider import (
-    PublicationGebiedengroep,
-    PublicationGebiedsaanwijzing,
-    PublicationGio,
-)
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType, PurposeType
 from app.api.domains.publications.types.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
 from app.core.tables.publications import PublicationAnnouncementTable, PublicationVersionTable
+from typing import Set
+
+from pydantic import BaseModel, Field
+import dso.models as dso_models
 
 
 @dataclass
@@ -93,6 +92,71 @@ class Purpose:
     Work_Other: str
 
 
+class PublicationGioLocatie(BaseModel):
+    code: str  # code of 'gebied' like 'gebied-1'
+    title: str
+    # Also used in OW as the link from OW to GIO
+    # I think its save to use the area_uuid as its unique for the geometry
+    # And if we find a match when loading from state, then we will overwrite this
+    basisgeo_id: str
+    # Used to conclude if we have new version
+    source_hash: str
+
+    def key(self) -> str:
+        return self.code
+
+
+class PublicationGio(BaseModel):
+    source_codes: Set[str]
+    title: str
+
+    frbr: dso_models.FRBR
+    new: bool
+
+    geboorteregeling: str
+    achtergrond_verwijzing: str
+    achtergrond_actualiteit: str
+
+    locaties: List[PublicationGioLocatie]
+
+    # We are using the set source_codes as our reference key
+    # But we convert it to a string for convenience, mainly because our DSO OW system
+    # uses source_code as a string
+    def key(self) -> str:
+        return "_".join(sorted(self.source_codes))
+
+
+class PublicationGebiedengroep(BaseModel):
+    uuid: str
+    code: str
+    title: str
+    source_gebieden_codes: Set[str]
+    gio_keys: Set[str]
+
+    def key(self) -> str:
+        return "_".join(sorted(self.gio_keys))
+
+
+class PublicationGebiedsaanwijzing(BaseModel):
+    uuid: str  # Used as a lookup key in DSO
+    aanwijzing_type: str
+    aanwijzing_group: str
+    title: str
+    # Used to determine reuse and target to geo_gio
+    source_target_codes: Set[str]
+    source_gebied_codes: Set[str]
+    gio_key: str
+
+    def key(self) -> str:
+        return "_".join(sorted(self.source_gebied_codes))
+
+
+class PublicationGeoData(BaseModel):
+    gios: Dict[str, PublicationGio] = Field(default_factory=dict)
+    gebiedengroepen: Dict[str, PublicationGebiedengroep] = Field(default_factory=dict)
+    gebiedsaanwijzingen: Dict[str, PublicationGebiedsaanwijzing] = Field(default_factory=dict)
+
+
 @dataclass
 class PublicationData:
     objects: List[dict]
@@ -112,7 +176,7 @@ class ActMutation:
     Consolidated_Act_Text: str
     Known_Wid_Map: Dict[str, str]
     Known_Wids: List[str]
-    Removed_Gebieden: List[dict]
+    Removed_Gios: List[dict]
 
 
 @dataclass

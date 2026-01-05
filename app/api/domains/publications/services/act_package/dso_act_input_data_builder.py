@@ -281,7 +281,7 @@ class DsoActInputDataBuilder:
 
     def _get_appendices(self) -> List[Bijlage]:
         appendices: List[dict] = self._publication_version.Bill_Compact.get("Appendices", [])
-        result: List[dict] = []
+        result: List[Bijlage] = []
 
         for appendix in appendices:
             bijlage = Bijlage(
@@ -340,20 +340,20 @@ class DsoActInputDataBuilder:
 
     def _get_gio_repository(self) -> dso_gebieden.GioRepository:
         repository = dso_gebieden.GioRepository()
-        for w in self._publication_data.gebieden:
-            repository.add(w)
+        for g in self._publication_data.gios.values():
+            repository.add(g.model_dump())
         return repository
 
     def _get_gebiedengroep_repository(self) -> dso_gebieden.GebiedengroepRepository:
         repository = dso_gebieden.GebiedengroepRepository()
-        for w in self._publication_data.gebiedengroepen:
-            repository.add(w)
+        for g in self._publication_data.gebiedengroepen.values():
+            repository.add(g.model_dump())
         return repository
 
     def _get_gebiedsaanwijzingen_repository(self) -> dso_gebieden.GebiedsaanwijzingRepository:
         repository = dso_gebieden.GebiedsaanwijzingRepository()
-        for w in self._publication_data.gebiedsaanwijzingen:
-            repository.add(w.model_dump())
+        for g in self._publication_data.gebiedsaanwijzingen.values():
+            repository.add(g.model_dump())
         return repository
 
     def _get_pdf_repository(self) -> BesluitPdfRepository:
@@ -448,16 +448,11 @@ class DsoActInputDataBuilder:
             Expression_Version=self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
         )
 
-        te_verwijderden_gebieden = [
-            dso_models.VerwijderdGebied(
-                uuid=w["uuid"],
-                code=w["code"],
-                object_id=w["object_id"],
+        te_verwijderden_gios = [
+            dso_models.VerwijderdeGio(
                 frbr=dso_models.GioFRBR.model_validate(w["frbr"]),
-                geboorteregeling=w["geboorteregeling"],
-                titel=w["titel"],
             )
-            for w in self._act_mutation.Removed_Gebieden
+            for w in self._act_mutation.Removed_Gios
         ]
 
         match self._mutation_strategy:
@@ -466,7 +461,7 @@ class DsoActInputDataBuilder:
                     was_regeling_frbr=frbr,
                     bekend_wid_map=self._act_mutation.Known_Wid_Map,
                     bekend_wids=self._act_mutation.Known_Wids,
-                    te_verwijderden_gebieden=te_verwijderden_gebieden,
+                    te_verwijderden_gios=te_verwijderden_gios,
                 )
                 return result
 
@@ -476,7 +471,7 @@ class DsoActInputDataBuilder:
                     was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
                     bekend_wid_map=self._act_mutation.Known_Wid_Map,
                     bekend_wids=self._act_mutation.Known_Wids,
-                    te_verwijderden_gebieden=te_verwijderden_gebieden,
+                    te_verwijderden_gios=te_verwijderden_gios,
                     renvooi_api_key=renvooi.API_KEY,
                     renvooi_api_url=renvooi.RENVOOI_API_URL,
                 )

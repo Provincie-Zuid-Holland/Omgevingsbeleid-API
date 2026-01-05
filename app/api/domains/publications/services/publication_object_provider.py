@@ -25,7 +25,7 @@ class PublicationObjectProvider:
         publication_version: PublicationVersionTable,
     ) -> List[dict]:
         template: PublicationTemplateTable = publication_version.Publication.Template
-        object_field_map: Dict[str, List[str]] = template.Object_Field_Map
+        object_field_map: Dict[str, List[str]] = template.Object_Field_Map or {}
         requested_fields: Set[str] = {field for field_list in object_field_map.values() for field in field_list}
         objects: List[dict] = self._publication_object_repository.fetch_objects(
             session,
@@ -35,7 +35,7 @@ class PublicationObjectProvider:
             list(requested_fields),
         )
 
-        objects = self._filter_object_fields(template.Object_Field_Map, objects)
+        objects = self._filter_object_fields(object_field_map, objects)
 
         return objects
 

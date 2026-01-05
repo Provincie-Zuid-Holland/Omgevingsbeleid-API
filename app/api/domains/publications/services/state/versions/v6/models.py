@@ -66,7 +66,7 @@ class Gio(BaseModel):
     # But we convert it to a string for convenience, mainly because our DSO OW system
     # uses source_code as a string
     def key(self) -> str:
-        return ",".join(sorted(self.source_codes))
+        return "_".join(sorted(self.source_codes))
 
     def get_code(self) -> str:
         return self.key()

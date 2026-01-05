@@ -9,9 +9,9 @@ from app.api.domains.publications.services.act_package.publication_gebiedsaanwij
     GebiedsaanwijzingData,
     PublicationGebiedsaanwijzingProvider,
 )
-from app.api.domains.publications.services.act_package.publication_geogios_provider import (
+from app.api.domains.publications.services.act_package.publication_gios_provider import (
     PublicationGeoData,
-    PublicationGeoGiosProviderFactory,
+    PublicationGiosProviderFactory,
 )
 import dso.models as dso_models
 from bs4 import BeautifulSoup
@@ -33,7 +33,7 @@ class ActPublicationDataProvider:
         publication_asset_provider: PublicationAssetProvider,
         publication_gebiedsaanwijzingen_provider: PublicationGebiedsaanwijzingProvider,
         publication_gebieden_provider: PublicationGebiedenProvider,
-        publication_geogios_provider: PublicationGeoGiosProviderFactory,
+        publication_gios_provider: PublicationGiosProviderFactory,
         publication_documents_provider: PublicationDocumentsProvider,
         publication_aoj_repository: PublicationAOJRepository,
         template_parser: TemplateParser,
@@ -45,7 +45,7 @@ class ActPublicationDataProvider:
             publication_gebiedsaanwijzingen_provider
         )
         self._publication_gebieden_provider: PublicationGebiedenProvider = publication_gebieden_provider
-        self._publication_geogios_provider: PublicationGeoGiosProviderFactory = publication_geogios_provider
+        self._publication_gios_provider: PublicationGiosProviderFactory = publication_gios_provider
         self._publication_documents_provider: PublicationDocumentsProvider = publication_documents_provider
         self._publication_aoj_repository: PublicationAOJRepository = publication_aoj_repository
         self._template_parser: TemplateParser = template_parser
@@ -76,7 +76,7 @@ class ActPublicationDataProvider:
             objects,
             used_objects,
         )
-        geo_data: PublicationGeoData = self._publication_geogios_provider.process(
+        geo_data: PublicationGeoData = self._publication_gios_provider.process(
             session,
             act_frbr,
             gebieden_data,
@@ -108,7 +108,7 @@ class ActPublicationDataProvider:
     def _get_used_object_codes(self, text_template: str) -> Set[str]:
         soup = BeautifulSoup(text_template, "html.parser")
         objects = soup.find_all("object")
-        codes: List[str] = [obj("code") for obj in objects if obj.get("code")]
+        codes: List[str] = [obj.get("code") for obj in objects if obj.get("code")]
         result: Set[str] = set(codes)
         return result
 

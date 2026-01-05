@@ -99,8 +99,9 @@ class PublicationContainer(containers.DeclarativeContainer):
     publication_gebiedsaanwijzingen_provider = providers.Factory(
         act_package_services.PublicationGebiedsaanwijzingProvider,
     )
-    publication_geogios_provider_factory = providers.Factory(
-        act_package_services.PublicationGeoGiosProviderFactory,
+    publication_gios_provider_factory = providers.Factory(
+        act_package_services.PublicationGiosProviderFactory,
+        area_repository=area_repository,
     )
     act_publication_data_provider = providers.Factory(
         act_package_services.ActPublicationDataProvider,
@@ -108,7 +109,7 @@ class PublicationContainer(containers.DeclarativeContainer):
         publication_asset_provider=publication_asset_provider,
         publication_gebiedsaanwijzingen_provider=publication_gebiedsaanwijzingen_provider,
         publication_gebieden_provider=publication_gebieden_provider,
-        publication_geogios_provider=publication_geogios_provider_factory,
+        publication_gios_provider=publication_gios_provider_factory,
         publication_documents_provider=documents_provider,
         publication_aoj_repository=aoj_repository,
         template_parser=template_parser,

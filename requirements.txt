@@ -21,7 +21,7 @@ beautifulsoup4==4.14.3
     # via
     #   -r requirements.in
     #   dso
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   dso
     #   httpcore
@@ -44,13 +44,13 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@861d789ebb03df6ffeeaf0268a3f9f04195801e2
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@880e7341f73e07ff3a2757fe1f99489a0fc749a0
     # via -r requirements.in
-fastapi==0.124.4
+fastapi==0.128.0
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
-geopandas==1.1.1
+geopandas==1.1.2
     # via -r requirements.in
 greenlet==3.3.0
     # via sqlalchemy
@@ -82,7 +82,7 @@ markupsafe==3.0.3
     # via
     #   dso
     #   jinja2
-numpy==2.3.5
+numpy==2.4.0
     # via
     #   dso
     #   geopandas
@@ -103,9 +103,9 @@ pathspec==0.12.1
     # via dso
 pdfkit==1.0.0
     # via -r requirements.in
-pikepdf==10.0.2
+pikepdf==10.1.0
     # via -r requirements.in
-pillow==12.0.0
+pillow==12.1.0
     # via
     #   -r requirements.in
     #   pikepdf
@@ -137,7 +137,7 @@ python-dotenv==1.2.1
     # via
     #   pydantic-settings
     #   uvicorn
-python-multipart==0.0.20
+python-multipart==0.0.21
     # via -r requirements.in
 python-slugify==8.0.4
     # via -r requirements.in
@@ -166,7 +166,7 @@ six==1.17.0
     # via
     #   fs
     #   python-dateutil
-soupsieve==2.8
+soupsieve==2.8.1
     # via
     #   beautifulsoup4
     #   dso
@@ -195,7 +195,7 @@ tzdata==2025.3
     # via pandas
 urllib3==2.6.2
     # via requests
-uvicorn[standard]==0.38.0
+uvicorn[standard]==0.40.0
     # via -r requirements.in
 uvloop==0.22.1
     # via uvicorn

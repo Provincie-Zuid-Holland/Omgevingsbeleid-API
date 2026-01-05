@@ -46,7 +46,7 @@ class PublicationTemplateTable(Base, UserMetaData):
     Text_Template: Mapped[str] = mapped_column(Unicode, nullable=False)
     Object_Templates: Mapped[Any] = mapped_column(JSON, nullable=False)
     Field_Map: Mapped[Any] = mapped_column(JSON, nullable=True)
-    Object_Field_Map: Mapped[Any] = mapped_column(JSON, nullable=False)
+    Object_Field_Map: Mapped[Any] = mapped_column(JSON, nullable=True)
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
