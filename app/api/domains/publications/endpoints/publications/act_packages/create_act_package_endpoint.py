@@ -145,7 +145,7 @@ class EndpointHandler:
         except ValidationError as e:
             raise HTTPException(441, e.errors())
         except DSOConfigurationException as e:
-            raise LoggedHttpException(status_code=442, detail=e.message)
+            raise LoggedHttpException(status_code=442, detail=e.message) from e
         except DSORenvooiException as e:
             raise LoggedHttpException(status_code=443, detail=e.message, log_message=e.internal_error)
         except Exception as e:

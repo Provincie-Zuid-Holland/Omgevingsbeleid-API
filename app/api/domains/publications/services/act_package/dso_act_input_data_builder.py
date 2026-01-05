@@ -340,20 +340,56 @@ class DsoActInputDataBuilder:
 
     def _get_gio_repository(self) -> dso_gebieden.GioRepository:
         repository = dso_gebieden.GioRepository()
-        for g in self._publication_data.gios.values():
-            repository.add(g.model_dump())
+        for input_gio in self._publication_data.gios.values():
+            locaties: List[dso_gebieden.GioLocatie] = [
+                dso_gebieden.GioLocatie(
+                    code=input_locatie.code,
+                    title=input_locatie.title,
+                    basisgeo_id=input_locatie.basisgeo_id,
+                    gml=input_locatie.gml,
+                )
+                for input_locatie in input_gio.locaties
+            ]
+            repository.add(
+                dso_gebieden.Gio(
+                    source_codes=input_gio.source_codes,
+                    title=input_gio.title,
+                    frbr=dso_models.GioFRBR.model_validate(input_gio.frbr.model_dump()),
+                    new=input_gio.new,
+                    geboorteregeling=input_gio.geboorteregeling,
+                    achtergrond_verwijzing=input_gio.achtergrond_verwijzing,
+                    achtergrond_actualiteit=input_gio.achtergrond_actualiteit,
+                    locaties=locaties,
+                )
+            )
         return repository
 
     def _get_gebiedengroep_repository(self) -> dso_gebieden.GebiedengroepRepository:
         repository = dso_gebieden.GebiedengroepRepository()
-        for g in self._publication_data.gebiedengroepen.values():
-            repository.add(g.model_dump())
+        for input_groep in self._publication_data.gebiedengroepen.values():
+            repository.add(
+                dso_gebieden.GebiedenGroep(
+                    uuid=uuid.UUID(input_groep.uuid),
+                    code=input_groep.code,
+                    title=input_groep.title,
+                    gio_keys=input_groep.gio_keys,
+                )
+            )
         return repository
 
     def _get_gebiedsaanwijzingen_repository(self) -> dso_gebieden.GebiedsaanwijzingRepository:
         repository = dso_gebieden.GebiedsaanwijzingRepository()
-        for g in self._publication_data.gebiedsaanwijzingen.values():
-            repository.add(g.model_dump())
+        for input_aanwijzing in self._publication_data.gebiedsaanwijzingen.values():
+            repository.add(
+                dso_gebieden.Gebiedsaanwijzing(
+                    uuid=uuid.UUID(input_aanwijzing.uuid),
+                    aanwijzing_type=input_aanwijzing.aanwijzing_type,
+                    aanwijzing_groep=input_aanwijzing.aanwijzing_group,
+                    title=input_aanwijzing.title,
+                    source_gebied_codes=input_aanwijzing.source_gebied_codes,
+                    gio_key=input_aanwijzing.gio_key,
+                )
+            )
         return repository
 
     def _get_pdf_repository(self) -> BesluitPdfRepository:

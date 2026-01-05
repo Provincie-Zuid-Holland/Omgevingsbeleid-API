@@ -105,6 +105,7 @@ class PublicationGiosProvider:
                     basisgeo_id=str(area.UUID),
                     # str(hash) is what we did before, so thats how the hashes are stored in the state
                     source_hash=str(gml_hash),
+                    gml=area.Gml,
                 )
             ],
         )

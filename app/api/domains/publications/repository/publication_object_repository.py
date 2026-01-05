@@ -30,6 +30,11 @@ class PublicationObjectRepository(BaseRepository):
         object_types: List[str] = [],
         requested_fields: List[str] = [],
     ) -> List[dict]:
+        # @TODO: REMOVE
+        from datetime import timezone
+
+        timepoint = datetime.now(timezone.utc)
+
         fields: Set[str] = PUBLICATION_BASE_FIELDS.union(set(requested_fields))
 
         query = self._get_full_query(module_id, timepoint, object_types, fields)

@@ -102,6 +102,9 @@ class PublicationGioLocatie(BaseModel):
     # Used to conclude if we have new version
     source_hash: str
 
+    # Gml in the GIO
+    gml: str
+
     def key(self) -> str:
         return self.code
 
