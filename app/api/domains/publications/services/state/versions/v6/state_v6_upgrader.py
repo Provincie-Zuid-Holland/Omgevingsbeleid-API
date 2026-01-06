@@ -138,18 +138,3 @@ class StateV6Upgrader(StateUpgrader):
             )
 
         return result
-
-    def _resolve_ow_state(self, old_act: models_v5.ActiveAct) -> models_v6.OwState:
-        result: models_v6.OwState = models_v6.OwState(
-            ambtsgebieden=[models_v6.OwAmbtsgebied.model_validate(o) for o in old_act.Ow_State.ambtsgebieden],
-            regelingsgebieden=[
-                models_v6.OwRegelingsgebied.model_validate(o) for o in old_act.Ow_State.regelingsgebieden
-            ],
-            gebieden=[models_v6.OwGebied.model_validate(o) for o in old_act.Ow_State.gebieden],
-            gebiedengroepen=[models_v6.OwGebiedengroep.model_validate(o) for o in old_act.Ow_State.gebiedengroepen],
-            gebiedsaanwijzingen=[],
-            divisies=[models_v6.OwDivisie.model_validate(o) for o in old_act.Ow_State.divisies],
-            divisieteksten=[models_v6.OwDivisietekst.model_validate(o) for o in old_act.Ow_State.divisieteksten],
-            tekstdelen=[models_v6.OwTekstdeel.model_validate(o) for o in old_act.Ow_State.tekstdelen],
-        )
-        return result

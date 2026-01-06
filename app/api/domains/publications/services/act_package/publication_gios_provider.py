@@ -184,6 +184,7 @@ class PublicationGiosProvider:
             source_hash=str(
                 gml_hash
             ),  # str(hash) is what we did before, so thats how the hashes are stored in the state
+            gml=area.Gml,
         )
 
     def _build_frbr_aanwijzing(self, input_aanwijzing: GebiedsaanwijzingData) -> dso_models.GioFRBR:

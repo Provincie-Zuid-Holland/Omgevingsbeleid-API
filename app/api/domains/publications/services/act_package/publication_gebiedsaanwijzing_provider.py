@@ -58,7 +58,7 @@ class PublicationGebiedsaanwijzingProcessor:
             aanwijzing_group: str = str(aanwijzing_html.get("data-aanwijzing-group", ""))
             aanwijzing_title: str = aanwijzing_html.get_text(strip=True)
 
-            data_target_codes: Set[str] = set(str(aanwijzing_html.get("data-target_codes", "")).split(" "))
+            data_target_codes: Set[str] = set(str(aanwijzing_html.get("data-target-codes", "")).split(" "))
             # We need to convert gebiedengroep-x to [gebied-x, gebied-y, ...]
             # As we can not really do anything with a gebiedengroep.
             # An gebiedengroep code does not tell me if the gebieden inside has changed (like the count of them)
