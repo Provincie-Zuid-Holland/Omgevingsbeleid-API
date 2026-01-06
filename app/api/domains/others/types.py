@@ -6,7 +6,7 @@ from enum import Enum
 from typing import List, Optional, Any, Generic
 
 from fastapi import UploadFile
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.api.domains.modules.types import TModel
 
