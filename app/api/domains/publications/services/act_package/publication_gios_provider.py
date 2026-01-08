@@ -92,7 +92,7 @@ class PublicationGiosProvider:
 
         gio: PublicationGio = PublicationGio(
             source_codes=set([input_gebied.code]),
-            title=area.Source_Title,
+            title=input_gebied.title,
             frbr=self._build_frbr_gebied(input_gebied),
             new=True,
             geboorteregeling=self._act_frbr.get_work(),
@@ -101,7 +101,7 @@ class PublicationGiosProvider:
             locaties=[
                 PublicationGioLocatie(
                     code=input_gebied.code,
-                    title=area.Source_Title,
+                    title=input_gebied.title,
                     basisgeo_id=str(area.UUID),
                     # str(hash) is what we did before, so thats how the hashes are stored in the state
                     source_hash=str(gml_hash),

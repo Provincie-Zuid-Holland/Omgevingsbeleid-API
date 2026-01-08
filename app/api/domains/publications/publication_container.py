@@ -130,7 +130,6 @@ class PublicationContainer(containers.DeclarativeContainer):
                 state_versions.StateV2Upgrader,
                 act_version_repository=act_version_repository,
                 act_package_repository=act_package_repository,
-                act_data_provider=act_publication_data_provider,
             ),
             providers.Factory(state_versions.StateV3Upgrader),
             providers.Factory(state_versions.StateV4Upgrader),
