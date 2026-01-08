@@ -239,8 +239,9 @@ models:
       insert_assets:
         fields:
           - Description
-      resolve_child_objects_via_hierarchy_listener:
-        to_field: Hierarchy_Children
+# Story code 19919, 19379; Disabled because of objects not being properly closed on PROD env
+#      resolve_child_objects_via_hierarchy_listener:
+#        to_field: Hierarchy_Children
       relations:
         objects:
           - object_type: ambitie
