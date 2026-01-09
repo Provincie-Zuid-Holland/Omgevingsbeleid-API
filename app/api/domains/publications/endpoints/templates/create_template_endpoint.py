@@ -19,7 +19,7 @@ class TemplateCreate(BaseModel):
     Description: str
     Document_Type: DocumentType
     Object_Types: List[str]
-    Field_Map: List[str]
+    Object_Field_Map: Dict[str, List[str]]
     Text_Template: str
     Object_Templates: Dict[str, str]
 
@@ -49,7 +49,7 @@ def post_create_template_endpoint(
         Is_Active=True,
         Document_Type=object_in.Document_Type,
         Object_Types=object_in.Object_Types,
-        Field_Map=object_in.Field_Map,
+        Object_Field_Map=object_in.Object_Field_Map,
         Text_Template=object_in.Text_Template,
         Object_Templates=object_in.Object_Templates,
         Created_Date=timepoint,

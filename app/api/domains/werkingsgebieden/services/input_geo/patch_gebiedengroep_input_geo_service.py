@@ -149,7 +149,17 @@ class PatchGebiedengroepInputGeoService:
         if not onderverdeling.Geometry_Hash:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Onderverdeling does not have an Hash")
 
-        existing_area: Optional[AreasTable] = self._area_repository.get_by_source_hash(
+        # These sources hashes are not unique sadly
+        # We try to push for the most correct area by filtering by title first
+        existing_area: Optional[AreasTable] = self._area_repository.get_by_source_hash_and_title(
+            self._session,
+            onderverdeling.Geometry_Hash,
+            onderverdeling.Title,
+        )
+        if existing_area:
+            return existing_area.UUID
+
+        existing_area = self._area_repository.get_by_source_hash(
             self._session,
             onderverdeling.Geometry_Hash,
         )

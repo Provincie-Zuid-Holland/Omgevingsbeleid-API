@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, List, Optional
 
 from fastapi import Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import depends_db_session
@@ -20,7 +20,8 @@ class TemplateEdit(BaseModel):
     Description: Optional[str] = None
     Is_Active: Optional[bool] = None
     Document_Type: Optional[DocumentType] = None
-    Field_Map: Optional[List[str]] = None
+    Field_Map: Optional[List[str]] = Field(None, deprecated=True)
+    Object_Field_Map: Optional[Dict[str, List[str]]] = None
     Object_Types: Optional[List[str]] = None
     Text_Template: Optional[str] = None
     Object_Templates: Optional[Dict[str, str]] = None

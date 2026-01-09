@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -15,6 +16,16 @@ class Purpose(BaseModel):
         return result
 
 
+@dataclass
+class PublicationData:
+    objects: List[dict]
+    documents: List[dict]
+    assets: List[dict]
+    bill_attachments: List[Dict]
+    area_of_jurisdiction: dict
+    parsed_template: str
+
+
 class Frbr(BaseModel):
     Work_Province_ID: str
     Work_Country: str
@@ -23,6 +34,14 @@ class Frbr(BaseModel):
     Expression_Language: str
     Expression_Date: str
     Expression_Version: int
+
+
+class ActFrbr(Frbr):
+    Act_ID: int
+
+
+class BillFrbr(Frbr):
+    pass
 
 
 class Werkingsgebied(BaseModel):

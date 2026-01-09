@@ -68,7 +68,7 @@ def get_list_module_objects_endpoint(
     minimum_status: Optional[ModuleStatusCode] = None,
     only_active_modules: bool = True,
     title: Optional[str] = None,
-    actions: Annotated[List[ModuleObjectActionFull], Query(default_factory=list)] = [],
+    actions: Annotated[List[ModuleObjectActionFull], Query()] = [],
 ) -> PagedResponse[ModuleObjectsResponse]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)

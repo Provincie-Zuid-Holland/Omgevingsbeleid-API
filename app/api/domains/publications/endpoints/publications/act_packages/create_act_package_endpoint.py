@@ -86,6 +86,7 @@ class EndpointHandler:
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()
 
+            # raise RuntimeError("Halt")
             report_status: ReportStatusType = ReportStatusType.NOT_APPLICABLE
             if self._environment.Has_State:
                 report_status = ReportStatusType.PENDING
@@ -130,6 +131,7 @@ class EndpointHandler:
                 self._session.add(self._publication_version)
                 self._session.flush()
 
+            raise RuntimeError("Halt")
             self._session.commit()
 
             response = PublicationPackageCreatedResponse(
@@ -144,7 +146,7 @@ class EndpointHandler:
         except ValidationError as e:
             raise HTTPException(441, e.errors())
         except DSOConfigurationException as e:
-            raise LoggedHttpException(status_code=442, detail=e.message)
+            raise LoggedHttpException(status_code=442, detail=e.message) from e
         except DSORenvooiException as e:
             raise LoggedHttpException(status_code=443, detail=e.message, log_message=e.internal_error)
         except Exception as e:

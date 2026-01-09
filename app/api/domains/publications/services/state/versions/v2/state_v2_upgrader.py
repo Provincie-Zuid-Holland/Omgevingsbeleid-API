@@ -1,5 +1,5 @@
 import uuid
-from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from sqlalchemy.orm import Session
 
@@ -8,17 +8,10 @@ from app.api.domains.publications.repository.publication_act_package_repository 
 from app.api.domains.publications.repository.publication_act_version_repository import PublicationActVersionRepository
 from app.api.domains.publications.services.state.state import State
 from app.api.domains.publications.services.state.state_upgrader import StateUpgrader
-from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, PublicationData
 from app.core.tables.publications import PublicationActPackageTable, PublicationActVersionTable
 
 from ..v1 import state_v1
 from ..v2 import state_v2
-
-if TYPE_CHECKING:
-    # Circular dependency issue, bit special case that this upgrader needs the ActPublicationDataProvider because we did not store enough data
-    from app.api.domains.publications.services.act_package.act_publication_data_provider import (
-        ActPublicationDataProvider,
-    )
 
 
 class StateV2Upgrader(StateUpgrader):
@@ -26,11 +19,9 @@ class StateV2Upgrader(StateUpgrader):
         self,
         act_version_repository: PublicationActVersionRepository,
         act_package_repository: PublicationActPackageRepository,
-        act_data_provider: "ActPublicationDataProvider",
     ):
         self._act_version_repository: PublicationActVersionRepository = act_version_repository
         self._act_package_repository: PublicationActPackageRepository = act_package_repository
-        self._act_data_provider: ActPublicationDataProvider = act_data_provider
 
     @staticmethod
     def get_input_schema_version() -> int:
@@ -102,7 +93,7 @@ class StateV2Upgrader(StateUpgrader):
         return act
 
     def _get_act_werkingsgebieden(
-        self, original_data: PublicationData, old_act: state_v1.ActiveAct
+        self, original_data: models_v2.PublicationData, old_act: state_v1.ActiveAct
     ) -> Dict[int, models_v2.Werkingsgebied]:
         new_werkingsgebieden: Dict[int, models_v2.Werkingsgebied] = {}
 
@@ -129,7 +120,7 @@ class StateV2Upgrader(StateUpgrader):
         session: Session,
         environment_uuid: uuid.UUID,
         old_act: state_v1.ActiveAct,
-    ) -> Tuple[PublicationData, uuid.UUID]:
+    ) -> Tuple[models_v2.PublicationData, uuid.UUID]:
         act_version: Optional[PublicationActVersionTable] = self._act_version_repository.get_by_work_expression(
             session,
             environment_uuid,
@@ -153,34 +144,36 @@ class StateV2Upgrader(StateUpgrader):
         if act_package is None:
             raise RuntimeError("PublicationActPackageTable not found while upgrading state1 to state2")
 
-        fake_bill = BillFrbr(
-            Work_Province_ID=old_act.Bill_Frbr.Work_Province_ID,
-            Work_Country=old_act.Bill_Frbr.Work_Country,
-            Work_Date=old_act.Bill_Frbr.Work_Date,
-            Work_Other=old_act.Bill_Frbr.Work_Other,
-            Expression_Language=old_act.Bill_Frbr.Expression_Language,
-            Expression_Date=old_act.Bill_Frbr.Expression_Date,
-            Expression_Version=old_act.Bill_Frbr.Expression_Version,
-        )
-        fake_act = ActFrbr(
-            Act_ID=0,
-            Work_Province_ID=old_act.Act_Frbr.Work_Province_ID,
-            Work_Country=old_act.Act_Frbr.Work_Country,
-            Work_Date=old_act.Act_Frbr.Work_Date,
-            Work_Other=old_act.Act_Frbr.Work_Other,
-            Expression_Language=old_act.Act_Frbr.Expression_Language,
-            Expression_Date=old_act.Act_Frbr.Expression_Date,
-            Expression_Version=old_act.Act_Frbr.Expression_Version,
-        )
+        # @todo, this does not work. The state manager should not use external services that are not locked
+        raise RuntimeError("Upgrade v2 called which is not correctly implemented")
 
-        publication_data: PublicationData = self._act_data_provider.fetch_data(
-            session,
-            act_package.Publication_Version,
-            fake_bill,
-            fake_act,
-            all_data=True,
-        )
-        return publication_data, act_package.Publication_Version.UUID
+        # fake_bill = models_v2.BillFrbr(
+        #     Work_Province_ID=old_act.Bill_Frbr.Work_Province_ID,
+        #     Work_Country=old_act.Bill_Frbr.Work_Country,
+        #     Work_Date=old_act.Bill_Frbr.Work_Date,
+        #     Work_Other=old_act.Bill_Frbr.Work_Other,
+        #     Expression_Language=old_act.Bill_Frbr.Expression_Language,
+        #     Expression_Date=old_act.Bill_Frbr.Expression_Date,
+        #     Expression_Version=old_act.Bill_Frbr.Expression_Version,
+        # )
+        # fake_act = models_v2.ActFrbr(
+        #     Act_ID=0,
+        #     Work_Province_ID=old_act.Act_Frbr.Work_Province_ID,
+        #     Work_Country=old_act.Act_Frbr.Work_Country,
+        #     Work_Date=old_act.Act_Frbr.Work_Date,
+        #     Work_Other=old_act.Act_Frbr.Work_Other,
+        #     Expression_Language=old_act.Act_Frbr.Expression_Language,
+        #     Expression_Date=old_act.Act_Frbr.Expression_Date,
+        #     Expression_Version=old_act.Act_Frbr.Expression_Version,
+        # )
+
+        # publication_data: PublicationData = self._act_data_provider.fetch_data(
+        #     session,
+        #     act_package.Publication_Version,
+        #     fake_bill,
+        #     fake_act,
+        # )
+        # return publication_data, act_package.Publication_Version.UUID
 
     def _mutate_announcements(self, old_state: state_v1.StateV1) -> Dict[str, models_v2.ActiveAnnouncement]:
         announcements: Dict[str, models_v2.ActiveAnnouncement] = {}
@@ -193,7 +186,9 @@ class StateV2Upgrader(StateUpgrader):
 
         return announcements
 
-    def _get_act_ow_data(self, original_data: PublicationData, old_act: state_v1.ActiveAct) -> models_v2.OwData:
+    def _get_act_ow_data(
+        self, original_data: models_v2.PublicationData, old_act: state_v1.ActiveAct
+    ) -> models_v2.OwData:
         old_id_mapping: Dict[str, Dict[str, str]] = old_act.Ow_Data.Object_Map.id_mapping
         old_tekstdeel_mapping: Dict[str, Dict[str, str]] = old_act.Ow_Data.Object_Map.tekstdeel_mapping
 

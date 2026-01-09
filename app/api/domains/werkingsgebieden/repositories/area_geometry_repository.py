@@ -107,19 +107,26 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         session.add(area)
         session.flush()
 
-        params = {
-            "uuid": self._format_uuid(uuidx),
-            "shape": onderverdeling.Geometry,
+        put_geometry_params = {
+            "input_uuid": self._format_uuid(onderverdeling.UUID),
+            "area_uuid": self._format_uuid(uuidx),
         }
-        sql = f"""
+        put_geometry_stmt = """
             UPDATE
                 areas
             SET
-                Shape = {self._text_to_shape("shape")}
+                Shape = (
+                    SELECT
+                        Geometry
+                    FROM
+                        Input_GEO_Onderverdeling
+                    WHERE
+                        UUID = :input_uuid
+                )
             WHERE
-                UUID = :uuid
-            """
-        session.execute(text(sql), params)
+                UUID = :area_uuid
+        """
+        session.execute(text(put_geometry_stmt), put_geometry_params)
 
     def get_area(self, session: Session, uuidx: uuid.UUID) -> dict:
         row = self.get_area_optional(session, uuidx)

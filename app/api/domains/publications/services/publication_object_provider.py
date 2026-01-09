@@ -1,10 +1,13 @@
-from typing import Any, Dict, List, Set
+from typing import Dict, List, Set
 
 from sqlalchemy.orm import Session
 
-from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
+from app.api.domains.publications.repository.publication_object_repository import (
+    PUBLICATION_BASE_FIELDS,
+    PublicationObjectRepository,
+)
 from app.core.services.object_field_mapping_provider import ObjectFieldMappingProvider
-from app.core.tables.publications import PublicationVersionTable
+from app.core.tables.publications import ObjectFieldMapTypeAdapter, PublicationTemplateTable, PublicationVersionTable
 
 
 class PublicationObjectProvider:
@@ -21,36 +24,37 @@ class PublicationObjectProvider:
         session: Session,
         publication_version: PublicationVersionTable,
     ) -> List[dict]:
+        template: PublicationTemplateTable = publication_version.Publication.Template
+        object_field_map: Dict[str, List[str]] = template.Object_Field_Map or {}
+        requested_fields: Set[str] = {field for field_list in object_field_map.values() for field in field_list}
         objects: List[dict] = self._publication_object_repository.fetch_objects(
             session,
             publication_version.Publication.Module_ID,
             publication_version.Module_Status.Created_Date,
-            publication_version.Publication.Template.Object_Types,
-            publication_version.Publication.Template.Field_Map,
+            template.Object_Types,
+            list(requested_fields),
         )
 
-        objects = self._filter_object_fields(objects)
+        objects = self._filter_object_fields(object_field_map, objects)
 
         return objects
 
-    def _filter_object_fields(self, objects: List[dict]) -> List[dict]:
-        filtered_objects: List[dict] = []
+    def _filter_object_fields(self, object_field_map: Dict[str, List[str]], objects: List[dict]) -> List[dict]:
+        ObjectFieldMapTypeAdapter.validate_python(object_field_map)
 
+        result: List[dict] = []
         for obj in objects:
-            object_type = obj.get("Object_Type")
-            if not object_type:
-                raise RuntimeError("Expecting 'Object_Type' in the object's fields")
+            obj_type: str = obj["Object_Type"]
+            type_specific_fields: Set[str] = set(object_field_map.get(obj_type, []))
+            allowed_fields: Set[str] = PUBLICATION_BASE_FIELDS | set(["Module_ID"]) | type_specific_fields
 
-            valid_fields: Set[str] = self._object_field_mapping_provider.get_valid_fields_for_type(object_type)
+            # @NOTE: I'm not sure anymore why we keep fields with underscores here
+            cleaned: dict = {
+                key: value
+                for key, value in obj.items()
+                if key in allowed_fields or (isinstance(key, str) and key.startswith("_"))
+            }
 
-            filtered_obj: Dict[str, Any] = {}
-            for key, value in obj.items():
-                # Always keep system fields that start with underscore or other special fields
-                if key.startswith("_") or key == "Module_ID":
-                    filtered_obj[key] = value
-                elif key in valid_fields:
-                    filtered_obj[key] = value
+            result.append(cleaned)
 
-            filtered_objects.append(filtered_obj)
-
-        return filtered_objects
+        return result
