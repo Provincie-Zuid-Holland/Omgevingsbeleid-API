@@ -49,14 +49,14 @@ class PublicationGebiedsaanwijzingProcessor:
 
         HTML pattern:
             <a data-hint-type="gebiedsaanwijzing" data-aanwijzing-type="water" data-aanwijzing-group="bodem"
-                data-target-codes="gebied-1 gebiedengroep-15 gebiedengroep-1" href="#">Malieveld</a>
+                data-target-codes="gebied-1 gebiedengroep-15 gebiedengroep-1" data-title="Malieveld" href="#">het Malieveld</a>
         """
 
         soup = BeautifulSoup(html, "html.parser")
         for aanwijzing_html in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
             aanwijzing_type: str = str(aanwijzing_html.get("data-aanwijzing-type", ""))
             aanwijzing_group: str = str(aanwijzing_html.get("data-aanwijzing-group", ""))
-            aanwijzing_title: str = aanwijzing_html.get_text(strip=True)
+            aanwijzing_title: str = str(aanwijzing_html.get("data-title", ""))
 
             data_target_codes: Set[str] = set(str(aanwijzing_html.get("data-target-codes", "")).split(" "))
             # We need to convert gebiedengroep-x to [gebied-x, gebied-y, ...]
@@ -87,6 +87,7 @@ class PublicationGebiedsaanwijzingProcessor:
             del aanwijzing_html["data-aanwijzing-type"]
             del aanwijzing_html["data-aanwijzing-group"]
             del aanwijzing_html["data-target-codes"]
+            del aanwijzing_html["data-title"]
 
         return str(soup)
 
@@ -95,7 +96,7 @@ class PublicationGebiedsaanwijzingProcessor:
         aanwijzing_type: str,
         aanwijzing_group: str,
         aanwijzing_gebied_codes: Set[str],
-        aanwijzing_title: str,
+        title: str,
         source_target_codes: Set[str],
     ) -> GebiedsaanwijzingData:
         # Reuse if we already have a Gebiedsaanwijzing with the same data
@@ -105,7 +106,7 @@ class PublicationGebiedsaanwijzingProcessor:
                     aanwijzing.aanwijzing_type == aanwijzing_type,
                     aanwijzing.aanwijzing_group == aanwijzing_group,
                     aanwijzing.gebied_codes == aanwijzing_gebied_codes,
-                    aanwijzing.title == aanwijzing_title,
+                    aanwijzing.title == title,
                 ]
             ):
                 return aanwijzing
@@ -114,7 +115,7 @@ class PublicationGebiedsaanwijzingProcessor:
             uuid=str(uuid4()),
             aanwijzing_type=aanwijzing_type,
             aanwijzing_group=aanwijzing_group,
-            title=aanwijzing_title,
+            title=title,
             gebied_codes=aanwijzing_gebied_codes,
             source_target_codes=source_target_codes,
             modified_date=datetime.now(timezone.utc),

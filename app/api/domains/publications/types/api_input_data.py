@@ -144,7 +144,7 @@ class PublicationGebiedsaanwijzing(BaseModel):
     uuid: str  # Used as a lookup key in DSO
     aanwijzing_type: str
     aanwijzing_group: str
-    title: str
+    title: str  # Used everywhere except the inline html <a>{inline_title}</a>
     # Used to determine reuse and target to geo_gio
     source_target_codes: Set[str]
     source_gebied_codes: Set[str]
