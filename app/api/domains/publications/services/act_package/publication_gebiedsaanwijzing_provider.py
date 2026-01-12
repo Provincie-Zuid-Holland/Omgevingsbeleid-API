@@ -48,7 +48,7 @@ class PublicationGebiedsaanwijzingProcessor:
         Extract gebiedengroep codes from HTML gebiedsaanwijzingen.
 
         HTML pattern:
-            <a data-hint-type="gebiedsaanwijzing" data-aanwijzing-type="water" data-aanwijzing-group="bodem"
+            <a data-hint-type="gebiedsaanwijzing" data-aanwijzing-type="bodem" data-aanwijzing-group="bodemfunctieklasse industrie"
                 data-target-codes="gebied-1 gebiedengroep-15 gebiedengroep-1" data-title="Malieveld" href="#">het Malieveld</a>
         """
 

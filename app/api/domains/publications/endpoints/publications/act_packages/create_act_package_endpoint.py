@@ -86,7 +86,6 @@ class EndpointHandler:
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()
 
-            # raise RuntimeError("Halt")
             report_status: ReportStatusType = ReportStatusType.NOT_APPLICABLE
             if self._environment.Has_State:
                 report_status = ReportStatusType.PENDING
@@ -131,7 +130,6 @@ class EndpointHandler:
                 self._session.add(self._publication_version)
                 self._session.flush()
 
-            raise RuntimeError("Halt")
             self._session.commit()
 
             response = PublicationPackageCreatedResponse(
@@ -160,6 +158,9 @@ class EndpointHandler:
                 if not self._environment.Can_Validate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Validation for this environment")
             case PackageType.PUBLICATION:
+                raise HTTPException(
+                    status.HTTP_409_CONFLICT, "Create Publication is disabled untill state machine update"
+                )
                 if not self._environment.Can_Publicate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Publication for this environment")
 

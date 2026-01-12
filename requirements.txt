@@ -44,7 +44,7 @@ dicttoxml==1.7.16
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@f1ba25a356dbffe964ebba5e93e058365f9e1991
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.9.0
     # via -r requirements.in
 fastapi==0.128.0
     # via -r requirements.in
@@ -82,7 +82,7 @@ markupsafe==3.0.3
     # via
     #   dso
     #   jinja2
-numpy==2.4.0
+numpy==2.4.1
     # via
     #   dso
     #   geopandas
@@ -103,7 +103,7 @@ pathspec==1.0.3
     # via dso
 pdfkit==1.0.0
     # via -r requirements.in
-pikepdf==10.1.0
+pikepdf==10.2.0
     # via -r requirements.in
 pillow==12.1.0
     # via
@@ -176,7 +176,7 @@ starlette==0.50.0
     # via fastapi
 text-unidecode==1.3
     # via python-slugify
-tomli==2.3.0
+tomli==2.4.0
     # via dso
 typing-extensions==4.15.0
     # via
@@ -203,7 +203,7 @@ validators==0.35.0
     # via -r requirements.in
 watchfiles==1.1.1
     # via uvicorn
-websockets==15.0.1
+websockets==16.0
     # via uvicorn
 wrapt==2.0.1
     # via deprecated
