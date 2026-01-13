@@ -186,12 +186,9 @@ models:
       gebieden:
     dependency_model_ids:
       - user_short
-      - gebieden_basic
-      - gebied_basic
     services:
       join_gebieden:
-        model_id: gebied_basic
-        to_field: Gebieden_Objects
+        to_field: Gebieden_Statics
         from_field: Gebieden
       foreign_keys_extender:
         fields_map:

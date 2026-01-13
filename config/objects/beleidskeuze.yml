@@ -278,7 +278,6 @@ models:
       - user_short
       - werkingsgebied_basic
       - werkingsgebied_statics
-      - gebiedengroep_basic
       - hierarchy_statics
       - wettelijke_taak_minimal
       - nationaal_belang_minimal
@@ -295,8 +294,7 @@ models:
         to_field: Werkingsgebied
         from_field: Werkingsgebied_Code
       join_gebiedengroepen:
-        model_id: gebiedengroep_basic
-        to_field: Gebiedengroep
+        to_field: Gebiedengroep_Static
         from_field: Gebiedengroep_Code
       insert_assets:
         fields:
