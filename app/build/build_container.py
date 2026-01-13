@@ -135,8 +135,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_publications.area_of_jurisdictions.CreatePublicationAOJEndpointBuilder),
             providers.Factory(endpoint_builders_publications.area_of_jurisdictions.ListPublicationAOJEndpointBuilder),
             #   DSO values
-            providers.Factory(endpoint_builders_publications.dso_values.ListAreaDesignationGroupsEndpointBuilder),
-            providers.Factory(endpoint_builders_publications.dso_values.ListAreaDesignationTypesEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.dso_values.ListAreaDesignationEndpointBuilder),
             #   Templates
             providers.Factory(endpoint_builders_publications.templates.CreatePublicationTemplateEndpointBuilder),
             providers.Factory(endpoint_builders_publications.templates.DetailPublicationTemplateEndpointBuilder),

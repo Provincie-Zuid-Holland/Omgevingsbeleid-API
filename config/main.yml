@@ -495,12 +495,9 @@ api:
     # DSO value list getters
     - prefix: /publication-dso-value-lists
       endpoints:
-        - resolver: list_area_designation_types
+        - resolver: list_area_designation
           resolver_data:
-            path: /area-designation-types
-        - resolver: list_area_designation_groups
-          resolver_data:
-            path: /area-designation-groups
+            path: /area-designation
     # Input GEO
     - prefix: /input-geo/werkingsgebieden
       endpoints:
