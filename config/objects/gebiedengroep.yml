@@ -122,6 +122,7 @@ fields:
     name: Source_UUID
     type: uuid
     column: source_uuid
+    optional: true
 
   # Statics
   owner_1_uuid:
