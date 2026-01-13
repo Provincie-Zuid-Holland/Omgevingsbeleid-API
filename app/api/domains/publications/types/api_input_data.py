@@ -168,7 +168,6 @@ class PublicationData:
     gios: Dict[str, PublicationGio]
     gebiedengroepen: Dict[str, PublicationGebiedengroep]
     gebiedsaanwijzingen: Dict[str, PublicationGebiedsaanwijzing]
-    gios: List[dict]
     bill_attachments: List[Dict]
     area_of_jurisdiction: dict
     parsed_template: str
