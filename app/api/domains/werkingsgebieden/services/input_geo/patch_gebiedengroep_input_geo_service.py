@@ -78,6 +78,8 @@ class PatchGebiedengroepInputGeoService:
 
         if main_obj.Source_Title != self._input_geo_werkingsgebied.Title:
             something_changed = True
+        if main_obj.Source_UUID != self._input_geo_werkingsgebied.UUID:
+            something_changed = True
 
         # Patch the main object and set the "gebieden"
         if something_changed:
@@ -87,6 +89,7 @@ class PatchGebiedengroepInputGeoService:
                 {
                     "Gebieden": list(used_sub_codes),
                     "Source_Title": self._input_geo_werkingsgebied.Title,
+                    "Source_UUID": self._input_geo_werkingsgebied.UUID,
                 },
                 self._timepoint,
                 self._user.UUID,

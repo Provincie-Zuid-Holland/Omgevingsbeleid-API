@@ -669,12 +669,19 @@ columns:
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
-  # Source Title
+  # Source Title, used to target the Input_Geo_Werkingsgebied
   source_title:
     name: Source_Title
     type: str
     serializers: []
     deserializers: ["str"]
+    nullable: true
+  # Source UUID, # Source Title, used to target the Input_Geo_Werkingsgebied
+  source_uuid:
+    name: Source_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
     nullable: true
   # Image
   image:

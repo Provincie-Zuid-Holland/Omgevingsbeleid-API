@@ -118,6 +118,10 @@ fields:
     column: source_title
     validators:
       - id: none_to_default_value
+  source_uuid:
+    name: Source_UUID
+    type: uuid
+    column: source_uuid
 
   # Statics
   owner_1_uuid:
@@ -165,6 +169,7 @@ models:
       modified_date:
       title:
       source_title:
+      source_uuid:
       gebieden:
       start_validity:
       end_validity:
@@ -194,6 +199,7 @@ models:
       modified_date:
       title:
       source_title:
+      source_uuid:
       description:
       start_validity:
       end_validity:
