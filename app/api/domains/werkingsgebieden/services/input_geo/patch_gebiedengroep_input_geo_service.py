@@ -76,6 +76,9 @@ class PatchGebiedengroepInputGeoService:
 
             used_sub_codes.add(sub_object_static.Code)
 
+        if main_obj.Source_Title != self._input_geo_werkingsgebied.Title:
+            something_changed = True
+
         # Patch the main object and set the "gebieden"
         if something_changed:
             new_main_obj: ModuleObjectsTable = self._module_object_repository.patch_module_object(
@@ -83,6 +86,7 @@ class PatchGebiedengroepInputGeoService:
                 main_obj,
                 {
                     "Gebieden": list(used_sub_codes),
+                    "Source_Title": self._input_geo_werkingsgebied.Title,
                 },
                 self._timepoint,
                 self._user.UUID,

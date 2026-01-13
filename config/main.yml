@@ -669,6 +669,13 @@ columns:
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
+  # Source Title
+  source_title:
+    name: Source_Title
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
   # Image
   image:
     name: Image
