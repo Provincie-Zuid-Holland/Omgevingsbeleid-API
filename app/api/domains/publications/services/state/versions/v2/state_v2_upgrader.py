@@ -99,7 +99,7 @@ class StateV2Upgrader(StateUpgrader):
 
         for key, old_werkingsgebied in old_act.Werkingsgebieden.items():
             original_werkingsgebied: Optional[dict] = next(
-                (w for w in original_data.gios if w["Object_ID"] == old_werkingsgebied.Object_ID),
+                (w for w in original_data.werkingsgebieden if w["Object_ID"] == old_werkingsgebied.Object_ID),
                 {
                     "Title": "",
                     "Hash": "",
@@ -233,7 +233,7 @@ class StateV2Upgrader(StateUpgrader):
         # Gebieden
         for werkingsgebied_code, ow_id in old_id_mapping.get("gebieden", {}).items():
             original_werkingsgebied: Optional[dict] = next(
-                (w for w in original_data.gios if w["Code"] == werkingsgebied_code), unknown_werkingsgebied
+                (w for w in original_data.werkingsgebieden if w["Code"] == werkingsgebied_code), unknown_werkingsgebied
             )
 
             ow = {
@@ -250,7 +250,7 @@ class StateV2Upgrader(StateUpgrader):
         # Gebiedengroep
         for werkingsgebied_code, ow_id in old_id_mapping.get("gebiedengroep", {}).items():
             original_werkingsgebied: Optional[dict] = next(
-                (w for w in original_data.gios if w["Code"] == werkingsgebied_code), unknown_werkingsgebied
+                (w for w in original_data.werkingsgebieden if w["Code"] == werkingsgebied_code), unknown_werkingsgebied
             )
             gebied_ow_id: Optional[str] = old_id_mapping.get("gebieden", {}).get(werkingsgebied_code)
             gebieden_ow_ids = [gebied_ow_id] if gebied_ow_id else []
