@@ -25,4 +25,4 @@ def get_area_designation_endpoint(
     gebiedsaanwijzingen_programma: Gebiedsaanwijzingen = dso_gebiedsaanwijzingen_factory.get_for_document(
         DocumentType.PROGRAMMA
     )
-    return ListAreaDesignationResponse(gebiedsaanwijzingen=gebiedsaanwijzingen_programma._data)
+    return ListAreaDesignationResponse(gebiedsaanwijzingen=gebiedsaanwijzingen_programma.get_list())
