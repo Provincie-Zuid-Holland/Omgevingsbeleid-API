@@ -26,7 +26,7 @@ class ActStatePatcher:
         return state
 
     def _patch_publication(self, state: ActiveState) -> ActiveState:
-        gebieden: Dict[str, models.Gebied] = self._resolve_gebieden(state)
+        # gebieden: Dict[str, models.Gebied] = self._resolve_gebieden(state)
         gebiedengroepen: Dict[str, models.Gebiedengroep] = self._resolve_gebiedengroepen(state)
         gebiedsaanwijzingen: List[models.Gebiedsaanwijzing] = self._resolve_gebiedsaanwijzingen(state)
         documents: Dict[int, models.Document] = self._resolve_documents(state)
@@ -84,7 +84,7 @@ class ActStatePatcher:
             Consolidation_Purpose=purpose,
             Document_Type=self._api_input_data.Publication_Version.Publication.Document_Type,
             Procedure_Type=self._api_input_data.Publication_Version.Publication.Procedure_Type,
-            Gebieden=gebieden,
+            # Gebieden=gebieden,
             Gebiedengroepen=gebiedengroepen,
             Gebiedsaanwijzingen=gebiedsaanwijzingen,
             Documents=documents,
@@ -126,7 +126,6 @@ class ActStatePatcher:
     #             frbr=frbr,
     #         )
     #         gebieden[gebied.code] = gebied
-
     #     return gebieden
 
     def _resolve_gebiedsaanwijzingen(self, state: ActiveState) -> List[models.Gebiedsaanwijzing]:
