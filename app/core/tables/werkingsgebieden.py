@@ -23,7 +23,7 @@ class InputGeoWerkingsgebiedenTable(Base):
     Title: Mapped[str]
     Created_Date: Mapped[datetime]
 
-    Onderverdelingen: Mapped[List["InputGeoOnderverdelingTable"]] = relationship(
+    Onderverdelingen: Mapped[List["InputGeoOnderverdelingenTable"]] = relationship(
         secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc, back_populates="Werkingsgebieden"
     )
 
@@ -31,13 +31,14 @@ class InputGeoWerkingsgebiedenTable(Base):
         return f"InputGeoWerkingsgebiedenTable(UUID={self.UUID!r}, Title={self.Title!r})"
 
 
-class InputGeoOnderverdelingTable(Base):
+class InputGeoOnderverdelingenTable(Base):
     __tablename__ = "Input_GEO_Onderverdeling"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Title: Mapped[str]
     Created_Date: Mapped[datetime]
 
+    Symbol: Mapped[Optional[str]]
     Geometry: Mapped[Optional[bytes]] = deferred(mapped_column(LargeBinary(), nullable=True))
     Geometry_Hash: Mapped[str] = mapped_column(Unicode(64))
     GML: Mapped[str] = deferred(mapped_column(Unicode))

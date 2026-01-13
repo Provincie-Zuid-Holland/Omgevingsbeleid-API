@@ -17,7 +17,7 @@ from app.api.domains.modules.repositories.module_object_repository import Module
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectStaticsTable
-from app.core.tables.werkingsgebieden import InputGeoOnderverdelingTable, InputGeoWerkingsgebiedenTable
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable, InputGeoWerkingsgebiedenTable
 
 
 class ObjectResultType(str, Enum):
@@ -98,7 +98,7 @@ class PatchGebiedengroepInputGeoService:
     def _ensure_static_object(
         self,
         main_obj: ModuleObjectsTable,
-        onderverdeling: InputGeoOnderverdelingTable,
+        onderverdeling: InputGeoOnderverdelingenTable,
     ) -> ObjectStaticsTable:
         source_key: str = slugify(f"igo:{onderverdeling.Title}")
         sub_obj_static: Optional[ObjectStaticsTable] = self._object_static_repository.get_by_source(
@@ -113,7 +113,7 @@ class PatchGebiedengroepInputGeoService:
     def _create_object_static(
         self,
         main_obj: ModuleObjectsTable,
-        onderverdeling: InputGeoOnderverdelingTable,
+        onderverdeling: InputGeoOnderverdelingenTable,
         source_key: str,
     ) -> ObjectStaticsTable:
         generate_id_subq = (
@@ -145,7 +145,7 @@ class PatchGebiedengroepInputGeoService:
 
         return response
 
-    def _ensure_area(self, onderverdeling: InputGeoOnderverdelingTable) -> uuid.UUID:
+    def _ensure_area(self, onderverdeling: InputGeoOnderverdelingenTable) -> uuid.UUID:
         if not onderverdeling.Geometry_Hash:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Onderverdeling does not have an Hash")
 
