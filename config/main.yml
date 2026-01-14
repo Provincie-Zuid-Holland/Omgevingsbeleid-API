@@ -495,12 +495,9 @@ api:
     # DSO value list getters
     - prefix: /publication-dso-value-lists
       endpoints:
-        - resolver: list_area_designation_types
+        - resolver: list_area_designation
           resolver_data:
-            path: /area-designation-types
-        - resolver: list_area_designation_groups
-          resolver_data:
-            path: /area-designation-groups
+            path: /area-designation
     # Input GEO
     - prefix: /input-geo/werkingsgebieden
       endpoints:
@@ -671,6 +668,20 @@ columns:
       relation_field: Gebiedengroep_Statics
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
+    nullable: true
+  # Source Title, used to target the Input_Geo_Werkingsgebied
+  source_title:
+    name: Source_Title
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Source UUID, # Source Title, used to target the Input_Geo_Werkingsgebied
+  source_uuid:
+    name: Source_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
     nullable: true
   # Image
   image:

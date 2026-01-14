@@ -1,2 +1,1 @@
-from .area_designation_groups_endpoint import get_area_designation_groups_endpoint
-from .area_designation_types_endpoint import get_area_designation_types_endpoint
+from .area_designation_endpoint import get_area_designation_endpoint

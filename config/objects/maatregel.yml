@@ -273,7 +273,6 @@ models:
       - gebiedsprogramma_minimal
       - werkingsgebied_basic
       - werkingsgebied_statics
-      - gebiedengroep_basic
     services:
       next_object_version:
         to_field: Next_Version
@@ -287,8 +286,7 @@ models:
         to_field: Documents_Statics
         from_field: Documents
       join_gebiedengroepen:
-        model_id: gebiedengroep_basic
-        to_field: Gebiedengroep
+        to_field: Gebiedengroep_Static
         from_field: Gebiedengroep_Code
       insert_assets:
         fields:

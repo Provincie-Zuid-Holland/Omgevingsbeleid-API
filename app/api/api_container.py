@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import dso
 from dependency_injector import containers, providers
 from sqlalchemy.orm import sessionmaker
 
@@ -335,4 +336,8 @@ class ApiContainer(containers.DeclarativeContainer):
         storage_file_repository=storage_file_repository,
         asset_repository=asset_repository,
         object_field_mapping_provider=object_field_mapping_provider,
+    )
+
+    dso_gebiedsaanwijzingen_factory = providers.Factory(
+        dso.GebiedsaanwijzingenFactory,
     )

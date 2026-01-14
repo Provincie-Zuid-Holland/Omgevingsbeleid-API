@@ -18,9 +18,8 @@ from dso.act_builder.state_manager.input_data.resource.policy_object.policy_obje
     PolicyObjectRepository,
 )
 from dso.act_builder.state_manager.input_data.resource.resources import Resources
-from dso.act_builder.state_manager.input_data.resource.werkingsgebied.werkingsgebied_repository import (
-    WerkingsgebiedRepository,
-)
+
+import dso.act_builder.state_manager.input_data.resource.gebieden as dso_gebieden
 
 from app.api.domains.publications.types.api_input_data import (
     ActFrbr,
@@ -282,7 +281,7 @@ class DsoActInputDataBuilder:
 
     def _get_appendices(self) -> List[Bijlage]:
         appendices: List[dict] = self._publication_version.Bill_Compact.get("Appendices", [])
-        result: List[dict] = []
+        result: List[Bijlage] = []
 
         for appendix in appendices:
             bijlage = Bijlage(
@@ -319,7 +318,9 @@ class DsoActInputDataBuilder:
         resources = Resources(
             policy_object_repository=self._get_policy_object_repository(),
             asset_repository=self._get_asset_repository(),
-            werkingsgebied_repository=self._get_werkingsgebied_repository(),
+            gio_repository=self._get_gio_repository(),
+            gebiedengroep_repository=self._get_gebiedengroep_repository(),
+            gebiedsaanwijzingen_repository=self._get_gebiedsaanwijzingen_repository(),
             besluit_pdf_repository=self._get_pdf_repository(),
             document_repository=self._get_document_repository(),
         )
@@ -337,10 +338,58 @@ class DsoActInputDataBuilder:
             repository.add(a)
         return repository
 
-    def _get_werkingsgebied_repository(self) -> WerkingsgebiedRepository:
-        repository = WerkingsgebiedRepository()
-        for w in self._publication_data.werkingsgebieden:
-            repository.add(w)
+    def _get_gio_repository(self) -> dso_gebieden.GioRepository:
+        repository = dso_gebieden.GioRepository()
+        for input_gio in self._publication_data.gios.values():
+            locaties: List[dso_gebieden.GioLocatie] = [
+                dso_gebieden.GioLocatie(
+                    code=input_locatie.code,
+                    title=input_locatie.title,
+                    basisgeo_id=input_locatie.basisgeo_id,
+                    gml=input_locatie.gml,
+                )
+                for input_locatie in input_gio.locaties
+            ]
+            repository.add(
+                dso_gebieden.Gio(
+                    source_codes=input_gio.source_codes,
+                    title=input_gio.title,
+                    frbr=dso_models.GioFRBR.model_validate(input_gio.frbr.model_dump()),
+                    new=input_gio.new,
+                    geboorteregeling=input_gio.geboorteregeling,
+                    achtergrond_verwijzing=input_gio.achtergrond_verwijzing,
+                    achtergrond_actualiteit=input_gio.achtergrond_actualiteit,
+                    locaties=locaties,
+                )
+            )
+        return repository
+
+    def _get_gebiedengroep_repository(self) -> dso_gebieden.GebiedengroepRepository:
+        repository = dso_gebieden.GebiedengroepRepository()
+        for input_groep in self._publication_data.gebiedengroepen.values():
+            repository.add(
+                dso_gebieden.GebiedenGroep(
+                    uuid=uuid.UUID(input_groep.uuid),
+                    code=input_groep.code,
+                    title=input_groep.title,
+                    gio_keys=input_groep.gio_keys,
+                )
+            )
+        return repository
+
+    def _get_gebiedsaanwijzingen_repository(self) -> dso_gebieden.GebiedsaanwijzingRepository:
+        repository = dso_gebieden.GebiedsaanwijzingRepository()
+        for input_aanwijzing in self._publication_data.gebiedsaanwijzingen.values():
+            repository.add(
+                dso_gebieden.Gebiedsaanwijzing(
+                    uuid=uuid.UUID(input_aanwijzing.uuid),
+                    aanwijzing_type=input_aanwijzing.aanwijzing_type,
+                    aanwijzing_groep=input_aanwijzing.aanwijzing_group,
+                    title=input_aanwijzing.title,
+                    source_gebied_codes=input_aanwijzing.source_gebied_codes,
+                    gio_key=input_aanwijzing.gio_key,
+                )
+            )
         return repository
 
     def _get_pdf_repository(self) -> BesluitPdfRepository:
@@ -435,16 +484,11 @@ class DsoActInputDataBuilder:
             Expression_Version=self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
         )
 
-        te_verwijderden_werkingsgebieden = [
-            dso_models.VerwijderdWerkingsgebied(
-                UUID=w["UUID"],
-                code=w["Code"],
-                object_id=w["Object_ID"],
-                frbr=dso_models.GioFRBR.model_validate(w["Frbr"]),
-                geboorteregeling=w["Owner_Act"],
-                titel=w["Title"],
+        te_verwijderden_gios = [
+            dso_models.VerwijderdeGio(
+                frbr=dso_models.GioFRBR.model_validate(w["frbr"]),
             )
-            for w in self._act_mutation.Removed_Werkingsgebieden
+            for w in self._act_mutation.Removed_Gios
         ]
 
         match self._mutation_strategy:
@@ -453,7 +497,7 @@ class DsoActInputDataBuilder:
                     was_regeling_frbr=frbr,
                     bekend_wid_map=self._act_mutation.Known_Wid_Map,
                     bekend_wids=self._act_mutation.Known_Wids,
-                    te_verwijderden_werkingsgebieden=te_verwijderden_werkingsgebieden,
+                    te_verwijderden_gios=te_verwijderden_gios,
                 )
                 return result
 
@@ -463,7 +507,7 @@ class DsoActInputDataBuilder:
                     was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
                     bekend_wid_map=self._act_mutation.Known_Wid_Map,
                     bekend_wids=self._act_mutation.Known_Wids,
-                    te_verwijderden_werkingsgebieden=te_verwijderden_werkingsgebieden,
+                    te_verwijderden_gios=te_verwijderden_gios,
                     renvooi_api_key=renvooi.API_KEY,
                     renvooi_api_url=renvooi.RENVOOI_API_URL,
                 )

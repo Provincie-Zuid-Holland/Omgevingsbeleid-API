@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.api.domains.publications.services.state.patch_act_mutation import PatchActMutation
 from app.api.domains.publications.services.state.patch_act_mutation_factory import PatchActMutationFactory
 from app.api.domains.publications.services.state.versions import ActiveState
-from app.api.domains.publications.services.state.versions.v5.models import ActiveAct
+from app.api.domains.publications.services.state.versions.v6.models import ActiveAct
 from app.api.domains.publications.types.api_input_data import ApiActInputData
 from app.api.domains.publications.types.enums import ProcedureType
 
@@ -43,10 +43,10 @@ class ApiActInputDataPatcher:
 
         return self._handle_new_work(data, active_act)
 
-    def _handle_new_work(self, data: ApiActInputData, active_act: ActiveAct) -> ApiActInputData:
-        raise NotImplementedError("Intrekken van regeling is nog niet geimplementeerd")
-
     def _handle_mutation(self, session: Session, data: ApiActInputData, active_act: ActiveAct) -> ApiActInputData:
         mutation_patcher: PatchActMutation = self._mutation_factory.create(active_act)
         data = mutation_patcher.patch(session, data)
         return data
+
+    def _handle_new_work(self, data: ApiActInputData, active_act: ActiveAct) -> ApiActInputData:
+        raise NotImplementedError("Intrekken van regeling is nog niet geimplementeerd")

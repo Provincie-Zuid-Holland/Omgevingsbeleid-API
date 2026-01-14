@@ -14,7 +14,7 @@ from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.others import AssetsTable, RelationsTable, StorageFileTable
 from app.core.tables.users import IS_ACTIVE, UsersTable
-from app.core.tables.werkingsgebieden import InputGeoOnderverdelingTable, InputGeoWerkingsgebiedenTable
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable, InputGeoWerkingsgebiedenTable
 from app.core.types import AcknowledgedRelationSide
 
 
@@ -129,7 +129,7 @@ class DatabaseFixtures:
         default_gml: str = """<gml:Surface xmlns:gml="http://www.opengis.net/gml/3.2" gml:id="id-1191eed9-d9ab-4184-a6a1-056c13752390-1" srsName="urn:ogc:def:crs:EPSG::28992"  srsDimension="2"><gml:patches><gml:PolygonPatch><gml:exterior><gml:LinearRing><gml:posList>74567.348 443493.919 74700.326 444274.743 74567.347600001842 443493.918</gml:posList></gml:LinearRing></gml:exterior></gml:PolygonPatch></gml:patches></gml:Surface>"""
 
         # Version 1
-        o_grasveld_1_a = InputGeoOnderverdelingTable(
+        o_grasveld_1_a = InputGeoOnderverdelingenTable(
             UUID=uuid.UUID("00000600-0000-0000-0000-100000000001"),
             Title="Grasveld A",
             Created_Date=datetime(2025, 1, 1, 0, 0, 0),
@@ -138,7 +138,7 @@ class DatabaseFixtures:
         )
         self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_a, default_geometry)
 
-        o_grasveld_1_b = InputGeoOnderverdelingTable(
+        o_grasveld_1_b = InputGeoOnderverdelingenTable(
             UUID=uuid.UUID("00000600-0000-0000-0000-100000000002"),
             Title="Grasveld B",
             Created_Date=datetime(2025, 1, 1, 0, 0, 0),
@@ -147,7 +147,7 @@ class DatabaseFixtures:
         )
         self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_b, default_geometry)
 
-        o_grasveld_1_c = InputGeoOnderverdelingTable(
+        o_grasveld_1_c = InputGeoOnderverdelingenTable(
             UUID=uuid.UUID("00000600-0000-0000-0000-100000000003"),
             Title="Grasveld C",
             Created_Date=datetime(2025, 2, 1, 0, 0, 0),
@@ -157,7 +157,7 @@ class DatabaseFixtures:
         self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_c, default_geometry)
 
         # Version 2
-        o_grasveld_2_a = InputGeoOnderverdelingTable(
+        o_grasveld_2_a = InputGeoOnderverdelingenTable(
             UUID=uuid.UUID("00000600-0000-0000-0000-100000000011"),
             Title="Grasveld A",
             Created_Date=datetime(2025, 2, 1, 0, 0, 0),
@@ -166,7 +166,7 @@ class DatabaseFixtures:
         )
         self._geometry_repository.create_onderverdeling(self._session, o_grasveld_2_a, default_geometry)
 
-        o_grasveld_2_d = InputGeoOnderverdelingTable(
+        o_grasveld_2_d = InputGeoOnderverdelingenTable(
             UUID=uuid.UUID("00000600-0000-0000-0000-100000000012"),
             Title="Grasveld D",
             Created_Date=datetime(2025, 2, 1, 0, 0, 0),

@@ -11,7 +11,7 @@ from app.api.domains.werkingsgebieden.repositories.input_geo.input_geo_onderverd
 )
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
-from app.core.tables.werkingsgebieden import InputGeoOnderverdelingTable
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
 
 class AreaProcessorConfig(BaseModel):
@@ -66,14 +66,14 @@ class AreaProcessorService:
             return new_record
 
         # The Input Geo Onderverdeling check
-        selected_onderverdeling: InputGeoOnderverdelingTable = self._get_input_geo_onderverdeling(new_field_value)
+        selected_onderverdeling: InputGeoOnderverdelingenTable = self._get_input_geo_onderverdeling(new_field_value)
         area_uuid: uuid.UUID = self._get_or_create_area(new_record, selected_onderverdeling)
         setattr(new_record, field_key, area_uuid)
 
         return new_record
 
-    def _get_input_geo_onderverdeling(self, input_geo_onderverdeling_uuid: uuid.UUID) -> InputGeoOnderverdelingTable:
-        onderverdeling: Optional[InputGeoOnderverdelingTable] = self._onderverdeling_repository.get_by_uuid(
+    def _get_input_geo_onderverdeling(self, input_geo_onderverdeling_uuid: uuid.UUID) -> InputGeoOnderverdelingenTable:
+        onderverdeling: Optional[InputGeoOnderverdelingenTable] = self._onderverdeling_repository.get_by_uuid(
             self._session,
             input_geo_onderverdeling_uuid,
         )
@@ -83,7 +83,7 @@ class AreaProcessorService:
         return onderverdeling
 
     def _get_or_create_area(
-        self, new_record: ModuleObjectsTable, onderverdeling: InputGeoOnderverdelingTable
+        self, new_record: ModuleObjectsTable, onderverdeling: InputGeoOnderverdelingenTable
     ) -> uuid.UUID:
         existing_area = self._area_repository.get_by_source_hash(
             self._session,
