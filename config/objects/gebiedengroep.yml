@@ -156,7 +156,6 @@ models:
       modified_date:
       title:
       source_title:
-      gebieden:
       start_validity:
       end_validity:
   gebiedengroep_extended:
