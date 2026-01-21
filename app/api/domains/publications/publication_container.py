@@ -8,6 +8,11 @@ import app.api.domains.publications.services.assets as assets_services
 import app.api.domains.publications.services.assets as publication_asset_services
 import app.api.domains.publications.services.state as state_services
 import app.api.domains.publications.services.state.versions as state_versions
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationService,
+    RequiredObjectFieldsRule,
+    UsedObjectsExistRule,
+)
 
 
 class PublicationContainer(containers.DeclarativeContainer):
@@ -17,6 +22,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     area_geometry_repository = providers.Dependency()
     asset_repository = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
+    publication_required_object_fields_rule_mapping = providers.Dependency()
 
     act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository)
     act_report_repository = providers.Singleton(repositories.PublicationActReportRepository)
@@ -142,6 +148,19 @@ class PublicationContainer(containers.DeclarativeContainer):
         state_version_factory=state_version_factory,
     )
 
+    validate_publication_service = providers.Singleton(
+        ValidatePublicationService,
+        rules=providers.List(
+            providers.Singleton(
+                RequiredObjectFieldsRule,
+                document_type_map=publication_required_object_fields_rule_mapping,
+            ),
+            providers.Singleton(
+                UsedObjectsExistRule,
+            ),
+        ),
+    )
+
     act_package_builder_factory = providers.Singleton(
         act_package_services.ActPackageBuilderFactory,
         dso_builder_factory=dso_act_input_data_builder_factory,
@@ -151,6 +170,7 @@ class PublicationContainer(containers.DeclarativeContainer):
         state_loader=state_loader,
         publication_data_provider=act_publication_data_provider,
         data_patcher_factory=api_act_input_data_patcher_factory,
+        validate_publication_service=validate_publication_service,
     )
     announcement_package_builder_factory = providers.Singleton(
         announcement_package_services.AnnouncementPackageBuilderFactory,

@@ -93,6 +93,7 @@ class ActPublicationDataProvider:
         bill_attachments: List[dict] = self._get_bill_attachments(publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
+            used_object_codes=used_object_codes,
             objects=used_objects,
             documents=documents,
             assets=assets,

@@ -27,6 +27,7 @@ class ApiContainer(containers.DeclarativeContainer):
     models_provider = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
     required_object_fields_rule_mapping = providers.Dependency()
+    publication_required_object_fields_rule_mapping = providers.Dependency()
 
     config = providers.Configuration(pydantic_settings=[Settings()])
     main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
@@ -105,6 +106,7 @@ class ApiContainer(containers.DeclarativeContainer):
         storage_file_repository=storage_file_repository,
         asset_repository=asset_repository,
         object_field_mapping_provider=object_field_mapping_provider,
+        publication_required_object_fields_rule_mapping=publication_required_object_fields_rule_mapping,
     )
 
     html_images_extractor_factory = providers.Factory(
@@ -325,17 +327,6 @@ class ApiContainer(containers.DeclarativeContainer):
     event_manager = providers.Singleton(
         event_manager.EventManager,
         event_listeners=event_listeners,
-    )
-
-    publication = providers.Container(
-        PublicationContainer,
-        config=config,
-        main_config=main_config,
-        area_repository=area_repository,
-        area_geometry_repository=area_geometry_repository,
-        storage_file_repository=storage_file_repository,
-        asset_repository=asset_repository,
-        object_field_mapping_provider=object_field_mapping_provider,
     )
 
     dso_gebiedsaanwijzingen_factory = providers.Factory(
