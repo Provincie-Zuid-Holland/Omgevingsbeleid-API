@@ -34,7 +34,7 @@ class ValidateModuleRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
-class ValidationRule(ABC):
+class ValidateModuleRule(ABC):
     @abstractmethod
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         pass
@@ -52,8 +52,8 @@ class ValidateModuleResult(BaseModel):
 
 
 class ValidateModuleService:
-    def __init__(self, rules: List[ValidationRule]):
-        self._rules: List[ValidationRule] = rules
+    def __init__(self, rules: List[ValidateModuleRule]):
+        self._rules: List[ValidateModuleRule] = rules
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> ValidateModuleResult:
         errors: List[ValidateModuleError] = []
@@ -65,7 +65,7 @@ class ValidateModuleService:
         )
 
 
-class RequiredObjectFieldsRule(ValidationRule):
+class RequiredObjectFieldsRule(ValidateModuleRule):
     def __init__(self, object_map: Dict[str, Type[BaseModel]]):
         self._object_map: Dict[str, Type[BaseModel]] = object_map
 
@@ -95,7 +95,7 @@ class RequiredObjectFieldsRule(ValidationRule):
         return errors
 
 
-class RequireExistingHierarchyCodeRule(ValidationRule):
+class RequireExistingHierarchyCodeRule(ValidateModuleRule):
     def __init__(self, repository: PublicationObjectRepository):
         self._repository: PublicationObjectRepository = repository
 
@@ -130,7 +130,7 @@ class RequireExistingHierarchyCodeRule(ValidationRule):
         return errors
 
 
-class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
+class NewestSourceWerkingsgebiedUsedRule(ValidateModuleRule):
     def __init__(self, geometry_repository: GeometryRepository, area_geometry_repository: AreaGeometryRepository):
         self._geometry_repository: GeometryRepository = geometry_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
@@ -208,7 +208,7 @@ class ForbidEmptyHtmlNodesRuleConfig(BaseModel):
     html_void_elements: List[str]
 
 
-class ForbidEmptyHtmlNodesRule(ValidationRule):
+class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig):
         self._config: ForbidEmptyHtmlNodesRuleConfig = main_config.get_as_model(
             "forbid_empty_html_nodes_rule",

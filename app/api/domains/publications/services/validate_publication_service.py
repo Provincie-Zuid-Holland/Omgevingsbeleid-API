@@ -37,7 +37,7 @@ class ValidatePublicationException(Exception):
         return [e.model_dump() for e in self.publication_errors]
 
 
-class ValidationRule(ABC):
+class ValidatePublicationRule(ABC):
     @abstractmethod
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         pass
@@ -55,8 +55,8 @@ class ValidatePublicationResult(BaseModel):
 
 
 class ValidatePublicationService:
-    def __init__(self, rules: List[ValidationRule]):
-        self._rules: List[ValidationRule] = rules
+    def __init__(self, rules: List[ValidatePublicationRule]):
+        self._rules: List[ValidatePublicationRule] = rules
 
     def validate(self, db: Session, request: ValidatePublicationRequest) -> ValidatePublicationResult:
         errors: List[ValidatePublicationError] = []
@@ -68,7 +68,7 @@ class ValidatePublicationService:
         )
 
 
-class RequiredObjectFieldsRule(ValidationRule):
+class RequiredObjectFieldsRule(ValidatePublicationRule):
     def __init__(self, document_type_map: Dict[str, Dict[str, Type[BaseModel]]]):
         self._document_type_map: Dict[str, Dict[str, Type[BaseModel]]] = document_type_map
 
@@ -100,7 +100,7 @@ class RequiredObjectFieldsRule(ValidationRule):
         return errors
 
 
-class UsedObjectsExistRule(ValidationRule):
+class UsedObjectsExistRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         errors: List[ValidatePublicationError] = []
         for object_to_validate in request.input_data.Publication_Data.objects:
