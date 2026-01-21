@@ -20,6 +20,7 @@ class ApiBuilderResult:
     object_field_mapping_provider: ObjectFieldMappingProvider
     routes: List[ConfiguredFastapiEndpoint]
     required_object_fields_rule_mapping: Dict[str, Type[BaseModel]]
+    publication_required_object_fields_rule_mapping: Dict[str, Dict[str, Type[BaseModel]]]
 
 
 class ApiBuilder:
@@ -54,23 +55,51 @@ class ApiBuilder:
         object_routes.sort(key=lambda o: o.tags)
 
         required_object_fields_rule_mapping: Dict[str, Type[BaseModel]] = self._build_object_fields_rule_mapping(
-            build_data, self._models_provider
+            build_data,
+            self._models_provider,
+        )
+
+        publication_required_object_fields_rule_mapping: Dict[str, Dict[str, Type[BaseModel]]] = (
+            self._build_publication_object_fields_rule_mapping(
+                build_data,
+                self._models_provider,
+            )
         )
 
         return ApiBuilderResult(
             object_field_mapping_provider=object_field_mapping_provider,
             routes=object_routes,
             required_object_fields_rule_mapping=required_object_fields_rule_mapping,
+            publication_required_object_fields_rule_mapping=publication_required_object_fields_rule_mapping,
         )
 
     def _build_object_fields_rule_mapping(
-        self, build_data: BuildData, model_provider: ModelsProvider
+        self,
+        build_data: BuildData,
+        models_provider: ModelsProvider,
     ) -> Dict[str, Type[BaseModel]]:
         rule_mapping: Dict[str, Type[BaseModel]] = {}
         rule_config: Dict[str, str] = build_data.main_config["required_object_fields_rule"]
         for object_type, model_name in rule_config.items():
-            model_type: Type[BaseModel] = model_provider.get_pydantic_model(model_name)
+            model_type: Type[BaseModel] = models_provider.get_pydantic_model(model_name)
             rule_mapping[object_type] = model_type
+        return rule_mapping
+
+    def _build_publication_object_fields_rule_mapping(
+        self,
+        build_data: BuildData,
+        models_provider: ModelsProvider,
+    ) -> Dict[str, Dict[str, Type[BaseModel]]]:
+        rule_mapping: Dict[str, Dict[str, Type[BaseModel]]] = {}
+        rule_config: Dict[Dict[str, str]] = build_data.main_config["publication_required_object_fields_rule"]
+        for publication_type, object_and_model in rule_config.items():
+            for object_type, model_name in object_and_model.items():
+                model_type: Type[BaseModel] = models_provider.get_pydantic_model(model_name)
+                object_type_data = {}
+                if publication_type in rule_mapping:
+                    object_type_data = rule_mapping[publication_type]
+                object_type_data[object_type] = model_type
+                rule_mapping[publication_type] = object_type_data
         return rule_mapping
 
     def _build_object_field_mapping_provider(self, build_data: BuildData) -> ObjectFieldMappingProvider:
@@ -91,7 +120,7 @@ class ApiBuilder:
                 if endpoint_builder is None:
                     raise ValueError(f"EndpointBuilder with id '{endpoint_config.resolver_id}' does not exist.")
 
-                # Convience which happens in every endpoint builder
+                # Convenience which happens in every endpoint builder
                 resolver_config: dict = endpoint_config.resolver_data
                 path: str = endpoint_config.prefix + resolver_config.get("path", "")
                 builder_data: EndpointContextBuilderData = EndpointContextBuilderData(
@@ -130,7 +159,7 @@ class ApiBuilder:
             if endpoint_builder is None:
                 raise ValueError(f"EndpointBuilder with id '{endpoint_config.resolver_id}' does not exist.")
 
-            # Convience which happens in every endpoint builder
+            # Convenience which happens in every endpoint builder
             resolver_config: dict = endpoint_config.resolver_data
             path: str = endpoint_config.prefix + resolver_config.get("path", "")
             builder_data: EndpointContextBuilderData = EndpointContextBuilderData(

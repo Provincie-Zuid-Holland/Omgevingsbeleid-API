@@ -162,6 +162,7 @@ class PublicationGeoData(BaseModel):
 
 @dataclass
 class PublicationData:
+    used_object_codes: Set[str]
     objects: List[dict]
     documents: List[dict]
     assets: List[dict]

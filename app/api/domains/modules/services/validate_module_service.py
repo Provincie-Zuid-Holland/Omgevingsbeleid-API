@@ -14,7 +14,7 @@ from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
 
 
-class ValidateObject(BaseModel):
+class ValidateModuleObject(BaseModel):
     code: str
     object_id: int
     object_type: str
@@ -23,7 +23,7 @@ class ValidateObject(BaseModel):
 
 class ValidateModuleError(BaseModel):
     rule: str
-    object: ValidateObject
+    object: ValidateModuleObject
     messages: List[str]
 
 
@@ -72,24 +72,24 @@ class RequiredObjectFieldsRule(ValidationRule):
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
 
-        for object_table in request.module_objects:
-            model: Optional[Type[BaseModel]] = self._object_map.get(object_table.Object_Type)
+        for module_object_table in request.module_objects:
+            model: Optional[Type[BaseModel]] = self._object_map.get(module_object_table.Object_Type)
             if not model:
                 continue
 
             try:
-                _ = model.model_validate(object_table)
+                _ = model.model_validate(module_object_table)
             except ValidationError as e:
                 errors.append(
                     ValidateModuleError(
                         rule="required_object_fields_rule",
-                        object=ValidateObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                        object=ValidateModuleObject(
+                            code=module_object_table.Code,
+                            object_id=module_object_table.Object_ID,
+                            object_type=module_object_table.Object_Type,
+                            title=module_object_table.Title,
                         ),
-                        messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
+                        messages=[f"{error['msg']} for {error['loc']} ({module_object_table})" for error in e.errors()],
                     )
                 )
         return errors
@@ -118,7 +118,7 @@ class RequireExistingHierarchyCodeRule(ValidationRule):
                 errors.append(
                     ValidateModuleError(
                         rule="require_existing_hierarchy_code_rule",
-                        object=ValidateObject(
+                        object=ValidateModuleObject(
                             code=object_info.get("Code"),
                             object_id=object_info.get("Object_ID"),
                             object_type=object_info.get("Object_Type"),
@@ -151,7 +151,7 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
-                        object=ValidateObject(
+                        object=ValidateModuleObject(
                             code=object_table.Code,
                             object_id=object_table.Object_ID,
                             object_type=object_table.Object_Type,
@@ -170,7 +170,7 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
-                        object=ValidateObject(
+                        object=ValidateModuleObject(
                             code=object_table.Code,
                             object_id=object_table.Object_ID,
                             object_type=object_table.Object_Type,
@@ -187,7 +187,7 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
-                        object=ValidateObject(
+                        object=ValidateModuleObject(
                             code=object_table.Code,
                             object_id=object_table.Object_ID,
                             object_type=object_table.Object_Type,
@@ -225,7 +225,7 @@ class ForbidEmptyHtmlNodesRule(ValidationRule):
                     errors.append(
                         ValidateModuleError(
                             rule="forbid_empty_html_nodes_rule",
-                            object=ValidateObject(
+                            object=ValidateModuleObject(
                                 code=object_table.Code,
                                 object_id=object_table.Object_ID,
                                 object_type=object_table.Object_Type,
