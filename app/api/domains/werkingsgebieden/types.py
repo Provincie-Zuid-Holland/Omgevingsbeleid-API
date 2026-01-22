@@ -77,6 +77,7 @@ class InputGeoOnderverdeling(BaseModel):
     UUID: uuid.UUID
     Created_Date: datetime
     Title: str
+    Description: str
     Geometry_Hash: str
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
@@ -85,6 +86,7 @@ class InputGeoWerkingsgebied(BaseModel):
     UUID: uuid.UUID
     Created_Date: datetime
     Title: str
+    Description: str
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
@@ -92,5 +94,6 @@ class InputGeoWerkingsgebiedDetailed(BaseModel):
     UUID: uuid.UUID
     Created_Date: datetime
     Title: str
+    Description: str
     Onderverdelingen: List[InputGeoOnderverdeling]
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

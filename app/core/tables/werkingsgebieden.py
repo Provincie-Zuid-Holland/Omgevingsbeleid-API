@@ -21,6 +21,7 @@ class InputGeoWerkingsgebiedenTable(Base):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Title: Mapped[str]
+    Description: Mapped[str] = mapped_column(server_default="")
     Created_Date: Mapped[datetime]
 
     Onderverdelingen: Mapped[List["InputGeoOnderverdelingenTable"]] = relationship(
@@ -36,6 +37,7 @@ class InputGeoOnderverdelingenTable(Base):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Title: Mapped[str]
+    Description: Mapped[str] = mapped_column(server_default="")
     Created_Date: Mapped[datetime]
 
     Symbol: Mapped[Optional[str]]
