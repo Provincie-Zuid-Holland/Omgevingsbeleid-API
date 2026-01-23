@@ -6,3 +6,4 @@ from .full_graph_endpoint_builder import FullGraphEndpointBuilder
 from .object_graph_endpoint_builder import ObjectGraphEndpointBuilder
 from .mssql_search_endpoint_builder import MssqlSearchEndpointBuilder
 from .mssql_valid_search_endpoint_builder import MssqlValidSearchEndpointBuilder
+from .postgresql_search_endpoint_builder import PostgresqlSearchEndpointBuilder

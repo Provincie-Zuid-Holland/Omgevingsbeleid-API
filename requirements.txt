@@ -50,6 +50,8 @@ fastapi==0.128.0
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
+geoalchemy2==0.18.1
+    # via -r requirements.in
 geopandas==1.1.2
     # via -r requirements.in
 greenlet==3.3.0
@@ -92,6 +94,7 @@ numpy==2.4.1
 packaging==25.0
     # via
     #   dso
+    #   geoalchemy2
     #   geopandas
     #   pikepdf
     #   pyogrio
@@ -111,6 +114,12 @@ pillow==12.1.0
     #   pikepdf
 platformdirs==4.5.1
     # via dso
+psycopg[binary,pool]==3.3.2
+    # via -r requirements.in
+psycopg-binary==3.3.2
+    # via psycopg
+psycopg-pool==3.3.0
+    # via psycopg
 pydantic==2.12.5
     # via
     #   -r requirements.in
@@ -171,7 +180,9 @@ soupsieve==2.8.1
     #   beautifulsoup4
     #   dso
 sqlalchemy==2.0.45
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   geoalchemy2
 starlette==0.50.0
     # via fastapi
 text-unidecode==1.3
@@ -183,6 +194,7 @@ typing-extensions==4.15.0
     #   beautifulsoup4
     #   dso
     #   fastapi
+    #   psycopg-pool
     #   pydantic
     #   pydantic-core
     #   sqlalchemy

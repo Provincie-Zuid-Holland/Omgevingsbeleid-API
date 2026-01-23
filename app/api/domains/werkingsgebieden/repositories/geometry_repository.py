@@ -48,11 +48,11 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         }
         sql = f"""
             UPDATE
-                Input_GEO_Onderverdeling
+                "Input_GEO_Onderverdeling"
             SET
-                Geometry = {self._text_to_shape("geometry")}
+                "Geometry" = {self._text_to_shape("geometry")}
             WHERE
-                UUID = :uuid
+                "UUID" = :uuid
             """
         session.execute(text(sql), params)
 
