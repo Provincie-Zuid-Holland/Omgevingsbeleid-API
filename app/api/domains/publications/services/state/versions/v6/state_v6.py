@@ -59,7 +59,7 @@ class StateV6(State):
             Consolidation_Purpose=action.Consolidation_Purpose,
             Document_Type=action.Document_Type,
             Procedure_Type=action.Procedure_Type,
-            Gebieden=action.Gebieden,
+            Gios=action.Gios,
             Gebiedengroepen=action.Gebiedengroepen,
             Documents=action.Documents,
             Assets=action.Assets,

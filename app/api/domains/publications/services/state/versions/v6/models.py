@@ -75,8 +75,8 @@ class Gio(BaseModel):
 class Gebiedengroep(BaseModel):
     uuid: str
     code: str
-    object_id: int
     title: str
+    source_gebieden_codes: Set[str]
     gio_keys: Set[str]
 
 
