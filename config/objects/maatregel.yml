@@ -475,12 +475,16 @@ models:
               min: 3
           - id: html
       role:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3
       effect:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3

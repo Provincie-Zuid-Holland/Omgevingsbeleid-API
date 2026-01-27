@@ -512,19 +512,25 @@ models:
               min: 3
           - id: html
       cause:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3
           - id: html
       provincial_interest:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3
           - id: html
       explanation:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3
