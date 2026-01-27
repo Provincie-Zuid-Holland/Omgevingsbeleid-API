@@ -490,6 +490,8 @@ models:
               min: 3
           - id: html
       hierarchy_code:
+        default: none
+        optional: true
         validators:
           - id: object_code_allowed_type
             data:
