@@ -266,7 +266,7 @@ class ObjectCodeExistsValidator(Validator):
                 object_static = self._object_static_repository.get_by_object_type_and_id(
                     session,
                     object_type,
-                    object_id,
+                    int(object_id),
                 )
                 if not object_static:
                     raise ValueError("Object does not exist")
@@ -335,7 +335,7 @@ class ObjectCodesExistsValidator(Validator):
                     object_static = self._object_static_repository.get_by_object_type_and_id(
                         session,
                         object_type,
-                        object_id,
+                        int(object_id),
                     )
                     if not object_static:
                         raise ValueError("Object does not exist")
