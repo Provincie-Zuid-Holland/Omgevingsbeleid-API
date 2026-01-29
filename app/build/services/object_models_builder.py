@@ -169,6 +169,9 @@ class ObjectModelsBuilder:
                 field_type,
                 pydantic.Field(
                     default=default_value,
+                    json_schema_extra={
+                        "optional": field.optional,
+                    },
                 ),
             )
 

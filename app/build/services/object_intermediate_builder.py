@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Any, Callable, Dict, List
 import pydantic
 
-from app.build.objects.fields import BASE_FIELDS
+from app.build.objects.fields import BASE_FIELDS, FIELD_TYPES
 from app.build.objects.types import EndpointConfig, Field, IntermediateModel, IntermediateObject, ObjectApi
 from app.build.services.validator_provider import ValidatorProvider
 from app.core.types import Column
@@ -47,6 +47,10 @@ class ObjectIntermediateBuilder:
             if field_id in fields:
                 raise RuntimeError(f"Field ID: '{field_id}' already exists")
 
+            default = FIELD_TYPES.get(data.get("type"))
+            if "default" in data:
+                default = data.get("default")
+
             fields[field_id] = Field(
                 id=field_id,
                 column=data["column"],
@@ -55,6 +59,7 @@ class ObjectIntermediateBuilder:
                 optional=data.get("optional", False),
                 validators=data.get("validators", []),
                 formatters=data.get("formatters", []),
+                default=default,
             )
 
         return fields
