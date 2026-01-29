@@ -1355,8 +1355,8 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
 <h6>Nadere uitwerking</h6>
 {{ o.Explanation }}
 {% endif %}
-"""
-                                  },
+""",
+                },
                 Field_Map=[
                     "UUID",
                     "Object_Type",
