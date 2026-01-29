@@ -1312,15 +1312,22 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
     {%- endfor %}
 </div>""",
                 Object_Templates={
-                    "programma_algemeen": """
+                    "visie_algemeen": """
 <h1>{{ o.Title }}</h1>
 <!--[OBJECT-CODE:{{o.Code}}]-->
 {{ o.Description | default('', true) }}
-", "beleidsdoel": "
+""",
+                    "ambitie": """
+<h1>Ambitie {{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{{ o.Description | default('', true) }}
+""",
+                    "beleidsdoel": """
 <h1>{{ o.Title }}</h1>
 <!--[OBJECT-CODE:{{o.Code}}]-->
 {{ o.Description | default('', true) }}
-", "maatregel": "
+""",
+                    "beleidskeuze": """
 <h1>{{ o.Title }}</h1>
 <!--[OBJECT-CODE:{{o.Code}}]-->
 {% if o.Werkingsgebied_Code is not none %}
@@ -1328,32 +1335,28 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
 {% else %}
 <!--[GEBIED-CODE:ambtsgebied]-->
 {% endif %}
+
 {% if o.Description | has_text %}
-<h6>Wat gaat de provincie doen?</h6>
+<h6>Wat wil de provincie bereiken?</h6>
 {{ o.Description }}
 {% endif %}
-{% if o.Role | has_text %}
-<h6>Rol</h6>
-<p>{{ o.Role }}</p>
+
+{% if o.Cause | has_text %}
+<h6>Aanleiding</h6>
+{{ o.Cause }}
 {% endif %}
-{% if o.Effect | has_text  %}
-<h6>Uitwerking</h6>
-{{ o.Effect }}
+
+{% if o.Provincial_Interest | has_text %}
+<h6>Motivering Provinciaal Belang</h6>
+{{ o.Provincial_Interest }}
 {% endif %}
-{% if documents | length > 0 %}
-<h6>Documenten</h6>
-<ul data-hint-wid-code=\"programma-custom-maatregel-{{ o.Code }}-documenten\">
-{%- for d in documents | sort(attribute='Title') %}
-<li>
-    <p>
-        <a href=\"#\" data-hint-document-code=\"{{ d.Code }}\" data-hint-wid-code=\"document-{{ o.Code }}-{{ d.Code }}-ref\" data-hint-type=\"document\" data-hint-document-uuid=\"{{ d.UUID }}\">{{ d.Title }}</a>
-    </p>
-</li>
-{%- endfor %}
-</ul>
+
+{% if o.Explanation | has_text %}
+<h6>Nadere uitwerking</h6>
+{{ o.Explanation }}
 {% endif %}
-                """
-                },
+"""
+                                  },
                 Field_Map=[
                     "UUID",
                     "Object_Type",
