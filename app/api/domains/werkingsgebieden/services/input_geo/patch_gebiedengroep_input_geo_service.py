@@ -217,7 +217,7 @@ class PatchGebiedengroepInputGeoService:
         if existing_object is None:
             return ObjectResultType.CREATED, self._create_sub_object(sub_object_static, module_id, area_uuid, title)
 
-        if existing_object.Area_UUID != area_uuid:
+        if existing_object.Area_UUID != area_uuid or existing_object.Deleted:
             return ObjectResultType.UPDATED, self._modify_sub_object(existing_object, area_uuid, title)
 
         return ObjectResultType.IGNORED, existing_object
@@ -256,6 +256,7 @@ class PatchGebiedengroepInputGeoService:
             {
                 "Area_UUID": area_uuid,
                 "Title": title,
+                "Deleted": False,
             },
             self._timepoint,
             self._user.UUID,
