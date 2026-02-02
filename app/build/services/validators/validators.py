@@ -41,7 +41,8 @@ class LengthValidator(Validator):
                 raise ValueError("Value must be a string")
 
             if (cls.model_fields[info.field_name].json_schema_extra or {}).get("optional"):
-                if value == cls.model_fields[info.field_name].default.default:
+                default_of_field = cls.model_fields[info.field_name].default
+                if default_of_field is None or value == default_of_field.default:
                     return value
 
             if min_length is not None:
