@@ -104,6 +104,7 @@ fields:
     column: area_uuid
     validators:
       - id: none_to_default_value
+    optional: true
   idms_link:
     name: IDMS_Link
     type: str

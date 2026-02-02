@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Dict, List
 from uuid import UUID
-from .types import Field, FieldType
 
+from .types import Field, FieldType
 
 FIELD_TYPES: Dict[str, FieldType] = {
     ft.id: ft
@@ -10,7 +10,7 @@ FIELD_TYPES: Dict[str, FieldType] = {
         FieldType(id="int", field_type=int, default=0),
         FieldType(id="float", field_type=float, default=0.0),
         FieldType(id="str", field_type=str, default=""),
-        FieldType(id="uuid", field_type=UUID, default=UUID("00000000-0000-0000-0000-000000000000")),
+        FieldType(id="uuid", field_type=UUID, default=None),
         FieldType(id="datetime", field_type=datetime, default=datetime(1970, 1, 1)),
         FieldType(id="list_str", field_type=List[str], default=[]),
     ]
