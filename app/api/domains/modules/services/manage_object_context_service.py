@@ -82,6 +82,7 @@ class ManageObjectContextService:
                 hidden_context.Original_Adjust_On = request.original_adjust_on
                 hidden_context.Explanation = request.explanation
                 hidden_context.Conclusion = request.conclusion
+                session.add(hidden_context)
                 return Result(object_context=hidden_context, result_type=ResultType.ACTIVATED)
             case _:
                 return Result(object_context=existing_object_context, result_type=ResultType.ALREADY_EXIST)
