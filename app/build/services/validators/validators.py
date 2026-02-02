@@ -19,7 +19,7 @@ class NoneToDefaultValueValidator(Validator):
     def get_validator_func(self, config: dict) -> PydanticValidator:
         def pydantic_none_to_default_validator(cls, value, info: ValidationInfo):
             if value is None:
-                return cls.model_fields[info.field_name].default.default
+                return cls.model_fields[info.field_name].default
             return value
 
         return PydanticValidator(
@@ -41,8 +41,8 @@ class LengthValidator(Validator):
                 raise ValueError("Value must be a string")
 
             if (cls.model_fields[info.field_name].json_schema_extra or {}).get("optional"):
-                default_of_field = cls.model_fields[info.field_name].default
-                if default_of_field is None or value == default_of_field.default:
+                default_value = cls.model_fields[info.field_name].default
+                if default_value is None or value == default_value:
                     return value
 
             if min_length is not None:

@@ -47,9 +47,9 @@ class ObjectIntermediateBuilder:
             if field_id in fields:
                 raise RuntimeError(f"Field ID: '{field_id}' already exists")
 
-            default = FIELD_TYPES.get(data.get("type"))
+            default_value = FIELD_TYPES.get(data.get("type")).default
             if "default" in data:
-                default = data.get("default")
+                default_value = data.get("default")
 
             fields[field_id] = Field(
                 id=field_id,
@@ -59,7 +59,7 @@ class ObjectIntermediateBuilder:
                 optional=data.get("optional", False),
                 validators=data.get("validators", []),
                 formatters=data.get("formatters", []),
-                default=default,
+                default=default_value,
             )
 
         return fields
