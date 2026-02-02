@@ -112,8 +112,6 @@ fields:
     name: File_UUID
     type: uuid
     column: file_uuid
-    validators:
-      - id: none_to_default_value
     optional: true
   idms_link:
     name: IDMS_Link
@@ -258,18 +256,12 @@ models:
         default: none
         optional: true
       file_uuid:
-        default: none
-        optional: true
   document_static_post:
     name: DocumentStaticPost
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
   document_static_post_validated:
     name: DocumentStaticPostValidated
     static_only: true
@@ -284,8 +276,6 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
   document_uuid:
     name: DocumentUUID
     fields:
