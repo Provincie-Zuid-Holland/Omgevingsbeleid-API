@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
-from app.api.domains.modules.dependencies import depends_active_module
+from app.api.domains.modules.dependencies import depends_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.types import ModuleStatusCode
 from app.api.domains.users.dependencies import depends_optional_current_user
@@ -29,7 +29,7 @@ class ModuleObjectVersionEndpointContext(BaseEndpointContext):
 
 @inject
 def view_module_object_version_endpoint(
-    module: Annotated[ModuleTable, Depends(depends_active_module)],
+    module: Annotated[ModuleTable, Depends(depends_module)],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
