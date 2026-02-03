@@ -342,6 +342,22 @@ api:
       endpoints:
         - resolver: object_counts
           resolver_data:
+            <<: *searchable_config
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - document
+              - maatregel
+              - beleidsregel
+              - gebiedsprogramma
+              - wettelijke_taak
+              - nationaal_belang
+              - verplicht_programma
+              - visie_algemeen
+              - programma_algemeen
+              - werkingsgebied
+
             path: /count
         - resolver: list_all_latest_objects
           resolver_data:
