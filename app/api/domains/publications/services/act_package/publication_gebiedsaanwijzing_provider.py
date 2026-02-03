@@ -49,7 +49,7 @@ class PublicationGebiedsaanwijzingProcessor:
 
         HTML pattern:
             <a data-hint-type="gebiedsaanwijzing" data-aanwijzing-type="bodem" data-aanwijzing-group="bodemfunctieklasse industrie"
-                data-target-codes="gebied-1 gebiedengroep-15 gebiedengroep-1" data-title="Malieveld" href="#">het Malieveld</a>
+                data-target-codes="gebied-1,gebiedengroep-15,gebiedengroep-1" data-title="Malieveld" href="#">het Malieveld</a>
         """
 
         soup = BeautifulSoup(html, "html.parser")

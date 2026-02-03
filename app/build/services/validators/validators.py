@@ -87,7 +87,7 @@ class PlainTextValidator(Validator):
 
 class FilenameValidator(Validator):
     def __init__(self):
-        self._pattern = r"^[\w\-.]+$"
+        self._pattern = r"^[\w\-.]+\.pdf$"
 
     def get_id(self) -> str:
         return "filename"
