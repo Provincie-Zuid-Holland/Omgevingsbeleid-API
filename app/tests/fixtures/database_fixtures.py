@@ -188,6 +188,16 @@ class DatabaseFixtures:
                 Wachtwoord=self._security.get_password_hash("password"),
             )
         )
+        self._session.add(
+            UsersTable(
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000010"),
+                Gebruikersnaam="Johan",
+                Email="j@example.com",
+                Rol="Basic",
+                Status=IS_ACTIVE,
+                Wachtwoord=self._security.get_password_hash("password"),
+            )
+        )
         self._session.commit()
 
     def create_geo_input(self):
