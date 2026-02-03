@@ -61,6 +61,7 @@ class StateV6(State):
             Procedure_Type=action.Procedure_Type,
             Gios=action.Gios,
             Gebiedengroepen=action.Gebiedengroepen,
+            Gebiedsaanwijzingen=action.Gebiedsaanwijzingen,
             Documents=action.Documents,
             Assets=action.Assets,
             Wid_Data=action.Wid_Data,
