@@ -1,9 +1,12 @@
 from typing import Dict, List, Optional, Set
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PlainSerializer
 
 from enum import Enum
 from typing import Annotated, Literal, Union
+
+
+CustomSetStr = Annotated[Set[str], PlainSerializer(lambda x: list(x), return_type=List[str])]
 
 
 class Purpose(BaseModel):
@@ -45,7 +48,7 @@ class Gio(BaseModel):
     # But for a composite GIO like for an gebiedsaanwijzing, this could be ["gebied-1", "gebied-2", "gebied-3"]
     # Eventhough the gebiedsaanwijzing might actually point to a Gebiedengroep.
     # But a gebiedengroep is unreliable as the code of a gebiedengroep does not tell us if gebieden got added or removed.
-    source_codes: Set[str] = Field(default_factory=set)
+    source_codes: CustomSetStr = Field(default_factory=set)
 
     # Used on top of the GeoInformatieObjectVaststelling and Aanlevering
     # If there is only 1 `locatie` then its probably the same title as the locatie.title
@@ -75,9 +78,9 @@ class Gio(BaseModel):
 class Gebiedengroep(BaseModel):
     uuid: str
     code: str
-    object_id: int
     title: str
-    gio_keys: Set[str]
+    source_gebieden_codes: CustomSetStr
+    gio_keys: CustomSetStr
 
 
 class Gebiedsaanwijzing(BaseModel):
@@ -86,8 +89,8 @@ class Gebiedsaanwijzing(BaseModel):
     aanwijzing_group: str
     title: str
     # Used to determine reuse and target to geo_gio
-    source_target_codes: Set[str]
-    source_gebied_codes: Set[str]
+    source_target_codes: CustomSetStr
+    source_gebied_codes: CustomSetStr
     gio_key: str
 
 

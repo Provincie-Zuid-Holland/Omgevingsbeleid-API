@@ -132,8 +132,8 @@ class StateV6Upgrader(StateUpgrader):
             result[werkingsgebied_code] = models_v6.Gebiedengroep(
                 uuid=old_werkingsgebied.UUID,
                 code=werkingsgebied_code,
-                object_id=-1,
                 title=old_werkingsgebied.Title,
+                source_gebieden_codes=set([gebied_code]),
                 gio_keys=set([gebied_code]),
             )
 

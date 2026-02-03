@@ -26,9 +26,9 @@ class ActStatePatcher:
         return state
 
     def _patch_publication(self, state: ActiveState) -> ActiveState:
-        # gebieden: Dict[str, models.Gebied] = self._resolve_gebieden(state)
+        gios: Dict[str, models.Gio] = self._resolve_gios(state)
         gebiedengroepen: Dict[str, models.Gebiedengroep] = self._resolve_gebiedengroepen(state)
-        gebiedsaanwijzingen: List[models.Gebiedsaanwijzing] = self._resolve_gebiedsaanwijzingen(state)
+        gebiedsaanwijzingen: Dict[str, models.Gebiedsaanwijzing] = self._resolve_gebiedsaanwijzingen(state)
         documents: Dict[int, models.Document] = self._resolve_documents(state)
         wid_data = models.WidData(
             Known_Wid_Map=self._dso_builder.get_used_wid_map(),
@@ -84,7 +84,7 @@ class ActStatePatcher:
             Consolidation_Purpose=purpose,
             Document_Type=self._api_input_data.Publication_Version.Publication.Document_Type,
             Procedure_Type=self._api_input_data.Publication_Version.Publication.Procedure_Type,
-            # Gebieden=gebieden,
+            Gios=gios,
             Gebiedengroepen=gebiedengroepen,
             Gebiedsaanwijzingen=gebiedsaanwijzingen,
             Documents=documents,
@@ -97,70 +97,80 @@ class ActStatePatcher:
         state.handle_action(action)
         return state
 
-    # def _resolve_gebieden(self, state: ActiveState) -> Dict[str, models.Gebied]:
-    #     gebieden: Dict[str, models.Gebied] = {}
+    def _resolve_gios(self, state: ActiveState) -> Dict[str, models.Gio]:
+        gios: Dict[str, models.Gio] = {}
 
-    #     # We only keep the send gebieden, as all other should have been withdrawn
-    #     for dso_gebied in self._api_input_data.Publication_Data.gebieden:
-    #         dso_frbr: dso_models.GioFRBR = dso_gebied["frbr"]
-    #         frbr = models.Frbr(
-    #             Work_Province_ID=dso_frbr.Work_Province_ID,
-    #             Work_Country="",
-    #             Work_Date=dso_frbr.Work_Date,
-    #             Work_Other=dso_frbr.Work_Other,
-    #             Expression_Language=dso_frbr.Expression_Language,
-    #             Expression_Date=dso_frbr.Expression_Date,
-    #             Expression_Version=dso_frbr.Expression_Version or 0,
-    #         )
-    #         gebied = models.Gebied(
-    #             uuid=str(dso_gebied["uuid"]),
-    #             identifier=dso_gebied["identfier"],
-    #             gml_id=dso_gebied["gml_id"],
-    #             title=dso_gebied["title"],
-    #             object_id=dso_gebied["object_id"],
-    #             code=dso_gebied["code"],
-    #             hash=dso_gebied["hash"],
-    #             geboorteregeling=dso_gebied["geboorteregeling"],
-    #             achtergrond_verwijzing=dso_gebied["achtergrond_verwijzing"],
-    #             achtergrond_actualiteit=dso_gebied["achtergrond_actualiteit"],
-    #             frbr=frbr,
-    #         )
-    #         gebieden[gebied.code] = gebied
-    #     return gebieden
-
-    def _resolve_gebiedsaanwijzingen(self, state: ActiveState) -> List[models.Gebiedsaanwijzing]:
-        aanwijzingen: List[models.Gebiedsaanwijzing] = []
-
-        # We only keep the send gebiedsaanwijzingen, as all other should have been withdrawn from the ow state
-        for dso_aanwijzing in self._api_input_data.Publication_Data.gebiedsaanwijzingen:
-            aanwijzing = models.Gebiedsaanwijzing(
-                uuid=dso_aanwijzing.uuid,
-                ow_identifier=dso_aanwijzing.ow_identifier,
-                aanwijzing_type=dso_aanwijzing.aanwijzing_type,
-                aanwijzing_group=dso_aanwijzing.aanwijzing_group,
-                title=dso_aanwijzing.title,
-                target_codes=dso_aanwijzing.target_codes,
+        # We only keep the send gios, as all other should have been withdrawn
+        for dso_gio in self._api_input_data.Publication_Data.gios.values():
+            dso_frbr: dso_models.FRBR = dso_gio.frbr
+            frbr = models.Frbr(
+                Work_Province_ID=dso_frbr.Work_Province_ID,
+                Work_Country="",
+                Work_Date=dso_frbr.Work_Date,
+                Work_Other=dso_frbr.Work_Other,
+                Expression_Language=dso_frbr.Expression_Language,
+                Expression_Date=dso_frbr.Expression_Date,
+                Expression_Version=dso_frbr.Expression_Version or 0,
             )
-            aanwijzingen.append(aanwijzing)
 
-        return aanwijzingen
+            locaties: List[models.GioLocatie] = [
+                models.GioLocatie(
+                    title=dso_locatie.title,
+                    basisgeo_id=dso_locatie.basisgeo_id,
+                    source_hash=dso_locatie.source_hash,
+                    source_code=dso_locatie.code,
+                )
+                for dso_locatie in dso_gio.locaties
+            ]
+
+            gio = models.Gio(
+                source_codes=dso_gio.source_codes,
+                title=dso_gio.title,
+                frbr=frbr,
+                geboorteregeling=dso_gio.geboorteregeling,
+                achtergrond_verwijzing=dso_gio.achtergrond_verwijzing,
+                achtergrond_actualiteit=dso_gio.achtergrond_actualiteit,
+                locaties=locaties,
+            )
+            gio_key: str = gio.key()
+            gios[gio_key] = gio
+
+        return gios
 
     def _resolve_gebiedengroepen(self, state: ActiveState) -> Dict[str, models.Gebiedengroep]:
         gebiedengroepen: Dict[str, models.Gebiedengroep] = {}
 
-        # We only keep the send gebiedengroepen, as all other should have been withdrawn
-        for dso_gebiedengroep in self._api_input_data.Publication_Data.gebiedengroepen:
+        # We only keep the send gebiedengroepen, as all other should have been withdrawn from the ow state
+        for dso_gebiedengroep in self._api_input_data.Publication_Data.gebiedengroepen.values():
             gebiedengroep = models.Gebiedengroep(
-                uuid=str(dso_gebiedengroep["uuid"]),
-                identifier=dso_gebiedengroep["identfier"],
-                object_id=dso_gebiedengroep["object_id"],
-                code=dso_gebiedengroep["code"],
-                title=dso_gebiedengroep["title"],
-                gebied_codes=dso_gebiedengroep["gebied_codes"],
+                uuid=dso_gebiedengroep.uuid,
+                code=dso_gebiedengroep.code,
+                title=dso_gebiedengroep.title,
+                source_gebieden_codes=dso_gebiedengroep.source_gebieden_codes,
+                gio_keys=dso_gebiedengroep.gio_keys,
             )
             gebiedengroepen[gebiedengroep.code] = gebiedengroep
 
         return gebiedengroepen
+
+    def _resolve_gebiedsaanwijzingen(self, state: ActiveState) -> Dict[str, models.Gebiedsaanwijzing]:
+        aanwijzingen: Dict[str, models.Gebiedsaanwijzing] = {}
+
+        # We only keep the send gebiedsaanwijzingen, as all other should have been withdrawn from the ow state
+        for dso_aanwijzing in self._api_input_data.Publication_Data.gebiedsaanwijzingen.values():
+            aanwijzing = models.Gebiedsaanwijzing(
+                uuid=dso_aanwijzing.uuid,
+                aanwijzing_type=dso_aanwijzing.aanwijzing_type,
+                aanwijzing_group=dso_aanwijzing.aanwijzing_group,
+                title=dso_aanwijzing.title,
+                source_target_codes=dso_aanwijzing.source_target_codes,
+                source_gebied_codes=dso_aanwijzing.source_gebied_codes,
+                gio_key=dso_aanwijzing.gio_key,
+            )
+            key: str = dso_aanwijzing.key()
+            aanwijzingen[key] = aanwijzing
+
+        return aanwijzingen
 
     def _resolve_documents(self, state: ActiveState) -> Dict[int, models.Document]:
         documents: Dict[int, models.Document] = {}
