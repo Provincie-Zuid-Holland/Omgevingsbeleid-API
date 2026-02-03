@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
-from app.api.domains.modules.dependencies import depends_active_module
+from app.api.domains.modules.dependencies import depends_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
@@ -27,7 +27,7 @@ class ModuleObjectLatestEndpointContext(BaseEndpointContext):
 def view_module_object_latest_endpoint(
     lineage_id: int,
     _: Annotated[UsersTable, Depends(depends_current_user)],
-    module: Annotated[ModuleTable, Depends(depends_active_module)],
+    module: Annotated[ModuleTable, Depends(depends_module)],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],

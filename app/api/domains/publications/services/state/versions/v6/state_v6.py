@@ -39,7 +39,7 @@ class StateV6(State):
             case AddAnnouncementAction():
                 self._handle_add_announcement_action(action)
             case _:
-                raise RuntimeError(f"Action {action.__class__.__name__} is not implemented for StateV4")
+                raise RuntimeError(f"Action {action.__class__.__name__} is not implemented for StateV5")
 
     def _handle_add_purpose_action(self, action: AddPurposeAction):
         purpose = models.Purpose(
@@ -59,8 +59,9 @@ class StateV6(State):
             Consolidation_Purpose=action.Consolidation_Purpose,
             Document_Type=action.Document_Type,
             Procedure_Type=action.Procedure_Type,
-            Gebieden=action.Gebieden,
+            Gios=action.Gios,
             Gebiedengroepen=action.Gebiedengroepen,
+            Gebiedsaanwijzingen=action.Gebiedsaanwijzingen,
             Documents=action.Documents,
             Assets=action.Assets,
             Wid_Data=action.Wid_Data,

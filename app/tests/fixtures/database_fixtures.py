@@ -3,18 +3,31 @@ import json
 import uuid
 from datetime import datetime
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.domains.modules.types import ModuleObjectActionFull, ModuleStatusCode, ModuleStatusCodeInternal
+from app.api.domains.publications.types.enums import DocumentType, ProcedureType
 from app.api.domains.users.services.security import Security
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
+from app.core.db import Base
 from app.core.tables.acknowledged_relations import AcknowledgedRelationsTable
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.others import AssetsTable, RelationsTable, StorageFileTable
+from app.core.tables.publications import (
+    PublicationTemplateTable,
+    PublicationEnvironmentTable,
+    PublicationActTable,
+    PublicationAreaOfJurisdictionTable,
+)
 from app.core.tables.users import IS_ACTIVE, UsersTable
-from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable, InputGeoWerkingsgebiedenTable
+from app.core.tables.werkingsgebieden import (
+    InputGeoOnderverdelingenTable,
+    InputGeoWerkingsgebiedenTable,
+    Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc,
+)
 from app.core.types import AcknowledgedRelationSide
 
 
@@ -31,17 +44,58 @@ class DatabaseFixtures:
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
         self._security: Security = security
 
+    def truncate_all(self):
+        self._session.execute(text(f"DELETE FROM {Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc.name}"))
+        self._session.commit()
+
+        self._truncate(PublicationAreaOfJurisdictionTable)
+        self._truncate(PublicationActTable)
+        self._truncate(PublicationEnvironmentTable)
+        self._truncate(PublicationTemplateTable)
+        self._truncate(InputGeoOnderverdelingenTable)
+        self._truncate(InputGeoWerkingsgebiedenTable)
+        self._truncate(RelationsTable)
+        self._truncate(AcknowledgedRelationsTable)
+        self._truncate(ModuleStatusHistoryTable)
+        self._truncate(ModuleObjectContextTable)
+        self._truncate(ModuleObjectsTable)
+        self._truncate(ModuleTable)
+        self._truncate(AssetsTable)
+        self._truncate(StorageFileTable)
+        self._truncate(ObjectStaticsTable)
+        self._truncate(ObjectsTable)
+        self._truncate(UsersTable)
+
+    def _truncate(self, model: type[Base]):
+        if self._session.bind.dialect.name == "sqlite":
+            self._session.execute(text("PRAGMA foreign_keys = OFF"))
+        if self._session.bind.dialect.name == "mssql":
+            self._session.execute(text(f"ALTER TABLE {model.__tablename__} NOCHECK CONSTRAINT ALL"))
+
+        self._session.query(model).delete()
+
+        if self._session.bind.dialect.name == "sqlite":
+            self._session.execute(text("PRAGMA foreign_keys = ON"))
+        if self._session.bind.dialect.name == "mssql":
+            self._session.execute(text(f"ALTER TABLE {model.__tablename__} WITH CHECK CHECK CONSTRAINT ALL"))
+
+        self._session.commit()
+
     def create_all(self):
         self.create_users()
         self.create_geo_input()
         self.create_storage_files()
         self.create_assets()
         self.create_object_statics()
-        self.existing_objects()
+        self.create_existing_objects()
         self.create_modules()
         self.create_relations()
         self.create_acknowledged_relations()
         self.create_visie_algemeen()
+        self.create_publication_templates()
+        self.create_publication_environments()
+        self.create_publication_acts()
+        self.create_publication_aoj()
 
     def create_users(self):
         self._session.add(
@@ -110,6 +164,36 @@ class DatabaseFixtures:
                 Gebruikersnaam="Gerald",
                 Email="g@example.com",
                 Rol="Tester",
+                Status=IS_ACTIVE,
+                Wachtwoord=self._security.get_password_hash("password"),
+            )
+        )
+        self._session.add(
+            UsersTable(
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000008"),
+                Gebruikersnaam="Hans",
+                Email="h@example.com",
+                Rol="Functioneel beheerder",
+                Status=IS_ACTIVE,
+                Wachtwoord=self._security.get_password_hash("password"),
+            )
+        )
+        self._session.add(
+            UsersTable(
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000009"),
+                Gebruikersnaam="Ingrid",
+                Email="i@example.com",
+                Rol="Technisch beheerder",
+                Status=IS_ACTIVE,
+                Wachtwoord=self._security.get_password_hash("password"),
+            )
+        )
+        self._session.add(
+            UsersTable(
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000010"),
+                Gebruikersnaam="Johan",
+                Email="j@example.com",
+                Rol="Basic",
                 Status=IS_ACTIVE,
                 Wachtwoord=self._security.get_password_hash("password"),
             )
@@ -386,7 +470,7 @@ class DatabaseFixtures:
 
         self._session.commit()
 
-    def existing_objects(self):
+    def create_existing_objects(self):
         self._session.add(
             ObjectsTable(
                 Object_Type="ambitie",
@@ -819,8 +903,8 @@ class DatabaseFixtures:
                 Object_ID=1,
                 Code="maatregel-1",
                 Description="Description voor maatregel 1",
-                Role="De Rol",
-                Effect="Het effect",
+                Role="De Rol voor maatregel 1",
+                Effect="Het effect voor maatregel 1",
                 Hierarchy_Code="beleidskeuze-1",
                 Documents=["document-1", "document-2"],
                 Werkingsgebied_Code="werkingsgebied-1",
@@ -856,6 +940,9 @@ class DatabaseFixtures:
                 Object_Type="maatregel",
                 Object_ID=2,
                 Code="maatregel-2",
+                Description="Description voor maatregel 2",
+                Role="De Rol voor maatregel 2",
+                Effect="Het effect voor maatregel 2",
                 Hierarchy_Code="beleidskeuze-2",
                 Werkingsgebied_Code="werkingsgebied-1",
                 Documents=["document-1"],
@@ -1191,6 +1278,225 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._session.commit()
+
+    def create_publication_templates(self):
+        self._session.add(
+            PublicationTemplateTable(
+                UUID=uuid.UUID("00000700-0000-0000-0000-100000000001"),
+                Title="Omgevingsvisie Versie 1",
+                Description="Omgevingsvisie Versie 1",
+                Is_Active=True,
+                Document_Type=DocumentType.VISION,
+                Object_Types=["visie_algemeen", "ambitie", "beleidsdoel", "beleidskeuze", "werkingsgebied"],
+                Text_Template="""
+<div data-hint-element="divisietekst"><object code="visie_algemeen-1" /></div>
+
+<div data-hint-wid-code="omgevingsvisie-custom-ambities-wrapper">
+    <h1>6. Ambities van Zuid-Holland</h1>
+    {%- for a in ambitie | sort(attribute='Title') %}
+        <div data-hint-element="divisietekst"><object code="{{ a.Code }}" template="ambitie" /></div>
+    {%- endfor %}
+</div>
+
+<div data-hint-wid-code="omgevingsvisie-custom-beleidsdoelen-and-beleidskeuzes-wrapper">
+    <h1>7. Beleidsdoelen en beleidskeuzes</h1>
+
+    {%- for d in beleidsdoel | sort(attribute='Title') %}
+    <div data-hint-wid-code="omgevingsvisie-custom-beleidsdoel-{{ d.Code }}-wrapper">
+        <h1>Beleidsdoel {{ d.Title }}</h1>
+        <div data-hint-element="divisietekst"><object code="{{ d.Code }}" template="beleidsdoel" /></div>
+
+        {% set filtered_results = beleidskeuze | selectattr('Hierarchy_Code', 'equalto', d.Code) | list %}
+        {% if filtered_results %}
+        <div data-hint-wid-code="omgevingsvisie-custom-beleidskeuze-{{ d.Code }}-wrapper">
+            <h1>Beleidskeuzes van {{ d.Title }}</h1>
+            {%- for k in filtered_results | sort(attribute='Title') %}
+            <div data-hint-element="divisietekst"><object code="{{ k.Code }}" template="beleidskeuze" /></div>
+            {%- endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {%- endfor %}
+</div>""",
+                Object_Templates={
+                    "visie_algemeen": """
+<h1>{{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{{ o.Description | default('', true) }}
+""",
+                    "ambitie": """
+<h1>Ambitie {{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{{ o.Description | default('', true) }}
+""",
+                    "beleidsdoel": """
+<h1>{{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{{ o.Description | default('', true) }}
+""",
+                    "beleidskeuze": """
+<h1>{{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{% if o.Werkingsgebied_Code is not none %}
+<!--[GEBIED-CODE:{{o.Werkingsgebied_Code}}]-->
+{% else %}
+<!--[GEBIED-CODE:ambtsgebied]-->
+{% endif %}
+
+{% if o.Description | has_text %}
+<h6>Wat wil de provincie bereiken?</h6>
+{{ o.Description }}
+{% endif %}
+
+{% if o.Cause | has_text %}
+<h6>Aanleiding</h6>
+{{ o.Cause }}
+{% endif %}
+
+{% if o.Provincial_Interest | has_text %}
+<h6>Motivering Provinciaal Belang</h6>
+{{ o.Provincial_Interest }}
+{% endif %}
+
+{% if o.Explanation | has_text %}
+<h6>Nadere uitwerking</h6>
+{{ o.Explanation }}
+{% endif %}
+""",
+                },
+                Field_Map=[
+                    "UUID",
+                    "Object_Type",
+                    "Object_ID",
+                    "Code",
+                    "Hierarchy_Code",
+                    "Werkingsgebied_Code",
+                    "Title",
+                    "Description",
+                    "Cause",
+                    "Provincial_Interest",
+                    "Explanation",
+                    "Role",
+                    "Effect",
+                    "Area_UUID",
+                    "Created_Date",
+                    "Modified_Date",
+                    "Documents",
+                    "File_UUID",
+                    "Filename",
+                ],
+                Object_Field_Map={
+                    "programma_algemeen": ["Title", "Description"],
+                    "beleidsdoel": ["Title", "Description"],
+                    "beleidskeuze": ["Title"],
+                    "maatregel": ["Title", "Description", "Role", "Effect", "Gebiedengroep_Code", "Documents"],
+                    "gebiedengroep": ["Title", "Gebieden"],
+                    "gebied": ["Title", "Area_UUID"],
+                    "document": ["Title", "File_UUID", "Filename"],
+                },
+                Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Modified_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._session.commit()
+
+    def create_publication_environments(self):
+        self._session.add(
+            PublicationEnvironmentTable(
+                UUID=uuid.UUID("00000800-0000-0000-0000-100000000001"),
+                Title="Prod",
+                Description="Prod",
+                Code="PROD",
+                Province_ID="pv28",
+                Authority_ID="00000000000000000000",
+                Submitter_ID="00000000000000000000",
+                Governing_Body_Type="provinciale_staten",
+                Frbr_Country="nl",
+                Frbr_Language="nld",
+                Is_Active=True,
+                Has_State=False,
+                Can_Validate=True,
+                Can_Publicate=False,
+                Is_Locked=False,
+                Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Modified_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._session.commit()
+
+    def create_publication_acts(self):
+        self._session.add(
+            PublicationActTable(
+                ID=1,
+                UUID=uuid.UUID("00000900-0000-0000-0000-100000000001"),
+                Environment_UUID=uuid.UUID("00000800-0000-0000-0000-100000000001"),
+                Document_Type=DocumentType.VISION,
+                Procedure_Type=ProcedureType.DRAFT,
+                Title="Omgevingsvisie Zuid-Holland",
+                Is_Active=True,
+                Metadata={
+                    "Official_Title": "Omgevingsvisie Zuid-Holland",
+                    "Quote_Title": "Omgevingsvisie Zuid-Holland",
+                    "Subjects": [
+                        "water",
+                        "ruimtelijke_ordening",
+                        "waterbeheer",
+                        "natuur_en_milieu",
+                        "ruimte_en_infrastructuur",
+                        "verkeer",
+                        "cultureel_erfgoed",
+                        "bouwen_en_verbouwen",
+                        "wonen",
+                        "woningmarkt",
+                        "economie",
+                        "werk",
+                        "recreatie",
+                        "bodem",
+                        "energie",
+                        "flora_en_fauna",
+                        "geluid",
+                        "veiligheid",
+                        "natuur_en_landschapsbeheer",
+                        "luchtvaart",
+                        "rail_en_wegverkeer",
+                        "scheepvaart",
+                        "lucht",
+                        "netwerken",
+                        "cultuur_en_recreatie",
+                        "werkgelegenheid",
+                    ],
+                    "Jurisdictions": ["omgevingsrecht"],
+                },
+                Metadata_Is_Locked=False,
+                Work_Province_ID="pv28",
+                Work_Country="nl",
+                Work_Date="2025",
+                Work_Other="ontwerp-programma-1",
+                Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Modified_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._session.commit()
+
+    def create_publication_aoj(self):
+        self._session.add(
+            PublicationAreaOfJurisdictionTable(
+                UUID=uuid.UUID("00001000-0000-0000-0000-100000000001"),
+                Title="Provincie Zuid-Holland",
+                Administrative_Borders_ID="PV28",
+                Administrative_Borders_Domain="NL.BI.BestuurlijkGebied",
+                Administrative_Borders_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
         self._session.commit()

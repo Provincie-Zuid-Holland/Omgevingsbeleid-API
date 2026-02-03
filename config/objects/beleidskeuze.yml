@@ -444,20 +444,10 @@ models:
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
       portfolio_holder_1_uuid:
-        default: none
-        optional: true
       portfolio_holder_2_uuid:
-        default: none
-        optional: true
       client_1_uuid:
-        default: none
-        optional: true
   beleidskeuze_static_post_validated:
     name: BeleidskeuzeStaticPostValidated
     static_only: true
@@ -479,17 +469,9 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
       portfolio_holder_1_uuid:
-        default: none
-        optional: true
       portfolio_holder_2_uuid:
-        default: none
-        optional: true
       client_1_uuid:
-        default: none
-        optional: true
   beleidskeuze_uuid:
     name: BeleidskeuzeUUID
     fields:
@@ -512,19 +494,25 @@ models:
               min: 3
           - id: html
       cause:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3
           - id: html
       provincial_interest:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3
           - id: html
       explanation:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3

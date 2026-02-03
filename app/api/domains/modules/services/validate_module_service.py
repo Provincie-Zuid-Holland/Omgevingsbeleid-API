@@ -89,7 +89,7 @@ class RequiredObjectFieldsRule(ValidateModuleRule):
                             object_type=module_object_table.Object_Type,
                             title=module_object_table.Title,
                         ),
-                        messages=[f"{error['msg']} for {error['loc']} ({module_object_table})" for error in e.errors()],
+                        messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
                     )
                 )
         return errors

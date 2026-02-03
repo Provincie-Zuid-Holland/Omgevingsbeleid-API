@@ -3,14 +3,12 @@ import re
 from base64 import b64decode
 from typing import List, Optional
 
-from bs4 import BeautifulSoup
 from PIL import Image
+from bs4 import BeautifulSoup
 from pydantic import ValidationInfo
-from pydantic_core import PydanticUseDefault
 
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.core.db.session import SessionFactoryType, session_scope_with_context
-
 from .types import PydanticValidator, Validator
 
 
@@ -21,7 +19,7 @@ class NoneToDefaultValueValidator(Validator):
     def get_validator_func(self, config: dict) -> PydanticValidator:
         def pydantic_none_to_default_validator(cls, value, info: ValidationInfo):
             if value is None:
-                raise PydanticUseDefault()
+                return cls.model_fields[info.field_name].default
             return value
 
         return PydanticValidator(
@@ -41,6 +39,11 @@ class LengthValidator(Validator):
         def pydantic_length_validator(cls, value, info: ValidationInfo):
             if not isinstance(value, str):
                 raise ValueError("Value must be a string")
+
+            if (cls.model_fields[info.field_name].json_schema_extra or {}).get("optional"):
+                default_value = cls.model_fields[info.field_name].default
+                if default_value is None or value == default_value:
+                    return value
 
             if min_length is not None:
                 if len(value) < min_length:
@@ -84,7 +87,7 @@ class PlainTextValidator(Validator):
 
 class FilenameValidator(Validator):
     def __init__(self):
-        self._pattern = r"^[\w\-.]+$"
+        self._pattern = r"^[\w\-.]+\.pdf$"
 
     def get_id(self) -> str:
         return "filename"

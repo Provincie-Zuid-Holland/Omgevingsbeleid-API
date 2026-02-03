@@ -161,9 +161,6 @@ class EndpointHandler:
                 if not self._environment.Can_Validate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Validation for this environment")
             case PackageType.PUBLICATION:
-                raise HTTPException(
-                    status.HTTP_409_CONFLICT, "Create Publication is disabled untill state machine update"
-                )
                 if not self._environment.Can_Publicate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Publication for this environment")
 

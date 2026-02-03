@@ -118,6 +118,7 @@ api:
           resolver_data:
             allowed_roles:
               - "Ambtelijk opdrachtgever"
+              - "Basic"
               - "Behandelend Ambtenaar"
               - "Functioneel beheerder"
               - "Portefeuillehouder"
@@ -140,6 +141,7 @@ api:
           resolver_data:
             allowed_roles:
               - "Ambtelijk opdrachtgever"
+              - "Basic"
               - "Behandelend Ambtenaar"
               - "Functioneel beheerder"
               - "Portefeuillehouder"
@@ -779,6 +781,7 @@ columns:
 
 users_permissions:
   "Ambtelijk opdrachtgever": []
+  "Basic": []
   "Behandelend Ambtenaar":
     - module_can_add_new_object_to_module
     - module_can_add_existing_object_to_module

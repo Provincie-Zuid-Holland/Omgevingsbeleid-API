@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session, aliased, joinedload, load_only
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
-from app.api.domains.modules.dependencies import depends_active_module
+from app.api.domains.modules.dependencies import depends_module
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.modules.types import Module as ModuleClass
 from app.api.domains.modules.types import TModel, ModuleStatus
@@ -56,7 +56,7 @@ class ViewModuleOverviewEndpointContext(BaseEndpointContext):
 
 
 def view_module_overview_endpoint(
-    module: Annotated[ModuleTable, Depends(depends_active_module)],
+    module: Annotated[ModuleTable, Depends(depends_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ViewModuleOverviewEndpointContext, Depends()],
