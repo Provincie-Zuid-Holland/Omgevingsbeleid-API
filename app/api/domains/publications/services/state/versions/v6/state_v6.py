@@ -39,7 +39,7 @@ class StateV6(State):
             case AddAnnouncementAction():
                 self._handle_add_announcement_action(action)
             case _:
-                raise RuntimeError(f"Action {action.__class__.__name__} is not implemented for StateV4")
+                raise RuntimeError(f"Action {action.__class__.__name__} is not implemented for StateV5")
 
     def _handle_add_purpose_action(self, action: AddPurposeAction):
         purpose = models.Purpose(
