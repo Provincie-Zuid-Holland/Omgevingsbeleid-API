@@ -230,11 +230,7 @@ models:
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
   verplicht_programma_static_post_validated:
     name: VerplichtProgrammaStaticPostValidated
     static_only: true
@@ -249,8 +245,6 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
   verplicht_programma_uuid:
     name: VerplichtProgrammaUUID
     fields:

@@ -444,20 +444,10 @@ models:
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
       portfolio_holder_1_uuid:
-        default: none
-        optional: true
       portfolio_holder_2_uuid:
-        default: none
-        optional: true
       client_1_uuid:
-        default: none
-        optional: true
   beleidskeuze_static_post_validated:
     name: BeleidskeuzeStaticPostValidated
     static_only: true
@@ -479,17 +469,9 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
       portfolio_holder_1_uuid:
-        default: none
-        optional: true
       portfolio_holder_2_uuid:
-        default: none
-        optional: true
       client_1_uuid:
-        default: none
-        optional: true
   beleidskeuze_uuid:
     name: BeleidskeuzeUUID
     fields:

@@ -240,11 +240,7 @@ models:
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
   visie_algemeen_static_post_validated:
     name: VisieAlgemeenStaticPostValidated
     static_only: true
@@ -259,8 +255,6 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
   visie_algemeen_uuid:
     name: VisieAlgemeenUUID
     fields:

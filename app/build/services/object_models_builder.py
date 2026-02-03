@@ -151,7 +151,7 @@ class ObjectModelsBuilder:
                 field_type = Optional[field_type]
 
             default_value = field.default
-            if default_value in self._field_defaults:
+            if not isinstance(default_value, list) and default_value in self._field_defaults:
                 default_value = self._field_defaults[default_value]
 
             for validator_config in field.validators:
