@@ -23,12 +23,7 @@ from app.api.utils.pagination import (
 )
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 
-<<<<<<< HEAD
-class ObjectListAllLastestRequestData(BaseModel):
-=======
-
 class ObjectListAllLastestRequest(BaseModel):
->>>>>>> e2b344b4 (use ObjectListAllLatestResponse with union of types)
     Object_Types: Optional[List[str]]
 
 
