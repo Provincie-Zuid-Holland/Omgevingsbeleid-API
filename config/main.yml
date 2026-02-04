@@ -179,9 +179,32 @@ api:
             allowed_result_object_types:
               - beleidskeuze
               - maatregel
-    - prefix: /search
+    - prefix: /search-old
       endpoints:
         - resolver: mssql_search
+          resolver_data:
+            <<: *searchable_config
+            allowed_object_types:
+              - ambitie
+              - beleidsdoel
+              - beleidskeuze
+              - document
+              - maatregel
+              - beleidsregel
+              - gebiedsprogramma
+              - wettelijke_taak
+              - nationaal_belang
+              - verplicht_programma
+              - visie_algemeen
+              - programma_algemeen
+              - werkingsgebied
+              - gebiedengroep
+              - gebied
+            model_map: *model_map
+            response_model_name: PagedSearchObjectResponse
+    - prefix: /search
+      endpoints:
+        - resolver: postgresql_search # TODO better name
           resolver_data:
             <<: *searchable_config
             allowed_object_types:
