@@ -1,14 +1,11 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Optional, TypeVar
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from app.api.domains.users.types import UserShort
-
-
-TModel = TypeVar("TModel", bound=BaseModel)
 
 
 # @note: Existing but removed status codes

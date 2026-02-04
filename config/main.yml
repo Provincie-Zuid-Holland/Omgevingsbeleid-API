@@ -362,6 +362,8 @@ api:
         - resolver: list_all_latest_objects
           resolver_data:
             sort: *sort_default_object_id
+            model_map: *model_map
+            response_model_name: PagedListAllLatestObjectsResponse
     - prefix: /publication-aoj
       endpoints:
         - resolver: create_publication_area_of_jurisdictions
