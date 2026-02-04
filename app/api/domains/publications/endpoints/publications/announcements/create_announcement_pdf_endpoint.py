@@ -2,7 +2,7 @@ from typing import Annotated
 
 import requests
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
@@ -47,6 +47,9 @@ def post_create_announcement_pdf_endpoint(
     ],
     pdf_export_service: Annotated[PdfExportService, Depends(Provide[ApiContainer.publication.pdf_export_service])],
 ) -> StreamingResponse:
+    if not announcement.Publication.Module.is_active:
+        raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
+
     try:
         package_builder: AnnouncementPackageBuilder = package_builder_factory.create_builder(
             session,

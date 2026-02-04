@@ -1,6 +1,6 @@
+from app.api.domains.modules.types import GenericObjectShort
 from app.api.domains.objects.endpoints import (
     ObjectListAllLatestEndpointContext,
-    GenericObjectShort,
     do_list_all_latest_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData

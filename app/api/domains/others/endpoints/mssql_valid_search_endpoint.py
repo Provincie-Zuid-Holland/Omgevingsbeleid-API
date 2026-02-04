@@ -1,12 +1,16 @@
 import json
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Dict
 
 from bs4 import BeautifulSoup
+from dependency_injector.wiring import Provide
 from fastapi import Depends
+from pydantic import BaseModel
 from sqlalchemy import TextClause, text
 from sqlalchemy.orm import Session
 
+from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
+from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.others.types import SearchRequestData, ValidSearchConfig, ValidSearchObject
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import PagedResponse, SimplePagination
@@ -17,12 +21,16 @@ class EndpointHandler:
     def __init__(
         self,
         session: Session,
+        module_objects_to_models_parser: ModuleObjectsToModelsParser,
+        model_map: Dict[str, str],
         search_config: ValidSearchConfig,
         pagination: SimplePagination,
         query: str,
         object_types: Optional[List[str]] = None,
     ):
         self._session: Session = session
+        self._module_objects_to_models_parser: ModuleObjectsToModelsParser = module_objects_to_models_parser
+        self._model_map: Dict[str, str] = model_map
         self._search_config: ValidSearchConfig = search_config
         self._pagination: SimplePagination = pagination
         self._query: str = query
@@ -67,6 +75,11 @@ class EndpointHandler:
 
         for row in results:
             row = row._asdict()
+            parsed_model: BaseModel = self._module_objects_to_models_parser.parse_from_dict(
+                row["Object_Type"],
+                row,
+                self._model_map,
+            )
 
             description: str = ""
             if row["Description"] and isinstance(row["Description"], str):
@@ -74,12 +87,10 @@ class EndpointHandler:
                 description = soup.get_text()
 
             search_object: ValidSearchObject = ValidSearchObject(
-                UUID=row["UUID"],
                 Object_Type=row["Object_Type"],
-                Object_ID=row["Object_ID"],
-                Title=row["Title"],
                 Description=description,
                 Score=row["_Rank"],
+                Model=parsed_model,
             )
             search_objects.append(search_object)
             total_count = row["_Total_Count"]
@@ -94,23 +105,14 @@ class EndpointHandler:
     def _get_query(self, object_type_filter) -> TextClause:
         stmt = text(
             f"""
-                WITH valid_uuids (UUID, Object_Type, Object_ID, Title, Description)
+                WITH valid_uuids
                 AS
                 (
                     SELECT
-                        UUID,
-                        Object_Type,
-                        Object_ID,
-                        Title,
-                        Description
+                        *
                     FROM (
                         SELECT
-                            UUID,
-                            Object_Type,
-                            Object_ID,
-                            Title,
-                            Description,
-                            End_Validity,
+                            *,
                             ROW_NUMBER() OVER (
                                 PARTITION BY
                                     Code
@@ -128,11 +130,7 @@ class EndpointHandler:
                 )
 
                 SELECT
-                    v.UUID,
-                    v.Object_Type,
-                    v.Object_ID,
-                    v.Title,
-                    v.Description,
+                    v.*,
                     s.WeightedRank AS _Rank,
                     COUNT(*) OVER() AS _Total_Count
                 FROM valid_uuids AS v
@@ -163,6 +161,7 @@ class EndpointHandler:
 
 class MssqlValidSearchEndpointContext(BaseEndpointContext):
     search_config: ValidSearchConfig
+    model_map: Dict[str, str]
 
 
 def get_mssql_valid_search_endpoint(
@@ -171,9 +170,14 @@ def get_mssql_valid_search_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     context: Annotated[MssqlValidSearchEndpointContext, Depends()],
+    module_objects_to_models_parser: Annotated[
+        ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
+    ],
 ) -> PagedResponse[ValidSearchObject]:
     handler = EndpointHandler(
         session,
+        module_objects_to_models_parser,
+        context.model_map,
         context.search_config,
         pagination,
         query,

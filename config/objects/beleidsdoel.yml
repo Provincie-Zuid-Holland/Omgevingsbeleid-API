@@ -239,6 +239,8 @@ models:
       insert_assets:
         fields:
           - Description
+      resolve_child_objects_via_hierarchy_listener:
+        to_field: Hierarchy_Children
       relations:
         objects:
           - object_type: ambitie
@@ -311,20 +313,10 @@ models:
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
       portfolio_holder_1_uuid:
-        default: none
-        optional: true
       portfolio_holder_2_uuid:
-        default: none
-        optional: true
       client_1_uuid:
-        default: none
-        optional: true
   beleidsdoel_static_post_validated:
     name: BeleidsdoelStaticPostValidated
     static_only: true
@@ -346,17 +338,9 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
       portfolio_holder_1_uuid:
-        default: none
-        optional: true
       portfolio_holder_2_uuid:
-        default: none
-        optional: true
       client_1_uuid:
-        default: none
-        optional: true
   beleidsdoel_uuid:
     name: BeleidsdoelUUID
     fields:

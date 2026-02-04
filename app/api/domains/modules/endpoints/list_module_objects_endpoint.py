@@ -38,12 +38,12 @@ class ModuleObjectsResponse(BaseModel, Generic[TModel]):
     Module_ID: int
     Module_Latest_Status: str
 
-    ObjectStatics: ObjectStaticShort
     Object_Type: str
+    ObjectStatics: ObjectStaticShort
     ModuleObjectContext: ModuleObjectContextShort
     Model: TModel
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, title="ModuleObjectsResponse")
 
 
 class ListModuleObjectsEndpointContext(BaseEndpointContext):
@@ -68,7 +68,7 @@ def get_list_module_objects_endpoint(
     minimum_status: Optional[ModuleStatusCode] = None,
     only_active_modules: bool = True,
     title: Optional[str] = None,
-    actions: Annotated[List[ModuleObjectActionFull], Query(default_factory=list)] = [],
+    actions: Annotated[List[ModuleObjectActionFull], Query()] = [],
 ) -> PagedResponse[ModuleObjectsResponse]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
@@ -90,7 +90,7 @@ def get_list_module_objects_endpoint(
     rows: List[ModuleObjectsResponse] = []
     for object_table, object_static, module_object_context, module_status in paginated_items:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_table, context.model_map)
-        response = ModuleObjectsResponse(
+        response: ModuleObjectsResponse = ModuleObjectsResponse(
             Module_ID=module_object_context.Module_ID,
             Module_Latest_Status=module_status,
             Model=parsed_model,

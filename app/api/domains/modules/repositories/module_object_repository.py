@@ -53,6 +53,20 @@ class ModuleObjectRepository(BaseRepository):
         )
         return self.fetch_first(session, stmt)
 
+    def get_latest_by_module_id_object_code(
+        self,
+        session: Session,
+        module_id: int,
+        object_code: str,
+    ) -> Optional[ModuleObjectsTable]:
+        stmt = (
+            select(ModuleObjectsTable)
+            .filter(ModuleObjectsTable.Module_ID == module_id)
+            .filter(ModuleObjectsTable.Code == object_code)
+            .order_by(desc(ModuleObjectsTable.Modified_Date))
+        )
+        return self.fetch_first(session, stmt)
+
     def get_latest_by_id(
         self,
         session: Session,

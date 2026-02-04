@@ -8,6 +8,10 @@ from app.core.types import Column
 class FieldType(BaseModel):
     id: str
     field_type: Any
+    default: Any
+
+    def __hash__(self):
+        return hash(self.id)
 
 
 class Field(BaseModel):

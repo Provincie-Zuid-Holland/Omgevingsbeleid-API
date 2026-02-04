@@ -102,14 +102,7 @@ fields:
     name: Area_UUID
     type: uuid
     column: area_uuid
-    validators:
-      - id: none_to_default_value
-  onderverdelingen:
-    name: Onderverdelingen
-    type: list_str
-    column: onderverdelingen
-    validators:
-      - id: none_to_default_value
+    optional: true
   idms_link:
     name: IDMS_Link
     type: str
@@ -154,7 +147,6 @@ models:
       modified_date:
       title:
       area_uuid:
-      onderverdelingen:
       start_validity:
       end_validity:
   werkingsgebied_extended:
@@ -168,7 +160,6 @@ models:
       modified_date:
       title:
       area_uuid:
-      onderverdelingen:
       start_validity:
       end_validity:
     dependency_model_ids:
@@ -236,8 +227,6 @@ models:
         default: none
         optional: true
       area_uuid:
-        default: none
-        optional: true
     services:
       change_area:
         fields:
@@ -247,11 +236,7 @@ models:
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
   werkingsgebied_static_post_validated:
     name: WerkingsgebiedStaticPostValidated
     static_only: true
@@ -266,8 +251,6 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
   werkingsgebied_uuid:
     name: WerkingsgebiedUUID
     fields:

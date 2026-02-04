@@ -19,6 +19,11 @@ from app.api.domains.publications.services.bill_frbr_provider import BillFrbrPro
 from app.api.domains.publications.services.purpose_provider import PurposeProvider
 from app.api.domains.publications.services.state.state_loader import StateLoader
 from app.api.domains.publications.services.state.versions import ActiveState
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationService,
+    ValidatePublicationException,
+    ValidatePublicationRequest,
+)
 from app.api.domains.publications.types.api_input_data import (
     ActFrbr,
     ApiActInputData,
@@ -40,6 +45,7 @@ class ActPackageBuilderFactory:
         state_loader: StateLoader,
         publication_data_provider: ActPublicationDataProvider,
         data_patcher_factory: ApiActInputDataPatcherFactory,
+        validate_publication_service: ValidatePublicationService,
     ):
         self._dso_builder_factory: DsoActInputDataBuilderFactory = dso_builder_factory
         self._bill_frbr_provider: BillFrbrProvider = bill_frbr_provider
@@ -48,6 +54,7 @@ class ActPackageBuilderFactory:
         self._state_loader: StateLoader = state_loader
         self._publication_data_provider: ActPublicationDataProvider = publication_data_provider
         self._data_patcher_factory: ApiActInputDataPatcherFactory = data_patcher_factory
+        self._validate_publication_service: ValidatePublicationService = validate_publication_service
 
     def create_builder(
         self,
@@ -89,6 +96,17 @@ class ActPackageBuilderFactory:
         if state is not None:
             data_patcher: ApiActInputDataPatcher = self._data_patcher_factory.create(state)
             api_input_data = data_patcher.apply(session, api_input_data)
+
+        validation_request = ValidatePublicationRequest(
+            document_type=publication_version.Publication.Document_Type,
+            input_data=api_input_data,
+        )
+        validation_result = self._validate_publication_service.validate(session, validation_request)
+        if len(validation_result.errors) > 0:
+            raise ValidatePublicationException(
+                "Error(s) found while validating publication",
+                publication_errors=validation_result.errors,
+            )
 
         input_data_builder: DsoActInputDataBuilder = self._dso_builder_factory.create(
             api_input_data,

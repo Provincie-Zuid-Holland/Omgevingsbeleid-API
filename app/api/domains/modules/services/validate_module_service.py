@@ -1,20 +1,29 @@
-from abc import ABC, ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from datetime import timezone, datetime
-import hashlib
 from typing import Dict, List, Optional, Type, Set
 
+from bs4 import BeautifulSoup
 from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
-from app.api.domains.werkingsgebieden.repositories.werkingsgebieden_repository import WerkingsgebiedenRepository
+from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
+from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository, WerkingsgebiedHash
+from app.core.services import MainConfig
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
 
 
-class ValidateModuleError(BaseModel, metaclass=ABCMeta):
+class ValidateModuleObject(BaseModel):
+    code: str
+    object_id: int
+    object_type: str
+    title: str
+
+
+class ValidateModuleError(BaseModel):
     rule: str
-    object_code: str
+    object: ValidateModuleObject
     messages: List[str]
 
 
@@ -25,7 +34,7 @@ class ValidateModuleRequest(BaseModel):
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
-class ValidationRule(ABC):
+class ValidateModuleRule(ABC):
     @abstractmethod
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         pass
@@ -37,14 +46,14 @@ class ValidateModuleResult(BaseModel):
     @computed_field
     @property
     def status(self) -> str:
-        if self.errors == []:
+        if not self.errors:
             return "OK"
         return "Failed"
 
 
 class ValidateModuleService:
-    def __init__(self, rules: List[ValidationRule]):
-        self._rules: List[ValidationRule] = rules
+    def __init__(self, rules: List[ValidateModuleRule]):
+        self._rules: List[ValidateModuleRule] = rules
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> ValidateModuleResult:
         errors: List[ValidateModuleError] = []
@@ -56,32 +65,37 @@ class ValidateModuleService:
         )
 
 
-class RequiredObjectFieldsRule(ValidationRule):
+class RequiredObjectFieldsRule(ValidateModuleRule):
     def __init__(self, object_map: Dict[str, Type[BaseModel]]):
         self._object_map: Dict[str, Type[BaseModel]] = object_map
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
 
-        for object_table in request.module_objects:
-            model: Optional[Type[BaseModel]] = self._object_map.get(object_table.Object_Type)
+        for module_object_table in request.module_objects:
+            model: Optional[Type[BaseModel]] = self._object_map.get(module_object_table.Object_Type)
             if not model:
                 continue
 
             try:
-                _ = model.model_validate(object_table)
+                _ = model.model_validate(module_object_table)
             except ValidationError as e:
                 errors.append(
                     ValidateModuleError(
                         rule="required_object_fields_rule",
-                        object_code=object_table.Code,
+                        object=ValidateModuleObject(
+                            code=module_object_table.Code,
+                            object_id=module_object_table.Object_ID,
+                            object_type=module_object_table.Object_Type,
+                            title=module_object_table.Title,
+                        ),
                         messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
                     )
                 )
         return errors
 
 
-class RequiredHierarchyCodeRule(ValidationRule):
+class RequireExistingHierarchyCodeRule(ValidateModuleRule):
     def __init__(self, repository: PublicationObjectRepository):
         self._repository: PublicationObjectRepository = repository
 
@@ -103,17 +117,23 @@ class RequiredHierarchyCodeRule(ValidationRule):
             if target_code not in existing_object_codes:
                 errors.append(
                     ValidateModuleError(
-                        rule="required_hierarchy_code_rule",
-                        object_code=object_info.get("Code"),
+                        rule="require_existing_hierarchy_code_rule",
+                        object=ValidateModuleObject(
+                            code=object_info.get("Code"),
+                            object_id=object_info.get("Object_ID"),
+                            object_type=object_info.get("Object_Type"),
+                            title=object_info.get("Title"),
+                        ),
                         messages=[f"Hierarchy code {target_code} does not exist"],
                     )
                 )
         return errors
 
 
-class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
-    def __init__(self, source_repository: WerkingsgebiedenRepository):
-        self._source_repository: WerkingsgebiedenRepository = source_repository
+class NewestSourceWerkingsgebiedUsedRule(ValidateModuleRule):
+    def __init__(self, geometry_repository: GeometryRepository, area_geometry_repository: AreaGeometryRepository):
+        self._geometry_repository: GeometryRepository = geometry_repository
+        self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
@@ -123,30 +143,108 @@ class NewestSourceWerkingsgebiedUsedRule(ValidationRule):
             if area_current is None:
                 continue
 
-            if area_current.Shape is None:
+            area_current_shape_hash: Optional[str] = self._area_geometry_repository.get_shape_hash(
+                db,
+                area_current.UUID,
+            )
+            if area_current_shape_hash is None:
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
-                        object_code=object_table.Code,
+                        object=ValidateModuleObject(
+                            code=object_table.Code,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
                         messages=[f"Area {area_current.UUID} does not have a shape"],
                     )
                 )
                 continue
 
-            area_title = area_current.Source_Title
-            area_latest = self._source_repository.get_latest_by_title(db, area_title)
-
-            hash_current = hashlib.sha256(area_current.Shape).hexdigest()
-            hash_latest = hashlib.sha256(area_latest.SHAPE).hexdigest()
-
-            if hash_current != hash_latest:
+            area_title: str = area_current.Source_Title
+            werkingsgebied_latest: Optional[WerkingsgebiedHash] = (
+                self._geometry_repository.get_latest_shape_hash_by_title(db, area_title)
+            )
+            if werkingsgebied_latest is None:
                 errors.append(
                     ValidateModuleError(
                         rule="newest_source_werkingsgebied_used_rule",
-                        object_code=object_table.Code,
-                        messages=[f"Area {area_current.UUID} does not use the latest known shape {area_latest.UUID}"],
+                        object=ValidateModuleObject(
+                            code=object_table.Code,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
+                        messages=[
+                            f"Area {area_current.UUID} - '{area_current.Source_Title}' does not have a Werkingsgebieden shape"
+                        ],
+                    )
+                )
+                continue
+
+            if area_current_shape_hash != werkingsgebied_latest.hash:
+                errors.append(
+                    ValidateModuleError(
+                        rule="newest_source_werkingsgebied_used_rule",
+                        object=ValidateModuleObject(
+                            code=object_table.Code,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
+                        messages=[
+                            f"Area {area_current.UUID} - '{area_current.Source_Title}' does not use the latest known Werkingsgebieden shape {werkingsgebied_latest.UUID}"
+                        ],
                     )
                 )
                 continue
 
         return errors
+
+
+class ForbidEmptyHtmlNodesRuleConfig(BaseModel):
+    fields: List[str]
+    html_void_elements: List[str]
+
+
+class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
+    def __init__(self, main_config: MainConfig):
+        self._config: ForbidEmptyHtmlNodesRuleConfig = main_config.get_as_model(
+            "forbid_empty_html_nodes_rule",
+            ForbidEmptyHtmlNodesRuleConfig,
+        )
+
+    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
+        errors: List[ValidateModuleError] = []
+
+        for object_table in request.module_objects:
+            for field_name in self._config.fields:
+                value: str = str(getattr(object_table, field_name, ""))
+                if self._has_empty_nodes(value):
+                    errors.append(
+                        ValidateModuleError(
+                            rule="forbid_empty_html_nodes_rule",
+                            object=ValidateModuleObject(
+                                code=object_table.Code,
+                                object_id=object_table.Object_ID,
+                                object_type=object_table.Object_Type,
+                                title=object_table.Title,
+                            ),
+                            messages=[f"Empty html node found in '{field_name}' for object {object_table.Code}"],
+                        )
+                    )
+
+        return errors
+
+    def _has_empty_nodes(self, text: str) -> bool:
+        soup = BeautifulSoup(text, "html.parser")
+
+        empty_tags = [
+            tag
+            for tag in soup.find_all(True)
+            if tag.name not in self._config.html_void_elements
+            and not tag.get_text(strip=True)
+            and not any(child.name for child in tag.children)
+        ]
+        return bool(empty_tags)

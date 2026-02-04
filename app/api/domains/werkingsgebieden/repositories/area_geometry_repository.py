@@ -13,7 +13,7 @@ from app.api.domains.werkingsgebieden.repositories.area_repository import (
     GeometryFunctions,
 )
 from app.core.tables.others import AreasTable
-from app.core.utils.utils import as_datetime
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
 
 class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
@@ -32,6 +32,28 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
     @abstractmethod
     def get_spatial_function(self, func: GeometryFunctions) -> str:
         pass
+
+    @abstractmethod
+    def _calculate_hex(self, column: str) -> str:
+        pass
+
+    def get_shape_hash(self, session: Session, uuidx: uuid.UUID) -> Optional[str]:
+        params = {
+            "uuid": self._format_uuid(uuidx),
+        }
+        sql = f"""
+            SELECT
+                {self._calculate_hex("Shape")}
+            FROM
+                areas
+            WHERE
+                UUID = :uuid
+            """
+
+        row = session.execute(text(sql), params).fetchone()
+        if row is None:
+            return None
+        return row[0]
 
     def get_area_uuids_by_geometry(
         self, session: Session, geometry: str, geometry_func: GeometryFunctions
@@ -68,39 +90,44 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         uuidx: uuid.UUID,
         created_date: datetime,
         created_by_uuid: uuid.UUID,
-        werkingsgebied: dict,
+        onderverdeling: InputGeoOnderverdelingenTable,
     ):
         area = AreasTable(
             UUID=uuidx,
             Created_Date=created_date,
             Created_By_UUID=created_by_uuid,
             Shape=None,
-            Gml=werkingsgebied.get("GML"),
-            Source_UUID=uuid.UUID(werkingsgebied.get("UUID")),
-            Source_ID=werkingsgebied.get("ID"),
-            Source_Title=werkingsgebied.get("Title"),
-            Source_Symbol=werkingsgebied.get("Symbol"),
-            Source_Start_Validity=as_datetime(werkingsgebied.get("Start_Validity")),
-            Source_End_Validity=as_datetime(werkingsgebied.get("End_Validity")),
-            Source_Created_Date=as_datetime(werkingsgebied.get("Created_Date")),
-            Source_Modified_Date=as_datetime(werkingsgebied.get("Modified_Date")),
+            Gml=onderverdeling.GML,
+            Source_Symbol=onderverdeling.Symbol,
+            Source_Geometry_Index=onderverdeling.Geometry_Hash[0:10],
+            Source_Geometry_Hash=onderverdeling.Geometry_Hash,
+            Source_UUID=onderverdeling.UUID,
+            Source_Title=onderverdeling.Title,
+            Source_Created_Date=onderverdeling.Created_Date,
         )
         session.add(area)
         session.flush()
 
-        params = {
-            "uuid": self._format_uuid(uuidx),
-            "shape": werkingsgebied.get("Geometry"),
+        put_geometry_params = {
+            "input_uuid": self._format_uuid(onderverdeling.UUID),
+            "area_uuid": self._format_uuid(uuidx),
         }
-        sql = f"""
+        put_geometry_stmt = """
             UPDATE
                 areas
             SET
-                Shape = {self._text_to_shape("shape")}
+                Shape = (
+                    SELECT
+                        Geometry
+                    FROM
+                        Input_GEO_Onderverdeling
+                    WHERE
+                        UUID = :input_uuid
+                )
             WHERE
-                UUID = :uuid
-            """
-        session.execute(text(sql), params)
+                UUID = :area_uuid
+        """
+        session.execute(text(put_geometry_stmt), put_geometry_params)
 
     def get_area(self, session: Session, uuidx: uuid.UUID) -> dict:
         row = self.get_area_optional(session, uuidx)

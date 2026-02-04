@@ -216,11 +216,7 @@ models:
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
   wettelijke_taak_static_post_validated:
     name: WettelijkeTaakStaticPostValidated
     static_only: true
@@ -235,8 +231,6 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
   wettelijke_taak_uuid:
     name: WettelijkeTaakUUID
     fields:

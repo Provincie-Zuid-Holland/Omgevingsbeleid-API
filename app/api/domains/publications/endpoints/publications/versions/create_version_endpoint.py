@@ -96,6 +96,8 @@ def post_create_version_endpoint(
 
 
 def _guard_locked(publication: PublicationTable):
+    if not publication.Module.is_active:
+        raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
     if not publication.Act.Is_Active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
 

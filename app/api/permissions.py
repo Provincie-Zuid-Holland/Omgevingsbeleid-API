@@ -59,6 +59,7 @@ class Permissions(str, Enum):
     publication_can_create_publication_act_package = "publication_can_create_publication_act_package"
     publication_can_view_publication_act_package = "publication_can_view_publication_act_package"
     publication_can_download_publication_act_package = "publication_can_download_publication_act_package"
+    publication_can_abort_publication_act_package = "publication_can_abort_publication_act_package"
 
     publication_can_upload_publication_act_package_report = "publication_can_upload_publication_act_package_report"
     publication_can_view_publication_act_package_report = "publication_can_view_publication_act_package_report"

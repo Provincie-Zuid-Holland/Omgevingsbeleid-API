@@ -1,14 +1,17 @@
 from dependency_injector import containers, providers
+from sqlalchemy.orm import sessionmaker
 
+import app.build.endpoint_builders.modules as endpoint_builders_modules
+import app.build.endpoint_builders.objects as endpoint_builders_objects
+import app.build.endpoint_builders.others as endpoint_builders_others
+import app.build.endpoint_builders.publications as endpoint_builders_publications
+import app.build.endpoint_builders.users as endpoint_builders_users
+import app.build.endpoint_builders.werkingsgebieden as endpoint_builders_werkingsgebieden
+import app.build.services.validators.validators as validators
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.build import api_builder
-import app.build.endpoint_builders.objects as endpoint_builders_objects
-import app.build.endpoint_builders.modules as endpoint_builders_modules
-import app.build.endpoint_builders.users as endpoint_builders_users
-import app.build.endpoint_builders.others as endpoint_builders_others
-import app.build.endpoint_builders.werkingsgebieden as endpoint_builders_werkingsgebieden
-import app.build.endpoint_builders.publications as endpoint_builders_publications
 from app.build.endpoint_builders import endpoint_builder_provider
+from app.build.events import create_model_event_listeners, generate_table_event_listeners
 from app.build.services import (
     config_parser,
     object_intermediate_builder,
@@ -16,14 +19,11 @@ from app.build.services import (
     validator_provider,
     object_models_builder,
 )
-import app.build.services.validators.validators as validators
 from app.build.services.model_dynamic_type_builder import ModelDynamicTypeBuilder
 from app.core.db.session import create_db_engine
 from app.core.services import MainConfig, ModelsProvider
 from app.core.services.event import event_manager
 from app.core.settings import Settings
-from sqlalchemy.orm import sessionmaker
-from app.build.events import create_model_event_listeners, generate_table_event_listeners
 
 
 class BuildContainer(containers.DeclarativeContainer):
@@ -84,6 +84,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(create_model_event_listeners.AddRelationsListener),
             providers.Factory(create_model_event_listeners.JoinWerkingsgebiedenListener),
             providers.Factory(create_model_event_listeners.AddJoinDocumentsToObjectModelListener),
+            providers.Factory(create_model_event_listeners.AddResolveChildObjectsViaHierarchyListener),
+            providers.Factory(create_model_event_listeners.JoinGebiedenListener),
+            providers.Factory(create_model_event_listeners.JoinGebiedengroepenListener),
             providers.Factory(create_model_event_listeners.AddPublicRevisionsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddNextObjectVersionToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddRelatedObjectsToWerkingsgebiedObjectModelListener),
@@ -132,8 +135,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_publications.area_of_jurisdictions.CreatePublicationAOJEndpointBuilder),
             providers.Factory(endpoint_builders_publications.area_of_jurisdictions.ListPublicationAOJEndpointBuilder),
             #   DSO values
-            providers.Factory(endpoint_builders_publications.dso_values.ListAreaDesignationGroupsEndpointBuilder),
-            providers.Factory(endpoint_builders_publications.dso_values.ListAreaDesignationTypesEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.dso_values.ListAreaDesignationEndpointBuilder),
             #   Templates
             providers.Factory(endpoint_builders_publications.templates.CreatePublicationTemplateEndpointBuilder),
             providers.Factory(endpoint_builders_publications.templates.DetailPublicationTemplateEndpointBuilder),
@@ -148,6 +150,9 @@ class BuildContainer(containers.DeclarativeContainer):
             #       Act Packages
             providers.Factory(
                 endpoint_builders_publications.publications.act_packages.CreatePublicationPackageEndpointBuilder
+            ),
+            providers.Factory(
+                endpoint_builders_publications.publications.act_packages.AbortPublicationPackageEndpointBuilder
             ),
             providers.Factory(endpoint_builders_publications.publications.act_packages.DetailActPackageEndpointBuilder),
             providers.Factory(endpoint_builders_publications.publications.act_packages.DownloadPackageEndpointBuilder),
@@ -272,7 +277,10 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.ModuleListStatusesEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleObjectLatestEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleObjectVersionEndpointBuilder),
-            providers.Factory(endpoint_builders_modules.ModuleOverviewEndpointBuilder),
+            providers.Factory(
+                endpoint_builders_modules.ModuleOverviewEndpointBuilder,
+                model_dynamic_type_builder=model_dynamic_type_builder,
+            ),
             providers.Factory(endpoint_builders_modules.ModulePatchObjectEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModulePatchStatusEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleRemoveObjectEndpointBuilder),
@@ -283,6 +291,10 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByAreasEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByGeometryEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListWerkingsgebiedenEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.InputGeoListLatestWerkingsgebiedenEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.InputGeoUseWerkingsgebiedenEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.InputGeoWerkingsgebiedenHistoryEndpointBuilder),
+            providers.Factory(endpoint_builders_werkingsgebieden.InputGeoWerkingsgebiedenDetailEndpointBuilder),
             # Others
             providers.Factory(endpoint_builders_others.ListStorageFilesEndpointBuilder),
             providers.Factory(endpoint_builders_others.DetailStorageFilesEndpointBuilder),
@@ -290,8 +302,14 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_others.StorageFileUploadFileEndpointBuilder),
             providers.Factory(endpoint_builders_others.FullGraphEndpointBuilder),
             providers.Factory(endpoint_builders_others.ObjectGraphEndpointBuilder),
-            providers.Factory(endpoint_builders_others.MssqlSearchEndpointBuilder),
-            providers.Factory(endpoint_builders_others.MssqlValidSearchEndpointBuilder),
+            providers.Factory(
+                endpoint_builders_others.MssqlSearchEndpointBuilder,
+                model_dynamic_type_builder=model_dynamic_type_builder,
+            ),
+            providers.Factory(
+                endpoint_builders_others.MssqlValidSearchEndpointBuilder,
+                model_dynamic_type_builder=model_dynamic_type_builder,
+            ),
             # fmt: on
         ),
     )

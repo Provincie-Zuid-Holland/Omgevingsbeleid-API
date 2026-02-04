@@ -21,6 +21,7 @@ class TablesBuilder:
         "datetime": DateTime,
         "object_uuid": Uuid,
         "json": JSON,
+        "uuid": Uuid,
     }
 
     def __init__(self, event_manager: EventManager):

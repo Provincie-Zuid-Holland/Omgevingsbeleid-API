@@ -2,29 +2,23 @@ import uuid
 from typing import Annotated, List, Optional
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends, Query
-from pydantic import BaseModel, ConfigDict
+from fastapi import Depends
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
+from app.api.domains.modules.types import GenericObjectShort
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import OptionalSortedPagination, OrderConfig, PagedResponse, Sort, SortedPagination
+
 
 class ObjectListAllLastestRequestData(BaseModel):
     Object_Types: Optional[List[str]]
 
 class ObjectListAllLatestEndpointContext(BaseEndpointContext):
     order_config: OrderConfig
-
-
-class GenericObjectShort(BaseModel):
-    Object_Type: str
-    Object_ID: int
-    UUID: uuid.UUID
-    Title: Optional[str] = None
-    model_config = ConfigDict(from_attributes=True)
 
 
 @inject
