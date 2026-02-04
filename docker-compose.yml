@@ -57,6 +57,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: omgevingsbeleid
     volumes:
+      - ./docker/postgres/init-extensions.sql:/docker-entrypoint-initdb.d/01-extensions.sql:ro
       - postgres:/var/lib/postgresql
 
   pgadmin:
