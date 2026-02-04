@@ -12,9 +12,10 @@ from app.api.domains.objects.repositories.object_repository import ObjectReposit
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import OptionalSortedPagination, OrderConfig, PagedResponse, Sort, SortedPagination
 
+class ObjectListAllLastestRequestData(BaseModel):
+    Object_Types: Optional[List[str]]
 
 class ObjectListAllLatestEndpointContext(BaseEndpointContext):
-    object_types: Optional[list[str]] = None
     order_config: OrderConfig
 
 
@@ -24,8 +25,8 @@ def do_list_all_latest_endpoint(
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ObjectListAllLatestEndpointContext, Depends()],
+    object_types: ObjectListAllLastestRequestData,
     owner_uuid: Optional[uuid.UUID] = None,
-    object_types: Annotated[Optional[List[str]], Query()] = None,
 ) -> PagedResponse[GenericObjectShort]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
@@ -34,7 +35,7 @@ def do_list_all_latest_endpoint(
         session=session,
         pagination=pagination,
         owner_uuid=owner_uuid,
-        object_types=object_types,
+        object_types=object_types.Object_Types,
     )
 
     rows: List[GenericObjectShort] = [GenericObjectShort.model_validate(r) for r in paged_result.items]
