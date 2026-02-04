@@ -25,7 +25,6 @@ class ObjectListAllLatestEndpointBuilder(EndpointBuilder):
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
         context = ObjectListAllLatestEndpointContext(
-            object_type=api.object_type,
             order_config=order_config,
             builder_data=builder_data,
         )
@@ -34,8 +33,8 @@ class ObjectListAllLatestEndpointBuilder(EndpointBuilder):
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
-            methods=["GET"],
+            methods=["POST"],
             response_model=PagedResponse[GenericObjectShort],
             summary="List all objects filterable in short format",
-            tags=["Search"],
+            tags=["Objects"],
         )

@@ -154,7 +154,7 @@ class ObjectRepository(BaseRepository):
         session: Session,
         pagination: SortedPagination,
         owner_uuid: Optional[UUID] = None,
-        object_types: Optional[list[str]] = None,
+        object_types: Optional[List[str]] = None,
     ) -> PaginatedQueryResult:
         row_number = (
             func.row_number()
