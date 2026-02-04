@@ -8,6 +8,13 @@ import app.api.domains.publications.services.assets as assets_services
 import app.api.domains.publications.services.assets as publication_asset_services
 import app.api.domains.publications.services.state as state_services
 import app.api.domains.publications.services.state.versions as state_versions
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationService,
+    RequiredObjectFieldsRule,
+    UsedObjectsInTemplateExistInPublicationRule,
+    UsedObjectsInPublicationExistInTemplateRule,
+    UsedObjectTypeExistsRule,
+)
 
 
 class PublicationContainer(containers.DeclarativeContainer):
@@ -17,6 +24,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     area_geometry_repository = providers.Dependency()
     asset_repository = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
+    publication_required_object_fields_rule_mapping = providers.Dependency()
 
     act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository)
     act_report_repository = providers.Singleton(repositories.PublicationActReportRepository)
@@ -62,10 +70,6 @@ class PublicationContainer(containers.DeclarativeContainer):
         act_package_services.PublicationDocumentsProvider,
         file_repostiory=storage_file_repository,
     )
-    werkingsgebieden_provider = providers.Singleton(
-        act_package_services.PublicationWerkingsgebiedenProvider,
-        area_repository=area_repository,
-    )
 
     publication_object_provider = providers.Factory(
         services.PublicationObjectProvider,
@@ -97,11 +101,23 @@ class PublicationContainer(containers.DeclarativeContainer):
         ow_dataset=config.PUBLICATION_OW_DATASET,
         ow_gebied=config.PUBLICATION_OW_GEBIED,
     )
+    publication_gebieden_provider = providers.Factory(
+        act_package_services.PublicationGebiedenProvider,
+    )
+    publication_gebiedsaanwijzingen_provider = providers.Factory(
+        act_package_services.PublicationGebiedsaanwijzingProvider,
+    )
+    publication_gios_provider_factory = providers.Factory(
+        act_package_services.PublicationGiosProviderFactory,
+        area_repository=area_repository,
+    )
     act_publication_data_provider = providers.Factory(
         act_package_services.ActPublicationDataProvider,
         publication_object_provider=publication_object_provider,
         publication_asset_provider=publication_asset_provider,
-        publication_werkingsgebieden_provider=werkingsgebieden_provider,
+        publication_gebiedsaanwijzingen_provider=publication_gebiedsaanwijzingen_provider,
+        publication_gebieden_provider=publication_gebieden_provider,
+        publication_gios_provider=publication_gios_provider_factory,
         publication_documents_provider=documents_provider,
         publication_aoj_repository=aoj_repository,
         template_parser=template_parser,
@@ -115,22 +131,36 @@ class PublicationContainer(containers.DeclarativeContainer):
             state_versions.StateV3,
             state_versions.StateV4,
             state_versions.StateV5,
+            state_versions.StateV6,
         ],
         upgraders=providers.List(
             providers.Factory(
                 state_versions.StateV2Upgrader,
                 act_version_repository=act_version_repository,
                 act_package_repository=act_package_repository,
-                act_data_provider=act_publication_data_provider,
             ),
             providers.Factory(state_versions.StateV3Upgrader),
             providers.Factory(state_versions.StateV4Upgrader),
             providers.Factory(state_versions.StateV5Upgrader),
+            providers.Factory(state_versions.StateV6Upgrader),
         ),
     )
     state_loader = providers.Singleton(
         state_services.StateLoader,
         state_version_factory=state_version_factory,
+    )
+
+    validate_publication_service = providers.Singleton(
+        ValidatePublicationService,
+        rules=providers.List(
+            providers.Singleton(
+                RequiredObjectFieldsRule,
+                document_type_map=publication_required_object_fields_rule_mapping,
+            ),
+            providers.Singleton(UsedObjectsInTemplateExistInPublicationRule),
+            providers.Singleton(UsedObjectsInPublicationExistInTemplateRule),
+            providers.Singleton(UsedObjectTypeExistsRule),
+        ),
     )
 
     act_package_builder_factory = providers.Singleton(
@@ -142,6 +172,7 @@ class PublicationContainer(containers.DeclarativeContainer):
         state_loader=state_loader,
         publication_data_provider=act_publication_data_provider,
         data_patcher_factory=api_act_input_data_patcher_factory,
+        validate_publication_service=validate_publication_service,
     )
     announcement_package_builder_factory = providers.Singleton(
         announcement_package_services.AnnouncementPackageBuilderFactory,

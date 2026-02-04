@@ -12,7 +12,6 @@ import sqlalchemy as sa
 from app.main import app  ## noqa 
 from app.core.db import table_metadata  ## noqa 
 from app.core.settings import Settings  ## noqa
-from app.core.db.geometry import Geometry  ## noqa
 
 settings = Settings()
 

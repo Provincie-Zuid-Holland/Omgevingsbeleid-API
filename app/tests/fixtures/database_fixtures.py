@@ -3,19 +3,32 @@ import json
 import uuid
 from datetime import datetime
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.domains.modules.types import ModuleObjectActionFull, ModuleStatusCode, ModuleStatusCodeInternal
+from app.api.domains.publications.types.enums import DocumentType, ProcedureType
 from app.api.domains.users.services.security import Security
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
+from app.core.db import Base
 from app.core.tables.acknowledged_relations import AcknowledgedRelationsTable
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.others import AssetsTable, RelationsTable, StorageFileTable
+from app.core.tables.publications import (
+    PublicationTemplateTable,
+    PublicationEnvironmentTable,
+    PublicationActTable,
+    PublicationAreaOfJurisdictionTable,
+)
 from app.core.tables.users import IS_ACTIVE, UsersTable
+from app.core.tables.werkingsgebieden import (
+    InputGeoOnderverdelingenTable,
+    InputGeoWerkingsgebiedenTable,
+    Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc,
+)
 from app.core.types import AcknowledgedRelationSide
-from app.core.utils.utils import DATE_FORMAT
 
 
 class DatabaseFixtures:
@@ -31,18 +44,58 @@ class DatabaseFixtures:
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
         self._security: Security = security
 
+    def truncate_all(self):
+        self._session.execute(text(f"DELETE FROM {Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc.name}"))
+        self._session.commit()
+
+        self._truncate(PublicationAreaOfJurisdictionTable)
+        self._truncate(PublicationActTable)
+        self._truncate(PublicationEnvironmentTable)
+        self._truncate(PublicationTemplateTable)
+        self._truncate(InputGeoOnderverdelingenTable)
+        self._truncate(InputGeoWerkingsgebiedenTable)
+        self._truncate(RelationsTable)
+        self._truncate(AcknowledgedRelationsTable)
+        self._truncate(ModuleStatusHistoryTable)
+        self._truncate(ModuleObjectContextTable)
+        self._truncate(ModuleObjectsTable)
+        self._truncate(ModuleTable)
+        self._truncate(AssetsTable)
+        self._truncate(StorageFileTable)
+        self._truncate(ObjectStaticsTable)
+        self._truncate(ObjectsTable)
+        self._truncate(UsersTable)
+
+    def _truncate(self, model: type[Base]):
+        if self._session.bind.dialect.name == "sqlite":
+            self._session.execute(text("PRAGMA foreign_keys = OFF"))
+        if self._session.bind.dialect.name == "mssql":
+            self._session.execute(text(f"ALTER TABLE {model.__tablename__} NOCHECK CONSTRAINT ALL"))
+
+        self._session.query(model).delete()
+
+        if self._session.bind.dialect.name == "sqlite":
+            self._session.execute(text("PRAGMA foreign_keys = ON"))
+        if self._session.bind.dialect.name == "mssql":
+            self._session.execute(text(f"ALTER TABLE {model.__tablename__} WITH CHECK CHECK CONSTRAINT ALL"))
+
+        self._session.commit()
+
     def create_all(self):
         self.create_users()
-        self.create_source_werkingsgebieden()
-        self.create_areas()
+        self.create_geo_input()
         self.create_storage_files()
         self.create_assets()
         self.create_object_statics()
-        self.existing_objects()
+        self.create_existing_objects()
         self.create_modules()
         self.create_relations()
         self.create_acknowledged_relations()
         self.create_visie_algemeen()
+        self.create_publication_templates()
+        self.create_publication_environments()
+        self.create_publication_acts()
+        self.create_publication_aoj()
 
     def create_users(self):
         self._session.add(
@@ -115,43 +168,121 @@ class DatabaseFixtures:
                 Wachtwoord=self._security.get_password_hash("password"),
             )
         )
-        self._session.commit()
-
-    def create_source_werkingsgebieden(self):
-        self._geometry_repository.add_werkingsgebied(
-            session=self._session,
-            uuidx=uuid.UUID("00000000-0009-0000-0000-000000000001"),
-            idx=1,
-            title="Maatwerkgebied glastuinbouw",
-            text_shape="POLYGON ((74567.347600001842 443493.91890000325, 74608.622699998392 443619.86080000486, 74661.431899998352 443796.90439999942, 74657.325500000254 443794.78040000005, 74664.067999999956 443810.51300000178, 74729.171500001146 444013.33940000291, 74754.307000000073 444217.06900000118, 74766.111800000086 444287.24220000062, 74700.32570000003 444274.74290000094, 74617.775499999538 444246.9616000005, 74514.7938000001 444196.70150000026, 74448.482099998742 444165.69250000105, 74333.605200000064 444112.87550000072, 74204.86380000037 444067.32080000057, 74148.195700000957 444071.55770000169, 74232.0122999996 443919.14220000163, 74294.7186000012 443819.92320000188, 74402.363600000725 443672.54520000424, 74411.650600001187 443659.83020000259, 74518.027399998187 443515.38720000343, 74567.347600001842 443493.91890000325))",
-            gml="""<gml:Surface xmlns:gml="http://www.opengis.net/gml/3.2" gml:id="id-1191eed9-d9ab-4184-a6a1-056c13752390-1" srsName="urn:ogc:def:crs:EPSG::28992" srsDimension="2"><gml:patches><gml:PolygonPatch><gml:exterior><gml:LinearRing><gml:posList>93329.43 428509.174 93324.139 428489.33 93275.191 428468.163 92726.179 428235.329 92515.835 428130.819 92374.282 428055.412 92248.605 427991.912 92003.865 427886.079 91921.844 427855.652 91748.542 427815.964 91642.708 427789.506 91591.114 427785.537 91481.312 427761.724 91419.135 427808.026 91252.447 427937.672 91177.041 427986.62 91159.843 428028.954 91112.218 428067.319 90867.477 428248.558 90572.466 428476.101 90461.341 428560.767 90413.716 428592.517 90355.508 428612.361 90333.018 428612.361 90073.726 428562.09 90048.59 428567.382 89773.423 428654.695 89586.891 428722.164 89358.027 428797.57 89203.245 428842.549 89000.838 428904.065 88815.63 428963.596 88541.785 429061.492 88520.619 429072.076 88512.681 429087.951 88478.285 429273.159 88459.764 429312.847 88450.504 429346.582 88498.129 429362.457 88619.837 429411.405 88614.546 429447.123 88644.973 429447.123 88662.171 429441.832 88748.161 429526.499 88814.307 429575.447 88851.348 429596.613 88912.203 429609.843 89106.672 429607.197 89137.099 429575.447 89183.401 429572.801 89395.068 429575.447 89674.204 429568.832 89929.528 429555.603 89946.726 429552.957 90039.33 429521.207 90131.934 429496.071 90236.445 429477.551 90346.247 429456.384 90409.747 429441.832 90433.56 429440.509 90466.633 429447.123 90516.904 429462.998 90597.602 429480.196 90710.05 429509.301 90747.092 429519.884 90826.467 429537.082 90973.311 429566.186 90977.28 429588.676 90777.519 429773.885 90573.789 429976.291 90322.435 430121.151 90209.986 430184.651 90190.143 430196.557 90183.528 430213.755 90213.955 430241.536 90223.216 430295.776 90225.862 430332.818 90221.893 430360.599 90208.664 430385.735 90182.205 430420.131 90170.299 430445.266 90151.778 430525.964 90139.872 430575.574 90493.091 430682.73 90674.331 430734.324 90695.498 430709.188 90769.846 430638.545 91029.138 430357.027 91130.738 430312.577 91231.28 430214.152 91270.439 430214.681 91286.314 430204.098 91287.372 430186.106 91283.139 430169.173 91475.756 429977.614 91640.856 429827.86 91844.056 429653.234 91958.357 429548.459 92093.824 429495.542 92342.532 429387.592 92570.075 429307.688 92648.391 429264.296 92717.183 429247.363 92785.975 429217.729 92843.125 429175.396 92929.909 429075.912 92957.425 429038.341 92995.525 428955.791 93051.617 428894.408 93099.242 428867.949 93153.217 428858.424 93161.684 428791.749 93329.43 428509.174</gml:posList></gml:LinearRing></gml:exterior></gml:PolygonPatch></gml:patches></gml:Surface>""",
-            symbol="ES227",
-            created_date=datetime(2023, 2, 2, 2, 2, 2),
-            modified_date=datetime(2023, 2, 2, 2, 2, 2),
-            start_validity=datetime(2023, 2, 2, 2, 2, 2),
-            end_validity=datetime(2099, 2, 2, 2, 2, 2),
+        self._session.add(
+            UsersTable(
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000008"),
+                Gebruikersnaam="Hans",
+                Email="h@example.com",
+                Rol="Functioneel beheerder",
+                Status=IS_ACTIVE,
+                Wachtwoord=self._security.get_password_hash("password"),
+            )
+        )
+        self._session.add(
+            UsersTable(
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000009"),
+                Gebruikersnaam="Ingrid",
+                Email="i@example.com",
+                Rol="Technisch beheerder",
+                Status=IS_ACTIVE,
+                Wachtwoord=self._security.get_password_hash("password"),
+            )
+        )
+        self._session.add(
+            UsersTable(
+                UUID=uuid.UUID("11111111-0000-0000-0000-000000000010"),
+                Gebruikersnaam="Johan",
+                Email="j@example.com",
+                Rol="Basic",
+                Status=IS_ACTIVE,
+                Wachtwoord=self._security.get_password_hash("password"),
+            )
         )
         self._session.commit()
 
-    def create_areas(self):
-        self._area_geometry_repository.create_area(
-            session=self._session,
-            uuidx=uuid.UUID("00000000-0009-0000-0001-000000000001"),
-            created_date=datetime(2023, 2, 2, 2, 2, 2),
-            created_by_uuid=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-            werkingsgebied={
-                "UUID": "00000000-0009-0000-0000-000000000001",
-                "ID": 1,
-                "Title": "Maatwerkgebied glastuinbouw",
-                "Symbol": "ES227",
-                "Geometry": "POLYGON ((74567.347600001842 443493.91890000325, 74608.622699998392 443619.86080000486, 74661.431899998352 443796.90439999942, 74657.325500000254 443794.78040000005, 74664.067999999956 443810.51300000178, 74729.171500001146 444013.33940000291, 74754.307000000073 444217.06900000118, 74766.111800000086 444287.24220000062, 74700.32570000003 444274.74290000094, 74617.775499999538 444246.9616000005, 74514.7938000001 444196.70150000026, 74448.482099998742 444165.69250000105, 74333.605200000064 444112.87550000072, 74204.86380000037 444067.32080000057, 74148.195700000957 444071.55770000169, 74232.0122999996 443919.14220000163, 74294.7186000012 443819.92320000188, 74402.363600000725 443672.54520000424, 74411.650600001187 443659.83020000259, 74518.027399998187 443515.38720000343, 74567.347600001842 443493.91890000325))",
-                "GML": """<gml:Surface xmlns:gml="http://www.opengis.net/gml/3.2" gml:id="id-1191eed9-d9ab-4184-a6a1-056c13752390-1" srsName="urn:ogc:def:crs:EPSG::28992" srsDimension="2"><gml:patches><gml:PolygonPatch><gml:exterior><gml:LinearRing><gml:posList>93329.43 428509.174 93324.139 428489.33 93275.191 428468.163 92726.179 428235.329 92515.835 428130.819 92374.282 428055.412 92248.605 427991.912 92003.865 427886.079 91921.844 427855.652 91748.542 427815.964 91642.708 427789.506 91591.114 427785.537 91481.312 427761.724 91419.135 427808.026 91252.447 427937.672 91177.041 427986.62 91159.843 428028.954 91112.218 428067.319 90867.477 428248.558 90572.466 428476.101 90461.341 428560.767 90413.716 428592.517 90355.508 428612.361 90333.018 428612.361 90073.726 428562.09 90048.59 428567.382 89773.423 428654.695 89586.891 428722.164 89358.027 428797.57 89203.245 428842.549 89000.838 428904.065 88815.63 428963.596 88541.785 429061.492 88520.619 429072.076 88512.681 429087.951 88478.285 429273.159 88459.764 429312.847 88450.504 429346.582 88498.129 429362.457 88619.837 429411.405 88614.546 429447.123 88644.973 429447.123 88662.171 429441.832 88748.161 429526.499 88814.307 429575.447 88851.348 429596.613 88912.203 429609.843 89106.672 429607.197 89137.099 429575.447 89183.401 429572.801 89395.068 429575.447 89674.204 429568.832 89929.528 429555.603 89946.726 429552.957 90039.33 429521.207 90131.934 429496.071 90236.445 429477.551 90346.247 429456.384 90409.747 429441.832 90433.56 429440.509 90466.633 429447.123 90516.904 429462.998 90597.602 429480.196 90710.05 429509.301 90747.092 429519.884 90826.467 429537.082 90973.311 429566.186 90977.28 429588.676 90777.519 429773.885 90573.789 429976.291 90322.435 430121.151 90209.986 430184.651 90190.143 430196.557 90183.528 430213.755 90213.955 430241.536 90223.216 430295.776 90225.862 430332.818 90221.893 430360.599 90208.664 430385.735 90182.205 430420.131 90170.299 430445.266 90151.778 430525.964 90139.872 430575.574 90493.091 430682.73 90674.331 430734.324 90695.498 430709.188 90769.846 430638.545 91029.138 430357.027 91130.738 430312.577 91231.28 430214.152 91270.439 430214.681 91286.314 430204.098 91287.372 430186.106 91283.139 430169.173 91475.756 429977.614 91640.856 429827.86 91844.056 429653.234 91958.357 429548.459 92093.824 429495.542 92342.532 429387.592 92570.075 429307.688 92648.391 429264.296 92717.183 429247.363 92785.975 429217.729 92843.125 429175.396 92929.909 429075.912 92957.425 429038.341 92995.525 428955.791 93051.617 428894.408 93099.242 428867.949 93153.217 428858.424 93161.684 428791.749 93329.43 428509.174</gml:posList></gml:LinearRing></gml:exterior></gml:PolygonPatch></gml:patches></gml:Surface>""",
-                "Start_Validity": datetime(2023, 2, 2, 2, 2, 2).strftime(DATE_FORMAT)[:23],
-                "End_Validity": datetime(2099, 2, 2, 2, 2, 2).strftime(DATE_FORMAT)[:23],
-                "Created_Date": datetime(2023, 2, 2, 2, 2, 2).strftime(DATE_FORMAT)[:23],
-                "Modified_Date": datetime(2023, 2, 2, 2, 2, 2).strftime(DATE_FORMAT)[:23],
-            },
+    def create_geo_input(self):
+        # Input Geo Onderverdeling
+        default_geometry: str = """
+            POLYGON((
+                74567.3476 443493.9189,
+                74700.3257 444274.7429,
+                74620.0000 443900.0000,
+                74567.3476 443493.9189
+            ))"""
+        default_hash: str = "fake-hash"
+        default_gml: str = """<gml:Surface xmlns:gml="http://www.opengis.net/gml/3.2" gml:id="id-1191eed9-d9ab-4184-a6a1-056c13752390-1" srsName="urn:ogc:def:crs:EPSG::28992"  srsDimension="2"><gml:patches><gml:PolygonPatch><gml:exterior><gml:LinearRing><gml:posList>74567.348 443493.919 74700.326 444274.743 74567.347600001842 443493.918</gml:posList></gml:LinearRing></gml:exterior></gml:PolygonPatch></gml:patches></gml:Surface>"""
+
+        # Version 1
+        o_grasveld_1_a = InputGeoOnderverdelingenTable(
+            UUID=uuid.UUID("00000600-0000-0000-0000-100000000001"),
+            Title="Grasveld A",
+            Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+            Geometry_Hash=default_hash + "-1",
+            GML=default_gml,
         )
+        self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_a, default_geometry)
+
+        o_grasveld_1_b = InputGeoOnderverdelingenTable(
+            UUID=uuid.UUID("00000600-0000-0000-0000-100000000002"),
+            Title="Grasveld B",
+            Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+            Geometry_Hash=default_hash + "-2",
+            GML=default_gml,
+        )
+        self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_b, default_geometry)
+
+        o_grasveld_1_c = InputGeoOnderverdelingenTable(
+            UUID=uuid.UUID("00000600-0000-0000-0000-100000000003"),
+            Title="Grasveld C",
+            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+            Geometry_Hash=default_hash + "-3",
+            GML=default_gml,
+        )
+        self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_c, default_geometry)
+
+        # Version 2
+        o_grasveld_2_a = InputGeoOnderverdelingenTable(
+            UUID=uuid.UUID("00000600-0000-0000-0000-100000000011"),
+            Title="Grasveld A",
+            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+            Geometry_Hash=default_hash,
+            GML=default_gml,
+        )
+        self._geometry_repository.create_onderverdeling(self._session, o_grasveld_2_a, default_geometry)
+
+        o_grasveld_2_d = InputGeoOnderverdelingenTable(
+            UUID=uuid.UUID("00000600-0000-0000-0000-100000000012"),
+            Title="Grasveld D",
+            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+            Geometry_Hash=default_hash + "-4",
+            GML=default_gml,
+        )
+        self._geometry_repository.create_onderverdeling(self._session, o_grasveld_2_d, default_geometry)
+
+        # Input Geo Werkingsgebieden
+        w_grasvelden_v1 = InputGeoWerkingsgebiedenTable(
+            UUID=uuid.UUID("00000500-0000-0000-0000-200000000001"),
+            Title="Grasvelden",
+            Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+            Onderverdelingen=[
+                o_grasveld_1_a,
+                o_grasveld_1_b,
+                o_grasveld_1_c,
+            ],
+        )
+        self._session.add(w_grasvelden_v1)
+
+        w_grasvelden_v2 = InputGeoWerkingsgebiedenTable(
+            UUID=uuid.UUID("00000500-0000-0000-0000-200000000002"),
+            Title="Grasvelden",
+            Created_Date=datetime(2025, 2, 1, 0, 0, 0),
+            Onderverdelingen=[
+                o_grasveld_2_a,
+                o_grasveld_1_b,
+                o_grasveld_2_d,
+            ],
+        )
+        self._session.add(w_grasvelden_v2)
         self._session.commit()
 
     def create_storage_files(self):
@@ -303,6 +434,14 @@ class DatabaseFixtures:
 
         self._session.add(
             ObjectStaticsTable(
+                Object_Type="gebiedengroep",
+                Object_ID=1,
+                Code="gebiedengroep-1",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
+            )
+        )
+        self._session.add(
+            ObjectStaticsTable(
                 Object_Type="werkingsgebied",
                 Object_ID=1,
                 Code="werkingsgebied-1",
@@ -331,7 +470,7 @@ class DatabaseFixtures:
 
         self._session.commit()
 
-    def existing_objects(self):
+    def create_existing_objects(self):
         self._session.add(
             ObjectsTable(
                 Object_Type="ambitie",
@@ -695,7 +834,7 @@ class DatabaseFixtures:
                 Werkingsgebied_Code="werkingsgebied-1",
                 UUID=uuid.UUID("00000000-0000-0003-0000-000000000001"),
                 Title="Titel van het eerste beleidskeuze",
-                Description='<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eleifend lobortis libero, sit amet vestibulum lorem molestie sed.</p><img src="[ASSET:00000000-AAAA-0000-0000-000000000001]"/><p>Cras felis mi, finibus eget dignissim id, pretium egestas elit. Cras sodales eleifend velit vel aliquet. Nulla dapibus sem at velit suscipit, at varius augue porttitor. Morbi tempor vel est id dictum. Donec ante eros, rutrum eu quam non, interdum tristique turpis. Donec odio ipsum, tincidunt ut dignissim vel, scelerisque ut ex. Sed sit amet molestie tellus. Vestibulum porta condimentum molestie. Praesent non facilisis nisi, in egestas mi.<p>',
+                Description='<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eleifend lobortis libero, sit amet vestibulum lorem molestie sed.</p><img src="[ASSET:00000000-AAAA-0000-0000-000000000001]"/><p>Cras felis mi, finibus eget dignissim id, pretium egestas elit. Cras sodales eleifend velit vel aliquet. Nulla dapibus sem at velit suscipit, at varius augue porttitor. Morbi tempor vel est id dictum. Donec ante eros, rutrum eu quam non, interdum tristique turpis. Donec odio ipsum, tincidunt ut dignissim vel, scelerisque ut ex. Sed sit amet molestie tellus. Vestibulum porta condimentum molestie. Praesent non facilisis nisi, in egestas mi.</p>',
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
@@ -764,8 +903,8 @@ class DatabaseFixtures:
                 Object_ID=1,
                 Code="maatregel-1",
                 Description="Description voor maatregel 1",
-                Role="De Rol",
-                Effect="Het effect",
+                Role="De Rol voor maatregel 1",
+                Effect="Het effect voor maatregel 1",
                 Hierarchy_Code="beleidskeuze-1",
                 Documents=["document-1", "document-2"],
                 Werkingsgebied_Code="werkingsgebied-1",
@@ -801,6 +940,9 @@ class DatabaseFixtures:
                 Object_Type="maatregel",
                 Object_ID=2,
                 Code="maatregel-2",
+                Description="Description voor maatregel 2",
+                Role="De Rol voor maatregel 2",
+                Effect="Het effect voor maatregel 2",
                 Hierarchy_Code="beleidskeuze-2",
                 Werkingsgebied_Code="werkingsgebied-1",
                 Documents=["document-1"],
@@ -914,7 +1056,40 @@ class DatabaseFixtures:
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
-                Area_UUID=uuid.UUID("00000000-0009-0000-0001-000000000001"),
+            )
+        )
+        self._session.commit()
+
+        # Gebiedengroep
+        self._session.add(
+            ModuleObjectContextTable(
+                Module_ID=module.Module_ID,
+                Object_Type="gebiedengroep",
+                Object_ID=1,
+                Code="gebiedengroep-1",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Original_Adjust_On=None,
+                Action=ModuleObjectActionFull.Create,
+                Explanation="Deze wil ik toevoegen",
+                Conclusion="Geen conclusie",
+            )
+        )
+        self._session.commit()
+        self._session.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="gebiedengroep",
+                Object_ID=1,
+                Code="gebiedengroep-1",
+                UUID=uuid.UUID("00000000-0000-0008-0000-000000000001"),
+                Title="Titel van de eerste gebiedengroep",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
         self._session.commit()
@@ -1103,6 +1278,225 @@ opgeleverd van bodem, water en grondgebruik, dat voortdurend in beweging is</p>"
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
                 Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._session.commit()
+
+    def create_publication_templates(self):
+        self._session.add(
+            PublicationTemplateTable(
+                UUID=uuid.UUID("00000700-0000-0000-0000-100000000001"),
+                Title="Omgevingsvisie Versie 1",
+                Description="Omgevingsvisie Versie 1",
+                Is_Active=True,
+                Document_Type=DocumentType.VISION,
+                Object_Types=["visie_algemeen", "ambitie", "beleidsdoel", "beleidskeuze", "werkingsgebied"],
+                Text_Template="""
+<div data-hint-element="divisietekst"><object code="visie_algemeen-1" /></div>
+
+<div data-hint-wid-code="omgevingsvisie-custom-ambities-wrapper">
+    <h1>6. Ambities van Zuid-Holland</h1>
+    {%- for a in ambitie | sort(attribute='Title') %}
+        <div data-hint-element="divisietekst"><object code="{{ a.Code }}" template="ambitie" /></div>
+    {%- endfor %}
+</div>
+
+<div data-hint-wid-code="omgevingsvisie-custom-beleidsdoelen-and-beleidskeuzes-wrapper">
+    <h1>7. Beleidsdoelen en beleidskeuzes</h1>
+
+    {%- for d in beleidsdoel | sort(attribute='Title') %}
+    <div data-hint-wid-code="omgevingsvisie-custom-beleidsdoel-{{ d.Code }}-wrapper">
+        <h1>Beleidsdoel {{ d.Title }}</h1>
+        <div data-hint-element="divisietekst"><object code="{{ d.Code }}" template="beleidsdoel" /></div>
+
+        {% set filtered_results = beleidskeuze | selectattr('Hierarchy_Code', 'equalto', d.Code) | list %}
+        {% if filtered_results %}
+        <div data-hint-wid-code="omgevingsvisie-custom-beleidskeuze-{{ d.Code }}-wrapper">
+            <h1>Beleidskeuzes van {{ d.Title }}</h1>
+            {%- for k in filtered_results | sort(attribute='Title') %}
+            <div data-hint-element="divisietekst"><object code="{{ k.Code }}" template="beleidskeuze" /></div>
+            {%- endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {%- endfor %}
+</div>""",
+                Object_Templates={
+                    "visie_algemeen": """
+<h1>{{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{{ o.Description | default('', true) }}
+""",
+                    "ambitie": """
+<h1>Ambitie {{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{{ o.Description | default('', true) }}
+""",
+                    "beleidsdoel": """
+<h1>{{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{{ o.Description | default('', true) }}
+""",
+                    "beleidskeuze": """
+<h1>{{ o.Title }}</h1>
+<!--[OBJECT-CODE:{{o.Code}}]-->
+{% if o.Werkingsgebied_Code is not none %}
+<!--[GEBIED-CODE:{{o.Werkingsgebied_Code}}]-->
+{% else %}
+<!--[GEBIED-CODE:ambtsgebied]-->
+{% endif %}
+
+{% if o.Description | has_text %}
+<h6>Wat wil de provincie bereiken?</h6>
+{{ o.Description }}
+{% endif %}
+
+{% if o.Cause | has_text %}
+<h6>Aanleiding</h6>
+{{ o.Cause }}
+{% endif %}
+
+{% if o.Provincial_Interest | has_text %}
+<h6>Motivering Provinciaal Belang</h6>
+{{ o.Provincial_Interest }}
+{% endif %}
+
+{% if o.Explanation | has_text %}
+<h6>Nadere uitwerking</h6>
+{{ o.Explanation }}
+{% endif %}
+""",
+                },
+                Field_Map=[
+                    "UUID",
+                    "Object_Type",
+                    "Object_ID",
+                    "Code",
+                    "Hierarchy_Code",
+                    "Werkingsgebied_Code",
+                    "Title",
+                    "Description",
+                    "Cause",
+                    "Provincial_Interest",
+                    "Explanation",
+                    "Role",
+                    "Effect",
+                    "Area_UUID",
+                    "Created_Date",
+                    "Modified_Date",
+                    "Documents",
+                    "File_UUID",
+                    "Filename",
+                ],
+                Object_Field_Map={
+                    "programma_algemeen": ["Title", "Description"],
+                    "beleidsdoel": ["Title", "Description"],
+                    "beleidskeuze": ["Title"],
+                    "maatregel": ["Title", "Description", "Role", "Effect", "Gebiedengroep_Code", "Documents"],
+                    "gebiedengroep": ["Title", "Gebieden"],
+                    "gebied": ["Title", "Area_UUID"],
+                    "document": ["Title", "File_UUID", "Filename"],
+                },
+                Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Modified_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._session.commit()
+
+    def create_publication_environments(self):
+        self._session.add(
+            PublicationEnvironmentTable(
+                UUID=uuid.UUID("00000800-0000-0000-0000-100000000001"),
+                Title="Prod",
+                Description="Prod",
+                Code="PROD",
+                Province_ID="pv28",
+                Authority_ID="00000000000000000000",
+                Submitter_ID="00000000000000000000",
+                Governing_Body_Type="provinciale_staten",
+                Frbr_Country="nl",
+                Frbr_Language="nld",
+                Is_Active=True,
+                Has_State=False,
+                Can_Validate=True,
+                Can_Publicate=False,
+                Is_Locked=False,
+                Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Modified_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._session.commit()
+
+    def create_publication_acts(self):
+        self._session.add(
+            PublicationActTable(
+                ID=1,
+                UUID=uuid.UUID("00000900-0000-0000-0000-100000000001"),
+                Environment_UUID=uuid.UUID("00000800-0000-0000-0000-100000000001"),
+                Document_Type=DocumentType.VISION,
+                Procedure_Type=ProcedureType.DRAFT,
+                Title="Omgevingsvisie Zuid-Holland",
+                Is_Active=True,
+                Metadata={
+                    "Official_Title": "Omgevingsvisie Zuid-Holland",
+                    "Quote_Title": "Omgevingsvisie Zuid-Holland",
+                    "Subjects": [
+                        "water",
+                        "ruimtelijke_ordening",
+                        "waterbeheer",
+                        "natuur_en_milieu",
+                        "ruimte_en_infrastructuur",
+                        "verkeer",
+                        "cultureel_erfgoed",
+                        "bouwen_en_verbouwen",
+                        "wonen",
+                        "woningmarkt",
+                        "economie",
+                        "werk",
+                        "recreatie",
+                        "bodem",
+                        "energie",
+                        "flora_en_fauna",
+                        "geluid",
+                        "veiligheid",
+                        "natuur_en_landschapsbeheer",
+                        "luchtvaart",
+                        "rail_en_wegverkeer",
+                        "scheepvaart",
+                        "lucht",
+                        "netwerken",
+                        "cultuur_en_recreatie",
+                        "werkgelegenheid",
+                    ],
+                    "Jurisdictions": ["omgevingsrecht"],
+                },
+                Metadata_Is_Locked=False,
+                Work_Province_ID="pv28",
+                Work_Country="nl",
+                Work_Date="2025",
+                Work_Other="ontwerp-programma-1",
+                Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Modified_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+            )
+        )
+        self._session.commit()
+
+    def create_publication_aoj(self):
+        self._session.add(
+            PublicationAreaOfJurisdictionTable(
+                UUID=uuid.UUID("00001000-0000-0000-0000-100000000001"),
+                Title="Provincie Zuid-Holland",
+                Administrative_Borders_ID="PV28",
+                Administrative_Borders_Domain="NL.BI.BestuurlijkGebied",
+                Administrative_Borders_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
         self._session.commit()

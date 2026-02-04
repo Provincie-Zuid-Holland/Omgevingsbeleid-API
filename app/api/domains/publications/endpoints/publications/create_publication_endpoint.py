@@ -64,6 +64,9 @@ def post_create_publication_endpoint(
     timepoint: datetime = datetime.now(timezone.utc)
 
     module: ModuleTable = _get_module(session, module_repository, object_in.Module_ID)
+    if not module.is_active:
+        raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
+
     template: PublicationTemplateTable = _get_template(
         session, template_repository, object_in.Template_UUID, object_in.Document_Type
     )

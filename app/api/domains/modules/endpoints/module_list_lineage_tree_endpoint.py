@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
-from app.api.domains.modules.dependencies import depends_active_module
+from app.api.domains.modules.dependencies import depends_module
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.api.events.before_select_execution_event import BeforeSelectExecutionEvent
@@ -39,7 +39,7 @@ def get_module_list_lineage_tree_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
     lineage_id: int,
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
-    module: Annotated[ModuleTable, Depends(depends_active_module)],
+    module: Annotated[ModuleTable, Depends(depends_module)],
     session: Annotated[Session, Depends(depends_db_session)],
     event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
     context: Annotated[ModuleListLineageTreeEndpointContext, Depends()],

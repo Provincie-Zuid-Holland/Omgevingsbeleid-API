@@ -19,7 +19,7 @@ The Omgevingsbeleid API is a comprehensive policy management system developed fo
 ## System Requirements
 
 - Python 3.13+
-- SQLite (development) or Microsoft SQL Server (production)
+- SQLite with SpatiaLite (development) or Microsoft SQL Server (production)
 - Unix-based operating system (Linux/macOS)
 
 ## Quick Start
@@ -37,8 +37,8 @@ The Omgevingsbeleid API is a comprehensive policy management system developed fo
    Ensure you have Python 3.13 installed. We recommend using `pyenv` for version management:
    ```bash
    # If using pyenv
-   pyenv install 3.13.2
-   pyenv local 3.13.2
+   CONFIGURE_OPTS="--enable-loadable-sqlite-extensions" pyenv install 3.13
+   pyenv local 3.13
    ```
 
 3. **Create virtual environment**

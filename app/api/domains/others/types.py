@@ -3,10 +3,13 @@ import re
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Generic
+from typing import TypeVar
 
 from fastapi import UploadFile
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+TModel = TypeVar("TModel", bound=BaseModel)
 
 
 class StorageFileBasic(BaseModel):
@@ -24,6 +27,7 @@ class StorageFileBasic(BaseModel):
 class GraphEdgeType(str, Enum):
     relation = "relation"
     acknowledged_relation = "acknowledged_relation"
+    hierarchy_code = "hierarchy_code"
 
 
 class GraphEdge(BaseModel):
@@ -66,21 +70,13 @@ class ValidSearchConfig(BaseModel):
     allowed_object_types: List[str]
 
 
-class ValidSearchObject(BaseModel):
-    UUID: uuid.UUID
+class ValidSearchObject(BaseModel, Generic[TModel]):
     Object_Type: str
-    Object_ID: int
-    Object_Code: str
-    Title: str
     Description: str
     Score: float
+    Model: TModel
 
-    @model_validator(mode="before")
-    def generate_object_code(cls, data):
-        data["Object_Code"] = f"{data['Object_Type']}-{data['Object_ID']}"
-        return data
-
-    @field_validator("Title", "Description", mode="before")
+    @field_validator("Description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
@@ -91,12 +87,18 @@ class SearchConfig(ValidSearchConfig):
     pass
 
 
-class SearchObject(ValidSearchObject):
+class SearchObject(ValidSearchObject, Generic[TModel]):
     Module_ID: Optional[int] = None
+    Model: TModel
+
+    model_config = ConfigDict(from_attributes=True, title="SearchObject")
 
 
 class SearchRequestData(BaseModel):
     Object_Types: Optional[List[str]] = None
+
+
+class SearchRequestDataWithLike(SearchRequestData):
     Like: bool = Field(False)
 
 

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Set
+from typing import List, Set, Final
 
 from sqlalchemy import case, desc, select
 from sqlalchemy.orm import Session, aliased, selectinload
@@ -8,6 +8,17 @@ from sqlalchemy.sql import func, literal, or_, union_all
 from app.api.base_repository import BaseRepository
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectsTable
+
+
+PUBLICATION_BASE_FIELDS: Final[Set[str]] = {
+    "UUID",
+    "Object_Type",
+    "Object_ID",
+    "Code",
+    "Hierarchy_Code",
+    "Created_Date",
+    "Modified_Date",
+}
 
 
 class PublicationObjectRepository(BaseRepository):
@@ -19,22 +30,7 @@ class PublicationObjectRepository(BaseRepository):
         object_types: List[str] = [],
         requested_fields: List[str] = [],
     ) -> List[dict]:
-        required_fields: Set[str] = set(
-            [
-                "UUID",
-                "Object_Type",
-                "Object_ID",
-                "Code",
-                "Hierarchy_Code",
-                "Werkingsgebied_Code",
-                "Title",
-                "Description",
-                "Area_UUID",
-                "Created_Date",
-                "Modified_Date",
-            ]
-        )
-        fields: Set[str] = required_fields.union(set(requested_fields))
+        fields: Set[str] = PUBLICATION_BASE_FIELDS.union(set(requested_fields))
 
         query = self._get_full_query(module_id, timepoint, object_types, fields)
 

@@ -26,7 +26,7 @@ class PublicationTemplate(BaseModel):
     Object_Types: Any = None
     Text_Template: str
     Object_Templates: Any = None
-    Field_Map: Any = None
+    Object_Field_Map: Any = None
 
     Created_Date: datetime
     Modified_Date: datetime

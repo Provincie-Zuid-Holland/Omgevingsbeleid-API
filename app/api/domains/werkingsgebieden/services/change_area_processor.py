@@ -6,9 +6,12 @@ from sqlalchemy.orm import Session
 
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
-from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
+from app.api.domains.werkingsgebieden.repositories.input_geo.input_geo_onderverdeling_repository import (
+    InputGeoOnderverdelingRepository,
+)
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
 
 class AreaProcessorConfig(BaseModel):
@@ -19,13 +22,13 @@ class AreaProcessorService:
     def __init__(
         self,
         session: Session,
-        source_geometry_repository: GeometryRepository,
+        onderverdeling_repository: InputGeoOnderverdelingRepository,
         area_repository: AreaRepository,
         area_geometry_repository: AreaGeometryRepository,
         config: AreaProcessorConfig,
     ):
         self._session: Session = session
-        self._source_geometry_repository: GeometryRepository = source_geometry_repository
+        self._onderverdeling_repository: InputGeoOnderverdelingRepository = onderverdeling_repository
         self._area_repository: AreaRepository = area_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
         self._config: AreaProcessorConfig = config
@@ -48,7 +51,7 @@ class AreaProcessorService:
             return new_record
 
         # If the field value changes then it can either be the UUID of:
-        # - The Source Werkingsgebieden
+        # - Input Geo Onderverdeling
         # - An Area
         #
         # If it is the UUID of an Area then we do not need to do anything
@@ -62,27 +65,36 @@ class AreaProcessorService:
         if area_table is not None:
             return new_record
 
-        # The Source Werkingsgebied check
-        selected_werkingsgebied: dict = self._get_werkingsgebied(new_field_value)
-        area_uuid: uuid.UUID = self._get_or_create_area(new_record, selected_werkingsgebied)
+        # The Input Geo Onderverdeling check
+        selected_onderverdeling: InputGeoOnderverdelingenTable = self._get_input_geo_onderverdeling(new_field_value)
+        area_uuid: uuid.UUID = self._get_or_create_area(new_record, selected_onderverdeling)
         setattr(new_record, field_key, area_uuid)
 
         return new_record
 
-    def _get_werkingsgebied(self, werkingsgebied_uuid: uuid.UUID) -> dict:
-        selected_werkingsgebied: Optional[dict] = self._source_geometry_repository.get_werkingsgebied_optional(
+    def _get_input_geo_onderverdeling(self, input_geo_onderverdeling_uuid: uuid.UUID) -> InputGeoOnderverdelingenTable:
+        onderverdeling: Optional[InputGeoOnderverdelingenTable] = self._onderverdeling_repository.get_by_uuid(
             self._session,
-            werkingsgebied_uuid,
+            input_geo_onderverdeling_uuid,
         )
-        if selected_werkingsgebied is None:
-            raise ValueError("Invalid UUID for Werkingsgebied")
+        if onderverdeling is None:
+            raise ValueError("Invalid UUID for Input Geo Onderverdeling")
 
-        return selected_werkingsgebied
+        return onderverdeling
 
-    def _get_or_create_area(self, new_record: ModuleObjectsTable, werkingsgebied: dict) -> uuid.UUID:
-        werkingsgebied_uuid: uuid.UUID = uuid.UUID(werkingsgebied["UUID"])
-        existing_area: Optional[AreasTable] = self._area_repository.get_by_werkingsgebied_uuid(
-            self._session, werkingsgebied_uuid
+    def _get_or_create_area(
+        self, new_record: ModuleObjectsTable, onderverdeling: InputGeoOnderverdelingenTable
+    ) -> uuid.UUID:
+        existing_area = self._area_repository.get_by_source_hash(
+            self._session,
+            onderverdeling.Geometry_Hash,
+        )
+        if existing_area is not None:
+            return existing_area.UUID
+
+        existing_area: Optional[AreasTable] = self._area_repository.get_by_source_uuid(
+            self._session,
+            onderverdeling.UUID,
         )
         if existing_area is not None:
             return existing_area.UUID
@@ -91,7 +103,7 @@ class AreaProcessorService:
         self._area_geometry_repository.create_area(
             session=self._session,
             uuidx=area_uuid,
-            werkingsgebied=werkingsgebied,
+            onderverdeling=onderverdeling,
             created_date=new_record.Modified_Date,
             created_by_uuid=new_record.Modified_By_UUID,
         )
@@ -102,11 +114,11 @@ class AreaProcessorService:
 class AreaProcessorServiceFactory:
     def __init__(
         self,
-        source_geometry_repository: GeometryRepository,
+        onderverdeling_repository: InputGeoOnderverdelingRepository,
         area_repository: AreaRepository,
         area_geometry_repository: AreaGeometryRepository,
     ):
-        self._source_geometry_repository: GeometryRepository = source_geometry_repository
+        self._onderverdeling_repository: InputGeoOnderverdelingRepository = onderverdeling_repository
         self._area_repository: AreaRepository = area_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
 
@@ -117,7 +129,7 @@ class AreaProcessorServiceFactory:
     ) -> AreaProcessorService:
         return AreaProcessorService(
             session,
-            self._source_geometry_repository,
+            self._onderverdeling_repository,
             self._area_repository,
             self._area_geometry_repository,
             config,

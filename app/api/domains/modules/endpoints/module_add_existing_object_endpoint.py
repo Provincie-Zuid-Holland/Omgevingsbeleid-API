@@ -126,6 +126,7 @@ class ModuleAddExistingObjectService:
         object_context.Modified_Date = self._timepoint
         object_context.Modified_By_UUID = self._user.UUID
         object_context.Original_Adjust_On = object_data["UUID"]
+        object_context.Action = self._object_in.Action
         object_context.Explanation = self._object_in.Explanation
         object_context.Conclusion = self._object_in.Conclusion
         self._session.add(object_context)

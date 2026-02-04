@@ -182,3 +182,11 @@ class ModuleSortColumn(str, Enum):
     Closed = "Closed"
     Successful = "Successful"
     Temporary_Locked = "Temporary_Locked"
+
+
+class GenericObjectShort(BaseModel):
+    Object_Type: str
+    Object_ID: int
+    UUID: uuid.UUID
+    Title: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)

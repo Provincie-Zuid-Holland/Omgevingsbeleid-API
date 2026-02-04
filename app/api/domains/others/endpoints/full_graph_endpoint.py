@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Annotated, List
+from typing import Annotated, List, Sequence, Tuple
 
 from fastapi import Depends
 from sqlalchemy import desc, func, or_, select
@@ -17,15 +17,17 @@ class EndpointHandler:
         self._session: Session = session
 
     def handle(self) -> GraphResponse:
-        vertices: List[GraphVertice] = self._get_all_valid_objects_as_vertices()
-        edges: List[GraphEdge] = self._get_all_edges()
+        vertices: List[GraphVertice] = []
+        edges: List[GraphEdge] = []
+        vertices, edges = self._resolve_valid_object_data()
+        edges = edges + self._get_other_edges()
 
         return GraphResponse(
             Vertices=vertices,
             Edges=edges,
         )
 
-    def _get_all_edges(self) -> List[GraphEdge]:
+    def _get_other_edges(self) -> List[GraphEdge]:
         relations: List[GraphEdge] = self._get_all_relations()
         acknowledged_relations: List[GraphEdge] = self._get_valid_acknowledged_relations()
 
@@ -33,7 +35,7 @@ class EndpointHandler:
 
     def _get_all_relations(self) -> List[GraphEdge]:
         stmt = select(RelationsTable)
-        rows: List[RelationsTable] = self._session.execute(stmt).scalars().all()
+        rows: Sequence[RelationsTable] = self._session.execute(stmt).scalars().all()
         edges: List[GraphEdge] = [
             GraphEdge(
                 Type=GraphEdgeType.relation,
@@ -56,7 +58,7 @@ class EndpointHandler:
                 )
             )
         )
-        rows: List[AcknowledgedRelationsTable] = self._session.execute(stmt).scalars().all()
+        rows: Sequence[AcknowledgedRelationsTable] = self._session.execute(stmt).scalars().all()
         edges: List[GraphEdge] = [
             GraphEdge(
                 Type=GraphEdgeType.acknowledged_relation,
@@ -67,7 +69,7 @@ class EndpointHandler:
         ]
         return edges
 
-    def _get_all_valid_objects_as_vertices(self) -> List[GraphVertice]:
+    def _resolve_valid_object_data(self) -> Tuple[List[GraphVertice], List[GraphEdge]]:
         subq = (
             select(
                 ObjectsTable,
@@ -101,13 +103,28 @@ class EndpointHandler:
                     aliased_subq.Code,
                     aliased_subq.UUID,
                     aliased_subq.Title,
+                    aliased_subq.Hierarchy_Code,
                 ),
             )
         )
 
-        rows: List[ObjectsTable] = self._session.execute(stmt).scalars().all()
+        rows: List[ObjectsTable] = list(self._session.execute(stmt).scalars().all())
         vertices: List[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
-        return vertices
+
+        # Use the same rows to build hierarcy_code edges
+        hierarchy_code_edges: List[GraphEdge] = []
+        for row in rows:
+            if not row.Hierarchy_Code:
+                continue
+            hierarchy_code_edges.append(
+                GraphEdge(
+                    Type=GraphEdgeType.hierarchy_code,
+                    Vertice_A_Code=row.Code,
+                    Vertice_B_Code=row.Hierarchy_Code,
+                )
+            )
+
+        return vertices, hierarchy_code_edges
 
 
 def get_full_graph_endpoint(

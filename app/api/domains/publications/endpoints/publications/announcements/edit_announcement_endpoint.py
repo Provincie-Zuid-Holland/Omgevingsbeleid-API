@@ -58,6 +58,8 @@ def post_edit_announcement_endpoint(
 
 
 def _guard_locked(announcement: PublicationAnnouncementTable) -> None:
+    if not announcement.Publication.Module.is_active:
+        raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
     if announcement.Is_Locked:
         raise HTTPException(status.HTTP_409_CONFLICT, "This announcement is locked")
     if not announcement.Publication.Act.Is_Active:
