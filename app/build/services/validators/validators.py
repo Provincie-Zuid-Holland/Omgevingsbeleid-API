@@ -440,6 +440,10 @@ class GebiedsaanwijzingValidator(Validator):
                 if len(aanwijzing_title) < 3:
                     raise ValueError(f"Invalid data-title `{aanwijzing_group}`")
 
+                inner_text: str = aanwijzing_html.get_text(strip=True)
+                if len(inner_text) == 0:
+                    raise ValueError("Missing contents inside the gebiedsaanwijzing.")
+
                 # We tests all codes later
                 used_target_codes.update(data_target_codes)
 
