@@ -444,6 +444,11 @@ class GebiedsaanwijzingValidator(Validator):
                 if len(inner_text) == 0:
                     raise ValueError("Missing contents inside the gebiedsaanwijzing.")
 
+                if len(data_target_codes) == 0:
+                    raise ValueError(
+                        f"Missing `data-target-codes` for gebiedsaanwijzing with title `{aanwijzing_title}"
+                    )
+
                 # We tests all codes later
                 used_target_codes.update(data_target_codes)
 
