@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup, Tag, ResultSet
 from pydantic import BaseModel, computed_field, ConfigDict, ValidationError
 from sqlalchemy.orm import Session
 
+from app.api.domains.modules.types import ModuleObjectActionFull
+from app.api.domains.publications.repository import PublicationModuleObjectRepository
 from app.api.domains.publications.types.api_input_data import ApiActInputData
 
 
@@ -23,6 +25,7 @@ class ValidatePublicationError(BaseModel):
 
 class ValidatePublicationRequest(BaseModel):
     document_type: str
+    module_id: int
     input_data: ApiActInputData
 
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
@@ -101,27 +104,6 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
         return errors
 
 
-class UsedObjectsInTemplateExistInPublicationRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
-
-        for object_to_validate in request.input_data.Publication_Data.objects:
-            if object_to_validate.get("Code") not in request.input_data.Publication_Data.used_object_codes:
-                errors.append(
-                    ValidatePublicationError(
-                        rule="used_objects_in_template_exist_in_publication_rule",
-                        object=ValidatePublicationObject(
-                            code=object_to_validate.get("Code"),
-                            object_id=object_to_validate.get("Object_ID"),
-                            object_type=object_to_validate.get("Object_Type"),
-                            title=object_to_validate.get("Title"),
-                        ),
-                        messages=[f"'{object_to_validate.get('Code')}' can't be found in codes used in template"],
-                    )
-                )
-        return errors
-
-
 class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         errors: List[ValidatePublicationError] = []
@@ -137,7 +119,40 @@ class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
                         object=ValidatePublicationObject(
                             code=used_code_in_template,
                         ),
-                        messages=[f"Code '{used_code_in_template}' used in template can't be found in publication"],
+                        messages=[
+                            f"Object with code '{used_code_in_template}' used in template can't be found in publication"
+                        ],
+                    )
+                )
+        return errors
+
+
+class ModifiedModuleObjectsExistInPublicationRule(ValidatePublicationRule):
+    def __init__(self, module_object_repository: PublicationModuleObjectRepository):
+        self._module_object_repository = module_object_repository
+
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+        publication_data_codes = [
+            object_to_validate.get("Code") for object_to_validate in request.input_data.Publication_Data.objects
+        ]
+        module_objects = self._module_object_repository.get_by_module_id(db, request.module_id)
+        for module_object in module_objects:
+            if (
+                module_object.Code not in publication_data_codes
+                and module_object.ModuleObjectContext.Action != ModuleObjectActionFull.Terminate.value
+            ):
+                errors.append(
+                    ValidatePublicationError(
+                        rule="modified_module_objects_exist_in_publication_rule",
+                        object=ValidatePublicationObject(
+                            code=module_object.Code,
+                            object_id=module_object.ObjectStatics.Object_ID,
+                            object_type=module_object.ObjectStatics.Object_Type,
+                        ),
+                        messages=[
+                            f"Object with code '{module_object.Code}' used in module, can't be found in publication"
+                        ],
                     )
                 )
         return errors

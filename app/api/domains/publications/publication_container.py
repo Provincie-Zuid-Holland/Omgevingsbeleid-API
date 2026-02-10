@@ -11,9 +11,9 @@ import app.api.domains.publications.services.state.versions as state_versions
 from app.api.domains.publications.services.validate_publication_service import (
     ValidatePublicationService,
     RequiredObjectFieldsRule,
-    UsedObjectsInTemplateExistInPublicationRule,
     UsedObjectsInPublicationExistInTemplateRule,
     UsedObjectTypeExistsRule,
+    ModifiedModuleObjectsExistInPublicationRule,
 )
 
 
@@ -35,6 +35,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     announcement_repository = providers.Singleton(repositories.PublicationAnnouncementRepository)
     aoj_repository = providers.Singleton(repositories.PublicationAOJRepository)
     environment_repository = providers.Singleton(repositories.PublicationEnvironmentRepository)
+    module_repository = providers.Singleton(repositories.PublicationModuleObjectRepository)
     object_repository = providers.Singleton(repositories.PublicationObjectRepository)
     publication_repository = providers.Singleton(repositories.PublicationRepository)
     storage_file_repository = providers.Singleton(repositories.PublicationStorageFileRepository)
@@ -157,9 +158,12 @@ class PublicationContainer(containers.DeclarativeContainer):
                 RequiredObjectFieldsRule,
                 document_type_map=publication_required_object_fields_rule_mapping,
             ),
-            providers.Singleton(UsedObjectsInTemplateExistInPublicationRule),
             providers.Singleton(UsedObjectsInPublicationExistInTemplateRule),
             providers.Singleton(UsedObjectTypeExistsRule),
+            providers.Singleton(
+                ModifiedModuleObjectsExistInPublicationRule,
+                module_object_repository=module_repository,
+            ),
         ),
     )
 

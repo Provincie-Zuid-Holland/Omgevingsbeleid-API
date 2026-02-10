@@ -21,6 +21,11 @@ from app.core.tables.publications import (
     PublicationEnvironmentTable,
     PublicationActTable,
     PublicationAreaOfJurisdictionTable,
+    PublicationActVersionTable,
+    PublicationTable,
+    PublicationVersionTable,
+    PublicationActPackageTable,
+    PublicationPackageZipTable,
 )
 from app.core.tables.users import IS_ACTIVE, UsersTable
 from app.core.tables.werkingsgebieden import (
@@ -48,37 +53,31 @@ class DatabaseFixtures:
         self._session.execute(text(f"DELETE FROM {Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc.name}"))
         self._session.commit()
 
+        self._truncate(PublicationPackageZipTable)
+        self._truncate(PublicationActPackageTable)
         self._truncate(PublicationAreaOfJurisdictionTable)
+        self._truncate(PublicationVersionTable)
+        self._truncate(PublicationTable)
         self._truncate(PublicationActTable)
         self._truncate(PublicationEnvironmentTable)
+        self._truncate(PublicationActVersionTable)
         self._truncate(PublicationTemplateTable)
         self._truncate(InputGeoOnderverdelingenTable)
         self._truncate(InputGeoWerkingsgebiedenTable)
         self._truncate(RelationsTable)
         self._truncate(AcknowledgedRelationsTable)
         self._truncate(ModuleStatusHistoryTable)
-        self._truncate(ModuleObjectContextTable)
         self._truncate(ModuleObjectsTable)
+        self._truncate(ModuleObjectContextTable)
         self._truncate(ModuleTable)
         self._truncate(AssetsTable)
         self._truncate(StorageFileTable)
-        self._truncate(ObjectStaticsTable)
         self._truncate(ObjectsTable)
+        self._truncate(ObjectStaticsTable)
         self._truncate(UsersTable)
 
     def _truncate(self, model: type[Base]):
-        if self._session.bind.dialect.name == "sqlite":
-            self._session.execute(text("PRAGMA foreign_keys = OFF"))
-        if self._session.bind.dialect.name == "mssql":
-            self._session.execute(text(f"ALTER TABLE {model.__tablename__} NOCHECK CONSTRAINT ALL"))
-
         self._session.query(model).delete()
-
-        if self._session.bind.dialect.name == "sqlite":
-            self._session.execute(text("PRAGMA foreign_keys = ON"))
-        if self._session.bind.dialect.name == "mssql":
-            self._session.execute(text(f"ALTER TABLE {model.__tablename__} WITH CHECK CHECK CONSTRAINT ALL"))
-
         self._session.commit()
 
     def create_all(self):
