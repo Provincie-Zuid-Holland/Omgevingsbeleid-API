@@ -53,6 +53,30 @@ class PatchActMutation:
 
             gios[index] = gio
 
+        # After patching the GIOs, we need to restore the original basisgeo_ids on the locaties.
+        #
+        # During publication, new basisgeo_ids are generated for all gebieden (before they are
+        # resolved into locaties). At the moment we patch the GIOs above, we cannot reliably
+        # reuse the old basisgeo_ids because the number and ordering of locaties may differ
+        # between the existing ("was") and new data.
+        #
+        # To handle this safely, we first collect all existing locaties into a lookup map
+        # keyed by source_hash -> basisgeo_id. We then iterate over the new data and, where
+        # a matching source_hash exists, overwrite the generated basisgeo_id with the
+        # original one to preserve identity across versions.
+        state_hash_map: Dict[str, str] = {}
+        for state_gio in self._active_act.Gios.values():
+            for state_location in state_gio.locaties:
+                state_hash_map[state_location.source_hash] = state_location.basisgeo_id
+
+        # Now reuse those basisgeo_ids where we can
+        for index, gio in gios.items():
+            for loc_index, location in enumerate(gio.locaties):
+                basisgeo_id: str = state_hash_map.get(location.source_hash, location.basisgeo_id)
+                location.basisgeo_id = basisgeo_id
+                gio.locaties[loc_index] = location
+            gios[index] = gio
+
         data.Publication_Data.gios = gios
 
         return data

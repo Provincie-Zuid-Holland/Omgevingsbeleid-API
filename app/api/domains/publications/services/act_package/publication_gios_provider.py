@@ -90,6 +90,8 @@ class PublicationGiosProvider:
         gml_hash = hashlib.sha512()
         gml_hash.update(area.Gml.encode())
 
+        locatie: PublicationGioLocatie = self._area_to_locatie(area, input_gebied)
+
         gio: PublicationGio = PublicationGio(
             source_codes=set([input_gebied.code]),
             title=input_gebied.title,
@@ -98,16 +100,7 @@ class PublicationGiosProvider:
             geboorteregeling=self._act_frbr.get_work(),
             achtergrond_verwijzing="TOP10NL",
             achtergrond_actualiteit=str(input_gebied.modified_date)[:10],
-            locaties=[
-                PublicationGioLocatie(
-                    code=input_gebied.code,
-                    title=input_gebied.title,
-                    basisgeo_id=str(area.UUID),
-                    # str(hash) is what we did before, so thats how the hashes are stored in the state
-                    source_hash=str(gml_hash),
-                    gml=area.Gml,
-                )
-            ],
+            locaties=[locatie],
         )
 
         # Save to accumulator
@@ -155,7 +148,7 @@ class PublicationGiosProvider:
                     f"Gebiedsaanwijzijng `{input_aanwijzing.title}` points to unknown gebied `{gebied_code}`"
                 )
             area: AreasTable = self._fetch_area(input_gebied.area_uuid)
-            locatie: PublicationGioLocatie = self._area_to_locatie(area, gebied_code)
+            locatie: PublicationGioLocatie = self._area_to_locatie(area, input_gebied)
             locaties.append(locatie)
 
         gio: PublicationGio = PublicationGio(
@@ -173,17 +166,16 @@ class PublicationGiosProvider:
         self._result.gios[gio.key()] = gio
         return gio
 
-    def _area_to_locatie(self, area: AreasTable, gebied_code: str) -> PublicationGioLocatie:
+    def _area_to_locatie(self, area: AreasTable, input_gebied: InputGebied) -> PublicationGioLocatie:
         gml_hash = hashlib.sha512()
         gml_hash.update(area.Gml.encode())
 
         return PublicationGioLocatie(
-            code=gebied_code,
-            title=area.Source_Title,
-            basisgeo_id=str(area.UUID),
-            source_hash=str(
-                gml_hash
-            ),  # str(hash) is what we did before, so thats how the hashes are stored in the state
+            code=input_gebied.code,
+            title=input_gebied.title,
+            basisgeo_id=str(input_gebied.basisgeo_id),
+            # str(hash) is what we did before, so thats how the hashes are stored in the state
+            source_hash=str(gml_hash),
             gml=area.Gml,
         )
 
