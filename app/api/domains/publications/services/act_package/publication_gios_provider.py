@@ -87,9 +87,6 @@ class PublicationGiosProvider:
             self._result.gebiedsaanwijzingen[aanwijzing.key()] = aanwijzing
 
     def _inputgebied_to_gio(self, input_gebied: InputGebied, area: AreasTable) -> PublicationGio:
-        gml_hash = hashlib.sha512()
-        gml_hash.update(area.Gml.encode())
-
         locatie: PublicationGioLocatie = self._area_to_locatie(area, input_gebied)
 
         gio: PublicationGio = PublicationGio(
