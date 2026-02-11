@@ -101,27 +101,6 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
         return errors
 
 
-class UsedObjectsInTemplateExistInPublicationRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
-
-        for object_to_validate in request.input_data.Publication_Data.objects:
-            if object_to_validate.get("Code") not in request.input_data.Publication_Data.used_object_codes:
-                errors.append(
-                    ValidatePublicationError(
-                        rule="used_objects_in_template_exist_in_publication_rule",
-                        object=ValidatePublicationObject(
-                            code=object_to_validate.get("Code"),
-                            object_id=object_to_validate.get("Object_ID"),
-                            object_type=object_to_validate.get("Object_Type"),
-                            title=object_to_validate.get("Title"),
-                        ),
-                        messages=[f"'{object_to_validate.get('Code')}' can't be found in codes used in template"],
-                    )
-                )
-        return errors
-
-
 class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         errors: List[ValidatePublicationError] = []
@@ -137,7 +116,38 @@ class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
                         object=ValidatePublicationObject(
                             code=used_code_in_template,
                         ),
-                        messages=[f"Code '{used_code_in_template}' used in template can't be found in publication"],
+                        messages=[
+                            f"Object with code '{used_code_in_template}' used in template can't be found in publication"
+                        ],
+                    )
+                )
+        return errors
+
+
+class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+
+        used_object_types_in_template: Set[str] = set()
+        for used_object_code in request.input_data.Publication_Data.used_object_codes:
+            object_type, _ = used_object_code.split("-")
+            used_object_types_in_template.add(object_type)
+
+        for object_code in request.input_data.Publication_Data.all_object_codes:
+            object_type, object_id = object_code.split("-")
+            if object_type not in used_object_types_in_template:
+                continue
+
+            if object_code not in request.input_data.Publication_Data.used_object_codes:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="used_object_in_publication_exists_rule",
+                        object=ValidatePublicationObject(
+                            code=object_code,
+                            object_id=int(object_id),
+                            object_type=object_type,
+                        ),
+                        messages=[f"Object {object_code} can't be found in publication"],
                     )
                 )
         return errors

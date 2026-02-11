@@ -5,6 +5,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, ValidationError
+from pydantic_core import ErrorDetails
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
@@ -103,6 +104,6 @@ def _guard_publication(
     if not version.Publication.Module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
-    errors: List[dict] = validator.get_errors(version)
+    errors: List[ErrorDetails] = validator.get_errors(version)
     if len(errors) != 0:
         raise HTTPException(status.HTTP_409_CONFLICT, errors)

@@ -170,6 +170,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(
                 endpoint_builders_publications.publications.act_packages.ListPublicationPackagesEndpointBuilder
             ),
+            providers.Factory(
+                endpoint_builders_publications.publications.act_packages.ValidatePublicationPackageEndpointBuilder
+            ),
             #       Act Reports
             providers.Factory(
                 endpoint_builders_publications.publications.act_reports.DetailActPackageReportEndpointBuilder

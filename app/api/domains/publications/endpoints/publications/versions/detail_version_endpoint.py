@@ -1,7 +1,8 @@
-from typing import Annotated, Any, List
+from typing import Annotated, List
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
+from pydantic_core import ErrorDetails
 
 from app.api.api_container import ApiContainer
 from app.api.domains.publications.dependencies import depends_publication_version
@@ -26,7 +27,7 @@ def get_detail_version_endpoint(
     publication_version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     validator: Annotated[PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])],
 ) -> PublicationVersion:
-    errors: List[Any] = validator.get_errors(publication_version)
+    errors: List[ErrorDetails] = validator.get_errors(publication_version)
     result: PublicationVersion = PublicationVersion.model_validate(publication_version)
     result.Errors = errors
 
