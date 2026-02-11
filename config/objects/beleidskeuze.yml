@@ -513,11 +513,6 @@ models:
             data:
               min: 3
           - id: html
-          - id: gebiedsaanwijzing_in_text
-            data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
       cause:
         optional: true
         validators:
@@ -526,11 +521,6 @@ models:
             data:
               min: 3
           - id: html
-          - id: gebiedsaanwijzing_in_text
-            data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
       provincial_interest:
         optional: true
         validators:
@@ -539,11 +529,6 @@ models:
             data:
               min: 3
           - id: html
-          - id: gebiedsaanwijzing_in_text
-            data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
       explanation:
         optional: true
         validators:
@@ -552,11 +537,6 @@ models:
             data:
               min: 3
           - id: html
-          - id: gebiedsaanwijzing_in_text
-            data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
       hierarchy_code:
         default: none
         optional: true
