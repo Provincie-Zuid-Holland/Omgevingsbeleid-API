@@ -171,7 +171,7 @@ class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
         errors: List[ValidatePublicationError] = []
 
         existing_gebiedengroepen: Set[str] = {
-            gebiedengroep.code for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen
+            gebiedengroep.code for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values()
         }
 
         for used_object in request.input_data.Publication_Data.objects:
