@@ -62,6 +62,7 @@ class ActPublicationDataProvider:
             publication_version.Publication.Template.Text_Template,
             objects,
         )
+        all_object_codes = {o["Code"] for o in objects}
         used_object_codes: Set[str] = self._get_used_object_codes(parsed_template)
         used_objects: List[dict] = self._get_used_objects(objects, used_object_codes)
         assets: List[dict] = self._publication_asset_provider.get_assets(session, used_objects)
@@ -93,6 +94,7 @@ class ActPublicationDataProvider:
         bill_attachments: List[dict] = self._get_bill_attachments(publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
+            all_object_codes=all_object_codes,
             used_object_codes=used_object_codes,
             objects=used_objects,
             documents=documents,

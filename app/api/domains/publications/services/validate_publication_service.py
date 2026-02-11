@@ -5,8 +5,6 @@ from bs4 import BeautifulSoup, Tag, ResultSet
 from pydantic import BaseModel, computed_field, ConfigDict, ValidationError
 from sqlalchemy.orm import Session
 
-from app.api.domains.modules.types import ModuleObjectActionFull
-from app.api.domains.publications.repository import PublicationModuleObjectRepository
 from app.api.domains.publications.types.api_input_data import ApiActInputData
 
 
@@ -127,32 +125,30 @@ class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
         return errors
 
 
-class ModifiedModuleObjectsExistInPublicationRule(ValidatePublicationRule):
-    def __init__(self, module_object_repository: PublicationModuleObjectRepository):
-        self._module_object_repository = module_object_repository
-
+class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         errors: List[ValidatePublicationError] = []
-        publication_data_codes = [
-            object_to_validate.get("Code") for object_to_validate in request.input_data.Publication_Data.objects
-        ]
-        module_objects = self._module_object_repository.get_by_module_id(db, request.module_id)
-        for module_object in module_objects:
-            if (
-                module_object.Code not in publication_data_codes
-                and module_object.ModuleObjectContext.Action != ModuleObjectActionFull.Terminate.value
-            ):
+
+        used_object_types_in_template: Set[str] = set()
+        for used_object_code in request.input_data.Publication_Data.used_object_codes:
+            object_type, _ = used_object_code.split("-")
+            used_object_types_in_template.add(object_type)
+
+        for object_code in request.input_data.Publication_Data.all_object_codes:
+            object_type, object_id = object_code.split("-")
+            if object_type not in used_object_types_in_template:
+                continue
+
+            if object_code not in request.input_data.Publication_Data.used_object_codes:
                 errors.append(
                     ValidatePublicationError(
-                        rule="modified_module_objects_exist_in_publication_rule",
+                        rule="used_object_in_publication_exists_rule",
                         object=ValidatePublicationObject(
-                            code=module_object.Code,
-                            object_id=module_object.ObjectStatics.Object_ID,
-                            object_type=module_object.ObjectStatics.Object_Type,
+                            code=object_code,
+                            object_id=int(object_id),
+                            object_type=object_type,
                         ),
-                        messages=[
-                            f"Object with code '{module_object.Code}' used in module, can't be found in publication"
-                        ],
+                        messages=[f"Object {object_code} can't be found in publication"],
                     )
                 )
         return errors

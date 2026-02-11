@@ -13,7 +13,7 @@ from app.api.domains.publications.services.validate_publication_service import (
     RequiredObjectFieldsRule,
     UsedObjectsInPublicationExistInTemplateRule,
     UsedObjectTypeExistsRule,
-    ModifiedModuleObjectsExistInPublicationRule,
+    UsedObjectInPublicationExistsRule,
 )
 
 
@@ -35,7 +35,6 @@ class PublicationContainer(containers.DeclarativeContainer):
     announcement_repository = providers.Singleton(repositories.PublicationAnnouncementRepository)
     aoj_repository = providers.Singleton(repositories.PublicationAOJRepository)
     environment_repository = providers.Singleton(repositories.PublicationEnvironmentRepository)
-    module_repository = providers.Singleton(repositories.PublicationModuleObjectRepository)
     object_repository = providers.Singleton(repositories.PublicationObjectRepository)
     publication_repository = providers.Singleton(repositories.PublicationRepository)
     storage_file_repository = providers.Singleton(repositories.PublicationStorageFileRepository)
@@ -160,10 +159,7 @@ class PublicationContainer(containers.DeclarativeContainer):
             ),
             providers.Singleton(UsedObjectsInPublicationExistInTemplateRule),
             providers.Singleton(UsedObjectTypeExistsRule),
-            providers.Singleton(
-                ModifiedModuleObjectsExistInPublicationRule,
-                module_object_repository=module_repository,
-            ),
+            providers.Singleton(UsedObjectInPublicationExistsRule),
         ),
     )
 
