@@ -22,6 +22,10 @@ from app.api.domains.publications.services.publication_object_provider import Pu
 from app.api.domains.publications.services.act_package.documents_provider import PublicationDocumentsProvider
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.api.domains.publications.services.template_parser import TemplateParser
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationError,
+    validation_exception,
+)
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, PublicationData
 from app.core.tables.publications import PublicationAreaOfJurisdictionTable, PublicationVersionTable
 
@@ -125,7 +129,14 @@ class ActPublicationDataProvider:
             before_datetime,
         )
         if aoj is None:
-            raise RuntimeError("There needs to be an area of jurisdiction")
+            raise validation_exception(
+                [
+                    ValidatePublicationError(
+                        rule="aoj_does_not_exist",
+                        messages=["There needs to be an area of jurisdiction"],
+                    )
+                ]
+            )
 
         result: dict = {
             "UUID": aoj.UUID,

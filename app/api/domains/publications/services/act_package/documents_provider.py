@@ -5,6 +5,11 @@ import dso.models as dso_models
 from sqlalchemy.orm import Session
 
 from app.api.domains.others.repositories.storage_file_repository import StorageFileRepository
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationError,
+    ValidatePublicationObject,
+    validation_exception,
+)
 from app.api.domains.publications.types.api_input_data import ActFrbr
 from app.core.tables.others import StorageFileTable
 
@@ -30,7 +35,15 @@ class PublicationDocumentsProvider:
         # @todo: Look for better solution, maybe filename can be auto prefixed?
         filenames: List[str] = [r["Filename"] for r in result]
         if len(filenames) != len(set(filenames)):
-            raise RuntimeError("Duplicate filenames just for different `documents`")
+            raise validation_exception(
+                [
+                    ValidatePublicationError(
+                        rule="duplicate_filenames",
+                        object=ValidatePublicationObject(),
+                        messages=["Duplicate filenames in publication"],
+                    )
+                ]
+            )
 
         return result
 
@@ -46,11 +59,27 @@ class PublicationDocumentsProvider:
             code = document["Code"]
             file_uuid = document["File_UUID"]
             if file_uuid is None:
-                raise RuntimeError(f"Missing file for document with code: {code}")
+                raise validation_exception(
+                    [
+                        ValidatePublicationError(
+                            rule="missing_file_uuid",
+                            object=ValidatePublicationObject(code=code),
+                            messages=[f"Missing file UUID for document with code: {code}"],
+                        )
+                    ]
+                )
 
             storage_file: Optional[StorageFileTable] = self._file_repostiory.get_by_uuid(session, file_uuid)
             if storage_file is None:
-                raise RuntimeError(f"File UUID does not exist for code: {code}")
+                raise validation_exception(
+                    [
+                        ValidatePublicationError(
+                            rule="missing_storage_file",
+                            object=ValidatePublicationObject(code=code),
+                            messages=[f"File UUID does not exist for code: {code}"],
+                        )
+                    ]
+                )
 
             dso_document: dict = self._as_dso_document(act_frbr, document, storage_file)
             result.append(dso_document)

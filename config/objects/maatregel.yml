@@ -466,11 +466,6 @@ models:
             data:
               min: 3
           - id: html
-          - id: gebiedsaanwijzing_in_text
-            data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
       role:
         optional: true
         validators:
@@ -486,11 +481,6 @@ models:
             data:
               min: 3
           - id: html
-          - id: gebiedsaanwijzing_in_text
-            data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
       hierarchy_code:
         validators:
           - id: object_code_allowed_type

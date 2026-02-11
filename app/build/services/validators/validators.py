@@ -438,7 +438,7 @@ class GebiedsaanwijzingValidator(Validator):
                 if a_groep is None:
                     raise ValueError(f"Invalid data-aanwijzing-group `{aanwijzing_group}`")
                 if len(aanwijzing_title) < 3:
-                    raise ValueError(f"Invalid data-title `{aanwijzing_group}`")
+                    raise ValueError(f"Invalid data-title `{aanwijzing_title}`")
 
                 inner_text: str = aanwijzing_html.get_text(strip=True)
                 if len(inner_text) == 0:

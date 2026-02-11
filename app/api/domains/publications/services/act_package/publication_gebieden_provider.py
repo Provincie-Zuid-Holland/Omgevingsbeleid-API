@@ -4,6 +4,12 @@ from typing import Dict, List, Optional, Set
 
 from pydantic import BaseModel
 
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationError,
+    ValidatePublicationObject,
+    validation_exception,
+)
+
 
 class InputGebied(BaseModel):
     # Represents an Object_Type=gebied and which convert to a DSO.GioLocatie
@@ -105,7 +111,15 @@ class PublicationGebiedenProvider:
             code: str = gebied["Code"]
             area_uuid: Optional[str] = gebied.get("Area_UUID")
             if area_uuid is None:
-                raise RuntimeError(f"Missing Area_UUID for gebied with code: {code}")
+                raise validation_exception(
+                    [
+                        ValidatePublicationError(
+                            rule="gebied_missing_area_uuid",
+                            object=ValidatePublicationObject(code=code),
+                            messages=[f"Missing Area_UUID for gebied with code `{code}`"],
+                        )
+                    ]
+                )
 
             input_gebied: InputGebied = InputGebied(
                 uuid=gebied["UUID"],
