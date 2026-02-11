@@ -12,7 +12,8 @@ from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_module
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.modules.types import Module as ModuleClass
-from app.api.domains.modules.types import TModel, ModuleStatus
+from app.api.domains.modules.types import ModuleStatus
+from app.api.domains.others.types import TModel
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
