@@ -11,9 +11,9 @@ import app.api.domains.publications.services.state.versions as state_versions
 from app.api.domains.publications.services.validate_publication_service import (
     ValidatePublicationService,
     RequiredObjectFieldsRule,
-    UsedObjectsInTemplateExistInPublicationRule,
     UsedObjectsInPublicationExistInTemplateRule,
     UsedObjectTypeExistsRule,
+    UsedObjectInPublicationExistsRule,
 )
 
 
@@ -157,9 +157,9 @@ class PublicationContainer(containers.DeclarativeContainer):
                 RequiredObjectFieldsRule,
                 document_type_map=publication_required_object_fields_rule_mapping,
             ),
-            providers.Singleton(UsedObjectsInTemplateExistInPublicationRule),
             providers.Singleton(UsedObjectsInPublicationExistInTemplateRule),
             providers.Singleton(UsedObjectTypeExistsRule),
+            providers.Singleton(UsedObjectInPublicationExistsRule),
         ),
     )
 
