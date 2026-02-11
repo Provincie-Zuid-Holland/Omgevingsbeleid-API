@@ -1,9 +1,8 @@
-import uuid
 from typing import Annotated, List
 
 from dependency_injector.wiring import inject, Provide
 from fastapi import Depends, HTTPException
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 from sqlalchemy.orm import Session
 from starlette import status
@@ -22,10 +21,6 @@ from app.api.permissions import Permissions
 from app.api.types import ResponseOK
 from app.core.tables.publications import PublicationVersionTable
 from app.core.tables.users import UsersTable
-
-
-class PublicationValidate(BaseModel):
-    version_id: uuid.UUID
 
 
 @inject
