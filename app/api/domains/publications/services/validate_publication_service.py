@@ -164,3 +164,13 @@ class UsedObjectTypeExistsRule(ValidatePublicationRule):
                     )
                 )
         return errors
+
+
+def raise_validation_exception(errors: List[ValidatePublicationError]):
+    if not errors:
+        return
+
+    raise ValidatePublicationException(
+        "Error(s) found while validating publication",
+        publication_errors=errors,
+    )
