@@ -21,11 +21,11 @@ from app.core.tables.publications import (
     PublicationEnvironmentTable,
     PublicationActTable,
     PublicationAreaOfJurisdictionTable,
-    PublicationActVersionTable,
     PublicationTable,
-    PublicationVersionTable,
-    PublicationActPackageTable,
     PublicationPackageZipTable,
+    PublicationActPackageTable,
+    PublicationVersionTable,
+    PublicationActVersionTable,
 )
 from app.core.tables.users import IS_ACTIVE, UsersTable
 from app.core.tables.werkingsgebieden import (
@@ -53,8 +53,8 @@ class DatabaseFixtures:
         self._session.execute(text(f"DELETE FROM {Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc.name}"))
         self._session.commit()
 
-        self._truncate(PublicationPackageZipTable)
         self._truncate(PublicationActPackageTable)
+        self._truncate(PublicationPackageZipTable)
         self._truncate(PublicationAreaOfJurisdictionTable)
         self._truncate(PublicationVersionTable)
         self._truncate(PublicationTable)
@@ -772,6 +772,7 @@ class DatabaseFixtures:
                 Object_Type="beleidsdoel",
                 Object_ID=1,
                 Code="beleidsdoel-1",
+                Hierarchy_Code="ambitie-1",
                 UUID=uuid.UUID("00000000-0000-0002-0000-000000000001"),
                 Title="Titel van het eerste beleidsdoel",
                 Description="<p>Description of beleidsdoel 1</p>",
@@ -805,6 +806,7 @@ class DatabaseFixtures:
                 Object_Type="beleidsdoel",
                 Object_ID=2,
                 Code="beleidsdoel-2",
+                Hierarchy_Code="ambitie-2",
                 UUID=uuid.UUID("00000000-0000-0002-0000-000000000002"),
                 Title="Titel van het tweede beleidsdoel",
                 Description="<p>Description of beleidsdoel 2</p>",

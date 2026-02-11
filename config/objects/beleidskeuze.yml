@@ -558,8 +558,6 @@ models:
                 - gebied
                 - gebiedengroep
       hierarchy_code:
-        default: none
-        optional: true
         validators:
           - id: object_code_allowed_type
             data:

@@ -109,8 +109,8 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
 
         errors: List[ValidateModuleError] = []
 
-        for object_info in objects:
-            target_code = object_info.get("Hierarchy_Code")
+        for object_info in request.module_objects:
+            target_code = object_info.Hierarchy_Code
             if target_code is None:
                 continue
 
@@ -119,12 +119,12 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="require_existing_hierarchy_code_rule",
                         object=ValidateModuleObject(
-                            code=object_info.get("Code"),
-                            object_id=object_info.get("Object_ID"),
-                            object_type=object_info.get("Object_Type"),
-                            title=object_info.get("Title"),
+                            code=object_info.Code,
+                            object_id=object_info.Object_ID,
+                            object_type=object_info.Object_Type,
+                            title=object_info.Title,
                         ),
-                        messages=[f"Hierarchy code {target_code} does not exist"],
+                        messages=[f"Hierarchy code {target_code} does or will not exist in next version"],
                     )
                 )
         return errors
