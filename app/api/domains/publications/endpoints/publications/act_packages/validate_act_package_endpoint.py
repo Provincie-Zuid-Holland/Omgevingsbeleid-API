@@ -4,6 +4,7 @@ from typing import Annotated, List
 from dependency_injector.wiring import inject, Provide
 from fastapi import Depends, HTTPException
 from pydantic import BaseModel, ValidationError
+from pydantic_core import ErrorDetails
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -46,7 +47,7 @@ def get_validate_act_package_endpoint(
     ],
     session: Annotated[Session, Depends(depends_db_session)],
 ):
-    errors: List[dict] = publication_version_validator.get_errors(publication_version)
+    errors: List[ErrorDetails] = publication_version_validator.get_errors(publication_version)
     if len(errors) != 0:
         raise HTTPException(status.HTTP_409_CONFLICT, errors)
 
@@ -54,7 +55,7 @@ def get_validate_act_package_endpoint(
         _: ActPackageBuilder = package_builder_factory.create_builder(
             session,
             publication_version,
-            PackageType.VALIDATION,  # because we validate, this is always VALIDATION type
+            PackageType.VALIDATION,  # because we're validating, this is always VALIDATION type
             MutationStrategy.RENVOOI,
         )
     except HTTPException as e:

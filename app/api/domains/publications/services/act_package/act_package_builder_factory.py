@@ -99,7 +99,6 @@ class ActPackageBuilderFactory:
 
         validation_request = ValidatePublicationRequest(
             document_type=publication_version.Publication.Document_Type,
-            module_id=publication_version.Publication.Module_ID,
             input_data=api_input_data,
         )
         validation_result = self._validate_publication_service.validate(session, validation_request)

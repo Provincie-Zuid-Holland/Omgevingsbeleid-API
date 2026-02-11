@@ -23,7 +23,6 @@ class ValidatePublicationError(BaseModel):
 
 class ValidatePublicationRequest(BaseModel):
     document_type: str
-    module_id: int
     input_data: ApiActInputData
 
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)

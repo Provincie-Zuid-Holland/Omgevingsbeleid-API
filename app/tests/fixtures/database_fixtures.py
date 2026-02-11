@@ -77,7 +77,18 @@ class DatabaseFixtures:
         self._truncate(UsersTable)
 
     def _truncate(self, model: type[Base]):
+        if self._session.bind.dialect.name == "sqlite":
+            self._session.execute(text("PRAGMA foreign_keys = OFF"))
+        if self._session.bind.dialect.name == "mssql":
+            self._session.execute(text(f"ALTER TABLE {model.__tablename__} NOCHECK CONSTRAINT ALL"))
+
         self._session.query(model).delete()
+
+        if self._session.bind.dialect.name == "sqlite":
+            self._session.execute(text("PRAGMA foreign_keys = ON"))
+        if self._session.bind.dialect.name == "mssql":
+            self._session.execute(text(f"ALTER TABLE {model.__tablename__} WITH CHECK CHECK CONSTRAINT ALL"))
+
         self._session.commit()
 
     def create_all(self):
