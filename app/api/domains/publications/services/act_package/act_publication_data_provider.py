@@ -132,7 +132,7 @@ class ActPublicationDataProvider:
             raise validation_exception(
                 [
                     ValidatePublicationError(
-                        rule="ambtsgebied_does_not_exist",
+                        rule="aoj_does_not_exist",
                         messages=["There needs to be an area of jurisdiction"],
                     )
                 ]
