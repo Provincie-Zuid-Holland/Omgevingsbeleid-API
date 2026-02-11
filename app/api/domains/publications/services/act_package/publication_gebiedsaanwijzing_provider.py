@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from app.api.domains.publications.services.validate_publication_service import (
     ValidatePublicationError,
     ValidatePublicationObject,
-    raise_validation_exception,
+    validation_exception,
 )
 
 
@@ -75,7 +75,7 @@ class PublicationGebiedsaanwijzingProcessor:
             for target_code in data_target_codes:
                 if target_code.startswith("gebiedengroep-"):
                     if target_code not in self._gebiedengroep_map:
-                        raise_validation_exception(
+                        raise validation_exception(
                             [
                                 ValidatePublicationError(
                                     rule="gebiedsaanwijzing_gebiedengroep_not_found",
@@ -86,7 +86,7 @@ class PublicationGebiedsaanwijzingProcessor:
                         )
                     gebied_codes: Set[str] = self._gebiedengroep_map[target_code]
                     if len(gebied_codes) == 0:
-                        raise_validation_exception(
+                        raise validation_exception(
                             [
                                 ValidatePublicationError(
                                     rule="gebiedsaanwijzing_no_targets",
@@ -99,7 +99,7 @@ class PublicationGebiedsaanwijzingProcessor:
                 elif target_code.startswith("gebied-"):
                     aanwijzing_gebied_codes.add(target_code)
                 else:
-                    raise_validation_exception(
+                    raise validation_exception(
                         [
                             ValidatePublicationError(
                                 rule="gebiedsaanwijzing_invalid_target",

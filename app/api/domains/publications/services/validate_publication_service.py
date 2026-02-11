@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Type, Optional, Set
 
 from bs4 import BeautifulSoup, Tag, ResultSet
-from pydantic import BaseModel, computed_field, ConfigDict, ValidationError
+from pydantic import BaseModel, Field, computed_field, ConfigDict, ValidationError
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.types.api_input_data import ApiActInputData
@@ -17,7 +17,7 @@ class ValidatePublicationObject(BaseModel):
 
 class ValidatePublicationError(BaseModel):
     rule: str
-    object: ValidatePublicationObject
+    object: ValidatePublicationObject = Field(default_factory=ValidatePublicationObject)
     messages: List[str]
 
 
@@ -29,7 +29,7 @@ class ValidatePublicationRequest(BaseModel):
 
 
 class ValidatePublicationException(Exception):
-    def __init__(self, message: str, publication_errors: List[ValidatePublicationError] = None):
+    def __init__(self, message: str, publication_errors: List[ValidatePublicationError] = []):
         super().__init__(message)
         self.message: str = message
         self.publication_errors = publication_errors
@@ -166,11 +166,8 @@ class UsedObjectTypeExistsRule(ValidatePublicationRule):
         return errors
 
 
-def raise_validation_exception(errors: List[ValidatePublicationError]):
-    if not errors:
-        return
-
-    raise ValidatePublicationException(
+def validation_exception(errors: List[ValidatePublicationError]):
+    return ValidatePublicationException(
         "Error(s) found while validating publication",
         publication_errors=errors,
     )
