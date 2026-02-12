@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
-from app.api.domains.modules.dependencies import depends_active_module
+from app.api.domains.modules.dependencies import depends_module
 from app.api.domains.modules.repositories.module_status_repository import ModuleStatusRepository
 from app.api.domains.modules.types import ModuleStatus
 from app.api.domains.users.dependencies import depends_current_user
@@ -18,7 +18,7 @@ from app.core.tables.users import UsersTable
 def view_module_list_statuses_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
-    module: Annotated[ModuleTable, Depends(depends_active_module)],
+    module: Annotated[ModuleTable, Depends(depends_module)],
     status_repository: Annotated[ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])],
 ) -> List[ModuleStatus]:
     statuses: List[ModuleStatusHistoryTable] = status_repository.get_all_by_module_id(session, module.Module_ID)

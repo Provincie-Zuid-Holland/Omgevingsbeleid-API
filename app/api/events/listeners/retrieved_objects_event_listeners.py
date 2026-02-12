@@ -368,7 +368,6 @@ class JoinGebiedenBaseListener(Listener[EventRMO], Generic[EventRMO]):
 
         return JoinGebiedenConfig(
             gebieden_codes=gebieden_codes,
-            response_model=response_model,
             from_field=from_field,
             to_field=to_field,
         )
@@ -415,7 +414,6 @@ class JoinGebiedenGroepBaseListener(Listener[EventRMO], Generic[EventRMO]):
 
         return JoinGebiedenGroepenConfig(
             gebiedengroepen_codes=gebiedengroepen_codes,
-            response_model=response_model,
             from_field=from_field,
             to_field=to_field,
         )

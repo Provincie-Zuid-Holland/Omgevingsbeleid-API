@@ -1,6 +1,18 @@
 from datetime import datetime
 from typing import List, Optional, Set
 
+from app.api.domains.publications.services.act_package.publication_gebieden_provider import (
+    GebiedenData,
+    PublicationGebiedenProvider,
+)
+from app.api.domains.publications.services.act_package.publication_gebiedsaanwijzing_provider import (
+    GebiedsaanwijzingData,
+    PublicationGebiedsaanwijzingProvider,
+)
+from app.api.domains.publications.services.act_package.publication_gios_provider import (
+    PublicationGeoData,
+    PublicationGiosProviderFactory,
+)
 import dso.models as dso_models
 from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
@@ -8,11 +20,12 @@ from sqlalchemy.orm import Session
 from app.api.domains.publications.repository.publication_aoj_repository import PublicationAOJRepository
 from app.api.domains.publications.services.publication_object_provider import PublicationObjectProvider
 from app.api.domains.publications.services.act_package.documents_provider import PublicationDocumentsProvider
-from app.api.domains.publications.services.act_package.werkingsgebieden_provider import (
-    PublicationWerkingsgebiedenProvider,
-)
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.api.domains.publications.services.template_parser import TemplateParser
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationError,
+    validation_exception,
+)
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, PublicationData
 from app.core.tables.publications import PublicationAreaOfJurisdictionTable, PublicationVersionTable
 
@@ -22,16 +35,21 @@ class ActPublicationDataProvider:
         self,
         publication_object_provider: PublicationObjectProvider,
         publication_asset_provider: PublicationAssetProvider,
-        publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider,
+        publication_gebiedsaanwijzingen_provider: PublicationGebiedsaanwijzingProvider,
+        publication_gebieden_provider: PublicationGebiedenProvider,
+        publication_gios_provider: PublicationGiosProviderFactory,
         publication_documents_provider: PublicationDocumentsProvider,
         publication_aoj_repository: PublicationAOJRepository,
         template_parser: TemplateParser,
     ):
         self._publication_object_provider: PublicationObjectProvider = publication_object_provider
         self._publication_asset_provider: PublicationAssetProvider = publication_asset_provider
-        self._publication_werkingsgebieden_provider: PublicationWerkingsgebiedenProvider = (
-            publication_werkingsgebieden_provider
+        self._publication_asset_provider: PublicationAssetProvider = publication_asset_provider
+        self._publication_gebiedsaanwijzingen_provider: PublicationGebiedsaanwijzingProvider = (
+            publication_gebiedsaanwijzingen_provider
         )
+        self._publication_gebieden_provider: PublicationGebiedenProvider = publication_gebieden_provider
+        self._publication_gios_provider: PublicationGiosProviderFactory = publication_gios_provider
         self._publication_documents_provider: PublicationDocumentsProvider = publication_documents_provider
         self._publication_aoj_repository: PublicationAOJRepository = publication_aoj_repository
         self._template_parser: TemplateParser = template_parser
@@ -42,23 +60,34 @@ class ActPublicationDataProvider:
         publication_version: PublicationVersionTable,
         bill_frbr: BillFrbr,
         act_frbr: ActFrbr,
-        all_data: bool = False,
     ) -> PublicationData:
         objects: List[dict] = self._publication_object_provider.get_objects(session, publication_version)
         parsed_template = self._template_parser.get_parsed_template(
             publication_version.Publication.Template.Text_Template,
             objects,
         )
+        all_object_codes = {o["Code"] for o in objects}
         used_object_codes: Set[str] = self._get_used_object_codes(parsed_template)
         used_objects: List[dict] = self._get_used_objects(objects, used_object_codes)
         assets: List[dict] = self._publication_asset_provider.get_assets(session, used_objects)
-        werkingsgebieden: List[dict] = self._publication_werkingsgebieden_provider.get_werkingsgebieden(
-            session,
-            act_frbr,
+
+        # The gebiedsaanwijzingen service mutates the objects therefor we get the used objects back
+        gebiedsaanwijzingen: List[GebiedsaanwijzingData] = []
+        used_objects, gebiedsaanwijzingen = self._publication_gebiedsaanwijzingen_provider.get_gebiedsaanwijzingen(
             objects,
             used_objects,
-            all_data,
         )
+        gebieden_data: GebiedenData = self._publication_gebieden_provider.get_gebieden_data(
+            objects,
+            used_objects,
+        )
+        geo_data: PublicationGeoData = self._publication_gios_provider.process(
+            session,
+            act_frbr,
+            gebieden_data,
+            gebiedsaanwijzingen,
+        )
+
         documents: List[dict] = self._publication_documents_provider.get_documents(
             session,
             act_frbr,
@@ -69,10 +98,14 @@ class ActPublicationDataProvider:
         bill_attachments: List[dict] = self._get_bill_attachments(publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
+            all_object_codes=all_object_codes,
+            used_object_codes=used_object_codes,
             objects=used_objects,
             documents=documents,
             assets=assets,
-            werkingsgebieden=werkingsgebieden,
+            gios=geo_data.gios,
+            gebiedengroepen=geo_data.gebiedengroepen,
+            gebiedsaanwijzingen=geo_data.gebiedsaanwijzingen,
             bill_attachments=bill_attachments,
             area_of_jurisdiction=area_of_jurisdiction,
             parsed_template=parsed_template,
@@ -96,7 +129,14 @@ class ActPublicationDataProvider:
             before_datetime,
         )
         if aoj is None:
-            raise RuntimeError("There needs to be an area of jurisdiction")
+            raise validation_exception(
+                [
+                    ValidatePublicationError(
+                        rule="aoj_does_not_exist",
+                        messages=["There needs to be an area of jurisdiction"],
+                    )
+                ]
+            )
 
         result: dict = {
             "UUID": aoj.UUID,

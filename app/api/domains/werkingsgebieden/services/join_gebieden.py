@@ -1,17 +1,16 @@
-from typing import Dict, List, Set, Type, get_args
+from typing import Dict, List, Set
 
 from pydantic import BaseModel
-from sqlalchemy import desc, func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
-from app.core.tables.objects import ObjectsTable
-from app.core.types import Model
+from app.api.domains.objects.types import ObjectStatics
+from app.core.tables.objects import ObjectStaticsTable
 
 
 class JoinGebiedenConfig(BaseModel):
     gebieden_codes: Set[str]
-    response_model: Model  # Of the row, not the Gebied that we are about to join
     from_field: str
     to_field: str
 
@@ -50,32 +49,10 @@ class JoinGebiedenService:
         return result_rows
 
     def _fetch_gebieden(self) -> Dict[str, BaseModel]:
-        gebied_annotation = self._config.response_model.pydantic_model.__annotations__.get(self._config.to_field)
-        gebied_model: Type[BaseModel] = get_args(gebied_annotation)[0]
+        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(self._config.gebieden_codes))
+        rows = self._session.execute(stmt).scalars().all()
 
-        subq = (
-            select(
-                ObjectsTable,
-                func.row_number()
-                .over(
-                    partition_by=ObjectsTable.Code,
-                    order_by=desc(ObjectsTable.Modified_Date),
-                )
-                .label("_RowNumber"),
-            )
-            .select_from(ObjectsTable)
-            .filter(
-                ObjectsTable.Code.in_(self._config.gebieden_codes),
-            )
-            .subquery()
-        )
-
-        stmt = select(subq).filter(subq.c._RowNumber == 1)
-
-        rows = self._session.execute(stmt).all()
-        result: Dict[str, BaseModel] = {r.Code: gebied_model.model_validate(r) for r in rows}
-
-        return result
+        return {r.Code: ObjectStatics.model_validate(r) for r in rows}
 
 
 class JoinGebiedenServiceFactory:

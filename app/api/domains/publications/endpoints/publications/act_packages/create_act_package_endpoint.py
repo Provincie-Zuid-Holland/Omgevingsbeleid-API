@@ -5,6 +5,7 @@ from typing import Annotated, List
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ValidationError
+from pydantic_core import ErrorDetails
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
@@ -14,6 +15,7 @@ from app.api.domains.publications.exceptions import DSOConfigurationException, D
 from app.api.domains.publications.services.act_package.act_package_builder import ActPackageBuilder
 from app.api.domains.publications.services.act_package.act_package_builder_factory import ActPackageBuilderFactory
 from app.api.domains.publications.services.publication_version_validator import PublicationVersionValidator
+from app.api.domains.publications.services.validate_publication_service import ValidatePublicationException
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, Purpose
 from app.api.domains.publications.types.enums import (
     MutationStrategy,
@@ -144,9 +146,11 @@ class EndpointHandler:
         except ValidationError as e:
             raise HTTPException(441, e.errors())
         except DSOConfigurationException as e:
-            raise LoggedHttpException(status_code=442, detail=e.message)
+            raise LoggedHttpException(status_code=442, detail=e.message) from e
         except DSORenvooiException as e:
             raise LoggedHttpException(status_code=443, detail=e.message, log_message=e.internal_error)
+        except ValidatePublicationException as e:
+            raise LoggedHttpException(status_code=444, detail=e.dump_errors(), log_message=e.dump_errors())
         except Exception as e:
             # We do not know what to except here
             # This will result in a 500 server error
@@ -158,6 +162,7 @@ class EndpointHandler:
                 if not self._environment.Can_Validate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Validation for this environment")
             case PackageType.PUBLICATION:
+                raise HTTPException(status.HTTP_409_CONFLICT, "Publications are disabled")
                 if not self._environment.Can_Publicate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Publication for this environment")
 
@@ -172,7 +177,7 @@ class EndpointHandler:
             raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
 
     def _guard_valid_publication_version(self):
-        errors: List[dict] = self._validator.get_errors(self._publication_version)
+        errors: List[ErrorDetails] = self._validator.get_errors(self._publication_version)
         if len(errors) != 0:
             raise HTTPException(status.HTTP_409_CONFLICT, errors)
 

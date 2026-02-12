@@ -94,10 +94,10 @@ docker-mssql-create-database-dev:
 	@docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-dev.sql
 
 docker-drop-database:
-	docker compose exec api python cmds.py drop-db
+	docker compose exec api python -m app.cmds dropdb
 
 docker-init-database:
-	docker compose exec api python cmds.py init-db
+	docker compose exec api python -m app.cmds initdb
 
 docker-alembic-create-revision:
 	docker compose exec api python -m alembic revision --autogenerate
@@ -112,7 +112,7 @@ docker-mssql-setup-search:
 	docker compose exec api python cmds.py mssql-setup-search-database
 
 docker-load-fixtures:
-	docker compose exec api python cmds.py load-fixtures
+	docker compose exec api python -m app.cmds load-fixtures
 
 # @todo: these docker-test are not finished yet
 docker-test:

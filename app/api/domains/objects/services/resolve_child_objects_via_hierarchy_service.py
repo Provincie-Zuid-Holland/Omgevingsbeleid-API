@@ -70,13 +70,13 @@ class ResolveChildObjectsViaHierarchyService:
                 .label("_RowNumber"),
             )
             .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
-            .filter(ObjectsTable.Hierarchy_Code.in_(hierarchy_targets))
             .subquery()
         )
 
         stmt = (
             select(subq)
             .filter(subq.c._RowNumber == 1)
+            .filter(subq.c.Hierarchy_Code.in_(hierarchy_targets))
             .filter(
                 or_(
                     subq.c.End_Validity > datetime.now(timezone.utc),

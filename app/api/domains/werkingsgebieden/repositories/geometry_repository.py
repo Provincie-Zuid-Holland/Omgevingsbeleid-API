@@ -7,7 +7,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
-from app.core.tables.werkingsgebieden import InputGeoOnderverdelingTable
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
 
 class WerkingsgebiedHash(BaseModel):
@@ -35,7 +35,7 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
     def create_onderverdeling(
         self,
         session: Session,
-        onderverdeling: InputGeoOnderverdelingTable,
+        onderverdeling: InputGeoOnderverdelingenTable,
         geometry: str,
     ):
         session.add(onderverdeling)

@@ -61,6 +61,7 @@ def load_fixtures(
             area_geometry_repository,
             security,
         )
+        loader.truncate_all()
         loader.create_all()
 
         session.flush()

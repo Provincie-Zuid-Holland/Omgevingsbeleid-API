@@ -40,6 +40,19 @@ required_object_fields_rule:
   visie_algemeen: visie_algemeen_module_validate
   werkingsgebied: werkingsgebied_module_validate
 
+publication_required_object_fields_rule:
+  omgevingsvisie:
+    ambitie: ambitie_module_validate
+    beleidsdoel: beleidsdoel_module_validate
+    beleidskeuze: beleidskeuze_module_validate
+    document: document_module_validate
+    visie_algemeen: visie_algemeen_module_validate
+  programma:
+    document: document_module_validate
+    maatregel: maatregel_module_validate
+    programma_algemeen: programma_module_validate
+    werkingsgebied: werkingsgebied_module_validate
+
 forbid_empty_html_nodes_rule:
   fields:
     - Description
@@ -105,6 +118,7 @@ api:
           resolver_data:
             allowed_roles:
               - "Ambtelijk opdrachtgever"
+              - "Basic"
               - "Behandelend Ambtenaar"
               - "Functioneel beheerder"
               - "Portefeuillehouder"
@@ -127,6 +141,7 @@ api:
           resolver_data:
             allowed_roles:
               - "Ambtelijk opdrachtgever"
+              - "Basic"
               - "Behandelend Ambtenaar"
               - "Functioneel beheerder"
               - "Portefeuillehouder"
@@ -185,6 +200,8 @@ api:
               - werkingsgebied
               - gebiedengroep
               - gebied
+            model_map: *model_map
+            response_model_name: PagedSearchObjectResponse
     - prefix: /search/valid
       endpoints:
         - resolver: mssql_valid_search
@@ -206,6 +223,8 @@ api:
               - werkingsgebied
               - gebiedengroep
               - gebied
+            model_map: *model_map
+            response_model_name: PagedValidSearchObjectResponse
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
@@ -417,6 +436,9 @@ api:
         - resolver: upload_publication_act_package_report
           resolver_data:
             path: /report
+    - prefix: /publication-act-packages/{version_uuid}/validate
+      endpoints:
+        - resolver: validate_publication_act_package
     - prefix: /publication-act-reports
       endpoints:
         - resolver: list_publication_act_package_reports
@@ -491,12 +513,9 @@ api:
     # DSO value list getters
     - prefix: /publication-dso-value-lists
       endpoints:
-        - resolver: list_area_designation_types
+        - resolver: list_area_designation
           resolver_data:
-            path: /area-designation-types
-        - resolver: list_area_designation_groups
-          resolver_data:
-            path: /area-designation-groups
+            path: /area-designation
     # Input GEO
     - prefix: /input-geo/werkingsgebieden
       endpoints:
@@ -668,6 +687,20 @@ columns:
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
+  # Source Title, used to target the Input_Geo_Werkingsgebied
+  source_title:
+    name: Source_Title
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Source UUID, # Source Title, used to target the Input_Geo_Werkingsgebied
+  source_uuid:
+    name: Source_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
   # Image
   image:
     name: Image
@@ -728,6 +761,7 @@ columns:
 
 users_permissions:
   "Ambtelijk opdrachtgever": []
+  "Basic": []
   "Behandelend Ambtenaar":
     - module_can_add_new_object_to_module
     - module_can_add_existing_object_to_module

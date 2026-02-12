@@ -142,12 +142,10 @@ class JoinGebiedenListener(Listener[CreateModelEvent]):
 
         config: dict = service_config["join_gebieden"]
         field_name: str = config["to_field"]
-        model_id: str = config["model_id"]
-        target_object_model: Model = event.context.models_provider.get_model(model_id)
 
         event.payload.pydantic_fields[field_name] = (
-            List[target_object_model.pydantic_model],
-            None,
+            List[ObjectStatics],
+            [],
         )
 
         return event
@@ -161,11 +159,9 @@ class JoinGebiedengroepenListener(Listener[CreateModelEvent]):
 
         config: dict = service_config["join_gebiedengroepen"]
         field_name: str = config["to_field"]
-        model_id: str = config["model_id"]
-        target_object_model: Model = event.context.models_provider.get_model(model_id)
 
         event.payload.pydantic_fields[field_name] = (
-            Optional[target_object_model.pydantic_model],
+            Optional[ObjectStatics],
             None,
         )
 

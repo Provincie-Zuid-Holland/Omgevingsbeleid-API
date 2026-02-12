@@ -95,6 +95,7 @@ fields:
     name: Area_UUID
     type: uuid
     column: area_uuid
+    optional: true
 
   # Statics
   owner_1_uuid:
@@ -209,11 +210,7 @@ models:
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
   gebied_static_post_validated:
     name: GebiedStaticPostValidated
     static_only: true
@@ -228,8 +225,6 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
   gebied_uuid:
     name: GebiedUUID
     fields:

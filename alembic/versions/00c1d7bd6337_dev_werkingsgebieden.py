@@ -46,7 +46,7 @@ def upgrade() -> None:
     )
     op.add_column(
         "Werkingsgebieden",
-        sa.Column("SHAPE", Geometry(), nullable=True),
+        sa.Column("SHAPE", sa.LargeBinary(), nullable=True),
     )
     op.add_column("Werkingsgebieden", sa.Column("symbol", sa.Unicode(length=265), nullable=False))
     # ### end Alembic commands ###

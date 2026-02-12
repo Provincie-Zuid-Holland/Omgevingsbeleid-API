@@ -4,6 +4,7 @@ object_type: gebiedengroep
 sort_allowed_columns: &sort_allowed_columns
   - Object_ID
   - Title
+  - Source_Title
   - Modified_Date
 
 sort_default_title: &sort_default_title
@@ -28,6 +29,7 @@ api:
             response_model: gebiedengroep_basic
             allowed_filter_columns:
               - Title
+              - Source_Title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
@@ -35,6 +37,7 @@ api:
             response_model: gebiedengroep_basic
             allowed_filter_columns:
               - Title
+              - Source_Title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
@@ -67,6 +70,7 @@ api:
             response_model: gebiedengroep_extended
             allowed_filter_columns:
               - Title
+              - Source_Title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
@@ -108,6 +112,17 @@ fields:
     column: gebieden
     validators:
       - id: none_to_default_value
+  source_title:
+    name: Source_Title
+    type: str
+    column: source_title
+    validators:
+      - id: none_to_default_value
+  source_uuid:
+    name: Source_UUID
+    type: uuid
+    column: source_uuid
+    optional: true
 
   # Statics
   owner_1_uuid:
@@ -129,6 +144,7 @@ models:
       object_id:
       uuid:
       title:
+      source_title:
   gebiedengroep_basic:
     name: GebiedengroepBasic
     fields:
@@ -139,7 +155,7 @@ models:
       created_date:
       modified_date:
       title:
-      gebieden:
+      source_title:
       start_validity:
       end_validity:
   gebiedengroep_extended:
@@ -152,6 +168,8 @@ models:
       created_date:
       modified_date:
       title:
+      source_title:
+      source_uuid:
       gebieden:
       start_validity:
       end_validity:
@@ -180,17 +198,17 @@ models:
       created_date:
       modified_date:
       title:
+      source_title:
+      source_uuid:
       description:
       start_validity:
       end_validity:
       gebieden:
     dependency_model_ids:
       - user_short
-      - gebieden_basic
     services:
       join_gebieden:
-        model_id: gebied_basic
-        to_field: Gebieden_Objects
+        to_field: Gebieden_Statics
         from_field: Gebieden
       foreign_keys_extender:
         fields_map:
@@ -216,6 +234,15 @@ models:
               min: 3
               max: 200
           - id: plain_text
+      source_title:
+        default: none
+        optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 500
+          - id: plain_text
       description:
         default: none
         optional: true
@@ -224,11 +251,7 @@ models:
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
   gebiedengroep_static_post_validated:
     name: GebiedengroepStaticPostValidated
     static_only: true
@@ -243,8 +266,6 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
   gebiedengroep_uuid:
     name: GebiedengroepUUID
     fields:

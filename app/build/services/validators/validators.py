@@ -1,16 +1,17 @@
 import io
 import re
 from base64 import b64decode
-from typing import List, Optional
+from typing import List, Optional, Set
 
-from bs4 import BeautifulSoup
 from PIL import Image
+from bs4 import BeautifulSoup
 from pydantic import ValidationInfo
-from pydantic_core import PydanticUseDefault
+from dso.services.ow.gebiedsaanwijzingen.gebiedsaanwijzing import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
+from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
+from dso.models import DocumentType
 
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.core.db.session import SessionFactoryType, session_scope_with_context
-
 from .types import PydanticValidator, Validator
 
 
@@ -21,7 +22,7 @@ class NoneToDefaultValueValidator(Validator):
     def get_validator_func(self, config: dict) -> PydanticValidator:
         def pydantic_none_to_default_validator(cls, value, info: ValidationInfo):
             if value is None:
-                raise PydanticUseDefault()
+                return cls.model_fields[info.field_name].default
             return value
 
         return PydanticValidator(
@@ -41,6 +42,11 @@ class LengthValidator(Validator):
         def pydantic_length_validator(cls, value, info: ValidationInfo):
             if not isinstance(value, str):
                 raise ValueError("Value must be a string")
+
+            if (cls.model_fields[info.field_name].json_schema_extra or {}).get("optional"):
+                default_value = cls.model_fields[info.field_name].default
+                if default_value is None or value == default_value:
+                    return value
 
             if min_length is not None:
                 if len(value) < min_length:
@@ -84,7 +90,7 @@ class PlainTextValidator(Validator):
 
 class FilenameValidator(Validator):
     def __init__(self):
-        self._pattern = r"^[\w\-.]+$"
+        self._pattern = r"^[\w\-.]+\.pdf$"
 
     def get_id(self) -> str:
         return "filename"
@@ -374,4 +380,94 @@ class ObjectCodesAllowedTypeValidator(Validator):
         return PydanticValidator(
             mode="after",
             func=pydantic_validator_object_codes_allowed_type,
+        )
+
+
+class GebiedsaanwijzingValidator(Validator):
+    def __init__(
+        self,
+        session_factory: SessionFactoryType,
+        object_static_repository: ObjectStaticRepository,
+        dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory,
+    ):
+        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = dso_gebiedsaanwijzingen_factory.get_for_document(
+            DocumentType.OMGEVINGSVISIE
+        )
+        if gebiedsaanwijzingen is None:
+            raise RuntimeError("Gebiedsaanwijzingen not found for specified DocumentType in GebiedsaanwijzingValidator")
+
+        self._session_factory: SessionFactoryType = session_factory
+        self._object_static_repository: ObjectStaticRepository = object_static_repository
+        self._gebiedsaanwijzingen: Gebiedsaanwijzingen = gebiedsaanwijzingen
+
+    def get_id(self) -> str:
+        return "gebiedsaanwijzing_in_text"
+
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        allowed_target_types: List[str] = config.get("allowed_target_types", [])
+
+        def pydantic_validator_gebiedsaanwijzing_in_text(cls, value, info: ValidationInfo):
+            if value is None:
+                return None
+
+            if not isinstance(value, str):
+                raise ValueError("Value must be a string")
+
+            soup: BeautifulSoup = BeautifulSoup(value, "html.parser")
+
+            """
+            Validating gebiedsaanwijzingen.
+
+            HTML pattern:
+                <a data-hint-type="gebiedsaanwijzing" data-aanwijzing-type="bodem" data-aanwijzing-group="bodemfunctieklasse industrie"
+                    data-target-codes="gebied-1,gebiedengroep-15,gebiedengroep-1" data-title="Malieveld" href="#">het Malieveld</a>
+            """
+            used_target_codes: Set[str] = set()
+            for aanwijzing_html in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
+                aanwijzing_type: str = str(aanwijzing_html.get("data-aanwijzing-type", ""))
+                aanwijzing_group: str = str(aanwijzing_html.get("data-aanwijzing-group", ""))
+                aanwijzing_title: str = str(aanwijzing_html.get("data-title", ""))
+                data_target_codes: Set[str] = {
+                    v.strip() for v in str(aanwijzing_html.get("data-target-codes", "")).split(",") if v.strip()
+                }
+
+                a_type: Optional[Gebiedsaanwijzing] = self._gebiedsaanwijzingen.get_by_type_label(aanwijzing_type)
+                if a_type is None:
+                    raise ValueError(f"Invalid data-aanwijzing-type `{aanwijzing_type}`")
+                a_groep: Optional[GebiedsaanwijzingWaarde] = a_type.get_value_by_label(aanwijzing_group)
+                if a_groep is None:
+                    raise ValueError(f"Invalid data-aanwijzing-group `{aanwijzing_group}`")
+                if len(aanwijzing_title) < 3:
+                    raise ValueError(f"Invalid data-title `{aanwijzing_title}`")
+
+                inner_text: str = aanwijzing_html.get_text(strip=True)
+                if len(inner_text) == 0:
+                    raise ValueError("Missing contents inside the gebiedsaanwijzing.")
+
+                if len(data_target_codes) == 0:
+                    raise ValueError(
+                        f"Missing `data-target-codes` for gebiedsaanwijzing with title `{aanwijzing_title}"
+                    )
+
+                # We tests all codes later
+                used_target_codes.update(data_target_codes)
+
+            # Not tests all the codes to limit the query count
+            for used_target_code in used_target_codes:
+                code_parts: List[str] = used_target_code.split("-")
+                if len(code_parts) != 2:
+                    raise ValueError(f"Invalid data-target-codes `{used_target_code}`")
+                if code_parts[0] not in allowed_target_types:
+                    raise ValueError(f"Invalid object type for data-target-codes `{used_target_code}`")
+
+            with session_scope_with_context(self._session_factory) as session:
+                all_ok, missing_codes = self._object_static_repository.does_codes_exists(session, used_target_codes)
+                if not all_ok:
+                    raise ValueError(f"Given data-target-codes do not exists `{', '.join(missing_codes)}`")
+
+            return value
+
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_validator_gebiedsaanwijzing_in_text,
         )

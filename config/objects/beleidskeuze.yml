@@ -278,7 +278,6 @@ models:
       - user_short
       - werkingsgebied_basic
       - werkingsgebied_statics
-      - gebiedengroep_basic
       - hierarchy_statics
       - wettelijke_taak_minimal
       - nationaal_belang_minimal
@@ -295,8 +294,7 @@ models:
         to_field: Werkingsgebied
         from_field: Werkingsgebied_Code
       join_gebiedengroepen:
-        model_id: gebiedengroep_basic
-        to_field: Gebiedengroep
+        to_field: Gebiedengroep_Static
         from_field: Gebiedengroep_Code
       insert_assets:
         fields:
@@ -372,6 +370,11 @@ models:
         optional: true
         validators:
           - id: html
+          - id: gebiedsaanwijzing_in_text
+            data:
+              allowed_target_types:
+                - gebied
+                - gebiedengroep
           - id: image
             data:
               max_width: 1500
@@ -382,6 +385,11 @@ models:
         optional: true
         validators:
           - id: html
+          - id: gebiedsaanwijzing_in_text
+            data:
+              allowed_target_types:
+                - gebied
+                - gebiedengroep
           - id: image
             data:
               max_width: 1500
@@ -392,6 +400,11 @@ models:
         optional: true
         validators:
           - id: html
+          - id: gebiedsaanwijzing_in_text
+            data:
+              allowed_target_types:
+                - gebied
+                - gebiedengroep
           - id: image
             data:
               max_width: 1500
@@ -402,6 +415,11 @@ models:
         optional: true
         validators:
           - id: html
+          - id: gebiedsaanwijzing_in_text
+            data:
+              allowed_target_types:
+                - gebied
+                - gebiedengroep
           - id: image
             data:
               max_width: 1500
@@ -446,20 +464,10 @@ models:
     static_only: true
     fields:
       owner_1_uuid:
-        default: none
-        optional: true
       owner_2_uuid:
-        default: none
-        optional: true
       portfolio_holder_1_uuid:
-        default: none
-        optional: true
       portfolio_holder_2_uuid:
-        default: none
-        optional: true
       client_1_uuid:
-        default: none
-        optional: true
   beleidskeuze_static_post_validated:
     name: BeleidskeuzeStaticPostValidated
     static_only: true
@@ -481,17 +489,9 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-        default: none
-        optional: true
       portfolio_holder_1_uuid:
-        default: none
-        optional: true
       portfolio_holder_2_uuid:
-        default: none
-        optional: true
       client_1_uuid:
-        default: none
-        optional: true
   beleidskeuze_uuid:
     name: BeleidskeuzeUUID
     fields:
@@ -514,26 +514,30 @@ models:
               min: 3
           - id: html
       cause:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3
           - id: html
       provincial_interest:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3
           - id: html
       explanation:
+        optional: true
         validators:
+          - id: none_to_default_value
           - id: length
             data:
               min: 3
           - id: html
       hierarchy_code:
-        default: none
-        optional: true
         validators:
           - id: object_code_allowed_type
             data:

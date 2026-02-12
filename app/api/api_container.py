@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import dso
 from dependency_injector import containers, providers
 from sqlalchemy.orm import sessionmaker
 
@@ -26,6 +27,7 @@ class ApiContainer(containers.DeclarativeContainer):
     models_provider = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
     required_object_fields_rule_mapping = providers.Dependency()
+    publication_required_object_fields_rule_mapping = providers.Dependency()
 
     config = providers.Configuration(pydantic_settings=[Settings()])
     main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
@@ -104,6 +106,7 @@ class ApiContainer(containers.DeclarativeContainer):
         storage_file_repository=storage_file_repository,
         asset_repository=asset_repository,
         object_field_mapping_provider=object_field_mapping_provider,
+        publication_required_object_fields_rule_mapping=publication_required_object_fields_rule_mapping,
     )
 
     html_images_extractor_factory = providers.Factory(
@@ -185,7 +188,7 @@ class ApiContainer(containers.DeclarativeContainer):
                 object_map=required_object_fields_rule_mapping,
             ),
             providers.Singleton(
-                module_services.RequiredHierarchyCodeRule,
+                module_services.RequireExistingHierarchyCodeRule,
                 repository=publication.object_repository,
             ),
             providers.Singleton(
@@ -326,13 +329,6 @@ class ApiContainer(containers.DeclarativeContainer):
         event_listeners=event_listeners,
     )
 
-    publication = providers.Container(
-        PublicationContainer,
-        config=config,
-        main_config=main_config,
-        area_repository=area_repository,
-        area_geometry_repository=area_geometry_repository,
-        storage_file_repository=storage_file_repository,
-        asset_repository=asset_repository,
-        object_field_mapping_provider=object_field_mapping_provider,
+    dso_gebiedsaanwijzingen_factory = providers.Factory(
+        dso.GebiedsaanwijzingenFactory,
     )

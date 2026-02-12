@@ -33,6 +33,21 @@ class AreaRepository(BaseRepository):
         stmt = select(AreasTable).filter(AreasTable.Source_UUID == werkingsgebied_uuid)
         return self.fetch_first(session, stmt)
 
+    def get_by_source_hash_and_title(
+        self, session: Session, source_hash: str, source_title: str
+    ) -> Optional[AreasTable]:
+        if not source_hash:
+            return None
+
+        lookup: str = source_hash[0:10]
+        stmt = (
+            select(AreasTable)
+            .filter(AreasTable.Source_Geometry_Index == lookup)
+            .filter(AreasTable.Source_Geometry_Hash == source_hash)
+            .filter(AreasTable.Source_Title == source_title)
+        )
+        return self.fetch_first(session, stmt)
+
     def get_by_source_hash(self, session: Session, source_hash: str) -> Optional[AreasTable]:
         if not source_hash:
             return None
