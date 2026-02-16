@@ -2,7 +2,7 @@ from typing import Optional
 import uuid
 from abc import ABCMeta, abstractmethod
 
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
@@ -26,6 +26,6 @@ class InputGeoOnderverdelingRepository(BaseRepository, metaclass=ABCMeta):
         stmt = (
             select(InputGeoOnderverdelingenTable)
             .filter(InputGeoOnderverdelingenTable.Title == title)
-            .order_by(InputGeoOnderverdelingenTable.Created_Date.desc())
+            .order_by(desc(InputGeoOnderverdelingenTable.Created_Date))
         )
         return self.fetch_first(session, stmt)
