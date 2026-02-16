@@ -1,4 +1,3 @@
-from typing import Optional
 import uuid
 from abc import ABCMeta, abstractmethod
 
@@ -55,31 +54,3 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
                 UUID = :uuid
             """
         session.execute(text(sql), params)
-
-    def get_latest_shape_hash_by_title(self, session: Session, title: str) -> Optional[WerkingsgebiedHash]:
-        params = {
-            "title": title,
-        }
-        sql = f"""
-            SELECT
-                UUID AS uuid,
-                {self._calculate_hex("Shape")} AS shape_hash
-            FROM
-                Werkingsgebieden
-            WHERE
-                Werkingsgebied = :title
-            ORDER BY
-                Created_Date DESC
-            """
-
-        row = session.execute(text(sql), params).fetchone()
-        if row is None:
-            return None
-
-        row_dict = row._asdict()
-        werkingsgebied_hash = WerkingsgebiedHash(
-            UUID=uuid.UUID(row_dict["uuid"]),
-            hash=row_dict["shape_hash"],
-        )
-
-        return werkingsgebied_hash
