@@ -19,5 +19,9 @@ class InputGeoOnderverdelingRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> Optional[InputGeoOnderverdelingenTable]:
-        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.UUID == uuid)
+        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.UUID == uuidx)
+        return self.fetch_first(session, stmt)
+
+    def get_by_title(self, session: Session, title: str) -> Optional[InputGeoOnderverdelingenTable]:
+        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.Title == title)
         return self.fetch_first(session, stmt)

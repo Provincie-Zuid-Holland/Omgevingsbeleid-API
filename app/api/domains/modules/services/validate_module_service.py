@@ -7,8 +7,7 @@ from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
-from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
-from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository, WerkingsgebiedHash
+from app.api.domains.werkingsgebieden.repositories import InputGeoOnderverdelingRepository
 from app.core.services import MainConfig
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
@@ -130,46 +129,42 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
         return errors
 
 
-class NewestSourceWerkingsgebiedUsedRule(ValidateModuleRule):
-    def __init__(self, geometry_repository: GeometryRepository, area_geometry_repository: AreaGeometryRepository):
-        self._geometry_repository: GeometryRepository = geometry_repository
-        self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
+class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
+    def __init__(self, input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository):
+        self._input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository = (
+            input_geo_onderverdeling_repository
+        )
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
 
         for object_table in request.module_objects:
+            if object_table.Object_Type != "gebied":
+                continue
+
             area_current: Optional[AreasTable] = object_table.Area
             if area_current is None:
-                continue
-
-            area_current_shape_hash: Optional[str] = self._area_geometry_repository.get_shape_hash(
-                db,
-                area_current.UUID,
-            )
-            if area_current_shape_hash is None:
                 errors.append(
                     ValidateModuleError(
-                        rule="newest_source_werkingsgebied_used_rule",
+                        rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
                             code=object_table.Code,
                             object_id=object_table.Object_ID,
                             object_type=object_table.Object_Type,
                             title=object_table.Title,
                         ),
-                        messages=[f"Area {area_current.UUID} does not have a shape"],
+                        messages=["Object is of type 'gebied', but area is not known"],
                     )
                 )
                 continue
 
+            area_hash: str = area_current.Source_Geometry_Hash or ""
             area_title: str = area_current.Source_Title
-            werkingsgebied_latest: Optional[WerkingsgebiedHash] = (
-                self._geometry_repository.get_latest_shape_hash_by_title(db, area_title)
-            )
-            if werkingsgebied_latest is None:
+            onderverdeling = self._input_geo_onderverdeling_repository.get_by_title(db, area_title)
+            if area_hash != onderverdeling.Geometry_Hash:
                 errors.append(
                     ValidateModuleError(
-                        rule="newest_source_werkingsgebied_used_rule",
+                        rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
                             code=object_table.Code,
                             object_id=object_table.Object_ID,
@@ -177,24 +172,7 @@ class NewestSourceWerkingsgebiedUsedRule(ValidateModuleRule):
                             title=object_table.Title,
                         ),
                         messages=[
-                            f"Area {area_current.UUID} - '{area_current.Source_Title}' does not have a Werkingsgebieden shape"
-                        ],
-                    )
-                )
-                continue
-
-            if area_current_shape_hash != werkingsgebied_latest.hash:
-                errors.append(
-                    ValidateModuleError(
-                        rule="newest_source_werkingsgebied_used_rule",
-                        object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
-                        ),
-                        messages=[
-                            f"Area {area_current.UUID} - '{area_current.Source_Title}' does not use the latest known Werkingsgebieden shape {werkingsgebied_latest.UUID}"
+                            f"Area {area_current.UUID} does not use the latest known onderverdeling shape {onderverdeling.UUID}"
                         ],
                     )
                 )
