@@ -23,5 +23,9 @@ class InputGeoOnderverdelingRepository(BaseRepository, metaclass=ABCMeta):
         return self.fetch_first(session, stmt)
 
     def get_by_title(self, session: Session, title: str) -> Optional[InputGeoOnderverdelingenTable]:
-        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.Title == title)
+        stmt = (
+            select(InputGeoOnderverdelingenTable)
+            .filter(InputGeoOnderverdelingenTable.Title == title)
+            .order_by(InputGeoOnderverdelingenTable.Created_Date.desc())
+        )
         return self.fetch_first(session, stmt)
