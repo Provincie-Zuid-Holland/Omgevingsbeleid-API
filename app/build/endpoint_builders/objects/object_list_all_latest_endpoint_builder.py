@@ -48,7 +48,7 @@ class ObjectListAllLatestEndpointBuilder(EndpointBuilder):
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=endpoint,
-            methods=["POST"],
+            methods=["GET"],
             response_model=response_type,
             summary="List all objects filterable in short format",
             tags=["Objects"],

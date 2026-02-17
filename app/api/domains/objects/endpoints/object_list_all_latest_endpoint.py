@@ -2,7 +2,7 @@ import uuid
 from typing import Annotated, List, Optional, Generic, Sequence, Tuple, Dict
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends
+from fastapi import Depends, Query
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
@@ -49,7 +49,7 @@ def do_list_all_latest_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-    request: ObjectListAllLastestRequest,
+    object_types: Annotated[Optional[List[str]], Query(alias="Object_Types")] = None,
     owner_uuid: Optional[uuid.UUID] = None,
 ) -> PagedResponse[ObjectListAllLatestResponse[BaseModel]]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
@@ -59,7 +59,7 @@ def do_list_all_latest_endpoint(
         session=session,
         pagination=pagination,
         owner_uuid=owner_uuid,
-        object_types=request.Object_Types,
+        object_types=object_types,
     )
     paginated_items: Sequence[Tuple[ObjectsTable, ObjectStaticsTable]] = paginated_result.items
 
