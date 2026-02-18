@@ -5,6 +5,7 @@ from typing import Annotated, List
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ValidationError
+from pydantic_core import ErrorDetails
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
@@ -175,7 +176,7 @@ class EndpointHandler:
             raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
 
     def _guard_valid_publication_version(self):
-        errors: List[dict] = self._validator.get_errors(self._publication_version)
+        errors: List[ErrorDetails] = self._validator.get_errors(self._publication_version)
         if len(errors) != 0:
             raise HTTPException(status.HTTP_409_CONFLICT, errors)
 

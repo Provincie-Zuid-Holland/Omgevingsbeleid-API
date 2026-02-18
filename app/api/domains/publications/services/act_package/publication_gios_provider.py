@@ -1,5 +1,4 @@
 import hashlib
-from uuid import UUID
 from datetime import datetime, timezone
 from typing import List, Optional, Set
 
@@ -11,6 +10,11 @@ from app.api.domains.publications.services.act_package.publication_gebiedsaanwij
 import dso.models as dso_models
 from sqlalchemy.orm import Session
 
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationError,
+    ValidatePublicationObject,
+    validation_exception,
+)
 from app.api.domains.publications.types.api_input_data import (
     ActFrbr,
     PublicationGebiedengroep,
@@ -45,7 +49,7 @@ class PublicationGiosProvider:
             # For gebiedengroepen, we put each gebied in its own gio
             gio_keys: Set[str] = set()
             for gebied_code in input_groep.gebied_codes:
-                input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code)
+                input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_groep.code)
                 gio: PublicationGio = self._resolve_gio_from_gebied(input_gebied)
                 gio_keys.add(gio.key())
 
@@ -59,12 +63,20 @@ class PublicationGiosProvider:
             # Save to accumulator
             self._result.gebiedengroepen[groep.key()] = groep
 
-    def _find_input_gebied(self, gebieden_data: GebiedenData, code: str) -> InputGebied:
+    def _find_input_gebied(self, gebieden_data: GebiedenData, gebied_code: str, gebiedengroep_code: str) -> InputGebied:
         for gebied in gebieden_data.used_gebieden:
-            if gebied.code == code:
+            if gebied.code == gebied_code:
                 return gebied
 
-        raise RuntimeError(f"Searching for gebied `{code}` which was not loaded")
+        raise validation_exception(
+            [
+                ValidatePublicationError(
+                    rule="gebied_not_found",
+                    object=ValidatePublicationObject(code=gebiedengroep_code),
+                    messages=[f"Searching for gebied `{gebied_code}` which was not loaded"],
+                )
+            ]
+        )
 
     def _resolve_gebiedsaanwijzingen(
         self,
@@ -87,8 +99,7 @@ class PublicationGiosProvider:
             self._result.gebiedsaanwijzingen[aanwijzing.key()] = aanwijzing
 
     def _inputgebied_to_gio(self, input_gebied: InputGebied, area: AreasTable) -> PublicationGio:
-        gml_hash = hashlib.sha512()
-        gml_hash.update(area.Gml.encode())
+        locatie: PublicationGioLocatie = self._area_to_locatie(area, input_gebied)
 
         gio: PublicationGio = PublicationGio(
             source_codes=set([input_gebied.code]),
@@ -98,16 +109,7 @@ class PublicationGiosProvider:
             geboorteregeling=self._act_frbr.get_work(),
             achtergrond_verwijzing="TOP10NL",
             achtergrond_actualiteit=str(input_gebied.modified_date)[:10],
-            locaties=[
-                PublicationGioLocatie(
-                    code=input_gebied.code,
-                    title=input_gebied.title,
-                    basisgeo_id=str(area.UUID),
-                    # str(hash) is what we did before, so thats how the hashes are stored in the state
-                    source_hash=str(gml_hash),
-                    gml=area.Gml,
-                )
-            ],
+            locaties=[locatie],
         )
 
         # Save to accumulator
@@ -130,7 +132,7 @@ class PublicationGiosProvider:
         )
 
     def _resolve_gio_from_gebied(self, input_gebied: InputGebied) -> PublicationGio:
-        area: AreasTable = self._fetch_area(input_gebied.area_uuid)
+        area: AreasTable = self._fetch_area(input_gebied)
         gio: PublicationGio = self._inputgebied_to_gio(input_gebied, area)
         return gio
 
@@ -151,11 +153,20 @@ class PublicationGiosProvider:
         for gebied_code in input_aanwijzing.gebied_codes:
             input_gebied: Optional[InputGebied] = gebieden_data.all_gebieden.get(gebied_code)
             if input_gebied is None:
-                raise RuntimeError(
-                    f"Gebiedsaanwijzijng `{input_aanwijzing.title}` points to unknown gebied `{gebied_code}`"
+                raise validation_exception(
+                    [
+                        ValidatePublicationError(
+                            rule="gebied_not_found",
+                            object=ValidatePublicationObject(code=gebied_code),
+                            messages=[
+                                f"Gebiedsaanwijzijng `{input_aanwijzing.title}` points to unknown gebied `{gebied_code}`"
+                            ],
+                        )
+                    ]
                 )
-            area: AreasTable = self._fetch_area(input_gebied.area_uuid)
-            locatie: PublicationGioLocatie = self._area_to_locatie(area, gebied_code)
+
+            area: AreasTable = self._fetch_area(input_gebied)
+            locatie: PublicationGioLocatie = self._area_to_locatie(area, input_gebied)
             locaties.append(locatie)
 
         gio: PublicationGio = PublicationGio(
@@ -173,17 +184,16 @@ class PublicationGiosProvider:
         self._result.gios[gio.key()] = gio
         return gio
 
-    def _area_to_locatie(self, area: AreasTable, gebied_code: str) -> PublicationGioLocatie:
+    def _area_to_locatie(self, area: AreasTable, input_gebied: InputGebied) -> PublicationGioLocatie:
         gml_hash = hashlib.sha512()
         gml_hash.update(area.Gml.encode())
 
         return PublicationGioLocatie(
-            code=gebied_code,
-            title=area.Source_Title,
-            basisgeo_id=str(area.UUID),
-            source_hash=str(
-                gml_hash
-            ),  # str(hash) is what we did before, so thats how the hashes are stored in the state
+            code=input_gebied.code,
+            title=input_gebied.title,
+            basisgeo_id=str(input_gebied.basisgeo_id),
+            # str(hash) is what we did before, so thats how the hashes are stored in the state
+            source_hash=str(gml_hash),
             gml=area.Gml,
         )
 
@@ -214,10 +224,19 @@ class PublicationGiosProvider:
             Expression_Version=1,
         )
 
-    def _fetch_area(self, area_uuid: UUID) -> AreasTable:
-        area: Optional[AreasTable] = self._area_repository.get_with_gml(self._session, area_uuid)
+    def _fetch_area(self, input_gebied: InputGebied) -> AreasTable:
+        area: Optional[AreasTable] = self._area_repository.get_with_gml(self._session, input_gebied.area_uuid)
         if area is None:
-            raise RuntimeError(f"Area UUID {area_uuid} does not exist")
+            raise validation_exception(
+                [
+                    ValidatePublicationError(
+                        rule="area_not_found",
+                        object=ValidatePublicationObject(code=input_gebied.code),
+                        messages=[f"Area UUID {input_gebied.area_uuid} does not exist"],
+                    )
+                ]
+            )
+
         return area
 
 

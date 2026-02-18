@@ -1,8 +1,14 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 from datetime import datetime
 from typing import Dict, List, Optional, Set
 
 from pydantic import BaseModel
+
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationError,
+    ValidatePublicationObject,
+    validation_exception,
+)
 
 
 class InputGebied(BaseModel):
@@ -10,7 +16,12 @@ class InputGebied(BaseModel):
     uuid: UUID
     object_id: int
     code: str
+    # An Area will be transformed to the Locatie
     area_uuid: UUID
+    # The basisgeo_id needs to exists for each Locatie
+    # We used to use the area_uuid, but this value needs to be unique over all different Document_Types
+    # Therefor we can not use area_uuid as this will be send to both Omgevingsvisie and Programma
+    basisgeo_id: UUID
     # We overwrite this with the area.Title at the moment
     # But I think we should use the objects title instead as we can modify it
     # @todo: need to do research if we can change the title of a GIO
@@ -100,13 +111,22 @@ class PublicationGebiedenProvider:
             code: str = gebied["Code"]
             area_uuid: Optional[str] = gebied.get("Area_UUID")
             if area_uuid is None:
-                raise RuntimeError(f"Missing Area_UUID for gebied with code: {code}")
+                raise validation_exception(
+                    [
+                        ValidatePublicationError(
+                            rule="gebied_missing_area_uuid",
+                            object=ValidatePublicationObject(code=code),
+                            messages=[f"Missing Area_UUID for gebied with code `{code}`"],
+                        )
+                    ]
+                )
 
             input_gebied: InputGebied = InputGebied(
                 uuid=gebied["UUID"],
                 object_id=gebied["Object_ID"],
                 code=code,
                 area_uuid=area_uuid,
+                basisgeo_id=uuid4(),
                 title=gebied["Title"],
                 modified_date=gebied["Modified_Date"],
             )

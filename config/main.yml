@@ -459,6 +459,9 @@ api:
         - resolver: upload_publication_act_package_report
           resolver_data:
             path: /report
+    - prefix: /publication-act-packages/{version_uuid}/validate
+      endpoints:
+        - resolver: validate_publication_act_package
     - prefix: /publication-act-reports
       endpoints:
         - resolver: list_publication_act_package_reports

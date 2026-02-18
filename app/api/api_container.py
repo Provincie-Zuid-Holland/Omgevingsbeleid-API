@@ -199,9 +199,8 @@ class ApiContainer(containers.DeclarativeContainer):
                 repository=publication.object_repository,
             ),
             providers.Singleton(
-                module_services.NewestSourceWerkingsgebiedUsedRule,
-                geometry_repository=geometry_repository,
-                area_geometry_repository=area_geometry_repository,
+                module_services.NewestInputGeoOnderverdelingUsedRule,
+                input_geo_onderverdeling_repository=input_geo_onderverdeling_repository,
             ),
             providers.Singleton(
                 module_services.ForbidEmptyHtmlNodesRule,

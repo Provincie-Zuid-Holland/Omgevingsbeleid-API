@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Type, Optional, Set
 
 from bs4 import BeautifulSoup, Tag, ResultSet
-from pydantic import BaseModel, computed_field, ConfigDict, ValidationError
+from pydantic import BaseModel, Field, computed_field, ConfigDict, ValidationError
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.types.api_input_data import ApiActInputData
@@ -17,7 +17,7 @@ class ValidatePublicationObject(BaseModel):
 
 class ValidatePublicationError(BaseModel):
     rule: str
-    object: ValidatePublicationObject
+    object: ValidatePublicationObject = Field(default_factory=ValidatePublicationObject)
     messages: List[str]
 
 
@@ -29,7 +29,7 @@ class ValidatePublicationRequest(BaseModel):
 
 
 class ValidatePublicationException(Exception):
-    def __init__(self, message: str, publication_errors: List[ValidatePublicationError] = None):
+    def __init__(self, message: str, publication_errors: List[ValidatePublicationError] = []):
         super().__init__(message)
         self.message: str = message
         self.publication_errors = publication_errors
@@ -101,27 +101,6 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
         return errors
 
 
-class UsedObjectsInTemplateExistInPublicationRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
-
-        for object_to_validate in request.input_data.Publication_Data.objects:
-            if object_to_validate.get("Code") not in request.input_data.Publication_Data.used_object_codes:
-                errors.append(
-                    ValidatePublicationError(
-                        rule="used_objects_in_template_exist_in_publication_rule",
-                        object=ValidatePublicationObject(
-                            code=object_to_validate.get("Code"),
-                            object_id=object_to_validate.get("Object_ID"),
-                            object_type=object_to_validate.get("Object_Type"),
-                            title=object_to_validate.get("Title"),
-                        ),
-                        messages=[f"'{object_to_validate.get('Code')}' can't be found in codes used in template"],
-                    )
-                )
-        return errors
-
-
 class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         errors: List[ValidatePublicationError] = []
@@ -137,7 +116,38 @@ class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
                         object=ValidatePublicationObject(
                             code=used_code_in_template,
                         ),
-                        messages=[f"Code '{used_code_in_template}' used in template can't be found in publication"],
+                        messages=[
+                            f"Object with code '{used_code_in_template}' used in template can't be found in publication"
+                        ],
+                    )
+                )
+        return errors
+
+
+class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+
+        used_object_types_in_template: Set[str] = set()
+        for used_object_code in request.input_data.Publication_Data.used_object_codes:
+            object_type, _ = used_object_code.split("-")
+            used_object_types_in_template.add(object_type)
+
+        for object_code in request.input_data.Publication_Data.all_object_codes:
+            object_type, object_id = object_code.split("-")
+            if object_type not in used_object_types_in_template:
+                continue
+
+            if object_code not in request.input_data.Publication_Data.used_object_codes:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="used_object_in_publication_exists_rule",
+                        object=ValidatePublicationObject(
+                            code=object_code,
+                            object_id=int(object_id),
+                            object_type=object_type,
+                        ),
+                        messages=[f"Object {object_code} can't be found in publication"],
                     )
                 )
         return errors
@@ -164,3 +174,40 @@ class UsedObjectTypeExistsRule(ValidatePublicationRule):
                     )
                 )
         return errors
+
+
+class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+
+        existing_gebiedengroepen: Set[str] = {
+            gebiedengroep.code for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values()
+        }
+
+        for used_object in request.input_data.Publication_Data.objects:
+            gebiedengroep_code: Optional[str] = used_object.get("Gebiedengroep_Code")
+            if not gebiedengroep_code:
+                continue
+
+            if gebiedengroep_code not in existing_gebiedengroepen:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="referenced_gebiedengroep_code_exists_rule",
+                        object=ValidatePublicationObject(
+                            code=used_object.get("Code"),
+                            object_id=used_object.get("Object_ID"),
+                            object_type=used_object.get("Object_Type"),
+                            title=used_object.get("Title"),
+                        ),
+                        messages=[f"Gebiedengroep code '{gebiedengroep_code}' can't be found in publication"],
+                    )
+                )
+
+        return errors
+
+
+def validation_exception(errors: List[ValidatePublicationError]):
+    return ValidatePublicationException(
+        "Error(s) found while validating publication",
+        publication_errors=errors,
+    )

@@ -2,7 +2,7 @@ from typing import Optional
 import uuid
 from abc import ABCMeta, abstractmethod
 
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
@@ -19,5 +19,13 @@ class InputGeoOnderverdelingRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> Optional[InputGeoOnderverdelingenTable]:
-        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.UUID == uuid)
+        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.UUID == uuidx)
+        return self.fetch_first(session, stmt)
+
+    def get_by_title(self, session: Session, title: str) -> Optional[InputGeoOnderverdelingenTable]:
+        stmt = (
+            select(InputGeoOnderverdelingenTable)
+            .filter(InputGeoOnderverdelingenTable.Title == title)
+            .order_by(desc(InputGeoOnderverdelingenTable.Created_Date))
+        )
         return self.fetch_first(session, stmt)
