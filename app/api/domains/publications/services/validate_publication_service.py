@@ -183,6 +183,8 @@ class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
         existing_gebiedengroepen: Set[str] = {
             gebiedengroep.code for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values()
         }
+        if not existing_gebiedengroepen:
+            return errors
 
         for used_object in request.input_data.Publication_Data.objects:
             gebiedengroep_code: Optional[str] = used_object.get("Gebiedengroep_Code")
