@@ -21,7 +21,7 @@ prepare-env:
 	@echo "✅ Environment ready! Activate with: source $(VENV)/bin/activate"
 
 
-# Commands justs for local env development
+# Commands just for local env development
 run:
 	uvicorn app.main:app --reload
 
@@ -94,7 +94,10 @@ docker-mssql-create-database-dev:
 	@docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-dev.sql
 
 docker-drop-database:
-	docker compose exec api python -m app.cmds dropdb
+	docker compose stop postgres
+	docker compose rm --force postgres
+	docker volume rm omgevingsbeleid-api_postgres
+	docker compose up -d --wait postgres
 
 docker-init-database:
 	docker compose exec api python -m app.cmds initdb
@@ -122,3 +125,10 @@ docker-testx:
 	docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-test.sql
 	docker compose exec api python -m pytest -vv -x
 
+docker-wait-database:
+	@echo "Waiting for PostgreSQL..."
+	@until docker compose exec postgres pg_isready >/dev/null 2>&1; do \
+		sleep 5; \
+	done
+
+docker-reset-test-database: docker-drop-database docker-wait-database docker-init-database docker-load-fixtures

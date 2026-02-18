@@ -48,9 +48,6 @@ class ApiContainer(containers.DeclarativeContainer):
 
     pdf_meta_service = providers.Singleton(PdfMetaService)
 
-    input_geo_werkingsgebieden_repository = providers.Singleton(
-        werkingsgebieden_repositories.InputGeoWerkingsgebiedenRepository
-    )
     storage_file_repository = providers.Singleton(storage_file_repository.StorageFileRepository)
     object_repository = providers.Singleton(object_repositories.ObjectRepository)
     object_static_repository = providers.Singleton(object_repositories.ObjectStaticRepository)
@@ -60,6 +57,10 @@ class ApiContainer(containers.DeclarativeContainer):
     sqlite_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.SqliteAreaGeometryRepository)
     mssql_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlGeometryRepository)
     mssql_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlAreaGeometryRepository)
+    postgresql_geometry_repository = providers.Singleton(werkingsgebieden_repositories.PostgresqlGeometryRepository)
+    postgresql_area_geometry_repository = providers.Singleton(
+        werkingsgebieden_repositories.PostgresqlAreaGeometryRepository
+    )
     area_repository = providers.Singleton(werkingsgebieden_repositories.AreaRepository)
 
     input_geo_werkingsgebieden_repository = providers.Singleton(
@@ -70,6 +71,9 @@ class ApiContainer(containers.DeclarativeContainer):
     )
     mssql_input_geo_onderverdeling_repository = providers.Singleton(
         werkingsgebieden_repositories.MssqlInputGeoOnderverdelingRepository
+    )
+    postgresql_input_geo_onderverdeling_repository = providers.Singleton(
+        werkingsgebieden_repositories.PostgresqlInputGeoOnderverdelingRepository
     )
     sqlite_input_geo_onderverdeling_repository = providers.Singleton(
         werkingsgebieden_repositories.SqliteInputGeoOnderverdelingRepository
@@ -85,16 +89,19 @@ class ApiContainer(containers.DeclarativeContainer):
         config.DB_TYPE,
         sqlite=sqlite_geometry_repository,
         mssql=mssql_geometry_repository,
+        postgresql=postgresql_geometry_repository,
     )
     area_geometry_repository = providers.Selector(
         config.DB_TYPE,
         sqlite=sqlite_area_geometry_repository,
         mssql=mssql_area_geometry_repository,
+        postgresql=postgresql_area_geometry_repository,
     )
     input_geo_onderverdeling_repository = providers.Selector(
         config.DB_TYPE,
         sqlite=sqlite_input_geo_onderverdeling_repository,
         mssql=mssql_input_geo_onderverdeling_repository,
+        postgresql=postgresql_input_geo_onderverdeling_repository,
     )
 
     publication = providers.Container(

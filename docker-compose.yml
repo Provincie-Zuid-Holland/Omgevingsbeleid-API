@@ -16,10 +16,10 @@ services:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DB_NAME: ${DB_NAME}
-      DB_DRIVER: ODBC Driver 17 for SQL Server
+      DB_DRIVER: ${DB_DRIVER}
       JWT_SECRET: secret
       DEBUG_MODE: True
-      SQLALCHEMY_DATABASE_URI: ""
+      SQLALCHEMY_DATABASE_URI: ${SQLALCHEMY_DATABASE_URI}
       PYTHONPATH: "/code"
       PUBLICATION_KOOP__PROD__API_KEY: ""
       PUBLICATION_KOOP__PROD__RENVOOI_API_URL: "https://renvooiservice-eto.overheid.nl"
@@ -48,6 +48,41 @@ services:
       start_period: 1s
     restart: "no"
 
+  postgres:
+    image: postgis/postgis:18-3.6
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: pzh
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: omgevingsbeleid
+    volumes:
+      - ./docker/postgres/init-extensions.sql:/docker-entrypoint-initdb.d/01-extensions.sql:ro
+      - postgres:/var/lib/postgresql
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "8001:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: test@example.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    depends_on:
+      - postgres
+    volumes:
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - ./docker/pgadmin/pgpass:/pgpass:ro
+      - pgadmin:/var/lib/pgadmin
+
+  pgloader:
+    image: dimitri/pgloader
+    volumes:
+      - ./:/app
+    command: pgloader --help
+
 volumes:
   mssql:
-
+  postgres:
+  pgadmin:
