@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 import sqlalchemy
@@ -14,12 +14,14 @@ build_datetime: datetime = datetime.now(timezone.utc)
 @inject
 def health_check(
     db_session_factory: Annotated[SessionFactoryType, Depends(Provide[ApiContainer.db_session_factory])],
+    lifetime: Annotated[timedelta, Depends(Provide[ApiContainer.access_token_lifetime])],
 ):
     health_info = {
         "status": "healthy",
         "database": "ok",
         "version": "11",
         "build": str(build_datetime),
+        "lt": str(lifetime),
     }
 
     try:
