@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from datetime import timezone, datetime
+from enum import Enum
 from typing import Dict, List, Optional, Type, Set
 
 from bs4 import BeautifulSoup
-from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
+from pydantic import BaseModel, Field, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
@@ -11,6 +12,7 @@ from app.api.domains.werkingsgebieden.repositories import InputGeoOnderverdeling
 from app.core.services import MainConfig
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
 
 class ValidateModuleObject(BaseModel):
@@ -20,10 +22,17 @@ class ValidateModuleObject(BaseModel):
     title: str
 
 
+class ValidateModuleSeverity(str, Enum):
+    info = "info"
+    warning = "warning"
+    error = "error"
+
+
 class ValidateModuleError(BaseModel):
     rule: str
     object: ValidateModuleObject
     messages: List[str]
+    severity: ValidateModuleSeverity = Field(default=ValidateModuleSeverity.error)
 
 
 class ValidateModuleRequest(BaseModel):
@@ -160,7 +169,27 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
 
             area_hash: str = area_current.Source_Geometry_Hash or ""
             area_title: str = area_current.Source_Title
-            onderverdeling = self._input_geo_onderverdeling_repository.get_by_title(db, area_title)
+            onderverdeling: Optional[InputGeoOnderverdelingenTable] = (
+                self._input_geo_onderverdeling_repository.get_by_title(db, area_title)
+            )
+            if onderverdeling is None:
+                errors.append(
+                    ValidateModuleError(
+                        rule="newest_input_geo_onderverdeling_used_rule",
+                        object=ValidateModuleObject(
+                            code=object_table.Code,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
+                        messages=[
+                            f"The onderverdelingen lineage used by Area `{area_current.UUID}` with source title `{area_title}` can no longer be found in InputGeoOnderverdelingen"
+                        ],
+                        severity=ValidateModuleSeverity.info,
+                    )
+                )
+                continue
+
             if area_hash != onderverdeling.Geometry_Hash:
                 errors.append(
                     ValidateModuleError(
