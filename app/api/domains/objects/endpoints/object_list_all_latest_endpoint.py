@@ -23,9 +23,6 @@ from app.api.utils.pagination import (
 )
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 
-class ObjectListAllLastestRequest(BaseModel):
-    Object_Types: Optional[List[str]]
-
 
 class ObjectListAllLatestResponse(BaseModel, Generic[TModel]):
     Object_Type: str
@@ -49,7 +46,7 @@ def do_list_all_latest_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-    object_types: Annotated[Optional[List[str]], Query(alias="Object_Types")] = None,
+    object_types: Annotated[Optional[List[str]], Query(alias="object_types")] = None,
     owner_uuid: Optional[uuid.UUID] = None,
 ) -> PagedResponse[ObjectListAllLatestResponse[BaseModel]]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
@@ -59,7 +56,7 @@ def do_list_all_latest_endpoint(
         session=session,
         pagination=pagination,
         owner_uuid=owner_uuid,
-        object_types=object_types,
+        object_types=object_types
     )
     paginated_items: Sequence[Tuple[ObjectsTable, ObjectStaticsTable]] = paginated_result.items
 
