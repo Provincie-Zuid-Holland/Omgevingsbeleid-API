@@ -50,7 +50,7 @@ class DatabaseFixtures:
         self._security: Security = security
 
     def truncate_all(self):
-        self._session.execute(text(f"DELETE FROM {Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc.name}"))
+        self._session.execute(text(f'DELETE FROM "{Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc.name}"'))
         self._session.commit()
 
         self._truncate(PublicationActPackageTable)
@@ -79,15 +79,19 @@ class DatabaseFixtures:
     def _truncate(self, model: type[Base]):
         if self._session.bind.dialect.name == "sqlite":
             self._session.execute(text("PRAGMA foreign_keys = OFF"))
-        if self._session.bind.dialect.name == "mssql":
+        elif self._session.bind.dialect.name == "mssql":
             self._session.execute(text(f"ALTER TABLE {model.__tablename__} NOCHECK CONSTRAINT ALL"))
+        elif self._session.bind.dialect.name == "postgresql":
+            self._session.execute(text("SET session_replication_role = 'replica'"))
 
         self._session.query(model).delete()
 
         if self._session.bind.dialect.name == "sqlite":
             self._session.execute(text("PRAGMA foreign_keys = ON"))
-        if self._session.bind.dialect.name == "mssql":
+        elif self._session.bind.dialect.name == "mssql":
             self._session.execute(text(f"ALTER TABLE {model.__tablename__} WITH CHECK CHECK CONSTRAINT ALL"))
+        elif self._session.bind.dialect.name == "postgresql":
+            self._session.execute(text("SET session_replication_role = 'origin'"))
 
         self._session.commit()
 

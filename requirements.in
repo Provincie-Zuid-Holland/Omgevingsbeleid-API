@@ -9,6 +9,7 @@ pyyaml
 requests
 requests-toolbelt
 dependency-injector
+psycopg[binary,pool]
 
 # JWT
 pyjwt
@@ -45,6 +46,9 @@ pdfkit
 jinja2
 dicttoxml
 lxml
+
+# Geo
+GeoAlchemy2
 
 # DSO
 git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.9.0
