@@ -196,7 +196,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                         messages=[
                             f"The onderverdelingen lineage used by Area `{area_current.UUID}` with source title `{area_title}` can no longer be found in InputGeoOnderverdelingen"
                         ],
-                        severity=ValidateModuleSeverity.info,
+                        severity=ValidateModuleSeverity.warning,
                     )
                 )
                 continue
@@ -214,6 +214,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                         messages=[
                             f"Area {area_current.UUID} does not use the latest known onderverdeling shape {onderverdeling.UUID}"
                         ],
+                        severity=ValidateModuleSeverity.warning,
                     )
                 )
                 continue
