@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import timezone, datetime
-from typing import Dict, List, Optional, Type, Set
+from typing import Any, Dict, List, Optional, Type, Set
 
 from bs4 import BeautifulSoup
 from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
@@ -29,12 +29,14 @@ class ValidateModuleError(BaseModel):
 class ValidateModuleRequest(BaseModel):
     module_id: int
     module_objects: List[ModuleObjectsTable]
-    module_object_lookup: Dict[str, ModuleObjectsTable] = {}
+
+    _module_object_lookup: Dict[str, ModuleObjectsTable]
+
+    def model_post_init(self, context: Any) -> None:
+        self._module_object_lookup = {module_object.Code: module_object for module_object in self.module_objects}
 
     def get_module_object(self, code: str) -> Optional[ModuleObjectsTable]:
-        if not self.module_object_lookup:
-            self.module_object_lookup = {module_object.Code: module_object for module_object in self.module_objects}
-        return self.module_object_lookup.get(code, None)
+        return self._module_object_lookup.get(code, None)
 
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
@@ -120,16 +122,16 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
                 continue
 
             if target_code not in existing_object_codes:
-                module_object = request.get_module_object(object_info.get("Code"))
+                module_object = request.get_module_object(object_info["Code"])
                 title = module_object.Title if module_object and module_object.Title else ""
 
                 errors.append(
                     ValidateModuleError(
                         rule="require_existing_hierarchy_code_rule",
                         object=ValidateModuleObject(
-                            code=object_info.get("Code"),
-                            object_id=object_info.get("Object_ID"),
-                            object_type=object_info.get("Object_Type"),
+                            code=object_info["Code"],
+                            object_id=object_info["Object_ID"],
+                            object_type=object_info["Object_Type"],
                             title=title,
                         ),
                         messages=[f"Hierarchy code {target_code} does or will not exist in next version"],
