@@ -206,6 +206,26 @@ class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
         return errors
 
 
+class GebiedengroepHasGiosRule(ValidatePublicationRule):
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+
+        for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values():
+            if not gebiedengroep.gio_keys:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="gebiedengroep_has_no_gios",
+                        object=ValidatePublicationObject(
+                            code=gebiedengroep.code,
+                            title=gebiedengroep.title,
+                        ),
+                        messages=[f"Gebiedengroep code '{gebiedengroep.code}' has no valid gio's"],
+                    )
+                )
+
+        return errors
+
+
 def validation_exception(errors: List[ValidatePublicationError]):
     return ValidatePublicationException(
         "Error(s) found while validating publication",

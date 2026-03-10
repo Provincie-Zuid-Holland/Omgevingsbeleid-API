@@ -38,7 +38,7 @@ required_object_fields_rule:
   maatregel: maatregel_module_validate
   programma_algemeen: programma_module_validate
   visie_algemeen: visie_algemeen_module_validate
-  werkingsgebied: werkingsgebied_module_validate
+  gebiedengroep: gebiedengroep_module_validate
 
 publication_required_object_fields_rule:
   omgevingsvisie:
@@ -51,7 +51,6 @@ publication_required_object_fields_rule:
     document: document_module_validate
     maatregel: maatregel_module_validate
     programma_algemeen: programma_module_validate
-    werkingsgebied: werkingsgebied_module_validate
 
 forbid_empty_html_nodes_rule:
   fields:
