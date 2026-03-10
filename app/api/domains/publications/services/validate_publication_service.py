@@ -113,9 +113,7 @@ class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
                 errors.append(
                     ValidatePublicationError(
                         rule="used_objects_in_publication_exist_in_template_rule",
-                        object=ValidatePublicationObject(
-                            code=used_code_in_template,
-                        ),
+                        object=ValidatePublicationObject(),  # there is no actual object to show in the error
                         messages=[
                             f"Object with code '{used_code_in_template}' used in template can't be found in publication"
                         ],
