@@ -77,6 +77,7 @@ class BuildContainer(containers.DeclarativeContainer):
                 object_static_repository=object_static_repository,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
+            providers.Factory(validators.NotEmptyValidator),
         ),
     )
 
