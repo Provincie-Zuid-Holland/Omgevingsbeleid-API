@@ -2,9 +2,10 @@ import uuid
 from typing import Annotated, List, Optional, Generic, Sequence, Tuple, Dict
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends, Query
+from fastapi import Depends, Query, HTTPException
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
+from starlette import status
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -33,6 +34,7 @@ class ObjectListAllLatestResponse(BaseModel, Generic[TModel]):
 
 
 class ObjectListAllLatestEndpointContext(BaseEndpointContext):
+    allowed_object_types: List[str]
     order_config: OrderConfig
     model_map: Dict[str, str]
 
@@ -49,14 +51,18 @@ def do_list_all_latest_endpoint(
     object_types: Annotated[Optional[List[str]], Query(alias="object_types")] = None,
     owner_uuid: Optional[uuid.UUID] = None,
 ) -> PagedResponse[ObjectListAllLatestResponse[BaseModel]]:
+    for object_type in object_types:
+        if object_type not in context.allowed_object_types:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                f"Invalid object type, accepted object types are: {context.allowed_object_types}",
+            )
+
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
     paginated_result: PaginatedQueryResult = object_repository.get_latest_filtered(
-        session=session,
-        pagination=pagination,
-        owner_uuid=owner_uuid,
-        object_types=object_types
+        session=session, pagination=pagination, owner_uuid=owner_uuid, object_types=object_types
     )
     paginated_items: Sequence[Tuple[ObjectsTable, ObjectStaticsTable]] = paginated_result.items
 

@@ -54,9 +54,7 @@ class ObjectRepository(BaseRepository):
         )
         main_query = stmt.subquery()
 
-        final_query = select(main_query.c.Object_Type, func.count()).group_by(
-            main_query.c.Object_Type
-        )
+        final_query = select(main_query.c.Object_Type, func.count()).group_by(main_query.c.Object_Type)
 
         rows = session.execute(final_query).fetchall()
         result = [ObjectCount(object_type=r[0], count=r[1]) for r in rows]
@@ -66,22 +64,12 @@ class ObjectRepository(BaseRepository):
         stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid)
         return self.fetch_first(session, stmt)
 
-    def get_by_object_type_and_uuid(
-        self, session: Session, object_type: str, uuid: UUID
-    ) -> Optional[ObjectsTable]:
-        stmt = (
-            select(ObjectsTable)
-            .filter(ObjectsTable.UUID == uuid)
-            .filter(ObjectsTable.Object_Type == object_type)
-        )
+    def get_by_object_type_and_uuid(self, session: Session, object_type: str, uuid: UUID) -> Optional[ObjectsTable]:
+        stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid).filter(ObjectsTable.Object_Type == object_type)
         return self.fetch_first(session, stmt)
 
-    def get_next_valid_object(
-        self, session: Session, object_uuid: UUID
-    ) -> Optional[ObjectsTable]:
-        reference_obj = (
-            select(ObjectsTable).filter(ObjectsTable.UUID == object_uuid)
-        ).subquery()
+    def get_next_valid_object(self, session: Session, object_uuid: UUID) -> Optional[ObjectsTable]:
+        reference_obj = (select(ObjectsTable).filter(ObjectsTable.UUID == object_uuid)).subquery()
 
         stmt = (
             select(ObjectsTable)
@@ -101,9 +89,7 @@ class ObjectRepository(BaseRepository):
 
         return self.fetch_first(session, stmt)
 
-    def get_latest_valid_by_id(
-        self, session: Session, object_type: str, object_id: int
-    ) -> Optional[ObjectsTable]:
+    def get_latest_valid_by_id(self, session: Session, object_type: str, object_id: int) -> Optional[ObjectsTable]:
         row_number = (
             func.row_number()
             .over(
@@ -138,9 +124,7 @@ class ObjectRepository(BaseRepository):
         result = self.fetch_first(session, stmt)
         return result
 
-    def get_latest_by_id(
-        self, session: Session, object_type: str, object_id: int
-    ) -> Optional[ObjectsTable]:
+    def get_latest_by_id(self, session: Session, object_type: str, object_id: int) -> Optional[ObjectsTable]:
         stmt = (
             select(ObjectsTable)
             .filter(ObjectsTable.Object_Type == object_type)
@@ -192,9 +176,7 @@ class ObjectRepository(BaseRepository):
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
         aliased_object_statics = aliased(ObjectStaticsTable, subq)
-        stmt = select(aliased_objects, aliased_object_statics).filter(
-            subq.c._RowNumber == 1
-        )
+        stmt = select(aliased_objects, aliased_object_statics).filter(subq.c._RowNumber == 1)
 
         return self.fetch_paginated_no_scalars(
             session=session,
@@ -204,9 +186,7 @@ class ObjectRepository(BaseRepository):
             sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )
 
-    def prepare_list_valid_lineages(
-        self, object_type: str, filter_title: Optional[str] = None
-    ) -> PreparedQuery:
+    def prepare_list_valid_lineages(self, object_type: str, filter_title: Optional[str] = None) -> PreparedQuery:
         subq = (
             select(
                 ObjectsTable,
@@ -242,9 +222,7 @@ class ObjectRepository(BaseRepository):
             aliased_ref=aliased_objects,
         )
 
-    def prepare_list_valid_lineage_tree(
-        self, object_type: str, lineage_id: int
-    ) -> PreparedQuery:
+    def prepare_list_valid_lineage_tree(self, object_type: str, lineage_id: int) -> PreparedQuery:
         stmt = (
             select(ObjectsTable)
             .filter(ObjectsTable.Object_Type == object_type)

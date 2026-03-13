@@ -346,7 +346,9 @@ api:
       endpoints:
         - resolver: object_counts
           resolver_data:
-            <<: *searchable_config
+            path: /count
+        - resolver: list_all_latest_objects
+          resolver_data:
             allowed_object_types:
               - ambitie
               - beleidsdoel
@@ -361,10 +363,9 @@ api:
               - visie_algemeen
               - programma_algemeen
               - werkingsgebied
-
-            path: /count
-        - resolver: list_all_latest_objects
-          resolver_data:
+              - gebiedengroep
+              - gebied
+              - gebiedsaanwijzing
             sort: *sort_default_object_id
             model_map: *model_map
             response_model_name: PagedListAllLatestObjectsResponse
