@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, List, Optional, Generic, Sequence, Tuple, Dict
+from typing import Annotated, List, Optional, Generic, Dict
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Query, HTTPException
@@ -22,7 +22,6 @@ from app.api.utils.pagination import (
     SortedPagination,
     PaginatedQueryResult,
 )
-from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 
 
 class ObjectListAllLatestResponse(BaseModel, Generic[TModel]):
@@ -48,7 +47,7 @@ def do_list_all_latest_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-    object_types: Annotated[Optional[List[str]], Query(alias="object_types")] = None,
+    object_types: Annotated[List[str], Query(alias="object_types")] = [],
     owner_uuid: Optional[uuid.UUID] = None,
 ) -> PagedResponse[ObjectListAllLatestResponse[BaseModel]]:
     for object_type in object_types:
@@ -64,14 +63,12 @@ def do_list_all_latest_endpoint(
     paginated_result: PaginatedQueryResult = object_repository.get_latest_filtered(
         session=session, pagination=pagination, owner_uuid=owner_uuid, object_types=object_types
     )
-    paginated_items: Sequence[Tuple[ObjectsTable, ObjectStaticsTable]] = paginated_result.items
-
     objects: List[ObjectListAllLatestResponse[BaseModel]] = []
-    for object_current, object_static in paginated_items:
+    for object_current in paginated_result.items:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_current, context.model_map)
         object_response = ObjectListAllLatestResponse(
             Object_Type=object_current.Object_Type,
-            ObjectStatics=object_static,
+            ObjectStatics=object_current.ObjectStatics,
             Model=parsed_model,
         )
         objects.append(object_response)

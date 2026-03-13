@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session, aliased, selectinload
+from sqlalchemy.orm import Session, aliased, selectinload, joinedload
 from sqlalchemy.sql import and_, func, or_
 
 from app.api.base_repository import BaseRepository
@@ -150,8 +150,8 @@ class ObjectRepository(BaseRepository):
         )
 
         subq = (
-            select(ObjectsTable, ObjectStaticsTable, row_number)
-            .options(selectinload(ObjectsTable.ObjectStatics))
+            select(ObjectsTable, row_number)
+            .options(joinedload(ObjectsTable.ObjectStatics))
             .join(ObjectsTable.ObjectStatics)
             .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
         )
@@ -174,11 +174,9 @@ class ObjectRepository(BaseRepository):
             subq = subq.filter(and_(*filters))
 
         subq = subq.subquery()
-        aliased_objects = aliased(ObjectsTable, subq)
-        aliased_object_statics = aliased(ObjectStaticsTable, subq)
-        stmt = select(aliased_objects, aliased_object_statics).filter(subq.c._RowNumber == 1)
+        stmt = select(aliased(ObjectsTable, subq)).filter(subq.c._RowNumber == 1)
 
-        return self.fetch_paginated_no_scalars(
+        return self.fetch_paginated(
             session=session,
             statement=stmt,
             limit=pagination.limit,
