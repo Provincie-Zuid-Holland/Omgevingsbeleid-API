@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Set, Tuple
 from uuid import UUID
 
 from sqlalchemy import or_, select
@@ -39,3 +39,13 @@ class ObjectStaticRepository(BaseRepository):
     def get_by_source(self, session: Session, source_key: str) -> Optional[ObjectStaticsTable]:
         stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Source_Identifier == source_key)
         return self.fetch_first(session, stmt)
+
+    def does_codes_exists(self, session: Session, codes: Set[str]) -> Tuple[bool, Set[str]]:
+        if not len(codes):
+            return True, set()
+
+        stmt = select(ObjectStaticsTable.Code).where(ObjectStaticsTable.Code.in_(codes))
+        existing: Set[str] = set(session.execute(stmt).scalars())
+        missing: Set[str] = set(codes) - existing
+
+        return len(missing) == 0, missing

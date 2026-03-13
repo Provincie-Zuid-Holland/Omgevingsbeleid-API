@@ -3,6 +3,7 @@ from datetime import date, datetime
 from typing import Any, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic_core import ErrorDetails
 
 from app.api.domains.modules.types import ModuleStatus
 from app.api.domains.publications.types.enums import PublicationVersionStatus
@@ -288,7 +289,7 @@ class PublicationVersion(BaseModel):
 
     Attachments: List[AttachmentShort]
 
-    Errors: List[dict] = Field([])
+    Errors: List[ErrorDetails] = Field([])
     model_config = ConfigDict(from_attributes=True)
 
 

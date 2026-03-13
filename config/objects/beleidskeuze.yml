@@ -163,6 +163,8 @@ fields:
     validators:
       - id: none_to_default_value
   gebiedengroep_code:
+    optional: true
+    default: none
     name: Gebiedengroep_Code
     type: str
     column: gebiedengroep_code
@@ -370,6 +372,11 @@ models:
         optional: true
         validators:
           - id: html
+          - id: gebiedsaanwijzing_in_text
+            data:
+              allowed_target_types:
+                - gebied
+                - gebiedengroep
           - id: image
             data:
               max_width: 1500
@@ -380,6 +387,11 @@ models:
         optional: true
         validators:
           - id: html
+          - id: gebiedsaanwijzing_in_text
+            data:
+              allowed_target_types:
+                - gebied
+                - gebiedengroep
           - id: image
             data:
               max_width: 1500
@@ -390,6 +402,11 @@ models:
         optional: true
         validators:
           - id: html
+          - id: gebiedsaanwijzing_in_text
+            data:
+              allowed_target_types:
+                - gebied
+                - gebiedengroep
           - id: image
             data:
               max_width: 1500
@@ -400,6 +417,11 @@ models:
         optional: true
         validators:
           - id: html
+          - id: gebiedsaanwijzing_in_text
+            data:
+              allowed_target_types:
+                - gebied
+                - gebiedengroep
           - id: image
             data:
               max_width: 1500
@@ -518,8 +540,6 @@ models:
               min: 3
           - id: html
       hierarchy_code:
-        default: none
-        optional: true
         validators:
           - id: object_code_allowed_type
             data:

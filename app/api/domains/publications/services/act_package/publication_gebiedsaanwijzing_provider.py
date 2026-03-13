@@ -5,6 +5,12 @@ from typing import Dict, List, Set, Tuple
 from pydantic import BaseModel
 from bs4 import BeautifulSoup
 
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationError,
+    ValidatePublicationObject,
+    validation_exception,
+)
+
 
 class GebiedsaanwijzingData(BaseModel):
     uuid: str  # Used in the html so we can find this config later
@@ -32,18 +38,19 @@ class PublicationGebiedsaanwijzingProcessor:
 
     def process(self, used_objects: List[dict]) -> Tuple[List[dict], List[GebiedsaanwijzingData]]:
         for obj_index, obj in enumerate(used_objects):
+            object_code: str = obj["Code"]
             for field_name, field_value in obj.items():
                 if not isinstance(field_value, str):
                     continue
 
-                field_value = self._resolve_gebiedsaanwijzingen(field_value)
+                field_value = self._resolve_gebiedsaanwijzingen(object_code, field_value)
                 # We modified the contents to point to the uuid of the gebiedsaanwijzing
                 # So we have to put the modified contents back into the object
                 used_objects[obj_index][field_name] = field_value
 
         return used_objects, self._gebiedsaanwijzingen
 
-    def _resolve_gebiedsaanwijzingen(self, html: str) -> str:
+    def _resolve_gebiedsaanwijzingen(self, object_code: str, html: str) -> str:
         """
         Extract gebiedengroep codes from HTML gebiedsaanwijzingen.
 
@@ -68,15 +75,39 @@ class PublicationGebiedsaanwijzingProcessor:
             for target_code in data_target_codes:
                 if target_code.startswith("gebiedengroep-"):
                     if target_code not in self._gebiedengroep_map:
-                        raise RuntimeError(f"Targetted gebiedengroep `{target_code}` does not exist")
+                        raise validation_exception(
+                            [
+                                ValidatePublicationError(
+                                    rule="gebiedsaanwijzing_gebiedengroep_not_found",
+                                    object=ValidatePublicationObject(code=object_code),
+                                    messages=[f"Targetted gebiedengroep `{target_code}` does not exist"],
+                                )
+                            ]
+                        )
                     gebied_codes: Set[str] = self._gebiedengroep_map[target_code]
                     if len(gebied_codes) == 0:
-                        raise RuntimeError(f"Used gebiedengroep `{target_code}` has no Gebieden")
+                        raise validation_exception(
+                            [
+                                ValidatePublicationError(
+                                    rule="gebiedsaanwijzing_no_targets",
+                                    object=ValidatePublicationObject(code=object_code),
+                                    messages=[f"Used gebiedengroep `{target_code}` has no Gebieden"],
+                                )
+                            ]
+                        )
                     aanwijzing_gebied_codes = aanwijzing_gebied_codes.union(gebied_codes)
                 elif target_code.startswith("gebied-"):
                     aanwijzing_gebied_codes.add(target_code)
                 else:
-                    raise RuntimeError("Using invalid object in Gebiedengroep.Gebieden")
+                    raise validation_exception(
+                        [
+                            ValidatePublicationError(
+                                rule="gebiedsaanwijzing_invalid_target",
+                                object=ValidatePublicationObject(code=object_code),
+                                messages=["Using invalid object in Gebiedengroep.Gebieden"],
+                            )
+                        ]
+                    )
 
             aanwijzing_data: GebiedsaanwijzingData = self._resolve_data(
                 aanwijzing_type,

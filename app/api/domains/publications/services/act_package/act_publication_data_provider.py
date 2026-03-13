@@ -22,6 +22,10 @@ from app.api.domains.publications.services.publication_object_provider import Pu
 from app.api.domains.publications.services.act_package.documents_provider import PublicationDocumentsProvider
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.api.domains.publications.services.template_parser import TemplateParser
+from app.api.domains.publications.services.validate_publication_service import (
+    ValidatePublicationError,
+    validation_exception,
+)
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, PublicationData
 from app.core.tables.publications import PublicationAreaOfJurisdictionTable, PublicationVersionTable
 
@@ -62,6 +66,7 @@ class ActPublicationDataProvider:
             publication_version.Publication.Template.Text_Template,
             objects,
         )
+        all_object_codes = {o["Code"] for o in objects}
         used_object_codes: Set[str] = self._get_used_object_codes(parsed_template)
         used_objects: List[dict] = self._get_used_objects(objects, used_object_codes)
         assets: List[dict] = self._publication_asset_provider.get_assets(session, used_objects)
@@ -93,6 +98,7 @@ class ActPublicationDataProvider:
         bill_attachments: List[dict] = self._get_bill_attachments(publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
+            all_object_codes=all_object_codes,
             used_object_codes=used_object_codes,
             objects=used_objects,
             documents=documents,
@@ -123,7 +129,14 @@ class ActPublicationDataProvider:
             before_datetime,
         )
         if aoj is None:
-            raise RuntimeError("There needs to be an area of jurisdiction")
+            raise validation_exception(
+                [
+                    ValidatePublicationError(
+                        rule="aoj_does_not_exist",
+                        messages=["There needs to be an area of jurisdiction"],
+                    )
+                ]
+            )
 
         result: dict = {
             "UUID": aoj.UUID,

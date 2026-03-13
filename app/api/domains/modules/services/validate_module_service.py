@@ -1,17 +1,18 @@
 from abc import ABC, abstractmethod
 from datetime import timezone, datetime
-from typing import Dict, List, Optional, Type, Set
+from enum import Enum
+from typing import Any, Dict, List, Optional, Type, Set
 
 from bs4 import BeautifulSoup
-from pydantic import BaseModel, ValidationError, computed_field, ConfigDict
+from pydantic import BaseModel, Field, PrivateAttr, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
-from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
-from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository, WerkingsgebiedHash
+from app.api.domains.werkingsgebieden.repositories import InputGeoOnderverdelingRepository
 from app.core.services import MainConfig
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AreasTable
+from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
 
 class ValidateModuleObject(BaseModel):
@@ -21,15 +22,30 @@ class ValidateModuleObject(BaseModel):
     title: str
 
 
+class ValidateModuleSeverity(str, Enum):
+    info = "info"
+    warning = "warning"
+    error = "error"
+
+
 class ValidateModuleError(BaseModel):
     rule: str
     object: ValidateModuleObject
     messages: List[str]
+    severity: ValidateModuleSeverity = Field(default=ValidateModuleSeverity.error)
 
 
 class ValidateModuleRequest(BaseModel):
     module_id: int
     module_objects: List[ModuleObjectsTable]
+
+    _module_object_lookup: Dict[str, ModuleObjectsTable] = PrivateAttr(default_factory=dict)
+
+    def model_post_init(self, context: Any) -> None:
+        self._module_object_lookup = {module_object.Code: module_object for module_object in self.module_objects}
+
+    def get_module_object(self, code: str) -> Optional[ModuleObjectsTable]:
+        return self._module_object_lookup.get(code, None)
 
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
@@ -115,61 +131,62 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
                 continue
 
             if target_code not in existing_object_codes:
+                module_object = request.get_module_object(object_info["Code"])
+                title = module_object.Title if module_object and module_object.Title else ""
+
                 errors.append(
                     ValidateModuleError(
                         rule="require_existing_hierarchy_code_rule",
                         object=ValidateModuleObject(
-                            code=object_info.get("Code"),
-                            object_id=object_info.get("Object_ID"),
-                            object_type=object_info.get("Object_Type"),
-                            title=object_info.get("Title"),
+                            code=object_info["Code"],
+                            object_id=object_info["Object_ID"],
+                            object_type=object_info["Object_Type"],
+                            title=title,
                         ),
-                        messages=[f"Hierarchy code {target_code} does not exist"],
+                        messages=[f"Hierarchy code {target_code} does or will not exist in next version"],
                     )
                 )
         return errors
 
 
-class NewestSourceWerkingsgebiedUsedRule(ValidateModuleRule):
-    def __init__(self, geometry_repository: GeometryRepository, area_geometry_repository: AreaGeometryRepository):
-        self._geometry_repository: GeometryRepository = geometry_repository
-        self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
+class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
+    def __init__(self, input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository):
+        self._input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository = (
+            input_geo_onderverdeling_repository
+        )
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
 
         for object_table in request.module_objects:
+            if object_table.Object_Type != "gebied":
+                continue
+
             area_current: Optional[AreasTable] = object_table.Area
             if area_current is None:
-                continue
-
-            area_current_shape_hash: Optional[str] = self._area_geometry_repository.get_shape_hash(
-                db,
-                area_current.UUID,
-            )
-            if area_current_shape_hash is None:
                 errors.append(
                     ValidateModuleError(
-                        rule="newest_source_werkingsgebied_used_rule",
+                        rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
                             code=object_table.Code,
                             object_id=object_table.Object_ID,
                             object_type=object_table.Object_Type,
                             title=object_table.Title,
                         ),
-                        messages=[f"Area {area_current.UUID} does not have a shape"],
+                        messages=["Object is of type 'gebied', but area is not known"],
                     )
                 )
                 continue
 
+            area_hash: str = area_current.Source_Geometry_Hash or ""
             area_title: str = area_current.Source_Title
-            werkingsgebied_latest: Optional[WerkingsgebiedHash] = (
-                self._geometry_repository.get_latest_shape_hash_by_title(db, area_title)
+            onderverdeling: Optional[InputGeoOnderverdelingenTable] = (
+                self._input_geo_onderverdeling_repository.get_by_title(db, area_title)
             )
-            if werkingsgebied_latest is None:
+            if onderverdeling is None:
                 errors.append(
                     ValidateModuleError(
-                        rule="newest_source_werkingsgebied_used_rule",
+                        rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
                             code=object_table.Code,
                             object_id=object_table.Object_ID,
@@ -177,16 +194,17 @@ class NewestSourceWerkingsgebiedUsedRule(ValidateModuleRule):
                             title=object_table.Title,
                         ),
                         messages=[
-                            f"Area {area_current.UUID} - '{area_current.Source_Title}' does not have a Werkingsgebieden shape"
+                            f"The onderverdelingen lineage used by Area `{area_current.UUID}` with source title `{area_title}` can no longer be found in InputGeoOnderverdelingen"
                         ],
+                        severity=ValidateModuleSeverity.warning,
                     )
                 )
                 continue
 
-            if area_current_shape_hash != werkingsgebied_latest.hash:
+            if area_hash != onderverdeling.Geometry_Hash:
                 errors.append(
                     ValidateModuleError(
-                        rule="newest_source_werkingsgebied_used_rule",
+                        rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
                             code=object_table.Code,
                             object_id=object_table.Object_ID,
@@ -194,8 +212,9 @@ class NewestSourceWerkingsgebiedUsedRule(ValidateModuleRule):
                             title=object_table.Title,
                         ),
                         messages=[
-                            f"Area {area_current.UUID} - '{area_current.Source_Title}' does not use the latest known Werkingsgebieden shape {werkingsgebied_latest.UUID}"
+                            f"Area {area_current.UUID} does not use the latest known onderverdeling shape {onderverdeling.UUID}"
                         ],
+                        severity=ValidateModuleSeverity.warning,
                     )
                 )
                 continue

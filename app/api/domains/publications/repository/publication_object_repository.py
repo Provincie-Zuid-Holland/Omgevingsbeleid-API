@@ -33,7 +33,6 @@ class PublicationObjectRepository(BaseRepository):
         fields: Set[str] = PUBLICATION_BASE_FIELDS.union(set(requested_fields))
 
         query = self._get_full_query(module_id, timepoint, object_types, fields)
-
         result = session.execute(query)
         rows = [row._asdict() for row in result]
         return rows

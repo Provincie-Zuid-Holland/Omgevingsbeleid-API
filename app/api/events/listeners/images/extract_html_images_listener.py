@@ -87,7 +87,8 @@ class HtmlImagesExtractor:
             output_buffer = io.BytesIO()
             image.save(output_buffer, format=image.format)
             output_buffer.seek(0)
-            image_data = base64.b64encode(output_buffer.read()).decode("utf-8")
+            clean_base64 = base64.b64encode(output_buffer.read()).decode("utf-8")
+            image_data = f"data:image/{mime_type};base64,{clean_base64}"
         except UnidentifiedImageError:
             raise ValueError("Invalid image")
         width, height = image.size

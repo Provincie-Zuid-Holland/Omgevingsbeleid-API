@@ -38,7 +38,7 @@ required_object_fields_rule:
   maatregel: maatregel_module_validate
   programma_algemeen: programma_module_validate
   visie_algemeen: visie_algemeen_module_validate
-  werkingsgebied: werkingsgebied_module_validate
+  gebiedengroep: gebiedengroep_module_validate
 
 publication_required_object_fields_rule:
   omgevingsvisie:
@@ -51,7 +51,6 @@ publication_required_object_fields_rule:
     document: document_module_validate
     maatregel: maatregel_module_validate
     programma_algemeen: programma_module_validate
-    werkingsgebied: werkingsgebied_module_validate
 
 forbid_empty_html_nodes_rule:
   fields:
@@ -88,6 +87,7 @@ model_map: &model_map
   nationaal_belang: nationaal_belang_basic
   gebiedengroep: gebiedengroep_basic
   gebied: gebied_basic
+  gebiedsaanwijzing: gebiedsaanwijzing_basic
   programma_algemeen: programma_algemeen_basic
   verplicht_programma: verplicht_programma_basic
   visie_algemeen: visie_algemeen_basic
@@ -200,6 +200,7 @@ api:
               - werkingsgebied
               - gebiedengroep
               - gebied
+              - gebiedsaanwijzing
             model_map: *model_map
             response_model_name: PagedSearchObjectResponse
     - prefix: /search/valid
@@ -223,6 +224,7 @@ api:
               - werkingsgebied
               - gebiedengroep
               - gebied
+              - gebiedsaanwijzing
             model_map: *model_map
             response_model_name: PagedValidSearchObjectResponse
     - prefix: /full-graph
@@ -304,6 +306,7 @@ api:
               - werkingsgebied
               - document
               - gebiedengroep
+              - gebiedsaanwijzing
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -319,6 +322,7 @@ api:
               - werkingsgebied
               - document
               - gebiedengroep
+              - gebiedsaanwijzing
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
@@ -454,6 +458,9 @@ api:
         - resolver: upload_publication_act_package_report
           resolver_data:
             path: /report
+    - prefix: /publication-act-packages/{version_uuid}/validate
+      endpoints:
+        - resolver: validate_publication_act_package
     - prefix: /publication-act-reports
       endpoints:
         - resolver: list_publication_act_package_reports
@@ -587,6 +594,13 @@ columns:
     serializers: []
     deserializers: []
     nullable: true
+  # Target codes (gebied, gebieden for gebiedsaanwijzingen)
+  target_codes:
+    name: Target_Codes
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
   # Area_UUID used to store reference to the shape
   area_uuid:
     name: Area_UUID
@@ -699,6 +713,18 @@ columns:
     type: object_code
     type_data:
       relation_field: Gebiedengroep_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  ref_type:
+    name: Ref_Type
+    type: str
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  ref_group:
+    name: Ref_Group
+    type: str
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true

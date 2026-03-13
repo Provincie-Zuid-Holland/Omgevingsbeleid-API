@@ -4,6 +4,7 @@ from typing import Annotated, Any, Dict, List, Optional
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
+from pydantic_core import ErrorDetails
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
@@ -30,7 +31,7 @@ class PublicationVersionEdit(BaseModel):
 
 
 class PublicationVersionEditResponse(BaseModel):
-    Errors: List[dict]
+    Errors: List[ErrorDetails]
     Is_Valid: bool
 
 
@@ -67,7 +68,7 @@ def post_edit_version_endpoint(
     session.commit()
     session.flush()
 
-    errors: List[dict] = validator.get_errors(version)
+    errors: List[ErrorDetails] = validator.get_errors(version)
     is_valid: bool = len(errors) == 0
 
     return PublicationVersionEditResponse(

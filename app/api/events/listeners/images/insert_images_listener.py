@@ -1,5 +1,6 @@
+import json
 import re
-from typing import Generic, List, Optional, Set, TypeVar
+from typing import Dict, Generic, List, Optional, Set, TypeVar
 from uuid import UUID
 
 from bs4 import BeautifulSoup
@@ -53,7 +54,14 @@ class HtmlImagesInserter:
                     if not asset:
                         continue
 
-                    img["src"] = asset.Content
+                    content: str = asset.Content
+                    # @note: We have some invalid entries in the database where the data:image prefix is not present
+                    if content[0:10] != "data:image":
+                        meta: Dict[str, str] = json.loads(asset.Meta)
+                        mime_type = meta.get("ext", "png").lower()
+                        content = f"data:image/{mime_type};base64,{content}"
+
+                    img["src"] = content
 
                 setattr(row, field_name, str(soup))
 
