@@ -99,7 +99,7 @@ fields:
     type: str
     column: ref_group
   target_codes:
-    name: TargetCodes
+    name: Target_Codes
     type: list_str
     column: target_codes
     validators:
