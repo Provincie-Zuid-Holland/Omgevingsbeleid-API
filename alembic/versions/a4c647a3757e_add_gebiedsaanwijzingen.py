@@ -25,18 +25,18 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column('module_objects', sa.Column('Gebiedsaanwijzing_Type', sa.Unicode(), nullable=True))
-    op.add_column('objects', sa.Column('Gebiedsaanwijzing_Type', sa.Unicode(), nullable=True))
-    op.add_column('module_objects', sa.Column('Gebiedsaanwijzing_Groep', sa.Unicode(), nullable=True))
-    op.add_column('objects', sa.Column('Gebiedsaanwijzing_Groep', sa.Unicode(), nullable=True))
+    op.add_column('module_objects', sa.Column('Ref_Type', sa.Unicode(), nullable=True))
+    op.add_column('objects', sa.Column('Ref_Type', sa.Unicode(), nullable=True))
+    op.add_column('module_objects', sa.Column('Ref_Group', sa.Unicode(), nullable=True))
+    op.add_column('objects', sa.Column('Ref_Group', sa.Unicode(), nullable=True))
     op.add_column('module_objects', sa.Column('Target_Codes', sa.JSON(), nullable=True))
     op.add_column('objects', sa.Column('Target_Codes', sa.JSON(), nullable=True))
 
 
 def downgrade() -> None:
-    op.drop_column('objects', 'Gebiedsaanwijzing_Type')
-    op.drop_column('module_objects', 'Gebiedsaanwijzing_Type')
-    op.drop_column('objects', 'Gebiedsaanwijzing_Groep')
-    op.drop_column('module_objects', 'Gebiedsaanwijzing_Groep')
+    op.drop_column('objects', 'Ref_Type')
+    op.drop_column('module_objects', 'Ref_Type')
+    op.drop_column('objects', 'Ref_Group')
+    op.drop_column('module_objects', 'Ref_Group')
     op.drop_column('objects', 'Target_Codes')
     op.drop_column('module_objects', 'Target_Codes')

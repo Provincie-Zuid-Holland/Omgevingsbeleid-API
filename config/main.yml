@@ -698,14 +698,14 @@ columns:
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
-  gebiedsaanwijzing_type:
-    name: Gebiedsaanwijzing_Type
+  ref_type:
+    name: Ref_Type
     type: str
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
-  gebiedsaanwijzing_groep:
-    name: Gebiedsaanwijzing_Groep
+  ref_group:
+    name: Ref_Group
     type: str
     serializers: ["optional_str"]
     deserializers: ["optional_str"]

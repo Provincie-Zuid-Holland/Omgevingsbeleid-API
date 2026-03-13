@@ -90,14 +90,14 @@ fields:
     name: Title
     type: str
     column: title
-  gebiedsaanwijzing_type:
-    name: GebiedsaanwijzingType
+  ref_type:
+    name: Ref_Type
     type: str
-    column: gebiedsaanwijzing_type
-  gebiedsaanwijzing_groep:
-    name: GebiedsaanwijzingGroep
+    column: ref_type
+  ref_group:
+    name: Ref_Group
     type: str
-    column: gebiedsaanwijzing_groep
+    column: ref_group
   target_codes:
     name: TargetCodes
     type: list_str
@@ -147,8 +147,8 @@ models:
       created_date:
       modified_date:
       title:
-      gebiedsaanwijzing_type:
-      gebiedsaanwijzing_groep:
+      ref_type:
+      ref_group:
       target_codes:
       start_validity:
       end_validity:
@@ -177,8 +177,8 @@ models:
       created_date:
       modified_date:
       title:
-      gebiedsaanwijzing_type:
-      gebiedsaanwijzing_groep:
+      ref_type:
+      ref_group:
       target_codes:
       start_validity:
       end_validity:
