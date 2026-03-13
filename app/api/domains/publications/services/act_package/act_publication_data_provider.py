@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 
 from app.api.domains.publications.services.act_package.publication_gebieden_provider import (
     GebiedenData,
@@ -71,11 +71,11 @@ class ActPublicationDataProvider:
         used_objects: List[dict] = self._get_used_objects(objects, used_object_codes)
         assets: List[dict] = self._publication_asset_provider.get_assets(session, used_objects)
 
-        # The gebiedsaanwijzingen service mutates the objects therefor we get the used objects back
-        gebiedsaanwijzingen: List[GebiedsaanwijzingData] = []
-        used_objects, gebiedsaanwijzingen = self._publication_gebiedsaanwijzingen_provider.get_gebiedsaanwijzingen(
-            objects,
-            used_objects,
+        gebiedsaanwijzingen: Dict[str, GebiedsaanwijzingData] = (
+            self._publication_gebiedsaanwijzingen_provider.get_gebiedsaanwijzingen(
+                objects,
+                used_objects,
+            )
         )
         gebieden_data: GebiedenData = self._publication_gebieden_provider.get_gebieden_data(
             objects,
@@ -115,7 +115,7 @@ class ActPublicationDataProvider:
     def _get_used_object_codes(self, text_template: str) -> Set[str]:
         soup = BeautifulSoup(text_template, "html.parser")
         objects = soup.find_all("object")
-        codes: List[str] = [obj.get("code") for obj in objects if obj.get("code")]
+        codes: List[str] = [str(obj.get("code")) for obj in objects if obj.get("code")]
         result: Set[str] = set(codes)
         return result
 
