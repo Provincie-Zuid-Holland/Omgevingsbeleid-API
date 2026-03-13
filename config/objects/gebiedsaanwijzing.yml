@@ -1,0 +1,239 @@
+id: gebiedsaanwijzing
+object_type: gebiedsaanwijzing
+
+sort_allowed_columns: &sort_allowed_columns
+  - Object_ID
+  - Title
+  - Modified_Date
+
+sort_default_title: &sort_default_title
+  default:
+    column: Title
+    order: asc
+  allowed_columns: *sort_allowed_columns
+
+sort_default_modified_date: &sort_default_modified_date
+  default:
+    column: Modified_Date
+    order: desc
+  allowed_columns: *sort_allowed_columns
+
+api:
+  routers:
+    - prefix: /gebiedsaanwijzingen
+      endpoints:
+        - resolver: valid_list_lineages
+          resolver_data:
+            path: /valid
+            response_model: gebiedsaanwijzing_basic
+            allowed_filter_columns:
+              - Title
+            sort: *sort_default_title
+        - resolver: valid_list_lineage_tree
+          resolver_data:
+            path: /valid/{lineage_id}
+            response_model: gebiedsaanwijzing_basic
+            allowed_filter_columns:
+              - Title
+            sort: *sort_default_modified_date
+        - resolver: object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: gebiedsaanwijzing_full
+        - resolver: object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: gebiedsaanwijzing_full
+    - prefix: /gebiedsaanwijzing/static/{lineage_id}
+      endpoints:
+        - resolver: edit_object_static
+          resolver_data:
+            request_model: gebiedsaanwijzing_static_post
+            result_model: gebiedsaanwijzing_static_post_validated
+    - prefix: /modules/{module_id}/object/gebiedsaanwijzing
+      endpoints:
+        - resolver: module_patch_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: gebiedsaanwijzing_patch
+            response_model: gebiedsaanwijzing_uuid
+        - resolver: module_list_lineage_tree
+          resolver_data:
+            path: /{lineage_id}
+            response_model: gebiedsaanwijzing_extended
+            allowed_filter_columns:
+              - Title
+            sort: *sort_default_modified_date
+        - resolver: module_object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: gebiedsaanwijzing_full
+        - resolver: module_object_version
+          resolver_data:
+            path: /version/{object_uuid}
+            response_model: gebiedsaanwijzing_full
+    - prefix: /modules/object/gebiedsaanwijzing
+      endpoints:
+        - resolver: list_active_module_objects
+          resolver_data:
+            path: /active/{lineage_id}
+    - prefix: /revisions/{module_id}/gebiedsaanwijzing/version/{object_uuid}
+      endpoints:
+        - resolver: module_object_version
+          resolver_data:
+            response_model: gebiedsaanwijzing_full
+            minimum_status: 'Ontwerp GS Concept'
+            require_auth: False
+
+fields:
+  title:
+    name: Title
+    type: str
+    column: title
+  gebiedsaanwijzing_type:
+    name: GebiedsaanwijzingType
+    type: str
+    column: gebiedsaanwijzing_type
+  gebiedsaanwijzing_groep:
+    name: GebiedsaanwijzingGroep
+    type: str
+    column: gebiedsaanwijzing_groep
+  target_codes:
+    name: TargetCodes
+    type: list_str
+    column: target_codes
+    validators:
+      - id: none_to_default_value
+
+  # Statics
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    column: owner_1_uuid
+    optional: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    column: owner_2_uuid
+    optional: true
+
+models:
+  gebiedsaanwijzing_minimal:
+    name: GebiedsaanwijzingMinimal
+    fields:
+      object_type:
+      object_id:
+      uuid:
+      title:
+  gebiedsaanwijzing_basic:
+    name: GebiedsaanwijzingBasic
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      start_validity:
+      end_validity:
+  gebiedsaanwijzing_extended:
+    name: GebiedsaanwijzingExtended
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      gebiedsaanwijzing_type:
+      gebiedsaanwijzing_groep:
+      target_codes:
+      start_validity:
+      end_validity:
+    dependency_model_ids:
+      - user_short
+    services:
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: user_short
+          - to_field: Modified_By
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+  gebiedsaanwijzing_full:
+    name: GebiedsaanwijzingFull
+    fields:
+      object_id:
+      code:
+      uuid:
+      adjust_on:
+      created_date:
+      modified_date:
+      title:
+      gebiedsaanwijzing_type:
+      gebiedsaanwijzing_groep:
+      target_codes:
+      start_validity:
+      end_validity:
+    dependency_model_ids:
+      - user_short
+    services:
+      join_gebieden:
+        to_field: Gebieden_Statics
+        from_field: Gebieden
+      foreign_keys_extender:
+        fields_map:
+          - to_field: Created_By
+            model_id: user_short
+          - to_field: Modified_By
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+  gebiedsaanwijzing_patch:
+    name: GebiedsaanwijzingPatch
+    fields:
+      title:
+        default: none
+        optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+  gebiedsaanwijzing_static_post:
+    name: GebiedsaanwijzingStaticPost
+    static_only: true
+    fields:
+      owner_1_uuid:
+      owner_2_uuid:
+  gebiedsaanwijzing_static_post_validated:
+    name: GebiedsaanwijzingStaticPostValidated
+    static_only: true
+    model_validators:
+      - id: not_equal_root
+        data:
+          fields:
+            - Owner_1_UUID
+            - Owner_2_UUID
+          allow_none: True
+          error_message: Owners should vary
+    fields:
+      owner_1_uuid:
+      owner_2_uuid:
+  gebiedsaanwijzing_uuid:
+    name: GebiedsaanwijzingUUID
+    fields:
+      object_id:
+      uuid:
