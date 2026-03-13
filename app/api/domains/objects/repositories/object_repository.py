@@ -174,7 +174,8 @@ class ObjectRepository(BaseRepository):
             subq = subq.filter(and_(*filters))
 
         subq = subq.subquery()
-        stmt = select(aliased(ObjectsTable, subq)).filter(subq.c._RowNumber == 1)
+        aliased_objects = aliased(ObjectsTable, subq)
+        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1)
 
         return self.fetch_paginated(
             session=session,
