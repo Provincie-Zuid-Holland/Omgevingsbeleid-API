@@ -311,7 +311,9 @@ class AreaOfJurisdictionRefCheckRule(ValidateModuleRule):
                             object_type=object_table.Object_Type,
                             title=object_table.Title,
                         ),
-                        messages=[f"Ref group '{object_table.Ref_Group}' for ref type '{object_table.Ref_Type}' not found"],
+                        messages=[
+                            f"Ref group '{object_table.Ref_Group}' for ref type '{object_table.Ref_Type}' not found"
+                        ],
                     )
                 )
 
