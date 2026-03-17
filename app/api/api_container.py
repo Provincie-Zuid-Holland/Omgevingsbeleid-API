@@ -180,6 +180,10 @@ class ApiContainer(containers.DeclarativeContainer):
         models_provider=models_provider,
     )
 
+    dso_gebiedsaanwijzingen_factory = providers.Factory(
+        dso.GebiedsaanwijzingenFactory,
+    )
+
     validate_module_service = providers.Singleton(
         module_services.ValidateModuleService,
         rules=providers.List(
@@ -198,6 +202,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Singleton(
                 module_services.ForbidEmptyHtmlNodesRule,
                 main_config=main_config,
+            ),
+            providers.Singleton(
+                module_services.AreaOfJurisdictionRefCheckRule,
+                dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
         ),
     )
@@ -326,8 +334,4 @@ class ApiContainer(containers.DeclarativeContainer):
     event_manager = providers.Singleton(
         event_manager.EventManager,
         event_listeners=event_listeners,
-    )
-
-    dso_gebiedsaanwijzingen_factory = providers.Factory(
-        dso.GebiedsaanwijzingenFactory,
     )

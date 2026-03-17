@@ -4,6 +4,9 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Type, Set
 
 from bs4 import BeautifulSoup
+from dso import GebiedsaanwijzingenFactory
+from dso.models import DocumentType
+from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
 from pydantic import BaseModel, Field, PrivateAttr, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
@@ -267,3 +270,49 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
             and not any(child.name for child in tag.children)
         ]
         return bool(empty_tags)
+
+
+class AreaOfJurisdictionRefCheckRule(ValidateModuleRule):
+    def __init__(self, dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
+        self._dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = dso_gebiedsaanwijzingen_factory
+
+    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
+        errors: List[ValidateModuleError] = []
+        gebiedsaanwijzingen = self._dso_gebiedsaanwijzingen_factory.get_for_document(DocumentType.OMGEVINGSVISIE)
+
+        for object_table in request.module_objects:
+            if object_table.Object_Type != "gebiedsaanwijzing":
+                continue
+
+            ref_type: Optional[Gebiedsaanwijzing] = gebiedsaanwijzingen.get_by_type_label(object_table.Ref_Type)
+            if ref_type is None:
+                errors.append(
+                    ValidateModuleError(
+                        rule="area_of_jurisdiction_check_ref_rule",
+                        object=ValidateModuleObject(
+                            code=object_table.Code,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
+                        messages=[f"Ref type '{object_table.Ref_Type}' for gebiedsaanwijzing not found"],
+                    )
+                )
+                continue
+
+            ref_group: Optional[GebiedsaanwijzingWaarde] = ref_type.get_value_by_label(object_table.Ref_Group)
+            if ref_group is None:
+                errors.append(
+                    ValidateModuleError(
+                        rule="area_of_jurisdiction_check_ref_rule",
+                        object=ValidateModuleObject(
+                            code=object_table.Code,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
+                        messages=[f"Ref group '{object_table.Ref_Group}' for ref type '{object_table.Ref_Type}' not found"],
+                    )
+                )
+
+        return errors

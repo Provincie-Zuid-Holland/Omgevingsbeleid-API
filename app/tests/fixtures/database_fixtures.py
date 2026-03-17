@@ -444,6 +444,14 @@ class DatabaseFixtures:
 
         self._session.add(
             ObjectStaticsTable(
+                Object_Type="gebied",
+                Object_ID=1,
+                Code="gebied-1",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
+            )
+        )
+        self._session.add(
+            ObjectStaticsTable(
                 Object_Type="gebiedengroep",
                 Object_ID=1,
                 Code="gebiedengroep-1",
@@ -455,6 +463,14 @@ class DatabaseFixtures:
                 Object_Type="werkingsgebied",
                 Object_ID=1,
                 Code="werkingsgebied-1",
+                Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
+            )
+        )
+        self._session.add(
+            ObjectStaticsTable(
+                Object_Type="gebiedsaanwijzing",
+                Object_ID=1,
+                Code="gebiedsaanwijzing-1",
                 Owner_1_UUID=uuid.UUID("11111111-0000-0000-0000-000000000002"),
             )
         )
@@ -1072,6 +1088,25 @@ class DatabaseFixtures:
         )
         self._session.commit()
 
+        # Gebied
+        self._session.add(
+            ModuleObjectContextTable(
+                Module_ID=module.Module_ID,
+                Object_Type="gebied",
+                Object_ID=1,
+                Code="gebied-1",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Original_Adjust_On=None,
+                Action=ModuleObjectActionFull.Create,
+                Explanation="Deze wil ik toevoegen",
+                Conclusion="Geen conclusie",
+            )
+        )
+        self._session.commit()
+
         # Gebiedengroep
         self._session.add(
             ModuleObjectContextTable(
@@ -1098,6 +1133,44 @@ class DatabaseFixtures:
                 Code="gebiedengroep-1",
                 UUID=uuid.UUID("00000000-0000-0008-0000-000000000001"),
                 Title="Titel van de eerste gebiedengroep",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Gebieden=["gebied-1"],
+            )
+        )
+        self._session.commit()
+
+        # Gebiedsaanwijzing
+        self._session.add(
+            ModuleObjectContextTable(
+                Module_ID=module.Module_ID,
+                Object_Type="gebiedsaanwijzing",
+                Object_ID=1,
+                Code="gebiedsaanwijzing-1",
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Original_Adjust_On=None,
+                Action=ModuleObjectActionFull.Create,
+                Explanation="Deze wil ik toevoegen",
+                Conclusion="Geen conclusie",
+            )
+        )
+        self._session.commit()
+        self._session.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="gebiedsaanwijzing",
+                Object_ID=1,
+                Code="gebiedsaanwijzing-1",
+                UUID=uuid.UUID("00000000-0000-0009-0000-000000000001"),
+                Title="Titel van de eerste gebiedsaanwijzing",
+                Ref_Type="bodem",
+                Ref_Group="bodembeheergebied",
+                Target_Codes=["gebied-1", "gebiedengroep-1"],
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
