@@ -166,13 +166,6 @@ class PatchGebiedengroepInputGeoService:
         if existing_area:
             return existing_area.UUID
 
-        existing_area = self._area_repository.get_by_source_hash(
-            self._session,
-            onderverdeling.Geometry_Hash,
-        )
-        if existing_area:
-            return existing_area.UUID
-
         area_uuid: uuid.UUID = uuid.uuid4()
         self._area_geometry_repository.create_area(
             self._session,
