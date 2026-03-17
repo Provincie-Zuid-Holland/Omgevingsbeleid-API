@@ -1,21 +1,41 @@
 import uuid
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Generic, Dict
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends
+from fastapi import Depends, Query, HTTPException
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
+from starlette import status
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
-from app.api.domains.modules.types import GenericObjectShort
+from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
+from app.api.domains.modules.types import ObjectStaticShort
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
+from app.api.domains.others.types import TModel
 from app.api.endpoint import BaseEndpointContext
-from app.api.utils.pagination import OptionalSortedPagination, OrderConfig, PagedResponse, Sort, SortedPagination
+from app.api.utils.pagination import (
+    OptionalSortedPagination,
+    OrderConfig,
+    PagedResponse,
+    Sort,
+    SortedPagination,
+    PaginatedQueryResult,
+)
+
+
+class ObjectListAllLatestResponse(BaseModel, Generic[TModel]):
+    Object_Type: str
+    ObjectStatics: ObjectStaticShort
+    Model: TModel
+
+    model_config = ConfigDict(from_attributes=True, title="ModuleObjectsResponse")
 
 
 class ObjectListAllLatestEndpointContext(BaseEndpointContext):
-    object_type: str
+    allowed_object_types: List[str]
     order_config: OrderConfig
+    model_map: Dict[str, str]
 
 
 @inject
@@ -24,24 +44,38 @@ def do_list_all_latest_endpoint(
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ObjectListAllLatestEndpointContext, Depends()],
+    module_objects_to_models_parser: Annotated[
+        ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
+    ],
+    object_types: Annotated[List[str], Query(alias="object_types")] = [],
     owner_uuid: Optional[uuid.UUID] = None,
-    object_type: Optional[str] = None,
-) -> PagedResponse[GenericObjectShort]:
+) -> PagedResponse[ObjectListAllLatestResponse[BaseModel]]:
+    for object_type in object_types:
+        if object_type not in context.allowed_object_types:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                f"Invalid object type, accepted object types are: {context.allowed_object_types}",
+            )
+
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    paged_result = object_repository.get_latest_filtered(
-        session=session,
-        pagination=pagination,
-        owner_uuid=owner_uuid,
-        object_type=object_type,
+    paginated_result: PaginatedQueryResult = object_repository.get_latest_filtered(
+        session=session, pagination=pagination, owner_uuid=owner_uuid, object_types=object_types
     )
+    objects: List[ObjectListAllLatestResponse[BaseModel]] = []
+    for object_current in paginated_result.items:
+        parsed_model: BaseModel = module_objects_to_models_parser.parse(object_current, context.model_map)
+        object_response = ObjectListAllLatestResponse(
+            Object_Type=object_current.Object_Type,
+            ObjectStatics=object_current.ObjectStatics,
+            Model=parsed_model,
+        )
+        objects.append(object_response)
 
-    rows: List[GenericObjectShort] = [GenericObjectShort.model_validate(r) for r in paged_result.items]
-
-    return PagedResponse[GenericObjectShort](
-        total=paged_result.total_count,
+    return PagedResponse[ObjectListAllLatestResponse[BaseModel]](
+        total=paginated_result.total_count,
         limit=pagination.limit,
         offset=pagination.offset,
-        results=rows,
+        results=objects,
     )

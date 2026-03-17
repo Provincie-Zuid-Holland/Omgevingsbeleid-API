@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Type, Set
 
 from bs4 import BeautifulSoup
-from pydantic import BaseModel, Field, ValidationError, computed_field, ConfigDict
+from pydantic import BaseModel, Field, PrivateAttr, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
@@ -39,7 +39,7 @@ class ValidateModuleRequest(BaseModel):
     module_id: int
     module_objects: List[ModuleObjectsTable]
 
-    _module_object_lookup: Dict[str, ModuleObjectsTable]
+    _module_object_lookup: Dict[str, ModuleObjectsTable] = PrivateAttr(default_factory=dict)
 
     def model_post_init(self, context: Any) -> None:
         self._module_object_lookup = {module_object.Code: module_object for module_object in self.module_objects}

@@ -471,3 +471,20 @@ class GebiedsaanwijzingValidator(Validator):
             mode="after",
             func=pydantic_validator_gebiedsaanwijzing_in_text,
         )
+
+
+class NotEmptyValidator(Validator):
+    def get_id(self) -> str:
+        return "not_empty"
+
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        def pydantic_not_empty_validator(cls, value, info: ValidationInfo):
+            if not value:
+                raise ValueError("Missing required value")
+
+            return value
+
+        return PydanticValidator(
+            mode="before",
+            func=pydantic_not_empty_validator,
+        )

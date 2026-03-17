@@ -15,6 +15,7 @@ from app.api.domains.publications.services.validate_publication_service import (
     UsedObjectsInPublicationExistInTemplateRule,
     UsedObjectTypeExistsRule,
     UsedObjectInPublicationExistsRule,
+    GebiedengroepHasGiosRule,
 )
 
 
@@ -162,6 +163,7 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Singleton(UsedObjectTypeExistsRule),
             providers.Singleton(ReferencedGebiedengroepCodeExistsRule),
             providers.Singleton(UsedObjectInPublicationExistsRule),
+            providers.Singleton(GebiedengroepHasGiosRule),
         ),
     )
 
