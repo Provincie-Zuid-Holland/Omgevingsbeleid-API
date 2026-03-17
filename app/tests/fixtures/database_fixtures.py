@@ -48,6 +48,7 @@ class DatabaseFixtures:
         self._geometry_repository: GeometryRepository = geometry_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
         self._security: Security = security
+        self._default_gml: str = """<gml:Surface xmlns:gml="http://www.opengis.net/gml/3.2" gml:id="id-1191eed9-d9ab-4184-a6a1-056c13752390-1" srsName="urn:ogc:def:crs:EPSG::28992"  srsDimension="2"><gml:patches><gml:PolygonPatch><gml:exterior><gml:LinearRing><gml:posList>74567.348 443493.919 74700.326 444274.743 74567.347600001842 443493.918</gml:posList></gml:LinearRing></gml:exterior></gml:PolygonPatch></gml:patches></gml:Surface>"""
 
     def truncate_all(self):
         self._session.execute(text(f"DELETE FROM {Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc.name}"))
@@ -94,6 +95,7 @@ class DatabaseFixtures:
     def create_all(self):
         self.create_users()
         self.create_geo_input()
+        self.create_areas()
         self.create_storage_files()
         self.create_assets()
         self.create_object_statics()
@@ -220,7 +222,6 @@ class DatabaseFixtures:
                 74567.3476 443493.9189
             ))"""
         default_hash: str = "fake-hash"
-        default_gml: str = """<gml:Surface xmlns:gml="http://www.opengis.net/gml/3.2" gml:id="id-1191eed9-d9ab-4184-a6a1-056c13752390-1" srsName="urn:ogc:def:crs:EPSG::28992"  srsDimension="2"><gml:patches><gml:PolygonPatch><gml:exterior><gml:LinearRing><gml:posList>74567.348 443493.919 74700.326 444274.743 74567.347600001842 443493.918</gml:posList></gml:LinearRing></gml:exterior></gml:PolygonPatch></gml:patches></gml:Surface>"""
 
         # Version 1
         o_grasveld_1_a = InputGeoOnderverdelingenTable(
@@ -228,7 +229,7 @@ class DatabaseFixtures:
             Title="Grasveld A",
             Created_Date=datetime(2025, 1, 1, 0, 0, 0),
             Geometry_Hash=default_hash + "-1",
-            GML=default_gml,
+            GML=self._default_gml,
         )
         self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_a, default_geometry)
 
@@ -237,7 +238,7 @@ class DatabaseFixtures:
             Title="Grasveld B",
             Created_Date=datetime(2025, 1, 1, 0, 0, 0),
             Geometry_Hash=default_hash + "-2",
-            GML=default_gml,
+            GML=self._default_gml,
         )
         self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_b, default_geometry)
 
@@ -246,7 +247,7 @@ class DatabaseFixtures:
             Title="Grasveld C",
             Created_Date=datetime(2025, 2, 1, 0, 0, 0),
             Geometry_Hash=default_hash + "-3",
-            GML=default_gml,
+            GML=self._default_gml,
         )
         self._geometry_repository.create_onderverdeling(self._session, o_grasveld_1_c, default_geometry)
 
@@ -255,8 +256,8 @@ class DatabaseFixtures:
             UUID=uuid.UUID("00000600-0000-0000-0000-100000000011"),
             Title="Grasveld A",
             Created_Date=datetime(2025, 2, 1, 0, 0, 0),
-            Geometry_Hash=default_hash,
-            GML=default_gml,
+            Geometry_Hash=default_hash + "-4",
+            GML=self._default_gml,
         )
         self._geometry_repository.create_onderverdeling(self._session, o_grasveld_2_a, default_geometry)
 
@@ -264,8 +265,8 @@ class DatabaseFixtures:
             UUID=uuid.UUID("00000600-0000-0000-0000-100000000012"),
             Title="Grasveld D",
             Created_Date=datetime(2025, 2, 1, 0, 0, 0),
-            Geometry_Hash=default_hash + "-4",
-            GML=default_gml,
+            Geometry_Hash=default_hash + "-5",
+            GML=self._default_gml,
         )
         self._geometry_repository.create_onderverdeling(self._session, o_grasveld_2_d, default_geometry)
 
@@ -294,6 +295,21 @@ class DatabaseFixtures:
         )
         self._session.add(w_grasvelden_v2)
         self._session.commit()
+
+    def create_areas(self):
+        self._session.add(
+            AreasTable(
+                UUID=uuid.UUID("11111111-0000-0011-0000-000000000001"),
+                Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Gml=self._default_gml,
+                Source_UUID=uuid.UUID("00000600-0000-0000-0000-100000000011"),
+                Source_Title="Grasveld A",
+                Source_Start_Validity=datetime(2025, 1, 1, 0, 0, 0),
+                Source_Created_Date=datetime(2025, 1, 1, 0, 0, 0),
+                Source_Geometry_Hash="fake-hash-4",
+            )
+        )
 
     def create_storage_files(self):
         with open("./app/tests/fixtures/files/document-1.pdf", "rb") as file:
@@ -1079,7 +1095,7 @@ class DatabaseFixtures:
                 Object_ID=1,
                 Code="werkingsgebied-1",
                 UUID=uuid.UUID("00000000-0000-0005-0000-000000000001"),
-                Title="Titel van de eerste werkingsgbied",
+                Title="Titel van het eerste werkingsgebied",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
@@ -1103,6 +1119,22 @@ class DatabaseFixtures:
                 Action=ModuleObjectActionFull.Create,
                 Explanation="Deze wil ik toevoegen",
                 Conclusion="Geen conclusie",
+            )
+        )
+        self._session.commit()
+        self._session.add(
+            ModuleObjectsTable(
+                Module_ID=module.Module_ID,
+                Object_Type="gebied",
+                Object_ID=1,
+                Code="gebied-1",
+                UUID=uuid.UUID("00000000-0000-0008-0000-000000000001"),
+                Title="Titel van het eerste gebied",
+                Area_UUID=uuid.UUID("11111111-0000-0011-0000-000000000001"),
+                Created_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
+                Created_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
+                Modified_By_UUID=uuid.UUID("11111111-0000-0000-0000-000000000001"),
             )
         )
         self._session.commit()
@@ -1131,7 +1163,7 @@ class DatabaseFixtures:
                 Object_Type="gebiedengroep",
                 Object_ID=1,
                 Code="gebiedengroep-1",
-                UUID=uuid.UUID("00000000-0000-0008-0000-000000000001"),
+                UUID=uuid.UUID("00000000-0000-0009-0000-000000000001"),
                 Title="Titel van de eerste gebiedengroep",
                 Created_Date=datetime(2023, 2, 2, 3, 3, 3),
                 Modified_Date=datetime(2023, 2, 2, 3, 3, 3),
@@ -1166,7 +1198,7 @@ class DatabaseFixtures:
                 Object_Type="gebiedsaanwijzing",
                 Object_ID=1,
                 Code="gebiedsaanwijzing-1",
-                UUID=uuid.UUID("00000000-0000-0009-0000-000000000001"),
+                UUID=uuid.UUID("00000000-0000-0010-0000-000000000001"),
                 Title="Titel van de eerste gebiedsaanwijzing",
                 Ref_Type="bodem",
                 Ref_Group="bodembeheergebied",

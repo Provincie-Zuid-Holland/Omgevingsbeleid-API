@@ -272,7 +272,7 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
         return bool(empty_tags)
 
 
-class AreaOfJurisdictionRefCheckRule(ValidateModuleRule):
+class AreaDesignationRefCheckRule(ValidateModuleRule):
     def __init__(self, dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
         self._dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = dso_gebiedsaanwijzingen_factory
 
@@ -288,14 +288,14 @@ class AreaOfJurisdictionRefCheckRule(ValidateModuleRule):
             if ref_type is None:
                 errors.append(
                     ValidateModuleError(
-                        rule="area_of_jurisdiction_check_ref_rule",
+                        rule="area_designation_check_ref_rule",
                         object=ValidateModuleObject(
                             code=object_table.Code,
                             object_id=object_table.Object_ID,
                             object_type=object_table.Object_Type,
                             title=object_table.Title,
                         ),
-                        messages=[f"Ref type '{object_table.Ref_Type}' for gebiedsaanwijzing not found"],
+                        messages=[f"GebiedsaanwijzingType '{object_table.Ref_Type}' for gebiedsaanwijzing not found"],
                     )
                 )
                 continue
@@ -304,7 +304,7 @@ class AreaOfJurisdictionRefCheckRule(ValidateModuleRule):
             if ref_group is None:
                 errors.append(
                     ValidateModuleError(
-                        rule="area_of_jurisdiction_check_ref_rule",
+                        rule="area_designation_check_ref_rule",
                         object=ValidateModuleObject(
                             code=object_table.Code,
                             object_id=object_table.Object_ID,
@@ -312,7 +312,7 @@ class AreaOfJurisdictionRefCheckRule(ValidateModuleRule):
                             title=object_table.Title,
                         ),
                         messages=[
-                            f"Ref group '{object_table.Ref_Group}' for ref type '{object_table.Ref_Type}' not found"
+                            f"GebiedsaanwijzingGroep '{object_table.Ref_Group}' for GebiedsaanwijzingType '{object_table.Ref_Type}' not found"
                         ],
                     )
                 )

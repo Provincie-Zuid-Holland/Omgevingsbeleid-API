@@ -204,7 +204,7 @@ class ApiContainer(containers.DeclarativeContainer):
                 main_config=main_config,
             ),
             providers.Singleton(
-                module_services.AreaOfJurisdictionRefCheckRule,
+                module_services.AreaDesignationRefCheckRule,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
         ),
