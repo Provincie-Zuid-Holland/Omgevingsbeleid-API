@@ -38,7 +38,9 @@ required_object_fields_rule:
   maatregel: maatregel_module_validate
   programma_algemeen: programma_module_validate
   visie_algemeen: visie_algemeen_module_validate
+  gebied: gebied_module_validate
   gebiedengroep: gebiedengroep_module_validate
+  gebiedsaanwijzing: gebiedsaanwijzing_module_validate
 
 publication_required_object_fields_rule:
   omgevingsvisie:
