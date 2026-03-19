@@ -54,16 +54,14 @@ class Security:
             return False
         if hashed_password is None:
             return False
-        
-        passwords = dict.fromkeys(
-            [
-                plain_password,
-                plain_password.rstrip(),
-                plain_password.lstrip(),
-                plain_password.strip(),
-            ]
-        )
-        return any(self._pwd_context.verify(p, hashed_password) for p in passwords)
+
+        variants = {
+            plain_password,
+            plain_password.strip(),
+            plain_password.lstrip(),
+            plain_password.rstrip(),
+        }
+        return any(self._pwd_context.verify(p, hashed_password) for p in variants)
 
     def get_password_hash(self, password: str) -> str:
         return self._pwd_context.hash(password)
