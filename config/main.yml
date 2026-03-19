@@ -53,6 +53,7 @@ publication_required_object_fields_rule:
     document: document_module_validate
     maatregel: maatregel_module_validate
     programma_algemeen: programma_module_validate
+    beleidsdoel: beleidsdoel_module_validate
 
 forbid_empty_html_nodes_rule:
   fields:
