@@ -1,6 +1,6 @@
 import hashlib
 from datetime import datetime, timezone
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 
 
 from app.api.domains.publications.services.act_package.publication_gebieden_provider import GebiedenData, InputGebied
@@ -37,7 +37,7 @@ class PublicationGiosProvider:
     def resolve_geo(
         self,
         gebieden_data: GebiedenData,
-        gebiedsaanwijzingen: List[GebiedsaanwijzingData],
+        gebiedsaanwijzingen: Dict[str, GebiedsaanwijzingData],
     ) -> PublicationGeoData:
         self._resolve_gebiedengroepen(gebieden_data)
         self._resolve_gebiedsaanwijzingen(gebieden_data, gebiedsaanwijzingen)
@@ -81,7 +81,7 @@ class PublicationGiosProvider:
     def _resolve_gebiedsaanwijzingen(
         self,
         gebieden_data: GebiedenData,
-        gebiedsaanwijzingen: List[GebiedsaanwijzingData],
+        gebiedsaanwijzingen: Dict[str, GebiedsaanwijzingData],
     ):
         for input_aanwijzing in gebiedsaanwijzingen:
             # For gebiedsaanwijzing we must build 1 gio that has all the gebieden
@@ -249,7 +249,7 @@ class PublicationGiosProviderFactory:
         session: Session,
         act_frbr: ActFrbr,
         gebieden_data: GebiedenData,
-        gebiedsaanwijzingen: List[GebiedsaanwijzingData],
+        gebiedsaanwijzingen: Dict[str, GebiedsaanwijzingData],
     ) -> PublicationGeoData:
         service: PublicationGiosProvider = PublicationGiosProvider(
             session,

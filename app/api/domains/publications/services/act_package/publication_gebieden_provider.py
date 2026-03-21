@@ -44,7 +44,6 @@ class GebiedenData(BaseModel):
     # This is dragged along for Gebiedsaanwijzing
     # which might point to non used Gebieden
     all_gebieden: Dict[str, InputGebied]
-    used_gebieden: List[InputGebied]
     used_gebiedengroepen: List[InputGebiedengroep]
 
 
@@ -58,13 +57,10 @@ class PublicationGebiedenProvider:
             all_objects,
             used_objects,
         )
-        used_gebied_codes: Set[str] = self._extract_gebied_codes(used_gebiedengroep_objects)
         all_gebied_objects: Dict[str, InputGebied] = self._get_gebied_objects(all_objects)
-        used_gebied_objects: List[InputGebied] = [g for g in all_gebied_objects.values() if g.code in used_gebied_codes]
 
         return GebiedenData(
             all_gebieden=all_gebied_objects,
-            used_gebieden=used_gebied_objects,
             used_gebiedengroepen=used_gebiedengroep_objects,
         )
 
@@ -93,15 +89,6 @@ class PublicationGebiedenProvider:
             [o.get("Gebiedengroep_Code") for o in used_objects if o.get("Gebiedengroep_Code", None) is not None]
         )  # type: ignore
         return used_codes
-
-    def _extract_gebied_codes(
-        self,
-        gebiedengroep_objects: List[InputGebiedengroep],
-    ) -> Set[str]:
-        gebied_codes: Set[str] = set()
-        for groep in gebiedengroep_objects:
-            gebied_codes.update(groep.gebied_codes)
-        return gebied_codes
 
     def _get_gebied_objects(self, all_objects: List[dict]) -> Dict[str, InputGebied]:
         gebied_objects: List[dict] = [o for o in all_objects if o["Object_Type"] == "gebied"]
