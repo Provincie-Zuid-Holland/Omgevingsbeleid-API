@@ -1,14 +1,15 @@
 from dataclasses import dataclass
 from datetime import date
-from typing import Dict, List, Optional
+from typing import Annotated, Dict, List, Optional
 
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType, PurposeType
 from app.api.domains.publications.types.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
 from app.core.tables.publications import PublicationAnnouncementTable, PublicationVersionTable
 from typing import Set
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, GetPydanticSchema
 import dso.models as dso_models
+from pydantic_core import core_schema
 
 
 @dataclass
@@ -129,36 +130,37 @@ class PublicationGio(BaseModel):
         return "_".join(sorted(self.source_codes))
 
 
+class GioRef(BaseModel):
+    key: str
+    owned: bool
+
+    def is_owner(self) -> bool:
+        return self.owned
+
+
 class PublicationGebiedengroep(BaseModel):
     uuid: str
     code: str
     title: str
     source_gebieden_codes: Set[str]
-    gio_keys: Set[str]
+    gio_key: GioRef
 
     def key(self) -> str:
-        return "_".join(sorted(self.gio_keys))
+        return self.code
 
 
 class PublicationGebiedsaanwijzing(BaseModel):
-    uuid: str  # Used as a lookup key in DSO
+    code: str  # Used as a lookup key in DSO
     aanwijzing_type: str
     aanwijzing_group: str
     title: str  # Used everywhere except the inline html <a>{inline_title}</a>
     # Used to determine reuse and target to geo_gio
     source_target_codes: Set[str]
-    source_gebied_codes: Set[str]
-    gio_key: str
+    gebied_codes: Set[str]
+    gio_key: GioRef
 
     def key(self) -> str:
-        code_parts: str = "_".join(sorted(self.source_gebied_codes))
-        return "-".join(
-            [
-                code_parts,
-                self.aanwijzing_type,
-                self.aanwijzing_group,
-            ]
-        )
+        return self.code
 
 
 class PublicationGeoData(BaseModel):

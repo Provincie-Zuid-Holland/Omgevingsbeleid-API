@@ -157,6 +157,8 @@ class PublicationGebiedsaanwijzingProcessor:
         Example:
             input ['gebiedengroep-1', 'gebied-5']
             output ['gebied-1', 'gebied-2', 'gebied-5']
+
+            if gebiedengroep-1 has the following gebieden: ['gebied-1', 'gebied-2']
         """
         result: Set[str] = set()
 
