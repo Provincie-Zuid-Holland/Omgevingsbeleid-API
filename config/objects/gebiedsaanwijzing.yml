@@ -209,6 +209,18 @@ models:
               min: 3
               max: 200
           - id: plain_text
+      target_codes:
+        optional: false
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - gebied
+                - gebiedengroep
+          - id: object_codes_exists
+          - id: not_empty
+      ref_type:
+      ref_group:
   gebiedsaanwijzing_static_post:
     name: GebiedsaanwijzingStaticPost
     static_only: true
@@ -254,3 +266,5 @@ models:
                 - gebiedengroep
           - id: object_codes_exists
           - id: not_empty
+      ref_type:
+      ref_group:
