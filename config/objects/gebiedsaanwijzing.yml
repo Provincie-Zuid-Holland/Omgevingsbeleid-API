@@ -254,3 +254,5 @@ models:
                 - gebiedengroep
           - id: object_codes_exists
           - id: not_empty
+      ref_type:
+      ref_group:
