@@ -58,8 +58,6 @@ class Security:
         variants = {
             plain_password,
             plain_password.strip(),
-            plain_password.lstrip(),
-            plain_password.rstrip(),
         }
         return any(self._pwd_context.verify(p, hashed_password) for p in variants)
 
