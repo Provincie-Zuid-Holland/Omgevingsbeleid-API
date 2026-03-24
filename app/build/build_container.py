@@ -90,6 +90,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(generate_table_event_listeners.AddUserRelationshipListener),
             providers.Factory(generate_table_event_listeners.AddWerkingsgebiedenRelationshipListener),
             providers.Factory(generate_table_event_listeners.AddStoreageFileRelationshipListener),
+            providers.Factory(generate_table_event_listeners.AddGeoObjectIDListRelationshipListener),
             # CreateModelEvent
             providers.Factory(create_model_event_listeners.ObjectsExtenderListener),
             providers.Factory(create_model_event_listeners.ObjectStaticsExtenderListener),

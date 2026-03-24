@@ -601,7 +601,9 @@ columns:
   # Target codes (gebied, gebieden for gebiedsaanwijzingen)
   target_codes:
     name: Target_Codes
-    type: json
+    type: list_geo_object_ids
+    type_data:
+      relation_field: Geo_Statics
     serializers: []
     deserializers: []
     nullable: true

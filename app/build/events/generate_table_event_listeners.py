@@ -1,10 +1,11 @@
 from typing import Optional
 
-from sqlalchemy import ForeignKey, Unicode, Uuid
+from sqlalchemy import ForeignKey, Unicode, Uuid, JSON
 from sqlalchemy.orm import mapped_column, relationship
 
 from app.build.events.generate_table_event import GenerateTableEvent
 from app.core.services.event.types import Listener
+from app.core.tables.objects import ObjectStaticsTable
 from app.core.tables.others import AreasTable, StorageFileTable
 from app.core.tables.users import UsersTable
 from sqlalchemy.orm import Session
@@ -146,6 +147,34 @@ class AddStoreageFileRelationshipListener(Listener[GenerateTableEvent]):
                 relationship(
                     StorageFileTable,
                     primaryjoin=f"{event.table_name}.{column.name} == StorageFileTable.UUID",
+                    viewonly=True,
+                ),
+            )
+
+
+class AddGeoObjectIDListRelationshipListener(Listener[GenerateTableEvent]):
+    def handle_event(self, session: Session, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+        column = event.column
+        if column.type != "list_geo_object_ids":
+            return
+
+        # Add the column itself
+        additional_args = [ForeignKey("object_statics.Code")]
+        setattr(
+            event.table_type,
+            column.name,
+            mapped_column(column.name, JSON, nullable=column.nullable, *additional_args),
+        )
+
+        # Add a viewonly relationship for easy access
+        relation_field = column.type_data.get("relation_field", "")
+        if relation_field:
+            setattr(
+                event.table_type,
+                relation_field,
+                relationship(
+                    ObjectStaticsTable,
+                    primaryjoin=f"{event.table_name}.{column.name} == ObjectStaticsTable.Code",
                     viewonly=True,
                 ),
             )
