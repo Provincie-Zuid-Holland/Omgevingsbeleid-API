@@ -142,8 +142,8 @@ class ApiContainer(containers.DeclarativeContainer):
     join_werkingsgebieden_service_factory = providers.Singleton(
         werkingsgebied_services.JoinWerkingsgebiedenServiceFactory
     )
-    join_gebieden_service_factory = providers.Singleton(
-        werkingsgebied_services.JoinGebiedenServiceFactory,
+    join_objects_service_factory = providers.Singleton(
+        object_services.JoinObjectsServiceFactory,
         object_repository=object_repository,
     )
     join_gebiedengroepen_service_factory = providers.Singleton(
@@ -238,12 +238,12 @@ class ApiContainer(containers.DeclarativeContainer):
                 service_factory=join_werkingsgebieden_service_factory,
             ),
             providers.Factory(
-                event_listeners.JoinGebiedenForObjectListener,
-                service_factory=join_gebieden_service_factory,
-            ),
-            providers.Factory(
                 event_listeners.JoinGebiedenGroepForObjectListener,
                 service_factory=join_gebiedengroepen_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinObjectsForObjectListener,
+                service_factory=join_objects_service_factory,
             ),
             providers.Factory(
                 event_listeners.InsertHtmlImagesForObjectListener,
@@ -291,8 +291,8 @@ class ApiContainer(containers.DeclarativeContainer):
                 service_factory=join_werkingsgebieden_service_factory,
             ),
             providers.Factory(
-                event_listeners.JoinGebiedenForModuleObjectListener,
-                service_factory=join_gebieden_service_factory,
+                event_listeners.JoinObjectsForModuleObjectListener,
+                service_factory=join_objects_service_factory,
             ),
             providers.Factory(
                 event_listeners.JoinGebiedenGroepForModuleObjectListener,

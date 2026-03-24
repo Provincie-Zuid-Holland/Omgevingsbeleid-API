@@ -94,10 +94,14 @@ fields:
     name: Ref_Type
     type: str
     column: ref_type
+    validators:
+      - id: none_to_default_value
   ref_group:
     name: Ref_Group
     type: str
     column: ref_group
+    validators:
+      - id: none_to_default_value
   target_codes:
     name: Target_Codes
     type: list_str
@@ -185,6 +189,12 @@ models:
     dependency_model_ids:
       - user_short
     services:
+      join_objects:
+        to_field: Geo_Statics
+        from_field: Target_Codes
+        allowed_object_types:
+          - gebied
+          - gebiedengroep
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
