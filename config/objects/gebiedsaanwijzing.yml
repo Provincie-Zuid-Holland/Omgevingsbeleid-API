@@ -192,9 +192,6 @@ models:
       join_objects:
         to_field: Geo_Statics
         from_field: Target_Codes
-        allowed_object_types:
-          - gebied
-          - gebiedengroep
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
