@@ -48,6 +48,7 @@ class PublicationEnvironment(BaseModel):
     Has_State: bool
     Can_Validate: bool
     Can_Publicate: bool
+    Is_Locked: bool
     Created_Date: datetime
     Modified_Date: datetime
     model_config = ConfigDict(from_attributes=True)
