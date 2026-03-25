@@ -4,3 +4,4 @@ from .add_werkingsgebied_related_objects_service import AddWerkingsgebiedRelated
 from .column_image_inserter import ColumnImageInserterFactory
 from .join_documents_service import JoinDocumentsServiceFactory
 from .resolve_child_objects_via_hierarchy_service import ResolveChildObjectsViaHierarchyServiceFactory
+from .join_objects import JoinObjectsService, JoinObjectsServiceFactory

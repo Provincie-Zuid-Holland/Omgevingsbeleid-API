@@ -134,13 +134,13 @@ class JoinWerkingsgebiedenListener(Listener[CreateModelEvent]):
         return event
 
 
-class JoinGebiedenListener(Listener[CreateModelEvent]):
+class JoinObjectsListener(Listener[CreateModelEvent]):
     def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
-        if "join_gebieden" not in service_config:
+        if "join_objects" not in service_config:
             return event
 
-        config: dict = service_config["join_gebieden"]
+        config: dict = service_config["join_objects"]
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
