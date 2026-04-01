@@ -1,3 +1,4 @@
+import re
 import secrets
 import string
 from datetime import datetime, timedelta, timezone
@@ -60,6 +61,21 @@ class Security:
             plain_password.strip(),
         }
         return any(self._pwd_context.verify(p, hashed_password) for p in variants)
+
+    def validate_password(self, password: str) -> str:
+        """Trim and validate password against complexity requirements.
+
+        Returns the trimmed password if valid, raises HTTPException otherwise.
+        """
+        password = password.strip()
+
+        if not re.match(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,}$", password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password must be at least 12 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
+            )
+
+        return password
 
     def get_password_hash(self, password: str) -> str:
         return self._pwd_context.hash(password)

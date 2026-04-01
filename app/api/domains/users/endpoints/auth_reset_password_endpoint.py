@@ -31,6 +31,7 @@ def post_auth_reset_password_endpoint(
     if not valid:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
 
-    user_repository.change_password(session, user, password_in.new_password)
+    new_password = security.validate_password(password_in.new_password)
+    user_repository.change_password(session, user, new_password)
 
     return ResponseOK(message="OK")
