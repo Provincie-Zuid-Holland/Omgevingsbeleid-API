@@ -99,7 +99,7 @@ class StateV7Upgrader(StateUpgrader):
                 key=f"invalid:{old_gio_key}",
                 source_codes=old_gio.source_codes,
                 title=old_gio.title,
-                frbr=models_v7.Frbr.model_validate(old_gio.model_dump()),
+                frbr=models_v7.Frbr.model_validate(old_gio.frbr.model_dump()),
                 geboorteregeling=old_gio.geboorteregeling,
                 achtergrond_verwijzing=old_gio.achtergrond_verwijzing,
                 achtergrond_actualiteit=old_gio.achtergrond_actualiteit,
