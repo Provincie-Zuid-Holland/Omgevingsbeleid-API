@@ -13,15 +13,16 @@ from app.api.domains.publications.services.validate_publication_service import (
 
 
 class GebiedsaanwijzingData(BaseModel):
-    uuid: str
+    object_id: str  # Used in the frbr
     code: str
+    uuid: str
     aanwijzing_type: str
     aanwijzing_group: str
     title: str
     # This is what the gebiedsaanwijzing in the html actually targets
     source_target_codes: Set[str]
     # This is all the targets resolved to gebied-codes
-    gebied_codes: Set[str]
+    resolved_gebied_codes: Set[str]
     # This is used in the GIO as for `achtergrond_actualiteit`
     achtergrond_actualiteit: str
 
@@ -135,13 +136,14 @@ class PublicationGebiedsaanwijzingProcessor:
 
             # We transform it to an plain dict because the state system can then freely use
             aanwijzing = GebiedsaanwijzingData(
-                uuid=str(aanwijzing_obj["UUID"]),
+                object_id=str(aanwijzing_obj["Object_ID"]),
                 code=str(aanwijzing_obj["Object_Code"]),
+                uuid=str(aanwijzing_obj["UUID"]),
                 aanwijzing_type=str(aanwijzing_obj["Type"]),
                 aanwijzing_group=str(aanwijzing_obj["Group"]),
                 title=str(aanwijzing_obj["Title"]),
                 source_target_codes=source_target_codes,
-                gebied_codes=gebied_codes,
+                resolved_gebied_codes=gebied_codes,
                 achtergrond_actualiteit=str(datetime.now(timezone.utc))[:10],
             )
 

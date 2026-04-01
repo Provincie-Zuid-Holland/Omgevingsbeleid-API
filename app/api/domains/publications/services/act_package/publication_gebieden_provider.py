@@ -26,8 +26,6 @@ class InputGebied(BaseModel):
     # But I think we should use the objects title instead as we can modify it
     # @todo: need to do research if we can change the title of a GIO
     title: str
-    # These are used in the FRBR
-    modified_date: datetime
 
 
 class InputGebiedengroep(BaseModel):
@@ -38,6 +36,7 @@ class InputGebiedengroep(BaseModel):
     # See how weird it is that we dont use the Gebied.Title
     title: str
     gebied_codes: Set[str]
+    modified_date: datetime
 
 
 class GebiedenData(BaseModel):
@@ -78,6 +77,7 @@ class PublicationGebiedenProvider:
                 code=g["Code"],
                 title=g["Title"],
                 gebied_codes=set(g["Gebieden"] or []),
+                modified_date=g["Modified_Date"],
             )
             for g in groep_objects
             if g["Code"] in gebiedengroep_codes
@@ -115,7 +115,6 @@ class PublicationGebiedenProvider:
                 area_uuid=area_uuid,
                 basisgeo_id=uuid4(),
                 title=gebied["Title"],
-                modified_date=gebied["Modified_Date"],
             )
             result[code] = input_gebied
 

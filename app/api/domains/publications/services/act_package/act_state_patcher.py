@@ -6,8 +6,8 @@ from dso.act_builder.services.ow.state.ow_state import OwState as DsoOwState
 from dso.act_builder.builder import Builder
 
 from app.api.domains.publications.services.state.versions import ActiveState
-from app.api.domains.publications.services.state.versions.v6 import models
-from app.api.domains.publications.services.state.versions.v6.actions import AddPublicationAction, AddPurposeAction
+from app.api.domains.publications.services.state.versions.v7 import models
+from app.api.domains.publications.services.state.versions.v7.actions import AddPublicationAction, AddPurposeAction
 from app.api.domains.publications.types.api_input_data import ApiActInputData, Purpose
 from app.core.tables.publications import PublicationTable, PublicationVersionTable
 
@@ -124,6 +124,7 @@ class ActStatePatcher:
             ]
 
             gio = models.Gio(
+                key=dso_gio.key,
                 source_codes=dso_gio.source_codes,
                 title=dso_gio.title,
                 frbr=frbr,
@@ -132,8 +133,7 @@ class ActStatePatcher:
                 achtergrond_actualiteit=dso_gio.achtergrond_actualiteit,
                 locaties=locaties,
             )
-            gio_key: str = gio.key()
-            gios[gio_key] = gio
+            gios[gio.key] = gio
 
         return gios
 
@@ -147,7 +147,7 @@ class ActStatePatcher:
                 code=dso_gebiedengroep.code,
                 title=dso_gebiedengroep.title,
                 source_gebieden_codes=dso_gebiedengroep.source_gebieden_codes,
-                gio_keys=dso_gebiedengroep.gio_keys,
+                gio_key=dso_gebiedengroep.gio_key,
             )
             gebiedengroepen[gebiedengroep.code] = gebiedengroep
 
@@ -159,16 +159,15 @@ class ActStatePatcher:
         # We only keep the send gebiedsaanwijzingen, as all other should have been withdrawn from the ow state
         for dso_aanwijzing in self._api_input_data.Publication_Data.gebiedsaanwijzingen.values():
             aanwijzing = models.Gebiedsaanwijzing(
-                uuid=dso_aanwijzing.uuid,
+                code=dso_aanwijzing.code,
                 aanwijzing_type=dso_aanwijzing.aanwijzing_type,
                 aanwijzing_group=dso_aanwijzing.aanwijzing_group,
                 title=dso_aanwijzing.title,
                 source_target_codes=dso_aanwijzing.source_target_codes,
-                source_gebied_codes=dso_aanwijzing.source_gebied_codes,
+                resolved_gebied_codes=dso_aanwijzing.resolved_gebied_codes,
                 gio_key=dso_aanwijzing.gio_key,
             )
-            key: str = dso_aanwijzing.key()
-            aanwijzingen[key] = aanwijzing
+            aanwijzingen[aanwijzing.code] = aanwijzing
 
         return aanwijzingen
 

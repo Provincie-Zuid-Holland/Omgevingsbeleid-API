@@ -1,15 +1,14 @@
 from dataclasses import dataclass
 from datetime import date
-from typing import Annotated, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType, PurposeType
 from app.api.domains.publications.types.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
 from app.core.tables.publications import PublicationAnnouncementTable, PublicationVersionTable
 from typing import Set
 
-from pydantic import BaseModel, Field, GetPydanticSchema
+from pydantic import BaseModel, Field
 import dso.models as dso_models
-from pydantic_core import core_schema
 
 
 @dataclass
@@ -111,6 +110,7 @@ class PublicationGioLocatie(BaseModel):
 
 
 class PublicationGio(BaseModel):
+    key: str
     source_codes: Set[str]
     title: str
 
@@ -123,44 +123,28 @@ class PublicationGio(BaseModel):
 
     locaties: List[PublicationGioLocatie]
 
-    # We are using the set source_codes as our reference key
-    # But we convert it to a string for convenience, mainly because our DSO OW system
-    # uses source_code as a string
-    def key(self) -> str:
-        return "_".join(sorted(self.source_codes))
-
-
-class GioRef(BaseModel):
-    key: str
-    owned: bool
-
-    def is_owner(self) -> bool:
-        return self.owned
-
 
 class PublicationGebiedengroep(BaseModel):
     uuid: str
     code: str
     title: str
     source_gebieden_codes: Set[str]
-    gio_key: GioRef
-
-    def key(self) -> str:
-        return self.code
+    gio_key: str
 
 
 class PublicationGebiedsaanwijzing(BaseModel):
-    code: str  # Used as a lookup key in DSO
+    uuid: str
+    code: str
+    title: str  # Used everywhere except the inline html <a>{inline_title}</a>
     aanwijzing_type: str
     aanwijzing_group: str
-    title: str  # Used everywhere except the inline html <a>{inline_title}</a>
-    # Used to determine reuse and target to geo_gio
-    source_target_codes: Set[str]
-    gebied_codes: Set[str]
-    gio_key: GioRef
+    gio_key: str
 
-    def key(self) -> str:
-        return self.code
+    # Used to determine reuse and target to geo_gio
+    # @note: unused at the moment, but usefull to have in the state machine
+    #           Else we can not conclude reuse in the next version
+    source_target_codes: Set[str]
+    resolved_gebied_codes: Set[str]
 
 
 class PublicationGeoData(BaseModel):
