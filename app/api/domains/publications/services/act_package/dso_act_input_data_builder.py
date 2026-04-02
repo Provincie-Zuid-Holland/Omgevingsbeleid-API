@@ -352,6 +352,7 @@ class DsoActInputDataBuilder:
             ]
             repository.add(
                 dso_gebieden.Gio(
+                    key=input_gio.key,
                     source_codes=input_gio.source_codes,
                     title=input_gio.title,
                     frbr=dso_models.GioFRBR.model_validate(input_gio.frbr.model_dump()),
@@ -372,7 +373,7 @@ class DsoActInputDataBuilder:
                     uuid=uuid.UUID(input_groep.uuid),
                     code=input_groep.code,
                     title=input_groep.title,
-                    gio_keys=input_groep.gio_keys,
+                    gio_key=input_groep.gio_key,
                 )
             )
         return repository
@@ -383,10 +384,11 @@ class DsoActInputDataBuilder:
             repository.add(
                 dso_gebieden.Gebiedsaanwijzing(
                     uuid=uuid.UUID(input_aanwijzing.uuid),
+                    code=input_aanwijzing.code,
                     aanwijzing_type=input_aanwijzing.aanwijzing_type,
                     aanwijzing_groep=input_aanwijzing.aanwijzing_group,
                     title=input_aanwijzing.title,
-                    source_gebied_codes=input_aanwijzing.source_gebied_codes,
+                    gebied_codes=input_aanwijzing.resolved_gebied_codes,
                     gio_key=input_aanwijzing.gio_key,
                 )
             )
