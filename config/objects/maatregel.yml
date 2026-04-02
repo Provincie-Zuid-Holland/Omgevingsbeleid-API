@@ -155,6 +155,8 @@ fields:
     validators:
       - id: none_to_default_value
   gebiedengroep_code:
+    optional: true
+    default: none
     name: Gebiedengroep_Code
     type: str
     column: gebiedengroep_code

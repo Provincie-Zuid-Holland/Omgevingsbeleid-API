@@ -207,7 +207,7 @@ models:
     dependency_model_ids:
       - user_short
     services:
-      join_gebieden:
+      join_objects:
         to_field: Gebieden_Statics
         from_field: Gebieden
       foreign_keys_extender:
@@ -271,3 +271,22 @@ models:
     fields:
       object_id:
       uuid:
+  gebiedengroep_module_validate:
+    name: GebiedengroepModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      gebieden:
+        optional: false
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - gebied
+          - id: object_codes_exists
+          - id: not_empty

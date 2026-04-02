@@ -77,6 +77,7 @@ class BuildContainer(containers.DeclarativeContainer):
                 object_static_repository=object_static_repository,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
+            providers.Factory(validators.NotEmptyValidator),
         ),
     )
 
@@ -96,7 +97,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(create_model_event_listeners.JoinWerkingsgebiedenListener),
             providers.Factory(create_model_event_listeners.AddJoinDocumentsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddResolveChildObjectsViaHierarchyListener),
-            providers.Factory(create_model_event_listeners.JoinGebiedenListener),
+            providers.Factory(create_model_event_listeners.JoinObjectsListener),
             providers.Factory(create_model_event_listeners.JoinGebiedengroepenListener),
             providers.Factory(create_model_event_listeners.AddPublicRevisionsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddNextObjectVersionToObjectModelListener),
@@ -124,7 +125,10 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_objects.ObjectCountsEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectListValidLineagesEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectListValidLineageTreeEndpointBuilder),
-            providers.Factory(endpoint_builders_objects.ObjectListAllLatestEndpointBuilder),
+            providers.Factory(
+                endpoint_builders_objects.ObjectListAllLatestEndpointBuilder,
+                model_dynamic_type_builder=model_dynamic_type_builder,
+            ),
             providers.Factory(endpoint_builders_objects.EditObjectStaticEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalCreateObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalEditObjectEndpointBuilder),

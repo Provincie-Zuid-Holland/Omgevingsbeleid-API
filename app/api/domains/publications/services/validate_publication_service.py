@@ -113,9 +113,7 @@ class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
                 errors.append(
                     ValidatePublicationError(
                         rule="used_objects_in_publication_exist_in_template_rule",
-                        object=ValidatePublicationObject(
-                            code=used_code_in_template,
-                        ),
+                        object=ValidatePublicationObject(),  # there is no actual object to show in the error
                         messages=[
                             f"Object with code '{used_code_in_template}' used in template can't be found in publication"
                         ],
@@ -200,6 +198,26 @@ class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
                             title=used_object.get("Title"),
                         ),
                         messages=[f"Gebiedengroep code '{gebiedengroep_code}' can't be found in publication"],
+                    )
+                )
+
+        return errors
+
+
+class GebiedengroepHasGiosRule(ValidatePublicationRule):
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+
+        for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values():
+            if not gebiedengroep.gio_keys:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="gebiedengroep_has_no_gios",
+                        object=ValidatePublicationObject(
+                            code=gebiedengroep.code,
+                            title=gebiedengroep.title,
+                        ),
+                        messages=[f"Gebiedengroep code '{gebiedengroep.code}' has no valid gio's"],
                     )
                 )
 

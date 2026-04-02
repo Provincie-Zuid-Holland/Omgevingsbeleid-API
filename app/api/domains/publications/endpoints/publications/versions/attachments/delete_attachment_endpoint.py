@@ -28,16 +28,15 @@ def post_delete_attachment_endpoint(
     ],
     session: Annotated[Session, Depends(depends_db_session)],
 ) -> ResponseOK:
+    _guard(version, attachment)
+
+    # @todo: This should become a soft delete but I could not upgrade the database at this point
+    session.delete(attachment.File)
+    session.delete(attachment)
+    session.commit()
+    session.flush()
+
     return ResponseOK(message="OK")
-    # _guard(version, attachment)
-
-    # # @todo: This should become a soft delete but I could not upgrade the database at this point
-    # db.delete(attachment.File)
-    # db.delete(attachment)
-    # db.commit()
-    # db.flush()
-
-    # return ResponseOK(message="OK")
 
 
 def _guard(version: PublicationVersionTable, attachment: PublicationVersionAttachmentTable) -> None:

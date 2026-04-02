@@ -4,7 +4,8 @@ from .validate_module_service import (
     ValidateModuleService,
     RequiredObjectFieldsRule,
     RequireExistingHierarchyCodeRule,
-    NewestSourceWerkingsgebiedUsedRule,
+    NewestInputGeoOnderverdelingUsedRule,
     ForbidEmptyHtmlNodesRule,
+    AreaDesignationRefCheckRule,
 )
 from .manage_object_context_service import ManageObjectContextService
