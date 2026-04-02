@@ -94,10 +94,14 @@ fields:
     name: Ref_Type
     type: str
     column: ref_type
+    validators:
+      - id: none_to_default_value
   ref_group:
     name: Ref_Group
     type: str
     column: ref_group
+    validators:
+      - id: none_to_default_value
   target_codes:
     name: Target_Codes
     type: list_str
@@ -185,9 +189,9 @@ models:
     dependency_model_ids:
       - user_short
     services:
-      join_gebieden:
-        to_field: Gebieden_Statics
-        from_field: Gebieden
+      join_objects:
+        to_field: Geo_Statics
+        from_field: Target_Codes
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
@@ -212,6 +216,18 @@ models:
               min: 3
               max: 200
           - id: plain_text
+      target_codes:
+        optional: false
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - gebied
+                - gebiedengroep
+          - id: object_codes_exists
+          - id: not_empty
+      ref_type:
+      ref_group:
   gebiedsaanwijzing_static_post:
     name: GebiedsaanwijzingStaticPost
     static_only: true
@@ -237,3 +253,25 @@ models:
     fields:
       object_id:
       uuid:
+  gebiedsaanwijzing_module_validate:
+    name: GebiedsaanwijzingModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      target_codes:
+        optional: false
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - gebied
+                - gebiedengroep
+          - id: object_codes_exists
+          - id: not_empty
+      ref_type:
+      ref_group:

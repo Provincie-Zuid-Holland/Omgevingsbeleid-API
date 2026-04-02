@@ -142,8 +142,8 @@ class ApiContainer(containers.DeclarativeContainer):
     join_werkingsgebieden_service_factory = providers.Singleton(
         werkingsgebied_services.JoinWerkingsgebiedenServiceFactory
     )
-    join_gebieden_service_factory = providers.Singleton(
-        werkingsgebied_services.JoinGebiedenServiceFactory,
+    join_objects_service_factory = providers.Singleton(
+        object_services.JoinObjectsServiceFactory,
         object_repository=object_repository,
     )
     join_gebiedengroepen_service_factory = providers.Singleton(
@@ -180,6 +180,10 @@ class ApiContainer(containers.DeclarativeContainer):
         models_provider=models_provider,
     )
 
+    dso_gebiedsaanwijzingen_factory = providers.Factory(
+        dso.GebiedsaanwijzingenFactory,
+    )
+
     validate_module_service = providers.Singleton(
         module_services.ValidateModuleService,
         rules=providers.List(
@@ -198,6 +202,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Singleton(
                 module_services.ForbidEmptyHtmlNodesRule,
                 main_config=main_config,
+            ),
+            providers.Singleton(
+                module_services.AreaDesignationRefCheckRule,
+                dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
         ),
     )
@@ -230,12 +238,12 @@ class ApiContainer(containers.DeclarativeContainer):
                 service_factory=join_werkingsgebieden_service_factory,
             ),
             providers.Factory(
-                event_listeners.JoinGebiedenForObjectListener,
-                service_factory=join_gebieden_service_factory,
-            ),
-            providers.Factory(
                 event_listeners.JoinGebiedenGroepForObjectListener,
                 service_factory=join_gebiedengroepen_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinObjectsForObjectListener,
+                service_factory=join_objects_service_factory,
             ),
             providers.Factory(
                 event_listeners.InsertHtmlImagesForObjectListener,
@@ -283,8 +291,8 @@ class ApiContainer(containers.DeclarativeContainer):
                 service_factory=join_werkingsgebieden_service_factory,
             ),
             providers.Factory(
-                event_listeners.JoinGebiedenForModuleObjectListener,
-                service_factory=join_gebieden_service_factory,
+                event_listeners.JoinObjectsForModuleObjectListener,
+                service_factory=join_objects_service_factory,
             ),
             providers.Factory(
                 event_listeners.JoinGebiedenGroepForModuleObjectListener,
@@ -326,8 +334,4 @@ class ApiContainer(containers.DeclarativeContainer):
     event_manager = providers.Singleton(
         event_manager.EventManager,
         event_listeners=event_listeners,
-    )
-
-    dso_gebiedsaanwijzingen_factory = providers.Factory(
-        dso.GebiedsaanwijzingenFactory,
     )

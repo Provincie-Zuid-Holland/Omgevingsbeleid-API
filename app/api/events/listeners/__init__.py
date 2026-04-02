@@ -18,8 +18,8 @@ from .retrieved_module_objects_event_listeners import (
     JoinDocumentsToModuleObjectsListener,
     JoinWerkingsgebiedToModuleObjectsListener,
     ResolveChildObjectsViaHierarchyToModuleObjectListener,
-    JoinGebiedenForModuleObjectListener,
     JoinGebiedenGroepForModuleObjectListener,
+    JoinObjectsForModuleObjectListener,
 )
 from .retrieved_objects_event_listeners import (
     AddNextObjectVersionToObjectsListener,
@@ -30,6 +30,6 @@ from .retrieved_objects_event_listeners import (
     JoinDocumentsToObjectsListener,
     JoinWerkingsgebiedenToObjectsListener,
     ObjectResolveChildObjectsViaHierarchyListener,
-    JoinGebiedenForObjectListener,
+    JoinObjectsForObjectListener,
     JoinGebiedenGroepForObjectListener,
 )

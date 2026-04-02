@@ -6,5 +6,6 @@ from .validate_module_service import (
     RequireExistingHierarchyCodeRule,
     NewestInputGeoOnderverdelingUsedRule,
     ForbidEmptyHtmlNodesRule,
+    AreaDesignationRefCheckRule,
 )
 from .manage_object_context_service import ManageObjectContextService
