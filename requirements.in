@@ -47,4 +47,4 @@ dicttoxml
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@feat-gio-per-group
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@4f99ce3d178747e5b31313d8df63a495f4b5ad9b

@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-import json
 from typing import Any, Dict, List, Optional, Set
 
 from pydantic import BaseModel
@@ -118,29 +117,16 @@ class PublicationGebiedsaanwijzingProcessor:
                     ]
                 )
 
-            source_target_codes: Set[str] = set()
-            try:
-                source_target_codes = set(json.loads(aanwijzing_obj["Target_Codes"]))
-            except Exception:
-                raise validation_exception(
-                    [
-                        ValidatePublicationError(
-                            rule="gebiedsaanwijzing_invalid_target_codes",
-                            object=ValidatePublicationObject(code=aanwijzing_code),
-                            messages=[f"The Target_Codes `{aanwijzing_obj['Target_Codes']}` cant be parsed"],
-                        )
-                    ]
-                )
-
+            source_target_codes: Set[str] = set(aanwijzing_obj["Target_Codes"])
             gebied_codes: Set[str] = self._resolve_gebied_codes(aanwijzing_code, source_target_codes)
 
             # We transform it to an plain dict because the state system can then freely use
             aanwijzing = GebiedsaanwijzingData(
                 object_id=str(aanwijzing_obj["Object_ID"]),
-                code=str(aanwijzing_obj["Object_Code"]),
+                code=str(aanwijzing_obj["Code"]),
                 uuid=str(aanwijzing_obj["UUID"]),
-                aanwijzing_type=str(aanwijzing_obj["Type"]),
-                aanwijzing_group=str(aanwijzing_obj["Group"]),
+                aanwijzing_type=str(aanwijzing_obj["Ref_Type"]),
+                aanwijzing_group=str(aanwijzing_obj["Ref_Group"]),
                 title=str(aanwijzing_obj["Title"]),
                 source_target_codes=source_target_codes,
                 resolved_gebied_codes=gebied_codes,

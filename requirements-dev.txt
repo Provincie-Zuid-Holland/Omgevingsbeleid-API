@@ -31,7 +31,7 @@ executing==2.2.1
     # via
     #   devtools
     #   stack-data
-faker==40.12.0
+faker==40.13.0
     # via -r requirements-dev.in
 freezegun==1.5.5
     # via -r requirements-dev.in
@@ -90,13 +90,13 @@ requests==2.33.1
     # via requests-mock
 requests-mock==1.12.1
     # via -r requirements-dev.in
-ruff==0.15.8
+ruff==0.15.9
     # via -r requirements-dev.in
 six==1.17.0
     # via
     #   asttokens
     #   python-dateutil
-sqlalchemy==2.0.48
+sqlalchemy==2.0.49
     # via alembic
 stack-data==0.6.3
     # via ipython
