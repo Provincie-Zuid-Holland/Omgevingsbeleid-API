@@ -15,7 +15,7 @@ from app.core.db import Base
 from app.core.tables.acknowledged_relations import AcknowledgedRelationsTable
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
-from app.core.tables.others import AssetsTable, RelationsTable, StorageFileTable
+from app.core.tables.others import AreasTable, AssetsTable, RelationsTable, StorageFileTable
 from app.core.tables.publications import (
     PublicationTemplateTable,
     PublicationEnvironmentTable,
