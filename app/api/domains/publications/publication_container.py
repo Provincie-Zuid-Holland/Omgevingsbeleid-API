@@ -134,6 +134,7 @@ class PublicationContainer(containers.DeclarativeContainer):
             state_versions.StateV4,
             state_versions.StateV5,
             state_versions.StateV6,
+            state_versions.StateV7,
         ],
         upgraders=providers.List(
             providers.Factory(
@@ -145,6 +146,7 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Factory(state_versions.StateV4Upgrader),
             providers.Factory(state_versions.StateV5Upgrader),
             providers.Factory(state_versions.StateV6Upgrader),
+            providers.Factory(state_versions.StateV7Upgrader),
         ),
     )
     state_loader = providers.Singleton(

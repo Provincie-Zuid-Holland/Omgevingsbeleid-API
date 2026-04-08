@@ -110,6 +110,7 @@ class PublicationGioLocatie(BaseModel):
 
 
 class PublicationGio(BaseModel):
+    key: str
     source_codes: Set[str]
     title: str
 
@@ -122,43 +123,28 @@ class PublicationGio(BaseModel):
 
     locaties: List[PublicationGioLocatie]
 
-    # We are using the set source_codes as our reference key
-    # But we convert it to a string for convenience, mainly because our DSO OW system
-    # uses source_code as a string
-    def key(self) -> str:
-        return "_".join(sorted(self.source_codes))
-
 
 class PublicationGebiedengroep(BaseModel):
     uuid: str
     code: str
     title: str
     source_gebieden_codes: Set[str]
-    gio_keys: Set[str]
-
-    def key(self) -> str:
-        return "_".join(sorted(self.gio_keys))
+    gio_key: str
 
 
 class PublicationGebiedsaanwijzing(BaseModel):
-    uuid: str  # Used as a lookup key in DSO
+    uuid: str
+    code: str
+    title: str  # Used everywhere except the inline html <a>{inline_title}</a>
     aanwijzing_type: str
     aanwijzing_group: str
-    title: str  # Used everywhere except the inline html <a>{inline_title}</a>
-    # Used to determine reuse and target to geo_gio
-    source_target_codes: Set[str]
-    source_gebied_codes: Set[str]
     gio_key: str
 
-    def key(self) -> str:
-        code_parts: str = "_".join(sorted(self.source_gebied_codes))
-        return "-".join(
-            [
-                code_parts,
-                self.aanwijzing_type,
-                self.aanwijzing_group,
-            ]
-        )
+    # Used to determine reuse and target to geo_gio
+    # @note: unused at the moment, but useful to have in the state machine
+    #           Else we can not conclude reuse in the next version
+    source_target_codes: Set[str]
+    resolved_gebied_codes: Set[str]
 
 
 class PublicationGeoData(BaseModel):

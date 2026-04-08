@@ -209,15 +209,15 @@ class GebiedengroepHasGiosRule(ValidatePublicationRule):
         errors: List[ValidatePublicationError] = []
 
         for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values():
-            if not gebiedengroep.gio_keys:
+            if not gebiedengroep.gio_key:
                 errors.append(
                     ValidatePublicationError(
-                        rule="gebiedengroep_has_no_gios",
+                        rule="gebiedengroep_has_no_gio",
                         object=ValidatePublicationObject(
                             code=gebiedengroep.code,
                             title=gebiedengroep.title,
                         ),
-                        messages=[f"Gebiedengroep code '{gebiedengroep.code}' has no valid gio's"],
+                        messages=[f"Gebiedengroep code '{gebiedengroep.code}' has no valid gio"],
                     )
                 )
 
