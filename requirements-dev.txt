@@ -75,7 +75,7 @@ pygments==2.20.0
     #   ipython
     #   ipython-pygments-lexers
     #   pytest
-pytest==9.0.2
+pytest==9.0.3
     # via
     #   -r requirements-dev.in
     #   pytest-cov
