@@ -40,23 +40,23 @@ class GioLocatie(BaseModel):
 
 class Gio(BaseModel):
     # The GIO key will be the Code from the source, as that is unique enough for now
-    # Since the latest communications its oke if we generate 1 GIO per gebiedengroep/gebiedsaanwijzing.
+    # Since the latest communications it's oke if we generate 1 GIO per gebiedengroep/gebiedsaanwijzing.
     # Even if they have the same locations
     #
-    # We do keep this Gio model seperate as there has been lots of dissusions about it with DSO
-    # And keeping it seperated (as I already build it this way) allows us to build a borrowing/reuse system later if needed
+    # We do keep this Gio model separate as there has been lots of discussions about it with DSO
+    # And keeping it separated (as I already build it this way) allows us to build a borrowing/reuse system later if needed
     key: str
 
-    # This is to determine what and whos this is
+    # This is to determine what and who's this is
     # For a simple Gebied this will be ["gebied-1"]
-    # But for a composite GIO like for an gebiedsaanwijzing, this could be ["gebied-1", "gebied-2", "gebied-3"]
-    # Eventhough the gebiedsaanwijzing might actually point to a Gebiedengroep.
+    # But for a composite GIO like for a gebiedsaanwijzing, this could be ["gebied-1", "gebied-2", "gebied-3"]
+    # Even though the gebiedsaanwijzing might actually point to a Gebiedengroep.
     # But a gebiedengroep is unreliable as the code of a gebiedengroep does not tell us if gebieden got added or removed.
     source_codes: CustomSetStr = Field(default_factory=set)
 
     # Used on top of the GeoInformatieObjectVaststelling and Aanlevering
-    # If there is only 1 `locatie` then its probably the same title as the locatie.title
-    # If there is more then 1 locatie, then its probably the name of the Gebiedengroep Or Gebiedsaanwijzing
+    # If there is only 1 `locatie` then it's probably the same title as the locatie.title
+    # If there is more than 1 locatie, then it's probably the name of the Gebiedengroep Or Gebiedsaanwijzing
     title: str
 
     frbr: Frbr

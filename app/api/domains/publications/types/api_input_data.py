@@ -141,7 +141,7 @@ class PublicationGebiedsaanwijzing(BaseModel):
     gio_key: str
 
     # Used to determine reuse and target to geo_gio
-    # @note: unused at the moment, but usefull to have in the state machine
+    # @note: unused at the moment, but useful to have in the state machine
     #           Else we can not conclude reuse in the next version
     source_target_codes: Set[str]
     resolved_gebied_codes: Set[str]

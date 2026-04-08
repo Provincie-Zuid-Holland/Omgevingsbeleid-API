@@ -106,7 +106,7 @@ class PublicationGebiedsaanwijzingProcessor:
         for aanwijzing_code in aanwijzing_codes:
             aanwijzing_obj: Optional[dict] = self._gebiedsaanwijzing_map.get(aanwijzing_code)
             if aanwijzing_obj is None:
-                # This should never trigger and been raised before when we knew the object code that uses this
+                # This should never be triggered and has already been raised previously before when the object code that uses this was identified
                 raise validation_exception(
                     [
                         ValidatePublicationError(
@@ -120,7 +120,7 @@ class PublicationGebiedsaanwijzingProcessor:
             source_target_codes: Set[str] = set(aanwijzing_obj["Target_Codes"])
             gebied_codes: Set[str] = self._resolve_gebied_codes(aanwijzing_code, source_target_codes)
 
-            # We transform it to an plain dict because the state system can then freely use
+            # We transform it to a plain dict, because the state system can then freely use it
             aanwijzing = GebiedsaanwijzingData(
                 object_id=str(aanwijzing_obj["Object_ID"]),
                 code=str(aanwijzing_obj["Code"]),

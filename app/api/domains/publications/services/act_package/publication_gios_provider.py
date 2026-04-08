@@ -88,7 +88,7 @@ class PublicationGiosProvider:
     def _build_frbr_gebiedengroep(self, input_gebiedengroep: InputGebiedengroep) -> dso_models.GioFRBR:
         # Note: GIO's are consolidated per Act, so we use the Act's Work_Date
         # and make their identifier unique with act data.
-        # Cant really remember why but I think its a legacy system in DSO where the same FRBR must be unique (Omgevingsvisie/programma should not use the same)
+        # Can't really remember why, but I think it's a legacy system in DSO where the same FRBR must be unique (Omgevingsvisie/programma should not use the same)
         # I added GG as a shorthand for Gebiedengroep
         work_date: str = self._act_frbr.Work_Date
         work_identifier = (
@@ -148,7 +148,7 @@ class PublicationGiosProvider:
     def _build_frbr_gebiedsaanwijzing(self, input_aanwijzing: GebiedsaanwijzingData) -> dso_models.GioFRBR:
         # Note: GIO's are consolidated per Act, so we use the Act's Work_Date
         # and make their identifier unique with act data.
-        # Cant really remember why but I think its a legacy system in DSO where the same FRBR must be unique (Omgevingsvisie/programma should not use the same)
+        # Can't really remember why, but I think it's a legacy system in DSO where the same FRBR must be unique (Omgevingsvisie/programma should not use the same)
         # I added GA as a shorthand for Gebiedsaanwijzing
         work_date: str = self._act_frbr.Work_Date
         work_identifier = f"{self._act_frbr.Act_ID}-{self._act_frbr.Expression_Version}-GA-{input_aanwijzing.object_id}"

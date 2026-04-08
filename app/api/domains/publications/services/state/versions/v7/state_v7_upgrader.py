@@ -78,7 +78,7 @@ class StateV7Upgrader(StateUpgrader):
         resolved_gios: Dict[str, models_v7.Gio] = self._resolve_gios(old_act)
         act_dict["Gios"] = resolved_gios
 
-        # By removing these, their references gets removed and the GIOs become invalid
+        # By removing these, their references get removed and the GIOs become invalid
         act_dict["Gebiedengroepen"] = {}
         act_dict["Gebiedsaanwijzingen"] = {}
 
@@ -91,9 +91,9 @@ class StateV7Upgrader(StateUpgrader):
         result_gios: Dict[str, models_v7.Gio] = {}
 
         # We do not bother keeping the lineage of these old GIO's alive as their origin is no longer relevant
-        # Therefor all reference to these gios will be made invalid (by just removing the gebiedengroepen and gebiedsaanwijzingen)
+        # Therefor all references to these gios will be made invalid (by just removing the gebiedengroepen and gebiedsaanwijzingen)
         #
-        # We need to drag along all the GIO's as they needs to be removed officially in the DSO system
+        # We need to drag along all the GIO's as they need to be removed officially in the DSO system
         for old_gio_key, old_gio in old_act.Gios.items():
             new_gio = models_v7.Gio(
                 key=f"invalid:{old_gio_key}",
