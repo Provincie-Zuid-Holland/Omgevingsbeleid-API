@@ -374,9 +374,8 @@ models:
           - id: html
           - id: gebiedsaanwijzing_in_text
             data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
+              allowed_code_types:
+                - gebiedsaanwijzing
           - id: image
             data:
               max_width: 1500
@@ -389,9 +388,8 @@ models:
           - id: html
           - id: gebiedsaanwijzing_in_text
             data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
+              allowed_code_types:
+                - gebiedsaanwijzing
           - id: image
             data:
               max_width: 1500
@@ -404,9 +402,8 @@ models:
           - id: html
           - id: gebiedsaanwijzing_in_text
             data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
+              allowed_code_types:
+                - gebiedsaanwijzing
           - id: image
             data:
               max_width: 1500
@@ -419,9 +416,8 @@ models:
           - id: html
           - id: gebiedsaanwijzing_in_text
             data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
+              allowed_code_types:
+                - gebiedsaanwijzing
           - id: image
             data:
               max_width: 1500
