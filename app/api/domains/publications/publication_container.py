@@ -17,6 +17,7 @@ from app.api.domains.publications.services.validate_publication_service import (
     UsedObjectInPublicationExistsRule,
     GebiedengroepHasGiosRule,
     GioDuplicateFilenameRule,
+    GioUniqueRule,
 )
 
 
@@ -168,6 +169,7 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Singleton(UsedObjectInPublicationExistsRule),
             providers.Singleton(GebiedengroepHasGiosRule),
             providers.Singleton(GioDuplicateFilenameRule),
+            providers.Singleton(GioUniqueRule),
         ),
     )
 
