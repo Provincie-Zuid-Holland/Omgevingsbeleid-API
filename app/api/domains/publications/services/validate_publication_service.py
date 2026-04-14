@@ -231,7 +231,7 @@ class GioDuplicateFilenameRule(ValidatePublicationRule):
         gios: Dict[str, PublicationGio] = {}
 
         for publication_gio in request.input_data.Publication_Data.gios.values():
-            dso_name: str = self._generate_dso_gio_name(publication_gio.title)
+            dso_name: str = generate_dso_gio_name(publication_gio.title)
             if dso_name in gios.keys():
                 duplicate_gio: PublicationGio = gios.get(dso_name)
                 errors.append(
@@ -239,20 +239,44 @@ class GioDuplicateFilenameRule(ValidatePublicationRule):
                         rule="gio_duplicate_filename_rule",
                         object=ValidatePublicationObject(),
                         messages=[
-                            f"GIO's [{publication_gio.key}, {duplicate_gio.key}] will generate the same name: {dso_name}"
+                            f"GIO's [{publication_gio.key}, {duplicate_gio.key}] will generate the same name: '{dso_name}'"
                         ],
                     )
                 )
             else:
                 gios[dso_name] = publication_gio
-
         return errors
 
-    def _generate_dso_gio_name(self, gio_title: str) -> str:
-        s: str = gio_title.lower()
-        s = re.sub(r"[^a-z0-9 ]+", "", s)
-        s = s.replace(" ", "-")
-        return s
+
+class GioUniqueRule(ValidatePublicationRule):
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+        gios: Dict[str, PublicationGio] = {}
+
+        for publication_gio in request.input_data.Publication_Data.gios.values():
+            dso_name: str = generate_dso_gio_name(publication_gio.title)
+            if dso_name in gios.keys():
+                existing_gio = gios.get(dso_name)
+                if publication_gio.source_codes == existing_gio.source_codes:
+                    errors.append(
+                        ValidatePublicationError(
+                            rule="gio_unique_rule",
+                            object=ValidatePublicationObject(),
+                            messages=[
+                                f"GIO's [{publication_gio.key}, {existing_gio.key}] have the same title '{dso_name}' and source codes {existing_gio.source_codes}"
+                            ],
+                        )
+                    )
+            else:
+                gios.update({dso_name: publication_gio})
+        return errors
+
+
+def generate_dso_gio_name(gio_title: str) -> str:
+    s: str = gio_title.lower()
+    s = re.sub(r"[^a-z0-9 ]+", "", s)
+    s = s.replace(" ", "-")
+    return s
 
 
 def validation_exception(errors: List[ValidatePublicationError]):
