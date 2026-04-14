@@ -1,3 +1,4 @@
+import re
 from abc import ABC, abstractmethod
 from typing import Dict, List, Type, Optional, Set
 
@@ -5,7 +6,7 @@ from bs4 import BeautifulSoup, Tag, ResultSet
 from pydantic import BaseModel, Field, computed_field, ConfigDict, ValidationError
 from sqlalchemy.orm import Session
 
-from app.api.domains.publications.types.api_input_data import ApiActInputData
+from app.api.domains.publications.types.api_input_data import ApiActInputData, PublicationGio
 
 
 class ValidatePublicationObject(BaseModel):
@@ -222,6 +223,36 @@ class GebiedengroepHasGiosRule(ValidatePublicationRule):
                 )
 
         return errors
+
+
+class GioDuplicateFilenameRule(ValidatePublicationRule):
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+        gios: Dict[str, PublicationGio] = {}
+
+        for publication_gio in request.input_data.Publication_Data.gios.values():
+            dso_name: str = self._generate_dso_gio_name(publication_gio.title)
+            if dso_name in gios.keys():
+                duplicate_gio: PublicationGio = gios.get(dso_name)
+                errors.append(
+                    ValidatePublicationError(
+                        rule="gio_duplicate_filename_rule",
+                        object=ValidatePublicationObject(),
+                        messages=[
+                            f"GIO's [{publication_gio.key}, {duplicate_gio.key}] will generate the same name: {dso_name}"
+                        ],
+                    )
+                )
+            else:
+                gios[dso_name] = publication_gio
+
+        return errors
+
+    def _generate_dso_gio_name(self, gio_title: str) -> str:
+        s: str = gio_title.lower()
+        s = re.sub(r"[^a-z0-9 ]+", "", s)
+        s = s.replace(" ", "-")
+        return s
 
 
 def validation_exception(errors: List[ValidatePublicationError]):
