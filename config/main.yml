@@ -1134,8 +1134,8 @@ publication:
   act_defaults:
     omgevingsvisie:
       metadata:
-        Official_Title: Omgevingsvisie Zuid-Holland
-        Quote_Title: Omgevingsvisie Zuid-Holland
+        Official_Title: ""
+        Quote_Title: ""
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1168,8 +1168,8 @@ publication:
 
     programma:
       metadata:
-        Official_Title: Omgevingsprogramma Zuid-Holland
-        Quote_Title: Omgevingsprogramma Zuid-Holland
+        Official_Title: ""
+        Quote_Title: ""
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1204,8 +1204,8 @@ publication:
     draft_omgevingsvisie:
       # @see: class BillMetadata
       bill_metadata:
-        Official_Title: Wijziging van de Omgevingsvisie Zuid-Holland, in het kader van de Herziening Omgevingsbeleid module Wonen, Werken en Werelderfgoed
-        Quote_Title: Vaststelling wijziging Omgevingsvisie Zuid-Holland module Wonen, Werken en Werelderfgoed
+        Official_Title: ""
+        Quote_Title: ""
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1251,8 +1251,8 @@ publication:
     final_omgevingsvisie:
       # @see: class BillMetadata
       bill_metadata:
-        Official_Title: Wijziging van de Omgevingsvisie Zuid-Holland, in het kader van de Herziening Omgevingsbeleid module Wonen, Werken en Werelderfgoed
-        Quote_Title: Vaststelling wijziging Omgevingsvisie Zuid-Holland module Wonen, Werken en Werelderfgoed
+        Official_Title: ""
+        Quote_Title: ""
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1297,8 +1297,8 @@ publication:
 
     draft_programma:
       bill_metadata:
-        Official_Title: Wijziging van de Omgevingsprogramma Zuid-Holland, in het kader van de Herziening Omgevingsbeleid module Wonen, Werken en Werelderfgoed
-        Quote_Title: Vaststelling wijziging Omgevingsprogramma Zuid-Holland module Wonen, Werken en Werelderfgoed
+        Official_Title: ""
+        Quote_Title: ""
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1342,8 +1342,8 @@ publication:
 
     final_programma:
       bill_metadata:
-        Official_Title: Wijziging van de Omgevingsprogramma Zuid-Holland, in het kader van de Herziening Omgevingsbeleid module Wonen, Werken en Werelderfgoed
-        Quote_Title: Vaststelling wijziging Omgevingsprogramma Zuid-Holland module Wonen, Werken en Werelderfgoed
+        Official_Title: ""
+        Quote_Title: ""
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1388,7 +1388,7 @@ publication:
   announcement_defaults:
     draft_omgevingsvisie:
       metadata:
-        Official_Title: Kennisgeving bij het ontwerpbesluit tot instellen van de Omgevingsvisie Zuid-Holland
+        Official_Title: ""
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1424,7 +1424,7 @@ publication:
 
     final_omgevingsvisie:
       metadata:
-        Official_Title: Kennisgeving bij het definitief besluit tot instellen van de Omgevingsvisie Zuid-Holland
+        Official_Title: ""
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1460,7 +1460,7 @@ publication:
 
     draft_programma:
       metadata:
-        Official_Title: Kennisgeving bij het ontwerpbesluit tot instellen van de Programma Zuid-Holland
+        Official_Title: ""
         Subjects:
           - water
           - ruimtelijke_ordening
@@ -1496,7 +1496,7 @@ publication:
 
     final_programma:
       metadata:
-        Official_Title: Kennisgeving bij het definitief besluit tot instellen van de Programma Zuid-Holland
+        Official_Title: ""
         Subjects:
           - water
           - ruimtelijke_ordening
