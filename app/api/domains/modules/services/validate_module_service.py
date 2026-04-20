@@ -184,7 +184,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
             area_hash: str = area_current.Source_Geometry_Hash or ""
             area_title: str = area_current.Source_Title
             onderverdeling: Optional[InputGeoOnderverdelingenTable] = (
-                self._input_geo_onderverdeling_repository.get_by_title(db, area_title)
+                self._input_geo_onderverdeling_repository.get_latest_by_title(db, area_title)
             )
             if onderverdeling is None:
                 errors.append(

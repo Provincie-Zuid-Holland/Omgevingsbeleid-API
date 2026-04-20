@@ -87,7 +87,7 @@ class PublicationGebiedsaanwijzingProcessor:
                             rule="gebiedsaanwijzing_invalid_code",
                             object=ValidatePublicationObject(code=object_code),
                             messages=[
-                                f"Gebiedsaanwijzing in object `{object_code}` targets to Object_Code `{aanwijzing_code}` which does not exists"
+                                f"Gebiedsaanwijzing in object `{object_code}` targets to Object_Code `{aanwijzing_code}` which does not exists, or is not known in publication"
                             ],
                         )
                     ]
@@ -112,7 +112,7 @@ class PublicationGebiedsaanwijzingProcessor:
                         ValidatePublicationError(
                             rule="gebiedsaanwijzing_unknown_code",
                             object=ValidatePublicationObject(),
-                            messages=[f"Unknown gebiedsaanwijzijng code `{aanwijzing_code}`"],
+                            messages=[f"Unknown gebiedsaanwijzing code `{aanwijzing_code}`"],
                         )
                     ]
                 )
@@ -158,7 +158,7 @@ class PublicationGebiedsaanwijzingProcessor:
                             ValidatePublicationError(
                                 rule="gebiedsaanwijzing_gebiedengroep_not_found",
                                 object=ValidatePublicationObject(code=aanwijzing_code),
-                                messages=[f"Targetted gebiedengroep `{target_code}` does not exist"],
+                                messages=[f"Targeted gebiedengroep `{target_code}` does not exist"],
                             )
                         ]
                     )
