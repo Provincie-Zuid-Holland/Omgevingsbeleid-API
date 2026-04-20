@@ -46,13 +46,13 @@ diff-match-patch==20241021
     # via -r requirements.in
 dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.10.0
     # via -r requirements.in
-fastapi==0.135.3
+fastapi==0.136.0
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
 geopandas==1.1.3
     # via -r requirements.in
-greenlet==3.3.2
+greenlet==3.4.0
     # via sqlalchemy
 h11==0.16.0
     # via
@@ -73,7 +73,7 @@ jinja2==3.1.6
     # via
     #   -r requirements.in
     #   dso
-lxml==6.0.2
+lxml==6.1.0
     # via
     #   -r requirements.in
     #   dso
@@ -89,7 +89,7 @@ numpy==2.4.4
     #   pandas
     #   pyogrio
     #   shapely
-packaging==26.0
+packaging==26.1
     # via
     #   dso
     #   geopandas
@@ -109,15 +109,15 @@ pillow==12.2.0
     # via
     #   -r requirements.in
     #   pikepdf
-platformdirs==4.9.4
+platformdirs==4.9.6
     # via dso
-pydantic==2.12.5
+pydantic==2.13.2
     # via
     #   -r requirements.in
     #   dso
     #   fastapi
     #   pydantic-settings
-pydantic-core==2.41.5
+pydantic-core==2.46.2
     # via pydantic
 pydantic-settings==2.13.1
     # via -r requirements.in
@@ -137,7 +137,7 @@ python-dotenv==1.2.2
     # via
     #   pydantic-settings
     #   uvicorn
-python-multipart==0.0.24
+python-multipart==0.0.26
     # via -r requirements.in
 python-slugify==8.0.4
     # via -r requirements.in
