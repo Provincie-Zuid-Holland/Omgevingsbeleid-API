@@ -62,11 +62,11 @@ class PdfExportService:
                 timeout=5,
             )
             if response.status_code >= 500:
-                raise PdfExportUnavailableError(f"PDF export service is unavailable (status {response.status_code})")
+                raise PdfExportUnavailableError(f"PDF preview service is unavailable (status {response.status_code})")
         except requests.ConnectionError:
-            raise PdfExportUnavailableError("PDF export service is unreachable")
+            raise PdfExportUnavailableError("PDF preview service is unreachable")
         except requests.Timeout:
-            raise PdfExportUnavailableError("PDF export service timed out")
+            raise PdfExportUnavailableError("PDF preview service timed out")
 
     def create_pdf(self, environment_code: str, zip_data: ZipData) -> requests.Response:
         api_settings: KoopSettings = self._get_api_settings(environment_code)
