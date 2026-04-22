@@ -170,8 +170,8 @@ class EndpointHandler:
             raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
         if self._publication_version.Is_Locked:
             raise HTTPException(status.HTTP_409_CONFLICT, "This publication version is locked")
-        # guard only when package type is publication, because you want to allow creation of packages while validating
-        if self._environment.Is_Locked and self._object_in.Package_Type == PackageType.PUBLICATION:
+        # allow creation of packages while validating
+        if self._environment.Is_Locked and self._object_in.Package_Type is not PackageType.VALIDATION:
             raise HTTPException(status.HTTP_409_CONFLICT, "This environment is locked")
         if not self._act.Is_Active:
             raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
