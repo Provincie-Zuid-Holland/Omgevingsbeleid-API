@@ -17,6 +17,7 @@ cli.add_command(database_commands.dropdb)
 cli.add_command(database_commands.load_fixtures)
 cli.add_command(mssql_commands.mssql_setup_search_database)
 cli.add_command(publication_commands.create_dso_json_scenario)
+cli.add_command(gdpr_commands.check_images)
 cli.add_command(gdpr_commands.check_pdfs)
 
 

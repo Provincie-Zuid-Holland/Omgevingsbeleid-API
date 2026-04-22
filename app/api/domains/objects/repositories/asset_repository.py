@@ -4,10 +4,11 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.api.base_repository import BaseRepository
 from app.core.tables.others import AssetsTable
 
 
-class AssetRepository:
+class AssetRepository(BaseRepository):
     def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[AssetsTable]:
         stmt = select(AssetsTable).filter(AssetsTable.UUID == uuid)
         maybe_asset = session.scalars(stmt).first()
@@ -27,3 +28,7 @@ class AssetRepository:
         )
         maybe_asset = session.scalars(stmt).first()
         return maybe_asset
+
+    def get_all(self, session: Session) -> Sequence[AssetsTable]:
+        stmt = select(AssetsTable)
+        return self.fetch_all(session, stmt)
