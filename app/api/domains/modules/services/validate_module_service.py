@@ -225,6 +225,50 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
         return errors
 
 
+class ForbiddenHtmlTagsRuleConfig(BaseModel):
+    fields: List[str]
+    forbidden_html_tags: List[str]
+
+
+class ForbiddenHtmlTagsRule(ValidateModuleRule):
+    def __init__(self, main_config: MainConfig):
+        self._config: ForbiddenHtmlTagsRuleConfig = main_config.get_as_model(
+            "forbidden_html_tags_rule",
+            ForbiddenHtmlTagsRuleConfig,
+        )
+
+    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
+        errors: List[ValidateModuleError] = []
+
+        for object_table in request.module_objects:
+            for field_name in self._config.fields:
+                value: str = str(getattr(object_table, field_name, ""))
+                maybe_forbidden_tag = self._has_forbidden_tags(value)
+                if maybe_forbidden_tag:
+                    errors.append(
+                        ValidateModuleError(
+                            rule="forbidden_html_tags_rule",
+                            object=ValidateModuleObject(
+                                code=object_table.Code,
+                                object_id=object_table.Object_ID,
+                                object_type=object_table.Object_Type,
+                                title=object_table.Title,
+                            ),
+                            messages=[f"Forbidden html tag '{maybe_forbidden_tag}' found in '{field_name}'"],
+                        )
+                    )
+
+        return errors
+
+    def _has_forbidden_tags(self, text: str) -> Optional[str]:
+        soup = BeautifulSoup(text, "html.parser")
+        for tag in self._config.forbidden_html_tags:
+            elements = soup.find_all(tag)
+            if elements:
+                return tag
+        return None
+
+
 class ForbidEmptyHtmlNodesRuleConfig(BaseModel):
     fields: List[str]
     html_void_elements: List[str]
