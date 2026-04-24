@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.api.domains.publications.services.act_package.dso_act_input_data_builder import DOCUMENT_TYPE_MAP
 from app.api.domains.publications.types.api_input_data import ApiActInputData, PublicationGio
-from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing
+from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
 
 
 class ValidatePublicationObject(BaseModel):
@@ -276,24 +276,25 @@ class GioUniqueRule(ValidatePublicationRule):
         return errors
 
 
-class AreaDesignationWaardelijstCheckRule(ValidatePublicationRule):
-    def __init__(self, gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
-        self._gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = gebiedsaanwijzingen_factory
+class AreaDesignationRefCheckRule(ValidatePublicationRule):
+    def __init__(self, dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
+        self._dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = dso_gebiedsaanwijzingen_factory
 
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         errors: List[ValidatePublicationError] = []
         dso_document_type: DocumentType = DOCUMENT_TYPE_MAP[request.document_type]
-        gebiedsaanwijzingen: Gebiedsaanwijzingen = self._gebiedsaanwijzingen_factory.get_for_document(dso_document_type)
+        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = self._dso_gebiedsaanwijzingen_factory.get_for_document(dso_document_type)
 
         for gebiedsaanwijzing in request.input_data.Publication_Data.gebiedsaanwijzingen.values():
             object_type, object_id = gebiedsaanwijzing.code.split("-", 1)
-            gebiedsaanwijzing_type: Optional[Gebiedsaanwijzing] = gebiedsaanwijzingen.get_by_type_label(
+            ref_type: Optional[Gebiedsaanwijzing] = gebiedsaanwijzingen.get_by_type_label(
                 gebiedsaanwijzing.aanwijzing_type
             )
-            if gebiedsaanwijzing_type is None:
+
+            if ref_type is None:
                 errors.append(
                     ValidatePublicationError(
-                        rule="area_designation_waardelijst_check_rule",
+                        rule="area_designation_check_ref_rule",
                         object=ValidatePublicationObject(
                             code=gebiedsaanwijzing.code,
                             object_id=int(object_id),
@@ -301,19 +302,19 @@ class AreaDesignationWaardelijstCheckRule(ValidatePublicationRule):
                             title=gebiedsaanwijzing.title,
                         ),
                         messages=[
-                            f"Gebiedsaanwijzing type '{gebiedsaanwijzing.aanwijzing_type}' can't be found in waardelijst"
+                            f"GebiedsaanwijzingType '{gebiedsaanwijzing.aanwijzing_type}' for gebiedsaanwijzing not found"
                         ],
                     )
                 )
                 continue
 
-            gebiedsaanwijzing_waarde_labels: List[str] = [
-                gebiedsaanwijzing_waarde.label for gebiedsaanwijzing_waarde in gebiedsaanwijzing_type.waardes
-            ]
-            if gebiedsaanwijzing.aanwijzing_group not in gebiedsaanwijzing_waarde_labels:
+            ref_group: Optional[GebiedsaanwijzingWaarde] = ref_type.get_value_by_label(
+                gebiedsaanwijzing.aanwijzing_group
+            )
+            if ref_group is None:
                 errors.append(
                     ValidatePublicationError(
-                        rule="area_designation_waardelijst_check_rule",
+                        rule="area_designation_check_ref_rule",
                         object=ValidatePublicationObject(
                             code=gebiedsaanwijzing.code,
                             object_id=int(object_id),
@@ -321,7 +322,7 @@ class AreaDesignationWaardelijstCheckRule(ValidatePublicationRule):
                             title=gebiedsaanwijzing.title,
                         ),
                         messages=[
-                            f"Gebiedsaanwijzing group '{gebiedsaanwijzing.aanwijzing_group}' (of type '{gebiedsaanwijzing.aanwijzing_type}') can't be found in waardelijst"
+                            f"GebiedsaanwijzingGroep '{gebiedsaanwijzing.aanwijzing_group}' for GebiedsaanwijzingType '{gebiedsaanwijzing.aanwijzing_type}' not found"
                         ],
                     )
                 )

@@ -18,7 +18,7 @@ from app.api.domains.publications.services.validate_publication_service import (
     GebiedengroepHasGiosRule,
     GioDuplicateFilenameRule,
     GioUniqueRule,
-    AreaDesignationWaardelijstCheckRule,
+    AreaDesignationRefCheckRule,
 )
 
 
@@ -173,8 +173,8 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Singleton(GioDuplicateFilenameRule),
             providers.Singleton(GioUniqueRule),
             providers.Singleton(
-                AreaDesignationWaardelijstCheckRule,
-                gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
+                AreaDesignationRefCheckRule,
+                dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
         ),
     )
