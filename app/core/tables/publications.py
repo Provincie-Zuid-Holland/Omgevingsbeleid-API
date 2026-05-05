@@ -219,7 +219,6 @@ class PublicationTable(Base, UserMetaData):
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
 
     Module_ID: Mapped[int] = mapped_column(Integer, ForeignKey("modules.Module_ID"), nullable=False)
-    Title: Mapped[str] = mapped_column(Unicode)
 
     Document_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
     Procedure_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
