@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Type, Optional, Set
 
 from bs4 import BeautifulSoup, Tag, ResultSet
+from dso.services.koop.waardelijsten.gen import TopLijst, BwbRechtgebied
 from pydantic import BaseModel, Field, computed_field, ConfigDict, ValidationError
 from sqlalchemy.orm import Session
 
@@ -269,6 +270,38 @@ class GioUniqueRule(ValidatePublicationRule):
                     )
             else:
                 gios.update({dso_name: publication_gio})
+        return errors
+
+
+class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+
+        koop_subjects: List[str] = [subject for subject in TopLijst.__members__.keys()]
+        for subject in request.input_data.Publication_Version.Bill_Metadata["Subjects"]:
+            if subject not in koop_subjects:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="waardelijsten_values_used_check_rule",
+                        object=ValidatePublicationObject(),
+                        messages=[
+                            f"Subject '{subject}' is not known in waardelijst 'TopLijst'",
+                        ],
+                    )
+                )
+
+        koop_jurisdictions: List[str] = [subject for subject in BwbRechtgebied.__members__.keys()]
+        for jurisdiction in request.input_data.Publication_Version.Bill_Metadata["Jurisdictions"]:
+            if jurisdiction not in koop_jurisdictions:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="waardelijsten_values_used_check_rule",
+                        object=ValidatePublicationObject(),
+                        messages=[
+                            f"Rechtsgebied '{jurisdiction}' is not known in waardelijst 'BwbRechtgebied'",
+                        ],
+                    )
+                )
         return errors
 
 

@@ -1,14 +1,15 @@
 import uuid
 from datetime import date, datetime
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import dso.models as dso_models
 from dso.announcement_builder.state_manager.models import InputData, Kennisgeving
+from dso.models import OpdrachtType
+from dso.services.koop.waardelijsten.gen import TopLijst, StappenUitDeBesluitvormingsprocedureVoorEenOntwerpbesluit
 
 from app.api.domains.publications.types.api_input_data import ApiAnnouncementInputData, BillFrbr, DocFrbr
 from app.api.domains.publications.types.enums import DocumentType, PackageType, ProcedureType
 from app.api.domains.publications.types.models import AnnouncementContent, AnnouncementProcedural
-from app.api.domains.publications.types.waardelijsten import Onderwerp
 from app.core.tables.publications import PublicationAnnouncementTable, PublicationEnvironmentTable
 
 DOCUMENT_TYPE_MAP = {
@@ -16,9 +17,9 @@ DOCUMENT_TYPE_MAP = {
     DocumentType.PROGRAM: "PROGRAMMA",
 }
 
-OPDRACHT_TYPE_MAP = {
-    PackageType.VALIDATION: "VALIDATIE",
-    PackageType.PUBLICATION: "PUBLICATIE",
+OPDRACHT_TYPE_MAP: Dict[PackageType, OpdrachtType] = {
+    PackageType.VALIDATION: OpdrachtType.VALIDATIE,
+    PackageType.PUBLICATION: OpdrachtType.PUBLICATIE,
 }
 
 PROCEDURE_TYPE_MAP = {
@@ -65,7 +66,7 @@ class DsoAnnouncementInputDataBuilder:
         return input_data
 
     def _get_opdracht(self) -> dso_models.PublicatieOpdracht:
-        dso_opdracht_type: str = OPDRACHT_TYPE_MAP[self._api_input_data.Package_Type]
+        dso_opdracht_type: OpdrachtType = OPDRACHT_TYPE_MAP[self._api_input_data.Package_Type]
         result = dso_models.PublicatieOpdracht(
             opdracht_type=dso_opdracht_type,
             id_levering=str(uuid.uuid4()),
@@ -109,8 +110,8 @@ class DsoAnnouncementInputDataBuilder:
 
         return result
 
-    def _get_onderwerpen(self) -> List[str]:
-        result: List[str] = [Onderwerp[v] for v in self._api_input_data.Announcement_Metadata.Subjects]
+    def _get_onderwerpen(self) -> List[TopLijst]:
+        result: List[TopLijst] = [TopLijst[v] for v in self._api_input_data.Announcement_Metadata.Subjects]
         return result
 
     def _get_procedure_verloop(self) -> dso_models.ProcedureVerloop:
@@ -119,12 +120,12 @@ class DsoAnnouncementInputDataBuilder:
         field_map: List[dict] = [
             {
                 "field": "Begin_Inspection_Period_Date",
-                "target": dso_models.ProcedureStappen.Begin_inzagetermijn,
+                "target": StappenUitDeBesluitvormingsprocedureVoorEenOntwerpbesluit.BeginInzagetermijn,
                 "required": True,
             },
             {
                 "field": "End_Inspection_Period_Date",
-                "target": dso_models.ProcedureStappen.Einde_inzagetermijn,
+                "target": StappenUitDeBesluitvormingsprocedureVoorEenOntwerpbesluit.EindeInzagetermijn,
                 "required": True,
             },
         ]
@@ -143,7 +144,7 @@ class DsoAnnouncementInputDataBuilder:
                 )
 
         procedure_verloop = dso_models.ProcedureVerloop(
-            bekend_op=self._procedural.Procedural_Announcement_Date,
+            bekend_op=self._procedural.Procedural_Announcement_Date or "",
             stappen=steps,
         )
         return procedure_verloop
