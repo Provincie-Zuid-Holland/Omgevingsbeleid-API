@@ -29,6 +29,7 @@ from .announcements import (
 from .versions import (
     DeletePublicationVersionAttachmentEndpointBuilder,
     UploadPublicationVersionAttachmentEndpointBuilder,
+    ListPublicationVersionAttachmentEndpointBuilder,
     CreatePublicationVersionEndpointBuilder,
     CreatePublicationVersionPdfEndpointBuilder,
     DeletePublicationVersionEndpointBuilder,
