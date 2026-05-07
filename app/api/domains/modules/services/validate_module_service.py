@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Type, Set
 
 from bs4 import BeautifulSoup
 from dso import GebiedsaanwijzingenFactory
-from dso.models import DocumentType
+from dso.services.koop.waardelijsten.gen import TyperingVanRegelingen
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
 from pydantic import BaseModel, Field, PrivateAttr, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
@@ -278,7 +278,7 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
-        gebiedsaanwijzingen = self._dso_gebiedsaanwijzingen_factory.get_for_document(DocumentType.OMGEVINGSVISIE)
+        gebiedsaanwijzingen = self._dso_gebiedsaanwijzingen_factory.get_for_document(TyperingVanRegelingen.omgevingsvisie)
 
         for object_table in request.module_objects:
             if object_table.Object_Type != "gebiedsaanwijzing":

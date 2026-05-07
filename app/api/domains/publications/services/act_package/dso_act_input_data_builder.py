@@ -21,7 +21,8 @@ from dso.act_builder.state_manager.input_data.resource.policy_object.policy_obje
 from dso.act_builder.state_manager.input_data.resource.resources import Resources
 from dso.models import OpdrachtType
 from dso.services.koop.waardelijsten import ProcedureStappen
-from dso.services.koop.waardelijsten.gen import BwbRechtgebied, TopLijst, Bestuursorganen, Besluitvormingsprocedures
+from dso.services.koop.waardelijsten.gen import BwbRechtgebied, TopLijst, Bestuursorganen, Besluitvormingsprocedures, \
+    TyperingVanRegelingen
 
 from app.api.domains.publications.types.api_input_data import (
     ActFrbr,
@@ -41,9 +42,9 @@ from app.core.tables.publications import (
     PublicationVersionTable,
 )
 
-DOCUMENT_TYPE_MAP: Dict[str, dso_models.DocumentType] = {
-    DocumentType.VISION.value: dso_models.DocumentType.OMGEVINGSVISIE,
-    DocumentType.PROGRAM.value: dso_models.DocumentType.PROGRAMMA,
+DOCUMENT_TYPE_MAP: Dict[str, TyperingVanRegelingen] = {
+    DocumentType.VISION.value: TyperingVanRegelingen.omgevingsvisie,
+    DocumentType.PROGRAM.value: TyperingVanRegelingen.programma,
 }
 
 OPDRACHT_TYPE_MAP: Dict[PackageType, OpdrachtType] = {
@@ -115,7 +116,7 @@ class DsoActInputDataBuilder:
         return input_data
 
     def _get_publication_settings(self) -> dso_models.PublicationSettings:
-        dso_document_type: dso_models.DocumentType = DOCUMENT_TYPE_MAP[self._publication.Document_Type]
+        dso_document_type: TyperingVanRegelingen = DOCUMENT_TYPE_MAP[self._publication.Document_Type]
         dso_opdracht_type: OpdrachtType = OPDRACHT_TYPE_MAP[self._package_type]
 
         publication_settings = dso_models.PublicationSettings(
@@ -132,7 +133,7 @@ class DsoActInputDataBuilder:
                 id_aanleveraar=self._environment.Submitter_ID,
                 publicatie_bestand=self._get_akn_filename(),
                 datum_bekendmaking=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
-            ),
+            ).model_dump(),
             instelling_doel=self._get_instelling_doel(),
             besluit_frbr=dso_models.BillFRBR(
                 Work_Province_ID=self._environment.Province_ID,
@@ -162,7 +163,7 @@ class DsoActInputDataBuilder:
         return filename
 
     def _get_besluit(self) -> Besluit:
-        api_procedure_type: ProcedureType = ProcedureType[self._publication.Procedure_Type]
+        api_procedure_type: ProcedureType = ProcedureType(self._publication.Procedure_Type)
         dso_procedure_type: Besluitvormingsprocedures = PROCEDURE_TYPE_MAP[api_procedure_type]
 
         besluit = Besluit(
