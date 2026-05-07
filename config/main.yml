@@ -432,6 +432,7 @@ api:
     - prefix: /publication-versions/{version_uuid}/attachments
       endpoints:
         - resolver: upload_publication_version_attachment
+        - resolver: list_publication_version_attachment
     - prefix: /publication-versions/{version_uuid}/attachments/{attachment_id}
       endpoints:
         - resolver: delete_publication_version_attachment
