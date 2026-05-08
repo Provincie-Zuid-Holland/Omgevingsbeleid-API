@@ -278,7 +278,9 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
-        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = self._dso_gebiedsaanwijzingen_factory.get_for_document(DocumentType.OMGEVINGSVISIE)
+        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = self._dso_gebiedsaanwijzingen_factory.get_for_document(
+            DocumentType.OMGEVINGSVISIE
+        )
 
         for object_table in request.module_objects:
             if object_table.Object_Type != "gebiedsaanwijzing":
@@ -299,6 +301,22 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                     )
                 )
                 continue
+            if ref_type.aanwijzing_type.deprecated:
+                errors.append(
+                    ValidateModuleError(
+                        rule="area_designation_check_ref_rule",
+                        object=ValidateModuleObject(
+                            code=object_table.Code,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
+                        messages=[
+                            f"GebiedsaanwijzingType '{object_table.Ref_Type}' for gebiedsaanwijzing is deprecated"
+                        ],
+                    )
+                )
+                continue
 
             ref_group: Optional[GebiedsaanwijzingWaarde] = ref_type.get_value_by_label(object_table.Ref_Group)
             if ref_group is None:
@@ -313,6 +331,23 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                         ),
                         messages=[
                             f"GebiedsaanwijzingGroep '{object_table.Ref_Group}' for GebiedsaanwijzingType '{object_table.Ref_Type}' not found"
+                        ],
+                    )
+                )
+                continue
+            if ref_group.deprecated:
+                errors.append(
+                    ValidateModuleError(
+                        rule="area_designation_check_ref_rule",
+                        object=ValidateModuleObject(
+                            code=object_table.Code,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
+                        severity=ValidateModuleSeverity.warning,
+                        messages=[
+                            f"GebiedsaanwijzingGroep '{object_table.Ref_Group}' for GebiedsaanwijzingType '{object_table.Ref_Type}' is deprecated"
                         ],
                     )
                 )
