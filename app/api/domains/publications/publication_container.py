@@ -18,6 +18,7 @@ from app.api.domains.publications.services.validate_publication_service import (
     GebiedengroepHasGiosRule,
     GioDuplicateFilenameRule,
     GioUniqueRule,
+    AreaDesignationRefCheckRule,
     ForbiddenHtmlTagsRule,
 )
 
@@ -30,6 +31,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     asset_repository = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
     publication_required_object_fields_rule_mapping = providers.Dependency()
+    dso_gebiedsaanwijzingen_factory = providers.Dependency()
 
     act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository)
     act_report_repository = providers.Singleton(repositories.PublicationActReportRepository)
@@ -171,6 +173,10 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Singleton(GebiedengroepHasGiosRule),
             providers.Singleton(GioDuplicateFilenameRule),
             providers.Singleton(GioUniqueRule),
+            providers.Singleton(
+                AreaDesignationRefCheckRule,
+                dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
+            ),
             providers.Singleton(
                 ForbiddenHtmlTagsRule,
                 main_config=main_config,
