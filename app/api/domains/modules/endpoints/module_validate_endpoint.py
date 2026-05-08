@@ -14,6 +14,7 @@ from app.api.domains.modules.services.validate_module_service import (
     ValidateModuleService,
     ValidateModuleRequest,
 )
+from app.api.domains.modules.types import ModuleObjectActionFull
 from app.api.domains.users.dependencies import depends_current_user
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.users import UsersTable
@@ -34,7 +35,11 @@ def get_module_validate_endpoint(
         module.Module_ID,
         datetime.now(timezone.utc),
     )
-    request = ValidateModuleRequest(module_id=module.Module_ID, module_objects=module_objects)
-
+    not_terminated_module_objects = [
+        module_object
+        for module_object in module_objects
+        if module_object.ModuleObjectContext.Action != ModuleObjectActionFull.Terminate
+    ]
+    request = ValidateModuleRequest(module_id=module.Module_ID, module_objects=not_terminated_module_objects)
     result: ValidateModuleResult = validate_module_service.validate(session, request)
     return result

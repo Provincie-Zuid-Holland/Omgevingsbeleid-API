@@ -19,6 +19,7 @@ from app.api.domains.publications.services.validate_publication_service import (
     GioDuplicateFilenameRule,
     GioUniqueRule,
     AreaDesignationRefCheckRule,
+    ForbiddenHtmlTagsRule,
 )
 
 
@@ -175,6 +176,10 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Singleton(
                 AreaDesignationRefCheckRule,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
+            ),
+            providers.Singleton(
+                ForbiddenHtmlTagsRule,
+                main_config=main_config,
             ),
         ),
     )

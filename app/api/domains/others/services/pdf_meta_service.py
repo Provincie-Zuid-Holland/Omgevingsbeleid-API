@@ -34,7 +34,7 @@ class PdfMetaService:
         report_list: List[PdfMetaReport] = []
 
         for meta_key, meta_value in doc_info.items():
-            meta_key_clean = self._clean_key(meta_key)
+            meta_key_clean = self._clean_key(str(meta_key))
             for ban_key in BAN_LIST:
                 if ban_key == meta_key_clean and len(str(meta_value)) > 0:
                     report_list.append(
@@ -50,7 +50,7 @@ class PdfMetaService:
 
         for meta_key in pdf_root_node["/Metadata"]:
             meta_key = str(meta_key)
-            meta_key_clean = self._clean_key(meta_key)
+            meta_key_clean = self._clean_key(str(meta_key))
             meta_value = str(pdf_root_node["/Metadata"][meta_key])
             for ban_key in BAN_LIST:
                 if ban_key == meta_key_clean and len(meta_value) > 0:
@@ -69,7 +69,7 @@ class PdfMetaService:
                 exif_data = image.getexif()
 
                 for meta_key, meta_value in exif_data.items():
-                    meta_key_clean = self._clean_key(meta_key)
+                    meta_key_clean = self._clean_key(str(meta_key))
                     for ban_key in BAN_LIST:
                         if ban_key == meta_key_clean and len(meta_value) > 0:
                             report_list.append(
@@ -77,7 +77,7 @@ class PdfMetaService:
                             )
 
                 for meta_key, meta_value in image.info.items():
-                    meta_key_clean = self._clean_key(meta_key)
+                    meta_key_clean = self._clean_key(str(meta_key))
                     for ban_key in BAN_LIST:
                         if ban_key == meta_key_clean and len(meta_value) > 0:
                             report_list.append(
