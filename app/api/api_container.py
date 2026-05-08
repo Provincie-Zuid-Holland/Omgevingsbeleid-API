@@ -97,6 +97,10 @@ class ApiContainer(containers.DeclarativeContainer):
         mssql=mssql_input_geo_onderverdeling_repository,
     )
 
+    dso_gebiedsaanwijzingen_factory = providers.Factory(
+        dso.GebiedsaanwijzingenFactory,
+    )
+
     publication = providers.Container(
         PublicationContainer,
         config=config,
@@ -107,6 +111,7 @@ class ApiContainer(containers.DeclarativeContainer):
         asset_repository=asset_repository,
         object_field_mapping_provider=object_field_mapping_provider,
         publication_required_object_fields_rule_mapping=publication_required_object_fields_rule_mapping,
+        dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
     )
 
     html_images_extractor_factory = providers.Factory(
@@ -180,10 +185,6 @@ class ApiContainer(containers.DeclarativeContainer):
         models_provider=models_provider,
     )
 
-    dso_gebiedsaanwijzingen_factory = providers.Factory(
-        dso.GebiedsaanwijzingenFactory,
-    )
-
     validate_module_service = providers.Singleton(
         module_services.ValidateModuleService,
         rules=providers.List(
@@ -201,6 +202,10 @@ class ApiContainer(containers.DeclarativeContainer):
             ),
             providers.Singleton(
                 module_services.ForbidEmptyHtmlNodesRule,
+                main_config=main_config,
+            ),
+            providers.Singleton(
+                module_services.ForbiddenHtmlTagsRule,
                 main_config=main_config,
             ),
             providers.Singleton(

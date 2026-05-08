@@ -6,6 +6,7 @@ from .validate_module_service import (
     RequiredObjectFieldsRule,
     RequireExistingHierarchyCodeRule,
     NewestInputGeoOnderverdelingUsedRule,
+    ForbiddenHtmlTagsRule,
     ForbidEmptyHtmlNodesRule,
     AreaDesignationRefCheckRule,
 )
