@@ -215,6 +215,12 @@ class ApiContainer(containers.DeclarativeContainer):
         ),
     )
 
+    validate_module_runner = providers.Singleton(
+        module_services.ValidateModuleRunner,
+        module_object_repository=module_object_repository,
+        validate_module_service=validate_module_service,
+    )
+
     object_provider = providers.Factory(
         module_services.ObjectProvider,
         object_repository=object_repository,

@@ -10,6 +10,8 @@ from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, Gebieds
 from pydantic import BaseModel, Field, PrivateAttr, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
+from app.api.domains.modules import ModuleObjectRepository
+from app.api.domains.modules.types import ModuleObjectActionFull
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.api.domains.werkingsgebieden.repositories import InputGeoOnderverdelingRepository
 from app.core.services import MainConfig
@@ -396,3 +398,28 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                     )
                 )
         return errors
+
+
+class ValidateModuleRunner:
+    def __init__(
+        self,
+        module_object_repository: ModuleObjectRepository,
+        validate_module_service: ValidateModuleService,
+    ):
+        self._module_object_repository: ModuleObjectRepository = module_object_repository
+        self._validate_module_service: ValidateModuleService = validate_module_service
+
+    def run(self, session: Session, module_id: int) -> ValidateModuleResult:
+        module_objects: List[ModuleObjectsTable] = self._module_object_repository.get_objects_in_time(
+            session,
+            module_id,
+            datetime.now(timezone.utc),
+        )
+        non_terminated_module_objects = [
+            module_object
+            for module_object in module_objects
+            if module_object.ModuleObjectContext.Action != ModuleObjectActionFull.Terminate
+        ]
+        request = ValidateModuleRequest(module_id=module_id, module_objects=non_terminated_module_objects)
+        result: ValidateModuleResult = self._validate_module_service.validate(session, request)
+        return result
