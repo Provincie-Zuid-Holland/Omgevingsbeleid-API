@@ -34,7 +34,9 @@ def get_module_validate_endpoint(
         module.Module_ID,
         datetime.now(timezone.utc),
     )
-    request = ValidateModuleRequest(module_id=module.Module_ID, module_objects=module_objects)
-
+    not_terminated_module_objects = [
+        module_object for module_object in module_objects if module_object.ModuleObjectContext.Action != "Terminate"
+    ]
+    request = ValidateModuleRequest(module_id=module.Module_ID, module_objects=not_terminated_module_objects)
     result: ValidateModuleResult = validate_module_service.validate(session, request)
     return result
