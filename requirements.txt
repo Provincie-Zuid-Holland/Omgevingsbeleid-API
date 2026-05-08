@@ -21,7 +21,7 @@ beautifulsoup4==4.14.3
     # via
     #   -r requirements.in
     #   dso
-certifi==2026.2.25
+certifi==2026.4.22
     # via
     #   dso
     #   httpcore
@@ -31,7 +31,7 @@ certifi==2026.2.25
     #   requests
 charset-normalizer==3.4.7
     # via requests
-click==8.3.2
+click==8.3.3
     # via
     #   -r requirements.in
     #   dso
@@ -46,13 +46,13 @@ diff-match-patch==20241021
     # via -r requirements.in
 dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.10.0
     # via -r requirements.in
-fastapi==0.136.0
+fastapi==0.136.1
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
 geopandas==1.1.3
     # via -r requirements.in
-greenlet==3.4.0
+greenlet==3.5.0
     # via sqlalchemy
 h11==0.16.0
     # via
@@ -64,7 +64,7 @@ httptools==0.7.1
     # via uvicorn
 httpx==0.28.1
     # via -r requirements.in
-idna==3.11
+idna==3.13
     # via
     #   anyio
     #   httpx
@@ -89,7 +89,7 @@ numpy==2.4.4
     #   pandas
     #   pyogrio
     #   shapely
-packaging==26.1
+packaging==26.2
     # via
     #   dso
     #   geopandas
@@ -99,7 +99,7 @@ pandas==3.0.2
     # via geopandas
 passlib==1.7.4
     # via -r requirements.in
-pathspec==1.0.4
+pathspec==1.1.1
     # via dso
 pdfkit==1.0.0
     # via -r requirements.in
@@ -111,15 +111,15 @@ pillow==12.2.0
     #   pikepdf
 platformdirs==4.9.6
     # via dso
-pydantic==2.13.2
+pydantic==2.13.4
     # via
     #   -r requirements.in
     #   dso
     #   fastapi
     #   pydantic-settings
-pydantic-core==2.46.2
+pydantic-core==2.46.4
     # via pydantic
-pydantic-settings==2.13.1
+pydantic-settings==2.14.1
     # via -r requirements.in
 pyjwt==2.12.1
     # via -r requirements.in
@@ -137,11 +137,11 @@ python-dotenv==1.2.2
     # via
     #   pydantic-settings
     #   uvicorn
-python-multipart==0.0.26
+python-multipart==0.0.27
     # via -r requirements.in
 python-slugify==8.0.4
     # via -r requirements.in
-pytz==2026.1.post1
+pytz==2026.2
     # via -r requirements.in
 pyyaml==6.0.3
     # via
@@ -190,9 +190,9 @@ typing-inspection==0.4.2
     #   fastapi
     #   pydantic
     #   pydantic-settings
-urllib3==2.6.3
+urllib3==2.7.0
     # via requests
-uvicorn[standard]==0.44.0
+uvicorn[standard]==0.46.0
     # via -r requirements.in
 uvloop==0.22.1
     # via uvicorn
