@@ -1,5 +1,6 @@
 import re
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Dict, List, Type, Optional, Set
 
 from bs4 import BeautifulSoup, Tag, ResultSet
@@ -20,10 +21,17 @@ class ValidatePublicationObject(BaseModel):
     title: Optional[str] = None
 
 
+class ValidatePublicationSeverity(str, Enum):
+    info = "info"
+    warning = "warning"
+    error = "error"
+
+
 class ValidatePublicationError(BaseModel):
     rule: str
     object: ValidatePublicationObject = Field(default_factory=ValidatePublicationObject)
     messages: List[str]
+    severity: ValidatePublicationSeverity = Field(default=ValidatePublicationSeverity.error)
 
 
 class ValidatePublicationRequest(BaseModel):
@@ -283,7 +291,9 @@ class AreaDesignationRefCheckRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         errors: List[ValidatePublicationError] = []
         dso_document_type: DocumentType = DOCUMENT_TYPE_MAP[request.document_type]
-        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = self._dso_gebiedsaanwijzingen_factory.get_for_document(dso_document_type)
+        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = self._dso_gebiedsaanwijzingen_factory.get_for_document(
+            dso_document_type
+        )
 
         for gebiedsaanwijzing in request.input_data.Publication_Data.gebiedsaanwijzingen.values():
             object_type, object_id = gebiedsaanwijzing.code.split("-", 1)
@@ -307,6 +317,22 @@ class AreaDesignationRefCheckRule(ValidatePublicationRule):
                     )
                 )
                 continue
+            if ref_type.aanwijzing_type.deprecated:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="area_designation_check_ref_rule",
+                        object=ValidatePublicationObject(
+                            code=gebiedsaanwijzing.code,
+                            object_id=int(object_id),
+                            object_type=object_type,
+                            title=gebiedsaanwijzing.title,
+                        ),
+                        messages=[
+                            f"GebiedsaanwijzingType '{gebiedsaanwijzing.aanwijzing_type}' for gebiedsaanwijzing is deprecated"
+                        ],
+                    )
+                )
+                continue
 
             ref_group: Optional[GebiedsaanwijzingWaarde] = ref_type.get_value_by_label(
                 gebiedsaanwijzing.aanwijzing_group
@@ -323,6 +349,23 @@ class AreaDesignationRefCheckRule(ValidatePublicationRule):
                         ),
                         messages=[
                             f"GebiedsaanwijzingGroep '{gebiedsaanwijzing.aanwijzing_group}' for GebiedsaanwijzingType '{gebiedsaanwijzing.aanwijzing_type}' not found"
+                        ],
+                    )
+                )
+                continue
+            if ref_group.deprecated:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="area_designation_check_ref_rule",
+                        object=ValidatePublicationObject(
+                            code=gebiedsaanwijzing.code,
+                            object_id=int(object_id),
+                            object_type=object_type,
+                            title=gebiedsaanwijzing.title,
+                        ),
+                        severity=ValidatePublicationSeverity.warning,
+                        messages=[
+                            f"GebiedsaanwijzingGroep '{gebiedsaanwijzing.aanwijzing_group}' for GebiedsaanwijzingType '{gebiedsaanwijzing.aanwijzing_type}' is deprecated"
                         ],
                     )
                 )
