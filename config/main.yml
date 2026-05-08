@@ -79,6 +79,18 @@ forbid_empty_html_nodes_rule:
     - track
     - wbr
 
+forbidden_html_tags_rule:
+  fields:
+    - Description
+    - Cause
+    - Provincial_Interest
+    - Explanation
+    - Role
+    - Effect
+  forbidden_html_tags:
+  - h1
+  - h2
+
 model_map: &model_map
   ambitie: ambitie_basic
   beleidsdoel: beleidsdoel_basic
