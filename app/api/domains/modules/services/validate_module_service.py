@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field, PrivateAttr, ValidationError, computed_fi
 from sqlalchemy.orm import Session
 
 from app.api.domains.modules import ModuleObjectRepository
+from app.api.domains.modules.types import ModuleObjectActionFull
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.api.domains.werkingsgebieden.repositories import InputGeoOnderverdelingRepository
 from app.core.services import MainConfig
@@ -414,6 +415,11 @@ class ValidateModuleRunner:
             module_id,
             datetime.now(timezone.utc),
         )
-        request = ValidateModuleRequest(module_id=module_id, module_objects=module_objects)
+        non_terminated_module_objects = [
+            module_object
+            for module_object in module_objects
+            if module_object.ModuleObjectContext.Action != ModuleObjectActionFull.Terminate
+        ]
+        request = ValidateModuleRequest(module_id=module_id, module_objects=non_terminated_module_objects)
         result: ValidateModuleResult = self._validate_module_service.validate(session, request)
         return result
