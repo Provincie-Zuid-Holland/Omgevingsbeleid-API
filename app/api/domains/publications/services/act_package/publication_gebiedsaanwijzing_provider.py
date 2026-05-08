@@ -99,10 +99,10 @@ class PublicationGebiedsaanwijzingProcessor:
                         raise validation_exception(
                             [
                                 ValidatePublicationError(
-                                    rule="gebiedsaanwijzing_invalid_code",
+                                    rule="gebiedsaanwijzing_html_deprecated_attribute",
                                     object=ValidatePublicationObject(code=object_code),
                                     messages=[
-                                        f"Gebiedsaanwijzing in object `{object_code}` uses deprecated attribute `{deprecated_attr}`"
+                                        f"Gebiedsaanwijzing in object `{object_code}` uses deprecated attribute `{deprecated_attr}` in HTML"
                                     ],
                                 )
                             ]
