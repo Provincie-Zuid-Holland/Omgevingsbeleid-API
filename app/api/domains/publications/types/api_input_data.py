@@ -156,8 +156,9 @@ class PublicationGeoData(BaseModel):
 @dataclass
 class PublicationData:
     all_object_codes: Set[str]
+    all_objects: List[dict]
     used_object_codes: Set[str]
-    objects: List[dict]
+    used_objects: List[dict]
     documents: List[dict]
     assets: List[dict]
     gios: Dict[str, PublicationGio]
