@@ -54,36 +54,40 @@ class PublicationGiosProvider:
 
     def _resolve_gebiedengroepen(self, gebieden_data: GebiedenData):
         for input_groep in gebieden_data.used_gebiedengroepen:
-            # We build a GIO for each gebiedengroep
-            locations: List[PublicationGioLocatie] = []
-            for gebied_code in input_groep.gebied_codes:
-                input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_groep.code)
-                location: PublicationGioLocatie = self._as_location(input_gebied)
-                locations.append(location)
-
-            gio: PublicationGio = PublicationGio(
-                key=input_groep.code,
-                source_codes=input_groep.gebied_codes,
-                title=input_groep.title,
-                frbr=self._build_frbr_gebiedengroep(input_groep),
-                new=True,
-                geboorteregeling=self._act_frbr.get_work(),
-                achtergrond_verwijzing="TOP10NL",
-                achtergrond_actualiteit=str(input_groep.modified_date)[:10],
-                locaties=locations,
-            )
-            # Save to accumulator
-            self._result.gios[gio.key] = gio
+            gio_key: str = self._resolve_gebiedengroep_gio(gebieden_data, input_groep)
 
             groep: PublicationGebiedengroep = PublicationGebiedengroep(
                 uuid=str(input_groep.uuid),
                 code=input_groep.code,
                 title=input_groep.title,
                 source_gebieden_codes=input_groep.gebied_codes,
-                gio_key=gio.key,
+                gio_key=gio_key,
             )
             # Save to accumulator
             self._result.gebiedengroepen[groep.code] = groep
+
+    def _resolve_gebiedengroep_gio(self, gebieden_data: GebiedenData, input_groep: InputGebiedengroep) -> str:
+        locations: List[PublicationGioLocatie] = []
+        for gebied_code in input_groep.gebied_codes:
+            input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_groep.code)
+            location: PublicationGioLocatie = self._as_location(input_gebied)
+            locations.append(location)
+
+        gio: PublicationGio = PublicationGio(
+            key=input_groep.code,
+            source_codes=input_groep.gebied_codes,
+            title=input_groep.title,
+            frbr=self._build_frbr_gebiedengroep(input_groep),
+            new=True,
+            geboorteregeling=self._act_frbr.get_work(),
+            achtergrond_verwijzing="TOP10NL",
+            achtergrond_actualiteit=str(input_groep.modified_date)[:10],
+            locaties=locations,
+        )
+
+        # Save to accumulator
+        self._result.gios[gio.key] = gio
+        return gio.key
 
     def _build_frbr_gebiedengroep(self, input_gebiedengroep: InputGebiedengroep) -> dso_models.GioFRBR:
         # Note: GIO's are consolidated per Act, so we use the Act's Work_Date
@@ -111,26 +115,7 @@ class PublicationGiosProvider:
         self, gebieden_data: GebiedenData, gebiedsaanwijzingen: Dict[str, GebiedsaanwijzingData]
     ):
         for input_aanwijzing in gebiedsaanwijzingen.values():
-            # We build a GIO for each gebiedsaanwijzing
-            locations: List[PublicationGioLocatie] = []
-            for gebied_code in input_aanwijzing.resolved_gebied_codes:
-                input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_aanwijzing.code)
-                location: PublicationGioLocatie = self._as_location(input_gebied)
-                locations.append(location)
-
-            gio: PublicationGio = PublicationGio(
-                key=input_aanwijzing.code,
-                source_codes=input_aanwijzing.resolved_gebied_codes,
-                title=input_aanwijzing.title,
-                frbr=self._build_frbr_gebiedsaanwijzing(input_aanwijzing),
-                new=True,
-                geboorteregeling=self._act_frbr.get_work(),
-                achtergrond_verwijzing="TOP10NL",
-                achtergrond_actualiteit=input_aanwijzing.achtergrond_actualiteit,
-                locaties=locations,
-            )
-            # Save to accumulator
-            self._result.gios[gio.key] = gio
+            gio_key: str = self._resolve_gebiedsaanwijzing_gio(gebieden_data, input_aanwijzing)
 
             aanwijzing: PublicationGebiedsaanwijzing = PublicationGebiedsaanwijzing(
                 uuid=str(input_aanwijzing.uuid),
@@ -138,12 +123,36 @@ class PublicationGiosProvider:
                 title=input_aanwijzing.title,
                 aanwijzing_type=input_aanwijzing.aanwijzing_type,
                 aanwijzing_group=input_aanwijzing.aanwijzing_group,
-                gio_key=gio.key,
+                gio_key=gio_key,
                 source_target_codes=input_aanwijzing.source_target_codes,
                 resolved_gebied_codes=input_aanwijzing.resolved_gebied_codes,
             )
             # Save to accumulator
             self._result.gebiedsaanwijzingen[aanwijzing.code] = aanwijzing
+
+    def _resolve_gebiedsaanwijzing_gio(
+        self, gebieden_data: GebiedenData, input_aanwijzing: GebiedsaanwijzingData
+    ) -> str:
+        locations: List[PublicationGioLocatie] = []
+        for gebied_code in input_aanwijzing.resolved_gebied_codes:
+            input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_aanwijzing.code)
+            location: PublicationGioLocatie = self._as_location(input_gebied)
+            locations.append(location)
+
+        gio: PublicationGio = PublicationGio(
+            key=input_aanwijzing.code,
+            source_codes=input_aanwijzing.resolved_gebied_codes,
+            title=input_aanwijzing.title,
+            frbr=self._build_frbr_gebiedsaanwijzing(input_aanwijzing),
+            new=True,
+            geboorteregeling=self._act_frbr.get_work(),
+            achtergrond_verwijzing="TOP10NL",
+            achtergrond_actualiteit=input_aanwijzing.achtergrond_actualiteit,
+            locaties=locations,
+        )
+
+        gio_key: str = self._manage_gio(gio)
+        return gio_key
 
     def _build_frbr_gebiedsaanwijzing(self, input_aanwijzing: GebiedsaanwijzingData) -> dso_models.GioFRBR:
         # Note: GIO's are consolidated per Act, so we use the Act's Work_Date
@@ -205,6 +214,16 @@ class PublicationGiosProvider:
             source_hash=gml_hash.hexdigest(),
             gml=area.Gml,
         )
+
+    def _manage_gio(self, new_gio: PublicationGio) -> str:
+        # If this GIO already exists than reuse the existing GIO
+        for existing_gio in self._result.gios.values():
+            if existing_gio.has_same_data(new_gio):
+                return existing_gio.key
+
+        # Save to accumulator
+        self._result.gios[new_gio.key] = new_gio
+        return new_gio.key
 
 
 class PublicationGiosProviderFactory:

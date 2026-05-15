@@ -1,6 +1,8 @@
+from dataclasses import dataclass
 from typing import Dict, List, Optional, Set
 from uuid import UUID
 
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
@@ -185,3 +187,38 @@ class PatchActMutation:
     def _patch_ow_state(self, data: ApiActInputData) -> ApiActInputData:
         data.Ow_State = self._active_act.Ow_State.model_dump_json()
         return data
+
+
+# Used to keep track which GIO's are claimed and under which condition.
+# Allowing us to reuse the GIO more then once.
+# And lets us also know which GIO's are not used and therefor should be removed in the publication.
+class StateGioClaimed(BaseModel):
+    claimed_by: Set[str]
+    claimed_title: str
+    claimed_source_codes: Set[str]
+    resulting_gio: PublicationGio
+
+
+class StateGioObject(BaseModel):
+    used_by: Set[str]
+    state_gio: models.Gio
+    claimed: Optional[StateGioClaimed]
+
+
+class StateGioPool:
+    def __init__(self, state_gios: Dict[str, models.Gio]):
+        """
+        For all state gios we need to know who used it (example ["gebiedengroep-1", "gebiedsaanwijzing-1", ...])
+
+        Then if a api-gio comes in, we check if the owner ("gebiedengroep-1" ex) has a gio in the state (mapped above)
+        If so:
+            If the state gio is not yet claimed, then the api-gio claims the gio.
+            It update the state gio (expression version etc)
+            then it updates the state gios tracker that this gio is claimed (with the api-gio's title, location-codes etc)
+            and then returns the state gio (so that the rest of the code reuses this gio, instead of the newly made api-gio)
+
+            If the state gio was already claimed. then the api-gio can only ALSO claim it, if it has the same title and location-codes as the previous one that claimed it.
+
+        If there is no available state gio, then just return the newly created api-gio as its final gio.
+        """
+        self._state_gios: Dict[str, models.Gio] = state_gios
