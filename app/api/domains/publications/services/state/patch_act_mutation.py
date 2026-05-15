@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional, Set
 from uuid import UUID
 
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
@@ -9,10 +10,110 @@ from app.api.domains.publications.types.api_input_data import ActFrbr, ActMutati
 import dso.models as dso_models
 
 
+# used_by: owner codes (gebiedengroep / gebiedsaanwijzing) that referenced
+# this state gio in the previous publication. A state gio is claimed at most
+# once, by the first new gio that reuses its lineage.
+class StateGioEntry(BaseModel):
+    used_by: Set[str]
+    state_gio: models.Gio
+    claimed: bool = False
+
+
+class StateGioPool:
+    """
+    Tracks the gios of the previous publication so a new gio can reuse their
+    FRBR lineage instead of minting a brand new gio.
+
+    The stable identity across publications is the owner code
+    (gebiedengroep / gebiedsaanwijzing), not the gio key (which only reflects
+    whichever owner produced the geometry first). So we match by owner: a new
+    gio inherits the state gio that one of its owners referenced last time.
+
+    Upstream deduplication already collapsed "reuse a gio more than once"
+    into a single api gio shared by multiple owners, so every state gio is
+    claimable exactly once. A state gio that nobody claims is no longer used
+    and must be withdrawn.
+    """
+
+    def __init__(self, active_act: models.ActiveAct):
+        self._entries: List[StateGioEntry] = []
+        for gio_key, state_gio in active_act.Gios.items():
+            used_by: Set[str] = set()
+            for groep in active_act.Gebiedengroepen.values():
+                if groep.gio_key == gio_key:
+                    used_by.add(groep.code)
+            for aanwijzing in active_act.Gebiedsaanwijzingen.values():
+                if aanwijzing.gio_key == gio_key:
+                    used_by.add(aanwijzing.code)
+
+            self._entries.append(
+                StateGioEntry(
+                    used_by=used_by,
+                    state_gio=state_gio,
+                )
+            )
+
+    def claim(self, new_gio: PublicationGio, owner_codes: List[str]) -> PublicationGio:
+        """
+        `owner_codes` must be ordered by priority: the first owner whose
+        state gio is still unclaimed wins. Without a usable state gio
+        `new_gio` is returned unchanged, keeping its own new FRBR.
+        """
+        for owner_code in owner_codes:
+            entry: Optional[StateGioEntry] = self._find_unclaimed_entry_for_owner(owner_code)
+            if entry is None:
+                continue
+
+            entry.claimed = True
+            return self._apply_state_frbr(new_gio, entry.state_gio)
+
+        return new_gio
+
+    def _find_unclaimed_entry_for_owner(self, owner_code: str) -> Optional[StateGioEntry]:
+        for entry in self._entries:
+            if not entry.claimed and owner_code in entry.used_by:
+                return entry
+        return None
+
+    def _apply_state_frbr(self, new_gio: PublicationGio, state_gio: models.Gio) -> PublicationGio:
+        if self._gio_data_is_same(new_gio, state_gio):
+            # Unchanged: reuse the state gio's FRBR as-is (same version).
+            new_gio.new = False
+            new_gio.geboorteregeling = state_gio.geboorteregeling
+            new_gio.achtergrond_verwijzing = state_gio.achtergrond_verwijzing
+            new_gio.achtergrond_actualiteit = state_gio.achtergrond_actualiteit
+
+            new_gio.frbr = dso_models.GioFRBR.model_validate(state_gio.frbr.model_dump())
+        else:
+            # Changed: keep the same FRBR Work (the lineage) but a new expression.
+            new_gio.new = True
+            new_gio.geboorteregeling = state_gio.geboorteregeling
+            new_gio.frbr.Work_Province_ID = state_gio.frbr.Work_Province_ID
+            new_gio.frbr.Work_Date = state_gio.frbr.Work_Date
+            new_gio.frbr.Work_Other = state_gio.frbr.Work_Other
+            new_gio.frbr.Expression_Version = state_gio.frbr.Expression_Version + 1
+
+        return new_gio
+
+    def _gio_data_is_same(self, new_gio: PublicationGio, state_gio: models.Gio) -> bool:
+        if state_gio.source_codes != new_gio.source_codes:
+            return False
+
+        state_hashes: Set[str] = {location.source_hash for location in state_gio.locaties}
+        new_hashes: Set[str] = {location.source_hash for location in new_gio.locaties}
+
+        return state_hashes == new_hashes
+
+    def get_removed_state_gios(self) -> List[models.Gio]:
+        # Unclaimed state gios are no longer used and must be withdrawn.
+        return [entry.state_gio for entry in self._entries if not entry.claimed]
+
+
 class PatchActMutation:
     def __init__(self, asset_provider: PublicationAssetProvider, active_act: models.ActiveAct):
         self._asset_provider: PublicationAssetProvider = asset_provider
         self._active_act: models.ActiveAct = active_act
+        self._gio_pool: StateGioPool = StateGioPool(active_act)
 
     def patch(self, session: Session, data: ApiActInputData) -> ApiActInputData:
         data = self._patch_gios(data)
@@ -23,35 +124,11 @@ class PatchActMutation:
         return data
 
     def _patch_gios(self, data: ApiActInputData) -> ApiActInputData:
-        state_gios: Dict[str, models.Gio] = self._active_act.Gios
-
         gios: Dict[str, PublicationGio] = data.Publication_Data.gios
-        for index, gio in gios.items():
-            existing_gio: Optional[models.Gio] = state_gios.get(gio.key)
-            if existing_gio is None:
-                continue
 
-            # If all locations are the same, then we use the state data
-            # and define the gebied as not new
-            if self._gio_data_is_same(existing_gio, gio):
-                gio.new = False
-                gio.geboorteregeling = existing_gio.geboorteregeling
-                gio.achtergrond_verwijzing = existing_gio.achtergrond_verwijzing
-                gio.achtergrond_actualiteit = existing_gio.achtergrond_actualiteit
-
-                # Keep the same FRBR
-                gio.frbr = dso_models.GioFRBR.model_validate(existing_gio.frbr)
-            else:
-                # If the hash are different that we will publish this as a new version
-                gio.new = True
-                gio.geboorteregeling = existing_gio.geboorteregeling
-                # Keep the same FRBR Work, but new expression
-                gio.frbr.Work_Province_ID = existing_gio.frbr.Work_Province_ID
-                gio.frbr.Work_Date = existing_gio.frbr.Work_Date
-                gio.frbr.Work_Other = existing_gio.frbr.Work_Other
-                gio.frbr.Expression_Version = existing_gio.frbr.Expression_Version + 1
-
-            gios[index] = gio
+        for gio_key, new_gio in gios.items():
+            owner_codes: List[str] = self._owner_codes_for_gio(data, gio_key)
+            gios[gio_key] = self._gio_pool.claim(new_gio, owner_codes)
 
         # After patching the GIOs, we need to restore the original basisgeo_ids on the locaties.
         #
@@ -70,25 +147,35 @@ class PatchActMutation:
                 state_hash_map[state_location.source_hash] = state_location.basisgeo_id
 
         # Now reuse those basisgeo_ids where we can
-        for index, gio in gios.items():
-            for loc_index, location in enumerate(gio.locaties):
+        for gio_key, new_gio in gios.items():
+            for loc_index, location in enumerate(new_gio.locaties):
                 basisgeo_id: str = state_hash_map.get(location.source_hash, location.basisgeo_id)
                 location.basisgeo_id = basisgeo_id
-                gio.locaties[loc_index] = location
-            gios[index] = gio
+                new_gio.locaties[loc_index] = location
+            gios[gio_key] = new_gio
 
         data.Publication_Data.gios = gios
 
         return data
 
-    def _gio_data_is_same(self, existing: models.Gio, current: PublicationGio) -> bool:
-        if existing.source_codes != current.source_codes:
-            return False
+    def _owner_codes_for_gio(self, data: ApiActInputData, gio_key: str) -> List[str]:
+        # Owners are ordered by priority: gebiedengroepen first (sorted by
+        # code), then gebiedsaanwijzingen (sorted by code). So when a new gio
+        # is shared by owners that previously pointed to different state gios,
+        # the gebiedengroep lineage wins deterministically.
+        owner_codes: List[str] = []
 
-        existing_hashes: Set[str] = {location.source_hash for location in existing.locaties}
-        current_hashes: Set[str] = {location.source_hash for location in current.locaties}
+        gebiedengroepen = data.Publication_Data.gebiedengroepen.values()
+        for groep in sorted(gebiedengroepen, key=lambda g: g.code):
+            if groep.gio_key == gio_key:
+                owner_codes.append(groep.code)
 
-        return existing_hashes == current_hashes
+        gebiedsaanwijzingen = data.Publication_Data.gebiedsaanwijzingen.values()
+        for aanwijzing in sorted(gebiedsaanwijzingen, key=lambda a: a.code):
+            if aanwijzing.gio_key == gio_key:
+                owner_codes.append(aanwijzing.code)
+
+        return owner_codes
 
     def _patch_documents(self, data: ApiActInputData) -> ApiActInputData:
         state_documents: Dict[int, models.Document] = self._active_act.Documents
@@ -160,18 +247,14 @@ class PatchActMutation:
             Consolidated_Act_Text=self._active_act.Act_Text,
             Known_Wid_Map=self._active_act.Wid_Data.Known_Wid_Map,
             Known_Wids=self._active_act.Wid_Data.Known_Wids,
-            Removed_Gios=self._get_removed_gios(data.Publication_Data.gios),
+            Removed_Gios=self._get_removed_gios(),
         )
         return data
 
-    def _get_removed_gios(self, input_gios: Dict[str, PublicationGio]) -> List[dict]:
-        state_gios: Dict[str, models.Gio] = self._active_act.Gios
+    def _get_removed_gios(self) -> List[dict]:
         removed_gios: List[dict] = []
 
-        for state_gio_key, state_gio in state_gios.items():
-            if state_gio_key in input_gios:
-                continue
-
+        for state_gio in self._gio_pool.get_removed_state_gios():
             removed_gio: dict = {
                 "source_codes": state_gio.source_codes,
                 "geboorteregeling": state_gio.geboorteregeling,
