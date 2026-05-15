@@ -86,9 +86,8 @@ class PublicationGiosProvider:
             locaties=locations,
         )
 
-        # Save to accumulator
-        self._result.gios[gio.key] = gio
-        return gio.key
+        gio_key: str = self._manage_gio(gio)
+        return gio_key
 
     def _build_frbr_gebiedengroep(self, input_gebiedengroep: InputGebiedengroep) -> dso_models.GioFRBR:
         # Note: GIO's are consolidated per Act, so we use the Act's Work_Date
