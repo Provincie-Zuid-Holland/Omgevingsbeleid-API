@@ -37,6 +37,7 @@ class PublicationGiosProvider:
         self._area_repository: AreaRepository = area_repository
         self._act_frbr: ActFrbr = act_frbr
         self._result: PublicationGeoData = PublicationGeoData()
+        self._gio_seq: int = 0
 
     def resolve_geo(
         self,
@@ -74,7 +75,7 @@ class PublicationGiosProvider:
             locations.append(location)
 
         gio: PublicationGio = PublicationGio(
-            key=input_groep.code,
+            key=self._new_gio_key(),
             source_codes=input_groep.gebied_codes,
             title=input_groep.title,
             frbr=self._build_frbr_gebiedengroep(input_groep),
@@ -140,7 +141,7 @@ class PublicationGiosProvider:
             locations.append(location)
 
         gio: PublicationGio = PublicationGio(
-            key=input_aanwijzing.code,
+            key=self._new_gio_key(),
             source_codes=input_aanwijzing.resolved_gebied_codes,
             title=input_aanwijzing.title,
             frbr=self._build_frbr_gebiedsaanwijzing(input_aanwijzing),
@@ -214,6 +215,11 @@ class PublicationGiosProvider:
             source_hash=gml_hash.hexdigest(),
             gml=area.Gml,
         )
+
+    def _new_gio_key(self) -> str:
+        # Creates a unique key for each gio over all the publications
+        self._gio_seq += 1
+        return f"gio-{self._act_frbr.Act_ID}-{self._act_frbr.Expression_Version}-{self._gio_seq}"
 
     def _manage_gio(self, new_gio: PublicationGio) -> str:
         # If this GIO already exists than reuse the existing GIO
