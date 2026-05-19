@@ -1,4 +1,4 @@
-from typing import Set, List
+from typing import Set, List, Sequence
 
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
@@ -34,21 +34,21 @@ class JoinGebiedsaanwijzingenService:
         for row in rows:
             aanwijzing_codes: Set[str] = set()
             for field in self._config.from_fields:
-                soup = BeautifulSoup(getattr(row, field), "html.parser")
+                soup: BeautifulSoup = BeautifulSoup(getattr(row, field), "html.parser")
                 for aanwijzing_html in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
                     aanwijzing_code: str = str(aanwijzing_html.get("data-code", ""))
                     if not aanwijzing_code:
                         continue
                     aanwijzing_codes.add(aanwijzing_code)
             if aanwijzing_codes:
-                object_statics = self._fetch_object_statics(aanwijzing_codes)
+                object_statics: List[ObjectStatics] = self._fetch_object_statics(aanwijzing_codes)
                 setattr(row, self._config.to_field, object_statics)
             result_rows.append(row)
         return result_rows
 
-    def _fetch_object_statics(self, aanwijzing_codes: Set[str]) -> List[BaseModel]:
+    def _fetch_object_statics(self, aanwijzing_codes: Set[str]) -> List[ObjectStatics]:
         stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(aanwijzing_codes))
-        rows = self._session.execute(stmt).scalars().all()
+        rows: Sequence[ObjectStaticsTable] = self._session.execute(stmt).scalars().all()
         return [ObjectStatics.model_validate(r) for r in rows]
 
 

@@ -442,7 +442,7 @@ class JoinGebiedsaanwijzingenBaseListener(Listener[EventRMO], Generic[EventRMO])
             return event
 
         service: JoinGebiedsaanwijzingenService = self._service_factory.create_service(session, config)
-        result_rows = service.join_gebiedsaanwijzingen(event.payload.rows)
+        result_rows: List[BaseModel] = service.join_gebiedsaanwijzingen(event.payload.rows)
         event.payload.rows = result_rows
         return event
 
