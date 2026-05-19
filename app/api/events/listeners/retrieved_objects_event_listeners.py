@@ -37,6 +37,7 @@ from app.api.domains.objects.services.join_documents_service import (
     JoinDocumentsService,
     JoinDocumentsServiceFactory,
 )
+from app.api.domains.werkingsgebieden.services import JoinGebiedsaanwijzingenServiceFactory
 from app.api.domains.werkingsgebieden.services.join_gebiedengroepen import (
     JoinGebiedenGroepenConfig,
     JoinGebiedenGroepenService,
@@ -46,6 +47,10 @@ from app.api.domains.objects.services.join_objects import (
     JoinObjectsConfig,
     JoinObjectsService,
     JoinObjectsServiceFactory,
+)
+from app.api.domains.werkingsgebieden.services.join_gebiedsaanwijzingen import (
+    JoinGebiedsaanwijzingenConfig,
+    JoinGebiedsaanwijzingenService,
 )
 from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
     JoinWerkingsgebiedenService,
@@ -422,4 +427,40 @@ class JoinObjectsBaseListener(Listener[EventRMO], Generic[EventRMO]):
 
 
 class JoinObjectsForObjectListener(JoinObjectsBaseListener[RetrievedObjectsEvent]):
+    pass
+
+
+class JoinGebiedsaanwijzingenBaseListener(Listener[EventRMO], Generic[EventRMO]):
+    def __init__(self, service_factory: JoinGebiedsaanwijzingenServiceFactory):
+        self._service_factory: JoinGebiedsaanwijzingenServiceFactory = service_factory
+
+    def handle_event(
+        self, session: Session, event: RetrievedModuleObjectsEvent
+    ) -> Optional[RetrievedModuleObjectsEvent]:
+        config: Optional[JoinGebiedsaanwijzingenConfig] = self._collect_config(event)
+        if not config:
+            return event
+
+        service: JoinGebiedsaanwijzingenService = self._service_factory.create_service(session, config)
+        result_rows = service.join_gebiedsaanwijzingen(event.payload.rows)
+        event.payload.rows = result_rows
+        return event
+
+    def _collect_config(self, event: RetrievedModuleObjectsEvent) -> Optional[JoinGebiedsaanwijzingenConfig]:
+        response_model: Model = event.context.response_model
+        if not isinstance(response_model, DynamicObjectModel):
+            return None
+        if "join_gebiedsaanwijzingen" not in response_model.service_config:
+            return None
+
+        config_dict: dict = response_model.service_config.get("join_gebiedsaanwijzingen", {})
+        to_field: str = config_dict["to_field"]
+        from_fields: Set[str] = config_dict["from_fields"]
+        return JoinGebiedsaanwijzingenConfig(
+            to_field=to_field,
+            from_fields=from_fields,
+        )
+
+
+class JoinGebiedsaanwijzingenForObjectListener(JoinGebiedsaanwijzingenBaseListener[RetrievedObjectsEvent]):
     pass

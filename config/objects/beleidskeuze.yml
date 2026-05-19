@@ -298,6 +298,13 @@ models:
       join_gebiedengroepen:
         to_field: Gebiedengroep_Static
         from_field: Gebiedengroep_Code
+      join_gebiedsaanwijzingen:
+        to_field: Gebiedsaanwijzingen_Statics
+        from_fields:
+          - Description
+          - Cause
+          - Provincial_Interest
+          - Explanation
       insert_assets:
         fields:
           - Description

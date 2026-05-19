@@ -168,6 +168,23 @@ class JoinGebiedengroepenListener(Listener[CreateModelEvent]):
         return event
 
 
+class JoinGebiedsaanwijzingenListener(Listener[CreateModelEvent]):
+    def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+        service_config: dict = event.context.intermediate_model.service_config
+        if "join_gebiedsaanwijzingen" not in service_config:
+            return event
+
+        config: dict = service_config["join_gebiedsaanwijzingen"]
+        field_name: str = config["to_field"]
+
+        event.payload.pydantic_fields[field_name] = (
+            Optional[ObjectStatics],
+            None,
+        )
+
+        return event
+
+
 class AddPublicRevisionsToObjectModelListener(Listener[CreateModelEvent]):
     def handle_event(self, session: Session, event: CreateModelEvent) -> Optional[CreateModelEvent]:
         service_config: dict = event.context.intermediate_model.service_config
