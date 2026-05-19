@@ -1,4 +1,4 @@
-from typing import Set, List, Sequence
+from typing import Set, List, Sequence, Dict
 
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
@@ -29,27 +29,44 @@ class JoinGebiedsaanwijzingenService:
     def join_gebiedsaanwijzingen(self, rows: List[BaseModel]):
         if len(rows) <= 0:
             return rows
-
         result_rows: List[BaseModel] = []
+        all_aanwijzing_codes: Set[str] = set()
+        aanwijzing_codes_per_object: Dict[str, Set[str]] = {}
+
         for row in rows:
-            aanwijzing_codes: Set[str] = set()
+            aanwijzing_codes_current_row: Set[str] = set()
             for field in self._config.from_fields:
                 soup: BeautifulSoup = BeautifulSoup(getattr(row, field), "html.parser")
                 for aanwijzing_html in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
                     aanwijzing_code: str = str(aanwijzing_html.get("data-code", ""))
                     if not aanwijzing_code:
                         continue
-                    aanwijzing_codes.add(aanwijzing_code)
-            if aanwijzing_codes:
-                object_statics: List[ObjectStatics] = self._fetch_object_statics(aanwijzing_codes)
-                setattr(row, self._config.to_field, object_statics)
+                    all_aanwijzing_codes.add(aanwijzing_code)
+                    aanwijzing_codes_current_row.add(aanwijzing_code)
+            aanwijzing_codes_per_object[getattr(row, "Code")] = aanwijzing_codes_current_row
+
+        if len(all_aanwijzing_codes) <= 0:
+            return rows
+
+        gebiedsaanwijzingen: Dict[str, ObjectStatics] = self._fetch_object_statics(all_aanwijzing_codes)
+
+        for row in rows:
+            object_code: str = getattr(row, "Code")
+            aanwijzing_statics: List[ObjectStatics] = []
+            for aanwijzing_code in aanwijzing_codes_per_object[object_code]:
+                object_statics: ObjectStatics = gebiedsaanwijzingen.get(aanwijzing_code)
+                if not object_statics:
+                    raise RuntimeError(f"Can't find object statics for gebiedsaanwijzing '{aanwijzing_code}'")
+                aanwijzing_statics.append(object_statics)
+            setattr(row, self._config.to_field, aanwijzing_statics)
             result_rows.append(row)
+
         return result_rows
 
-    def _fetch_object_statics(self, aanwijzing_codes: Set[str]) -> List[ObjectStatics]:
+    def _fetch_object_statics(self, aanwijzing_codes: Set[str]) -> Dict[str, ObjectStatics]:
         stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(aanwijzing_codes))
         rows: Sequence[ObjectStaticsTable] = self._session.execute(stmt).scalars().all()
-        return [ObjectStatics.model_validate(r) for r in rows]
+        return {r.Code: ObjectStatics.model_validate(r) for r in rows}
 
 
 class JoinGebiedsaanwijzingenServiceFactory:

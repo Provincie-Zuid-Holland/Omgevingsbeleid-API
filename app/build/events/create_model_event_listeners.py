@@ -178,7 +178,7 @@ class JoinGebiedsaanwijzingenListener(Listener[CreateModelEvent]):
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            Optional[ObjectStatics],
+            List[ObjectStatics],
             None,
         )
 
