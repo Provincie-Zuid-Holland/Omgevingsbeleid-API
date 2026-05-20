@@ -171,7 +171,6 @@ models:
       created_date:
       modified_date:
       title:
-      description:
       start_validity:
       end_validity:
     services:
