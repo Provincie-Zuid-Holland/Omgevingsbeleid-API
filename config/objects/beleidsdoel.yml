@@ -273,6 +273,10 @@ models:
             model_id: user_short
           - to_field: Client_1
             model_id: user_short
+      join_gebiedsaanwijzingen:
+        to_field: Gebiedsaanwijzingen_Statics
+        from_fields:
+          - Description
   beleidsdoel_patch:
     name: BeleidsdoelPatch
     fields:
@@ -295,6 +299,10 @@ models:
               max_width: 1500
               max_height: 2500
               max_kb: 800
+          - id: gebiedsaanwijzing_in_text
+            data:
+              allowed_code_types:
+                - gebiedsaanwijzing
       hierarchy_code:
         default: none
         optional: true
