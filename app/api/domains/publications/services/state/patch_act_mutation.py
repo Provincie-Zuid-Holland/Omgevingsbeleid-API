@@ -22,17 +22,25 @@ class StateGioEntry(BaseModel):
 class StateGioPool:
     """
     Tracks the gios of the previous publication so a new gio can reuse their
-    FRBR lineage instead of minting a brand new gio.
+    FRBR lineage instead of building a brand new gio.
 
     The stable identity across publications is the owner code
-    (gebiedengroep / gebiedsaanwijzing), not the gio key (which only reflects
-    whichever owner produced the geometry first). So we match by owner: a new
-    gio inherits the state gio that one of its owners referenced last time.
+    (gebiedengroep / gebiedsaanwijzing), not the gio key (which is rebuilt
+    every publication and so changes every time). So we match by owner: a
+    new gio inherits the state gio that one of its owners referenced last
+    time.
 
-    Upstream deduplication already collapsed "reuse a gio more than once"
-    into a single api gio shared by multiple owners, so every state gio is
-    claimable exactly once. A state gio that nobody claims is no longer used
-    and must be withdrawn.
+    Each state gio can be claimed at most once: every owner code appears in
+    the `used_by` of at most one state gio, and `claim` keeps the first
+    priority owner whose state gio is still unclaimed.
+
+    A state gio that nobody claims is no longer used and is withdrawn via
+    `get_removed_state_gios`. This is the intended path for two cases:
+    (1) the owner is gone from the new publication;
+    (2) two owners that previously had different state gios are now merged into one new gio
+    (their data is the same in this publication) — only the priority owner's
+    lineage is claimed, and the other state gios those owners used end up
+    withdrawn.
     """
 
     def __init__(self, active_act: models.ActiveAct):
@@ -96,13 +104,13 @@ class StateGioPool:
         return new_gio
 
     def _gio_data_is_same(self, new_gio: PublicationGio, state_gio: models.Gio) -> bool:
-        if state_gio.source_codes != new_gio.source_codes:
+        if state_gio.title != new_gio.title:
             return False
 
-        state_hashes: Set[str] = {location.source_hash for location in state_gio.locaties}
-        new_hashes: Set[str] = {location.source_hash for location in new_gio.locaties}
+        state_locs = {(location.title, location.source_hash) for location in state_gio.locaties}
+        new_locs = {(location.title, location.source_hash) for location in new_gio.locaties}
 
-        return state_hashes == new_hashes
+        return state_locs == new_locs
 
     def get_removed_state_gios(self) -> List[models.Gio]:
         # Unclaimed state gios are no longer used and must be withdrawn.

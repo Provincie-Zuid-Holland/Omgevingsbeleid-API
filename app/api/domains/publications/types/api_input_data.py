@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import date
-import hashlib
 from typing import Dict, List, Optional
 
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType, PurposeType
@@ -124,19 +123,13 @@ class PublicationGio(BaseModel):
 
     locaties: List[PublicationGioLocatie]
 
-    def get_loc_unique_hash(self) -> str:
-        # Used to determine of this locations data is the same as of another gio
-        loc_hash = hashlib.sha512()
-        for locatie in self.locaties:
-            loc_hash.update(locatie.title.encode())
-            loc_hash.update(locatie.source_hash.encode())
-        return loc_hash.hexdigest()
-
     def has_same_data(self, other: "PublicationGio") -> bool:
         if self.title != other.title:
             return False
 
-        return self.get_loc_unique_hash() == other.get_loc_unique_hash()
+        self_locs = sorted((loc.title, loc.source_hash) for loc in self.locaties)
+        other_locs = sorted((loc.title, loc.source_hash) for loc in other.locaties)
+        return self_locs == other_locs
 
 
 class PublicationGebiedengroep(BaseModel):
