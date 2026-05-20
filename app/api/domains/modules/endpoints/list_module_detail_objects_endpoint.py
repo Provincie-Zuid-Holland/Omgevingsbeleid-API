@@ -3,7 +3,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Query
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session, aliased, joinedload
 from sqlalchemy.sql import and_, or_
 
 from app.api.api_container import ApiContainer
@@ -24,7 +24,7 @@ from app.api.utils.pagination import (
     PagedResponse,
     Sort,
     SortedPagination,
-    query_paginated_no_scalars,
+    query_paginated,
 )
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleTable
 from app.core.tables.objects import ObjectStaticsTable
@@ -67,8 +67,6 @@ def get_list_module_detail_objects_endpoint(
     subq = (
         select(
             ModuleObjectsTable,
-            ModuleObjectContextTable,
-            ObjectStaticsTable,
             func.row_number()
             .over(
                 partition_by=ModuleObjectsTable.Code,
@@ -76,46 +74,44 @@ def get_list_module_detail_objects_endpoint(
             )
             .label("_RowNumber"),
         )
-        .select_from(ModuleObjectsTable)
-        .join(ModuleObjectsTable.ObjectStatics)
         .join(ModuleObjectsTable.ModuleObjectContext)
         .filter(ModuleObjectsTable.Module_ID == module.Module_ID)
         .filter(ModuleObjectContextTable.Hidden == False)
+        .subquery()
+    )
+
+    aliased_objects = aliased(ModuleObjectsTable, subq)
+    stmt = (
+        select(aliased_objects)
+        .filter(subq.c._RowNumber == 1)
+        .filter(subq.c.Deleted == False)
+        .options(
+            joinedload(aliased_objects.ModuleObjectContext),
+            joinedload(aliased_objects.ObjectStatics),
+        )
     )
 
     filters = [
-        ModuleObjectsTable.Object_Type == object_type if object_type is not None else None,
-        ModuleObjectContextTable.Action.in_(actions) if actions else None,
-        ModuleObjectsTable.Title.like(title) if title is not None else None,
-        (
+        subq.c.Object_Type == object_type if object_type is not None else None,
+        subq.c.Title.like(title) if title is not None else None,
+    ]
+
+    if actions:
+        stmt = stmt.join(aliased_objects.ModuleObjectContext).filter(ModuleObjectContextTable.Action.in_(actions))
+
+    if mine:
+        stmt = stmt.join(aliased_objects.ObjectStatics).filter(
             or_(
                 ObjectStaticsTable.Owner_1_UUID == user.UUID,
                 ObjectStaticsTable.Owner_2_UUID == user.UUID,
-            ).self_group()
-            if mine
-            else None
-        ),
-    ]
+            )
+        )
+
     active_filters = [f for f in filters if f is not None]
     if active_filters:
-        subq = subq.filter(and_(*active_filters))
+        stmt = stmt.filter(and_(*active_filters))
 
-    subq = subq.subquery()
-    aliased_objects = aliased(ModuleObjectsTable, subq)
-    aliased_object_statics = aliased(ObjectStaticsTable, subq)
-    aliased_module_object_context = aliased(ModuleObjectContextTable, subq)
-
-    stmt = (
-        select(
-            aliased_objects,
-            aliased_object_statics,
-            aliased_module_object_context,
-        )
-        .filter(subq.c._RowNumber == 1)
-        .filter(subq.c.Deleted == False)
-    )
-
-    paginated_result = query_paginated_no_scalars(
+    paginated_result = query_paginated(
         query=stmt,
         session=session,
         limit=pagination.limit,
@@ -124,13 +120,13 @@ def get_list_module_detail_objects_endpoint(
     )
 
     rows: List[ModuleDetailObjectsResponse] = []
-    for object_table, object_static, module_object_context in paginated_result.items:
+    for object_table in paginated_result.items:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_table, context.model_map)
         response: ModuleDetailObjectsResponse = ModuleDetailObjectsResponse(
-            Module_ID=module.Module_ID,
+            Module_ID=object_table.Module_ID,
             Model=parsed_model,
-            ObjectStatics=ObjectStaticShort.model_validate(object_static),
-            ModuleObjectContext=ModuleObjectContextShort.model_validate(module_object_context),
+            ObjectStatics=ObjectStaticShort.model_validate(object_table.ObjectStatics),
+            ModuleObjectContext=ModuleObjectContextShort.model_validate(object_table.ModuleObjectContext),
             Object_Type=object_table.Object_Type,
         )
         rows.append(response)
