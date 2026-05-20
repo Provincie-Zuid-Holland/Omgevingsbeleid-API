@@ -328,7 +328,7 @@ class DsoActInputDataBuilder:
 
     def _get_policy_object_repository(self) -> PolicyObjectRepository:
         repository = PolicyObjectRepository()
-        for o in self._publication_data.objects:
+        for o in self._publication_data.used_objects:
             repository.add(o["Code"], o)
         return repository
 

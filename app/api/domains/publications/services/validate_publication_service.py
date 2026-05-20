@@ -92,7 +92,7 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
 
         object_map = self._document_type_map.get(request.document_type)
 
-        for object_to_validate in request.input_data.Publication_Data.objects:
+        for object_to_validate in request.input_data.Publication_Data.used_objects:
             model: Optional[Type[BaseModel]] = object_map.get(object_to_validate.get("Object_Type"))
             if not model:
                 continue
@@ -120,7 +120,7 @@ class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
         errors: List[ValidatePublicationError] = []
 
         publication_data_codes = [
-            object_to_validate.get("Code") for object_to_validate in request.input_data.Publication_Data.objects
+            object_to_validate.get("Code") for object_to_validate in request.input_data.Publication_Data.used_objects
         ]
         for used_code_in_template in request.input_data.Publication_Data.used_object_codes:
             if used_code_in_template not in publication_data_codes:
@@ -145,21 +145,21 @@ class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
             object_type, _ = used_object_code.split("-")
             used_object_types_in_template.add(object_type)
 
-        for object_code in request.input_data.Publication_Data.all_object_codes:
-            object_type, object_id = object_code.split("-")
-            if object_type not in used_object_types_in_template:
+        for object_current in request.input_data.Publication_Data.all_objects:
+            if object_current.get("Object_Type") not in used_object_types_in_template:
                 continue
 
-            if object_code not in request.input_data.Publication_Data.used_object_codes:
+            if object_current.get("Code") not in request.input_data.Publication_Data.used_object_codes:
                 errors.append(
                     ValidatePublicationError(
                         rule="used_object_in_publication_exists_rule",
                         object=ValidatePublicationObject(
-                            code=object_code,
-                            object_id=int(object_id),
-                            object_type=object_type,
+                            code=object_current.get("Code"),
+                            object_id=object_current.get("Object_ID"),
+                            object_type=object_current.get("Object_Type"),
+                            title=object_current.get("Title", ""),
                         ),
-                        messages=[f"Object {object_code} can't be found in publication"],
+                        messages=[f"Object {object_current.get("Code")} can't be found in publication"],
                     )
                 )
         return errors
@@ -196,7 +196,7 @@ class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
             gebiedengroep.code for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values()
         }
 
-        for used_object in request.input_data.Publication_Data.objects:
+        for used_object in request.input_data.Publication_Data.used_objects:
             gebiedengroep_code: Optional[str] = used_object.get("Gebiedengroep_Code")
             if not gebiedengroep_code:
                 continue
@@ -388,7 +388,7 @@ class ForbiddenHtmlTagsRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         errors: List[ValidatePublicationError] = []
 
-        for used_object in request.input_data.Publication_Data.objects:
+        for used_object in request.input_data.Publication_Data.used_objects:
             for field_name in self._config.fields:
                 value: str = str(used_object.get(field_name, ""))
                 maybe_forbidden_tag = self._has_forbidden_tags(value)
