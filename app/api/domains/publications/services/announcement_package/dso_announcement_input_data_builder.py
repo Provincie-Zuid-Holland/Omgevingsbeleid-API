@@ -5,7 +5,7 @@ from typing import List, Optional, Dict
 import dso.models as dso_models
 from dso.announcement_builder.state_manager.models import InputData, Kennisgeving
 from dso.models import OpdrachtType
-from dso.services.koop.waardelijsten.gen import TopLijst, StappenUitDeBesluitvormingsprocedureVoorEenOntwerpbesluit
+from dso.services.koop.waardelijsten.gen import OnderwerpType, ProcedureStappenOntwerp
 
 from app.api.domains.publications.types.api_input_data import ApiAnnouncementInputData, BillFrbr, DocFrbr
 from app.api.domains.publications.types.enums import DocumentType, PackageType, ProcedureType
@@ -110,8 +110,8 @@ class DsoAnnouncementInputDataBuilder:
 
         return result
 
-    def _get_onderwerpen(self) -> List[TopLijst]:
-        result: List[TopLijst] = [TopLijst[v] for v in self._api_input_data.Announcement_Metadata.Subjects]
+    def _get_onderwerpen(self) -> List[OnderwerpType]:
+        result: List[OnderwerpType] = [OnderwerpType[v] for v in self._api_input_data.Announcement_Metadata.Subjects]
         return result
 
     def _get_procedure_verloop(self) -> dso_models.ProcedureVerloop:
@@ -120,12 +120,12 @@ class DsoAnnouncementInputDataBuilder:
         field_map: List[dict] = [
             {
                 "field": "Begin_Inspection_Period_Date",
-                "target": StappenUitDeBesluitvormingsprocedureVoorEenOntwerpbesluit.BeginInzagetermijn,
+                "target": ProcedureStappenOntwerp.begin_inzagetermijn,
                 "required": True,
             },
             {
                 "field": "End_Inspection_Period_Date",
-                "target": StappenUitDeBesluitvormingsprocedureVoorEenOntwerpbesluit.EindeInzagetermijn,
+                "target": ProcedureStappenOntwerp.einde_inzagetermijn,
                 "required": True,
             },
         ]

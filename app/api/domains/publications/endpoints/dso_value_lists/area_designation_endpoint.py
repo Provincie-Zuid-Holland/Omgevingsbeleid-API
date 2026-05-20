@@ -2,7 +2,7 @@ from typing import Annotated, List, Optional
 
 from dependency_injector.wiring import inject, Provide
 from dso import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
-from dso.services.koop.waardelijsten.gen import TyperingVanRegelingen
+from dso.services.koop.waardelijsten.gen import RegelingType
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing
 from fastapi import Depends
 from pydantic import BaseModel, ConfigDict
@@ -23,7 +23,7 @@ def get_area_designation_endpoint(
     ],
 ) -> ListAreaDesignationResponse:
     gebiedsaanwijzingen_programma: Optional[Gebiedsaanwijzingen] = dso_gebiedsaanwijzingen_factory.get_for_document(
-        TyperingVanRegelingen.programma
+        RegelingType.programma
     )
     gebiedsaanwijzingen_list = []
     if gebiedsaanwijzingen_programma is not None:

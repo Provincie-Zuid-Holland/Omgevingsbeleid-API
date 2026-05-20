@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Type, Optional, Set
 
 from bs4 import BeautifulSoup, Tag, ResultSet
-from dso.services.koop.waardelijsten.gen import TopLijst, BwbRechtgebied
+from dso.services.koop.waardelijsten.gen import OnderwerpType, RechtsgebiedType
 from pydantic import BaseModel, Field, computed_field, ConfigDict, ValidationError
 from sqlalchemy.orm import Session
 
@@ -277,7 +277,7 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         errors: List[ValidatePublicationError] = []
 
-        koop_subjects: List[str] = [subject for subject in TopLijst.__members__.keys()]
+        koop_subjects: List[str] = [subject for subject in OnderwerpType.__members__.keys()]
         for subject in request.input_data.Publication_Version.Bill_Metadata["Subjects"]:
             if subject not in koop_subjects:
                 errors.append(
@@ -290,7 +290,7 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
                     )
                 )
 
-        koop_jurisdictions: List[str] = [subject for subject in BwbRechtgebied.__members__.keys()]
+        koop_jurisdictions: List[str] = [subject for subject in RechtsgebiedType.__members__.keys()]
         for jurisdiction in request.input_data.Publication_Version.Bill_Metadata["Jurisdictions"]:
             if jurisdiction not in koop_jurisdictions:
                 errors.append(

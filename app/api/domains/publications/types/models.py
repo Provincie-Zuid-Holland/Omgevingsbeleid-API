@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime
 from typing import Any, List, Optional
 
-from dso.services.koop.waardelijsten.gen import BwbRechtgebied, TopLijst, Bestuursorganen
+from dso.services.koop.waardelijsten.gen import RechtsgebiedType, OnderwerpType, BestuursorgaanType
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic_core import ErrorDetails
 
@@ -12,9 +12,9 @@ from app.api.domains.publications.types.enums import PublicationVersionStatus
 
 # This model is meant for frontend
 class Waardelijsten(BaseModel):
-    Rechtsgebied: BwbRechtgebied
-    Onderwerp: TopLijst
-    Bestuursorgaan: Bestuursorganen
+    Rechtsgebied: RechtsgebiedType
+    Onderwerp: OnderwerpType
+    Bestuursorgaan: BestuursorgaanType
 
 
 class PublicationTemplate(BaseModel):
