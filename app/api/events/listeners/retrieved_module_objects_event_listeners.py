@@ -14,6 +14,7 @@ from app.api.events.listeners.retrieved_objects_event_listeners import (
     JoinGebiedenGroepBaseListener,
     ResolveChildObjectsViaHierarchyListenerBase,
     JoinObjectsBaseListener,
+    JoinGebiedsaanwijzingenBaseListener,
 )
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.core.services.event.types import Listener
@@ -76,4 +77,8 @@ class ResolveChildObjectsViaHierarchyToModuleObjectListener(
 
 
 class JoinGebiedenGroepForModuleObjectListener(JoinGebiedenGroepBaseListener[RetrievedModuleObjectsEvent]):
+    pass
+
+
+class JoinGebiedsaanwijzingenForModuleObjectListener(JoinGebiedsaanwijzingenBaseListener[RetrievedModuleObjectsEvent]):
     pass
