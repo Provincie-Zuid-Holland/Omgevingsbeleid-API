@@ -13,7 +13,7 @@ jobs:
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
           echo "PR Title: $PR_TITLE"
-          if [[ ! "$PR_TITLE" =~ ^(feat:|fix:|docs:|style:|refactor:|test:|chore:) ]]; then
-            echo "PR title must start with one of: feat:, fix:, chore: to ensure clean commit history in main"
+          if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore):\ .+ ]]; then
+            echo "PR title must start with one of: feat:, fix:, chore: etc., followed by a space (e.g. 'feat: add login page')"
             exit 1
           fi
