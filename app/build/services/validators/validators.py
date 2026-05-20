@@ -5,7 +5,7 @@ from typing import List, Optional, Set
 
 from PIL import Image
 from bs4 import BeautifulSoup
-from dso.services.koop.waardelijsten.gen import RegelingType
+from dso.models import DocumentType
 from pydantic import ValidationInfo
 from dso.services.ow.gebiedsaanwijzingen.gebiedsaanwijzing import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
 
@@ -390,7 +390,7 @@ class GebiedsaanwijzingValidator(Validator):
         dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory,
     ):
         gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = dso_gebiedsaanwijzingen_factory.get_for_document(
-            RegelingType.omgevingsvisie
+            DocumentType.OMGEVINGSVISIE
         )
         if gebiedsaanwijzingen is None:
             raise RuntimeError("Gebiedsaanwijzingen not found for specified DocumentType in GebiedsaanwijzingValidator")

@@ -19,14 +19,13 @@ from dso.act_builder.state_manager.input_data.resource.policy_object.policy_obje
     PolicyObjectRepository,
 )
 from dso.act_builder.state_manager.input_data.resource.resources import Resources
-from dso.models import OpdrachtType
+from dso.models import DocumentType as DSODocumentType, OpdrachtType
 from dso.services.koop.waardelijsten.gen import (
-    RechtsgebiedType,
-    OnderwerpType,
     BestuursorgaanType,
-    RegelingType,
-    ProcedureType as DSOProcedureType,
+    OnderwerpType,
     ProcedureStappen,
+    ProcedureType as DSOProcedureType,
+    RechtsgebiedType,
 )
 
 from app.api.domains.publications.types.api_input_data import (
@@ -38,7 +37,7 @@ from app.api.domains.publications.types.api_input_data import (
     Purpose,
 )
 from app.api.domains.publications.types.enums import (
-    DocumentType,
+    DocumentType as APIDocumentType,
     MutationStrategy,
     PackageType,
     ProcedureType as APIProcedureType,
@@ -52,9 +51,9 @@ from app.core.tables.publications import (
     PublicationVersionTable,
 )
 
-DOCUMENT_TYPE_MAP: Dict[str, RegelingType] = {
-    DocumentType.VISION.value: RegelingType.omgevingsvisie,
-    DocumentType.PROGRAM.value: RegelingType.programma,
+DOCUMENT_TYPE_MAP: Dict[str, DSODocumentType] = {
+    APIDocumentType.VISION.value: DSODocumentType.omgevingsvisie,
+    APIDocumentType.PROGRAM.value: DSODocumentType.programma,
 }
 
 OPDRACHT_TYPE_MAP: Dict[PackageType, OpdrachtType] = {
@@ -126,7 +125,7 @@ class DsoActInputDataBuilder:
         return input_data
 
     def _get_publication_settings(self) -> dso_models.PublicationSettings:
-        dso_document_type: RegelingType = DOCUMENT_TYPE_MAP[self._publication.Document_Type]
+        dso_document_type: DSODocumentType = DOCUMENT_TYPE_MAP[self._publication.Document_Type]
         dso_opdracht_type: OpdrachtType = OPDRACHT_TYPE_MAP[self._package_type]
 
         publication_settings = dso_models.PublicationSettings(
