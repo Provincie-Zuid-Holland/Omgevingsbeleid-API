@@ -11,6 +11,10 @@ class BaseRepository:
     def fetch_all(self, session: Session, statement: Select):
         return list(session.scalars(statement).all())
 
+    def iter_all(self, session: Session, statement: Select, batch_size: int = 100):
+        result = session.execute(statement)
+        yield from result.scalars().yield_per(batch_size)
+
     def fetch_paginated(
         self, session: Session, statement: Select, offset: int, limit: int, sort=None
     ) -> PaginatedQueryResult:
