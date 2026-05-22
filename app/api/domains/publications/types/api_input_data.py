@@ -123,6 +123,14 @@ class PublicationGio(BaseModel):
 
     locaties: List[PublicationGioLocatie]
 
+    def has_same_data(self, other: "PublicationGio") -> bool:
+        if self.title != other.title:
+            return False
+
+        self_locs = sorted((loc.title, loc.source_hash) for loc in self.locaties)
+        other_locs = sorted((loc.title, loc.source_hash) for loc in other.locaties)
+        return self_locs == other_locs
+
 
 class PublicationGebiedengroep(BaseModel):
     uuid: str
