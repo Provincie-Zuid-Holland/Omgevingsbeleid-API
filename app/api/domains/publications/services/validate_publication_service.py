@@ -1,13 +1,19 @@
 import re
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Dict, List, Type, Optional, Set
 
 from bs4 import BeautifulSoup, Tag, ResultSet
 from dso.services.koop.waardelijsten.gen import OnderwerpType, RechtsgebiedType
+from dso import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
+from dso.models import DocumentType
+from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
 from pydantic import BaseModel, Field, computed_field, ConfigDict, ValidationError
 from sqlalchemy.orm import Session
 
+from app.api.domains.publications.services.act_package.dso_act_input_data_builder import DOCUMENT_TYPE_MAP
 from app.api.domains.publications.types.api_input_data import ApiActInputData, PublicationGio
+from app.core.services import MainConfig
 
 
 class ValidatePublicationObject(BaseModel):
@@ -17,10 +23,17 @@ class ValidatePublicationObject(BaseModel):
     title: Optional[str] = None
 
 
+class ValidatePublicationSeverity(str, Enum):
+    info = "info"
+    warning = "warning"
+    error = "error"
+
+
 class ValidatePublicationError(BaseModel):
     rule: str
     object: ValidatePublicationObject = Field(default_factory=ValidatePublicationObject)
     messages: List[str]
+    severity: ValidatePublicationSeverity = Field(default=ValidatePublicationSeverity.error)
 
 
 class ValidatePublicationRequest(BaseModel):
@@ -80,7 +93,7 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
 
         object_map = self._document_type_map.get(request.document_type)
 
-        for object_to_validate in request.input_data.Publication_Data.objects:
+        for object_to_validate in request.input_data.Publication_Data.used_objects:
             model: Optional[Type[BaseModel]] = object_map.get(object_to_validate.get("Object_Type"))
             if not model:
                 continue
@@ -108,7 +121,7 @@ class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
         errors: List[ValidatePublicationError] = []
 
         publication_data_codes = [
-            object_to_validate.get("Code") for object_to_validate in request.input_data.Publication_Data.objects
+            object_to_validate.get("Code") for object_to_validate in request.input_data.Publication_Data.used_objects
         ]
         for used_code_in_template in request.input_data.Publication_Data.used_object_codes:
             if used_code_in_template not in publication_data_codes:
@@ -133,21 +146,21 @@ class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
             object_type, _ = used_object_code.split("-")
             used_object_types_in_template.add(object_type)
 
-        for object_code in request.input_data.Publication_Data.all_object_codes:
-            object_type, object_id = object_code.split("-")
-            if object_type not in used_object_types_in_template:
+        for object_current in request.input_data.Publication_Data.all_objects:
+            if object_current.get("Object_Type") not in used_object_types_in_template:
                 continue
 
-            if object_code not in request.input_data.Publication_Data.used_object_codes:
+            if object_current.get("Code") not in request.input_data.Publication_Data.used_object_codes:
                 errors.append(
                     ValidatePublicationError(
                         rule="used_object_in_publication_exists_rule",
                         object=ValidatePublicationObject(
-                            code=object_code,
-                            object_id=int(object_id),
-                            object_type=object_type,
+                            code=object_current.get("Code"),
+                            object_id=object_current.get("Object_ID"),
+                            object_type=object_current.get("Object_Type"),
+                            title=object_current.get("Title", ""),
                         ),
-                        messages=[f"Object {object_code} can't be found in publication"],
+                        messages=[f"Object {object_current.get('Code')} can't be found in publication"],
                     )
                 )
         return errors
@@ -184,7 +197,7 @@ class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
             gebiedengroep.code for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values()
         }
 
-        for used_object in request.input_data.Publication_Data.objects:
+        for used_object in request.input_data.Publication_Data.used_objects:
             gebiedengroep_code: Optional[str] = used_object.get("Gebiedengroep_Code")
             if not gebiedengroep_code:
                 continue
@@ -303,6 +316,138 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
                     )
                 )
         return errors
+
+
+class AreaDesignationRefCheckRule(ValidatePublicationRule):
+    def __init__(self, dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
+        self._dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = dso_gebiedsaanwijzingen_factory
+
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+        dso_document_type: DocumentType = DOCUMENT_TYPE_MAP[request.document_type]
+        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = self._dso_gebiedsaanwijzingen_factory.get_for_document(
+            dso_document_type
+        )
+
+        for gebiedsaanwijzing in request.input_data.Publication_Data.gebiedsaanwijzingen.values():
+            object_type, object_id = gebiedsaanwijzing.code.split("-", 1)
+            ref_type: Optional[Gebiedsaanwijzing] = gebiedsaanwijzingen.get_by_type_label(
+                gebiedsaanwijzing.aanwijzing_type
+            )
+
+            if ref_type is None:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="area_designation_check_ref_rule",
+                        object=ValidatePublicationObject(
+                            code=gebiedsaanwijzing.code,
+                            object_id=int(object_id),
+                            object_type=object_type,
+                            title=gebiedsaanwijzing.title,
+                        ),
+                        messages=[
+                            f"GebiedsaanwijzingType '{gebiedsaanwijzing.aanwijzing_type}' for gebiedsaanwijzing not found"
+                        ],
+                    )
+                )
+                continue
+            if ref_type.aanwijzing_type.deprecated:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="area_designation_check_ref_rule",
+                        object=ValidatePublicationObject(
+                            code=gebiedsaanwijzing.code,
+                            object_id=int(object_id),
+                            object_type=object_type,
+                            title=gebiedsaanwijzing.title,
+                        ),
+                        messages=[
+                            f"GebiedsaanwijzingType '{gebiedsaanwijzing.aanwijzing_type}' for gebiedsaanwijzing is deprecated"
+                        ],
+                    )
+                )
+                continue
+
+            ref_group: Optional[GebiedsaanwijzingWaarde] = ref_type.get_value_by_label(
+                gebiedsaanwijzing.aanwijzing_group
+            )
+            if ref_group is None:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="area_designation_check_ref_rule",
+                        object=ValidatePublicationObject(
+                            code=gebiedsaanwijzing.code,
+                            object_id=int(object_id),
+                            object_type=object_type,
+                            title=gebiedsaanwijzing.title,
+                        ),
+                        messages=[
+                            f"GebiedsaanwijzingGroep '{gebiedsaanwijzing.aanwijzing_group}' for GebiedsaanwijzingType '{gebiedsaanwijzing.aanwijzing_type}' not found"
+                        ],
+                    )
+                )
+                continue
+            if ref_group.deprecated:
+                errors.append(
+                    ValidatePublicationError(
+                        rule="area_designation_check_ref_rule",
+                        object=ValidatePublicationObject(
+                            code=gebiedsaanwijzing.code,
+                            object_id=int(object_id),
+                            object_type=object_type,
+                            title=gebiedsaanwijzing.title,
+                        ),
+                        severity=ValidatePublicationSeverity.warning,
+                        messages=[
+                            f"GebiedsaanwijzingGroep '{gebiedsaanwijzing.aanwijzing_group}' for GebiedsaanwijzingType '{gebiedsaanwijzing.aanwijzing_type}' is deprecated"
+                        ],
+                    )
+                )
+        return errors
+
+
+class ForbiddenHtmlTagsRuleConfig(BaseModel):
+    fields: List[str]
+    forbidden_html_tags: List[str]
+
+
+class ForbiddenHtmlTagsRule(ValidatePublicationRule):
+    def __init__(self, main_config: MainConfig):
+        self._config: ForbiddenHtmlTagsRuleConfig = main_config.get_as_model(
+            "forbidden_html_tags_rule",
+            ForbiddenHtmlTagsRuleConfig,
+        )
+
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+
+        for used_object in request.input_data.Publication_Data.used_objects:
+            for field_name in self._config.fields:
+                value: str = str(used_object.get(field_name, ""))
+                maybe_forbidden_tag = self._has_forbidden_tags(value)
+                if maybe_forbidden_tag:
+                    errors.append(
+                        ValidatePublicationError(
+                            rule="forbidden_html_tags_rule",
+                            object=ValidatePublicationObject(
+                                code=used_object.get("Code"),
+                                object_id=used_object.get("Object_ID"),
+                                object_type=used_object.get("Object_Type"),
+                                title=used_object.get("Title"),
+                            ),
+                            messages=[f"Forbidden html tag '{maybe_forbidden_tag}' found in '{field_name}'"],
+                        )
+                    )
+
+        return errors
+
+    def _has_forbidden_tags(self, text: str) -> Optional[str]:
+        soup = BeautifulSoup(text, "html.parser")
+        for tag in self._config.forbidden_html_tags:
+            elements = soup.find_all(tag)
+            if elements:
+                return tag
+        return None
 
 
 def generate_dso_gio_name(gio_title: str) -> str:

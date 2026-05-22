@@ -20,7 +20,6 @@ from app.core.tables.users import UsersTable
 
 class PublicationEdit(BaseModel):
     Template_UUID: Optional[uuid.UUID] = None
-    Title: Optional[str] = None
 
 
 @inject

@@ -28,7 +28,6 @@ from app.core.tables.users import UsersTable
 
 class PublicationCreate(BaseModel):
     Module_ID: int
-    Title: str
     Document_Type: DocumentType
     Procedure_Type: ProcedureType
     Template_UUID: uuid.UUID
@@ -78,7 +77,6 @@ def post_create_publication_endpoint(
     publication = PublicationTable(
         UUID=uuid.uuid4(),
         Module_ID=module.Module_ID,
-        Title=object_in.Title,
         Document_Type=object_in.Document_Type.value,
         Procedure_Type=object_in.Procedure_Type.value,
         Template_UUID=template.UUID,

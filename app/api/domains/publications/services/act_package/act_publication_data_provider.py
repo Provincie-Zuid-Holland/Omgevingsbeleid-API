@@ -99,8 +99,9 @@ class ActPublicationDataProvider:
 
         result: PublicationData = PublicationData(
             all_object_codes=all_object_codes,
+            all_objects=objects,
             used_object_codes=used_object_codes,
-            objects=used_objects,
+            used_objects=used_objects,
             documents=documents,
             assets=assets,
             gios=geo_data.gios,

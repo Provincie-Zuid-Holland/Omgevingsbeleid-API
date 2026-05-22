@@ -5,6 +5,7 @@ from app.build.api_builder import ApiBuilder, ApiBuilderResult
 from app.build.build_container import BuildContainer
 from app.commands import database_commands, mssql_commands, publication_commands, gdpr_commands
 from app.core.db.session import session_scope_with_context
+from app.core.logging import init_logging
 
 
 @click.group()
@@ -17,6 +18,7 @@ cli.add_command(database_commands.dropdb)
 cli.add_command(database_commands.load_fixtures)
 cli.add_command(mssql_commands.mssql_setup_search_database)
 cli.add_command(publication_commands.create_dso_json_scenario)
+cli.add_command(gdpr_commands.check_images)
 cli.add_command(gdpr_commands.check_pdfs)
 
 
@@ -36,5 +38,7 @@ if __name__ == "__main__":
     )
     api_container.wire(packages=["app.core", "app.api", "app.commands"])
     api_container.init_resources()
+
+    init_logging()
 
     cli()

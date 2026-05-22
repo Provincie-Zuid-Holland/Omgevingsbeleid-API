@@ -93,6 +93,21 @@ class PublicationGebiedsaanwijzingProcessor:
                     ]
                 )
 
+            for deprecated_attr in ["data-aanwijzing-type", "data-aanwijzing-group", "data-target-codes"]:
+                for aanwijzing_attr in aanwijzing_html.attrs.keys():
+                    if deprecated_attr == aanwijzing_attr:
+                        raise validation_exception(
+                            [
+                                ValidatePublicationError(
+                                    rule="gebiedsaanwijzing_html_deprecated_attribute",
+                                    object=ValidatePublicationObject(code=object_code),
+                                    messages=[
+                                        f"Gebiedsaanwijzing in object `{object_code}` uses deprecated attribute `{deprecated_attr}` in HTML"
+                                    ],
+                                )
+                            ]
+                        )
+
             used_gebiedsaanwijzingen_codes.add(aanwijzing_code)
 
         return used_gebiedsaanwijzingen_codes

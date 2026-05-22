@@ -79,6 +79,18 @@ forbid_empty_html_nodes_rule:
     - track
     - wbr
 
+forbidden_html_tags_rule:
+  fields:
+    - Description
+    - Cause
+    - Provincial_Interest
+    - Explanation
+    - Role
+    - Effect
+  forbidden_html_tags:
+  - h1
+  - h2
+
 model_map: &model_map
   ambitie: ambitie_basic
   beleidsdoel: beleidsdoel_basic
@@ -432,6 +444,7 @@ api:
     - prefix: /publication-versions/{version_uuid}/attachments
       endpoints:
         - resolver: upload_publication_version_attachment
+        - resolver: list_publication_version_attachment
     - prefix: /publication-versions/{version_uuid}/attachments/{attachment_id}
       endpoints:
         - resolver: delete_publication_version_attachment
