@@ -3,13 +3,13 @@ import binascii
 import io
 import logging
 import re
-from typing import Annotated, Sequence, List, Dict, Optional
+from typing import Annotated, Any, Dict, List, Optional, Sequence
 
 import click
-from PIL import Image, ExifTags, UnidentifiedImageError
+from PIL import ExifTags, Image, UnidentifiedImageError
 from PIL.Image import Exif
-from dependency_injector.wiring import inject, Provide
-from sqlalchemy import select, Select
+from dependency_injector.wiring import Provide, inject
+from sqlalchemy import Select, select
 
 from app.api.api_container import ApiContainer
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
@@ -18,7 +18,7 @@ from app.api.domains.others.services import PdfMetaService
 from app.api.domains.others.services.pdf_meta_service import PdfMetaReport
 from app.api.domains.publications.repository import PublicationStorageFileRepository
 from app.core.db.session import SessionFactoryType, session_scope_with_context
-from app.core.tables.others import StorageFileTable, AssetsTable
+from app.core.tables.others import AssetsTable, StorageFileTable
 from app.core.tables.publications import PublicationStorageFileTable
 
 logger = logging.getLogger(__name__)
@@ -66,6 +66,13 @@ def check_pdfs(
             logger.info("\n".join(log_list))
 
 
+def _format_exif_value(value: Any, max_length: int = 50) -> str:
+    value_str = str(value)
+    if len(value_str) > max_length:
+        return value_str[:max_length] + "..."
+    return value_str
+
+
 @click.command()
 @inject
 def check_images(
@@ -98,7 +105,8 @@ def check_images(
                     if not exif_data:
                         continue
                     exif_keys: Dict[str, str] = {
-                        ExifTags.TAGS.get(tag_id, tag_id): str(value) for tag_id, value in exif_data.items()
+                        ExifTags.TAGS.get(tag_id, tag_id): _format_exif_value(value)
+                        for tag_id, value in exif_data.items()
                     }
                     logger.info(f"Asset {asset.UUID} has exif data: {exif_keys}")
             except UnidentifiedImageError as e:
