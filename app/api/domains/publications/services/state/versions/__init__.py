@@ -4,5 +4,6 @@ from app.api.domains.publications.services.state.versions.v3 import StateV3, Sta
 from app.api.domains.publications.services.state.versions.v4 import StateV4, StateV4Upgrader
 from app.api.domains.publications.services.state.versions.v5 import StateV5, StateV5Upgrader
 from app.api.domains.publications.services.state.versions.v6 import StateV6, StateV6Upgrader
+from app.api.domains.publications.services.state.versions.v7 import StateV7, StateV7Upgrader
 
-ActiveState = StateV6
+ActiveState = StateV7

@@ -290,6 +290,11 @@ models:
       join_gebiedengroepen:
         to_field: Gebiedengroep_Static
         from_field: Gebiedengroep_Code
+      join_gebiedsaanwijzingen:
+        to_field: Gebiedsaanwijzingen_Statics
+        from_fields:
+          - Description
+          - Effect
       insert_assets:
         fields:
           - Description
@@ -347,9 +352,8 @@ models:
           - id: html
           - id: gebiedsaanwijzing_in_text
             data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
+              allowed_code_types:
+                - gebiedsaanwijzing
           - id: image
             data:
               max_width: 1500
@@ -365,9 +369,8 @@ models:
           - id: html
           - id: gebiedsaanwijzing_in_text
             data:
-              allowed_target_types:
-                - gebied
-                - gebiedengroep
+              allowed_code_types:
+                - gebiedsaanwijzing
           - id: image
             data:
               max_width: 1500

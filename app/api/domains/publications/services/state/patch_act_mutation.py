@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
-from app.api.domains.publications.services.state.versions.v6 import models
+from app.api.domains.publications.services.state.versions.v7 import models
 from app.api.domains.publications.types.api_input_data import ActFrbr, ActMutation, ApiActInputData, PublicationGio
 import dso.models as dso_models
 
@@ -27,11 +27,11 @@ class PatchActMutation:
 
         gios: Dict[str, PublicationGio] = data.Publication_Data.gios
         for index, gio in gios.items():
-            existing_gio: Optional[models.Gio] = state_gios.get(gio.key())
+            existing_gio: Optional[models.Gio] = state_gios.get(gio.key)
             if existing_gio is None:
                 continue
 
-            # If gebied is the same, then we use the state data
+            # If all locations are the same, then we use the state data
             # and define the gebied as not new
             if self._gio_data_is_same(existing_gio, gio):
                 gio.new = False

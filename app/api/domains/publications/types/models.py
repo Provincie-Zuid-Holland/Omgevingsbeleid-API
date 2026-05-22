@@ -102,7 +102,6 @@ class Publication(BaseModel):
     UUID: uuid.UUID
 
     Module_ID: int
-    Title: str
     Is_Locked: bool
     Document_Type: str
     Procedure_Type: str
@@ -119,7 +118,6 @@ class PublicationShort(BaseModel):
     UUID: uuid.UUID
 
     Module_ID: int
-    Title: str
     Is_Locked: bool
     Document_Type: str
     Procedure_Type: str

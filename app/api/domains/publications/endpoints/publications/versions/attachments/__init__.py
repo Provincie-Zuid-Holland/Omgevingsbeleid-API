@@ -1,2 +1,3 @@
 from .delete_attachment_endpoint import post_delete_attachment_endpoint
 from .upload_attachment_endpoint import post_upload_attachment_endpoint
+from .list_attachments_endpoint import get_list_attachments_endpoint

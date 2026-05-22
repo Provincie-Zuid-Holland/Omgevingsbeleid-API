@@ -22,7 +22,7 @@ class InputGeoOnderverdelingRepository(BaseRepository, metaclass=ABCMeta):
         stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
-    def get_by_title(self, session: Session, title: str) -> Optional[InputGeoOnderverdelingenTable]:
+    def get_latest_by_title(self, session: Session, title: str) -> Optional[InputGeoOnderverdelingenTable]:
         stmt = (
             select(InputGeoOnderverdelingenTable)
             .filter(InputGeoOnderverdelingenTable.Title == title)

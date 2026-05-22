@@ -17,7 +17,11 @@ from app.api.domains.publications.services.announcement_package.announcement_pac
 from app.api.domains.publications.services.announcement_package.announcement_package_builder_factory import (
     AnnouncementPackageBuilderFactory,
 )
-from app.api.domains.publications.services.pdf_export_service import PdfExportError, PdfExportService
+from app.api.domains.publications.services.pdf_export_service import (
+    PdfExportError,
+    PdfExportService,
+    PdfExportUnavailableError,
+)
 from app.api.domains.publications.types.enums import PackageType
 from app.api.domains.publications.types.zip import ZipData
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
@@ -49,6 +53,11 @@ def post_create_announcement_pdf_endpoint(
 ) -> StreamingResponse:
     if not announcement.Publication.Module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
+
+    try:
+        pdf_export_service.healthcheck(announcement.Publication.Environment.Code or "")
+    except PdfExportUnavailableError as e:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, e.msg)
 
     try:
         package_builder: AnnouncementPackageBuilder = package_builder_factory.create_builder(

@@ -2,13 +2,15 @@ from datetime import datetime, timezone
 from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_and_activated_module
+from app.api.domains.modules.services import ValidateModuleRunner
+from app.api.domains.modules.services.validate_module_service import ValidateModuleResult
 from app.api.domains.modules.types import ModuleStatusCode
 from app.api.domains.modules.utils import guard_module_is_locked
 from app.api.domains.users.dependencies import depends_current_user
@@ -31,6 +33,7 @@ def post_module_patch_status_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_and_activated_module)],
     session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
+    validate_module_runner: Annotated[ValidateModuleRunner, Depends(Provide[ApiContainer.validate_module_runner])],
 ) -> ResponseOK:
     permission_service.guard_valid_user(
         Permissions.module_can_patch_module_status,
@@ -42,13 +45,20 @@ def post_module_patch_status_endpoint(
     )
     guard_module_is_locked(module)
 
-    status = ModuleStatusHistoryTable(
+    if object_in.Status == ModuleStatusCode.Vastgesteld:
+        result: ValidateModuleResult = validate_module_runner.run(session, module.Module_ID)
+        if len(result.errors) > 0:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "Please run the module validator, there seems to be a problem."
+            )
+
+    module_status_history = ModuleStatusHistoryTable(
         Module_ID=module.Module_ID,
         Status=object_in.Status,
         Created_Date=datetime.now(timezone.utc),
         Created_By_UUID=user.UUID,
     )
-    session.add(status)
+    session.add(module_status_history)
     session.flush()
     session.commit()
 

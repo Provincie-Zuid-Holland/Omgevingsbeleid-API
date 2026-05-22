@@ -97,6 +97,10 @@ class ApiContainer(containers.DeclarativeContainer):
         mssql=mssql_input_geo_onderverdeling_repository,
     )
 
+    dso_gebiedsaanwijzingen_factory = providers.Factory(
+        dso.GebiedsaanwijzingenFactory,
+    )
+
     publication = providers.Container(
         PublicationContainer,
         config=config,
@@ -107,6 +111,7 @@ class ApiContainer(containers.DeclarativeContainer):
         asset_repository=asset_repository,
         object_field_mapping_provider=object_field_mapping_provider,
         publication_required_object_fields_rule_mapping=publication_required_object_fields_rule_mapping,
+        dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
     )
 
     html_images_extractor_factory = providers.Factory(
@@ -150,6 +155,9 @@ class ApiContainer(containers.DeclarativeContainer):
         werkingsgebied_services.JoinGebiedenGroepenServiceFactory,
         object_repository=object_repository,
     )
+    join_gebiedsaanwijzingen_object_statics_service_factory = providers.Singleton(
+        werkingsgebied_services.JoinGebiedsaanwijzingenServiceFactory,
+    )
     column_image_inserter_factory = providers.Singleton(
         object_services.ColumnImageInserterFactory,
         asset_repository=asset_repository,
@@ -180,10 +188,6 @@ class ApiContainer(containers.DeclarativeContainer):
         models_provider=models_provider,
     )
 
-    dso_gebiedsaanwijzingen_factory = providers.Factory(
-        dso.GebiedsaanwijzingenFactory,
-    )
-
     validate_module_service = providers.Singleton(
         module_services.ValidateModuleService,
         rules=providers.List(
@@ -204,10 +208,20 @@ class ApiContainer(containers.DeclarativeContainer):
                 main_config=main_config,
             ),
             providers.Singleton(
+                module_services.ForbiddenHtmlTagsRule,
+                main_config=main_config,
+            ),
+            providers.Singleton(
                 module_services.AreaDesignationRefCheckRule,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
         ),
+    )
+
+    validate_module_runner = providers.Singleton(
+        module_services.ValidateModuleRunner,
+        module_object_repository=module_object_repository,
+        validate_module_service=validate_module_service,
     )
 
     object_provider = providers.Factory(
@@ -239,6 +253,10 @@ class ApiContainer(containers.DeclarativeContainer):
             ),
             providers.Factory(
                 event_listeners.JoinGebiedenGroepForObjectListener,
+                service_factory=join_gebiedengroepen_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinGebiedsaanwijzingenForObjectListener,
                 service_factory=join_gebiedengroepen_service_factory,
             ),
             providers.Factory(
@@ -297,6 +315,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.JoinGebiedenGroepForModuleObjectListener,
                 service_factory=join_gebiedengroepen_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinGebiedsaanwijzingenForModuleObjectListener,
+                service_factory=join_gebiedsaanwijzingen_object_statics_service_factory,
             ),
             providers.Factory(
                 event_listeners.GetImagesForModuleListener,

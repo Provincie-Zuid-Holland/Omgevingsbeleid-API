@@ -7,7 +7,6 @@ from PIL import Image
 from bs4 import BeautifulSoup
 from pydantic import ValidationInfo
 from dso.services.ow.gebiedsaanwijzingen.gebiedsaanwijzing import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
-from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
 from dso.models import DocumentType
 
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
@@ -404,7 +403,7 @@ class GebiedsaanwijzingValidator(Validator):
         return "gebiedsaanwijzing_in_text"
 
     def get_validator_func(self, config: dict) -> PydanticValidator:
-        allowed_target_types: List[str] = config.get("allowed_target_types", [])
+        allowed_code_types: List[str] = config.get("allowed_code_types", [])
 
         def pydantic_validator_gebiedsaanwijzing_in_text(cls, value, info: ValidationInfo):
             if value is None:
@@ -419,51 +418,35 @@ class GebiedsaanwijzingValidator(Validator):
             Validating gebiedsaanwijzingen.
 
             HTML pattern:
-                <a data-hint-type="gebiedsaanwijzing" data-aanwijzing-type="bodem" data-aanwijzing-group="bodemfunctieklasse industrie"
-                    data-target-codes="gebied-1,gebiedengroep-15,gebiedengroep-1" data-title="Malieveld" href="#">het Malieveld</a>
+                <a data-hint-type="gebiedsaanwijzing" data-code="gebiedsaanwijzing-1" href="#">het Malieveld</a>
             """
-            used_target_codes: Set[str] = set()
+            used_codes: Set[str] = set()
             for aanwijzing_html in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
-                aanwijzing_type: str = str(aanwijzing_html.get("data-aanwijzing-type", ""))
-                aanwijzing_group: str = str(aanwijzing_html.get("data-aanwijzing-group", ""))
-                aanwijzing_title: str = str(aanwijzing_html.get("data-title", ""))
-                data_target_codes: Set[str] = {
-                    v.strip() for v in str(aanwijzing_html.get("data-target-codes", "")).split(",") if v.strip()
-                }
-
-                a_type: Optional[Gebiedsaanwijzing] = self._gebiedsaanwijzingen.get_by_type_label(aanwijzing_type)
-                if a_type is None:
-                    raise ValueError(f"Invalid data-aanwijzing-type `{aanwijzing_type}`")
-                a_groep: Optional[GebiedsaanwijzingWaarde] = a_type.get_value_by_label(aanwijzing_group)
-                if a_groep is None:
-                    raise ValueError(f"Invalid data-aanwijzing-group `{aanwijzing_group}`")
-                if len(aanwijzing_title) < 3:
-                    raise ValueError(f"Invalid data-title `{aanwijzing_title}`")
+                # Code of the gebiedsaanwijzing object
+                data_code: str = str(aanwijzing_html.get("data-code", ""))
 
                 inner_text: str = aanwijzing_html.get_text(strip=True)
                 if len(inner_text) == 0:
                     raise ValueError("Missing contents inside the gebiedsaanwijzing.")
 
-                if len(data_target_codes) == 0:
-                    raise ValueError(
-                        f"Missing `data-target-codes` for gebiedsaanwijzing with title `{aanwijzing_title}"
-                    )
+                if not data_code:
+                    raise ValueError(f"Missing `data-code` for gebiedsaanwijzing with inner text `{inner_text}")
 
                 # We tests all codes later
-                used_target_codes.update(data_target_codes)
+                used_codes.add(data_code)
 
             # Not tests all the codes to limit the query count
-            for used_target_code in used_target_codes:
-                code_parts: List[str] = used_target_code.split("-")
+            for used_code in used_codes:
+                code_parts: List[str] = used_code.split("-")
                 if len(code_parts) != 2:
-                    raise ValueError(f"Invalid data-target-codes `{used_target_code}`")
-                if code_parts[0] not in allowed_target_types:
-                    raise ValueError(f"Invalid object type for data-target-codes `{used_target_code}`")
+                    raise ValueError(f"Invalid data-code `{used_code}`")
+                if code_parts[0] not in allowed_code_types:
+                    raise ValueError(f"Invalid object type for data-code `{used_code}`")
 
             with session_scope_with_context(self._session_factory) as session:
-                all_ok, missing_codes = self._object_static_repository.does_codes_exists(session, used_target_codes)
+                all_ok, missing_codes = self._object_static_repository.does_codes_exists(session, used_codes)
                 if not all_ok:
-                    raise ValueError(f"Given data-target-codes do not exists `{', '.join(missing_codes)}`")
+                    raise ValueError(f"Given data-code do not exists `{', '.join(missing_codes)}`")
 
             return value
 

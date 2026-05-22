@@ -4,12 +4,14 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Type, Set
 
 from bs4 import BeautifulSoup
-from dso import GebiedsaanwijzingenFactory
+from dso import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
 from dso.models import DocumentType
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
 from pydantic import BaseModel, Field, PrivateAttr, ValidationError, computed_field, ConfigDict
 from sqlalchemy.orm import Session
 
+from app.api.domains.modules import ModuleObjectRepository
+from app.api.domains.modules.types import ModuleObjectActionFull
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.api.domains.werkingsgebieden.repositories import InputGeoOnderverdelingRepository
 from app.core.services import MainConfig
@@ -184,7 +186,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
             area_hash: str = area_current.Source_Geometry_Hash or ""
             area_title: str = area_current.Source_Title
             onderverdeling: Optional[InputGeoOnderverdelingenTable] = (
-                self._input_geo_onderverdeling_repository.get_by_title(db, area_title)
+                self._input_geo_onderverdeling_repository.get_latest_by_title(db, area_title)
             )
             if onderverdeling is None:
                 errors.append(
@@ -223,6 +225,50 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                 continue
 
         return errors
+
+
+class ForbiddenHtmlTagsRuleConfig(BaseModel):
+    fields: List[str]
+    forbidden_html_tags: List[str]
+
+
+class ForbiddenHtmlTagsRule(ValidateModuleRule):
+    def __init__(self, main_config: MainConfig):
+        self._config: ForbiddenHtmlTagsRuleConfig = main_config.get_as_model(
+            "forbidden_html_tags_rule",
+            ForbiddenHtmlTagsRuleConfig,
+        )
+
+    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
+        errors: List[ValidateModuleError] = []
+
+        for object_table in request.module_objects:
+            for field_name in self._config.fields:
+                value: str = str(getattr(object_table, field_name, ""))
+                maybe_forbidden_tag = self._has_forbidden_tags(value)
+                if maybe_forbidden_tag:
+                    errors.append(
+                        ValidateModuleError(
+                            rule="forbidden_html_tags_rule",
+                            object=ValidateModuleObject(
+                                code=object_table.Code,
+                                object_id=object_table.Object_ID,
+                                object_type=object_table.Object_Type,
+                                title=object_table.Title,
+                            ),
+                            messages=[f"Forbidden html tag '{maybe_forbidden_tag}' found in '{field_name}'"],
+                        )
+                    )
+
+        return errors
+
+    def _has_forbidden_tags(self, text: str) -> Optional[str]:
+        soup = BeautifulSoup(text, "html.parser")
+        for tag in self._config.forbidden_html_tags:
+            elements = soup.find_all(tag)
+            if elements:
+                return tag
+        return None
 
 
 class ForbidEmptyHtmlNodesRuleConfig(BaseModel):
@@ -278,7 +324,9 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
-        gebiedsaanwijzingen = self._dso_gebiedsaanwijzingen_factory.get_for_document(DocumentType.OMGEVINGSVISIE)
+        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = self._dso_gebiedsaanwijzingen_factory.get_for_document(
+            DocumentType.OMGEVINGSVISIE
+        )
 
         for object_table in request.module_objects:
             if object_table.Object_Type != "gebiedsaanwijzing":
@@ -299,6 +347,22 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                     )
                 )
                 continue
+            if ref_type.aanwijzing_type.deprecated:
+                errors.append(
+                    ValidateModuleError(
+                        rule="area_designation_check_ref_rule",
+                        object=ValidateModuleObject(
+                            code=object_table.Code,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
+                        messages=[
+                            f"GebiedsaanwijzingType '{object_table.Ref_Type}' for gebiedsaanwijzing is deprecated"
+                        ],
+                    )
+                )
+                continue
 
             ref_group: Optional[GebiedsaanwijzingWaarde] = ref_type.get_value_by_label(object_table.Ref_Group)
             if ref_group is None:
@@ -316,5 +380,46 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                         ],
                     )
                 )
-
+                continue
+            if ref_group.deprecated:
+                errors.append(
+                    ValidateModuleError(
+                        rule="area_designation_check_ref_rule",
+                        object=ValidateModuleObject(
+                            code=object_table.Code,
+                            object_id=object_table.Object_ID,
+                            object_type=object_table.Object_Type,
+                            title=object_table.Title,
+                        ),
+                        severity=ValidateModuleSeverity.warning,
+                        messages=[
+                            f"GebiedsaanwijzingGroep '{object_table.Ref_Group}' for GebiedsaanwijzingType '{object_table.Ref_Type}' is deprecated"
+                        ],
+                    )
+                )
         return errors
+
+
+class ValidateModuleRunner:
+    def __init__(
+        self,
+        module_object_repository: ModuleObjectRepository,
+        validate_module_service: ValidateModuleService,
+    ):
+        self._module_object_repository: ModuleObjectRepository = module_object_repository
+        self._validate_module_service: ValidateModuleService = validate_module_service
+
+    def run(self, session: Session, module_id: int) -> ValidateModuleResult:
+        module_objects: List[ModuleObjectsTable] = self._module_object_repository.get_objects_in_time(
+            session,
+            module_id,
+            datetime.now(timezone.utc),
+        )
+        non_terminated_module_objects = [
+            module_object
+            for module_object in module_objects
+            if module_object.ModuleObjectContext.Action != ModuleObjectActionFull.Terminate
+        ]
+        request = ValidateModuleRequest(module_id=module_id, module_objects=non_terminated_module_objects)
+        result: ValidateModuleResult = self._validate_module_service.validate(session, request)
+        return result

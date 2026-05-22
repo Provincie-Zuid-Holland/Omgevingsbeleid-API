@@ -35,6 +35,10 @@ class PdfExportTooManyAttemptsError(PdfExportError):
     pass
 
 
+class PdfExportUnavailableError(PdfExportError):
+    pass
+
+
 class PdfExportUnkownError(PdfExportError):
     def __init__(self, msg: str, status_code: int):
         self.msg = msg
@@ -47,6 +51,22 @@ class PdfExportService:
         self._koop_settings: Dict[str, KoopSettings] = {
             k: KoopSettings(**v) if not isinstance(v, KoopSettings) else v for k, v in koop_settings.items()
         }
+
+    def healthcheck(self, environment_code: str) -> None:
+        try:
+            api_settings: KoopSettings = self._get_api_settings(environment_code)
+
+            response = requests.get(
+                urljoin(api_settings.PREVIEW_API_URL, "/health"),
+                headers={"x-api-key": api_settings.API_KEY},
+                timeout=5,
+            )
+            if response.status_code >= 500:
+                raise PdfExportUnavailableError(f"PDF preview service is unavailable (status {response.status_code})")
+        except requests.ConnectionError:
+            raise PdfExportUnavailableError("PDF preview service is unreachable")
+        except requests.Timeout:
+            raise PdfExportUnavailableError("PDF preview service timed out")
 
     def create_pdf(self, environment_code: str, zip_data: ZipData) -> requests.Response:
         api_settings: KoopSettings = self._get_api_settings(environment_code)
