@@ -68,9 +68,10 @@ def check_pdfs(
 
 def _format_exif_value(value: Any, max_length: int = 50) -> str:
     if isinstance(value, bytes):
-        return "<binary data>"
+        value_str = value.decode(errors="ignore")
+    else:
+        value_str = str(value)
 
-    value_str = str(value)
     if len(value_str) > max_length:
         return value_str[:max_length] + "..."
     return value_str
