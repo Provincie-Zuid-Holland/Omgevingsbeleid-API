@@ -1,9 +1,9 @@
 from collections import OrderedDict
 from dataclasses import dataclass
 
+from app.build.events.types import BuildEvent
 from app.build.objects.types import IntermediateModel
 from app.core.services.models_provider import ModelsProvider
-from app.core.services.event.types import Event
 
 
 @dataclass
@@ -18,7 +18,7 @@ class CreateModelEventContext:
     models_provider: ModelsProvider
 
 
-class CreateModelEvent(Event):
+class CreateModelEvent(BuildEvent):
     def __init__(
         self,
         payload: CreateModelEventPayload,

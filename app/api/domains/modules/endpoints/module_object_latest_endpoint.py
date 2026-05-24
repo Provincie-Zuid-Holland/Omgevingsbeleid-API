@@ -12,7 +12,7 @@ from app.api.domains.modules.repositories.module_object_repository import Module
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
-from app.core.services.event.event_manager import EventManager
+from app.api.events.event_manager import ApiEventManager
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.users import UsersTable
 from app.core.types import Model
@@ -31,7 +31,7 @@ def view_module_object_latest_endpoint(
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
-    event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
+    event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ModuleObjectLatestEndpointContext, Depends()],
 ) -> BaseModel:

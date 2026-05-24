@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Type
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
 
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.api_models import DECLARED_MODELS
@@ -38,13 +37,13 @@ class ApiBuilder:
         self._endpoint_builder_provider: EndpointBuilderProvider = endpoint_builder_provider
         self._models_provider: ModelsProvider = models_provider
 
-    def build(self, session: Session) -> ApiBuilderResult:
+    def build(self) -> ApiBuilderResult:
         build_data: BuildData = self._config_parser.parse()
 
-        self._tables_builder.build_tables(session, build_data.columns)
+        self._tables_builder.build_tables(build_data.columns)
 
         self._models_provider.add_list(DECLARED_MODELS)
-        self._object_models_builder.build_models(session, self._models_provider, build_data.object_intermediates)
+        self._object_models_builder.build_models(self._models_provider, build_data.object_intermediates)
 
         object_field_mapping_provider: ObjectFieldMappingProvider = self._build_object_field_mapping_provider(
             build_data

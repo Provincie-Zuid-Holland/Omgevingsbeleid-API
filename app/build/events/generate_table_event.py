@@ -1,11 +1,11 @@
 from typing import Type
 
+from app.build.events.types import BuildEvent
 from app.core.db.base import Base
-from app.core.services.event.types import Event
 from app.core.types import Column
 
 
-class GenerateTableEvent(Event):
+class GenerateTableEvent(BuildEvent):
     def __init__(
         self,
         table_type: Type[Base],

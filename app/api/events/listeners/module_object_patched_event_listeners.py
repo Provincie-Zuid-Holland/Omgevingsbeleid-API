@@ -8,11 +8,11 @@ from app.api.domains.werkingsgebieden.services.change_area_processor import (
     AreaProcessorServiceFactory,
 )
 from app.api.events.module_object_patched_event import ModuleObjectPatchedEvent
-from app.core.services.event.types import Listener
+from app.api.events.types import ApiListener
 from app.core.types import DynamicObjectModel, Model
 
 
-class ChangeAreaListener(Listener[ModuleObjectPatchedEvent]):
+class ChangeAreaListener(ApiListener[ModuleObjectPatchedEvent]):
     def __init__(self, service_factory: AreaProcessorServiceFactory):
         self._service_factory: AreaProcessorServiceFactory = service_factory
 

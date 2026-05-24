@@ -4,23 +4,22 @@ from typing import Any, Dict, List, Optional, OrderedDict, Tuple
 import pydantic
 
 from app.build.events.create_model_event import CreateModelEvent
+from app.build.events.event_manager import BuildEventManager
 from app.build.objects.fields import FIELD_TYPES
 from app.build.objects.types import Field, IntermediateModel, IntermediateObject
 from app.build.services.validator_provider import ValidatorProvider
 from app.core.services.models_provider import ModelsProvider
-from app.core.services.event.event_manager import EventManager
 from app.core.types import Model, DynamicObjectModel
-from sqlalchemy.orm import Session
 
 
 class ObjectModelsBuilder:
     def __init__(
         self,
         validator_provider: ValidatorProvider,
-        event_manager: EventManager,
+        event_manager: BuildEventManager,
     ):
         self._validator_provider: ValidatorProvider = validator_provider
-        self._event_manager: EventManager = event_manager
+        self._event_manager: BuildEventManager = event_manager
 
         self._field_defaults: Dict[str, Any] = {
             "none": None,
@@ -28,7 +27,6 @@ class ObjectModelsBuilder:
 
     def build_models(
         self,
-        session: Session,
         models_provider: ModelsProvider,
         intermediate_objects: List[IntermediateObject],
     ):
@@ -38,7 +36,7 @@ class ObjectModelsBuilder:
         intermediate_models = self._sort_intermediate_objects(intermediate_models)
 
         for intermediate_model in intermediate_models:
-            model: Model = self._build_model(session, models_provider, intermediate_model)
+            model: Model = self._build_model(models_provider, intermediate_model)
             models_provider.add(model)
 
     def _sort_intermediate_objects(self, intermediate_objects: List[IntermediateModel]) -> List[IntermediateModel]:
@@ -65,7 +63,6 @@ class ObjectModelsBuilder:
 
     def _build_model(
         self,
-        session: Session,
         models_provider: ModelsProvider,
         intermediate_model: IntermediateModel,
     ) -> DynamicObjectModel:
@@ -85,7 +82,6 @@ class ObjectModelsBuilder:
         )
 
         event: CreateModelEvent = self._event_manager.dispatch(
-            session,
             CreateModelEvent.create(
                 pydantic_fields,
                 static_pydantic_fields,

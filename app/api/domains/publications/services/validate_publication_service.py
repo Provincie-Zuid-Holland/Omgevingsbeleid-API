@@ -159,7 +159,7 @@ class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
                             object_type=object_current.get("Object_Type"),
                             title=object_current.get("Title", ""),
                         ),
-                        messages=[f"Object {object_current.get("Code")} can't be found in publication"],
+                        messages=[f"Object {object_current.get('Code')} can't be found in publication"],
                     )
                 )
         return errors

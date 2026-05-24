@@ -12,7 +12,7 @@ import app.build.services.validators.validators as validators
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.build import api_builder
 from app.build.endpoint_builders import endpoint_builder_provider
-from app.build.events import create_model_event_listeners, generate_table_event_listeners
+from app.build.events import create_model_event_listeners, event_manager, generate_table_event_listeners
 from app.build.services import (
     config_parser,
     object_intermediate_builder,
@@ -23,7 +23,6 @@ from app.build.services import (
 from app.build.services.model_dynamic_type_builder import ModelDynamicTypeBuilder
 from app.core.db.session import create_db_engine
 from app.core.services import MainConfig, ModelsProvider
-from app.core.services.event import event_manager
 from app.core.settings import Settings
 
 
@@ -82,7 +81,7 @@ class BuildContainer(containers.DeclarativeContainer):
     )
 
     build_event_listeners = providers.Factory(
-        event_manager.EventListeners,
+        event_manager.BuildEventListeners,
         listeners=providers.List(
             # GenerateTableEvent
             providers.Factory(generate_table_event_listeners.AddObjectCodeRelationshipListener),
@@ -106,7 +105,7 @@ class BuildContainer(containers.DeclarativeContainer):
         ),
     )
     build_event_manager = providers.Singleton(
-        event_manager.EventManager,
+        event_manager.BuildEventManager,
         event_listeners=build_event_listeners,
     )
 
