@@ -18,7 +18,7 @@ from app.api.endpoint import BaseEndpointContext
 from app.api.events.module_object_patched_event import ModuleObjectPatchedEvent
 from app.api.permissions import Permissions
 from app.api.services.permission_service import PermissionService
-from app.core.services.event.event_manager import EventManager
+from app.api.events.event_manager import ApiEventManager
 from app.core.tables.modules import ModuleTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.users import UsersTable
@@ -44,7 +44,7 @@ def post_module_patch_object_endpoint(
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
-    event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
+    event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     object_in: BaseModel,
 ) -> BaseModel:

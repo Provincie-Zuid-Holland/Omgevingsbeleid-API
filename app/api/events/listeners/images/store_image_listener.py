@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.events.listeners.images.types import ImageMeta
 from app.api.events.module_object_patched_event import ModuleObjectPatchedEvent
-from app.core.services.event.types import Listener
+from app.api.events.types import ApiListener
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.others import AssetsTable
 from app.core.types import DynamicObjectModel, Model
@@ -115,7 +115,7 @@ class StoreImagesExtractorFactory:
         )
 
 
-class StoreImagesListener(Listener[ModuleObjectPatchedEvent]):
+class StoreImagesListener(ApiListener[ModuleObjectPatchedEvent]):
     def __init__(self, service_factory: StoreImagesExtractorFactory):
         self._service_factory: StoreImagesExtractorFactory = service_factory
 

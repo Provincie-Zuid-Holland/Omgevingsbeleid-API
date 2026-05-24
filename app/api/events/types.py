@@ -1,31 +1,25 @@
 from abc import ABC, ABCMeta, abstractmethod
-from dataclasses import dataclass
 from typing import Generic, Optional, Type, TypeVar
 
 from sqlalchemy.orm import Session
 
 
-class Event(ABC):
+class ApiEvent(ABC):
     pass
 
 
-EventType = TypeVar("EventType", bound=Event)
+ApiEventType = TypeVar("ApiEventType", bound=ApiEvent)
 
 
-class Listener(Generic[EventType], metaclass=ABCMeta):
+class ApiListener(Generic[ApiEventType], metaclass=ABCMeta):
     @abstractmethod
-    def handle_event(self, session: Session, event: EventType) -> Optional[EventType]:
+    def handle_event(self, session: Session, event: ApiEventType) -> Optional[ApiEventType]:
         pass
 
     def description(self) -> str:
         return self.__class__.__name__
 
-    def get_event_type(self) -> Type[EventType]:
+    def get_event_type(self) -> Type[ApiEventType]:
         if hasattr(self, "__orig_class__"):
             return self.__orig_class__.__args__[0]
         return self.__orig_bases__[0].__args__[0]
-
-
-@dataclass
-class NoPayload:
-    pass

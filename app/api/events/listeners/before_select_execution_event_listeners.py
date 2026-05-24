@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql.base import ExecutableOption
 
 from app.api.events.before_select_execution_event import BeforeSelectExecutionEvent
-from app.core.services.event.types import Listener
+from app.api.events.types import ApiListener
 from app.core.tables.objects import ObjectStaticsTable
 from app.core.types import DynamicObjectModel
 
 
-class OptimizeSelectQueryListener(Listener[BeforeSelectExecutionEvent]):
+class OptimizeSelectQueryListener(ApiListener[BeforeSelectExecutionEvent]):
     """
     Optimizes the select query execution by dynamically
     adding `selectinload` options to the query based on the response model's
