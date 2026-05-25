@@ -90,7 +90,10 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def set_values_for_containers(self) -> Self:
         self.DEBUG_MODE_STR = "yes" if self.DEBUG_MODE else "no"
-        self.DB_TYPE = self.SQLALCHEMY_DATABASE_URI.split("+")[0]
+        # "mssql+pyodbc://..." → "mssql"
+        # "sqlite+pysqlite:///..." → "sqlite"
+        # "sqlite:///:memory:" → "sqlite"
+        self.DB_TYPE = self.SQLALCHEMY_DATABASE_URI.split("://", 1)[0].split("+")[0]
         return self
 
     model_config = SettingsConfigDict(

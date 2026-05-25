@@ -15,3 +15,7 @@ ignore = [
 [tool.pytest.ini_options]
 norecursedirs = "*venv* *.venv* *.pytest_cache*"
 testpaths = "app/tests"
+env = [
+    "D:SQLALCHEMY_DATABASE_URI=sqlite:///:memory:",
+    "D:SQLALCHEMY_ECHO=false",
+]

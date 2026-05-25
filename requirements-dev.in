@@ -7,8 +7,10 @@ coverage
 coverage-badge
 pytest
 pytest-cov
+pytest-env
 pytest-mock
 requests-mock
 debugpy
 ipython
 alembic
+httpx
