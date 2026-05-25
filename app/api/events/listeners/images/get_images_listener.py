@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
-from app.core.services.event.types import Listener
+from app.api.events.types import ApiListener
 from app.core.tables.others import AssetsTable
 from app.core.types import DynamicObjectModel, Model
 
@@ -71,7 +71,7 @@ class ImageInserterFactory:
         )
 
 
-class GetImagesForModuleListener(Listener[RetrievedModuleObjectsEvent]):
+class GetImagesForModuleListener(ApiListener[RetrievedModuleObjectsEvent]):
     def __init__(self, service_factory: ImageInserterFactory):
         self._service_factory: ImageInserterFactory = service_factory
 
@@ -109,7 +109,7 @@ class GetImagesForModuleListener(Listener[RetrievedModuleObjectsEvent]):
         return config
 
 
-class GetImagesForObjectListener(Listener[RetrievedObjectsEvent]):
+class GetImagesForObjectListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: ImageInserterFactory):
         self._service_factory: ImageInserterFactory = service_factory
 

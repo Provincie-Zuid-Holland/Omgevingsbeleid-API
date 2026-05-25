@@ -75,7 +75,7 @@ class Gebiedengroep(BaseModel):
     code: str
     title: str
     source_gebieden_codes: CustomSetStr
-    gio_key: str # Points to a Gio in the same state. Not stable across publications
+    gio_key: str  # Points to a Gio in the same state. Not stable across publications
 
 
 class Gebiedsaanwijzing(BaseModel):
@@ -86,7 +86,7 @@ class Gebiedsaanwijzing(BaseModel):
     # Used to determine reuse and target to geo_gio
     source_target_codes: CustomSetStr
     resolved_gebied_codes: CustomSetStr
-    gio_key: str # Points to a Gio in the same state. Not stable across publications
+    gio_key: str  # Points to a Gio in the same state. Not stable across publications
 
 
 class Document(BaseModel):

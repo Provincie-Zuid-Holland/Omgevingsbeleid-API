@@ -58,11 +58,11 @@ from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
 )
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
-from app.core.services.event.types import Listener
+from app.api.events.types import ApiListener
 from app.core.types import DynamicObjectModel, Model
 
 
-class AddRelationsToObjectsListener(Listener[RetrievedObjectsEvent]):
+class AddRelationsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, relations_factory: AddRelationsServiceFactory):
         self._relations_factory: AddRelationsServiceFactory = relations_factory
 
@@ -79,7 +79,7 @@ class AddRelationsToObjectsListener(Listener[RetrievedObjectsEvent]):
         return event
 
 
-class JoinWerkingsgebiedenToObjectsListener(Listener[RetrievedObjectsEvent]):
+class JoinWerkingsgebiedenToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: JoinWerkingsgebiedenServiceFactory):
         self._service_factory: JoinWerkingsgebiedenServiceFactory = service_factory
 
@@ -96,7 +96,7 @@ class JoinWerkingsgebiedenToObjectsListener(Listener[RetrievedObjectsEvent]):
         return event
 
 
-class AddPublicRevisionsToObjectsListener(Listener[RetrievedObjectsEvent]):
+class AddPublicRevisionsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: AddPublicRevisionsServiceFactory):
         self._service_factory: AddPublicRevisionsServiceFactory = service_factory
 
@@ -134,7 +134,7 @@ class AddPublicRevisionsToObjectsListener(Listener[RetrievedObjectsEvent]):
         )
 
 
-class AddNextObjectVersionToObjectsListener(Listener[RetrievedObjectsEvent]):
+class AddNextObjectVersionToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: AddNextObjectVersionServiceFactory):
         self._service_factory: AddNextObjectVersionServiceFactory = service_factory
 
@@ -171,7 +171,7 @@ class AddNextObjectVersionToObjectsListener(Listener[RetrievedObjectsEvent]):
         )
 
 
-class AddWerkingsgebiedRelatedObjectsToObjectsListener(Listener[RetrievedObjectsEvent]):
+class AddWerkingsgebiedRelatedObjectsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: AddWerkingsgebiedRelatedObjectsServiceFactory):
         self._service_factory: AddWerkingsgebiedRelatedObjectsServiceFactory = service_factory
 
@@ -211,7 +211,7 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(Listener[RetrievedObjects
 EventRMO = TypeVar("EventRMO", bound=Union[RetrievedObjectsEvent, RetrievedModuleObjectsEvent])
 
 
-class GetColumnImagesListenerBase(Listener[EventRMO], Generic[EventRMO]):
+class GetColumnImagesListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: ColumnImageInserterFactory):
         self._service_factory: ColumnImageInserterFactory = service_factory
 
@@ -257,7 +257,7 @@ class GetColumnImagesForObjectListener(GetColumnImagesListenerBase[RetrievedObje
     pass
 
 
-class JoinDocumentsListenerBase(Listener[EventRMO], Generic[EventRMO]):
+class JoinDocumentsListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: JoinDocumentsServiceFactory):
         self._service_factory: JoinDocumentsServiceFactory = service_factory
 
@@ -300,7 +300,7 @@ class JoinDocumentsToObjectsListener(JoinDocumentsListenerBase[RetrievedObjectsE
     pass
 
 
-class ResolveChildObjectsViaHierarchyListenerBase(Listener[EventRMO], Generic[EventRMO]):
+class ResolveChildObjectsViaHierarchyListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: ResolveChildObjectsViaHierarchyServiceFactory):
         self._service_factory = service_factory
 
@@ -338,7 +338,7 @@ class ObjectResolveChildObjectsViaHierarchyListener(ResolveChildObjectsViaHierar
     pass
 
 
-class JoinGebiedenGroepBaseListener(Listener[EventRMO], Generic[EventRMO]):
+class JoinGebiedenGroepBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: JoinGebiedenGroepenServiceFactory):
         self._service_factory: JoinGebiedenGroepenServiceFactory = service_factory
 
@@ -384,7 +384,7 @@ class JoinGebiedenGroepForObjectListener(JoinGebiedenGroepBaseListener[Retrieved
     pass
 
 
-class JoinObjectsBaseListener(Listener[EventRMO], Generic[EventRMO]):
+class JoinObjectsBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: JoinObjectsServiceFactory):
         self._service_factory: JoinObjectsServiceFactory = service_factory
 
@@ -430,7 +430,7 @@ class JoinObjectsForObjectListener(JoinObjectsBaseListener[RetrievedObjectsEvent
     pass
 
 
-class JoinGebiedsaanwijzingenBaseListener(Listener[EventRMO], Generic[EventRMO]):
+class JoinGebiedsaanwijzingenBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: JoinGebiedsaanwijzingenServiceFactory):
         self._service_factory: JoinGebiedsaanwijzingenServiceFactory = service_factory
 

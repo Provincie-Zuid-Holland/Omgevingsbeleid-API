@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from app.core.services.event.types import Event
+from app.api.events.types import ApiEvent
 from app.core.types import Model
 
 
@@ -18,7 +18,7 @@ class RetrievedObjectsEventContext:
     response_model: Model
 
 
-class RetrievedObjectsEvent(Event):
+class RetrievedObjectsEvent(ApiEvent):
     def __init__(
         self,
         payload: RetrievedObjectsEventPayload,

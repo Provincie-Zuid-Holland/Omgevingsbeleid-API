@@ -17,7 +17,7 @@ from app.api.events.listeners.retrieved_objects_event_listeners import (
     JoinGebiedsaanwijzingenBaseListener,
 )
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
-from app.core.services.event.types import Listener
+from app.api.events.types import ApiListener
 
 
 class GetColumnImagesForModuleObjectListener(GetColumnImagesListenerBase[RetrievedModuleObjectsEvent]):
@@ -28,7 +28,7 @@ class JoinObjectsForModuleObjectListener(JoinObjectsBaseListener[RetrievedModule
     pass
 
 
-class JoinWerkingsgebiedToModuleObjectsListener(Listener[RetrievedModuleObjectsEvent]):
+class JoinWerkingsgebiedToModuleObjectsListener(ApiListener[RetrievedModuleObjectsEvent]):
     def __init__(self, service_factory: JoinWerkingsgebiedenServiceFactory):
         self._service_factory: JoinWerkingsgebiedenServiceFactory = service_factory
 
@@ -47,7 +47,7 @@ class JoinWerkingsgebiedToModuleObjectsListener(Listener[RetrievedModuleObjectsE
         return event
 
 
-class AddRelationsToModuleObjectsListener(Listener[RetrievedModuleObjectsEvent]):
+class AddRelationsToModuleObjectsListener(ApiListener[RetrievedModuleObjectsEvent]):
     def __init__(self, service_factory: AddRelationsServiceFactory):
         self._service_factory: AddRelationsServiceFactory = service_factory
 

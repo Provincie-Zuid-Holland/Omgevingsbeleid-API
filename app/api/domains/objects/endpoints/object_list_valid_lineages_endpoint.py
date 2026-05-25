@@ -21,7 +21,7 @@ from app.api.utils.pagination import (
     SortedPagination,
     query_paginated,
 )
-from app.core.services.event.event_manager import EventManager
+from app.api.events.event_manager import ApiEventManager
 from app.core.types import Model
 
 
@@ -36,7 +36,7 @@ class ObjectListValidLineagesEndpointContext(BaseEndpointContext):
 def list_valid_lineages_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
-    event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
+    event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     context: Annotated[ObjectListValidLineagesEndpointContext, Depends()],
     session=Depends(depends_db_session),
     filter_title: Optional[str] = None,

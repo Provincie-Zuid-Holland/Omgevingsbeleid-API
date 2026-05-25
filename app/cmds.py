@@ -4,7 +4,6 @@ from app.api.api_container import ApiContainer
 from app.build.api_builder import ApiBuilder, ApiBuilderResult
 from app.build.build_container import BuildContainer
 from app.commands import database_commands, mssql_commands, publication_commands, gdpr_commands
-from app.core.db.session import session_scope_with_context
 from app.core.logging import init_logging
 
 
@@ -27,10 +26,7 @@ if __name__ == "__main__":
     build_container.wire(packages=["app.build"])
 
     api_builder: ApiBuilder = build_container.api_builder()
-
-    session_maker = build_container.db_session_factory()
-    with session_scope_with_context(session_maker) as session:
-        build_result: ApiBuilderResult = api_builder.build(session)
+    build_result: ApiBuilderResult = api_builder.build()
 
     api_container = ApiContainer(
         models_provider=build_container.models_provider,

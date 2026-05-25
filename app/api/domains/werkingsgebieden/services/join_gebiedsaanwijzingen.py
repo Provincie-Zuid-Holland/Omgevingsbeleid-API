@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.domains.objects.repositories import ObjectStaticRepository
 from app.api.domains.objects.types import ObjectStatics
 from app.core.tables.objects import ObjectStaticsTable
 

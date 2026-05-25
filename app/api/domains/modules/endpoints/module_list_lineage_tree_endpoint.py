@@ -21,7 +21,7 @@ from app.api.utils.pagination import (
     SortedPagination,
     query_paginated,
 )
-from app.core.services.event.event_manager import EventManager
+from app.api.events.event_manager import ApiEventManager
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.users import UsersTable
 from app.core.types import Model
@@ -41,7 +41,7 @@ def get_module_list_lineage_tree_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     module: Annotated[ModuleTable, Depends(depends_module)],
     session: Annotated[Session, Depends(depends_db_session)],
-    event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
+    event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     context: Annotated[ModuleListLineageTreeEndpointContext, Depends()],
 ) -> PagedResponse[BaseModel]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)

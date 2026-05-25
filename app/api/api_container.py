@@ -18,7 +18,7 @@ from app.api.domains.others.services import PdfMetaService
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.services import permission_service
 from app.core.db.session import create_db_engine
-from app.core.services.event import event_manager
+from app.api.events import event_manager
 from app.core.services.main_config import MainConfig
 from app.core.settings import Settings
 
@@ -240,7 +240,7 @@ class ApiContainer(containers.DeclarativeContainer):
     )
 
     event_listeners = providers.Factory(
-        event_manager.EventListeners,
+        event_manager.ApiEventListeners,
         listeners=providers.List(
             # RetrievedObjectsEvent
             providers.Factory(
@@ -354,6 +354,6 @@ class ApiContainer(containers.DeclarativeContainer):
         ),
     )
     event_manager = providers.Singleton(
-        event_manager.EventManager,
+        event_manager.ApiEventManager,
         event_listeners=event_listeners,
     )
