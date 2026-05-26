@@ -298,7 +298,7 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
                         rule="waardelijsten_values_used_check_rule",
                         object=ValidatePublicationObject(),
                         messages=[
-                            f"Subject '{subject}' is not known in waardelijst 'TopLijst'",
+                            f"Subject '{subject}' is not known in waardelijst 'OnderwerpType'",
                         ],
                     )
                 )
@@ -311,7 +311,7 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
                         rule="waardelijsten_values_used_check_rule",
                         object=ValidatePublicationObject(),
                         messages=[
-                            f"Rechtsgebied '{jurisdiction}' is not known in waardelijst 'BwbRechtgebied'",
+                            f"Rechtsgebied '{jurisdiction}' is not known in waardelijst 'RechtsgebiedType'",
                         ],
                     )
                 )
