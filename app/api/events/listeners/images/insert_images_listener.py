@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
-from app.core.services.event.types import Event, Listener
+from app.api.events.types import ApiEvent, ApiListener
 from app.core.tables.others import AssetsTable
 from app.core.types import DynamicObjectModel, Model
 
@@ -86,10 +86,10 @@ class HtmlImagesInserterFactory:
         )
 
 
-EventT = TypeVar("EventT", bound=Event)
+EventT = TypeVar("EventT", bound=ApiEvent)
 
 
-class InsertHtmlImagesListenerBase(Listener[EventT], Generic[EventT]):
+class InsertHtmlImagesListenerBase(ApiListener[EventT], Generic[EventT]):
     def __init__(self, service_factory: HtmlImagesInserterFactory):
         self._service_factory: HtmlImagesInserterFactory = service_factory
 

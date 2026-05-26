@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict
 
-from app.core.services.event.types import Event
+from app.api.events.types import ApiEvent
 from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.users import UsersTable
 from app.core.types import Model
@@ -22,7 +22,7 @@ class ModuleObjectPatchedEventPayload:
     new_record: ModuleObjectsTable
 
 
-class ModuleObjectPatchedEvent(Event):
+class ModuleObjectPatchedEvent(ApiEvent):
     def __init__(
         self,
         payload: ModuleObjectPatchedEventPayload,

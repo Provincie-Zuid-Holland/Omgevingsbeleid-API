@@ -10,7 +10,7 @@ from app.api.dependencies import depends_db_session
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
 from app.api.endpoint import BaseEndpointContext
 from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
-from app.core.services.event.event_manager import EventManager
+from app.api.events.event_manager import ApiEventManager
 from app.core.tables.objects import ObjectsTable
 from app.core.types import Model
 
@@ -24,7 +24,7 @@ class ObjectLatestEndpointContext(BaseEndpointContext):
 def view_object_latest_endpoint(
     lineage_id: int,
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
-    event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
+    event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ObjectLatestEndpointContext, Depends()],
 ) -> BaseModel:

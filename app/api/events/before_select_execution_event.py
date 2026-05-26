@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 from sqlalchemy import Select
 
-from app.core.services.event.types import Event
+from app.api.events.types import ApiEvent
 from app.core.types import Model
 
 
@@ -18,7 +18,7 @@ class BeforeSelectExecutionEventContext:
     objects_table_ref: Optional[Any]
 
 
-class BeforeSelectExecutionEvent(Event):
+class BeforeSelectExecutionEvent(ApiEvent):
     def __init__(
         self,
         payload: BeforeSelectExecutionEventPayload,

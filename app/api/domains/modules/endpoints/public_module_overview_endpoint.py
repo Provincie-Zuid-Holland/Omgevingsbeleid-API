@@ -14,7 +14,7 @@ from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.types import PublicModuleShort, PublicModuleStatusCode
 from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
-from app.core.services.event.event_manager import EventManager
+from app.api.events.event_manager import ApiEventManager
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.types import Model
 
@@ -54,7 +54,7 @@ class PublicModuleOverview(BaseModel):
 def get_public_module_overview_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     session: Annotated[Session, Depends(depends_db_session)],
-    event_manager: Annotated[EventManager, Depends(Provide[ApiContainer.event_manager])],
+    event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
