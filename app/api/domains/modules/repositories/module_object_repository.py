@@ -264,18 +264,25 @@ class ModuleObjectRepository(BaseRepository):
         # Build minimum status list starting at given status, if provided
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
 
+        if module_id is not None:
+            subq = subq.filter(subq.c.Module_ID == module_id)
+            
         subq = subq.subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
         aliased_object_statics = aliased(ObjectStaticsTable, subq)
         aliased_module_object_context = aliased(ModuleObjectContextTable, subq)
 
         # Outer query to select all fields including the latest status
-        stmt = select(
-            aliased_objects,
-            aliased_object_statics,
-            aliased_module_object_context,
-            subq.c.Latest_Status,
-        ).filter(subq.c._RowNumber == 1).filter(subq.c.Deleted == False)
+        stmt = (
+            select(
+                aliased_objects,
+                aliased_object_statics,
+                aliased_module_object_context,
+                subq.c.Latest_Status,
+            )
+            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c.Deleted == False)
+        )
 
         if only_active_modules:
             stmt = stmt.filter((subq.c.Activated == True) & (subq.c.Closed == False))
@@ -294,8 +301,6 @@ class ModuleObjectRepository(BaseRepository):
             stmt = stmt.filter(subq.c.Title.like(title))
         if actions:
             stmt = stmt.filter(subq.c.Action.in_(actions))
-        if module_id is not None:
-            stmt = stmt.filter(subq.c.Module_ID == module_id)
 
         return self.fetch_paginated_no_scalars(
             session=session,
