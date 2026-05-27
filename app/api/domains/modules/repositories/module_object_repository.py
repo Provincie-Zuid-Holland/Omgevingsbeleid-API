@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 from uuid import UUID, uuid4
 
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session, aliased, load_only
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import Select, and_, or_
 
@@ -212,6 +212,7 @@ class ModuleObjectRepository(BaseRepository):
         object_type: Optional[str] = None,
         title: Optional[str] = None,
         actions: List[ModuleObjectActionFull] = [],
+        module_id: Optional[int] = None,
     ):
         """
         Generic filterable module-object listing query used
@@ -240,6 +241,20 @@ class ModuleObjectRepository(BaseRepository):
                 .label("_RowNumber"),
                 latest_status_subquery,  # Include each mo latest status
             )
+            .options(
+                # @todo: we should infer this data from the given model map at the endpoint builder instead of hardcoding
+                load_only(
+                    ModuleObjectContextTable.Object_Type,
+                    ModuleObjectContextTable.Object_ID,
+                    ModuleObjectContextTable.Action,
+                    ModuleObjectContextTable.Original_Adjust_On,
+                    ModuleObjectContextTable.Hidden,
+                    ModuleObjectContextTable.Modified_Date,
+                    ModuleObjectContextTable.Created_Date,
+                    ModuleObjectContextTable.Created_By_UUID,
+                    ModuleObjectContextTable.Modified_By_UUID,
+                )
+            )
             .select_from(ModuleObjectsTable)
             .join(ModuleTable)
             .join(ModuleObjectsTable.ObjectStatics)
@@ -250,24 +265,30 @@ class ModuleObjectRepository(BaseRepository):
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
 
         # Build filter list
-        filters = [
-            ModuleTable.is_active if only_active_modules else None,
-            ModuleTable.Current_Status.in_(status_filter) if status_filter is not None else None,
-            (
+        filters = []
+
+        if only_active_modules:
+            filters.append(ModuleTable.is_active)
+        if status_filter is not None:
+            filters.append(ModuleTable.Current_Status.in_(status_filter))
+        if owner_uuid is not None:
+            filters.append(
                 or_(
                     ObjectStaticsTable.Owner_1_UUID == owner_uuid,
                     ObjectStaticsTable.Owner_2_UUID == owner_uuid,
                 ).self_group()
-                if owner_uuid is not None
-                else None
-            ),
-            ModuleObjectsTable.Object_Type == object_type if object_type is not None else None,
-            ModuleObjectsTable.Title.like(title) if title is not None else None,
-            ModuleObjectContextTable.Action.in_(actions) if actions else None,
-        ]
+            )
+        if object_type is not None:
+            filters.append(ModuleObjectsTable.Object_Type == object_type)
+        if title is not None:
+            filters.append(ModuleObjectsTable.Title.like(title))
+        if actions:
+            filters.append(ModuleObjectContextTable.Action.in_(actions))
+        if module_id is not None:
+            filters.append(ModuleObjectsTable.Module_ID == module_id)
 
         # Applying your filters and making it a subquery
-        subq = subq.filter(and_(*[f for f in filters if f is not None])).subquery()
+        subq = subq.filter(and_(*filters)).subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
         aliased_object_statics = aliased(ObjectStaticsTable, subq)
         aliased_module_object_context = aliased(ModuleObjectContextTable, subq)
@@ -278,7 +299,7 @@ class ModuleObjectRepository(BaseRepository):
             aliased_object_statics,
             aliased_module_object_context,
             subq.c.Latest_Status,
-        ).filter(subq.c._RowNumber == 1)
+        ).filter(subq.c._RowNumber == 1).filter(subq.c.Deleted == False)
 
         return self.fetch_paginated_no_scalars(
             session=session,

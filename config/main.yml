@@ -335,12 +335,6 @@ api:
         - resolver: module_snapshot
           resolver_data:
             path: /snapshot/{status_id}
-        - resolver: list_module_detail_objects
-          resolver_data:
-            path: /objects
-            sort: *sort_default_modified_date
-            model_map: *model_map
-            response_model_name: PagedModuleDetailObjectsResponse
     - prefix: /modules/objects/latest
       endpoints:
         - resolver: list_module_objects

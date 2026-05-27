@@ -67,6 +67,7 @@ def get_list_module_objects_endpoint(
     only_active_modules: bool = True,
     title: Optional[str] = None,
     actions: Annotated[List[ModuleObjectActionFull], Query()] = [],
+    module_id: Optional[int] = None,
 ) -> PagedResponse[ModuleObjectsResponse]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
@@ -80,6 +81,7 @@ def get_list_module_objects_endpoint(
         object_type=object_type,
         title=title,
         actions=actions,
+        module_id=module_id,
     )
     paginated_items: Sequence[Tuple[ModuleObjectsTable, ObjectStaticsTable, ModuleObjectContextTable, str]] = (
         paginated_result.items

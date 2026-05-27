@@ -283,10 +283,6 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.EditModuleEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ListActiveModuleObjectsEndpointBuilder),
             providers.Factory(
-                endpoint_builders_modules.ListModuleDetailObjectsEndpointBuilder,
-                model_dynamic_type_builder=model_dynamic_type_builder,
-            ),
-            providers.Factory(
                 endpoint_builders_modules.ListModuleObjectsEndpointBuilder,
                 model_dynamic_type_builder=model_dynamic_type_builder,
             ),
