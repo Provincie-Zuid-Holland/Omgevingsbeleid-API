@@ -53,5 +53,4 @@ class ListModuleObjectsEndpointBuilder(EndpointBuilder):
             summary="List latest module objects filtered by e.g. owner uuid, object type or minimum status",
             description=None,
             tags=["Modules"],
-            operation_id=self._to_operation_id(builder_data.path, "GET"),
         )
