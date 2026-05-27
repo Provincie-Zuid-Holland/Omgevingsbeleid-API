@@ -264,31 +264,7 @@ class ModuleObjectRepository(BaseRepository):
         # Build minimum status list starting at given status, if provided
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
 
-        # Build filter list
-        filters = []
-
-        if only_active_modules:
-            filters.append(ModuleTable.is_active)
-        if status_filter is not None:
-            filters.append(ModuleTable.Current_Status.in_(status_filter))
-        if owner_uuid is not None:
-            filters.append(
-                or_(
-                    ObjectStaticsTable.Owner_1_UUID == owner_uuid,
-                    ObjectStaticsTable.Owner_2_UUID == owner_uuid,
-                ).self_group()
-            )
-        if object_type is not None:
-            filters.append(ModuleObjectsTable.Object_Type == object_type)
-        if title is not None:
-            filters.append(ModuleObjectsTable.Title.like(title))
-        if actions:
-            filters.append(ModuleObjectContextTable.Action.in_(actions))
-        if module_id is not None:
-            filters.append(ModuleObjectsTable.Module_ID == module_id)
-
-        # Applying your filters and making it a subquery
-        subq = subq.filter(and_(*filters)).subquery()
+        subq = subq.subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
         aliased_object_statics = aliased(ObjectStaticsTable, subq)
         aliased_module_object_context = aliased(ModuleObjectContextTable, subq)
@@ -300,6 +276,26 @@ class ModuleObjectRepository(BaseRepository):
             aliased_module_object_context,
             subq.c.Latest_Status,
         ).filter(subq.c._RowNumber == 1).filter(subq.c.Deleted == False)
+
+        if only_active_modules:
+            stmt = stmt.filter((subq.c.Activated == True) & (subq.c.Closed == False))
+        if status_filter is not None:
+            stmt = stmt.filter(subq.c.Current_Status.in_(status_filter))
+        if owner_uuid is not None:
+            stmt = stmt.filter(
+                or_(
+                    subq.c.Owner_1_UUID == owner_uuid,
+                    subq.c.Owner_2_UUID == owner_uuid,
+                ).self_group()
+            )
+        if object_type is not None:
+            stmt = stmt.filter(subq.c.Object_Type == object_type)
+        if title is not None:
+            stmt = stmt.filter(subq.c.Title.like(title))
+        if actions:
+            stmt = stmt.filter(subq.c.Action.in_(actions))
+        if module_id is not None:
+            stmt = stmt.filter(subq.c.Module_ID == module_id)
 
         return self.fetch_paginated_no_scalars(
             session=session,
