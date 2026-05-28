@@ -159,7 +159,7 @@ class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
                             object_type=object_current.get("Object_Type"),
                             title=object_current.get("Title", ""),
                         ),
-                        messages=[f"Object {object_current.get("Code")} can't be found in publication"],
+                        messages=[f"Object {object_current.get('Code')} can't be found in publication"],
                     )
                 )
         return errors
@@ -415,6 +415,68 @@ class ForbiddenHtmlTagsRule(ValidatePublicationRule):
             if elements:
                 return tag
         return None
+
+
+class AttachmentInBillReferenceRule(ValidatePublicationRule):
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+        errors: List[ValidatePublicationError] = []
+
+        bill_compact: dict = request.input_data.Publication_Version.Bill_Compact or {}
+        referenced_ids: Set[int] = self._extract_ref_ids(bill_compact)
+
+        attachment_ids: Set[int] = set()
+        attachment_title_map: Dict[int, str] = {}
+
+        for attachment in request.input_data.Publication_Data.bill_attachments:
+            attachment_ids.add(attachment["id"])
+            attachment_title_map[attachment["id"]] = attachment.get("title", attachment.get("filename", ""))
+
+        unreferenced_attachments = attachment_ids - referenced_ids
+        for unreferenced_attachment_id in unreferenced_attachments:
+            errors.append(
+                ValidatePublicationError(
+                    rule="attachment_in_bill_reference_rule",
+                    object=ValidatePublicationObject(
+                        object_id=unreferenced_attachment_id,
+                        title=attachment_title_map.get(unreferenced_attachment_id, ""),
+                    ),
+                    messages=[f"Attachment with id '{unreferenced_attachment_id}' is not referenced in bill compact"],
+                )
+            )
+
+        not_found_referenced_ids = referenced_ids - attachment_ids
+
+        for not_found_id in not_found_referenced_ids:
+            errors.append(
+                ValidatePublicationError(
+                    rule="attachment_in_bill_reference_rule",
+                    object=ValidatePublicationObject(
+                        object_id=not_found_id,
+                    ),
+                    messages=[
+                        f"Attachment with id '{not_found_id}' is referenced in bill compact but not found in attachments"
+                    ],
+                )
+            )
+        return errors
+
+
+def _extract_ref_ids(self, bill_compact: dict) -> Set[int]:
+    ref_ids: Set[int] = set()
+    pattern = re.compile(r"\[REF_BILL_PDF:(\d+)\]")
+
+    for appendix in bill_compact.get("appendices", []):
+        matches = pattern.findall(appendix.get("content", ""))
+        for match in matches:
+            ref_ids.add(int(match))
+
+    motivation: Optional[dict] = bill_compact.get("motivation")
+    if motivation:
+        for appendix in motivation.get("appendices", []):
+            matches = pattern.findall(appendix.get("content", ""))
+            for match in matches:
+                ref_ids.add(int(match))
+    return ref_ids
 
 
 def generate_dso_gio_name(gio_title: str) -> str:
