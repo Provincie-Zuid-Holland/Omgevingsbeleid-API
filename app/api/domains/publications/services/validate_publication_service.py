@@ -460,23 +460,22 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
             )
         return errors
 
+    def _extract_ref_ids(self, bill_compact: dict) -> Set[int]:
+        ref_ids: Set[int] = set()
+        pattern = re.compile(r"\[REF_BILL_PDF:(\d+)\]")
 
-def _extract_ref_ids(self, bill_compact: dict) -> Set[int]:
-    ref_ids: Set[int] = set()
-    pattern = re.compile(r"\[REF_BILL_PDF:(\d+)\]")
-
-    for appendix in bill_compact.get("appendices", []):
-        matches = pattern.findall(appendix.get("content", ""))
-        for match in matches:
-            ref_ids.add(int(match))
-
-    motivation: Optional[dict] = bill_compact.get("motivation")
-    if motivation:
-        for appendix in motivation.get("appendices", []):
-            matches = pattern.findall(appendix.get("content", ""))
+        for appendix in bill_compact.get("Appendices", []):
+            matches = pattern.findall(appendix.get("Content", ""))
             for match in matches:
                 ref_ids.add(int(match))
-    return ref_ids
+
+        motivation: Optional[dict] = bill_compact.get("Motivation", [])
+        if motivation:
+            for appendix in motivation.get("Appendices", []):
+                matches = pattern.findall(appendix.get("Content", ""))
+                for match in matches:
+                    ref_ids.add(int(match))
+        return ref_ids
 
 
 def generate_dso_gio_name(gio_title: str) -> str:

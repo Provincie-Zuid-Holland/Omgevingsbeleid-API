@@ -20,6 +20,7 @@ from app.api.domains.publications.services.validate_publication_service import (
     GioUniqueRule,
     AreaDesignationRefCheckRule,
     ForbiddenHtmlTagsRule,
+    AttachmentInBillReferenceRule,
 )
 
 
@@ -181,6 +182,7 @@ class PublicationContainer(containers.DeclarativeContainer):
                 ForbiddenHtmlTagsRule,
                 main_config=main_config,
             ),
+            providers.Singleton(AttachmentInBillReferenceRule),
         ),
     )
 
