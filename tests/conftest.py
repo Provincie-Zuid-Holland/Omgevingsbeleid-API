@@ -66,28 +66,3 @@ def db_session(engine):
     session.close()
     transaction.rollback()
     connection.close()
-
-
-@pytest.fixture()
-def app(engine):
-    test_sessionmaker = sessionmaker(
-        bind=engine,
-        autocommit=False,
-        autoflush=False,
-        expire_on_commit=False,
-        join_transaction_mode="create_savepoint",
-    )
-
-    ApiContainer.db_session_factory.override(providers.Object(test_sessionmaker))
-    _app_module.app.state.db_sessionmaker = test_sessionmaker
-
-    try:
-        yield _app_module.app
-    finally:
-        ApiContainer.db_session_factory.reset_override()
-
-
-@pytest.fixture()
-def client(app):
-    with TestClient(app) as test_client:
-        yield test_client
