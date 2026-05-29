@@ -54,13 +54,13 @@ load-fixtures:
 reset-test-database: drop-database init-database load-fixtures
 
 check: ## Check without fixing via Ruff Lint
-	python -m ruff check ./app/
+	python -m ruff check ./app/ ./tests/
 
 check-fix: ## Fix issues found by Ruff Lint
-	python -m ruff check --fix ./app/
+	python -m ruff check --fix ./app/ ./tests/
 
 format: ## Format code via Ruff Format
-	python -m ruff format ./app/
+	python -m ruff format ./app/ ./tests/
 
 fix: check-fix format ## Fix and Format the code via Ruff
 

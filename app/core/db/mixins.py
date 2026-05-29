@@ -35,3 +35,10 @@ class SerializerMixin:
 
     def to_dict(self):
         return {c.key: self.serialize(getattr(self, c.key)) for c in inspect(self).mapper.column_attrs}
+
+    def to_dict_clean(self):
+        return {
+            c.key: self.serialize(getattr(self, c.key))
+            for c in inspect(self).mapper.column_attrs
+            if getattr(self, c.key) is not None
+        }

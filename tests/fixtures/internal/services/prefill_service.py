@@ -1,4 +1,3 @@
-
 from collections import defaultdict
 from typing import List, Dict, Optional, Type
 
@@ -24,7 +23,7 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             spec_type: Type[S] = type(input_record.spec)
             spec_counter[spec_type] += 1
             current_spec_count = spec_counter[spec_type]
-            
+
             handler: Optional[H] = self._handlers.get(spec_type)
             if handler:
                 input_record = handler.fill(

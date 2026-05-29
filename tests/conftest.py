@@ -1,13 +1,9 @@
 import pytest
-from dependency_injector import providers
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from starlette.testclient import TestClient
 
 # Importing app.main triggers the full YAML -> tables -> models -> routes build.
-import app.main as _app_module
-from app.api.api_container import ApiContainer
 from app.core.db.base import Base
 from app.core.db.session import _enable_sqlite_load_extension
 

@@ -1,4 +1,3 @@
-
 from typing import Any, List, Dict, Optional, Type
 
 from tests.fixtures.internal.services.collector import Record
@@ -31,5 +30,5 @@ class LinkerService[T: Spec]:
                 spec_type: Type[T] = type(input_record.spec)
                 ref: Ref = Ref(spec_type, input_record.spec.key)
                 ref_cache[ref] = input_record.spec.get_table_primary_key()
-        
+
         return ref_cache
