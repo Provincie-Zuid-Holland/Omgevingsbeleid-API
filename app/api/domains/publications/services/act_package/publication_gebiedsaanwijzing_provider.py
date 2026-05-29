@@ -132,6 +132,22 @@ class PublicationGebiedsaanwijzingProcessor:
                     ]
                 )
 
+            if aanwijzing_obj["Target_Codes"] is None:
+                raise validation_exception(
+                    [
+                        ValidatePublicationError(
+                            rule="gebiedsaanwijzing_no_target_codes",
+                            object=ValidatePublicationObject(
+                                code=aanwijzing_obj.get("Code"),
+                                object_id=aanwijzing_obj.get("Object_ID"),
+                                object_type=aanwijzing_obj.get("Object_Type"),
+                                title=aanwijzing_obj.get("Title"),
+                            ),
+                            messages=["Gebiedsaanwijzing doesn't have any target codes"],
+                        )
+                    ]
+                )
+
             source_target_codes: Set[str] = set(aanwijzing_obj["Target_Codes"])
             gebied_codes: Set[str] = self._resolve_gebied_codes(aanwijzing_code, source_target_codes)
 
