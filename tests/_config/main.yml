@@ -1,0 +1,64 @@
+api:
+  routers:
+    - prefix: /users
+      endpoints:
+        - resolver: create_user
+          resolver_data:
+            allowed_roles:
+              - "Behandelend Ambtenaar"
+              - "Portefeuillehouder"
+              - "Beheerder"
+    - prefix: /users/{user_uuid}
+      endpoints:
+        - resolver: get_user
+        - resolver: edit_user
+          resolver_data:
+            allowed_roles:
+              - "Behandelend Ambtenaar"
+              - "Portefeuillehouder"
+              - "Beheerder"
+
+columns:
+  title:
+    name: Title
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  description:
+    name: Description
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  weblink:
+    name: Weblink
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+
+required_object_fields_rule: {}
+
+publication_required_object_fields_rule: {}
+
+users_permissions:
+  "Beheerder":
+    - user_can_create_user
+    - user_can_edit_user
+  "Behandelend Ambtenaar": []
+  "Portefeuillehouder": []

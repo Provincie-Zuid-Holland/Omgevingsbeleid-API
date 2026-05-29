@@ -1,0 +1,42 @@
+id: nationaal_belang
+object_type: nationaal_belang
+
+fields:
+  title:
+    name: Title
+    type: str
+    column: title
+  weblink:
+    name: Weblink
+    type: str
+    column: weblink
+    optional: true
+
+  # Statics
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    column: owner_1_uuid
+    optional: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    column: owner_2_uuid
+    optional: true
+
+models:
+  nationaal_belang_full:
+    name: NationaalBelangFull
+    fields:
+      object_type:
+      object_id:
+      code:
+      uuid:
+      created_date:
+      modified_date:
+      title:
+      weblink:
+      owner_1_uuid:
+      owner_2_uuid:
+      start_validity:
+      end_validity:

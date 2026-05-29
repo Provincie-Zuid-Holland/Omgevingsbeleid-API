@@ -13,9 +13,13 @@ ignore = [
 "__init__.py" = ["F401"] # unused-import: Which is oke for __init__.py files
 
 [tool.pytest.ini_options]
-norecursedirs = "*venv* *.venv* *.pytest_cache*"
-testpaths = "app/tests"
+norecursedirs = "*venv* *.venv* *.pytest_cache* .hidden"
+testpaths = "tests"
+python_files = "*_test.py"
+
 env = [
     "D:SQLALCHEMY_DATABASE_URI=sqlite:///:memory:",
     "D:SQLALCHEMY_ECHO=false",
+    "D:MAIN_CONFIG_FILE=./tests/_config/main.yml",
+    "D:OBJECT_CONFIG_PATH=./tests/_config/objects/",
 ]
