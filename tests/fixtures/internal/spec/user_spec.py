@@ -50,7 +50,7 @@ class UserPersistHandler(BasePersistHandler[UserSpec]):
             UsersTable(
                 UUID=spec.UUID,
                 Gebruikersnaam=spec.Gebruikersnaam,
-                Email=spec.Gebruikersnaam,
+                Email=spec.Email,
                 Rol=spec.Rol,
                 Status=spec.Status,
                 Wachtwoord=spec.Wachtwoord_Hash,

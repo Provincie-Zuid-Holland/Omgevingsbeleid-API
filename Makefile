@@ -73,6 +73,9 @@ testx:
 testcase:
 	python -m pytest -s -vvv -x -k ${case}
 
+testcov:
+	python -m pytest --cov --cov-report=xml
+
 # Ment to test MSSQL
 docker-init: docker-up docker-mssql-create-database-dev docker-alembic-do-upgrade
 
@@ -113,12 +116,3 @@ docker-mssql-setup-search:
 
 docker-load-fixtures:
 	docker compose exec api python -m app.cmds load-fixtures
-
-# @todo: these docker-test are not finished yet
-docker-test:
-	docker compose exec api python -m pytest
-
-docker-testx:
-	docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-test.sql
-	docker compose exec api python -m pytest -vv -x
-

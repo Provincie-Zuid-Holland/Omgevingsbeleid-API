@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Protocol, Sequence, Set, Type, Union
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, PrivateAttr
 
 from app.core.db.base import Base
 
@@ -59,8 +59,6 @@ class Record[T: Spec](BaseModel):
 
 
 # For the PersistService
-
-
 class PersistContext(BaseModel):
     seen_codes: Set[str] = set()
 
@@ -80,5 +78,29 @@ class PersistRecord[S: Spec, B: Base](BaseModel):
     model_config = {"arbitrary_types_allowed": True}
 
 
+# The final conclusion given to the test system
 class FixtureData(BaseModel):
-    records: List[PersistRecord]
+    _lookup: Dict[Ref, PersistRecord] = PrivateAttr(default_factory=dict)
+    records: List[PersistRecord] = Field(default_factory=list)
+
+    def model_post_init(self, context: Any) -> None:
+        self._lookup = {record.fixture_ref: record for record in self.records if record.fixture_ref is not None}
+
+    def find(self, ref: Ref) -> PersistRecord:
+        record: Optional[PersistRecord] = self._lookup.get(ref)
+        if record is None:
+            raise KeyError(f"No fixture record for {ref!r}")
+        return record
+
+    def primary_key(self, ref: Ref) -> PrimaryKey:
+        return self.find(ref).primary_key
+
+    def primary_key_uuid(self, ref: Ref) -> uuid.UUID:
+        primary_key: PrimaryKey = self.primary_key(ref)
+        match primary_key:
+            case uuid.UUID():
+                return primary_key
+            case _:
+                raise RuntimeError(
+                    f"The PrimaryKey `{primary_key}` is not a uuid.UUID but a `{type(self.primary_key)}`"
+                )

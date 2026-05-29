@@ -22,4 +22,9 @@ env = [
     "D:SQLALCHEMY_ECHO=false",
     "D:MAIN_CONFIG_FILE=./tests/_config/main.yml",
     "D:OBJECT_CONFIG_PATH=./tests/_config/objects/",
+    "D:SECRET_KEY=secret-key-which-is-at-least-32-bytes-long",
 ]
+
+[tool.coverage.run]
+source = ["app"]
+relative_files = true

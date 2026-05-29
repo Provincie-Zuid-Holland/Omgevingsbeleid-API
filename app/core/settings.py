@@ -23,7 +23,7 @@ class Settings(BaseSettings):
         """
     OPENAPI_LOGO: str = "https://avatars.githubusercontent.com/u/60095455?s=200&v=4"
 
-    SECRET_KEY: str = "secret-key"
+    SECRET_KEY: str = "secret-key-which-is-at-least-32-bytes-long"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 4
 
     # Database
