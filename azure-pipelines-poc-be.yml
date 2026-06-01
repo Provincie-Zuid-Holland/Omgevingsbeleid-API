@@ -2,16 +2,11 @@
 # azure-pipelines-poc-be.yml  ·  v1.2
 # Platform Omgevingsbeleid – Backend Pipeline (CI + Build + Dev)
 #
-# WIJZIGING t.o.v. v1.1 (ADR-007):
-#   Test/Acc/Prod-deployment is verplaatst naar azure-pipelines-orchestrator.yml.
-#   Zie ADR-007.
-#
 # Verantwoordelijkheid van deze pipeline:
 #   1. Build (tests, SCA, versioned artifact) op alle push-triggers
-#   2. Dev-deployment op poc/dev-branch (onmiddellijk, geen approval)
+#   2. Dev-deployment op poc/dev-branch
 # =============================================================================
-
-pr: none
+# Test / Acc / Prod: gecoördineerd in DevOps via azure-pipelines-orchestrator.yml
 
 trigger:
     branches:
@@ -44,7 +39,7 @@ parameters:
 
 stages:
     - stage: Build
-      displayName: "Build – Validatie + Artifact (ADR-004)"
+      displayName: "Build – Validate + Artifact"
       jobs:
           - job: Package
             displayName: "Test, scan & deployment package"
@@ -97,7 +92,7 @@ stages:
                       echo "##vso[task.setvariable variable=semVer;isOutput=true]$SEMVER"
                       echo "SemVer: $SEMVER | Build: $(Build.BuildId) | Branch: $(Build.SourceBranchName)"
                   name: versioning
-                  displayName: "Semantic versioning (ADR-004)"
+                  displayName: "Semantic versioning"
 
                 - script: |
                       set -euo pipefail
@@ -138,7 +133,7 @@ stages:
       jobs:
           - deployment: Dev
             displayName: "Dev deployment"
-            environment: POC-Dev-BE
+            environment: POC-Dev
             strategy:
                 runOnce:
                     deploy:
@@ -163,5 +158,3 @@ stages:
                                   echo "##vso[build.addbuildtag]deployed-dev-$(date +%Y%m%d)"
                                   echo "DEV BE: $(date -u +%Y-%m-%dT%H:%M:%SZ) | $(Build.SourceBranchName)"
                               displayName: "Logging deployment timestamp"
-
-# Test / Acc / Prod: gecoördineerd via azure-pipelines-orchestrator.yml (ADR-007)
