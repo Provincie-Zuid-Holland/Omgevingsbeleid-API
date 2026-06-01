@@ -40,6 +40,8 @@ parameters:
 stages:
     - stage: Build
       displayName: "Build – Validate + Artifact"
+      variables:
+          - group: vg-poc-ob-api-dev
       jobs:
           - job: Package
             displayName: "Test, scan & deployment package"
