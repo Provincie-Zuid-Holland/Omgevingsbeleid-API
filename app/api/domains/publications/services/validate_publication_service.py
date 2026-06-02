@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Dict, List, Type, Optional, Set
+from typing import Any, Dict, List, Type, Optional, Set
 
 from bs4 import BeautifulSoup, Tag, ResultSet
 from dso import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
@@ -421,7 +421,7 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
         errors: List[ValidatePublicationError] = []
 
-        bill_compact: dict = request.input_data.Publication_Version.Bill_Compact or {}
+        bill_compact: dict[str, Any] = request.input_data.Publication_Version.Bill_Compact or {}
         referenced_ids: Set[int] = self._extract_ref_ids(bill_compact)
 
         attachment_ids: Set[int] = set()
