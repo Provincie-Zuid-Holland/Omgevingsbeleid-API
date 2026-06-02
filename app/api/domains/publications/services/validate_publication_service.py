@@ -431,7 +431,7 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
             attachment_ids.add(attachment["id"])
             attachment_title_map[attachment["id"]] = attachment.get("title", attachment.get("filename", ""))
 
-        unreferenced_attachments = attachment_ids - referenced_ids
+        unreferenced_attachments: Set[int] = attachment_ids - referenced_ids
         for unreferenced_attachment_id in unreferenced_attachments:
             errors.append(
                 ValidatePublicationError(
@@ -444,7 +444,7 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
                 )
             )
 
-        not_found_referenced_ids = referenced_ids - attachment_ids
+        not_found_referenced_ids: Set[int] = referenced_ids - attachment_ids
 
         for not_found_id in not_found_referenced_ids:
             errors.append(
