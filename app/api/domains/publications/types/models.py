@@ -2,20 +2,19 @@ import uuid
 from datetime import date, datetime
 from typing import Any, List, Optional
 
+from dso.services.koop.waardelijsten.gen import RechtsgebiedType, OnderwerpType, BestuursorgaanType
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic_core import ErrorDetails
 
 from app.api.domains.modules.types import ModuleStatus
 from app.api.domains.publications.types.enums import PublicationVersionStatus
 
-from .waardelijsten import Bestuursorgaan, Onderwerp, Rechtsgebied
-
 
 # This model is meant for frontend
 class Waardelijsten(BaseModel):
-    Rechtsgebied: Rechtsgebied
-    Onderwerp: Onderwerp
-    Bestuursorgaan: Bestuursorgaan
+    Rechtsgebied: RechtsgebiedType
+    Onderwerp: OnderwerpType
+    Bestuursorgaan: BestuursorgaanType
 
 
 class PublicationTemplate(BaseModel):

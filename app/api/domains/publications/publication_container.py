@@ -18,6 +18,7 @@ from app.api.domains.publications.services.validate_publication_service import (
     GebiedengroepHasGiosRule,
     GioDuplicateFilenameRule,
     GioUniqueRule,
+    WaardelijstenValuesUsedCheckRule,
     AreaDesignationRefCheckRule,
     ForbiddenHtmlTagsRule,
     AttachmentInBillReferenceRule,
@@ -174,6 +175,7 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Singleton(GebiedengroepHasGiosRule),
             providers.Singleton(GioDuplicateFilenameRule),
             providers.Singleton(GioUniqueRule),
+            providers.Singleton(WaardelijstenValuesUsedCheckRule),
             providers.Singleton(
                 AreaDesignationRefCheckRule,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,

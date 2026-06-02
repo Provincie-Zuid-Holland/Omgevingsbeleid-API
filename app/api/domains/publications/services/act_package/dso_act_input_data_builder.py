@@ -2,6 +2,7 @@ import uuid
 from datetime import date, datetime
 from typing import Dict, List, Optional
 
+import dso.act_builder.state_manager.input_data.resource.gebieden as dso_gebieden
 import dso.models as dso_models
 from dso.act_builder.services.ow.state.ow_state import OwState
 from dso.act_builder.state_manager.input_data.ambtsgebied import Ambtsgebied
@@ -18,8 +19,14 @@ from dso.act_builder.state_manager.input_data.resource.policy_object.policy_obje
     PolicyObjectRepository,
 )
 from dso.act_builder.state_manager.input_data.resource.resources import Resources
-
-import dso.act_builder.state_manager.input_data.resource.gebieden as dso_gebieden
+from dso.models import DocumentType as DSODocumentType, OpdrachtType
+from dso.services.koop.waardelijsten.gen import (
+    BestuursorgaanType,
+    OnderwerpType,
+    ProcedureStappen,
+    ProcedureType as DSOProcedureType,
+    RechtsgebiedType,
+)
 
 from app.api.domains.publications.types.api_input_data import (
     ActFrbr,
@@ -29,8 +36,12 @@ from app.api.domains.publications.types.api_input_data import (
     PublicationData,
     Purpose,
 )
-from app.api.domains.publications.types.enums import DocumentType, MutationStrategy, PackageType, ProcedureType
-from app.api.domains.publications.types.waardelijsten import Bestuursorgaan, Onderwerp, Rechtsgebied
+from app.api.domains.publications.types.enums import (
+    DocumentType as APIDocumentType,
+    MutationStrategy,
+    PackageType,
+    ProcedureType as APIProcedureType,
+)
 from app.core.settings import KoopSettings
 from app.core.tables.publications import (
     PublicationActTable,
@@ -40,19 +51,19 @@ from app.core.tables.publications import (
     PublicationVersionTable,
 )
 
-DOCUMENT_TYPE_MAP: Dict[str, dso_models.DocumentType] = {
-    DocumentType.VISION.value: dso_models.DocumentType.OMGEVINGSVISIE,
-    DocumentType.PROGRAM.value: dso_models.DocumentType.PROGRAMMA,
+DOCUMENT_TYPE_MAP: Dict[str, DSODocumentType] = {
+    APIDocumentType.VISION.value: DSODocumentType.OMGEVINGSVISIE,
+    APIDocumentType.PROGRAM.value: DSODocumentType.PROGRAMMA,
 }
 
-OPDRACHT_TYPE_MAP: Dict[PackageType, str] = {
-    PackageType.VALIDATION: "VALIDATIE",
-    PackageType.PUBLICATION: "PUBLICATIE",
+OPDRACHT_TYPE_MAP: Dict[PackageType, OpdrachtType] = {
+    PackageType.VALIDATION: OpdrachtType.VALIDATIE,
+    PackageType.PUBLICATION: OpdrachtType.PUBLICATIE,
 }
 
-PROCEDURE_TYPE_MAP: Dict[ProcedureType, str] = {
-    ProcedureType.DRAFT: "Ontwerpbesluit",
-    ProcedureType.FINAL: "Definitief_besluit",
+PROCEDURE_TYPE_MAP: Dict[APIProcedureType, DSOProcedureType] = {
+    APIProcedureType.DRAFT: DSOProcedureType.ontwerpbesluit,
+    APIProcedureType.FINAL: DSOProcedureType.definitief_besluit,
 }
 
 DUTCH_MONTHS = {
@@ -114,8 +125,8 @@ class DsoActInputDataBuilder:
         return input_data
 
     def _get_publication_settings(self) -> dso_models.PublicationSettings:
-        dso_document_type: dso_models.DocumentType = DOCUMENT_TYPE_MAP[self._publication.Document_Type]
-        dso_opdracht_type: str = OPDRACHT_TYPE_MAP[self._package_type]
+        dso_document_type: DSODocumentType = DOCUMENT_TYPE_MAP[self._publication.Document_Type]
+        dso_opdracht_type: OpdrachtType = OPDRACHT_TYPE_MAP[self._package_type]
 
         publication_settings = dso_models.PublicationSettings(
             document_type=dso_document_type,
@@ -124,14 +135,14 @@ class DsoActInputDataBuilder:
             soort_bestuursorgaan=self._get_soort_bestuursorgaan(),
             regeling_componentnaam=self._get_componentnaam(),
             provincie_ref=f"/tooi/id/provincie/{self._environment.Province_ID}",
-            opdracht={
-                "opdracht_type": dso_opdracht_type,
-                "id_levering": str(uuid.uuid4()),
-                "id_bevoegdgezag": self._environment.Authority_ID,
-                "id_aanleveraar": self._environment.Submitter_ID,
-                "publicatie_bestand": self._get_akn_filename(),
-                "datum_bekendmaking": self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
-            },
+            opdracht=dso_models.PublicatieOpdracht(
+                opdracht_type=dso_opdracht_type,
+                id_levering=str(uuid.uuid4()),
+                id_bevoegdgezag=self._environment.Authority_ID,
+                id_aanleveraar=self._environment.Submitter_ID,
+                publicatie_bestand=self._get_akn_filename(),
+                datum_bekendmaking=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
+            ).model_dump(),
             instelling_doel=self._get_instelling_doel(),
             besluit_frbr=dso_models.BillFRBR(
                 Work_Province_ID=self._environment.Province_ID,
@@ -161,7 +172,8 @@ class DsoActInputDataBuilder:
         return filename
 
     def _get_besluit(self) -> Besluit:
-        dso_procedure_type: str = PROCEDURE_TYPE_MAP[self._publication.Procedure_Type]
+        api_procedure_type: APIProcedureType = APIProcedureType(self._publication.Procedure_Type)
+        dso_procedure_type: DSOProcedureType = PROCEDURE_TYPE_MAP[api_procedure_type]
 
         besluit = Besluit(
             officiele_titel=self._publication_version.Bill_Metadata["Official_Title"],
@@ -186,7 +198,7 @@ class DsoActInputDataBuilder:
             versienummer=str(self._act_frbr.Expression_Version),
             officiele_titel=self._act.Metadata["Official_Title"],
             citeertitel=self._act.Metadata["Quote_Title"],
-            is_officieel=("true" if self._publication.Procedure_Type == ProcedureType.FINAL else "false"),
+            is_officieel=("true" if self._publication.Procedure_Type == APIProcedureType.FINAL else "false"),
             rechtsgebieden=self._as_dso_rechtsgebieden(self._act.Metadata["Jurisdictions"]),
             onderwerpen=self._as_dso_onderwerpen(self._act.Metadata["Subjects"]),
         )
@@ -200,7 +212,7 @@ class DsoActInputDataBuilder:
         )
 
         datum: Optional[str] = None
-        if self._publication.Procedure_Type == ProcedureType.FINAL.value:
+        if self._publication.Procedure_Type == APIProcedureType.FINAL.value:
             datum = self._publication_version.Effective_Date.strftime("%Y-%m-%d")
 
         result = dso_models.InstellingDoel(
@@ -223,7 +235,7 @@ class DsoActInputDataBuilder:
         if enactment_date is not None:
             steps.append(
                 dso_models.ProcedureStap(
-                    soort_stap="Vaststelling",
+                    soort_stap=ProcedureStappen.vaststelling,
                     voltooid_op=enactment_date,
                 )
             )
@@ -232,7 +244,7 @@ class DsoActInputDataBuilder:
         if signed_date is not None:
             steps.append(
                 dso_models.ProcedureStap(
-                    soort_stap="Ondertekening",
+                    soort_stap=ProcedureStappen.ondertekening,
                     voltooid_op=signed_date,
                 )
             )
@@ -244,7 +256,7 @@ class DsoActInputDataBuilder:
         )
         return procedure_verloop
 
-    def _get_wijzigingsartikel(self) -> str:
+    def _get_wijzigingsartikel(self) -> Artikel:
         text: str = self._publication_version.Bill_Compact["Amendment_Article"]
 
         enactment_date: Optional[str] = self._publication_version.Procedural.get("Enactment_Date", None)
@@ -421,20 +433,20 @@ class DsoActInputDataBuilder:
         )
         return ambtsgebied
 
-    def _get_soort_bestuursorgaan(self) -> str:
-        bestuursorgaan: str = Bestuursorgaan[self._environment.Governing_Body_Type].value
+    def _get_soort_bestuursorgaan(self) -> BestuursorgaanType:
+        bestuursorgaan: BestuursorgaanType = BestuursorgaanType[self._environment.Governing_Body_Type]
         return bestuursorgaan
 
-    def _as_dso_onderwerpen(self, values: List[str]) -> List[str]:
-        result: List[str] = []
+    def _as_dso_onderwerpen(self, values: List[str]) -> List[OnderwerpType]:
+        result: List[OnderwerpType] = []
         for value in values:
-            result.append(Onderwerp[value])
+            result.append(OnderwerpType[value])
         return result
 
-    def _as_dso_rechtsgebieden(self, values: List[str]) -> List[str]:
-        result: List[str] = []
+    def _as_dso_rechtsgebieden(self, values: List[str]) -> List[RechtsgebiedType]:
+        result: List[RechtsgebiedType] = []
         for value in values:
-            result.append(Rechtsgebied[value])
+            result.append(RechtsgebiedType[value])
         return result
 
     def _get_closing_text(self) -> str:
