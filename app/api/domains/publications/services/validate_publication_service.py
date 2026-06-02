@@ -469,7 +469,7 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
             for match in matches:
                 ref_ids.add(int(match))
 
-        motivation: Optional[dict] = bill_compact.get("Motivation", [])
+        motivation: Optional[dict] = bill_compact.get("Motivation")
         if motivation:
             for appendix in motivation.get("Appendices", []):
                 matches = pattern.findall(appendix.get("Content", ""))
