@@ -52,8 +52,8 @@ from app.core.tables.publications import (
 )
 
 DOCUMENT_TYPE_MAP: Dict[str, DSODocumentType] = {
-    APIDocumentType.VISION.value: DSODocumentType.omgevingsvisie,
-    APIDocumentType.PROGRAM.value: DSODocumentType.programma,
+    APIDocumentType.VISION.value: DSODocumentType.OMGEVINGSVISIE,
+    APIDocumentType.PROGRAM.value: DSODocumentType.PROGRAMMA,
 }
 
 OPDRACHT_TYPE_MAP: Dict[PackageType, OpdrachtType] = {
