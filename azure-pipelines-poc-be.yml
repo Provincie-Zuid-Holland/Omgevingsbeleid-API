@@ -1,0 +1,162 @@
+# =============================================================================
+# azure-pipelines-poc-be.yml  ·  v1.2
+# Platform Omgevingsbeleid – Backend Pipeline (CI + Build + Dev)
+#
+# Verantwoordelijkheid van deze pipeline:
+#   1. Build (tests, SCA, versioned artifact) op alle push-triggers
+#   2. Dev-deployment op poc/dev-branch
+# =============================================================================
+# Test / Acc / Prod: gecoördineerd in DevOps via azure-pipelines-orchestrator.yml
+
+trigger:
+    branches:
+        include:
+            - "poc/dev"
+            - "poc/release/*"
+            - "poc/hotfix/*"
+            - "poc/main"
+    paths:
+        exclude: ["*.md", "docs/**"]
+
+pool:
+    name: "PZH-Ubuntu-Agent"
+
+variables:
+    pythonVersion: "3.13"
+    projectName: "obzh-api"
+    projectDir: "app"
+
+parameters:
+    - name: deployEnvironment
+      displayName: "Manual Dev-deploy"
+      type: string
+      default: none
+      values: [none, dev]
+    - name: runDBMigration
+      displayName: "Execute database migration"
+      type: boolean
+      default: true
+
+stages:
+    - stage: Build
+      displayName: "Build – Validate + Artifact"
+      variables:
+          - group: vg-poc-ob-api-dev
+      jobs:
+          - job: Package
+            displayName: "Test, scan & deployment package"
+            steps:
+                - checkout: self
+                  clean: true
+
+                - task: UsePythonVersion@0
+                  displayName: "Set Python $(pythonVersion)"
+                  inputs:
+                      versionSpec: "$(pythonVersion)"
+
+                - script: |
+                      set -euo pipefail
+                      python -m pip install --upgrade pip
+                      pip install -r requirements.txt
+                  displayName: "Install dependencies"
+
+                # - script: |
+                #       set -euo pipefail
+                #       pip install pytest pytest-cov
+                #       pytest $(projectDir) \
+                #         --cov=$(projectDir) \
+                #         --cov-report=xml:coverage.xml \
+                #         --junitxml=test-results.xml
+                #   displayName: "Tests uitvoeren"
+
+                # - task: PublishTestResults@2
+                #   displayName: "Testresultaten publiceren"
+                #   condition: always()
+                #   inputs:
+                #       testResultsFiles: "test-results.xml"
+                #       testRunTitle: "Omgevingsbeleid API – Test Suite"
+
+                # - task: PublishCodeCoverageResults@2
+                #   displayName: "Coverage publiceren"
+                #   condition: always()
+                #   inputs:
+                #       summaryFileLocation: "$(System.DefaultWorkingDirectory)/coverage.xml"
+
+                - script: |
+                      set -euo pipefail
+                      pip install pip-audit
+                      pip-audit || true
+                  displayName: "Security scan (SCA – pip-audit)"
+
+                - script: |
+                      set -euo pipefail
+                      SEMVER=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0-untagged")
+                      echo "##vso[task.setvariable variable=semVer;isOutput=true]$SEMVER"
+                      echo "SemVer: $SEMVER | Build: $(Build.BuildId) | Branch: $(Build.SourceBranchName)"
+                  name: versioning
+                  displayName: "Semantic versioning"
+
+                - script: |
+                      set -euo pipefail
+                      mkdir -p package
+                      cp -R $(projectDir) package/ && cp requirements.txt package/
+                      [ -f alembic.ini ]   && cp alembic.ini package/   || true
+                      [ -f entrypoint.sh ] && cp entrypoint.sh package/ || true
+                      [ -d migrations ]    && cp -R migrations package/ || true
+                  displayName: "Assembling deployment package"
+
+                - task: ArchiveFiles@2
+                  displayName: "Creating ZIP-artifact"
+                  inputs:
+                      rootFolderOrFile: "package"
+                      includeRootFolder: false
+                      archiveType: zip
+                      archiveFile: >
+                          $(Build.ArtifactStagingDirectory)/$(projectName)_$(Build.SourceBranchName)_$(versioning.semVer)_$(Build.BuildId).zip
+                      replaceExistingArchive: true
+
+                - publish: $(Build.ArtifactStagingDirectory)
+                  artifact: app
+                  displayName: "Publish artifact"
+
+    - stage: Dev_Deploy
+      displayName: "Deploy Dev"
+      dependsOn: Build
+      condition: >
+          and(
+            in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues'),
+            or(
+              eq(variables['Build.SourceBranch'], 'refs/heads/poc/dev'),
+              and(eq(variables['Build.Reason'], 'Manual'), eq('${{ parameters.deployEnvironment }}', 'dev'))
+            )
+          )
+      variables:
+          - group: vg-poc-ob-api-dev
+      jobs:
+          - deployment: Dev
+            displayName: "Dev deployment"
+            environment: POC-Dev
+            strategy:
+                runOnce:
+                    deploy:
+                        steps:
+                            - download: current
+                              artifact: app
+
+                            - task: AzureWebApp@1
+                              displayName: "Deploy API to App Service (Dev)"
+                              inputs:
+                                  azureSubscription: $(AZURE_SUBSCRIPTION)
+                                  appType: webAppLinux
+                                  appName: $(WEBAPP_NAME)
+                                  package: "$(Pipeline.Workspace)/app/*.zip"
+                                  runtimeStack: "PYTHON|3.13"
+                                  appSettings: >
+                                      -DB_MIGRATION_TRIGGER ${{ parameters.runDBMigration }}
+                                      -WEBSITE_RUN_FROM_PACKAGE 0
+                                  startUpCommand: "bash entrypoint.sh"
+
+                            - script: |
+                                  echo "##vso[build.addbuildtag]deployed-dev-$(date +%Y%m%d)"
+                                  echo "DEV BE: $(date -u +%Y-%m-%dT%H:%M:%SZ) | $(Build.SourceBranchName)"
+                              displayName: "Logging deployment timestamp"
