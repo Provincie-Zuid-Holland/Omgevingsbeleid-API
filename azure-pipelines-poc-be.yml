@@ -140,6 +140,9 @@ stages:
                 runOnce:
                     deploy:
                         steps:
+                            - script: rm -rf "$(Pipeline.Workspace)/app"
+                              displayName: "Clean artifact workspace"
+
                             - download: current
                               artifact: app
 
