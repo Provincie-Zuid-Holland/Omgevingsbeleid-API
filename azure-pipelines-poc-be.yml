@@ -115,7 +115,7 @@ stages:
                           $(Build.ArtifactStagingDirectory)/$(projectName)_$(Build.SourceBranchName)_$(versioning.semVer)_$(Build.BuildId).zip
                       replaceExistingArchive: true
 
-                - publish: $(Build.ArtifactStagingDirectory)
+                - publish: $(Build.ArtifactStagingDirectory)/$(projectName)_$(Build.SourceBranchName)_$(versioning.semVer)_$(Build.BuildId).zip
                   artifact: app
                   displayName: "Publish artifact"
 
