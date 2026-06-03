@@ -155,6 +155,9 @@ class ApiContainer(containers.DeclarativeContainer):
         werkingsgebied_services.JoinGebiedenGroepenServiceFactory,
         object_repository=object_repository,
     )
+    join_gebiedsaanwijzingen_service_factory = providers.Singleton(
+        werkingsgebied_services.JoinGebiedsaanwijzingenServiceFactory,
+    )
     join_gebiedsaanwijzingen_object_statics_service_factory = providers.Singleton(
         werkingsgebied_services.JoinGebiedsaanwijzingenServiceFactory,
     )
@@ -257,7 +260,7 @@ class ApiContainer(containers.DeclarativeContainer):
             ),
             providers.Factory(
                 event_listeners.JoinGebiedsaanwijzingenForObjectListener,
-                service_factory=join_gebiedengroepen_service_factory,
+                service_factory=join_gebiedsaanwijzingen_service_factory,
             ),
             providers.Factory(
                 event_listeners.JoinObjectsForObjectListener,
