@@ -4,14 +4,13 @@
 #
 # Verantwoordelijkheid van deze pipeline:
 #   1. Build (tests, SCA, versioned artifact) op alle push-triggers
-#   2. Dev-deployment op poc/dev-branch
+#   2. Dev-deployment op poc/main-branch
 # =============================================================================
 # Test / Acc / Prod: gecoördineerd in DevOps via azure-pipelines-orchestrator.yml
 
 trigger:
     branches:
         include:
-            - "poc/dev"
             - "poc/release/*"
             - "poc/hotfix/*"
             - "poc/main"
@@ -119,6 +118,14 @@ stages:
                   artifact: app
                   displayName: "Publish artifact"
 
+                - script: |
+                      if git log --pretty=format:"%s %b" "$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || git rev-list --max-parents=0 HEAD)"..HEAD \
+                        | grep -qi "BREAKING CHANGE\|!:"; then
+                        echo "##vso[build.addbuildtag]breaking"
+                        echo "Breaking change gedetecteerd in commits – build getagd"
+                      fi
+                  displayName: "Auto-detect breaking change via Conventional Commits"
+
     - stage: Dev_Deploy
       displayName: "Deploy Dev"
       dependsOn: Build
@@ -126,7 +133,7 @@ stages:
           and(
             in(dependencies.Build.result, 'Succeeded', 'SucceededWithIssues'),
             or(
-              eq(variables['Build.SourceBranch'], 'refs/heads/poc/dev'),
+              eq(variables['Build.SourceBranch'], 'refs/heads/poc/main'),
               and(eq(variables['Build.Reason'], 'Manual'), eq('${{ parameters.deployEnvironment }}', 'dev'))
             )
           )
