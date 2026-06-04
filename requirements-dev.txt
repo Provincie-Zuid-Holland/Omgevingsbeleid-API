@@ -26,7 +26,7 @@ coverage[toml]==7.14.1
     #   pytest-cov
 coverage-badge==1.1.2
     # via -r requirements-dev.in
-debugpy==1.8.20
+debugpy==1.8.21
     # via -r requirements-dev.in
 decorator==5.3.1
     # via ipython
@@ -36,7 +36,7 @@ executing==2.2.1
     # via
     #   devtools
     #   stack-data
-faker==40.19.1
+faker==40.21.0
     # via -r requirements-dev.in
 freezegun==1.5.5
     # via
@@ -50,14 +50,14 @@ httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via -r requirements-dev.in
-idna==3.16
+idna==3.18
     # via
     #   anyio
     #   httpx
     #   requests
 iniconfig==2.3.0
     # via pytest
-ipython==9.13.0
+ipython==9.14.0
     # via -r requirements-dev.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -123,7 +123,7 @@ requests-mock==1.12.1
     # via -r requirements-dev.in
 rich==15.0.0
     # via -r requirements-dev.in
-ruff==0.15.14
+ruff==0.15.15
     # via -r requirements-dev.in
 six==1.17.0
     # via
@@ -133,7 +133,7 @@ sqlalchemy==2.0.50
     # via alembic
 stack-data==0.6.3
     # via ipython
-traitlets==5.15.0
+traitlets==5.15.1
     # via
     #   ipython
     #   matplotlib-inline

@@ -10,6 +10,7 @@ from tests.fixtures.internal.services.prefill_service import PrefillService
 import tests.fixtures.data.d001_users as d001_users
 import tests.fixtures.data.d002_assets as d002_assets
 import tests.fixtures.data.d003_storage_files as d003_storage_files
+import tests.fixtures.data.d020_input_geo as d020_input_geo
 
 # import tests.fixtures.data.d050_basic_demo as d050_basic_demo
 from tests.fixtures.internal.spec.user_spec import UserSpec
@@ -21,6 +22,7 @@ class FixturesService:
             d001_users.load,
             d002_assets.load,
             d003_storage_files.load,
+            d020_input_geo.load,
         ]
 
         collector: Collector = Collector()

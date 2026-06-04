@@ -1,5 +1,5 @@
 from tests.fixtures.internal.services.collector import Collector
-from tests.fixtures.internal.spec.ambitie_spec import AmbitieSpec
+from tests.fixtures.internal.spec.objects.ambitie_spec import AmbitieSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec
 
 

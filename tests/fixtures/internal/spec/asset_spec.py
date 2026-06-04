@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Optional, Sequence
 import uuid
 
-from passlib.context import CryptContext
 
 from app.core.db.base import Base
 from app.core.tables.others import AssetsTable
@@ -54,9 +53,6 @@ class AssetSpec(Spec):
 
 
 class AssetPrefillHandler(BasePrefillHandler[AssetSpec]):
-    def __init__(self):
-        self._pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
     def fill(self, record: Record[AssetSpec], context: PrefillContext) -> Record[AssetSpec]:
         record = super().fill(record, context)
 

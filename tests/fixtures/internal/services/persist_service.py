@@ -4,6 +4,14 @@ from sqlalchemy.orm import Session
 
 from app.core.db.base import Base
 from tests.fixtures.internal.spec.asset_spec import AssetPersistHandler, AssetSpec
+from tests.fixtures.internal.spec.input_geo_onderverdeling_spec import (
+    InputGeoOnderverdelingPersistHandler,
+    InputGeoOnderverdelingSpec,
+)
+from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import (
+    InputGeoWerkingsgebiedenPersistHandler,
+    InputGeoWerkingsgebiedenSpec,
+)
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePersistHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec, UserPersistHandler
 from tests.fixtures.internal.spec.objects.ambitie_spec import AmbitieSpec, AmbitiePersistHandler
@@ -25,6 +33,8 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             AssetSpec: AssetPersistHandler(),
             StorageFileSpec: StorageFilePersistHandler(),
             AmbitieSpec: AmbitiePersistHandler(),
+            InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPersistHandler(),
+            InputGeoOnderverdelingSpec: InputGeoOnderverdelingPersistHandler(),
         }
 
     def persist(self, records: List[Record[S]], session: Session) -> FixtureData:

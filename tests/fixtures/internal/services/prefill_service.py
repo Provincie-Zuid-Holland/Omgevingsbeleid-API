@@ -4,6 +4,14 @@ from typing import List, Dict, Optional, Type
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
 from tests.fixtures.internal.services.collector import Record
 from tests.fixtures.internal.spec.asset_spec import AssetPrefillHandler, AssetSpec
+from tests.fixtures.internal.spec.input_geo_onderverdeling_spec import (
+    InputGeoOnderverdelingPrefillHandler,
+    InputGeoOnderverdelingSpec,
+)
+from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import (
+    InputGeoWerkingsgebiedenPrefillHandler,
+    InputGeoWerkingsgebiedenSpec,
+)
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePrefillHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserPrefillHandler, UserSpec
 from tests.fixtures.internal.spec.objects.ambitie_spec import AmbitiePrefillHandler, AmbitieSpec
@@ -17,6 +25,8 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             AssetSpec: AssetPrefillHandler(),
             StorageFileSpec: StorageFilePrefillHandler(),
             AmbitieSpec: AmbitiePrefillHandler(),
+            InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPrefillHandler(),
+            InputGeoOnderverdelingSpec: InputGeoOnderverdelingPrefillHandler(),
         }
 
     def prefill(self, input_records: List[Record]) -> List[Record]:

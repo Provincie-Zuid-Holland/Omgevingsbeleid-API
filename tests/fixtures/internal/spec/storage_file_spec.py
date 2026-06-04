@@ -5,7 +5,6 @@ import re
 from typing import Optional, Sequence
 import uuid
 
-from passlib.context import CryptContext
 from pydantic import Field
 
 from app.core.db.base import Base
@@ -62,9 +61,6 @@ class StorageFileSpec(Spec):
 
 
 class StorageFilePrefillHandler(BasePrefillHandler[StorageFileSpec]):
-    def __init__(self):
-        self._pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
     def fill(self, record: Record[StorageFileSpec], context: PrefillContext) -> Record[StorageFileSpec]:
         record = super().fill(record, context)
 
