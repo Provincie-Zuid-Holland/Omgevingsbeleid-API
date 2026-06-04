@@ -119,12 +119,22 @@ stages:
                   displayName: "Publish artifact"
 
                 - script: |
-                      if git log --pretty=format:"%s %b" "$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || git rev-list --max-parents=0 HEAD)"..HEAD \
-                        | grep -qi "BREAKING CHANGE\|!:"; then
-                        echo "##vso[build.addbuildtag]breaking"
-                        echo "Breaking change gedetecteerd in commits – build getagd"
+                      set -euo pipefail
+
+                      echo "Checking commits for breaking changes..."
+
+                      if git log -100 --pretty=format:"%s%n%b" \
+                          | grep -Eiq 'BREAKING CHANGE|^[a-z]+(\(.+\))?!:'; then
+
+                          echo "Breaking change detected."
+                          echo "##vso[build.addbuildtag]breaking"
+
+                      else
+
+                          echo "No breaking changes detected."
+
                       fi
-                  displayName: "Auto-detect breaking change via Conventional Commits"
+                  displayName: "Detect breaking changes"
 
     - stage: Dev_Deploy
       displayName: "Deploy Dev"
