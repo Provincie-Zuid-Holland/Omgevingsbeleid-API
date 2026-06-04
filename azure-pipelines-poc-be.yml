@@ -125,14 +125,10 @@ stages:
 
                       if git log -100 --pretty=format:"%s%n%b" \
                           | grep -Eiq 'BREAKING CHANGE|^[a-z]+(\(.+\))?!:'; then
-
                           echo "Breaking change detected."
                           echo "##vso[build.addbuildtag]breaking"
-
                       else
-
                           echo "No breaking changes detected."
-
                       fi
                   displayName: "Detect breaking changes"
 
