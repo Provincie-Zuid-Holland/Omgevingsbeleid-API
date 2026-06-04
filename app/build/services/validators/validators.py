@@ -5,9 +5,9 @@ from typing import List, Optional, Set
 
 from PIL import Image
 from bs4 import BeautifulSoup
+from dso.models import DocumentType
 from pydantic import ValidationInfo
 from dso.services.ow.gebiedsaanwijzingen.gebiedsaanwijzing import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
-from dso.models import DocumentType
 
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.core.db.session import SessionFactoryType, session_scope_with_context

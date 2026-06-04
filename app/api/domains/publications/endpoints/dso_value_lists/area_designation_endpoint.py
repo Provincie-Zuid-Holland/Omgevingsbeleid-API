@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 
 from dependency_injector.wiring import inject, Provide
 from dso import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
@@ -22,7 +22,10 @@ def get_area_designation_endpoint(
         GebiedsaanwijzingenFactory, Depends(Provide[ApiContainer.dso_gebiedsaanwijzingen_factory])
     ],
 ) -> ListAreaDesignationResponse:
-    gebiedsaanwijzingen_programma: Gebiedsaanwijzingen = dso_gebiedsaanwijzingen_factory.get_for_document(
+    gebiedsaanwijzingen_programma: Optional[Gebiedsaanwijzingen] = dso_gebiedsaanwijzingen_factory.get_for_document(
         DocumentType.PROGRAMMA
     )
-    return ListAreaDesignationResponse(gebiedsaanwijzingen=gebiedsaanwijzingen_programma.get_list())
+    gebiedsaanwijzingen_list = []
+    if gebiedsaanwijzingen_programma is not None:
+        gebiedsaanwijzingen_list = gebiedsaanwijzingen_programma.get_list()
+    return ListAreaDesignationResponse(gebiedsaanwijzingen=gebiedsaanwijzingen_list)
