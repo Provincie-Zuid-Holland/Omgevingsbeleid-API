@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, Sequence, Set, Type, Union
 import uuid
 
@@ -11,6 +12,8 @@ from app.core.db.base import Base
 DATETIME_T0 = datetime(2025, 1, 1, tzinfo=timezone.utc)
 
 UUID_NAMESPACE = uuid.UUID("00000000-0000-0000-0000-000000000000")
+
+BASE_FILES_DIR = Path(__file__).parent.parent / "data/files"
 
 
 type PrimaryKey = Union[uuid.UUID, int]

@@ -7,7 +7,7 @@ def load(col: Collector) -> None:
     col.add(
         AmbitieSpec(
             key="base",
-            Object_ID=100,
+            Object_ID=999999,
             Title="First Title!",
         )
     )
@@ -15,7 +15,7 @@ def load(col: Collector) -> None:
     col.move_at(days=20)
     col.add(
         AmbitieSpec(
-            Object_ID=100,
+            Object_ID=999999,
             Description="Finaly a description",
         )
     )
@@ -24,7 +24,7 @@ def load(col: Collector) -> None:
     with col.with_defaults(Modified_By_UUID=col.ref(UserSpec, "frozen")):
         col.add(
             AmbitieSpec(
-                Object_ID=100,
+                Object_ID=999999,
                 Title="Finally a new title!",
                 Description="Changed a description",
             )
@@ -33,7 +33,7 @@ def load(col: Collector) -> None:
     col.move_at(days=1)
     col.add(
         AmbitieSpec(
-            Object_ID=100,
+            Object_ID=999999,
             Description="Final description",
             Adjust_On=col.ref(AmbitieSpec, "base"),
         )

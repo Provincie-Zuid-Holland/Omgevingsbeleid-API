@@ -8,7 +8,10 @@ from tests.fixtures.internal.services.linker_service import LinkerService
 from tests.fixtures.internal.services.persist_service import PersistService
 from tests.fixtures.internal.services.prefill_service import PrefillService
 import tests.fixtures.data.d001_users as d001_users
-import tests.fixtures.data.d050_basic as d050_basic
+import tests.fixtures.data.d002_assets as d002_assets
+import tests.fixtures.data.d003_storage_files as d003_storage_files
+
+# import tests.fixtures.data.d050_basic_demo as d050_basic_demo
 from tests.fixtures.internal.spec.user_spec import UserSpec
 
 
@@ -16,7 +19,8 @@ class FixturesService:
     def load(self, session: Session):
         sources: List[Callable[[Collector], None]] = [
             d001_users.load,
-            d050_basic.load,
+            d002_assets.load,
+            d003_storage_files.load,
         ]
 
         collector: Collector = Collector()

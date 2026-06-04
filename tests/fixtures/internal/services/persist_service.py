@@ -3,8 +3,10 @@ from typing import Dict, List, Optional, Sequence, Type
 from sqlalchemy.orm import Session
 
 from app.core.db.base import Base
+from tests.fixtures.internal.spec.asset_spec import AssetPersistHandler, AssetSpec
+from tests.fixtures.internal.spec.storage_file_spec import StorageFilePersistHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec, UserPersistHandler
-from tests.fixtures.internal.spec.ambitie_spec import AmbitieSpec, AmbitiePersistHandler
+from tests.fixtures.internal.spec.objects.ambitie_spec import AmbitieSpec, AmbitiePersistHandler
 from tests.fixtures.internal.types import (
     BasePersistHandler,
     PersistContext,
@@ -20,6 +22,8 @@ class PersistService[S: Spec, H: BasePersistHandler]:
     def __init__(self):
         self._handlers: Dict[Type[S], H] = {
             UserSpec: UserPersistHandler(),
+            AssetSpec: AssetPersistHandler(),
+            StorageFileSpec: StorageFilePersistHandler(),
             AmbitieSpec: AmbitiePersistHandler(),
         }
 

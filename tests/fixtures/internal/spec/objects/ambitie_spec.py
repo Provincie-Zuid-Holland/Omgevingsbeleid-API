@@ -1,6 +1,6 @@
 from typing import ClassVar, Optional, Set
 
-from tests.fixtures.internal.spec.base_object_spec import (
+from tests.fixtures.internal.spec.objects.base_object_spec import (
     BaseObjectPersistHandler,
     BaseObjectSpec,
     BaseObjectPrefillHandler,
