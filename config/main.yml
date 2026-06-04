@@ -78,6 +78,11 @@ forbid_empty_html_nodes_rule:
     - source
     - track
     - wbr
+  allowed_empty_when_sole_child:
+    td:
+      - p
+    th:
+      - p
 
 forbidden_html_tags_rule:
   fields:

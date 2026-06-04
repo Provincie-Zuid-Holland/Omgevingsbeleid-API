@@ -3,7 +3,7 @@ from datetime import timezone, datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type, Set
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, PageElement, Tag
 from dso import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
 from dso.models import DocumentType
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
@@ -273,7 +273,8 @@ class ForbiddenHtmlTagsRule(ValidateModuleRule):
 
 class ForbidEmptyHtmlNodesRuleConfig(BaseModel):
     fields: List[str]
-    html_void_elements: List[str]
+    html_void_elements: List[str] = Field(default_factory=list)
+    allowed_empty_when_sole_child: Dict[str, List[str]] = Field(default_factory=dict)
 
 
 class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
@@ -306,16 +307,39 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
         return errors
 
     def _has_empty_nodes(self, text: str) -> bool:
-        soup = BeautifulSoup(text, "html.parser")
+        soup: BeautifulSoup = BeautifulSoup(text, "html.parser")
 
-        empty_tags = [
-            tag
-            for tag in soup.find_all(True)
-            if tag.name not in self._config.html_void_elements
-            and not tag.get_text(strip=True)
-            and not any(child.name for child in tag.children)
-        ]
-        return bool(empty_tags)
+        for tag in soup.find_all(True):
+            if tag.name in self._config.html_void_elements:
+                continue
+            if tag.get_text(strip=True):
+                continue
+            if any(child.name for child in tag.children):
+                continue
+            if self._is_allowed_empty_sole_child(tag):
+                continue
+            return True
+
+        return False
+
+    def _is_allowed_empty_sole_child(self, tag: Tag) -> bool:
+        parent: Optional[Tag] = tag.parent
+        if parent is None:
+            return False
+
+        allowed_children: List[str] = self._config.allowed_empty_when_sole_child.get(parent.name, [])
+        if tag.name not in allowed_children:
+            return False
+
+        # Only allowed when this empty tag is the single element child and the parent holds no other text,
+        # so `<td><p></p></td>` passes but `<td><p>text</p><p></p></td>` does not.
+        element_children: List[PageElement] = [child for child in parent.children if child.name]
+        if len(element_children) != 1:
+            return False
+        if parent.get_text(strip=True):
+            return False
+
+        return True
 
 
 class AreaDesignationRefCheckRule(ValidateModuleRule):
