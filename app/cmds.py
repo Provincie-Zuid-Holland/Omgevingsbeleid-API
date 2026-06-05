@@ -3,7 +3,8 @@ import click  # noqa
 from app.api.api_container import ApiContainer
 from app.build.api_builder import ApiBuilder, ApiBuilderResult
 from app.build.build_container import BuildContainer
-from app.commands import database_commands, mssql_commands, publication_commands, gdpr_commands
+from app.commands import check_pdfs, database_commands, mssql_commands, publication_commands
+from app.commands.gdpr_command_check_images import check_images
 from app.core.logging import init_logging
 
 
@@ -17,8 +18,8 @@ cli.add_command(database_commands.dropdb)
 cli.add_command(database_commands.load_fixtures)
 cli.add_command(mssql_commands.mssql_setup_search_database)
 cli.add_command(publication_commands.create_dso_json_scenario)
-cli.add_command(gdpr_commands.check_images)
-cli.add_command(gdpr_commands.check_pdfs)
+cli.add_command(check_images)
+cli.add_command(check_pdfs)
 
 
 if __name__ == "__main__":
