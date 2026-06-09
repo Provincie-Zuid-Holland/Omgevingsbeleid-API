@@ -14,5 +14,5 @@ requests-mock
 debugpy
 ipython
 alembic
-httpx
+httpx2
 rich

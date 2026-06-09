@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Sequence, Type
 from sqlalchemy.orm import Session
 
 from app.core.db.base import Base
+from tests.fixtures.internal.spec.area_spec import AreaPersistHandler, AreaSpec
 from tests.fixtures.internal.spec.asset_spec import AssetPersistHandler, AssetSpec
 from tests.fixtures.internal.spec.input_geo_onderverdeling_spec import (
     InputGeoOnderverdelingPersistHandler,
@@ -35,6 +36,7 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             AmbitieSpec: AmbitiePersistHandler(),
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPersistHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPersistHandler(),
+            AreaSpec: AreaPersistHandler(),
         }
 
     def persist(self, records: List[Record[S]], session: Session) -> FixtureData:

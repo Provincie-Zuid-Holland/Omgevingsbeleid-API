@@ -5,7 +5,10 @@ import uuid
 from shapely.geometry import Polygon
 from app.core.db.base import Base
 from shapely import wkb
-from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
+from app.core.tables.werkingsgebieden import (
+    InputGeoOnderverdelingenTable,
+    InputGeoWerkingsgebiedOnderverdelingTable,
+)
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
 from tests.fixtures.internal.types import (
     Spec,
@@ -93,6 +96,11 @@ class InputGeoOnderverdelingPersistHandler(BasePersistHandler[InputGeoOnderverde
             )
         ]
         for owner_uuid in spec.Owners:
-            ...
+            records.append(
+                InputGeoWerkingsgebiedOnderverdelingTable(
+                    Werkingsgebied_UUID=owner_uuid,
+                    Onderverdeling_UUID=spec.UUID,
+                )
+            )
 
         return records

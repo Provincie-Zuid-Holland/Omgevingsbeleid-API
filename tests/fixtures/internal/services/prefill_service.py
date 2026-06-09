@@ -3,6 +3,7 @@ from typing import List, Dict, Optional, Type
 
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
 from tests.fixtures.internal.services.collector import Record
+from tests.fixtures.internal.spec.area_spec import AreaPrefillHandler, AreaSpec
 from tests.fixtures.internal.spec.asset_spec import AssetPrefillHandler, AssetSpec
 from tests.fixtures.internal.spec.input_geo_onderverdeling_spec import (
     InputGeoOnderverdelingPrefillHandler,
@@ -27,6 +28,7 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             AmbitieSpec: AmbitiePrefillHandler(),
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPrefillHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPrefillHandler(),
+            AreaSpec: AreaPrefillHandler(),
         }
 
     def prefill(self, input_records: List[Record]) -> List[Record]:

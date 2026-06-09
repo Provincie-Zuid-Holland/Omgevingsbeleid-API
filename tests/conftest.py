@@ -5,7 +5,7 @@ import uuid
 from fastapi import FastAPI
 import pytest
 from dependency_injector import providers
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
@@ -87,6 +87,8 @@ def seed_data(engine) -> FixtureData:
     factory = sessionmaker(bind=connection, autoflush=False, expire_on_commit=False)
     data: FixtureData = FixtureData()
     with factory() as session:
+        # Defer FK checks until commit so fixtures can load in any order.
+        session.execute(text("PRAGMA defer_foreign_keys = ON"))
         data = FixturesService().load(session)
         session.commit()
     connection.close()

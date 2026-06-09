@@ -7,16 +7,13 @@
 alembic==1.18.4
     # via -r requirements-dev.in
 anyio==4.13.0
-    # via httpx
+    # via httpx2
 asttokens==2.4.1
     # via
     #   devtools
     #   stack-data
 certifi==2026.5.20
-    # via
-    #   httpcore
-    #   httpx
-    #   requests
+    # via requests
 charset-normalizer==3.4.7
     # via requests
 coverage[toml]==7.14.1
@@ -45,15 +42,15 @@ freezegun==1.5.5
 greenlet==3.5.1
     # via sqlalchemy
 h11==0.16.0
-    # via httpcore
-httpcore==1.0.9
-    # via httpx
-httpx==0.28.1
+    # via httpcore2
+httpcore2==2.3.0
+    # via httpx2
+httpx2==2.3.0
     # via -r requirements-dev.in
 idna==3.18
     # via
     #   anyio
-    #   httpx
+    #   httpx2
     #   requests
 iniconfig==2.3.0
     # via pytest
@@ -123,7 +120,7 @@ requests-mock==1.12.1
     # via -r requirements-dev.in
 rich==15.0.0
     # via -r requirements-dev.in
-ruff==0.15.15
+ruff==0.15.16
     # via -r requirements-dev.in
 six==1.17.0
     # via
@@ -137,6 +134,10 @@ traitlets==5.15.1
     # via
     #   ipython
     #   matplotlib-inline
+truststore==0.10.4
+    # via
+    #   httpcore2
+    #   httpx2
 typing-extensions==4.15.0
     # via
     #   alembic
