@@ -241,20 +241,6 @@ class ModuleObjectRepository(BaseRepository):
                 .label("_RowNumber"),
                 latest_status_subquery,  # Include each mo latest status
             )
-            .options(
-                # @todo: we should infer this data from the given model map at the endpoint builder instead of hardcoding
-                load_only(
-                    ModuleObjectContextTable.Object_Type,
-                    ModuleObjectContextTable.Object_ID,
-                    ModuleObjectContextTable.Action,
-                    ModuleObjectContextTable.Original_Adjust_On,
-                    ModuleObjectContextTable.Hidden,
-                    ModuleObjectContextTable.Modified_Date,
-                    ModuleObjectContextTable.Created_Date,
-                    ModuleObjectContextTable.Created_By_UUID,
-                    ModuleObjectContextTable.Modified_By_UUID,
-                )
-            )
             .select_from(ModuleObjectsTable)
             .join(ModuleTable)
             .join(ModuleObjectsTable.ObjectStatics)
@@ -265,14 +251,32 @@ class ModuleObjectRepository(BaseRepository):
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
 
         if module_id is not None:
-            subq = subq.filter(subq.c.Module_ID == module_id)
-            
+            subq = subq.filter(ModuleObjectsTable.Module_ID == module_id)
+        if only_active_modules:
+            if module_id is not None:
+                subq = subq.filter(ModuleTable.Closed == False)
+            else:
+                subq = subq.filter(ModuleTable.is_active)
+        if status_filter is not None:
+            subq = subq.filter(ModuleTable.Current_Status.in_(status_filter))
+        if owner_uuid is not None:
+            subq = subq.filter(
+                or_(
+                    ObjectStaticsTable.Owner_1_UUID == owner_uuid,
+                    ObjectStaticsTable.Owner_2_UUID == owner_uuid,
+                ).self_group()
+            )
+        if object_type is not None:
+            subq = subq.filter(ModuleObjectsTable.Object_Type == object_type)
+        if actions:
+            subq = subq.filter(ModuleObjectContextTable.Action.in_(actions))
+
         subq = subq.subquery()
+
         aliased_objects = aliased(ModuleObjectsTable, subq)
         aliased_object_statics = aliased(ObjectStaticsTable, subq)
         aliased_module_object_context = aliased(ModuleObjectContextTable, subq)
 
-        # Outer query to select all fields including the latest status
         stmt = (
             select(
                 aliased_objects,
@@ -280,27 +284,19 @@ class ModuleObjectRepository(BaseRepository):
                 aliased_module_object_context,
                 subq.c.Latest_Status,
             )
+            .options(
+                load_only(
+                    aliased_module_object_context.Action,
+                    aliased_module_object_context.Original_Adjust_On,
+                )
+            )
             .filter(subq.c._RowNumber == 1)
             .filter(subq.c.Deleted == False)
         )
 
-        if only_active_modules:
-            stmt = stmt.filter((subq.c.Activated == True) & (subq.c.Closed == False))
-        if status_filter is not None:
-            stmt = stmt.filter(subq.c.Current_Status.in_(status_filter))
-        if owner_uuid is not None:
-            stmt = stmt.filter(
-                or_(
-                    subq.c.Owner_1_UUID == owner_uuid,
-                    subq.c.Owner_2_UUID == owner_uuid,
-                ).self_group()
-            )
-        if object_type is not None:
-            stmt = stmt.filter(subq.c.Object_Type == object_type)
+        # This field changes per record and must therefor be compared after gaining the newest record
         if title is not None:
             stmt = stmt.filter(subq.c.Title.like(title))
-        if actions:
-            stmt = stmt.filter(subq.c.Action.in_(actions))
 
         return self.fetch_paginated_no_scalars(
             session=session,
