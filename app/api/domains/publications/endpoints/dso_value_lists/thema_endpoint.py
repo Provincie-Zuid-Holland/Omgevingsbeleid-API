@@ -18,5 +18,5 @@ class ListThemaResponse(BaseModel):
 def get_thema_endpoint(
     dso_thema_factory: Annotated[ThemaFactory, Depends(Provide[ApiContainer.dso_thema_factory])],
 ) -> ListThemaResponse:
-    themas: List[Thema] = [thema for _, thema in dso_thema_factory.get_all().items()]
+    themas = list(dso_thema_factory.get_all().values())
     return ListThemaResponse(themas=themas)

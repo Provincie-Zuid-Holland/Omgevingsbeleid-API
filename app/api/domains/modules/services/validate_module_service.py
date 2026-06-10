@@ -438,7 +438,8 @@ class ThemasCheckRule(ValidateModuleRule):
                 continue
 
             for thema in object_table.Themas:
-                if thema not in dso_themas:
+                dso_thema: Optional[Thema] = dso_themas.get(thema)
+                if dso_thema is None:
                     errors.append(
                         ValidateModuleError(
                             rule="themas_check_rule",
@@ -451,7 +452,7 @@ class ThemasCheckRule(ValidateModuleRule):
                             messages=[f"Thema '{thema}' can't be found in waardelijst"],
                         )
                     )
-                elif dso_themas[thema].deprecated:
+                elif dso_thema.deprecated:
                     errors.append(
                         ValidateModuleError(
                             rule="themas_check_rule",
