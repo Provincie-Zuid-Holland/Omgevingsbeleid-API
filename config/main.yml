@@ -35,6 +35,7 @@ required_object_fields_rule:
   beleidsdoel: beleidsdoel_module_validate
   beleidskeuze: beleidskeuze_module_validate
   document: document_module_validate
+  hoofdlijn: hoofdlijn_module_validate
   maatregel: maatregel_module_validate
   programma_algemeen: programma_module_validate
   visie_algemeen: visie_algemeen_module_validate
@@ -49,11 +50,13 @@ publication_required_object_fields_rule:
     beleidskeuze: beleidskeuze_module_validate
     document: document_module_validate
     visie_algemeen: visie_algemeen_module_validate
+    hoofdlijn: hoofdlijn_module_validate
   programma:
     document: document_module_validate
     maatregel: maatregel_module_validate
     programma_algemeen: programma_module_validate
     beleidsdoel: beleidsdoel_module_validate
+    hoofdlijn: hoofdlijn_module_validate
 
 forbid_empty_html_nodes_rule:
   fields:
@@ -103,6 +106,7 @@ model_map: &model_map
   beleidsregel: beleidsregel_basic
   document: document_basic
   gebiedsprogramma: gebiedsprogramma_basic
+  hoofdlijn: hoofdlijn_basic
   maatregel: maatregel_basic
   nationaal_belang: nationaal_belang_basic
   gebiedengroep: gebiedengroep_basic
@@ -221,6 +225,7 @@ api:
               - gebiedengroep
               - gebied
               - gebiedsaanwijzing
+              - hoofdlijn
             model_map: *model_map
             response_model_name: PagedSearchObjectResponse
     - prefix: /search/valid
@@ -245,6 +250,7 @@ api:
               - gebiedengroep
               - gebied
               - gebiedsaanwijzing
+              - hoofdlijn
             model_map: *model_map
             response_model_name: PagedValidSearchObjectResponse
     - prefix: /full-graph
@@ -327,6 +333,7 @@ api:
               - document
               - gebiedengroep
               - gebiedsaanwijzing
+              - hoofdlijn
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
@@ -343,6 +350,7 @@ api:
               - document
               - gebiedengroep
               - gebiedsaanwijzing
+              - hoofdlijn
         - resolver: module_get_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
@@ -386,6 +394,7 @@ api:
               - gebiedengroep
               - gebied
               - gebiedsaanwijzing
+              - hoofdlijn
             sort: *sort_default_object_id
             model_map: *model_map
             response_model_name: PagedListAllLatestObjectsResponse
@@ -623,6 +632,13 @@ columns:
     serializers: []
     deserializers: []
     nullable: true
+  # Hoofdlijnen references
+  hoofdlijnen:
+    name: Hoofdlijnen
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
   # Area_UUID used to store reference to the shape
   area_uuid:
     name: Area_UUID
@@ -746,6 +762,12 @@ columns:
     nullable: true
   ref_group:
     name: Ref_Group
+    type: str
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  hoofdlijn_type:
+    name: Hoofdlijn_Type
     type: str
     serializers: ["optional_str"]
     deserializers: ["optional_str"]

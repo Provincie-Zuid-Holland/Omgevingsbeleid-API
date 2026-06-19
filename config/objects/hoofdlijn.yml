@@ -1,5 +1,5 @@
-id: visie_algemeen
-object_type: visie_algemeen
+id: hoofdlijn
+object_type: hoofdlijn
 
 sort_allowed_columns: &sort_allowed_columns
   - Object_ID
@@ -20,68 +20,68 @@ sort_default_modified_date: &sort_default_modified_date
 
 api:
   routers:
-    - prefix: /visies-algemeen
+    - prefix: /hoofdlijnen
       endpoints:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: visie_algemeen_basic
+            response_model: hoofdlijn_basic
             allowed_filter_columns:
               - Title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
-            response_model: visie_algemeen_basic
+            response_model: hoofdlijn_basic
             allowed_filter_columns:
               - Title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: visie_algemeen_full
+            response_model: hoofdlijn_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: visie_algemeen_full
-    - prefix: /visie-algemeen/static/{lineage_id}
+            response_model: hoofdlijn_full
+    - prefix: /hoofdlijn/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: visie_algemeen_static_post
-            result_model: visie_algemeen_static_post_validated
-    - prefix: /modules/{module_id}/object/visie-algemeen
+            request_model: hoofdlijn_static_post
+            result_model: hoofdlijn_static_post_validated
+    - prefix: /modules/{module_id}/object/hoofdlijn
       endpoints:
         - resolver: module_patch_object
           resolver_data:
             path: /{lineage_id}
-            request_model: visie_algemeen_patch
-            response_model: visie_algemeen_uuid
+            request_model: hoofdlijn_patch
+            response_model: hoofdlijn_uuid
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: visie_algemeen_extended
+            response_model: hoofdlijn_extended
             allowed_filter_columns:
               - Title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: visie_algemeen_full
+            response_model: hoofdlijn_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: visie_algemeen_full
-    - prefix: /modules/object/visie-algemeen
+            response_model: hoofdlijn_full
+    - prefix: /modules/object/hoofdlijn
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-    - prefix: /revisions/{module_id}/visie-algemeen/version/{object_uuid}
+    - prefix: /revisions/{module_id}/hoofdlijn/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
           resolver_data:
-            response_model: visie_algemeen_full
+            response_model: hoofdlijn_full
             minimum_status: 'Ontwerp GS Concept'
             require_auth: False
 
@@ -92,22 +92,10 @@ fields:
     column: title
     validators:
       - id: none_to_default_value
-  description:
-    name: Description
+  hoofdlijn_type:
+    name: Hoofdlijn_Type
     type: str
-    column: description
-    validators:
-      - id: none_to_default_value
-  idms_link:
-    name: IDMS_Link
-    type: str
-    column: idms_link
-    validators:
-      - id: none_to_default_value
-  decision_number:
-    name: Decision_Number
-    type: str
-    column: decision_number
+    column: hoofdlijn_type
     validators:
       - id: none_to_default_value
 
@@ -124,15 +112,15 @@ fields:
     optional: true
 
 models:
-  visie_algemeen_minimal:
-    name: VisieAlgemeenMinimal
+  hoofdlijn_minimal:
+    name: HoofdlijnMinimal
     fields:
       object_type:
       object_id:
       uuid:
       title:
-  visie_algemeen_basic:
-    name: VisieAlgemeenBasic
+  hoofdlijn_basic:
+    name: HoofdlijnBasic
     fields:
       object_id:
       code:
@@ -141,13 +129,14 @@ models:
       created_date:
       modified_date:
       title:
+      hoofdlijn_type:
       start_validity:
       end_validity:
     services:
       next_object_version:
         to_field: Next_Version
-  visie_algemeen_extended:
-    name: VisieAlgemeenExtended
+  hoofdlijn_extended:
+    name: HoofdlijnExtended
     fields:
       object_id:
       code:
@@ -156,6 +145,7 @@ models:
       created_date:
       modified_date:
       title:
+      hoofdlijn_type:
       start_validity:
       end_validity:
     dependency_model_ids:
@@ -173,8 +163,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  visie_algemeen_full:
-    name: VisieAlgemeenFull
+  hoofdlijn_full:
+    name: HoofdlijnFull
     fields:
       object_id:
       code:
@@ -183,7 +173,7 @@ models:
       created_date:
       modified_date:
       title:
-      description:
+      hoofdlijn_type:
       start_validity:
       end_validity:
     dependency_model_ids:
@@ -194,9 +184,6 @@ models:
         to_field: Next_Version
       public_revisions:
         to_field: Public_Revisions
-      insert_assets:
-        fields:
-          - Description
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
@@ -209,12 +196,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-      join_gebiedsaanwijzingen:
-        to_field: Gebiedsaanwijzingen_Statics
-        from_fields:
-          - Description
-  visie_algemeen_patch:
-    name: VisieAlgemeenPatch
+  hoofdlijn_patch:
+    name: HoofdlijnPatch
     fields:
       title:
         default: none
@@ -225,32 +208,23 @@ models:
               min: 3
               max: 200
           - id: plain_text
-      description:
+      hoofdlijn_type:
         default: none
         optional: true
         validators:
-          - id: html
-          - id: image
+          - id: length
             data:
-              max_width: 1500
-              max_height: 2500
-              max_kb: 800
-          - id: gebiedsaanwijzing_in_text
-            data:
-              allowed_code_types:
-                - gebiedsaanwijzing
-    services:
-      extract_assets:
-        fields:
-          - Description
-  visie_algemeen_static_post:
-    name: VisieAlgemeenStaticPost
+              min: 3
+              max: 200
+          - id: plain_text
+  hoofdlijn_static_post:
+    name: HoofdlijnStaticPost
     static_only: true
     fields:
       owner_1_uuid:
       owner_2_uuid:
-  visie_algemeen_static_post_validated:
-    name: VisieAlgemeenStaticPostValidated
+  hoofdlijn_static_post_validated:
+    name: HoofdlijnStaticPostValidated
     static_only: true
     model_validators:
       - id: not_equal_root
@@ -263,13 +237,13 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-  visie_algemeen_uuid:
-    name: VisieAlgemeenUUID
+  hoofdlijn_uuid:
+    name: HoofdlijnUUID
     fields:
       object_id:
       uuid:
-  visie_algemeen_module_validate:
-    name: VisieAlgemeenModuleValidate
+  hoofdlijn_module_validate:
+    name: HoofdlijnModuleValidate
     fields:
       title:
         validators:
@@ -278,9 +252,9 @@ models:
               min: 3
               max: 200
           - id: plain_text
-      description:
-        validators:
+      hoofdlijn_type:
           - id: length
             data:
               min: 3
-          - id: html
+              max: 200
+          - id: plain_text

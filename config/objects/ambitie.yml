@@ -118,6 +118,12 @@ fields:
     column: decision_number
     validators:
       - id: none_to_default_value
+  hoofdlijnen:
+    name: Hoofdlijnen
+    type: list_str
+    column: hoofdlijnen
+    validators:
+      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
