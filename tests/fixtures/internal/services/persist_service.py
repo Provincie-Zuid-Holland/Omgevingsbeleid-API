@@ -15,7 +15,7 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import (
 )
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePersistHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec, UserPersistHandler
-from tests.fixtures.internal.spec.objects.ambitie_spec import AmbitieSpec, AmbitiePersistHandler
+import tests.fixtures.internal.spec.objects as objects_types
 from tests.fixtures.internal.types import (
     BasePersistHandler,
     PersistContext,
@@ -33,7 +33,9 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             UserSpec: UserPersistHandler(),
             AssetSpec: AssetPersistHandler(),
             StorageFileSpec: StorageFilePersistHandler(),
-            AmbitieSpec: AmbitiePersistHandler(),
+            objects_types.BeleidsdoelSpec: objects_types.BeleidsdoelPersistHandler(),
+            objects_types.BeleidskeuzeSpec: objects_types.BeleidskeuzePersistHandler(),
+            objects_types.MaatregelSpec: objects_types.MaatregelPersistHandler(),
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPersistHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPersistHandler(),
             AreaSpec: AreaPersistHandler(),

@@ -7,7 +7,7 @@ from tests.fixtures.internal.spec.objects.base_object_spec import (
 )
 
 
-class AmbitieSpec(BaseObjectSpec):
+class BeleidsdoelSpec(BaseObjectSpec):
     __object_type__: ClassVar[str] = "ambitie"
     __inheritable__: ClassVar[Set[str]] = {"Title", "Description"}
     __object_fields__: ClassVar[Set[str]] = {"Title", "Description"}
@@ -16,9 +16,9 @@ class AmbitieSpec(BaseObjectSpec):
     Description: Optional[str] = None
 
 
-class AmbitiePrefillHandler(BaseObjectPrefillHandler[AmbitieSpec]):
+class BeleidsdoelPrefillHandler(BaseObjectPrefillHandler[BeleidsdoelSpec]):
     pass
 
 
-class AmbitiePersistHandler(BaseObjectPersistHandler[AmbitieSpec]):
+class BeleidsdoelPersistHandler(BaseObjectPersistHandler[BeleidsdoelSpec]):
     pass

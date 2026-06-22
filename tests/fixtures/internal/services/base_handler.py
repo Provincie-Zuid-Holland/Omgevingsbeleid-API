@@ -28,6 +28,11 @@ class PrefillContext(BaseModel):
 class BasePrefillHandler[T: Spec]:
     def fill(self, record: Record[T], context: PrefillContext) -> Record[T]:
         for field_name, default_value in record.ctx.defaults.items():
+            # Default value None is special and act like it does not exists
+            # Therefor we wont use it to set the default value
+            if default_value is None:
+                continue
+
             if field_name in type(record.spec).model_fields:
                 if field_name not in record.spec.model_fields_set:
                     setattr(record.spec, field_name, default_value)

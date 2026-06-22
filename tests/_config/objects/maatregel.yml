@@ -1,5 +1,5 @@
-id: beleidsdoel
-object_type: beleidsdoel
+id: maatregel
+object_type: maatregel
 
 sort_allowed_columns: &sort_allowed_columns
   - Object_ID
@@ -20,30 +20,32 @@ sort_default_modified_date: &sort_default_modified_date
 
 api:
   routers:
-    - prefix: /beleidsdoelen
+    - prefix: /maatregelen
       endpoints:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: beleidsdoel_basic
+            response_model: maatregel_basic
             allowed_filter_columns:
               - Title
+              - Weblink
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
-            response_model: beleidsdoel_basic
+            response_model: maatregel_basic
             allowed_filter_columns:
               - Title
+              - Weblink
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidsdoel_full
+            response_model: maatregel_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidsdoel_full
+            response_model: maatregel_full
         - resolver: list_relations
           resolver_data:
             path: /relations/{lineage_id}
@@ -51,48 +53,51 @@ api:
           resolver_data:
             path: /relations/{lineage_id}
             allowed_object_types_relations:
-              - ambitie
               - beleidskeuze
-    - prefix: /beleidsdoel/static/{lineage_id}
+              - gebiedsprogramma
+              - verplicht_programma
+    - prefix: /maatregel/static/{lineage_id}
       endpoints:
         - resolver: edit_object_static
           resolver_data:
-            request_model: beleidsdoel_static_post
-            result_model: beleidsdoel_static_post_validated
-    - prefix: /modules/{module_id}/object/beleidsdoel
+            request_model: maatregel_static_post
+            result_model: maatregel_static_post_validated
+    - prefix: /modules/{module_id}/object/maatregel
       endpoints:
         - resolver: module_patch_object
           resolver_data:
             path: /{lineage_id}
-            request_model: beleidsdoel_patch
-            response_model: beleidsdoel_uuid
+            request_model: maatregel_patch
+            response_model: maatregel_uuid
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: beleidsdoel_extended
+            response_model: maatregel_extended
             allowed_filter_columns:
               - Title
+              - Weblink
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: beleidsdoel_full
+            response_model: maatregel_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: beleidsdoel_full
-    - prefix: /modules/object/beleidsdoel
+            response_model: maatregel_full
+    - prefix: /modules/objects/maatregel
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-    - prefix: /revisions/{module_id}/beleidsdoel/version/{object_uuid}
+    - prefix: /revisions/{module_id}/maatregel/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
           resolver_data:
-            response_model: beleidsdoel_full
+            response_model: maatregel_full
             minimum_status: 'Ontwerp GS Concept'
             require_auth: False
+
 
 fields:
   title:
@@ -105,6 +110,32 @@ fields:
     name: Description
     type: str
     column: description
+    validators:
+      - id: none_to_default_value
+  effect:
+    name: Effect
+    type: str
+    column: effect
+    validators:
+      - id: none_to_default_value
+  documents:
+    name: Documents
+    type: list_str
+    column: documents
+    validators:
+      - id: none_to_default_value
+  hierarchy_code:
+    name: Hierarchy_Code
+    type: str
+    column: hierarchy_code
+    validators:
+      - id: none_to_default_value
+  gebiedengroep_code:
+    optional: true
+    default: none
+    name: Gebiedengroep_Code
+    type: str
+    column: gebiedengroep_code
     validators:
       - id: none_to_default_value
 
@@ -136,15 +167,15 @@ fields:
     optional: true
 
 models:
-  beleidsdoel_minimal:
-    name: BeleidsdoelMinimal
+  maatregel_minimal:
+    name: MaatregelMinimal
     fields:
       object_type:
       object_id:
       uuid:
       title:
-  beleidsdoel_basic:
-    name: BeleidsdoelBasic
+  maatregel_basic:
+    name: MaatregelBasic
     fields:
       object_id:
       code:
@@ -152,15 +183,14 @@ models:
       adjust_on:
       created_date:
       modified_date:
-      title:
-      description:
       start_validity:
       end_validity:
+      title:
     services:
       next_object_version:
         to_field: Next_Version
-  beleidsdoel_extended:
-    name: BeleidsdoelExtended
+  maatregel_extended:
+    name: MaatregelExtended
     fields:
       object_id:
       code:
@@ -168,10 +198,12 @@ models:
       adjust_on:
       created_date:
       modified_date:
-      title:
-      description:
       start_validity:
       end_validity:
+      title:
+      hierarchy_code:
+      werkingsgebied_code:
+      gebiedengroep_code:
     dependency_model_ids:
       - user_short
     services:
@@ -193,8 +225,8 @@ models:
             model_id: user_short
           - to_field: Client_1
             model_id: user_short
-  beleidsdoel_full:
-    name: BeleidsdoelFull
+  maatregel_full:
+    name: MaatregelFull
     fields:
       object_id:
       code:
@@ -202,39 +234,65 @@ models:
       adjust_on:
       created_date:
       modified_date:
-      title:
-      description:
       start_validity:
       end_validity:
+      title:
+      description:
+      documents:
+      role:
+      effect:
+      hierarchy_code:
+      werkingsgebied_code:
+      gebiedengroep_code:
     dependency_model_ids:
       - user_short
-      - ambitie_minimal
-      - beleidskeuze_minimal
       - hierarchy_statics
+      - beleidskeuze_minimal
+      - gebiedsprogramma_minimal
+      - werkingsgebied_basic
+      - werkingsgebied_statics
     services:
       next_object_version:
         to_field: Next_Version
       public_revisions:
         to_field: Public_Revisions
+      join_werkingsgebieden:
+        model_id: werkingsgebied_basic
+        to_field: Werkingsgebied
+        from_field: Werkingsgebied_Code
+      join_documents:
+        to_field: Documents_Statics
+        from_field: Documents
+      join_gebiedengroepen:
+        to_field: Gebiedengroep_Static
+        from_field: Gebiedengroep_Code
+      join_gebiedsaanwijzingen:
+        to_field: Gebiedsaanwijzingen_Statics
+        from_fields:
+          - Description
+          - Effect
       insert_assets:
         fields:
           - Description
-      resolve_child_objects_via_hierarchy_listener:
-        to_field: Hierarchy_Children
+          - Effect
       relations:
         objects:
-          - object_type: ambitie
-            object_id: ambitie
-            to_field: "Ambities"
-            model_id: ambitie_minimal
-            wrapped_with_relation_data: true
           - object_type: beleidskeuze
             object_id: beleidskeuze
             to_field: "Beleidskeuzes"
             model_id: beleidskeuze_minimal
             wrapped_with_relation_data: true
+          - object_type: gebiedsprogramma
+            object_id: gebiedsprogramma
+            to_field: "Gebiedsprogrammas"
+            model_id: gebiedsprogramma_minimal
+            wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
+          - to_field: Hierarchy_Statics
+            model_id: hierarchy_statics
+          - to_field: Werkingsgebied_Statics
+            model_id: werkingsgebied_statics
           - to_field: Created_By
             model_id: user_short
           - to_field: Modified_By
@@ -251,12 +309,8 @@ models:
             model_id: user_short
           - to_field: Client_1
             model_id: user_short
-      join_gebiedsaanwijzingen:
-        to_field: Gebiedsaanwijzingen_Statics
-        from_fields:
-          - Description
-  beleidsdoel_patch:
-    name: BeleidsdoelPatch
+  maatregel_patch:
+    name: MaatregelPatch
     fields:
       title:
         default: none
@@ -272,21 +326,75 @@ models:
         optional: true
         validators:
           - id: html
+          - id: gebiedsaanwijzing_in_text
+            data:
+              allowed_code_types:
+                - gebiedsaanwijzing
           - id: image
             data:
               max_width: 1500
               max_height: 2500
               max_kb: 800
+      role:
+        default: none
+        optional: true
+      effect:
+        default: none
+        optional: true
+        validators:
+          - id: html
           - id: gebiedsaanwijzing_in_text
             data:
               allowed_code_types:
                 - gebiedsaanwijzing
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
+      hierarchy_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - beleidskeuze
+          - id: object_code_exists
+      documents:
+        default: none
+        optional: true
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - document
+          - id: object_codes_exists
+      werkingsgebied_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - werkingsgebied
+          - id: object_code_exists
+      gebiedengroep_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - gebiedengroep
+          - id: object_code_exists
     services:
       extract_assets:
         fields:
           - Description
-  beleidsdoel_static_post:
-    name: BeleidsdoelStaticPost
+          - Effect
+  maatregel_static_post:
+    name: MaatregelStaticPost
     static_only: true
     fields:
       owner_1_uuid:
@@ -294,8 +402,8 @@ models:
       portfolio_holder_1_uuid:
       portfolio_holder_2_uuid:
       client_1_uuid:
-  beleidsdoel_static_post_validated:
-    name: BeleidsdoelStaticPostValidated
+  maatregel_static_post_validated:
+    name: MaatregelStaticPostValidated
     static_only: true
     model_validators:
       - id: not_equal_root
@@ -318,13 +426,13 @@ models:
       portfolio_holder_1_uuid:
       portfolio_holder_2_uuid:
       client_1_uuid:
-  beleidsdoel_uuid:
-    name: BeleidsdoelUUID
+  maatregel_uuid:
+    name: MaatregelUUID
     fields:
       object_id:
       uuid:
-  beleidsdoel_module_validate:
-    name: BeleidsdoelModuleValidate
+  maatregel_module_validate:
+    name: MaatregelModuleValidate
     fields:
       title:
         validators:
@@ -339,3 +447,43 @@ models:
             data:
               min: 3
           - id: html
+      role:
+        optional: true
+        validators:
+          - id: none_to_default_value
+          - id: length
+            data:
+              min: 3
+      effect:
+        optional: true
+        validators:
+          - id: none_to_default_value
+          - id: length
+            data:
+              min: 3
+          - id: html
+      hierarchy_code:
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - beleidskeuze
+          - id: object_code_exists
+      documents:
+        default: none
+        optional: true
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - document
+          - id: object_codes_exists
+      werkingsgebied_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - werkingsgebied
+          - id: object_code_exists

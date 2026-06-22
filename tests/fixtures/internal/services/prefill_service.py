@@ -15,7 +15,7 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import (
 )
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePrefillHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserPrefillHandler, UserSpec
-from tests.fixtures.internal.spec.objects.ambitie_spec import AmbitiePrefillHandler, AmbitieSpec
+import tests.fixtures.internal.spec.objects as objects_types
 from tests.fixtures.internal.types import Spec
 
 
@@ -25,7 +25,9 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             UserSpec: UserPrefillHandler(),
             AssetSpec: AssetPrefillHandler(),
             StorageFileSpec: StorageFilePrefillHandler(),
-            AmbitieSpec: AmbitiePrefillHandler(),
+            objects_types.BeleidsdoelSpec: objects_types.BeleidsdoelPrefillHandler(),
+            objects_types.BeleidskeuzeSpec: objects_types.BeleidskeuzePrefillHandler(),
+            objects_types.MaatregelSpec: objects_types.MaatregelPrefillHandler(),
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPrefillHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPrefillHandler(),
             AreaSpec: AreaPrefillHandler(),
