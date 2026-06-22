@@ -98,7 +98,6 @@ api:
             minimum_status: 'Ontwerp GS Concept'
             require_auth: False
 
-
 fields:
   title:
     name: Title
@@ -160,6 +159,12 @@ fields:
     name: Gebiedengroep_Code
     type: str
     column: gebiedengroep_code
+    validators:
+      - id: none_to_default_value
+  themas:
+    name: Themas
+    type: list_str
+    column: themas
     validators:
       - id: none_to_default_value
 
@@ -228,6 +233,7 @@ models:
       hierarchy_code:
       werkingsgebied_code:
       gebiedengroep_code:
+      themas:
     dependency_model_ids:
       - user_short
     services:
@@ -268,6 +274,7 @@ models:
       hierarchy_code:
       werkingsgebied_code:
       gebiedengroep_code:
+      themas:
     dependency_model_ids:
       - user_short
       - hierarchy_statics
@@ -412,6 +419,8 @@ models:
               allowed_object_types:
                 - gebiedengroep
           - id: object_code_exists
+      themas:
+        optional: true
     services:
       extract_assets:
         fields:

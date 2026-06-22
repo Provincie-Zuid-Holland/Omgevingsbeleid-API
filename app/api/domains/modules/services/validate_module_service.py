@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
-from datetime import timezone, datetime
+from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Type, Set
+from typing import Any, Dict, List, Optional, Set, Type
 
 from bs4 import BeautifulSoup, PageElement, Tag
-from dso import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
+from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory, Thema
 from dso.models import DocumentType
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
-from pydantic import BaseModel, Field, PrivateAttr, ValidationError, computed_field, ConfigDict
+from dso.services.ow.themas.thema import ThemaFactory
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, ValidationError, computed_field
 from sqlalchemy.orm import Session
 
 from app.api.domains.modules import ModuleObjectRepository
@@ -421,6 +422,49 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                         ],
                     )
                 )
+        return errors
+
+
+class ThemasCheckRule(ValidateModuleRule):
+    def __init__(self, dso_thema_factory: ThemaFactory):
+        self._dso_thema_factory: ThemaFactory = dso_thema_factory
+
+    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
+        errors: List[ValidateModuleError] = []
+        dso_themas: Dict[str, Thema] = self._dso_thema_factory.get_all()
+
+        for object_table in request.module_objects:
+            if not object_table.Themas:
+                continue
+
+            for thema in object_table.Themas:
+                dso_thema: Optional[Thema] = dso_themas.get(thema)
+                if dso_thema is None:
+                    errors.append(
+                        ValidateModuleError(
+                            rule="themas_check_rule",
+                            object=ValidateModuleObject(
+                                code=object_table.Code,
+                                object_id=object_table.Object_ID,
+                                object_type=object_table.Object_Type,
+                                title=object_table.Title,
+                            ),
+                            messages=[f"Thema '{thema}' can't be found in waardelijst"],
+                        )
+                    )
+                elif dso_thema.deprecated:
+                    errors.append(
+                        ValidateModuleError(
+                            rule="themas_check_rule",
+                            object=ValidateModuleObject(
+                                code=object_table.Code,
+                                object_id=object_table.Object_ID,
+                                object_type=object_table.Object_Type,
+                                title=object_table.Title,
+                            ),
+                            messages=[f"Thema '{thema}' is deprecated"],
+                        )
+                    )
         return errors
 
 

@@ -557,6 +557,9 @@ api:
         - resolver: list_area_designation
           resolver_data:
             path: /area-designation
+        - resolver: list_thema
+          resolver_data:
+            path: /thema
     # Input GEO
     - prefix: /input-geo/werkingsgebieden
       endpoints:
@@ -818,6 +821,13 @@ columns:
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
+  # Thema's
+  themas:
+    name: Themas
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
 
 users_permissions:
   "Ambtelijk opdrachtgever": []

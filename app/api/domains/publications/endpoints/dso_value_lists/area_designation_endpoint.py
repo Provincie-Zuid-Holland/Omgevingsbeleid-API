@@ -25,7 +25,7 @@ def get_area_designation_endpoint(
     gebiedsaanwijzingen_programma: Optional[Gebiedsaanwijzingen] = dso_gebiedsaanwijzingen_factory.get_for_document(
         DocumentType.PROGRAMMA
     )
-    gebiedsaanwijzingen_list = []
+    gebiedsaanwijzingen_list: List[Gebiedsaanwijzing] = []
     if gebiedsaanwijzingen_programma is not None:
         gebiedsaanwijzingen_list = gebiedsaanwijzingen_programma.get_list()
     return ListAreaDesignationResponse(gebiedsaanwijzingen=gebiedsaanwijzingen_list)

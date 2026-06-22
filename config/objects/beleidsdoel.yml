@@ -125,6 +125,12 @@ fields:
     column: hierarchy_code
     validators:
       - id: none_to_default_value
+  themas:
+    name: Themas
+    type: list_str
+    column: themas
+    validators:
+      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
@@ -190,6 +196,7 @@ models:
       start_validity:
       end_validity:
       hierarchy_code:
+      themas:
     dependency_model_ids:
       - user_short
     services:
@@ -225,6 +232,7 @@ models:
       start_validity:
       end_validity:
       hierarchy_code:
+      themas:
     dependency_model_ids:
       - user_short
       - ambitie_minimal
@@ -311,6 +319,8 @@ models:
               allowed_object_types:
                 - ambitie
           - id: object_code_exists
+      themas:
+        optional: true
     services:
       extract_assets:
         fields:
