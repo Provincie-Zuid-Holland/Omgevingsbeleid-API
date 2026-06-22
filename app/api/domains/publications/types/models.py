@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime
 from typing import Any, List, Optional
 
-from dso.services.koop.waardelijsten.gen import RechtsgebiedType, OnderwerpType, BestuursorgaanType
+from dso.services.koop.waardelijsten.gen import BestuursorgaanType, OnderwerpType, RechtsgebiedType
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic_core import ErrorDetails
 
@@ -227,6 +227,12 @@ class ProceduralValidated(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ProceduralView(BaseModel):
+    Enactment_Date: Optional[date] = None
+    Signed_Date: Optional[date] = None
+    Procedural_Announcement_Date: Optional[date] = None
+
+
 class ActMetadata(BaseModel):
     Official_Title: str = Field("")
     Quote_Title: str = Field("")
@@ -317,7 +323,7 @@ class PublicationVersionShort(BaseModel):
     Announcement_Date: Optional[date] = None
     Is_Locked: bool
     Status: PublicationVersionStatus
-    Procedural: dict
+    Procedural: Optional[ProceduralView] = None
 
     Created_Date: datetime
     Modified_Date: datetime
