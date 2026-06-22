@@ -11,13 +11,11 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_version
 from app.api.domains.publications.services.publication_version_validator import PublicationVersionValidator
-from app.api.domains.publications.types.models import BillCompact, BillMetadata, Procedural
+from app.api.domains.publications.types.models import BillCompact, BillMetadata, ProceduralClass
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
 from app.core.tables.publications import PublicationVersionTable
 from app.core.tables.users import UsersTable
-
-ProceduralClass = Procedural
 
 
 class PublicationVersionEdit(BaseModel):
