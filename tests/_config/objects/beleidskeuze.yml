@@ -289,11 +289,6 @@ models:
         to_field: Hierarchy_Children
       relations:
         objects:
-          - object_type: nationaal_belang
-            object_id: nationaal_belang
-            to_field: "NationaleBelangen"
-            model_id: nationaal_belang_minimal
-            wrapped_with_relation_data: true
           - object_type: beleidsdoel
             object_id: beleidsdoel
             to_field: "Beleidsdoelen"

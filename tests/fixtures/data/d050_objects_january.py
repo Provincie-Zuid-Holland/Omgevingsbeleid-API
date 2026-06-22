@@ -20,6 +20,7 @@ def load(col: Collector) -> None:
                     Object_ID=1,
                     Title="Beleidsdoel 1 from januari",
                     Description="Description of beleidsdoel 1",
+                    Owner_1_UUID=col.ref(UserSpec, "owner-1"),
                 ),
                 BeleidsdoelSpec(
                     Object_ID=2,
@@ -44,6 +45,7 @@ def load(col: Collector) -> None:
                     Description="Description of beleidskeuze 1",
                     Explanation="Explanation of beleidskeuze 1",
                     Hierarchy_Code="beleidsdoel-1",
+                    Portfolio_Holder_1_UUID=col.ref(UserSpec, "owner-1"),
                 ),
                 BeleidskeuzeSpec(
                     Object_ID=2,
@@ -80,6 +82,7 @@ def load(col: Collector) -> None:
                     Description="Description of maatregel 1",
                     Effect="Effect of maatregel 1",
                     Hierarchy_Code="beleidskeuze-1",
+                    Client_1_UUID=col.ref(UserSpec, "owner-1"),
                 ),
                 # Attached to beleidskeuze-2
                 MaatregelSpec(

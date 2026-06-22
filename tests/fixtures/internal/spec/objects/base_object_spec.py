@@ -24,7 +24,16 @@ class BaseObjectSpec(Spec):
     # This will handle the Object_Type and that it is not overwritten by the users
     __object_type__: ClassVar[str] = ""
     __inheritable__: ClassVar[Set[str]] = {"Created_Date", "Created_By_UUID"}
-    __link_fields__: ClassVar[Set[str]] = {"Adjust_On", "Created_By_UUID", "Modified_By_UUID"}
+    __link_fields__: ClassVar[Set[str]] = {
+        "Adjust_On",
+        "Created_By_UUID",
+        "Modified_By_UUID",
+        "Owner_1_UUID",
+        "Owner_2_UUID",
+        "Portfolio_Holder_1_UUID",
+        "Portfolio_Holder_2_UUID",
+        "Client_1_UUID",
+    }
     __object_fields__: ClassVar[Set[str]] = {
         "Object_ID",
         "Object_Type",
@@ -38,7 +47,16 @@ class BaseObjectSpec(Spec):
         "Start_Validity",
         "End_Validity",
     }
-    __static_fields__: ClassVar[Set[str]] = {"Object_ID", "Object_Type", "Code"}
+    __static_fields__: ClassVar[Set[str]] = {
+        "Object_ID",
+        "Object_Type",
+        "Code",
+        "Owner_1_UUID",
+        "Owner_2_UUID",
+        "Portfolio_Holder_1_UUID",
+        "Portfolio_Holder_2_UUID",
+        "Client_1_UUID",
+    }
 
     Object_ID: int = 0
     Object_Type: str = ""
@@ -51,6 +69,11 @@ class BaseObjectSpec(Spec):
     Modified_By_UUID: Optional[Link] = None
     Start_Validity: Optional[datetime] = None
     End_Validity: Optional[datetime] = None
+    Owner_1_UUID: Optional[Link] = None
+    Owner_2_UUID: Optional[Link] = None
+    Portfolio_Holder_1_UUID: Optional[Link] = None
+    Portfolio_Holder_2_UUID: Optional[Link] = None
+    Client_1_UUID: Optional[Link] = None
 
     @model_validator(mode="before")
     def ensure_fixed_object_type(cls, data: Any):

@@ -15,6 +15,7 @@ import tests.fixtures.data.d021_areas as d021_areas
 import tests.fixtures.data.d050_objects_january as d050_objects_january
 import tests.fixtures.data.d060_objects_february as d060_objects_february
 import tests.fixtures.data.d070_objects_march as d070_objects_march
+import tests.fixtures.data.d080_objects_2099 as d080_objects_2099
 
 # import tests.fixtures.data.d050_basic_demo as d050_basic_demo
 from tests.fixtures.internal.spec.user_spec import UserSpec
@@ -31,6 +32,7 @@ class FixturesService:
             d050_objects_january.load,
             d060_objects_february.load,
             d070_objects_march.load,
+            d080_objects_2099.load,
         ]
 
         collector: Collector = Collector()

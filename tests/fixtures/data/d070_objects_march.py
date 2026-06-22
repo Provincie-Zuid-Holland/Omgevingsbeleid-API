@@ -82,9 +82,11 @@ def load(col: Collector) -> None:
                     Object_ID=5,
                     Title="Maatregel 5 from march",
                 ),
+                # Past End_Validity
                 MaatregelSpec(
                     Object_ID=6,
                     Title="Maatregel 6 from march",
+                    End_Validity=datetime(2025, 6, 1, tzinfo=timezone.utc),
                 ),
             ]
         )

@@ -17,6 +17,27 @@ api:
               - "Behandelend Ambtenaar"
               - "Portefeuillehouder"
               - "Beheerder"
+    - prefix: /objects/valid
+      endpoints:
+        - resolver: list_all_latest_objects
+          resolver_data:
+            allowed_object_types:
+              - beleidsdoel
+              - beleidskeuze
+              - maatregel
+            sort:
+              default:
+                column: Object_ID
+                order: asc
+              allowed_columns:
+                - Object_ID
+                - Title
+                - Modified_Date
+            model_map:
+              beleidsdoel: beleidsdoel_basic
+              beleidskeuze: beleidskeuze_basic
+              maatregel: maatregel_basic
+            response_model_name: PagedListAllLatestObjectsResponse
 
 columns:
   title:
