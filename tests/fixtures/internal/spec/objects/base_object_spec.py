@@ -35,6 +35,8 @@ class BaseObjectSpec(Spec):
         "Created_By_UUID",
         "Modified_Date",
         "Modified_By_UUID",
+        "Start_Validity",
+        "End_Validity",
     }
     __static_fields__: ClassVar[Set[str]] = {"Object_ID", "Object_Type", "Code"}
 
@@ -47,6 +49,8 @@ class BaseObjectSpec(Spec):
     Created_By_UUID: Optional[Link] = None
     Modified_Date: Optional[datetime] = None
     Modified_By_UUID: Optional[Link] = None
+    Start_Validity: Optional[datetime] = None
+    End_Validity: Optional[datetime] = None
 
     @model_validator(mode="before")
     def ensure_fixed_object_type(cls, data: Any):

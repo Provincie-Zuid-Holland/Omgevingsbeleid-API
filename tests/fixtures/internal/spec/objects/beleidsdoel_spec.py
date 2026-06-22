@@ -8,7 +8,7 @@ from tests.fixtures.internal.spec.objects.base_object_spec import (
 
 
 class BeleidsdoelSpec(BaseObjectSpec):
-    __object_type__: ClassVar[str] = "ambitie"
+    __object_type__: ClassVar[str] = "beleidsdoel"
     __inheritable__: ClassVar[Set[str]] = {"Title", "Description"}
     __object_fields__: ClassVar[Set[str]] = {"Title", "Description"}
 

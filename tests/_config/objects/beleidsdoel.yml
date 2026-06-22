@@ -208,7 +208,6 @@ models:
       end_validity:
     dependency_model_ids:
       - user_short
-      - ambitie_minimal
       - beleidskeuze_minimal
       - hierarchy_statics
     services:
@@ -223,11 +222,6 @@ models:
         to_field: Hierarchy_Children
       relations:
         objects:
-          - object_type: ambitie
-            object_id: ambitie
-            to_field: "Ambities"
-            model_id: ambitie_minimal
-            wrapped_with_relation_data: true
           - object_type: beleidskeuze
             object_id: beleidskeuze
             to_field: "Beleidskeuzes"

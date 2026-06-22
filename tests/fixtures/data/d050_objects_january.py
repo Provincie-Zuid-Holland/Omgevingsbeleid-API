@@ -9,6 +9,7 @@ def load(col: Collector) -> None:
     with col.with_defaults(
         Created_Date=datetime(2025, 1, 1, tzinfo=timezone.utc),
         Modified_Date=datetime(2025, 1, 1, tzinfo=timezone.utc),
+        Start_Validity=datetime(2025, 1, 1, tzinfo=timezone.utc),
         Created_By_UUID=col.ref(UserSpec, "ambtenaar"),
         Modified_By_UUID=col.ref(UserSpec, "ambtenaar"),
     ):

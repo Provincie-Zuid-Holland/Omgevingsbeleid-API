@@ -202,7 +202,6 @@ models:
       end_validity:
       title:
       hierarchy_code:
-      werkingsgebied_code:
       gebiedengroep_code:
     dependency_model_ids:
       - user_short
@@ -239,27 +238,18 @@ models:
       title:
       description:
       documents:
-      role:
       effect:
       hierarchy_code:
-      werkingsgebied_code:
       gebiedengroep_code:
     dependency_model_ids:
       - user_short
       - hierarchy_statics
       - beleidskeuze_minimal
-      - gebiedsprogramma_minimal
-      - werkingsgebied_basic
-      - werkingsgebied_statics
     services:
       next_object_version:
         to_field: Next_Version
       public_revisions:
         to_field: Public_Revisions
-      join_werkingsgebieden:
-        model_id: werkingsgebied_basic
-        to_field: Werkingsgebied
-        from_field: Werkingsgebied_Code
       join_documents:
         to_field: Documents_Statics
         from_field: Documents
@@ -282,17 +272,10 @@ models:
             to_field: "Beleidskeuzes"
             model_id: beleidskeuze_minimal
             wrapped_with_relation_data: true
-          - object_type: gebiedsprogramma
-            object_id: gebiedsprogramma
-            to_field: "Gebiedsprogrammas"
-            model_id: gebiedsprogramma_minimal
-            wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
           - to_field: Hierarchy_Statics
             model_id: hierarchy_statics
-          - to_field: Werkingsgebied_Statics
-            model_id: werkingsgebied_statics
           - to_field: Created_By
             model_id: user_short
           - to_field: Modified_By
@@ -335,9 +318,6 @@ models:
               max_width: 1500
               max_height: 2500
               max_kb: 800
-      role:
-        default: none
-        optional: true
       effect:
         default: none
         optional: true
@@ -370,15 +350,6 @@ models:
               allowed_object_types:
                 - document
           - id: object_codes_exists
-      werkingsgebied_code:
-        default: none
-        optional: true
-        validators:
-          - id: object_code_allowed_type
-            data:
-              allowed_object_types:
-                - werkingsgebied
-          - id: object_code_exists
       gebiedengroep_code:
         default: none
         optional: true
@@ -447,13 +418,6 @@ models:
             data:
               min: 3
           - id: html
-      role:
-        optional: true
-        validators:
-          - id: none_to_default_value
-          - id: length
-            data:
-              min: 3
       effect:
         optional: true
         validators:
@@ -478,12 +442,3 @@ models:
               allowed_object_types:
                 - document
           - id: object_codes_exists
-      werkingsgebied_code:
-        default: none
-        optional: true
-        validators:
-          - id: object_code_allowed_type
-            data:
-              allowed_object_types:
-                - werkingsgebied
-          - id: object_code_exists

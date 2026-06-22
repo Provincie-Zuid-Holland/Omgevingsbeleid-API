@@ -11,6 +11,7 @@ def load(col: Collector) -> None:
         # this way the Created_Date of the previous version will be used
         # as this is the same behaviour as the real code
         Modified_Date=datetime(2025, 3, 1, tzinfo=timezone.utc),
+        Start_Validity=datetime(2025, 3, 1, tzinfo=timezone.utc),
         Modified_By_UUID=col.ref(UserSpec, "ambtenaar"),
     ):
         # Beleidsdoel

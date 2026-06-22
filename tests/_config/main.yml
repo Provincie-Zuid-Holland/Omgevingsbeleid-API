@@ -51,6 +51,61 @@ columns:
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
+  explanation:
+    name: Explanation
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  effect:
+    name: Effect
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  hierarchy_code:
+    name: Hierarchy_Code
+    type: object_code
+    type_data:
+      relation_field: Hierarchy_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  gebiedengroep_code:
+    name: Gebiedengroep_Code
+    type: object_code
+    type_data:
+      relation_field: Gebiedengroep_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  documents:
+    name: Documents
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  client_1_uuid:
+    name: Client_1_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
 
 required_object_fields_rule: {}
 

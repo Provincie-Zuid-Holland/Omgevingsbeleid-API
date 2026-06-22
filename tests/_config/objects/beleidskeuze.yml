@@ -140,7 +140,7 @@ fields:
     column: gebiedengroep_code
     validators:
       - id: none_to_default_value
-  
+
   # Statics
   owner_1_uuid:
     name: Owner_1_UUID
@@ -204,7 +204,6 @@ models:
       end_validity:
       title:
       hierarchy_code:
-      werkingsgebied_code:
       gebiedengroep_code:
     dependency_model_ids:
       - user_short
@@ -242,27 +241,18 @@ models:
       description:
       explanation:
       hierarchy_code:
-      werkingsgebied_code:
       gebiedengroep_code:
     dependency_model_ids:
       - user_short
-      - werkingsgebied_basic
-      - werkingsgebied_statics
       - hierarchy_statics
-      - wettelijke_taak_minimal
       - nationaal_belang_minimal
       - beleidsdoel_minimal
-      - beleidsregel_minimal
       - maatregel_minimal
     services:
       next_object_version:
         to_field: Next_Version
       public_revisions:
         to_field: Public_Revisions
-      join_werkingsgebieden:
-        model_id: werkingsgebied_basic
-        to_field: Werkingsgebied
-        from_field: Werkingsgebied_Code
       join_gebiedengroepen:
         to_field: Gebiedengroep_Static
         from_field: Gebiedengroep_Code
@@ -279,8 +269,6 @@ models:
         fields_map:
           - to_field: Hierarchy_Statics
             model_id: hierarchy_statics
-          - to_field: Werkingsgebied_Statics
-            model_id: werkingsgebied_statics
           - to_field: Created_By
             model_id: user_short
           - to_field: Modified_By
@@ -301,11 +289,6 @@ models:
         to_field: Hierarchy_Children
       relations:
         objects:
-          - object_type: wettelijke_taak
-            object_id: wettelijke_taak
-            to_field: "WettelijkeTaken"
-            model_id: wettelijke_taak_minimal
-            wrapped_with_relation_data: true
           - object_type: nationaal_belang
             object_id: nationaal_belang
             to_field: "NationaleBelangen"
@@ -315,11 +298,6 @@ models:
             object_id: beleidsdoel
             to_field: "Beleidsdoelen"
             model_id: beleidsdoel_minimal
-            wrapped_with_relation_data: true
-          - object_type: beleidsregel
-            object_id: beleidsregel
-            to_field: "Beleidsregels"
-            model_id: beleidsregel_minimal
             wrapped_with_relation_data: true
           - object_type: maatregel
             object_id: maatregel
@@ -374,15 +352,6 @@ models:
             data:
               allowed_object_types:
                 - beleidsdoel
-          - id: object_code_exists
-      werkingsgebied_code:
-        default: none
-        optional: true
-        validators:
-          - id: object_code_allowed_type
-            data:
-              allowed_object_types:
-                - werkingsgebied
           - id: object_code_exists
       gebiedengroep_code:
         default: none
@@ -466,13 +435,4 @@ models:
             data:
               allowed_object_types:
                 - beleidsdoel
-          - id: object_code_exists
-      werkingsgebied_code:
-        default: none
-        optional: true
-        validators:
-          - id: object_code_allowed_type
-            data:
-              allowed_object_types:
-                - werkingsgebied
           - id: object_code_exists
