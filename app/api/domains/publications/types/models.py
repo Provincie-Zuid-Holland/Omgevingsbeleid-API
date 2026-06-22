@@ -210,6 +210,9 @@ class Procedural(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+ProceduralClass = Procedural
+
+
 class ProceduralValidated(BaseModel):
     Enactment_Date: Optional[str] = Field(None)
     Signed_Date: str
@@ -225,12 +228,6 @@ class ProceduralValidated(BaseModel):
         return value
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class ProceduralView(BaseModel):
-    Enactment_Date: Optional[date] = None
-    Signed_Date: Optional[date] = None
-    Procedural_Announcement_Date: Optional[date] = None
 
 
 class ActMetadata(BaseModel):
@@ -323,7 +320,7 @@ class PublicationVersionShort(BaseModel):
     Announcement_Date: Optional[date] = None
     Is_Locked: bool
     Status: PublicationVersionStatus
-    Procedural: Optional[ProceduralView] = None
+    Procedural: Optional[ProceduralClass] = None
 
     Created_Date: datetime
     Modified_Date: datetime
