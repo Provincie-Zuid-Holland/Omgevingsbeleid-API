@@ -317,6 +317,7 @@ class PublicationVersionShort(BaseModel):
     Announcement_Date: Optional[date] = None
     Is_Locked: bool
     Status: PublicationVersionStatus
+    Procedural: dict
 
     Created_Date: datetime
     Modified_Date: datetime
