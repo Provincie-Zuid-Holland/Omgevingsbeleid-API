@@ -204,3 +204,9 @@ def admin(_test_env: Context, security: Security) -> Generator[TestClient, None,
 def ambtenaar(_test_env: Context, security: Security) -> Generator[TestClient, None, None]:
     ambtenaar_uuid: uuid.UUID = _test_env.fixtures.primary_key_uuid(Ref(UserSpec, "ambtenaar"))
     yield from _client_logged_in_as(security, ambtenaar_uuid)
+
+
+@pytest.fixture()
+def owner_1(_test_env: Context, security: Security) -> Generator[TestClient, None, None]:
+    owner_uuid: uuid.UUID = _test_env.fixtures.primary_key_uuid(Ref(UserSpec, "owner-1"))
+    yield from _client_logged_in_as(security, owner_uuid)
