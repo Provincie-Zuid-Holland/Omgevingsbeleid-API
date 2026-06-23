@@ -16,6 +16,7 @@ from fastapi.testclient import TestClient
 from app.api.api_container import ApiContainer
 import app.main as _app_module  # noqa: F401
 from app.api.domains.users.services.security import Security
+from app.core.services.models_provider import ModelsProvider
 from app.core.db.base import Base
 from app.core.db.session import _enable_sqlite_load_extension
 from tests.fixtures.internal.fixtures_service import FixturesService
@@ -37,6 +38,7 @@ def _frozen_time() -> Generator[None, None, None]:
 class Context:
     session: Session
     fixtures: FixtureData
+    models_provider: ModelsProvider
 
     @property
     def s(self) -> Session:
@@ -45,6 +47,10 @@ class Context:
     @property
     def f(self) -> FixtureData:
         return self.fixtures
+
+    @property
+    def m(self) -> ModelsProvider:
+        return self.models_provider
 
 
 @pytest.fixture(scope="session")
@@ -128,7 +134,11 @@ def _test_env(engine, seed_data) -> Generator[Context, None, None]:
 
     session = TestSession()
     try:
-        yield Context(session=session, fixtures=seed_data)
+        yield Context(
+            session=session,
+            fixtures=seed_data,
+            models_provider=container.models_provider(),
+        )
     finally:
         session.close()
         container.db_session_factory.reset_override()
@@ -156,6 +166,11 @@ def fixtures(_test_env: Context) -> FixtureData:
 @pytest.fixture()
 def security() -> Security:
     return _app_module.app.container.security()
+
+
+@pytest.fixture()
+def models_provider(_test_env: Context) -> ModelsProvider:
+    return _test_env.models_provider
 
 
 @pytest.fixture()
