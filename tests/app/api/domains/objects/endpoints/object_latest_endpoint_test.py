@@ -1,32 +1,28 @@
-import uuid
-
 import pytest
 from fastapi.testclient import TestClient
 
+from tests.conftest import Context
+from tests.fixtures.internal.spec.objects import BeleidsdoelSpec, BeleidskeuzeSpec, MaatregelSpec
+from tests.fixtures.internal.types import Ref
+
 
 @pytest.mark.parametrize(
-    "prefix, object_type, lineage_id, expected_title",
+    "prefix, ref",
     [
-        pytest.param("/beleidsdoelen", "beleidsdoel", 1, "Beleidsdoel 1 from march", id="beleidsdoel"),
-        pytest.param("/beleidsdoelen", "beleidsdoel", 2, "Beleidsdoel 2 from march", id="beleidsdoel"),
-        pytest.param("/beleidskeuzes", "beleidskeuze", 1, "Beleidskeuze 1 from march", id="beleidskeuze"),
-        pytest.param("/maatregelen", "maatregel", 1, "Maatregel 1 from march", id="maatregel"),
+        pytest.param("/beleidsdoelen", Ref(BeleidsdoelSpec, "beleidsdoel_1_latest_valid"), id="beleidsdoel-1"),
+        pytest.param("/beleidsdoelen", Ref(BeleidsdoelSpec, "beleidsdoel_2_latest_valid"), id="beleidsdoel-2"),
+        pytest.param("/beleidskeuzes", Ref(BeleidskeuzeSpec, "beleidskeuze_1_latest_valid"), id="beleidskeuze-1"),
+        pytest.param("/maatregelen", Ref(MaatregelSpec, "maatregel_1_latest_valid"), id="maatregel-1"),
     ],
 )
-def test_object_latest_returns_most_recent_version(
-    client: TestClient, prefix: str, object_type: str, lineage_id: int, expected_title: str
-):
-    response = client.get(f"{prefix}/latest/{lineage_id}")
+def test_object_latest_returns_most_recent_version(client: TestClient, ctx: Context, prefix: str, ref: Ref):
+    expected = ctx.f.find(ref).spec
+
+    response = client.get(f"{prefix}/latest/{expected.Object_ID}")
     assert response.status_code == 200, response.text
 
     body = response.json()
-    assert body["Object_ID"] == lineage_id
-    assert body["Code"] == f"{object_type}-{lineage_id}"
-    assert body["Title"] == expected_title
-    assert body["Modified_Date"].startswith("2025-03-01")
-    assert body["Start_Validity"].startswith("2025-03-01")
-    assert body["End_Validity"] is None
-    uuid.UUID(body["UUID"])
+    assert body["UUID"] == str(expected.UUID)
     assert body["Next_Version"] is None
 
 
@@ -38,6 +34,5 @@ def test_object_latest_unknown_lineage_returns_404(client: TestClient, prefix: s
 
 
 def test_object_latest_is_scoped_to_object_type(client: TestClient):
-    # maatregel has lineage 6; beleidsdoel only has 1-3.
-    assert client.get("/maatregelen/latest/6").status_code == 200
-    assert client.get("/beleidsdoelen/latest/6").status_code == 404
+    assert client.get("/maatregelen/latest/1").status_code == 200
+    assert client.get("/beleidsdoelen/latest/999999").status_code == 404

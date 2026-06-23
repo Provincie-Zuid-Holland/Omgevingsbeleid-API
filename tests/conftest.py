@@ -5,6 +5,7 @@ import uuid
 from fastapi import FastAPI
 import pytest
 from dependency_injector import providers
+from freezegun import freeze_time
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -20,6 +21,16 @@ from app.core.db.session import _enable_sqlite_load_extension
 from tests.fixtures.internal.fixtures_service import FixturesService
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import FixtureData, Ref
+
+
+# Fixtures live in 2025; the suite runs as if it were this moment.
+FROZEN_NOW = "2026-01-01"
+
+
+@pytest.fixture(autouse=True)
+def _frozen_time() -> Generator[None, None, None]:
+    with freeze_time(FROZEN_NOW):
+        yield
 
 
 @dataclass

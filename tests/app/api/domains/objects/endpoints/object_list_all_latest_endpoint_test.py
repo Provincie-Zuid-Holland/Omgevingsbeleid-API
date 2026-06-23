@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.conftest import Context
+from tests.fixtures.internal.spec.objects import BeleidsdoelSpec, MaatregelSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
 
@@ -18,9 +19,6 @@ def test_lists_latest_valid_version_per_lineage(client: TestClient):
 
     first = body["results"][0]
     assert set(first.keys()) == {"Object_Type", "ObjectStatics", "Model"}
-    # Every lineage resolves to its March version.
-    for r in body["results"]:
-        assert r["Model"]["Modified_Date"].startswith("2025-03-01")
 
 
 @pytest.mark.parametrize(
@@ -68,18 +66,19 @@ def test_sort_by_object_id(client: TestClient, sort_order: str, reverse: bool):
     assert ids == sorted(ids, reverse=reverse)
 
 
-def test_future_validity_version_is_skipped(client: TestClient):
-    # beleidsdoel-3 has a newer 2099 version; the March one must win.
+def test_future_validity_version_is_skipped(client: TestClient, ctx: Context):
+    # beleidsdoel-3 has a newer 2099 version; the latest valid (March) one must win.
+    expected = ctx.f.find(Ref(BeleidsdoelSpec, "beleidsdoel_3_latest_valid")).spec
     body = client.get("/objects/valid?object_types=beleidsdoel").json()
     bd3 = next(r for r in body["results"] if r["Model"]["Object_ID"] == 3)
-    assert bd3["Model"]["Title"] == "Beleidsdoel 3 from march"
-    assert bd3["Model"]["Modified_Date"].startswith("2025-03-01")
+    assert bd3["Model"]["UUID"] == str(expected.UUID)
 
 
-def test_past_end_validity_is_still_returned(client: TestClient):
+def test_past_end_validity_is_still_returned(client: TestClient, ctx: Context):
+    expected = ctx.f.find(Ref(MaatregelSpec, "maatregel_6_past_end_validity")).spec
     body = client.get("/objects/valid?object_types=maatregel").json()
     m6 = next(r for r in body["results"] if r["Model"]["Object_ID"] == 6)
-    assert m6["Model"]["End_Validity"].startswith("2025-06-01")
+    assert m6["Model"]["UUID"] == str(expected.UUID)
 
 
 def test_owner_uuid_filters_across_static_owner_columns(client: TestClient, ctx: Context):

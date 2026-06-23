@@ -18,14 +18,17 @@ def load(col: Collector) -> None:
         col.adds(
             [
                 BeleidsdoelSpec(
+                    key="beleidsdoel_1_latest_valid",
                     Object_ID=1,
                     Title="Beleidsdoel 1 from march",
                 ),
                 BeleidsdoelSpec(
+                    key="beleidsdoel_2_latest_valid",
                     Object_ID=2,
                     Title="Beleidsdoel 2 from march",
                 ),
                 BeleidsdoelSpec(
+                    key="beleidsdoel_3_latest_valid",
                     Object_ID=3,
                     Title="Beleidsdoel 3 from march",
                 ),
@@ -37,6 +40,7 @@ def load(col: Collector) -> None:
             [
                 # Attached to beleidsdoel-1
                 BeleidskeuzeSpec(
+                    key="beleidskeuze_1_latest_valid",
                     Object_ID=1,
                     Title="Beleidskeuze 1 from march",
                 ),
@@ -61,6 +65,7 @@ def load(col: Collector) -> None:
             [
                 # Attached to beleidskeuze-1
                 MaatregelSpec(
+                    key="maatregel_1_latest_valid",
                     Object_ID=1,
                     Title="Maatregel 1 from march",
                 ),
@@ -84,6 +89,7 @@ def load(col: Collector) -> None:
                 ),
                 # Past End_Validity
                 MaatregelSpec(
+                    key="maatregel_6_past_end_validity",
                     Object_ID=6,
                     Title="Maatregel 6 from march",
                     End_Validity=datetime(2025, 6, 1, tzinfo=timezone.utc),
