@@ -122,6 +122,13 @@ def test_sort_by_object_id(client: TestClient, sort_order: str, reverse: bool):
     assert ids == sorted(ids, reverse=reverse)
 
 
+def test_invalid_sort_column_returns_400(client: TestClient):
+    response = client.get("/beleidsdoelen/valid?sort_column=Nope")
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid sort column"
+
+
 def test_result_matches_the_response_model_shape(client: TestClient, ctx: Context):
     expected: BeleidsdoelSpec = ctx.f.find(Ref(BeleidsdoelSpec, "beleidsdoel_1_latest_valid")).spec
     model: Type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_basic")

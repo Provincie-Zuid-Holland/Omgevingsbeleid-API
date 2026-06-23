@@ -61,6 +61,18 @@ def test_unknown_lineage_returns_404(admin: TestClient, ctx: Context):
     assert response.json()["detail"] == "lineage_id does not exist"
 
 
+def test_duplicate_owners_returns_422(admin: TestClient, ctx: Context):
+    viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
+
+    response = admin.post(
+        "/beleidsdoel/static/1",
+        json={"Owner_1_UUID": str(viewer), "Owner_2_UUID": str(viewer)},
+    )
+
+    assert response.status_code == 422
+    assert "Owners should vary" in response.text
+
+
 @pytest.mark.parametrize(
     "client_fixture, expected_status, expected_detail",
     [

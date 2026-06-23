@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Any, Generic, List, Optional, Sequence, Tuple, TypeVar
 
+from fastapi import HTTPException, status
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import asc, desc, func, select
 from sqlalchemy.orm import Session
@@ -48,7 +49,7 @@ class OrderConfig(BaseModel):
             return self.default_column
         if column in self.allowed_columns:
             return column
-        raise ValueError("Invalid sort column")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid sort column")
 
     @staticmethod
     def from_dict(data: dict) -> "OrderConfig":
