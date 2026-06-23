@@ -15,6 +15,7 @@ def load(col: Collector) -> None:
         col.adds(
             [
                 BeleidsdoelSpec(
+                    key="beleidsdoel_3_future",
                     Object_ID=3,
                     Title="Beleidsdoel 3 from future",
                 ),
