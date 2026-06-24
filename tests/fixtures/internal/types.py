@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Protocol, Sequence, Set, Type, Union
+from typing import Any, Dict, List, Optional, Protocol, Sequence, Set, Tuple, Type, Union
 import uuid
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -64,6 +64,8 @@ class Record[T: Spec](BaseModel):
 # For the PersistService
 class PersistContext(BaseModel):
     seen_codes: Set[str] = set()
+    # (Module_ID, Object_ID)
+    seen_module_context: Set[Tuple[int, int]] = set()
 
 
 class BasePersistHandler[T: Spec]:

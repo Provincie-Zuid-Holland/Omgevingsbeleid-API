@@ -1,5 +1,7 @@
 from typing import ClassVar, Optional, Set
 
+from pydantic import BaseModel
+
 from tests.fixtures.internal.spec.objects.base_object_spec import (
     BaseObjectPersistHandler,
     BaseObjectSpec,
@@ -7,7 +9,7 @@ from tests.fixtures.internal.spec.objects.base_object_spec import (
 )
 
 
-class BeleidskeuzeSpec(BaseObjectSpec):
+class BeleidskeuzeMixin(BaseModel):
     __object_type__: ClassVar[str] = "beleidskeuze"
     __inheritable__: ClassVar[Set[str]] = {
         "Title",
@@ -29,6 +31,10 @@ class BeleidskeuzeSpec(BaseObjectSpec):
     Explanation: Optional[str] = None
     Hierarchy_Code: Optional[str] = None
     Gebiedengroep_Code: Optional[str] = None
+
+
+class BeleidskeuzeSpec(BeleidskeuzeMixin, BaseObjectSpec):
+    pass
 
 
 class BeleidskeuzePrefillHandler(BaseObjectPrefillHandler[BeleidskeuzeSpec]):

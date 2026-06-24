@@ -16,6 +16,18 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import (
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePrefillHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserPrefillHandler, UserSpec
 import tests.fixtures.internal.spec.objects as objects_types
+from tests.fixtures.internal.spec.modules import (
+    ModuleSpec,
+    ModulePrefillHandler,
+    ModuleStatusHistorySpec,
+    ModuleStatusHistoryPrefillHandler,
+    ModuleBeleidsdoelSpec,
+    ModuleBeleidsdoelPrefillHandler,
+    ModuleBeleidskeuzeSpec,
+    ModuleBeleidskeuzePrefillHandler,
+    ModuleMaatregelSpec,
+    ModuleMaatregelPrefillHandler,
+)
 from tests.fixtures.internal.types import Spec
 
 
@@ -31,10 +43,15 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPrefillHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPrefillHandler(),
             AreaSpec: AreaPrefillHandler(),
+            ModuleSpec: ModulePrefillHandler(),
+            ModuleStatusHistorySpec: ModuleStatusHistoryPrefillHandler(),
+            ModuleBeleidsdoelSpec: ModuleBeleidsdoelPrefillHandler(),
+            ModuleBeleidskeuzeSpec: ModuleBeleidskeuzePrefillHandler(),
+            ModuleMaatregelSpec: ModuleMaatregelPrefillHandler(),
         }
 
     def prefill(self, input_records: List[Record]) -> List[Record]:
-        spec_counter: Dict[Type[S], int] = defaultdict(int)
+        spec_counter: Dict[Type[Spec], int] = defaultdict(int)
         output: List[Record] = []
 
         for input_record in input_records:

@@ -64,6 +64,7 @@ def engine():
     share the connection across threads (TestClient uses a background thread).
     """
     _engine = create_engine(
+        # "sqlite+pysqlite:///api-test.db",
         "sqlite:///:memory:",
         poolclass=StaticPool,
         connect_args={"check_same_thread": False},

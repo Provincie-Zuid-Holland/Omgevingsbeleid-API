@@ -12,7 +12,6 @@ from tests.fixtures.internal.types import (
     Spec,
     Link,
     PrimaryKey,
-    UUID_NAMESPACE,
     Record,
     Ref,
     BasePersistHandler,
@@ -23,7 +22,12 @@ from tests.fixtures.internal.types import (
 class BaseObjectSpec(Spec):
     # This will handle the Object_Type and that it is not overwritten by the users
     __object_type__: ClassVar[str] = ""
-    __inheritable__: ClassVar[Set[str]] = {"Created_Date", "Created_By_UUID"}
+    __inheritable__: ClassVar[Set[str]] = {
+        "Created_Date",
+        "Created_By_UUID",
+        "Start_Validity",
+        "End_Validity",
+    }
     __link_fields__: ClassVar[Set[str]] = {
         "Adjust_On",
         "Created_By_UUID",
@@ -130,17 +134,15 @@ class BaseObjectSpec(Spec):
         return fields
 
 
-class BaseModuleObjectSpec(BaseObjectSpec):
-    Module_ID: Optional[int] = None
-
-
 T = TypeVar("T", bound=BaseObjectSpec)
 
 
 class BaseObjectPrefillHandler(BasePrefillHandler[T]):
     def fill(self, record: Record[T], context: PrefillContext) -> Record[T]:
         if record.spec.UUID is None:
-            record.spec.UUID = uuid.uuid5(UUID_NAMESPACE, f"{record.spec.Code}:{context.spec_count}")
+            record.spec.UUID = uuid.uuid4()
+
+        record = super().fill(record, context)
 
         previous_version: Optional[Record[T]] = self._find_previous(
             record,
@@ -153,8 +155,6 @@ class BaseObjectPrefillHandler(BasePrefillHandler[T]):
                     prev_value = getattr(previous_version.spec, field_name)
                     if prev_value is not None:
                         setattr(record.spec, field_name, prev_value)
-
-        record = super().fill(record, context)
 
         return record
 
