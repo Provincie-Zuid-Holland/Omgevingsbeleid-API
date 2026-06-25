@@ -1,4 +1,5 @@
 import asyncio  # noqa
+import os
 
 from fastapi import FastAPI
 
@@ -6,6 +7,11 @@ from app.api.api_container import ApiContainer
 from app.build.api_builder import ApiBuilder, ApiBuilderResult
 from app.build.build_container import BuildContainer
 from app.build.fastapi_builder import FastAPIBuilder
+
+if not os.getenv("PYTEST_ACTIVE") == "1":
+    print(f"SQLALCHEMY_DATABASE_URI: {Settings().SQLALCHEMY_DATABASE_URI[:20]}")
+else:
+    print(f"SQLALCHEMY_TEST_DATABASE_URI: {Settings().SQLALCHEMY_TEST_DATABASE_URI}")
 
 build_container = BuildContainer()
 build_container.wire(packages=["app.build"])

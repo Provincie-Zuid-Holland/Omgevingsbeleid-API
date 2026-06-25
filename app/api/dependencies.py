@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 from fastapi import Request
@@ -7,19 +8,25 @@ from app.api.utils.pagination import OptionalSort, OptionalSortedPagination, Sim
 
 
 def depends_db_session(request: Request):
-    db_sessionmaker = request.app.state.db_sessionmaker
+    if os.getenv("PYTEST_ACTIVE") == "1":
+        """
+        A transaction is already started by the test setup, so this function should not begin a new one to avoid nesting
+        """
+        yield request.app.state.db_sessionmaker()
+    else:
+        db_sessionmaker = request.app.state.db_sessionmaker
 
-    with db_sessionmaker.begin() as session:
-        try:
-            # when using SQLite, ensure FK constraints and load Spatialite
-            if session.bind.dialect.name == "sqlite":
-                session.execute(text("PRAGMA foreign_keys = ON"))
-                session.execute(text("SELECT load_extension('mod_spatialite')"))
-            yield session
-            # commit happens automatically when exiting the 'with' block
-        except Exception:
-            session.rollback()
-            raise
+        with db_sessionmaker.begin() as session:
+            try:
+                # when using SQLite, ensure FK constraints and load Spatialite
+                if session.bind.dialect.name == "sqlite":
+                    session.execute(text("PRAGMA foreign_keys = ON"))
+                    session.execute(text("SELECT load_extension('mod_spatialite')"))
+                yield session
+                # commit happens automatically when exiting the 'with' block
+            except Exception:
+                session.rollback()
+                raise
 
 
 def depends_simple_pagination(
