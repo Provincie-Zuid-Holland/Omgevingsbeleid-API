@@ -17,11 +17,18 @@ api:
               - "Behandelend Ambtenaar"
               - "Portefeuillehouder"
               - "Beheerder"
+    - prefix: /modules
+      endpoints:
+        - resolver: create_module
     - prefix: /modules/{module_id}
       endpoints:
+        - resolver: edit_module
         - resolver: activate_module
           resolver_data:
             path: /activate
+        - resolver: close_module
+          resolver_data:
+            path: /close
     - prefix: /objects/valid
       endpoints:
         - resolver: list_all_latest_objects
