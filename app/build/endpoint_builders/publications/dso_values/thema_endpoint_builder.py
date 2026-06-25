@@ -1,16 +1,14 @@
-from app.api.domains.modules.endpoints.module_overview_endpoint import (
-    view_module_overview_endpoint,
-    ModuleOverviewResponse,
-)
+from app.api.domains.publications.endpoints.dso_value_lists import get_thema_endpoint
+from app.api.domains.publications.endpoints.dso_value_lists.thema_endpoint import ListThemaResponse
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
-from app.core.services.models_provider import ModelsProvider
+from app.core.services import ModelsProvider
 
 
-class ModuleOverviewEndpointBuilder(EndpointBuilder):
+class ListThemaEndpointBuilder(EndpointBuilder):
     def get_id(self) -> str:
-        return "module_overview"
+        return "list_thema"
 
     def build_endpoint(
         self,
@@ -19,15 +17,12 @@ class ModuleOverviewEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
-        if "{module_id}" not in builder_data.path:
-            raise RuntimeError("Missing {module_id} argument in path")
-
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
-            endpoint=view_module_overview_endpoint,
+            endpoint=get_thema_endpoint,
             methods=["GET"],
-            response_model=ModuleOverviewResponse,
-            summary="Get overview of a module",
+            response_model=ListThemaResponse,
+            summary="List the available themas to use for this publication",
             description=None,
-            tags=["Modules"],
+            tags=["Publication Value Lists"],
         )

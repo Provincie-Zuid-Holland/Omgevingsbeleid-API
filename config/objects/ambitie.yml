@@ -118,6 +118,12 @@ fields:
     column: decision_number
     validators:
       - id: none_to_default_value
+  themas:
+    name: Themas
+    type: list_str
+    column: themas
+    validators:
+      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
@@ -181,6 +187,7 @@ models:
       title:
       start_validity:
       end_validity:
+      themas:
     dependency_model_ids:
       - user_short
     services:
@@ -215,6 +222,7 @@ models:
       description:
       start_validity:
       end_validity:
+      themas:
     dependency_model_ids:
       - user_short
       - beleidsdoel_minimal
@@ -283,6 +291,8 @@ models:
             data:
               allowed_code_types:
                 - gebiedsaanwijzing
+      themas:
+        optional: true
     services:
       extract_assets:
         fields:
