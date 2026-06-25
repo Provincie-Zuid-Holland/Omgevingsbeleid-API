@@ -17,6 +17,15 @@ api:
               - "Behandelend Ambtenaar"
               - "Portefeuillehouder"
               - "Beheerder"
+    - prefix: /storage-files
+      endpoints:
+        - resolver: list_storage_files
+    - prefix: /storage-files/{file_uuid}
+      endpoints:
+        - resolver: detail_storage_file
+    - prefix: /storage-files/{file_uuid}/download
+      endpoints:
+        - resolver: download_storage_file
     - prefix: /modules
       endpoints:
         - resolver: create_module
@@ -29,6 +38,13 @@ api:
         - resolver: close_module
           resolver_data:
             path: /close
+        - resolver: module_add_existing_object
+          resolver_data:
+            path: /add-existing-object
+            allowed_object_types:
+              - beleidsdoel
+              - beleidskeuze
+              # maatregel is left out on purpose to tests adding invalid objects
     - prefix: /objects/valid
       endpoints:
         - resolver: list_all_latest_objects

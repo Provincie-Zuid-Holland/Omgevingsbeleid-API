@@ -10,9 +10,11 @@ def load(col: Collector) -> None:
                 File_Path="./rectangle-blue.png",
             ),
             AssetSpec(
+                key="green",
                 File_Path="./rectangle-green.png",
             ),
             AssetSpec(
+                key="yellow",
                 File_Path="./rectangle-yellow.png",
             ),
         ]
