@@ -22,8 +22,6 @@ class Collector:
             self.add(spec)
 
     def add(self, spec: Spec) -> None:
-        # @todo: fill with defaults etc
-
         self._records.append(
             Record(
                 spec=spec,
