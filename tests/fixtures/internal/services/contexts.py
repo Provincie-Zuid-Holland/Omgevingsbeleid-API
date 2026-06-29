@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, Dict, Optional, Self
 
 
@@ -9,14 +10,17 @@ class DefaultsCtx:
         self._target: HasDefaults = target
         self._data: Dict[str, Any] = data
         self._previous_data: Dict[str, Any] = {}
+        self._previous_timepoint: Optional[datetime] = None
 
     def __enter__(self) -> Self:
         self._previous_data = dict(self._target._defaults)
-        self._target._defaults.update(self._data)
+        self._previous_timepoint = self._target._timepoint
+        self._target._apply_defaults(self._data)
         return self
 
     def __exit__(self, *_: Any) -> None:
         self._target._defaults = self._previous_data
+        self._target._timepoint = self._previous_timepoint
 
 
 class ModuleCtx:

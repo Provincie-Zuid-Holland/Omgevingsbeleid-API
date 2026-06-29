@@ -36,6 +36,9 @@ class Spec(BaseModel):
 
 class HasDefaults(Protocol):
     _defaults: Dict[str, Any]
+    _timepoint: datetime
+
+    def _apply_defaults(self, data: Dict[str, Any]) -> None: ...
 
 
 class HasCurrentModule(Protocol):
