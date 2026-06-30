@@ -3,7 +3,7 @@ import uuid
 from typing import Annotated, Generic, List, Optional, Dict, Sequence, Tuple
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends, Query
+from fastapi import Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
@@ -89,8 +89,10 @@ def get_list_module_objects_endpoint(
         case (OwnerType.ALL, _):
             pass
         case _:
-            # Doubting if we should raise an error here
-            pass
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "owner_uuid is required when owner_type is 'Mine' or 'Others'",
+            )
 
     paginated_result: PaginatedQueryResult = module_object_repository.get_all_latest(
         session=session,
