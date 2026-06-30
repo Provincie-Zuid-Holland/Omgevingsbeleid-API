@@ -61,7 +61,7 @@ def get_list_module_objects_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-    object_type: Optional[str] = None,
+    object_types: Annotated[List[str], Query()] = [],
     owner_uuid: Optional[uuid.UUID] = None,
     minimum_status: Optional[ModuleStatusCode] = None,
     only_active_modules: bool = True,
@@ -78,7 +78,7 @@ def get_list_module_objects_endpoint(
         only_active_modules=only_active_modules,
         minimum_status=minimum_status,
         owner_uuid=owner_uuid,
-        object_type=object_type,
+        object_types=object_types,
         title=title,
         actions=actions,
         module_id=module_id,

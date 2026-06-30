@@ -209,7 +209,7 @@ class ModuleObjectRepository(BaseRepository):
         only_active_modules: bool = True,
         minimum_status: Optional[ModuleStatusCode] = None,
         owner_uuid: Optional[UUID] = None,
-        object_type: Optional[str] = None,
+        object_types: List[str] = [],
         title: Optional[str] = None,
         actions: List[ModuleObjectActionFull] = [],
         module_id: Optional[int] = None,
@@ -266,8 +266,8 @@ class ModuleObjectRepository(BaseRepository):
                     ObjectStaticsTable.Owner_2_UUID == owner_uuid,
                 ).self_group()
             )
-        if object_type is not None:
-            subq = subq.filter(ModuleObjectsTable.Object_Type == object_type)
+        if object_types:
+            subq = subq.filter(ModuleObjectsTable.Object_Type.in_(object_types))
         if actions:
             subq = subq.filter(ModuleObjectContextTable.Action.in_(actions))
 
