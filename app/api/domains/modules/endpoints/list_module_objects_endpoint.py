@@ -1,3 +1,4 @@
+from enum import Enum
 import uuid
 from typing import Annotated, Generic, List, Optional, Dict, Sequence, Tuple
 
@@ -8,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
-from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
+from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository, OwnerFilter
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.modules.types import (
     ModuleObjectActionFull,
@@ -49,6 +50,12 @@ class ListModuleObjectsEndpointContext(BaseEndpointContext):
     model_map: Dict[str, str]
 
 
+class OwnerType(str, Enum):
+    ALL = "All"
+    MINE = "Mine"
+    OTHERS = "Others"
+
+
 @inject
 def get_list_module_objects_endpoint(
     module_object_repository: Annotated[
@@ -63,6 +70,7 @@ def get_list_module_objects_endpoint(
     ],
     object_types: Annotated[List[str], Query()] = [],
     owner_uuid: Optional[uuid.UUID] = None,
+    owner_type: OwnerType = OwnerType.ALL,
     minimum_status: Optional[ModuleStatusCode] = None,
     only_active_modules: bool = True,
     title: Optional[str] = None,
@@ -72,12 +80,24 @@ def get_list_module_objects_endpoint(
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
+    owner_filter: Optional[OwnerFilter] = None
+    match (owner_type, owner_uuid):
+        case (OwnerType.MINE, uuid.UUID()):
+            owner_filter = OwnerFilter(is_mine=True, owner_uuid=owner_uuid)
+        case (OwnerType.OTHERS, uuid.UUID()):
+            owner_filter = OwnerFilter(is_mine=False, owner_uuid=owner_uuid)
+        case (OwnerType.ALL, _):
+            pass
+        case _:
+            # Doubting if we should raise an error here
+            pass
+
     paginated_result: PaginatedQueryResult = module_object_repository.get_all_latest(
         session=session,
         pagination=pagination,
         only_active_modules=only_active_modules,
         minimum_status=minimum_status,
-        owner_uuid=owner_uuid,
+        owner_filter=owner_filter,
         object_types=object_types,
         title=title,
         actions=actions,
