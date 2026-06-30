@@ -46,6 +46,9 @@ api:
             response_model: visie_algemeen_full
     - prefix: /visie-algemeen/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: visie_algemeen_static
         - resolver: edit_object_static
           resolver_data:
             request_model: visie_algemeen_static_post
@@ -243,6 +246,19 @@ models:
       extract_assets:
         fields:
           - Description
+  visie_algemeen_static:
+    name: VisieAlgemeenStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
   visie_algemeen_static_post:
     name: VisieAlgemeenStaticPost
     static_only: true

@@ -58,6 +58,9 @@ api:
               - maatregel
     - prefix: /beleidskeuze/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: beleidskeuze_static
         - resolver: edit_object_static
           resolver_data:
             request_model: beleidskeuze_static_post
@@ -474,6 +477,25 @@ models:
           - Cause
           - Provincial_Interest
           - Explanation
+  beleidskeuze_static:
+    name: BeleidskeuzeStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
   beleidskeuze_static_post:
     name: BeleidskeuzeStaticPost
     static_only: true
