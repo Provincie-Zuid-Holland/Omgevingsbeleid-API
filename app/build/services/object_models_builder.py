@@ -69,8 +69,6 @@ class ObjectModelsBuilder:
         # If we requested a static object and we have lineage fields then we have a configuration error
         if intermediate_model.static_only and intermediate_model.fields:
             raise RuntimeError(f"Can not configure lineage fields for static only model '{intermediate_model.name}")
-        if intermediate_model.static_only and not intermediate_model.static_fields:
-            raise RuntimeError(f"Must configure static fields for static only model '{intermediate_model.name}")
 
         pydantic_fields, pydantic_validators = self._get_pydantic_fields(
             intermediate_model.fields,

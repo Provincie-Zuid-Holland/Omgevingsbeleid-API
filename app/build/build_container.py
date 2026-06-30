@@ -130,6 +130,7 @@ class BuildContainer(containers.DeclarativeContainer):
                 model_dynamic_type_builder=model_dynamic_type_builder,
             ),
             providers.Factory(endpoint_builders_objects.EditObjectStaticEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.GetObjectStaticEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalCreateObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalEditObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalDeleteObjectEndpointBuilder),

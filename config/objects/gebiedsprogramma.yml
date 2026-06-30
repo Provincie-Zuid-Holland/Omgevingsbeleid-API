@@ -315,6 +315,25 @@ models:
       store_image:
         fields:
           - Image
+  gebiedsprogramma_static:
+    name: GebiedsprogrammaStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
   gebiedsprogramma_static_post:
     name: GebiedsprogrammaStaticPost
     static_only: true
