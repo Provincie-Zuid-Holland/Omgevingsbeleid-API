@@ -328,6 +328,10 @@ class BuildContainer(containers.DeclarativeContainer):
                 endpoint_builders_others.MssqlValidSearchEndpointBuilder,
                 model_dynamic_type_builder=model_dynamic_type_builder,
             ),
+            # Object Related Files
+            providers.Factory(endpoint_builders_others.ObjectRelatedFilesUploadEndpointBuilder),
+            providers.Factory(endpoint_builders_others.ObjectRelatedFilesListEndpointBuilder),
+            providers.Factory(endpoint_builders_others.ObjectRelatedFilesDeleteEndpointBuilder),
             # fmt: on
         ),
     )

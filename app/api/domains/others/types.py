@@ -102,6 +102,17 @@ class SearchRequestDataWithLike(SearchRequestData):
     Like: bool = Field(False)
 
 
+class ObjectRelatedFileResponse(BaseModel):
+    UUID: uuid.UUID
+    Object_Code: str
+    File_UUID: uuid.UUID
+    Title: str
+    Created_Date: datetime
+    Created_By_UUID: uuid.UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class FileData(BaseModel):
     File: UploadFile
 

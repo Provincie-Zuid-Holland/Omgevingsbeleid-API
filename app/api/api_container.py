@@ -14,6 +14,7 @@ import app.api.domains.werkingsgebieden.services as werkingsgebied_services
 import app.api.events.listeners as event_listeners
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.others.repositories import storage_file_repository
+from app.api.domains.others.repositories import object_related_file_repository
 from app.api.domains.others.services import PdfMetaService
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.services import permission_service
@@ -52,6 +53,9 @@ class ApiContainer(containers.DeclarativeContainer):
         werkingsgebieden_repositories.InputGeoWerkingsgebiedenRepository
     )
     storage_file_repository = providers.Singleton(storage_file_repository.StorageFileRepository)
+    object_related_file_repository = providers.Singleton(
+        object_related_file_repository.ObjectRelatedFileRepository
+    )
     object_repository = providers.Singleton(object_repositories.ObjectRepository)
     object_static_repository = providers.Singleton(object_repositories.ObjectStaticRepository)
     asset_repository = providers.Singleton(object_repositories.AssetRepository)
