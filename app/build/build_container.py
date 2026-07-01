@@ -308,8 +308,6 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.PublicListModulesEndpointBuilder),
             providers.Factory(endpoint_builders_modules.PublicModuleOverviewEndpointBuilder),
             # Werkingsgebieden domain
-            providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByAreasEndpointBuilder),
-            providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByGeometryEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListWerkingsgebiedenEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.InputGeoListLatestWerkingsgebiedenEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.InputGeoUseWerkingsgebiedenEndpointBuilder),
