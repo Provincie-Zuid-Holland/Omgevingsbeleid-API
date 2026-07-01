@@ -1,14 +1,6 @@
 import uuid
 
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
-from app.api.domains.werkingsgebieden.repositories.area_repository import GeometryFunctions
-
-SQLITE_SPATIAL_FUNCTION_MAP = {
-    GeometryFunctions.CONTAINS: "ST_Contains",
-    GeometryFunctions.WITHIN: "ST_Within",
-    GeometryFunctions.OVERLAPS: "ST_Overlaps",
-    GeometryFunctions.INTERSECTS: "ST_Intersects",
-}
 
 
 class SqliteAreaGeometryRepository(AreaGeometryRepository):
@@ -20,9 +12,6 @@ class SqliteAreaGeometryRepository(AreaGeometryRepository):
 
     def _format_uuid(self, uuidx: uuid.UUID) -> str:
         return uuidx.hex
-
-    def get_spatial_function(self, func: GeometryFunctions) -> str:
-        return SQLITE_SPATIAL_FUNCTION_MAP[func]
 
     def _calculate_hex(self, column: str) -> str:
         return f"hex({column})"
