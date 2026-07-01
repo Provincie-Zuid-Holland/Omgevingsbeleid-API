@@ -356,7 +356,16 @@ api:
       endpoints:
         - resolver: list_module_objects
           resolver_data:
-            sort: *sort_default_modified_date
+            sort:
+              default:
+                column: Modified_Date
+                order: desc
+              allowed_columns:
+                - Object_ID
+                - Title
+                - Modified_Date
+                - Object_Type
+                - Action
             model_map: *model_map
             response_model_name: PagedListModuleObjectsResponse
     - prefix: /objects/valid
