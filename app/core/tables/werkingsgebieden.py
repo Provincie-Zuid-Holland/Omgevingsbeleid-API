@@ -25,7 +25,9 @@ class InputGeoWerkingsgebiedenTable(Base):
     Created_Date: Mapped[datetime]
 
     Onderverdelingen: Mapped[List["InputGeoOnderverdelingenTable"]] = relationship(
-        secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc, back_populates="Werkingsgebieden"
+        secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc,
+        back_populates="Werkingsgebieden",
+        viewonly=True,
     )
 
     def __repr__(self) -> str:
@@ -48,10 +50,22 @@ class InputGeoOnderverdelingenTable(Base):
     Werkingsgebieden: Mapped[list[InputGeoWerkingsgebiedenTable]] = relationship(
         secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc,
         back_populates="Onderverdelingen",
+        viewonly=True,
     )
 
     def __repr__(self) -> str:
         return f"InputGeoOnderverdelingTable(UUID={self.UUID!r}, Title={self.Title!r})"
+
+
+class InputGeoWerkingsgebiedOnderverdelingTable(Base):
+    __table__ = Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc
+
+    def __repr__(self) -> str:
+        return (
+            f"InputGeoWerkingsgebiedOnderverdelingTable("
+            f"Werkingsgebied_UUID={self.Werkingsgebied_UUID!r}, "
+            f"Onderverdeling_UUID={self.Onderverdeling_UUID!r})"
+        )
 
 
 # @todo: Should be removed when the InputGeo is used

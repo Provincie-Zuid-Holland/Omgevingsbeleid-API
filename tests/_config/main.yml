@@ -1,0 +1,266 @@
+api:
+  routers:
+    - prefix: /users
+      endpoints:
+        - resolver: create_user
+          resolver_data:
+            allowed_roles:
+              - "Behandelend Ambtenaar"
+              - "Portefeuillehouder"
+              - "Beheerder"
+    - prefix: /users/{user_uuid}
+      endpoints:
+        - resolver: get_user
+        - resolver: edit_user
+          resolver_data:
+            allowed_roles:
+              - "Behandelend Ambtenaar"
+              - "Portefeuillehouder"
+              - "Beheerder"
+    - prefix: /storage-files
+      endpoints:
+        - resolver: list_storage_files
+    - prefix: /storage-files/{file_uuid}
+      endpoints:
+        - resolver: detail_storage_file
+    - prefix: /storage-files/{file_uuid}/download
+      endpoints:
+        - resolver: download_storage_file
+    - prefix: /modules
+      endpoints:
+        - resolver: create_module
+    - prefix: /modules/{module_id}
+      endpoints:
+        - resolver: edit_module
+        - resolver: activate_module
+          resolver_data:
+            path: /activate
+        - resolver: close_module
+          resolver_data:
+            path: /close
+        - resolver: module_add_existing_object
+          resolver_data:
+            path: /add-existing-object
+            allowed_object_types:
+              - beleidsdoel
+              - beleidskeuze
+              # maatregel is left out on purpose to tests adding invalid objects
+    - prefix: /objects/valid
+      endpoints:
+        - resolver: list_all_latest_objects
+          resolver_data:
+            allowed_object_types:
+              - beleidsdoel
+              - beleidskeuze
+              - maatregel
+            sort:
+              default:
+                column: Object_ID
+                order: asc
+              allowed_columns:
+                - Object_ID
+                - Title
+                - Modified_Date
+            model_map:
+              beleidsdoel: beleidsdoel_basic
+              beleidskeuze: beleidskeuze_basic
+              maatregel: maatregel_basic
+            response_model_name: PagedListAllLatestObjectsResponse
+
+columns:
+  title:
+    name: Title
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  description:
+    name: Description
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  weblink:
+    name: Weblink
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  explanation:
+    name: Explanation
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  effect:
+    name: Effect
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  hierarchy_code:
+    name: Hierarchy_Code
+    type: object_code
+    type_data:
+      relation_field: Hierarchy_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  gebiedengroep_code:
+    name: Gebiedengroep_Code
+    type: object_code
+    type_data:
+      relation_field: Gebiedengroep_Statics
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  documents:
+    name: Documents
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
+  portfolio_holder_1_uuid:
+    name: Portfolio_Holder_1_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  portfolio_holder_2_uuid:
+    name: Portfolio_Holder_2_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  client_1_uuid:
+    name: Client_1_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+
+required_object_fields_rule: {}
+
+publication_required_object_fields_rule: {}
+
+
+users_permissions:
+  "Ambtelijk opdrachtgever": []
+  "Basic": []
+  "Behandelend Ambtenaar":
+    - module_can_add_new_object_to_module
+    - module_can_add_existing_object_to_module
+    - module_can_edit_module_object_context
+  "Beheerder":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - module_can_create_module
+    - module_can_close_module
+    - module_can_edit_module
+    - module_can_activate_module
+    - module_can_patch_module_status
+    - module_can_add_new_object_to_module
+    - module_can_add_existing_object_to_module
+    - module_can_edit_module_object_context
+    - module_can_remove_object_from_module
+    - module_can_patch_object_in_module
+    - user_can_create_user
+    - user_can_edit_user
+    - user_can_reset_user_password
+    - can_patch_object_static
+    - publication_can_create_publication_template
+    - publication_can_edit_publication_template
+    - publication_can_view_publication_template
+    - publication_can_view_publication_environment
+    - publication_can_view_publication_aoj
+    - publication_can_create_publication
+    - publication_can_edit_publication
+    - publication_can_view_publication
+    - publication_can_create_publication_version
+    - publication_can_edit_publication_version
+    - publication_can_view_publication_version
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
+    - publication_can_create_publication_announcement
+    - publication_can_edit_publication_announcement
+    - publication_can_view_publication_announcement
+    - publication_can_create_publication_announcement_package
+    - publication_can_view_publication_announcement_package
+    - publication_can_download_publication_announcement_package
+    - publication_can_upload_publication_announcement_package_report
+    - publication_can_view_publication_announcement_package_report
+    - publication_can_download_publication_announcement_package_report
+    - storage_file_can_upload_files
+  "Superuser":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - module_can_create_module
+    - module_can_close_module
+    - module_can_edit_module
+    - module_can_activate_module
+    - module_can_patch_module_status
+    - module_can_add_new_object_to_module
+    - module_can_add_existing_object_to_module
+    - module_can_edit_module_object_context
+    - module_can_remove_object_from_module
+    - module_can_patch_object_in_module
+    - user_can_create_user
+    - user_can_edit_user
+    - user_can_reset_user_password
+    - can_patch_object_static
+    - publication_can_create_publication_template
+    - publication_can_edit_publication_template
+    - publication_can_view_publication_template
+    - publication_can_create_publication_environment
+    - publication_can_edit_publication_environment
+    - publication_can_view_publication_environment
+    - publication_can_create_publication_aoj
+    - publication_can_view_publication_aoj
+    - publication_can_create_publication_act
+    - publication_can_close_publication_act
+    - publication_can_edit_publication_act
+    - publication_can_view_publication_act
+    - publication_can_create_publication
+    - publication_can_edit_publication
+    - publication_can_view_publication
+    - publication_can_create_publication_version
+    - publication_can_edit_publication_version
+    - publication_can_view_publication_version
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
+    - publication_can_upload_publication_act_package_report
+    - publication_can_view_publication_act_package_report
+    - publication_can_download_publication_act_package_report
+    - publication_can_create_publication_announcement
+    - publication_can_edit_publication_announcement
+    - publication_can_view_publication_announcement
+    - publication_can_create_publication_announcement_package
+    - publication_can_view_publication_announcement_package
+    - publication_can_download_publication_announcement_package
+    - publication_can_upload_publication_announcement_package_report
+    - publication_can_view_publication_announcement_package_report
+    - publication_can_download_publication_announcement_package_report
+    - storage_file_can_upload_files
