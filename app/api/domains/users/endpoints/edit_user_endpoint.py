@@ -44,7 +44,7 @@ def post_edit_user_endpoint(
 ) -> ResponseOK:
     permission_service.guard_valid_user(Permissions.user_can_edit_user, logged_in_user)
 
-    changes: dict = object_in.dict(exclude_unset=True)
+    changes: dict = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
