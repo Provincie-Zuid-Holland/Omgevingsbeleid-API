@@ -4,19 +4,19 @@
 #
 #    pip-compile requirements-dev.in
 #
-alembic==1.18.4
+alembic==1.18.5
     # via -r requirements-dev.in
-anyio==4.13.0
+anyio==4.14.1
     # via httpx2
 asttokens==2.4.1
     # via
     #   devtools
     #   stack-data
-certifi==2026.5.20
+certifi==2026.6.17
     # via requests
 charset-normalizer==3.4.7
     # via requests
-coverage[toml]==7.14.1
+coverage[toml]==7.14.3
     # via
     #   -r requirements-dev.in
     #   coverage-badge
@@ -33,19 +33,19 @@ executing==2.2.1
     # via
     #   devtools
     #   stack-data
-faker==40.21.0
+faker==40.28.1
     # via -r requirements-dev.in
 freezegun==1.5.5
     # via
     #   -r requirements-dev.in
     #   pytest-freezer
-greenlet==3.5.1
+greenlet==3.5.3
     # via sqlalchemy
 h11==0.16.0
     # via httpcore2
-httpcore2==2.3.0
+httpcore2==2.5.0
     # via httpx2
-httpx2==2.3.0
+httpx2==2.5.0
     # via -r requirements-dev.in
 idna==3.18
     # via
@@ -54,7 +54,7 @@ idna==3.18
     #   requests
 iniconfig==2.3.0
     # via pytest
-ipython==9.14.0
+ipython==9.15.0
     # via -r requirements-dev.in
 ipython-pygments-lexers==1.1.1
     # via ipython
@@ -95,7 +95,7 @@ pygments==2.20.0
     #   ipython-pygments-lexers
     #   pytest
     #   rich
-pytest==9.0.3
+pytest==9.1.1
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -120,13 +120,13 @@ requests-mock==1.12.1
     # via -r requirements-dev.in
 rich==15.0.0
     # via -r requirements-dev.in
-ruff==0.15.16
+ruff==0.15.20
     # via -r requirements-dev.in
 six==1.17.0
     # via
     #   asttokens
     #   python-dateutil
-sqlalchemy==2.0.50
+sqlalchemy==2.0.51
     # via alembic
 stack-data==0.6.3
     # via ipython
@@ -138,13 +138,13 @@ truststore==0.10.4
     # via
     #   httpcore2
     #   httpx2
-typing-extensions==4.15.0
+typing-extensions==4.16.0
     # via
     #   alembic
     #   sqlalchemy
 urllib3==2.7.0
     # via requests
-wcwidth==0.7.0
+wcwidth==0.8.2
     # via prompt-toolkit
 
 # The following packages are considered to be unsafe in a requirements file:
