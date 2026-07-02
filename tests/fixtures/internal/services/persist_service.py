@@ -37,6 +37,7 @@ from tests.fixtures.internal.types import (
     PersistRecord,
     Ref,
 )
+import tests.fixtures.internal.spec.publications as publications_types
 
 
 class PersistService[S: Spec, H: BasePersistHandler]:
@@ -45,17 +46,24 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             UserSpec: UserPersistHandler(),
             AssetSpec: AssetPersistHandler(),
             StorageFileSpec: StorageFilePersistHandler(),
-            objects_types.BeleidsdoelSpec: objects_types.BeleidsdoelPersistHandler(),
-            objects_types.BeleidskeuzeSpec: objects_types.BeleidskeuzePersistHandler(),
-            objects_types.MaatregelSpec: objects_types.MaatregelPersistHandler(),
+            # Geo
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPersistHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPersistHandler(),
             AreaSpec: AreaPersistHandler(),
+            # Objects
+            objects_types.BeleidsdoelSpec: objects_types.BeleidsdoelPersistHandler(),
+            objects_types.BeleidskeuzeSpec: objects_types.BeleidskeuzePersistHandler(),
+            objects_types.MaatregelSpec: objects_types.MaatregelPersistHandler(),
+            # Modules
             ModuleSpec: ModulePersistHandler(),
             ModuleStatusHistorySpec: ModuleStatusHistoryPersistHandler(),
+            # Module Objects
             ModuleBeleidsdoelSpec: ModuleBeleidsdoelPersistHandler(),
             ModuleBeleidskeuzeSpec: ModuleBeleidskeuzePersistHandler(),
             ModuleMaatregelSpec: ModuleMaatregelPersistHandler(),
+            # Publication
+            publications_types.PublicationStorageFileSpec: publications_types.PublicationStorageFilePersistHandler(),
+            publications_types.PublicationTemplateSpec: publications_types.PublicationTemplatePersistHandler(),
         }
 
     def persist(self, records: List[Record[S]], session: Session) -> FixtureData:
