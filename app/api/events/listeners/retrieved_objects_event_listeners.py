@@ -37,6 +37,11 @@ from app.api.domains.objects.services.join_documents_service import (
     JoinDocumentsService,
     JoinDocumentsServiceFactory,
 )
+from app.api.domains.objects.services.join_related_files_service import (
+    JoinRelatedFilesConfig,
+    JoinRelatedFilesService,
+    JoinRelatedFilesServiceFactory,
+)
 from app.api.domains.werkingsgebieden.services import JoinGebiedsaanwijzingenServiceFactory
 from app.api.domains.werkingsgebieden.services.join_gebiedengroepen import (
     JoinGebiedenGroepenConfig,
@@ -464,3 +469,40 @@ class JoinGebiedsaanwijzingenBaseListener(ApiListener[EventRMO], Generic[EventRM
 
 class JoinGebiedsaanwijzingenForObjectListener(JoinGebiedsaanwijzingenBaseListener[RetrievedObjectsEvent]):
     pass
+
+
+class JoinRelatedFilesToObjectsListener(ApiListener[RetrievedObjectsEvent]):
+    def __init__(self, service_factory: JoinRelatedFilesServiceFactory):
+        self._service_factory: JoinRelatedFilesServiceFactory = service_factory
+
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
+        config: Optional[JoinRelatedFilesConfig] = self._collect_config(event)
+        if not config:
+            return event
+
+        service: JoinRelatedFilesService = self._service_factory.create_service(
+            session,
+            config,
+            event.payload.rows,
+        )
+
+        result_rows: List[BaseModel] = service.join_related_files()
+        event.payload.rows = result_rows
+
+        return event
+
+    def _collect_config(self, event: RetrievedObjectsEvent) -> Optional[JoinRelatedFilesConfig]:
+        if not isinstance(event.context.response_model, DynamicObjectModel):
+            return None
+        if "related_files" not in event.context.response_model.service_config:
+            return None
+
+        service_config: dict = event.context.response_model.service_config["related_files"]
+        to_field: str = service_config["to_field"]
+
+        object_codes: List[str] = list({getattr(r, "Code") for r in event.payload.rows})
+
+        return JoinRelatedFilesConfig(
+            to_field=to_field,
+            object_codes=object_codes,
+        )

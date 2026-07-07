@@ -34,4 +34,5 @@ from .retrieved_objects_event_listeners import (
     JoinObjectsForObjectListener,
     JoinGebiedsaanwijzingenForObjectListener,
     JoinGebiedenGroepForObjectListener,
+    JoinRelatedFilesToObjectsListener,
 )

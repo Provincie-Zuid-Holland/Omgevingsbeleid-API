@@ -175,6 +175,7 @@ class ApiContainer(containers.DeclarativeContainer):
         object_services.AddWerkingsgebiedRelatedObjectsServiceFactory
     )
     join_documents_service_factory = providers.Singleton(object_services.JoinDocumentsServiceFactory)
+    join_related_files_service_factory = providers.Singleton(object_services.JoinRelatedFilesServiceFactory)
     resolve_child_objects_via_hierarchy_service_factory = providers.Singleton(
         object_services.ResolveChildObjectsViaHierarchyServiceFactory
     )
@@ -301,6 +302,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.ObjectResolveChildObjectsViaHierarchyListener,
                 service_factory=resolve_child_objects_via_hierarchy_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinRelatedFilesToObjectsListener,
+                service_factory=join_related_files_service_factory,
             ),
             # RetrievedModuleObjectsEvent
             providers.Factory(

@@ -102,6 +102,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(create_model_event_listeners.AddPublicRevisionsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddNextObjectVersionToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddRelatedObjectsToWerkingsgebiedObjectModelListener),
+            providers.Factory(create_model_event_listeners.AddJoinRelatedFilesToObjectModelListener),
         ),
     )
     build_event_manager = providers.Singleton(

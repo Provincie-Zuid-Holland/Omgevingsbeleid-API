@@ -240,6 +240,8 @@ models:
           - Description
       resolve_child_objects_via_hierarchy_listener:
         to_field: Hierarchy_Children
+      related_files:
+        to_field: Related_Files
       relations:
         objects:
           - object_type: ambitie
