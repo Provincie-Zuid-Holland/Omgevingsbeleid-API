@@ -54,6 +54,9 @@ api:
               - maatregel
     - prefix: /gebiedsprogrammas/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: gebiedsprogramma_static
         - resolver: edit_object_static
           resolver_data:
             request_model: gebiedsprogramma_static_post
