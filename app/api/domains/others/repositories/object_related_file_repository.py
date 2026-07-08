@@ -23,7 +23,7 @@ class ObjectRelatedFileRepository(BaseRepository):
     def get_by_object_code(self, session: Session, object_code: str) -> List[ObjectRelatedFileTable]:
         stmt = (
             select(ObjectRelatedFileTable)
-            .filter(ObjectRelatedFileTable.Object_Code == object_code)
+            .filter(ObjectRelatedFileTable.Code == object_code)
             .order_by(ObjectRelatedFileTable.Created_Date.desc())
         )
         return self.fetch_all(session, stmt)
@@ -36,7 +36,7 @@ class ObjectRelatedFileRepository(BaseRepository):
     ) -> PaginatedQueryResult:
         filters = []
         if object_code is not None:
-            filters.append(ObjectRelatedFileTable.Object_Code == object_code)
+            filters.append(ObjectRelatedFileTable.Code == object_code)
 
         stmt = select(ObjectRelatedFileTable).filter(*filters)
 

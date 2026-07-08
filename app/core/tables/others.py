@@ -139,7 +139,7 @@ class ObjectRelatedFileTable(Base):
     __tablename__ = "object_related_files"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Object_Code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.Code"), index=True)
+    Code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.Code"), index=True)
 
     File_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("storage_files.UUID"))
 
@@ -152,4 +152,4 @@ class ObjectRelatedFileTable(Base):
     File: Mapped["StorageFileTable"] = relationship()
 
     def __repr__(self) -> str:
-        return f"ObjectRelatedFileTable(UUID={self.UUID!r}, Object_Code={self.Object_Code!r})"
+        return f"ObjectRelatedFileTable(UUID={self.UUID!r}, Code={self.Code!r})"

@@ -104,7 +104,7 @@ class SearchRequestDataWithLike(SearchRequestData):
 
 class ObjectRelatedFileResponse(BaseModel):
     UUID: uuid.UUID
-    Object_Code: str
+    Code: str
     File_UUID: uuid.UUID
     Title: str
     Created_Date: datetime

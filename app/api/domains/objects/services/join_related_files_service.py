@@ -36,7 +36,7 @@ class JoinRelatedFilesService:
     def _fetch(self) -> Dict[str, List[ObjectRelatedFileResponse]]:
         stmt = (
             select(ObjectRelatedFileTable)
-            .filter(ObjectRelatedFileTable.Object_Code.in_(self._config.object_codes))
+            .filter(ObjectRelatedFileTable.Code.in_(self._config.object_codes))
             .order_by(ObjectRelatedFileTable.Created_Date.desc())
         )
 
@@ -45,7 +45,7 @@ class JoinRelatedFilesService:
         files_map: Dict[str, List[ObjectRelatedFileResponse]] = {}
         for db_row in db_rows:
             response = ObjectRelatedFileResponse.model_validate(db_row)
-            files_map.setdefault(db_row.Object_Code, []).append(response)
+            files_map.setdefault(db_row.Code, []).append(response)
 
         return files_map
 

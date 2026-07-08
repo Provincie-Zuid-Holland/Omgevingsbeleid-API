@@ -56,7 +56,7 @@ class EndpointHandler:
 
         related_file = ObjectRelatedFileTable(
             UUID=uuid.uuid4(),
-            Object_Code=self._object_static.Code,
+            Code=self._object_static.Code,
             File_UUID=file_table.UUID,
             Title=self._title,
             Created_Date=self._timepoint,
