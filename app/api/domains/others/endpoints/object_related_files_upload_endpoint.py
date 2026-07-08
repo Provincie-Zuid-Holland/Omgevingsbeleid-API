@@ -31,6 +31,7 @@ class EndpointHandler:
         user: UsersTable,
         uploaded_file: UploadFile,
         title: str,
+        ignore_report: bool,
     ):
         self._session: Session = session
         self._object_static: ObjectStaticsTable = object_static
@@ -40,14 +41,16 @@ class EndpointHandler:
         self._uploaded_file: UploadFile = uploaded_file
         self._file_data: FileData = FileData(File=uploaded_file)
         self._title: str = title
+        self._ignore_report: bool = ignore_report
         self._timepoint: datetime = datetime.now(timezone.utc)
 
     def handle(self) -> ObjectRelatedFileResponse:
         self._guard_upload()
 
-        pdf_meta_report = self._pdf_meta_service.report_banned_meta(self._file_data.get_binary())
-        if len(pdf_meta_report) > 0:
-            raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
+        if not self._ignore_report:
+            pdf_meta_report = self._pdf_meta_service.report_banned_meta(self._file_data.get_binary())
+            if len(pdf_meta_report) > 0:
+                raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
 
         file_table: StorageFileTable = self._store_file()
 
@@ -112,6 +115,7 @@ def post_object_related_files_upload_endpoint(
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     pdf_meta_service: Annotated[PdfMetaService, Depends(Provide[ApiContainer.pdf_meta_service])],
     title: str = Form(...),
+    ignore_report: bool = Form(...),
     uploaded_file: UploadFile = File(...),
 ) -> ObjectRelatedFileResponse:
     object_static: Optional[ObjectStaticsTable] = object_static_repository.get_by_object_type_and_id(
@@ -137,5 +141,6 @@ def post_object_related_files_upload_endpoint(
         user,
         uploaded_file,
         title,
+        ignore_report,
     )
     return handler.handle()
