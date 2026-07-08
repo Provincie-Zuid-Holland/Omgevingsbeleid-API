@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
-from app.api.domains.others.repositories.object_related_file_repository import ObjectRelatedFileRepository
+from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.api.domains.others.repositories.storage_file_repository import StorageFileRepository
 from app.api.domains.others.services import PdfMetaService
 from app.api.domains.others.types import FileData, ObjectRelatedFileResponse
@@ -106,7 +106,7 @@ def post_object_related_files_upload_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     storage_repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],
     object_static_repository: Annotated[
-        "ObjectStaticRepository", Depends(Provide[ApiContainer.object_static_repository])
+        ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])
     ],
     session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],

@@ -30,7 +30,7 @@ def post_object_related_files_delete_endpoint(
         session, related_file_uuid
     )
     if not maybe_file:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Gerelateerd bestand niet gevonden")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Bestand niet gevonden")
 
     permission_service.guard_valid_user(
         Permissions.can_delete_object_related_file,

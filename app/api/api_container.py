@@ -53,9 +53,7 @@ class ApiContainer(containers.DeclarativeContainer):
         werkingsgebieden_repositories.InputGeoWerkingsgebiedenRepository
     )
     storage_file_repository = providers.Singleton(storage_file_repository.StorageFileRepository)
-    object_related_file_repository = providers.Singleton(
-        object_related_file_repository.ObjectRelatedFileRepository
-    )
+    object_related_file_repository = providers.Singleton(object_related_file_repository.ObjectRelatedFileRepository)
     object_repository = providers.Singleton(object_repositories.ObjectRepository)
     object_static_repository = providers.Singleton(object_repositories.ObjectStaticRepository)
     asset_repository = providers.Singleton(object_repositories.AssetRepository)

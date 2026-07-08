@@ -139,20 +139,16 @@ class ObjectRelatedFileTable(Base):
     __tablename__ = "object_related_files"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-
-    # Koppeling aan object (lineage-niveau via object_statics.Code)
     Object_Code: Mapped[str] = mapped_column(
         Unicode(35),
         ForeignKey("object_statics.Code"),
         index=True,
     )
 
-    # Koppeling aan bestand
     File_UUID: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("storage_files.UUID"),
     )
 
-    # Metadata per koppeling
     Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     Created_Date: Mapped[datetime]
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))

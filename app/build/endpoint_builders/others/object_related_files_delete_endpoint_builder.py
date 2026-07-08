@@ -22,8 +22,8 @@ class ObjectRelatedFilesDeleteEndpointBuilder(EndpointBuilder):
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
             endpoint=post_object_related_files_delete_endpoint,
-            methods=["POST"],
-            summary="Delete a related file link",
+            methods=["DELETE"],
+            summary="Delete a related file",
             response_model=ResponseOK,
             description=None,
             tags=["Object Related Files"],
