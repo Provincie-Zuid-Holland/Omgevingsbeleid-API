@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 from sqlalchemy.orm import Session
-from starlette import status
+from fastapi import status
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session

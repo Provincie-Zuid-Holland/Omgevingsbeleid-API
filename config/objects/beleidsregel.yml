@@ -56,6 +56,9 @@ api:
               - beleidskeuze
     - prefix: /beleidsregel/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: beleidsregel_static
         - resolver: edit_object_static
           resolver_data:
             request_model: beleidsregel_static_post
@@ -295,6 +298,25 @@ models:
       extract_assets:
         fields:
           - Description
+  beleidsregel_static:
+    name: BeleidsregelStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
   beleidsregel_static_post:
     name: BeleidsregelStaticPost
     static_only: true

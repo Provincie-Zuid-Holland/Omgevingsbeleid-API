@@ -45,7 +45,7 @@ def post_create_module_endpoint(
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     object_in: ModuleCreate,
 ) -> ModuleCreatedResponse:
-    permission_service.guard_valid_user(Permissions.module_can_close_module, user)
+    permission_service.guard_valid_user(Permissions.module_can_create_module, user)
 
     timepoint: datetime = datetime.now(timezone.utc)
 

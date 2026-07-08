@@ -100,7 +100,7 @@ class ModuleStatusHistoryTable(Base):
     Module: Mapped[ModuleTable] = relationship(back_populates="status_history")
 
     def __repr__(self) -> str:
-        return f"ModuleStatusHistory(ID={self.ID!r}), Module_ID={self.Module_ID!r}"
+        return f"ModuleStatusHistory(ID={self.ID!r}, Module_ID={self.Module_ID!r}, Status={self.Status!r})"
 
 
 class ModuleObjectsTable(Base):
@@ -150,3 +150,6 @@ class ModuleObjectContextTable(Base, TimeStamped, UserMetaData, SerializerMixin)
     Modified_By: Mapped[List["UsersTable"]] = relationship(
         primaryjoin="ModuleObjectContextTable.Modified_By_UUID == UsersTable.UUID"
     )
+
+    def __repr__(self) -> str:
+        return f"ModuleObjectContextTable(Module_ID={self.Module_ID!r}, Code={self.Code!r}, Action={self.Action!r})"

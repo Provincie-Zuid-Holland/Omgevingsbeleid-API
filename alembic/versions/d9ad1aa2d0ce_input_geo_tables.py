@@ -39,7 +39,7 @@ def upgrade() -> None:
         sa.Column('Geometry_Hash', sa.Unicode(length=64), nullable=False),
         sa.Column('GML', sa.Unicode(), nullable=True),
         sa.Column('Werkingsgebied_UUID', sa.Uuid(), nullable=False),
-        sa.ForeignKeyConstraint(['Werkingsgebied_UUID'], ['Input_GEO_Werkingsgebieden.UUID'], ),
+        sa.ForeignKeyConstraint(['Werkingsgebied_UUID'], ['Input_GEO_Werkingsgebieden.UUID'], 'FK__Input_GEO__Werki__756D6ECB'),
         sa.PrimaryKeyConstraint('UUID')
     )
 

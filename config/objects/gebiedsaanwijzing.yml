@@ -46,6 +46,9 @@ api:
             response_model: gebiedsaanwijzing_full
     - prefix: /gebiedsaanwijzing/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: gebiedsaanwijzing_static
         - resolver: edit_object_static
           resolver_data:
             request_model: gebiedsaanwijzing_static_post
@@ -228,6 +231,19 @@ models:
           - id: not_empty
       ref_type:
       ref_group:
+  gebiedsaanwijzing_static:
+    name: GebiedsaanwijzingStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
   gebiedsaanwijzing_static_post:
     name: GebiedsaanwijzingStaticPost
     static_only: true

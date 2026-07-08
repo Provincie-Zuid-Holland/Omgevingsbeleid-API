@@ -58,6 +58,9 @@ api:
               - maatregel
     - prefix: /beleidskeuze/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: beleidskeuze_static
         - resolver: edit_object_static
           resolver_data:
             request_model: beleidskeuze_static_post
@@ -170,6 +173,12 @@ fields:
     column: gebiedengroep_code
     validators:
       - id: none_to_default_value
+  themas:
+    name: Themas
+    type: list_str
+    column: themas
+    validators:
+      - id: none_to_default_value
   
   # Statics
   owner_1_uuid:
@@ -236,6 +245,7 @@ models:
       hierarchy_code:
       werkingsgebied_code:
       gebiedengroep_code:
+      themas:
     dependency_model_ids:
       - user_short
     services:
@@ -276,6 +286,7 @@ models:
       hierarchy_code:
       werkingsgebied_code:
       gebiedengroep_code:
+      themas:
     dependency_model_ids:
       - user_short
       - werkingsgebied_basic
@@ -457,6 +468,8 @@ models:
               allowed_object_types:
                 - gebiedengroep
           - id: object_code_exists
+      themas:
+        optional: true
     services:
       extract_assets:
         fields:
@@ -464,6 +477,25 @@ models:
           - Cause
           - Provincial_Interest
           - Explanation
+  beleidskeuze_static:
+    name: BeleidskeuzeStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
   beleidskeuze_static_post:
     name: BeleidskeuzeStaticPost
     static_only: true

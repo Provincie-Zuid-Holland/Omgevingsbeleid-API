@@ -131,6 +131,7 @@ class BuildContainer(containers.DeclarativeContainer):
                 model_dynamic_type_builder=model_dynamic_type_builder,
             ),
             providers.Factory(endpoint_builders_objects.EditObjectStaticEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.GetObjectStaticEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalCreateObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalEditObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalDeleteObjectEndpointBuilder),
@@ -152,6 +153,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_publications.area_of_jurisdictions.ListPublicationAOJEndpointBuilder),
             #   DSO values
             providers.Factory(endpoint_builders_publications.dso_values.ListAreaDesignationEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.dso_values.ListThemaEndpointBuilder),
             #   Templates
             providers.Factory(endpoint_builders_publications.templates.CreatePublicationTemplateEndpointBuilder),
             providers.Factory(endpoint_builders_publications.templates.DetailPublicationTemplateEndpointBuilder),
@@ -307,8 +309,6 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.PublicListModulesEndpointBuilder),
             providers.Factory(endpoint_builders_modules.PublicModuleOverviewEndpointBuilder),
             # Werkingsgebieden domain
-            providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByAreasEndpointBuilder),
-            providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByGeometryEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListWerkingsgebiedenEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.InputGeoListLatestWerkingsgebiedenEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.InputGeoUseWerkingsgebiedenEndpointBuilder),

@@ -15,6 +15,9 @@ search-date.json
 ._env_*
 .pytest_cache/
 .coverage
+coverage.xml
+coverage.lcov
+htmlcov/
 **/*.hidden*
 output/*
 output-dso/*

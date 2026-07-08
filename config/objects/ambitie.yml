@@ -54,6 +54,9 @@ api:
               - beleidsdoel
     - prefix: /ambitie/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: ambitie_static
         - resolver: edit_object_static
           resolver_data:
             request_model: ambitie_static_post
@@ -116,6 +119,12 @@ fields:
     name: Decision_Number
     type: str
     column: decision_number
+    validators:
+      - id: none_to_default_value
+  themas:
+    name: Themas
+    type: list_str
+    column: themas
     validators:
       - id: none_to_default_value
 
@@ -181,6 +190,7 @@ models:
       title:
       start_validity:
       end_validity:
+      themas:
     dependency_model_ids:
       - user_short
     services:
@@ -215,6 +225,7 @@ models:
       description:
       start_validity:
       end_validity:
+      themas:
     dependency_model_ids:
       - user_short
       - beleidsdoel_minimal
@@ -283,10 +294,31 @@ models:
             data:
               allowed_code_types:
                 - gebiedsaanwijzing
+      themas:
+        optional: true
     services:
       extract_assets:
         fields:
           - Description
+  ambitie_static:
+    name: AmbitieStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
   ambitie_static_post:
     name: AmbitieStaticPost
     static_only: true

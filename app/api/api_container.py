@@ -17,9 +17,9 @@ from app.api.domains.others.repositories import storage_file_repository
 from app.api.domains.others.repositories import object_related_file_repository
 from app.api.domains.others.services import PdfMetaService
 from app.api.domains.publications.publication_container import PublicationContainer
+from app.api.events import event_manager
 from app.api.services import permission_service
 from app.core.db.session import create_db_engine
-from app.api.events import event_manager
 from app.core.services.main_config import MainConfig
 from app.core.settings import Settings
 
@@ -101,6 +101,9 @@ class ApiContainer(containers.DeclarativeContainer):
 
     dso_gebiedsaanwijzingen_factory = providers.Factory(
         dso.GebiedsaanwijzingenFactory,
+    )
+    dso_thema_factory = providers.Factory(
+        dso.ThemaFactory,
     )
 
     publication = providers.Container(
@@ -220,6 +223,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Singleton(
                 module_services.AreaDesignationRefCheckRule,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
+            ),
+            providers.Singleton(
+                module_services.ThemasCheckRule,
+                dso_thema_factory=dso_thema_factory,
             ),
         ),
     )

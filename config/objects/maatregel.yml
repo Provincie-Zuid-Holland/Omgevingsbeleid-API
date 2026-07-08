@@ -58,6 +58,9 @@ api:
               - verplicht_programma
     - prefix: /maatregel/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: maatregel_static
         - resolver: edit_object_static
           resolver_data:
             request_model: maatregel_static_post
@@ -97,7 +100,6 @@ api:
             response_model: maatregel_full
             minimum_status: 'Ontwerp GS Concept'
             require_auth: False
-
 
 fields:
   title:
@@ -160,6 +162,12 @@ fields:
     name: Gebiedengroep_Code
     type: str
     column: gebiedengroep_code
+    validators:
+      - id: none_to_default_value
+  themas:
+    name: Themas
+    type: list_str
+    column: themas
     validators:
       - id: none_to_default_value
 
@@ -228,6 +236,7 @@ models:
       hierarchy_code:
       werkingsgebied_code:
       gebiedengroep_code:
+      themas:
     dependency_model_ids:
       - user_short
     services:
@@ -268,6 +277,7 @@ models:
       hierarchy_code:
       werkingsgebied_code:
       gebiedengroep_code:
+      themas:
     dependency_model_ids:
       - user_short
       - hierarchy_statics
@@ -412,11 +422,32 @@ models:
               allowed_object_types:
                 - gebiedengroep
           - id: object_code_exists
+      themas:
+        optional: true
     services:
       extract_assets:
         fields:
           - Description
           - Effect
+  maatregel_static:
+    name: MaatregelStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
   maatregel_static_post:
     name: MaatregelStaticPost
     static_only: true

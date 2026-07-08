@@ -5,7 +5,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Query, HTTPException
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
-from starlette import status
+from fastapi import status
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
