@@ -105,9 +105,6 @@ def post_object_related_files_upload_endpoint(
     lineage_id: int,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     storage_repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],
-    object_related_file_repository: Annotated[
-        ObjectRelatedFileRepository, Depends(Provide[ApiContainer.object_related_file_repository])
-    ],
     object_static_repository: Annotated[
         "ObjectStaticRepository", Depends(Provide[ApiContainer.object_static_repository])
     ],
