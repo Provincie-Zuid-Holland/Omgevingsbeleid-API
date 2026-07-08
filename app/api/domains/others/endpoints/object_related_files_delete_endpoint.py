@@ -42,7 +42,7 @@ def post_object_related_files_delete_endpoint(
     )
 
     session.delete(maybe_file)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

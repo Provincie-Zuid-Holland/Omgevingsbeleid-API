@@ -1,6 +1,7 @@
 from typing import List
 
 from app.api.domains.others.endpoints.object_related_files_list_endpoint import (
+    ObjectRelatedFilesListEndpointContext,
     get_object_related_files_list_endpoint,
 )
 from app.api.domains.others.types import ObjectRelatedFileResponse
@@ -21,9 +22,15 @@ class ObjectRelatedFilesListEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
+        context = ObjectRelatedFilesListEndpointContext(
+            object_type=api.object_type,
+            builder_data=builder_data,
+        )
+        endpoint = self._inject_context(get_object_related_files_list_endpoint, context)
+
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
-            endpoint=get_object_related_files_list_endpoint,
+            endpoint=endpoint,
             methods=["GET"],
             summary="List related files for an object",
             response_model=List[ObjectRelatedFileResponse],

@@ -1,4 +1,5 @@
 from app.api.domains.others.endpoints.object_related_files_upload_endpoint import (
+    ObjectRelatedFilesUploadEndpointContext,
     post_object_related_files_upload_endpoint,
 )
 from app.api.domains.others.types import ObjectRelatedFileResponse
@@ -19,9 +20,15 @@ class ObjectRelatedFilesUploadEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
+        context = ObjectRelatedFilesUploadEndpointContext(
+            object_type=api.object_type,
+            builder_data=builder_data,
+        )
+        endpoint = self._inject_context(post_object_related_files_upload_endpoint, context)
+
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
-            endpoint=post_object_related_files_upload_endpoint,
+            endpoint=endpoint,
             methods=["POST"],
             summary="Upload and link a file to an object",
             response_model=ObjectRelatedFileResponse,
