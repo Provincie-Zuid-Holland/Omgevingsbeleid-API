@@ -65,8 +65,8 @@ def post_create_announcement_endpoint(
     )
 
     session.add(announcement)
-    session.commit()
     session.flush()
+    session.commit()
 
     return AnnouncementCreatedResponse(
         UUID=announcement.UUID,

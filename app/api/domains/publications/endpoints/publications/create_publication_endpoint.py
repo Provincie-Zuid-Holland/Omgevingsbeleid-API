@@ -90,8 +90,8 @@ def post_create_publication_endpoint(
     )
 
     session.add(publication)
-    session.commit()
     session.flush()
+    session.commit()
 
     return PublicationCreatedResponse(
         UUID=publication.UUID,

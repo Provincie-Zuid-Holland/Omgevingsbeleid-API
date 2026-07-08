@@ -51,7 +51,7 @@ def post_edit_template_endpoint(
     template.Modified_Date = datetime.now(timezone.utc)
 
     session.add(template)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")
