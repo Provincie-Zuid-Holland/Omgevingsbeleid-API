@@ -139,15 +139,9 @@ class ObjectRelatedFileTable(Base):
     __tablename__ = "object_related_files"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Object_Code: Mapped[str] = mapped_column(
-        Unicode(35),
-        ForeignKey("object_statics.Code"),
-        index=True,
-    )
+    Object_Code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.Code"), index=True)
 
-    File_UUID: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("storage_files.UUID"),
-    )
+    File_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("storage_files.UUID"))
 
     Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     Created_Date: Mapped[datetime]
