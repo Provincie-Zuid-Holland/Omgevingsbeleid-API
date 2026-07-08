@@ -13,6 +13,7 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import (
     InputGeoWerkingsgebiedenPersistHandler,
     InputGeoWerkingsgebiedenSpec,
 )
+from tests.fixtures.internal.spec.object_related_file_spec import ObjectRelatedFilePersistHandler, ObjectRelatedFileSpec
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePersistHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec, UserPersistHandler
 from tests.fixtures.internal.spec.modules import (
@@ -51,6 +52,7 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPersistHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPersistHandler(),
             AreaSpec: AreaPersistHandler(),
+            ObjectRelatedFileSpec: ObjectRelatedFilePersistHandler(),
             ModuleSpec: ModulePersistHandler(),
             ModuleStatusHistorySpec: ModuleStatusHistoryPersistHandler(),
             ModuleBeleidsdoelSpec: ModuleBeleidsdoelPersistHandler(),

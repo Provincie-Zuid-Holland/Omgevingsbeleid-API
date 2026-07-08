@@ -16,6 +16,7 @@ import tests.fixtures.data.d050_objects_january as d050_objects_january
 import tests.fixtures.data.d060_objects_february as d060_objects_february
 import tests.fixtures.data.d070_objects_march as d070_objects_march
 import tests.fixtures.data.d080_objects_2099 as d080_objects_2099
+import tests.fixtures.data.d101_object_related_files as d101_object_related_files
 import tests.fixtures.data.d201_module_1_basic as d201_module_1_basic
 import tests.fixtures.data.d202_module_2_inactive as d202_module_2_inactive
 import tests.fixtures.data.d203_module_3_closed as d203_module_3_closed
@@ -37,6 +38,7 @@ class FixturesService:
             d060_objects_february.load,
             d070_objects_march.load,
             d080_objects_2099.load,
+            d101_object_related_files.load,
             d201_module_1_basic.load,
             d202_module_2_inactive.load,
             d203_module_3_closed.load,
