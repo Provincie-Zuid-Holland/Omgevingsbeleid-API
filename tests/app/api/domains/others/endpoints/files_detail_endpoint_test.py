@@ -10,7 +10,7 @@ from tests.fixtures.internal.types import Ref
 
 
 @pytest.mark.parametrize("client_fixture", ["admin", "ambtenaar"])
-@pytest.mark.parametrize("file_key", ["document_1", "document_2", "document_3"])
+@pytest.mark.parametrize("file_key", ["file_1", "file_2", "file_3"])
 def test_returns_the_requested_storage_file(
     request: pytest.FixtureRequest, ctx: Context, client_fixture: str, file_key: str
 ):
@@ -30,7 +30,7 @@ def test_returns_the_requested_storage_file(
 
 
 def test_response_matches_the_storage_file_model_shape(admin: TestClient, ctx: Context):
-    document_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(StorageFileSpec, "document_1"))
+    document_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(StorageFileSpec, "file_1"))
 
     body: dict = admin.get(f"/storage-files/{document_uuid}").json()
 
@@ -45,7 +45,7 @@ def test_unknown_uuid_returns_404(admin: TestClient):
 
 
 def test_unauthenticated_returns_401(client: TestClient, ctx: Context):
-    document_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(StorageFileSpec, "document_1"))
+    document_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(StorageFileSpec, "file_1"))
 
     response = client.get(f"/storage-files/{document_uuid}")
 
