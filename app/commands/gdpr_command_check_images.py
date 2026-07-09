@@ -111,8 +111,8 @@ def check_images(
                         for tag_id, value in exif_data.items()
                     }
                     report[asset] = [f"Has exif data: {exif_keys}"]
-            except UnidentifiedImageError:
-                report[asset] = ["File can't be opened: {e}"]
+            except UnidentifiedImageError as e:
+                report[asset] = [f"File can't be opened: {e}"]
 
         if not report:
             return
