@@ -14,9 +14,9 @@ asttokens==2.4.1
     #   stack-data
 certifi==2026.6.17
     # via requests
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
     # via requests
-coverage[toml]==7.14.3
+coverage[toml]==7.15.0
     # via
     #   -r requirements-dev.in
     #   coverage-badge
