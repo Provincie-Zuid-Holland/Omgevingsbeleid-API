@@ -27,8 +27,8 @@ python-slugify
 # Command
 Click
 
-# Async requests
-httpx
+# Async requests / Starlette TestClient
+httpx2
 
 # Validators
 beautifulsoup4
@@ -47,4 +47,4 @@ dicttoxml
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.11.1
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.11.4

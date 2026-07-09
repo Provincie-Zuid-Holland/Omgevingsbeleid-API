@@ -49,6 +49,9 @@ api:
             response_model: document_full
     - prefix: /document/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: document_static
         - resolver: edit_object_static
           resolver_data:
             request_model: document_static_post
@@ -256,6 +259,19 @@ models:
         default: none
         optional: true
       file_uuid:
+  document_static:
+    name: DocumentStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
   document_static_post:
     name: DocumentStaticPost
     static_only: true

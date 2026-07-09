@@ -51,8 +51,8 @@ def post_edit_announcement_endpoint(
     announcement.Modified_Date = datetime.now(timezone.utc)
 
     session.add(announcement)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")
 

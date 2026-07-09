@@ -75,8 +75,8 @@ def post_create_act_endpoint(
     )
 
     session.add(act)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ActCreatedResponse(
         UUID=act.UUID,

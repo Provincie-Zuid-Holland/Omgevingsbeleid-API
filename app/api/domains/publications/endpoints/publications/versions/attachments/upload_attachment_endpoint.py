@@ -82,8 +82,8 @@ def post_upload_attachment_endpoint(
         Modified_By_UUID=user.UUID,
     )
     session.add(attachment)
-    session.commit()
     session.flush()
+    session.commit()
 
     response: UploadAttachmentResponse = UploadAttachmentResponse(ID=attachment.ID)
     return response

@@ -3,9 +3,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional, Tuple
 from uuid import UUID, uuid4
+import uuid
 
+from pydantic import BaseModel
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session, aliased, load_only
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import Select, and_, or_
 
@@ -21,6 +23,11 @@ class LatestObjectPerModuleResult:
     module_object: ModuleObjectsTable
     module: ModuleTable
     context_action: ModuleObjectActionFull
+
+
+class OwnerFilter(BaseModel):
+    is_mine: bool
+    owner_uuid: uuid.UUID
 
 
 class ModuleObjectRepository(BaseRepository):
@@ -208,10 +215,11 @@ class ModuleObjectRepository(BaseRepository):
         pagination: SortedPagination,
         only_active_modules: bool = True,
         minimum_status: Optional[ModuleStatusCode] = None,
-        owner_uuid: Optional[UUID] = None,
-        object_type: Optional[str] = None,
+        owner_filter: Optional[OwnerFilter] = None,
+        object_types: List[str] = [],
         title: Optional[str] = None,
         actions: List[ModuleObjectActionFull] = [],
+        module_id: Optional[int] = None,
     ):
         """
         Generic filterable module-object listing query used
@@ -249,36 +257,61 @@ class ModuleObjectRepository(BaseRepository):
         # Build minimum status list starting at given status, if provided
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
 
-        # Build filter list
-        filters = [
-            ModuleTable.is_active if only_active_modules else None,
-            ModuleTable.Current_Status.in_(status_filter) if status_filter is not None else None,
-            (
-                or_(
-                    ObjectStaticsTable.Owner_1_UUID == owner_uuid,
-                    ObjectStaticsTable.Owner_2_UUID == owner_uuid,
-                ).self_group()
-                if owner_uuid is not None
-                else None
-            ),
-            ModuleObjectsTable.Object_Type == object_type if object_type is not None else None,
-            ModuleObjectsTable.Title.like(title) if title is not None else None,
-            ModuleObjectContextTable.Action.in_(actions) if actions else None,
-        ]
+        if module_id is not None:
+            subq = subq.filter(ModuleObjectsTable.Module_ID == module_id)
+        if only_active_modules:
+            if module_id is not None:
+                subq = subq.filter(ModuleTable.Closed == False)
+            else:
+                subq = subq.filter(ModuleTable.is_active)
+        if status_filter is not None:
+            subq = subq.filter(ModuleTable.Current_Status.in_(status_filter))
+        match owner_filter:
+            case OwnerFilter(is_mine=True, owner_uuid=mine):
+                subq = subq.filter(
+                    or_(
+                        ObjectStaticsTable.Owner_1_UUID == mine,
+                        ObjectStaticsTable.Owner_2_UUID == mine,
+                    ).self_group()
+                )
+            case OwnerFilter(is_mine=False, owner_uuid=others):
+                subq = subq.filter(
+                    and_(
+                        ObjectStaticsTable.Owner_1_UUID.is_distinct_from(others),
+                        ObjectStaticsTable.Owner_2_UUID.is_distinct_from(others),
+                    ).self_group()
+                )
+        if object_types:
+            subq = subq.filter(ModuleObjectsTable.Object_Type.in_(object_types))
+        if actions:
+            subq = subq.filter(ModuleObjectContextTable.Action.in_(actions))
 
-        # Applying your filters and making it a subquery
-        subq = subq.filter(and_(*[f for f in filters if f is not None])).subquery()
+        subq = subq.subquery()
+
         aliased_objects = aliased(ModuleObjectsTable, subq)
         aliased_object_statics = aliased(ObjectStaticsTable, subq)
         aliased_module_object_context = aliased(ModuleObjectContextTable, subq)
 
-        # Outer query to select all fields including the latest status
-        stmt = select(
-            aliased_objects,
-            aliased_object_statics,
-            aliased_module_object_context,
-            subq.c.Latest_Status,
-        ).filter(subq.c._RowNumber == 1)
+        stmt = (
+            select(
+                aliased_objects,
+                aliased_object_statics,
+                aliased_module_object_context,
+                subq.c.Latest_Status,
+            )
+            .options(
+                load_only(
+                    aliased_module_object_context.Action,
+                    aliased_module_object_context.Original_Adjust_On,
+                )
+            )
+            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c.Deleted == False)
+        )
+
+        # This field changes per record and must therefor be compared after gaining the newest record
+        if title is not None:
+            stmt = stmt.filter(subq.c.Title.like(title))
 
         return self.fetch_paginated_no_scalars(
             session=session,

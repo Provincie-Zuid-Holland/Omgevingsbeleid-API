@@ -46,7 +46,7 @@ def post_edit_act_endpoint(
     act.Modified_Date = datetime.now(timezone.utc)
 
     session.add(act)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

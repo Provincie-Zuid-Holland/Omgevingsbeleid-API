@@ -49,6 +49,9 @@ api:
             response_model: gebiedengroep_full
     - prefix: /gebiedengroep/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: gebiedengroep_static
         - resolver: edit_object_static
           resolver_data:
             request_model: gebiedengroep_static_post
@@ -246,6 +249,19 @@ models:
       description:
         default: none
         optional: true
+  gebiedengroep_static:
+    name: GebiedengroepStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
   gebiedengroep_static_post:
     name: GebiedengroepStaticPost
     static_only: true

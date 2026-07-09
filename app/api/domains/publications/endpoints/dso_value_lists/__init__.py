@@ -1,1 +1,2 @@
 from .area_designation_endpoint import get_area_designation_endpoint
+from .thema_endpoint import get_thema_endpoint

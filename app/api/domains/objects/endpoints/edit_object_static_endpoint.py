@@ -4,7 +4,8 @@ from typing import Annotated, Any, Dict, Optional, Type
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from pydantic import BaseModel
+from fastapi.exceptions import RequestValidationError
+from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
@@ -69,7 +70,10 @@ def edit_object_static_endpoint(
 
     # This executes the validators on the result type
     # Making sure the final object meets all validation requirements
-    _ = context.result_type.model_validate(object_static)
+    try:
+        _ = context.result_type.model_validate(object_static)
+    except ValidationError as e:
+        raise RequestValidationError(e.errors()) from e
 
     change_log: ChangeLogTable = ChangeLogTable(
         Object_Type=context.object_type,

@@ -78,6 +78,11 @@ forbid_empty_html_nodes_rule:
     - source
     - track
     - wbr
+  allowed_empty_when_sole_child:
+    td:
+      - p
+    th:
+      - p
 
 forbidden_html_tags_rule:
   fields:
@@ -176,24 +181,6 @@ api:
                 - ID
                 - Created_Date
                 - Modified_Date
-    - prefix: /search/by-areas
-      endpoints:
-        - resolver: areas_list_objects_by_areas
-          resolver_data:
-            sort: *sort_default_title
-            area_object_type: werkingsgebied
-            allowed_result_object_types:
-              - beleidskeuze
-              - maatregel
-    - prefix: /search/by-geometry
-      endpoints:
-        - resolver: areas_list_objects_by_geometry
-          resolver_data:
-            sort: *sort_default_title
-            area_object_type: werkingsgebied
-            allowed_result_object_types:
-              - beleidskeuze
-              - maatregel
     - prefix: /search
       endpoints:
         - resolver: mssql_search
@@ -284,9 +271,6 @@ api:
     - prefix: /modules/{module_id}
       endpoints:
         - resolver: module_overview
-          resolver_data:
-            model_map: *model_map
-            response_model_name: ModuleOverviewResponse
         - resolver: edit_module
         - resolver: validate_module
           resolver_data:
@@ -354,7 +338,16 @@ api:
       endpoints:
         - resolver: list_module_objects
           resolver_data:
-            sort: *sort_default_modified_date
+            sort:
+              default:
+                column: Modified_Date
+                order: desc
+              allowed_columns:
+                - Object_ID
+                - Title
+                - Modified_Date
+                - Object_Type
+                - Action
             model_map: *model_map
             response_model_name: PagedListModuleObjectsResponse
     - prefix: /objects/valid
@@ -555,6 +548,9 @@ api:
         - resolver: list_area_designation
           resolver_data:
             path: /area-designation
+        - resolver: list_thema
+          resolver_data:
+            path: /thema
     # Input GEO
     - prefix: /input-geo/werkingsgebieden
       endpoints:
@@ -816,6 +812,13 @@ columns:
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
+  # Thema's
+  themas:
+    name: Themas
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
 
 users_permissions:
   "Ambtelijk opdrachtgever": []

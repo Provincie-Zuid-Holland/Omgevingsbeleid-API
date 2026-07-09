@@ -87,8 +87,8 @@ def post_create_version_endpoint(
     )
 
     session.add(version)
-    session.commit()
     session.flush()
+    session.commit()
 
     return PublicationVersionCreatedResponse(
         UUID=version.UUID,
