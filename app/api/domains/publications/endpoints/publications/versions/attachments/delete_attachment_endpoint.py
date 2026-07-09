@@ -33,8 +33,8 @@ def post_delete_attachment_endpoint(
     # @todo: This should become a soft delete but I could not upgrade the database at this point
     session.delete(attachment.File)
     session.delete(attachment)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")
 

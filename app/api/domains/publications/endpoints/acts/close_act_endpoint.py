@@ -30,7 +30,7 @@ def post_close_act_endpoint(
     act.Is_Active = False
 
     session.add(act)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

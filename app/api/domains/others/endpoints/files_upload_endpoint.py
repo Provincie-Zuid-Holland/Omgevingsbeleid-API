@@ -54,8 +54,8 @@ class EndpointHandler:
                 raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
 
         file_table: StorageFileTable = self._store_file()
-        self._session.commit()
         self._session.flush()
+        self._session.commit()
 
         response: UploadFileResponse = UploadFileResponse(
             UUID=file_table.UUID,

@@ -63,8 +63,8 @@ def post_edit_version_endpoint(
     version.Modified_Date = datetime.now(timezone.utc)
 
     session.add(version)
-    session.commit()
     session.flush()
+    session.commit()
 
     errors: List[ErrorDetails] = validator.get_errors(version)
     is_valid: bool = len(errors) == 0
