@@ -3,17 +3,18 @@ from enum import Enum
 from typing import List
 
 import pikepdf
-from pikepdf import Dictionary, Object, PdfImage, Pdf
+from pikepdf import Dictionary, Object, PdfError, PdfImage, Pdf
 from pydantic import BaseModel
 
 
 class PdfMetaReportType(str, Enum):
     PDF_DOCUMENT = "PDF document"
     PDF_IMAGE = "Image in PDF document"
+    PDF_ERROR = "PDF error"
 
 
 class PdfMetaReport(BaseModel):
-    key: str
+    key: str = ""
     value: str
     type: str
 
@@ -23,12 +24,15 @@ BAN_LIST = ["author", "creator"]
 
 class PdfMetaService:
     def report_banned_meta(self, pdf_bytes: bytes) -> List[PdfMetaReport]:
-        pdf = pikepdf.open(io.BytesIO(pdf_bytes))
         report_list: List[PdfMetaReport] = []
-        report_list += self._check_doc_info(pdf.docinfo)
-        report_list += self._check_doc_meta_data(pdf.Root)
-        report_list += self._check_pdf_image_meta_data(pdf)
-        return report_list
+        try:
+            pdf = pikepdf.open(io.BytesIO(pdf_bytes))
+            report_list += self._check_doc_info(pdf.docinfo)
+            report_list += self._check_doc_meta_data(pdf.Root)
+            report_list += self._check_pdf_image_meta_data(pdf)
+            return report_list
+        except PdfError as e:
+            return [PdfMetaReport(value=str(e), type=PdfMetaReportType.PDF_ERROR)]
 
     def _check_doc_info(self, doc_info: Dictionary) -> List[PdfMetaReport]:
         report_list: List[PdfMetaReport] = []
