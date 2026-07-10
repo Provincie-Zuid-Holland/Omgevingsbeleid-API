@@ -1,4 +1,3 @@
-import json
 from typing import Annotated, List, Optional, Dict
 
 from bs4 import BeautifulSoup
@@ -39,7 +38,7 @@ class EndpointHandler:
     def handle(self) -> PagedResponse[ValidSearchObject]:
         if not len(self._query):
             raise ValueError("Missing search query")
-        if "\\" in json.dumps(self._query):
+        if '"' in self._query or "\\" in self._query:
             raise ValueError("Invalid search characters")
         if self._pagination.limit > 50:
             raise ValueError("Pagination limit is too high")
