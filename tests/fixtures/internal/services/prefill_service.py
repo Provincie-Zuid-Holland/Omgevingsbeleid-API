@@ -29,6 +29,7 @@ from tests.fixtures.internal.spec.modules import (
     ModuleMaatregelPrefillHandler,
 )
 from tests.fixtures.internal.types import Spec
+import tests.fixtures.internal.spec.publications as publications_types
 
 
 class PrefillService[S: Spec, H: BasePrefillHandler]:
@@ -37,17 +38,24 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             UserSpec: UserPrefillHandler(),
             AssetSpec: AssetPrefillHandler(),
             StorageFileSpec: StorageFilePrefillHandler(),
-            objects_types.BeleidsdoelSpec: objects_types.BeleidsdoelPrefillHandler(),
-            objects_types.BeleidskeuzeSpec: objects_types.BeleidskeuzePrefillHandler(),
-            objects_types.MaatregelSpec: objects_types.MaatregelPrefillHandler(),
+            # Geo
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPrefillHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPrefillHandler(),
             AreaSpec: AreaPrefillHandler(),
+            # Objects
+            objects_types.BeleidsdoelSpec: objects_types.BeleidsdoelPrefillHandler(),
+            objects_types.BeleidskeuzeSpec: objects_types.BeleidskeuzePrefillHandler(),
+            objects_types.MaatregelSpec: objects_types.MaatregelPrefillHandler(),
+            # Modules
             ModuleSpec: ModulePrefillHandler(),
             ModuleStatusHistorySpec: ModuleStatusHistoryPrefillHandler(),
+            # Module Objects
             ModuleBeleidsdoelSpec: ModuleBeleidsdoelPrefillHandler(),
             ModuleBeleidskeuzeSpec: ModuleBeleidskeuzePrefillHandler(),
             ModuleMaatregelSpec: ModuleMaatregelPrefillHandler(),
+            # Publication
+            publications_types.PublicationStorageFileSpec: publications_types.PublicationStorageFilePrefillHandler(),
+            publications_types.PublicationTemplateSpec: publications_types.PublicationTemplatePrefillHandler(),
         }
 
     def prefill(self, input_records: List[Record]) -> List[Record]:
