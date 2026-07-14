@@ -14,7 +14,7 @@ from app.api.domains.publications.dependencies import depends_publication
 from app.api.domains.publications.services.publication_version_defaults_provider import (
     PublicationVersionDefaultsProvider,
 )
-from app.api.domains.publications.types.enums import PublicationVersionStatus
+from app.api.domains.publications.types.enums import MutationStrategy, PublicationVersionStatus
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
 from app.core.tables.modules import ModuleStatusHistoryTable
@@ -24,6 +24,7 @@ from app.core.tables.users import UsersTable
 
 class PublicationVersionCreate(BaseModel):
     Module_Status_ID: int
+    Mutation_Strategy: MutationStrategy = MutationStrategy.RENVOOI
 
 
 class PublicationVersionCreatedResponse(BaseModel):
@@ -80,6 +81,7 @@ def post_create_version_endpoint(
         Announcement_Date=None,
         Is_Locked=False,
         Status=status,
+        Mutation_Strategy=object_in.Mutation_Strategy,
         Created_Date=timepoint,
         Modified_Date=timepoint,
         Created_By_UUID=user.UUID,

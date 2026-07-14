@@ -14,7 +14,7 @@ from app.api.domains.publications.exceptions import DSOConfigurationException, D
 from app.api.domains.publications.services import PublicationVersionValidator
 from app.api.domains.publications.services.act_package import ActPackageBuilderFactory, ActPackageBuilder
 from app.api.domains.publications.services.validate_publication_service import ValidatePublicationException
-from app.api.domains.publications.types.enums import MutationStrategy, PackageType
+from app.api.domains.publications.types.enums import PackageType
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.exceptions import LoggedHttpException
 from app.api.permissions import Permissions
@@ -51,7 +51,6 @@ def get_validate_act_package_endpoint(
             session,
             publication_version,
             PackageType.VALIDATION,  # because we're validating, this is always VALIDATION type
-            MutationStrategy.RENVOOI,
         )
     except HTTPException as e:
         # This is already correctly formatted
