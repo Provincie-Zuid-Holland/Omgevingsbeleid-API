@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import Dict, List
 
 from pydantic import BaseModel
@@ -42,10 +43,10 @@ class JoinRelatedFilesService:
 
         db_rows = self._session.execute(stmt).scalars().all()
 
-        files_map: Dict[str, List[ObjectRelatedFileResponse]] = {}
+        files_map: Dict[str, List[ObjectRelatedFileResponse]] = defaultdict(list)
         for db_row in db_rows:
             response = ObjectRelatedFileResponse.model_validate(db_row)
-            files_map.setdefault(db_row.Code, []).append(response)
+            files_map[db_row.Code].append(response)
 
         return files_map
 

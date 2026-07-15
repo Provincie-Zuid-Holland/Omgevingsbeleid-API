@@ -1,5 +1,5 @@
 from app.api.domains.others.endpoints.object_related_files_delete_endpoint import (
-    post_object_related_files_delete_endpoint,
+    delete_object_related_files_delete_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK
@@ -21,7 +21,7 @@ class ObjectRelatedFilesDeleteEndpointBuilder(EndpointBuilder):
     ) -> ConfiguredFastapiEndpoint:
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
-            endpoint=post_object_related_files_delete_endpoint,
+            endpoint=delete_object_related_files_delete_endpoint,
             methods=["DELETE"],
             summary="Delete a related file",
             response_model=ResponseOK,
