@@ -38,7 +38,7 @@ def post_delete_version_endpoint(
     version.Modified_Date = timepoint
 
     session.add(version)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

@@ -1,5 +1,3 @@
-import uuid
-
 import pytest
 from fastapi.testclient import TestClient
 
@@ -33,10 +31,9 @@ def test_unknown_uuid_returns_404(admin: TestClient):
     assert response.json()["detail"] == "Storage file niet gevonden"
 
 
-def test_unauthenticated_returns_401(client: TestClient, ctx: Context):
-    document_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(StorageFileSpec, "file_1"))
+def test_unauthenticated_can_download(client: TestClient, ctx: Context):
+    document: StorageFileSpec = ctx.f.find(Ref(StorageFileSpec, "document_1")).spec
+    response = client.get(f"/storage-files/{document.UUID}/download")
 
-    response = client.get(f"/storage-files/{document_uuid}/download")
-
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Not authenticated"
+    assert response.status_code == 200 , response.text
+    assert response.content == document.Binary

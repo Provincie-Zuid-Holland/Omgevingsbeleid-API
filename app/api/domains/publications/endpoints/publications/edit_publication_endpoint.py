@@ -56,8 +56,8 @@ def post_edit_publication_endpoint(
     publication.Modified_Date = datetime.now(timezone.utc)
 
     session.add(publication)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")
 

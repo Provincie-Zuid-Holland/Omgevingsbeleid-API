@@ -31,8 +31,8 @@ def get_download_announcement_package_endpoint(
     filename = package_zip.Filename
 
     session.add(package_zip)
-    session.commit()
     session.flush()
+    session.commit()
 
     return Response(
         content=content,
