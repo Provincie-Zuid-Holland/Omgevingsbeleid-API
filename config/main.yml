@@ -870,6 +870,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -926,6 +928,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -980,6 +984,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1033,6 +1039,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
   "Test runner":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1086,6 +1094,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1139,6 +1149,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
 
 mssql_search:
   - table_name: objects

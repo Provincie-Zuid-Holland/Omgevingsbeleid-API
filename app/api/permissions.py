@@ -88,3 +88,7 @@ class Permissions(str, Enum):
 
     # Storage files
     storage_file_can_upload_files = "storage_file_can_upload_files"
+
+    # Object Related Files
+    can_create_object_related_file = "can_create_object_related_file"
+    can_delete_object_related_file = "can_delete_object_related_file"

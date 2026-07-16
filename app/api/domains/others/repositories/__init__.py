@@ -1,1 +1,2 @@
+from .object_related_file_repository import ObjectRelatedFileRepository
 from .storage_file_repository import StorageFileRepository

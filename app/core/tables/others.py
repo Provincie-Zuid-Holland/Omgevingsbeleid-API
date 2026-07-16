@@ -133,3 +133,23 @@ class StorageFileTable(Base):
 
     def __repr__(self) -> str:
         return f"StorageFileTable(UUID={self.UUID!r}, Filename={self.Filename!r})"
+
+
+class ObjectRelatedFileTable(Base):
+    __tablename__ = "object_related_files"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.Code"), index=True)
+
+    File_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("storage_files.UUID"))
+
+    Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    Created_Date: Mapped[datetime]
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+
+    # Relationships
+    ObjectStatics: Mapped["ObjectStaticsTable"] = relationship()
+    File: Mapped["StorageFileTable"] = relationship()
+
+    def __repr__(self) -> str:
+        return f"ObjectRelatedFileTable(UUID={self.UUID!r}, Code={self.Code!r})"

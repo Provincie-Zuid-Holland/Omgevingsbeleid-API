@@ -14,6 +14,7 @@ import app.api.domains.werkingsgebieden.services as werkingsgebied_services
 import app.api.events.listeners as event_listeners
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.others.repositories import storage_file_repository
+from app.api.domains.others.repositories import object_related_file_repository
 from app.api.domains.others.services import PdfMetaService
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.events import event_manager
@@ -52,6 +53,7 @@ class ApiContainer(containers.DeclarativeContainer):
         werkingsgebieden_repositories.InputGeoWerkingsgebiedenRepository
     )
     storage_file_repository = providers.Singleton(storage_file_repository.StorageFileRepository)
+    object_related_file_repository = providers.Singleton(object_related_file_repository.ObjectRelatedFileRepository)
     object_repository = providers.Singleton(object_repositories.ObjectRepository)
     object_static_repository = providers.Singleton(object_repositories.ObjectStaticRepository)
     asset_repository = providers.Singleton(object_repositories.AssetRepository)
@@ -174,6 +176,7 @@ class ApiContainer(containers.DeclarativeContainer):
         object_services.AddWerkingsgebiedRelatedObjectsServiceFactory
     )
     join_documents_service_factory = providers.Singleton(object_services.JoinDocumentsServiceFactory)
+    join_related_files_service_factory = providers.Singleton(object_services.JoinRelatedFilesServiceFactory)
     resolve_child_objects_via_hierarchy_service_factory = providers.Singleton(
         object_services.ResolveChildObjectsViaHierarchyServiceFactory
     )
@@ -304,6 +307,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.ObjectResolveChildObjectsViaHierarchyListener,
                 service_factory=resolve_child_objects_via_hierarchy_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinRelatedFilesToObjectsListener,
+                service_factory=join_related_files_service_factory,
             ),
             # RetrievedModuleObjectsEvent
             providers.Factory(

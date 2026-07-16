@@ -62,6 +62,13 @@ api:
           resolver_data:
             request_model: beleidsdoel_static_post
             result_model: beleidsdoel_static_post_validated
+    - prefix: /beleidsdoel/{lineage_id}/object-related-files
+      endpoints:
+        - resolver: object_related_files_list
+        - resolver: object_related_files_upload
+        - resolver: object_related_files_delete
+          resolver_data:
+            path: /delete
     - prefix: /modules/{module_id}/object/beleidsdoel
       endpoints:
         - resolver: module_patch_object
@@ -231,6 +238,8 @@ models:
           - Description
       resolve_child_objects_via_hierarchy_listener:
         to_field: Hierarchy_Children
+      related_files:
+        to_field: Related_Files
       relations:
         objects:
           - object_type: beleidskeuze
