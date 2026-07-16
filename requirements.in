@@ -48,3 +48,6 @@ lxml
 
 # DSO
 git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.11.4
+
+# Azure
+azure-monitor-opentelemetry
