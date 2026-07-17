@@ -8,13 +8,11 @@ annotated-doc==0.0.4
     # via fastapi
 annotated-types==0.7.0
     # via pydantic
-anyio==4.14.1
+anyio==4.14.2
     # via
     #   httpx2
     #   starlette
     #   watchfiles
-appdirs==1.4.4
-    # via fs
 bcrypt==4.0.1
     # via -r requirements.in
 beautifulsoup4==4.15.0
@@ -36,15 +34,11 @@ click==8.4.2
     #   uvicorn
 dependency-injector==4.49.1
     # via -r requirements.in
-dicttoxml==1.7.16
-    # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
 dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.11.4
     # via -r requirements.in
-fastapi==0.139.0
-    # via -r requirements.in
-fs==2.4.16
+fastapi==0.139.2
     # via -r requirements.in
 geopandas==1.1.4
     # via -r requirements.in
@@ -54,11 +48,11 @@ h11==0.16.0
     # via
     #   httpcore2
     #   uvicorn
-httpcore2==2.5.0
+httpcore2==2.7.0
     # via httpx2
 httptools==0.8.0
     # via uvicorn
-httpx2==2.5.0
+httpx2==2.7.0
     # via -r requirements.in
 idna==3.18
     # via
@@ -97,9 +91,7 @@ passlib==1.7.4
     # via -r requirements.in
 pathspec==1.1.1
     # via dso
-pdfkit==1.0.0
-    # via -r requirements.in
-pikepdf==10.9.1
+pikepdf==10.10.0
     # via -r requirements.in
 pillow==12.3.0
     # via
@@ -114,7 +106,9 @@ pydantic==2.13.4
     #   fastapi
     #   pydantic-settings
 pydantic-core==2.46.4
-    # via pydantic
+    # via
+    #   -r requirements.in
+    #   pydantic
 pydantic-settings==2.14.2
     # via -r requirements.in
 pyjwt==2.13.0
@@ -157,9 +151,7 @@ shapely==2.1.2
     #   dso
     #   geopandas
 six==1.17.0
-    # via
-    #   fs
-    #   python-dateutil
+    # via python-dateutil
 soupsieve==2.8.4
     # via
     #   beautifulsoup4
@@ -200,8 +192,5 @@ validators==0.35.0
     # via -r requirements.in
 watchfiles==1.2.0
     # via uvicorn
-websockets==16.0
+websockets==16.1
     # via uvicorn
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
