@@ -45,4 +45,4 @@ jinja2
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.11.4#egg=dso
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.11.4
