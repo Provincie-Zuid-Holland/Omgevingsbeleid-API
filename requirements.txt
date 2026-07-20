@@ -67,7 +67,7 @@ diff-match-patch==20241021
     # via -r requirements.in
 dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.11.4
     # via -r requirements.in
-fastapi==0.139.0
+fastapi==0.139.2
     # via -r requirements.in
 fs==2.4.16
     # via -r requirements.in
@@ -232,7 +232,7 @@ pillow==12.3.0
     # via
     #   -r requirements.in
     #   pikepdf
-platformdirs==4.10.0
+platformdirs==4.10.1
     # via dso
 psutil==7.2.2
     # via azure-monitor-opentelemetry-exporter
@@ -299,7 +299,7 @@ six==1.17.0
     # via
     #   fs
     #   python-dateutil
-soupsieve==2.8.4
+soupsieve==2.9
     # via
     #   beautifulsoup4
     #   dso
@@ -344,7 +344,7 @@ validators==0.35.0
     # via -r requirements.in
 watchfiles==1.2.0
     # via uvicorn
-websockets==16.1
+websockets==16.1.1
     # via uvicorn
 wrapt==2.2.2
     # via

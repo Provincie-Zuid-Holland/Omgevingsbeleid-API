@@ -118,6 +118,7 @@ class FastAPIBuilder:
                     "http_status_code": exc.status_code,
                     "request_path": request.url.path,
                     "request_method": request.method,
+                    "exception_type": type(exc).__name__,
                     "exception_detail": exc.detail,
                 },
             )
