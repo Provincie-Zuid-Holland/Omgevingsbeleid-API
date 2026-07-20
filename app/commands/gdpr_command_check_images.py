@@ -2,6 +2,7 @@ import base64
 import binascii
 import io
 import logging
+import os
 import re
 import uuid
 from typing import Annotated, Any, Dict, Iterable, List, Optional, Sequence, Set
@@ -19,7 +20,8 @@ from app.commands.gdpr_commands import FilterStrategy, KeyStrategy, ObjectLookup
 from app.core.db.session import SessionFactoryType, session_scope_with_context
 from app.core.tables.others import AssetsTable
 
-logger = logging.getLogger(__name__)
+logger_name = os.getenv("LOG_LOGGER_NAME", "obzh")
+logger = logging.getLogger(logger_name)
 
 ASSET_PATTERN = re.compile(r"\[ASSET:([0-9a-fA-F-]{36})]")
 

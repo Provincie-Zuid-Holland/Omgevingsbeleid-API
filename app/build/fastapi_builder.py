@@ -1,20 +1,23 @@
+import logging
+import os
 from typing import List, Set
+
+import sqlalchemy
+import sqlalchemy.exc
 from fastapi import APIRouter, FastAPI, Request
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
-import sqlalchemy
-import sqlalchemy.exc
 
-import logging
-from fastapi.exception_handlers import http_exception_handler
 from app.api.api_container import ApiContainer
 from app.api.exceptions import LoggedHttpException
 from app.api.health_endpoint import health_check
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint
+from app.core.logging import init_logging
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(os.getenv("LOG_LOGGER_NAME", "obzh"))
 
 
 def _generate_unique_id_function(route: APIRoute) -> str:
@@ -28,6 +31,8 @@ def _generate_unique_id_function(route: APIRoute) -> str:
 
 class FastAPIBuilder:
     def build(self, container: ApiContainer, routes: List[ConfiguredFastapiEndpoint]) -> FastAPI:
+        init_logging()
+
         app: FastAPI = FastAPI(
             generate_unique_id_function=_generate_unique_id_function,
         )
@@ -104,11 +109,18 @@ class FastAPIBuilder:
 
         @app.exception_handler(LoggedHttpException)
         async def _logged_http(request: Request, exc: LoggedHttpException):
+            api_env = os.getenv("API_ENV", "unknown")
             logger.error(
-                "Unhandled HTTPException: %s, Path: %s",
-                exc.get_log_message(),
-                request.url.path,
-                exc_info=True,
+                msg=f"Unhandled HTTPException: {exc.get_log_message()}",
+                exc_info=exc,
+                extra={
+                    "api_env": api_env,
+                    "http_status_code": exc.status_code,
+                    "request_path": request.url.path,
+                    "request_method": request.method,
+                    "exception_type": type(exc).__name__,
+                    "exception_detail": exc.detail,
+                },
             )
             return await http_exception_handler(request, exc)
 

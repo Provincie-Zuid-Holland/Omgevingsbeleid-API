@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic_core import ErrorDetails
 
 from app.api.domains.modules.types import ModuleStatus
-from app.api.domains.publications.types.enums import PublicationVersionStatus
+from app.api.domains.publications.types.enums import MutationStrategy, PublicationVersionStatus
 
 
 # This model is meant for frontend
@@ -284,6 +284,7 @@ class PublicationVersion(BaseModel):
     Announcement_Date: Optional[date] = None
     Is_Locked: bool
     Status: PublicationVersionStatus
+    Mutation_Strategy: MutationStrategy
 
     Created_Date: datetime
     Modified_Date: datetime

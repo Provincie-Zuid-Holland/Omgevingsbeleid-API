@@ -1,4 +1,5 @@
 import logging
+import os
 import uuid
 from typing import Annotated, Iterable, List, Optional, Sequence
 
@@ -27,7 +28,8 @@ from app.core.db.session import SessionFactoryType, session_scope_with_context
 from app.core.tables.others import StorageFileTable
 from app.core.tables.publications import PublicationStorageFileTable
 
-logger = logging.getLogger(__name__)
+logger_name = os.getenv("LOG_LOGGER_NAME", "obzh")
+logger = logging.getLogger(logger_name)
 
 
 def _file_uuid_filter(storage_file_uuids: List[uuid.UUID]) -> FilterStrategy:
