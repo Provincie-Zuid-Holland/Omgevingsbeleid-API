@@ -6,7 +6,7 @@
 #
 alembic==1.18.5
     # via -r requirements-dev.in
-anyio==4.14.1
+anyio==4.14.2
     # via httpx2
 asttokens==2.4.1
     # via
@@ -16,7 +16,7 @@ certifi==2026.6.17
     # via requests
 charset-normalizer==3.4.9
     # via requests
-coverage[toml]==7.15.0
+coverage[toml]==7.15.2
     # via
     #   -r requirements-dev.in
     #   coverage-badge
@@ -33,7 +33,7 @@ executing==2.2.1
     # via
     #   devtools
     #   stack-data
-faker==40.28.1
+faker==40.31.0
     # via -r requirements-dev.in
 freezegun==1.5.5
     # via
@@ -43,9 +43,9 @@ greenlet==3.5.3
     # via sqlalchemy
 h11==0.16.0
     # via httpcore2
-httpcore2==2.5.0
+httpcore2==2.7.0
     # via httpx2
-httpx2==2.5.0
+httpx2==2.7.0
     # via -r requirements-dev.in
 idna==3.18
     # via
@@ -120,7 +120,7 @@ requests-mock==1.12.1
     # via -r requirements-dev.in
 rich==15.0.0
     # via -r requirements-dev.in
-ruff==0.15.20
+ruff==0.15.22
     # via -r requirements-dev.in
 six==1.17.0
     # via
