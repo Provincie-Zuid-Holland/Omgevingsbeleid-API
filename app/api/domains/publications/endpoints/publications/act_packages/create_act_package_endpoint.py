@@ -18,7 +18,6 @@ from app.api.domains.publications.services.publication_version_validator import 
 from app.api.domains.publications.services.validate_publication_service import ValidatePublicationException
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, Purpose
 from app.api.domains.publications.types.enums import (
-    MutationStrategy,
     PackageType,
     PublicationVersionStatus,
     ReportStatusType,
@@ -83,7 +82,6 @@ class EndpointHandler:
                 self._session,
                 self._publication_version,
                 self._object_in.Package_Type,
-                MutationStrategy.RENVOOI,
             )
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()

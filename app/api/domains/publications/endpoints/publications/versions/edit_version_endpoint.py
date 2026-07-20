@@ -11,6 +11,7 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_version
 from app.api.domains.publications.services.publication_version_validator import PublicationVersionValidator
+from app.api.domains.publications.types.enums import MutationStrategy
 from app.api.domains.publications.types.models import BillCompact, BillMetadata, ProceduralClass
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
@@ -22,6 +23,7 @@ class PublicationVersionEdit(BaseModel):
     Module_Status_ID: Optional[int] = None
     Effective_Date: Optional[date] = None
     Announcement_Date: Optional[date] = None
+    Mutation_Strategy: Optional[MutationStrategy] = None
 
     Bill_Metadata: Optional[BillMetadata] = None
     Bill_Compact: Optional[BillCompact] = None

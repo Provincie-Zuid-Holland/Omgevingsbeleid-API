@@ -264,6 +264,7 @@ class PublicationVersionTable(Base, UserMetaData):
     Modified_Date: Mapped[datetime]
 
     Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    Mutation_Strategy: Mapped[str] = mapped_column(Unicode(64), nullable=False, server_default="renvooi")
 
     Publication: Mapped[PublicationTable] = relationship("PublicationTable")
     Module_Status: Mapped[ModuleStatusHistoryTable] = relationship("ModuleStatusHistoryTable")

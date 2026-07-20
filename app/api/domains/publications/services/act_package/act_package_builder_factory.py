@@ -61,7 +61,7 @@ class ActPackageBuilderFactory:
         session: Session,
         publication_version: PublicationVersionTable,
         package_type: PackageType,
-        mutation_strategy: MutationStrategy,
+        overwrite_mutation_strategy: Optional[MutationStrategy] = None,
     ) -> ActPackageBuilder:
         publication: PublicationTable = publication_version.Publication
         act: PublicationActTable = publication.Act
@@ -78,6 +78,10 @@ class ActPackageBuilderFactory:
             publication_version,
             bill_frbr,
             act_frbr,
+        )
+
+        mutation_strategy: MutationStrategy = overwrite_mutation_strategy or MutationStrategy(
+            publication_version.Mutation_Strategy
         )
 
         api_input_data = ApiActInputData(
