@@ -13,8 +13,6 @@ anyio==4.14.2
     #   httpx2
     #   starlette
     #   watchfiles
-appdirs==1.4.4
-    # via fs
 asgiref==3.12.1
     # via opentelemetry-instrumentation-asgi
 azure-core==1.41.0
@@ -61,15 +59,11 @@ cryptography==49.0.0
     #   pyjwt
 dependency-injector==4.49.1
     # via -r requirements.in
-dicttoxml==1.7.16
-    # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
 dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.11.4
     # via -r requirements.in
 fastapi==0.139.2
-    # via -r requirements.in
-fs==2.4.16
     # via -r requirements.in
 geopandas==1.1.4
     # via -r requirements.in
@@ -224,8 +218,6 @@ passlib==1.7.4
     # via -r requirements.in
 pathspec==1.1.1
     # via dso
-pdfkit==1.0.0
-    # via -r requirements.in
 pikepdf==10.10.0
     # via -r requirements.in
 pillow==12.3.0
@@ -245,7 +237,9 @@ pydantic==2.13.4
     #   fastapi
     #   pydantic-settings
 pydantic-core==2.46.4
-    # via pydantic
+    # via
+    #   -r requirements.in
+    #   pydantic
 pydantic-settings==2.14.2
     # via -r requirements.in
 pyjwt[crypto]==2.13.0
@@ -296,9 +290,7 @@ shapely==2.1.2
     #   dso
     #   geopandas
 six==1.17.0
-    # via
-    #   fs
-    #   python-dateutil
+    # via python-dateutil
 soupsieve==2.9
     # via
     #   beautifulsoup4
@@ -351,6 +343,3 @@ wrapt==2.2.2
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-urllib3
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools

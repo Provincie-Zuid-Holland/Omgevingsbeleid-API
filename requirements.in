@@ -2,6 +2,7 @@
 fastapi
 uvicorn[standard]
 pydantic
+pydantic-core
 pydantic-settings
 pyodbc
 SQLAlchemy
@@ -40,10 +41,7 @@ Pillow
 pikepdf
 
 # Exporting xml and pdf
-fs
-pdfkit
 jinja2
-dicttoxml
 lxml
 
 # DSO
