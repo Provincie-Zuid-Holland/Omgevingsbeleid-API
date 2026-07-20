@@ -109,15 +109,16 @@ class FastAPIBuilder:
 
         @app.exception_handler(LoggedHttpException)
         async def _logged_http(request: Request, exc: LoggedHttpException):
+            api_env = os.getenv("API_ENV", "unknown")
             logger.error(
-                "Unhandled HTTPException: %s, Path: %s",
+                msg=f"Unhandled HTTPException: {exc.get_log_message()}",
                 exc_info=exc,
                 extra={
-                    "http_status": exc.status_code,
+                    "api_env": api_env,
+                    "http_status_code": exc.status_code,
                     "request_path": request.url.path,
                     "request_method": request.method,
-                    "exception_type": type(exc).__name__,
-                    "detail": exc.detail,
+                    "exception_detail": exc.detail,
                 },
             )
             return await http_exception_handler(request, exc)

@@ -160,7 +160,9 @@ opentelemetry-instrumentation-dbapi==0.64b0
 opentelemetry-instrumentation-django==0.64b0
     # via azure-monitor-opentelemetry
 opentelemetry-instrumentation-fastapi==0.64b0
-    # via azure-monitor-opentelemetry
+    # via
+    #   -r requirements.in
+    #   azure-monitor-opentelemetry
 opentelemetry-instrumentation-flask==0.64b0
     # via azure-monitor-opentelemetry
 opentelemetry-instrumentation-logging==0.64b0

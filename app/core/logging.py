@@ -17,4 +17,4 @@ def init_logging() -> None:
 
     applicationinsights_connection_string: str = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "")
     if applicationinsights_connection_string:
-        configure_azure_monitor(logger_name=logger_name)
+        configure_azure_monitor(logger_name=logger_name, instrumentation_options={"fastapi": {"enabled": True}})
