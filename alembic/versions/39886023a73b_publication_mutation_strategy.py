@@ -1,7 +1,7 @@
 """Added publication mutation strategy
 
 Revision ID: 39886023a73b
-Revises: 7abe9ef050cf
+Revises: 4c4bfe3fe443
 Create Date: 2026-07-14 10:01:59.775369
 
 """
@@ -19,7 +19,7 @@ settings = Settings()
 
 # revision identifiers, used by Alembic.
 revision = '39886023a73b'
-down_revision = '7abe9ef050cf'
+down_revision = '4c4bfe3fe443'
 branch_labels = None
 depends_on = None
 
