@@ -1,5 +1,3 @@
-import logging
-import os
 import uuid
 from typing import Callable, Dict, Iterable, List, Optional, Sequence
 
@@ -15,9 +13,6 @@ from app.core.tables.modules import ModuleObjectsTable
 from app.core.tables.objects import ObjectsTable
 from app.core.tables.others import AssetsTable, StorageFileTable
 from app.core.tables.publications import PublicationStorageFileTable
-
-logger_name = os.getenv("LOG_LOGGER_NAME", "obzh")
-logger = logging.getLogger(logger_name)
 
 
 type ObjectTableType = ObjectsTable | ModuleObjectsTable

@@ -1,5 +1,4 @@
 import logging
-import os
 from typing import List, Set
 
 import sqlalchemy
@@ -14,10 +13,7 @@ from app.api.api_container import ApiContainer
 from app.api.exceptions import LoggedHttpException
 from app.api.health_endpoint import health_check
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint
-from app.core.logging import init_logging
-
-
-logger = logging.getLogger(os.getenv("LOG_LOGGER_NAME", "obzh"))
+from app.core.logging import init_logging, log_message
 
 
 def _generate_unique_id_function(route: APIRoute) -> str:
@@ -107,22 +103,24 @@ class FastAPIBuilder:
                 status_code=400,
             )
 
-        @app.exception_handler(LoggedHttpException)
-        async def _logged_http(request: Request, exc: LoggedHttpException):
-            api_env = os.getenv("API_ENV", "unknown")
-            logger.error(
-                msg=f"Unhandled HTTPException: {exc.get_log_message()}",
-                exc_info=exc,
-                extra={
-                    "api_env": api_env,
-                    "http_status_code": exc.status_code,
-                    "request_path": request.url.path,
-                    "request_method": request.method,
-                    "exception_type": type(exc).__name__,
-                    "exception_detail": exc.detail,
-                },
+        @app.exception_handler(Exception)  # Catch all
+        async def _log_all_exceptions(request: Request, exception: Exception):
+            log_message(
+                message=f"Unhandled Exception: {exception}",
+                severity=logging.ERROR,
+                exception=exception,
+                request=request,
             )
-            return await http_exception_handler(request, exc)
+
+        @app.exception_handler(LoggedHttpException)
+        async def _logged_http(request: Request, exception: LoggedHttpException):
+            log_message(
+                message=f"Unhandled HTTPException: {exception.get_log_message()}",
+                severity=logging.ERROR,
+                exception=exception,
+                request=request,
+            )
+            return await http_exception_handler(request, exception)
 
     def _configure_operation_ids(self, app: FastAPI) -> None:
         used_operation_ids: Set[str] = set()
