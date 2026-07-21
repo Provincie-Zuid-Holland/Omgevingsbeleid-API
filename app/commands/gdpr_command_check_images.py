@@ -1,16 +1,14 @@
 import base64
 import binascii
 import io
-import logging
-import os
 import re
 import uuid
 from typing import Annotated, Any, Dict, Iterable, List, Optional, Sequence, Set
 
 import click
+from dependency_injector.wiring import Provide, inject
 from PIL import ExifTags, Image, UnidentifiedImageError
 from PIL.Image import Exif
-from dependency_injector.wiring import Provide, inject
 from sqlalchemy import BinaryExpression, Column, Select, or_, select
 
 from app.api.api_container import ApiContainer
@@ -18,10 +16,8 @@ from app.api.domains.modules import ModuleObjectRepository
 from app.api.domains.objects.repositories import AssetRepository, ObjectRepository
 from app.commands.gdpr_commands import FilterStrategy, KeyStrategy, ObjectLookups, ObjectTableType, Report
 from app.core.db.session import SessionFactoryType, session_scope_with_context
+from app.core.logging import log_message
 from app.core.tables.others import AssetsTable
-
-logger_name = os.getenv("LOG_LOGGER_NAME", "obzh")
-logger = logging.getLogger(logger_name)
 
 ASSET_PATTERN = re.compile(r"\[ASSET:([0-9a-fA-F-]{36})]")
 
@@ -133,4 +129,4 @@ def check_images(
         for asset, issues in report.items():
             message: str = "\n".join(issues)
             object_log: Optional[str] = object_lookups.get_log(asset.UUID) or ""
-            logger.info(f"Asset {asset.UUID}{object_log} has the following message: {message}")
+            log_message(message=f"Asset {asset.UUID}{object_log} has the following message: {message}")

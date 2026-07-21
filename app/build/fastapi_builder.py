@@ -1,5 +1,4 @@
 import logging
-import os
 from typing import List, Set
 
 import sqlalchemy
@@ -15,8 +14,6 @@ from app.api.exceptions import LoggedHttpException
 from app.api.health_endpoint import health_check
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint
 from app.core.logging import init_logging, log_message
-
-logger = logging.getLogger(os.getenv("LOG_LOGGER_NAME", "obzh"))
 
 
 def _generate_unique_id_function(route: APIRoute) -> str:

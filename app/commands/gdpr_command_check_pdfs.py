@@ -1,5 +1,3 @@
-import logging
-import os
 import uuid
 from typing import Annotated, Iterable, List, Optional, Sequence
 
@@ -25,11 +23,9 @@ from app.commands.gdpr_commands import (
     StorageFileTableType,
 )
 from app.core.db.session import SessionFactoryType, session_scope_with_context
+from app.core.logging import log_message
 from app.core.tables.others import StorageFileTable
 from app.core.tables.publications import PublicationStorageFileTable
-
-logger_name = os.getenv("LOG_LOGGER_NAME", "obzh")
-logger = logging.getLogger(logger_name)
 
 
 def _file_uuid_filter(storage_file_uuids: List[uuid.UUID]) -> FilterStrategy:
@@ -89,7 +85,7 @@ def _handle_storage_files(
         )
         for issue in meta_issues:
             log_list.append(issue)
-        logger.info("\n".join(log_list))
+        log_message("\n".join(log_list))
 
 
 @click.command()
