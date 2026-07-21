@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Optional
+from typing import Dict, Optional
 
 from azure.monitor.opentelemetry import configure_azure_monitor
 from fastapi import Request
@@ -26,8 +26,8 @@ def init_logging() -> None:
 def log_message(
     message: str, severity: int = logging.INFO, exception: Optional[Exception] = None, request: Optional[Request] = None
 ) -> None:
-    api_env = os.getenv("API_ENV", "unknown environment")
-    extra = {"api_env": api_env}
+    api_env: str = os.getenv("API_ENV", "unknown environment")
+    extra: Dict[str, str] = {"api_env": api_env}
     if request:
         extra["request_path"] = request.url.path
         extra["request_method"] = request.method
