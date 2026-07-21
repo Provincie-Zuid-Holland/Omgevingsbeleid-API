@@ -381,6 +381,11 @@ class PublicationPackage(BaseModel):
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
+class PublicationActPackage(PublicationPackage):
+    Module_ID: Optional[int] = None
+    Module_Status: Optional[ModuleStatus] = None
+
+
 class AnnouncementMetadata(BaseModel):
     Official_Title: str = Field("")
     Subjects: List[str] = Field([])

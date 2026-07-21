@@ -116,6 +116,8 @@ class EndpointHandler:
                 Modified_Date=self._timepoint,
                 Created_By_UUID=self._user.UUID,
                 Modified_By_UUID=self._user.UUID,
+                Module_ID=self._publication.Module_ID,
+                Module_Status_ID=self._publication_version.Module_Status_ID,
             )
             self._session.add(package)
             self._session.flush()

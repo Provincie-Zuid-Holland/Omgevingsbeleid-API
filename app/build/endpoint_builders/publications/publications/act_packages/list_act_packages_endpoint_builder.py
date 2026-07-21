@@ -2,7 +2,7 @@ from app.api.domains.publications.endpoints.publications.act_packages.list_act_p
     ListActPackagesEndpointContext,
     get_list_act_packages_endpoint,
 )
-from app.api.domains.publications.types.models import PublicationPackage
+from app.api.domains.publications.types.models import PublicationActPackage
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import OrderConfig, PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
@@ -34,7 +34,7 @@ class ListPublicationPackagesEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_model=PagedResponse[PublicationPackage],
+            response_model=PagedResponse[PublicationActPackage],
             summary="List the existing publication act packages of a publication version",
             description=None,
             tags=["Publication Act Packages"],

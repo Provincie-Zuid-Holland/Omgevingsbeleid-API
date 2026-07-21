@@ -37,10 +37,10 @@ class PublicationAnnouncementPackageDetailResponse(BaseModel):
     Created_By_UUID: uuid.UUID
     Modified_By_UUID: uuid.UUID
 
-    Module_ID: int
-    Module_Title: str
-    Module_Status_ID: int
-    Module_Status_Status: str
+    Module_ID: Optional[int]
+    Module_Title: Optional[str]
+    Module_Status_ID: Optional[int]
+    Module_Status_Status: Optional[str]
     Environment_UUID: uuid.UUID
     Environment_Title: str
 
@@ -62,8 +62,8 @@ def get_detail_announcement_package_endpoint(
 ) -> PublicationAnnouncementPackageDetailResponse:
     act_package: PublicationActPackageTable = announcement_package.Announcement.Act_Package
     publication_version: PublicationVersionTable = act_package.Publication_Version
-    module: ModuleTable = publication_version.Publication.Module
-    module_status: ModuleStatusHistoryTable = publication_version.Module_Status
+    module: Optional[ModuleTable] = act_package.Module
+    module_status: Optional[ModuleStatusHistoryTable] = act_package.Module_Status
     environment: PublicationEnvironmentTable = publication_version.Publication.Environment
     zip: PackageZipShort = PackageZipShort.model_validate(announcement_package.Zip)
 
@@ -82,10 +82,10 @@ def get_detail_announcement_package_endpoint(
         Modified_Date=announcement_package.Modified_Date,
         Created_By_UUID=announcement_package.Created_By_UUID,
         Modified_By_UUID=announcement_package.Modified_By_UUID,
-        Module_ID=module.Module_ID,
-        Module_Title=module.Title,
-        Module_Status_ID=module_status.ID,
-        Module_Status_Status=module_status.Status,
+        Module_ID=module.Module_ID if module else None,
+        Module_Title=module.Title if module else None,
+        Module_Status_ID=module_status.ID if module_status else None,
+        Module_Status_Status=module_status.Status if module_status else None,
         Environment_UUID=environment.UUID,
         Environment_Title=environment.Title,
     )

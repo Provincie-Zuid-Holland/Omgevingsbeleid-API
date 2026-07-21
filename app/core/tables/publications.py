@@ -373,6 +373,8 @@ class PublicationActPackageTable(Base, UserMetaData):
     Created_Environment_State_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
+    Module_ID: Mapped[Optional[int]] = mapped_column(ForeignKey("modules.Module_ID"), nullable=True)
+    Module_Status_ID: Mapped[Optional[int]] = mapped_column(ForeignKey("module_status_history.ID"), nullable=True)
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
@@ -385,6 +387,8 @@ class PublicationActPackageTable(Base, UserMetaData):
         "PublicationEnvironmentStateTable",
         primaryjoin="PublicationActPackageTable.Created_Environment_State_UUID == PublicationEnvironmentStateTable.UUID",
     )
+    Module: Mapped[Optional[ModuleTable]] = relationship("ModuleTable")
+    Module_Status: Mapped[Optional[ModuleStatusHistoryTable]] = relationship("ModuleStatusHistoryTable")
 
 
 class PublicationActPackageReportTable(Base):
