@@ -1,6 +1,6 @@
 # from datetime import datetime, timezone
 from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, Optional
+from typing import Annotated, Any, Dict, List, Optional
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -12,6 +12,7 @@ from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.utils import guard_module_not_locked
+from app.api.domains.objects.repositories.object_repository import ObjectRepository
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
@@ -23,6 +24,38 @@ from app.core.tables.modules import ModuleTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.users import UsersTable
 from app.core.types import Model
+
+# gebiedsaanwijzing.Target_Codes may only reference a gebied/gebiedengroep that is either
+# currently valid (vigerend) or a draft within this same module - never a draft from another module.
+TARGET_CODES_MODULE_OR_VALID_OBJECT_TYPES = {"gebiedsaanwijzing"}
+
+
+def _guard_target_codes_in_module_or_valid(
+    session: Session,
+    object_repository: ObjectRepository,
+    module_object_repository: ModuleObjectRepository,
+    module_id: int,
+    target_codes: List[str],
+) -> None:
+    invalid_codes: List[str] = []
+
+    for code in target_codes:
+        object_type, object_id = code.split("-", 1)
+
+        if object_repository.get_latest_valid_by_id(session, object_type, int(object_id)) is not None:
+            continue
+
+        module_object = module_object_repository.get_latest_by_module_id_object_code(session, module_id, code)
+        if module_object is not None and not module_object.Deleted:
+            continue
+
+        invalid_codes.append(code)
+
+    if invalid_codes:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            f"Gebied/gebiedengroep {', '.join(invalid_codes)} is niet vigerend en zit niet in deze module",
+        )
 
 
 class ModulePatchObjectContext(BaseEndpointContext):
@@ -41,6 +74,7 @@ def post_module_patch_object_endpoint(
     object_static_repository: Annotated[
         ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])
     ],
+    object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
@@ -66,6 +100,15 @@ def post_module_patch_object_endpoint(
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
+
+    if context.object_type in TARGET_CODES_MODULE_OR_VALID_OBJECT_TYPES and "Target_Codes" in changes:
+        _guard_target_codes_in_module_or_valid(
+            session,
+            object_repository,
+            module_object_repository,
+            module.Module_ID,
+            changes["Target_Codes"],
+        )
 
     timepoint: datetime = datetime.now(timezone.utc)
     old_record, new_record = module_object_repository.patch_latest_module_object(
