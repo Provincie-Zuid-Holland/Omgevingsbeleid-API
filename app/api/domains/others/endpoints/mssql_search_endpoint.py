@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional, Dict, Set
+from typing import Annotated, Any, List, Optional, Dict, Set
 
 from bs4 import BeautifulSoup
 from dependency_injector.wiring import Provide
@@ -28,6 +28,8 @@ class EndpointHandler:
         query: str,
         object_types: Optional[List[str]] = None,
         as_like: bool = False,
+        module_id: Optional[int] = None,
+        only_module_and_valid: bool = False,
     ):
         self._session: Session = session
         self._module_objects_to_models_parser: ModuleObjectsToModelsParser = module_objects_to_models_parser
@@ -37,6 +39,8 @@ class EndpointHandler:
         self._query: str = query
         self._object_types: Optional[List[str]] = object_types
         self._as_like: bool = as_like
+        self._module_id: Optional[int] = module_id
+        self._only_module_and_valid: bool = only_module_and_valid
 
     def handle(self) -> PagedResponse[SearchObject]:
         if not len(self._query):
@@ -53,23 +57,31 @@ class EndpointHandler:
             # default to all
             self._object_types = self._search_config.allowed_object_types
 
+        module_id_filter = ""
+        if self._only_module_and_valid:
+            if self._module_id is None:
+                raise ValueError("Module_ID is required when Only_Module_And_Valid is set")
+            module_id_filter = " AND mo.Module_ID = :module_id"
+
         placeholders = ",".join([f":object_type{i}" for i in range(len(self._object_types))])
         object_type_filter = f" AND v.Object_Type IN ( {placeholders})"
 
-        bindparams_dict = {
+        bindparams_dict: Dict[str, Any] = {
             "offset": self._pagination.offset,
             "limit": self._pagination.limit,
         }
+        if self._only_module_and_valid:
+            bindparams_dict["module_id"] = self._module_id
 
         objects_field_set: Set[str] = set([c.name for c in ObjectsTable.__table__.columns])
         module_objects_field_set: Set[str] = set([c.name for c in ModuleObjectsTable.__table__.columns])
         fields: Set[str] = objects_field_set.intersection(module_objects_field_set)
 
         if self._as_like:
-            stmt = self._get_like_query(object_type_filter, fields)
+            stmt = self._get_like_query(object_type_filter, module_id_filter, fields)
             bindparams_dict["query"] = f"%{self._query}%"
         else:
-            stmt = self._get_query(object_type_filter, fields)
+            stmt = self._get_query(object_type_filter, module_id_filter, fields)
             bindparams_dict["query"] = f'"{self._query}"'
 
         # fill object type placeholders
@@ -116,7 +128,7 @@ class EndpointHandler:
             results=search_objects,
         )
 
-    def _get_query(self, object_type_filter, fields: Set[str]) -> TextClause:
+    def _get_query(self, object_type_filter, module_id_filter, fields: Set[str]) -> TextClause:
         stmt = text(
             f"""
                 WITH valid_uuids
@@ -162,6 +174,7 @@ class EndpointHandler:
                             INNER JOIN {ModuleTable.__table__} AS m ON mo.Module_ID = m.Module_ID
                         WHERE
                             m.Closed = 0
+                            {module_id_filter}
                     ) AS module_objects
                     WHERE
                         _RowNumber = 1
@@ -201,7 +214,7 @@ class EndpointHandler:
         )
         return stmt
 
-    def _get_like_query(self, object_type_filter, fields: Set[str]) -> TextClause:
+    def _get_like_query(self, object_type_filter, module_id_filter, fields: Set[str]) -> TextClause:
         stmt = text(
             f"""
                 WITH valid_uuids
@@ -247,6 +260,7 @@ class EndpointHandler:
                             INNER JOIN {ModuleTable.__table__} AS m ON mo.Module_ID = m.Module_ID
                         WHERE
                             m.Closed = 0
+                            {module_id_filter}
                     ) AS module_objects
                     WHERE
                         _RowNumber = 1
@@ -298,6 +312,8 @@ def get_mssql_search_endpoint(
         query,
         object_in.Object_Types,
         object_in.Like,
+        object_in.Module_ID,
+        object_in.Only_Module_And_Valid,
     )
     results: PagedResponse[SearchObject] = handler.handle()
     return results

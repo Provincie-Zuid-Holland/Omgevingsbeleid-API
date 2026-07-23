@@ -96,6 +96,8 @@ class SearchObject(ValidSearchObject, Generic[TModel]):
 
 class SearchRequestData(BaseModel):
     Object_Types: Optional[List[str]] = None
+    Module_ID: Optional[int] = None
+    Only_Module_And_Valid: bool = Field(False)
 
 
 class SearchRequestDataWithLike(SearchRequestData):
