@@ -18,6 +18,7 @@ from app.core.tables.users import UsersTable
 
 @inject
 def delete_object_related_files_delete_endpoint(
+    lineage_id: int,
     related_file_uuid: UUID,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     object_related_file_repository: Annotated[
