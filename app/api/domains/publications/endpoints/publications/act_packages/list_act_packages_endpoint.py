@@ -9,7 +9,7 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.publications.repository.publication_act_package_repository import PublicationActPackageRepository
 from app.api.domains.publications.types.enums import PackageType
-from app.api.domains.publications.types.models import PublicationPackage
+from app.api.domains.publications.types.models import PublicationActPackage
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.endpoint import BaseEndpointContext
 from app.api.permissions import Permissions
@@ -39,7 +39,7 @@ def get_list_act_packages_endpoint(
     context: Annotated[ListActPackagesEndpointContext, Depends()],
     version_uuid: Optional[uuid.UUID] = None,
     package_type: Optional[PackageType] = None,
-) -> PagedResponse[PublicationPackage]:
+) -> PagedResponse[PublicationActPackage]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
@@ -50,9 +50,9 @@ def get_list_act_packages_endpoint(
         pagination=pagination,
     )
 
-    results: List[PublicationPackage] = [PublicationPackage.model_validate(r) for r in paginated_result.items]
+    results: List[PublicationActPackage] = [PublicationActPackage.model_validate(r) for r in paginated_result.items]
 
-    return PagedResponse[PublicationPackage](
+    return PagedResponse[PublicationActPackage](
         total=paginated_result.total_count,
         offset=pagination.offset,
         limit=pagination.limit,
