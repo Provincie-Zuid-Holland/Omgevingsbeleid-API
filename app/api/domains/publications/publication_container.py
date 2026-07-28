@@ -22,6 +22,7 @@ from app.api.domains.publications.services.validate_publication_service import (
     AreaDesignationRefCheckRule,
     ForbiddenHtmlTagsRule,
     AttachmentInBillReferenceRule,
+    BillCompactForbiddenTagsRule,
 )
 
 
@@ -185,6 +186,10 @@ class PublicationContainer(containers.DeclarativeContainer):
                 main_config=main_config,
             ),
             providers.Singleton(AttachmentInBillReferenceRule),
+            providers.Singleton(
+                BillCompactForbiddenTagsRule,
+                main_config=main_config,
+            ),
         ),
     )
 
