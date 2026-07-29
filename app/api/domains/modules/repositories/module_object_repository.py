@@ -1,7 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 from uuid import UUID, uuid4
 import uuid
 
@@ -73,6 +73,35 @@ class ModuleObjectRepository(BaseRepository):
             .order_by(desc(ModuleObjectsTable.Modified_Date))
         )
         return self.fetch_first(session, stmt)
+
+    def get_latest_by_module_id_object_codes(
+        self,
+        session: Session,
+        module_id: int,
+        object_codes: Set[str],
+    ) -> Dict[str, ModuleObjectsTable]:
+        if not object_codes:
+            return {}
+
+        row_number = (
+            func.row_number()
+            .over(
+                partition_by=ModuleObjectsTable.Code,
+                order_by=desc(ModuleObjectsTable.Modified_Date),
+            )
+            .label("_RowNumber")
+        )
+
+        subq = (
+            select(ModuleObjectsTable, row_number)
+            .filter(ModuleObjectsTable.Module_ID == module_id)
+            .filter(ModuleObjectsTable.Code.in_(object_codes))
+            .subquery()
+        )
+        aliased_objects = aliased(ModuleObjectsTable, subq)
+        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1)
+
+        return {module_object.Code: module_object for module_object in session.scalars(stmt)}
 
     def get_latest_by_id(
         self,

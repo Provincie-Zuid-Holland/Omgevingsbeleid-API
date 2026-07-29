@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List, Optional, Set
 from uuid import UUID
 
 from sqlalchemy import desc, select
@@ -123,6 +123,43 @@ class ObjectRepository(BaseRepository):
         )
         result = self.fetch_first(session, stmt)
         return result
+
+    def get_valid_codes(self, session: Session, codes: Set[str]) -> Set[str]:
+        """
+        Batched variant of get_latest_valid_by_id: given a set of Codes, returns the subset
+        whose latest version is currently valid. One query regardless of len(codes).
+        """
+        if not codes:
+            return set()
+
+        row_number = (
+            func.row_number()
+            .over(
+                partition_by=ObjectsTable.Code,
+                order_by=desc(ObjectsTable.Modified_Date),
+            )
+            .label("_RowNumber")
+        )
+
+        subq = (
+            select(ObjectsTable.Code, ObjectsTable.Start_Validity, ObjectsTable.End_Validity, row_number)
+            .filter(ObjectsTable.Code.in_(codes))
+            .subquery()
+        )
+
+        stmt = (
+            select(subq.c.Code)
+            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c.Start_Validity <= datetime.now(timezone.utc))
+            .filter(
+                or_(
+                    subq.c.End_Validity > datetime.now(timezone.utc),
+                    subq.c.End_Validity.is_(None),
+                )
+            )
+        )
+
+        return set(session.execute(stmt).scalars())
 
     def get_latest_by_id(self, session: Session, object_type: str, object_id: int) -> Optional[ObjectsTable]:
         stmt = (

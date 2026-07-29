@@ -25,8 +25,6 @@ from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.users import UsersTable
 from app.core.types import Model
 
-# gebiedsaanwijzing.Target_Codes may only reference a gebied/gebiedengroep that is either
-# currently valid (vigerend) or a draft within this same module - never a draft from another module.
 TARGET_CODES_MODULE_OR_VALID_OBJECT_TYPES = {"gebiedsaanwijzing"}
 
 
@@ -37,19 +35,19 @@ def _guard_target_codes_in_module_or_valid(
     module_id: int,
     target_codes: List[str],
 ) -> None:
-    invalid_codes: List[str] = []
+    codes = set(target_codes)
+    valid_codes = object_repository.get_valid_codes(session, codes)
 
-    for code in target_codes:
-        object_type, object_id = code.split("-", 1)
+    remaining_codes = codes - valid_codes
+    module_objects = module_object_repository.get_latest_by_module_id_object_codes(
+        session, module_id, remaining_codes
+    )
 
-        if object_repository.get_latest_valid_by_id(session, object_type, int(object_id)) is not None:
-            continue
-
-        module_object = module_object_repository.get_latest_by_module_id_object_code(session, module_id, code)
-        if module_object is not None and not module_object.Deleted:
-            continue
-
-        invalid_codes.append(code)
+    invalid_codes = [
+        code
+        for code in target_codes
+        if code not in valid_codes and (code not in module_objects or module_objects[code].Deleted)
+    ]
 
     if invalid_codes:
         raise HTTPException(
