@@ -20,12 +20,15 @@ from app.api.events.module_object_patched_event import ModuleObjectPatchedEvent
 from app.api.permissions import Permissions
 from app.api.services.permission_service import PermissionService
 from app.api.events.event_manager import ApiEventManager
+from app.core.services.main_config import MainConfig
 from app.core.tables.modules import ModuleTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.users import UsersTable
 from app.core.types import Model
 
-TARGET_CODES_MODULE_OR_VALID_OBJECT_TYPES = {"gebiedsaanwijzing"}
+
+class TargetCodesModuleOrValidRuleConfig(BaseModel):
+    object_types: List[str]
 
 
 def _guard_target_codes_in_module_or_valid(
@@ -39,9 +42,7 @@ def _guard_target_codes_in_module_or_valid(
     valid_codes = object_repository.get_valid_codes(session, codes)
 
     remaining_codes = codes - valid_codes
-    module_objects = module_object_repository.get_latest_by_module_id_object_codes(
-        session, module_id, remaining_codes
-    )
+    module_objects = module_object_repository.get_latest_by_module_id_object_codes(session, module_id, remaining_codes)
 
     invalid_codes = [
         code
@@ -78,6 +79,7 @@ def post_module_patch_object_endpoint(
     ],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
+    main_config: Annotated[MainConfig, Depends(Provide[ApiContainer.main_config])],
     object_in: BaseModel,
 ) -> BaseModel:
     object_static: Optional[ObjectStaticsTable] = object_static_repository.get_by_object_type_and_id(
@@ -99,7 +101,10 @@ def post_module_patch_object_endpoint(
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
-    if context.object_type in TARGET_CODES_MODULE_OR_VALID_OBJECT_TYPES and "Target_Codes" in changes:
+    target_codes_rule_config = main_config.get_as_model(
+        "target_codes_module_or_valid_rule", TargetCodesModuleOrValidRuleConfig
+    )
+    if context.object_type in target_codes_rule_config.object_types and "Target_Codes" in changes:
         _guard_target_codes_in_module_or_valid(
             session,
             object_repository,

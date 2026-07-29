@@ -30,6 +30,10 @@ sort_default_object_id: &sort_default_object_id
     order: asc
   allowed_columns: *sort_allowed_object_columns
 
+target_codes_module_or_valid_rule:
+  object_types:
+    - gebiedsaanwijzing
+    
 required_object_fields_rule:
   ambitie: ambitie_module_validate
   beleidsdoel: beleidsdoel_module_validate
