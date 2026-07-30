@@ -12,9 +12,7 @@ from tests.fixtures.internal.types import Ref
 def test_deletes_a_file_and_it_no_longer_appears_in_the_list(admin: TestClient, ctx: Context):
     file_uuid = ctx.f.primary_key_uuid(Ref(ObjectRelatedFileSpec, "bd1_file1"))
 
-    response = admin.delete(
-        "/beleidsdoel/1/object-related-files/delete", params={"related_file_uuid": str(file_uuid)}
-    )
+    response = admin.delete("/beleidsdoel/1/object-related-files/delete", params={"related_file_uuid": str(file_uuid)})
 
     assert response.status_code == 200, response.text
     assert response.json()["message"] == "OK"

@@ -1,7 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass
-from datetime import datetime
-from typing import List, Optional, Tuple
+from datetime import datetime, timezone
+from typing import List, Optional, Set, Tuple
 from uuid import UUID, uuid4
 import uuid
 
@@ -15,7 +15,7 @@ from app.api.base_repository import BaseRepository
 from app.api.domains.modules.types import ModuleObjectActionFull, ModuleStatusCode
 from app.api.utils.pagination import SortedPagination
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
-from app.core.tables.objects import ObjectStaticsTable
+from app.core.tables.objects import ObjectStaticsTable, ObjectsTable
 
 
 @dataclass
@@ -373,3 +373,45 @@ class ModuleObjectRepository(BaseRepository):
         new_record.Modified_By_UUID = by_uuid
 
         return new_record
+
+    def confirm_accessible_object_codes(self, session: Session, module_id: int, object_codes: Set[str]) -> Set[str]:
+        if not object_codes:
+            return object_codes
+
+        # "Vigerend" in objects table
+        timepoint: datetime = datetime.now(timezone.utc)
+        row_number = (
+            func.row_number()
+            .over(
+                partition_by=ObjectsTable.Code,
+                order_by=desc(ObjectsTable.Modified_Date),
+            )
+            .label("_RowNumber")
+        )
+        subq = (
+            select(ObjectsTable.Code, ObjectsTable.End_Validity, row_number)
+            .filter(ObjectsTable.Code.in_(object_codes))
+            .filter(ObjectsTable.Start_Validity <= timepoint)
+            .subquery()
+        )
+        valid_codes = (
+            select(subq.c.Code)
+            .filter(subq.c._RowNumber == 1)
+            .filter(
+                or_(
+                    subq.c.End_Validity > timepoint,
+                    subq.c.End_Validity.is_(None),
+                )
+            )
+        )
+
+        # Or exists in module
+        module_codes = (
+            select(ModuleObjectContextTable.Code)
+            .filter(ModuleObjectContextTable.Module_ID == module_id)
+            .filter(ModuleObjectContextTable.Code.in_(object_codes))
+            .filter(ModuleObjectContextTable.Hidden == False)
+            .filter(ModuleObjectContextTable.Action != ModuleObjectActionFull.Terminate.value)
+        )
+
+        return set(session.execute(valid_codes.union(module_codes)).scalars())

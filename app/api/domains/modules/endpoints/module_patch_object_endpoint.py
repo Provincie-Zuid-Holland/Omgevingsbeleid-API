@@ -102,5 +102,10 @@ def post_module_patch_object_endpoint(
     session.flush()
     session.commit()
 
-    response: BaseModel = context.response_config_model.pydantic_model.model_validate(new_record)
+    response: BaseModel = context.response_config_model.pydantic_model.model_validate(
+        new_record,
+        context={
+            "module_id": module.Module_ID,
+        },
+    )
     return response
