@@ -16,19 +16,9 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import (
 from tests.fixtures.internal.spec.object_related_file_spec import ObjectRelatedFilePersistHandler, ObjectRelatedFileSpec
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePersistHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec, UserPersistHandler
-from tests.fixtures.internal.spec.modules import (
-    ModuleSpec,
-    ModulePersistHandler,
-    ModuleStatusHistorySpec,
-    ModuleStatusHistoryPersistHandler,
-    ModuleBeleidsdoelSpec,
-    ModuleBeleidsdoelPersistHandler,
-    ModuleBeleidskeuzeSpec,
-    ModuleBeleidskeuzePersistHandler,
-    ModuleMaatregelSpec,
-    ModuleMaatregelPersistHandler,
-)
+
 import tests.fixtures.internal.spec.objects as objects_types
+import tests.fixtures.internal.spec.modules as module_types
 from tests.fixtures.internal.types import (
     BasePersistHandler,
     PersistContext,
@@ -43,21 +33,32 @@ from tests.fixtures.internal.types import (
 class PersistService[S: Spec, H: BasePersistHandler]:
     def __init__(self):
         self._handlers: Dict[Type[S], H] = {
+            # Base
             UserSpec: UserPersistHandler(),
             AssetSpec: AssetPersistHandler(),
             StorageFileSpec: StorageFilePersistHandler(),
-            objects_types.BeleidsdoelSpec: objects_types.BeleidsdoelPersistHandler(),
-            objects_types.BeleidskeuzeSpec: objects_types.BeleidskeuzePersistHandler(),
-            objects_types.MaatregelSpec: objects_types.MaatregelPersistHandler(),
+            ObjectRelatedFileSpec: ObjectRelatedFilePersistHandler(),
+            # Geo
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPersistHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPersistHandler(),
             AreaSpec: AreaPersistHandler(),
-            ObjectRelatedFileSpec: ObjectRelatedFilePersistHandler(),
-            ModuleSpec: ModulePersistHandler(),
-            ModuleStatusHistorySpec: ModuleStatusHistoryPersistHandler(),
-            ModuleBeleidsdoelSpec: ModuleBeleidsdoelPersistHandler(),
-            ModuleBeleidskeuzeSpec: ModuleBeleidskeuzePersistHandler(),
-            ModuleMaatregelSpec: ModuleMaatregelPersistHandler(),
+            # Objects
+            objects_types.BeleidsdoelSpec: objects_types.BeleidsdoelPersistHandler(),
+            objects_types.BeleidskeuzeSpec: objects_types.BeleidskeuzePersistHandler(),
+            objects_types.GebiedSpec: objects_types.GebiedPersistHandler(),
+            objects_types.GebiedengroepSpec: objects_types.GebiedengroepPersistHandler(),
+            objects_types.GebiedsaanwijzingSpec: objects_types.GebiedsaanwijzingPersistHandler(),
+            objects_types.MaatregelSpec: objects_types.MaatregelPersistHandler(),
+            # Module
+            module_types.ModuleSpec: module_types.ModulePersistHandler(),
+            module_types.ModuleStatusHistorySpec: module_types.ModuleStatusHistoryPersistHandler(),
+            # Module Objects
+            module_types.ModuleBeleidsdoelSpec: module_types.ModuleBeleidsdoelPersistHandler(),
+            module_types.ModuleBeleidskeuzeSpec: module_types.ModuleBeleidskeuzePersistHandler(),
+            module_types.ModuleGebiedSpec: module_types.ModuleGebiedPersistHandler(),
+            module_types.ModuleGebiedengroepSpec: module_types.ModuleGebiedengroepPersistHandler(),
+            module_types.ModuleGebiedsaanwijzingSpec: module_types.ModuleGebiedsaanwijzingPersistHandler(),
+            module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPersistHandler(),
         }
 
     def persist(self, records: List[Record[S]], session: Session) -> FixtureData:

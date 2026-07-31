@@ -65,6 +65,8 @@ class FastAPIBuilder:
             }
             if endpoint_config.operation_id:
                 route_kwargs["operation_id"] = endpoint_config.operation_id
+            if endpoint_config.openapi_extra:
+                route_kwargs["openapi_extra"] = endpoint_config.openapi_extra
 
             router.add_api_route(**route_kwargs)
 

@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, Optional
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends, HTTPException, status
+from fastapi import Body, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -46,7 +46,7 @@ def post_module_patch_object_endpoint(
     ],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    object_in: BaseModel,
+    object_in_raw: dict = Body(...),
 ) -> BaseModel:
     object_static: Optional[ObjectStaticsTable] = object_static_repository.get_by_object_type_and_id(
         session,
@@ -63,6 +63,12 @@ def post_module_patch_object_endpoint(
     )
     guard_module_not_locked(module)
 
+    object_in: BaseModel = context.request_config_model.pydantic_model.model_validate(
+        object_in_raw,
+        context={
+            "module_id": module.Module_ID,
+        },
+    )
     changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
@@ -102,10 +108,5 @@ def post_module_patch_object_endpoint(
     session.flush()
     session.commit()
 
-    response: BaseModel = context.response_config_model.pydantic_model.model_validate(
-        new_record,
-        context={
-            "module_id": module.Module_ID,
-        },
-    )
+    response: BaseModel = context.response_config_model.pydantic_model.model_validate(new_record)
     return response

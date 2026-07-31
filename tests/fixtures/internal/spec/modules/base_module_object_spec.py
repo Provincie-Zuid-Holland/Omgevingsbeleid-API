@@ -117,7 +117,7 @@ class BaseModuleObjectPersistHandler[T: BaseModuleObjectSpec](BasePersistHandler
             context.seen_codes.add(spec.Code)
             result.append(self._build_object_static(spec))
 
-        module_context_index: Tuple[int, int] = (spec.Module_ID, spec.Object_ID)
+        module_context_index: Tuple[int, str] = (spec.Module_ID, spec.Code)
         if module_context_index not in context.seen_module_context:
             context.seen_module_context.add(module_context_index)
             result.append(self._build_module_object_context(spec))
