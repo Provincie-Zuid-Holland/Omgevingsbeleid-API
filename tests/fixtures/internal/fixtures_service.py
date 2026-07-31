@@ -23,8 +23,8 @@ import tests.fixtures.data.d201_module_1_basic as d201_module_1_basic
 import tests.fixtures.data.d202_module_2_inactive as d202_module_2_inactive
 import tests.fixtures.data.d203_module_3_closed as d203_module_3_closed
 import tests.fixtures.data.d204_module_4_ambtenaar_managed as d204_module_4_ambtenaar_managed
-import tests.fixtures.data.d205_module_5_gebiedsaanwijzingen_1 as d205_module_5_gebiedsaanwijzingen_1
-import tests.fixtures.data.d206_module_6_gebiedsaanwijzingen_2 as d206_module_6_gebiedsaanwijzingen_2
+import tests.fixtures.data.d205_module_5_patch_module_1 as d205_module_5_patch_module_1
+import tests.fixtures.data.d206_module_6_patch_module_2 as d206_module_6_patch_module_2
 
 # import tests.fixtures.data.d050_basic_demo as d050_basic_demo
 from tests.fixtures.internal.spec.user_spec import UserSpec
@@ -49,8 +49,8 @@ class FixturesService:
             d202_module_2_inactive.load,
             d203_module_3_closed.load,
             d204_module_4_ambtenaar_managed.load,
-            d205_module_5_gebiedsaanwijzingen_1.load,
-            d206_module_6_gebiedsaanwijzingen_2.load,
+            d205_module_5_patch_module_1.load,
+            d206_module_6_patch_module_2.load,
         ]
 
         collector: Collector = Collector()

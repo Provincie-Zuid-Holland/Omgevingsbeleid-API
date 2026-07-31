@@ -14,8 +14,8 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 
 def load(col: Collector) -> None:
     with col.with_defaults(
-        Created_Date=datetime(2025, 6, 1, tzinfo=timezone.utc),
-        Modified_Date=datetime(2025, 6, 1, tzinfo=timezone.utc),
+        Created_Date=datetime(2025, 6, 6, tzinfo=timezone.utc),
+        Modified_Date=datetime(2025, 6, 6, tzinfo=timezone.utc),
         Created_By_UUID=col.ref(UserSpec, "admin"),
         Modified_By_UUID=col.ref(UserSpec, "admin"),
         Module_Manager_1_UUID=col.ref(UserSpec, "admin"),
