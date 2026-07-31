@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 import uuid
 
 from pydantic import BaseModel
-from sqlalchemy import desc, func, select
+from sqlalchemy import case, desc, func, literal, select
 from sqlalchemy.orm import Session, aliased, load_only
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import Select, and_, or_
@@ -394,8 +394,12 @@ class ModuleObjectRepository(BaseRepository):
             .filter(ObjectsTable.Start_Validity <= timepoint)
             .subquery()
         )
-        valid_codes = (
-            select(subq.c.Code)
+        vigerend_codes = (
+            select(
+                subq.c.Code,
+                literal(0).label("Priority"),
+                literal(1).label("Usable"),
+            )
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
@@ -405,13 +409,41 @@ class ModuleObjectRepository(BaseRepository):
             )
         )
 
-        # Or exists in module
+        # Module objects
+        # @note: Objects set to be terminated by the module should not be allowed to be used
+        #   Because they wont exist anymore when the module is completed
         module_codes = (
-            select(ModuleObjectContextTable.Code)
+            select(
+                ModuleObjectContextTable.Code,
+                literal(1).label("Priority"),
+                case(
+                    # To be clear; we return the row here with Usable = 0 when the object is terminated
+                    # This will force this record to be picked in the merge/group below
+                    # This allows us to not allow this code
+                    (ModuleObjectContextTable.Action == ModuleObjectActionFull.Terminate.value, 0),
+                    else_=1,
+                ).label("Usable"),
+            )
             .filter(ModuleObjectContextTable.Module_ID == module_id)
             .filter(ModuleObjectContextTable.Code.in_(object_codes))
             .filter(ModuleObjectContextTable.Hidden == False)
-            .filter(ModuleObjectContextTable.Action != ModuleObjectActionFull.Terminate.value)
         )
 
-        return set(session.execute(valid_codes.union(module_codes)).scalars())
+        codes = vigerend_codes.union_all(module_codes).subquery()
+        highest_priority_per_code = select(
+            codes.c.Code,
+            codes.c.Usable,
+            func.row_number()
+            .over(
+                partition_by=codes.c.Code,
+                order_by=desc(codes.c.Priority),
+            )
+            .label("_RowNumber"),
+        ).subquery()
+        stmt = (
+            select(highest_priority_per_code.c.Code)
+            .filter(highest_priority_per_code.c._RowNumber == 1)
+            .filter(highest_priority_per_code.c.Usable == 1)
+        )
+
+        return set(session.execute(stmt).scalars())

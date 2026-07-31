@@ -155,7 +155,7 @@ class BaseModuleObjectPersistHandler[T: BaseModuleObjectSpec](BasePersistHandler
 
     def _resolve_action(self, spec: T) -> ModuleObjectActionFull:
         if spec.Context_Action is not None:
-            spec.Context_Action
+            return spec.Context_Action
 
         if spec.Adjust_On is None:
             return ModuleObjectActionFull.Create

@@ -156,5 +156,11 @@ def load(col: Collector) -> None:
                     Title="Nature East",
                     Area_UUID=col.ref(AreaSpec, "nature-east-v1"),
                 ),
+                GebiedSpec(
+                    key="nature-south-v1",
+                    Object_ID=3,
+                    Title="Nature South",
+                    Area_UUID=col.ref(AreaSpec, "nature-south-v1"),
+                ),
             ]
         )

@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from app.api.domains.modules.types import ModuleStatusCode, ModuleStatusCodeInternal
+from app.api.domains.modules.types import ModuleObjectActionFull, ModuleStatusCode, ModuleStatusCodeInternal
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.spec.modules import (
     ModuleSpec,
@@ -48,11 +48,42 @@ def load(col: Collector) -> None:
                     # Created Gebiedengroepen and Gebieden
                     # Which should not be usable by other modules yet
                     ModuleGebiedengroepSpec(
-                        key="mod_5_gebiedengroep_510", Object_ID=510, Title="Gebiedengroep 510 in Module 5"
+                        key="mod_5_gebiedengroep_510",
+                        Object_ID=510,
+                        Title="Gebiedengroep 510 in Module 5",
                     ),
-                    ModuleGebiedSpec(key="mod_5_gebied_510", Object_ID=510, Title="Gebied 510 in Module 5"),
+                    ModuleGebiedSpec(
+                        key="mod_5_gebied_510",
+                        Object_ID=510,
+                        Title="Gebied 510 in Module 5",
+                    ),
                     ModuleGebiedsaanwijzingSpec(
-                        key="mod_5_gebiedsaanwijzing_510", Object_ID=510, Title="Gebiedsaanwijzing 510 in Module 5"
+                        key="mod_5_gebiedsaanwijzing_510",
+                        Object_ID=510,
+                        Title="Gebiedsaanwijzing 510 in Module 5",
+                    ),
+                    # Removed from the module (did not really exists but this will handle the case anyways)
+                    ModuleGebiedSpec(
+                        key="mod_5_gebied_511",
+                        Object_ID=511,
+                        Title="Gebied 511 hidden in Module 5",
+                        Context_Hidden=True,
+                    ),
+                    # Terminated in the module
+                    ModuleGebiedSpec(
+                        key="mod_5_gebied_1",
+                        Object_ID=1,
+                        Title="Gebied 1 terminated in Module 5",
+                        Context_Action=ModuleObjectActionFull.Terminate,
+                    ),
+                    # Terminated in the module, but removed from the module again
+                    # so the module does not terminate it anymore
+                    ModuleGebiedSpec(
+                        key="mod_5_gebied_3",
+                        Object_ID=3,
+                        Title="Gebied 3 terminated and removed in Module 5",
+                        Context_Action=ModuleObjectActionFull.Terminate,
+                        Context_Hidden=True,
                     ),
                 ]
             )

@@ -132,7 +132,7 @@ def test_hierarchy_code_can_be_changed(admin: TestClient, ctx: Context):
         pytest.param({"Title": "<b>Bold</b> title"}, "Title", id="html-in-plain-text-field"),
         pytest.param({"Description": "<script>alert(1)</script>"}, "Description", id="forbidden-html-tag"),
         pytest.param({"Hierarchy_Code": "maatregel-1"}, "Hierarchy_Code", id="code-of-a-disallowed-type"),
-        pytest.param({"Hierarchy_Code": "beleidsdoel-999"}, "Hierarchy_Code", id="code-that-does-not-exist"),
+        pytest.param({"Hierarchy_Code": "beleidsdoel-999999"}, "Hierarchy_Code", id="code-that-does-not-exist"),
         pytest.param({"Gebiedengroep_Code": "beleidsdoel-1"}, "Gebiedengroep_Code", id="wrong-type-for-gebiedengroep"),
     ],
 )
@@ -141,6 +141,95 @@ def test_invalid_body_returns_422(admin: TestClient, payload: Dict[str, Any], in
 
     assert response.status_code == 422, response.text
     assert invalid_field in {error["loc"][-1] for error in response.json()["detail"]}
+
+
+@pytest.mark.parametrize(
+    "target_codes",
+    [
+        pytest.param(["gebied-2"], id="vigerend-gebied"),
+        pytest.param(["gebiedengroep-1"], id="vigerend-gebiedengroep"),
+        pytest.param(["gebied-510", "gebiedengroep-510"], id="created-in-this-module"),
+        pytest.param(["gebied-2", "gebied-510"], id="vigerend-and-created-in-this-module"),
+        pytest.param(["gebied-3"], id="terminate-that-was-removed-from-the-module"),
+    ],
+)
+def test_target_codes_accepts_vigerend_and_own_module_codes(admin: TestClient, ctx: Context, target_codes: List[str]):
+    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"Target_Codes": target_codes})
+
+    assert response.status_code == 200, response.text
+    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["UUID"]))
+    assert new_draft.Target_Codes == target_codes
+
+
+@pytest.mark.parametrize(
+    "target_codes, invalid_codes",
+    [
+        pytest.param(["gebied-610"], ["gebied-610"], id="created-in-another-module"),
+        pytest.param(["gebied-511"], ["gebied-511"], id="hidden-in-this-module"),
+        pytest.param(["gebied-1"], ["gebied-1"], id="terminated-in-this-module"),
+        pytest.param(["gebied-4"], ["gebied-4"], id="end-validity-in-the-past"),
+        pytest.param(["gebied-5"], ["gebied-5"], id="start-validity-in-the-future"),
+        pytest.param(["gebied-999999"], ["gebied-999999"], id="does-not-exist"),
+        pytest.param(["gebied-2", "gebied-610"], ["gebied-610"], id="only-the-invalid-code-is-reported"),
+    ],
+)
+def test_target_codes_rejects_codes_not_usable_in_the_module(
+    admin: TestClient, target_codes: List[str], invalid_codes: List[str]
+):
+    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"Target_Codes": target_codes})
+
+    assert response.status_code == 422, response.text
+    errors: List[Dict[str, Any]] = [error for error in response.json()["detail"] if error["loc"][-1] == "Target_Codes"]
+    assert len(errors) == 1
+    message: str = errors[0]["msg"]
+    for invalid_code in invalid_codes:
+        assert invalid_code in message
+    for valid_code in set(target_codes) - set(invalid_codes):
+        assert valid_code not in message
+
+
+@pytest.mark.parametrize(
+    "module_id, lineage_id, target_codes, expected_status",
+    [
+        pytest.param(5, 510, ["gebied-510"], 200, id="module-5-with-its-own-code"),
+        pytest.param(5, 510, ["gebied-610"], 422, id="module-5-with-the-code-of-module-6"),
+        pytest.param(6, 610, ["gebied-610"], 200, id="module-6-with-its-own-code"),
+        pytest.param(6, 610, ["gebied-510"], 422, id="module-6-with-the-code-of-module-5"),
+        pytest.param(5, 510, ["gebied-1"], 422, id="module-5-terminates-a-vigerend-code"),
+        pytest.param(6, 610, ["gebied-1"], 200, id="module-6-does-not-terminate-it"),
+    ],
+)
+def test_target_codes_are_scoped_to_the_patched_module(
+    admin: TestClient,
+    module_id: int,
+    lineage_id: int,
+    target_codes: List[str],
+    expected_status: int,
+):
+    response: Response = admin.patch(
+        f"/modules/{module_id}/object/gebiedsaanwijzing/{lineage_id}", json={"Target_Codes": target_codes}
+    )
+
+    assert response.status_code == expected_status, response.text
+
+
+@pytest.mark.parametrize(
+    "target_codes, expected_message",
+    [
+        pytest.param([], "Missing required value", id="empty-list"),
+        pytest.param(None, "Missing required value", id="null"),
+        pytest.param(["beleidskeuze-1"], "Invalid object type", id="object-type-that-is-not-allowed"),
+    ],
+)
+def test_target_codes_rejects_invalid_values(
+    admin: TestClient, target_codes: Optional[List[str]], expected_message: str
+):
+    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"Target_Codes": target_codes})
+
+    assert response.status_code == 422, response.text
+    errors: List[Dict[str, Any]] = [error for error in response.json()["detail"] if error["loc"][-1] == "Target_Codes"]
+    assert len(errors) == 1
+    assert expected_message in errors[0]["msg"]
 
 
 def test_lineage_outside_the_module_returns_404(admin: TestClient):
@@ -158,7 +247,7 @@ def test_empty_body_returns_400(admin: TestClient):
 
 
 def test_unknown_lineage_returns_404(admin: TestClient):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/999", json={"Title": "Does not exist"})
+    response: Response = admin.patch("/modules/5/object/beleidskeuze/999999", json={"Title": "Does not exist"})
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Object static niet gevonden"

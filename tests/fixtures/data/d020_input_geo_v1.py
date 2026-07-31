@@ -26,6 +26,12 @@ def load(col: Collector) -> None:
                     Points=[(110, 110), (120, 110), (120, 120)],
                     Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature-v1")],
                 ),
+                InputGeoOnderverdelingSpec(
+                    key="nature-south-v1",
+                    Title="Nature south",
+                    Points=[(130, 130), (140, 130), (140, 140)],
+                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature-v1")],
+                ),
                 # Water v1
                 InputGeoWerkingsgebiedenSpec(
                     key="water-v1",

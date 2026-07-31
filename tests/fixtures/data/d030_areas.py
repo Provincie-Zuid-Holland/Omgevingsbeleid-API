@@ -14,6 +14,10 @@ def load(col: Collector) -> None:
                 key="nature-east-v1",
                 Source_Ref=col.ref(InputGeoOnderverdelingSpec, "nature-east-v1"),
             ),
+            AreaSpec(
+                key="nature-south-v1",
+                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "nature-south-v1"),
+            ),
         ]
     )
 

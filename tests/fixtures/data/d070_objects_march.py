@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.spec.user_spec import UserSpec
-from tests.fixtures.internal.spec.objects import BeleidsdoelSpec, BeleidskeuzeSpec, MaatregelSpec
+from tests.fixtures.internal.spec.objects import BeleidsdoelSpec, BeleidskeuzeSpec, GebiedSpec, MaatregelSpec
 
 
 def load(col: Collector) -> None:
@@ -92,6 +92,19 @@ def load(col: Collector) -> None:
                     key="maatregel_6_past_end_validity",
                     Object_ID=6,
                     Title="Maatregel 6 from march",
+                    End_Validity=datetime(2025, 6, 1, tzinfo=timezone.utc),
+                ),
+            ]
+        )
+
+        # Gebied
+        col.adds(
+            [
+                # Past End_Validity, so it is not vigerend anymore
+                GebiedSpec(
+                    key="gebied_4_past_end_validity",
+                    Object_ID=4,
+                    Title="Gebied 4 from march",
                     End_Validity=datetime(2025, 6, 1, tzinfo=timezone.utc),
                 ),
             ]
