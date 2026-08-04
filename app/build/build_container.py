@@ -322,7 +322,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_others.FullGraphEndpointBuilder),
             providers.Factory(endpoint_builders_others.ObjectGraphEndpointBuilder),
             providers.Factory(
-                endpoint_builders_others.MssqlSearchEndpointBuilder,
+                endpoint_builders_others.SearchEndpointBuilder,
                 model_dynamic_type_builder=model_dynamic_type_builder,
             ),
             providers.Factory(

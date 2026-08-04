@@ -1,5 +1,4 @@
-from app.api.domains.objects.endpoints.search_objects_endpoint import get_search_objects_endpoint
-from app.api.domains.others.types import SearchObject
+from app.api.domains.objects.endpoints.search_objects_endpoint import get_search_objects_endpoint, SearchObject
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder

@@ -183,26 +183,15 @@ api:
                 - Modified_Date
     - prefix: /search
       endpoints:
-        - resolver: mssql_search
+        - resolver: search
           resolver_data:
-            <<: *searchable_config
-            allowed_object_types:
-              - ambitie
-              - beleidsdoel
-              - beleidskeuze
-              - document
-              - maatregel
-              - beleidsregel
-              - gebiedsprogramma
-              - wettelijke_taak
-              - nationaal_belang
-              - verplicht_programma
-              - visie_algemeen
-              - programma_algemeen
-              - werkingsgebied
-              - gebiedengroep
-              - gebied
-              - gebiedsaanwijzing
+            search_columns:
+              - Title
+              - Description
+              # @note: These where not used in the previous setup. Should discuss if they should be used
+              # - Effect
+              # - Provincial_Interest
+              # - Cause
             model_map: *model_map
             response_model_name: PagedSearchObjectResponse
     - prefix: /search/valid
