@@ -1,7 +1,7 @@
 """act_package_module_status
 
 Revision ID: c704f8f17f09
-Revises: 7abe9ef050cf
+Revises: 39886023a73b
 Create Date: 2026-07-16 11:14:38.119865
 
 """
@@ -19,7 +19,7 @@ settings = Settings()
 
 # revision identifiers, used by Alembic.
 revision = "c704f8f17f09"
-down_revision = "7abe9ef050cf"
+down_revision = "39886023a73b"
 branch_labels = None
 depends_on = None
 
