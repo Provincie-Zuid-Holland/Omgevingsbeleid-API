@@ -11,7 +11,9 @@ from sqlalchemy.orm import Session
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
+from app.api.domains.modules.types import PublicModuleStatusCode
 from app.api.domains.others.types import TModel
+from app.api.domains.users.dependencies import depends_optional_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import (
     PagedResponse,
@@ -19,8 +21,14 @@ from app.api.utils.pagination import (
     SimplePagination,
     query_paginated_no_scalars,
 )
-from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleTable
+from app.core.tables.modules import (
+    ModuleObjectContextTable,
+    ModuleObjectsTable,
+    ModuleStatusHistoryTable,
+    ModuleTable,
+)
 from app.core.tables.objects import ObjectsTable
+from app.core.tables.users import UsersTable
 
 
 class SearchEndpointContext(BaseEndpointContext):
@@ -79,12 +87,14 @@ class EndpointHandler:
         self,
         session: Session,
         module_objects_to_models_parser: ModuleObjectsToModelsParser,
+        user: Optional[UsersTable],
         context: SearchEndpointContext,
         request_data: RequestData,
         pagination: SimplePagination,
     ):
         self._session: Session = session
         self._module_objects_to_models_parser: ModuleObjectsToModelsParser = module_objects_to_models_parser
+        self._user: Optional[UsersTable] = user
         self._context: SearchEndpointContext = context
         self._request_data: RequestData = request_data
         self._pagination: SimplePagination = pagination
@@ -196,6 +206,28 @@ class EndpointHandler:
             .filter(ModuleObjectContextTable.Hidden == False)
         )
 
+        # If you are not logged in than you are only allowed to view public versions of the module objects
+        if not self._user:
+            public_status_subq = (
+                select(
+                    ModuleStatusHistoryTable.Module_ID,
+                    ModuleStatusHistoryTable.Created_Date,
+                    func.row_number()
+                    .over(
+                        partition_by=ModuleStatusHistoryTable.Module_ID,
+                        order_by=desc(ModuleStatusHistoryTable.ID),
+                    )
+                    .label("_StatusRowNumber"),
+                )
+                .filter(ModuleStatusHistoryTable.Status.in_(PublicModuleStatusCode.values()))
+                .subquery("public_status_subq")
+            )
+            subq = (
+                subq.join(public_status_subq, ModuleObjectsTable.Module_ID == public_status_subq.c.Module_ID)
+                .filter(public_status_subq.c._StatusRowNumber == 1)
+                .filter(ModuleObjectsTable.Modified_Date <= public_status_subq.c.Created_Date)
+            )
+
         if self._request_data.Module_ID is not None:
             subq = subq.filter(ModuleObjectsTable.Module_ID == self._request_data.Module_ID).filter(
                 ModuleTable.Closed == False
@@ -224,12 +256,14 @@ def get_search_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
+    user: Annotated[Optional[UsersTable], Depends(depends_optional_current_user)],
     context: Annotated[SearchEndpointContext, Depends()],
     request_data: Annotated[RequestData, Body()],
 ) -> PagedResponse[SearchObject]:
     handler: EndpointHandler = EndpointHandler(
         session,
         module_objects_to_models_parser,
+        user,
         context,
         request_data,
         pagination,
