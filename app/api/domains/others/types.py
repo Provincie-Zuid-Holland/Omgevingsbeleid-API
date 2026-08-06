@@ -7,7 +7,7 @@ from typing import List, Optional, Any, Generic
 from typing import TypeVar
 
 from fastapi import UploadFile
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 TModel = TypeVar("TModel", bound=BaseModel)
 
@@ -87,19 +87,8 @@ class SearchConfig(ValidSearchConfig):
     pass
 
 
-class SearchObject(ValidSearchObject, Generic[TModel]):
-    Module_ID: Optional[int] = None
-    Model: TModel
-
-    model_config = ConfigDict(from_attributes=True, title="SearchObject")
-
-
 class SearchRequestData(BaseModel):
     Object_Types: Optional[List[str]] = None
-
-
-class SearchRequestDataWithLike(SearchRequestData):
-    Like: bool = Field(False)
 
 
 class ObjectRelatedFileResponse(BaseModel):
