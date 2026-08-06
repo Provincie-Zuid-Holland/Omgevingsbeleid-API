@@ -8,7 +8,7 @@ from app.core.services.models_provider import ModelsProvider
 
 class SearchObjectsEndpointBuilder(EndpointBuilder):
     def get_id(self) -> str:
-        return "search"
+        return "search_objects"
 
     def build_endpoint(
         self,

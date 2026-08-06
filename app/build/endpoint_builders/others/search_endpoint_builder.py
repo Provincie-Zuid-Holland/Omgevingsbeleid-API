@@ -36,6 +36,7 @@ class SearchEndpointBuilder(EndpointBuilder):
         used_columns: Set[str] = self._compute_used_columns(
             set(model_map.values()),
             models_provider,
+            search_columns,
         )
 
         context = SearchEndpointContext(
@@ -61,7 +62,9 @@ class SearchEndpointBuilder(EndpointBuilder):
             tags=["Search"],
         )
 
-    def _compute_used_columns(self, model_ids: Set[str], models_provider: ModelsProvider) -> Set[str]:
+    def _compute_used_columns(
+        self, model_ids: Set[str], models_provider: ModelsProvider, search_columns: Set[str]
+    ) -> Set[str]:
         # We calculate the shared and used columns at build time
         # In general, we need a shared columns set (used by both tables)
         # to make the UNION query valid
@@ -76,14 +79,29 @@ class SearchEndpointBuilder(EndpointBuilder):
             model: Union[Model, DynamicObjectModel] = models_provider.get_model(model_id)
             if not isinstance(model, DynamicObjectModel):
                 raise RuntimeError(f"Model with id '{model_id}' is not a dynamic object model and cant be used here")
-            requested_columns.update(set([column.name for column in model.columns]))
+            for column in model.columns:
+                if column.static:
+                    continue
+                requested_columns.add(column.name)
 
         invalid_requested_columns: Set[str] = requested_columns - all_shared_columns
         if invalid_requested_columns:
             raise RuntimeError(
-                f"Requested columns ({', '.join(invalid_requested_columns)}) which do not exists in both tables"
+                f"Invalid requested columns ({', '.join(invalid_requested_columns)}) which do not exists in both tables"
+            )
+
+        # These are used to filter on, so must also be fetched in the inner query
+        invalid_search_columns: Set[str] = search_columns - all_shared_columns
+        if invalid_search_columns:
+            raise RuntimeError(
+                f"Invalid search columns ({', '.join(invalid_requested_columns)}) which do not exists in both tables"
             )
 
         final_columns: Set[str] = requested_columns
-        final_columns.update(["Object_Type", "Title", "Description"])  # These are used by the search endpoints code
+        final_columns.update(
+            # These are used by the search endpoints code
+            ["UUID", "Modified_Date", "Object_Type", "Title", "Description"]
+        )
+        final_columns.update(search_columns)
+
         return final_columns
