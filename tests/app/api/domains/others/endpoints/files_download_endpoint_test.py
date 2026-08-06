@@ -35,5 +35,5 @@ def test_unauthenticated_can_download(client: TestClient, ctx: Context):
     document: StorageFileSpec = ctx.f.find(Ref(StorageFileSpec, "file_1")).spec
     response = client.get(f"/storage-files/{document.UUID}/download")
 
-    assert response.status_code == 200 , response.text
+    assert response.status_code == 200, response.text
     assert response.content == document.Binary

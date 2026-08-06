@@ -10,8 +10,10 @@ from tests.fixtures.internal.services.prefill_service import PrefillService
 import tests.fixtures.data.d001_users as d001_users
 import tests.fixtures.data.d002_assets as d002_assets
 import tests.fixtures.data.d003_storage_files as d003_storage_files
-import tests.fixtures.data.d020_input_geo as d020_input_geo
-import tests.fixtures.data.d021_areas as d021_areas
+import tests.fixtures.data.d020_input_geo_v1 as d020_input_geo_v1
+import tests.fixtures.data.d021_input_geo_v2 as d021_input_geo_v2
+import tests.fixtures.data.d022_input_geo_v3 as d022_input_geo_v3
+import tests.fixtures.data.d030_areas as d030_areas
 import tests.fixtures.data.d050_objects_january as d050_objects_january
 import tests.fixtures.data.d060_objects_february as d060_objects_february
 import tests.fixtures.data.d070_objects_march as d070_objects_march
@@ -21,6 +23,8 @@ import tests.fixtures.data.d201_module_1_basic as d201_module_1_basic
 import tests.fixtures.data.d202_module_2_inactive as d202_module_2_inactive
 import tests.fixtures.data.d203_module_3_closed as d203_module_3_closed
 import tests.fixtures.data.d204_module_4_ambtenaar_managed as d204_module_4_ambtenaar_managed
+import tests.fixtures.data.d205_module_5_patch_module_1 as d205_module_5_patch_module_1
+import tests.fixtures.data.d206_module_6_patch_module_2 as d206_module_6_patch_module_2
 
 # import tests.fixtures.data.d050_basic_demo as d050_basic_demo
 from tests.fixtures.internal.spec.user_spec import UserSpec
@@ -32,8 +36,10 @@ class FixturesService:
             d001_users.load,
             d002_assets.load,
             d003_storage_files.load,
-            d020_input_geo.load,
-            d021_areas.load,
+            d020_input_geo_v1.load,
+            d021_input_geo_v2.load,
+            d022_input_geo_v3.load,
+            d030_areas.load,
             d050_objects_january.load,
             d060_objects_february.load,
             d070_objects_march.load,
@@ -43,6 +49,8 @@ class FixturesService:
             d202_module_2_inactive.load,
             d203_module_3_closed.load,
             d204_module_4_ambtenaar_managed.load,
+            d205_module_5_patch_module_1.load,
+            d206_module_6_patch_module_2.load,
         ]
 
         collector: Collector = Collector()

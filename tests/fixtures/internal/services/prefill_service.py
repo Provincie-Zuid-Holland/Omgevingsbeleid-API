@@ -17,39 +17,39 @@ from tests.fixtures.internal.spec.object_related_file_spec import ObjectRelatedF
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePrefillHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserPrefillHandler, UserSpec
 import tests.fixtures.internal.spec.objects as objects_types
-from tests.fixtures.internal.spec.modules import (
-    ModuleSpec,
-    ModulePrefillHandler,
-    ModuleStatusHistorySpec,
-    ModuleStatusHistoryPrefillHandler,
-    ModuleBeleidsdoelSpec,
-    ModuleBeleidsdoelPrefillHandler,
-    ModuleBeleidskeuzeSpec,
-    ModuleBeleidskeuzePrefillHandler,
-    ModuleMaatregelSpec,
-    ModuleMaatregelPrefillHandler,
-)
+import tests.fixtures.internal.spec.modules as module_types
 from tests.fixtures.internal.types import Spec
 
 
 class PrefillService[S: Spec, H: BasePrefillHandler]:
     def __init__(self):
         self._handlers: Dict[Type[S], H] = {
+            # Base
             UserSpec: UserPrefillHandler(),
             AssetSpec: AssetPrefillHandler(),
             StorageFileSpec: StorageFilePrefillHandler(),
-            objects_types.BeleidsdoelSpec: objects_types.BeleidsdoelPrefillHandler(),
-            objects_types.BeleidskeuzeSpec: objects_types.BeleidskeuzePrefillHandler(),
-            objects_types.MaatregelSpec: objects_types.MaatregelPrefillHandler(),
+            ObjectRelatedFileSpec: ObjectRelatedFilePrefillHandler(),
+            # Geo
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPrefillHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPrefillHandler(),
             AreaSpec: AreaPrefillHandler(),
-            ObjectRelatedFileSpec: ObjectRelatedFilePrefillHandler(),
-            ModuleSpec: ModulePrefillHandler(),
-            ModuleStatusHistorySpec: ModuleStatusHistoryPrefillHandler(),
-            ModuleBeleidsdoelSpec: ModuleBeleidsdoelPrefillHandler(),
-            ModuleBeleidskeuzeSpec: ModuleBeleidskeuzePrefillHandler(),
-            ModuleMaatregelSpec: ModuleMaatregelPrefillHandler(),
+            # Objects
+            objects_types.BeleidsdoelSpec: objects_types.BeleidsdoelPrefillHandler(),
+            objects_types.BeleidskeuzeSpec: objects_types.BeleidskeuzePrefillHandler(),
+            objects_types.GebiedSpec: objects_types.GebiedPrefillHandler(),
+            objects_types.GebiedengroepSpec: objects_types.GebiedengroepPrefillHandler(),
+            objects_types.GebiedsaanwijzingSpec: objects_types.GebiedsaanwijzingPrefillHandler(),
+            objects_types.MaatregelSpec: objects_types.MaatregelPrefillHandler(),
+            # Module
+            module_types.ModuleSpec: module_types.ModulePrefillHandler(),
+            module_types.ModuleStatusHistorySpec: module_types.ModuleStatusHistoryPrefillHandler(),
+            # Module Objects
+            module_types.ModuleBeleidsdoelSpec: module_types.ModuleBeleidsdoelPrefillHandler(),
+            module_types.ModuleBeleidskeuzeSpec: module_types.ModuleBeleidskeuzePrefillHandler(),
+            module_types.ModuleGebiedSpec: module_types.ModuleGebiedPrefillHandler(),
+            module_types.ModuleGebiedengroepSpec: module_types.ModuleGebiedengroepPrefillHandler(),
+            module_types.ModuleGebiedsaanwijzingSpec: module_types.ModuleGebiedsaanwijzingPrefillHandler(),
+            module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPrefillHandler(),
         }
 
     def prefill(self, input_records: List[Record]) -> List[Record]:

@@ -1,6 +1,7 @@
 from dependency_injector import containers, providers
 from sqlalchemy.orm import sessionmaker
 
+from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 import dso
 import app.build.endpoint_builders.modules as endpoint_builders_modules
 import app.build.endpoint_builders.objects as endpoint_builders_objects
@@ -43,6 +44,7 @@ class BuildContainer(containers.DeclarativeContainer):
     )
 
     object_static_repository = providers.Singleton(ObjectStaticRepository)
+    module_object_repository = providers.Singleton(ModuleObjectRepository)
 
     dso_gebiedsaanwijzingen_factory = providers.Factory(
         dso.GebiedsaanwijzingenFactory,
@@ -68,6 +70,11 @@ class BuildContainer(containers.DeclarativeContainer):
                 validators.ObjectCodesExistsValidator,
                 session_factory=db_session_factory,
                 object_static_repository=object_static_repository,
+            ),
+            providers.Factory(
+                validators.ObjectCodesValidForModuleValidator,
+                session_factory=db_session_factory,
+                module_object_repository=module_object_repository,
             ),
             providers.Factory(validators.ObjectCodesAllowedTypeValidator),
             providers.Factory(

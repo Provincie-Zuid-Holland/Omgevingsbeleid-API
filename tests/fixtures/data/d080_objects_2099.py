@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.spec.user_spec import UserSpec
-from tests.fixtures.internal.spec.objects import BeleidsdoelSpec
+from tests.fixtures.internal.spec.objects import BeleidsdoelSpec, GebiedSpec
 
 
 def load(col: Collector) -> None:
@@ -18,6 +18,12 @@ def load(col: Collector) -> None:
                     key="beleidsdoel_3_future",
                     Object_ID=3,
                     Title="Beleidsdoel 3 from future",
+                ),
+                # New lineage which is not vigerend yet
+                GebiedSpec(
+                    key="gebied_5_future",
+                    Object_ID=5,
+                    Title="Gebied 5 from future",
                 ),
             ]
         )

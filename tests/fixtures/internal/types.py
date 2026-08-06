@@ -67,8 +67,8 @@ class Record[T: Spec](BaseModel):
 # For the PersistService
 class PersistContext(BaseModel):
     seen_codes: Set[str] = set()
-    # (Module_ID, Object_ID)
-    seen_module_context: Set[Tuple[int, int]] = set()
+    # (Module_ID, Code)
+    seen_module_context: Set[Tuple[int, str]] = set()
 
 
 class BasePersistHandler[T: Spec]:
