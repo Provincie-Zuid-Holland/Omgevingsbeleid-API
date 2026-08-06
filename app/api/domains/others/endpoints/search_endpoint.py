@@ -3,8 +3,8 @@ from typing import Annotated, Generic, List, Optional, Dict, Self, Set
 
 from bs4 import BeautifulSoup
 from dependency_injector.wiring import Provide
-from fastapi import Body, Depends
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from fastapi import Body, Depends, HTTPException, status
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from sqlalchemy import Select, asc, desc, func, literal, or_, select, union_all
 from sqlalchemy.orm import Session
 
@@ -37,11 +37,13 @@ class RequestData(BaseModel):
     Include_Modules: bool = Field(default=True, description="Search in Module Objects?")
     Query: str = Field(min_length=1)
 
-    @field_validator("query")
-    def validate_query(cls, value: str) -> str:
-        if '"' in value or "\\" in value:
-            raise ValueError("Invalid search characters")
-        return value
+    # @note: Not sure if we need this anymore
+    # I think this was for the full text search
+    # @field_validator("query")
+    # def validate_query(cls, value: str) -> str:
+    #     if '"' in value or "\\" in value:
+    #         raise ValueError("Invalid search characters")
+    #     return value
 
     @model_validator(mode="after")
     def validate_includes(self) -> Self:
@@ -89,7 +91,7 @@ class EndpointHandler:
 
     def handle(self) -> PagedResponse[SearchObject]:
         if self._pagination.limit > 50:
-            raise ValueError("Pagination limit is too high")
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Pagination limit is too high")
         self._request_data.validate_object_types(self._context.allowed_object_types)
 
         paginated: PaginatedQueryResult = query_paginated_no_scalars(
@@ -113,7 +115,7 @@ class EndpointHandler:
                     description = soup.get_text()
 
             search_object: SearchObject = SearchObject(
-                Module_ID=row.Module_ID,
+                Module_ID=row.Module_ID or None,
                 Object_Type=row.Object_Type,
                 Title=row.Title or "",
                 Description=description,
@@ -137,16 +139,10 @@ class EndpointHandler:
 
         combined = union_all(*branches).subquery() if len(branches) > 1 else branches[0].subquery()
 
-        like_query: str = f"%{self._request_data.Query}%"
-        return (
-            select(combined)
-            .where(or_(*[combined.c[name].like(like_query) for name in self._context.search_columns]).self_group())
-            .where(combined.c.Object_Type.in_(self._request_data.Object_Types))
-            .order_by(
-                desc(combined.c.Modified_Date),
-                desc(combined.c.Module_ID),
-                asc(combined.c.UUID),
-            )
+        return select(combined).order_by(
+            desc(combined.c.Modified_Date),
+            desc(combined.c.Module_ID),
+            asc(combined.c.UUID),
         )
 
     def _valid_branch(self) -> Select:
@@ -175,6 +171,12 @@ class EndpointHandler:
                     subq.c.End_Validity.is_(None),
                 ).self_group()
             )
+            .filter(
+                or_(
+                    *[subq.c[name].like(self._request_data.Query) for name in self._context.search_columns]
+                ).self_group()
+            )
+            .filter(subq.c.Object_Type.in_(self._request_data.Object_Types))
         )
 
     def _module_branch(self) -> Select:
@@ -207,6 +209,12 @@ class EndpointHandler:
             select(subq.c.Module_ID, *[subq.c[name] for name in self._context.used_columns])
             .filter(subq.c._RowNumber == 1)
             .filter(subq.c.Deleted == False)
+            .filter(
+                or_(
+                    *[subq.c[name].like(self._request_data.Query) for name in self._context.search_columns]
+                ).self_group()
+            )
+            .filter(subq.c.Object_Type.in_(self._request_data.Object_Types))
         )
 
 
