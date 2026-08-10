@@ -14,8 +14,8 @@ def test_lists_latest_valid_version_per_lineage(client: TestClient):
     assert response.status_code == 200, response.text
 
     body = response.json()
-    assert body["total"] == 13
-    assert len(body["results"]) == 13
+    assert body["total"] == 18
+    assert len(body["results"]) == 18
 
     first = body["results"][0]
     assert set(first.keys()) == {"Object_Type", "ObjectStatics", "Model"}
@@ -44,12 +44,12 @@ def test_unknown_object_type_returns_400(client: TestClient):
 
 def test_pagination_limits_results_but_not_total(client: TestClient):
     body = client.get("/objects/valid?limit=5&offset=0").json()
-    assert body["total"] == 13
+    assert body["total"] == 18
     assert body["limit"] == 5
     assert len(body["results"]) == 5
 
-    last_page = client.get("/objects/valid?limit=5&offset=10").json()
-    assert last_page["offset"] == 10
+    last_page = client.get("/objects/valid?limit=5&offset=15").json()
+    assert last_page["offset"] == 15
     assert len(last_page["results"]) == 3
 
 

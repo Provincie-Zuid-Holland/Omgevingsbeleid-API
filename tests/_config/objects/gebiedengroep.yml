@@ -1,9 +1,10 @@
-id: gebiedsaanwijzing
-object_type: gebiedsaanwijzing
+id: gebiedengroep
+object_type: gebiedengroep
 
 sort_allowed_columns: &sort_allowed_columns
   - Object_ID
   - Title
+  - Source_Title
   - Modified_Date
 
 sort_default_title: &sort_default_title
@@ -20,71 +21,78 @@ sort_default_modified_date: &sort_default_modified_date
 
 api:
   routers:
-    - prefix: /gebiedsaanwijzingen
+    - prefix: /gebiedengroepen
       endpoints:
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
-            response_model: gebiedsaanwijzing_basic
+            response_model: gebiedengroep_basic
             allowed_filter_columns:
               - Title
+              - Source_Title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
-            response_model: gebiedsaanwijzing_basic
+            response_model: gebiedengroep_basic
             allowed_filter_columns:
               - Title
+              - Source_Title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: gebiedsaanwijzing_full
+            response_model: gebiedengroep_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: gebiedsaanwijzing_full
-    - prefix: /gebiedsaanwijzing/static/{lineage_id}
+            response_model: gebiedengroep_full
+    - prefix: /gebiedengroep/static/{lineage_id}
       endpoints:
         - resolver: get_object_static
           resolver_data:
-            response_model: gebiedsaanwijzing_static
+            response_model: gebiedengroep_static
         - resolver: edit_object_static
           resolver_data:
-            request_model: gebiedsaanwijzing_static_post
-            result_model: gebiedsaanwijzing_static_post_validated
-    - prefix: /modules/{module_id}/object/gebiedsaanwijzing
+            request_model: gebiedengroep_static_post
+            result_model: gebiedengroep_static_post_validated
+    - prefix: /modules/{module_id}/object/gebiedengroep
       endpoints:
         - resolver: module_patch_object
           resolver_data:
             path: /{lineage_id}
-            request_model: gebiedsaanwijzing_patch
-            response_model: gebiedsaanwijzing_uuid
+            request_model: gebiedengroep_patch
+            response_model: gebiedengroep_uuid
+        - resolver: input_geo_use_werkingsgebied
+          resolver_data:
+            path: /{lineage_id}/use/{input_geo_werkingsgebied_uuid}
+            target_object_type: gebied
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
-            response_model: gebiedsaanwijzing_extended
+            response_model: gebiedengroep_extended
             allowed_filter_columns:
               - Title
+              - Source_Title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
             path: /latest/{lineage_id}
-            response_model: gebiedsaanwijzing_full
+            response_model: gebiedengroep_full
         - resolver: module_object_version
           resolver_data:
             path: /version/{object_uuid}
-            response_model: gebiedsaanwijzing_full
-    - prefix: /modules/object/gebiedsaanwijzing
+            response_model: gebiedengroep_full
+    - prefix: /modules/object/gebiedengroep
       endpoints:
         - resolver: list_active_module_objects
           resolver_data:
             path: /active/{lineage_id}
-    - prefix: /revisions/{module_id}/gebiedsaanwijzing/version/{object_uuid}
+    - prefix: /revisions/{module_id}/gebiedengroep/version/{object_uuid}
       endpoints:
         - resolver: module_object_version
           resolver_data:
-            response_model: gebiedsaanwijzing_full
+            response_model: gebiedengroep_full
             minimum_status: 'Ontwerp GS Concept'
             require_auth: False
 
@@ -93,24 +101,31 @@ fields:
     name: Title
     type: str
     column: title
-  ref_type:
-    name: Ref_Type
-    type: str
-    column: ref_type
     validators:
       - id: none_to_default_value
-  ref_group:
-    name: Ref_Group
+  description:
+    name: Description
     type: str
-    column: ref_group
+    column: description
     validators:
       - id: none_to_default_value
-  target_codes:
-    name: Target_Codes
+  gebieden:
+    name: Gebieden
     type: list_str
-    column: target_codes
+    column: gebieden
     validators:
       - id: none_to_default_value
+  source_title:
+    name: Source_Title
+    type: str
+    column: source_title
+    validators:
+      - id: none_to_default_value
+  source_uuid:
+    name: Source_UUID
+    type: uuid
+    column: source_uuid
+    optional: true
 
   # Statics
   owner_1_uuid:
@@ -125,15 +140,16 @@ fields:
     optional: true
 
 models:
-  gebiedsaanwijzing_minimal:
-    name: GebiedsaanwijzingMinimal
+  gebiedengroep_minimal:
+    name: GebiedengroepMinimal
     fields:
       object_type:
       object_id:
       uuid:
       title:
-  gebiedsaanwijzing_basic:
-    name: GebiedsaanwijzingBasic
+      source_title:
+  gebiedengroep_basic:
+    name: GebiedengroepBasic
     fields:
       object_id:
       code:
@@ -142,10 +158,11 @@ models:
       created_date:
       modified_date:
       title:
+      source_title:
       start_validity:
       end_validity:
-  gebiedsaanwijzing_extended:
-    name: GebiedsaanwijzingExtended
+  gebiedengroep_extended:
+    name: GebiedengroepExtended
     fields:
       object_id:
       code:
@@ -154,9 +171,9 @@ models:
       created_date:
       modified_date:
       title:
-      ref_type:
-      ref_group:
-      target_codes:
+      source_title:
+      source_uuid:
+      gebieden:
       start_validity:
       end_validity:
     dependency_model_ids:
@@ -174,8 +191,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  gebiedsaanwijzing_full:
-    name: GebiedsaanwijzingFull
+  gebiedengroep_full:
+    name: GebiedengroepFull
     fields:
       object_id:
       code:
@@ -184,17 +201,18 @@ models:
       created_date:
       modified_date:
       title:
-      ref_type:
-      ref_group:
-      target_codes:
+      source_title:
+      source_uuid:
+      description:
       start_validity:
       end_validity:
+      gebieden:
     dependency_model_ids:
       - user_short
     services:
       join_objects:
-        to_field: Geo_Statics
-        from_field: Target_Codes
+        to_field: Gebieden_Statics
+        from_field: Gebieden
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
@@ -207,8 +225,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  gebiedsaanwijzing_patch:
-    name: GebiedsaanwijzingPatch
+  gebiedengroep_patch:
+    name: GebiedengroepPatch
     fields:
       title:
         default: none
@@ -219,20 +237,20 @@ models:
               min: 3
               max: 200
           - id: plain_text
-      target_codes:
-        optional: false
+      source_title:
+        default: none
+        optional: true
         validators:
-          - id: not_empty
-          - id: object_codes_allowed_type
+          - id: length
             data:
-              allowed_object_types:
-                - gebied
-                - gebiedengroep
-          - id: object_codes_valid_for_module
-      ref_type:
-      ref_group:
-  gebiedsaanwijzing_static:
-    name: GebiedsaanwijzingStatic
+              min: 3
+              max: 500
+          - id: plain_text
+      description:
+        default: none
+        optional: true
+  gebiedengroep_static:
+    name: GebiedengroepStatic
     static_only: true
     fields: {}
     dependency_model_ids:
@@ -244,14 +262,14 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-  gebiedsaanwijzing_static_post:
-    name: GebiedsaanwijzingStaticPost
+  gebiedengroep_static_post:
+    name: GebiedengroepStaticPost
     static_only: true
     fields:
       owner_1_uuid:
       owner_2_uuid:
-  gebiedsaanwijzing_static_post_validated:
-    name: GebiedsaanwijzingStaticPostValidated
+  gebiedengroep_static_post_validated:
+    name: GebiedengroepStaticPostValidated
     static_only: true
     model_validators:
       - id: not_equal_root
@@ -264,13 +282,13 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
-  gebiedsaanwijzing_uuid:
-    name: GebiedsaanwijzingUUID
+  gebiedengroep_uuid:
+    name: GebiedengroepUUID
     fields:
       object_id:
       uuid:
-  gebiedsaanwijzing_module_validate:
-    name: GebiedsaanwijzingModuleValidate
+  gebiedengroep_module_validate:
+    name: GebiedengroepModuleValidate
     fields:
       title:
         validators:
@@ -279,15 +297,12 @@ models:
               min: 3
               max: 200
           - id: plain_text
-      target_codes:
+      gebieden:
         optional: false
         validators:
           - id: object_codes_allowed_type
             data:
               allowed_object_types:
                 - gebied
-                - gebiedengroep
           - id: object_codes_exists
           - id: not_empty
-      ref_type:
-      ref_group:

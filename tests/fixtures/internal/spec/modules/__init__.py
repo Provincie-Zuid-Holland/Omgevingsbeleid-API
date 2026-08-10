@@ -14,6 +14,21 @@ from .module_beleidskeuze_spec import (
     ModuleBeleidskeuzePrefillHandler,
     ModuleBeleidskeuzePersistHandler,
 )
+from .module_gebied_spec import (
+    ModuleGebiedSpec,
+    ModuleGebiedPrefillHandler,
+    ModuleGebiedPersistHandler,
+)
+from .module_gebiedengroep_spec import (
+    ModuleGebiedengroepSpec,
+    ModuleGebiedengroepPrefillHandler,
+    ModuleGebiedengroepPersistHandler,
+)
+from .module_gebiedsaanwijzing_spec import (
+    ModuleGebiedsaanwijzingSpec,
+    ModuleGebiedsaanwijzingPrefillHandler,
+    ModuleGebiedsaanwijzingPersistHandler,
+)
 from .module_maatregel_spec import (
     ModuleMaatregelSpec,
     ModuleMaatregelPrefillHandler,

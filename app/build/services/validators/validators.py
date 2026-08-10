@@ -1,10 +1,12 @@
 import io
+import logging
 import re
 from base64 import b64decode
 from typing import List, Optional, Set
 
 from PIL import Image
 from bs4 import BeautifulSoup
+from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from dso.models import DocumentType
 from pydantic import ValidationInfo
 from dso.services.ow.gebiedsaanwijzingen.gebiedsaanwijzing import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
@@ -12,6 +14,7 @@ from dso.services.ow.gebiedsaanwijzingen.gebiedsaanwijzing import Gebiedsaanwijz
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.core.db.session import SessionFactoryType, session_scope_with_context
 from .types import PydanticValidator, Validator
+from app.core.logging import log_message
 
 
 class NoneToDefaultValueValidator(Validator):
@@ -269,7 +272,7 @@ class ObjectCodeExistsValidator(Validator):
                 object_static = self._object_static_repository.get_by_object_type_and_id(
                     session,
                     object_type,
-                    object_id,
+                    int(object_id),
                 )
                 if not object_static:
                     raise ValueError("Object does not exist")
@@ -348,6 +351,55 @@ class ObjectCodesExistsValidator(Validator):
         return PydanticValidator(
             mode="after",
             func=pydantic_validator_object_codes_exists,
+        )
+
+
+class ObjectCodesValidForModuleValidator(Validator):
+    def __init__(self, session_factory: SessionFactoryType, module_object_repository: ModuleObjectRepository):
+        self._session_factory: SessionFactoryType = session_factory
+        self._module_object_repository: ModuleObjectRepository = module_object_repository
+
+    def get_id(self) -> str:
+        return "object_codes_valid_for_module"
+
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        def pydantic_validator_object_codes_valid_for_module(cls, value, info: ValidationInfo):
+            if value is None:
+                return None
+
+            if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+                raise ValueError("Value must be a list of strings")
+
+            if not isinstance(info.context, dict):
+                log_message(
+                    "object_codes_valid_for_module needs validation context for its tasks", severity=logging.WARNING
+                )
+                return value
+
+            if "module_id" not in info.context:
+                log_message(
+                    "object_codes_valid_for_module needs `module_id` in validation context for its tasks",
+                    severity=logging.WARNING,
+                )
+                return value
+
+            module_id: int = int(info.context["module_id"])
+            object_codes: Set[str] = set(value)
+            with session_scope_with_context(self._session_factory) as session:
+                accessible_object_codes: Set[str] = self._module_object_repository.confirm_accessible_object_codes(
+                    session,
+                    module_id,
+                    object_codes,
+                )
+                invalid_object_codes: Set[str] = object_codes - accessible_object_codes
+                if invalid_object_codes:
+                    raise ValueError(f"Invalid object codes: {', '.join(invalid_object_codes)}")
+
+            return value
+
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_validator_object_codes_valid_for_module,
         )
 
 

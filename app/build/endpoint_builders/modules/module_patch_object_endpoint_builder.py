@@ -36,7 +36,7 @@ class ModulePatchObjectEndpointBuilder(EndpointBuilder):
             builder_data=builder_data,
         )
         endpoint = self._inject_context(post_module_patch_object_endpoint, context)
-        endpoint = self._overwrite_argument_type(endpoint, "object_in", request_model.pydantic_model)
+        extras: dict = self._hint_request_model(request_model)
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
@@ -46,4 +46,5 @@ class ModulePatchObjectEndpointBuilder(EndpointBuilder):
             summary=f"Add a new version to the {api.object_type} lineage in a module",
             description=None,
             tags=[api.object_type],
+            openapi_extra=extras,
         )

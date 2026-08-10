@@ -2,7 +2,15 @@ from datetime import datetime, timezone
 
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.spec.user_spec import UserSpec
-from tests.fixtures.internal.spec.objects import BeleidsdoelSpec, BeleidskeuzeSpec, MaatregelSpec
+from tests.fixtures.internal.spec.area_spec import AreaSpec
+from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import InputGeoWerkingsgebiedenSpec
+from tests.fixtures.internal.spec.objects import (
+    BeleidsdoelSpec,
+    BeleidskeuzeSpec,
+    MaatregelSpec,
+    GebiedSpec,
+    GebiedengroepSpec,
+)
 
 
 def load(col: Collector) -> None:
@@ -120,6 +128,39 @@ def load(col: Collector) -> None:
                     Description="Description of maatregel 6",
                     Effect="Effect of maatregel 6",
                     Hierarchy_Code="beleidskeuze-3",
+                ),
+            ]
+        )
+
+        # Gebiedengroep Nature
+        col.adds(
+            [
+                GebiedengroepSpec(
+                    key="nature-v1",
+                    Object_ID=1,
+                    Title="Nature",
+                    Description="Description of Natuur",
+                    Gebieden=["gebied-1", "gebied-2"],
+                    Source_Title="Nature",
+                    Source_UUID=col.ref(InputGeoWerkingsgebiedenSpec, "nature-v1"),
+                ),
+                GebiedSpec(
+                    key="nature-west-v1",
+                    Object_ID=1,
+                    Title="Nature West",
+                    Area_UUID=col.ref(AreaSpec, "nature-west-v1"),
+                ),
+                GebiedSpec(
+                    key="nature-east-v1",
+                    Object_ID=2,
+                    Title="Nature East",
+                    Area_UUID=col.ref(AreaSpec, "nature-east-v1"),
+                ),
+                GebiedSpec(
+                    key="nature-south-v1",
+                    Object_ID=3,
+                    Title="Nature South",
+                    Area_UUID=col.ref(AreaSpec, "nature-south-v1"),
                 ),
             ]
         )

@@ -82,6 +82,9 @@ api:
               - beleidsdoel
               - beleidskeuze
               - maatregel
+              - gebiedengroep
+              - gebied
+              - gebiedsaanwijzing
             sort:
               default:
                 column: Object_ID
@@ -94,53 +97,110 @@ api:
               beleidsdoel: beleidsdoel_basic
               beleidskeuze: beleidskeuze_basic
               maatregel: maatregel_basic
+              gebiedengroep: gebiedengroep_basic
+              gebied: gebied_basic
+              gebiedsaanwijzing: gebiedsaanwijzing_basic
             response_model_name: PagedListAllLatestObjectsResponse
 
 columns:
+  # Titel
   title:
     name: Title
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # Filename
+  filename:
+    name: Filename
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Omschrijving
   description:
     name: Description
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
-  weblink:
-    name: Weblink
-    type: str
+  # Document references
+  documents:
+    name: Documents
+    type: json
     serializers: []
-    deserializers: ["str"]
+    deserializers: []
     nullable: true
-  owner_1_uuid:
-    name: Owner_1_UUID
-    type: uuid
+  # Gebieden references
+  gebieden:
+    name: Gebieden
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
+  # Target codes (gebied, gebieden for gebiedsaanwijzingen)
+  target_codes:
+    name: Target_Codes
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
+  # Area_UUID used to store reference to the shape
+  area_uuid:
+    name: Area_UUID
+    type: area_uuid
+    type_data:
+      relation_field: Area
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
-    static: true
-  owner_2_uuid:
-    name: Owner_2_UUID
-    type: uuid
+  # File_UUID used to store reference to the file
+  file_uuid:
+    name: File_UUID
+    type: file_uuid
+    type_data:
+      relation_field: File
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
-    static: true
-  explanation:
-    name: Explanation
-    type: str
-    serializers: []
-    deserializers: ["str"]
-    nullable: true
+  # Beschrijf de uitwerking van het object
   effect:
     name: Effect
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # Rol
+  role:
+    name: Role
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Toelichting
+  explanation:
+    name: Explanation
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Gebied UUID
+  gebied_uuid:
+    name: Gebied_UUID
+    type: werkingsgebied_uuid
+    type_data:
+      relation_field: Gebied
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+  # Gebied Duiding
+  gebied_duiding:
+    name: Gebied_Duiding
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Primaire koppeling
   hierarchy_code:
     name: Hierarchy_Code
     type: object_code
@@ -157,29 +217,85 @@ columns:
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
-  documents:
-    name: Documents
-    type: json
+  ref_type:
+    name: Ref_Type
+    type: str
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  ref_group:
+    name: Ref_Group
+    type: str
+    serializers: ["optional_str"]
+    deserializers: ["optional_str"]
+    nullable: true
+  # Source Title, used to target the Input_Geo_Werkingsgebied
+  source_title:
+    name: Source_Title
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
+  # Source UUID, # Source Title, used to target the Input_Geo_Werkingsgebied
+  source_uuid:
+    name: Source_UUID
+    type: uuid
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+  # Image
+  image:
+    name: Image
+    type: str
     serializers: []
     deserializers: []
     nullable: true
+  # Eigenaar 1
+  owner_1_uuid:
+    name: Owner_1_UUID
+    type: user_uuid
+    type_data:
+      relation_field: Owner_1
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  # Eigenaar 2
+  owner_2_uuid:
+    name: Owner_2_UUID
+    type: user_uuid
+    type_data:
+      relation_field: Owner_2
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
+  # Portefeuillehouder 1
   portfolio_holder_1_uuid:
     name: Portfolio_Holder_1_UUID
-    type: uuid
+    type: user_uuid
+    type_data:
+      relation_field: Portfolio_Holder_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
+  # Portefeuillehouder 2
   portfolio_holder_2_uuid:
     name: Portfolio_Holder_2_UUID
-    type: uuid
+    type: user_uuid
+    type_data:
+      relation_field: Portfolio_Holder_2
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
+  # Opdrachtgever
   client_1_uuid:
     name: Client_1_UUID
-    type: uuid
+    type: user_uuid
+    type_data:
+      relation_field: Client_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
@@ -191,6 +307,7 @@ columns:
     serializers: []
     deserializers: []
     nullable: true
+
 
 required_object_fields_rule: {}
 

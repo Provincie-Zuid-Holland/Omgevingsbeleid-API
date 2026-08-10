@@ -72,7 +72,7 @@ def atemporal_edit_object_endpoint(
         Created_Date=timepoint,
         Created_By_UUID=user.UUID,
         Action_Type="atemporal_edit_object",
-        Action_Data=changes,
+        Action_Data=json.dumps(changes),
         Before=log_before,
         After=json.dumps(maybe_object.to_dict()),
     )
