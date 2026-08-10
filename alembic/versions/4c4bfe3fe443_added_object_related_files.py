@@ -1,7 +1,7 @@
 """Added object_related_files
 
 Revision ID: 4c4bfe3fe443
-Revises: c704f8f17f09
+Revises: 7abe9ef050cf
 Create Date: 2026-07-08 18:57:09.957145
 
 """
@@ -19,7 +19,7 @@ settings = Settings()
 
 # revision identifiers, used by Alembic.
 revision = '4c4bfe3fe443'
-down_revision = 'c704f8f17f09'
+down_revision = '7abe9ef050cf'
 branch_labels = None
 depends_on = None
 
