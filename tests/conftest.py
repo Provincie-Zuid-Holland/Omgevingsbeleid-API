@@ -133,6 +133,11 @@ def _test_env(engine, seed_data) -> Generator[Context, None, None]:
     app.state.db_sessionmaker = TestSession
     container.db_session_factory.override(providers.Object(TestSession))
 
+    # Patches the session makers used manually, like in the validators.py
+    build_session_factory: sessionmaker = _app_module.build_container.db_session_factory()
+    previous_build_bind = build_session_factory.kw.get("bind")
+    build_session_factory.configure(bind=connection, join_transaction_mode="create_savepoint")
+
     session = TestSession()
     try:
         yield Context(
@@ -142,6 +147,7 @@ def _test_env(engine, seed_data) -> Generator[Context, None, None]:
         )
     finally:
         session.close()
+        build_session_factory.configure(bind=previous_build_bind, join_transaction_mode="conditional_savepoint")
         container.db_session_factory.reset_override()
         app.state.db_sessionmaker = previous_sessionmaker
         transaction.rollback()

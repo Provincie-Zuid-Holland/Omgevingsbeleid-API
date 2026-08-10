@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
+from app.core.types import Model
 
 
 # Used to give data to fastapi.add_api_route
@@ -23,6 +24,7 @@ class ConfiguredFastapiEndpoint(BaseModel):
     description: Optional[str] = None
     tags: List[Union[str, Enum]] = Field(default_factory=list)
     operation_id: Optional[str] = None
+    openapi_extra: Optional[dict] = None
 
 
 class EndpointBuilder(ABC):
@@ -104,3 +106,13 @@ class EndpointBuilder(ABC):
         # Remove duplicate underscores
         operation_id = re.sub(r"_+", "_", operation_id).strip("_")
         return operation_id
+
+    def _hint_request_model(self, request_model: Model) -> dict:
+        schema = request_model.pydantic_model.model_json_schema(ref_template="#/components/schemas/{model}")
+        schema["additionalProperties"] = False
+        return {
+            "requestBody": {
+                "required": True,
+                "content": {"application/json": {"schema": schema}},
+            }
+        }
