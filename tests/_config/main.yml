@@ -1,3 +1,23 @@
+
+model_map: &model_map
+  ambitie: ambitie_basic
+  beleidsdoel: beleidsdoel_basic
+  beleidskeuze: beleidskeuze_basic
+  beleidsregel: beleidsregel_basic
+  document: document_basic
+  gebiedsprogramma: gebiedsprogramma_basic
+  maatregel: maatregel_basic
+  nationaal_belang: nationaal_belang_basic
+  gebiedengroep: gebiedengroep_basic
+  gebied: gebied_basic
+  gebiedsaanwijzing: gebiedsaanwijzing_basic
+  programma_algemeen: programma_algemeen_basic
+  verplicht_programma: verplicht_programma_basic
+  visie_algemeen: visie_algemeen_basic
+  werkingsgebied: werkingsgebied_basic
+  wettelijke_taak: wettelijke_taak_basic
+
+
 api:
   routers:
     - prefix: /users
@@ -26,6 +46,15 @@ api:
     - prefix: /storage-files/{file_uuid}/download
       endpoints:
         - resolver: download_storage_file
+    - prefix: /search
+      endpoints:
+        - resolver: search
+          resolver_data:
+            search_columns:
+              - Title
+              - Description
+            model_map: *model_map
+            response_model_name: PagedSearchObjectResponse
     - prefix: /modules
       endpoints:
         - resolver: create_module
