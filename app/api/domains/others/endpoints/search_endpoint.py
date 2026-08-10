@@ -39,34 +39,26 @@ class SearchEndpointContext(BaseEndpointContext):
 
 
 class RequestData(BaseModel):
-    Object_Types: Set[str] = Field(default_factory=set)
-    Module_ID: Optional[int] = None
-    Include_Valids: bool = Field(default=True, description="Search in Objects?")
-    Include_Modules: bool = Field(default=True, description="Search in Module Objects?")
-    Query: str = Field(min_length=1)
-
-    # @note: Not sure if we need this anymore
-    # I think this was for the full text search
-    # @field_validator("query")
-    # def validate_query(cls, value: str) -> str:
-    #     if '"' in value or "\\" in value:
-    #         raise ValueError("Invalid search characters")
-    #     return value
+    object_types: Set[str] = Field(default_factory=set)
+    module_id: Optional[int] = None
+    include_valids: bool = Field(default=True, description="Search in Objects?")
+    include_modules: bool = Field(default=True, description="Search in Module Objects?")
+    query: str = Field(min_length=1)
 
     @model_validator(mode="after")
     def validate_includes(self) -> Self:
-        if self.Module_ID:
-            self.Include_Modules = True
-        if not self.Include_Modules and not self.Include_Valids:
+        if self.module_id:
+            self.include_modules = True
+        if not self.include_modules and not self.include_valids:
             raise ValueError("You must include someting")
         return self
 
     def validate_object_types(self, allowed: Set[str]):
-        if not self.Object_Types:
-            self.Object_Types = allowed
+        if not self.object_types:
+            self.object_types = allowed
             return
 
-        invalid_object_types: Set[str] = self.Object_Types - allowed
+        invalid_object_types: Set[str] = self.object_types - allowed
         if invalid_object_types:
             raise ValueError(f"Allowed Object_Types are: {', '.join(allowed)}")
 
@@ -142,9 +134,9 @@ class EndpointHandler:
 
     def _build_statement(self) -> Select:
         branches: List[Select] = []
-        if self._request_data.Include_Valids:
+        if self._request_data.include_valids:
             branches.append(self._valid_branch())
-        if self._request_data.Include_Modules:
+        if self._request_data.include_modules:
             branches.append(self._module_branch())
 
         combined = union_all(*branches).subquery() if len(branches) > 1 else branches[0].subquery()
@@ -183,10 +175,10 @@ class EndpointHandler:
             )
             .filter(
                 or_(
-                    *[subq.c[name].like(self._request_data.Query) for name in self._context.search_columns]
+                    *[subq.c[name].like(self._request_data.query) for name in self._context.search_columns]
                 ).self_group()
             )
-            .filter(subq.c.Object_Type.in_(self._request_data.Object_Types))
+            .filter(subq.c.Object_Type.in_(self._request_data.object_types))
         )
 
     def _module_branch(self) -> Select:
@@ -228,8 +220,8 @@ class EndpointHandler:
                 .filter(ModuleObjectsTable.Modified_Date <= public_status_subq.c.Created_Date)
             )
 
-        if self._request_data.Module_ID is not None:
-            subq = subq.filter(ModuleObjectsTable.Module_ID == self._request_data.Module_ID).filter(
+        if self._request_data.module_id is not None:
+            subq = subq.filter(ModuleObjectsTable.Module_ID == self._request_data.module_id).filter(
                 ModuleTable.Closed == False
             )
         else:
@@ -243,10 +235,10 @@ class EndpointHandler:
             .filter(subq.c.Deleted == False)
             .filter(
                 or_(
-                    *[subq.c[name].like(self._request_data.Query) for name in self._context.search_columns]
+                    *[subq.c[name].like(self._request_data.query) for name in self._context.search_columns]
                 ).self_group()
             )
-            .filter(subq.c.Object_Type.in_(self._request_data.Object_Types))
+            .filter(subq.c.Object_Type.in_(self._request_data.object_types))
         )
 
 

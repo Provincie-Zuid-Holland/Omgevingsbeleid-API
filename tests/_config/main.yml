@@ -1,22 +1,11 @@
 
 model_map: &model_map
-  ambitie: ambitie_basic
   beleidsdoel: beleidsdoel_basic
   beleidskeuze: beleidskeuze_basic
-  beleidsregel: beleidsregel_basic
-  document: document_basic
-  gebiedsprogramma: gebiedsprogramma_basic
   maatregel: maatregel_basic
-  nationaal_belang: nationaal_belang_basic
   gebiedengroep: gebiedengroep_basic
   gebied: gebied_basic
   gebiedsaanwijzing: gebiedsaanwijzing_basic
-  programma_algemeen: programma_algemeen_basic
-  verplicht_programma: verplicht_programma_basic
-  visie_algemeen: visie_algemeen_basic
-  werkingsgebied: werkingsgebied_basic
-  wettelijke_taak: wettelijke_taak_basic
-
 
 api:
   routers:
