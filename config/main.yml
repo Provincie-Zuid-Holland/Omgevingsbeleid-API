@@ -105,7 +105,6 @@ bill_compact_forbidden_tags_rule:
     - Time_Article
   forbidden_tags:
     - al
-    - intref
 
 model_map: &model_map
   ambitie: ambitie_basic
