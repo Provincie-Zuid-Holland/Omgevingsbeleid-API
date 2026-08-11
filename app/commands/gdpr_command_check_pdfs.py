@@ -67,7 +67,7 @@ def _handle_storage_files(
     if not report:
         return
 
-    storage_file_uuids: list[uuid.UUID] = [storage_file.UUID for storage_file in report.keys()]
+    storage_file_uuids: list[uuid.UUID] = [storage_file.UUID for storage_file in report]
     object_lookups: ObjectLookups = ObjectLookups(
         session,
         object_repository,

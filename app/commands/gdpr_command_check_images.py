@@ -116,7 +116,7 @@ def check_images(
         if not report:
             return
 
-        asset_uuids: set[uuid.UUID] = {asset.UUID for asset in report.keys()}
+        asset_uuids: set[uuid.UUID] = {asset.UUID for asset in report}
         object_lookups: ObjectLookups = ObjectLookups(
             session,
             object_repository,

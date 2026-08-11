@@ -290,7 +290,7 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
-        koop_subjects: list[str] = [subject for subject in OnderwerpType.__members__.keys()]
+        koop_subjects: list[str] = [subject for subject in OnderwerpType.__members__]
         for subject in request.input_data.Publication_Version.Bill_Metadata["Subjects"]:
             if subject not in koop_subjects:
                 errors.append(
@@ -303,7 +303,7 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
                     )
                 )
 
-        koop_jurisdictions: list[str] = [subject for subject in RechtsgebiedType.__members__.keys()]
+        koop_jurisdictions: list[str] = [subject for subject in RechtsgebiedType.__members__]
         for jurisdiction in request.input_data.Publication_Version.Bill_Metadata["Jurisdictions"]:
             if jurisdiction not in koop_jurisdictions:
                 errors.append(
@@ -368,9 +368,7 @@ class AreaDesignationRefCheckRule(ValidatePublicationRule):
                 )
                 continue
 
-            ref_group: GebiedsaanwijzingWaarde | None = ref_type.get_value_by_label(
-                gebiedsaanwijzing.aanwijzing_group
-            )
+            ref_group: GebiedsaanwijzingWaarde | None = ref_type.get_value_by_label(gebiedsaanwijzing.aanwijzing_group)
             if ref_group is None:
                 errors.append(
                     ValidatePublicationError(

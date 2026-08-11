@@ -66,7 +66,7 @@ class PdfMetaService:
         report_list: list[PdfMetaReport] = []
 
         for page in pdf.pages:
-            for pdf_image_key in page.images.keys():
+            for pdf_image_key in page.images:
                 pdf_image = PdfImage(page.images[pdf_image_key])
                 image = pdf_image.as_pil_image()
                 exif_data = image.getexif()

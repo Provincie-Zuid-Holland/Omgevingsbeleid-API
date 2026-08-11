@@ -94,7 +94,7 @@ class PublicationGebiedsaanwijzingProcessor:
                 )
 
             for deprecated_attr in ["data-aanwijzing-type", "data-aanwijzing-group", "data-target-codes"]:
-                for aanwijzing_attr in aanwijzing_html.attrs.keys():
+                for aanwijzing_attr in aanwijzing_html.attrs:
                     if deprecated_attr == aanwijzing_attr:
                         raise validation_exception(
                             [

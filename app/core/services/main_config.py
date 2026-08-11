@@ -17,7 +17,7 @@ class MainConfig:
         return response_type.model_validate(value)
 
     def _get_element_or_fail(self, key: str) -> Any:
-        if key not in self._main_config.keys():
+        if key not in self._main_config:
             raise RuntimeError(f"Key '{key}' not found in main config")
         return self._main_config[key]
 
