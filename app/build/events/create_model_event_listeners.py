@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pydantic
 
 from app.api.domains.modules.types import PublicModuleObjectRevision
@@ -28,7 +26,7 @@ class ObjectsExtenderListener(BuildListener[CreateModelEvent]):
 
             # Attach to the main object
             event.payload.pydantic_fields[field_name] = (
-                Optional[model.pydantic_model],
+                model.pydantic_model | None,
                 None,
             )
 
@@ -51,7 +49,7 @@ class ObjectStaticsExtenderListener(BuildListener[CreateModelEvent]):
 
             # Attach to the STATIC object
             event.payload.static_pydantic_fields[field_name] = (
-                Optional[model.pydantic_model],
+                model.pydantic_model | None,
                 None,
             )
 
@@ -127,7 +125,7 @@ class JoinWerkingsgebiedenListener(BuildListener[CreateModelEvent]):
         target_object_model: Model = event.context.models_provider.get_model(model_id)
 
         event.payload.pydantic_fields[field_name] = (
-            Optional[target_object_model.pydantic_model],
+            target_object_model.pydantic_model | None,
             None,
         )
 
@@ -161,7 +159,7 @@ class JoinGebiedengroepenListener(BuildListener[CreateModelEvent]):
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            Optional[ObjectStatics],
+            ObjectStatics | None,
             None,
         )
 
@@ -212,7 +210,7 @@ class AddNextObjectVersionToObjectModelListener(BuildListener[CreateModelEvent])
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            Optional[NextObjectVersion],
+            NextObjectVersion | None,
             None,
         )
 
@@ -229,7 +227,7 @@ class AddRelatedObjectsToWerkingsgebiedObjectModelListener(BuildListener[CreateM
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            Optional[WerkingsgebiedRelatedObjects],
+            WerkingsgebiedRelatedObjects | None,
             None,
         )
 

@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from graphlib import TopologicalSorter
-from typing import Any, Optional
+from typing import Any
 
 import pydantic
 
@@ -143,7 +143,7 @@ class ObjectModelsBuilder:
                 field_type = FIELD_TYPES[field_type].field_type
 
             if field.optional:
-                field_type = Optional[field_type]
+                field_type = field_type | None
 
             default_value = field.default
             if not isinstance(default_value, list) and default_value in self._field_defaults:
