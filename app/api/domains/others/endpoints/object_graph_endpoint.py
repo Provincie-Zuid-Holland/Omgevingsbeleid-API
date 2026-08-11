@@ -106,11 +106,9 @@ class EndpointHandler:
         return list(set.union(relations, acknowledged_relations))
 
     def _get_relations(self) -> set[GraphEdge]:
-        search_codes: set[str] = set(
-            [
-                self._object.Code,
-            ]
-        )
+        search_codes: set[str] = {
+            self._object.Code,
+        }
         ignore_codes: set[str] = set()
         edges: set[GraphEdge] = set()
 
@@ -171,11 +169,9 @@ class EndpointHandler:
         return edges
 
     def _get_valid_acknowledged_relations(self) -> set[GraphEdge]:
-        search_codes: set[str] = set(
-            [
-                self._object.Code,
-            ]
-        )
+        search_codes: set[str] = {
+            self._object.Code,
+        }
         ignore_codes: set[str] = set()
         edges: set[GraphEdge] = set()
 

@@ -1,4 +1,3 @@
-
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.repository.publication_object_repository import (
@@ -45,7 +44,7 @@ class PublicationObjectProvider:
         for obj in objects:
             obj_type: str = obj["Object_Type"]
             type_specific_fields: set[str] = set(object_field_map.get(obj_type, []))
-            allowed_fields: set[str] = PUBLICATION_BASE_FIELDS | set(["Module_ID"]) | type_specific_fields
+            allowed_fields: set[str] = PUBLICATION_BASE_FIELDS | {"Module_ID"} | type_specific_fields
 
             # @NOTE: I'm not sure anymore why we keep fields with underscores here
             cleaned: dict = {

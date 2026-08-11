@@ -132,8 +132,8 @@ class StateV6Upgrader(StateUpgrader):
                 uuid=old_werkingsgebied.UUID,
                 code=werkingsgebied_code,
                 title=old_werkingsgebied.Title,
-                source_gebieden_codes=set([gebied_code]),
-                gio_keys=set([gebied_code]),
+                source_gebieden_codes={gebied_code},
+                gio_keys={gebied_code},
             )
 
         return result

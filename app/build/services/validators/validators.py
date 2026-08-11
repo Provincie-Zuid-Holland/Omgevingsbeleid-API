@@ -119,40 +119,38 @@ class FilenameValidator(Validator):
 
 class HtmlValidator(Validator):
     def __init__(self):
-        self._allowed_tags = set(
-            [
-                "h1",
-                "h2",
-                "h3",
-                "h4",
-                "h5",
-                "p",
-                "b",
-                "i",
-                "a",
-                "strong",
-                "li",
-                "ol",
-                "ul",
-                "img",
-                "br",
-                "u",
-                "em",
-                "span",
-                "sub",
-                "sup",
-                "table",
-                "tbody",
-                "tr",
-                "td",
-                "th",
-            ]
-        )
+        self._allowed_tags = {
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "p",
+            "b",
+            "i",
+            "a",
+            "strong",
+            "li",
+            "ol",
+            "ul",
+            "img",
+            "br",
+            "u",
+            "em",
+            "span",
+            "sub",
+            "sup",
+            "table",
+            "tbody",
+            "tr",
+            "td",
+            "th",
+        }
 
         # @todo: validate these
-        self._allowed_attrs = set(["src", "alt", "rel", "target", "href"])
-        self._allowed_styles = set(["color"])
-        self._allowed_schemas = set(["data", "https", "http"])
+        self._allowed_attrs = {"src", "alt", "rel", "target", "href"}
+        self._allowed_styles = {"color"}
+        self._allowed_schemas = {"data", "https", "http"}
 
     def get_id(self) -> str:
         return "html"
