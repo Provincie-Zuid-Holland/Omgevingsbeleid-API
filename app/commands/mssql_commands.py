@@ -185,7 +185,7 @@ def mssql_setup_search_database(
             """
             )
         )
-        words_in_stoplist = set([r[0] for r in result.all()])
+        words_in_stoplist = {r[0] for r in result.all()}
 
         # Add new words to stoplist
         words_to_add: set[str] = set.difference(stopwords, words_in_stoplist)

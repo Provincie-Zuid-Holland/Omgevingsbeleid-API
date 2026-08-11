@@ -84,9 +84,9 @@ class PublicationGebiedenProvider:
         return used_groep_objects
 
     def _calculate_gebiedengroep_codes(self, used_objects: list[dict]) -> set[str]:
-        used_codes: set[str] = set(
-            [o.get("Gebiedengroep_Code") for o in used_objects if o.get("Gebiedengroep_Code", None) is not None]
-        )  # type: ignore
+        used_codes: set[str] = {
+            o.get("Gebiedengroep_Code") for o in used_objects if o.get("Gebiedengroep_Code", None) is not None
+        }  # type: ignore
         return used_codes
 
     def _get_gebied_objects(self, all_objects: list[dict]) -> dict[str, InputGebied]:

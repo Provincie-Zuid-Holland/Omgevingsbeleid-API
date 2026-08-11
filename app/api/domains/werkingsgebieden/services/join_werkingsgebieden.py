@@ -85,7 +85,7 @@ class JoinWerkingsgebiedenService:
         to_field: str = join_werkingsgebieden_config["to_field"]
         from_field: str = join_werkingsgebieden_config["from_field"]
 
-        werkingsgebied_codes: list[str] = list(set([getattr(r, from_field) for r in self._rows]))
+        werkingsgebied_codes: list[str] = list({getattr(r, from_field) for r in self._rows})
         werkingsgebied_codes: list[str] = [c for c in werkingsgebied_codes if c is not None]
 
         return Config(

@@ -61,8 +61,8 @@ class EndpointHandler:
             "limit": self._pagination.limit,
         }
 
-        objects_field_set: set[str] = set([c.name for c in ObjectsTable.__table__.columns])
-        module_objects_field_set: set[str] = set([c.name for c in ModuleObjectsTable.__table__.columns])
+        objects_field_set: set[str] = {c.name for c in ObjectsTable.__table__.columns}
+        module_objects_field_set: set[str] = {c.name for c in ModuleObjectsTable.__table__.columns}
         fields: set[str] = objects_field_set.intersection(module_objects_field_set)
 
         if self._as_like:

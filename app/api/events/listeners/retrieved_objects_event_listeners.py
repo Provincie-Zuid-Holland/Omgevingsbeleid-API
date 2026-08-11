@@ -421,7 +421,7 @@ class JoinObjectsBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
 
         codes_per_row: list[list[str]] = [getattr(r, from_field) or [] for r in event.payload.rows]
 
-        objects_codes: set[str] = set([code for codes in codes_per_row for code in codes if code is not None])
+        objects_codes: set[str] = {code for codes in codes_per_row for code in codes if code is not None}
 
         return JoinObjectsConfig(
             object_codes=objects_codes,
@@ -438,9 +438,7 @@ class JoinGebiedsaanwijzingenBaseListener(ApiListener[EventRMO], Generic[EventRM
     def __init__(self, service_factory: JoinGebiedsaanwijzingenServiceFactory):
         self._service_factory: JoinGebiedsaanwijzingenServiceFactory = service_factory
 
-    def handle_event(
-        self, session: Session, event: RetrievedModuleObjectsEvent
-    ) -> RetrievedModuleObjectsEvent | None:
+    def handle_event(self, session: Session, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent | None:
         config: JoinGebiedsaanwijzingenConfig | None = self._collect_config(event)
         if not config:
             return event

@@ -227,10 +227,10 @@ class PatchActMutation:
     def _patch_assets(self, session: Session, data: ApiActInputData) -> ApiActInputData:
         state_assets: dict[str, models.Asset] = self._active_act.Assets
 
-        fetched_assets_uuids: set[str] = set([a["UUID"] for a in data.Publication_Data.assets])
-        additional_asset_uuids_str: set[str] = set(
-            [sa.UUID for _, sa in state_assets.items() if sa.UUID not in fetched_assets_uuids]
-        )
+        fetched_assets_uuids: set[str] = {a["UUID"] for a in data.Publication_Data.assets}
+        additional_asset_uuids_str: set[str] = {
+            sa.UUID for _, sa in state_assets.items() if sa.UUID not in fetched_assets_uuids
+        }
         additional_asset_uuids: list[UUID] = [UUID(uuid_str) for uuid_str in additional_asset_uuids_str]
         additional_assets: list[dict] = self._asset_provider.get_assets_by_uuids(session, additional_asset_uuids)
 

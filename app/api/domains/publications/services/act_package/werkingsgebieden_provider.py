@@ -111,9 +111,9 @@ class PublicationWerkingsgebiedenProvider:
         return result
 
     def _calculate_werkingsgebied_codes(self, used_objects: list[dict]) -> set[str]:
-        werkingsgebied_codes: set[str] = set(
-            [o.get("Werkingsgebied_Code") for o in used_objects if o.get("Werkingsgebied_Code", None) is not None]
-        )  # type: ignore
+        werkingsgebied_codes: set[str] = {
+            o.get("Werkingsgebied_Code") for o in used_objects if o.get("Werkingsgebied_Code", None) is not None
+        }  # type: ignore
 
         gebiedsaanwijzingen_codes: set[str] = self._resolve_gebiedsaanwijzingen(used_objects)
 

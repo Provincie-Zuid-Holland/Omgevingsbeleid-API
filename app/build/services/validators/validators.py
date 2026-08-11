@@ -163,7 +163,7 @@ class HtmlValidator(Validator):
                 raise ValueError("Value must be a string")
 
             soup: BeautifulSoup = BeautifulSoup(value, "html.parser")
-            used_tags = set([tag.name for tag in soup.find_all()])
+            used_tags = {tag.name for tag in soup.find_all()}
             invalid_tags = set.difference(used_tags, self._allowed_tags)
             if invalid_tags:
                 raise ValueError(f"Invalid html tags used [{invalid_tags}]")

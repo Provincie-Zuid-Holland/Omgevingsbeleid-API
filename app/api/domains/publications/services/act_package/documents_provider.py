@@ -123,9 +123,9 @@ class PublicationDocumentsProvider:
         return result
 
     def _calculate_used_documents(self, all_objects: list[dict], used_objects: list[dict]) -> list[dict]:
-        used_document_codes: set[str] = set(
-            [d for o in used_objects if isinstance(o.get("Documents"), list) for d in o.get("Documents", [])]
-        )
+        used_document_codes: set[str] = {
+            d for o in used_objects if isinstance(o.get("Documents"), list) for d in o.get("Documents", [])
+        }
 
         used_documents_objects: list[dict] = [
             o for o in all_objects if o["Object_Type"] == "document" and o.get("Code") in used_document_codes
