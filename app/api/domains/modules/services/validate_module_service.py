@@ -468,6 +468,44 @@ class ThemasCheckRule(ValidateModuleRule):
         return errors
 
 
+class CheckEmptyAreaDesignationTextConfig(BaseModel):
+    fields: List[str]
+
+
+class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
+    def __init__(self, main_config: MainConfig):
+        self._config: CheckEmptyAreaDesignationTextRule = main_config.get_as_model(
+            "check_empty_area_designation_text",
+            CheckEmptyAreaDesignationTextConfig,
+        )
+
+    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
+        errors: List[ValidateModuleError] = []
+
+        for object_table in request.module.object:
+            for field_name in self._config.fields:
+                value: str = str(getattr(object_table, field_name, ""))
+                soup = BeautifulSoup(value, "html.parser")
+                for gebiedsaanwijzing in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
+                    if not gebiedsaanwijzing.get_text(strip=True):
+                        errors.append(
+                            ValidateModuleError(
+                                rule="CheckEmptyAreaDesignationTextRule",
+                                object=ValidateModuleObject(
+                                    code=object_table.Code,
+                                    object_id=object_table.Object_ID,
+                                    object_type=object_table.Object_Type,
+                                    title=object_table.Title,
+                                ),
+                                severity=ValidateModuleSeverity.warning,
+                                messages=[
+                                    f"Gebiedsaanwijzing '{gebiedsaanwijzing.get('data-code', '')}' in '{field_name}' has no selected text"
+                                ],
+                            )
+                        )
+        return errors
+
+
 class ValidateModuleRunner:
     def __init__(
         self,
