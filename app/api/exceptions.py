@@ -1,4 +1,3 @@
-
 from fastapi import HTTPException
 
 
@@ -8,4 +7,4 @@ class LoggedHttpException(HTTPException):
         self._log_message: str | None = log_message
 
     def get_log_message(self) -> str:
-        return "%s. %s" % (self.detail, self._log_message or "")
+        return f"{self.detail}. {self._log_message or ''}"
