@@ -84,8 +84,7 @@ def _handle_storage_files(
         log_list.append(
             f"{label} {storage_file.UUID} with name {storage_file.Filename}{object_log} has the following report:"
         )
-        for issue in meta_issues:
-            log_list.append(issue)
+        log_list.extend(meta_issues)
         log_message("\n".join(log_list))
 
 

@@ -39,7 +39,7 @@ class Filters:
 
         # We are using csv to parse the string as it knows how to parse strings with quotes
         reader = csv.reader([data])
-        for item in list(reader)[0]:
+        for item in next(iter(reader)):
             pieces = item.split(":", 1)
             if len(pieces) != 2:
                 raise HTTPException(status.HTTP_400_BAD_REQUEST, "Filter does not have a key and a value")

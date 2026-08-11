@@ -337,10 +337,7 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
         element_children: list[PageElement] = [child for child in parent.children if child.name]
         if len(element_children) != 1:
             return False
-        if parent.get_text(strip=True):
-            return False
-
-        return True
+        return not parent.get_text(strip=True)
 
 
 class AreaDesignationRefCheckRule(ValidateModuleRule):

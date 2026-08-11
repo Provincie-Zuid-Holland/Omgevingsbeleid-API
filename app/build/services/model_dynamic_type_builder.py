@@ -13,4 +13,4 @@ class ModelDynamicTypeBuilder:
         model_types: tuple[type[BaseModel], ...] = tuple(
             self._models_provider.get_pydantic_model(model_id) for model_id in model_map.values()
         )
-        return Union[model_types]
+        return Union[model_types]  # noqa: UP007

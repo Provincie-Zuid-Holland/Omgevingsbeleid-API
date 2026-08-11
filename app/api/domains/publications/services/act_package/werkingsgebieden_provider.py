@@ -130,7 +130,7 @@ class PublicationWerkingsgebiedenProvider:
         pattern = r'<a[^>]*data-hint-locatie="(.*?)"[^>]*>'
 
         for obj in used_objects:
-            for _, value in obj.items():
+            for value in obj.values():
                 if not isinstance(value, str):
                     continue
 

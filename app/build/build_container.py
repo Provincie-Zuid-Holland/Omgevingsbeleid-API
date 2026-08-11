@@ -126,7 +126,6 @@ class BuildContainer(containers.DeclarativeContainer):
     endpoint_builder_provider = providers.Singleton(
         endpoint_builder_provider.EndpointBuilderProvider,
         endpoint_builders=providers.List(
-            # fmt: off
             # Objects domain
             providers.Factory(endpoint_builders_objects.ObjectLatestEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectVersionEndpointBuilder),
@@ -340,7 +339,6 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_others.ObjectRelatedFilesUploadEndpointBuilder),
             providers.Factory(endpoint_builders_others.ObjectRelatedFilesListEndpointBuilder),
             providers.Factory(endpoint_builders_others.ObjectRelatedFilesDeleteEndpointBuilder),
-            # fmt: on
         ),
     )
 

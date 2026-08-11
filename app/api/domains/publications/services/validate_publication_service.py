@@ -172,7 +172,7 @@ class UsedObjectTypeExistsRule(ValidatePublicationRule):
         soup: BeautifulSoup = BeautifulSoup(request.input_data.Publication_Data.parsed_template, "html.parser")
         object_tags: ResultSet[Tag] = soup.find_all("object")
         objects: list[str] = [obj.get("code") for obj in object_tags if obj.get("code")]
-        object_types: set[str] = set(v.split("-", 1)[0] for v in objects)
+        object_types: set[str] = {v.split("-", 1)[0] for v in objects}
         object_templates: set[str] = request.input_data.Publication_Version.Publication.Template.Object_Templates.keys()
 
         for object_type in object_types:
