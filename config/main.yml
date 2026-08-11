@@ -868,6 +868,7 @@ users_permissions:
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
+<<<<<<< HEAD
     - publication_can_delete_publication_version_attachment
     - publication_can_upload_publication_version_attachment
     - publication_can_download_publication_version_attachment
@@ -914,10 +915,14 @@ users_permissions:
     - publication_can_view_publication_environment
     - publication_can_create_publication_aoj
     - publication_can_view_publication_aoj
+=======
+    # Publicatie Act
+>>>>>>> 0cdd94b5 (Created new roles and edited the name of 1 to made it fit better)
     - publication_can_create_publication_act
     - publication_can_close_publication_act
     - publication_can_edit_publication_act
     - publication_can_view_publication_act
+<<<<<<< HEAD
     - publication_can_create_publication
     - publication_can_edit_publication
     - publication_can_view_publication
@@ -933,6 +938,13 @@ users_permissions:
     - publication_can_download_publication_act_package
     - publication_can_view_unified_packages
     - publication_can_upload_publication_act_package_report
+=======
+    # Publicatie Act Package
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    # Publicatie Act Package Rapport
+>>>>>>> 0cdd94b5 (Created new roles and edited the name of 1 to made it fit better)
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
     # Publicatie Kennisgeving
@@ -965,6 +977,7 @@ users_permissions:
     # Publicatieversie
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
+<<<<<<< HEAD
     - publication_can_view_publication_version
     - publication_can_delete_publication_version_attachment
     - publication_can_upload_publication_version_attachment
@@ -989,49 +1002,18 @@ users_permissions:
     - storage_file_can_upload_files
     - can_create_object_related_file
     - can_delete_object_related_file
-  "Superuser":
-    - atemporal_can_create_object
-    - atemporal_can_edit_object
-    - atemporal_can_delete_object
-    - module_can_create_module
-    - module_can_close_module
-    - module_can_edit_module
-    - module_can_activate_module
-    - module_can_patch_module_status
-    - module_can_add_new_object_to_module
-    - module_can_add_existing_object_to_module
-    - module_can_edit_module_object_context
-    - module_can_remove_object_from_module
-    - module_can_patch_object_in_module
-    - user_can_create_user
-    - user_can_edit_user
-    - user_can_reset_user_password
-    - can_patch_object_static
-    - publication_can_create_publication_template
-    - publication_can_edit_publication_template
-    - publication_can_view_publication_template
-    - publication_can_create_publication_environment
-    - publication_can_edit_publication_environment
-    - publication_can_view_publication_environment
-    - publication_can_create_publication_aoj
-    - publication_can_view_publication_aoj
+=======
+    - publication_can_view_publication_version 
+    # Publicatie Act
     - publication_can_create_publication_act
     - publication_can_close_publication_act
     - publication_can_edit_publication_act
     - publication_can_view_publication_act
-    - publication_can_create_publication
-    - publication_can_edit_publication
-    - publication_can_view_publication
-    - publication_can_create_publication_version
-    - publication_can_edit_publication_version
-    - publication_can_view_publication_version
-    - publication_can_delete_publication_version_attachment
-    - publication_can_upload_publication_version_attachment
-    - publication_can_download_publication_version_attachment
+    # Publicatie Act Package
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
-    - publication_can_view_unified_packages
+    # Publicatie Act Package Rapport
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
@@ -1046,6 +1028,154 @@ users_permissions:
     # Publicatie Kennisgeving Levering Rapport
     - publication_can_upload_publication_announcement_package_report
     - publication_can_view_publication_announcement_package_report
+    - publication_can_download_publication_announcement_package_report   
+    # Publicatieomgeving
+    - publication_can_create_publication_environment
+    - publication_can_edit_publication_environment
+    - publication_can_view_publication_environment
+  "Technisch Beheerder" : 
+  # Atemporal Object
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    # Module
+    - module_can_create_module
+    - module_can_close_module
+    - module_can_edit_module
+    - module_can_activate_module
+    - module_can_patch_module_status
+    # Module Object
+    - module_can_add_new_object_to_module
+    - module_can_add_existing_object_to_module
+    - module_can_edit_module_object_context
+    - module_can_remove_object_from_module
+    - module_can_patch_object_in_module
+    # Gebruiker
+    - user_can_create_user
+    - user_can_edit_user
+    - user_can_reset_user_password
+    # Statische Data
+    - can_patch_object_static
+    # Publicatietemplate
+    - publication_can_create_publication_template
+    - publication_can_edit_publication_template
+    - publication_can_view_publication_template
+    # Publicatie Ambtsgebied
+    - publication_can_create_publication_aoj
+    - publication_can_view_publication_aoj
+    # Publicatie
+    - publication_can_create_publication
+    - publication_can_edit_publication
+    - publication_can_view_publication
+    # Publicatieversie
+    - publication_can_create_publication_version
+    - publication_can_edit_publication_version
+    - publication_can_view_publication_version
+    # Publicatie Act
+    - publication_can_create_publication_act
+    - publication_can_close_publication_act
+    - publication_can_edit_publication_act
+    - publication_can_view_publication_act
+    # Publicatie Act Package
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_abort_publication_act_package
+    # Publicatie Act Package Rapport
+    - publication_can_upload_publication_act_package_report
+    - publication_can_view_publication_act_package_report
+    - publication_can_download_publication_act_package_report
+    # Publicatie Kennisgeving
+    - publication_can_create_publication_announcement
+    - publication_can_edit_publication_announcement
+    - publication_can_view_publication_announcement
+    # Publicatie Kennisgeving Levering
+    - publication_can_create_publication_announcement_package
+    - publication_can_view_publication_announcement_package
+    - publication_can_download_publication_announcement_package
+    # Publicatie Kennisgeving Levering Rapport
+    - publication_can_upload_publication_announcement_package_report
+    - publication_can_view_publication_announcement_package_report
+    - publication_can_download_publication_announcement_package_report
+    # Publicatieomgeving
+    - publication_can_create_publication_environment
+    - publication_can_edit_publication_environment
+    - publication_can_view_publication_environment
+    # Storage File
+    - storage_file_can_upload_files
+    # Object related files 
+    - object_related_files_can_create_object_related_file
+    - cobject_related_files_an_delete_object_related_file
+  "Ambtelijk opdrachtgever": 
+    # Statische Data
+    - can_patch_object_static
+  "Portefeuillehouder" : []
+  "Basic": []
+>>>>>>> 0cdd94b5 (Created new roles and edited the name of 1 to made it fit better)
+  "Superuser":
+  # Atemporal Object
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    # Module
+    - module_can_create_module
+    - module_can_close_module
+    - module_can_edit_module
+    - module_can_activate_module
+    - module_can_patch_module_status
+    # Module Object
+    - module_can_add_new_object_to_module
+    - module_can_add_existing_object_to_module
+    - module_can_edit_module_object_context
+    - module_can_remove_object_from_module
+    - module_can_patch_object_in_module
+    # Gebruiker
+    - user_can_create_user
+    - user_can_edit_user
+    - user_can_reset_user_password
+    # Statische Data
+    - can_patch_object_static
+    # Publicatietemplate
+    - publication_can_create_publication_template
+    - publication_can_edit_publication_template
+    - publication_can_view_publication_template
+    # Publicatie Ambtsgebied
+    - publication_can_create_publication_aoj
+    - publication_can_view_publication_aoj
+    # Publicatie
+    - publication_can_create_publication
+    - publication_can_edit_publication
+    - publication_can_view_publication
+    # Publicatieversie
+    - publication_can_create_publication_version
+    - publication_can_edit_publication_version
+    - publication_can_view_publication_version
+    # Publicatie Act
+    - publication_can_create_publication_act
+    - publication_can_close_publication_act
+    - publication_can_edit_publication_act
+    - publication_can_view_publication_act
+    # Publicatie Act Package
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_abort_publication_act_package
+    # Publicatie Act Package Rapport
+    - publication_can_upload_publication_act_package_report
+    - publication_can_view_publication_act_package_report
+    - publication_can_download_publication_act_package_report
+    # Publicatie Kennisgeving
+    - publication_can_create_publication_announcement
+    - publication_can_edit_publication_announcement
+    - publication_can_view_publication_announcement
+    # Publicatie Kennisgeving Levering
+    - publication_can_create_publication_announcement_package
+    - publication_can_view_publication_announcement_package
+    - publication_can_download_publication_announcement_package
+    # Publicatie Kennisgeving Levering Rapport
+    - publication_can_upload_publication_announcement_package_report
+    - publication_can_view_publication_announcement_package_report
+<<<<<<< HEAD
     - publication_can_download_publication_announcement_package_report   
     # Publicatieomgeving
     - publication_can_create_publication_environment
@@ -1110,6 +1240,8 @@ users_permissions:
     # Publicatie Kennisgeving Levering Rapport
     - publication_can_upload_publication_announcement_package_report
     - publication_can_view_publication_announcement_package_report
+=======
+>>>>>>> 0cdd94b5 (Created new roles and edited the name of 1 to made it fit better)
     - publication_can_download_publication_announcement_package_report
     # Publicatieomgeving
     - publication_can_create_publication_environment
@@ -1119,6 +1251,7 @@ users_permissions:
     - storage_file_can_upload_files
     # Object related files 
     - object_related_files_can_create_object_related_file
+<<<<<<< HEAD
     - cobject_related_files_an_delete_object_related_file
   "Ambtelijk opdrachtgever": 
     # Statische Data
@@ -1193,6 +1326,8 @@ users_permissions:
     - storage_file_can_upload_files
     # Object related files 
     - object_related_files_can_create_object_related_file
+=======
+>>>>>>> 0cdd94b5 (Created new roles and edited the name of 1 to made it fit better)
     - object_related_files_can_delete_object_related_file
   # "Ambtelijk opdrachtgever": []
   # "Basic": []
@@ -1524,6 +1659,10 @@ users_permissions:
   #   - storage_file_can_upload_files
   #   - can_create_object_related_file
   #   - can_delete_object_related_file
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0cdd94b5 (Created new roles and edited the name of 1 to made it fit better)
 
 mssql_search:
   - table_name: objects
