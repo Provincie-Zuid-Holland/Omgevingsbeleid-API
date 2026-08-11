@@ -60,7 +60,10 @@ class RequestData(BaseModel):
 
         invalid_object_types: Set[str] = self.object_types - allowed
         if invalid_object_types:
-            raise ValueError(f"Allowed Object_Types are: {', '.join(allowed)}")
+            raise HTTPException(
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                f"Allowed Object_Types are: {', '.join(sorted(allowed))}",
+            )
 
 
 class SearchObject(BaseModel, Generic[TModel]):

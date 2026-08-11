@@ -166,3 +166,90 @@ def test_search(
     expected_uuids: Set[UUID] = set(ctx.f.find_uuids(expected_refs))
 
     assert expected_uuids == result_uuids
+
+
+@pytest.mark.parametrize(
+    "query_params, request_body, expected_status, expected_message, expected_limit",
+    [
+        pytest.param({}, {}, 422, None, None, id="missing-query"),
+        pytest.param({}, {"query": ""}, 422, None, None, id="empty-query"),
+        pytest.param(
+            {},
+            {
+                "query": "%beleidsdoel 1%",
+                "include_valids": False,
+                "include_modules": False,
+            },
+            422,
+            "You must include someting",
+            None,
+            id="nothing-included",
+        ),
+        pytest.param(
+            {"limit": 51},
+            {"query": "%beleidsdoel 1%"},
+            422,
+            "Pagination limit is too high",
+            None,
+            id="limit-above-maximum",
+        ),
+        pytest.param(
+            {},
+            {"query": "%beleidsdoel 1%", "object_types": ["bogus"]},
+            422,
+            "Allowed Object_Types are",
+            None,
+            id="unknown-object-type",
+        ),
+        pytest.param(
+            {"limit": 50},
+            {"query": "%beleidsdoel 1%"},
+            200,
+            None,
+            50,
+            id="limit-at-maximum",
+        ),
+        pytest.param(
+            {"limit": 1001},
+            {"query": "%beleidsdoel 1%"},
+            200,
+            None,
+            20,
+            id="limit-reset-to-default",
+        ),
+        pytest.param(
+            {},
+            {
+                "query": "%beleidsdoel 1%",
+                "module_id": 1,
+                "include_valids": False,
+                "include_modules": False,
+            },
+            200,
+            None,
+            None,
+            id="module-id-forces-include-modules",
+        ),
+    ],
+)
+def test_search_request_validation(
+    client: TestClient,
+    query_params: Dict[str, Any],
+    request_body: Dict[str, Any],
+    expected_status: int,
+    expected_message: Optional[str],
+    expected_limit: Optional[int],
+):
+    response = client.post(
+        "/search",
+        params=query_params,
+        json=request_body,
+    )
+
+    assert response.status_code == expected_status, response.text
+
+    if expected_message is not None:
+        assert expected_message in response.text
+
+    if expected_limit is not None:
+        assert response.json()["limit"] == expected_limit
