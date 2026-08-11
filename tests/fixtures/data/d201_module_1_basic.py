@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from app.api.domains.modules.types import ModuleStatusCode, ModuleStatusCodeInternal
+from app.api.domains.modules.types import ModuleStatusCode, ModuleStatusCodeInternal, PublicModuleStatusCode
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.spec.modules.module_beleidsdoel_spec import ModuleBeleidsdoelSpec
 from tests.fixtures.internal.spec.modules.module_spec import ModuleSpec
@@ -68,11 +68,11 @@ def load(col: Collector) -> None:
                 ]
             )
 
-            # Pin the changes with a status change
+            # We make it a public status now which will have effect on the /search endpoint for example
             col.move_at(hours=1)
             col.add(
                 ModuleStatusHistorySpec(
-                    Status=ModuleStatusCode.Ontwerp_GS_Concept,
+                    Status=PublicModuleStatusCode.Ter_Inzage,
                 )
             )
 
@@ -85,6 +85,11 @@ def load(col: Collector) -> None:
                         key="mod_1_beleidsdoel_1_third_entry",
                         Object_ID=1,
                         Title="Changed the titel via Module 1 again!",
+                    ),
+                    # An record to edit
+                    ModuleBeleidsdoelSpec(
+                        key="mod_1_beleidsdoel_2_first_entry",
+                        Object_ID=2,
                     ),
                 ]
             )

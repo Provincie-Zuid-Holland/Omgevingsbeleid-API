@@ -41,7 +41,7 @@ class IntermediateModel(BaseModel):
     id: str
     name: str
     static_only: bool
-    columns: List[str]  # Determines the columns to fetch from the database
+    columns: List[Column]  # Determines the columns to fetch from the database
     fields: List[Field]  # Used to generate the pydantic model
     static_fields: List[Field]  # Fields from the static table
     service_config: dict  # Services can add data to fields and columns

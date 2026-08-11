@@ -100,6 +100,9 @@ class FixtureData(BaseModel):
             raise KeyError(f"No fixture record for {ref!r}")
         return record
 
+    def find_uuids(self, refs: List[Ref]) -> List[uuid.UUID]:
+        return [self.primary_key_uuid(ref) for ref in refs]
+
     def primary_key(self, ref: Ref) -> PrimaryKey:
         return self.find(ref).primary_key
 

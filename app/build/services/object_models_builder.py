@@ -129,7 +129,7 @@ class ObjectModelsBuilder:
             name=intermediate_model.name,
             pydantic_model=pydantic_model,
             service_config=intermediate_model.service_config,
-            columns=[],
+            columns=intermediate_model.columns,
         )
 
     def _get_pydantic_fields(self, fields: List[Field], validator_prefix: str) -> Tuple[OrderedDict, dict]:
