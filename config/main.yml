@@ -96,6 +96,16 @@ forbidden_html_tags_rule:
   - h1
   - h2
 
+bill_compact_forbidden_tags_rule:
+  fields:
+    - Preamble
+    - Closing
+    - Signed
+    - Amendment_Article
+    - Time_Article
+  forbidden_tags:
+    - al
+
 model_map: &model_map
   ambitie: ambitie_basic
   beleidsdoel: beleidsdoel_basic
@@ -1263,7 +1273,7 @@ publication:
         Amendment_Article: |
           De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
-          <Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>
+          <p>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</p>
 
     final_omgevingsvisie:
       # @see: class BillMetadata
@@ -1310,7 +1320,7 @@ publication:
         Amendment_Article: |
           De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
-          <Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>
+          <p>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</p>
 
     draft_programma:
       bill_metadata:
@@ -1355,7 +1365,7 @@ publication:
         Amendment_Article: |
           Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
-          <Al>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</Al>
+          <p>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</p>
 
     final_programma:
       bill_metadata:
@@ -1400,7 +1410,7 @@ publication:
         Amendment_Article: |
           Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
-          <Al>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</Al>
+          <p>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</p>
 
   announcement_defaults:
     draft_omgevingsvisie:
