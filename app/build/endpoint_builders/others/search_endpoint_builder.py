@@ -94,7 +94,7 @@ class SearchEndpointBuilder(EndpointBuilder):
         invalid_search_columns: Set[str] = search_columns - all_shared_columns
         if invalid_search_columns:
             raise RuntimeError(
-                f"Invalid search columns ({', '.join(invalid_requested_columns)}) which do not exists in both tables"
+                f"Invalid search columns ({', '.join(invalid_search_columns)}) which do not exists in both tables"
             )
 
         final_columns: Set[str] = requested_columns
