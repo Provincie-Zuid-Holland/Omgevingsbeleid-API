@@ -1,4 +1,4 @@
-import datetime
+from datetime import UTC, datetime
 
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.spec.input_geo_onderverdeling_spec import InputGeoOnderverdelingSpec
@@ -8,7 +8,7 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import InputGeoW
 def load(col: Collector) -> None:
     # Updated the Input Geo in februari
     with col.with_defaults(
-        Created_Date=datetime.datetime(2025, 2, 1),
+        Created_Date=datetime(2025, 2, 1, tzinfo=UTC),
         Description="Herziening 2025 - Ontwerp GS",
     ):
         col.adds(

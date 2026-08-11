@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import UUID
 
 from .types import Field, FieldType
@@ -10,7 +10,7 @@ FIELD_TYPES: dict[str, FieldType] = {
         FieldType(id="float", field_type=float, default=0.0),
         FieldType(id="str", field_type=str, default=""),
         FieldType(id="uuid", field_type=UUID, default=None),
-        FieldType(id="datetime", field_type=datetime, default=datetime(1970, 1, 1)),
+        FieldType(id="datetime", field_type=datetime, default=datetime(1970, 1, 1, tzinfo=UTC)),
         FieldType(id="list_str", field_type=list[str], default=[]),
     ]
 }
