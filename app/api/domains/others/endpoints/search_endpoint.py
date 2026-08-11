@@ -50,7 +50,7 @@ class RequestData(BaseModel):
         if self.module_id:
             self.include_modules = True
         if not self.include_modules and not self.include_valids:
-            raise ValueError("You must include someting")
+            raise ValueError("You must include something")
         return self
 
     def validate_object_types(self, allowed: Set[str]):
@@ -201,7 +201,7 @@ class EndpointHandler:
             .filter(ModuleObjectContextTable.Hidden == False)
         )
 
-        # If you are not logged in than you are only allowed to view public versions of the module objects
+        # If you are not logged in then you are only allowed to view public versions of the module objects
         if not self._user:
             public_status_subq = (
                 select(

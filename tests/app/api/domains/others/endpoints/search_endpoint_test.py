@@ -181,7 +181,7 @@ def test_search(
                 "include_modules": False,
             },
             422,
-            "You must include someting",
+            "You must include something",
             None,
             id="nothing-included",
         ),

@@ -198,7 +198,7 @@ api:
             search_columns:
               - Title
               - Description
-              # @note: These where not used in the previous setup. Should discuss if they should be used
+              # @note: These were not used in the previous setup. Should discuss if they should be used
               # - Effect
               # - Provincial_Interest
               # - Cause
