@@ -474,15 +474,15 @@ class CheckEmptyAreaDesignationTextConfig(BaseModel):
 
 class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig):
-        self._config: CheckEmptyAreaDesignationTextRule = main_config.get_as_model(
-            "check_empty_area_designation_text",
+        self._config: CheckEmptyAreaDesignationTextConfig = main_config.get_as_model(
+            "check_empty_area_designation_text_rule",
             CheckEmptyAreaDesignationTextConfig,
         )
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
         errors: List[ValidateModuleError] = []
 
-        for object_table in request.module.object:
+        for object_table in request.module_objects:
             for field_name in self._config.fields:
                 value: str = str(getattr(object_table, field_name, ""))
                 soup = BeautifulSoup(value, "html.parser")
@@ -490,7 +490,7 @@ class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
                     if not gebiedsaanwijzing.get_text(strip=True):
                         errors.append(
                             ValidateModuleError(
-                                rule="CheckEmptyAreaDesignationTextRule",
+                                rule="check_empty_area_designation_text_rule",
                                 object=ValidateModuleObject(
                                     code=object_table.Code,
                                     object_id=object_table.Object_ID,
