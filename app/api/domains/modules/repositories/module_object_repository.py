@@ -1,4 +1,5 @@
 import uuid
+from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -34,9 +35,7 @@ class ModuleObjectRepository(BaseRepository):
         stmt = select(ModuleObjectsTable).filter(ModuleObjectsTable.UUID == uuid)
         return self.fetch_first(session, stmt)
 
-    def get_by_object_type_and_uuid(
-        self, session: Session, object_type: str, uuid: UUID
-    ) -> ModuleObjectsTable | None:
+    def get_by_object_type_and_uuid(self, session: Session, object_type: str, uuid: UUID) -> ModuleObjectsTable | None:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.UUID == uuid)
@@ -215,9 +214,9 @@ class ModuleObjectRepository(BaseRepository):
         only_active_modules: bool = True,
         minimum_status: ModuleStatusCode | None = None,
         owner_filter: OwnerFilter | None = None,
-        object_types: list[str] = [],
+        object_types: Sequence[str] = (),
         title: str | None = None,
-        actions: list[ModuleObjectActionFull] = [],
+        actions: Sequence[ModuleObjectActionFull] = (),
         module_id: int | None = None,
     ):
         """

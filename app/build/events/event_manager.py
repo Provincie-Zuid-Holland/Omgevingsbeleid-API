@@ -1,10 +1,11 @@
+from collections.abc import Sequence
 from typing import Generic
 
 from .types import BuildEventType, BuildListener
 
 
 class BuildEventListeners(Generic[BuildEventType]):
-    def __init__(self, listeners: list[BuildListener] = []):
+    def __init__(self, listeners: Sequence[BuildListener] = ()):
         self._listeners: dict[type[BuildEventType], list[BuildListener]] = {}
 
         for listener in listeners:

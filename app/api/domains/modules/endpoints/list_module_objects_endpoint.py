@@ -69,13 +69,13 @@ def get_list_module_objects_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-    object_types: Annotated[list[str], Query()] = [],
+    object_types: Annotated[list[str], Query()] = [],  # noqa: B006
     owner_uuid: uuid.UUID | None = None,
     owner_type: OwnerType = OwnerType.ALL,
     minimum_status: ModuleStatusCode | None = None,
     only_active_modules: bool = True,
     title: str | None = None,
-    actions: Annotated[list[ModuleObjectActionFull], Query()] = [],
+    actions: Annotated[list[ModuleObjectActionFull], Query()] = [],  # noqa: B006
     module_id: int | None = None,
 ) -> PagedResponse[ModuleObjectsResponse]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)

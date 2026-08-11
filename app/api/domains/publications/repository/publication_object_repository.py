@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from datetime import datetime
 from typing import Final
 
@@ -26,8 +27,8 @@ class PublicationObjectRepository(BaseRepository):
         session: Session,
         module_id: int,
         timepoint: datetime,
-        object_types: list[str] = [],
-        requested_fields: list[str] = [],
+        object_types: Sequence[str] = (),
+        requested_fields: Sequence[str] = (),
     ) -> list[dict]:
         fields: set[str] = PUBLICATION_BASE_FIELDS.union(set(requested_fields))
 
@@ -39,7 +40,7 @@ class PublicationObjectRepository(BaseRepository):
     def _get_object_query(
         self,
         timepoint: datetime,
-        object_types: list[str],
+        object_types: Sequence[str],
         field_map: set[str],
     ):
         row_number = (
@@ -84,7 +85,7 @@ class PublicationObjectRepository(BaseRepository):
         self,
         module_id: int,
         timepoint: datetime,
-        object_types: list[str],
+        object_types: Sequence[str],
         field_map: set[str],
     ):
         query = (
@@ -126,7 +127,7 @@ class PublicationObjectRepository(BaseRepository):
         self,
         module_id: int,
         timepoint: datetime,
-        object_types: list[str],
+        object_types: Sequence[str],
         field_map: set[str],
     ):
         object_query = self._get_object_query(timepoint, object_types, field_map)

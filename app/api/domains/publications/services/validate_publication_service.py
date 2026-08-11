@@ -1,5 +1,6 @@
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from enum import Enum
 from typing import Any
 
@@ -44,7 +45,7 @@ class ValidatePublicationRequest(BaseModel):
 
 
 class ValidatePublicationException(Exception):
-    def __init__(self, message: str, publication_errors: list[ValidatePublicationError] = []):
+    def __init__(self, message: str, publication_errors: Sequence[ValidatePublicationError] = ()):
         super().__init__(message)
         self.message: str = message
         self.publication_errors = publication_errors

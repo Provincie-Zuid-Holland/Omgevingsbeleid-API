@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -137,7 +138,7 @@ class ObjectRepository(BaseRepository):
         session: Session,
         pagination: SortedPagination,
         owner_uuid: UUID | None = None,
-        object_types: list[str] = [],
+        object_types: Sequence[str] = (),
     ) -> PaginatedQueryResult:
         row_number = (
             func.row_number()

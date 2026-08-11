@@ -46,7 +46,7 @@ def do_list_all_latest_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-    object_types: Annotated[list[str], Query(alias="object_types")] = [],
+    object_types: Annotated[list[str], Query(alias="object_types")] = [],  # noqa: B006
     owner_uuid: uuid.UUID | None = None,
 ) -> PagedResponse[ObjectListAllLatestResponse[BaseModel]]:
     for object_type in object_types:
