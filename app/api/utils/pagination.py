@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 from enum import Enum
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from fastapi import HTTPException, status
 from pydantic import BaseModel, Field, field_validator
@@ -106,10 +106,7 @@ class OptionalSortedPagination(SimplePagination):
         )
 
 
-T = TypeVar("T", bound=BaseModel)
-
-
-class PagedResponse(BaseModel, Generic[T]):
+class PagedResponse[T: BaseModel](BaseModel):
     total: int
     offset: int = 0
     limit: int = -1

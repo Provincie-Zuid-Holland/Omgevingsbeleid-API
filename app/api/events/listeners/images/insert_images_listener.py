@@ -1,6 +1,5 @@
 import json
 import re
-from typing import Generic, TypeVar
 from uuid import UUID
 
 from bs4 import BeautifulSoup
@@ -86,10 +85,7 @@ class HtmlImagesInserterFactory:
         )
 
 
-EventT = TypeVar("EventT", bound=ApiEvent)
-
-
-class InsertHtmlImagesListenerBase(ApiListener[EventT], Generic[EventT]):
+class InsertHtmlImagesListenerBase[EventT: ApiEvent](ApiListener[EventT]):
     def __init__(self, service_factory: HtmlImagesInserterFactory):
         self._service_factory: HtmlImagesInserterFactory = service_factory
 

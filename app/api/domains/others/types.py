@@ -3,12 +3,10 @@ import re
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from fastapi import UploadFile
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-
-TModel = TypeVar("TModel", bound=BaseModel)
 
 
 class StorageFileBasic(BaseModel):
@@ -69,7 +67,7 @@ class ValidSearchConfig(BaseModel):
     allowed_object_types: list[str]
 
 
-class ValidSearchObject(BaseModel, Generic[TModel]):
+class ValidSearchObject[TModel: BaseModel](BaseModel):
     Object_Type: str
     Description: str
     Score: float
@@ -86,7 +84,7 @@ class SearchConfig(ValidSearchConfig):
     pass
 
 
-class SearchObject(ValidSearchObject, Generic[TModel]):
+class SearchObject[TModel: BaseModel](ValidSearchObject[TModel]):
     Module_ID: int | None = None
     Model: TModel
 

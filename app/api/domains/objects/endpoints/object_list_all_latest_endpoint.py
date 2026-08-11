@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, Generic
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, Query, status
@@ -11,7 +11,6 @@ from app.api.dependencies import depends_db_session, depends_optional_sorted_pag
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.modules.types import ObjectStaticShort
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
-from app.api.domains.others.types import TModel
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import (
     OptionalSortedPagination,
@@ -23,12 +22,12 @@ from app.api.utils.pagination import (
 )
 
 
-class ObjectListAllLatestResponse(BaseModel, Generic[TModel]):
+class ObjectListAllLatestResponse[TModel: BaseModel](BaseModel):
     Object_Type: str
     ObjectStatics: ObjectStaticShort
     Model: TModel
 
-    model_config = ConfigDict(from_attributes=True, title="ModuleObjectsResponse")
+    model_config = ConfigDict(from_attributes=True, title="ObjectListAllLatestResponse")
 
 
 class ObjectListAllLatestEndpointContext(BaseEndpointContext):

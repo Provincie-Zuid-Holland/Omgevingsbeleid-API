@@ -1,12 +1,11 @@
 from collections.abc import Sequence
-from typing import Generic
 
 from sqlalchemy.orm import Session
 
-from .types import ApiEventType, ApiListener
+from .types import ApiEvent, ApiListener
 
 
-class ApiEventListeners(Generic[ApiEventType]):
+class ApiEventListeners[ApiEventType: ApiEvent]:
     def __init__(self, listeners: Sequence[ApiListener] = ()):
         self._listeners: dict[type[ApiEventType], list[ApiListener]] = {}
 
@@ -25,7 +24,7 @@ class ApiEventListeners(Generic[ApiEventType]):
         return self._listeners.get(event_type, [])
 
 
-class ApiEventManager(Generic[ApiEventType]):
+class ApiEventManager[ApiEventType: ApiEvent]:
     def __init__(
         self,
         event_listeners: ApiEventListeners,

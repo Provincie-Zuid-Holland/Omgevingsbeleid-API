@@ -1,10 +1,9 @@
 from collections.abc import Sequence
-from typing import Generic
 
-from .types import BuildEventType, BuildListener
+from .types import BuildEvent, BuildListener
 
 
-class BuildEventListeners(Generic[BuildEventType]):
+class BuildEventListeners[BuildEventType: BuildEvent]:
     def __init__(self, listeners: Sequence[BuildListener] = ()):
         self._listeners: dict[type[BuildEventType], list[BuildListener]] = {}
 
@@ -23,7 +22,7 @@ class BuildEventListeners(Generic[BuildEventType]):
         return self._listeners.get(event_type, [])
 
 
-class BuildEventManager(Generic[BuildEventType]):
+class BuildEventManager[BuildEventType: BuildEvent]:
     def __init__(
         self,
         event_listeners: BuildEventListeners,

@@ -1,5 +1,4 @@
 import uuid
-from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -212,10 +211,7 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(ApiListener[RetrievedObje
         )
 
 
-EventRMO = TypeVar("EventRMO", bound=RetrievedObjectsEvent | RetrievedModuleObjectsEvent)
-
-
-class GetColumnImagesListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
+class GetColumnImagesListenerBase[EventRMO: RetrievedObjectsEvent | RetrievedModuleObjectsEvent](ApiListener[EventRMO]):
     def __init__(self, service_factory: ColumnImageInserterFactory):
         self._service_factory: ColumnImageInserterFactory = service_factory
 
@@ -261,7 +257,7 @@ class GetColumnImagesForObjectListener(GetColumnImagesListenerBase[RetrievedObje
     pass
 
 
-class JoinDocumentsListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
+class JoinDocumentsListenerBase[EventRMO: RetrievedObjectsEvent | RetrievedModuleObjectsEvent](ApiListener[EventRMO]):
     def __init__(self, service_factory: JoinDocumentsServiceFactory):
         self._service_factory: JoinDocumentsServiceFactory = service_factory
 
@@ -304,7 +300,9 @@ class JoinDocumentsToObjectsListener(JoinDocumentsListenerBase[RetrievedObjectsE
     pass
 
 
-class ResolveChildObjectsViaHierarchyListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
+class ResolveChildObjectsViaHierarchyListenerBase[EventRMO: RetrievedObjectsEvent | RetrievedModuleObjectsEvent](
+    ApiListener[EventRMO]
+):
     def __init__(self, service_factory: ResolveChildObjectsViaHierarchyServiceFactory):
         self._service_factory = service_factory
 
@@ -342,7 +340,9 @@ class ObjectResolveChildObjectsViaHierarchyListener(ResolveChildObjectsViaHierar
     pass
 
 
-class JoinGebiedenGroepBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
+class JoinGebiedenGroepBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedModuleObjectsEvent](
+    ApiListener[EventRMO]
+):
     def __init__(self, service_factory: JoinGebiedenGroepenServiceFactory):
         self._service_factory: JoinGebiedenGroepenServiceFactory = service_factory
 
@@ -388,7 +388,7 @@ class JoinGebiedenGroepForObjectListener(JoinGebiedenGroepBaseListener[Retrieved
     pass
 
 
-class JoinObjectsBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
+class JoinObjectsBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedModuleObjectsEvent](ApiListener[EventRMO]):
     def __init__(self, service_factory: JoinObjectsServiceFactory):
         self._service_factory: JoinObjectsServiceFactory = service_factory
 
@@ -434,7 +434,9 @@ class JoinObjectsForObjectListener(JoinObjectsBaseListener[RetrievedObjectsEvent
     pass
 
 
-class JoinGebiedsaanwijzingenBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
+class JoinGebiedsaanwijzingenBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedModuleObjectsEvent](
+    ApiListener[EventRMO]
+):
     def __init__(self, service_factory: JoinGebiedsaanwijzingenServiceFactory):
         self._service_factory: JoinGebiedsaanwijzingenServiceFactory = service_factory
 

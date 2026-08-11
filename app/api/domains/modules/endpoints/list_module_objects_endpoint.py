@@ -1,7 +1,7 @@
 import uuid
 from collections.abc import Sequence
 from enum import Enum
-from typing import Annotated, Generic
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, Query, status
@@ -18,7 +18,6 @@ from app.api.domains.modules.types import (
     ModuleStatusCode,
     ObjectStaticShort,
 )
-from app.api.domains.others.types import TModel
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import (
@@ -34,7 +33,7 @@ from app.core.tables.objects import ObjectStaticsTable
 from app.core.tables.users import UsersTable
 
 
-class ModuleObjectsResponse(BaseModel, Generic[TModel]):
+class ModuleObjectsResponse[TModel: BaseModel](BaseModel):
     Module_ID: int
     Module_Latest_Status: str
 

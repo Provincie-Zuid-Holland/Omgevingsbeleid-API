@@ -1,15 +1,11 @@
 from abc import ABC, ABCMeta, abstractmethod
-from typing import Generic, TypeVar
 
 
 class BuildEvent(ABC):
     pass
 
 
-BuildEventType = TypeVar("BuildEventType", bound=BuildEvent)
-
-
-class BuildListener(Generic[BuildEventType], metaclass=ABCMeta):
+class BuildListener[BuildEventType: BuildEvent](metaclass=ABCMeta):
     @abstractmethod
     def handle_event(self, event: BuildEventType) -> BuildEventType | None:
         pass

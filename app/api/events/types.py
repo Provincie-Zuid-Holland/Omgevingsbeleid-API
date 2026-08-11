@@ -1,5 +1,4 @@
 from abc import ABC, ABCMeta, abstractmethod
-from typing import Generic, TypeVar
 
 from sqlalchemy.orm import Session
 
@@ -8,10 +7,7 @@ class ApiEvent(ABC):
     pass
 
 
-ApiEventType = TypeVar("ApiEventType", bound=ApiEvent)
-
-
-class ApiListener(Generic[ApiEventType], metaclass=ABCMeta):
+class ApiListener[ApiEventType: ApiEvent](metaclass=ABCMeta):
     @abstractmethod
     def handle_event(self, session: Session, event: ApiEventType) -> ApiEventType | None:
         pass
