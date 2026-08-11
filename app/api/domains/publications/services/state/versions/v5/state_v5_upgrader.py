@@ -86,7 +86,7 @@ class StateV5Upgrader(StateUpgrader):
         tekstdelen: set[models_v5.OwTekstdeel] = set()
 
         ow_objects = old_act.Ow_Data.Ow_Objects
-        for ow_id, ow_object in ow_objects.items():
+        for ow_object in ow_objects.values():
             ow_type: str = ow_object.get("ow_type", "")
             match ow_type:
                 case "OWAmbtsgebied":
