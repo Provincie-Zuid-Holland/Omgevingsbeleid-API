@@ -47,7 +47,7 @@ def post_module_patch_object_endpoint(
     ],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    object_in_raw: dict = Body(...),
+    object_in_raw: Annotated[dict, Body()],
 ) -> BaseModel:
     object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
         session,

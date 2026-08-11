@@ -100,9 +100,9 @@ def post_files_upload_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     pdf_meta_service: Annotated[PdfMetaService, Depends(Provide[ApiContainer.pdf_meta_service])],
-    title: str = Form(...),
-    ignore_report: bool = Form(...),
-    uploaded_file: UploadFile = File(...),
+    title: Annotated[str, Form()],
+    ignore_report: Annotated[bool, Form()],
+    uploaded_file: Annotated[UploadFile, File()],
 ) -> UploadFileResponse:
     permission_service.guard_valid_user(Permissions.storage_file_can_upload_files, user)
 

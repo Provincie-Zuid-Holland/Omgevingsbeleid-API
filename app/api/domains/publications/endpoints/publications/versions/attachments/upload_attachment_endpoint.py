@@ -44,9 +44,9 @@ def post_upload_attachment_endpoint(
     ],
     pdf_meta_service: Annotated[PdfMetaService, Depends(Provide[ApiContainer.pdf_meta_service])],
     session: Annotated[Session, Depends(depends_db_session)],
-    title: str = Form(...),
-    uploaded_file: UploadFile = File(...),
-    ignore_report: bool = Form(...),
+    title: Annotated[str, Form()],
+    uploaded_file: Annotated[UploadFile, File()],
+    ignore_report: Annotated[bool, Form()],
 ) -> UploadAttachmentResponse:
     _guard_upload(version, uploaded_file)
 

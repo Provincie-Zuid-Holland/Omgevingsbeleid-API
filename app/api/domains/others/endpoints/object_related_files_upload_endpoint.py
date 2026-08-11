@@ -116,9 +116,9 @@ def post_object_related_files_upload_endpoint(
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     pdf_meta_service: Annotated[PdfMetaService, Depends(Provide[ApiContainer.pdf_meta_service])],
     context: Annotated[ObjectRelatedFilesUploadEndpointContext, Depends()],
-    title: str = Form(...),
-    ignore_report: bool = Form(...),
-    uploaded_file: UploadFile = File(...),
+    title: Annotated[str, Form()],
+    ignore_report: Annotated[bool, Form()],
+    uploaded_file: Annotated[UploadFile, File()],
 ) -> ObjectRelatedFileResponse:
     object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
         session, context.object_type, lineage_id
