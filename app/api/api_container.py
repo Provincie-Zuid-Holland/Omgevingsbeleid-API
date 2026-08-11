@@ -228,6 +228,7 @@ class ApiContainer(containers.DeclarativeContainer):
                 module_services.ThemasCheckRule,
                 dso_thema_factory=dso_thema_factory,
             ),
+            providers.Singleton(module_services.CheckEmptyAreaDesignationTextRule, main_config=main_config),
         ),
     )
 
