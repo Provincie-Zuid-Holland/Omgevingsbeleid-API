@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy import ForeignKey, Unicode, Uuid
 from sqlalchemy.orm import mapped_column, relationship
@@ -10,7 +9,7 @@ from app.core.tables.users import UsersTable
 
 
 class AddObjectCodeRelationshipListener(BuildListener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
         if column.type != "object_code":
             return
@@ -38,7 +37,7 @@ class AddObjectCodeRelationshipListener(BuildListener[GenerateTableEvent]):
 
 
 class AddAreasRelationshipListener(BuildListener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
         if column.type != "area_uuid":
             return
@@ -66,7 +65,7 @@ class AddAreasRelationshipListener(BuildListener[GenerateTableEvent]):
 
 
 class AddUserRelationshipListener(BuildListener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
         if column.type != "user_uuid":
             return
@@ -94,7 +93,7 @@ class AddUserRelationshipListener(BuildListener[GenerateTableEvent]):
 
 
 class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
         if column.type != "werkingsgebied_uuid":
             return
@@ -122,7 +121,7 @@ class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent])
 
 
 class AddStoreageFileRelationshipListener(BuildListener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
         if column.type != "file_uuid":
             return

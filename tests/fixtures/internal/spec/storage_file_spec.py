@@ -1,9 +1,11 @@
 import hashlib
 import mimetypes
-from pathlib import Path
 import re
-from typing import Optional, Sequence
 import uuid
+from collections.abc import Sequence
+from datetime import datetime
+from pathlib import Path
+from typing import ClassVar
 
 from pydantic import Field
 
@@ -11,33 +13,25 @@ from app.core.db.base import Base
 from app.core.tables.others import StorageFileTable
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
 from tests.fixtures.internal.types import (
-    Spec,
-    Record,
-    UUID_NAMESPACE,
-    PrimaryKey,
-    PersistContext,
-    BasePersistHandler,
     BASE_FILES_DIR,
-)
-
-from datetime import datetime
-from typing import ClassVar, Set
-
-
-from tests.fixtures.internal.types import (
+    UUID_NAMESPACE,
+    BasePersistHandler,
     Link,
+    PersistContext,
+    PrimaryKey,
+    Record,
+    Spec,
 )
-
 
 STORAGE_FILES_DIR: Path = BASE_FILES_DIR / "storage_files"
 
 
 class StorageFileSpec(Spec):
-    __link_fields__: ClassVar[Set[str]] = {"Created_By_UUID"}
+    __link_fields__: ClassVar[set[str]] = {"Created_By_UUID"}
 
-    UUID: Optional[uuid.UUID] = None
-    Created_Date: Optional[datetime] = None
-    Created_By_UUID: Optional[Link] = None
+    UUID: uuid.UUID | None = None
+    Created_Date: datetime | None = None
+    Created_By_UUID: Link | None = None
     File_Path: str
 
     # These will be filled if you just set File_Path

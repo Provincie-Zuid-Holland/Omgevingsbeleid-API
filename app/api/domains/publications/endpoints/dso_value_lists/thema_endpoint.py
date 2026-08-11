@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from dso import Thema, ThemaFactory
@@ -9,7 +9,7 @@ from app.api.api_container import ApiContainer
 
 
 class ListThemaResponse(BaseModel):
-    themas: List[Thema]
+    themas: list[Thema]
 
     model_config = ConfigDict(arbitrary_types_allowed=True, from_attributes=True)
 
@@ -18,5 +18,5 @@ class ListThemaResponse(BaseModel):
 def get_thema_endpoint(
     dso_thema_factory: Annotated[ThemaFactory, Depends(Provide[ApiContainer.dso_thema_factory])],
 ) -> ListThemaResponse:
-    themas: List[Thema] = list(dso_thema_factory.get_all().values())
+    themas: list[Thema] = list(dso_thema_factory.get_all().values())
     return ListThemaResponse(themas=themas)

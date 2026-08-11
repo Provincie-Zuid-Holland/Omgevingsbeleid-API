@@ -1,15 +1,13 @@
 import uuid
-from typing import Dict, List, Optional
+from enum import Enum
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
-
-from enum import Enum
-from typing import Annotated, Literal, Union
 
 
 class Purpose(BaseModel):
     Purpose_Type: str
-    Effective_Date: Optional[str] = None
+    Effective_Date: str | None = None
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str
@@ -45,7 +43,7 @@ class Werkingsgebied(BaseModel):
     Title: str
     Owner_Act: str
     Frbr: Frbr
-    Locations: List[Location]
+    Locations: list[Location]
 
     def is_still_valid(self) -> bool:
         try:
@@ -79,8 +77,8 @@ class Asset(BaseModel):
 
 
 class WidData(BaseModel):
-    Known_Wid_Map: Dict[str, str]
-    Known_Wids: List[str]
+    Known_Wid_Map: dict[str, str]
+    Known_Wids: list[str]
 
 
 # OwState
@@ -122,14 +120,7 @@ class GebiedengroepRef(UnresolvedGebiedengroepRef):
 
 
 LocationRefUnion = Annotated[
-    Union[
-        AmbtsgebiedRef,
-        UnresolvedAmbtsgebiedRef,
-        GebiedRef,
-        UnresolvedGebiedRef,
-        GebiedengroepRef,
-        UnresolvedGebiedengroepRef,
-    ],
+    AmbtsgebiedRef | UnresolvedAmbtsgebiedRef | GebiedRef | UnresolvedGebiedRef | GebiedengroepRef | UnresolvedGebiedengroepRef,
     Field(discriminator="ref_type"),
 ]
 
@@ -159,12 +150,7 @@ class DivisietekstRef(UnresolvedDivisietekstRef):
 
 
 WidRefUnion = Annotated[
-    Union[
-        DivisieRef,
-        UnresolvedDivisieRef,
-        DivisietekstRef,
-        UnresolvedDivisietekstRef,
-    ],
+    DivisieRef | UnresolvedDivisieRef | DivisietekstRef | UnresolvedDivisietekstRef,
     Field(discriminator="ref_type"),
 ]
 
@@ -179,7 +165,7 @@ class OwObjectStatus(str, Enum):
 class BaseOwObject(BaseModel):
     identification: str
     object_status: OwObjectStatus = Field(OwObjectStatus.unchanged)
-    procedure_status: Optional[str] = Field(None)
+    procedure_status: str | None = Field(None)
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -217,7 +203,7 @@ class OwGebiedengroep(BaseOwObject):
     source_uuid: str
     source_code: str
     title: str
-    gebieden_refs: List[LocationRefUnion] = Field(default_factory=list)
+    gebieden_refs: list[LocationRefUnion] = Field(default_factory=list)
 
     def __hash__(self):
         return hash((self.source_code,))
@@ -246,7 +232,7 @@ class OwGebiedsaanwijzing(BaseOwObject):
     title: str
     indication_type: str
     indication_group: str
-    location_refs: List[LocationRefUnion] = Field(default_factory=list)
+    location_refs: list[LocationRefUnion] = Field(default_factory=list)
 
     def __hash__(self):
         return hash((self.source_code,))
@@ -257,21 +243,21 @@ class OwTekstdeel(BaseOwObject):
     source_code: str
     idealization: str
     text_ref: WidRefUnion
-    location_refs: List[LocationRefUnion] = Field(default_factory=list)
+    location_refs: list[LocationRefUnion] = Field(default_factory=list)
 
     def __hash__(self):
         return hash((self.source_code,))
 
 
 class OwState(BaseModel):
-    ambtsgebieden: List[OwAmbtsgebied] = Field(default_factory=list)
-    regelingsgebieden: List[OwRegelingsgebied] = Field(default_factory=list)
-    gebieden: List[OwGebied] = Field(default_factory=list)
-    gebiedengroepen: List[OwGebiedengroep] = Field(default_factory=list)
-    gebiedsaanwijzingen: List[OwGebiedsaanwijzing] = Field(default_factory=list)
-    divisies: List[OwDivisie] = Field(default_factory=list)
-    divisieteksten: List[OwDivisietekst] = Field(default_factory=list)
-    tekstdelen: List[OwTekstdeel] = Field(default_factory=list)
+    ambtsgebieden: list[OwAmbtsgebied] = Field(default_factory=list)
+    regelingsgebieden: list[OwRegelingsgebied] = Field(default_factory=list)
+    gebieden: list[OwGebied] = Field(default_factory=list)
+    gebiedengroepen: list[OwGebiedengroep] = Field(default_factory=list)
+    gebiedsaanwijzingen: list[OwGebiedsaanwijzing] = Field(default_factory=list)
+    divisies: list[OwDivisie] = Field(default_factory=list)
+    divisieteksten: list[OwDivisietekst] = Field(default_factory=list)
+    tekstdelen: list[OwTekstdeel] = Field(default_factory=list)
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -282,9 +268,9 @@ class ActiveAct(BaseModel):
     Consolidation_Purpose: Purpose
     Document_Type: str
     Procedure_Type: str
-    Werkingsgebieden: Dict[int, Werkingsgebied]
-    Documents: Dict[int, Document] = Field({})
-    Assets: Dict[str, Asset]
+    Werkingsgebieden: dict[int, Werkingsgebied]
+    Documents: dict[int, Document] = Field({})
+    Assets: dict[str, Asset]
     Wid_Data: WidData
     Ow_State: OwState
     Act_Text: str

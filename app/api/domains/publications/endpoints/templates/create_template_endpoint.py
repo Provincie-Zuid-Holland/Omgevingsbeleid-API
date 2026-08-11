@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Dict, List
+from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel, Field
@@ -18,10 +18,10 @@ class TemplateCreate(BaseModel):
     Title: str = Field(..., min_length=3)
     Description: str
     Document_Type: DocumentType
-    Object_Types: List[str]
-    Object_Field_Map: Dict[str, List[str]]
+    Object_Types: list[str]
+    Object_Field_Map: dict[str, list[str]]
     Text_Template: str
-    Object_Templates: Dict[str, str]
+    Object_Templates: dict[str, str]
 
 
 class TemplateCreatedResponse(BaseModel):
@@ -40,7 +40,7 @@ def post_create_template_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_in: TemplateCreate,
 ) -> TemplateCreatedResponse:
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     template = PublicationTemplateTable(
         UUID=uuid.uuid4(),

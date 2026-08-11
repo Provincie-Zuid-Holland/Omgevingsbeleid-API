@@ -1,8 +1,7 @@
-from typing import Type
 
-from pydantic import BaseModel
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import BaseModel
 
 from tests.conftest import Context
 from tests.fixtures.internal.spec.objects import BaseObjectSpec, BeleidsdoelSpec, MaatregelSpec
@@ -117,7 +116,7 @@ def test_pagination_caps_page_size_without_changing_total(client: TestClient):
 
 
 def test_result_matches_the_response_model_shape(client: TestClient, ctx: Context):
-    model: Type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_basic")
+    model: type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_basic")
 
     row: dict = client.get("/beleidsdoelen/valid/1").json()["results"][0]
 

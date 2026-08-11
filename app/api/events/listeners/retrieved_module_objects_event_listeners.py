@@ -1,4 +1,3 @@
-from typing import List, Optional
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -12,9 +11,9 @@ from app.api.events.listeners.retrieved_objects_event_listeners import (
     GetColumnImagesListenerBase,
     JoinDocumentsListenerBase,
     JoinGebiedenGroepBaseListener,
-    ResolveChildObjectsViaHierarchyListenerBase,
-    JoinObjectsBaseListener,
     JoinGebiedsaanwijzingenBaseListener,
+    JoinObjectsBaseListener,
+    ResolveChildObjectsViaHierarchyListenerBase,
 )
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.api.events.types import ApiListener
@@ -34,14 +33,14 @@ class JoinWerkingsgebiedToModuleObjectsListener(ApiListener[RetrievedModuleObjec
 
     def handle_event(
         self, session: Session, event: RetrievedModuleObjectsEvent
-    ) -> Optional[RetrievedModuleObjectsEvent]:
+    ) -> RetrievedModuleObjectsEvent | None:
         join_service: JoinWerkingsgebiedenService = self._service_factory.create_service(
             session,
             event.payload.rows,
             event.context.response_model,
         )
 
-        result_rows: List[BaseModel] = join_service.join_werkingsgebieden()
+        result_rows: list[BaseModel] = join_service.join_werkingsgebieden()
         event.payload.rows = result_rows
 
         return event
@@ -53,14 +52,14 @@ class AddRelationsToModuleObjectsListener(ApiListener[RetrievedModuleObjectsEven
 
     def handle_event(
         self, session: Session, event: RetrievedModuleObjectsEvent
-    ) -> Optional[RetrievedModuleObjectsEvent]:
+    ) -> RetrievedModuleObjectsEvent | None:
         add_service: AddRelationsService = self._service_factory.create_service(
             session,
             event.payload.rows,
             event.context.response_model,
         )
 
-        result_rows: List[BaseModel] = add_service.add_relations()
+        result_rows: list[BaseModel] = add_service.add_relations()
         event.payload.rows = result_rows
 
         return event

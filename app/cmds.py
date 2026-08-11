@@ -1,4 +1,4 @@
-import click  # noqa
+import click
 
 from app.api.api_container import ApiContainer
 from app.build.api_builder import ApiBuilder, ApiBuilderResult

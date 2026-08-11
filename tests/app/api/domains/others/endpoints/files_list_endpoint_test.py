@@ -1,4 +1,3 @@
-from typing import List
 
 import pytest
 from fastapi.testclient import TestClient
@@ -9,7 +8,7 @@ from tests.fixtures.internal.spec.storage_file_spec import StorageFileSpec
 from tests.fixtures.internal.types import Ref
 
 
-def _uuids(ctx: Context, keys: List[str]) -> List[str]:
+def _uuids(ctx: Context, keys: list[str]) -> list[str]:
     return [str(ctx.f.primary_key_uuid(Ref(StorageFileSpec, key))) for key in keys]
 
 
@@ -58,7 +57,7 @@ def test_pagination_offset_returns_the_next_page(admin: TestClient, ctx: Context
     ],
 )
 def test_only_mine_filters_on_the_current_user(
-    request: pytest.FixtureRequest, ctx: Context, client_fixture: str, owned_keys: List[str]
+    request: pytest.FixtureRequest, ctx: Context, client_fixture: str, owned_keys: list[str]
 ):
     client: TestClient = request.getfixturevalue(client_fixture)
 

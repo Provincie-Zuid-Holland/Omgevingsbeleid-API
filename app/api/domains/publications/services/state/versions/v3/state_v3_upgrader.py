@@ -1,6 +1,5 @@
 import re
 import uuid
-from typing import Dict, Set
 
 from lxml import etree
 from sqlalchemy.orm import Session
@@ -37,8 +36,8 @@ class StateV3Upgrader(StateUpgrader):
 
         return new_state
 
-    def _mutate_purposes(self, old_state: state_v2.StateV2) -> Dict[str, models_v3.Purpose]:
-        purposes: Dict[str, models_v3.Purpose] = {}
+    def _mutate_purposes(self, old_state: state_v2.StateV2) -> dict[str, models_v3.Purpose]:
+        purposes: dict[str, models_v3.Purpose] = {}
 
         for key, old_purpose in old_state.Purposes.items():
             new_purpose: models_v3.Purpose = models_v3.Purpose.model_validate(old_purpose.model_dump())
@@ -46,8 +45,8 @@ class StateV3Upgrader(StateUpgrader):
 
         return purposes
 
-    def _mutate_acts(self, environment_uuid: uuid.UUID, old_state: state_v2.StateV2) -> Dict[str, models_v3.ActiveAct]:
-        acts: Dict[str, models_v3.ActiveAct] = {}
+    def _mutate_acts(self, environment_uuid: uuid.UUID, old_state: state_v2.StateV2) -> dict[str, models_v3.ActiveAct]:
+        acts: dict[str, models_v3.ActiveAct] = {}
 
         for key, old_act in old_state.Acts.items():
             new_act: models_v3.ActiveAct = self._mutate_act(environment_uuid, old_act)
@@ -62,15 +61,15 @@ class StateV3Upgrader(StateUpgrader):
         act: models_v3.ActiveAct = models_v3.ActiveAct.model_validate(act_dict)
         return act
 
-    def _get_assets(self, act_text: str) -> Dict[str, models_v3.Asset]:
+    def _get_assets(self, act_text: str) -> dict[str, models_v3.Asset]:
         parser: ActTextAssetParser = ActTextAssetParser()
-        asset_uuids: Set[str] = parser.get_asset_uuids(act_text)
+        asset_uuids: set[str] = parser.get_asset_uuids(act_text)
 
-        result: Dict[str, models_v3.Asset] = {x: models_v3.Asset(UUID=x) for x in asset_uuids}
+        result: dict[str, models_v3.Asset] = {x: models_v3.Asset(UUID=x) for x in asset_uuids}
         return result
 
-    def _mutate_announcements(self, old_state: state_v2.StateV2) -> Dict[str, models_v3.ActiveAnnouncement]:
-        announcements: Dict[str, models_v3.ActiveAnnouncement] = {}
+    def _mutate_announcements(self, old_state: state_v2.StateV2) -> dict[str, models_v3.ActiveAnnouncement]:
+        announcements: dict[str, models_v3.ActiveAnnouncement] = {}
 
         for key, old_announcement in old_state.Announcements.items():
             new_announcement: models_v3.ActiveAnnouncement = models_v3.ActiveAnnouncement.model_validate(
@@ -85,13 +84,13 @@ class ActTextAssetParser:
     def __init__(self):
         self._uuid_regex = r"img_([a-f0-9\-]+)\.(png|jpg|jpeg|gif|bmp|tiff|webp)"
 
-    def get_asset_uuids(self, act_text: str) -> Set[str]:
+    def get_asset_uuids(self, act_text: str) -> set[str]:
         parser = etree.XMLParser(ns_clean=True)
         tree = etree.fromstring(act_text, parser)
         namespaces = {"ns": "https://standaarden.overheid.nl/stop/imop/tekst/"}
         illustraties = tree.xpath("//ns:Illustratie", namespaces=namespaces)
 
-        asset_uuids: Set[str] = set()
+        asset_uuids: set[str] = set()
         for illustratie in illustraties:
             uuidx = self._extract_uuid(illustratie.attrib.get("naam", ""))
             asset_uuids.add(uuidx)

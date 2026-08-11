@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Type, get_args
+from typing import get_args
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
@@ -9,7 +9,7 @@ from app.core.types import DynamicObjectModel, Model
 
 
 class Config(BaseModel):
-    werkingsgebied_codes: List[str]
+    werkingsgebied_codes: list[str]
     from_field: str
     to_field: str
 
@@ -18,24 +18,24 @@ class JoinWerkingsgebiedenService:
     def __init__(
         self,
         session: Session,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
         response_model: Model,
     ):
         self._session: Session = session
-        self._rows: List[BaseModel] = rows
+        self._rows: list[BaseModel] = rows
         self._response_model: Model = response_model
 
-    def join_werkingsgebieden(self) -> List[BaseModel]:
-        config: Optional[Config] = self._collect_config()
+    def join_werkingsgebieden(self) -> list[BaseModel]:
+        config: Config | None = self._collect_config()
         if not config:
             return self._rows
 
         if len(config.werkingsgebied_codes) == 0:
             return self._rows
 
-        werkingsgebieden: Dict[str, BaseModel] = self._fetch_werkingsgebieden(config)
+        werkingsgebieden: dict[str, BaseModel] = self._fetch_werkingsgebieden(config)
 
-        result_rows: List[BaseModel] = []
+        result_rows: list[BaseModel] = []
         for row in self._rows:
             werkingsgebied_code = getattr(row, config.from_field)
             if werkingsgebied_code in werkingsgebieden:
@@ -45,9 +45,9 @@ class JoinWerkingsgebiedenService:
 
         return result_rows
 
-    def _fetch_werkingsgebieden(self, config: Config) -> Dict[str, BaseModel]:
+    def _fetch_werkingsgebieden(self, config: Config) -> dict[str, BaseModel]:
         werkingsgebied_annotation = self._response_model.pydantic_model.__annotations__.get(config.to_field)
-        werkingsgebied_model: Type[BaseModel] = get_args(werkingsgebied_annotation)[0]
+        werkingsgebied_model: type[BaseModel] = get_args(werkingsgebied_annotation)[0]
 
         subq = (
             select(
@@ -71,11 +71,11 @@ class JoinWerkingsgebiedenService:
         stmt = select(subq).filter(subq.c._RowNumber == 1)
 
         rows = self._session.execute(stmt).all()
-        result: Dict[str, BaseModel] = {r.Code: werkingsgebied_model.model_validate(r) for r in rows}
+        result: dict[str, BaseModel] = {r.Code: werkingsgebied_model.model_validate(r) for r in rows}
 
         return result
 
-    def _collect_config(self) -> Optional[Config]:
+    def _collect_config(self) -> Config | None:
         if not isinstance(self._response_model, DynamicObjectModel):
             return None
         if "join_werkingsgebieden" not in self._response_model.service_config:
@@ -85,8 +85,8 @@ class JoinWerkingsgebiedenService:
         to_field: str = join_werkingsgebieden_config["to_field"]
         from_field: str = join_werkingsgebieden_config["from_field"]
 
-        werkingsgebied_codes: List[str] = list(set([getattr(r, from_field) for r in self._rows]))
-        werkingsgebied_codes: List[str] = [c for c in werkingsgebied_codes if c is not None]
+        werkingsgebied_codes: list[str] = list(set([getattr(r, from_field) for r in self._rows]))
+        werkingsgebied_codes: list[str] = [c for c in werkingsgebied_codes if c is not None]
 
         return Config(
             werkingsgebied_codes=werkingsgebied_codes,
@@ -99,7 +99,7 @@ class JoinWerkingsgebiedenServiceFactory:
     def create_service(
         self,
         session: Session,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
         response_model: Model,
     ) -> JoinWerkingsgebiedenService:
         return JoinWerkingsgebiedenService(

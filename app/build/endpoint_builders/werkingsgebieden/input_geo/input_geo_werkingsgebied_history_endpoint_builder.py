@@ -1,4 +1,4 @@
-from typing import List
+
 from app.api.domains.werkingsgebieden.endpoints.input_geo.input_geo_werkingsgebied_history_endpoint import (
     get_input_geo_werkingsgebieden_history_endpoint,
 )
@@ -24,7 +24,7 @@ class InputGeoWerkingsgebiedenHistoryEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=get_input_geo_werkingsgebieden_history_endpoint,
             methods=["GET"],
-            response_model=List[InputGeoWerkingsgebied],
+            response_model=list[InputGeoWerkingsgebied],
             summary="Get history of a input geo werkingsgebied by title",
             description=None,
             tags=["Input Geo"],

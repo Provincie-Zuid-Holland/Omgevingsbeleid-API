@@ -1,4 +1,4 @@
-from typing import List
+
 from app.api.domains.modules.endpoints.list_active_module_objects_endpoint import (
     ActiveModuleObjectsResponse,
     ListActiveModuleObjectsEndpointContext,
@@ -34,7 +34,7 @@ class ListActiveModuleObjectsEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_model=List[ActiveModuleObjectsResponse],
+            response_model=list[ActiveModuleObjectsResponse],
             summary="List the last modified module object grouped per module ID",
             description=None,
             tags=[api.object_type],

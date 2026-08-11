@@ -1,5 +1,6 @@
 import uuid
-from typing import Annotated, Iterable, List, Optional, Sequence
+from collections.abc import Iterable, Sequence
+from typing import Annotated
 
 import click
 from dependency_injector.wiring import Provide, inject
@@ -28,7 +29,7 @@ from app.core.tables.others import StorageFileTable
 from app.core.tables.publications import PublicationStorageFileTable
 
 
-def _file_uuid_filter(storage_file_uuids: List[uuid.UUID]) -> FilterStrategy:
+def _file_uuid_filter(storage_file_uuids: list[uuid.UUID]) -> FilterStrategy:
     def _filter(table_type: type[ObjectTableType]):
         return table_type.File_UUID.in_(storage_file_uuids)
 
@@ -56,7 +57,7 @@ def _handle_storage_files(
     stmt: Select = select(table_type)
     storage_files: Sequence[StorageFileTableType] = repository.iter_all(session, stmt)
     for storage_file in storage_files:
-        meta_report_list: List[PdfMetaReport] = pdf_meta_service.report_banned_meta(storage_file.Binary)
+        meta_report_list: list[PdfMetaReport] = pdf_meta_service.report_banned_meta(storage_file.Binary)
         if len(meta_report_list) <= 0:
             continue
         report[storage_file] = [
@@ -66,7 +67,7 @@ def _handle_storage_files(
     if not report:
         return
 
-    storage_file_uuids: List[uuid.UUID] = [storage_file.UUID for storage_file in report.keys()]
+    storage_file_uuids: list[uuid.UUID] = [storage_file.UUID for storage_file in report.keys()]
     object_lookups: ObjectLookups = ObjectLookups(
         session,
         object_repository,
@@ -78,8 +79,8 @@ def _handle_storage_files(
     )
 
     for storage_file, meta_issues in report.items():
-        log_list: List[str] = []
-        object_log: Optional[str] = object_lookups.get_log(storage_file.UUID) or ""
+        log_list: list[str] = []
+        object_log: str | None = object_lookups.get_log(storage_file.UUID) or ""
         log_list.append(
             f"{label} {storage_file.UUID} with name {storage_file.Filename}{object_log} has the following report:"
         )

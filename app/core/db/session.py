@@ -1,6 +1,6 @@
 import sqlite3
+from collections.abc import Callable
 from contextlib import AbstractContextManager, contextmanager
-from typing import Callable
 
 from sqlalchemy import Engine, create_engine, event, text
 from sqlalchemy.orm import Session
@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 SessionFactoryType = Callable[..., AbstractContextManager[Session]]
 
 
-def _enable_sqlite_load_extension(dbapi_connection, connection_record) -> None:  # noqa
+def _enable_sqlite_load_extension(dbapi_connection, connection_record) -> None:
     if isinstance(dbapi_connection, sqlite3.Connection):
         dbapi_connection.enable_load_extension(True)
         dbapi_connection.execute('SELECT load_extension("mod_spatialite")')

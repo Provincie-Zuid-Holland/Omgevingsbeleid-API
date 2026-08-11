@@ -3,7 +3,8 @@ import binascii
 import io
 import re
 import uuid
-from typing import Annotated, Any, Dict, Iterable, List, Optional, Sequence, Set
+from collections.abc import Iterable, Sequence
+from typing import Annotated, Any
 
 import click
 from dependency_injector.wiring import Provide, inject
@@ -35,7 +36,7 @@ def _format_exif_value(value: Any, max_length: int = 50) -> str:
 
 def _asset_key() -> KeyStrategy:
     def _key(object_in: ObjectTableType) -> Iterable[uuid.UUID]:
-        uuids: Set[uuid.UUID] = set()
+        uuids: set[uuid.UUID] = set()
         for column in [
             object_in.Description,
             object_in.Cause,
@@ -53,16 +54,16 @@ def _asset_key() -> KeyStrategy:
     return _key
 
 
-def _asset_filter(asset_uuids: Set[uuid.UUID]) -> FilterStrategy:
+def _asset_filter(asset_uuids: set[uuid.UUID]) -> FilterStrategy:
     def _filter(table_type: type[ObjectTableType]):
-        columns: List[Column] = [
+        columns: list[Column] = [
             table_type.Cause,
             table_type.Description,
             table_type.Effect,
             table_type.Explanation,
             table_type.Provincial_Interest,
         ]
-        conditions: List[BinaryExpression[bool]] = [
+        conditions: list[BinaryExpression[bool]] = [
             column.like(f"%ASSET:{asset_uuid}%") for column in columns for asset_uuid in asset_uuids
         ]
         return or_(*conditions)
@@ -83,7 +84,7 @@ def check_images(
         stmt: Select = select(AssetsTable)
         assets: Sequence[AssetsTable] = asset_repository.iter_all(session, stmt)
         for asset in assets:
-            match: Optional[re.Match[str]] = re.match(r"data:image/(.*?);base64,(.*)", asset.Content)
+            match: re.Match[str] | None = re.match(r"data:image/(.*?);base64,(.*)", asset.Content)
             if not match:
                 report[asset] = ["No image data"]
                 continue
@@ -104,7 +105,7 @@ def check_images(
                     exif_data: Exif = image.getexif()
                     if not exif_data:
                         continue
-                    exif_keys: Dict[str, str] = {
+                    exif_keys: dict[str, str] = {
                         ExifTags.TAGS.get(tag_id, tag_id): _format_exif_value(value)
                         for tag_id, value in exif_data.items()
                     }
@@ -115,7 +116,7 @@ def check_images(
         if not report:
             return
 
-        asset_uuids: Set[uuid.UUID] = {asset.UUID for asset in report.keys()}
+        asset_uuids: set[uuid.UUID] = {asset.UUID for asset in report.keys()}
         object_lookups: ObjectLookups = ObjectLookups(
             session,
             object_repository,
@@ -128,5 +129,5 @@ def check_images(
 
         for asset, issues in report.items():
             message: str = "\n".join(issues)
-            object_log: Optional[str] = object_lookups.get_log(asset.UUID) or ""
+            object_log: str | None = object_lookups.get_log(asset.UUID) or ""
             log_message(message=f"Asset {asset.UUID}{object_log} has the following message: {message}")

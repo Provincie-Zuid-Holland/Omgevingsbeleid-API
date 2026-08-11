@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -21,7 +21,7 @@ def depends_module(
     session: Annotated[Session, Depends(depends_db_session)],
     module_repository: Annotated[ModuleRepository, Depends(Provide[ApiContainer.module_repository])],
 ) -> ModuleTable:
-    maybe_module: Optional[ModuleTable] = module_repository.get_by_id(session, module_id)
+    maybe_module: ModuleTable | None = module_repository.get_by_id(session, module_id)
     if not maybe_module:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module niet gevonden")
     return maybe_module
@@ -51,7 +51,7 @@ def depends_module_object_latest_by_id(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])],
 ) -> ModuleObjectsTable:
-    maybe_object: Optional[ModuleObjectsTable] = repository.get_latest_by_id(
+    maybe_object: ModuleObjectsTable | None = repository.get_latest_by_id(
         session, module_id, object_type, lineage_id
     )
     if not maybe_object:
@@ -69,7 +69,7 @@ def depends_active_module_object_context(
         ModuleObjectContextRepository, Depends(Provide[ApiContainer.module_object_context_repository])
     ],
 ) -> ModuleObjectContextTable:
-    maybe_context: Optional[ModuleObjectContextTable] = repository.get_by_ids(
+    maybe_context: ModuleObjectContextTable | None = repository.get_by_ids(
         session, module_id, object_type, lineage_id
     )
     if not maybe_context:
@@ -86,17 +86,17 @@ def depends_module_status_by_id(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])],
 ) -> ModuleStatusHistoryTable:
-    maybe_status: Optional[ModuleStatusHistoryTable] = repository.get_by_id(session, module.Module_ID, status_id)
+    maybe_status: ModuleStatusHistoryTable | None = repository.get_by_id(session, module.Module_ID, status_id)
     if not maybe_status:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module status niet gevonden")
     return maybe_status
 
 
 def depends_optional_module_sorted_pagination(
-    offset: Optional[int] = None,
-    limit: Optional[int] = None,
-    sort_column: Optional[ModuleSortColumn] = None,
-    sort_order: Optional[SortOrder] = None,
+    offset: int | None = None,
+    limit: int | None = None,
+    sort_column: ModuleSortColumn | None = None,
+    sort_order: SortOrder | None = None,
 ) -> OptionalSortedPagination:
     optional_sort = OptionalSort(
         column=sort_column.value if sort_column else None,

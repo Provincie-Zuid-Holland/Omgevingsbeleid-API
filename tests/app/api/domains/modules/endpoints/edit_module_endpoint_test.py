@@ -1,8 +1,8 @@
 import uuid
 
 import pytest
-from pytest import FixtureRequest
 from fastapi.testclient import TestClient
+from pytest import FixtureRequest
 
 from app.core.tables.modules import ModuleTable
 from tests.conftest import Context

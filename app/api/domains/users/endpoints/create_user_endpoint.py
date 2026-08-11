@@ -1,7 +1,7 @@
 import json
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, List, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 import validators
 from dependency_injector.wiring import Provide, inject
@@ -41,7 +41,7 @@ class UserCreateResponse(BaseModel):
 
 
 class CreateUserEndpointContext(BaseEndpointContext):
-    allowed_roles: List[str] = Field(default_factory=list)
+    allowed_roles: list[str] = Field(default_factory=list)
 
 
 @inject
@@ -59,7 +59,7 @@ def post_create_user_endpoint(
     if object_in.Rol not in context.allowed_roles:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Rol")
 
-    same_email_user: Optional[UsersTable] = repository.get_by_email(session, object_in.Email)
+    same_email_user: UsersTable | None = repository.get_by_email(session, object_in.Email)
     if same_email_user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already in use")
 
@@ -76,7 +76,7 @@ def post_create_user_endpoint(
     )
 
     change_log = ChangeLogTable(
-        Created_Date=datetime.now(timezone.utc),
+        Created_Date=datetime.now(UTC),
         Created_By_UUID=logged_in_user.UUID,
         Action_Type="create_user",
         Action_Data=object_in.model_dump_json(),

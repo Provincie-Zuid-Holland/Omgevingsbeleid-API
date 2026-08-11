@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import Annotated, List, Set
+from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel
@@ -16,12 +16,12 @@ from app.core.tables.others import RelationsTable
 
 
 class GraphIteration(BaseModel):
-    allowed_object_types: List[str]
+    allowed_object_types: list[str]
 
 
 class GraphIterationsConfig(BaseModel):
-    relations: List[GraphIteration]
-    acknowledged_relations: List[GraphIteration]
+    relations: list[GraphIteration]
+    acknowledged_relations: list[GraphIteration]
 
 
 class ObjectGraphEndpointContext(BaseEndpointContext):
@@ -40,16 +40,16 @@ class EndpointHandler:
         self._object = object_table
 
     def handle(self) -> GraphResponse:
-        edges: List[GraphEdge] = self._get_edges()
-        vertices: List[GraphVertice] = self._get_vertices_for_edges(edges)
+        edges: list[GraphEdge] = self._get_edges()
+        vertices: list[GraphVertice] = self._get_vertices_for_edges(edges)
 
         return GraphResponse(
             Vertices=vertices,
             Edges=edges,
         )
 
-    def _get_vertices_for_edges(self, edges: List[GraphEdge]) -> List[GraphVertice]:
-        codes: Set[str] = set()
+    def _get_vertices_for_edges(self, edges: list[GraphEdge]) -> list[GraphVertice]:
+        codes: set[str] = set()
         for edge in edges:
             codes.add(edge.Vertice_A_Code)
             codes.add(edge.Vertice_B_Code)
@@ -68,7 +68,7 @@ class EndpointHandler:
                 .label("_RowNumber"),
             )
             .select_from(ObjectsTable)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
             .filter(ObjectsTable.Code.in_(codes))
             .subquery()
         )
@@ -79,7 +79,7 @@ class EndpointHandler:
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(timezone.utc),
+                    subq.c.End_Validity > datetime.now(UTC),
                     subq.c.End_Validity.is_(None),
                 )
             )
@@ -95,24 +95,24 @@ class EndpointHandler:
             )
         )
 
-        rows: List[ObjectsTable] = self._session.execute(stmt).scalars().all()
-        vertices: List[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
+        rows: list[ObjectsTable] = self._session.execute(stmt).scalars().all()
+        vertices: list[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
         return vertices
 
-    def _get_edges(self) -> List[GraphEdge]:
-        relations: Set[GraphEdge] = self._get_relations()
-        acknowledged_relations: Set[GraphEdge] = self._get_valid_acknowledged_relations()
+    def _get_edges(self) -> list[GraphEdge]:
+        relations: set[GraphEdge] = self._get_relations()
+        acknowledged_relations: set[GraphEdge] = self._get_valid_acknowledged_relations()
 
         return list(set.union(relations, acknowledged_relations))
 
-    def _get_relations(self) -> Set[GraphEdge]:
-        search_codes: Set[str] = set(
+    def _get_relations(self) -> set[GraphEdge]:
+        search_codes: set[str] = set(
             [
                 self._object.Code,
             ]
         )
-        ignore_codes: Set[str] = set()
-        edges: Set[GraphEdge] = set()
+        ignore_codes: set[str] = set()
+        edges: set[GraphEdge] = set()
 
         for iteration_config in self._iterations_config.relations:
             if not search_codes:
@@ -145,7 +145,7 @@ class EndpointHandler:
                 .filter(RelationsTable.From_Code.not_in(ignore_codes))
                 .filter(RelationsTable.To_Code.not_in(ignore_codes))
             )
-            rows: List[RelationsTable] = self._session.execute(stmt).scalars().all()
+            rows: list[RelationsTable] = self._session.execute(stmt).scalars().all()
 
             # Update the search and ignore codes for the next iteration
             ignore_codes = set.union(ignore_codes, search_codes)
@@ -170,14 +170,14 @@ class EndpointHandler:
 
         return edges
 
-    def _get_valid_acknowledged_relations(self) -> Set[GraphEdge]:
-        search_codes: Set[str] = set(
+    def _get_valid_acknowledged_relations(self) -> set[GraphEdge]:
+        search_codes: set[str] = set(
             [
                 self._object.Code,
             ]
         )
-        ignore_codes: Set[str] = set()
-        edges: Set[GraphEdge] = set()
+        ignore_codes: set[str] = set()
+        edges: set[GraphEdge] = set()
 
         for iteration_config in self._iterations_config.acknowledged_relations:
             if not search_codes:
@@ -219,7 +219,7 @@ class EndpointHandler:
                 )
             )
 
-            rows: List[AcknowledgedRelationsTable] = self._session.execute(stmt).scalars().all()
+            rows: list[AcknowledgedRelationsTable] = self._session.execute(stmt).scalars().all()
 
             # Update the search and ignore codes for the next iteration
             ignore_codes = set.union(ignore_codes, search_codes)

@@ -1,36 +1,36 @@
-from .module_spec import ModuleSpec, ModulePrefillHandler, ModulePersistHandler
-from .module_status_history_spec import (
-    ModuleStatusHistorySpec,
-    ModuleStatusHistoryPrefillHandler,
-    ModuleStatusHistoryPersistHandler,
-)
 from .module_beleidsdoel_spec import (
-    ModuleBeleidsdoelSpec,
-    ModuleBeleidsdoelPrefillHandler,
     ModuleBeleidsdoelPersistHandler,
+    ModuleBeleidsdoelPrefillHandler,
+    ModuleBeleidsdoelSpec,
 )
 from .module_beleidskeuze_spec import (
-    ModuleBeleidskeuzeSpec,
-    ModuleBeleidskeuzePrefillHandler,
     ModuleBeleidskeuzePersistHandler,
+    ModuleBeleidskeuzePrefillHandler,
+    ModuleBeleidskeuzeSpec,
 )
 from .module_gebied_spec import (
-    ModuleGebiedSpec,
-    ModuleGebiedPrefillHandler,
     ModuleGebiedPersistHandler,
+    ModuleGebiedPrefillHandler,
+    ModuleGebiedSpec,
 )
 from .module_gebiedengroep_spec import (
-    ModuleGebiedengroepSpec,
-    ModuleGebiedengroepPrefillHandler,
     ModuleGebiedengroepPersistHandler,
+    ModuleGebiedengroepPrefillHandler,
+    ModuleGebiedengroepSpec,
 )
 from .module_gebiedsaanwijzing_spec import (
-    ModuleGebiedsaanwijzingSpec,
-    ModuleGebiedsaanwijzingPrefillHandler,
     ModuleGebiedsaanwijzingPersistHandler,
+    ModuleGebiedsaanwijzingPrefillHandler,
+    ModuleGebiedsaanwijzingSpec,
 )
 from .module_maatregel_spec import (
-    ModuleMaatregelSpec,
-    ModuleMaatregelPrefillHandler,
     ModuleMaatregelPersistHandler,
+    ModuleMaatregelPrefillHandler,
+    ModuleMaatregelSpec,
+)
+from .module_spec import ModulePersistHandler, ModulePrefillHandler, ModuleSpec
+from .module_status_history_spec import (
+    ModuleStatusHistoryPersistHandler,
+    ModuleStatusHistoryPrefillHandler,
+    ModuleStatusHistorySpec,
 )

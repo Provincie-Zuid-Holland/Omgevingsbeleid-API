@@ -1,9 +1,8 @@
 import uuid
-from typing import Optional
 
 import pytest
-from pytest import FixtureRequest
 from fastapi.testclient import TestClient
+from pytest import FixtureRequest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -22,7 +21,7 @@ def _statuses(session: Session, module_id: int) -> list[ModuleStatusHistoryTable
 
 def _payload(
     manager_1: uuid.UUID,
-    manager_2: Optional[uuid.UUID] = None,
+    manager_2: uuid.UUID | None = None,
     title: str = "A brand new module",
     description: str = "Description of the new module",
 ) -> dict:

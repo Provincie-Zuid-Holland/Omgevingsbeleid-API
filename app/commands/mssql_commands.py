@@ -1,4 +1,4 @@
-from typing import Annotated, Set
+from typing import Annotated
 
 import click
 from dependency_injector.wiring import Provide, inject
@@ -9,7 +9,7 @@ from app.api.api_container import ApiContainer
 from app.core.db.session import SessionFactoryType, session_scope_with_context
 from app.core.services.main_config import MainConfig
 
-stopwords: Set[str] = set(
+stopwords: set[str] = set(
     [
         "de",
         "en",
@@ -124,7 +124,7 @@ def _reset_fulltext_index(
     mssql_search_ftc_name: str,
     mssql_search_stoplist_name: str,
     table_name: str,
-    columns: Set[str],
+    columns: set[str],
 ):
     # Check is this table already has a search index set up
     result = session.execute(text(f"SELECT * FROM sys.fulltext_indexes WHERE object_id = object_id('{table_name}');"))
@@ -135,7 +135,7 @@ def _reset_fulltext_index(
     if not columns:
         return
 
-    languages_columns: Set[str] = {f"{column} Language 1043" for column in columns}
+    languages_columns: set[str] = {f"{column} Language 1043" for column in columns}
 
     inspector = inspect(session.bind)
     primary_key_columns = inspector.get_pk_constraint(table_name)
@@ -190,12 +190,12 @@ def mssql_setup_search_database(
         words_in_stoplist = set([r[0] for r in result.all()])
 
         # Add new words to stoplist
-        words_to_add: Set[str] = set.difference(stopwords, words_in_stoplist)
+        words_to_add: set[str] = set.difference(stopwords, words_in_stoplist)
         for word in words_to_add:
             session.execute(DDL(f"ALTER FULLTEXT STOPLIST {mssql_search_stoplist_name} ADD '{word}' LANGUAGE 1043;"))
 
         # Remove words that no longer exist
-        words_to_remove: Set[str] = set.difference(words_in_stoplist, stopwords)
+        words_to_remove: set[str] = set.difference(words_in_stoplist, stopwords)
         for word in words_to_remove:
             session.execute(DDL(f"ALTER FULLTEXT STOPLIST {mssql_search_stoplist_name} DROP '{word}' LANGUAGE 1043;"))
 

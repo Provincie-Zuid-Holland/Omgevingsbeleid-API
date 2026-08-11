@@ -1,10 +1,10 @@
-from typing import List, Optional
+from typing import Optional
 
 import pydantic
 
 from app.api.domains.modules.types import PublicModuleObjectRevision
-from app.api.domains.objects.types import NextObjectVersion, ObjectStatics
 from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_service import HierachyReference
+from app.api.domains.objects.types import NextObjectVersion, ObjectStatics
 from app.api.domains.others.types import ObjectRelatedFileResponse
 from app.build.events.types import BuildListener
 from app.core.types import Model, WerkingsgebiedRelatedObjects
@@ -13,13 +13,13 @@ from .create_model_event import CreateModelEvent
 
 
 class ObjectsExtenderListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "foreign_keys_extender" not in service_config:
             return event
 
         config: dict = service_config["foreign_keys_extender"]
-        fields_map_config: List[dict] = config.get("fields_map", [])
+        fields_map_config: list[dict] = config.get("fields_map", [])
 
         for field_map in fields_map_config:
             field_name: str = field_map["to_field"]
@@ -36,13 +36,13 @@ class ObjectsExtenderListener(BuildListener[CreateModelEvent]):
 
 
 class ObjectStaticsExtenderListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "static_foreign_keys_extender" not in service_config:
             return event
 
         config: dict = service_config["static_foreign_keys_extender"]
-        fields_map_config: List[dict] = config.get("fields_map", [])
+        fields_map_config: list[dict] = config.get("fields_map", [])
 
         for field_map in fields_map_config:
             field_name: str = field_map["to_field"]
@@ -61,13 +61,13 @@ class ObjectStaticsExtenderListener(BuildListener[CreateModelEvent]):
 class AddRelationsListener(BuildListener[CreateModelEvent]):
     RELATION_MODEL_ID: str = "read_relation_short"
 
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "relations" not in service_config:
             return event
 
         config: dict = service_config["relations"]
-        objects_config: List[dict] = config.get("objects", [])
+        objects_config: list[dict] = config.get("objects", [])
         for object_config in objects_config:
             field_name: str = object_config["to_field"]
             model_id: str = object_config["model_id"]
@@ -78,7 +78,7 @@ class AddRelationsListener(BuildListener[CreateModelEvent]):
                 final_model: Model = self._get_wrapper_model(event, final_model)
 
             event.payload.pydantic_fields[field_name] = (
-                List[final_model.pydantic_model],
+                list[final_model.pydantic_model],
                 [],
             )
 
@@ -116,7 +116,7 @@ class AddRelationsListener(BuildListener[CreateModelEvent]):
 
 
 class JoinWerkingsgebiedenListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "join_werkingsgebieden" not in service_config:
             return event
@@ -135,7 +135,7 @@ class JoinWerkingsgebiedenListener(BuildListener[CreateModelEvent]):
 
 
 class JoinObjectsListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "join_objects" not in service_config:
             return event
@@ -144,7 +144,7 @@ class JoinObjectsListener(BuildListener[CreateModelEvent]):
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            List[ObjectStatics],
+            list[ObjectStatics],
             [],
         )
 
@@ -152,7 +152,7 @@ class JoinObjectsListener(BuildListener[CreateModelEvent]):
 
 
 class JoinGebiedengroepenListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "join_gebiedengroepen" not in service_config:
             return event
@@ -169,7 +169,7 @@ class JoinGebiedengroepenListener(BuildListener[CreateModelEvent]):
 
 
 class JoinGebiedsaanwijzingenListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "join_gebiedsaanwijzingen" not in service_config:
             return event
@@ -178,7 +178,7 @@ class JoinGebiedsaanwijzingenListener(BuildListener[CreateModelEvent]):
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            List[ObjectStatics],
+            list[ObjectStatics],
             [],
         )
 
@@ -186,7 +186,7 @@ class JoinGebiedsaanwijzingenListener(BuildListener[CreateModelEvent]):
 
 
 class AddPublicRevisionsToObjectModelListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "public_revisions" not in service_config:
             return event
@@ -195,7 +195,7 @@ class AddPublicRevisionsToObjectModelListener(BuildListener[CreateModelEvent]):
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            List[PublicModuleObjectRevision],
+            list[PublicModuleObjectRevision],
             [],
         )
 
@@ -203,7 +203,7 @@ class AddPublicRevisionsToObjectModelListener(BuildListener[CreateModelEvent]):
 
 
 class AddNextObjectVersionToObjectModelListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "next_object_version" not in service_config:
             return event
@@ -220,7 +220,7 @@ class AddNextObjectVersionToObjectModelListener(BuildListener[CreateModelEvent])
 
 
 class AddRelatedObjectsToWerkingsgebiedObjectModelListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "werkingsgebied_related_objects" not in service_config:
             return event
@@ -237,7 +237,7 @@ class AddRelatedObjectsToWerkingsgebiedObjectModelListener(BuildListener[CreateM
 
 
 class AddJoinDocumentsToObjectModelListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "join_documents" not in service_config:
             return event
@@ -246,7 +246,7 @@ class AddJoinDocumentsToObjectModelListener(BuildListener[CreateModelEvent]):
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            List[ObjectStatics],
+            list[ObjectStatics],
             [],
         )
 
@@ -254,7 +254,7 @@ class AddJoinDocumentsToObjectModelListener(BuildListener[CreateModelEvent]):
 
 
 class AddJoinRelatedFilesToObjectModelListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "related_files" not in service_config:
             return event
@@ -263,7 +263,7 @@ class AddJoinRelatedFilesToObjectModelListener(BuildListener[CreateModelEvent]):
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            List[ObjectRelatedFileResponse],
+            list[ObjectRelatedFileResponse],
             [],
         )
 
@@ -271,7 +271,7 @@ class AddJoinRelatedFilesToObjectModelListener(BuildListener[CreateModelEvent]):
 
 
 class AddResolveChildObjectsViaHierarchyListener(BuildListener[CreateModelEvent]):
-    def handle_event(self, event: CreateModelEvent) -> Optional[CreateModelEvent]:
+    def handle_event(self, event: CreateModelEvent) -> CreateModelEvent | None:
         service_config: dict = event.context.intermediate_model.service_config
         if "resolve_child_objects_via_hierarchy_listener" not in service_config:
             return event
@@ -280,7 +280,7 @@ class AddResolveChildObjectsViaHierarchyListener(BuildListener[CreateModelEvent]
         field_name: str = config["to_field"]
 
         event.payload.pydantic_fields[field_name] = (
-            List[HierachyReference],
+            list[HierachyReference],
             [],
         )
 

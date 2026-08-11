@@ -1,4 +1,4 @@
-from typing import List
+
 from app.api.domains.objects.endpoints import ObjectListValidLineagesEndpointContext, list_valid_lineages_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import OrderConfig, PagedResponse
@@ -22,7 +22,7 @@ class ObjectListValidLineagesEndpointBuilder(EndpointBuilder):
         resolver_config: dict = endpoint_config.resolver_data
         response_model: Model = models_provider.get_model(resolver_config["response_model"])
 
-        allowed_filter_columns: List[str] = resolver_config.get("allowed_filter_columns", [])
+        allowed_filter_columns: list[str] = resolver_config.get("allowed_filter_columns", [])
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
         context = ObjectListValidLineagesEndpointContext(

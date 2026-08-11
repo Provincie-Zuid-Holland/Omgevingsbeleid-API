@@ -1,17 +1,14 @@
-from typing import Dict, List, Optional, Set
+from enum import Enum
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PlainSerializer
 
-from enum import Enum
-from typing import Annotated, Literal, Union
-
-
-CustomSetStr = Annotated[Set[str], PlainSerializer(lambda x: list(x), return_type=List[str])]
+CustomSetStr = Annotated[set[str], PlainSerializer(lambda x: list(x), return_type=list[str])]
 
 
 class Purpose(BaseModel):
     Purpose_Type: str
-    Effective_Date: Optional[str] = None
+    Effective_Date: str | None = None
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str
@@ -67,7 +64,7 @@ class Gio(BaseModel):
 
     # These are the <geo:locaties> in <geo:GeoInformatieObjectVaststelling>
     # These are represent gebied in ow
-    locaties: List[GioLocatie] = Field(default_factory=list)
+    locaties: list[GioLocatie] = Field(default_factory=list)
 
 
 class Gebiedengroep(BaseModel):
@@ -106,8 +103,8 @@ class Asset(BaseModel):
 
 
 class WidData(BaseModel):
-    Known_Wid_Map: Dict[str, str]
-    Known_Wids: List[str]
+    Known_Wid_Map: dict[str, str]
+    Known_Wids: list[str]
 
 
 # OwState
@@ -149,14 +146,7 @@ class GebiedengroepRef(UnresolvedGebiedengroepRef):
 
 
 LocationRefUnion = Annotated[
-    Union[
-        AmbtsgebiedRef,
-        UnresolvedAmbtsgebiedRef,
-        GebiedRef,
-        UnresolvedGebiedRef,
-        GebiedengroepRef,
-        UnresolvedGebiedengroepRef,
-    ],
+    AmbtsgebiedRef | UnresolvedAmbtsgebiedRef | GebiedRef | UnresolvedGebiedRef | GebiedengroepRef | UnresolvedGebiedengroepRef,
     Field(discriminator="ref_type"),
 ]
 
@@ -177,10 +167,7 @@ class GebiedsaanwijzingRef(UnresolvedGebiedsaanwijzingRef):
 
 
 GebiedsaanwijzingRefUnion = Annotated[
-    Union[
-        UnresolvedGebiedsaanwijzingRef,
-        GebiedsaanwijzingRef,
-    ],
+    UnresolvedGebiedsaanwijzingRef | GebiedsaanwijzingRef,
     Field(discriminator="ref_type"),
 ]
 
@@ -210,12 +197,7 @@ class DivisietekstRef(UnresolvedDivisietekstRef):
 
 
 WidRefUnion = Annotated[
-    Union[
-        DivisieRef,
-        UnresolvedDivisieRef,
-        DivisietekstRef,
-        UnresolvedDivisietekstRef,
-    ],
+    DivisieRef | UnresolvedDivisieRef | DivisietekstRef | UnresolvedDivisietekstRef,
     Field(discriminator="ref_type"),
 ]
 
@@ -230,7 +212,7 @@ class OwObjectStatus(str, Enum):
 class BaseOwObject(BaseModel):
     identification: str
     object_status: OwObjectStatus = Field(OwObjectStatus.unchanged)
-    procedure_status: Optional[str] = Field(None)
+    procedure_status: str | None = Field(None)
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -266,7 +248,7 @@ class OwGebied(BaseOwObject):
 class OwGebiedengroep(BaseOwObject):
     source_code: str
     title: str
-    gebieden_refs: List[LocationRefUnion] = Field(default_factory=list)
+    gebieden_refs: list[LocationRefUnion] = Field(default_factory=list)
 
     def __hash__(self):
         return hash((self.source_code,))
@@ -295,7 +277,7 @@ class OwGebiedsaanwijzing(BaseOwObject):
     title: str
     indication_type: str
     indication_group: str
-    location_refs: List[LocationRefUnion] = Field(default_factory=list)
+    location_refs: list[LocationRefUnion] = Field(default_factory=list)
 
     def __hash__(self):
         return hash((self.source_code,))
@@ -306,22 +288,22 @@ class OwTekstdeel(BaseOwObject):
     source_code: str
     idealization: str
     text_ref: WidRefUnion
-    location_refs: List[LocationRefUnion] = Field(default_factory=list)
-    gebiedsaanwijzing_refs: List[GebiedsaanwijzingRefUnion] = Field(default_factory=list)
+    location_refs: list[LocationRefUnion] = Field(default_factory=list)
+    gebiedsaanwijzing_refs: list[GebiedsaanwijzingRefUnion] = Field(default_factory=list)
 
     def __hash__(self):
         return hash((self.source_code,))
 
 
 class OwState(BaseModel):
-    ambtsgebieden: List[OwAmbtsgebied] = Field(default_factory=list)
-    regelingsgebieden: List[OwRegelingsgebied] = Field(default_factory=list)
-    gebieden: List[OwGebied] = Field(default_factory=list)
-    gebiedengroepen: List[OwGebiedengroep] = Field(default_factory=list)
-    gebiedsaanwijzingen: List[OwGebiedsaanwijzing] = Field(default_factory=list)
-    divisies: List[OwDivisie] = Field(default_factory=list)
-    divisieteksten: List[OwDivisietekst] = Field(default_factory=list)
-    tekstdelen: List[OwTekstdeel] = Field(default_factory=list)
+    ambtsgebieden: list[OwAmbtsgebied] = Field(default_factory=list)
+    regelingsgebieden: list[OwRegelingsgebied] = Field(default_factory=list)
+    gebieden: list[OwGebied] = Field(default_factory=list)
+    gebiedengroepen: list[OwGebiedengroep] = Field(default_factory=list)
+    gebiedsaanwijzingen: list[OwGebiedsaanwijzing] = Field(default_factory=list)
+    divisies: list[OwDivisie] = Field(default_factory=list)
+    divisieteksten: list[OwDivisietekst] = Field(default_factory=list)
+    tekstdelen: list[OwTekstdeel] = Field(default_factory=list)
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -333,11 +315,11 @@ class ActiveAct(BaseModel):
     Document_Type: str
     Procedure_Type: str
     # @todo; data from state upgrade is not correct
-    Gios: Dict[str, Gio] = Field(default_factory=dict)
-    Gebiedengroepen: Dict[str, Gebiedengroep] = Field(default_factory=dict)
-    Gebiedsaanwijzingen: Dict[str, Gebiedsaanwijzing] = Field(default_factory=dict)
-    Documents: Dict[int, Document] = Field(default_factory=dict)
-    Assets: Dict[str, Asset] = Field(default_factory=dict)
+    Gios: dict[str, Gio] = Field(default_factory=dict)
+    Gebiedengroepen: dict[str, Gebiedengroep] = Field(default_factory=dict)
+    Gebiedsaanwijzingen: dict[str, Gebiedsaanwijzing] = Field(default_factory=dict)
+    Documents: dict[int, Document] = Field(default_factory=dict)
+    Assets: dict[str, Asset] = Field(default_factory=dict)
     Wid_Data: WidData
     Ow_State: OwState
     Act_Text: str

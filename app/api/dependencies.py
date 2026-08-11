@@ -1,4 +1,3 @@
-from typing import Optional
 
 from fastapi import Request
 from sqlalchemy import text
@@ -23,17 +22,17 @@ def depends_db_session(request: Request):
 
 
 def depends_simple_pagination(
-    offset: Optional[int] = None,
-    limit: Optional[int] = None,
+    offset: int | None = None,
+    limit: int | None = None,
 ) -> SimplePagination:
     return SimplePagination(offset=offset, limit=limit)
 
 
 def depends_optional_sorted_pagination(
-    offset: Optional[int] = None,
-    limit: Optional[int] = None,
-    sort_column: Optional[str] = None,
-    sort_order: Optional[SortOrder] = None,
+    offset: int | None = None,
+    limit: int | None = None,
+    sort_column: str | None = None,
+    sort_order: SortOrder | None = None,
 ) -> OptionalSortedPagination:
     optional_sort = OptionalSort(
         column=sort_column,

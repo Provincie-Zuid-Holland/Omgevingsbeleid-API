@@ -1,4 +1,4 @@
-from typing import List
+
 from app.api.domains.objects.endpoints import (
     ObjectListValidLineageTreeEndpointContext,
     list_valid_lineage_tree_endpoint,
@@ -28,7 +28,7 @@ class ObjectListValidLineageTreeEndpointBuilder(EndpointBuilder):
         resolver_config: dict = endpoint_config.resolver_data
         response_model: Model = models_provider.get_model(resolver_config["response_model"])
 
-        allowed_filter_columns: List[str] = resolver_config.get("allowed_filter_columns", [])
+        allowed_filter_columns: list[str] = resolver_config.get("allowed_filter_columns", [])
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
 
         context = ObjectListValidLineageTreeEndpointContext(

@@ -4,7 +4,6 @@ import json
 import re
 import sys
 from hashlib import sha256
-from typing import List, Optional, Set
 from uuid import uuid4
 
 from PIL import Image, UnidentifiedImageError
@@ -21,7 +20,7 @@ from app.core.types import DynamicObjectModel, Model
 
 
 class StoreImagesConfig(BaseModel):
-    fields: Set[str]
+    fields: set[str]
 
 
 class StoreImagesExtractor:
@@ -31,12 +30,12 @@ class StoreImagesExtractor:
         asset_repository: AssetRepository,
         event: ModuleObjectPatchedEvent,
         config: StoreImagesConfig,
-        interested_fields: Set[str],
+        interested_fields: set[str],
     ):
         self._asset_repository: AssetRepository = asset_repository
         self._session: Session = session
         self._config: StoreImagesConfig = config
-        self._interested_fields: Set[str] = interested_fields
+        self._interested_fields: set[str] = interested_fields
         self._module_object: ModuleObjectsTable = event.payload.new_record
 
     def process(self) -> ModuleObjectsTable:
@@ -62,7 +61,7 @@ class StoreImagesExtractor:
         # First check if the image already exists
         # if so; then we do not need to parse the image to gain the meta
         image_hash: str = sha256(image_data.encode("utf-8")).hexdigest()
-        image_table: Optional[AssetsTable] = self._asset_repository.get_by_hash_and_content(
+        image_table: AssetsTable | None = self._asset_repository.get_by_hash_and_content(
             self._session, image_hash, image_data
         )
         if image_table is not None:
@@ -104,7 +103,7 @@ class StoreImagesExtractorFactory:
         session: Session,
         event: ModuleObjectPatchedEvent,
         config: StoreImagesConfig,
-        interested_fields: Set[str],
+        interested_fields: set[str],
     ) -> StoreImagesExtractor:
         return StoreImagesExtractor(
             session,
@@ -119,13 +118,13 @@ class StoreImagesListener(ApiListener[ModuleObjectPatchedEvent]):
     def __init__(self, service_factory: StoreImagesExtractorFactory):
         self._service_factory: StoreImagesExtractorFactory = service_factory
 
-    def handle_event(self, session: Session, event: ModuleObjectPatchedEvent) -> Optional[ModuleObjectPatchedEvent]:
-        config: Optional[StoreImagesConfig] = self._collect_config(event.context.request_model)
+    def handle_event(self, session: Session, event: ModuleObjectPatchedEvent) -> ModuleObjectPatchedEvent | None:
+        config: StoreImagesConfig | None = self._collect_config(event.context.request_model)
         if not config:
             return event
 
-        changed_fields: Set[str] = set(event.context.changes.keys())
-        interested_fields: Set[str] = set.intersection(config.fields, changed_fields)
+        changed_fields: set[str] = set(event.context.changes.keys())
+        interested_fields: set[str] = set.intersection(config.fields, changed_fields)
         if not interested_fields:
             return event
 
@@ -135,14 +134,14 @@ class StoreImagesListener(ApiListener[ModuleObjectPatchedEvent]):
         event.payload.new_record = result_object
         return event
 
-    def _collect_config(self, request_model: Model) -> Optional[StoreImagesConfig]:
+    def _collect_config(self, request_model: Model) -> StoreImagesConfig | None:
         if not isinstance(request_model, DynamicObjectModel):
             return None
         if "store_image" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("store_image", {})
-        fields: List[str] = []
+        fields: list[str] = []
         for field in config_dict.get("fields", []):
             if not isinstance(field, str):
                 raise RuntimeError("Invalid store_image config, expect `fields` to be a list of strings")

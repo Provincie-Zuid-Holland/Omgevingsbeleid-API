@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional, Dict
+from typing import Annotated
 
 from bs4 import BeautifulSoup
 from dependency_injector.wiring import Provide
@@ -21,19 +21,19 @@ class EndpointHandler:
         self,
         session: Session,
         module_objects_to_models_parser: ModuleObjectsToModelsParser,
-        model_map: Dict[str, str],
+        model_map: dict[str, str],
         search_config: ValidSearchConfig,
         pagination: SimplePagination,
         query: str,
-        object_types: Optional[List[str]] = None,
+        object_types: list[str] | None = None,
     ):
         self._session: Session = session
         self._module_objects_to_models_parser: ModuleObjectsToModelsParser = module_objects_to_models_parser
-        self._model_map: Dict[str, str] = model_map
+        self._model_map: dict[str, str] = model_map
         self._search_config: ValidSearchConfig = search_config
         self._pagination: SimplePagination = pagination
         self._query: str = query
-        self._object_types: Optional[List[str]] = object_types
+        self._object_types: list[str] | None = object_types
 
     def handle(self) -> PagedResponse[ValidSearchObject]:
         if not len(self._query):
@@ -69,7 +69,7 @@ class EndpointHandler:
         stmt = stmt.bindparams(**bindparams_dict)
 
         results = self._session.execute(stmt)
-        search_objects: List[ValidSearchObject] = []
+        search_objects: list[ValidSearchObject] = []
         total_count: int = 0
 
         for row in results:
@@ -160,7 +160,7 @@ class EndpointHandler:
 
 class MssqlValidSearchEndpointContext(BaseEndpointContext):
     search_config: ValidSearchConfig
-    model_map: Dict[str, str]
+    model_map: dict[str, str]
 
 
 def get_mssql_valid_search_endpoint(

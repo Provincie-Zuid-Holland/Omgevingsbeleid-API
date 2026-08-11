@@ -1,7 +1,7 @@
 import uuid
 from copy import copy
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -25,15 +25,15 @@ from app.core.utils.utils import table_to_dict
 
 
 class CompleteModule(BaseModel):
-    start_validity: Optional[datetime] = Field(None)
+    start_validity: datetime | None = Field(None)
 
 
 class ObjectValidities(BaseModel):
     start: datetime
-    end: Optional[datetime]
+    end: datetime | None
 
 
-def _guard_status_vastgesteld(module_status: Optional[str]) -> None:
+def _guard_status_vastgesteld(module_status: str | None) -> None:
     if module_status is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Deze module heeft geen status")
     if module_status != ModuleStatusCode.Vastgesteld:
@@ -44,11 +44,11 @@ def _guard_status_vastgesteld(module_status: Optional[str]) -> None:
 
 def _get_validities(
     object_in: CompleteModule,
-    module_object_context: Optional[ModuleObjectContextTable],
+    module_object_context: ModuleObjectContextTable | None,
     timepoint: datetime,
 ) -> ObjectValidities:
     start_validity: datetime = object_in.start_validity or copy(timepoint)
-    end_validity: Optional[datetime] = None
+    end_validity: datetime | None = None
 
     # If the object action is "Terminate" then we set the default end_validity to now
     if module_object_context and module_object_context.Action == ModuleObjectAction.Terminate:
@@ -68,14 +68,14 @@ def _create_objects(
     object_in: CompleteModule,
     timepoint: datetime,
 ) -> None:
-    module_objects: List[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
+    module_objects: list[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
         session,
         module.Module_ID,
         timepoint,
     )
 
     for module_object_table in module_objects:
-        module_object_dict: Dict[str, Any] = table_to_dict(module_object_table)
+        module_object_dict: dict[str, Any] = table_to_dict(module_object_table)
         new_object: ObjectsTable = ObjectsTable()
 
         # Copy module object into the new object
@@ -125,7 +125,7 @@ def post_complete_module_endpoint(
     guard_module_is_locked(module)
     _guard_status_vastgesteld(module.Current_Status)
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     try:
         status = ModuleStatusHistoryTable(
@@ -147,8 +147,8 @@ def post_complete_module_endpoint(
         session.flush()
         session.commit()
 
-    except Exception as e:
+    except Exception:
         session.rollback()
-        raise e
+        raise
 
     return ResponseOK(message="OK")

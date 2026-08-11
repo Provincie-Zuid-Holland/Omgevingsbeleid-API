@@ -1,6 +1,6 @@
 import json
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, Optional, Type
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -23,8 +23,8 @@ from app.core.tables.users import UsersTable
 
 class EditObjectStaticEndpointContext(BaseEndpointContext):
     object_type: str
-    request_type: Type[BaseModel]
-    result_type: Type[BaseModel]
+    request_type: type[BaseModel]
+    result_type: type[BaseModel]
 
 
 @inject
@@ -39,11 +39,11 @@ def edit_object_static_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[EditObjectStaticEndpointContext, Depends()],
 ) -> ResponseOK:
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nothing to update")
 
-    object_static: Optional[ObjectStaticsTable] = object_static_repository.get_by_object_type_and_id(
+    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
         session,
         context.object_type,
         lineage_id,
@@ -78,7 +78,7 @@ def edit_object_static_endpoint(
     change_log: ChangeLogTable = ChangeLogTable(
         Object_Type=context.object_type,
         Object_ID=lineage_id,
-        Created_Date=datetime.now(timezone.utc),
+        Created_Date=datetime.now(UTC),
         Created_By_UUID=user.UUID,
         Action_Type="edit_object_static",
         Action_Data=object_in.model_dump_json(),

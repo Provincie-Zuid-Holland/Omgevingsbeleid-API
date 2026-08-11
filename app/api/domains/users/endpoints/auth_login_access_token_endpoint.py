@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -20,7 +20,7 @@ def post_auth_login_access_token_endpoint(
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
 ) -> AuthToken:
-    user: Optional[UsersTable] = user_repository.authenticate(session, form_data.username, form_data.password)
+    user: UsersTable | None = user_repository.authenticate(session, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect email or password")
     elif not user.IsActive:

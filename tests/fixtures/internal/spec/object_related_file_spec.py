@@ -1,34 +1,28 @@
-from typing import Optional, Sequence
 import uuid
-
+from collections.abc import Sequence
+from datetime import datetime
+from typing import ClassVar
 
 from app.core.db.base import Base
 from app.core.tables.others import ObjectRelatedFileTable
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
 from tests.fixtures.internal.types import (
-    Spec,
-    Record,
-    PrimaryKey,
-    PersistContext,
     BasePersistHandler,
-    Ref,
-)
-
-from datetime import datetime
-from typing import ClassVar, Set
-
-
-from tests.fixtures.internal.types import (
     Link,
+    PersistContext,
+    PrimaryKey,
+    Record,
+    Ref,
+    Spec,
 )
 
 
 class ObjectRelatedFileSpec(Spec):
-    __link_fields__: ClassVar[Set[str]] = {"Created_By_UUID", "File_Ref"}
+    __link_fields__: ClassVar[set[str]] = {"Created_By_UUID", "File_Ref"}
 
-    UUID: Optional[uuid.UUID] = None
-    Created_Date: Optional[datetime] = None
-    Created_By_UUID: Optional[Link] = None
+    UUID: uuid.UUID | None = None
+    Created_Date: datetime | None = None
+    Created_By_UUID: Link | None = None
 
     Code: str
     File_Ref: Ref

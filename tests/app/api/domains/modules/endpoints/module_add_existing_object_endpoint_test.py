@@ -1,9 +1,8 @@
-from typing import Optional
 import uuid
 
 import pytest
-from pytest import FixtureRequest
 from fastapi.testclient import TestClient
+from pytest import FixtureRequest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -28,7 +27,7 @@ def _payload(object_uuid: uuid.UUID, action: str = "Edit", explanation: str = ""
 
 
 def _context(session: Session, module_id: int, object_id: int) -> ModuleObjectContextTable:
-    module_context: Optional[ModuleObjectContextTable] = session.scalars(
+    module_context: ModuleObjectContextTable | None = session.scalars(
         select(ModuleObjectContextTable)
         .where(ModuleObjectContextTable.Module_ID == module_id)
         .where(ModuleObjectContextTable.Object_Type == "beleidsdoel")

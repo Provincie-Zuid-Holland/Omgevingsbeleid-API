@@ -1,46 +1,43 @@
-from typing import ClassVar, Optional, Set, Tuple, Type, TypeVar, Union
+import uuid
+from collections.abc import Sequence
+from typing import Any, ClassVar, TypeVar, cast
 
 from app.api.domains.modules.types import ModuleObjectActionFull
-from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
-from tests.fixtures.internal.types import Record
-from tests.fixtures.internal.spec.objects.beleidsdoel_spec import BaseObjectSpec
-import uuid
-
-from typing import Any, Dict, List, Sequence, cast
-
-
 from app.core.db.base import Base
+from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectStaticsTable
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
+from tests.fixtures.internal.spec.objects.beleidsdoel_spec import BaseObjectSpec
 from tests.fixtures.internal.types import (
-    Spec,
-    Ref,
     BasePersistHandler,
     PersistContext,
+    Record,
+    Ref,
+    Spec,
 )
 
 
 class BaseModuleObjectSpec(BaseObjectSpec):
     # This is the spec of the vigerend version, ex: for ModuleBeleidsdoelSpec it would be BeleidsdoelSpec
     # This is used to find the adjusted on it it does not exists in the module, and none was explicitly set
-    __vigerend_spec__: ClassVar[Type[BaseObjectSpec]] = BaseObjectSpec
+    __vigerend_spec__: ClassVar[type[BaseObjectSpec]] = BaseObjectSpec
 
     __object_type__: ClassVar[str] = ""
-    __object_fields__: ClassVar[Set[str]] = {
+    __object_fields__: ClassVar[set[str]] = {
         "Module_ID",
         "Deleted",
     }
 
     Module_ID: int = 0
-    Deleted: Optional[bool] = None
+    Deleted: bool | None = None
 
     # These fields are for the ModuleObjectContextTable
-    Context_Hidden: Optional[bool] = None
-    Context_Action: Optional[ModuleObjectActionFull] = None
+    Context_Hidden: bool | None = None
+    Context_Action: ModuleObjectActionFull | None = None
     Context_Explanation: str = ""
     Context_Conclusion: str = ""
 
-    def get_vigerend_spec(self) -> Type[BaseObjectSpec]:
+    def get_vigerend_spec(self) -> type[BaseObjectSpec]:
         return self.__vigerend_spec__
 
 
@@ -52,7 +49,7 @@ class BaseModuleObjectPrefillHandler(BasePrefillHandler[T]):
         if record.spec.UUID is None:
             record.spec.UUID = uuid.uuid4()
 
-        previous_version: Optional[Record[Union[T, BaseObjectSpec]]] = self._find_previous(
+        previous_version: Record[T | BaseObjectSpec] | None = self._find_previous(
             record,
             context.previous_records,
         )
@@ -69,9 +66,9 @@ class BaseModuleObjectPrefillHandler(BasePrefillHandler[T]):
         return record
 
     def _find_previous(
-        self, current_record: Record[T], previous_records: List[Record[Spec]]
-    ) -> Optional[Record[Union[T, BaseObjectSpec]]]:
-        previous: Optional[Record[Union[T, BaseObjectSpec]]] = (
+        self, current_record: Record[T], previous_records: list[Record[Spec]]
+    ) -> Record[T | BaseObjectSpec] | None:
+        previous: Record[T | BaseObjectSpec] | None = (
             self._find_previous_by_type(
                 current_record, previous_records, type(current_record.spec)
             )  # Lazy so we only search for vigerend if above result was None
@@ -83,14 +80,14 @@ class BaseModuleObjectPrefillHandler(BasePrefillHandler[T]):
     def _find_previous_by_type(
         self,
         current_record: Record[T],
-        previous_records: List[Record[Spec]],
-        target_spec_type: Type[Union[T, BaseObjectSpec]],
-    ) -> Optional[Record[Union[T, BaseObjectSpec]]]:
+        previous_records: list[Record[Spec]],
+        target_spec_type: type[T | BaseObjectSpec],
+    ) -> Record[T | BaseObjectSpec] | None:
         for previous_record in reversed(previous_records):
             if type(previous_record.spec) is not target_spec_type:
                 continue
 
-            previous_record_casted = cast(Record[Union[T, BaseObjectSpec]], previous_record)
+            previous_record_casted = cast(Record[T | BaseObjectSpec], previous_record)
 
             # Find based on what we have
             # If we have a Adjust_On, then we must find where we are pointing to
@@ -111,13 +108,13 @@ class BaseModuleObjectPrefillHandler(BasePrefillHandler[T]):
 class BaseModuleObjectPersistHandler[T: BaseModuleObjectSpec](BasePersistHandler[T]):
     def to_rows(self, record: Record[T], context: PersistContext) -> Sequence[Base]:
         spec: T = record.spec
-        result: List[Base] = []
+        result: list[Base] = []
 
         if spec.Code not in context.seen_codes:
             context.seen_codes.add(spec.Code)
             result.append(self._build_object_static(spec))
 
-        module_context_index: Tuple[int, str] = (spec.Module_ID, spec.Code)
+        module_context_index: tuple[int, str] = (spec.Module_ID, spec.Code)
         if module_context_index not in context.seen_module_context:
             context.seen_module_context.add(module_context_index)
             result.append(self._build_module_object_context(spec))
@@ -127,12 +124,12 @@ class BaseModuleObjectPersistHandler[T: BaseModuleObjectSpec](BasePersistHandler
         return result
 
     def _build_object_static(self, spec: T) -> ObjectStaticsTable:
-        data: Dict[str, Any] = {field: getattr(spec, field) for field in spec.get_static_fields()}
+        data: dict[str, Any] = {field: getattr(spec, field) for field in spec.get_static_fields()}
 
         return ObjectStaticsTable(**data)
 
     def _build_object(self, spec: T) -> ModuleObjectsTable:
-        data: Dict[str, Any] = {field: getattr(spec, field) for field in spec.get_object_fields()}
+        data: dict[str, Any] = {field: getattr(spec, field) for field in spec.get_object_fields()}
 
         return ModuleObjectsTable(**data)
 

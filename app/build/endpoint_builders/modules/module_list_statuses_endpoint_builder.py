@@ -1,4 +1,4 @@
-from typing import List
+
 from app.api.domains.modules.endpoints.module_list_statuses_endpoint import view_module_list_statuses_endpoint
 from app.api.domains.modules.types import ModuleStatus
 from app.api.endpoint import EndpointContextBuilderData
@@ -25,7 +25,7 @@ class ModuleListStatusesEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=view_module_list_statuses_endpoint,
             methods=["GET"],
-            response_model=List[ModuleStatus],
+            response_model=list[ModuleStatus],
             summary="Get status history of the module",
             description=None,
             tags=["Modules"],

@@ -1,22 +1,22 @@
-from datetime import datetime, timezone
-from enum import Enum
-from typing import Optional, Set, Tuple
 import uuid
+from datetime import UTC, datetime
+from enum import Enum
+
 from fastapi import HTTPException, status
+from slugify import slugify
 from sqlalchemy import String, func, insert, select
 from sqlalchemy.orm import Session
-from app.api.domains.modules.services.manage_object_context_service import ManageObjectContextService
+
 import app.api.domains.modules.services.manage_object_context_service as mocs
+from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
+from app.api.domains.modules.services.manage_object_context_service import ManageObjectContextService
+from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
-from app.core.tables.others import AreasTable
-from app.core.tables.users import UsersTable
-from slugify import slugify
-
-from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
-from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectStaticsTable
+from app.core.tables.others import AreasTable
+from app.core.tables.users import UsersTable
 from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable, InputGeoWerkingsgebiedenTable
 
 
@@ -48,10 +48,10 @@ class PatchGebiedengroepInputGeoService:
         self._user: UsersTable = user
         self._onderverdeling_object_type: str = onderverdeling_object_type
         self._input_geo_werkingsgebied: InputGeoWerkingsgebiedenTable = input_geo_werkingsgebied
-        self._timepoint: datetime = datetime.now(timezone.utc)
+        self._timepoint: datetime = datetime.now(UTC)
 
     def patch(self, main_obj: ModuleObjectsTable) -> ModuleObjectsTable:
-        used_sub_codes: Set[str] = set()
+        used_sub_codes: set[str] = set()
         something_changed: bool = False
 
         for onderverdeling in self._input_geo_werkingsgebied.Onderverdelingen:
@@ -108,7 +108,7 @@ class PatchGebiedengroepInputGeoService:
         onderverdeling: InputGeoOnderverdelingenTable,
     ) -> ObjectStaticsTable:
         source_key: str = slugify(f"igo:{onderverdeling.Title}")
-        sub_obj_static: Optional[ObjectStaticsTable] = self._object_static_repository.get_by_source(
+        sub_obj_static: ObjectStaticsTable | None = self._object_static_repository.get_by_source(
             self._session,
             source_key,
         )
@@ -146,7 +146,7 @@ class PatchGebiedengroepInputGeoService:
             .returning(ObjectStaticsTable)
         )
 
-        response: Optional[ObjectStaticsTable] = self._session.execute(stmt).scalars().first()
+        response: ObjectStaticsTable | None = self._session.execute(stmt).scalars().first()
         if response is None:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to create new object static")
 
@@ -158,7 +158,7 @@ class PatchGebiedengroepInputGeoService:
 
         # These sources hashes are not unique sadly
         # We try to push for the most correct area by filtering by title first
-        existing_area: Optional[AreasTable] = self._area_repository.get_by_source_hash_and_title(
+        existing_area: AreasTable | None = self._area_repository.get_by_source_hash_and_title(
             self._session,
             onderverdeling.Geometry_Hash,
             onderverdeling.Title,
@@ -199,8 +199,8 @@ class PatchGebiedengroepInputGeoService:
         module_id: int,
         area_uuid: uuid.UUID,
         title: str,
-    ) -> Tuple[ObjectResultType, ModuleObjectsTable]:
-        existing_object: Optional[ModuleObjectsTable] = (
+    ) -> tuple[ObjectResultType, ModuleObjectsTable]:
+        existing_object: ModuleObjectsTable | None = (
             self._module_object_repository.get_latest_by_module_id_object_code(
                 self._session,
                 module_id,

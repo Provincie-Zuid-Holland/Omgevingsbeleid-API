@@ -1,4 +1,3 @@
-from typing import List
 
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
@@ -9,7 +8,7 @@ from app.core.tables.publications import PublicationVersionTable
 
 
 class PublicationVersionValidator:
-    def get_errors(self, publication_version: PublicationVersionTable) -> List[ErrorDetails]:
+    def get_errors(self, publication_version: PublicationVersionTable) -> list[ErrorDetails]:
         try:
             if publication_version.Publication.Procedure_Type == ProcedureType.DRAFT.value:
                 _ = PublicationVersionDraftValidated.model_validate(publication_version)

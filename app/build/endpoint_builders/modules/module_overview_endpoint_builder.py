@@ -1,6 +1,6 @@
 from app.api.domains.modules.endpoints.module_overview_endpoint import (
-    view_module_overview_endpoint,
     ModuleOverviewResponse,
+    view_module_overview_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder

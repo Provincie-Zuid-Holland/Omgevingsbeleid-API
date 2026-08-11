@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, File, Form, HTTPException, UploadFile, status
@@ -47,7 +47,7 @@ class EndpointHandler:
         self._file_data: FileData = FileData(File=uploaded_file)
         self._title: str = title
         self._ignore_report: bool = ignore_report
-        self._timepoint: datetime = datetime.now(timezone.utc)
+        self._timepoint: datetime = datetime.now(UTC)
 
     def handle(self) -> ObjectRelatedFileResponse:
         self._guard_upload()
@@ -81,7 +81,7 @@ class EndpointHandler:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unsupported file type, expected a PDF.")
 
     def _store_file(self) -> StorageFileTable:
-        existing_file_table: Optional[StorageFileTable] = self._storage_repository.get_by_checksum_uuid(
+        existing_file_table: StorageFileTable | None = self._storage_repository.get_by_checksum_uuid(
             self._session,
             self._file_data.get_checksum(),
         )
@@ -120,7 +120,7 @@ def post_object_related_files_upload_endpoint(
     ignore_report: bool = Form(...),
     uploaded_file: UploadFile = File(...),
 ) -> ObjectRelatedFileResponse:
-    object_static: Optional[ObjectStaticsTable] = object_static_repository.get_by_object_type_and_id(
+    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
         session, context.object_type, lineage_id
     )
     if not object_static:

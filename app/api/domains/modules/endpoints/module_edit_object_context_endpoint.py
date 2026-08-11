@@ -1,6 +1,6 @@
 import json
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -25,9 +25,9 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleEditObjectContext(BaseModel):
-    Action: Optional[ModuleObjectAction] = None
-    Explanation: Optional[str] = None
-    Conclusion: Optional[str] = None
+    Action: ModuleObjectAction | None = None
+    Explanation: str | None = None
+    Conclusion: str | None = None
     model_config = ConfigDict(use_enum_values=True)
 
 
@@ -53,7 +53,7 @@ def post_module_edit_object_context_endpoint(
         ],
     )
 
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
@@ -62,7 +62,7 @@ def post_module_edit_object_context_endpoint(
     for key, value in changes.items():
         setattr(object_context, key, value)
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     object_context.Modified_By_UUID = user.UUID
     object_context.Modified_Date = timepoint

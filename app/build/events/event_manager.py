@@ -1,23 +1,23 @@
-from typing import Dict, Generic, List, Type
+from typing import Generic
 
 from .types import BuildEventType, BuildListener
 
 
 class BuildEventListeners(Generic[BuildEventType]):
-    def __init__(self, listeners: List[BuildListener] = []):
-        self._listeners: Dict[Type[BuildEventType], List[BuildListener]] = {}
+    def __init__(self, listeners: list[BuildListener] = []):
+        self._listeners: dict[type[BuildEventType], list[BuildListener]] = {}
 
         for listener in listeners:
             self.register(listener)
 
     def register(self, listener: BuildListener):
-        event_type: Type[BuildEventType] = listener.get_event_type()
+        event_type: type[BuildEventType] = listener.get_event_type()
         if event_type not in self._listeners:
             self._listeners[event_type] = []
 
         self._listeners[event_type].append(listener)
 
-    def get_listeners(self, event: BuildEventType) -> List[BuildListener]:
+    def get_listeners(self, event: BuildEventType) -> list[BuildListener]:
         event_type = type(event)
         return self._listeners.get(event_type, [])
 
@@ -30,7 +30,7 @@ class BuildEventManager(Generic[BuildEventType]):
         self._event_listeners: BuildEventListeners = event_listeners
 
     def dispatch(self, event: BuildEventType) -> BuildEventType:
-        listeners: List[BuildListener] = self._event_listeners.get_listeners(event)
+        listeners: list[BuildListener] = self._event_listeners.get_listeners(event)
         if not listeners:
             return event
 

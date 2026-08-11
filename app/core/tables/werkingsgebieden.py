@@ -1,12 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional
 
-from sqlalchemy import ForeignKey, LargeBinary, Unicode, Table, Column
+from sqlalchemy import Column, ForeignKey, LargeBinary, Table, Unicode
 from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 
 from app.core.db.base import Base
-
 
 Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc = Table(
     "Input_GEO_Werkingsgebieden_Onderverdelingen",
@@ -24,7 +22,7 @@ class InputGeoWerkingsgebiedenTable(Base):
     Description: Mapped[str] = mapped_column(server_default="")
     Created_Date: Mapped[datetime]
 
-    Onderverdelingen: Mapped[List["InputGeoOnderverdelingenTable"]] = relationship(
+    Onderverdelingen: Mapped[list["InputGeoOnderverdelingenTable"]] = relationship(
         secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc,
         back_populates="Werkingsgebieden",
         viewonly=True,
@@ -42,8 +40,8 @@ class InputGeoOnderverdelingenTable(Base):
     Description: Mapped[str] = mapped_column(server_default="")
     Created_Date: Mapped[datetime]
 
-    Symbol: Mapped[Optional[str]]
-    Geometry: Mapped[Optional[bytes]] = deferred(mapped_column(LargeBinary(), nullable=True))
+    Symbol: Mapped[str | None]
+    Geometry: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
     Geometry_Hash: Mapped[str] = mapped_column(Unicode(64))
     GML: Mapped[str] = deferred(mapped_column(Unicode))
 
@@ -82,7 +80,7 @@ class SourceWerkingsgebiedenTable(Base):
     End_Validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
 
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
-    SHAPE: Mapped[Optional[bytes]] = deferred(mapped_column(LargeBinary(), nullable=True))
+    SHAPE: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
     Geometry_Hash: Mapped[str] = mapped_column(Unicode(64), nullable=True)
     GML: Mapped[str] = deferred(mapped_column(Unicode))
     symbol: Mapped[str] = mapped_column(Unicode(265))
@@ -99,7 +97,7 @@ class OnderverdelingTable(Base):
     ID: Mapped[int]
 
     Title: Mapped[str] = mapped_column(name="Onderverdeling")
-    SHAPE: Mapped[Optional[bytes]] = deferred(mapped_column(LargeBinary(), nullable=True))
+    SHAPE: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
     symbol: Mapped[str]
     Werkingsgebied: Mapped[str] = mapped_column(Unicode(265))
     UUID_Werkingsgebied: Mapped[uuid.UUID]

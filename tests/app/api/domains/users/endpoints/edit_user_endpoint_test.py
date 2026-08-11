@@ -1,8 +1,7 @@
 import uuid
-from typing import Optional
 
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
@@ -12,7 +11,6 @@ from app.core.tables.users import IS_ACTIVE, UsersTable
 from tests.conftest import Context
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
-
 
 # allowed_roles for the edit_user resolver
 ALLOWED_ROL = "Behandelend Ambtenaar"
@@ -37,7 +35,7 @@ def test_edit_user_success(admin: TestClient, target_uuid: uuid.UUID, session: S
     assert response.status_code == 200, response.text
     assert response.json()["message"] == "OK"
 
-    row: Optional[UsersTable] = session.get(UsersTable, target_uuid)
+    row: UsersTable | None = session.get(UsersTable, target_uuid)
     assert row is not None
     assert row.Gebruikersnaam == "Edited Name"
     assert row.Email == "edited@pzh.nl"
@@ -48,7 +46,7 @@ def test_edit_user_success(admin: TestClient, target_uuid: uuid.UUID, session: S
 def test_edit_user_deactivate_and_reactivate(admin: TestClient, target_uuid: uuid.UUID, session: Session):
     deactivate = admin.post(f"/users/{target_uuid}", json={"IsActive": False})
     assert deactivate.status_code == 200, deactivate.text
-    row: Optional[UsersTable] = session.get(UsersTable, target_uuid)
+    row: UsersTable | None = session.get(UsersTable, target_uuid)
     assert row is not None
     assert row.Status == ""
     assert row.IsActive is False
@@ -65,7 +63,7 @@ def test_edit_user_writes_changelog_without_password(admin: TestClient, target_u
     assert response.status_code == 200, response.text
 
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
-    change_log: Optional[ChangeLogTable] = ctx.session.scalar(
+    change_log: ChangeLogTable | None = ctx.session.scalar(
         select(ChangeLogTable)
         .where(ChangeLogTable.Action_Type == "edit_user")
         .order_by(desc(ChangeLogTable.Created_Date))
@@ -86,7 +84,7 @@ def test_edit_user_email_already_in_use(admin: TestClient, target_uuid: uuid.UUI
     assert response.json()["detail"] == "Email already in use"
 
     # The target kept its own email.
-    row: Optional[UsersTable] = session.get(UsersTable, target_uuid)
+    row: UsersTable | None = session.get(UsersTable, target_uuid)
     assert row is not None
     assert row.Email == "viewer@pzh.nl"
 

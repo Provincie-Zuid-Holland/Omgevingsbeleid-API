@@ -1,6 +1,5 @@
 import uuid
 from datetime import date, datetime
-from typing import List, Optional, Dict
 
 import dso.models as dso_models
 from dso.announcement_builder.state_manager.models import InputData, Kennisgeving
@@ -17,7 +16,7 @@ DOCUMENT_TYPE_MAP = {
     DocumentType.PROGRAM: "PROGRAMMA",
 }
 
-OPDRACHT_TYPE_MAP: Dict[PackageType, OpdrachtType] = {
+OPDRACHT_TYPE_MAP: dict[PackageType, OpdrachtType] = {
     PackageType.VALIDATION: OpdrachtType.VALIDATIE,
     PackageType.PUBLICATION: OpdrachtType.PUBLICATIE,
 }
@@ -110,14 +109,14 @@ class DsoAnnouncementInputDataBuilder:
 
         return result
 
-    def _get_onderwerpen(self) -> List[OnderwerpType]:
-        result: List[OnderwerpType] = [OnderwerpType[v] for v in self._api_input_data.Announcement_Metadata.Subjects]
+    def _get_onderwerpen(self) -> list[OnderwerpType]:
+        result: list[OnderwerpType] = [OnderwerpType[v] for v in self._api_input_data.Announcement_Metadata.Subjects]
         return result
 
     def _get_procedure_verloop(self) -> dso_models.ProcedureVerloop:
-        steps: List[dso_models.ProcedureStap] = []
+        steps: list[dso_models.ProcedureStap] = []
 
-        field_map: List[dict] = [
+        field_map: list[dict] = [
             {
                 "field": "Begin_Inspection_Period_Date",
                 "target": ProcedureStappenOntwerp.begin_inzagetermijn,
@@ -131,7 +130,7 @@ class DsoAnnouncementInputDataBuilder:
         ]
 
         for setting in field_map:
-            date_value: Optional[str] = getattr(self._procedural, setting["field"])
+            date_value: str | None = getattr(self._procedural, setting["field"])
             if date_value is None and setting["required"]:
                 raise RuntimeError(f"Procedural.{setting['field']} is required")
 
@@ -158,7 +157,7 @@ class DsoAnnouncementInputDataBuilder:
         if len(self._announcement_content.Texts) == 0:
             raise RuntimeError("Expecting at least one text (article)")
 
-        pieces: List[str] = []
+        pieces: list[str] = []
         for data in self._announcement_content.Texts:
             description: str = data.Description
             description = self._replace_placeholders(description)
@@ -197,14 +196,14 @@ class DsoAnnouncementInputDataBuilder:
             f"""<a href="{self._about_bill_frbr.get_work()}/{self._about_bill_frbr.get_expression_version()}">www.officielebekendmakingen.nl</a>""",
         )
 
-        begin_date: Optional[str] = self._procedural.Begin_Inspection_Period_Date
+        begin_date: str | None = self._procedural.Begin_Inspection_Period_Date
         if begin_date is not None:
             date_readable: str = self._get_readable_date_from_str(begin_date)
             content = content.replace("[[BEGIN_INSPECTION_DATE]]", date_readable)
             date_readable: str = self._get_readable_date_from_str_short(begin_date)
             content = content.replace("[[BEGIN_INSPECTION_DATE_SHORT]]", date_readable)
 
-        end_date: Optional[str] = self._procedural.End_Inspection_Period_Date
+        end_date: str | None = self._procedural.End_Inspection_Period_Date
         if end_date is not None:
             date_readable: str = self._get_readable_date_from_str(end_date)
             content = content.replace("[[END_INSPECTION_DATE]]", date_readable)

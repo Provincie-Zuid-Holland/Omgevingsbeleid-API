@@ -1,4 +1,4 @@
-from typing import List
+
 from app.api.domains.objects.endpoints.relations_list_endpoint import (
     RelationsListEndpointContext,
     get_relations_list_endpoint,
@@ -34,7 +34,7 @@ class RelationsListEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_model=List[ReadRelation],
+            response_model=list[ReadRelation],
             summary=f"Get all relation codes of the given {api.object_type} lineage",
             description=None,
             tags=[api.object_type],

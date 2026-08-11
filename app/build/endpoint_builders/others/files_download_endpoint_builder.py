@@ -1,6 +1,6 @@
 from app.api.domains.others.endpoints import get_files_download_endpoint
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import EndpointBuilder, ConfiguredFastapiEndpoint
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services import ModelsProvider
 

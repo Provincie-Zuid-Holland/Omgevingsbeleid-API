@@ -1,9 +1,8 @@
+import uuid
 from copy import deepcopy
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import List, Optional, Set, Tuple
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
-import uuid
 
 from pydantic import BaseModel
 from sqlalchemy import case, desc, func, literal, select
@@ -15,7 +14,7 @@ from app.api.base_repository import BaseRepository
 from app.api.domains.modules.types import ModuleObjectActionFull, ModuleStatusCode
 from app.api.utils.pagination import SortedPagination
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
-from app.core.tables.objects import ObjectStaticsTable, ObjectsTable
+from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 
 
 @dataclass
@@ -31,13 +30,13 @@ class OwnerFilter(BaseModel):
 
 
 class ModuleObjectRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[ModuleObjectsTable]:
+    def get_by_uuid(self, session: Session, uuid: UUID) -> ModuleObjectsTable | None:
         stmt = select(ModuleObjectsTable).filter(ModuleObjectsTable.UUID == uuid)
         return self.fetch_first(session, stmt)
 
     def get_by_object_type_and_uuid(
         self, session: Session, object_type: str, uuid: UUID
-    ) -> Optional[ModuleObjectsTable]:
+    ) -> ModuleObjectsTable | None:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.UUID == uuid)
@@ -51,7 +50,7 @@ class ModuleObjectRepository(BaseRepository):
         module_id: int,
         object_type: str,
         uuid: UUID,
-    ) -> Optional[ModuleObjectsTable]:
+    ) -> ModuleObjectsTable | None:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.UUID == uuid)
@@ -65,7 +64,7 @@ class ModuleObjectRepository(BaseRepository):
         session: Session,
         module_id: int,
         object_code: str,
-    ) -> Optional[ModuleObjectsTable]:
+    ) -> ModuleObjectsTable | None:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.Module_ID == module_id)
@@ -80,7 +79,7 @@ class ModuleObjectRepository(BaseRepository):
         module_id: int,
         object_type: str,
         object_id: int,
-    ) -> Optional[ModuleObjectsTable]:
+    ) -> ModuleObjectsTable | None:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.Module_ID == module_id)
@@ -108,28 +107,28 @@ class ModuleObjectRepository(BaseRepository):
             .filter(ModuleObjectContextTable.Hidden == False)
         )
 
-    def get_objects_in_time(self, session: Session, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
+    def get_objects_in_time(self, session: Session, module_id: int, before: datetime) -> list[ModuleObjectsTable]:
         subq = self._build_snapshot_objects_query(module_id, before).subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
         stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).filter(subq.c.Deleted == False)
 
-        objects: List[ModuleObjectsTable] = session.execute(stmt).scalars()
+        objects: list[ModuleObjectsTable] = session.execute(stmt).scalars()
         return objects
 
-    def get_all_objects_in_time(self, session: Session, module_id: int, before: datetime) -> List[ModuleObjectsTable]:
+    def get_all_objects_in_time(self, session: Session, module_id: int, before: datetime) -> list[ModuleObjectsTable]:
         subq = self._build_snapshot_objects_query(module_id, before).subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
         stmt = select(aliased_objects).filter(subq.c._RowNumber == 1).filter(subq.c.Deleted == False)
 
-        objects: List[ModuleObjectsTable] = session.execute(stmt).all()
+        objects: list[ModuleObjectsTable] = session.execute(stmt).all()
         return objects
 
     def _latest_per_module_query(
         self,
         code: str,
-        status_filter: Optional[List[str]] = None,
+        status_filter: list[str] | None = None,
         is_active: bool = True,
-    ) -> Select[Tuple[ModuleObjectsTable, ModuleTable, ModuleObjectActionFull]]:
+    ) -> Select[tuple[ModuleObjectsTable, ModuleTable, ModuleObjectActionFull]]:
         """
         Fetch the latest module object versions grouped by
         every module containing it. used e.g. to list any
@@ -192,9 +191,9 @@ class ModuleObjectRepository(BaseRepository):
         self,
         session: Session,
         code: str,
-        minimum_status: Optional[ModuleStatusCode] = None,
+        minimum_status: ModuleStatusCode | None = None,
         is_active: bool = True,
-    ) -> List[LatestObjectPerModuleResult]:
+    ) -> list[LatestObjectPerModuleResult]:
         # Build minimum status list starting at given status, if provided
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
         query = self._latest_per_module_query(code=code, status_filter=status_filter, is_active=is_active)
@@ -214,12 +213,12 @@ class ModuleObjectRepository(BaseRepository):
         session: Session,
         pagination: SortedPagination,
         only_active_modules: bool = True,
-        minimum_status: Optional[ModuleStatusCode] = None,
-        owner_filter: Optional[OwnerFilter] = None,
-        object_types: List[str] = [],
-        title: Optional[str] = None,
-        actions: List[ModuleObjectActionFull] = [],
-        module_id: Optional[int] = None,
+        minimum_status: ModuleStatusCode | None = None,
+        owner_filter: OwnerFilter | None = None,
+        object_types: list[str] = [],
+        title: str | None = None,
+        actions: list[ModuleObjectActionFull] = [],
+        module_id: int | None = None,
     ):
         """
         Generic filterable module-object listing query used
@@ -330,8 +329,8 @@ class ModuleObjectRepository(BaseRepository):
         changes: dict,
         timepoint: datetime,
         by_uuid: UUID,
-    ) -> Tuple[ModuleObjectsTable, ModuleObjectsTable]:
-        old_record: Optional[ModuleObjectsTable] = self.get_latest_by_id(
+    ) -> tuple[ModuleObjectsTable, ModuleObjectsTable]:
+        old_record: ModuleObjectsTable | None = self.get_latest_by_id(
             session,
             module_id,
             object_type,
@@ -374,12 +373,12 @@ class ModuleObjectRepository(BaseRepository):
 
         return new_record
 
-    def confirm_accessible_object_codes(self, session: Session, module_id: int, object_codes: Set[str]) -> Set[str]:
+    def confirm_accessible_object_codes(self, session: Session, module_id: int, object_codes: set[str]) -> set[str]:
         if not object_codes:
             return object_codes
 
         # "Vigerend" in objects table
-        timepoint: datetime = datetime.now(timezone.utc)
+        timepoint: datetime = datetime.now(UTC)
         row_number = (
             func.row_number()
             .over(

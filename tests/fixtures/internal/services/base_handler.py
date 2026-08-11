@@ -1,16 +1,15 @@
 from copy import copy
-from typing import List, Optional
 
 from pydantic import BaseModel
 
-from tests.fixtures.internal.types import Record, Spec, Ref
+from tests.fixtures.internal.types import Record, Ref, Spec
 
 
 class PrefillContext(BaseModel):
-    previous_records: List[Record[Spec]]
+    previous_records: list[Record[Spec]]
     spec_count: int
 
-    def find_optional(self, ref: Ref) -> Optional[Record[Spec]]:
+    def find_optional(self, ref: Ref) -> Record[Spec] | None:
         for record in self.previous_records:
             if type(record.spec) is not ref.spec_type:
                 continue
@@ -20,7 +19,7 @@ class PrefillContext(BaseModel):
         return None
 
     def find(self, ref: Ref) -> Record[Spec]:
-        result: Optional[Record[Spec]] = self.find_optional(ref)
+        result: Record[Spec] | None = self.find_optional(ref)
         if result is None:
             raise RuntimeError(f"Could not find record for ref {ref!r}")
         return result
@@ -49,8 +48,8 @@ class BasePrefillHandler[T: Spec]:
             return record
         if not hasattr(record.spec, "Module_ID"):
             return record
-        if getattr(record.spec, "Module_ID"):
+        if record.spec.Module_ID:
             return record
 
-        setattr(record.spec, "Module_ID", record.ctx.module)
+        record.spec.Module_ID = record.ctx.module
         return record

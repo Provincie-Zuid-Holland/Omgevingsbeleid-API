@@ -1,11 +1,10 @@
-from typing import List
 
 from app.api.domains.publications.endpoints.publications.versions.attachments.list_attachments_endpoint import (
     get_list_attachments_endpoint,
 )
 from app.api.domains.publications.types.models import AttachmentShort
 from app.api.endpoint import EndpointContextBuilderData
-from app.build.endpoint_builders.endpoint_builder import EndpointBuilder, ConfiguredFastapiEndpoint
+from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services import ModelsProvider
 
@@ -29,7 +28,7 @@ class ListPublicationVersionAttachmentEndpointBuilder(EndpointBuilder):
             endpoint=get_list_attachments_endpoint,
             methods=["GET"],
             summary="List attachments for a Publication Version",
-            response_model=List[AttachmentShort],
+            response_model=list[AttachmentShort],
             description=None,
             tags=["Publication Versions"],
         )

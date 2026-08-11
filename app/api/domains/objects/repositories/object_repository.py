@@ -1,9 +1,8 @@
-from datetime import datetime, timezone
-from typing import List, Optional
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session, aliased, selectinload, joinedload
+from sqlalchemy.orm import Session, aliased, joinedload, selectinload
 from sqlalchemy.sql import and_, func, or_
 
 from app.api.base_repository import BaseRepository
@@ -14,7 +13,7 @@ from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 
 
 class ObjectRepository(BaseRepository):
-    def get_valid_counts(self, session: Session, user_uuid: UUID) -> List[ObjectCount]:
+    def get_valid_counts(self, session: Session, user_uuid: UUID) -> list[ObjectCount]:
         row_number = (
             func.row_number()
             .over(
@@ -37,7 +36,7 @@ class ObjectRepository(BaseRepository):
                     ObjectStaticsTable.Client_1_UUID == user_uuid,
                 ).self_group()
             )
-            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
         )
 
         subq = subq.subquery()
@@ -47,7 +46,7 @@ class ObjectRepository(BaseRepository):
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(timezone.utc),
+                    subq.c.End_Validity > datetime.now(UTC),
                     subq.c.End_Validity.is_(None),
                 )
             )
@@ -60,15 +59,15 @@ class ObjectRepository(BaseRepository):
         result = [ObjectCount(object_type=r[0], count=r[1]) for r in rows]
         return result
 
-    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[ObjectsTable]:
+    def get_by_uuid(self, session: Session, uuid: UUID) -> ObjectsTable | None:
         stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid)
         return self.fetch_first(session, stmt)
 
-    def get_by_object_type_and_uuid(self, session: Session, object_type: str, uuid: UUID) -> Optional[ObjectsTable]:
+    def get_by_object_type_and_uuid(self, session: Session, object_type: str, uuid: UUID) -> ObjectsTable | None:
         stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid).filter(ObjectsTable.Object_Type == object_type)
         return self.fetch_first(session, stmt)
 
-    def get_next_valid_object(self, session: Session, object_uuid: UUID) -> Optional[ObjectsTable]:
+    def get_next_valid_object(self, session: Session, object_uuid: UUID) -> ObjectsTable | None:
         reference_obj = (select(ObjectsTable).filter(ObjectsTable.UUID == object_uuid)).subquery()
 
         stmt = (
@@ -77,19 +76,19 @@ class ObjectRepository(BaseRepository):
             .join(ObjectsTable.ObjectStatics)
             .filter(ObjectsTable.Code == reference_obj.c.Code)
             .filter(ObjectsTable.Modified_Date > reference_obj.c.Modified_Date)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
             .order_by(ObjectsTable.Modified_Date.asc())
         )
         stmt = stmt.filter(
             or_(
-                ObjectsTable.End_Validity > datetime.now(timezone.utc),
+                ObjectsTable.End_Validity > datetime.now(UTC),
                 ObjectsTable.End_Validity.is_(None),
             )
         )
 
         return self.fetch_first(session, stmt)
 
-    def get_latest_valid_by_id(self, session: Session, object_type: str, object_id: int) -> Optional[ObjectsTable]:
+    def get_latest_valid_by_id(self, session: Session, object_type: str, object_id: int) -> ObjectsTable | None:
         row_number = (
             func.row_number()
             .over(
@@ -105,7 +104,7 @@ class ObjectRepository(BaseRepository):
             .join(ObjectsTable.ObjectStatics)
             .filter(ObjectsTable.Object_Type == object_type)
             .filter(ObjectsTable.Object_ID == object_id)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
         )
 
         subq = subq.subquery()
@@ -115,7 +114,7 @@ class ObjectRepository(BaseRepository):
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(timezone.utc),
+                    subq.c.End_Validity > datetime.now(UTC),
                     subq.c.End_Validity.is_(None),
                 )
             )
@@ -124,7 +123,7 @@ class ObjectRepository(BaseRepository):
         result = self.fetch_first(session, stmt)
         return result
 
-    def get_latest_by_id(self, session: Session, object_type: str, object_id: int) -> Optional[ObjectsTable]:
+    def get_latest_by_id(self, session: Session, object_type: str, object_id: int) -> ObjectsTable | None:
         stmt = (
             select(ObjectsTable)
             .filter(ObjectsTable.Object_Type == object_type)
@@ -137,8 +136,8 @@ class ObjectRepository(BaseRepository):
         self,
         session: Session,
         pagination: SortedPagination,
-        owner_uuid: Optional[UUID] = None,
-        object_types: List[str] = [],
+        owner_uuid: UUID | None = None,
+        object_types: list[str] = [],
     ) -> PaginatedQueryResult:
         row_number = (
             func.row_number()
@@ -153,7 +152,7 @@ class ObjectRepository(BaseRepository):
             select(ObjectsTable, row_number)
             .options(joinedload(ObjectsTable.ObjectStatics))
             .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
         )
 
         filters = []
@@ -185,7 +184,7 @@ class ObjectRepository(BaseRepository):
             sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )
 
-    def prepare_list_valid_lineages(self, object_type: str, filter_title: Optional[str] = None) -> PreparedQuery:
+    def prepare_list_valid_lineages(self, object_type: str, filter_title: str | None = None) -> PreparedQuery:
         subq = (
             select(
                 ObjectsTable,
@@ -198,7 +197,7 @@ class ObjectRepository(BaseRepository):
             )
             .select_from(ObjectsTable)
             .filter(ObjectsTable.Object_Type == object_type)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
             .subquery()
         )
 
@@ -208,7 +207,7 @@ class ObjectRepository(BaseRepository):
             .filter(subq.c._RowNumber == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(timezone.utc),
+                    subq.c.End_Validity > datetime.now(UTC),
                     subq.c.End_Validity.is_(None),
                 )
             )

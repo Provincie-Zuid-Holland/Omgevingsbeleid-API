@@ -1,4 +1,4 @@
-from typing import Set, List, Sequence, Dict
+from collections.abc import Sequence
 
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
@@ -10,7 +10,7 @@ from app.core.tables.objects import ObjectStaticsTable
 
 
 class JoinGebiedsaanwijzingenConfig(BaseModel):
-    from_fields: Set[str]
+    from_fields: set[str]
     to_field: str
 
 
@@ -23,15 +23,15 @@ class JoinGebiedsaanwijzingenService:
         self._session: Session = session
         self._config: JoinGebiedsaanwijzingenConfig = config
 
-    def join_gebiedsaanwijzingen(self, rows: List[BaseModel]) -> List[BaseModel]:
+    def join_gebiedsaanwijzingen(self, rows: list[BaseModel]) -> list[BaseModel]:
         if len(rows) <= 0:
             return rows
-        result_rows: List[BaseModel] = []
-        all_aanwijzing_codes: Set[str] = set()
-        aanwijzing_codes_per_object: Dict[str, Set[str]] = {}
+        result_rows: list[BaseModel] = []
+        all_aanwijzing_codes: set[str] = set()
+        aanwijzing_codes_per_object: dict[str, set[str]] = {}
 
         for row in rows:
-            aanwijzing_codes_current_row: Set[str] = set()
+            aanwijzing_codes_current_row: set[str] = set()
             for field in self._config.from_fields:
                 try:
                     soup: BeautifulSoup = BeautifulSoup(getattr(row, field), "html.parser")
@@ -43,16 +43,16 @@ class JoinGebiedsaanwijzingenService:
                         aanwijzing_codes_current_row.add(aanwijzing_code)
                 except TypeError:
                     continue
-            aanwijzing_codes_per_object[getattr(row, "Code")] = aanwijzing_codes_current_row
+            aanwijzing_codes_per_object[row.Code] = aanwijzing_codes_current_row
 
         if len(all_aanwijzing_codes) <= 0:
             return rows
 
-        gebiedsaanwijzingen: Dict[str, ObjectStatics] = self._fetch_object_statics(all_aanwijzing_codes)
+        gebiedsaanwijzingen: dict[str, ObjectStatics] = self._fetch_object_statics(all_aanwijzing_codes)
 
         for row in rows:
-            object_code: str = getattr(row, "Code")
-            aanwijzing_statics: List[ObjectStatics] = []
+            object_code: str = row.Code
+            aanwijzing_statics: list[ObjectStatics] = []
             for aanwijzing_code in aanwijzing_codes_per_object[object_code]:
                 object_statics: ObjectStatics = gebiedsaanwijzingen.get(aanwijzing_code)
                 if not object_statics:
@@ -63,7 +63,7 @@ class JoinGebiedsaanwijzingenService:
 
         return result_rows
 
-    def _fetch_object_statics(self, aanwijzing_codes: Set[str]) -> Dict[str, ObjectStatics]:
+    def _fetch_object_statics(self, aanwijzing_codes: set[str]) -> dict[str, ObjectStatics]:
         stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(aanwijzing_codes))
         rows: Sequence[ObjectStaticsTable] = self._session.execute(stmt).scalars().all()
         return {r.Code: ObjectStatics.model_validate(r) for r in rows}

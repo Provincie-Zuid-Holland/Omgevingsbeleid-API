@@ -1,8 +1,7 @@
 import hashlib
 import re
 import uuid
-from datetime import datetime, timezone
-from typing import List, Optional, Set
+from datetime import UTC, datetime
 
 import dso.models as dso_models
 from sqlalchemy.orm import Session
@@ -20,17 +19,17 @@ class PublicationWerkingsgebiedenProvider:
         self,
         session: Session,
         act_frbr: ActFrbr,
-        all_objects: List[dict],
-        used_objects: List[dict],
+        all_objects: list[dict],
+        used_objects: list[dict],
         all_data: bool = False,
-    ) -> List[dict]:
-        werkingsgebieden_objects: List[dict] = [o for o in all_objects if o["Object_Type"] == "werkingsgebied"]
-        werkingsgebied_codes: Set[str] = self._calculate_werkingsgebied_codes(used_objects)
-        used_werkingsgebieden_objects: List[dict] = [
+    ) -> list[dict]:
+        werkingsgebieden_objects: list[dict] = [o for o in all_objects if o["Object_Type"] == "werkingsgebied"]
+        werkingsgebied_codes: set[str] = self._calculate_werkingsgebied_codes(used_objects)
+        used_werkingsgebieden_objects: list[dict] = [
             w for w in werkingsgebieden_objects if w["Code"] in werkingsgebied_codes or all_data
         ]
 
-        werkingsgebieden: List[dict] = self._get_werkingsgebieden_with_areas(
+        werkingsgebieden: list[dict] = self._get_werkingsgebieden_with_areas(
             session,
             act_frbr,
             used_werkingsgebieden_objects,
@@ -41,9 +40,9 @@ class PublicationWerkingsgebiedenProvider:
         self,
         session: Session,
         act_frbr: ActFrbr,
-        werkingsgebieden_objects: List[dict],
-    ) -> List[dict]:
-        result: List[dict] = []
+        werkingsgebieden_objects: list[dict],
+    ) -> list[dict]:
+        result: list[dict] = []
 
         for werkingsgebied in werkingsgebieden_objects:
             code = werkingsgebied["Code"]
@@ -51,7 +50,7 @@ class PublicationWerkingsgebiedenProvider:
             if area_uuid is None:
                 raise RuntimeError(f"Missing area for werkingsgebied with code: {code}")
 
-            area: Optional[AreasTable] = self._area_repository.get_with_gml(session, area_uuid)
+            area: AreasTable | None = self._area_repository.get_with_gml(session, area_uuid)
             if area is None:
                 raise RuntimeError(f"Area UUID does not exist for code: {code}")
 
@@ -79,7 +78,7 @@ class PublicationWerkingsgebiedenProvider:
             Work_Date=work_date,
             Work_Other=work_identifier,
             Expression_Language=act_frbr.Expression_Language,
-            Expression_Date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            Expression_Date=datetime.now(UTC).strftime("%Y-%m-%d"),
             Expression_Version=1,
         )
 
@@ -111,23 +110,23 @@ class PublicationWerkingsgebiedenProvider:
         }
         return result
 
-    def _calculate_werkingsgebied_codes(self, used_objects: List[dict]) -> Set[str]:
-        werkingsgebied_codes: Set[str] = set(
+    def _calculate_werkingsgebied_codes(self, used_objects: list[dict]) -> set[str]:
+        werkingsgebied_codes: set[str] = set(
             [o.get("Werkingsgebied_Code") for o in used_objects if o.get("Werkingsgebied_Code", None) is not None]
         )  # type: ignore
 
-        gebiedsaanwijzingen_codes: Set[str] = self._resolve_gebiedsaanwijzingen(used_objects)
+        gebiedsaanwijzingen_codes: set[str] = self._resolve_gebiedsaanwijzingen(used_objects)
 
         result = werkingsgebied_codes.union(gebiedsaanwijzingen_codes)
 
         return result
 
-    def _resolve_gebiedsaanwijzingen(self, used_objects: List[dict]) -> Set[str]:
+    def _resolve_gebiedsaanwijzingen(self, used_objects: list[dict]) -> set[str]:
         # @todo: this implementation now looks to all fields and objects, but this is wrong
         # For example in the Programma it also used Beleidskeuze for reference, but does not use it text
         # So when a Beleidskeuze.Description has a gebiedsaanwijzing, then it will be resolved but not used
         # This needs to be updated to only check fields from types that are actually used
-        values: Set[str] = set()
+        values: set[str] = set()
         pattern = r'<a[^>]*data-hint-locatie="(.*?)"[^>]*>'
 
         for obj in used_objects:

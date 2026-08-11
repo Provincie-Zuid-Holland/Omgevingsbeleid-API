@@ -1,4 +1,3 @@
-from typing import Optional
 
 from dso.announcement_builder.state_manager.models import InputData
 from sqlalchemy.orm import Session
@@ -52,7 +51,7 @@ class AnnouncementPackageBuilderFactory:
             Announcement_Content=AnnouncementContent.model_validate(announcement.Content),
         )
 
-        state: Optional[ActiveState] = self._state_loader.load_from_environment(
+        state: ActiveState | None = self._state_loader.load_from_environment(
             session, announcement.Publication.Environment
         )
 

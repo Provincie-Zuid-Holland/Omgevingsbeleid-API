@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import Annotated, List, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import and_, func
@@ -20,7 +20,7 @@ class RequestAcknowledgedRelation(AcknowledgedRelationBase):
 
 class AcknowledgedRelationRequestEndpointContext(BaseEndpointContext):
     object_type: str
-    allowed_object_types: List[str]
+    allowed_object_types: list[str]
 
 
 def get_acknowledged_relation_request_endpoint(
@@ -33,7 +33,7 @@ def get_acknowledged_relation_request_endpoint(
     if object_in.Object_Type not in context.allowed_object_types:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Object_Type")
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     my_side = AcknowledgedRelationSide(
         Object_ID=lineage_id,
@@ -56,7 +56,7 @@ def get_acknowledged_relation_request_endpoint(
     )
     ack_table.with_sides(my_side, their_side)
 
-    existing_request: Optional[AcknowledgedRelationsTable] = (
+    existing_request: AcknowledgedRelationsTable | None = (
         session.query(AcknowledgedRelationsTable)
         .filter(
             and_(

@@ -1,21 +1,22 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.api.domains.modules.types import ModuleObjectActionFull, ModuleStatusCode, ModuleStatusCodeInternal
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.spec.modules import (
-    ModuleSpec,
+    ModuleBeleidskeuzeSpec,
     ModuleGebiedengroepSpec,
-    ModuleGebiedSpec,
     ModuleGebiedsaanwijzingSpec,
+    ModuleGebiedSpec,
+    ModuleSpec,
+    ModuleStatusHistorySpec,
 )
-from tests.fixtures.internal.spec.modules import ModuleStatusHistorySpec, ModuleBeleidskeuzeSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec
 
 
 def load(col: Collector) -> None:
     with col.with_defaults(
-        Created_Date=datetime(2025, 6, 5, tzinfo=timezone.utc),
-        Modified_Date=datetime(2025, 6, 5, tzinfo=timezone.utc),
+        Created_Date=datetime(2025, 6, 5, tzinfo=UTC),
+        Modified_Date=datetime(2025, 6, 5, tzinfo=UTC),
         Created_By_UUID=col.ref(UserSpec, "admin"),
         Modified_By_UUID=col.ref(UserSpec, "admin"),
         Module_Manager_1_UUID=col.ref(UserSpec, "admin"),

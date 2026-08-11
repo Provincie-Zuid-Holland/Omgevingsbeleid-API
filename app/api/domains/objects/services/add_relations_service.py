@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Union, get_args
+from typing import Any, get_args
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, or_, select
@@ -19,32 +19,32 @@ class ObjectRelationConfig(BaseModel):
 
 
 class RelationsConfig(BaseModel):
-    objects: List[ObjectRelationConfig]
+    objects: list[ObjectRelationConfig]
 
 
 class Config(BaseModel):
-    object_codes: List[str]
-    object_types: List[str]
-    object_type_details: Dict[str, ObjectRelationConfig]
+    object_codes: list[str]
+    object_types: list[str]
+    object_type_details: dict[str, ObjectRelationConfig]
 
 
 class AddRelationsService:
     def __init__(
         self,
         session: Session,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
         response_model: Model,
     ):
         self._session: Session = session
-        self._rows: List[BaseModel] = rows
-        self._response_model: Union[DynamicObjectModel, Model] = response_model
+        self._rows: list[BaseModel] = rows
+        self._response_model: DynamicObjectModel | Model = response_model
 
-    def add_relations(self) -> List[BaseModel]:
-        config: Optional[Config] = self._collect_config()
+    def add_relations(self) -> list[BaseModel]:
+        config: Config | None = self._collect_config()
         if not config:
             return self._rows
 
-        relation_rows: List[Dict[str, Any]] = self._fetch_relation_rows(config)
+        relation_rows: list[dict[str, Any]] = self._fetch_relation_rows(config)
 
         """
         relations=
@@ -94,16 +94,16 @@ class AddRelationsService:
             relations[target_code][object_config.to_field].append(field_result)
 
         # Now we union the relation "rows" into the event rows
-        result_rows: List[BaseModel] = []
+        result_rows: list[BaseModel] = []
         for row in self._rows:
-            if getattr(row, "Code") in relations:
-                for field_name, content in relations[getattr(row, "Code")].items():
+            if row.Code in relations:
+                for field_name, content in relations[row.Code].items():
                     setattr(row, field_name, content)
             result_rows.append(row)
 
         return result_rows
 
-    def _fetch_relation_rows(self, config: Config) -> List[Dict[str, Any]]:
+    def _fetch_relation_rows(self, config: Config) -> list[dict[str, Any]]:
         subq = (
             select(
                 ObjectsTable,
@@ -138,13 +138,13 @@ class AddRelationsService:
         dict_rows = [r._asdict() for r in rows]
         return dict_rows
 
-    def _collect_config(self) -> Optional[Config]:
+    def _collect_config(self) -> Config | None:
         if not isinstance(self._response_model, DynamicObjectModel):
             return None
         if "relations" not in self._response_model.service_config:
             return None
 
-        object_codes = list({getattr(r, "Code") for r in self._rows})
+        object_codes = list({r.Code for r in self._rows})
 
         relations_config = RelationsConfig.model_validate(self._response_model.service_config["relations"])
 
@@ -162,7 +162,7 @@ class AddRelationsServiceFactory:
     def create_service(
         self,
         session: Session,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
         response_model: Model,
     ) -> AddRelationsService:
         return AddRelationsService(

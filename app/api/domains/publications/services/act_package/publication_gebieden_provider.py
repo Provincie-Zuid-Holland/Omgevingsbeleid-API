@@ -1,6 +1,5 @@
-from uuid import UUID, uuid4
 from datetime import datetime
-from typing import Dict, List, Optional, Set
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel
 
@@ -35,28 +34,28 @@ class InputGebiedengroep(BaseModel):
     # We do use this title for ow.gebiedengroep
     # See how weird it is that we dont use the Gebied.Title
     title: str
-    gebied_codes: Set[str]
+    gebied_codes: set[str]
     modified_date: datetime
 
 
 class GebiedenData(BaseModel):
     # This is dragged along for Gebiedsaanwijzing
     # which might point to non used Gebieden
-    all_gebieden: Dict[str, InputGebied]
-    used_gebiedengroepen: List[InputGebiedengroep]
+    all_gebieden: dict[str, InputGebied]
+    used_gebiedengroepen: list[InputGebiedengroep]
 
 
 class PublicationGebiedenProvider:
     def get_gebieden_data(
         self,
-        all_objects: List[dict],
-        used_objects: List[dict],
+        all_objects: list[dict],
+        used_objects: list[dict],
     ) -> GebiedenData:
-        used_gebiedengroep_objects: List[InputGebiedengroep] = self._get_gebiedengroep_objects(
+        used_gebiedengroep_objects: list[InputGebiedengroep] = self._get_gebiedengroep_objects(
             all_objects,
             used_objects,
         )
-        all_gebied_objects: Dict[str, InputGebied] = self._get_gebied_objects(all_objects)
+        all_gebied_objects: dict[str, InputGebied] = self._get_gebied_objects(all_objects)
 
         return GebiedenData(
             all_gebieden=all_gebied_objects,
@@ -65,12 +64,12 @@ class PublicationGebiedenProvider:
 
     def _get_gebiedengroep_objects(
         self,
-        all_objects: List[dict],
-        used_objects: List[dict],
-    ) -> List[InputGebiedengroep]:
-        gebiedengroep_codes: Set[str] = self._calculate_gebiedengroep_codes(used_objects)
-        groep_objects: List[dict] = [o for o in all_objects if o["Object_Type"] == "gebiedengroep"]
-        used_groep_objects: List[InputGebiedengroep] = [
+        all_objects: list[dict],
+        used_objects: list[dict],
+    ) -> list[InputGebiedengroep]:
+        gebiedengroep_codes: set[str] = self._calculate_gebiedengroep_codes(used_objects)
+        groep_objects: list[dict] = [o for o in all_objects if o["Object_Type"] == "gebiedengroep"]
+        used_groep_objects: list[InputGebiedengroep] = [
             InputGebiedengroep(
                 uuid=g["UUID"],
                 object_id=g["Object_ID"],
@@ -84,19 +83,19 @@ class PublicationGebiedenProvider:
         ]
         return used_groep_objects
 
-    def _calculate_gebiedengroep_codes(self, used_objects: List[dict]) -> Set[str]:
-        used_codes: Set[str] = set(
+    def _calculate_gebiedengroep_codes(self, used_objects: list[dict]) -> set[str]:
+        used_codes: set[str] = set(
             [o.get("Gebiedengroep_Code") for o in used_objects if o.get("Gebiedengroep_Code", None) is not None]
         )  # type: ignore
         return used_codes
 
-    def _get_gebied_objects(self, all_objects: List[dict]) -> Dict[str, InputGebied]:
-        gebied_objects: List[dict] = [o for o in all_objects if o["Object_Type"] == "gebied"]
+    def _get_gebied_objects(self, all_objects: list[dict]) -> dict[str, InputGebied]:
+        gebied_objects: list[dict] = [o for o in all_objects if o["Object_Type"] == "gebied"]
 
-        result: Dict[str, InputGebied] = {}
+        result: dict[str, InputGebied] = {}
         for gebied in gebied_objects:
             code: str = gebied["Code"]
-            area_uuid: Optional[str] = gebied.get("Area_UUID")
+            area_uuid: str | None = gebied.get("Area_UUID")
             if area_uuid is None:
                 raise validation_exception(
                     [

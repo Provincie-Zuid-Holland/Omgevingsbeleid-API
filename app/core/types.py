@@ -1,7 +1,6 @@
 import uuid
 from abc import ABCMeta
-from datetime import datetime, timezone
-from typing import List, Optional, Type
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, Field
 
@@ -13,25 +12,25 @@ class Column(BaseModel):
     type_data: dict = {}
     nullable: bool = False
     static: bool = False
-    serializers: List[str] = Field(default_factory=list)
-    deserializers: List[str] = Field(default_factory=list)
+    serializers: list[str] = Field(default_factory=list)
+    deserializers: list[str] = Field(default_factory=list)
 
 
 class Model(BaseModel, metaclass=ABCMeta):
     id: str
     name: str
-    pydantic_model: Type[BaseModel]
+    pydantic_model: type[BaseModel]
 
 
 class DynamicObjectModel(Model):
     service_config: dict
-    columns: List[Column]
+    columns: list[Column]
 
 
 class AcknowledgedRelationBase(BaseModel):
     Object_ID: int
     Object_Type: str
-    Explanation: Optional[str] = Field(None)
+    Explanation: str | None = Field(None)
 
     @property
     def Code(self) -> str:
@@ -39,10 +38,10 @@ class AcknowledgedRelationBase(BaseModel):
 
 
 class AcknowledgedRelationSide(AcknowledgedRelationBase):
-    Acknowledged: Optional[datetime] = None
-    Acknowledged_By_UUID: Optional[uuid.UUID] = None
-    Title: Optional[str] = None
-    Explanation: Optional[str] = None
+    Acknowledged: datetime | None = None
+    Acknowledged_By_UUID: uuid.UUID | None = None
+    Title: str | None = None
+    Explanation: str | None = None
 
     @property
     def Is_Acknowledged(self) -> bool:
@@ -55,8 +54,8 @@ class AcknowledgedRelationSide(AcknowledgedRelationBase):
     def disapprove(self):
         self.Acknowledged = None
 
-    def approve(self, user_uuid: uuid.UUID, timepoint: Optional[datetime] = None):
-        timepoint = timepoint or datetime.now(timezone.utc)
+    def approve(self, user_uuid: uuid.UUID, timepoint: datetime | None = None):
+        timepoint = timepoint or datetime.now(UTC)
         if self.Is_Acknowledged:
             return
 
@@ -68,15 +67,15 @@ class WerkingsgebiedRelatedObjectShort(BaseModel):
     UUID: uuid.UUID
     Object_Type: str
     Object_ID: int
-    Title: Optional[str]
+    Title: str | None
     Werkingsgebied_Code: str
 
 
 class WerkingsgebiedRelatedModuleObjectShort(WerkingsgebiedRelatedObjectShort):
-    Module_ID: Optional[int] = None
-    Module_Title: Optional[str] = None
+    Module_ID: int | None = None
+    Module_Title: str | None = None
 
 
 class WerkingsgebiedRelatedObjects(BaseModel):
-    Valid_Objects: List[WerkingsgebiedRelatedObjectShort]
-    Module_Objects: List[WerkingsgebiedRelatedModuleObjectShort]
+    Valid_Objects: list[WerkingsgebiedRelatedObjectShort]
+    Module_Objects: list[WerkingsgebiedRelatedModuleObjectShort]

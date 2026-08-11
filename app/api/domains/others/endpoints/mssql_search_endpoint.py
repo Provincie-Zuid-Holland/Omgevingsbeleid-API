@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional, Dict, Set
+from typing import Annotated
 
 from bs4 import BeautifulSoup
 from dependency_injector.wiring import Provide
@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
-from app.api.domains.others.types import SearchConfig, SearchObject, ValidSearchConfig, SearchRequestDataWithLike
+from app.api.domains.others.types import SearchConfig, SearchObject, SearchRequestDataWithLike, ValidSearchConfig
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import PagedResponse, SimplePagination
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
@@ -22,20 +22,20 @@ class EndpointHandler:
         self,
         session: Session,
         module_objects_to_models_parser: ModuleObjectsToModelsParser,
-        model_map: Dict[str, str],
+        model_map: dict[str, str],
         search_config: SearchConfig,
         pagination: SimplePagination,
         query: str,
-        object_types: Optional[List[str]] = None,
+        object_types: list[str] | None = None,
         as_like: bool = False,
     ):
         self._session: Session = session
         self._module_objects_to_models_parser: ModuleObjectsToModelsParser = module_objects_to_models_parser
-        self._model_map: Dict[str, str] = model_map
+        self._model_map: dict[str, str] = model_map
         self._search_config: SearchConfig = search_config
         self._pagination: SimplePagination = pagination
         self._query: str = query
-        self._object_types: Optional[List[str]] = object_types
+        self._object_types: list[str] | None = object_types
         self._as_like: bool = as_like
 
     def handle(self) -> PagedResponse[SearchObject]:
@@ -61,9 +61,9 @@ class EndpointHandler:
             "limit": self._pagination.limit,
         }
 
-        objects_field_set: Set[str] = set([c.name for c in ObjectsTable.__table__.columns])
-        module_objects_field_set: Set[str] = set([c.name for c in ModuleObjectsTable.__table__.columns])
-        fields: Set[str] = objects_field_set.intersection(module_objects_field_set)
+        objects_field_set: set[str] = set([c.name for c in ObjectsTable.__table__.columns])
+        module_objects_field_set: set[str] = set([c.name for c in ModuleObjectsTable.__table__.columns])
+        fields: set[str] = objects_field_set.intersection(module_objects_field_set)
 
         if self._as_like:
             stmt = self._get_like_query(object_type_filter, fields)
@@ -80,7 +80,7 @@ class EndpointHandler:
         stmt = stmt.bindparams(**bindparams_dict)
 
         results = self._session.execute(stmt)
-        search_objects: List[SearchObject] = []
+        search_objects: list[SearchObject] = []
         total_count: int = 0
 
         for row in results:
@@ -116,7 +116,7 @@ class EndpointHandler:
             results=search_objects,
         )
 
-    def _get_query(self, object_type_filter, fields: Set[str]) -> TextClause:
+    def _get_query(self, object_type_filter, fields: set[str]) -> TextClause:
         stmt = text(
             f"""
                 WITH valid_uuids
@@ -201,7 +201,7 @@ class EndpointHandler:
         )
         return stmt
 
-    def _get_like_query(self, object_type_filter, fields: Set[str]) -> TextClause:
+    def _get_like_query(self, object_type_filter, fields: set[str]) -> TextClause:
         stmt = text(
             f"""
                 WITH valid_uuids
@@ -276,7 +276,7 @@ class EndpointHandler:
 
 class MssqlSearchEndpointContext(BaseEndpointContext):
     search_config: ValidSearchConfig
-    model_map: Dict[str, str]
+    model_map: dict[str, str]
 
 
 def get_mssql_search_endpoint(

@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel, field_validator
 
@@ -13,7 +12,7 @@ class ObjectCount(BaseModel):
 
 
 # Wraps a List type to a Pyndantic model type for FastAPI
-ObjectCountResponse = RootModel[List[ObjectCount]]
+ObjectCountResponse = RootModel[list[ObjectCount]]
 
 
 class WriteRelation(BaseModel):
@@ -88,7 +87,7 @@ class NextObjectVersion(BaseModel):
     UUID: uuid.UUID
     Title: str
     Start_Validity: datetime
-    End_Validity: Optional[datetime] = None
+    End_Validity: datetime | None = None
     Created_Date: datetime
     Modified_Date: datetime
     Previous_UUID: uuid.UUID

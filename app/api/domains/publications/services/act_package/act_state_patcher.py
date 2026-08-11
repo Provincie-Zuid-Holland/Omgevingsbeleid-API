@@ -1,9 +1,8 @@
 from copy import deepcopy
-from typing import Dict, List, Optional, Set
 
 import dso.models as dso_models
-from dso.act_builder.services.ow.state.ow_state import OwState as DsoOwState
 from dso.act_builder.builder import Builder
+from dso.act_builder.services.ow.state.ow_state import OwState as DsoOwState
 
 from app.api.domains.publications.services.state.versions import ActiveState
 from app.api.domains.publications.services.state.versions.v7 import models
@@ -26,10 +25,10 @@ class ActStatePatcher:
         return state
 
     def _patch_publication(self, state: ActiveState) -> ActiveState:
-        gios: Dict[str, models.Gio] = self._resolve_gios(state)
-        gebiedengroepen: Dict[str, models.Gebiedengroep] = self._resolve_gebiedengroepen(state)
-        gebiedsaanwijzingen: Dict[str, models.Gebiedsaanwijzing] = self._resolve_gebiedsaanwijzingen(state)
-        documents: Dict[int, models.Document] = self._resolve_documents(state)
+        gios: dict[str, models.Gio] = self._resolve_gios(state)
+        gebiedengroepen: dict[str, models.Gebiedengroep] = self._resolve_gebiedengroepen(state)
+        gebiedsaanwijzingen: dict[str, models.Gebiedsaanwijzing] = self._resolve_gebiedsaanwijzingen(state)
+        documents: dict[int, models.Document] = self._resolve_documents(state)
         wid_data = models.WidData(
             Known_Wid_Map=self._dso_builder.get_used_wid_map(),
             Known_Wids=self._dso_builder.get_used_wids(),
@@ -41,7 +40,7 @@ class ActStatePatcher:
         ow_state = models.OwState.model_validate_json(dso_ow_state_json)
 
         input_purpose = self._api_input_data.Consolidation_Purpose
-        effective_date: Optional[str] = None
+        effective_date: str | None = None
         if input_purpose.Effective_Date is not None:
             effective_date = input_purpose.Effective_Date.strftime("%Y-%m-%d")
         purpose = models.Purpose(
@@ -71,12 +70,12 @@ class ActStatePatcher:
             Expression_Version=self._api_input_data.Bill_Frbr.Expression_Version,
         )
 
-        act_text: Optional[str] = self._dso_builder.get_regeling_vrijetekst()
+        act_text: str | None = self._dso_builder.get_regeling_vrijetekst()
         if act_text is None:
             raise RuntimeError("Regeling vrijetekst bestaat niet")
 
-        used_asset_uuids: Set[str] = self._dso_builder.get_used_asset_uuids()
-        assets: Dict[str, models.Asset] = {uuidx: models.Asset(UUID=uuidx) for uuidx in used_asset_uuids}
+        used_asset_uuids: set[str] = self._dso_builder.get_used_asset_uuids()
+        assets: dict[str, models.Asset] = {uuidx: models.Asset(UUID=uuidx) for uuidx in used_asset_uuids}
 
         action = AddPublicationAction(
             Act_Frbr=act_frbr,
@@ -97,8 +96,8 @@ class ActStatePatcher:
         state.handle_action(action)
         return state
 
-    def _resolve_gios(self, state: ActiveState) -> Dict[str, models.Gio]:
-        gios: Dict[str, models.Gio] = {}
+    def _resolve_gios(self, state: ActiveState) -> dict[str, models.Gio]:
+        gios: dict[str, models.Gio] = {}
 
         # We only keep the send gios, as all other should have been withdrawn
         for dso_gio in self._api_input_data.Publication_Data.gios.values():
@@ -113,7 +112,7 @@ class ActStatePatcher:
                 Expression_Version=dso_frbr.Expression_Version or 0,
             )
 
-            locaties: List[models.GioLocatie] = [
+            locaties: list[models.GioLocatie] = [
                 models.GioLocatie(
                     title=dso_locatie.title,
                     basisgeo_id=dso_locatie.basisgeo_id,
@@ -137,8 +136,8 @@ class ActStatePatcher:
 
         return gios
 
-    def _resolve_gebiedengroepen(self, state: ActiveState) -> Dict[str, models.Gebiedengroep]:
-        gebiedengroepen: Dict[str, models.Gebiedengroep] = {}
+    def _resolve_gebiedengroepen(self, state: ActiveState) -> dict[str, models.Gebiedengroep]:
+        gebiedengroepen: dict[str, models.Gebiedengroep] = {}
 
         # We only keep the send gebiedengroepen, as all other should have been withdrawn from the ow state
         for dso_gebiedengroep in self._api_input_data.Publication_Data.gebiedengroepen.values():
@@ -153,8 +152,8 @@ class ActStatePatcher:
 
         return gebiedengroepen
 
-    def _resolve_gebiedsaanwijzingen(self, state: ActiveState) -> Dict[str, models.Gebiedsaanwijzing]:
-        aanwijzingen: Dict[str, models.Gebiedsaanwijzing] = {}
+    def _resolve_gebiedsaanwijzingen(self, state: ActiveState) -> dict[str, models.Gebiedsaanwijzing]:
+        aanwijzingen: dict[str, models.Gebiedsaanwijzing] = {}
 
         # We only keep the send gebiedsaanwijzingen, as all other should have been withdrawn from the ow state
         for dso_aanwijzing in self._api_input_data.Publication_Data.gebiedsaanwijzingen.values():
@@ -171,8 +170,8 @@ class ActStatePatcher:
 
         return aanwijzingen
 
-    def _resolve_documents(self, state: ActiveState) -> Dict[int, models.Document]:
-        documents: Dict[int, models.Document] = {}
+    def _resolve_documents(self, state: ActiveState) -> dict[int, models.Document]:
+        documents: dict[int, models.Document] = {}
 
         # We only keep the send documents, as all other should have been withdrawn
         for dso_document in self._api_input_data.Publication_Data.documents:

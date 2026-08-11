@@ -6,7 +6,8 @@ line-length = 120
 
 [tool.ruff.lint]
 ignore = [
-    "E712", # true-false-comparison: Which is unreadable in sqlalchemy filters
+    "E712",   # true-false-comparison: Which is unreadable in sqlalchemy filters
+    "SIM102", # collapsible-if: nested ifs often check separate things and read better apart
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]

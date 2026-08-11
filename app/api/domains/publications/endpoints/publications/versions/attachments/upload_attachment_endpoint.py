@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, File, Form, HTTPException, UploadFile, status
@@ -59,7 +59,7 @@ def post_upload_attachment_endpoint(
         if len(pdf_meta_report) > 0:
             raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     file_table: PublicationStorageFileTable = _store_file(
         session,
@@ -107,7 +107,7 @@ def _store_file(
     user_uuid: uuid.UUID,
     file_data: FileData,
 ) -> PublicationStorageFileTable:
-    existing_file_table: Optional[PublicationStorageFileTable] = repository.get_by_checksum_uuid(
+    existing_file_table: PublicationStorageFileTable | None = repository.get_by_checksum_uuid(
         session,
         file_data.get_checksum(),
     )

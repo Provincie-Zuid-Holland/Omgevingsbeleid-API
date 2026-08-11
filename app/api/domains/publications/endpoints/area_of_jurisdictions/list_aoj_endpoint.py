@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -34,7 +34,7 @@ def get_list_aoj_endpoint(
         limit=pagination.limit,
     )
 
-    results: List[PublicationAOJ] = [PublicationAOJ.model_validate(r) for r in paginated_result.items]
+    results: list[PublicationAOJ] = [PublicationAOJ.model_validate(r) for r in paginated_result.items]
 
     return PagedResponse[PublicationAOJ](
         total=paginated_result.total_count,

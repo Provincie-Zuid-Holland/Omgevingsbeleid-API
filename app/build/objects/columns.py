@@ -1,6 +1,5 @@
 from app.core.types import Column
 
-
 BASE_COLUMNS = [
     Column(
         id="object_id",

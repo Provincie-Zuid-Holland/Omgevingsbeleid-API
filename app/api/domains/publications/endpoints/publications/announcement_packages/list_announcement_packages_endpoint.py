@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -40,8 +40,8 @@ def get_list_announcement_packages_endpoint(
         ),
     ],
     context: Annotated[ListAnnouncementPackagesEndpointContext, Depends()],
-    announcement_uuid: Optional[uuid.UUID] = None,
-    package_type: Optional[PackageType] = None,
+    announcement_uuid: uuid.UUID | None = None,
+    package_type: PackageType | None = None,
 ) -> PagedResponse[PublicationPackage]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Type
+from typing import Any
 
 from sqlalchemy import JSON, DateTime, Integer, String, Unicode, Uuid
 from sqlalchemy.orm import mapped_column
@@ -7,12 +7,12 @@ from app.build.events.event_manager import BuildEventManager
 from app.build.events.generate_table_event import GenerateTableEvent
 from app.core.db.base import Base
 from app.core.tables.modules import ModuleObjectsTable
-from app.core.tables.objects import ObjectStaticsTable, ObjectsTable
+from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.types import Column
 
 
 class TablesBuilder:
-    COLUMN_TYPE_MAP: Dict[str, Any] = {
+    COLUMN_TYPE_MAP: dict[str, Any] = {
         "int": Integer,
         "str": Unicode,
         "str_25": Unicode(25),
@@ -26,18 +26,18 @@ class TablesBuilder:
     def __init__(self, event_manager: BuildEventManager):
         self._event_manager: BuildEventManager = event_manager
 
-    def build_tables(self, columns: Dict[str, Column]):
+    def build_tables(self, columns: dict[str, Column]):
         self._generate_table(ObjectStaticsTable, "ObjectStaticsTable", columns, static=True)
-        setattr(ObjectStaticsTable, "Cached_Title", mapped_column("Cached_Title", String(255), nullable=True))
+        ObjectStaticsTable.Cached_Title = mapped_column("Cached_Title", String(255), nullable=True)
 
         self._generate_table(ObjectsTable, "ObjectsTable", columns, static=False)
         self._generate_table(ModuleObjectsTable, "ModuleObjectsTable", columns, static=False)
 
     def _generate_table(
         self,
-        table_type: Type[Base],
+        table_type: type[Base],
         table_name: str,
-        columns: Dict[str, Column],
+        columns: dict[str, Column],
         static: bool,
     ):
         for column in columns.values():
@@ -53,7 +53,7 @@ class TablesBuilder:
 
             self._event_manager.dispatch(GenerateTableEvent(table_type, table_name, column))
 
-    def _handle_base_type(self, table_type: Type[Base], column: Column, column_type: Any):
+    def _handle_base_type(self, table_type: type[Base], column: Column, column_type: Any):
         setattr(
             table_type,
             column.name,

@@ -1,43 +1,40 @@
 import hashlib
-from typing import ClassVar, List, Optional, Sequence, Set, Tuple
 import uuid
+from collections.abc import Sequence
+from datetime import datetime
+from typing import ClassVar
 
-from shapely.geometry import Polygon
-from app.core.db.base import Base
 from shapely import wkb
+from shapely.geometry import Polygon
+
+from app.core.db.base import Base
 from app.core.tables.werkingsgebieden import (
     InputGeoOnderverdelingenTable,
     InputGeoWerkingsgebiedOnderverdelingTable,
 )
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
 from tests.fixtures.internal.types import (
-    Spec,
-    Record,
-    PrimaryKey,
-    PersistContext,
     BasePersistHandler,
-)
-
-from datetime import datetime
-
-
-from tests.fixtures.internal.types import (
     Link,
+    PersistContext,
+    PrimaryKey,
+    Record,
+    Spec,
 )
 
 
 class InputGeoOnderverdelingSpec(Spec):
-    __link_fields__: ClassVar[Set[str]] = {"Owners"}
+    __link_fields__: ClassVar[set[str]] = {"Owners"}
 
-    UUID: Optional[uuid.UUID] = None
+    UUID: uuid.UUID | None = None
     Title: str
     Description: str = ""
-    Created_Date: Optional[datetime] = None
-    Symbol: Optional[str] = None
-    Points: List[Tuple[int, int]]
-    Owners: List[Link]
+    Created_Date: datetime | None = None
+    Symbol: str | None = None
+    Points: list[tuple[int, int]]
+    Owners: list[Link]
 
-    Geometry: Optional[bytes] = None
+    Geometry: bytes | None = None
     Geometry_Hash: str = ""
     GML: str = ""
 
@@ -68,7 +65,7 @@ class InputGeoOnderverdelingPrefillHandler(BasePrefillHandler[InputGeoOnderverde
         return record
 
     def _polygon_gml(self, polygon: Polygon, gml_id: str) -> str:
-        pos_list = " ".join(f"{str(int(x))} {str(int(y))}" for x, y in polygon.exterior.coords)
+        pos_list = " ".join(f"{int(x)!s} {int(y)!s}" for x, y in polygon.exterior.coords)
         return (
             f'<gml:Polygon xmlns:gml="http://www.opengis.net/gml/3.2" srsName="urn:ogc:def:crs:EPSG::28992" '
             f'srsDimension="2" gml:id="{gml_id}">'
@@ -83,7 +80,7 @@ class InputGeoOnderverdelingPersistHandler(BasePersistHandler[InputGeoOnderverde
     def to_rows(self, record: Record[InputGeoOnderverdelingSpec], context: PersistContext) -> Sequence[Base]:
         spec: InputGeoOnderverdelingSpec = record.spec
 
-        records: List[Base] = [
+        records: list[Base] = [
             InputGeoOnderverdelingenTable(
                 UUID=spec.UUID,
                 Created_Date=spec.Created_Date,

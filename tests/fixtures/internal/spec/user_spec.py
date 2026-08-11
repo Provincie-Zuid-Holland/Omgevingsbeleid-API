@@ -1,5 +1,5 @@
-from typing import Optional, Sequence
 import uuid
+from collections.abc import Sequence
 
 from passlib.context import CryptContext
 from pydantic import Field
@@ -7,15 +7,14 @@ from pydantic import Field
 from app.core.db.base import Base
 from app.core.tables.users import IS_ACTIVE, UsersTable
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
-from tests.fixtures.internal.types import Spec, Record, UUID_NAMESPACE, PrimaryKey, PersistContext, BasePersistHandler
-
+from tests.fixtures.internal.types import UUID_NAMESPACE, BasePersistHandler, PersistContext, PrimaryKey, Record, Spec
 
 DEFAULT_PASSWORD = "password"
 IS_DISABLED = ""
 
 
 class UserSpec(Spec):
-    UUID: Optional[uuid.UUID] = None
+    UUID: uuid.UUID | None = None
     Gebruikersnaam: str
     Email: str
     Rol: str

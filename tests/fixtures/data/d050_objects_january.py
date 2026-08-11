@@ -1,23 +1,23 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from tests.fixtures.internal.services.collector import Collector
-from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.spec.area_spec import AreaSpec
 from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import InputGeoWerkingsgebiedenSpec
 from tests.fixtures.internal.spec.objects import (
     BeleidsdoelSpec,
     BeleidskeuzeSpec,
-    MaatregelSpec,
-    GebiedSpec,
     GebiedengroepSpec,
+    GebiedSpec,
+    MaatregelSpec,
 )
+from tests.fixtures.internal.spec.user_spec import UserSpec
 
 
 def load(col: Collector) -> None:
     with col.with_defaults(
-        Created_Date=datetime(2025, 1, 1, tzinfo=timezone.utc),
-        Modified_Date=datetime(2025, 1, 1, tzinfo=timezone.utc),
-        Start_Validity=datetime(2025, 1, 1, tzinfo=timezone.utc),
+        Created_Date=datetime(2025, 1, 1, tzinfo=UTC),
+        Modified_Date=datetime(2025, 1, 1, tzinfo=UTC),
+        Start_Validity=datetime(2025, 1, 1, tzinfo=UTC),
         Created_By_UUID=col.ref(UserSpec, "ambtenaar"),
         Modified_By_UUID=col.ref(UserSpec, "ambtenaar"),
     ):

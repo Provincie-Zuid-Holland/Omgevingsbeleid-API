@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -37,16 +37,16 @@ def get_list_active_module_objects_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ListActiveModuleObjectsEndpointContext, Depends()],
-) -> List[ActiveModuleObjectsResponse]:
+) -> list[ActiveModuleObjectsResponse]:
     code = f"{context.object_type}-{lineage_id}"
-    items: List[LatestObjectPerModuleResult] = module_object_repository.get_latest_per_module(
+    items: list[LatestObjectPerModuleResult] = module_object_repository.get_latest_per_module(
         session,
         code,
         minimum_status,
         is_active=True,
     )
 
-    result: List[ActiveModuleObjectsResponse] = [
+    result: list[ActiveModuleObjectsResponse] = [
         ActiveModuleObjectsResponse(
             Module=ModuleShort.model_validate(item.module),
             Module_Object=ActiveModuleObject.model_validate(item.module_object),

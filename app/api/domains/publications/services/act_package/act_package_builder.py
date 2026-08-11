@@ -1,7 +1,6 @@
 import hashlib
 import io
 import uuid
-from typing import Optional
 
 from dso.act_builder.builder import Builder
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData
@@ -19,11 +18,11 @@ class ActPackageBuilder:
     def __init__(
         self,
         api_input_data: ApiActInputData,
-        state: Optional[ActiveState],
+        state: ActiveState | None,
         input_data: InputData,
     ):
         self._api_input_data: ApiActInputData = api_input_data
-        self._state: Optional[ActiveState] = state
+        self._state: ActiveState | None = state
         self._input_data: InputData = input_data
         self._dso_builder = Builder(input_data)
 

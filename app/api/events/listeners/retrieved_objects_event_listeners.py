@@ -1,5 +1,5 @@
 import uuid
-from typing import Generic, List, Optional, Set, TypeVar, Union
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -27,31 +27,30 @@ from app.api.domains.objects.services.column_image_inserter import (
     ColumnImageInserterFactory,
     GetImagesConfig,
 )
-from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_service import (
-    ResolveChildObjectsViaHierarchyConfig,
-    ResolveChildObjectsViaHierarchyService,
-)
-
 from app.api.domains.objects.services.join_documents_service import (
     JoinDocumentsConfig,
     JoinDocumentsService,
     JoinDocumentsServiceFactory,
+)
+from app.api.domains.objects.services.join_objects import (
+    JoinObjectsConfig,
+    JoinObjectsService,
+    JoinObjectsServiceFactory,
 )
 from app.api.domains.objects.services.join_related_files_service import (
     JoinRelatedFilesConfig,
     JoinRelatedFilesService,
     JoinRelatedFilesServiceFactory,
 )
+from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_service import (
+    ResolveChildObjectsViaHierarchyConfig,
+    ResolveChildObjectsViaHierarchyService,
+)
 from app.api.domains.werkingsgebieden.services import JoinGebiedsaanwijzingenServiceFactory
 from app.api.domains.werkingsgebieden.services.join_gebiedengroepen import (
     JoinGebiedenGroepenConfig,
     JoinGebiedenGroepenService,
     JoinGebiedenGroepenServiceFactory,
-)
-from app.api.domains.objects.services.join_objects import (
-    JoinObjectsConfig,
-    JoinObjectsService,
-    JoinObjectsServiceFactory,
 )
 from app.api.domains.werkingsgebieden.services.join_gebiedsaanwijzingen import (
     JoinGebiedsaanwijzingenConfig,
@@ -71,14 +70,14 @@ class AddRelationsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, relations_factory: AddRelationsServiceFactory):
         self._relations_factory: AddRelationsServiceFactory = relations_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
         add_service: AddRelationsService = self._relations_factory.create_service(
             session,
             event.payload.rows,
             event.context.response_model,
         )
 
-        result_rows: List[BaseModel] = add_service.add_relations()
+        result_rows: list[BaseModel] = add_service.add_relations()
         event.payload.rows = result_rows
 
         return event
@@ -88,14 +87,14 @@ class JoinWerkingsgebiedenToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: JoinWerkingsgebiedenServiceFactory):
         self._service_factory: JoinWerkingsgebiedenServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
         join_service: JoinWerkingsgebiedenService = self._service_factory.create_service(
             session,
             event.payload.rows,
             event.context.response_model,
         )
 
-        result_rows: List[BaseModel] = join_service.join_werkingsgebieden()
+        result_rows: list[BaseModel] = join_service.join_werkingsgebieden()
         event.payload.rows = result_rows
 
         return event
@@ -105,8 +104,8 @@ class AddPublicRevisionsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: AddPublicRevisionsServiceFactory):
         self._service_factory: AddPublicRevisionsServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
-        config: Optional[AddPublicRevisionsConfig] = self._collect_config(event)
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+        config: AddPublicRevisionsConfig | None = self._collect_config(event)
         if not config:
             return event
 
@@ -116,12 +115,12 @@ class AddPublicRevisionsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
             event.payload.rows,
         )
 
-        result_rows: List[BaseModel] = service.add_revisions()
+        result_rows: list[BaseModel] = service.add_revisions()
         event.payload.rows = result_rows
 
         return event
 
-    def _collect_config(self, event: RetrievedObjectsEvent) -> Optional[AddPublicRevisionsConfig]:
+    def _collect_config(self, event: RetrievedObjectsEvent) -> AddPublicRevisionsConfig | None:
         if not isinstance(event.context.response_model, DynamicObjectModel):
             return None
         if "public_revisions" not in event.context.response_model.service_config:
@@ -130,7 +129,7 @@ class AddPublicRevisionsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
         service_config: dict = event.context.response_model.service_config["public_revisions"]
         to_field: str = service_config["to_field"]
 
-        object_codes: List[str] = list({getattr(r, "Code") for r in event.payload.rows})
+        object_codes: list[str] = list({r.Code for r in event.payload.rows})
 
         return AddPublicRevisionsConfig(
             to_field=to_field,
@@ -143,8 +142,8 @@ class AddNextObjectVersionToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: AddNextObjectVersionServiceFactory):
         self._service_factory: AddNextObjectVersionServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
-        config: Optional[AddNextObjectVersionConfig] = self._collect_config(event)
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+        config: AddNextObjectVersionConfig | None = self._collect_config(event)
         if not config:
             return event
 
@@ -154,12 +153,12 @@ class AddNextObjectVersionToObjectsListener(ApiListener[RetrievedObjectsEvent]):
             event.payload.rows,
         )
 
-        result_rows: List[BaseModel] = service.add_next_versions()
+        result_rows: list[BaseModel] = service.add_next_versions()
         event.payload.rows = result_rows
 
         return event
 
-    def _collect_config(self, event: RetrievedObjectsEvent) -> Optional[AddNextObjectVersionConfig]:
+    def _collect_config(self, event: RetrievedObjectsEvent) -> AddNextObjectVersionConfig | None:
         if not isinstance(event.context.response_model, DynamicObjectModel):
             return None
         if "next_object_version" not in event.context.response_model.service_config:
@@ -168,7 +167,7 @@ class AddNextObjectVersionToObjectsListener(ApiListener[RetrievedObjectsEvent]):
         service_config: dict = event.context.response_model.service_config["next_object_version"]
         to_field: str = service_config["to_field"]
 
-        object_uuids: List[uuid.UUID] = list({getattr(r, "UUID") for r in event.payload.rows})
+        object_uuids: list[uuid.UUID] = list({r.UUID for r in event.payload.rows})
 
         return AddNextObjectVersionConfig(
             to_field=to_field,
@@ -180,8 +179,8 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(ApiListener[RetrievedObje
     def __init__(self, service_factory: AddWerkingsgebiedRelatedObjectsServiceFactory):
         self._service_factory: AddWerkingsgebiedRelatedObjectsServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
-        config: Optional[AddWerkingsgebiedRelatedObjectsConfig] = self._collect_config(event)
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+        config: AddWerkingsgebiedRelatedObjectsConfig | None = self._collect_config(event)
         if not config:
             return event
 
@@ -191,12 +190,12 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(ApiListener[RetrievedObje
             event.payload.rows,
         )
 
-        result_rows: List[BaseModel] = service.add_related_objects()
+        result_rows: list[BaseModel] = service.add_related_objects()
         event.payload.rows = result_rows
 
         return event
 
-    def _collect_config(self, event: RetrievedObjectsEvent) -> Optional[AddWerkingsgebiedRelatedObjectsConfig]:
+    def _collect_config(self, event: RetrievedObjectsEvent) -> AddWerkingsgebiedRelatedObjectsConfig | None:
         if not isinstance(event.context.response_model, DynamicObjectModel):
             return None
         if "werkingsgebied_related_objects" not in event.context.response_model.service_config:
@@ -205,7 +204,7 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(ApiListener[RetrievedObje
         service_config: dict = event.context.response_model.service_config["werkingsgebied_related_objects"]
         to_field: str = service_config["to_field"]
 
-        werkingsgebied_codes: List[str] = list({getattr(r, "Code") for r in event.payload.rows})
+        werkingsgebied_codes: list[str] = list({r.Code for r in event.payload.rows})
 
         return AddWerkingsgebiedRelatedObjectsConfig(
             to_field=to_field,
@@ -213,15 +212,15 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(ApiListener[RetrievedObje
         )
 
 
-EventRMO = TypeVar("EventRMO", bound=Union[RetrievedObjectsEvent, RetrievedModuleObjectsEvent])
+EventRMO = TypeVar("EventRMO", bound=RetrievedObjectsEvent | RetrievedModuleObjectsEvent)
 
 
 class GetColumnImagesListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: ColumnImageInserterFactory):
         self._service_factory: ColumnImageInserterFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
-        config: Optional[GetImagesConfig] = self._collect_config(event.context.response_model)
+    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+        config: GetImagesConfig | None = self._collect_config(event.context.response_model)
         if not config:
             return event
         if not config.fields:
@@ -237,14 +236,14 @@ class GetColumnImagesListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, request_model: Model) -> Optional[GetImagesConfig]:
+    def _collect_config(self, request_model: Model) -> GetImagesConfig | None:
         if not isinstance(request_model, DynamicObjectModel):
             return None
         if "get_image" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("get_image", {})
-        fields: List[str] = []
+        fields: list[str] = []
         for field in config_dict.get("fields", []):
             if not isinstance(field, str):
                 raise RuntimeError("Invalid get_image config, expect `fields` to be a list of strings")
@@ -266,8 +265,8 @@ class JoinDocumentsListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: JoinDocumentsServiceFactory):
         self._service_factory: JoinDocumentsServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
-        config: Optional[JoinDocumentsConfig] = self._collect_config(event)
+    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+        config: JoinDocumentsConfig | None = self._collect_config(event)
         if not config:
             return event
 
@@ -276,12 +275,12 @@ class JoinDocumentsListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
             config,
         )
 
-        result_rows: List[BaseModel] = service.join_documents(event.payload.rows)
+        result_rows: list[BaseModel] = service.join_documents(event.payload.rows)
         event.payload.rows = result_rows
 
         return event
 
-    def _collect_config(self, event: EventRMO) -> Optional[JoinDocumentsConfig]:
+    def _collect_config(self, event: EventRMO) -> JoinDocumentsConfig | None:
         if not isinstance(event.context.response_model, DynamicObjectModel):
             return None
         if "join_documents" not in event.context.response_model.service_config:
@@ -289,7 +288,7 @@ class JoinDocumentsListenerBase(ApiListener[EventRMO], Generic[EventRMO]):
 
         service_config: dict = event.context.response_model.service_config["join_documents"]
 
-        all_document_codes: Set[str] = set()
+        all_document_codes: set[str] = set()
         for row in event.payload.rows:
             documents = getattr(row, service_config["from_field"], None) or []
             all_document_codes.update(documents)
@@ -309,8 +308,8 @@ class ResolveChildObjectsViaHierarchyListenerBase(ApiListener[EventRMO], Generic
     def __init__(self, service_factory: ResolveChildObjectsViaHierarchyServiceFactory):
         self._service_factory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
-        config: Optional[ResolveChildObjectsViaHierarchyConfig] = self._collect_config(event)
+    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+        config: ResolveChildObjectsViaHierarchyConfig | None = self._collect_config(event)
         if not config:
             return event
 
@@ -319,12 +318,12 @@ class ResolveChildObjectsViaHierarchyListenerBase(ApiListener[EventRMO], Generic
             config,
         )
 
-        result_rows: List[BaseModel] = service.resolve_child_objects(event.payload.rows)
+        result_rows: list[BaseModel] = service.resolve_child_objects(event.payload.rows)
         event.payload.rows = result_rows
 
         return event
 
-    def _collect_config(self, event: EventRMO) -> Optional[ResolveChildObjectsViaHierarchyConfig]:
+    def _collect_config(self, event: EventRMO) -> ResolveChildObjectsViaHierarchyConfig | None:
         if not isinstance(event.context.response_model, DynamicObjectModel):
             return None
         if "resolve_child_objects_via_hierarchy_listener" not in event.context.response_model.service_config:
@@ -347,8 +346,8 @@ class JoinGebiedenGroepBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: JoinGebiedenGroepenServiceFactory):
         self._service_factory: JoinGebiedenGroepenServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
-        config: Optional[JoinGebiedenGroepenConfig] = self._collect_config(event)
+    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+        config: JoinGebiedenGroepenConfig | None = self._collect_config(event)
         if not config:
             return event
         if not config.gebiedengroepen_codes:
@@ -363,7 +362,7 @@ class JoinGebiedenGroepBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, event: EventRMO) -> Optional[JoinGebiedenGroepenConfig]:
+    def _collect_config(self, event: EventRMO) -> JoinGebiedenGroepenConfig | None:
         response_model: Model = event.context.response_model
         if not isinstance(response_model, DynamicObjectModel):
             return None
@@ -374,7 +373,7 @@ class JoinGebiedenGroepBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
         to_field: str = config_dict["to_field"]
         from_field: str = config_dict["from_field"]
 
-        gebiedengroepen_codes: Set[str] = {
+        gebiedengroepen_codes: set[str] = {
             getattr(r, from_field) for r in event.payload.rows if getattr(r, from_field) is not None
         }
 
@@ -393,8 +392,8 @@ class JoinObjectsBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
     def __init__(self, service_factory: JoinObjectsServiceFactory):
         self._service_factory: JoinObjectsServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> Optional[EventRMO]:
-        config: Optional[JoinObjectsConfig] = self._collect_config(event)
+    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+        config: JoinObjectsConfig | None = self._collect_config(event)
         if not config:
             return event
         if not config.object_codes:
@@ -409,7 +408,7 @@ class JoinObjectsBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, event: EventRMO) -> Optional[JoinObjectsConfig]:
+    def _collect_config(self, event: EventRMO) -> JoinObjectsConfig | None:
         response_model: Model = event.context.response_model
         if not isinstance(response_model, DynamicObjectModel):
             return None
@@ -420,9 +419,9 @@ class JoinObjectsBaseListener(ApiListener[EventRMO], Generic[EventRMO]):
         to_field: str = config_dict["to_field"]
         from_field: str = config_dict["from_field"]
 
-        codes_per_row: List[List[str]] = [getattr(r, from_field) or [] for r in event.payload.rows]
+        codes_per_row: list[list[str]] = [getattr(r, from_field) or [] for r in event.payload.rows]
 
-        objects_codes: Set[str] = set([code for codes in codes_per_row for code in codes if code is not None])
+        objects_codes: set[str] = set([code for codes in codes_per_row for code in codes if code is not None])
 
         return JoinObjectsConfig(
             object_codes=objects_codes,
@@ -441,17 +440,17 @@ class JoinGebiedsaanwijzingenBaseListener(ApiListener[EventRMO], Generic[EventRM
 
     def handle_event(
         self, session: Session, event: RetrievedModuleObjectsEvent
-    ) -> Optional[RetrievedModuleObjectsEvent]:
-        config: Optional[JoinGebiedsaanwijzingenConfig] = self._collect_config(event)
+    ) -> RetrievedModuleObjectsEvent | None:
+        config: JoinGebiedsaanwijzingenConfig | None = self._collect_config(event)
         if not config:
             return event
 
         service: JoinGebiedsaanwijzingenService = self._service_factory.create_service(session, config)
-        result_rows: List[BaseModel] = service.join_gebiedsaanwijzingen(event.payload.rows)
+        result_rows: list[BaseModel] = service.join_gebiedsaanwijzingen(event.payload.rows)
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, event: RetrievedModuleObjectsEvent) -> Optional[JoinGebiedsaanwijzingenConfig]:
+    def _collect_config(self, event: RetrievedModuleObjectsEvent) -> JoinGebiedsaanwijzingenConfig | None:
         response_model: Model = event.context.response_model
         if not isinstance(response_model, DynamicObjectModel):
             return None
@@ -460,7 +459,7 @@ class JoinGebiedsaanwijzingenBaseListener(ApiListener[EventRMO], Generic[EventRM
 
         config_dict: dict = response_model.service_config.get("join_gebiedsaanwijzingen", {})
         to_field: str = config_dict["to_field"]
-        from_fields: Set[str] = config_dict["from_fields"]
+        from_fields: set[str] = config_dict["from_fields"]
         return JoinGebiedsaanwijzingenConfig(
             to_field=to_field,
             from_fields=from_fields,
@@ -475,8 +474,8 @@ class JoinRelatedFilesToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: JoinRelatedFilesServiceFactory):
         self._service_factory: JoinRelatedFilesServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
-        config: Optional[JoinRelatedFilesConfig] = self._collect_config(event)
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+        config: JoinRelatedFilesConfig | None = self._collect_config(event)
         if not config:
             return event
 
@@ -486,12 +485,12 @@ class JoinRelatedFilesToObjectsListener(ApiListener[RetrievedObjectsEvent]):
             event.payload.rows,
         )
 
-        result_rows: List[BaseModel] = service.join_related_files()
+        result_rows: list[BaseModel] = service.join_related_files()
         event.payload.rows = result_rows
 
         return event
 
-    def _collect_config(self, event: RetrievedObjectsEvent) -> Optional[JoinRelatedFilesConfig]:
+    def _collect_config(self, event: RetrievedObjectsEvent) -> JoinRelatedFilesConfig | None:
         if not isinstance(event.context.response_model, DynamicObjectModel):
             return None
         if "related_files" not in event.context.response_model.service_config:
@@ -500,7 +499,7 @@ class JoinRelatedFilesToObjectsListener(ApiListener[RetrievedObjectsEvent]):
         service_config: dict = event.context.response_model.service_config["related_files"]
         to_field: str = service_config["to_field"]
 
-        object_codes: List[str] = list({getattr(r, "Code") for r in event.payload.rows})
+        object_codes: list[str] = list({r.Code for r in event.payload.rows})
 
         return JoinRelatedFilesConfig(
             to_field=to_field,

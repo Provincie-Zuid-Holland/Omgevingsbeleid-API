@@ -1,8 +1,7 @@
 import uuid
-from typing import Optional
 
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
@@ -13,7 +12,6 @@ from app.core.tables.users import IS_ACTIVE, UsersTable
 from tests.conftest import Context
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
-
 
 # allowed_roles for the create_user resolver in tests/_config/main.yml
 ALLOWED_ROL = "Behandelend Ambtenaar"
@@ -40,7 +38,7 @@ def test_create_user_success(admin: TestClient, session: Session, security: Secu
     created_uuid = uuid.UUID(body["UUID"])
 
     # The user is persisted and active.
-    row: Optional[UsersTable] = session.get(UsersTable, created_uuid)
+    row: UsersTable | None = session.get(UsersTable, created_uuid)
     assert row is not None
     assert row.Email == "newbie@pzh.nl"
     assert row.Rol == ALLOWED_ROL
@@ -56,7 +54,7 @@ def test_create_user_writes_changelog_without_password(admin: TestClient, ctx: C
     assert response.status_code == 200, response.text
 
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
-    change_log: Optional[ChangeLogTable] = ctx.session.scalar(
+    change_log: ChangeLogTable | None = ctx.session.scalar(
         select(ChangeLogTable)
         .where(ChangeLogTable.Action_Type == "create_user")
         .order_by(desc(ChangeLogTable.Created_Date))

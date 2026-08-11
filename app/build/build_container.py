@@ -1,15 +1,14 @@
+import dso
 from dependency_injector import containers, providers
 from sqlalchemy.orm import sessionmaker
 
-from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
-import dso
 import app.build.endpoint_builders.modules as endpoint_builders_modules
 import app.build.endpoint_builders.objects as endpoint_builders_objects
 import app.build.endpoint_builders.others as endpoint_builders_others
 import app.build.endpoint_builders.publications as endpoint_builders_publications
 import app.build.endpoint_builders.users as endpoint_builders_users
 import app.build.endpoint_builders.werkingsgebieden as endpoint_builders_werkingsgebieden
-import app.build.services.validators.validators as validators
+from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.build import api_builder
 from app.build.endpoint_builders import endpoint_builder_provider
@@ -17,11 +16,12 @@ from app.build.events import create_model_event_listeners, event_manager, genera
 from app.build.services import (
     config_parser,
     object_intermediate_builder,
+    object_models_builder,
     tables_builder,
     validator_provider,
-    object_models_builder,
 )
 from app.build.services.model_dynamic_type_builder import ModelDynamicTypeBuilder
+from app.build.services.validators import validators
 from app.core.db.session import create_db_engine
 from app.core.services import MainConfig, ModelsProvider
 from app.core.settings import Settings

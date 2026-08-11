@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import select
@@ -9,11 +8,11 @@ from app.core.tables.publications import PublicationStorageFileTable
 
 
 class PublicationStorageFileRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> Optional[PublicationStorageFileTable]:
+    def get_by_uuid(self, session: Session, uuidx: UUID) -> PublicationStorageFileTable | None:
         stmt = select(PublicationStorageFileTable).filter(PublicationStorageFileTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
-    def get_by_checksum_uuid(self, session: Session, checksum: str) -> Optional[PublicationStorageFileTable]:
+    def get_by_checksum_uuid(self, session: Session, checksum: str) -> PublicationStorageFileTable | None:
         lookup: str = checksum[0:10]
         stmt = (
             select(PublicationStorageFileTable)

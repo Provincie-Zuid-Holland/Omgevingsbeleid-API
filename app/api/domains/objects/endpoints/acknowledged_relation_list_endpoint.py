@@ -1,4 +1,5 @@
-from typing import Annotated, List, Optional, Sequence
+from collections.abc import Sequence
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -28,9 +29,9 @@ def get_acknowledged_relation_list_endpoint(
     context: Annotated[AcknowledgedRelationListEndpointContext, Depends()],
     lineage_id: int,
     requested_by_us: bool = False,
-    acknowledged: Optional[bool] = None,
+    acknowledged: bool | None = None,
     show_inactive: bool = False,
-) -> List[AcknowledgedRelation]:
+) -> list[AcknowledgedRelation]:
     object_code: str = f"{context.object_type}-{lineage_id}"
     table_rows: Sequence[AcknowledgedRelationsTable] = repository.get_with_filters(
         session=session,
@@ -39,5 +40,5 @@ def get_acknowledged_relation_list_endpoint(
         acknowledged=acknowledged,
         show_inactive=show_inactive,
     )
-    response: List[AcknowledgedRelation] = [build_from_orm(r, object_code) for r in table_rows]
+    response: list[AcknowledgedRelation] = [build_from_orm(r, object_code) for r in table_rows]
     return response

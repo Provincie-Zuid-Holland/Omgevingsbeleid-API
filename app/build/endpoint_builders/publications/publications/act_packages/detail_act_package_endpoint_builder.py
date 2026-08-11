@@ -1,6 +1,6 @@
 from app.api.domains.publications.endpoints.publications.act_packages.detail_act_package_endpoint import (
-    get_detail_act_package_endpoint,
     PublicationActPackageDetailResponse,
+    get_detail_act_package_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder

@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
@@ -11,23 +10,23 @@ from app.core.tables.publications import PublicationActPackageTable
 
 
 class PublicationActPackageRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[PublicationActPackageTable]:
+    def get_by_uuid(self, session: Session, uuid: UUID) -> PublicationActPackageTable | None:
         stmt = select(PublicationActPackageTable).filter(PublicationActPackageTable.UUID == uuid)
         return self.fetch_first(session, stmt)
 
-    def get_by_act_version(self, session: Session, act_version_uuid: UUID) -> Optional[PublicationActPackageTable]:
+    def get_by_act_version(self, session: Session, act_version_uuid: UUID) -> PublicationActPackageTable | None:
         stmt = select(PublicationActPackageTable).filter(
             PublicationActPackageTable.Act_Version_UUID == act_version_uuid
         )
-        result: Optional[PublicationActPackageTable] = self.fetch_first(session, stmt)
+        result: PublicationActPackageTable | None = self.fetch_first(session, stmt)
         return result
 
     def get_with_filters(
         self,
         session: Session,
         pagination: SortedPagination,
-        version_uuid: Optional[UUID] = None,
-        package_type: Optional[PackageType] = None,
+        version_uuid: UUID | None = None,
+        package_type: PackageType | None = None,
     ) -> PaginatedQueryResult:
         filters = []
         if version_uuid is not None:

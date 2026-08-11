@@ -1,8 +1,8 @@
 import uuid
 
 import pytest
-from pytest import FixtureRequest
 from fastapi.testclient import TestClient
+from pytest import FixtureRequest
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 

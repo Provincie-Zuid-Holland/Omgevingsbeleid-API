@@ -1,5 +1,4 @@
-from datetime import datetime, timezone
-from typing import List, Optional, Set
+from datetime import UTC, datetime
 
 import dso.models as dso_models
 from sqlalchemy.orm import Session
@@ -22,18 +21,18 @@ class PublicationDocumentsProvider:
         self,
         session: Session,
         act_frbr: ActFrbr,
-        all_objects: List[dict],
-        used_objects: List[dict],
-    ) -> List[dict]:
-        used_documents_objects: List[dict] = self._calculate_used_documents(all_objects, used_objects)
-        result: List[dict] = self._resolve_files(
+        all_objects: list[dict],
+        used_objects: list[dict],
+    ) -> list[dict]:
+        used_documents_objects: list[dict] = self._calculate_used_documents(all_objects, used_objects)
+        result: list[dict] = self._resolve_files(
             session,
             act_frbr,
             used_documents_objects,
         )
 
         # @todo: Look for better solution, maybe filename can be auto prefixed?
-        filenames: List[str] = [r["Filename"] for r in result]
+        filenames: list[str] = [r["Filename"] for r in result]
         if len(filenames) != len(set(filenames)):
             raise validation_exception(
                 [
@@ -51,9 +50,9 @@ class PublicationDocumentsProvider:
         self,
         session: Session,
         act_frbr: ActFrbr,
-        documents_objects: List[dict],
-    ) -> List[dict]:
-        result: List[dict] = []
+        documents_objects: list[dict],
+    ) -> list[dict]:
+        result: list[dict] = []
 
         for document in documents_objects:
             code = document["Code"]
@@ -69,7 +68,7 @@ class PublicationDocumentsProvider:
                     ]
                 )
 
-            storage_file: Optional[StorageFileTable] = self._file_repostiory.get_by_uuid(session, file_uuid)
+            storage_file: StorageFileTable | None = self._file_repostiory.get_by_uuid(session, file_uuid)
             if storage_file is None:
                 raise validation_exception(
                     [
@@ -102,7 +101,7 @@ class PublicationDocumentsProvider:
             Work_Date=work_date,
             Work_Other=work_identifier,
             Expression_Language=act_frbr.Expression_Language,
-            Expression_Date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            Expression_Date=datetime.now(UTC).strftime("%Y-%m-%d"),
             Expression_Version=1,
         )
 
@@ -123,12 +122,12 @@ class PublicationDocumentsProvider:
 
         return result
 
-    def _calculate_used_documents(self, all_objects: List[dict], used_objects: List[dict]) -> List[dict]:
-        used_document_codes: Set[str] = set(
+    def _calculate_used_documents(self, all_objects: list[dict], used_objects: list[dict]) -> list[dict]:
+        used_document_codes: set[str] = set(
             [d for o in used_objects if isinstance(o.get("Documents"), list) for d in o.get("Documents", [])]
         )
 
-        used_documents_objects: List[dict] = [
+        used_documents_objects: list[dict] = [
             o for o in all_objects if o["Object_Type"] == "document" and o.get("Code") in used_document_codes
         ]
 

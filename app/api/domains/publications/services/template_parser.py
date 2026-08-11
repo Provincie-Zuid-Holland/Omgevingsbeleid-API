@@ -1,11 +1,10 @@
 from collections import defaultdict
-from typing import List
 
 from jinja2 import Template
 
 
 class TemplateParser:
-    def get_parsed_template(self, text_template: str, objects: List[dict]) -> str:
+    def get_parsed_template(self, text_template: str, objects: list[dict]) -> str:
         aggregated_objects = defaultdict(list)
         for o in objects:
             aggregated_objects[o["Object_Type"]].append(o)

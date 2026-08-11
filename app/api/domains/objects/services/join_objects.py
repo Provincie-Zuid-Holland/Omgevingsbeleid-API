@@ -1,4 +1,3 @@
-from typing import Dict, List, Set
 
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -10,7 +9,7 @@ from app.core.tables.objects import ObjectStaticsTable
 
 
 class JoinObjectsConfig(BaseModel):
-    object_codes: Set[str]
+    object_codes: set[str]
     from_field: str
     to_field: str
 
@@ -26,17 +25,17 @@ class JoinObjectsService:
         self._session: Session = session
         self._config: JoinObjectsConfig = config
 
-    def join_objects(self, rows: List[BaseModel]) -> List[BaseModel]:
+    def join_objects(self, rows: list[BaseModel]) -> list[BaseModel]:
         if len(self._config.object_codes) == 0:
             return rows
 
-        objects: Dict[str, BaseModel] = self._fetch_objects()
+        objects: dict[str, BaseModel] = self._fetch_objects()
 
-        result_rows: List[BaseModel] = []
+        result_rows: list[BaseModel] = []
         for row in rows:
-            requested_codes: List[str] = getattr(row, self._config.from_field)
+            requested_codes: list[str] = getattr(row, self._config.from_field)
 
-            result_for_row: List[BaseModel] = []
+            result_for_row: list[BaseModel] = []
             for object_code in requested_codes:
                 object_in = objects.get(object_code)
                 if not object_in:
@@ -48,7 +47,7 @@ class JoinObjectsService:
 
         return result_rows
 
-    def _fetch_objects(self) -> Dict[str, BaseModel]:
+    def _fetch_objects(self) -> dict[str, BaseModel]:
         stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(self._config.object_codes))
         rows = self._session.execute(stmt).scalars().all()
 

@@ -1,4 +1,5 @@
-from typing import Any, Dict, List
+from typing import Any
+
 from pydantic import BaseModel
 from pydantic import Field as PydanticField
 
@@ -20,8 +21,8 @@ class Field(BaseModel):
     name: str
     type: str
     optional: bool
-    validators: List[dict] = PydanticField(default_factory=list)
-    formatters: List[dict] = PydanticField(default_factory=list)
+    validators: list[dict] = PydanticField(default_factory=list)
+    formatters: list[dict] = PydanticField(default_factory=list)
     default: Any = None
 
     def overwrite(self, overwrites: dict):
@@ -41,12 +42,12 @@ class IntermediateModel(BaseModel):
     id: str
     name: str
     static_only: bool
-    columns: List[str]  # Determines the columns to fetch from the database
-    fields: List[Field]  # Used to generate the pydantic model
-    static_fields: List[Field]  # Fields from the static table
+    columns: list[str]  # Determines the columns to fetch from the database
+    fields: list[Field]  # Used to generate the pydantic model
+    static_fields: list[Field]  # Fields from the static table
     service_config: dict  # Services can add data to fields and columns
     model_validators: dict
-    dependency_model_ids: List[str] = PydanticField(default_factory=list)
+    dependency_model_ids: list[str] = PydanticField(default_factory=list)
 
 
 class EndpointConfig(BaseModel):
@@ -58,20 +59,20 @@ class EndpointConfig(BaseModel):
 class ObjectApi(BaseModel):
     object_id: str
     object_type: str
-    endpoint_configs: List[EndpointConfig]
+    endpoint_configs: list[EndpointConfig]
 
 
 class IntermediateObject(BaseModel):
     id: str
     object_type: str
-    fields: Dict[str, Field]
+    fields: dict[str, Field]
     config: dict
     api: ObjectApi
-    intermediate_models: List[IntermediateModel]
+    intermediate_models: list[IntermediateModel]
 
 
 class BuildData(BaseModel):
     main_config: dict
-    object_configs: List[dict]
-    columns: Dict[str, Column]
-    object_intermediates: List[IntermediateObject]
+    object_configs: list[dict]
+    columns: dict[str, Column]
+    object_intermediates: list[IntermediateObject]

@@ -1,10 +1,10 @@
 from .attachments import (
     DeletePublicationVersionAttachmentEndpointBuilder,
-    UploadPublicationVersionAttachmentEndpointBuilder,
     ListPublicationVersionAttachmentEndpointBuilder,
+    UploadPublicationVersionAttachmentEndpointBuilder,
 )
-from .create_version_pdf_endpoint_builder import CreatePublicationVersionPdfEndpointBuilder
 from .create_version_endpoint_builder import CreatePublicationVersionEndpointBuilder
+from .create_version_pdf_endpoint_builder import CreatePublicationVersionPdfEndpointBuilder
 from .delete_version_endpoint_builder import DeletePublicationVersionEndpointBuilder
 from .detail_version_endpoint_builder import DetailPublicationVersionEndpointBuilder
 from .edit_version_endpoint_builder import EditPublicationVersionEndpointBuilder

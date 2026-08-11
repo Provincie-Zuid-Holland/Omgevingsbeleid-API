@@ -1,5 +1,4 @@
 import logging
-from typing import List, Set
 
 import sqlalchemy
 import sqlalchemy.exc
@@ -18,15 +17,14 @@ from app.core.logging import init_logging, log_message
 
 def _generate_unique_id_function(route: APIRoute) -> str:
     operation_id = route.name
-    if operation_id.endswith("_endpoint"):
-        operation_id = operation_id[:-9]
+    operation_id = operation_id.removesuffix("_endpoint")
     if len(route.tags) == 1:
         operation_id = f"{route.tags[0].lower()}_{operation_id}"
     return operation_id
 
 
 class FastAPIBuilder:
-    def build(self, container: ApiContainer, routes: List[ConfiguredFastapiEndpoint]) -> FastAPI:
+    def build(self, container: ApiContainer, routes: list[ConfiguredFastapiEndpoint]) -> FastAPI:
         init_logging()
 
         app: FastAPI = FastAPI(
@@ -51,7 +49,7 @@ class FastAPIBuilder:
 
         return app
 
-    def _add_routes(self, app: FastAPI, routes: List[ConfiguredFastapiEndpoint]):
+    def _add_routes(self, app: FastAPI, routes: list[ConfiguredFastapiEndpoint]):
         router = APIRouter()
         for endpoint_config in routes:
             route_kwargs = {
@@ -125,7 +123,7 @@ class FastAPIBuilder:
             return await http_exception_handler(request, exception)
 
     def _configure_operation_ids(self, app: FastAPI) -> None:
-        used_operation_ids: Set[str] = set()
+        used_operation_ids: set[str] = set()
 
         for route in app.routes:
             if isinstance(route, APIRoute):

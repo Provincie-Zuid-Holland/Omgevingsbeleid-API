@@ -1,4 +1,4 @@
-from typing import Dict, List, Set
+
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -10,7 +10,7 @@ from app.core.tables.objects import ObjectStaticsTable
 class JoinDocumentsConfig(BaseModel):
     to_field: str
     from_field: str
-    document_codes: Set[str]
+    document_codes: set[str]
 
 
 class JoinDocumentsService:
@@ -22,8 +22,8 @@ class JoinDocumentsService:
         self._session: Session = session
         self._config: JoinDocumentsConfig = config
 
-    def join_documents(self, rows: List[BaseModel]) -> List[BaseModel]:
-        documents_map: Dict[str, BaseModel] = self._fetch_documents()
+    def join_documents(self, rows: list[BaseModel]) -> list[BaseModel]:
+        documents_map: dict[str, BaseModel] = self._fetch_documents()
 
         for row in rows:
             document_codes = getattr(row, self._config.from_field) or []
@@ -32,7 +32,7 @@ class JoinDocumentsService:
 
         return rows
 
-    def _fetch_documents(self) -> Dict[str, BaseModel]:
+    def _fetch_documents(self) -> dict[str, BaseModel]:
         if not self._config.document_codes:
             return {}
 

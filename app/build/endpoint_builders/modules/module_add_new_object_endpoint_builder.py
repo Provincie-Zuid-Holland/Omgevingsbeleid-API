@@ -1,4 +1,4 @@
-from typing import List
+
 from app.api.domains.modules.endpoints.module_add_new_object_endpoint import (
     ModuleAddNewObjectEndpointContext,
     NewObjectStaticResponse,
@@ -27,7 +27,7 @@ class ModuleAddNewObjectEndpointBuilder(EndpointBuilder):
         if "{module_id}" not in path:
             raise RuntimeError("Missing {module_id} argument in path")
 
-        allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
+        allowed_object_types: list[str] = resolver_config.get("allowed_object_types", [])
         if not allowed_object_types:
             raise RuntimeError("Missing allowed_object_types")
 

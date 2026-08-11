@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -17,11 +16,11 @@ class StateLoader:
 
     def load_from_publication_version(
         self, session: Session, publication_version: PublicationVersionTable
-    ) -> Optional[ActiveState]:
+    ) -> ActiveState | None:
         environment: PublicationEnvironmentTable = publication_version.Publication.Environment
         return self.load_from_environment(session, environment)
 
-    def load_from_environment(self, session, environment: PublicationEnvironmentTable) -> Optional[ActiveState]:
+    def load_from_environment(self, session, environment: PublicationEnvironmentTable) -> ActiveState | None:
         if not environment.Has_State:
             return None
 

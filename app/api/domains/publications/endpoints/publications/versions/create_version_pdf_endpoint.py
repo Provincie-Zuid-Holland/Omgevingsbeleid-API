@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 import requests
 from dependency_injector.wiring import Provide, inject
@@ -31,7 +31,7 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationPackagePdf(BaseModel):
-    Mutation: Optional[MutationStrategy] = None
+    Mutation: MutationStrategy | None = None
 
 
 @inject
@@ -114,6 +114,6 @@ def _guard_publication(
     if not version.Publication.Module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
-    errors: List[ErrorDetails] = validator.get_errors(version)
+    errors: list[ErrorDetails] = validator.get_errors(version)
     if len(errors) != 0:
         raise HTTPException(status.HTTP_409_CONFLICT, errors)

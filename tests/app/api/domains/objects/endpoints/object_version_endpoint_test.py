@@ -1,8 +1,7 @@
-from typing import Type
 
-from pydantic import BaseModel
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import BaseModel
 
 from tests.conftest import Context
 from tests.fixtures.internal.spec.objects import BaseObjectSpec, BeleidsdoelSpec, MaatregelSpec
@@ -48,7 +47,7 @@ def test_unknown_uuid_returns_404(client: TestClient):
 
 def test_response_matches_the_full_model_shape(client: TestClient, ctx: Context):
     expected: BeleidsdoelSpec = ctx.f.find(Ref(BeleidsdoelSpec, "beleidsdoel_1_latest_valid")).spec
-    model: Type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_full")
+    model: type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_full")
 
     body: dict = client.get(f"/beleidsdoelen/version/{expected.UUID}").json()
 

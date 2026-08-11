@@ -1,7 +1,9 @@
-from typing import Dict, List, Optional, Sequence, Type
+from collections.abc import Sequence
 
 from sqlalchemy.orm import Session
 
+import tests.fixtures.internal.spec.modules as module_types
+import tests.fixtures.internal.spec.objects as objects_types
 from app.core.db.base import Base
 from tests.fixtures.internal.spec.area_spec import AreaPersistHandler, AreaSpec
 from tests.fixtures.internal.spec.asset_spec import AssetPersistHandler, AssetSpec
@@ -15,24 +17,21 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import (
 )
 from tests.fixtures.internal.spec.object_related_file_spec import ObjectRelatedFilePersistHandler, ObjectRelatedFileSpec
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePersistHandler, StorageFileSpec
-from tests.fixtures.internal.spec.user_spec import UserSpec, UserPersistHandler
-
-import tests.fixtures.internal.spec.objects as objects_types
-import tests.fixtures.internal.spec.modules as module_types
+from tests.fixtures.internal.spec.user_spec import UserPersistHandler, UserSpec
 from tests.fixtures.internal.types import (
     BasePersistHandler,
-    PersistContext,
-    Record,
-    Spec,
     FixtureData,
+    PersistContext,
     PersistRecord,
+    Record,
     Ref,
+    Spec,
 )
 
 
 class PersistService[S: Spec, H: BasePersistHandler]:
     def __init__(self):
-        self._handlers: Dict[Type[S], H] = {
+        self._handlers: dict[type[S], H] = {
             # Base
             UserSpec: UserPersistHandler(),
             AssetSpec: AssetPersistHandler(),
@@ -61,20 +60,20 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPersistHandler(),
         }
 
-    def persist(self, records: List[Record[S]], session: Session) -> FixtureData:
+    def persist(self, records: list[Record[S]], session: Session) -> FixtureData:
         context: PersistContext = PersistContext()
-        table_rows: List[Base] = []
-        result_records: List[PersistRecord] = []
+        table_rows: list[Base] = []
+        result_records: list[PersistRecord] = []
 
         for record in records:
-            handler: Optional[H] = self._handlers.get(type(record.spec))
+            handler: H | None = self._handlers.get(type(record.spec))
             if handler is None:
                 raise RuntimeError(f"No persist handler for {type(record.spec)}")
 
             record_rows: Sequence[Base] = handler.to_rows(record, context)
             table_rows.extend(record_rows)
 
-            fixture_ref: Optional[Ref] = (
+            fixture_ref: Ref | None = (
                 Ref(type(record.spec), record.spec.key) if record.spec.key is not None else None
             )
             result_records.append(

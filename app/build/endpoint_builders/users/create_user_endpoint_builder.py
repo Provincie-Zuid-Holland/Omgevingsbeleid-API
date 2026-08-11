@@ -1,4 +1,4 @@
-from typing import List
+
 from app.api.domains.users.endpoints.create_user_endpoint import (
     CreateUserEndpointContext,
     UserCreateResponse,
@@ -22,7 +22,7 @@ class CreateUserEndpointBuilder(EndpointBuilder):
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
-        allowed_roles: List[str] = resolver_config.get("allowed_roles", [])
+        allowed_roles: list[str] = resolver_config.get("allowed_roles", [])
 
         context = CreateUserEndpointContext(
             allowed_roles=allowed_roles,

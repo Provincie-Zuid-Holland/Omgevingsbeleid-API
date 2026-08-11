@@ -1,4 +1,3 @@
-from typing import List, Optional, Set, Union
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -13,7 +12,7 @@ from app.core.types import DynamicObjectModel, Model
 
 
 class GetImagesConfig(BaseModel):
-    fields: Set[str]
+    fields: set[str]
 
 
 class ImageInserter:
@@ -21,15 +20,15 @@ class ImageInserter:
         self,
         session: Session,
         asset_repository: AssetRepository,
-        event: Union[RetrievedModuleObjectsEvent, RetrievedObjectsEvent],
+        event: RetrievedModuleObjectsEvent | RetrievedObjectsEvent,
         config: GetImagesConfig,
     ):
         self._session: Session = session
         self._asset_repository: AssetRepository = asset_repository
         self._config: GetImagesConfig = config
-        self._rows: List[BaseModel] = event.payload.rows
+        self._rows: list[BaseModel] = event.payload.rows
 
-    def process(self) -> List[BaseModel]:
+    def process(self) -> list[BaseModel]:
         for index, row in enumerate(self._rows):
             for field_name in self._config.fields:
                 if not hasattr(row, field_name):
@@ -44,7 +43,7 @@ class ImageInserter:
                 except ValueError:
                     continue
 
-                asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(self._session, image_uuid)
+                asset: AssetsTable | None = self._asset_repository.get_by_uuid(self._session, image_uuid)
                 if not asset:
                     continue
 
@@ -60,7 +59,7 @@ class ImageInserterFactory:
     def create(
         self,
         session: Session,
-        event: Union[RetrievedModuleObjectsEvent, RetrievedObjectsEvent],
+        event: RetrievedModuleObjectsEvent | RetrievedObjectsEvent,
         config: GetImagesConfig,
     ) -> ImageInserter:
         return ImageInserter(
@@ -77,8 +76,8 @@ class GetImagesForModuleListener(ApiListener[RetrievedModuleObjectsEvent]):
 
     def handle_event(
         self, session: Session, event: RetrievedModuleObjectsEvent
-    ) -> Optional[RetrievedModuleObjectsEvent]:
-        config: Optional[GetImagesConfig] = self._collect_config(event.context.response_model)
+    ) -> RetrievedModuleObjectsEvent | None:
+        config: GetImagesConfig | None = self._collect_config(event.context.response_model)
         if not config:
             return event
         if not config.fields:
@@ -90,14 +89,14 @@ class GetImagesForModuleListener(ApiListener[RetrievedModuleObjectsEvent]):
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, request_model: Model) -> Optional[GetImagesConfig]:
+    def _collect_config(self, request_model: Model) -> GetImagesConfig | None:
         if not isinstance(request_model, DynamicObjectModel):
             return None
         if "get_image" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("get_image", {})
-        fields: List[str] = []
+        fields: list[str] = []
         for field in config_dict.get("fields", []):
             if not isinstance(field, str):
                 raise RuntimeError("Invalid get_image config, expect `fields` to be a list of strings")
@@ -113,8 +112,8 @@ class GetImagesForObjectListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: ImageInserterFactory):
         self._service_factory: ImageInserterFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> Optional[RetrievedObjectsEvent]:
-        config: Optional[GetImagesConfig] = self._collect_config(event.context.response_model)
+    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+        config: GetImagesConfig | None = self._collect_config(event.context.response_model)
         if not config:
             return event
         if not config.fields:
@@ -126,14 +125,14 @@ class GetImagesForObjectListener(ApiListener[RetrievedObjectsEvent]):
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, request_model: Model) -> Optional[GetImagesConfig]:
+    def _collect_config(self, request_model: Model) -> GetImagesConfig | None:
         if not isinstance(request_model, DynamicObjectModel):
             return None
         if "get_image" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("get_image", {})
-        fields: List[str] = []
+        fields: list[str] = []
         for field in config_dict.get("fields", []):
             if not isinstance(field, str):
                 raise RuntimeError("Invalid get_image config, expect `fields` to be a list of strings")

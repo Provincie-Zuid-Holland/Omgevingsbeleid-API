@@ -1,7 +1,6 @@
-from enum import Enum
 import uuid
 from datetime import datetime
-from typing import List, Optional
+from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -33,14 +32,14 @@ class WerkingsgebiedStatics(BaseModel):
 
 
 class Werkingsgebied(BaseModel):
-    ID: Optional[int] = None
+    ID: int | None = None
     UUID: uuid.UUID
     Created_Date: datetime
     Modified_Date: datetime
     Title: str
-    Start_Validity: Optional[datetime] = Field(None)
-    End_Validity: Optional[datetime] = Field(None)
-    Geometry_Hash: Optional[str] = Field(None)
+    Start_Validity: datetime | None = Field(None)
+    End_Validity: datetime | None = Field(None)
+    Geometry_Hash: str | None = Field(None)
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
@@ -78,5 +77,5 @@ class InputGeoWerkingsgebiedDetailed(BaseModel):
     Created_Date: datetime
     Title: str
     Description: str
-    Onderverdelingen: List[InputGeoOnderverdeling]
+    Onderverdelingen: list[InputGeoOnderverdeling]
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

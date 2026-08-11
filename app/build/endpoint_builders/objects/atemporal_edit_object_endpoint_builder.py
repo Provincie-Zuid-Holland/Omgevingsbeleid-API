@@ -1,6 +1,6 @@
-from typing import Type
 
 from pydantic import BaseModel
+
 from app.api.domains.objects.endpoints import AtemporalEditObjectEndpointContext, atemporal_edit_object_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK
@@ -25,7 +25,7 @@ class AtemporalEditObjectEndpointBuilder(EndpointBuilder):
 
         resolver_config: dict = endpoint_config.resolver_data
 
-        request_type: Type[BaseModel] = models_provider.get_pydantic_model(resolver_config["request_model"])
+        request_type: type[BaseModel] = models_provider.get_pydantic_model(resolver_config["request_model"])
 
         context = AtemporalEditObjectEndpointContext(
             object_type=api.object_type,

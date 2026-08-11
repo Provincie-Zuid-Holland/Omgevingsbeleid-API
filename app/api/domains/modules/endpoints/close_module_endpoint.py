@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
@@ -30,7 +30,7 @@ def post_close_module_endpoint(
         [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID],
     )
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     module.Closed = True
     module.Modified_By_UUID = user.UUID
