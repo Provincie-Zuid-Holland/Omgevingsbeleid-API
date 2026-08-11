@@ -41,7 +41,7 @@ def serialize_data(obj) -> Any:
         return {key: serialize_data(value) for key, value in obj.items()}
     elif isinstance(obj, list):
         return [serialize_data(element) for element in obj]
-    elif isinstance(obj, datetime) or isinstance(obj, date):
+    elif isinstance(obj, (datetime, date)):
         return obj.isoformat()
     elif isinstance(obj, uuid.UUID):
         return str(obj)
