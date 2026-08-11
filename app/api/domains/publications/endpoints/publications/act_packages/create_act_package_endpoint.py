@@ -140,9 +140,9 @@ class EndpointHandler:
             )
             return response
 
-        except HTTPException as e:
+        except HTTPException:
             # This is already correctly formatted
-            raise e
+            raise
         except ValidationError as e:
             raise HTTPException(441, e.errors())
         except DSOConfigurationException as e:
@@ -151,10 +151,10 @@ class EndpointHandler:
             raise LoggedHttpException(status_code=443, detail=e.message, log_message=e.internal_error)
         except ValidatePublicationException as e:
             raise LoggedHttpException(status_code=444, detail=e.dump_errors(), log_message=e.dump_errors())
-        except Exception as e:
+        except Exception:
             # We do not know what to except here
             # This will result in a 500 server error
-            raise e
+            raise
 
     def _guard_validate_package_type(self):
         match self._object_in.Package_Type:

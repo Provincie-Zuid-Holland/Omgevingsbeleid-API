@@ -121,8 +121,8 @@ class EndpointHandler:
             )
             return response
 
-        except Exception as e:
-            raise e
+        except Exception:
+            raise
 
     def _guard_validate_package_type(self):
         match self._object_in.Package_Type:

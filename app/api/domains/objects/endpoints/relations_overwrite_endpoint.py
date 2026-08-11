@@ -44,9 +44,9 @@ class EndpointHandler:
             self._session.commit()
 
             return ResponseOK(message="OK")
-        except Exception as e:
+        except Exception:
             self._session.rollback()
-            raise e
+            raise
 
     def _guard_invalid_relations(self):
         for relation in self._overwrite_list:

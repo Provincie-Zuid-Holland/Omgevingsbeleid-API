@@ -101,6 +101,6 @@ def atemporal_create_object_endpoint(
 
         response: BaseModel = context.response_type.model_validate(new_object)
         return response
-    except Exception as e:
+    except Exception:
         session.rollback()
-        raise e
+        raise

@@ -39,5 +39,5 @@ class AssetRemoveTransparency:
             meta["size"] = len(rgb_image_arr)
 
             return new_content, meta
-        except Exception as e:
-            raise e
+        except Exception:
+            raise
