@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, ClassVar
 
 from sqlalchemy import JSON, DateTime, Integer, String, Unicode, Uuid
 from sqlalchemy.orm import mapped_column
@@ -12,7 +12,7 @@ from app.core.types import Column
 
 
 class TablesBuilder:
-    COLUMN_TYPE_MAP: dict[str, Any] = {
+    COLUMN_TYPE_MAP: ClassVar[dict[str, Any]] = {
         "int": Integer,
         "str": Unicode,
         "str_25": Unicode(25),
