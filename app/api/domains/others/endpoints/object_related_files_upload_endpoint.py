@@ -127,7 +127,7 @@ def post_object_related_files_upload_endpoint(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object niet gevonden")
 
     permission_service.guard_valid_user(
-        Permissions.can_create_object_related_file,
+        Permissions.object_related_files_can_create_object_related_file,
         user,
         [
             object_static.Owner_1_UUID,
