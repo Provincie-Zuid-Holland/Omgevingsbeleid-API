@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Any
 
 from fastapi import UploadFile
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class StorageFileBasic(BaseModel):
@@ -84,19 +84,8 @@ class SearchConfig(ValidSearchConfig):
     pass
 
 
-class SearchObject[TModel: BaseModel](ValidSearchObject[TModel]):
-    Module_ID: int | None = None
-    Model: TModel
-
-    model_config = ConfigDict(from_attributes=True, title="SearchObject")
-
-
 class SearchRequestData(BaseModel):
     Object_Types: list[str] | None = None
-
-
-class SearchRequestDataWithLike(SearchRequestData):
-    Like: bool = Field(False)
 
 
 class ObjectRelatedFileResponse(BaseModel):

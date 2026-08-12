@@ -409,15 +409,15 @@ class ModuleObjectRepository(BaseRepository):
 
         # Module objects
         # @note: Objects set to be terminated by the module should not be allowed to be used
-        #   Because they wont exist anymore when the module is completed
+        #   Because they won't exist anymore when the module is completed
         module_codes = (
             select(
                 ModuleObjectContextTable.Code,
                 literal(1).label("Priority"),
                 case(
-                    # To be clear; we return the row here with Usable = 0 when the object is terminated
-                    # This will force this record to be picked in the merge/group below
-                    # This allows us to not allow this code
+                    # To be clear: we return the row here with Usable = 0 when the object is terminated
+                    # This will force this record to be picked in the merge/group step below
+                    # This allows us to reject this code
                     (ModuleObjectContextTable.Action == ModuleObjectActionFull.Terminate.value, 0),
                     else_=1,
                 ).label("Usable"),

@@ -84,7 +84,7 @@ class ModuleAddNewObjectService:
 
             return NewObjectStaticResponse.model_validate(object_static)
         except Exception:
-            self._session.rollback
+            self._session.rollback()
             raise
 
     def _create_new_object_static(self) -> ObjectStaticsTable:

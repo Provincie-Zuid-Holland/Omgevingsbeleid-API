@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from copy import deepcopy
 from typing import Any
 
@@ -100,7 +99,7 @@ class ObjectIntermediateBuilder:
         for model_id, model_config in models_config.items():
             name: str = model_config["name"]
             static_only: bool = model_config.get("static_only", False)
-            model_columns: list[str] = []
+            model_columns: list[Column] = []
             fields: list[Field] = []
             static_fields: list[Field] = []
 
@@ -114,7 +113,7 @@ class ObjectIntermediateBuilder:
                 else:
                     fields.append(field)
 
-                model_columns.append(field.column)
+                model_columns.append(column)
 
             model_validators_config: list[dict] = model_config.get("model_validators", [])
             model_validators: dict[str, Callable] = self._build_model_validators(model_validators_config)

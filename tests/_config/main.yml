@@ -1,3 +1,12 @@
+
+model_map: &model_map
+  beleidsdoel: beleidsdoel_basic
+  beleidskeuze: beleidskeuze_basic
+  maatregel: maatregel_basic
+  gebiedengroep: gebiedengroep_basic
+  gebied: gebied_basic
+  gebiedsaanwijzing: gebiedsaanwijzing_basic
+
 api:
   routers:
     - prefix: /users
@@ -26,6 +35,15 @@ api:
     - prefix: /storage-files/{file_uuid}/download
       endpoints:
         - resolver: download_storage_file
+    - prefix: /search
+      endpoints:
+        - resolver: search
+          resolver_data:
+            search_columns:
+              - Title
+              - Description
+            model_map: *model_map
+            response_model_name: PagedSearchObjectResponse
     - prefix: /modules
       endpoints:
         - resolver: create_module
