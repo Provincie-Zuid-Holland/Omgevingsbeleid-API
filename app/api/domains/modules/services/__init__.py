@@ -3,6 +3,8 @@ from .manage_object_context_service import ManageObjectContextService
 from .object_provider import ObjectProvider
 from .validate_module_service import (
     AreaDesignationRefCheckRule,
+    CheckEmptyAreaDesignationTextRule,
+    ForbidEmptyHtmlNodesRule,
     ForbiddenHtmlTagsRule,
     ForbidEmptyHtmlNodesRule,
     NewestInputGeoOnderverdelingUsedRule,

@@ -55,6 +55,15 @@ publication_required_object_fields_rule:
     programma_algemeen: programma_module_validate
     beleidsdoel: beleidsdoel_module_validate
 
+check_empty_area_designation_text_rule:
+  fields:
+    - Description
+    - Cause
+    - Provincial_Interest
+    - Explanation
+    - Role
+    - Effect
+
 forbid_empty_html_nodes_rule:
   fields:
     - Description
