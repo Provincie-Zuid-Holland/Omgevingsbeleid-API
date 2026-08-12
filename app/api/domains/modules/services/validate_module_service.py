@@ -466,7 +466,7 @@ class ThemasCheckRule(ValidateModuleRule):
 
 
 class CheckEmptyAreaDesignationTextConfig(BaseModel):
-    fields: List[str]
+    fields: list[str]
 
 
 class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
@@ -476,8 +476,8 @@ class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
             CheckEmptyAreaDesignationTextConfig,
         )
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
-        errors: List[ValidateModuleError] = []
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
             for field_name in self._config.fields:
